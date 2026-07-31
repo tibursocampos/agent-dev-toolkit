@@ -1,0 +1,4 @@
+# Expected optional subfolders under each USnn/ or TSnn/ directory:
+# REFINE/, ANALYSIS/, ARCH/, SEC/, PRD/, PLAN/
+# Create on demand when a skill writes into them.
+# This file is documentation only — not copied into consumer repos automatically.
