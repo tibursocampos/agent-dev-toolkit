@@ -1,0 +1,112 @@
+name: Validate toolkit
+
+on:
+  pull_request:
+    branches: [master, main, develop]
+  push:
+    branches: [master, main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # In-repo core suite only — no sync to USERPROFILE / agent home.
+      # Keyed uninstall asserts are a separate step (they nest validate-agent → validate-core).
+      - name: Run validate-core
+        shell: pwsh
+        run: |
+          ./scripts/validation/validate-core.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Fixture-local keyed uninstall (Claude/Copilot/Codex/OpenCode/Antigravity/Grok).
+      # Not in validate-core: those asserts call validate-agent which re-enters validate-core.
+      - name: Run keyed uninstall asserts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scripts = @(
+            'Assert-ClaudeKeyedUninstall.ps1',
+            'Assert-CopilotKeyedUninstall.ps1',
+            'Assert-CodexKeyedUninstall.ps1',
+            'Assert-OpenCodeKeyedUninstall.ps1',
+            'Assert-AntigravityKeyedUninstall.ps1',
+            'Assert-GrokKeyedUninstall.ps1'
+          )
+          foreach ($script in $scripts) {
+            $path = Join-Path './scripts/validation' $script
+            Write-Host "Running: $script"
+            & $path
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+        working-directory: ${{ github.workspace }}
+
+      # Live-home guard: sync-agent -AllowUserHome forward + Claude/sample uninstall.
+      # Disposable USERPROFILE probes (not TEMP — guard only applies under USERPROFILE).
+      # Cleanup: assert try/finally + registered-probe wipe + orphan prefix sweep; no if: always() needed.
+      - name: Run AllowUserHome forward assert
+        shell: pwsh
+        run: |
+          ./scripts/validation/Assert-SyncAllowUserHomeForward.ps1
+        working-directory: ${{ github.workspace }}
+
+      # Cursor sync+validate against ephemeral copy of in-repo fixture (no ~/.cursor / trust UI).
+      - name: Run Cursor CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-CursorCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Antigravity sync+validate against ephemeral copy of in-repo fixture (no ~/.gemini / trust UI).
+      - name: Run Antigravity CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-AntigravityCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Claude sync+validate against ephemeral copy of in-repo fixture (no Claude profile / trust UI).
+      - name: Run Claude CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-ClaudeCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Codex sync+validate against ephemeral copy of in-repo fixture (no /hooks trust UI).
+      - name: Run Codex CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-CodexCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Copilot Mode user + Mode repo against in-repo fixtures (no Copilot profile).
+      - name: Run Copilot CI smoke suite
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-CopilotCiSmokeSuite.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # OpenCode sync+validate against ephemeral copy of in-repo fixture (no ~/.config/opencode).
+      - name: Run OpenCode CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-OpenCodeCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Grok sync+validate against ephemeral copy of in-repo fixture (no ~/.grok / trust UI).
+      - name: Run Grok CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-GrokCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # ZCode ADE sync+validate against in-repo fixture (no ~/.zcode / ADE UI).
+      - name: Run ZCode CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-ZCodeCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}

@@ -1,0 +1,21 @@
+name: Enforce release source
+
+on:
+  pull_request:
+    branches: [master, main]
+
+permissions: {}
+
+jobs:
+  release-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require head branch develop
+        shell: bash
+        run: |
+          head_ref="${{ github.head_ref }}"
+          if [[ "$head_ref" != "develop" ]]; then
+            echo "PRs into master/main must come from develop (got: $head_ref)"
+            exit 1
+          fi
+          echo "OK: head is develop"
