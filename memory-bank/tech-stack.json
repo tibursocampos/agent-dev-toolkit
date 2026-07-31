@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "repo": "agent-dev-toolkit",
+  "generated_at": "2026-07-31T23:38:19Z",
+  "languages": ["PowerShell", "Markdown"],
+  "frameworks": [],
+  "package_managers": [],
+  "test_runners": [
+    "scripts/validation/Assert-*.ps1",
+    "scripts/validation/validate-core.ps1",
+    "scripts/validation/validate-skill-contracts.ps1",
+    "scripts/validation/Invoke-*CiSmoke.ps1",
+    "scripts/validation/Assert-SyncAllowUserHomeForward.ps1",
+    "scripts/validation/Assert-ManagedSkillsPathSafety.ps1",
+    "scripts/validation/Assert-UninstallPathSafety.ps1",
+    "scripts/validation/Assert-InstallRootSafety.ps1",
+    "scripts/validation/Assert-NoFeaturesDocLinks.ps1",
+    ".github/workflows/validate-toolkit.yml"
+  ],
+  "entry_points": [
+    "scripts/toolkit.ps1",
+    "scripts/sync-agent.ps1",
+    "scripts/validate-agent.ps1",
+    "scripts/validation/validate-core.ps1"
+  ],
+  "signals": {
+    "files": [
+      "README.md",
+      "SECURITY.md",
+      "CONTRIBUTING.md",
+      ".gitignore",
+      "core/skills/",
+      "core/skills/_shared/agents/SPAWN.md",
+      "core/policy/",
+      "core/router/",
+      "core/sdd/",
+      "adapters/registry.json",
+      "adapters/_contract/",
+      "adapters/cursor/CursorAdapter.ps1",
+      "adapters/cursor/Publish-Cursor*.ps1",
+      "adapters/grok/GrokAdapter.ps1",
+      "adapters/grok/Publish-Grok*.ps1",
+      "adapters/claude/",
+      "adapters/codex/",
+      "adapters/copilot/",
+      "adapters/opencode/",
+      "adapters/zcode/",
+      "adapters/antigravity/",
+      "scripts/_lib/Resolve-InstallRoot.ps1",
+      "scripts/_lib/Copy-ToolkitManagedTree.ps1",
+      "docs/SPAWN.md",
+      "docs/VALIDATION.md",
+      "memory-bank/",
+      ".github/workflows/validate-toolkit.yml",
+      ".github/workflows/enforce-release-source.yml"
+    ],
+    "notes": [
+      "Tier 1 adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode",
+      "36 kebab skills under core/skills/ (+ _shared)",
+      "Cursor + Grok adapters split Claude-style (thin entry + Publish-* / Uninstall-* siblings)",
+      "InstallRoot fail-closed: strip extended (\\\\?\\) and device (\\\\.\\) path prefixes; Initialize-InstallRootForWrite + Confirm; orphan cleanup",
+      "Managed skills prune/copy name containment; uninstall Assert-PathUnderInstallRootForDelete",
+      "Capability subagents: native|none; registry all eight native; Antigravity effective via fail-closed probe",
+      "Keyed uninstall implemented except Cursor + ZCode (fail-closed stubs)",
+      "OpenCode hooks = plugin JS only; CI smoke = filesystem fixture not product runtime",
+      "CI: validate-core + keyed uninstall asserts + Assert-SyncAllowUserHomeForward + 8 agent smokes",
+      "Public docs must not link repo features/ story paths (Assert-NoFeaturesDocLinks)"
+    ]
+  }
+}
