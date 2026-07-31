@@ -1,0 +1,13 @@
+{
+    "description":  "agent-dev-toolkit ZCode ADE hooks (user-level under InstallRoot)",
+    "hooks":  {
+                  "SessionStart":  {
+                                       "matcher":  "startup|clear|compact",
+                                       "hooks":  {
+                                                     "type":  "command",
+                                                     "command":  "echo agent-dev-toolkit-zcode-session-start",
+                                                     "enabled":  true
+                                                 }
+                                   }
+              }
+}

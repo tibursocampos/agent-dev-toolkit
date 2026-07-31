@@ -1,0 +1,18 @@
+{
+  "description": "user custom hooks description",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo zcode-user-custom-stop",
+            "enabled": true
+          }
+        ]
+      }
+    ]
+  },
+  "userMeta": "preserve-hooks-meta"
+}

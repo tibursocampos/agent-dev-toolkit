@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "repo": "{{REPO_NAME}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "languages": [],
+  "frameworks": [],
+  "package_managers": [],
+  "test_runners": [],
+  "entry_points": [],
+  "signals": {
+    "files": [],
+    "notes": []
+  }
+}

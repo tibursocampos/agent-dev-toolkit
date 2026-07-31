@@ -1,0 +1,36 @@
+{
+  "operatorCustomKey": "must-survive-merge",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "alien-notification-hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "stale-user-prompt"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git status)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)"
+    ]
+  }
+}

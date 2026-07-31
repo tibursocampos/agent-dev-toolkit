@@ -1,0 +1,4 @@
+﻿# O2 reuses Classic SDD contracts
+sdd-spec
+sdd-plan
+Must not

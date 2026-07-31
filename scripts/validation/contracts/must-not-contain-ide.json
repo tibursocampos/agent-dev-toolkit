@@ -1,0 +1,27 @@
+{
+  "id": "core-no-single-ide-home-path",
+  "preparedFor": "step-6-merge-into-skill-contracts",
+  "mergedInto": "skill-contracts.json",
+  "description": "Source list for IDE-unique user-profile mustNotContain needles. Merged as top-level mustNotContain in skill-contracts.json (step 6).",
+  "scope": [
+    "core/skills",
+    "core/policy",
+    "core/router",
+    "core/sdd"
+  ],
+  "placeholders": {
+    "TOOLKIT_ROOT": "{{TOOLKIT_ROOT}}",
+    "SDD_ROOT": "{{SDD_ROOT}}",
+    "GUARDRAILS_PATH": "{{GUARDRAILS_PATH}}"
+  },
+  "mustNotContain": [
+    "~/.cursor",
+    "$HOME/.cursor",
+    "$env:USERPROFILE\\.cursor",
+    "%USERPROFILE%\\.cursor"
+  ],
+  "consciousExceptions": [
+    "Brand names Cursor / Antigravity in AI co-author and stealth rules (not filesystem home paths).",
+    "Project-relative .cursor/hooks.json (and similar) documenting third-party Cursor CLI output (e.g. impeccable) — not user-profile install roots."
+  ]
+}
