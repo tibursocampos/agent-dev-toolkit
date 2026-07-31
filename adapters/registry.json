@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "tier": 1,
+  "contractModule": "_contract/AdapterContract.ps1",
+  "agents": [
+    {
+      "id": "cursor",
+      "displayName": "Cursor",
+      "tier": 1,
+      "module": "cursor/CursorAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "sdd": true,
+        "plugin": false,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "antigravity",
+      "displayName": "Antigravity",
+      "tier": 1,
+      "module": "antigravity/AntigravityAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": false,
+        "router": true,
+        "sdd": false,
+        "plugin": true,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "claude",
+      "displayName": "Claude Code",
+      "tier": 1,
+      "module": "claude/ClaudeAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "sdd": false,
+        "plugin": false,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "codex",
+      "displayName": "Codex",
+      "tier": 1,
+      "module": "codex/CodexAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": false,
+        "hooks": true,
+        "router": true,
+        "sdd": false,
+        "plugin": true,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "copilot",
+      "displayName": "GitHub Copilot",
+      "tier": 1,
+      "module": "copilot/CopilotAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": false,
+        "sdd": false,
+        "plugin": false,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "opencode",
+      "displayName": "OpenCode",
+      "tier": 1,
+      "module": "opencode/OpenCodeAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": false,
+        "hooks": true,
+        "router": true,
+        "sdd": false,
+        "plugin": true,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "grok",
+      "displayName": "Grok Build",
+      "tier": 1,
+      "module": "grok/GrokAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "sdd": false,
+        "plugin": false,
+        "subagents": "native"
+      }
+    },
+    {
+      "id": "zcode",
+      "displayName": "ZCode",
+      "tier": 1,
+      "module": "zcode/ZCodeAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": false,
+        "hooks": true,
+        "router": true,
+        "sdd": false,
+        "plugin": false,
+        "subagents": "native"
+      }
+    }
+  ]
+}

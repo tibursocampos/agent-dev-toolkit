@@ -1,0 +1,11 @@
+{
+  "toolkit": "agent-dev-toolkit",
+  "agent": "copilot",
+  "note": "Minimal hooks descriptor for filesystem smoke. Copilot IDE extension runtime and GitHub login are out of scope.",
+  "hooks": [
+    {
+      "name": "toolkit-smoke-marker",
+      "description": "Marks toolkit-managed hooks under InstallRoot/hooks for sync/validate asserts."
+    }
+  ]
+}
