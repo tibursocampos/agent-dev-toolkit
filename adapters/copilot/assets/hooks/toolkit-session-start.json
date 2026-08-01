@@ -1,0 +1,6 @@
+{
+  "name": "toolkit-session-start",
+  "event": "sessionStart",
+  "description": "Filesystem-only smoke hook marker for agent-dev-toolkit Copilot adapter. Does not invoke Copilot extension APIs.",
+  "enabled": true
+}

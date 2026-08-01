@@ -1,0 +1,16 @@
+{
+  "description": "Minimal Codex plugin lifecycle hooks for agent-dev-toolkit (files only; trust via /hooks is manual).",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${PLUGIN_ROOT}/hooks/session_start.ps1\"",
+            "statusMessage": "Loading Agent Dev Toolkit Codex plugin context"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,193 @@
+﻿{
+    "schema_version":  1,
+    "repo":  "agent-dev-toolkit",
+    "generated_at":  "2026-07-31T23:38:19.1957884Z",
+    "stack_hints":  [
+                        "powershell",
+                        "markdown"
+                    ],
+    "skill_count":  36,
+    "assert_script_count":  36,
+    "sources":  [
+                    {
+                        "path":  "README.md",
+                        "last_write_utc":  "2026-07-31T23:09:49.3420216Z",
+                        "length":  6564
+                    },
+                    {
+                        "path":  "SECURITY.md",
+                        "last_write_utc":  "2026-07-31T21:30:42.9675986Z",
+                        "length":  2014
+                    },
+                    {
+                        "path":  "CONTRIBUTING.md",
+                        "last_write_utc":  "2026-07-31T13:15:10.3547680Z",
+                        "length":  2638
+                    },
+                    {
+                        "path":  "LICENSE",
+                        "last_write_utc":  "2026-07-31T02:48:10.1904525Z",
+                        "length":  1092
+                    },
+                    {
+                        "path":  ".gitignore",
+                        "last_write_utc":  "2026-07-31T20:56:09.3268373Z",
+                        "length":  572
+                    },
+                    {
+                        "path":  "adapters/registry.json",
+                        "last_write_utc":  "2026-07-31T20:37:15.4448001Z",
+                        "length":  2911
+                    },
+                    {
+                        "path":  "adapters/_contract/AdapterContract.ps1",
+                        "last_write_utc":  "2026-07-31T22:39:25.9801926Z",
+                        "length":  6744
+                    },
+                    {
+                        "path":  "scripts/toolkit.ps1",
+                        "last_write_utc":  "2026-07-31T23:09:55.2831362Z",
+                        "length":  37854
+                    },
+                    {
+                        "path":  "scripts/sync-agent.ps1",
+                        "last_write_utc":  "2026-07-31T22:55:41.0758495Z",
+                        "length":  7998
+                    },
+                    {
+                        "path":  "scripts/validate-agent.ps1",
+                        "last_write_utc":  "2026-07-31T21:31:54.1873965Z",
+                        "length":  6970
+                    },
+                    {
+                        "path":  "scripts/validation/validate-core.ps1",
+                        "last_write_utc":  "2026-07-31T22:52:59.8663072Z",
+                        "length":  7988
+                    },
+                    {
+                        "path":  "scripts/_lib/Resolve-InstallRoot.ps1",
+                        "last_write_utc":  "2026-07-31T23:07:50.3798608Z",
+                        "length":  13817
+                    },
+                    {
+                        "path":  "scripts/_lib/Copy-ToolkitManagedTree.ps1",
+                        "last_write_utc":  "2026-07-31T23:08:08.5144341Z",
+                        "length":  19609
+                    },
+                    {
+                        "path":  "docs/SPAWN.md",
+                        "last_write_utc":  "2026-07-31T22:52:32.5556778Z",
+                        "length":  5043
+                    },
+                    {
+                        "path":  "docs/VALIDATION.md",
+                        "last_write_utc":  "2026-07-31T23:09:47.9600115Z",
+                        "length":  7035
+                    },
+                    {
+                        "path":  "docs/ADAPTERS.md",
+                        "last_write_utc":  "2026-07-31T22:53:12.0970459Z",
+                        "length":  34023
+                    },
+                    {
+                        "path":  "docs/ARCHITECTURE.md",
+                        "last_write_utc":  "2026-07-31T23:09:50.2954571Z",
+                        "length":  10078
+                    },
+                    {
+                        "path":  "docs/SKILLS.md",
+                        "last_write_utc":  "2026-07-31T22:52:42.7856398Z",
+                        "length":  4784
+                    },
+                    {
+                        "path":  ".github/workflows/validate-toolkit.yml",
+                        "last_write_utc":  "2026-07-31T22:45:54.5078956Z",
+                        "length":  4374
+                    },
+                    {
+                        "path":  ".github/workflows/enforce-release-source.yml",
+                        "last_write_utc":  "2026-07-31T20:38:29.9860237Z",
+                        "length":  500
+                    },
+                    {
+                        "path":  "core/skills/_shared/agents/SPAWN.md",
+                        "last_write_utc":  "2026-07-31T22:52:33.1101556Z",
+                        "length":  5462
+                    },
+                    {
+                        "path":  "core/router/AGENTS.md",
+                        "last_write_utc":  "2026-07-31T17:35:17.0066868Z",
+                        "length":  5253
+                    },
+                    {
+                        "path":  "adapters/codex/CodexAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T17:17:41.6594620Z",
+                        "length":  17827
+                    },
+                    {
+                        "path":  "adapters/copilot/CopilotAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T22:41:51.7396475Z",
+                        "length":  21621
+                    },
+                    {
+                        "path":  "adapters/opencode/OpenCodeAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T21:39:51.8935602Z",
+                        "length":  16343
+                    },
+                    {
+                        "path":  "adapters/zcode/ZCodeAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T22:39:27.2606649Z",
+                        "length":  12340
+                    },
+                    {
+                        "path":  "adapters/antigravity/AntigravityAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T23:09:10.1926079Z",
+                        "length":  41886
+                    },
+                    {
+                        "path":  "adapters/cursor/CursorAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T23:32:11.3874483Z",
+                        "length":  14817
+                    },
+                    {
+                        "path":  "adapters/cursor/Publish-CursorSkills.ps1",
+                        "last_write_utc":  "2026-07-31T23:32:25.0993851Z",
+                        "length":  7941
+                    },
+                    {
+                        "path":  "adapters/cursor/Publish-CursorHooks.ps1",
+                        "last_write_utc":  "2026-07-31T23:32:25.1033858Z",
+                        "length":  18281
+                    },
+                    {
+                        "path":  "adapters/grok/GrokAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T23:27:14.6833168Z",
+                        "length":  12204
+                    },
+                    {
+                        "path":  "adapters/grok/Publish-GrokSkills.ps1",
+                        "last_write_utc":  "2026-07-31T23:27:28.3279068Z",
+                        "length":  9596
+                    },
+                    {
+                        "path":  "adapters/grok/Uninstall-GrokToolkit.ps1",
+                        "last_write_utc":  "2026-07-31T23:26:40.3520069Z",
+                        "length":  6422
+                    },
+                    {
+                        "path":  "adapters/claude/ClaudeAdapter.ps1",
+                        "last_write_utc":  "2026-07-31T20:37:39.9478259Z",
+                        "length":  10620
+                    },
+                    {
+                        "path":  "adapters/opencode/Publish-OpenCodeHooks.ps1",
+                        "last_write_utc":  "2026-07-31T23:19:49.2197401Z",
+                        "length":  9583
+                    },
+                    {
+                        "path":  "adapters/zcode/Publish-ZCodeHooks.ps1",
+                        "last_write_utc":  "2026-07-31T23:19:38.3244895Z",
+                        "length":  12598
+                    }
+                ]
+}

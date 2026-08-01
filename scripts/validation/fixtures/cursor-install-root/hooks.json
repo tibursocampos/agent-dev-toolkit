@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+  "afterFileEdit": [
+  {
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/plan-after-edit.ps1"
+  }
+  ],
+  "preCompact": [
+  {
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-pre-compact.ps1"
+  }
+  ],
+  "beforeSubmitPrompt": [
+  {
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-before-prompt.ps1"
+  },
+  {
+    "command": "powershell -NoProfile -Command Write-Output 'us02-user-custom-hook'"
+  }
+  ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "enabled": false,
+    "events": {
+      "UserPromptSubmit": [
+        {
+          "matcher": "*",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "echo zcode-user-custom-prompt",
+              "enabled": true
+            }
+          ]
+        }
+      ]
+    },
+    "userCustomKey": "preserve-me"
+  },
+  "userTopLevel": "keep-user-top-level"
+}
