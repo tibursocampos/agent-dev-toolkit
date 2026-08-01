@@ -1,0 +1,433 @@
+{
+  "skillsRoot": "core/skills",
+  "mustNotContain": [
+    "~/.cursor",
+    "$HOME/.cursor",
+    "$env:USERPROFILE\\.cursor",
+    "%USERPROFILE%\\.cursor"
+  ],
+  "mustNotContainSource": "must-not-contain-ide.json",
+  "mustNotExistSkills": [
+    {
+      "id": "Should_NotExist_When_NodeDeveloperFolderQueried",
+      "skill": "node-developer"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "o2-reuses-sdd-spec-plan",
+      "skill": "orchestrate-deliver",
+      "files": ["SKILL.md"],
+      "mustContain": ["sdd-spec", "sdd-plan", "Must not"],
+      "mustContainAny": ["No app code", "does not implement application code", "never writes application code"]
+    },
+    {
+      "id": "o3-reuses-sdd-develop",
+      "skill": "orchestrate-develop",
+      "files": ["SKILL.md"],
+      "mustContain": ["sdd-develop", "one PLAN step", "Must not"],
+      "mustContainAny": ["never writes application code", "Parent orchestrator never"]
+    },
+    {
+      "id": "sdd-develop-one-step",
+      "skill": "sdd-develop",
+      "files": ["SKILL.md"],
+      "mustContain": ["one step", "Must not", "STOP - Read before ANY tool call"]
+    },
+    {
+      "id": "commit-no-auto-pr-cli",
+      "skill": "commit",
+      "files": ["SKILL.md"],
+      "mustNotContain": ["gh pr", "gh run"]
+    },
+    {
+      "id": "push-no-gh",
+      "skill": "push",
+      "files": ["SKILL.md"],
+      "mustNotContain": ["gh pr", "gh run"]
+    },
+    {
+      "id": "code-review-no-gh",
+      "skill": "code-review",
+      "files": ["SKILL.md"],
+      "mustNotContain": ["gh pr", "gh run"]
+    },
+    {
+      "id": "code-review-spawn-fallback",
+      "skill": "code-review",
+      "files": ["SKILL.md"],
+      "mustContain": ["SPAWN.md", "fallback", "in-parent"]
+    },
+    {
+      "id": "orchestrate-analyze-spawn-fallback",
+      "skill": "orchestrate-analyze",
+      "files": ["SKILL.md"],
+      "mustContain": ["SPAWN.md", "fallback", "Task"]
+    },
+    {
+      "id": "orchestrate-deliver-spawn-fallback",
+      "skill": "orchestrate-deliver",
+      "files": ["SKILL.md"],
+      "mustContain": ["SPAWN.md", "fallback", "Task"]
+    },
+    {
+      "id": "orchestrate-develop-spawn-fallback",
+      "skill": "orchestrate-develop",
+      "files": ["SKILL.md"],
+      "mustContain": ["SPAWN.md", "fallback", "Task"]
+    },
+    {
+      "id": "forma-a-spec-no-memory-bank-required",
+      "skill": "sdd-spec",
+      "files": ["SKILL.md"],
+      "mustNotContain": ["memory-bank required", "requires memory-bank"]
+    },
+    {
+      "id": "Should_ReferenceFastapiFlaskPytest_When_PythonSkillLoaded",
+      "skill": "python-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "python-guidelines/fastapi.md",
+        "python-guidelines/flask.md",
+        "python-guidelines/pytest.md",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md",
+        "FastAPI-only"
+      ]
+    },
+    {
+      "id": "Should_CoverNodeBackend_When_JavascriptDeveloperLoaded",
+      "skill": "javascript-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "javascript-guidelines/node-backend.md",
+        "Express/Fastify",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md",
+        "node-developer",
+        "dom-patterns.md"
+      ]
+    },
+    {
+      "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
+      "skill": "angular-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md"
+      ]
+    },
+    {
+      "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
+      "skill": "react-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md"
+      ]
+    },
+    {
+      "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
+      "skill": "vue-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md"
+      ]
+    },
+    {
+      "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
+      "skill": "react-native-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "When to prefer SDD instead",
+        "SPAWN.md",
+        "fallback",
+        "in-parent",
+        "developer-common/step-0-context.md",
+        "developer-common/step-0.5-review-guidelines.md",
+        "developer-common/step-3-branching.md",
+        "developer-common/step-3.5-precommit-validation.md",
+        "developer-common/step-4-commits-pr.md",
+        "developer-common/step-7-checklist.md"
+      ]
+    },
+    {
+      "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
+      "skill": "react-native-developer",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "react-native-guidelines/structure-and-navigation.md",
+        "react-native-guidelines/testing.md",
+        "react-native-guidelines/checklist.md",
+        "react-native-guidelines/"
+      ]
+    }
+  ],
+  "mustExistPaths": [
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture-selection.md"
+    },
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture/README.md"
+    },
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture/concentric-dependency.md"
+    },
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture/vertical-slice.md"
+    },
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture/ddd-tactical.md"
+    },
+    {
+      "id": "Should_FindArchitecturePrinciples_When_PackDensified",
+      "path": "core/skills/_shared/code-guidelines/principles/architecture/event-driven.md"
+    },
+    {
+      "id": "Should_FindDotnetArchitectureOverlays_When_PackDensified",
+      "path": "core/skills/_shared/dotnet-guidelines/clean-architecture.md"
+    },
+    {
+      "id": "Should_FindDotnetArchitectureOverlays_When_PackDensified",
+      "path": "core/skills/_shared/dotnet-guidelines/vertical-slice.md"
+    },
+    {
+      "id": "Should_FindDotnetArchitectureOverlays_When_PackDensified",
+      "path": "core/skills/_shared/dotnet-guidelines/ddd-tactical.md"
+    },
+    {
+      "id": "Should_FindDotnetArchitectureOverlays_When_PackDensified",
+      "path": "core/skills/_shared/dotnet-guidelines/event-driven.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/spring-boot-defaults.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/architecture-boundaries.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/architecture/clean-hexagonal.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/architecture/modulith-vertical.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/architecture/ddd-tactical.md"
+    },
+    {
+      "id": "Should_FindJavaGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/java-guidelines/architecture/event-driven.md"
+    },
+    {
+      "id": "Should_FindPythonGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/python-guidelines"
+    },
+    {
+      "id": "Should_FindPythonGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/python-guidelines/fastapi.md"
+    },
+    {
+      "id": "Should_FindPythonGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/python-guidelines/packaging-pyproject.md"
+    },
+    {
+      "id": "Should_FindPythonGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/python-guidelines/pytest.md"
+    },
+    {
+      "id": "Should_FindPythonGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/python-guidelines/architecture.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/node-backend.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/node-security.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/dom-patterns.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/architecture/concentric.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/architecture/vertical-slice.md"
+    },
+    {
+      "id": "Should_FindJavascriptGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/javascript-guidelines/architecture/event-driven.md"
+    },
+    {
+      "id": "Should_FindFrontendGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/frontend-guidelines/frontend-architecture.md"
+    },
+    {
+      "id": "Should_FindReactGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/react-guidelines"
+    },
+    {
+      "id": "Should_FindReactGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/react-guidelines/components-and-state.md"
+    },
+    {
+      "id": "Should_FindReactGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/react-guidelines/hooks-and-effects.md"
+    },
+    {
+      "id": "Should_FindReactGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/react-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
+      "path": "core/skills/_shared/react-native-guidelines"
+    },
+    {
+      "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
+      "path": "core/skills/_shared/react-native-guidelines/structure-and-navigation.md"
+    },
+    {
+      "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
+      "path": "core/skills/_shared/react-native-guidelines/testing.md"
+    },
+    {
+      "id": "Should_FindReactNativeGuidelines_When_RnSkillPresent",
+      "path": "core/skills/_shared/react-native-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindAngularGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/angular-guidelines"
+    },
+    {
+      "id": "Should_FindAngularGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/angular-guidelines/style-and-structure.md"
+    },
+    {
+      "id": "Should_FindAngularGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/angular-guidelines/standalone-and-templates.md"
+    },
+    {
+      "id": "Should_FindAngularGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/angular-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindVueGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/vue-guidelines"
+    },
+    {
+      "id": "Should_FindVueGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/vue-guidelines/composition-and-sfc.md"
+    },
+    {
+      "id": "Should_FindVueGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/vue-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindHtmlCssGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/html-css-guidelines"
+    },
+    {
+      "id": "Should_FindHtmlCssGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/html-css-guidelines/semantic-html.md"
+    },
+    {
+      "id": "Should_FindHtmlCssGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/html-css-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindBlazorGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/blazor-guidelines"
+    },
+    {
+      "id": "Should_FindBlazorGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/blazor-guidelines/blazor-render-modes.md"
+    },
+    {
+      "id": "Should_FindBlazorGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/blazor-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindElectronGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/electron-guidelines"
+    },
+    {
+      "id": "Should_FindElectronGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/electron-guidelines/electron-preload.md"
+    },
+    {
+      "id": "Should_FindElectronGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/electron-guidelines/electron-ipc.md"
+    },
+    {
+      "id": "Should_FindElectronGuidelines_When_PackDensified",
+      "path": "core/skills/_shared/electron-guidelines/checklist.md"
+    }
+  ]
+}

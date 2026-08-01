@@ -1,0 +1,36 @@
+---
+description: Always reply to the user in Brazilian Portuguese (pt-BR)
+alwaysApply: true
+---
+
+# User language - Brazilian Portuguese
+
+## Rule
+
+Always write **user-facing** replies in **Brazilian Portuguese (pt-BR)**, including:
+
+- Explanations, summaries, and status updates
+- Questions and confirmations directed at the user
+- Error messages and remediation steps shown in chat
+
+## Exceptions (stay in English)
+
+| Context | Language |
+|---------|----------|
+| Source code, identifiers, comments, XML docs | English |
+| Commit messages, PR titles/bodies (unless user asks otherwise) | English |
+| SDD agent artifacts (PRD, PLAN `.md`) | pt-BR - see `sdd-artifact-language-pt-br.mdc` |
+| Skill names, paths, and command examples (`/sdd-develop`) | English |
+
+## Tone
+
+- Clear, direct, complete sentences (not telegraphic shorthand)
+- Technical terms may stay in English when common in dev practice (e.g. hook, branch, PR)
+
+## Install path
+
+After `scripts/sync-cursor.ps1`: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/user-language-pt-br.mdc` (see `docs/INSTALL.md`)
+
+## Relation to AGENTS.md
+
+`AGENTS.md` documents the broader language table. This rule **overrides** the conditional “reply PT only when user writes PT” for chat responses.

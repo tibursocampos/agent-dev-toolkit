@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "enabled": true,
+    "timeoutMs": 60000,
+    "maxOutputBytes": 32768,
+    "events": {
+      "SessionStart": {
+        "matcher": "startup|clear|compact",
+        "hooks": {
+          "type": "command",
+          "command": "echo agent-dev-toolkit-zcode-hooks",
+          "enabled": true
+        }
+      }
+    }
+  }
+}

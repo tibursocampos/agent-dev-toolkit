@@ -1,0 +1,24 @@
+﻿# SDD artifacts (local agent workflow - agent-dev-toolkit)
+/features/
+/docs/features/
+/PRD/
+/PLAN/
+/docs/PRD/
+/docs/PLAN/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local fixtures / smoke temp
+/artifacts/
+/tmp/
+scripts/validation/fixtures/install-root/.smoke-harness-marker
+# Ephemeral work roots created by Invoke-*CiSmoke (cleaned after run; ignore if leftover)
+scripts/validation/fixtures/*-ci-smoke/
+scripts/validation/fixtures/copilot-*-ci-smoke/
+scripts/validation/fixtures/install-root-junction

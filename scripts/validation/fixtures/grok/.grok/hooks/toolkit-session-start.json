@@ -1,0 +1,15 @@
+{
+  "description": "agent-dev-toolkit minimal native Grok hooks (docs.x.ai/build/features/hooks). Trust via /hooks-trust or --trust is manual; smoke never writes trusted_folders.toml.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -File .grok/hooks/session_start.ps1"
+          }
+        ]
+      }
+    ]
+  }
+}

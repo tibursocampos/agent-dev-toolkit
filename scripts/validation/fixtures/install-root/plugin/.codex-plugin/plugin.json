@@ -1,0 +1,9 @@
+{
+  "name": "agent-dev-toolkit",
+  "version": "0.1.0",
+  "description": "Agent Dev Toolkit skills packaged as a Codex plugin for fixture and CI smoke.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Dev Toolkit"
+  }
+}

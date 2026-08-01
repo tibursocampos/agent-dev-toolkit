@@ -1,0 +1,4 @@
+﻿# Required markers for sdd-develop
+one step
+Must not
+STOP - Read before ANY tool call

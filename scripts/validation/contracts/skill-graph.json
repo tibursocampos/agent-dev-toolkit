@@ -1,0 +1,30 @@
+{
+  "skillsRoot": "core/skills",
+  "edges": [
+    { "from": "orchestrate-deliver", "to": "sdd-spec", "kind": "calls" },
+    { "from": "orchestrate-deliver", "to": "sdd-plan", "kind": "calls" },
+    { "from": "orchestrate-develop", "to": "sdd-develop", "kind": "calls" },
+    { "from": "orchestrate-analyze", "to": "memory-bank-init", "kind": "handoff" },
+    { "from": "sdd-plan", "to": "sdd-spec", "kind": "requires" },
+    { "from": "sdd-develop", "to": "sdd-plan", "kind": "requires" }
+  ],
+  "forbids": [
+    {
+      "id": "o2-must-not-implement",
+      "skill": "orchestrate-deliver",
+      "file": "SKILL.md",
+      "mustMatch": "Must not",
+      "mustAlsoMatchAny": ["implement", "sdd-develop", "app code", "application code"]
+    },
+    {
+      "id": "o3-parent-no-app-code",
+      "skill": "orchestrate-develop",
+      "file": "SKILL.md",
+      "mustMatch": "Must not",
+      "mustAlsoMatchAny": ["application code", "app code", "multi-step"]
+    }
+  ],
+  "catalogParity": {
+    "skillsMd": "docs/SKILLS.md"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "generated_at": "{{GENERATED_AT}}",
+  "repo_path": "{{REPO_PATH}}",
+  "bank_path": "{{BANK_PATH}}",
+  "stale_days": 90,
+  "lockfiles": [],
+  "manifests": [],
+  "docs": [],
+  "entry_points": [],
+  "stack_hints": [],
+  "notes": []
+}

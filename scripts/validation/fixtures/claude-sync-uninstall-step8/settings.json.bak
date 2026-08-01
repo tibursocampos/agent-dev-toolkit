@@ -1,0 +1,59 @@
+{
+  "operatorCustomKey": "must-survive-merge",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "alien-notification-hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/claude-sync-uninstall-step8/hooks/context-before-prompt.ps1\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/claude-sync-uninstall-step8/hooks/context-pre-compact.ps1\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/claude-sync-uninstall-step8/hooks/plan-after-edit.ps1\""
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(pwsh *)",
+      "Bash(powershell *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)"
+    ]
+  }
+}
