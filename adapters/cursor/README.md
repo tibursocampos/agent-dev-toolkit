@@ -26,7 +26,7 @@ Registry entry remains `adapters/cursor/CursorAdapter.ps1` (thin contract surfac
 | `Publish-CursorRouter.ps1` | `Invoke-CursorPublishRouter` |
 | `Publish-CursorHooks.ps1` | Merge helpers, `Copy-CursorHookScripts`, `Write-CursorUtf8NoBom`, `Invoke-CursorPublishHooks` |
 | `Invoke-CursorSmokeValidate.ps1` | Filesystem smoke helpers + `Invoke-CursorSmokeValidate` |
-| `Uninstall-CursorToolkit.ps1` | Fail-closed stub `Invoke-CursorUninstallToolkit` |
+| `Uninstall-CursorToolkit.ps1` | Keyed `Invoke-CursorUninstallToolkit` |
 
 Public `Publish-Skills` (etc.) in `CursorAdapter.ps1` forward to `Invoke-Cursor*` implementations — same pattern as Claude/Grok.
 
@@ -40,9 +40,10 @@ Non-`Copy-ToolkitManagedTree` writes under InstallRoot are fail-closed via `Asse
 | `rules` | true | `core/policy` → `rules/*.mdc` |
 | `hooks` | true | Scripts under `hooks/` + root `hooks.json` merge |
 | `router` | true | `core/router/AGENTS.md` → `AGENTS.md` |
-| `sdd` | true | `Get-SddRoot` / `-Prepare` sessions + manifest seed |
 | `plugin` | false | — |
 | `subagents` | `native` | Host Task tool; see Spawn section |
+
+SDD runtime (`Get-SddRoot` / `-Prepare`) is prepared on every sync — not a capability flag.
 
 ## Spawn / subagents (honesty)
 
@@ -59,9 +60,9 @@ Skills prefer Task when `subagents=native`; fallback in-parent when Task unavail
 
 `Publish-Hooks` merges `hooks.json` with **Claude-style keyed upsert**: toolkit-owned commands (identity = `hooks/<managed-script>.ps1`) are replaced and prepended; alien commands and alien event keys are preserved. Re-sync does not keep stale toolkit entries solely because the exact `command` string already exists.
 
-## Uninstall
+## Uninstall (keyed)
 
-`Uninstall-Toolkit` is **not implemented** (fail-closed stub — no filesystem writes). Keyed uninstall is implemented on other Tier 1 agents (Claude, Copilot, Codex, OpenCode, Antigravity, Grok).
+Removes only toolkit-managed paths (core skill ids, core policy → `rules/*.mdc`, toolkit hook scripts, `AGENTS.md`) and reverse-merges `hooks.json` (drop toolkit-managed handlers by strict `-File` command identity; keep aliens and alien top-level keys). Publish merge may match broader `hooks/<script>` paths; uninstall matching is strict `-File`. Preserves alien skills/rules/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
 
 ## Official docs (Cursor)
 

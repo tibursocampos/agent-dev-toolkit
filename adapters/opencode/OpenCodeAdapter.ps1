@@ -6,14 +6,15 @@
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `opencode`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Router /
-  Publish-Hooks / Invoke-SmokeValidate are implemented (optional InstallRoot
-  maps skills/, AGENTS.md, and plugins/ under a fixture that models
-  ~/.config/opencode). Publish-Policy is a documented no-op (rules=false).
+  Publish-Hooks / Get-SddRoot (-Prepare) / Invoke-SmokeValidate are implemented
+  (optional InstallRoot maps skills/, AGENTS.md, and plugins/ under a fixture that
+  models ~/.config/opencode). Publish-Policy is a documented no-op (rules=false).
   Uninstall-Toolkit removes keyed toolkit artifacts only (skills matching
   core/skills, AGENTS.md, Decision A plugin marker) - RN07 no wholesale wipe.
   Does not write under USERPROFILE without -AllowUserHome. Hooks are plugin-JS
   only (HooksSemantics = plugin-only; MVP Decision A publishes a minimal JS
   marker under plugins/). Smoke is filesystem-only (no OpenCode runtime; no .ps1 hooks).
+  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 
 .NOTES
   Capabilities:
@@ -22,7 +23,7 @@
   - hooks = true with HooksSemantics plugin-only (RN03: no shell/PS1 hooks)
   - plugin = true (Decision A: Publish-Hooks copies assets/plugins/*.js)
   - rules = false (no dedicated OpenCode policy surface; Publish-Policy no-op)
-  - sdd = false
+  - SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag)
 
   Official layout (https://opencode.ai/docs/config/, /docs/plugins/):
   - Config root: ~/.config/opencode
@@ -35,6 +36,9 @@ $script:OpenCodeAdapterDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:OpenCodeAdapterDirectory)) {
     $script:OpenCodeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+
+$script:OpenCodeAdapterLibDir = Join-Path $script:OpenCodeAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:OpenCodeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:OpenCodeAdapterDirectory 'OpenCodePathConstants.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeSkills.ps1')
@@ -64,7 +68,6 @@ $script:OpenCodeAdapterCapabilityFlags = [ordered]@{
     rules     = $false
     hooks     = $true
     router    = $true
-    sdd       = $false
     plugin    = $true
     subagents = $script:OpenCodeAdapterSubagentsNative
 }
@@ -91,8 +94,11 @@ $script:OpenCodeAdapterMessage = @{
     NotImplemented            = '{0} is not implemented yet for the OpenCode adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired           = 'AgentId is required.'
     InstallRootRequired       = 'InstallRoot is required.'
-    CapabilitiesReady         = 'OpenCode adapter capabilities reported (skills/router/hooks=plugin-only Decision A JS plugin; plugin=true). Smoke validates files only (no OpenCode runtime; no shell hooks).'
+    CapabilitiesReady         = 'OpenCode adapter capabilities reported (skills/router/hooks=plugin-only Decision A JS plugin; plugin=true). Get-SddRoot (-Prepare) and smoke ready; smoke validates files only (no OpenCode runtime; no shell hooks). SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
+    SddRootResolved           = 'OpenCode SDD root resolved at {0}.'
+    SddRootPrepared           = 'Prepared OpenCode SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
+    SddRootWouldPrepare       = 'WhatIf: would prepare OpenCode SDD root at {0} (sessions + seed manifest.json if missing).'
 }
 
 function New-OpenCodeAdapterNotImplementedResult {
@@ -351,19 +357,36 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for OpenCode MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $Prepare,
+
+        [Parameter()]
+        [switch] $AllowUserHome,
+
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:OpenCodeAdapterMessage.InstallRootRequired
     }
 
-    return New-OpenCodeAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-OpenCodeAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:OpenCodeAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:OpenCodeAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:OpenCodeAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

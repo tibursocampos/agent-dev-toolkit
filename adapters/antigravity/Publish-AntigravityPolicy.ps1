@@ -33,7 +33,7 @@ function Get-AntigravityPlaceholderMap {
         Join-Path $InstallRoot $script:AntigravityPathConstant.ConfigDirectoryName
     )
     $sddRoot = Get-AntigravityNormalizedForwardSlashPath -Path (
-        Join-Path (Join-Path $InstallRoot $script:AntigravityPathConstant.ConfigDirectoryName) $script:AntigravityPathConstant.SddDirectoryName
+        Join-Path $InstallRoot $script:AntigravityPathConstant.SddDirectoryName
     )
     $guardrailsPath = Get-AntigravityNormalizedForwardSlashPath -Path (
         Join-Path $InstallRoot ($script:AntigravityPathConstant.OfficialGuardrailsRelativePath -replace '/', $sep)

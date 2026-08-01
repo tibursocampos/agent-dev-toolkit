@@ -5,9 +5,9 @@
 
 .DESCRIPTION
   Resolves -Agent against adapters/registry.json, loads the adapter module, and
-  invokes Publish-Skills / Publish-Policy / Publish-Router / Publish-Hooks.
-  When Get-Capabilities reports sdd=true, also runs Get-SddRoot -Prepare
-  (sessions directory + seed manifest.json if missing).
+  invokes Publish-Skills / Publish-Policy / Publish-Router / Publish-Hooks, then
+  always runs Get-SddRoot -Prepare (sessions directory + seed manifest.json if
+  missing; never overwrites existing manifest or clears sessions).
   Stub modules return Implemented = false; sync exits non-zero (TE04) without
   writing under USERPROFILE.
 
@@ -198,45 +198,37 @@ try {
         Write-SyncPublishOk -CommandName $commandName -Result $result
     }
 
-    $capabilities = Get-Capabilities -AgentId $resolved.AgentId
-    $sddCapable = $false
-    if ($null -ne $capabilities -and $null -ne $capabilities.Capabilities -and $capabilities.Capabilities.PSObject.Properties.Name -contains 'sdd') {
-        $sddCapable = [bool]$capabilities.Capabilities.sdd
+    if (-not $WhatIf.IsPresent) {
+        $resolvedInstallRoot = Confirm-InstallRootAllowsWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    }
+    $sddArgs = @{
+        InstallRoot = $resolvedInstallRoot
+        Prepare     = $true
+    }
+    if ($WhatIf.IsPresent) {
+        $sddArgs['WhatIf'] = $true
+    }
+    if ($AllowUserHome.IsPresent) {
+        $sddArgs[$script:ToolkitConstant.AllowUserHomeParameterName] = $true
     }
 
-    if ($sddCapable) {
-        if (-not $WhatIf.IsPresent) {
-            $resolvedInstallRoot = Confirm-InstallRootAllowsWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-        }
-        $sddArgs = @{
-            InstallRoot = $resolvedInstallRoot
-            Prepare     = $true
-        }
-        if ($WhatIf.IsPresent) {
-            $sddArgs['WhatIf'] = $true
-        }
-        if ($AllowUserHome.IsPresent) {
-            $sddArgs[$script:ToolkitConstant.AllowUserHomeParameterName] = $true
-        }
-
-        $sddResult = Get-SddRoot @sddArgs
-        if ($null -eq $sddResult) {
-            Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, 'Get-SddRoot -Prepare returned no result')
-            exit 1
-        }
-        if ($sddResult.PSObject.Properties.Name -contains 'Implemented' -and $sddResult.Implemented -eq $false) {
-            $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
-            Write-SyncError -Message ($script:ToolkitMessage.AdapterNotImplemented -f $resolved.AgentId, $detail)
-            exit 1
-        }
-        if ($sddResult.PSObject.Properties.Name -contains 'Success' -and $sddResult.Success -eq $false) {
-            $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
-            Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, $detail)
-            exit 1
-        }
-
-        Write-SyncPublishOk -CommandName 'Get-SddRoot -Prepare' -Result $sddResult
+    $sddResult = Get-SddRoot @sddArgs
+    if ($null -eq $sddResult) {
+        Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, 'Get-SddRoot -Prepare returned no result')
+        exit 1
     }
+    if ($sddResult.PSObject.Properties.Name -contains 'Implemented' -and $sddResult.Implemented -eq $false) {
+        $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
+        Write-SyncError -Message ($script:ToolkitMessage.AdapterNotImplemented -f $resolved.AgentId, $detail)
+        exit 1
+    }
+    if ($sddResult.PSObject.Properties.Name -contains 'Success' -and $sddResult.Success -eq $false) {
+        $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
+        Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, $detail)
+        exit 1
+    }
+
+    Write-SyncPublishOk -CommandName 'Get-SddRoot -Prepare' -Result $sddResult
 
     Write-Host 'Sync completed.' -ForegroundColor Green
     exit 0

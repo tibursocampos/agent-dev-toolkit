@@ -22,3 +22,78 @@ scripts/validation/fixtures/install-root/.smoke-harness-marker
 scripts/validation/fixtures/*-ci-smoke/
 scripts/validation/fixtures/copilot-*-ci-smoke/
 scripts/validation/fixtures/install-root-junction
+
+# Validation fixtures - local sync/uninstall residue (keep local OK; do not commit)
+# Tracked seeds remain in git: merge JSON (settings.json, hooks.json), .gitkeep,
+# .toolkit-managed-skills.json, README, and claude-sync-uninstall/*.bak test fixtures.
+
+# Merge backups from sync-agent (not claude-sync-uninstall* intentional .bak seeds)
+scripts/validation/fixtures/**/*.bak
+scripts/validation/fixtures/**/*.bak.*
+!scripts/validation/fixtures/claude-sync-uninstall/**/*.bak
+!scripts/validation/fixtures/claude-sync-uninstall/**/*.bak.*
+!scripts/validation/fixtures/claude-sync-uninstall-step8/**/*.bak
+!scripts/validation/fixtures/claude-sync-uninstall-step8/**/*.bak.*
+
+# SDD runtime (sessions + generated content; seed manifest.json only where tracked)
+scripts/validation/fixtures/**/sdd/sessions/
+scripts/validation/fixtures/**/sdd/**
+!scripts/validation/fixtures/cursor-install-root/sdd/manifest.json
+!scripts/validation/fixtures/install-root/sdd/manifest.json
+
+# Skill trees republished by sync-agent (.gitkeep seeds negated; managed-skills list per fixture)
+scripts/validation/fixtures/**/skills/**
+!scripts/validation/fixtures/**/skills/.gitkeep
+!scripts/validation/fixtures/claude-sync-uninstall/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/codex/plugin/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/copilot/repo/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/copilot/user/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/cursor-install-root/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/grok/.grok/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/opencode/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/zcode-install-root/skills/.toolkit-managed-skills.json
+scripts/validation/fixtures/**/config/skills/**
+scripts/validation/fixtures/**/config/skills/.gitkeep
+scripts/validation/fixtures/**/config/skills/.toolkit-managed-skills.json
+scripts/validation/fixtures/**/.grok/skills/**
+!scripts/validation/fixtures/**/.grok/skills/.gitkeep
+scripts/validation/fixtures/**/.agents/skills/**
+!scripts/validation/fixtures/**/.agents/skills/.gitkeep
+scripts/validation/fixtures/**/plugin/skills/**
+!scripts/validation/fixtures/**/plugin/skills/.gitkeep
+
+# Minimal-seed fixtures: other publish surfaces from local sync
+scripts/validation/fixtures/claude/CLAUDE.md
+scripts/validation/fixtures/claude/hooks/
+scripts/validation/fixtures/claude/rules/
+scripts/validation/fixtures/copilot/user/copilot-instructions.md
+scripts/validation/fixtures/copilot/user/hooks/**/*
+!scripts/validation/fixtures/copilot/user/hooks/.gitkeep
+scripts/validation/fixtures/copilot/user/instructions/**/*
+!scripts/validation/fixtures/copilot/user/instructions/.gitkeep
+scripts/validation/fixtures/copilot/repo/copilot-instructions.md
+scripts/validation/fixtures/copilot/repo/hooks/**/*
+!scripts/validation/fixtures/copilot/repo/hooks/.gitkeep
+scripts/validation/fixtures/copilot/repo/instructions/**/*
+!scripts/validation/fixtures/copilot/repo/instructions/.gitkeep
+
+# Publish inventory + ephemeral assert work roots (local only)
+scripts/validation/fixtures/**/.toolkit-managed-publish.json
+scripts/validation/fixtures/**/.clear-skills-*/
+scripts/validation/fixtures/claude-merge-harness/
+scripts/validation/fixtures/claude-sync-uninstall-test-manual/
+scripts/validation/fixtures/claude-sync-uninstall-work/
+scripts/validation/fixtures/cursor-keyed-uninstall-work/
+scripts/validation/fixtures/zcode-keyed-uninstall-work/
+
+# Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
+scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md
+scripts/validation/fixtures/claude-sync-uninstall/hooks/_hook-common.ps1
+scripts/validation/fixtures/claude-sync-uninstall/hooks/context-before-prompt.ps1
+scripts/validation/fixtures/claude-sync-uninstall/hooks/context-pre-compact.ps1
+scripts/validation/fixtures/claude-sync-uninstall/hooks/plan-after-edit.ps1
+scripts/validation/fixtures/claude-sync-uninstall/rules/*.md
+!scripts/validation/fixtures/claude-sync-uninstall/rules/user-alien-rule-.md
+# Timestamped merge backups beyond the intentional tracked seed
+scripts/validation/fixtures/claude-sync-uninstall/settings.json.bak.*
+!scripts/validation/fixtures/claude-sync-uninstall/settings.json.bak.20260731194625

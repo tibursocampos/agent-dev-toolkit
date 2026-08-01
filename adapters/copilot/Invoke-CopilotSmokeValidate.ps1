@@ -66,8 +66,15 @@ function New-CopilotSmokeFailureResult {
         [string] $Message,
 
         [Parameter()]
+        [hashtable] $Checks = $null,
+
+        [Parameter()]
         [int] $ExitCode = 1
     )
+
+    if ($null -eq $Checks) {
+        $Checks = [ordered]@{ SddLayoutPresent = $false }
+    }
 
     return [PSCustomObject]@{
         Success                 = $false
@@ -78,7 +85,7 @@ function New-CopilotSmokeFailureResult {
         Message                 = $Message
         ExitCode                = $ExitCode
         SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
-        Checks                  = @()
+        Checks                  = [PSCustomObject]$Checks
     }
 }
 
@@ -132,64 +139,67 @@ function Invoke-CopilotSmokeValidateCore {
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-    $checks = New-Object System.Collections.Generic.List[string]
+    $completed = New-Object System.Collections.Generic.List[string]
+    $checks = [ordered]@{
+        SddLayoutPresent = $false
+    }
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.SkillsDirectoryName
     if (-not (Test-Path -LiteralPath $skillsRoot)) {
-        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $skillsRoot)
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $skillsRoot)
     }
-    $checks.Add('skills-root')
+    $completed.Add('skills-root')
 
     foreach ($skillFolder in $script:CopilotPathConstant.SmokeExpectedSkillFolders) {
         $skillDir = Join-Path $skillsRoot $skillFolder
         $manifest = Join-Path $skillDir $script:CopilotPathConstant.SkillManifestFileName
         if (-not (Test-Path -LiteralPath $manifest)) {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $manifest)
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $manifest)
         }
         $manifestText = [System.IO.File]::ReadAllText($manifest)
         if ([string]::IsNullOrWhiteSpace($manifestText)) {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.SkillManifestEmpty -f $normalizedMode, $manifest)
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.SkillManifestEmpty -f $normalizedMode, $manifest)
         }
-        $checks.Add(('skill:{0}' -f $skillFolder))
+        $completed.Add(('skill:{0}' -f $skillFolder))
     }
 
     $sharedSkillsDir = Join-Path $skillsRoot $script:CopilotPathConstant.SmokeExpectedSharedSkillsFolder
     if (-not (Test-Path -LiteralPath $sharedSkillsDir)) {
-        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $sharedSkillsDir)
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $sharedSkillsDir)
     }
-    $checks.Add('skill:_shared')
+    $completed.Add('skill:_shared')
 
     $copilotInstructions = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CopilotInstructionsFileName
     if (-not (Test-Path -LiteralPath $copilotInstructions)) {
-        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $copilotInstructions)
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $copilotInstructions)
     }
-    $checks.Add('copilot-instructions.md')
+    $completed.Add('copilot-instructions.md')
 
     $instructionsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.InstructionsDirectoryName
     if (-not (Test-Path -LiteralPath $instructionsRoot)) {
-        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $instructionsRoot)
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $instructionsRoot)
     }
 
     foreach ($baseName in $script:CopilotPathConstant.SmokeExpectedInstructionBases) {
         $instructionPath = Join-Path $instructionsRoot ($baseName + $script:CopilotPathConstant.InstructionsFileExtension)
         if (-not (Test-Path -LiteralPath $instructionPath)) {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $instructionPath)
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $instructionPath)
         }
-        $checks.Add(('instruction:{0}' -f $baseName))
+        $completed.Add(('instruction:{0}' -f $baseName))
     }
 
     if (Test-CopilotSmokeHooksCapable) {
         $hooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName
         if (-not (Test-Path -LiteralPath $hooksRoot)) {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.HooksMissing -f $normalizedMode, $hooksRoot)
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksMissing -f $normalizedMode, $hooksRoot)
         }
 
         foreach ($hookFileName in $script:CopilotPathConstant.SmokeExpectedHookFileNames) {
             $hookPath = Join-Path $hooksRoot $hookFileName
             if (-not (Test-Path -LiteralPath $hookPath)) {
-                return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.HooksMissing -f $normalizedMode, $hookPath)
+                return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksMissing -f $normalizedMode, $hookPath)
             }
-            $checks.Add(('hook:{0}' -f $hookFileName))
+            $completed.Add(('hook:{0}' -f $hookFileName))
         }
 
         $hooksJsonPath = Join-Path $hooksRoot 'hooks.json'
@@ -197,18 +207,27 @@ function Invoke-CopilotSmokeValidateCore {
             $null = Get-Content -LiteralPath $hooksJsonPath -Raw | ConvertFrom-Json
         }
         catch {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, $hooksJsonPath)
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, $hooksJsonPath)
         }
-        $checks.Add('hooks-json-schema')
+        $completed.Add('hooks-json-schema')
     }
 
     try {
         Assert-CopilotSmokeNoExcludedIdePaths -InstallRoot $resolvedInstallRoot -Mode $normalizedMode
-        $checks.Add('no-excluded-ide-paths')
+        $completed.Add('no-excluded-ide-paths')
     }
     catch {
-        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Message $_.Exception.Message
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message $_.Exception.Message
     }
+
+    $sddMissing = [System.Collections.Generic.List[string]]::new()
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $sddMissing
+    $checks.SddLayoutPresent = $sddOk
+    if (-not $sddOk) {
+        $listText = ($sddMissing.ToArray() -join ', ')
+        return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $listText)
+    }
+    $completed.Add('sdd-layout')
 
     return [PSCustomObject]@{
         Success                 = $true
@@ -219,6 +238,7 @@ function Invoke-CopilotSmokeValidateCore {
         Message                 = ($script:CopilotSmokeMessage.Passed -f $normalizedMode, $resolvedInstallRoot)
         ExitCode                = 0
         SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
-        Checks                  = @($checks)
+        Checks                  = [PSCustomObject]$checks
+        CompletedArtifacts      = @($completed)
     }
 }

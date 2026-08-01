@@ -148,21 +148,39 @@ function Invoke-ZCodeSmokeValidate {
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    if (-not (Get-Command -Name Test-ToolkitSddLayoutPresent -ErrorAction SilentlyContinue)) {
+        . (Join-Path $libDir 'Initialize-SddRootLayout.ps1')
+    }
+
     $layout = Get-ZCodeSmokeLayoutGaps -InstallRoot $resolvedInstallRoot
-    $gaps = @($layout.Gaps)
+    $gaps = [System.Collections.Generic.List[string]]::new()
+    foreach ($gap in @($layout.Gaps)) {
+        $gaps.Add($gap) | Out-Null
+    }
+
+    $sddMissing = [System.Collections.Generic.List[string]]::new()
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $sddMissing
+    foreach ($rel in $sddMissing) {
+        $gaps.Add($rel) | Out-Null
+    }
+
+    $checks = [ordered]@{
+        SddLayoutPresent = $sddOk
+    }
 
     if ($gaps.Count -gt 0) {
-        $gapList = [string]::Join($script:ZCodePublishMessage.SmokeRelativeSep, $gaps)
+        $gapList = [string]::Join($script:ZCodePublishMessage.SmokeRelativeSep, @($gaps))
         return [PSCustomObject]@{
             Success            = $false
             Implemented        = $true
             CommandName        = 'Invoke-SmokeValidate'
             InstallRoot        = $resolvedInstallRoot
-            Missing            = $gaps
+            Missing            = @($gaps)
             SkillManifestCount = $layout.SkillManifests.Count
             AgentsPath         = $layout.AgentsPath
             CliConfigPath      = $layout.CliConfigPath
             HooksJsonPath      = $layout.HooksJsonPath
+            Checks             = [PSCustomObject]$checks
             Message            = ($script:ZCodePublishMessage.SmokeFailGaps -f $resolvedInstallRoot, $gapList)
             ExitCode           = 1
         }
@@ -178,6 +196,7 @@ function Invoke-ZCodeSmokeValidate {
         AgentsPath         = $layout.AgentsPath
         CliConfigPath      = $layout.CliConfigPath
         HooksJsonPath      = $layout.HooksJsonPath
+        Checks             = [PSCustomObject]$checks
         Message            = ($script:ZCodePublishMessage.SmokePass -f $resolvedInstallRoot)
         ExitCode           = 0
     }

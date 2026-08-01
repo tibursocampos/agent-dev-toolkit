@@ -162,13 +162,17 @@ function Invoke-GrokSmokeValidate {
     $hasNativeRouter = Test-Path -LiteralPath $mapped.FixtureProjectAgentsPath
     $hasCompatArtifacts = Test-GrokCompatArtifactsPresent -InstallRoot $resolvedInstallRoot
 
+    $sddMissing = [System.Collections.Generic.List[string]]::new()
+    $hasSddLayout = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $sddMissing
+
     $checks = [ordered]@{
-        SkillsPresent   = $hasNativeSkills
-        RulesPresent    = $hasNativeRules
-        HooksPresent    = $hasNativeHooks
-        RouterPresent   = $hasNativeRouter
-        CompatPresent   = $hasCompatArtifacts
-        HooksTrustNote  = $script:GrokAdapterConstant.HooksTrustNote
+        SkillsPresent    = $hasNativeSkills
+        RulesPresent     = $hasNativeRules
+        HooksPresent     = $hasNativeHooks
+        RouterPresent    = $hasNativeRouter
+        CompatPresent    = $hasCompatArtifacts
+        SddLayoutPresent = $hasSddLayout
+        HooksTrustNote   = $script:GrokAdapterConstant.HooksTrustNote
     }
 
     $skillsCapable = [bool]$capabilityFlags.skills
@@ -211,6 +215,13 @@ function Invoke-GrokSmokeValidate {
     if ($routerCapable -and -not $hasNativeRouter) {
         return New-GrokSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
             $script:GrokAdapterMessage.SmokeTe03RouterMissing -f $mapped.FixtureProjectAgentsPath
+        )
+    }
+
+    if (-not $hasSddLayout) {
+        $listText = ($sddMissing.ToArray() -join ', ')
+        return New-GrokSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
+            $script:GrokAdapterMessage.SmokeTe05SddLayoutMissing -f $resolvedInstallRoot, $listText
         )
     }
 

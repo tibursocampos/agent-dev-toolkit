@@ -27,7 +27,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 | Layer | Responsibility |
 |-------|----------------|
 | **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load) |
-| **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (where implemented) |
+| **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all Tier-1); SDD runtime via `Get-SddRoot -Prepare` on sync |
 | **CLI** | Select agent; sync / validate / list / uninstall |
 | **Validation** | Contract suite + fixture smokes; CI never requires `%USERPROFILE%` |
 
@@ -36,7 +36,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 1. **Clone** the repo.
 2. **Sync** an agent (`sync-agent.ps1 -Agent <id>`), optionally with `-AllowUserHome` for a live home.
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1`.
-4. **Use skills** in the agent (e.g. `/sdd-spec` after Cursor sync).
+4. **Use skills** in the agent (e.g. `/sdd-spec` after sync).
 
 See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md).
 
@@ -55,8 +55,9 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 
 - **Fail closed on home:** paths under the user profile need `-AllowUserHome`.
 - **Fixture-first CI:** smokes use `scripts/validation/fixtures/…`.
-- **Keyed uninstall:** remove toolkit-managed artifacts only (Claude, Copilot, Codex, OpenCode, Antigravity, Grok). **Cursor** and **ZCode** uninstall remain not implemented (fail-closed).
-- **Honest capabilities:** registry / `Get-Capabilities` flags reflect real publish support (e.g. OpenCode hooks are plugin JS only).
+- **Keyed uninstall:** remove toolkit-managed artifacts only for all Tier-1 agents. Preserves `sdd/sessions` and `sdd/manifest.json`.
+- **SDD runtime:** every sync runs `Get-SddRoot -Prepare` (not a capability flag).
+- **Honest capabilities:** registry / `Get-Capabilities` flags reflect real publish support for `skills` / `rules` / `hooks` / `router` / `plugin` (e.g. OpenCode hooks are plugin JS only).
 
 ## Navigation
 

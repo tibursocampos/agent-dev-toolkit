@@ -267,6 +267,7 @@ function Invoke-CodexSmokeValidate {
         HooksPresent          = $false
         HooksRequired         = $false
         UserSkillsFixtureOk   = $false
+        SddLayoutPresent      = $false
         FilesystemOnly        = $true
         RequiresHooksTrust    = $false
     }
@@ -447,6 +448,19 @@ function Invoke-CodexSmokeValidate {
             -ResolvedInstallRoot $resolvedInstallRoot `
             -Checks $checks `
             -Message $userSkillsCheck.Message `
+            -ExitCode $exitFail
+    }
+
+    $sddMissing = [System.Collections.Generic.List[string]]::new()
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $sddMissing
+    $checks.SddLayoutPresent = $sddOk
+    if (-not $sddOk) {
+        $listText = ($sddMissing.ToArray() -join ', ')
+        return New-CodexSmokeResult `
+            -Success $false `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message ($script:CodexSmokeMessage.SddLayoutMissing -f $listText) `
             -ExitCode $exitFail
     }
 

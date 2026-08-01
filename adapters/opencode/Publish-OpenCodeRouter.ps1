@@ -27,6 +27,43 @@ function Get-OpenCodeRouterRepoRoot {
     return (Split-Path -Parent (Split-Path -Parent $script:OpenCodeRouterModuleDirectory))
 }
 
+function Get-OpenCodeRouterPublishContent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:OpenCodePublishMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-OpenCodeRouterRepoRoot
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceRouterRoot = Join-Path (Join-Path $repoRoot $script:OpenCodePathConstant.CoreDirectoryName) $script:OpenCodePathConstant.RouterDirectoryName
+    $sourceAgentsPath = Join-Path $sourceRouterRoot $script:OpenCodePathConstant.AgentsFileName
+    if (-not (Test-Path -LiteralPath $sourceAgentsPath)) {
+        throw ($script:OpenCodePublishMessage.CoreRouterMissing -f $sourceAgentsPath)
+    }
+
+    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
+    $placeholderMap = Get-OpenCodePlaceholderMap -InstallRoot $resolvedInstallRoot
+    $updated = $raw
+    foreach ($key in $placeholderMap.Keys) {
+        if ($updated.Contains([string]$key)) {
+            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
+        }
+    }
+
+    return $updated
+}
+
 function Invoke-OpenCodePublishRouter {
     [CmdletBinding()]
     param(
@@ -86,14 +123,7 @@ function Invoke-OpenCodePublishRouter {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
-    $placeholderMap = Get-OpenCodePlaceholderMap -InstallRoot $resolvedInstallRoot
-    $updated = $raw
-    foreach ($key in $placeholderMap.Keys) {
-        if ($updated.Contains([string]$key)) {
-            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
-        }
-    }
+    $updated = Get-OpenCodeRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
 
     foreach ($placeholder in @(
             $script:OpenCodePathConstant.PlaceholderToolkitRoot,
@@ -112,6 +142,12 @@ function Invoke-OpenCodePublishRouter {
         -RequireStrictChild
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($destinationAgentsPath, $updated, $utf8NoBom)
+
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:OpenCodePathConstant.AgentsFileName `
+        -PublishedContent $updated
 
     return [PSCustomObject]@{
         Success            = $true

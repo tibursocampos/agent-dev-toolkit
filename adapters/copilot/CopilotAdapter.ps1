@@ -6,20 +6,24 @@
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `copilot`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Policy / Publish-Hooks
-  (Mode user|repo), Invoke-SmokeValidate, and keyed Uninstall-Toolkit are implemented;
-  Publish-Router is a documented no-op (router=false). Does not write under USERPROFILE
-  without -AllowUserHome. CLI requires -Mode user|repo (validated by sync/validate/
-  uninstall). Official surfaces only: ~/.copilot/... (user) and .github/... (repo).
-  Mode repo publishes under InstallRoot fixture modeling .github - never the toolkit
-  working-tree .github by default. JetBrains/Eclipse Copilot IDE layouts are out of
-  scope. Smoke validates filesystem presence only - Copilot IDE extension is out of
-  scope. Uninstall removes only toolkit-managed paths (skills/policy/hooks keys).
+  (Mode user|repo), Get-SddRoot (-Prepare), Invoke-SmokeValidate, and keyed
+  Uninstall-Toolkit are implemented; Publish-Router is a documented no-op (router=false).
+  Does not write under USERPROFILE without -AllowUserHome. CLI requires -Mode user|repo
+  (validated by sync/validate/uninstall). Official surfaces only: ~/.copilot/... (user)
+  and .github/... (repo). Mode repo publishes under InstallRoot fixture modeling .github -
+  never the toolkit working-tree .github by default. JetBrains/Eclipse Copilot IDE layouts
+  are out of scope. Smoke validates filesystem presence only - Copilot IDE extension is
+  out of scope. Uninstall removes only toolkit-managed paths (skills/policy/hooks keys);
+  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 #>
 
 $script:CopilotAdapterDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:CopilotAdapterDirectory)) {
     $script:CopilotAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+
+$script:CopilotAdapterLibDir = Join-Path $script:CopilotAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:CopilotAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:CopilotAdapterDirectory 'CopilotPathConstants.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotSkills.ps1')
@@ -49,7 +53,6 @@ $script:CopilotAdapterCapabilityFlags = [ordered]@{
     rules     = $true
     hooks     = $true
     router    = $false
-    sdd       = $false
     plugin    = $false
     subagents = $script:CopilotAdapterSubagentsNative
 }
@@ -87,8 +90,11 @@ $script:CopilotAdapterMessage = @{
     InstallRootRequired       = 'InstallRoot is required.'
     ModeRequiredForMapping    = 'Mode is required to map Copilot InstallRoot paths. Use -Mode user or -Mode repo.'
     ModeInvalidForMapping     = 'Invalid Mode "{0}". Use -Mode user or -Mode repo.'
-    CapabilitiesReady         = 'Copilot adapter capabilities reported (skills/rules/hooks; router=false). Mode user|repo required at CLI; Publish-Skills/Policy/Hooks, Invoke-SmokeValidate, and keyed Uninstall-Toolkit ready for both modes (repo via InstallRoot fixture modeling .github). Official surfaces only (~/.copilot and .github); JetBrains/Eclipse excluded. Smoke is filesystem-only.'
+    CapabilitiesReady         = 'Copilot adapter capabilities reported (skills/rules/hooks; router=false). Mode user|repo required at CLI; Publish-Skills/Policy/Hooks, Get-SddRoot (-Prepare), Invoke-SmokeValidate, and keyed Uninstall-Toolkit ready for both modes (repo via InstallRoot fixture modeling .github). Official surfaces only (~/.copilot and .github); JetBrains/Eclipse excluded. Smoke is filesystem-only. SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
+    SddRootResolved           = 'Copilot SDD root resolved at {0}.'
+    SddRootPrepared           = 'Prepared Copilot SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
+    SddRootWouldPrepare       = 'WhatIf: would prepare Copilot SDD root at {0} (sessions + seed manifest.json if missing).'
 }
 
 function New-CopilotAdapterNotImplementedResult {
@@ -446,19 +452,36 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for Copilot MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $Prepare,
+
+        [Parameter()]
+        [switch] $AllowUserHome,
+
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:CopilotAdapterMessage.InstallRootRequired
     }
 
-    return New-CopilotAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-CopilotAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:CopilotAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:CopilotAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:CopilotAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

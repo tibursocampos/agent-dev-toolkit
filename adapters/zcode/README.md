@@ -23,9 +23,11 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent zcode -InstallRoot .\scrip
 
 Do not confuse with the unrelated open-source CLI named “Z-CODE” (different project).
 
-## Uninstall
+SDD runtime (`Get-SddRoot -Prepare`) runs on every sync — not a capability flag.
 
-`Uninstall-Toolkit` is **not implemented** (fail-closed stub — no filesystem writes). Keyed uninstall is implemented on other Tier 1 agents (Claude, Copilot, Codex, OpenCode, Antigravity, Grok).
+## Uninstall (keyed)
+
+Removes only toolkit-managed paths (core skill ids) and reverse-merges `cli/config.json` / `hooks/hooks.json` (drop toolkit overlay; keep aliens). **`AGENTS.md` is deleted only when provenance confirms toolkit ownership** via InstallRoot `.toolkit-managed-publish.json` (sha256 recorded on publish) or a legacy hash match to resolved `core/router/AGENTS.md`; operator edits are preserved. Preserves alien skills/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
 
 ### Official references
 

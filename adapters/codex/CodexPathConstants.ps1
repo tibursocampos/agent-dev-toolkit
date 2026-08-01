@@ -76,6 +76,7 @@ $script:CodexSmokeMessage = @{
     AgentsMdMissing            = 'Codex agent ''codex'' smoke failed - AGENTS.md missing or empty at: {0}'
     UserSkillsRootMissing      = 'Codex agent ''codex'' smoke failed - USER skills fixture path missing (expected .agents/skills under InstallRoot): {0}'
     UserSkillsIncomplete       = 'Codex agent ''codex'' smoke failed - USER skills fixture has skill folder without SKILL.md: {0}'
+    SddLayoutMissing           = 'Codex agent ''codex'' smoke failed - SDD layout incomplete under InstallRoot. Missing: {0}'
     Passed                     = 'Codex Invoke-SmokeValidate PASS under {0} (filesystem-only; plugin + marketplace + AGENTS.md + hooks files; trust /hooks UI out of scope - RN03).'
     FilesystemOnlyNote         = 'Smoke never invokes Codex runtime or /hooks trust UI.'
 }

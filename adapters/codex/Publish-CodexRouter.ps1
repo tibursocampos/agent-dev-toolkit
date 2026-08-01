@@ -16,6 +16,35 @@ function Get-CodexRouterAdapterRepoRoot {
     return (Split-Path -Parent (Split-Path -Parent $script:CodexRouterModuleDirectory))
 }
 
+function Get-CodexRouterPublishContent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:CodexPublishMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-CodexRouterAdapterRepoRoot
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceAgentsPath = Join-Path (
+        Join-Path (Join-Path $repoRoot $script:CodexPathConstant.CoreDirectoryName) $script:CodexPathConstant.RouterDirectoryName
+    ) $script:CodexPathConstant.AgentsFileName
+    if (-not (Test-Path -LiteralPath $sourceAgentsPath)) {
+        throw ($script:CodexPublishMessage.CoreRouterMissing -f $sourceAgentsPath)
+    }
+
+    return [System.IO.File]::ReadAllText($sourceAgentsPath)
+}
+
 function Invoke-CodexPublishRouter {
     [CmdletBinding()]
     param(
@@ -64,7 +93,15 @@ function Invoke-CodexPublishRouter {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destinationAgentsPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.AgentsFileName
 
-    Copy-Item -LiteralPath $sourceAgentsPath -Destination $destinationAgentsPath -Force
+    $publishedContent = Get-CodexRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($destinationAgentsPath, $publishedContent, $utf8NoBom)
+
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:CodexPathConstant.AgentsFileName `
+        -PublishedContent $publishedContent
 
     return [PSCustomObject]@{
         Success     = $true

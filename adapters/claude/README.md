@@ -77,7 +77,7 @@ Pass `-InstallRoot <repo>/scripts/validation/fixtures/claude`. Do not use `%USER
 
 ### Uninstall scope (safe)
 
-Removes only toolkit-managed paths (core skill ids, core policy → rules files, `CLAUDE.md`, asset hook scripts) and reverse-merges `settings.json`: drops **toolkit-managed hook handlers** (same identity as merge) and managed / legacy-broad `permissions.allow` entries. Empty hook events are removed; **alien co-located handlers** on the same event are kept. Preserves alien files and unrelated settings keys. Does **not** wipe InstallRoot or wholesale-replace settings.
+Removes only toolkit-managed paths (core skill ids, core policy → rules files, `CLAUDE.md`, asset hook scripts) and reverse-merges `settings.json`: drops **toolkit-managed hook handlers** (same identity as merge) and managed / legacy-broad `permissions.allow` entries. Empty hook events are removed; **alien co-located handlers** on the same event are kept. Preserves alien files and unrelated settings keys. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe InstallRoot or wholesale-replace settings.
 
 ### Managed vs preserved inventory
 
@@ -85,7 +85,7 @@ Removes only toolkit-managed paths (core skill ids, core policy → rules files,
 |---------|-------------------|------------------------------|
 | `skills/` | Folders matching `core/skills/*` | Other skill folders / files |
 | `rules/` | Files matching `core/policy/*` (`.md`) | Alien rule files |
-| `CLAUDE.md` | Whole file from `core/router/AGENTS.md` | Sibling files at InstallRoot |
+| `CLAUDE.md` | Whole file from `core/router/AGENTS.md` (sha256 in `.toolkit-managed-publish.json`; uninstall preserves operator edits) | Sibling files at InstallRoot |
 | `hooks/` | Scripts from `adapters/claude/assets/hooks/*` | Alien hook scripts |
 | `settings.json` hooks | Handlers matching managed `pwsh -NoProfile -File ".../hooks/<script>"` on `UserPromptSubmit` / `PreCompact` / `PostToolUse` | Alien events (e.g. `Notification`) and alien handlers co-located on managed events |
 | `settings.json` allow | Narrow `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook (additive); legacy `Bash(pwsh *)` / `Bash(powershell *)` stripped on re-sync unless `-AllowBroadShellPermissions` | User allows / deny / env / custom keys |
