@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Shared interactive UI helpers for toolkit.ps1 Smart Manager.
@@ -107,7 +107,7 @@ function Read-ToolkitChoice {
     <#
     .SYNOPSIS
       Prompt until the user enters a choice in ValidChoices (case-insensitive).
-      Never throws on invalid input.
+      Empty Enter returns -DefaultChoice when set. Never throws on invalid input.
     #>
     [CmdletBinding()]
     param(
@@ -115,16 +115,35 @@ function Read-ToolkitChoice {
         [string] $Prompt,
 
         [Parameter(Mandatory = $true)]
-        [string[]] $ValidChoices
+        [ValidateNotNull()]
+        [string[]] $ValidChoices,
+
+        [Parameter()]
+        [string] $DefaultChoice
     )
 
-    $normalizedValid = @($ValidChoices | ForEach-Object { [string]$_ })
+    # Force a true string[]; never pass a bare '' as -ValidChoices (Mandatory bind fails).
+    $normalizedValid = [System.Collections.Generic.List[string]]::new()
+    foreach ($item in @($ValidChoices)) {
+        if ($null -eq $item) {
+            continue
+        }
+        $normalizedValid.Add([string]$item)
+    }
+    if ($normalizedValid.Count -lt 1) {
+        throw 'Read-ToolkitChoice: ValidChoices must contain at least one non-null choice.'
+    }
+
+    $hasDefault = -not [string]::IsNullOrWhiteSpace($DefaultChoice)
     while ($true) {
         $raw = Read-Host $Prompt
         if ($null -eq $raw) {
             $raw = ''
         }
         $trimmed = $raw.Trim()
+        if ([string]::IsNullOrWhiteSpace($trimmed) -and $hasDefault) {
+            return $DefaultChoice.Trim()
+        }
         foreach ($choice in $normalizedValid) {
             if ([string]::Equals($trimmed, $choice, [System.StringComparison]::OrdinalIgnoreCase)) {
                 return $choice
@@ -151,17 +170,20 @@ function Confirm-ToolkitYesNo {
         $script:ToolkitMessage.ToolkitYesNoHintDefaultNo
     }
     $fullPrompt = '{0} {1}' -f $Prompt, $hint
+    # Do not include '' in ValidChoices: Mandatory [string[]] rejects empty string on bind (PS 5.1/7).
     $valid = @(
-        $script:ToolkitConstant.ToolkitChoiceYes,
-        $script:ToolkitConstant.ToolkitChoiceNo,
-        $script:ToolkitConstant.ToolkitChoiceYesShort,
-        $script:ToolkitConstant.ToolkitChoiceNoShort,
-        ''
+        [string]$script:ToolkitConstant.ToolkitChoiceYes,
+        [string]$script:ToolkitConstant.ToolkitChoiceNo,
+        [string]$script:ToolkitConstant.ToolkitChoiceYesShort,
+        [string]$script:ToolkitConstant.ToolkitChoiceNoShort
     )
-    $answer = Read-ToolkitChoice -Prompt $fullPrompt -ValidChoices $valid
-    if ([string]::IsNullOrWhiteSpace($answer)) {
-        return $DefaultYes
+    $defaultChoice = if ($DefaultYes) {
+        [string]$script:ToolkitConstant.ToolkitChoiceYes
     }
+    else {
+        [string]$script:ToolkitConstant.ToolkitChoiceNo
+    }
+    $answer = Read-ToolkitChoice -Prompt $fullPrompt -ValidChoices $valid -DefaultChoice $defaultChoice
     return (
         [string]::Equals($answer, $script:ToolkitConstant.ToolkitChoiceYes, [System.StringComparison]::OrdinalIgnoreCase) -or
         [string]::Equals($answer, $script:ToolkitConstant.ToolkitChoiceYesShort, [System.StringComparison]::OrdinalIgnoreCase)

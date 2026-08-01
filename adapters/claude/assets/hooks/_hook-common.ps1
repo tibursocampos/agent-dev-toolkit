@@ -1,4 +1,4 @@
-# Shared helpers for agent-dev-toolkit Claude hooks (Windows PowerShell 5.1+).
+﻿# Shared helpers for agent-dev-toolkit Claude hooks (Windows PowerShell 5.1+).
 # Dot-sourced by hook scripts; not invoked directly by settings.json.
 
 Set-StrictMode -Version Latest

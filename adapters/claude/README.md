@@ -114,6 +114,15 @@ Live home:
 - [INSTALL.md](../../docs/INSTALL.md) — operator sync
 - [VALIDATION.md](../../docs/VALIDATION.md) — `Invoke-ClaudeCiSmoke.ps1`
 
+## Official docs (Anthropic)
+
+- [Features overview](https://code.claude.com/docs/en/features-overview)
+- [Memory / CLAUDE.md / rules](https://code.claude.com/docs/en/memory)
+- [Skills](https://code.claude.com/docs/en/skills)
+- [Hooks](https://code.claude.com/docs/en/hooks)
+- [`.claude` directory](https://code.claude.com/docs/en/claude-directory)
+- [Steering: skills, hooks, rules, subagents](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more)
+
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
 ```

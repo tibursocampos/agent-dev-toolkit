@@ -29,7 +29,10 @@ Do not confuse with the unrelated open-source CLI named “Z-CODE” (different 
 
 ### Official references
 
+- [Agents / AGENTS.md](https://zcode.z.ai/en/docs/agents)
 - [Subagents](https://zcode.z.ai/en/docs/subagents)
-
+- [Skills](https://zcode.z.ai/en/docs/skill)
+- [Hooks](https://zcode.z.ai/en/docs/hooks)
+- [Plugins](https://zcode.z.ai/en/docs/plugin)
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

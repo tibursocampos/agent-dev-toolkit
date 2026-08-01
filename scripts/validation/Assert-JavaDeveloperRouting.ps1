@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_FailValidateCore_When_JavaDeveloperMissingFromDisk
 #   Should_FailValidateCore_When_JavaMissingFromCatalogOrRoutes

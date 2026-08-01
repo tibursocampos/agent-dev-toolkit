@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json).

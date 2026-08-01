@@ -23,8 +23,10 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent opencode -InstallRoot .\sc
 
 ### Official references
 
+- [Rules / AGENTS.md](https://opencode.ai/docs/rules/)
+- [Skills](https://opencode.ai/docs/skills/)
 - [Agents](https://opencode.ai/docs/agents/)
-- [Config](https://opencode.ai/docs/config/) (incl. agent / permission.task)
-
+- [Config](https://opencode.ai/docs/config/)
+- [Plugins](https://opencode.ai/docs/plugins/)
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

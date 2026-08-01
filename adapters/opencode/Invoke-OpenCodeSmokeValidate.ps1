@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Filesystem-only OpenCode Invoke-SmokeValidate helper.

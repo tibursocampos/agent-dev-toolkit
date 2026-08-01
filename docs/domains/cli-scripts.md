@@ -35,7 +35,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>]
 | Parameter | Behavior |
 |-----------|----------|
 | `-Agent` | Required registry id |
-| `-InstallRoot` | Target root; default = in-repo fixture |
+| `-InstallRoot` | Target root; interactive wizard defaults to **live home**; non-interactive / CI default = in-repo fixture |
 | `-Mode` | Required for `copilot` (`user` \| `repo`) |
 | `-AllowUserHome` | Opt-in for USERPROFILE paths |
 | `-WhatIf` | Forwarded to Publish-* |

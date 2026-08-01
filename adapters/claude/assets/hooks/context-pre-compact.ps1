@@ -1,4 +1,4 @@
-# Claude hook script - remind user to save PLAN at high context usage.
+﻿# Claude hook script - remind user to save PLAN at high context usage.
 # Wiring into settings.json happens during settings merge. Smoke validates file presence only.
 
 #Requires -Version 5.1

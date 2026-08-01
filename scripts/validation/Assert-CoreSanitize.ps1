@@ -1,4 +1,4 @@
-# Requires: PowerShell 5.1+
+﻿# Requires: PowerShell 5.1+
 # Tests:
 #   Should_FailContract_When_CoreContainsSingleIdeHomePath
 #   Should_PassMustNotContain_When_CoreSanitized

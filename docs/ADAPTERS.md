@@ -41,6 +41,23 @@ File: `adapters/registry.json`
 
 All Tier 1 agents have concrete modules with publish + in-repo smoke. See the per-agent sections below.
 
+## Official install roots (contract)
+
+Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` (Enter = live home). CI and non-interactive defaults still use in-repo fixtures unless `-AllowUserHome` is set.
+
+| Agent | Live InstallRoot | Skills / rules / hooks (summary) | Notes |
+|-------|------------------|----------------------------------|-------|
+| `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | Also reads `~/.agents/skills` / project `.cursor/` |
+| `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
+| `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | Project scope also uses repo `.claude/` |
+| `codex` | `~/.codex` | Dual: config/AGENTS/hooks/agents under `~/.codex`; USER skills discovery `~/.agents/skills`; default sync = **plugin** under InstallRoot | `-UserScope` mirrors skills under InstallRoot `.agents/skills` |
+| `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | Same relative tree both modes |
+| `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | Not `~/.opencode` |
+| `grok` | `~/.grok` | Native `.grok/skills\|rules\|hooks`; `AGENTS.md` | Also reads Claude/Cursor layouts; adapter writes native |
+| `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | ADE filesystem — not GLM Coding Plan |
+
+Primary audit source for adapter paths: this table + each agent section below + `adapters/<id>/README.md`.
+
 ## Capabilities
 
 Flags on each registry entry and on `Get-Capabilities` output:
@@ -66,6 +83,7 @@ The **cursor** registry entry sets `skills` / `rules` / `hooks` / `router` / `sd
 | Agent id | `cursor` |
 | Module | `adapters/cursor/CursorAdapter.ps1` |
 | Official user root | `~/.cursor` (relative `.cursor` under USERPROFILE) |
+| Official docs | [Rules + AGENTS.md](https://cursor.com/docs/rules), [Skills](https://cursor.com/docs/context/skills), [Hooks](https://cursor.com/docs/hooks), [Subagents](https://cursor.com/docs/context/subagents), [Agent best practices](https://cursor.com/blog/agent-best-practices) |
 | Fixture | `scripts/validation/fixtures/cursor-install-root` (InstallRoot models the Cursor root; seed may include custom `hooks.json`) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `sdd` = true; `plugin` = false |
@@ -108,6 +126,8 @@ CI uses the in-repo fixture (or ephemeral copy) only. Do not sync to a live `~/.
 | Module | `adapters/antigravity/AntigravityAdapter.ps1` |
 | Official user root | `~/.gemini` (relative `.gemini` under USERPROFILE) |
 | Official layout (under InstallRoot modeling `~/.gemini`) | `config/skills`, `config/plugins`, `config/hooks`, `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` |
+| Twin IDE steering (not ADT default publish) | Working Antigravity IDE toolkits often register skills via `config/skills.json` → absolute path under `antigravity-ide/plugins/<id>/skills/` and GUARDRAILS beside that plugin; ADT publishes under `config/*` (see adapter README) |
+| Official docs | [Home](https://antigravity.google/docs/home), [Skills](https://antigravity.google/docs/skills), [Rules & workflows](https://antigravity.google/docs/rules-workflows), [Subagents](https://antigravity.google/docs/subagents), [Hooks](https://antigravity.google/docs/hooks), [Plugins](https://antigravity.google/docs/plugins) |
 | Legacy bridge (non-default) | `antigravity-ide/plugins` — documentation / opt-in only; **not** a CI/smoke gate |
 | Fixture override | `-InstallRoot <path>` (in-repo fixture for CI; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `router` / `plugin` = true; `hooks` = false (no native shell-hook parity); `sdd` = false |
@@ -203,6 +223,7 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | Module | `adapters/claude/ClaudeAdapter.ps1` |
 | Official user root | `~/.claude` (relative `.claude` under USERPROFILE) |
 | Official project scope | `.claude/` under the repository root (e.g. `.claude/settings.json`) |
+| Official docs | [Features](https://code.claude.com/docs/en/features-overview), [Memory / rules](https://code.claude.com/docs/en/memory), [Skills](https://code.claude.com/docs/en/skills), [Hooks](https://code.claude.com/docs/en/hooks), [`.claude` directory](https://code.claude.com/docs/en/claude-directory), [Steering blog](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more) |
 | Fixture | `scripts/validation/fixtures/claude/` (InstallRoot models the Claude root; includes pre-existing `settings.json` for merge CT) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` = true; `sdd` / `plugin` = false |
@@ -257,9 +278,10 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 | Agent id | `codex` |
 | Module | `adapters/codex/CodexAdapter.ps1` |
 | Packaging | Codex **plugin** under InstallRoot `plugin/` (`.codex-plugin/plugin.json` + bundled skills + hooks) |
+| Official product home | `~/.codex` (config.toml, AGENTS.md, hooks, agents) — live wizard InstallRoot |
 | Official USER skills | `~/.agents/skills` (fixture: `InstallRoot/.agents/skills` via optional `-UserScope`) |
 | Official marketplace | `.agents/plugins/marketplace.json` (fixture models local `source.path` `./plugin`) |
-| Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks) |
+| Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
 | Capabilities | `skills` / `hooks` / `router` / `plugin` = true; `rules` / `sdd` = false |
 | Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `.agents/plugins/marketplace.json`, `AGENTS.md`, `plugin/hooks/hooks.json` (+ `session_start.ps1`) |
@@ -320,7 +342,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent codex -InstallRoot $co
 | Agent id | `opencode` |
 | Module | `adapters/opencode/OpenCodeAdapter.ps1` |
 | Official user root | `~/.config/opencode` (relative `.config/opencode` under USERPROFILE) |
-| Official docs | [opencode.ai](https://opencode.ai), [config](https://opencode.ai/docs/config/), [plugins](https://opencode.ai/docs/plugins/) |
+| Official docs | [opencode.ai](https://opencode.ai), [rules](https://opencode.ai/docs/rules/), [skills](https://opencode.ai/docs/skills/), [config](https://opencode.ai/docs/config/), [agents](https://opencode.ai/docs/agents/), [plugins](https://opencode.ai/docs/plugins/) |
 | Fixture | `scripts/validation/fixtures/opencode/` (InstallRoot models the config root; does **not** nest another `.config/opencode`) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `hooks` / `router` / `plugin` = true; `rules` / `sdd` = false |
@@ -360,6 +382,7 @@ CI uses the in-repo fixture only. Do not sync to a live `~/.config/opencode` for
 | Agent id | `zcode` |
 | Module | `adapters/zcode/ZCodeAdapter.ps1` |
 | Official user root | `~/.zcode` (relative `.zcode` under USERPROFILE) |
+| Official docs | [Agents](https://zcode.z.ai/en/docs/agents), [Subagents](https://zcode.z.ai/en/docs/subagents), [Skills](https://zcode.z.ai/en/docs/skill), [Hooks](https://zcode.z.ai/en/docs/hooks), [Plugins](https://zcode.z.ai/en/docs/plugin) |
 | Fixture override | `-InstallRoot <path>` (in-repo fixture `scripts/validation/fixtures/zcode-install-root`; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `hooks` / `router` = true; `rules` / `sdd` / `plugin` = false |
 | Key artifacts under InstallRoot | `skills/<id>/SKILL.md`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |

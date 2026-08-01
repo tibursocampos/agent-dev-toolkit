@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateCursor_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserCursorProfile_When_CursorSuiteRuns

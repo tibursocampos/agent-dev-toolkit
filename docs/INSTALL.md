@@ -29,7 +29,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 
 | Menu | What it does |
 |------|----------------|
-| **Sync agent** | Publish skills/policy/hooks — wizard picks agent, then fixture / live home / custom path |
+| **Sync agent** | Publish skills/policy/hooks — wizard picks agent, then **live home (Enter default)** / fixture / custom path |
 | **Validate agent** | `validate-core` + adapter smoke for one agent |
 | **Sync then validate** | Sync, then smoke the same target |
 | **Validate core only** | Repo contracts only — **no** agent home write |
@@ -70,9 +70,13 @@ Sync / Validate / Uninstall **require** `-Agent` when not using the menu (no sil
 
 Prefer the menu for day-to-day use. These call the same orchestrators the CLI uses.
 
-### Default: in-repo fixture (CI-safe)
+### Interactive Sync: live home is the wizard default
 
-Omitting `-InstallRoot` uses the adapter’s fixture under `scripts/validation/fixtures/`. Safe for local smoke; does **not** change your live agent home.
+In `toolkit.ps1` (no `-Action`), after picking an agent the target menu defaults to **[1] Live agent home** (Enter). Confirm before write. Choose **[2] In-repo fixture** to avoid profile writes.
+
+### Non-interactive default: in-repo fixture (CI-safe)
+
+Omitting `-InstallRoot` on `sync-agent.ps1` / `-Action Sync` uses the adapter’s fixture under `scripts/validation/fixtures/`. Safe for local smoke and CI; does **not** change your live agent home.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor
@@ -118,7 +122,7 @@ Mode `repo` InstallRoot is typically the consumer repo’s `.github` folder (not
 | Agent | Typical InstallRoot |
 |-------|---------------------|
 | `antigravity` | `$env:USERPROFILE\.gemini` |
-| `codex` | Fixture or Codex plugin root (see [ADAPTERS.md](ADAPTERS.md)) |
+| `codex` | `~/.codex` (USER skills: `~/.agents/skills`; see [ADAPTERS.md](ADAPTERS.md)) |
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |

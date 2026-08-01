@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Policy (core policy/router -> Copilot instructions).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_SyncViaOrchestrator_When_AgentClaudeAndInstallRootSet
 #   Should_RemoveManagedArtifacts_When_UninstallClaudeOnFixture

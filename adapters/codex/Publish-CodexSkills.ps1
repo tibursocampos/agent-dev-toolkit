@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Skills (plugin.json + copy core/skills + placeholders).

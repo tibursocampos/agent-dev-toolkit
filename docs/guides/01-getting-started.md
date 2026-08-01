@@ -20,9 +20,9 @@ This is the **recommended** entry point. The menu clears the screen, walks you t
 Quick path to learn safely:
 
 1. **Validate core only** — confirms the repo is healthy (no home write).
-2. **Sync agent** → pick e.g. `cursor` → **In-repo fixture** → confirm.
-3. **Validate agent** for the same agent (fixture).
-4. When ready for a real IDE: **Sync agent** → same agent → **Live agent home** → confirm `-AllowUserHome`.
+2. **Sync agent** → pick e.g. `cursor` → **Live agent home** (Enter = default) → confirm write under your profile.
+3. To learn without touching the profile: same flow → **In-repo fixture** instead.
+4. **Validate agent** for the same agent/target.
 
 Non-interactive equivalents and all flags: [INSTALL.md](../INSTALL.md).
 

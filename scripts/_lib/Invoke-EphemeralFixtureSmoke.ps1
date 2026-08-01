@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Shared ephemeral fixture smoke runner (copy seed -> work, sync+validate, cleanup).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_RouterLinksExist
 #   Should_FailValidateCore_When_RouterPointsToMissingDocsPath

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_HaveReadmePerTier1Adapter_When_AdaptersInspected
 #   Should_LinkAdaptersDoc_When_StubRead

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Resolve default fixture InstallRoot from adapter Get-InstallRoots (fail-closed).

@@ -1,4 +1,4 @@
-# Requires: PowerShell 5.1+
+﻿# Requires: PowerShell 5.1+
 # Test: Should_ShowLayoutSections_When_ReadmeOpened
 $ErrorActionPreference = 'Stop'
 

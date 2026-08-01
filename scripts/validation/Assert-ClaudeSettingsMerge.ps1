@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_PreserveUnrelatedKeys_When_ClaudeSettingsMerged
 #   Should_MergeHooksByKey_When_ClaudeSettingsMerged

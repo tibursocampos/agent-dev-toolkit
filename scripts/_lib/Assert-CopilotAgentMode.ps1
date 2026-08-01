@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Validates -Mode for GitHub Copilot agent orchestration (TE02 / CA3).

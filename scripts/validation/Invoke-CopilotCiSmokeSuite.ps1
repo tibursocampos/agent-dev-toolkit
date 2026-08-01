@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   In-repo Copilot CI smoke matrix (Mode user + Mode repo).

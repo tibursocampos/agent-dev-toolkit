@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Golden markers: each fixtures/<skill>/expected-markers.txt line must appear in SKILL.md or reference.md.

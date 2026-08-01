@@ -37,7 +37,17 @@ SPAWN/skills must use **effective** capability, not registry alone. Contract: `c
 - [Subagents (Antigravity 2.0)](https://antigravity.google/docs/subagents)
 - [CLI — Background tasks & subagents](https://antigravity.google/docs/cli/subagents)
 - [Docs home](https://antigravity.google/docs/home)
+- [Skills](https://antigravity.google/docs/skills)
+- [Rules & workflows](https://antigravity.google/docs/rules-workflows)
+- [Hooks](https://antigravity.google/docs/hooks)
+- [Plugins](https://antigravity.google/docs/plugins)
 - [Product](https://www.antigravity.google/)
 - [I/O 2026 feature deep dive](https://antigravity.google/blog/google-io-2026-feature-deep-dive)
+
+## Publish layout vs twin IDE steering
+
+ADT InstallRoot models `~/.gemini` and publishes under `config/skills`, `config/skills.json`, `config/AGENTS.md`, and `config/plugins/…/GUARDRAILS.md`.
+
+The single-agent twin (`antigravity-dev-toolkit`) steers the IDE by writing skill bodies under `antigravity-ide/plugins/<id>/skills/`, putting GUARDRAILS beside that plugin, and pointing `config/skills.json` `entries[].path` at the plugin skills directory (plus a managed block in `config/AGENTS.md`). That twin layout is **not** ADT’s default publish path; document it so operators know where live IDE discovery often looks.
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

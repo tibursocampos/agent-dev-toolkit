@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Cursor filesystem smoke helpers + Invoke-CursorSmokeValidate (TE01/TE04).

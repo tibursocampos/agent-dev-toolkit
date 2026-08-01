@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_MapGrokRootsUnderFixture_When_InstallRootProvided
 #   Should_Fail_When_InstallRootUnderUserProfileWithoutAllowUserHome

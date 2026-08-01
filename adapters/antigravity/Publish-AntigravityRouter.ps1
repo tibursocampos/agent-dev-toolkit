@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Antigravity Publish-Router (core/router -> skills/dev_persona + managed markdown).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ExposePluginHooksCapability_When_DecisionA
 #   Should_NotRequireShellHooks_When_SmokeOpenCode

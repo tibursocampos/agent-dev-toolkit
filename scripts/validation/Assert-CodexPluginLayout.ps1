@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_WriteMarketplaceEntry_When_SyncCodex
 #   Should_ResolvePluginPathFromMarketplace_When_EntryPresent

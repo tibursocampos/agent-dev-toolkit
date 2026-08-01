@@ -1,4 +1,4 @@
-# Requires: PowerShell 5.1+
+﻿# Requires: PowerShell 5.1+
 # Tests:
 #   Should_ReferManifestJsonOnly_When_SddDocsScanned
 #   Should_KeepSddContractsUnderCore_When_PortComplete

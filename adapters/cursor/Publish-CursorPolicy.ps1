@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Policy (core/policy -> InstallRoot/rules as .mdc).

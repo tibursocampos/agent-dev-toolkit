@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Codex adapter module for agent-dev-toolkit.
@@ -58,8 +58,10 @@ $script:CodexAdapterCapabilityFlags = [ordered]@{
 }
 
 $script:CodexAdapterConstant = @{
+    OfficialUserRootRelativePath         = '.codex'
+    OfficialUserRootDescription          = 'Official Codex product home is under the user home as .codex (equivalent to ~/.codex) for config.toml, AGENTS.md, hooks, and agents.'
     OfficialUserSkillsRelativePath       = '.agents/skills'
-    OfficialUserSkillsDescription        = 'Official Codex USER skills root is under the user home as .agents/skills (equivalent to ~/.agents/skills).'
+    OfficialUserSkillsDescription        = 'Official Codex USER skills discovery root is under the user home as .agents/skills (equivalent to ~/.agents/skills) — dual-root with ~/.codex.'
     OfficialMarketplaceRelativePath      = '.agents/plugins'
     OfficialMarketplaceDescription       = 'Official Codex marketplace catalog lives under .agents/plugins (marketplace.json modeled in fixture).'
     OfficialPluginRootRelativePath       = 'plugin'
@@ -72,7 +74,7 @@ $script:CodexAdapterConstant = @{
     OfficialProjectAgentsDescription     = 'Project router surface for Codex is AGENTS.md at the project/InstallRoot scope.'
     FixtureRelativePath                  = 'scripts/validation/fixtures/codex'
     InstallRootOverrideParameter         = 'InstallRoot'
-    InstallRootOverrideDescription       = 'Pass -InstallRoot to target an in-repo fixture or an explicit path. Paths under USERPROFILE require -AllowUserHome.'
+    InstallRootOverrideDescription       = 'Pass -InstallRoot to target an in-repo fixture or an explicit path. Paths under USERPROFILE require -AllowUserHome. Live home models ~/.codex; USER skills remain ~/.agents/skills via -UserScope under a parent InstallRoot.'
     UserScopeParameterName               = 'UserScope'
     UserScopeDescription                 = 'Optional -UserScope mirrors core/skills under InstallRoot/.agents/skills (fixture stand-in for ~/.agents/skills). Default Publish-Skills is plugin-bundled only.'
     HooksTrustNote                       = 'Hooks trust via Codex /hooks UI is a human operational step; smoke validates files only.'
@@ -201,8 +203,10 @@ function Get-InstallRoots {
     }
 
     $userHome = [Environment]::GetFolderPath('UserProfile')
+    $officialFull = $null
     $officialUserSkillsFull = $null
     if (-not [string]::IsNullOrWhiteSpace($userHome)) {
+        $officialFull = Join-Path $userHome $script:CodexAdapterConstant.OfficialUserRootRelativePath
         $officialUserSkillsFull = Join-Path $userHome $script:CodexAdapterConstant.OfficialUserSkillsRelativePath
     }
 
@@ -218,6 +222,9 @@ function Get-InstallRoots {
         Success                              = $true
         Implemented                          = $true
         AgentId                              = $AgentId.Trim()
+        OfficialUserRootRelativePath         = $script:CodexAdapterConstant.OfficialUserRootRelativePath
+        OfficialUserRootDescription          = $script:CodexAdapterConstant.OfficialUserRootDescription
+        OfficialUserRootPath                 = $officialFull
         OfficialUserSkillsRelativePath       = $script:CodexAdapterConstant.OfficialUserSkillsRelativePath
         OfficialUserSkillsDescription        = $script:CodexAdapterConstant.OfficialUserSkillsDescription
         OfficialUserSkillsPath               = $officialUserSkillsFull
@@ -235,8 +242,6 @@ function Get-InstallRoots {
         OverrideParameter                    = $script:CodexAdapterConstant.InstallRootOverrideParameter
         OverrideDescription                  = $script:CodexAdapterConstant.InstallRootOverrideDescription
         HooksTrustNote                       = $script:CodexAdapterConstant.HooksTrustNote
-        # Contract-aligned aliases used by Step 1 asserts (relative "official" path + override).
-        OfficialUserRootRelativePath         = $script:CodexAdapterConstant.OfficialUserSkillsRelativePath
         ResolvedInstallRoot                  = $resolvedInstallRoot
         FixtureUserSkillsPath                = $(if ($null -ne $mapped) { $mapped.FixtureUserSkillsPath } else { $null })
         FixtureMarketplacePath               = $(if ($null -ne $mapped) { $mapped.FixtureMarketplacePath } else { $null })
@@ -245,7 +250,7 @@ function Get-InstallRoots {
         FixturePluginSkillsPath              = $(if ($null -ne $mapped) { $mapped.FixturePluginSkillsPath } else { $null })
         FixturePluginHooksPath               = $(if ($null -ne $mapped) { $mapped.FixturePluginHooksPath } else { $null })
         FixtureProjectAgentsPath             = $(if ($null -ne $mapped) { $mapped.FixtureProjectAgentsPath } else { $null })
-        Message                              = ('{0} {1} {2} {3} {4} {5}' -f $script:CodexAdapterConstant.OfficialUserSkillsDescription, $script:CodexAdapterConstant.OfficialMarketplaceDescription, $script:CodexAdapterConstant.OfficialPluginRootDescription, $script:CodexAdapterConstant.OfficialPluginManifestDescription, $script:CodexAdapterConstant.OfficialProjectAgentsDescription, $script:CodexAdapterConstant.InstallRootOverrideDescription)
+        Message                              = ('{0} {1} {2} {3} {4} {5} {6}' -f $script:CodexAdapterConstant.OfficialUserRootDescription, $script:CodexAdapterConstant.OfficialUserSkillsDescription, $script:CodexAdapterConstant.OfficialMarketplaceDescription, $script:CodexAdapterConstant.OfficialPluginRootDescription, $script:CodexAdapterConstant.OfficialPluginManifestDescription, $script:CodexAdapterConstant.OfficialProjectAgentsDescription, $script:CodexAdapterConstant.InstallRootOverrideDescription)
     }
 }
 

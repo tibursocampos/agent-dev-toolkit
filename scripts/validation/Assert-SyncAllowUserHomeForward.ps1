@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ForwardAllowUserHomeIntoPublishArgs_When_SourceInspected
 #   Should_BlockPublishUnderUserProfile_When_AllowUserHomeAbsent

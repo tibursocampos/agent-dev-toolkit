@@ -25,8 +25,20 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot .\scrip
 
 - [Subagents](https://developers.openai.com/codex/subagents)
 - [Subagents (concepts)](https://developers.openai.com/codex/concepts/subagents)
-- Config `[agents]` / `agents.enabled` (product docs)
+- [Skills](https://developers.openai.com/codex/skills) (discovery under `.agents/skills` / `~/.agents/skills`)
+- [Config basic](https://developers.openai.com/codex/config-basic) (`~/.codex/config.toml`)
+- [Hooks](https://developers.openai.com/codex/hooks)
+- [Plugins](https://developers.openai.com/codex/plugins)
+- [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/)
 
+## Dual root (honesty)
+
+| Surface | Path |
+|---------|------|
+| Product / config home (live wizard) | `~/.codex` |
+| USER skills discovery | `~/.agents/skills` |
+| Default toolkit sync | `InstallRoot/plugin/` (+ marketplace under `.agents/plugins`) |
+| Optional USER mirror | `Publish-Skills -UserScope` → `InstallRoot/.agents/skills` |
 
 ## `.codex-plugin` extras (honesty)
 

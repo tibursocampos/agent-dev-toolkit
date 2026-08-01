@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Cursor Uninstall-Toolkit (fail-closed stub — keyed uninstall out of MVP).

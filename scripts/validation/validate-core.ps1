@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Runs the agent-dev-toolkit core validation suite (in-repo, no home deploy).

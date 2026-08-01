@@ -1,4 +1,4 @@
-# Requires: PowerShell 5.1+
+﻿# Requires: PowerShell 5.1+
 # Tests:
 #   Should_ExposePolicyFiles_When_CorePolicyPorted
 #   Should_ExposeRouterMaterial_When_CoreRouterPorted

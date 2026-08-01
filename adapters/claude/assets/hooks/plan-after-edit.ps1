@@ -1,4 +1,4 @@
-# Claude hook script - record when a PLAN file was edited (checkpoint aid).
+﻿# Claude hook script - record when a PLAN file was edited (checkpoint aid).
 # Wiring into settings.json happens during settings merge. Smoke validates file presence only.
 
 #Requires -Version 5.1

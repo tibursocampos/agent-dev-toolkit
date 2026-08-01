@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   In-repo OpenCode CI smoke (sync + validate against fixture seed).

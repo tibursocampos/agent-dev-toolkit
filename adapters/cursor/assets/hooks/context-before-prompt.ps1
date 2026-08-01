@@ -1,4 +1,4 @@
-# beforeSubmitPrompt - track SDD skill invocations; always allow submission.
+﻿# beforeSubmitPrompt - track SDD skill invocations; always allow submission.
 # Context injection is not supported on this hook in Cursor; see docs/HOOKS.md.
 
 #Requires -Version 5.1

@@ -23,9 +23,12 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode user -Instal
 
 ### Official references
 
+- [Customization cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)
+- [Repo custom instructions](https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)
+- [CLI custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions)
+- [CLI skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills)
+- [Hooks](https://docs.github.com/en/copilot/concepts/agents/hooks)
 - [Copilot CLI product](https://github.com/features/copilot/cli)
 - [Run multiple agents with `/fleet`](https://github.blog/ai-and-ml/github-copilot/run-multiple-agents-at-once-with-fleet-in-copilot-cli/)
-- [Selective delegation](https://github.blog/ai-and-ml/how-we-made-github-copilot-cli-more-selective-about-delegation/)
-
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

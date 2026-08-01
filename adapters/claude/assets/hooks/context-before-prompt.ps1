@@ -1,4 +1,4 @@
-# Claude hook script - track SDD skill invocations; always allow continuation.
+﻿# Claude hook script - track SDD skill invocations; always allow continuation.
 # Wiring into settings.json happens during settings merge. Smoke validates file presence only.
 
 #Requires -Version 5.1

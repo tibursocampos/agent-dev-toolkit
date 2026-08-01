@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Antigravity Publish-Policy (core/policy -> GUARDRAILS.md).

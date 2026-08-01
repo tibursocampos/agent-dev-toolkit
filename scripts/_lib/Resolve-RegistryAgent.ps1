@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Loads adapters/registry.json and resolves a Tier agent entry + module path.

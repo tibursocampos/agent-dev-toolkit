@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_FailSync_When_AgentMissing
 #   Should_FailSync_When_AgentUnknown

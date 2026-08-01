@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Validates toolkit core for a selected agent; optional adapter smoke (no-op when adapter not implemented).

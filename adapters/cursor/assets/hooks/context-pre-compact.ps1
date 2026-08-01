@@ -1,4 +1,4 @@
-# preCompact - remind user to save PLAN and follow context-management at high usage.
+﻿# preCompact - remind user to save PLAN and follow context-management at high usage.
 
 #Requires -Version 5.1
 $ErrorActionPreference = 'Stop'

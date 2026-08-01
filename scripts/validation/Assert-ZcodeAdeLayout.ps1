@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateZcode_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserZcodeProfile_When_ZcodeSuiteRuns

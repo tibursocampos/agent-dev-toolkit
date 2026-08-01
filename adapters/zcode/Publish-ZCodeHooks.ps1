@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Hooks (cli/config.json + hooks/hooks.json merge).

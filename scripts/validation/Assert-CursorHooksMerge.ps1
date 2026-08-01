@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ReplaceStaleToolkitHookAndPreserveAlien_When_CursorHooksMerged
 #   Should_NotDuplicateToolkitHook_When_CursorHooksMergedTwice

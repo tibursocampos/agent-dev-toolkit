@@ -108,7 +108,7 @@ InstallRoot models `~/.gemini`. Official tree:
 
 ## Codex install layout
 
-InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks)):
+InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks)). Live product home is `~/.codex` (config/AGENTS); USER skills discovery is `~/.agents/skills` (dual-root).
 
 | Relative path | Role |
 |---------------|------|

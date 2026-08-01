@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Copilot adapter toolkit artifacts under InstallRoot.

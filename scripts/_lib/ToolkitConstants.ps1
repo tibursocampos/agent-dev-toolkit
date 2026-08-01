@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Named constants for toolkit scripts (_lib).
@@ -272,11 +272,14 @@ $script:ToolkitMessage = @{
     ToolkitMenuWhatHint                = 'What do you want to do?'
     ToolkitAgentWizardTitle            = 'Select agent'
     ToolkitTargetWizardTitle           = 'Select InstallRoot target'
-    ToolkitTargetFixtureLine           = '[1] In-repo fixture (safe default — CI / learn the CLI)'
-    ToolkitTargetLiveLine              = '[2] Live agent home ({0})'
+    ToolkitTargetLiveLine              = '[1] Live agent home ({0}) - recommended default'
+    ToolkitTargetFixtureLine           = '[2] In-repo fixture (CI / learn the CLI - no profile write)'
     ToolkitTargetCustomLine            = '[3] Custom path'
     ToolkitTargetBackLine              = '[0] Back'
     ToolkitTargetLiveUnknown           = 'official user root'
+    ToolkitTargetLiveCodexDualLine     = '    Codex note: config/AGENTS under ~/.codex; USER skills also at ~/.agents/skills; default sync writes plugin/ under InstallRoot'
+    ToolkitTargetMenuDefaultChoice     = '1'
+    ToolkitTargetMenuPromptWithDefault = 'Select option [0-3] (Enter = live home)'
     ToolkitCustomPathPrompt            = 'Enter InstallRoot path'
     ToolkitCustomPathRequired          = 'InstallRoot path is required.'
     ToolkitAllowUserHomeConfirm        = 'This path is under USERPROFILE. Allow live-home write (-AllowUserHome)?'

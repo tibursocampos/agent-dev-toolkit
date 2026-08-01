@@ -95,6 +95,7 @@ Removes only toolkit-managed paths (core skill ids, core policy → rules files,
 - [Skills / plugins / marketplaces](https://docs.x.ai/build/features/skills-plugins-marketplaces)
 - [Hooks](https://docs.x.ai/build/features/hooks)
 - [Project rules](https://docs.x.ai/build/features/project-rules)
-- Subagents: see **Spawn / subagents** above
+- [Subagents](https://docs.x.ai/build/features/subagents)
+- Subagents (toolkit): see **Spawn / subagents** above
 
 Public contract summary: [docs/ADAPTERS.md](../../docs/ADAPTERS.md). Architecture: [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md).

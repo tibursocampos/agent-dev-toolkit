@@ -1,4 +1,4 @@
-# afterFileEdit - record when a PLAN file was edited (checkpoint aid for preCompact).
+﻿# afterFileEdit - record when a PLAN file was edited (checkpoint aid for preCompact).
 
 #Requires -Version 5.1
 $ErrorActionPreference = 'Stop'

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   In-repo ZCode ADE CI smoke (sync + validate against ephemeral fixture copy).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Shared copy + placeholder resolve/assert + managed-skills prune for adapter publish.

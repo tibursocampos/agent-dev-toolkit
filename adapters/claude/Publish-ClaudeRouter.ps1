@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Claude Publish-Router (core/router -> InstallRoot/CLAUDE.md).

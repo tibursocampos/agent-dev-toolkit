@@ -25,7 +25,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 
 In the menu:
 
-1. **Sync agent** — pick an agent, then **in-repo fixture** (safe) or **live agent home** (writes under your profile after confirm).
+1. **Sync agent** — pick an agent, then **live agent home** (Enter = default; writes under your profile after confirm), **in-repo fixture** (safe), or **custom** path.
 2. **Validate core only** — `validate-core` repo contracts with no home write.
 3. **Help and docs** — what each action does and equivalent `-Action` flags.
 
@@ -52,7 +52,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 | `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks, SDD |
 | `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
 | `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
-| `codex` | Codex | plugin + `.agents` | Plugin-bundled skills; `/hooks` trust manual |
+| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: config/AGENTS under `.codex`; plugin sync under InstallRoot; USER skills via `-UserScope` |
 | `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo` required |
 | `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS plugins only |
 | `grok` | Grok Build | `~/.grok` | Native `.grok` publish |

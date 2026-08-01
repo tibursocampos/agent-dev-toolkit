@@ -63,4 +63,12 @@ Skills prefer Task when `subagents=native`; fallback in-parent when Task unavail
 
 `Uninstall-Toolkit` is **not implemented** (fail-closed stub — no filesystem writes). Keyed uninstall is implemented on other Tier 1 agents (Claude, Copilot, Codex, OpenCode, Antigravity, Grok).
 
+## Official docs (Cursor)
+
+- [Rules + AGENTS.md](https://cursor.com/docs/rules)
+- [Skills](https://cursor.com/docs/context/skills)
+- [Hooks](https://cursor.com/docs/hooks)
+- [Subagents](https://cursor.com/docs/context/subagents)
+- [Agent best practices](https://cursor.com/blog/agent-best-practices)
+
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

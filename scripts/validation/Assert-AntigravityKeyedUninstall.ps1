@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_PassValidateAgent_When_AntigravityFixtureUsed
 #   Should_NotWriteUserGeminiProfile_When_CiSmokeRuns

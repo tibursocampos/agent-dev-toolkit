@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_RunBothModes_When_CiSmokeSuiteExecutes
 #   Should_BlockUserProfileInstallRoot_When_AllowUserHomeAbsent

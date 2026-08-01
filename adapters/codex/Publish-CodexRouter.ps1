@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Router (core/router -> InstallRoot/AGENTS.md).

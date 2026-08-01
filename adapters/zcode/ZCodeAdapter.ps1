@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   ZCode (Z.ai ADE) adapter module for agent-dev-toolkit.
@@ -205,6 +205,8 @@ function Publish-Policy {
         [Parameter(Mandatory = $true)]
         [string] $InstallRoot,
         [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
         [switch] $WhatIf
     )
 
@@ -213,15 +215,16 @@ function Publish-Policy {
     }
 
     return [PSCustomObject]@{
-        Success     = $true
-        Implemented = $true
-        CommandName = 'Publish-Policy'
-        NoOp        = $true
-        WhatIf      = [bool]$WhatIf.IsPresent
-        InstallRoot = $InstallRoot.Trim()
-        FilesCopied = 0
-        Message     = $script:ZCodePublishMessage.PolicyNoOp
-        ExitCode    = 0
+        Success       = $true
+        Implemented   = $true
+        CommandName   = 'Publish-Policy'
+        NoOp          = $true
+        WhatIf        = [bool]$WhatIf.IsPresent
+        AllowUserHome = [bool]$AllowUserHome.IsPresent
+        InstallRoot   = $InstallRoot.Trim()
+        FilesCopied   = 0
+        Message       = $script:ZCodePublishMessage.PolicyNoOp
+        ExitCode      = 0
     }
 }
 

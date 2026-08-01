@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_Fail_When_SpawnMdMissing
 #   Should_Pass_When_SpawnAndSubagentsPresent

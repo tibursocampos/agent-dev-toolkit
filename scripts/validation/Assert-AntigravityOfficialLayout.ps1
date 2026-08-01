@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ListOfficialRoots_When_GetInstallRootsCalled
 #   Should_DocumentLegacyBridge_When_AdaptersDocRead

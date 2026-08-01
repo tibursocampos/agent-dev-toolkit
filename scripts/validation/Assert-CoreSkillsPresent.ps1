@@ -1,4 +1,4 @@
-# Requires: PowerShell 5.1+
+﻿# Requires: PowerShell 5.1+
 # Tests:
 #   Should_HaveKebabSkillFolders_When_CoreSkillsCopied
 #   Should_IncludeSharedGuidelines_When_CoreSkillsCopied

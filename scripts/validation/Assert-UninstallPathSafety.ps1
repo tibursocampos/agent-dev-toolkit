@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_AcceptStrictChild_When_PathUnderInstallRoot
 #   Should_Throw_When_CandidateEqualsInstallRoot

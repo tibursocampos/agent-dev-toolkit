@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ListRegistryAgents_When_ToolkitStartsAction
 #   Should_RequireAgentChoice_When_SyncOrValidateSelected

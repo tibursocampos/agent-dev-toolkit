@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for OpenCode Publish-Hooks (Decision A: minimal JS plugin under plugins/).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_RemoveToolkitArtifacts_When_UninstallOpenCodeFixture
 #   Should_KeepUnrelatedFiles_When_UninstallOpenCodeFixture

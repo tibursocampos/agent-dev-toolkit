@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Interactive / non-interactive CLI for agent-dev-toolkit (multi-agent).
@@ -233,10 +233,10 @@ function Get-ToolkitLiveHomePath {
     if (Get-Command -Name Get-InstallRoots -ErrorAction SilentlyContinue) {
         try {
             if ((Test-IsCopilotAgentId -AgentId $AgentId) -and -not [string]::IsNullOrWhiteSpace($ResolvedMode)) {
-                $roots = Get-InstallRoots -Mode $ResolvedMode
+                $roots = Get-InstallRoots -AgentId $AgentId -Mode $ResolvedMode
             }
             else {
-                $roots = Get-InstallRoots
+                $roots = Get-InstallRoots -AgentId $AgentId
             }
         }
         catch {
@@ -324,34 +324,30 @@ function Invoke-ToolkitTargetWizard {
     else {
         $livePath
     }
+    $showCodexDual = [string]::Equals($AgentId.Trim(), 'codex', [System.StringComparison]::OrdinalIgnoreCase)
 
     while ($true) {
         Clear-ToolkitScreen
         Show-ToolkitHeader -Title $script:ToolkitMessage.ToolkitTargetWizardTitle -RepoRoot $repoRoot -Subtitle ("Agent: {0}" -f $AgentId)
-        Write-Host $script:ToolkitMessage.ToolkitTargetFixtureLine
         Write-Host ($script:ToolkitMessage.ToolkitTargetLiveLine -f $liveLabel)
+        if ($showCodexDual) {
+            Write-Host $script:ToolkitMessage.ToolkitTargetLiveCodexDualLine
+        }
+        Write-Host $script:ToolkitMessage.ToolkitTargetFixtureLine
         Write-Host $script:ToolkitMessage.ToolkitTargetCustomLine
         Write-Host $script:ToolkitMessage.ToolkitTargetBackLine
         Write-Host $script:ToolkitConstant.ToolkitMenuRule -ForegroundColor Cyan
 
-        $choice = Read-ToolkitChoice -Prompt $script:ToolkitMessage.ToolkitMenuPrompt -ValidChoices $script:ToolkitConstant.ToolkitTargetMenuChoices
+        $choice = Read-ToolkitChoice -Prompt $script:ToolkitMessage.ToolkitTargetMenuPromptWithDefault -ValidChoices $script:ToolkitConstant.ToolkitTargetMenuChoices -DefaultChoice $script:ToolkitMessage.ToolkitTargetMenuDefaultChoice
         switch ($choice) {
             '0' { return $null }
             '1' {
-                return @{
-                    InstallRoot    = $null
-                    AllowUserHome  = $false
-                    TargetKind     = $script:ToolkitMessage.ToolkitTargetKindFixture
-                    UseFixture     = $true
-                }
-            }
-            '2' {
                 if ([string]::IsNullOrWhiteSpace($livePath)) {
                     Write-ToolkitWarn -Message ($script:ToolkitMessage.ToolkitLiveHomeUnavailable -f $AgentId)
                     Pause-Toolkit
                     continue
                 }
-                if (-not (Confirm-ToolkitYesNo -Prompt $script:ToolkitMessage.ToolkitLiveHomeConfirm -DefaultYes:$false)) {
+                if (-not (Confirm-ToolkitYesNo -Prompt $script:ToolkitMessage.ToolkitLiveHomeConfirm -DefaultYes:$true)) {
                     Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitCancelled
                     Pause-Toolkit
                     continue
@@ -361,6 +357,14 @@ function Invoke-ToolkitTargetWizard {
                     AllowUserHome  = $true
                     TargetKind     = $script:ToolkitMessage.ToolkitTargetKindLive
                     UseFixture     = $false
+                }
+            }
+            '2' {
+                return @{
+                    InstallRoot    = $null
+                    AllowUserHome  = $false
+                    TargetKind     = $script:ToolkitMessage.ToolkitTargetKindFixture
+                    UseFixture     = $true
                 }
             }
             '3' {

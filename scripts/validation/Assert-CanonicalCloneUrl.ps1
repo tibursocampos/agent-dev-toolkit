@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_UseCanonicalCloneUrl_When_EntrypointsRead
 #   Should_NotContainClonePlaceholder_When_EntrypointsGreped

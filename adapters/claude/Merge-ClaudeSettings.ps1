@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Safe merge for Claude Code settings.json (hooks keyed + permissions.allow additive).

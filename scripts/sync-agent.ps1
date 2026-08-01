@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Orchestrates adapter Publish-* for a selected agent (fail-closed when not implemented).
@@ -72,6 +72,52 @@ function Write-SyncError {
     Write-Host $Message -ForegroundColor Red
 }
 
+function Write-SyncPublishOk {
+    <#
+    .SYNOPSIS
+      Default sync summary: OK plus adapter Message (counts/paths). Always on — not gated by -Verbose.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $CommandName,
+
+        [Parameter()]
+        $Result
+    )
+
+    Write-Host ("{0}: OK" -f $CommandName) -ForegroundColor Green
+
+    if ($null -eq $Result) {
+        return
+    }
+
+    $names = @($Result.PSObject.Properties.Name)
+    if ($names -contains 'Message') {
+        $detail = [string]$Result.Message
+        if (-not [string]::IsNullOrWhiteSpace($detail)) {
+            Write-Host ('  {0}' -f $detail.Trim()) -ForegroundColor DarkGray
+            return
+        }
+    }
+
+    $metricParts = New-Object System.Collections.Generic.List[string]
+    if ($names -contains 'FilesCopied' -and $null -ne $Result.FilesCopied) {
+        [void]$metricParts.Add(('files={0}' -f $Result.FilesCopied))
+    }
+    if ($names -contains 'SkillFolderCount' -and $null -ne $Result.SkillFolderCount) {
+        [void]$metricParts.Add(('skills={0}' -f $Result.SkillFolderCount))
+    }
+    if ($names -contains 'SkillsRoot' -and -not [string]::IsNullOrWhiteSpace([string]$Result.SkillsRoot)) {
+        [void]$metricParts.Add(('skillsRoot={0}' -f $Result.SkillsRoot))
+    }
+    if ($names -contains 'NoOp' -and [bool]$Result.NoOp) {
+        [void]$metricParts.Add('no-op')
+    }
+    if ($metricParts.Count -gt 0) {
+        Write-Host ('  {0}' -f ($metricParts -join '; ')) -ForegroundColor DarkGray
+    }
+}
+
 try {
     $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
     Assert-AgentParameterPresent -RepoRoot $repoRoot -AgentId $Agent
@@ -114,13 +160,20 @@ try {
     foreach ($commandName in $publishNames) {
         $command = Get-Command -Name $commandName -ErrorAction Stop
         $publishArgs = @{ InstallRoot = $resolvedInstallRoot }
-        if ($WhatIf.IsPresent) {
+        $paramNames = @($command.Parameters.Keys)
+        if ($WhatIf.IsPresent -and ($paramNames -contains 'WhatIf')) {
             $publishArgs['WhatIf'] = $true
         }
-        if (-not [string]::IsNullOrWhiteSpace($resolvedMode)) {
+        if (
+            -not [string]::IsNullOrWhiteSpace($resolvedMode) -and
+            ($paramNames -contains $script:ToolkitConstant.ModeParameterName)
+        ) {
             $publishArgs[$script:ToolkitConstant.ModeParameterName] = $resolvedMode
         }
-        if ($AllowUserHome.IsPresent) {
+        if (
+            $AllowUserHome.IsPresent -and
+            ($paramNames -contains $script:ToolkitConstant.AllowUserHomeParameterName)
+        ) {
             $publishArgs[$script:ToolkitConstant.AllowUserHomeParameterName] = $true
         }
 
@@ -142,7 +195,7 @@ try {
             exit 1
         }
 
-        Write-Host ("{0}: OK" -f $commandName) -ForegroundColor Green
+        Write-SyncPublishOk -CommandName $commandName -Result $result
     }
 
     $capabilities = Get-Capabilities -AgentId $resolved.AgentId
@@ -182,7 +235,7 @@ try {
             exit 1
         }
 
-        Write-Host 'Get-SddRoot -Prepare: OK' -ForegroundColor Green
+        Write-SyncPublishOk -CommandName 'Get-SddRoot -Prepare' -Result $sddResult
     }
 
     Write-Host 'Sync completed.' -ForegroundColor Green

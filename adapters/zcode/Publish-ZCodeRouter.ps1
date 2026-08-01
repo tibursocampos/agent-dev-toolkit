@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).

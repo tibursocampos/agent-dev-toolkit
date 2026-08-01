@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Tests:
 #   Should_ThrowAndNotDelete_When_PoisonManifestSkillName
 #   Should_Throw_When_WriteManagedSkillsManifestGetsBadName
