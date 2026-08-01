@@ -6,21 +6,22 @@
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `zcode`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Router / Publish-Hooks /
-  Invoke-SmokeValidate are implemented. Publish-Policy is a documented no-op (rules=false).
-  Uninstall remains fail-closed stub. Does not write under USERPROFILE without -AllowUserHome.
-  Official user root is ~/.zcode (skills/, AGENTS.md, hooks/config). This surface is
+  Get-SddRoot (-Prepare) / Invoke-SmokeValidate / Uninstall-Toolkit (keyed) are implemented.
+  Publish-Policy is a documented no-op (rules=false).
+  Does not write under USERPROFILE without -AllowUserHome.
+  Official user root is ~/.zcode (skills/, AGENTS.md, hooks/config, sdd/). This surface is
   ZCode ADE - not GLM Coding Plan (endpoint/Base URL/MCP only; Tier 3 / out of scope).
-  ZCode does not use Cursor rules/*.mdc; sync-agent / Invoke-ZCodePublishSync publish skills,
-  AGENTS.md, and hooks/config (cli/config.json + hooks/hooks.json) only.
+  ZCode does not use Cursor rules/*.mdc; sync-agent publish skills, AGENTS.md, hooks/config,
+  and prepares sdd/sessions + manifest. Uninstall preserves sdd sessions/manifest.
 
 .NOTES
-  Initial capabilities (Step 1 decision per PRD):
+  Capabilities:
   - skills = true (Agent Skills under skills/<id>/SKILL.md)
   - router = true (AGENTS.md at InstallRoot from core/router)
   - hooks = true (cli/config.json and/or hooks/hooks.json)
   - rules = false (no Cursor-style rules/*.mdc tree; router via AGENTS.md)
-  - sdd = false (not a native ADE layout; Get-SddRoot stays stub)
   - plugin = false (marketplace .zcode-plugin optional / out of MVP BDD)
+  - SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag)
 #>
 
 $script:ZCodeAdapterDirectory = $PSScriptRoot
@@ -28,11 +29,15 @@ if ([string]::IsNullOrWhiteSpace($script:ZCodeAdapterDirectory)) {
     $script:ZCodeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
+$script:ZCodeAdapterLibDir = Join-Path $script:ZCodeAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:ZCodeAdapterLibDir 'Initialize-SddRootLayout.ps1')
+
 . (Join-Path $script:ZCodeAdapterDirectory 'ZCodePathConstants.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeSkills.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeRouter.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeHooks.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Invoke-ZCodeSmokeValidate.ps1')
+. (Join-Path $script:ZCodeAdapterDirectory 'Uninstall-ZCodeToolkit.ps1')
 
 $script:ZCodeAdapterAgentId = 'zcode'
 
@@ -55,7 +60,6 @@ $script:ZCodeAdapterCapabilityFlags = [ordered]@{
     rules     = $false
     hooks     = $true
     router    = $true
-    sdd       = $false
     plugin    = $false
     subagents = $script:ZCodeAdapterSubagentsNative
 }
@@ -81,7 +85,10 @@ $script:ZCodeAdapterMessage = @{
     NotImplemented      = '{0} is not implemented yet for the ZCode adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired     = 'AgentId is required.'
     InstallRootRequired = 'InstallRoot is required.'
-    CapabilitiesReady   = 'ZCode ADE adapter capabilities reported (skills/router/hooks). Publish and filesystem smoke are available; GLM Coding Plan is not this surface.'
+    CapabilitiesReady   = 'ZCode ADE adapter capabilities reported (skills/router/hooks). Publish, Get-SddRoot (-Prepare), and filesystem smoke are available; GLM Coding Plan is not this surface. SDD runtime prepared on sync.'
+    SddRootResolved     = 'ZCode SDD root resolved at {0}.'
+    SddRootPrepared     = 'Prepared ZCode SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
+    SddRootWouldPrepare = 'WhatIf: would prepare ZCode SDD root at {0} (sessions + seed manifest.json if missing).'
 }
 
 function New-ZCodeAdapterNotImplementedResult {
@@ -275,19 +282,36 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for ZCode MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $Prepare,
+
+        [Parameter()]
+        [switch] $AllowUserHome,
+
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:ZCodeAdapterMessage.InstallRootRequired
     }
 
-    return New-ZCodeAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-ZCodeAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:ZCodeAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:ZCodeAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:ZCodeAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {
@@ -313,7 +337,8 @@ function Invoke-SmokeValidate {
 function Uninstall-Toolkit {
     <#
     .SYNOPSIS
-      Remove published toolkit files from InstallRoot. Stub until later PLAN steps.
+      Remove keyed toolkit artifacts (skills, AGENTS.md, hooks/config reverse-merge).
+      Preserves sdd/sessions and sdd/manifest.json.
     #>
     [CmdletBinding()]
     param(
@@ -329,5 +354,5 @@ function Uninstall-Toolkit {
         throw $script:ZCodeAdapterMessage.InstallRootRequired
     }
 
-    return New-ZCodeAdapterNotImplementedResult -CommandName 'Uninstall-Toolkit'
+    return Invoke-ZCodeUninstallToolkit -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }

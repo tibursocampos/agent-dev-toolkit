@@ -6,23 +6,27 @@
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `codex`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Router /
-  Publish-Hooks are implemented (optional InstallRoot maps plugin/marketplace/
-  USER skills/AGENTS.md under the fixture; Publish-Skills writes plugin.json +
-  skills + marketplace; optional -UserScope mirrors core/skills under
-  InstallRoot/.agents/skills - fixture stand-in for ~/.agents/skills;
-  Publish-Router copies core/router -> AGENTS.md; Publish-Hooks writes
-  plugin/hooks/hooks.json). Publish-Policy is a documented no-op (rules=false).
-  Invoke-SmokeValidate is filesystem-only (TE01-TE04; no /hooks trust UI).
-  Uninstall-Toolkit removes keyed toolkit artifacts only (plugin skills,
-  marketplace entry, hooks files, USER-scope skills, AGENTS.md - RN07/CU03).
-  Does not write under USERPROFILE without -AllowUserHome. Trust UI /hooks
-  is out of scope for smoke (filesystem asserts only - RN03).
+  Publish-Hooks / Get-SddRoot (-Prepare) are implemented (optional InstallRoot
+  maps plugin/marketplace/USER skills/AGENTS.md under the fixture;
+  Publish-Skills writes plugin.json + skills + marketplace; optional -UserScope
+  mirrors core/skills under InstallRoot/.agents/skills - fixture stand-in for
+  ~/.agents/skills; Publish-Router copies core/router -> AGENTS.md;
+  Publish-Hooks writes plugin/hooks/hooks.json). Publish-Policy is a documented
+  no-op (rules=false). Invoke-SmokeValidate is filesystem-only (TE01-TE04; no
+  /hooks trust UI). Uninstall-Toolkit removes keyed toolkit artifacts only
+  (plugin skills, marketplace entry, hooks files, USER-scope skills, AGENTS.md
+  - RN07/CU03). Does not write under USERPROFILE without -AllowUserHome. Trust
+  UI /hooks is out of scope for smoke (filesystem asserts only - RN03).
+  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 #>
 
 $script:CodexAdapterDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:CodexAdapterDirectory)) {
     $script:CodexAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+
+$script:CodexAdapterLibDir = Join-Path $script:CodexAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:CodexAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:CodexAdapterDirectory 'CodexPathConstants.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexSkills.ps1')
@@ -52,7 +56,6 @@ $script:CodexAdapterCapabilityFlags = [ordered]@{
     rules     = $false
     hooks     = $true
     router    = $true
-    sdd       = $false
     plugin    = $true
     subagents = $script:CodexAdapterSubagentsNative
 }
@@ -85,8 +88,11 @@ $script:CodexAdapterMessage = @{
     NotImplemented      = '{0} is not implemented yet for the Codex adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired     = 'AgentId is required.'
     InstallRootRequired = 'InstallRoot is required.'
-    CapabilitiesReady   = 'Codex adapter capabilities reported (skills/plugin/router/hooks). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; trust UI /hooks out of scope; RN07 no wholesale wipe).'
+    CapabilitiesReady   = 'Codex adapter capabilities reported (skills/plugin/router/hooks). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; trust UI /hooks out of scope; RN07 no wholesale wipe). SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
+    SddRootResolved     = 'Codex SDD root resolved at {0}.'
+    SddRootPrepared     = 'Prepared Codex SDD root at {0} (sessions={1}; manifestCreated={2}).'
+    SddRootWouldPrepare = 'WhatIf: would prepare Codex SDD root at {0} (sessions + seed manifest.json if missing).'
 }
 
 function New-CodexAdapterNotImplementedResult {
@@ -362,19 +368,33 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for Codex MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $Prepare,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:CodexAdapterMessage.InstallRootRequired
     }
 
-    return New-CodexAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-CodexAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:CodexAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:CodexAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:CodexAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

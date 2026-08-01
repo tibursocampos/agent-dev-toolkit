@@ -24,7 +24,7 @@ Versioned InstallRoots under `scripts/validation/fixtures/`:
 | `antigravity-install-root/` | Antigravity |
 | `install-root/` | Generic smoke harness |
 
-CI harnesses often copy a fixture to an **ephemeral** work root so the versioned seed stays intact.
+CI harnesses often copy a fixture to an **ephemeral** work root so the versioned seed stays intact. Local sync residue under fixture InstallRoots (published skill trees, SDD sessions, merge `.bak` files) is listed in root `.gitignore` — keep locally for faster re-tests; do not commit.
 
 ## Smoke harnesses
 
@@ -57,7 +57,7 @@ Workflow: [`.github/workflows/validate-toolkit.yml`](../../.github/workflows/val
 Job steps (order):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok) — **not** wired into validate-core
+2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode) — **not** wired into validate-core
 3. `Assert-SyncAllowUserHomeForward.ps1`
 4. Eight agent CI smokes: Cursor → Antigravity → Claude → Codex → Copilot suite → OpenCode → Grok → ZCode
 
@@ -76,6 +76,8 @@ pwsh -NoProfile -File .\scripts\validation\Assert-CodexKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-OpenCodeKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-AntigravityKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-GrokKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-CursorKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-ZcodeKeyedUninstall.ps1
 
 pwsh -NoProfile -File .\scripts\validation\Assert-SyncAllowUserHomeForward.ps1
 

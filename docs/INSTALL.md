@@ -34,7 +34,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 | **Sync then validate** | Sync, then smoke the same target |
 | **Validate core only** | Repo contracts only — **no** agent home write |
 | **Validation lab** | Run `validate-core` or an `Invoke-*CiSmoke` script |
-| **Uninstall agent** | Remove **keyed** toolkit files from InstallRoot where implemented (not a full home wipe). Cursor and ZCode: not implemented (fail-closed) |
+| **Uninstall agent** | Remove **keyed** toolkit files from InstallRoot for all Tier-1 agents (not a full home wipe). Preserves `sdd/sessions` and `sdd/manifest.json` |
 | **Help and docs** | In-menu explanation of actions and equivalent flags |
 
 ### Validate core vs Validate agent
@@ -148,6 +148,8 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |
 | Antigravity | `config/skills`, `config/plugins`, managed markdown |
 
+Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare` for **all** Tier-1 agents.
+
 Full layouts: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md).
 
 ## 5. Verify
@@ -179,10 +181,9 @@ See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-
 
 ## 7. Uninstall
 
-Uninstall is **keyed** where implemented: removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home.
+Uninstall is **keyed** for all Tier-1 agents: removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home. It **preserves** `sdd/sessions/` and `sdd/manifest.json` (operator runtime state).
 
-**Implemented keyed uninstall:** Claude, Copilot, Codex, OpenCode, Antigravity, Grok (CI asserts cover these).  
-**Not implemented (fail-closed stub):** **Cursor** and **ZCode** — `Uninstall-Toolkit` returns not-implemented and writes nothing.
+All eight Tier-1 adapters implement keyed uninstall (CI asserts cover them, including Cursor and ZCode).
 
 Use menu **Uninstall agent** (same wizard as Sync for target), or:
 
@@ -194,7 +195,7 @@ Details per agent: [ADAPTERS.md](ADAPTERS.md) and `adapters/<agent>/` notes.
 
 ## 8. After `git pull`
 
-Re-run sync for each agent you use so published skills stay current (idempotent overwrite of managed files).
+Re-run sync for each agent you use. Sync is **update-in-place**: it overwrites managed files and **prunes** managed skills that no longer exist in `core/skills/`. It does **not** uninstall then reinstall. `sdd/sessions/` and `sdd/manifest.json` stay intact (manifest is never overwritten if already present). Every sync always runs `Get-SddRoot -Prepare` (creates `sdd/sessions/` if missing; seeds `manifest.json` only when absent).
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1

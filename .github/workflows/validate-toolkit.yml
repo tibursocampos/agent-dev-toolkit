@@ -24,7 +24,7 @@ jobs:
           ./scripts/validation/validate-core.ps1 -Quiet
         working-directory: ${{ github.workspace }}
 
-      # Fixture-local keyed uninstall (Claude/Copilot/Codex/OpenCode/Antigravity/Grok).
+      # Fixture-local keyed uninstall (all Tier-1 agents including Cursor/ZCode).
       # Not in validate-core: those asserts call validate-agent which re-enters validate-core.
       - name: Run keyed uninstall asserts
         shell: pwsh
@@ -36,7 +36,9 @@ jobs:
             'Assert-CodexKeyedUninstall.ps1',
             'Assert-OpenCodeKeyedUninstall.ps1',
             'Assert-AntigravityKeyedUninstall.ps1',
-            'Assert-GrokKeyedUninstall.ps1'
+            'Assert-GrokKeyedUninstall.ps1',
+            'Assert-CursorKeyedUninstall.ps1',
+            'Assert-ZcodeKeyedUninstall.ps1'
           )
           foreach ($script in $scripts) {
             $path = Join-Path './scripts/validation' $script

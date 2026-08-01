@@ -25,6 +25,45 @@ function Convert-ClaudeRouterMdcReferencesToMd {
     return $Text.Replace($mdcExtension, $mdExtension)
 }
 
+function Get-ClaudeRouterPublishContent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:ClaudePublishMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-ClaudeAdapterRepoRoot
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceRouterFile = Join-Path (
+        Join-Path (Join-Path $repoRoot $script:ClaudePathConstant.CoreDirectoryName) $script:ClaudePathConstant.RouterDirectoryName
+    ) $script:ClaudePathConstant.RouterSourceFileName
+    if (-not (Test-Path -LiteralPath $sourceRouterFile)) {
+        throw ($script:ClaudePublishMessage.CoreRouterMissing -f $sourceRouterFile)
+    }
+
+    $raw = [System.IO.File]::ReadAllText($sourceRouterFile)
+    $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
+    $updated = $raw
+    foreach ($key in $placeholderMap.Keys) {
+        if ($updated.Contains([string]$key)) {
+            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
+        }
+    }
+
+    $updated = Convert-ClaudeRouterMdcReferencesToMd -Text $updated
+    return $updated
+}
+
 function Invoke-ClaudePublishRouter {
     [CmdletBinding()]
     param(
@@ -74,16 +113,7 @@ function Invoke-ClaudePublishRouter {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destinationClaudeMd = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.ClaudeMdFileName
 
-    $raw = [System.IO.File]::ReadAllText($sourceRouterFile)
-    $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
-    $updated = $raw
-    foreach ($key in $placeholderMap.Keys) {
-        if ($updated.Contains([string]$key)) {
-            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
-        }
-    }
-
-    $updated = Convert-ClaudeRouterMdcReferencesToMd -Text $updated
+    $updated = Get-ClaudeRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
 
     foreach ($placeholder in @(
             $script:ClaudePathConstant.PlaceholderToolkitRoot,
@@ -102,6 +132,12 @@ function Invoke-ClaudePublishRouter {
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($destinationClaudeMd, $updated, $utf8NoBom)
+
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:ClaudePathConstant.ClaudeMdFileName `
+        -PublishedContent $updated
 
     return [PSCustomObject]@{
         Success      = $true

@@ -44,7 +44,8 @@ $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $claudeModulePath = Join-Path $repoRoot 'adapters\claude\ClaudeAdapter.ps1'
 $seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude'
 $seedSettingsPath = Join-Path $seedFixtureRoot 'settings.json'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude-sync-uninstall'
+# Ephemeral work root (gitignored) — do not wipe tracked fixtures/claude-sync-uninstall seeds.
+$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude-sync-uninstall-work'
 $skillsDirName = 'skills'
 $rulesDirName = 'rules'
 $hooksDirName = 'hooks'

@@ -7,11 +7,13 @@
 #   Should_ExposeSubagentsCapability_When_RegistryLoaded
 #   Should_MatchModuleSubagents_When_EachTier1Loaded
 #   Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded
+#   Should_DeclarePublishSurface_When_RegistryLoaded
 #   Should_IncludeSubagentsInContractCapabilityNames
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $repoRootScript = Join-Path (Split-Path -Parent $scriptDir) '_lib\Get-ToolkitRepoRoot.ps1'
+$toolkitConstantsScript = Join-Path (Split-Path -Parent $scriptDir) '_lib\ToolkitConstants.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -30,6 +32,12 @@ function Write-Fail {
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
     Write-Fail -TestName 'Assert-AdapterContractPreconditions' -Reason ("missing {0}" -f $repoRootScript)
 }
+
+if (-not (Test-Path -LiteralPath $toolkitConstantsScript)) {
+    Write-Fail -TestName 'Assert-AdapterContractPreconditions' -Reason ("missing {0}" -f $toolkitConstantsScript)
+}
+
+. $toolkitConstantsScript
 
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
@@ -88,7 +96,6 @@ $requiredDocMarkers = @(
     'rules',
     'hooks',
     'router',
-    'sdd',
     'plugin',
     'subagents',
     'registry.json'
@@ -230,11 +237,11 @@ Write-Pass -TestName $moduleSubagentsName
 
 # --- Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded ---
 # Isolated child process per module reconciles every boolean capability flag
-# (skills, rules, hooks, router, sdd, plugin) between registry.json and the
+# (skills, rules, hooks, router, plugin) between registry.json and the
 # module's own Get-Capabilities output. subagents is a native/none enum and is
 # already reconciled above; it is intentionally excluded here.
 $moduleCapabilitiesName = 'Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded'
-$booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'sdd', 'plugin')
+$booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'plugin')
 $capabilitiesProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-capabilities-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
 $capabilitiesProbeBody = @'
 param(
@@ -309,6 +316,68 @@ finally {
 }
 
 Write-Pass -TestName $moduleCapabilitiesName
+
+# --- Should_DeclarePublishSurface_When_RegistryLoaded ---
+$publishSurfaceName = 'Should_DeclarePublishSurface_When_RegistryLoaded'
+$publishSurfaceProperty = 'publishSurface'
+$wholeFileRouterProperty = 'wholeFileRouter'
+$expectedWholeFileRouterByAgentId = @{
+    cursor      = @('AGENTS.md')
+    antigravity = @()
+    claude      = @('CLAUDE.md')
+    codex       = @('AGENTS.md')
+    copilot     = @()
+    opencode    = @('AGENTS.md')
+    grok        = @('AGENTS.md')
+    zcode       = @('AGENTS.md')
+}
+
+foreach ($agent in $registry.agents) {
+    $agentId = [string]$agent.id
+    if ($null -eq $agent.$publishSurfaceProperty) {
+        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceMissing -f $agentId)
+    }
+
+    $surface = $agent.$publishSurfaceProperty
+    $surfacePropNames = @($surface.PSObject.Properties.Name)
+    if ($surfacePropNames -notcontains $wholeFileRouterProperty) {
+        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterMissing -f $agentId)
+    }
+
+    $routerValue = $surface.$wholeFileRouterProperty
+    if ($null -eq $routerValue) {
+        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterInvalid -f $agentId)
+    }
+    if ($routerValue -isnot [System.Array]) {
+        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterInvalid -f $agentId)
+    }
+
+    $paths = @($routerValue)
+
+    foreach ($relativePath in $paths) {
+        $pathText = [string]$relativePath
+        if ([string]::IsNullOrWhiteSpace($pathText) -or
+            [System.IO.Path]::IsPathRooted($pathText) -or
+            $pathText.Contains('..') -or
+            $pathText.Contains('\') -or
+            $pathText.Contains('/')) {
+            Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfacePathInvalid -f $agentId, $pathText)
+        }
+    }
+
+    if (-not $expectedWholeFileRouterByAgentId.ContainsKey($agentId)) {
+        Write-Fail -TestName $publishSurfaceName -Reason ("no expected publishSurface matrix value for agent {0}" -f $agentId)
+    }
+
+    $expectedPaths = @($expectedWholeFileRouterByAgentId[$agentId])
+    $actualSorted = @($paths | ForEach-Object { [string]$_ } | Sort-Object)
+    $expectedSorted = @($expectedPaths | Sort-Object)
+    if (($actualSorted -join '|') -ne ($expectedSorted -join '|')) {
+        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceMismatch -f $agentId, ($expectedSorted -join ', '), ($actualSorted -join ', '))
+    }
+}
+
+Write-Pass -TestName $publishSurfaceName
 
 # --- Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachTier1Loaded ---
 # toolkit.ps1 may splat -AllowUserHome / -WhatIf into Uninstall-Toolkit; every
@@ -408,6 +477,18 @@ if ($null -eq $contractUninstall) {
 foreach ($paramName in $requiredUninstallParameterNames) {
     if (-not $contractUninstall.Parameters.ContainsKey($paramName)) {
         Write-Fail -TestName $commandsName -Reason ("contract Uninstall-Toolkit missing parameter: {0}" -f $paramName)
+    }
+}
+
+# Contract Get-SddRoot must bind sync-style switches for splat safety.
+$requiredGetSddRootParameterNames = @('Prepare', 'AllowUserHome', 'WhatIf')
+$contractGetSddRoot = Get-Command -Name Get-SddRoot -ErrorAction SilentlyContinue
+if ($null -eq $contractGetSddRoot) {
+    Write-Fail -TestName $commandsName -Reason 'Get-SddRoot not defined after contract dot-source'
+}
+foreach ($paramName in $requiredGetSddRootParameterNames) {
+    if (-not $contractGetSddRoot.Parameters.ContainsKey($paramName)) {
+        Write-Fail -TestName $commandsName -Reason ("contract Get-SddRoot missing parameter: {0}" -f $paramName)
     }
 }
 

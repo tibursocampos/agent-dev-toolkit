@@ -31,8 +31,12 @@ memory-bank/   # durable workspace map (Forma C Step 0)
 
 ## Uninstall honesty
 
-Keyed `Uninstall-Toolkit` implemented: Claude, Copilot, Codex, OpenCode, Antigravity, Grok.  
-**Not implemented** (fail-closed stub): Cursor, ZCode.
+Keyed `Uninstall-Toolkit` implemented for all eight Tier-1 agents (including Cursor and ZCode).  
+Preserves `sdd/sessions` and `sdd/manifest.json` (operator runtime state).
+
+## SDD runtime
+
+Every sync runs `Get-SddRoot -Prepare` for all Tier-1 agents (not a capability flag).
 
 ## Subagents
 

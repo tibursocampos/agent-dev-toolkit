@@ -156,10 +156,6 @@ if ($c.hooks -ne $false) {
     Write-Fail -TestName $capsName -Reason 'hooks must be false (honest: no native shell-hook parity)'
 }
 
-if ($c.sdd -ne $false) {
-    Write-Fail -TestName $capsName -Reason 'sdd must be false for Antigravity MVP capability honesty'
-}
-
 if ([string]::IsNullOrWhiteSpace([string]$caps.Message) -or $caps.Message -notmatch '(?i)hooks') {
     Write-Fail -TestName $capsName -Reason 'Capabilities Message must mention hooks honesty'
 }

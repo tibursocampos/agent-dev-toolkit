@@ -7,8 +7,11 @@
   Removes only known toolkit-managed paths under InstallRoot:
   - skills/<id> folders matching core/skills
   - rules/<file> matching core/policy
-  - CLAUDE.md (Publish-Router target)
+  - CLAUDE.md (Publish-Router target) when provenance confirms toolkit ownership
+    (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
   - hooks/<script> matching adapters/claude/assets/hooks
+
+  Operator-edited or drifted CLAUDE.md is preserved. Settings JSON reverse-merge runs before FS deletes.
 
   Settings reverse-merge: remove only toolkit-managed hook handlers (by the
   same command identity as merge) and managed permissions.allow entries.
@@ -282,13 +285,47 @@ function Invoke-ClaudeUninstallToolkit {
     $repoRoot = Get-ClaudeUninstallRepoRoot
     $libDir = Join-Path $repoRoot 'scripts\_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
+    $routerNotes = New-Object System.Collections.Generic.List[string]
+
+    $settingsResult = Remove-ClaudeToolkitSettingsEntries -ResolvedInstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+    if ($null -eq $settingsResult -or $settingsResult.Success -ne $true) {
+        $detail = if ($null -ne $settingsResult -and $settingsResult.PSObject.Properties.Name -contains 'Message') {
+            [string]$settingsResult.Message
+        }
+        else {
+            'settings reverse-merge failed'
+        }
+        return [PSCustomObject]@{
+            Success          = $false
+            Implemented      = $true
+            CommandName      = 'Uninstall-Toolkit'
+            WhatIf           = [bool]$WhatIf.IsPresent
+            InstallRoot      = $resolvedInstallRoot
+            RemovedCount     = 0
+            RemovedPaths     = @()
+            SettingsTouched  = $false
+            SettingsPath     = $(if ($null -ne $settingsResult) { $settingsResult.SettingsPath } else { $null })
+            KeyedOnly        = $true
+            WholesaleWipe    = $false
+            Message          = $detail
+            ExitCode         = 1
+        }
+    }
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.SkillsDirectoryName
-    foreach ($skillId in (Get-ClaudeManagedSkillIds -RepoRoot $repoRoot)) {
+    foreach ($rawSkillId in (Get-ClaudeManagedSkillIds -RepoRoot $repoRoot)) {
+        try {
+            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
+        }
+        catch {
+            continue
+        }
         $skillPath = Join-Path $skillsRoot $skillId
         $hit = Remove-ClaudeManagedPathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
         if ($hit) {
@@ -312,12 +349,20 @@ function Invoke-ClaudeUninstallToolkit {
     }
 
     $claudeMdPath = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.ClaudeMdFileName
-    $hitClaudeMd = Remove-ClaudeManagedPathIfPresent -Path $claudeMdPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($hitClaudeMd) {
+    $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:ClaudePathConstant.ClaudeMdFileName `
+        -CurrentFilePath $claudeMdPath `
+        -ResolveExpectedPublishContent { Get-ClaudeRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
+        -WhatIf:$WhatIf
+    if ($routerRemoveResult.Removed -or $routerRemoveResult.WouldRemove) {
         $wouldRemovePaths.Add($claudeMdPath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
+        if ($routerRemoveResult.Removed) {
             $removedPaths.Add($claudeMdPath) | Out-Null
         }
+    }
+    elseif ($routerRemoveResult.Preserved -and -not [string]::IsNullOrWhiteSpace($routerRemoveResult.Message)) {
+        $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
     }
 
     $hooksRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.HooksDirectoryName
@@ -332,38 +377,19 @@ function Invoke-ClaudeUninstallToolkit {
         }
     }
 
-    $settingsResult = Remove-ClaudeToolkitSettingsEntries -ResolvedInstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($null -eq $settingsResult -or $settingsResult.Success -ne $true) {
-        $detail = if ($null -ne $settingsResult -and $settingsResult.PSObject.Properties.Name -contains 'Message') {
-            [string]$settingsResult.Message
+    $pathCount = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
+    $messageParts = @(
+        $(if ($WhatIf.IsPresent) {
+            ('{0}; {1}' -f ($script:ClaudeUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
         }
         else {
-            'settings reverse-merge failed'
-        }
-        return [PSCustomObject]@{
-            Success          = $false
-            Implemented      = $true
-            CommandName      = 'Uninstall-Toolkit'
-            WhatIf           = [bool]$WhatIf.IsPresent
-            InstallRoot      = $resolvedInstallRoot
-            RemovedCount     = $(if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count })
-            RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
-            SettingsTouched  = $false
-            SettingsPath     = $(if ($null -ne $settingsResult) { $settingsResult.SettingsPath } else { $null })
-            KeyedOnly        = $true
-            WholesaleWipe    = $false
-            Message          = $detail
-            ExitCode         = 1
-        }
+            ('{0}; {1}' -f ($script:ClaudeUninstallMessage.RemovedOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
+        })
+    )
+    if ($routerNotes.Count -gt 0) {
+        $messageParts += @($routerNotes.ToArray())
     }
-
-    $pathCount = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
-    $message = if ($WhatIf.IsPresent) {
-        ('{0}; {1}' -f ($script:ClaudeUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
-    }
-    else {
-        ('{0}; {1}' -f ($script:ClaudeUninstallMessage.RemovedOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
-    }
+    $message = ($messageParts -join '; ')
 
     return [PSCustomObject]@{
         Success         = $true

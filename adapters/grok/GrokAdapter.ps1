@@ -18,6 +18,7 @@
   Packaging target is native `.grok/skills|rules|hooks` (docs.x.ai/build).
   Claude/Cursor compat is not the sole publish destination. Hooks trust
   (`/hooks-trust` / `--trust`) is a human step; smoke is filesystem-only.
+  Get-SddRoot (-Prepare) prepares SDD runtime on sync (not a capability flag).
 
 .NOTES
   Initial capabilities (Step 1 decision):
@@ -25,14 +26,17 @@
   - rules = true (.grok/rules/*.md from core/policy)
   - hooks = true (.grok/hooks JSON; trust UI manual)
   - router = true (AGENTS.md / project-rules surface)
-  - sdd = false
   - plugin = false (marketplace/plugins out of MVP CI green)
+  - SDD runtime prepared on sync via Get-SddRoot -Prepare (not a capability flag)
 #>
 
 $script:GrokAdapterDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:GrokAdapterDirectory)) {
     $script:GrokAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+
+$script:GrokAdapterLibDir = Join-Path $script:GrokAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:GrokAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:GrokAdapterDirectory 'GrokPathConstants.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokSkills.ps1')
@@ -63,7 +67,6 @@ $script:GrokAdapterCapabilityFlags = [ordered]@{
     rules     = $true
     hooks     = $true
     router    = $true
-    sdd       = $false
     plugin    = $false
     subagents = $script:GrokAdapterSubagentsNative
 }
@@ -272,19 +275,33 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for Grok MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $Prepare,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:GrokAdapterMessage.InstallRootRequired
     }
 
-    return New-GrokAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-GrokAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:GrokAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:GrokAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:GrokAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

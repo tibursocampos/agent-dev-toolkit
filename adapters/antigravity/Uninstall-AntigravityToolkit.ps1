@@ -212,14 +212,41 @@ function Invoke-AntigravityUninstallToolkit {
     }
 
     $repoRoot = Get-AntigravityUninstallRepoRoot
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     $resolvedInstallRoot = Resolve-AntigravityInstallRootPath -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome
     $mapped = Get-AntigravityMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $sep = [System.IO.Path]::DirectorySeparatorChar
 
+    $managedId = $script:AntigravityAdapterConstant.ManagedSkillsJsonEntryId
+    $skillsJsonTouched = Remove-AntigravityManagedSkillsJsonEntry -SkillsJsonPath $mapped.FixtureSkillsJsonPath -ManagedEntryId $managedId -WhatIf:$WhatIf
+    if ($skillsJsonTouched) {
+        $wouldRemovePaths.Add($mapped.FixtureSkillsJsonPath) | Out-Null
+        if (-not $WhatIf.IsPresent) {
+            $removedPaths.Add(($script:AntigravityUninstallMessage.SkillsJsonUpdated -f $managedId)) | Out-Null
+        }
+    }
+
+    foreach ($mdPath in @($mapped.FixtureAgentsMdPath, $mapped.FixtureGeminiMdPath)) {
+        $blockRemoved = Remove-AntigravityManagedMarkdownBlock -TargetPath $mdPath -WhatIf:$WhatIf
+        if ($blockRemoved) {
+            $wouldRemovePaths.Add($mdPath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add(($script:AntigravityUninstallMessage.ManagedBlockRemoved -f $mdPath)) | Out-Null
+            }
+        }
+    }
+
     $managedSkillIds = Get-AntigravityManagedSkillIds -RepoRoot $repoRoot
-    foreach ($skillId in $managedSkillIds) {
+    foreach ($rawSkillId in $managedSkillIds) {
+        try {
+            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
+        }
+        catch {
+            continue
+        }
         $skillPath = Join-Path $mapped.FixtureSkillsPath $skillId
         $wouldRemove = Remove-AntigravityPathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
         if ($wouldRemove) {
@@ -245,25 +272,6 @@ function Invoke-AntigravityUninstallToolkit {
         $wouldRemovePaths.Add($pluginDir) | Out-Null
         if (-not $WhatIf.IsPresent) {
             $removedPaths.Add($pluginDir) | Out-Null
-        }
-    }
-
-    $managedId = $script:AntigravityAdapterConstant.ManagedSkillsJsonEntryId
-    $skillsJsonTouched = Remove-AntigravityManagedSkillsJsonEntry -SkillsJsonPath $mapped.FixtureSkillsJsonPath -ManagedEntryId $managedId -WhatIf:$WhatIf
-    if ($skillsJsonTouched) {
-        $wouldRemovePaths.Add($mapped.FixtureSkillsJsonPath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
-            $removedPaths.Add(($script:AntigravityUninstallMessage.SkillsJsonUpdated -f $managedId)) | Out-Null
-        }
-    }
-
-    foreach ($mdPath in @($mapped.FixtureAgentsMdPath, $mapped.FixtureGeminiMdPath)) {
-        $blockRemoved = Remove-AntigravityManagedMarkdownBlock -TargetPath $mdPath -WhatIf:$WhatIf
-        if ($blockRemoved) {
-            $wouldRemovePaths.Add($mdPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add(($script:AntigravityUninstallMessage.ManagedBlockRemoved -f $mdPath)) | Out-Null
-            }
         }
     }
 

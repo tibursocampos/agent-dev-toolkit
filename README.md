@@ -49,7 +49,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 
 | id | Display name | Typical live root | Notes |
 |----|--------------|-------------------|--------|
-| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks, SDD |
+| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks; SDD runtime via sync |
 | `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
 | `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
 | `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: config/AGENTS under `.codex`; plugin sync under InstallRoot; USER skills via `-UserScope` |
@@ -116,7 +116,7 @@ agent-dev-toolkit/
 
 - Default `InstallRoot` is an **in-repo fixture** — CI never writes under `%USERPROFILE%`.
 - Live agent home requires **`-AllowUserHome`**.
-- Uninstall is **keyed** (toolkit artifacts only) for agents that implement it — **not** a wholesale home wipe. **Cursor** and **ZCode** `Uninstall-Toolkit` remain **not implemented** (fail-closed stub).
+- Uninstall is **keyed** (toolkit artifacts only) for all Tier-1 agents — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
 CI runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, plus all eight agent CI smokes on push/PR to `develop` / `master` / `main` (see `.github/workflows/validate-toolkit.yml`). Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
 

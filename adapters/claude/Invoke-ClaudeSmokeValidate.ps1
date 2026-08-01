@@ -293,13 +293,14 @@ function Invoke-ClaudeSmokeValidate {
 
     $missing = [System.Collections.Generic.List[string]]::new()
     $checks = [ordered]@{
-        SkillsPresent        = $false
-        RulesPresent         = $false
-        HookScriptsPresent   = $false
-        ClaudeMdPresent      = $false
+        SkillsPresent         = $false
+        RulesPresent          = $false
+        HookScriptsPresent    = $false
+        ClaudeMdPresent       = $false
         SettingsMergeComplete = $false
-        FilesystemOnly       = $true
-        RequiresHooksTrustUi = $false
+        SddLayoutPresent      = $false
+        FilesystemOnly        = $true
+        RequiresHooksTrustUi  = $false
     }
 
     $skillsOk = Test-ClaudeSmokeSkillManifestPresent -SkillsRoot $skillsPath
@@ -329,6 +330,9 @@ function Invoke-ClaudeSmokeValidate {
 
     $settingsOk = Test-ClaudeSmokeSettingsMergeComplete -SettingsPath $settingsPath -InstallRoot $resolvedInstallRoot -MissingRelative $missing
     $checks.SettingsMergeComplete = $settingsOk
+
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $missing
+    $checks.SddLayoutPresent = $sddOk
 
     if ($missing.Count -gt 0) {
         $listText = ($missing.ToArray() -join ', ')

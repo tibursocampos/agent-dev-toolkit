@@ -44,6 +44,6 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot .\scrip
 
 On **Publish-Skills**, the adapter keeps only `plugin/.codex-plugin/plugin.json` in that directory. Any other files already present under `.codex-plugin` (alien extras) are **deleted** before rewriting the managed manifest. Do not store custom files there if you need them to survive sync.
 
-Keyed **Uninstall-Toolkit** removes the managed `plugin.json` (and an empty `.codex-plugin` dir when applicable); it does **not** wipe `plugin/` or `.agents/` wholesale.
+Keyed **Uninstall-Toolkit** removes the managed `plugin.json` (and an empty `.codex-plugin` dir when applicable); it does **not** wipe `plugin/` or `.agents/` wholesale. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

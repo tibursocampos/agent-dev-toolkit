@@ -302,16 +302,17 @@ function Invoke-AntigravitySmokeValidate {
 
     $missing = [System.Collections.Generic.List[string]]::new()
     $checks = [ordered]@{
-        KebabSkillsPresent           = $false
-        UnderscoreOnlySkillsRejected = $false
-        SkillsJsonPresent            = $false
-        GuardrailsPresent            = $false
-        DevPersonaPresent            = $false
-        ManagedAgentsOrGeminiPresent = $false
+        KebabSkillsPresent              = $false
+        UnderscoreOnlySkillsRejected    = $false
+        SkillsJsonPresent               = $false
+        GuardrailsPresent               = $false
+        DevPersonaPresent               = $false
+        ManagedAgentsOrGeminiPresent    = $false
         ForbiddenUnderscorePhraseAbsent = $false
-        HooksIgnored                 = $true
-        LegacyBridgeNotGated         = $true
-        FilesystemOnly               = $true
+        SddLayoutPresent                = $false
+        HooksIgnored                    = $true
+        LegacyBridgeNotGated            = $true
+        FilesystemOnly                  = $true
     }
 
     $skillStats = Get-AntigravitySmokeSkillFolderStats -SkillsRoot $paths.FixtureSkillsPath
@@ -371,6 +372,9 @@ function Invoke-AntigravitySmokeValidate {
     if (-not $phraseOk) {
         $missing.Add(('forbidden phrase: ' + $script:AntigravityPathConstant.ForbiddenUnderscoreMandatePhrase))
     }
+
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $missing
+    $checks.SddLayoutPresent = $sddOk
 
     if ($missing.Count -gt 0) {
         $listText = ($missing.ToArray() -join ', ')

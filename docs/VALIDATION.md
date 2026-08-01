@@ -100,7 +100,7 @@ Other fixture roots: `fixtures/codex`, `fixtures/opencode`, `fixtures/grok`, `fi
 Workflow: `.github/workflows/validate-toolkit.yml` on `windows-latest` (checkout only; no secrets; no home sync for green):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`
+2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`, `Assert-CursorKeyedUninstall.ps1`, `Assert-ZcodeKeyedUninstall.ps1`
 3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
 4. `Invoke-CursorCiSmoke.ps1 -Quiet`
 5. `Invoke-AntigravityCiSmoke.ps1 -Quiet`

@@ -29,9 +29,10 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | `rules` | true | `core/policy` → `.grok/rules/*.md` |
 | `hooks` | true | Native JSON under `.grok/hooks` |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md` |
-| `sdd` | false | No SDD publish parity in this release |
 | `plugin` | false | Marketplace/plugins out of CI green |
 | `subagents` | `native` | Host `spawn_subagent`; see Spawn section |
+
+SDD runtime (`Get-SddRoot -Prepare`) runs on every sync — not a capability flag.
 
 ## Spawn / subagents (honesty)
 
@@ -87,7 +88,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent grok -InstallRoot "$env:US
 
 ## Uninstall (keyed)
 
-Removes only toolkit-managed paths (core skill ids, core policy → rules files, toolkit hook JSON/script, `AGENTS.md`). Preserves alien skills/rules/hooks and `config.toml`. Does **not** wipe `.grok` wholesale.
+Removes only toolkit-managed paths (core skill ids, core policy → rules files, toolkit hook JSON/script, `AGENTS.md`). Preserves alien skills/rules/hooks and `config.toml`. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe `.grok` wholesale.
 
 ## Official docs (xAI)
 

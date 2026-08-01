@@ -7,7 +7,7 @@ Operator entry points under `scripts/`.
 | Script | Role |
 |--------|------|
 | `scripts/toolkit.ps1` | Interactive Smart Manager (wizards + Help) or `-Action` / `-Agent` orchestrator |
-| `scripts/sync-agent.ps1` | Load registry module; run `Publish-*` (+ `Get-SddRoot -Prepare` when `sdd=true`) |
+| `scripts/sync-agent.ps1` | Load registry module; run `Publish-*`, then always `Get-SddRoot -Prepare` |
 | `scripts/validate-agent.ps1` | Always `validate-core`, then adapter `Invoke-SmokeValidate` |
 | `scripts/validation/validate-core.ps1` | Core contract suite (alias `validate-all.ps1`) |
 | `scripts/validation/Invoke-*CiSmoke.ps1` | CI-parity smoke harnesses |

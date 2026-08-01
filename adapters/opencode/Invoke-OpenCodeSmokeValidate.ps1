@@ -128,6 +128,7 @@ function Invoke-OpenCodeSmokeValidate {
         PluginMarkerPresent = $false
         PluginRequired      = $false
         ShellHooksRequired  = $false
+        SddLayoutPresent    = $false
         FilesystemOnly      = $true
     }
 
@@ -180,6 +181,19 @@ function Invoke-OpenCodeSmokeValidate {
     }
     else {
         $checks.PluginMarkerPresent = Test-Path -LiteralPath $pluginMarkerPath -PathType Leaf
+    }
+
+    $sddMissing = [System.Collections.Generic.List[string]]::new()
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $sddMissing
+    $checks.SddLayoutPresent = $sddOk
+    if (-not $sddOk) {
+        $listText = ($sddMissing.ToArray() -join ', ')
+        return New-OpenCodeSmokeResult `
+            -Success $false `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message ($script:OpenCodeSmokeMessage.Te05SddLayoutMissing -f $listText) `
+            -ExitCode 1
     }
 
     $passMessage = ($script:OpenCodeSmokeMessage.Passed -f $resolvedInstallRoot) + ' ' + $script:OpenCodeSmokeMessage.FilesystemOnlyNote
