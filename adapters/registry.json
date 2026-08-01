@@ -13,9 +13,11 @@
         "rules": true,
         "hooks": true,
         "router": true,
-        "sdd": true,
         "plugin": false,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
       }
     },
     {
@@ -28,9 +30,11 @@
         "rules": true,
         "hooks": false,
         "router": true,
-        "sdd": false,
         "plugin": true,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": []
       }
     },
     {
@@ -43,9 +47,11 @@
         "rules": true,
         "hooks": true,
         "router": true,
-        "sdd": false,
         "plugin": false,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["CLAUDE.md"]
       }
     },
     {
@@ -58,9 +64,11 @@
         "rules": false,
         "hooks": true,
         "router": true,
-        "sdd": false,
         "plugin": true,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
       }
     },
     {
@@ -73,9 +81,11 @@
         "rules": true,
         "hooks": true,
         "router": false,
-        "sdd": false,
         "plugin": false,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": []
       }
     },
     {
@@ -88,9 +98,11 @@
         "rules": false,
         "hooks": true,
         "router": true,
-        "sdd": false,
         "plugin": true,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
       }
     },
     {
@@ -103,9 +115,11 @@
         "rules": true,
         "hooks": true,
         "router": true,
-        "sdd": false,
         "plugin": false,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
       }
     },
     {
@@ -118,9 +132,11 @@
         "rules": false,
         "hooks": true,
         "router": true,
-        "sdd": false,
         "plugin": false,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
       }
     }
   ]

@@ -5,8 +5,10 @@
 
 .DESCRIPTION
   Removes only known toolkit-managed paths under InstallRoot (core skill ids,
-  core policy -> rules files, toolkit hook JSON/script, AGENTS.md).
-  Preserves alien skills/rules/hooks and config.toml. Does not wipe .grok.
+  core policy -> rules files, toolkit hook JSON/script). AGENTS.md is removed
+  only when provenance confirms toolkit ownership (.toolkit-managed-publish.json
+  sha256, or legacy hash match to core/router publish). Operator-edited AGENTS.md
+  is preserved. Preserves alien skills/rules/hooks and config.toml.
 #>
 
 $script:GrokUninstallModuleDirectory = $PSScriptRoot
@@ -43,7 +45,13 @@ function Get-GrokKnownToolkitArtifactPaths {
     $sourceSkillsRoot = Join-Path (Join-Path $RepoRoot $script:GrokAdapterConstant.CoreDirectoryName) $script:GrokAdapterConstant.SkillsDirectoryName
     if (Test-Path -LiteralPath $sourceSkillsRoot) {
         Get-ChildItem -LiteralPath $sourceSkillsRoot -Directory | ForEach-Object {
-            $candidate = Join-Path $MappedPaths.FixtureSkillsPath $_.Name
+            try {
+                $safeName = Assert-ToolkitManagedSkillName -SkillName $_.Name
+            }
+            catch {
+                return
+            }
+            $candidate = Join-Path $MappedPaths.FixtureSkillsPath $safeName
             if (Test-Path -LiteralPath $candidate) {
                 $paths.Add([System.IO.Path]::GetFullPath($candidate))
             }
@@ -69,10 +77,6 @@ function Get-GrokKnownToolkitArtifactPaths {
     $hooksScript = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.HooksSessionStartScriptName
     if (Test-Path -LiteralPath $hooksScript) {
         $paths.Add([System.IO.Path]::GetFullPath($hooksScript))
-    }
-
-    if (Test-Path -LiteralPath $MappedPaths.FixtureProjectAgentsPath) {
-        $paths.Add([System.IO.Path]::GetFullPath($MappedPaths.FixtureProjectAgentsPath))
     }
 
     return @($paths.ToArray())
@@ -102,9 +106,29 @@ function Invoke-GrokUninstallToolkit {
     }
 
     . $resolveScript
+    . (Join-Path $repoRoot 'scripts\_lib\Copy-ToolkitManagedTree.ps1')
+    . (Join-Path $repoRoot 'scripts\_lib\ToolkitManagedPublishInventory.ps1')
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-GrokKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
+    $routerNotes = New-Object System.Collections.Generic.List[string]
+
+    $agentsPath = $mapped.FixtureProjectAgentsPath
+    $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:GrokAdapterConstant.OfficialAgentsFileName `
+        -CurrentFilePath $agentsPath `
+        -ResolveExpectedPublishContent { Get-GrokRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
+        -WhatIf:$WhatIf
+    if ($routerRemoveResult.Removed) {
+        $knownPaths = @($knownPaths | Where-Object { -not [string]::Equals($_, [System.IO.Path]::GetFullPath($agentsPath), [System.StringComparison]::OrdinalIgnoreCase) })
+    }
+    elseif ($routerRemoveResult.WouldRemove) {
+        # WhatIf: include AGENTS.md in would-remove set via separate flag below
+    }
+    elseif ($routerRemoveResult.Preserved -and -not [string]::IsNullOrWhiteSpace($routerRemoveResult.Message)) {
+        $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
+    }
 
     # Fail-closed before WhatIf reporting or live delete (junction escape).
     foreach ($path in $knownPaths) {
@@ -114,11 +138,23 @@ function Invoke-GrokUninstallToolkit {
     }
 
     if ($WhatIf.IsPresent) {
-        $message = if ($knownPaths.Count -eq 0) {
+        $wouldRemoveCount = $knownPaths.Count
+        if ($routerRemoveResult.WouldRemove) {
+            $wouldRemoveCount += 1
+        }
+        $message = if ($wouldRemoveCount -eq 0 -and $routerNotes.Count -eq 0) {
             ($script:GrokAdapterMessage.UninstallNothingFound -f $resolvedInstallRoot)
         }
         else {
-            ($script:GrokAdapterMessage.UninstallWhatIfOk -f $knownPaths.Count, $resolvedInstallRoot)
+            ($script:GrokAdapterMessage.UninstallWhatIfOk -f $wouldRemoveCount, $resolvedInstallRoot)
+        }
+        if ($routerNotes.Count -gt 0) {
+            $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
+        }
+
+        $whatIfPaths = @($knownPaths)
+        if ($routerRemoveResult.WouldRemove) {
+            $whatIfPaths += @([System.IO.Path]::GetFullPath($agentsPath))
         }
 
         return [PSCustomObject]@{
@@ -127,8 +163,8 @@ function Invoke-GrokUninstallToolkit {
             CommandName  = 'Uninstall-Toolkit'
             WhatIf       = $true
             InstallRoot  = $resolvedInstallRoot
-            RemovedPaths = @($knownPaths)
-            RemovedCount = $knownPaths.Count
+            RemovedPaths = @($whatIfPaths)
+            RemovedCount = $wouldRemoveCount
             Message      = $message
             ExitCode     = 0
         }
@@ -147,11 +183,17 @@ function Invoke-GrokUninstallToolkit {
     }
 
     $removedArray = @($removed.ToArray())
-    $message = if ($removedArray.Count -eq 0) {
+    if ($routerRemoveResult.Removed) {
+        $removedArray += @([System.IO.Path]::GetFullPath($agentsPath))
+    }
+    $message = if ($removedArray.Count -eq 0 -and $routerNotes.Count -eq 0) {
         ($script:GrokAdapterMessage.UninstallNothingFound -f $resolvedInstallRoot)
     }
     else {
         ($script:GrokAdapterMessage.UninstallOk -f $removedArray.Count, $resolvedInstallRoot)
+    }
+    if ($routerNotes.Count -gt 0) {
+        $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
 
     return [PSCustomObject]@{

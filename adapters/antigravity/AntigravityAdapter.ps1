@@ -16,7 +16,8 @@
   config/plugins/agent-dev-toolkit. Publish-Router materializes skills/dev_persona
   from core/router and upserts managed blocks in config/AGENTS.md and config/GEMINI.md.
   Publish-Hooks is a capability-honest no-op (hooks=false): no writes under
-  config/hooks or the legacy antigravity-ide/plugins bridge. Invoke-SmokeValidate
+  config/hooks or the legacy antigravity-ide/plugins bridge. Get-SddRoot (-Prepare)
+  prepares InstallRoot/sdd (sessions + manifest seed). Invoke-SmokeValidate
   asserts official config/* artifacts (kebab skills, GUARDRAILS, dev_persona,
   skills.json). Uninstall-Toolkit removes keyed toolkit artifacts only.
   Does not write under USERPROFILE without -AllowUserHome.
@@ -39,6 +40,7 @@ $_antigravityToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:AntigravityAdapterDirectory)
 ) 'scripts\_lib'
 . (Join-Path $_antigravityToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $_antigravityToolkitLibDirectory 'Initialize-SddRootLayout.ps1')
 Remove-Variable -Name _antigravityToolkitLibDirectory -ErrorAction SilentlyContinue
 
 $script:AntigravityAdapterAgentId = 'antigravity'
@@ -65,7 +67,6 @@ $script:AntigravityAdapterCapabilityFlags = [ordered]@{
     rules     = $true
     hooks     = $false
     router    = $true
-    sdd       = $false
     plugin    = $true
     subagents = $script:AntigravityAdapterSubagentsNative
 }
@@ -115,8 +116,11 @@ $script:AntigravityAdapterMessage = @{
     NotImplemented            = '{0} is not implemented yet for the Antigravity adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired           = 'AgentId is required.'
     InstallRootRequired       = 'InstallRoot is required.'
-    CapabilitiesReady         = 'Antigravity adapter capabilities reported (skills/rules/router/plugin; hooks=false - no native shell-hook parity; sdd=false; subagents via fail-closed host probe / ADT_ANTIGRAVITY_SUBAGENTS override). Publish-Skills/Policy/Router ready; Publish-Hooks is a documented no-op; Invoke-SmokeValidate ready (filesystem-only; hooks/legacy bridge ignored); Uninstall-Toolkit keyed removal ready.'
+    CapabilitiesReady         = 'Antigravity adapter capabilities reported (skills/rules/router/plugin; hooks=false - no native shell-hook parity; subagents via fail-closed host probe / ADT_ANTIGRAVITY_SUBAGENTS override). Publish-Skills/Policy/Router ready; Publish-Hooks is a documented no-op; Get-SddRoot (-Prepare) and Invoke-SmokeValidate ready (filesystem-only; hooks/legacy bridge ignored); Uninstall-Toolkit keyed removal ready. SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
+    SddRootResolved           = 'Antigravity SDD root resolved at {0}.'
+    SddRootPrepared           = 'Prepared Antigravity SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
+    SddRootWouldPrepare       = 'WhatIf: would prepare Antigravity SDD root at {0} (sessions + seed manifest.json if missing).'
     CoreSkillsMissing         = 'Antigravity Publish-Skills: core skills source is missing: {0}'
     SkillsPublished           = 'Antigravity Publish-Skills: published {0} skill folder(s) from core/skills to {1}; skills.json upserted at {2}'
     SkillsWouldPublish        = 'Antigravity Publish-Skills: WhatIf - would publish core/skills to {0} and upsert skills.json at {1}'
@@ -914,19 +918,33 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub until later PLAN steps.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $Prepare,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:AntigravityAdapterMessage.InstallRootRequired
     }
 
-    return New-AntigravityAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-AntigravityAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:AntigravityAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:AntigravityAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:AntigravityAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

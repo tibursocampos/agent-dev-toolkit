@@ -7,14 +7,20 @@
   Exposes the stable adapter contract for agent id `claude`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Policy /
   Publish-Router / Publish-Hooks (scripts + settings.json merge) /
-  Invoke-SmokeValidate / Uninstall-Toolkit (keyed) are implemented.
+  Get-SddRoot (-Prepare) / Invoke-SmokeValidate / Uninstall-Toolkit (keyed)
+  are implemented.
   Does not write under USERPROFILE without -AllowUserHome.
+  Smoke is filesystem-only (Claude hooks trust UI out of scope).
+  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 #>
 
 $script:ClaudeAdapterDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:ClaudeAdapterDirectory)) {
     $script:ClaudeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+
+$script:ClaudeAdapterLibDir = Join-Path $script:ClaudeAdapterDirectory '..\..\scripts\_lib'
+. (Join-Path $script:ClaudeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:ClaudeAdapterDirectory 'ClaudePathConstants.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeSkills.ps1')
@@ -46,7 +52,6 @@ $script:ClaudeAdapterCapabilityFlags = [ordered]@{
     rules     = $true
     hooks     = $true
     router    = $true
-    sdd       = $false
     plugin    = $false
     subagents = $script:ClaudeAdapterSubagentsNative
 }
@@ -67,7 +72,10 @@ $script:ClaudeAdapterMessage = @{
     NotImplemented      = '{0} is not implemented yet for the Claude adapter. Stubs must not mutate InstallRoot.'
     AgentIdRequired     = 'AgentId is required.'
     InstallRootRequired = 'InstallRoot is required.'
-    CapabilitiesReady   = 'Claude adapter capabilities reported (skills/rules/hooks/router via CLAUDE.md). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; hooks trust UI out of scope).'
+    CapabilitiesReady   = 'Claude adapter capabilities reported (skills/rules/hooks/router via CLAUDE.md). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; hooks trust UI out of scope). SDD runtime prepared on sync.'
+    SddRootResolved     = 'Claude SDD root resolved at {0}.'
+    SddRootPrepared     = 'Prepared Claude SDD root at {0} (sessions={1}; manifestCreated={2}).'
+    SddRootWouldPrepare = 'WhatIf: would prepare Claude SDD root at {0} (sessions + seed manifest.json if missing).'
 }
 
 function New-ClaudeAdapterNotImplementedResult {
@@ -245,19 +253,33 @@ function Publish-Hooks {
 function Get-SddRoot {
     <#
     .SYNOPSIS
-      Resolve the published SDD root under InstallRoot. Stub - sdd capability is false for Claude MVP.
+      Resolve `<InstallRoot>/sdd`. With -Prepare, ensure `sessions/` and seed `manifest.json` if missing.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $Prepare,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw $script:ClaudeAdapterMessage.InstallRootRequired
     }
 
-    return New-ClaudeAdapterNotImplementedResult -CommandName 'Get-SddRoot'
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-ClaudeAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:ClaudeAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:ClaudeAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:ClaudeAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {

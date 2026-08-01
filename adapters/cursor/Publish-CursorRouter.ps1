@@ -4,6 +4,37 @@
   Helpers for Cursor Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).
 #>
 
+function Get-CursorRouterPublishContent {
+    <#
+    .SYNOPSIS
+      Resolved router markdown bytes Publish-Router would write (placeholder resolve).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:CursorAdapterMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-CursorAdapterRepoRoot
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceRouterRoot = Join-Path (Join-Path $repoRoot $script:CursorAdapterConstant.CoreDirectoryName) $script:CursorAdapterConstant.RouterDirectoryName
+    $sourceAgentsPath = Join-Path $sourceRouterRoot $script:CursorAdapterConstant.AgentsMarkdownFileName
+    if (-not (Test-Path -LiteralPath $sourceAgentsPath)) {
+        throw ($script:CursorAdapterMessage.CoreRouterMissing -f $sourceAgentsPath)
+    }
+
+    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
+    $placeholderMap = Get-CursorPlaceholderMap -InstallRoot $resolvedInstallRoot
+    return (Resolve-CursorPlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap)
+}
+
 function Invoke-CursorPublishRouter {
     <#
     .SYNOPSIS
@@ -56,11 +87,16 @@ function Invoke-CursorPublishRouter {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
-    $placeholderMap = Get-CursorPlaceholderMap -InstallRoot $resolvedInstallRoot
-    $resolved = Resolve-CursorPlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap
+    $resolved = Get-CursorRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     Assert-CursorPlaceholdersResolvedInFile -FilePath $destAgentsPath -Text $resolved
     Write-CursorUtf8NoBom -Path $destAgentsPath -Content $resolved -InstallRoot $resolvedInstallRoot
+
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:CursorAdapterConstant.AgentsMarkdownFileName `
+        -PublishedContent $resolved
 
     return [PSCustomObject]@{
         Success          = $true

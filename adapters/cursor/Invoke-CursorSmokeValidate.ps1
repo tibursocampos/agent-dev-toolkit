@@ -175,42 +175,6 @@ function Test-CursorSmokeAgentsPresent {
     return -not [string]::IsNullOrWhiteSpace($text)
 }
 
-function Test-CursorSmokeSddLayoutPresent {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $SddRoot,
-
-        [Parameter()]
-        [System.Collections.Generic.List[string]] $MissingRelative
-    )
-
-    $sddDir = $script:CursorAdapterConstant.SddDirectoryName
-    $sessionsRel = $sddDir + '/' + $script:CursorAdapterConstant.SessionsDirectoryName
-    $manifestRel = $sddDir + '/' + $script:CursorAdapterConstant.ManifestFileName
-    $complete = $true
-
-    if (-not (Test-Path -LiteralPath $SddRoot -PathType Container)) {
-        $MissingRelative.Add($sessionsRel)
-        $MissingRelative.Add($manifestRel)
-        return $false
-    }
-
-    $sessionsPath = Join-Path $SddRoot $script:CursorAdapterConstant.SessionsDirectoryName
-    if (-not (Test-Path -LiteralPath $sessionsPath -PathType Container)) {
-        $MissingRelative.Add($sessionsRel)
-        $complete = $false
-    }
-
-    $manifestPath = Join-Path $SddRoot $script:CursorAdapterConstant.ManifestFileName
-    if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
-        $MissingRelative.Add($manifestRel)
-        $complete = $false
-    }
-
-    return $complete
-}
-
 function Invoke-CursorSmokeValidate {
     <#
     .SYNOPSIS
@@ -247,7 +211,6 @@ function Invoke-CursorSmokeValidate {
     $hooksPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksDirectoryName
     $hooksJsonPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksJsonFileName
     $agentsPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.AgentsMarkdownFileName
-    $sddRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.SddDirectoryName
 
     $missing = [System.Collections.Generic.List[string]]::new()
     $checks = [ordered]@{
@@ -285,7 +248,7 @@ function Invoke-CursorSmokeValidate {
         $missing.Add($script:CursorAdapterConstant.AgentsMarkdownFileName)
     }
 
-    $sddOk = Test-CursorSmokeSddLayoutPresent -SddRoot $sddRoot -MissingRelative $missing
+    $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $missing
     $checks.SddLayoutPresent = $sddOk
 
     if ($missing.Count -gt 0) {

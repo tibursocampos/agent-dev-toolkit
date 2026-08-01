@@ -91,6 +91,47 @@ function Invoke-GrokPublishPolicy {
     }
 }
 
+function Get-GrokRouterPublishContent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:GrokAdapterMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-GrokAdapterRepoRoot
+    $resolveScript = Join-Path $repoRoot ($script:GrokAdapterConstant.ResolveInstallRootRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $resolveScript)) {
+        throw ($script:GrokAdapterMessage.ResolveInstallRootMissing -f $resolveScript)
+    }
+
+    . $resolveScript
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceRouterFile = Join-Path (
+        Join-Path (Join-Path $repoRoot $script:GrokAdapterConstant.CoreDirectoryName) $script:GrokAdapterConstant.RouterDirectoryName
+    ) $script:GrokAdapterConstant.RouterSourceFileName
+    if (-not (Test-Path -LiteralPath $sourceRouterFile)) {
+        throw ($script:GrokAdapterMessage.CoreRouterMissing -f $sourceRouterFile)
+    }
+
+    $raw = [System.IO.File]::ReadAllText($sourceRouterFile)
+    $placeholderMap = Get-GrokPlaceholderMap -InstallRoot $resolvedInstallRoot
+    $updated = $raw
+    foreach ($key in $placeholderMap.Keys) {
+        if ($updated.Contains([string]$key)) {
+            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
+        }
+    }
+
+    return (Convert-GrokRouterMdcReferencesToMd -Text $updated)
+}
+
 function Invoke-GrokPublishRouter {
     [CmdletBinding()]
     param(
@@ -145,16 +186,7 @@ function Invoke-GrokPublishRouter {
     $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $destinationAgentsMd = $mapped.FixtureProjectAgentsPath
 
-    $raw = [System.IO.File]::ReadAllText($sourceRouterFile)
-    $placeholderMap = Get-GrokPlaceholderMap -InstallRoot $resolvedInstallRoot
-    $updated = $raw
-    foreach ($key in $placeholderMap.Keys) {
-        if ($updated.Contains([string]$key)) {
-            $updated = $updated.Replace([string]$key, [string]$placeholderMap[$key])
-        }
-    }
-
-    $updated = Convert-GrokRouterMdcReferencesToMd -Text $updated
+    $updated = Get-GrokRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
 
     foreach ($placeholder in (Get-GrokSupportedPlaceholderTokens)) {
         if ($updated.Contains($placeholder)) {
@@ -169,6 +201,12 @@ function Invoke-GrokPublishRouter {
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($destinationAgentsMd, $updated, $utf8NoBom)
+
+    . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:GrokAdapterConstant.OfficialAgentsFileName `
+        -PublishedContent $updated
 
     return [PSCustomObject]@{
         Success      = $true

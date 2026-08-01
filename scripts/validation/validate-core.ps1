@@ -71,6 +71,8 @@ $managedSkillsPathSafetyScriptName = $script:ToolkitConstant.AssertManagedSkills
 $managedSkillsPathSafetyCheckName = $script:ToolkitConstant.ManagedSkillsPathSafetyCheckName
 $uninstallPathSafetyScriptName = $script:ToolkitConstant.AssertUninstallPathSafetyScriptName
 $uninstallPathSafetyCheckName = $script:ToolkitConstant.UninstallPathSafetyCheckName
+$sddRootPrepareIdempotentScriptName = $script:ToolkitConstant.AssertSddRootPrepareIdempotentScriptName
+$sddRootPrepareIdempotentCheckName = $script:ToolkitConstant.SddRootPrepareIdempotentCheckName
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -125,7 +127,8 @@ $coreChecks = @(
     @{ Name = $ciWorkflowCheckName; Script = $ciWorkflowScriptName },
     @{ Name = $noFeaturesDocLinksCheckName; Script = $noFeaturesDocLinksScriptName },
     @{ Name = $managedSkillsPathSafetyCheckName; Script = $managedSkillsPathSafetyScriptName },
-    @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName }
+    @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
+    @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

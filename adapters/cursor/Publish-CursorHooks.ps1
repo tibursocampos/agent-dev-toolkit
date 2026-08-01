@@ -145,8 +145,9 @@ function Test-CursorManagedHookCommand {
 
     .DESCRIPTION
       Prefers powershell/pwsh -File ".../hooks/<ManagedScriptFileName>" (quoted or
-      unquoted; forward or backslash separators). Falls back to a hooks/<file>
-      path-segment match so older InstallRoot prefixes still identify as managed.
+      unquoted; forward or backslash separators). Unless -StrictFileMatch is set,
+      falls back to a hooks/<file> path-segment match so older InstallRoot prefixes
+      still identify as managed during publish merge.
     #>
     [CmdletBinding()]
     param(
@@ -155,7 +156,10 @@ function Test-CursorManagedHookCommand {
         [string] $Command,
 
         [Parameter(Mandatory = $true)]
-        [string] $ManagedScriptFileName
+        [string] $ManagedScriptFileName,
+
+        [Parameter()]
+        [switch] $StrictFileMatch
     )
 
     if ([string]::IsNullOrWhiteSpace($Command)) {
@@ -174,6 +178,10 @@ function Test-CursorManagedHookCommand {
     $unquotedTemplate = ('(?i)(pwsh|powershell)\s+[^\r\n]*-File\s+\S*{0}' -f $hooksFileSegment)
     if ($Command -match $unquotedTemplate) {
         return $true
+    }
+
+    if ($StrictFileMatch.IsPresent) {
+        return $false
     }
 
     return ($Command -match $hooksFileSegment)
@@ -205,7 +213,10 @@ function Test-CursorHookCommandIsToolkitManaged {
 
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
-        [string[]] $ManagedScriptFileNames
+        [string[]] $ManagedScriptFileNames,
+
+        [Parameter()]
+        [switch] $StrictFileMatch
     )
 
     if ([string]::IsNullOrWhiteSpace($Command) -or $null -eq $ManagedScriptFileNames -or $ManagedScriptFileNames.Count -eq 0) {
@@ -213,7 +224,7 @@ function Test-CursorHookCommandIsToolkitManaged {
     }
 
     foreach ($scriptName in $ManagedScriptFileNames) {
-        if (Test-CursorManagedHookCommand -Command $Command -ManagedScriptFileName $scriptName) {
+        if (Test-CursorManagedHookCommand -Command $Command -ManagedScriptFileName $scriptName -StrictFileMatch:$StrictFileMatch) {
             return $true
         }
     }

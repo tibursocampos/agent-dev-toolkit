@@ -196,7 +196,7 @@ Claude/Cursor paths may be read by the product as compat; MVP **publish** target
 Workflow `.github/workflows/validate-toolkit.yml` on `windows-latest` (no USERPROFILE deploy for green):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok) — separate step; not inside validate-core
+2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode) — separate step; not inside validate-core
 3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
 4. Eight agent CI smokes: Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode
 

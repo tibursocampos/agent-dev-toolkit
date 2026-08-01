@@ -10,7 +10,10 @@
   - plugin/hooks/hooks.json + session_start.ps1
   - marketplace entry named agent-dev-toolkit (rewrite or remove catalog)
   - InstallRoot/.agents/skills/<id> matching core/skills (USER-scope mirror)
-  - InstallRoot/AGENTS.md (Publish-Router target)
+  - InstallRoot/AGENTS.md (Publish-Router target) when provenance confirms toolkit ownership
+    (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
+
+  Operator-edited or drifted AGENTS.md is preserved.
 
   Does not wipe InstallRoot, plugin/, .agents/, or alien files (RN07 / CU03).
   Never touches real ~/.codex. Uses Resolve-InstallRoot (USERPROFILE guard).
@@ -208,10 +211,13 @@ function Invoke-CodexUninstallToolkit {
     $repoRoot = Get-CodexUninstallRepoRoot
     $libDir = Join-Path $repoRoot 'scripts\_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
+    $routerNotes = New-Object System.Collections.Generic.List[string]
     $managedSkillIds = Get-CodexManagedSkillIds -RepoRoot $repoRoot
 
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
@@ -229,7 +235,21 @@ function Invoke-CodexUninstallToolkit {
         ) $script:CodexPathConstant.PluginsDirectoryName
     ) $script:CodexPathConstant.MarketplaceFileName
 
-    foreach ($skillId in $managedSkillIds) {
+    $wouldRemoveMarketplace = Update-CodexMarketplaceRemoveToolkitEntry -MarketplacePath $marketplacePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+    if ($wouldRemoveMarketplace) {
+        $wouldRemovePaths.Add($marketplacePath) | Out-Null
+        if (-not $WhatIf.IsPresent) {
+            $removedPaths.Add($marketplacePath) | Out-Null
+        }
+    }
+
+    foreach ($rawSkillId in $managedSkillIds) {
+        try {
+            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
+        }
+        catch {
+            continue
+        }
         $pluginSkillPath = Join-Path $pluginSkillsRoot $skillId
         $wouldRemove = Remove-CodexPathIfPresent -Path $pluginSkillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
         if ($wouldRemove) {
@@ -277,20 +297,20 @@ function Invoke-CodexUninstallToolkit {
         }
     }
 
-    $wouldRemoveAgents = Remove-CodexPathIfPresent -Path $agentsPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($wouldRemoveAgents) {
+    $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:CodexPathConstant.AgentsFileName `
+        -CurrentFilePath $agentsPath `
+        -ResolveExpectedPublishContent { Get-CodexRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
+        -WhatIf:$WhatIf
+    if ($routerRemoveResult.Removed -or $routerRemoveResult.WouldRemove) {
         $wouldRemovePaths.Add($agentsPath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
+        if ($routerRemoveResult.Removed) {
             $removedPaths.Add($agentsPath) | Out-Null
         }
     }
-
-    $wouldRemoveMarketplace = Update-CodexMarketplaceRemoveToolkitEntry -MarketplacePath $marketplacePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($wouldRemoveMarketplace) {
-        $wouldRemovePaths.Add($marketplacePath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
-            $removedPaths.Add($marketplacePath) | Out-Null
-        }
+    elseif ($routerRemoveResult.Preserved -and -not [string]::IsNullOrWhiteSpace($routerRemoveResult.Message)) {
+        $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
     }
 
     $count = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
@@ -307,6 +327,9 @@ function Invoke-CodexUninstallToolkit {
     }
     else {
         $script:CodexUninstallMessage.RemovedOk -f $count, $resolvedInstallRoot
+    }
+    if ($routerNotes.Count -gt 0) {
+        $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
 
     return [PSCustomObject]@{

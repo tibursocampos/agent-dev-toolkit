@@ -6,9 +6,10 @@
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `cursor`.
   Get-Capabilities / Get-InstallRoots / Publish-* / Get-SddRoot (-Prepare) /
-  Invoke-SmokeValidate are implemented; Uninstall-Toolkit stays fail-closed (out of MVP).
+  Invoke-SmokeValidate / Uninstall-Toolkit (keyed) are implemented.
   Does not write under USERPROFILE unless -AllowUserHome is set.
   Smoke is filesystem-only (Cursor hooks trust UI out of scope).
+  Uninstall preserves sdd/sessions and sdd/manifest.json (operator state).
 #>
 
 $script:CursorAdapterDirectory = $PSScriptRoot
@@ -20,6 +21,7 @@ $script:CursorAdapterLibDir = Join-Path $script:CursorAdapterDirectory '..\..\sc
 . (Join-Path $script:CursorAdapterLibDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $script:CursorAdapterLibDir 'Resolve-InstallRoot.ps1')
 . (Join-Path $script:CursorAdapterLibDir 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $script:CursorAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:CursorAdapterDirectory 'CursorPathConstants.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorSkills.ps1')
@@ -50,7 +52,6 @@ $script:CursorAdapterCapabilityFlags = [ordered]@{
     rules     = $true
     hooks     = $true
     router    = $true
-    sdd       = $true
     plugin    = $false
     subagents = $script:CursorAdapterSubagentsNative
 }
@@ -77,7 +78,7 @@ function Get-CursorAdapterCommandNames {
 function Get-Capabilities {
     <#
     .SYNOPSIS
-      Report Cursor adapter capability flags (skills/rules/hooks/router/sdd).
+      Report Cursor adapter capability flags (skills/rules/hooks/router/plugin/subagents).
     #>
     [CmdletBinding()]
     param(
@@ -224,70 +225,6 @@ function Publish-Hooks {
     return Invoke-CursorPublishHooks -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
-function New-CursorSddManifestSeedObject {
-    return [ordered]@{
-        schema_version = [int]$script:CursorAdapterConstant.ManifestSchemaVersion
-        repositories   = [ordered]@{}
-    }
-}
-
-function Initialize-CursorSddRootLayout {
-    param(
-        [Parameter(Mandatory = $true)][string] $SddRoot,
-        [Parameter(Mandatory = $true)][string] $SessionsPath,
-        [Parameter(Mandatory = $true)][string] $ManifestPath,
-        [Parameter(Mandatory = $true)][string] $InstallRoot,
-        [Parameter()][switch] $WhatIf
-    )
-
-    if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
-        . (Join-Path $script:CursorAdapterLibDir 'Copy-ToolkitManagedTree.ps1')
-    }
-
-    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $SddRoot -InstallRoot $InstallRoot
-
-    $sessionsCreated = $false
-    $manifestCreated = $false
-
-    if ($WhatIf.IsPresent) {
-        $sessionsCreated = -not (Test-Path -LiteralPath $SessionsPath)
-        $manifestCreated = -not (Test-Path -LiteralPath $ManifestPath)
-        return [PSCustomObject]@{
-            SessionsCreated = $sessionsCreated
-            ManifestCreated = $manifestCreated
-        }
-    }
-
-    if (-not (Test-Path -LiteralPath $SddRoot)) {
-        New-Item -ItemType Directory -Path $SddRoot -Force | Out-Null
-    }
-    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $SddRoot -InstallRoot $InstallRoot
-
-    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $SessionsPath -InstallRoot $InstallRoot
-    if (-not (Test-Path -LiteralPath $SessionsPath)) {
-        New-Item -ItemType Directory -Path $SessionsPath -Force | Out-Null
-        $sessionsCreated = $true
-    }
-    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $SessionsPath -InstallRoot $InstallRoot
-
-    Assert-ToolkitManagedPathContained `
-        -CandidatePath $ManifestPath `
-        -RootPath $InstallRoot `
-        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
-        -RequireStrictChild
-    if (-not (Test-Path -LiteralPath $ManifestPath)) {
-        $seed = New-CursorSddManifestSeedObject
-        $json = ConvertTo-CursorCleanJson -Object $seed
-        Write-CursorUtf8NoBom -Path $ManifestPath -Content $json -InstallRoot $InstallRoot
-        $manifestCreated = $true
-    }
-
-    return [PSCustomObject]@{
-        SessionsCreated = $sessionsCreated
-        ManifestCreated = $manifestCreated
-    }
-}
-
 function Get-SddRoot {
     <#
     .SYNOPSIS
@@ -312,74 +249,15 @@ function Get-SddRoot {
         throw $script:CursorAdapterMessage.InstallRootRequired
     }
 
-    $repoRoot = Get-CursorAdapterRepoRoot
-    $resolvedInstallRoot = if ($Prepare.IsPresent) {
-        Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-    }
-    else {
-        [System.IO.Path]::GetFullPath($InstallRoot)
-    }
-
-    $sddRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.SddDirectoryName
-    $sessionsPath = Join-Path $sddRoot $script:CursorAdapterConstant.SessionsDirectoryName
-    $manifestPath = Join-Path $sddRoot $script:CursorAdapterConstant.ManifestFileName
-
-    if (-not $Prepare.IsPresent) {
-        return [PSCustomObject]@{
-            Success       = $true
-            Implemented   = $true
-            CommandName   = 'Get-SddRoot'
-            InstallRoot   = $resolvedInstallRoot
-            SddRoot       = $sddRoot
-            SessionsPath  = $sessionsPath
-            ManifestPath  = $manifestPath
-            Prepared      = $false
-            WhatIf        = $false
-            Message       = ($script:CursorAdapterMessage.SddRootResolved -f $sddRoot)
-            ExitCode      = 0
-        }
-    }
-
-    if ($WhatIf.IsPresent) {
-        $layout = Initialize-CursorSddRootLayout -SddRoot $sddRoot -SessionsPath $sessionsPath -ManifestPath $manifestPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-        return [PSCustomObject]@{
-            Success         = $true
-            Implemented     = $true
-            CommandName     = 'Get-SddRoot'
-            InstallRoot     = $resolvedInstallRoot
-            SddRoot         = $sddRoot
-            SessionsPath    = $sessionsPath
-            ManifestPath    = $manifestPath
-            Prepared        = $true
-            SessionsCreated = [bool]$layout.SessionsCreated
-            ManifestCreated = [bool]$layout.ManifestCreated
-            WhatIf          = $true
-            Message         = ($script:CursorAdapterMessage.SddRootWouldPrepare -f $sddRoot)
-            ExitCode        = 0
-        }
-    }
-
-    $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-    $sddRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.SddDirectoryName
-    $sessionsPath = Join-Path $sddRoot $script:CursorAdapterConstant.SessionsDirectoryName
-    $manifestPath = Join-Path $sddRoot $script:CursorAdapterConstant.ManifestFileName
-    $layout = Initialize-CursorSddRootLayout -SddRoot $sddRoot -SessionsPath $sessionsPath -ManifestPath $manifestPath -InstallRoot $resolvedInstallRoot
-
-    return [PSCustomObject]@{
-        Success         = $true
-        Implemented     = $true
-        CommandName     = 'Get-SddRoot'
-        InstallRoot     = $resolvedInstallRoot
-        SddRoot         = $sddRoot
-        SessionsPath    = $sessionsPath
-        ManifestPath    = $manifestPath
-        Prepared        = $true
-        SessionsCreated = [bool]$layout.SessionsCreated
-        ManifestCreated = [bool]$layout.ManifestCreated
-        WhatIf          = $false
-        Message         = ($script:CursorAdapterMessage.SddRootPrepared -f $sddRoot, $layout.SessionsCreated, $layout.ManifestCreated)
-        ExitCode        = 0
-    }
+    return Invoke-ToolkitGetSddRoot `
+        -InstallRoot $InstallRoot `
+        -RepoRoot (Get-CursorAdapterRepoRoot) `
+        -Prepare:$Prepare `
+        -AllowUserHome:$AllowUserHome `
+        -WhatIf:$WhatIf `
+        -MessageResolved $script:CursorAdapterMessage.SddRootResolved `
+        -MessagePrepared $script:CursorAdapterMessage.SddRootPrepared `
+        -MessageWouldPrepare $script:CursorAdapterMessage.SddRootWouldPrepare
 }
 
 function Invoke-SmokeValidate {
@@ -405,7 +283,8 @@ function Invoke-SmokeValidate {
 function Uninstall-Toolkit {
     <#
     .SYNOPSIS
-      Remove published toolkit files from InstallRoot. Stub - out of adapter MVP scope.
+      Remove keyed toolkit artifacts from InstallRoot (skills/rules/hooks/AGENTS.md + hooks.json reverse-merge).
+      Preserves sdd/sessions and sdd/manifest.json.
     #>
     [CmdletBinding()]
     param(

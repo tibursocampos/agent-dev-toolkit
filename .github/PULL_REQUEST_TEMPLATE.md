@@ -17,7 +17,7 @@
 Parity with `.github/workflows/validate-toolkit.yml` (as applicable to the change):
 
 - [ ] `.\scripts\validation\validate-core.ps1` passes locally (alias: `validate-all.ps1`)
-- [ ] Keyed uninstall asserts (when uninstall/publish paths change): `Assert-ClaudeKeyedUninstall`, `Assert-CopilotKeyedUninstall`, `Assert-CodexKeyedUninstall`, `Assert-OpenCodeKeyedUninstall`, `Assert-AntigravityKeyedUninstall`, `Assert-GrokKeyedUninstall`
+- [ ] Keyed uninstall asserts (when uninstall/publish paths change): `Assert-ClaudeKeyedUninstall`, `Assert-CopilotKeyedUninstall`, `Assert-CodexKeyedUninstall`, `Assert-OpenCodeKeyedUninstall`, `Assert-AntigravityKeyedUninstall`, `Assert-GrokKeyedUninstall`, `Assert-CursorKeyedUninstall`, `Assert-ZcodeKeyedUninstall`
 - [ ] `.\scripts\validation\Assert-SyncAllowUserHomeForward.ps1` (when sync/home-guard paths change)
 - [ ] CI smokes relevant to the change pass locally:
   - [ ] `Invoke-CursorCiSmoke`

@@ -6,7 +6,7 @@
 | Replacing Claude/Codex settings.json wholesale | Keyed merge + backup; never wipe runtime dirs; Claude `permissions.allow` narrow (per-hook Bash), strip legacy broad wildcards unless opt-in |
 | Codex hooks trust gate | Document `/hooks` trust; smoke asserts files, not live trust UI |
 | OpenCode hooks are JS plugins, not PS1 | Capability `hooks` + `HooksSemantics=plugin-only`; do not fake shell-hook parity; CI = filesystem smoke only |
-| Claiming Cursor/ZCode keyed uninstall | Document fail-closed stub; CI keyed uninstall asserts omit Cursor/ZCode |
+| Uninstall wiping SDD operator state | Keyed uninstall must preserve `sdd/sessions` and `sdd/manifest.json`; CI asserts (incl. Cursor/ZCode) verify survival |
 | Subagents registry vs effective (Antigravity) | Registry may be `native`; prefer `Get-Capabilities` probe (pré-2.0 → `none`) |
 | Drift vs intact twins | Accepted; changelog only in this repo |
 | Accidental publish to real user home in tests | Fixture roots + fail if InstallRoot resolves under USERPROFILE without `-AllowUserHome`; CI uses Assert-SyncAllowUserHomeForward probe only |

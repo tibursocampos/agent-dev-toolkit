@@ -165,6 +165,7 @@ function Invoke-CopilotUninstallToolkit {
     $repoRoot = Get-CopilotUninstallAdapterRepoRoot
     $libDir = Join-Path $repoRoot 'scripts\_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
 
@@ -187,7 +188,13 @@ function Invoke-CopilotUninstallToolkit {
     $removedPaths = New-Object System.Collections.Generic.List[string]
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.SkillsDirectoryName
-    foreach ($skillName in (Get-CopilotManagedSkillNames -SourceSkillsRoot $sourceSkillsRoot)) {
+    foreach ($rawSkillName in (Get-CopilotManagedSkillNames -SourceSkillsRoot $sourceSkillsRoot)) {
+        try {
+            $skillName = Assert-ToolkitManagedSkillName -SkillName $rawSkillName
+        }
+        catch {
+            continue
+        }
         $skillPath = Join-Path $skillsRoot $skillName
         if (Remove-CopilotManagedPath -TargetPath $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($skillPath) | Out-Null

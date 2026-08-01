@@ -56,6 +56,7 @@ $script:OpenCodeSmokeMessage = @{
     Te02SkillsMissing      = 'TE02: OpenCode agent ''opencode'' smoke failed - skills layout incomplete. Expected at least one skills/<kebab-id>/SKILL.md under: {0}'
     Te02AgentsMissing      = 'TE02: OpenCode agent ''opencode'' smoke failed - AGENTS.md missing or empty at: {0}'
     Te03PluginMismatch     = 'TE03: OpenCode hooks/plugin capable (Decision A) but plugin marker missing at: {0}. Capability vs artifacts mismatch (RN03: no shell/PS1 hooks required).'
+    Te05SddLayoutMissing   = 'TE05: OpenCode smoke failed - SDD layout incomplete under InstallRoot. Missing: {0}'
     FilesystemOnlyNote     = 'OpenCode smoke is filesystem-only - does not invoke OpenCode runtime (TE04 out of scope).'
 }
 

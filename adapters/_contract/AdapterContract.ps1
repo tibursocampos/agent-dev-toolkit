@@ -26,7 +26,6 @@ $script:AdapterCapabilityNames = @(
     'rules',
     'hooks',
     'router',
-    'sdd',
     'plugin',
     'subagents'
 )
@@ -200,7 +199,13 @@ function Get-SddRoot {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $Prepare,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {

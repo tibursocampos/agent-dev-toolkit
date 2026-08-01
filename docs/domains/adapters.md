@@ -46,7 +46,7 @@ Contract stubs / shared helpers: `adapters/_contract/AdapterContract.ps1`.
 | `Publish-Skills` / `Publish-Policy` / `Publish-Router` / `Publish-Hooks` | Publish into InstallRoot |
 | `Get-SddRoot` | Resolve / prepare SDD state root |
 | `Invoke-SmokeValidate` | Fixture filesystem smoke |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (stub on Cursor / ZCode) |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (all Tier-1; preserves SDD state) |
 
 Orchestrators: `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`, `scripts/toolkit.ps1`. **Backup** (`-Action Backup`) is a CLI stub only — it does **not** call an adapter.
 
@@ -64,18 +64,19 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
-| Keyed uninstall | Claude, Copilot, Codex, OpenCode, Antigravity, Grok implemented; **Cursor** and **ZCode** not implemented |
+| Keyed uninstall | All Tier-1 agents; preserves `sdd/sessions` + `sdd/manifest.json` |
+| SDD runtime | Every sync runs `Get-SddRoot -Prepare` (not a capability flag) |
 
 ## Module READMEs
 
-- [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; uninstall **not implemented**
+- [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; keyed uninstall (preserves SDD)
 - [adapters/antigravity/README.md](../../adapters/antigravity/README.md) — official `config/*`; spawn probe
 - [adapters/claude/README.md](../../adapters/claude/README.md) — settings merge, narrow permissions, keyed uninstall
 - [adapters/codex/README.md](../../adapters/codex/README.md) — plugin packaging; keyed uninstall
 - [adapters/copilot/README.md](../../adapters/copilot/README.md) — Mode user\|repo; keyed uninstall
 - [adapters/opencode/README.md](../../adapters/opencode/README.md) — plugin-only hooks; keyed uninstall
 - [adapters/grok/README.md](../../adapters/grok/README.md) — native `.grok`, trust note; keyed uninstall
-- [adapters/zcode/README.md](../../adapters/zcode/README.md) — ADE filesystem; uninstall **not implemented**
+- [adapters/zcode/README.md](../../adapters/zcode/README.md) — ADE filesystem; keyed uninstall (preserves SDD)
 
 ## Related
 

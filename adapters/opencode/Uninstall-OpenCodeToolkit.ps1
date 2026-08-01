@@ -6,8 +6,11 @@
 .DESCRIPTION
   Removes only known toolkit-managed paths under InstallRoot:
   - skills/<id> folders that match core/skills (including _shared)
-  - AGENTS.md at InstallRoot root (Publish-Router target)
+  - AGENTS.md at InstallRoot root (Publish-Router target) when provenance confirms toolkit ownership
+    (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
   - plugins/agent-dev-toolkit-marker.js (Decision A Publish-Hooks)
+
+  Operator-edited or drifted AGENTS.md is preserved.
 
   Does not wipe InstallRoot, skills/, plugins/, or alien files (RN07 / CU03).
   Uses Resolve-InstallRoot (USERPROFILE guard; -AllowUserHome opt-in).
@@ -114,14 +117,23 @@ function Invoke-OpenCodeUninstallToolkit {
     $repoRoot = Get-OpenCodeUninstallRepoRoot
     $libDir = Join-Path $repoRoot 'scripts\_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
+    $routerNotes = New-Object System.Collections.Generic.List[string]
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.SkillsDirectoryName
     $managedSkillIds = Get-OpenCodeManagedSkillIds -RepoRoot $repoRoot
-    foreach ($skillId in $managedSkillIds) {
+    foreach ($rawSkillId in $managedSkillIds) {
+        try {
+            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
+        }
+        catch {
+            continue
+        }
         $skillPath = Join-Path $skillsRoot $skillId
         $wouldRemove = Remove-OpenCodePathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
         if ($wouldRemove) {
@@ -133,12 +145,20 @@ function Invoke-OpenCodeUninstallToolkit {
     }
 
     $agentsPath = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.AgentsFileName
-    $wouldRemoveAgents = Remove-OpenCodePathIfPresent -Path $agentsPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($wouldRemoveAgents) {
+    $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:OpenCodePathConstant.AgentsFileName `
+        -CurrentFilePath $agentsPath `
+        -ResolveExpectedPublishContent { Get-OpenCodeRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
+        -WhatIf:$WhatIf
+    if ($routerRemoveResult.Removed -or $routerRemoveResult.WouldRemove) {
         $wouldRemovePaths.Add($agentsPath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
+        if ($routerRemoveResult.Removed) {
             $removedPaths.Add($agentsPath) | Out-Null
         }
+    }
+    elseif ($routerRemoveResult.Preserved -and -not [string]::IsNullOrWhiteSpace($routerRemoveResult.Message)) {
+        $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
     }
 
     $pluginMarkerPath = Join-Path (
@@ -157,6 +177,9 @@ function Invoke-OpenCodeUninstallToolkit {
     }
     else {
         $script:OpenCodeUninstallMessage.RemovedOk -f $removedPaths.Count, $resolvedInstallRoot
+    }
+    if ($routerNotes.Count -gt 0) {
+        $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
 
     return [PSCustomObject]@{

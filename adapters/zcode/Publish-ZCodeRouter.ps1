@@ -27,6 +27,36 @@ function Get-ZCodeRouterRepoRoot {
     return (Split-Path -Parent (Split-Path -Parent $script:ZCodeRouterModuleDirectory))
 }
 
+function Get-ZCodeRouterPublishContent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:ZCodePublishMessage.InstallRootRequired
+    }
+
+    $repoRoot = Get-ZCodeRouterRepoRoot
+    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+    $sourceRouterRoot = Join-Path (Join-Path $repoRoot $script:ZCodePathConstant.CoreDirectoryName) $script:ZCodePathConstant.RouterDirectoryName
+    $sourceAgentsPath = Join-Path $sourceRouterRoot $script:ZCodePathConstant.AgentsFileName
+    if (-not (Test-Path -LiteralPath $sourceAgentsPath)) {
+        throw ($script:ZCodePublishMessage.CoreRouterMissing -f $sourceAgentsPath)
+    }
+
+    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
+    $placeholderMap = Get-ZCodePlaceholderMap -InstallRoot $resolvedInstallRoot
+    return (Resolve-ZCodePlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap)
+}
+
 function Invoke-ZCodePublishRouter {
     [CmdletBinding()]
     param(
@@ -86,9 +116,7 @@ function Invoke-ZCodePublishRouter {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
-    $placeholderMap = Get-ZCodePlaceholderMap -InstallRoot $resolvedInstallRoot
-    $updated = Resolve-ZCodePlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap
+    $updated = Get-ZCodeRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     Assert-ZCodePlaceholdersResolvedInFile -FilePath $destinationAgentsPath -Text $updated
 
     Assert-ToolkitManagedPathContained `
@@ -98,6 +126,12 @@ function Invoke-ZCodePublishRouter {
         -RequireStrictChild
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($destinationAgentsPath, $updated, $utf8NoBom)
+
+    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
+    Set-ToolkitManagedPublishInventoryEntryFromContent `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath $script:ZCodePathConstant.AgentsFileName `
+        -PublishedContent $updated
 
     return [PSCustomObject]@{
         Success            = $true

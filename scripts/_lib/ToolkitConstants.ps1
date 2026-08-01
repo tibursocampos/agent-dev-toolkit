@@ -64,6 +64,8 @@ $script:ToolkitConstant = @{
     ManagedSkillsPathSafetyCheckName   = 'managed-skills-path-safety'
     AssertUninstallPathSafetyScriptName = 'Assert-UninstallPathSafety.ps1'
     UninstallPathSafetyCheckName       = 'uninstall-path-safety'
+    AssertSddRootPrepareIdempotentScriptName = 'Assert-SddRootPrepareIdempotent.ps1'
+    SddRootPrepareIdempotentCheckName  = 'sdd-root-prepare-idempotent'
     # Fixture-local keyed uninstall asserts (no live-home write). Kept out of
     # validate-core because they call validate-agent which re-enters validate-core.
     # CI runs them via a dedicated workflow step (inline loop over this list).
@@ -73,7 +75,9 @@ $script:ToolkitConstant = @{
         @{ CheckName = 'codex-keyed-uninstall'; ScriptName = 'Assert-CodexKeyedUninstall.ps1' },
         @{ CheckName = 'opencode-keyed-uninstall'; ScriptName = 'Assert-OpenCodeKeyedUninstall.ps1' },
         @{ CheckName = 'antigravity-keyed-uninstall'; ScriptName = 'Assert-AntigravityKeyedUninstall.ps1' },
-        @{ CheckName = 'grok-keyed-uninstall'; ScriptName = 'Assert-GrokKeyedUninstall.ps1' }
+        @{ CheckName = 'grok-keyed-uninstall'; ScriptName = 'Assert-GrokKeyedUninstall.ps1' },
+        @{ CheckName = 'cursor-keyed-uninstall'; ScriptName = 'Assert-CursorKeyedUninstall.ps1' },
+        @{ CheckName = 'zcode-keyed-uninstall'; ScriptName = 'Assert-ZcodeKeyedUninstall.ps1' }
     )
     AllowUserHomeProbeNamePrefix       = '.agent-dev-toolkit-allowuserhome-probe-'
     RelativeParentPathSegment          = '..'
@@ -141,6 +145,19 @@ $script:ToolkitConstant = @{
     ManagedSkillsManifestSchemaVersion = 1
     ManagedSkillsManifestSkillsProperty = 'skills'
     ManagedSkillsManifestSchemaProperty = 'schemaVersion'
+    ManagedPublishInventoryFileName  = '.toolkit-managed-publish.json'
+    ManagedPublishInventorySchemaVersion = 1
+    ManagedPublishInventoryFilesProperty = 'files'
+    ManagedPublishInventorySchemaProperty = 'schemaVersion'
+    ManagedPublishInventoryKindProperty = 'kind'
+    ManagedPublishInventorySha256Property = 'sha256'
+    ManagedPublishInventoryKindRouter = 'router'
+    ManagedPublishInventoryAtomicWriteTempSuffix = '.tmp'
+    ManagedPublishInventoryAtomicWriteMaxAttempts = 3
+    ManagedPublishInventoryAtomicWriteRetryDelayMs = 50
+    RouterFilePreservedNoteFormat      = '{0} preserved (operator edit or content drift; not toolkit-owned).'
+    RegistryPublishSurfacePropertyName = 'publishSurface'
+    RegistryPublishSurfaceWholeFileRouterPropertyName = 'wholeFileRouter'
     DefaultTextFileExtensionPattern = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
     JsonConvertDepthShallow        = 5
     JsonConvertDepthDeep           = 8
@@ -197,6 +214,21 @@ $script:ToolkitMessage = @{
     PlaceholderUnresolved              = 'Unresolved placeholder {0} remains under {1}'
     PlaceholderMapRequired             = 'PlaceholderMap is required unless -SkipPlaceholderResolve is set.'
     ManagedSkillsManifestInvalid       = 'Managed skills manifest is invalid at {0}: {1}'
+    ManagedPublishInventoryInvalid     = 'Managed publish inventory is invalid at {0}: {1}'
+    ManagedPublishRelativePathInvalid  = 'Managed publish relative path is invalid (empty, rooted, current/parent segment, or path separator): {0}'
+    ManagedPublishInventoryPathEscapesInstallRoot = 'Managed publish inventory path escapes InstallRoot. Path: {0}; InstallRoot: {1}'
+    ManagedPublishInventoryEntryMissingSha256 = 'Managed publish inventory entry for ''{0}'' is missing sha256.'
+    ManagedPublishInventoryEntryMissingKind = 'Managed publish inventory entry for ''{0}'' is missing kind.'
+    ManagedPublishInventoryAtomicWriteFailed = 'Failed to write managed publish inventory at {0} after {1} attempt(s): {2}'
+    InstallRootRequiredForPublishInventory = 'InstallRoot is required for managed publish inventory operations.'
+    RelativePathRequiredForPublishInventory = 'RelativePath is required for managed publish inventory operations.'
+    FilePathRequiredForContentHash     = 'Path is required for file content hash.'
+    FileNotFoundForContentHash         = 'File not found for content hash: {0}'
+    RegistryPublishSurfaceMissing      = 'registry agent ''{0}'' missing publishSurface'
+    RegistryPublishSurfaceWholeFileRouterMissing = 'registry agent ''{0}'' missing publishSurface.wholeFileRouter'
+    RegistryPublishSurfaceWholeFileRouterInvalid = 'registry agent ''{0}'' publishSurface.wholeFileRouter must be an array'
+    RegistryPublishSurfacePathInvalid  = 'registry agent ''{0}'' publishSurface.wholeFileRouter path invalid: {1}'
+    RegistryPublishSurfaceMismatch     = 'registry agent ''{0}'' publishSurface.wholeFileRouter expected [{1}], got [{2}]'
     ManagedSkillNameInvalid            = 'Managed skill name is invalid (empty, rooted, current/parent segment, or path separator): {0}'
     ManagedSkillPathEscapesDestination = 'Managed skill path escapes DestinationSkillsRoot. Skill: {0}; Path: {1}; Root: {2}'
     ManagedCopyRelativePathInvalid     = 'Managed copy relative path is invalid (contains parent segment): {0}'
@@ -266,7 +298,7 @@ $script:ToolkitMessage = @{
     ToolkitMenuSyncValidateLine        = '[3] Sync then validate    Sync, then smoke that agent'
     ToolkitMenuValidateCoreLine        = '[4] Validate core only    Repo contracts; no agent home write'
     ToolkitMenuValidationLabLine       = '[5] Validation lab        Run core or a CI smoke script'
-    ToolkitMenuUninstallLine           = '[6] Uninstall agent       Keyed toolkit removal (Cursor/ZCode: not implemented)'
+    ToolkitMenuUninstallLine           = '[6] Uninstall agent       Keyed toolkit removal (preserves SDD sessions/manifest)'
     ToolkitMenuHelpLine                = '[7] Help and docs         What each action does + equivalent flags'
     ToolkitMenuExitLine                = '[0] Exit'
     ToolkitMenuWhatHint                = 'What do you want to do?'
@@ -326,8 +358,8 @@ Menu actions
     Run validate-core or an ephemeral CI smoke (Invoke-*CiSmoke).
 
 [6] Uninstall agent
-    Removes keyed toolkit artifacts from InstallRoot where implemented (not a wholesale wipe).
-    Cursor and ZCode: Uninstall-Toolkit is not implemented (fail-closed stub).
+    Removes keyed toolkit artifacts from InstallRoot (not a wholesale wipe).
+    Preserves sdd/sessions and sdd/manifest.json (operator runtime state).
 
 [7] Help and docs
     This help. Full install flags: docs/INSTALL.md
@@ -367,7 +399,7 @@ Validate agent:
 Validate core:
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
-Uninstall (fixture; Claude etc. — not Cursor/ZCode):
+Uninstall (fixture; all Tier-1 agents; preserves SDD sessions/manifest):
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 
 Copilot requires -Mode user|repo.
