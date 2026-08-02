@@ -116,7 +116,7 @@
     }
     var root = radio.getAttribute("data-install-root");
     if (root && root.trim()) {
-      return "Typical live root: " + root.trim();
+      return "Typical install path: " + root.trim();
     }
     return "";
   }

@@ -107,7 +107,7 @@ Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0
 - [ ] Copy success/error announced via live region; error offers select-all / manual copy path
 - [ ] `prefers-reduced-motion: reduce` disables entrance motion (EN + PT)
 - [ ] Language switcher: clear current language; `hreflang` / alternate links where plugin supports
-- [ ] PT draft notice uses real Material admonition HTML (never raw `!!! warning` in published Pages)
+- [x] PT draft notices removed after copy parity (no raw `!!! warning` / “Rascunho” on published PT pages)
 
 ## 7. Anti-patterns explicitly avoided
 
@@ -119,12 +119,12 @@ Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0
 - Inter / Space Grotesk / IBM Plex / Fraunces / etc. (Impeccable reflex-reject)
 - Cards as lazy containers on the home hero
 - Per-agent “SDD runtime” footnotes or phantom capability flags in copy
-- Shipping untranslated PT pages that silently fall back without a stub notice
+- Shipping incomplete PT pages with “Rascunho / EN canônica” banners instead of real parity
 - **Wall of 8 equal agent chips in first paint** (use default + Others)
 - **CSS/markup class contract drift** (`.home-cta__primary` unused; `__hint` vs `__note`)
 - Peer-weight dual CTAs that compete before agent intent is clear
 - SVG hardcoded hex / system-ui labels that ignore brand tokens when avoidable
-- Raw MkDocs admonition syntax leaking to the published PT home
+- Raw MkDocs admonition syntax leaking to the published PT home (draft banners retired)
 
 ## 8. Target stack
 
@@ -140,7 +140,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 | Class contract | Markup **must** use the CSS API: `.home-cta__primary` (or map Material classes explicitly in CSS — pick one system, no orphans). Prefer: `.agent-switcher__hint` **styled** (alias or rename `__note` → `__hint`). Style `.home-cta__status` and `.agent-switcher__label`. |
 | Switcher JS | Keep `agent-switcher.js`; extend for disclosure + ensure initial HTML command includes default `-Agent`. Copy recovery on clipboard deny. |
 | Diagram | Align stroke/label color to tokens (`currentColor` / CSS vars); name parity with chips (“Grok Build”, “GitHub Copilot”). Prefer display/body fonts in SVG text when practical. |
-| i18n (Option A) | EN canonical; PT for Home, Get started, Using skills; fix PT home admonition rendering; match reveal classes |
+| i18n (Option A) | EN + PT parity for all six nav pages; match reveal classes; glossary: install root / ambiente do agente (not “homes”/“lares”) |
 | Locale codes | `en`, `pt` (pt-BR copy) |
 | CI | `.github/workflows/docs.yml` |
 | Live URL | https://tibursocampos.github.io/agent-dev-toolkit/ |
