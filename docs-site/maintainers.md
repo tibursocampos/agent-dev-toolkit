@@ -16,6 +16,7 @@ Deep dives on GitHub:
 - [CONTRIBUTING.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md)
 - [docs/REPO_GOVERNANCE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/REPO_GOVERNANCE.md)
 - [SECURITY.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/SECURITY.md)
+- [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — full layout; site overview: [Architecture](../architecture/)
 
 ## Validation (local)
 
@@ -54,11 +55,12 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1
 pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
 ```
 
-Full matrix, safety rules, and CI step list:
+Full matrix, safety rules, and CI workflows:
 
 - [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md)
-- [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml)
+- [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml) — required **validate** check
+- [docs.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/docs.yml) — MkDocs build / Pages deploy
 
 ## Maintainer Git flow
 
-Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Required CI check: **validate**. See [CONTRIBUTING.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md) § Maintainers only.
+Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Required CI check: **validate**. See [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) in CONTRIBUTING.md.

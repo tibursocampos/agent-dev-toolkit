@@ -13,6 +13,8 @@
   --muted: oklch(0.70 0.02 250);
   --accent: oklch(0.78 0.14 195);
   --accent-dim: oklch(0.45 0.08 195);
+  /* Dark ink on filled primary — AA ≥4.5:1 vs --accent (teal L≈0.78) */
+  --on-accent: oklch(0.18 0.035 250);
   --danger: oklch(0.65 0.18 25);
 
   --font-display: "Sora", system-ui, sans-serif;
@@ -253,22 +255,26 @@ body {
 /*
   Contract for home page authors
   --------------------------------
-  .home-hero              Outer composition for first viewport (no card chrome)
-  .home-brand             Product name — display font, hero-level
-  .home-headline          Single H1-scale line under brand
-  .home-lead              One supporting sentence (muted)
-  .home-cta               CTA group wrapper (primary + copy)
-  .home-cta__primary      Primary link/button — states below
-  .home-cta__copy         Copy-command button — states + success/error
-  .home-diagram           Dominant SVG diagram region
-  .agent-switcher         Switcher root (tablist/radiogroup markup in Task D)
-  .agent-switcher__tab    Per-agent control
-  .agent-switcher__note   One-line live-root note
-  .home-secondary-links   Below-fold Skills / Adapters row
-  .reveal                 Load reveal hook (Task F)
-  .reveal--brand          Brand stagger
-  .reveal--diagram        Diagram stagger
-  .reveal--switcher       Switcher stagger
+  .home-hero                 Outer composition for first viewport (no card chrome)
+  .home-brand                Product name — display font, hero-level
+  .home-headline             Single H1-scale line under brand
+  .home-lead                 One supporting sentence (muted)
+  .home-cta                  CTA group wrapper
+  .home-cta__primary         Filled primary (Copy) — --accent bg + --on-accent text
+  .home-cta__secondary       Outline secondary (Get started)
+  .home-cta__copy            Copy-command shell (layout + success/error)
+  .home-cta__note            Muted fixture-first hint (full-width under CTAs)
+  .home-cta__status          Live region for copy success/error
+  .home-diagram              Dominant SVG diagram region
+  .agent-switcher            Switcher root (radiogroup)
+  .agent-switcher__label     Visible radiogroup legend
+  .agent-switcher__option    Per-agent radio + label (visible without JS)
+  .agent-switcher__others    <details> progressive disclosure (“Other agents”)
+  .agent-switcher__more      Nested <details> disclosure (same chrome as __others)
+  .agent-switcher__badge     Compact “Recommended” label on an option
+  .agent-switcher__hint      Live-root install hint (__note aliases same rules)
+  .home-secondary-links      Below-fold Skills / Adapters row
+  .reveal / .reveal--*       Load reveal hooks (prefers-reduced-motion gated)
 */
 
 .home-hero {
@@ -319,7 +325,10 @@ body {
 
 /* Shared interactive reset for CTA controls */
 .home-cta__primary,
-.home-cta__copy {
+.home-cta__secondary,
+.home-cta__copy > .md-button,
+.home-cta__copy > button,
+.home-cta > .md-button {
   appearance: none;
   display: inline-flex;
   align-items: center;
@@ -338,92 +347,186 @@ body {
   transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out;
 }
 
-.home-cta__primary {
+/* Filled primary — dark ink on teal (AA); not light-on-teal */
+.home-cta__primary,
+.home-cta__copy > .md-button,
+.home-cta__copy > button {
   background-color: var(--accent);
-  color: var(--bg);
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
-.home-cta__primary:hover {
+.home-cta__primary:hover,
+.home-cta__copy > .md-button:hover,
+.home-cta__copy > button:hover {
   background-color: color-mix(in oklch, var(--accent) 88%, white);
   border-color: color-mix(in oklch, var(--accent) 88%, white);
-  color: var(--bg);
+  color: var(--on-accent);
 }
 
-.home-cta__primary:focus-visible {
+.home-cta__primary:focus-visible,
+.home-cta__copy > .md-button:focus-visible,
+.home-cta__copy > button:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
 
-.home-cta__primary:active {
-  background-color: var(--accent-dim);
-  border-color: var(--accent-dim);
-  color: var(--text);
+/* Pressed: darken accent via color-mix (not --accent-dim) so --on-accent stays AA ≥4.5:1 */
+.home-cta__primary:active,
+.home-cta__copy > .md-button:active,
+.home-cta__copy > button:active {
+  background-color: color-mix(in oklch, var(--accent) 82%, black);
+  border-color: color-mix(in oklch, var(--accent) 82%, black);
+  color: var(--on-accent);
 }
 
 .home-cta__primary:disabled,
-.home-cta__primary[aria-disabled="true"] {
+.home-cta__primary[aria-disabled="true"],
+.home-cta__copy > .md-button:disabled,
+.home-cta__copy > button:disabled,
+.home-cta__copy > .md-button[aria-disabled="true"],
+.home-cta__copy > button[aria-disabled="true"] {
   opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-.home-cta__copy {
+/* Outline secondary — Get started */
+.home-cta__secondary,
+.home-cta > a.md-button,
+.home-cta > a.md-button--primary,
+.home-cta > .md-button.md-button--primary {
   background-color: transparent;
   color: var(--accent);
   border-color: var(--accent-dim);
-  font-family: var(--font-code);
-  font-weight: 500;
-  font-size: 0.9rem;
 }
 
-.home-cta__copy:hover {
+.home-cta__secondary:hover,
+.home-cta > a.md-button:hover,
+.home-cta > a.md-button--primary:hover,
+.home-cta > .md-button.md-button--primary:hover {
   background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.home-cta__copy:focus-visible {
+.home-cta__secondary:focus-visible,
+.home-cta > a.md-button:focus-visible,
+.home-cta > a.md-button--primary:focus-visible,
+.home-cta > .md-button.md-button--primary:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
 
-.home-cta__copy:active {
+.home-cta__secondary:active,
+.home-cta > a.md-button:active,
+.home-cta > a.md-button--primary:active,
+.home-cta > .md-button.md-button--primary:active {
   background-color: color-mix(in oklch, var(--accent-dim) 35%, var(--surface));
   border-color: var(--accent-dim);
+  color: var(--accent);
 }
 
-.home-cta__copy.is-success,
-.home-cta__copy[data-state="success"],
-.home-cta__copy.is-success .md-button,
-.home-cta__copy[data-state="success"] .md-button,
-.home-cta__copy .md-button.is-success,
-.home-cta__copy .md-button[data-state="success"],
-.home-cta__copy button.is-success,
-.home-cta__copy button[data-state="success"] {
-  background-color: color-mix(in oklch, var(--accent) 16%, var(--surface));
+.home-cta__secondary:disabled,
+.home-cta__secondary[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Copy shell — layout only (not a fake button wrapper) */
+.home-cta__copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+/* Command code: direct under .home-cta or wrapped in .home-cta__copy */
+.home-cta > code,
+.home-cta > [data-sync-command],
+.home-cta__copy > code,
+.home-cta__copy [data-sync-command] {
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid color-mix(in oklch, var(--accent-dim) 50%, transparent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.home-cta__note {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.home-cta__note,
+.home-cta__status {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.home-cta__status {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--muted);
+  min-height: 1.25em;
+}
+
+.home-cta__status:empty {
+  display: none;
+}
+
+.home-cta__status.is-success,
+.home-cta__copy.is-success .home-cta__status,
+.home-cta__copy[data-state="success"] .home-cta__status {
+  color: var(--accent);
+}
+
+.home-cta__status.is-error,
+.home-cta__copy.is-error .home-cta__status,
+.home-cta__copy[data-state="error"] .home-cta__status {
+  color: var(--danger);
+}
+
+.home-cta__copy.is-success > .md-button,
+.home-cta__copy[data-state="success"] > .md-button,
+.home-cta__copy > .md-button.is-success,
+.home-cta__copy > .md-button[data-state="success"],
+.home-cta__copy > button.is-success,
+.home-cta__copy > button[data-state="success"],
+.home-cta__primary.is-success,
+.home-cta__primary[data-state="success"] {
+  background-color: color-mix(in oklch, var(--accent) 22%, var(--surface));
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.home-cta__copy.is-error,
-.home-cta__copy[data-state="error"],
-.home-cta__copy.is-error .md-button,
-.home-cta__copy[data-state="error"] .md-button,
-.home-cta__copy .md-button.is-error,
-.home-cta__copy .md-button[data-state="error"],
-.home-cta__copy button.is-error,
-.home-cta__copy button[data-state="error"] {
+.home-cta__copy.is-error > .md-button,
+.home-cta__copy[data-state="error"] > .md-button,
+.home-cta__copy > .md-button.is-error,
+.home-cta__copy > .md-button[data-state="error"],
+.home-cta__copy > button.is-error,
+.home-cta__copy > button[data-state="error"],
+.home-cta__primary.is-error,
+.home-cta__primary[data-state="error"] {
   background-color: color-mix(in oklch, var(--danger) 14%, var(--surface));
   border-color: var(--danger);
   color: var(--danger);
-}
-
-.home-cta__copy:disabled,
-.home-cta__copy[aria-disabled="true"] {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
 }
 
 .home-diagram {
@@ -439,7 +542,7 @@ body {
   height: auto;
 }
 
-/* Agent switcher — no pill cluster chrome; flat tab strip */
+/* Agent switcher — readable without JS; default + “Other agents” disclosure */
 .agent-switcher {
   display: flex;
   flex-direction: column;
@@ -447,56 +550,16 @@ body {
   max-width: 52rem;
 }
 
-.agent-switcher__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.agent-switcher__tab {
-  appearance: none;
-  background: transparent;
-  border: 1px solid color-mix(in oklch, var(--accent-dim) 55%, transparent);
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-  cursor: pointer;
+.agent-switcher__label {
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  min-height: 2.25rem;
-  padding: var(--space-2) var(--space-3);
-  transition: color 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
-}
-
-.agent-switcher__tab:hover {
   color: var(--text);
-  border-color: var(--accent-dim);
-  background-color: color-mix(in oklch, var(--surface) 80%, transparent);
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.agent-switcher__tab:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.agent-switcher__tab[aria-selected="true"],
-.agent-switcher__tab.is-active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
-}
-
-.agent-switcher__tab:disabled,
-.agent-switcher__tab[aria-disabled="true"] {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Parallel radiogroup markup (index.md uses option + radios) */
+/* Radiogroup options — radios + labels visible without JS */
 .agent-switcher__options {
   display: flex;
   flex-wrap: wrap;
@@ -506,10 +569,10 @@ body {
 }
 
 .agent-switcher__option {
-  appearance: none;
   position: relative;
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   background: transparent;
   border: 1px solid color-mix(in oklch, var(--accent-dim) 55%, transparent);
   border-radius: var(--radius-sm);
@@ -518,21 +581,21 @@ body {
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 700;
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   padding: var(--space-2) var(--space-3);
   transition: color 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
 }
 
-.agent-switcher__option input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
+/* Native radios stay visible and operable (no clip/sr-only hide) */
+.agent-switcher__option input[type="radio"] {
+  position: static;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
   padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .agent-switcher__option:hover {
@@ -558,11 +621,109 @@ body {
   pointer-events: none;
 }
 
+/* Progressive disclosure — default visible; others/more collapsed in <details> */
+.agent-switcher__others,
+.agent-switcher__more {
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: var(--muted);
+}
+
+.agent-switcher__others > summary,
+.agent-switcher__more > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--muted);
+  border-radius: var(--radius-sm);
+  transition: color 120ms ease-out;
+}
+
+.agent-switcher__others > summary::-webkit-details-marker,
+.agent-switcher__more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.agent-switcher__others > summary::before,
+.agent-switcher__more > summary::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease-out;
+}
+
+.agent-switcher__others[open] > summary::before,
+.agent-switcher__more[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.agent-switcher__others > summary:hover,
+.agent-switcher__more > summary:hover {
+  color: var(--text);
+}
+
+.agent-switcher__others > summary:focus-visible,
+.agent-switcher__more > summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  color: var(--accent);
+}
+
+.agent-switcher__others[open] > summary,
+.agent-switcher__more[open] > summary {
+  color: var(--accent);
+}
+
+.agent-switcher__others > .agent-switcher__options,
+.agent-switcher__more > .agent-switcher__options {
+  margin-block-start: var(--space-2);
+}
+
+.agent-switcher__badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-inline-start: var(--space-1);
+  padding: 0.125rem var(--space-2);
+  border-radius: var(--radius-sm);
+  background-color: color-mix(in oklch, var(--accent) 18%, var(--surface));
+  border: 1px solid color-mix(in oklch, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-switcher__others > summary::before,
+  .agent-switcher__more > summary::before {
+    transition: none;
+  }
+}
+
+.agent-switcher__hint,
 .agent-switcher__note {
   font-family: var(--font-code);
   font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--muted);
   margin: 0;
+  max-width: var(--measure);
 }
 
 .home-secondary-links {
