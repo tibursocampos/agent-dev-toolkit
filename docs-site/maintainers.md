@@ -20,7 +20,7 @@ Deep dives on GitHub:
 
 ## Validation (local)
 
-None of these steps write to a live agent home. Prefer fixture `InstallRoot` paths; never use `-AllowUserHome` to “make CI pass.”
+None of these steps write to a live install path. Prefer fixture `InstallRoot` paths; never use `-AllowUserHome` to “make CI pass.”
 
 **Core suite** (contracts, skill graph, fixtures — required before merge for maintainers):
 

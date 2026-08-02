@@ -5,10 +5,10 @@ Invoke toolkit skills after a successful sync. Slash syntax below is the **Curso
 ## Prerequisites
 
 1. Synced at least one agent — see [Get started](../get-started/).
-2. Opened a **consumer** project in that agent (not only this toolkit repo).
+2. Opened an **application project** (the project you are building) in that agent — not only this toolkit repo.
 3. Optional: validated with `toolkit.ps1 -Action Validate -Agent <id>`.
 
-## Which Forma / skill?
+## Which workflow (Forma) / skill?
 
 ```mermaid
 flowchart TD
@@ -61,7 +61,7 @@ New task
   └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
-### Formas A / B / C
+### Workflows (Forma A / B / C)
 
 | Forma | When | Pipeline | Notes |
 |-------|------|----------|-------|
@@ -69,7 +69,7 @@ New task
 | **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
 | **C** Orchestrated | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse classic SDD |
 
-Greenfield domain work: prefer Forma C so `/orchestrate-analyze` can spawn the roster **architect** (not a slash skill) — ARCH draft → you answer **sim** → ARCH approved — before implementers load one architecture style + stack overlay. Brownfield: discover-first (mirror existing ARCH).
+Greenfield domain work: prefer Forma C so `/orchestrate-analyze` can spawn the roster **architect** (not a slash skill) — ARCH draft → you answer **sim** (yes / confirm) → ARCH approved — before implementers load one architecture style + stack overlay. Brownfield: discover-first (mirror existing ARCH).
 
 ## Invoke by agent
 
@@ -174,13 +174,13 @@ Fixture (safe):
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
 ```
 
-Live Cursor home (explicit):
+Live Cursor install (explicit):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
   -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-Managed files are overwritten; alien files in the agent home are preserved.
+Managed files are overwritten; **non-toolkit** (alien) files in the agent install root are preserved.
 
 Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Home](../)
