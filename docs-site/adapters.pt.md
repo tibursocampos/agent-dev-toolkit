@@ -1,8 +1,5 @@
 # Adaptadores
 
-!!! tip "pt-BR"
-    Conteúdo útil em português. A versão em inglês permanece a referência canônica quando houver divergência.
-
 Os adaptadores publicam o **core** compartilhado (skills, policy, router e hooks, quando suportados) no layout de instalação de cada agente. Os orquestradores (`scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`) resolvem o agente via `adapters/registry.json` e chamam o módulo PowerShell daquela entrada.
 
 Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcleo e dos adapters: [Arquitetura](../architecture/). Depois do sync: [Usando skills](../using-skills/).
