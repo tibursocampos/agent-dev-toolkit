@@ -1,6 +1,6 @@
 # Get started
 
-Clone the toolkit, validate the repo, sync an agent, then invoke a skill in a **consumer** project.
+Clone the toolkit, validate the repo, sync an agent, then invoke a skill in an **application project** (the project you are building).
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ Clone the toolkit, validate the repo, sync an agent, then invoke a skill in a **
 |-------------|--------|
 | **PowerShell** | Windows: 5.1+ or pwsh 7+. macOS/Linux: pwsh 7+ |
 | **Git** | Clone / update this repo |
-| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE |
+| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE (agent filesystem host) |
 
 ## 1. Clone
 
@@ -17,9 +17,9 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
-## 2. Open the Smart Manager
+## 2. Open the interactive toolkit menu (Smart Manager)
 
-Primary entry — interactive menu (agent/target wizards, Help):
+Primary entry — agent/target wizards and Help:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1
@@ -27,15 +27,15 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 
 | Menu | Result |
 |------|--------|
-| **Validate core only** | Repo contracts only — **no** agent home write |
+| **Validate core only** | Repo contracts only — **no** install-root write |
 | **Sync agent** | Publish skills/policy/hooks to a chosen target |
-| **Validate agent** | `validate-core` + adapter smoke for one agent |
-| **Sync then validate** | Sync, then smoke the same target |
-| **Uninstall agent** | Remove **keyed** toolkit files (not a full home wipe) |
+| **Validate agent** | `validate-core` + adapter smoke test for one agent |
+| **Sync then validate** | Sync, then smoke-test the same target |
+| **Uninstall agent** | Remove **toolkit-managed** (**keyed**) files (not a full install wipe) |
 
 ## 3. Validate the repo (safe)
 
-Confirms the toolkit is healthy without writing an agent home:
+Confirms the toolkit is healthy without writing an agent install root:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
@@ -45,7 +45,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
 ### Safe default — in-repo fixture
 
-Non-interactive sync **omits** `-InstallRoot` and writes the adapter fixture under `scripts/validation/fixtures/`. Use this for learning and CI-safe smoke; it does **not** change your live agent home.
+Non-interactive sync **omits** `-InstallRoot` and writes the adapter fixture under `scripts/validation/fixtures/`. Use this for learning and CI-safe checks; it does **not** change your live install.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -54,9 +54,9 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Validate -Agent cursor -Quie
 
 In the interactive menu, pick **In-repo fixture** when you want the same safe path.
 
-### Live home — explicit opt-in
+### Live install — explicit opt-in
 
-Paths under `%USERPROFILE%` / `$HOME` are refused unless you pass `-AllowUserHome` (or confirm in the wizard). Interactive Sync defaults the target menu to **Live agent home** — confirm before write.
+Paths under `%USERPROFILE%` / `$HOME` are refused unless you pass `-AllowUserHome` (or confirm in the wizard). Interactive Sync defaults the target menu to **Live agent home** (the live install path) — confirm before write.
 
 #### Cursor → `~/.cursor`
 
@@ -82,9 +82,9 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent copilot -Mode re
   -InstallRoot "D:\Source\MyApp\.github"
 ```
 
-Mode `repo` InstallRoot is usually the consumer repo’s `.github` folder, so `-AllowUserHome` is often unnecessary.
+Mode `repo` InstallRoot is usually the application project's `.github` folder, so `-AllowUserHome` is often unnecessary.
 
-#### Other live roots
+#### Other live install paths
 
 | Agent | Typical InstallRoot |
 |-------|---------------------|
@@ -113,7 +113,7 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Typica
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
 | Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
 
-## 6. Open a consumer project
+## 6. Open an application project
 
 Open the **application** repo you want to change (not only this toolkit). After a live Cursor sync, confirm files such as:
 
@@ -137,7 +137,7 @@ Then plan and implement one step:
 /sdd-develop - <plan-path> - Step 1
 ```
 
-Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing Forma A/B/C: [Using skills](../using-skills/).
+Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing a workflow (**Forma** A/B/C): [Using skills](../using-skills/).
 
 After `/commit` and `/push`, open a PR with `/open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
 
@@ -145,9 +145,9 @@ After `/commit` and `/push`, open a PR with `/open-github-pr` (feature → `deve
 
 Re-run sync for each agent you use. Sync is **update-in-place**: overwrites managed files and prunes managed skills removed from `core/skills/`. It preserves `sdd/sessions/` and `sdd/manifest.json`.
 
-## 9. Uninstall (keyed)
+## 9. Uninstall (toolkit-managed)
 
-Removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home. Preserves `sdd/sessions/` and `sdd/manifest.json`.
+Removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent install. Preserves `sdd/sessions/` and `sdd/manifest.json`.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
@@ -158,8 +158,8 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Symptom | Fix |
 |---------|-----|
 | Sync refuses InstallRoot | Add `-AllowUserHome` or confirm in the wizard |
-| Copilot TE02 | Pass `-Mode user` or `-Mode repo` |
-| Skills missing in IDE | Sync **live home**; restart/trust hooks if required |
-| Expected a home write in CI-like run | Use fixtures / omit live InstallRoot |
+| Copilot sync failed (missing Mode) | Pass `-Mode user` or `-Mode repo` |
+| Skills missing in IDE | Sync **live install**; restart/trust hooks if required |
+| Expected an install-root write in CI-like run | Use fixtures / omit live InstallRoot |
 
 Next: [Using skills](../using-skills/) · [Adapters](../adapters/) · [Maintainers](../maintainers/)

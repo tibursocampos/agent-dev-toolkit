@@ -5,10 +5,10 @@ Invoke toolkit skills after a successful sync. Slash syntax below is the **Curso
 ## Prerequisites
 
 1. Synced at least one agent — see [Get started](../get-started/).
-2. Opened a **consumer** project in that agent (not only this toolkit repo).
+2. Opened an **application project** (the project you are building) in that agent — not only this toolkit repo.
 3. Optional: validated with `toolkit.ps1 -Action Validate -Agent <id>`.
 
-## Which Forma / skill?
+## Which workflow (Forma) / skill?
 
 ```mermaid
 flowchart TD
@@ -23,8 +23,8 @@ flowchart TD
   Q3 -->|Unsure| DEV[developer router]
   FC --> S0["/memory-bank-init Step 0"]
   S0 --> O1["/orchestrate-analyze"]
-  O1 --> ArchGate{"Greenfield / needs_domain?"}
-  ArchGate -->|Yes| Confirm["architect draft → sim → ARCH"]
+  O1 --> ArchGate{"Greenfield / needs_domain (domain modeling)?"}
+  ArchGate -->|Yes| Confirm["architect draft → sim (yes) → ARCH"]
   ArchGate -->|Brownfield mirror| O2
   Confirm --> O2["/orchestrate-deliver"]
   O2 --> O3["/orchestrate-develop or /sdd-develop"]
@@ -54,14 +54,14 @@ flowchart TD
 ```
 New task
   ├─ Multi-story / brownfield?     -> Forma C: memory-bank-init → analyze → deliver → develop
-  ├─ Greenfield / needs domain?    -> Forma C: analyze (+ architect confirm) before develop
+  ├─ Greenfield / needs_domain?    -> Forma C: analyze (+ architect confirm) before develop
   ├─ Single medium/high feature?   -> Forma A: sdd-spec → sdd-plan → sdd-develop
   ├─ Rough backlog item?           -> Forma B: refine-story → checklist? → A or C
   ├─ Small stack change?           -> *-developer or /developer
   └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
-### Formas A / B / C
+### Workflows (Forma A / B / C)
 
 | Forma | When | Pipeline | Notes |
 |-------|------|----------|-------|
@@ -69,7 +69,7 @@ New task
 | **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
 | **C** Orchestrated | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse classic SDD |
 
-Greenfield domain work: prefer Forma C so `/orchestrate-analyze` can spawn the roster **architect** (not a slash skill) — ARCH draft → you answer **sim** → ARCH approved — before implementers load one architecture style + stack overlay. Brownfield: discover-first (mirror existing ARCH).
+For greenfield domain work, prefer Forma C. `/orchestrate-analyze` can start the roster **architect** specialist (not a slash skill). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
 
 ## Invoke by agent
 
@@ -108,7 +108,7 @@ Use Copilot’s agent-skills / custom-instructions surfaces.
 | Codex | Plugin-bundled tree | Trust hooks with Codex `/hooks` after a real install |
 | OpenCode | `~/.config/opencode/skills` | JS plugins under `plugins/` |
 | Grok | `~/.grok/skills` | Trust via `/hooks-trust` if needed |
-| ZCode | `~/.zcode/skills` | ADE filesystem |
+| ZCode | `~/.zcode/skills` | ADE (agent filesystem) |
 | Antigravity | `~/.gemini/config/skills` | Official `config/*` layout |
 
 Per-agent publish layouts: [Adapters](../adapters/).
@@ -174,13 +174,13 @@ Fixture (safe):
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
 ```
 
-Live Cursor home (explicit):
+Live Cursor install (explicit):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
   -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-Managed files are overwritten; alien files in the agent home are preserved.
+Managed files are overwritten; **non-toolkit** (alien) files in the agent install root are preserved.
 
 Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Home](../)

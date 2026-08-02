@@ -20,7 +20,7 @@ Leituras aprofundadas no GitHub:
 
 ## Validação (local)
 
-Nenhum destes passos escreve na home live de um agente. Prefira caminhos de fixture em `InstallRoot`; nunca use `-AllowUserHome` para “fazer o CI passar”.
+Nenhum destes passos escreve no ambiente real de um agente. Prefira caminhos de fixture em `InstallRoot`; nunca use `-AllowUserHome` para “fazer o CI passar”.
 
 **Suíte core** (contratos, grafo de skills, fixtures — obrigatória antes do merge para mantenedores):
 
@@ -30,11 +30,11 @@ pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
 # Alias:
 pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
 
-# Quiet (CI-style):
+# Quiet (estilo CI):
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-**Validate por agente** (`validate-core` + smoke do adapter contra fixture):
+**Validação por agente** (`validate-core` + teste smoke do adaptador contra fixture):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
@@ -42,7 +42,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode user
 ```
 
-**Harnesses de smoke de CI** (espelham o comportamento de cópia efêmera do Actions):
+**Harnesses de teste smoke de CI** (espelham o comportamento de cópia efêmera do Actions):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
@@ -63,4 +63,4 @@ Matriz completa, regras de segurança e workflows de CI:
 
 ## Fluxo Git dos mantenedores
 
-Colaboradores com write access usam branches normais: `feature/<slug>` → `develop` → `master`/`main`. Prefira `/open-github-pr` após `/commit` / `/push` (feature → `develop`; modo release `develop` → `master`/`main`). PRs de release usam o template em `.github/PULL_REQUEST_TEMPLATE/release.md`. Check de CI obrigatório: **validate**. Ver [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) em CONTRIBUTING.md.
+Colaboradores com permissão de escrita usam branches normais: `feature/<slug>` → `develop` → `master`/`main`. Prefira `/open-github-pr` após `/commit` / `/push` (feature → `develop`; modo release `develop` → `master`/`main`). PRs de release usam o template em `.github/PULL_REQUEST_TEMPLATE/release.md`. Check de CI obrigatório: **validate**. Ver a seção [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) em CONTRIBUTING.md (título em inglês no documento fonte).
