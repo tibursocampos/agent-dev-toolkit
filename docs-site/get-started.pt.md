@@ -139,6 +139,8 @@ Depois planeje e implemente um passo:
 
 Mudança pequena sem SDD completo: `/developer` ou uma skill de stack como `/dotnet-developer`. Escolher Forma A/B/C: [Usando skills](../using-skills/).
 
+Depois de `/commit` e `/push`, abra um PR com `/open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).
+
 ## 8. Depois de `git pull`
 
 Reexecute o sync para cada agente que você usa. Sync é **update-in-place**: sobrescreve arquivos gerenciados e remove skills gerenciadas que saíram de `core/skills/`. Preserva `sdd/sessions/` e `sdd/manifest.json`.

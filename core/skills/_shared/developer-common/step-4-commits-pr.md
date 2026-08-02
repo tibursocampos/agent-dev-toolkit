@@ -77,7 +77,16 @@ Create a PR only when the user asks. Use the repository’s template if present 
 
 Default integration base is **`develop`**. Release PRs are **`develop` → `master`/`main`** (not feature → release).
 
-**Open the PR in the GitHub web UI** (no CLI required):
+**Prefer `/open-github-pr`** (uses `gh` CLI). Modes:
+
+| Mode | Head → base | When |
+|------|-------------|------|
+| **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
+| **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
+
+After push confirmation, invoke `/open-github-pr` so the agent drafts title/body from the template and runs `gh pr create`.
+
+**Fallback — GitHub web UI** (when `gh` is unavailable or the user prefers it):
 
 1. Push the feature branch (`git push -u origin HEAD`) after user confirmation.
 2. Open the repository on GitHub → **Compare & pull request** (or **Pull requests** → **New**).

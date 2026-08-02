@@ -90,7 +90,10 @@ or `/dotnet-developer`, `/react-developer`, `/python-developer`, …
 /code-review
 /commit
 /push
+/open-github-pr   # optional, when opening a PR
 ```
+
+Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `/open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
 
 ## Re-sync when skills feel stale
 

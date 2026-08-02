@@ -45,6 +45,8 @@ flowchart TD
   Post[After code] --> CR["/code-review"]
   CR --> TC["/test-coverage optional .NET"]
   TC --> Commit["/commit"]
+  Commit --> Push["/push"]
+  Push --> PR["/open-github-pr"]
 ```
 
 **ASCII summary:**
@@ -56,7 +58,7 @@ New task
   ├─ Single medium/high feature?   -> Forma A: sdd-spec → sdd-plan → sdd-develop
   ├─ Rough backlog item?           -> Forma B: refine-story → checklist? → A or C
   ├─ Small stack change?           -> *-developer or /developer
-  └─ After code                    -> code-review → test-coverage? → commit
+  └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
 ### Formas A / B / C
@@ -146,11 +148,14 @@ or `/dotnet-developer`, `/react-developer`, `/python-developer`, …
 /code-review
 /commit
 /push
+/open-github-pr
 ```
+
+Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `/open-github-pr` over the web UI when `gh` is available.
 
 ## Skills catalog (summary)
 
-Canonical folders under `core/skills/` (**36 skills** + `_shared`). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
+Canonical folders under `core/skills/` (**37 skills** + `_shared`). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
 
 | Group | Skills |
 |-------|--------|
@@ -159,7 +164,7 @@ Canonical folders under `core/skills/` (**36 skills** + `_shared`). Shared packs
 | **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
-| **Operational** | `code-review`, `commit`, `push`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operational** | `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ## Re-sync when skills feel stale
 

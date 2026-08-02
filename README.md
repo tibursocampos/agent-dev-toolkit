@@ -60,7 +60,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 
-## Skills preview (36)
+## Skills preview (37)
 
 | Group | Examples |
 |-------|----------|
@@ -68,7 +68,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 | Forma B | `refine-story`, `split-story-checklist` |
 | Forma C | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
-| Ops | `code-review`, `commit`, `push`, `test-coverage`, `repair-dotnet-build`, … |
+| Ops | `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
 Full list: **[docs/SKILLS.md](docs/SKILLS.md)**.
 

@@ -90,5 +90,5 @@ Return branch and push status.
 
 | Situation | Next |
 |-----------|------|
-| Create PR (user asks) | Open PR in GitHub web UI per `step-4-commits-pr.md` |
+| Create PR (user asks) | `/open-github-pr` (web UI fallback per `step-4-commits-pr.md`) |
 | Review before PR | `/code-review` |

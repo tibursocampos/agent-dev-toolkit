@@ -1,6 +1,6 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**36 skills** + `_shared`). After sync, invoke them in your agent (Cursor slash form: `/<name>`). Compat phrases such as `use skill <name>` may also work depending on the agent.
+Canonical kebab-case skill folders under `core/skills/` (**37 skills** + `_shared`). After sync, invoke them in your agent (Cursor slash form: `/<name>`). Compat phrases such as `use skill <name>` may also work depending on the agent.
 
 Shared packs live under `core/skills/_shared/` (SDD contracts helpers, guidelines, templates) — not invoked as slash skills.
 
@@ -84,6 +84,7 @@ Orchestrators **reuse** classic SDD contracts; they do not replace them.
 | `test-coverage` | .NET Coverlet coverage report |
 | `commit` | Conventional commit on a valid feature branch |
 | `push` | Safe git push after confirmation |
+| `open-github-pr` | Create GitHub PR via `gh` (feature or release mode) |
 | `ef-add-migration` | EF Core migration discovery |
 | `scaffold-message-handler` | Message consumer scaffold |
 | `refactor` | Safe incremental refactoring |
