@@ -5,6 +5,7 @@
 /PLAN/
 /docs/PRD/
 /docs/PLAN/
+/docs/documentation-plan/
 
 # OS / editor
 .DS_Store
@@ -18,6 +19,7 @@ Thumbs.db
 /artifacts/
 /tmp/
 scripts/validation/fixtures/install-root/.smoke-harness-marker
+
 # Ephemeral work roots created by Invoke-*CiSmoke (cleaned after run; ignore if leftover)
 scripts/validation/fixtures/*-ci-smoke/
 scripts/validation/fixtures/copilot-*-ci-smoke/
@@ -94,6 +96,7 @@ scripts/validation/fixtures/claude-sync-uninstall/hooks/context-pre-compact.ps1
 scripts/validation/fixtures/claude-sync-uninstall/hooks/plan-after-edit.ps1
 scripts/validation/fixtures/claude-sync-uninstall/rules/*.md
 !scripts/validation/fixtures/claude-sync-uninstall/rules/user-alien-rule-.md
+
 # Timestamped merge backups beyond the intentional tracked seed
 scripts/validation/fixtures/claude-sync-uninstall/settings.json.bak.*
 !scripts/validation/fixtures/claude-sync-uninstall/settings.json.bak.20260731194625

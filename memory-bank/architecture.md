@@ -34,9 +34,9 @@ memory-bank/   # durable workspace map (Forma C Step 0)
 Keyed `Uninstall-Toolkit` implemented for all eight Tier-1 agents (including Cursor and ZCode).  
 Preserves `sdd/sessions` and `sdd/manifest.json` (operator runtime state).
 
-## SDD runtime
+## Sync prepare (SDD state root)
 
-Every sync runs `Get-SddRoot -Prepare` for all Tier-1 agents (not a capability flag).
+Every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` when absent).
 
 ## Subagents
 

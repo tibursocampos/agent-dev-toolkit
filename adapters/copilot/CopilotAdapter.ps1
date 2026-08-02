@@ -13,8 +13,7 @@
   and .github/... (repo). Mode repo publishes under InstallRoot fixture modeling .github -
   never the toolkit working-tree .github by default. JetBrains/Eclipse Copilot IDE layouts
   are out of scope. Smoke validates filesystem presence only - Copilot IDE extension is
-  out of scope. Uninstall removes only toolkit-managed paths (skills/policy/hooks keys);
-  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
+  out of scope. Uninstall removes only toolkit-managed paths (skills/policy/hooks keys).
 #>
 
 $script:CopilotAdapterDirectory = $PSScriptRoot

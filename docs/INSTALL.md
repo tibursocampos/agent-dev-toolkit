@@ -139,7 +139,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 | Agent | Typical artifacts under InstallRoot |
 |-------|-------------------------------------|
-| Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json`, `sdd/` |
+| Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `hooks/`, merged `settings.json` |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
 | Codex | `plugin/` (+ marketplace), `AGENTS.md` |
@@ -148,7 +148,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |
 | Antigravity | `config/skills`, `config/plugins`, managed markdown |
 
-Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare` for **all** Tier-1 agents.
+Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare`.
 
 Full layouts: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md).
 

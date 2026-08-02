@@ -43,8 +43,6 @@ Non-`Copy-ToolkitManagedTree` writes under InstallRoot are fail-closed via `Asse
 | `plugin` | false | — |
 | `subagents` | `native` | Host Task tool; see Spawn section |
 
-SDD runtime (`Get-SddRoot` / `-Prepare`) is prepared on every sync — not a capability flag.
-
 ## Spawn / subagents (honesty)
 
 | Field | Value |

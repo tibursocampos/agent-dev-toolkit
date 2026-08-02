@@ -11,7 +11,6 @@
   are implemented.
   Does not write under USERPROFILE without -AllowUserHome.
   Smoke is filesystem-only (Claude hooks trust UI out of scope).
-  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 #>
 
 $script:ClaudeAdapterDirectory = $PSScriptRoot
