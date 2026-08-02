@@ -21,7 +21,6 @@
   - hooks = true (cli/config.json and/or hooks/hooks.json)
   - rules = false (no Cursor-style rules/*.mdc tree; router via AGENTS.md)
   - plugin = false (marketplace .zcode-plugin optional / out of MVP BDD)
-  - SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag)
 #>
 
 $script:ZCodeAdapterDirectory = $PSScriptRoot

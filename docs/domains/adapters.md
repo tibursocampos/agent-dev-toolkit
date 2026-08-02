@@ -65,7 +65,7 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
 | Keyed uninstall | All Tier-1 agents; preserves `sdd/sessions` + `sdd/manifest.json` |
-| SDD runtime | Every sync runs `Get-SddRoot -Prepare` (not a capability flag) |
+| Sync prepare | Every sync runs `Get-SddRoot -Prepare` |
 
 ## Module READMEs
 

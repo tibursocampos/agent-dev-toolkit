@@ -62,7 +62,7 @@ Source router document (typically `AGENTS.md`). Published as:
 
 ## SDD contracts (`core/sdd/`)
 
-Portable contracts such as `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Source of truth for pipeline text. Runtime state (`<InstallRoot>/sdd/sessions/`, `manifest.json`) is prepared on every sync via `Get-SddRoot -Prepare` for all Tier-1 agents (not a capability flag).
+Portable contracts such as `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Source of truth for pipeline text. Runtime state (`<InstallRoot>/sdd/sessions/`, `manifest.json`) is prepared on every sync via `Get-SddRoot -Prepare`.
 
 Public state file name: **`manifest.json`** (no version suffix in the filename).
 

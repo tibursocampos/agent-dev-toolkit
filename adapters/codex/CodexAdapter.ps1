@@ -17,7 +17,6 @@
   (plugin skills, marketplace entry, hooks files, USER-scope skills, AGENTS.md
   - RN07/CU03). Does not write under USERPROFILE without -AllowUserHome. Trust
   UI /hooks is out of scope for smoke (filesystem asserts only - RN03).
-  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 #>
 
 $script:CodexAdapterDirectory = $PSScriptRoot

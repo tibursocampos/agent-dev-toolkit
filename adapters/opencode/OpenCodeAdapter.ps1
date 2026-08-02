@@ -14,7 +14,6 @@
   Does not write under USERPROFILE without -AllowUserHome. Hooks are plugin-JS
   only (HooksSemantics = plugin-only; MVP Decision A publishes a minimal JS
   marker under plugins/). Smoke is filesystem-only (no OpenCode runtime; no .ps1 hooks).
-  SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag).
 
 .NOTES
   Capabilities:
@@ -23,7 +22,6 @@
   - hooks = true with HooksSemantics plugin-only (RN03: no shell/PS1 hooks)
   - plugin = true (Decision A: Publish-Hooks copies assets/plugins/*.js)
   - rules = false (no dedicated OpenCode policy surface; Publish-Policy no-op)
-  - SDD runtime is prepared by sync via Get-SddRoot -Prepare (not a capability flag)
 
   Official layout (https://opencode.ai/docs/config/, /docs/plugins/):
   - Config root: ~/.config/opencode

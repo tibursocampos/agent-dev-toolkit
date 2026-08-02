@@ -27,7 +27,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 | Layer | Responsibility |
 |-------|----------------|
 | **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load) |
-| **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all Tier-1); SDD runtime via `Get-SddRoot -Prepare` on sync |
+| **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all Tier-1) |
 | **CLI** | Select agent; sync / validate / list / uninstall |
 | **Validation** | Contract suite + fixture smokes; CI never requires `%USERPROFILE%` |
 
@@ -56,7 +56,7 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 - **Fail closed on home:** paths under the user profile need `-AllowUserHome`.
 - **Fixture-first CI:** smokes use `scripts/validation/fixtures/…`.
 - **Keyed uninstall:** remove toolkit-managed artifacts only for all Tier-1 agents. Preserves `sdd/sessions` and `sdd/manifest.json`.
-- **SDD runtime:** every sync runs `Get-SddRoot -Prepare` (not a capability flag).
+- **Sync prepare:** every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` when absent).
 - **Honest capabilities:** registry / `Get-Capabilities` flags reflect real publish support for `skills` / `rules` / `hooks` / `router` / `plugin` (e.g. OpenCode hooks are plugin JS only).
 
 ## Navigation

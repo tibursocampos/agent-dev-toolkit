@@ -72,8 +72,6 @@ Flags on each registry entry and on `Get-Capabilities` output:
 | `plugin` | Agent uses a plugin/extension packaging surface |
 | `subagents` | String enum `native` \| `none` — host Task/equivalent for SPAWN (`core/skills/_shared/agents/SPAWN.md`). **Not** boolean. Stub/`Get-Capabilities` defaults must never mint `native`. Per-adapter evidence and host spawn mechanism: each `adapters/<id>/README.md` (**Spawn / subagents**). Tier-1 matrix: [SPAWN.md](SPAWN.md). |
 
-**SDD runtime is not a capability flag.** Every Tier-1 sync always runs `Get-SddRoot -Prepare` (see [SDD contracts](#sdd-contracts-get-sddroot) below).
-
 Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupported ones):
 
 | Agent | skills | rules | hooks | router | plugin | Notes |
@@ -530,7 +528,7 @@ Stubs **must not** write under `%USERPROFILE%` (or equivalent). Future smoke use
 
 - Canonical core path: `core/sdd/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`).
 - Public state file name: `manifest.json` only (RN04 — do not brand the public file with a version suffix).
-- SDD runtime is a **sync contract for all Tier-1 adapters**, not a `Get-Capabilities` flag. Shared helper: `scripts/_lib/Initialize-SddRootLayout.ps1` (`Invoke-ToolkitGetSddRoot`).
+- Shared helper for the InstallRoot state layout: `scripts/_lib/Initialize-SddRootLayout.ps1` (`Invoke-ToolkitGetSddRoot`).
 
 ### All Tier-1 agents — SDD root
 

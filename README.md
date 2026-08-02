@@ -49,7 +49,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 
 | id | Display name | Typical live root | Notes |
 |----|--------------|-------------------|--------|
-| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks; SDD runtime via sync |
+| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks |
 | `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
 | `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
 | `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: config/AGENTS under `.codex`; plugin sync under InstallRoot; USER skills via `-UserScope` |
