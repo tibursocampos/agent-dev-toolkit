@@ -18,7 +18,6 @@
   Packaging target is native `.grok/skills|rules|hooks` (docs.x.ai/build).
   Claude/Cursor compat is not the sole publish destination. Hooks trust
   (`/hooks-trust` / `--trust`) is a human step; smoke is filesystem-only.
-  Get-SddRoot (-Prepare) prepares SDD runtime on sync (not a capability flag).
 
 .NOTES
   Initial capabilities (Step 1 decision):
@@ -27,7 +26,6 @@
   - hooks = true (.grok/hooks JSON; trust UI manual)
   - router = true (AGENTS.md / project-rules surface)
   - plugin = false (marketplace/plugins out of MVP CI green)
-  - SDD runtime prepared on sync via Get-SddRoot -Prepare (not a capability flag)
 #>
 
 $script:GrokAdapterDirectory = $PSScriptRoot

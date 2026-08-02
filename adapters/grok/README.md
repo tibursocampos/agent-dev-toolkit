@@ -32,8 +32,6 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | `plugin` | false | Marketplace/plugins out of CI green |
 | `subagents` | `native` | Host `spawn_subagent`; see Spawn section |
 
-SDD runtime (`Get-SddRoot -Prepare`) runs on every sync — not a capability flag.
-
 ## Spawn / subagents (honesty)
 
 | Field | Value |
