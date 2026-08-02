@@ -1,0 +1,69 @@
+site_name: agent-dev-toolkit
+site_url: https://tibursocampos.github.io/agent-dev-toolkit/
+repo_url: https://github.com/tibursocampos/agent-dev-toolkit
+repo_name: tibursocampos/agent-dev-toolkit
+docs_dir: docs-site
+copyright: Copyright &copy; 2026 Raphael Campos — MIT License
+
+theme:
+  name: material
+  custom_dir: overrides
+  palette:
+    scheme: slate
+    primary: teal
+    accent: teal
+  features:
+    - search.suggest
+    - search.highlight
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+          nav_translations:
+            Home: Home
+            Get started: Get started
+            Using skills: Using skills
+            Adapters: Adapters
+            Architecture: Architecture
+            Maintainers: Maintainers
+        - locale: pt
+          name: Português
+          build: true
+          nav_translations:
+            Home: Início
+            Get started: Começar
+            Using skills: Usando skills
+            Adapters: Adaptadores
+            Architecture: Arquitetura
+            Maintainers: Mantenedores
+
+nav:
+  - Home: index.md
+  - Get started: get-started.md
+  - Using skills: using-skills.md
+  - Adapters: adapters.md
+  - Architecture: architecture.md
+  - Maintainers: maintainers.md
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/agent-switcher.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tibursocampos/agent-dev-toolkit
+  generator: false
