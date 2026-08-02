@@ -4,7 +4,7 @@ Invoke toolkit skills after a successful sync. Slash syntax below is the **Curso
 
 ## Prerequisites
 
-1. Synced at least one agent ([Get started](get-started.md)).
+1. Synced at least one agent — see [Get started](../get-started/).
 2. Opened a **consumer** project in that agent (not only this toolkit repo).
 3. Optional: validated with `toolkit.ps1 -Action Validate -Agent <id>`.
 
@@ -109,7 +109,7 @@ Use Copilot’s agent-skills / custom-instructions surfaces.
 | ZCode | `~/.zcode/skills` | ADE filesystem |
 | Antigravity | `~/.gemini/config/skills` | Official `config/*` layout |
 
-Per-agent publish layouts: [Adapters](adapters.md).
+Per-agent publish layouts: [Adapters](../adapters/).
 
 ## Common workflows
 
@@ -178,4 +178,4 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
 
 Managed files are overwritten; alien files in the agent home are preserved.
 
-Next: [Get started](get-started.md) · [Adapters](adapters.md) · [Architecture](architecture.md) · [Home](index.md)
+Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Home](../)
