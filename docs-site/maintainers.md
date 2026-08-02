@@ -63,4 +63,4 @@ Full matrix, safety rules, and CI workflows:
 
 ## Maintainer Git flow
 
-Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Required CI check: **validate**. See [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) in CONTRIBUTING.md.
+Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Prefer `/open-github-pr` after `/commit` / `/push` (feature → `develop`; release mode `develop` → `master`/`main`). Release PRs use the template at `.github/PULL_REQUEST_TEMPLATE/release.md`. Required CI check: **validate**. See [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) in CONTRIBUTING.md.

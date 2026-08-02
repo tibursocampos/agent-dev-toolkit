@@ -6,8 +6,8 @@
                         "powershell",
                         "markdown"
                     ],
-    "skill_count":  36,
-    "assert_script_count":  36,
+    "skill_count":  37,
+    "assert_script_count":  39,
     "sources":  [
                     {
                         "path":  "README.md",

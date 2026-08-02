@@ -139,6 +139,8 @@ Then plan and implement one step:
 
 Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing Forma A/B/C: [Using skills](../using-skills/).
 
+After `/commit` and `/push`, open a PR with `/open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
+
 ## 8. After `git pull`
 
 Re-run sync for each agent you use. Sync is **update-in-place**: overwrites managed files and prunes managed skills removed from `core/skills/`. It preserves `sdd/sessions/` and `sdd/manifest.json`.

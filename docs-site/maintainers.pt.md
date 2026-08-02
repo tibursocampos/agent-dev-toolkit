@@ -63,4 +63,4 @@ Matriz completa, regras de segurança e workflows de CI:
 
 ## Fluxo Git dos mantenedores
 
-Colaboradores com write access usam branches normais: `feature/<slug>` → `develop` → `master`/`main`. Check de CI obrigatório: **validate**. Ver [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) em CONTRIBUTING.md.
+Colaboradores com write access usam branches normais: `feature/<slug>` → `develop` → `master`/`main`. Prefira `/open-github-pr` após `/commit` / `/push` (feature → `develop`; modo release `develop` → `master`/`main`). PRs de release usam o template em `.github/PULL_REQUEST_TEMPLATE/release.md`. Check de CI obrigatório: **validate**. Ver [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) em CONTRIBUTING.md.
