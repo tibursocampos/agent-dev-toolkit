@@ -6,8 +6,8 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcle
 
 ## Agentes Tier-1
 
-| id | displayName |
-|----|-------------|
+| id | Nome de exibição |
+|----|------------------|
 | `cursor` | Cursor |
 | `antigravity` | Antigravity |
 | `claude` | Claude Code |
@@ -17,13 +17,13 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcle
 | `grok` | Grok Build |
 | `zcode` | ZCode |
 
-Os oito têm módulos concretos com publish e smoke in-repo.
+Os oito têm módulos concretos com publicação e teste smoke no repositório.
 
 ## Como o sync funciona
 
 1. Resolve `-Agent <id>` em [`adapters/registry.json`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/registry.json).
 2. Carrega o módulo do adaptador (`Publish-*`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`, …).
-3. O `InstallRoot` padrão é uma fixture in-repo; caminhos live sob USERPROFILE exigem `-AllowUserHome` explícito.
+3. O `InstallRoot` padrão é uma fixture in-repo; caminhos reais sob USERPROFILE exigem `-AllowUserHome` explícito.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
@@ -35,7 +35,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
 
 READMEs e módulos por agente ficam no diretório `adapters/` do repositório:
 
-- [adapters/ on GitHub](https://github.com/tibursocampos/agent-dev-toolkit/tree/master/adapters)
+- [adapters/ no GitHub](https://github.com/tibursocampos/agent-dev-toolkit/tree/master/adapters)
 - Contrato completo e tabelas de InstallRoot: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md)
 
 Próximo: [Começar](../get-started/) · [Usando skills](../using-skills/) · [Arquitetura](../architecture/)

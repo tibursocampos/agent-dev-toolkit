@@ -14,7 +14,7 @@ hide:
 <p class="home-lead">Sincronize skills compartilhadas via adaptadores com um comando PowerShell — escolha o agente, copie o comando de sync e execute.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
-  <img src="../assets/core-adapters-diagram.svg" width="960" height="320" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
+  <img src="assets/core-adapters-diagram.svg" width="960" height="320" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
 </figure>
 
 <div
@@ -26,7 +26,7 @@ hide:
   <p class="agent-switcher__label" id="agent-switcher-label">Escolha um agente</p>
   <div class="agent-switcher__options" role="radiogroup" aria-labelledby="agent-switcher-label">
     <label class="agent-switcher__option">
-      <input type="radio" name="home-agent" value="cursor" data-agent-id="cursor" data-install-root="~/.cursor" data-install-hint="Pasta de instalação live típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)" checked />
+      <input type="radio" name="home-agent" value="cursor" data-agent-id="cursor" data-install-root="~/.cursor" data-install-hint="Pasta de instalação real típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)" checked />
       <span>Cursor</span>
       <span class="agent-switcher__badge">Recomendado</span>
     </label>
@@ -35,15 +35,15 @@ hide:
     <summary>Outros agentes</summary>
     <div class="agent-switcher__options" role="presentation">
       <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Pasta de instalação live típica: ~/.claude (Windows: %USERPROFILE%\.claude)" />
+        <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Pasta de instalação real típica: ~/.claude (Windows: %USERPROFILE%\.claude)" />
         <span>Claude Code</span>
       </label>
       <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Pasta de instalação live típica (modo usuário): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
+        <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Pasta de instalação real típica (modo usuário): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
         <span>GitHub Copilot</span>
       </label>
       <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Pasta de instalação live típica: ~/.codex (skills de usuário também em ~/.agents/skills)" />
+        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Pasta de instalação real típica: ~/.codex (skills de usuário também em ~/.agents/skills)" />
         <span>Codex</span>
       </label>
     </div>
@@ -51,26 +51,26 @@ hide:
       <summary>Mais agentes</summary>
       <div class="agent-switcher__options" role="presentation">
         <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Pasta de instalação live típica: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
+          <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Pasta de instalação real típica: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
           <span>Antigravity</span>
         </label>
         <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Pasta de instalação live típica: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
+          <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Pasta de instalação real típica: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
           <span>OpenCode</span>
         </label>
         <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Pasta de instalação live típica: ~/.grok (Windows: %USERPROFILE%\.grok)" />
+          <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Pasta de instalação real típica: ~/.grok (Windows: %USERPROFILE%\.grok)" />
           <span>Grok Build</span>
         </label>
         <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Pasta de instalação live típica: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
+          <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Pasta de instalação real típica: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
           <span>ZCode</span>
         </label>
       </div>
     </details>
   </details>
   <p id="agent-install-hint" class="agent-switcher__hint" role="status" aria-live="polite" data-agent-install-hint>
-    Pasta de instalação live típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)
+    Pasta de instalação real típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)
   </p>
 </div>
 
@@ -83,12 +83,12 @@ hide:
     <span id="copy-sync-status" class="home-cta__status" role="status" aria-live="polite" data-copy-status></span>
   </div>
   <a class="home-cta__secondary md-button" href="get-started/">Começar</a>
-  <p class="home-cta__note">O sync padrão usa uma fixture (pasta de teste no repo)—omitir <code>-InstallRoot</code>. Uma instalação live exige <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__note">O sync padrão usa uma fixture (pasta de teste no repo)—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
 
-## Sem o switcher de agentes
+## Sem o seletor de agentes
 
 Funciona com JavaScript desativado.
 
@@ -99,7 +99,7 @@ Funciona com JavaScript desativado.
    pwsh -NoProfile -File .\scripts\toolkit.ps1
    ```
 
-3. **Ou sincronize sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação live):
+3. **Ou sincronize sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação real):
 
    ```powershell
    pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -119,6 +119,6 @@ Funciona com JavaScript desativado.
 | `zcode` | ZCode | `~/.zcode` |
 
 <nav class="home-secondary-links" aria-label="Secundário">
-  <a href="using-skills/">Skills</a>
+  <a href="using-skills/">Usando skills</a>
   <a href="adapters/">Adaptadores</a>
 </nav>

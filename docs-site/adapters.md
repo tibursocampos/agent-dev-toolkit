@@ -15,7 +15,7 @@ Adapters publish the shared **core** (skills, policy, router, hooks where suppor
 | `grok` | Grok Build |
 | `zcode` | ZCode |
 
-All eight have concrete modules with publish + in-repo smoke.
+All eight have concrete modules with publish + in-repo smoke test.
 
 ## How sync works
 

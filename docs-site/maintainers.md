@@ -34,7 +34,7 @@ pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-**Per-agent validate** (`validate-core` + adapter smoke against fixture):
+**Per-agent validate** (`validate-core` + adapter smoke test against fixture):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor

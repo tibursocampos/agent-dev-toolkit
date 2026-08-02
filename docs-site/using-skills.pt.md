@@ -5,14 +5,14 @@ Invoque as skills do toolkit após um sync bem-sucedido. A sintaxe slash abaixo 
 ## Pré-requisitos
 
 1. Sync de pelo menos um agente — ver [Começar](../get-started/).
-2. Projeto **consumidor** aberto nesse agente (não só este repositório do toolkit).
+2. **Projeto da aplicação** aberto nesse agente (não só este repositório do toolkit).
 3. Opcional: validação com `toolkit.ps1 -Action Validate -Agent <id>`.
 
 ## Qual Forma / skill?
 
 ```mermaid
 flowchart TD
-  Start([Nova tarefa]) --> Q1{Multi-story / brownfield / precisa de especialistas?}
+  Start([Nova tarefa]) --> Q1{Várias stories / brownfield / precisa de especialistas?}
   Q1 -->|Sim| FC[Forma C]
   Q1 -->|Não| Q2{Feature única de complexidade média ou alta?}
   Q2 -->|Sim| SDD[Forma A SDD]
@@ -23,8 +23,8 @@ flowchart TD
   Q3 -->|Incerto| DEV[router developer]
   FC --> S0["/memory-bank-init Step 0"]
   S0 --> O1["/orchestrate-analyze"]
-  O1 --> ArchGate{"Greenfield / needs_domain?"}
-  ArchGate -->|Sim| Confirm["rascunho architect → sim → ARCH"]
+  O1 --> ArchGate{"Projeto novo / needs_domain (modelagem de domínio)?"}
+  ArchGate -->|Sim| Confirm["papel architect: minuta → sim (confirmar) → ARCH"]
   ArchGate -->|Espelho brownfield| O2
   Confirm --> O2["/orchestrate-deliver"]
   O2 --> O3["/orchestrate-develop ou /sdd-develop"]
@@ -53,12 +53,12 @@ flowchart TD
 
 ```
 Nova tarefa
-  ├─ Multi-story / brownfield?     -> Forma C: memory-bank-init → analyze → deliver → develop
-  ├─ Greenfield / precisa domínio? -> Forma C: analyze (+ confirmação architect) antes de develop
-  ├─ Feature única média/alta?     -> Forma A: sdd-spec → sdd-plan → sdd-develop
-  ├─ Item de backlog informal?     -> Forma B: refine-story → checklist? → A ou C
-  ├─ Mudança pequena de stack?     -> *-developer ou /developer
-  └─ Depois do código              -> code-review → test-coverage? → commit → push → open-github-pr
+  ├─ Várias stories / brownfield?        -> Forma C: memory-bank-init → analyze → deliver → develop
+  ├─ Projeto novo / precisa domínio?     -> Forma C: analyze (+ confirmação architect) antes de develop
+  ├─ Feature única média/alta?           -> Forma A: sdd-spec → sdd-plan → sdd-develop
+  ├─ Item de backlog informal?           -> Forma B: refine-story → checklist? → A ou C
+  ├─ Mudança pequena de stack?           -> *-developer ou /developer
+  └─ Depois do código                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
 ### Formas A / B / C
@@ -67,9 +67,9 @@ Nova tarefa
 |-------|--------|----------|-------|
 | **A** Clássica | Uma feature clara | `sdd-spec` → `sdd-plan` → `sdd-develop` | Sem memory-bank obrigatório |
 | **B** Backlog | Bug/story informal | `refine-story` → `split-story-checklist` opcional → A ou C | Prepara markdown estruturado |
-| **C** Orquestrada | Multi-story / brownfield / domínio greenfield | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam SDD clássico |
+| **C** Orquestrada | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam SDD clássico |
 
-Trabalho de domínio greenfield: prefira Forma C para que `/orchestrate-analyze` possa acionar o roster **architect** (não é skill slash) — rascunho ARCH → você responde **sim** → ARCH aprovado — antes dos implementadores carregarem um estilo de arquitetura + overlay de stack. Brownfield: discover-first (espelhar ARCH existente).
+Trabalho de domínio em projeto novo (greenfield): prefira Forma C. Assim `/orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill slash). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
 
 ## Invocar por agente
 
@@ -84,34 +84,34 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | Router de stack | `/developer` |
 | Forma C Step 0 | `/memory-bank-init` |
 
-Confie nos hooks na UI do Cursor uma vez se solicitado (fora de CI).
+Aceite os hooks na UI do Cursor uma vez se solicitado (fora de CI).
 
 ### Claude Code
 
-Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque via UX de skill / slash do Claude; nomes batem com ids kebab-case.
+Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque via UX de skill / slash do Claude; os nomes coincidem com os ids kebab-case.
 
 ### GitHub Copilot
 
 Sync com `-Mode user` ou `-Mode repo`:
 
-| Mode | Skills / instructions |
-|------|------------------------|
+| Mode | Skills / instruções |
+|------|---------------------|
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use as superfícies agent-skills / custom-instructions do Copilot.
+Use os pontos de publicação agent-skills / custom-instructions do Copilot.
 
 ### Codex / OpenCode / Grok / ZCode / Antigravity
 
 | Agente | Local típico das skills | Dica |
 |--------|-------------------------|------|
-| Codex | Árvore empacotada no plugin | Confie nos hooks com Codex `/hooks` após install real |
+| Codex | Árvore empacotada no plugin | Aceite os hooks com Codex `/hooks` após install real |
 | OpenCode | `~/.config/opencode/skills` | Plugins JS em `plugins/` |
-| Grok | `~/.grok/skills` | Confie via `/hooks-trust` se necessário |
-| ZCode | `~/.zcode/skills` | Filesystem ADE |
+| Grok | `~/.grok/skills` | Autorize via `/hooks-trust` se necessário |
+| ZCode | `~/.zcode/skills` | ADE (filesystem do agente) |
 | Antigravity | `~/.gemini/config/skills` | Layout oficial `config/*` |
 
-Layouts de publish por agente: [Adaptadores](../adapters/).
+Layouts de publicação por agente: [Adaptadores](../adapters/).
 
 ## Fluxos comuns
 
@@ -174,7 +174,7 @@ Fixture (seguro):
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
 ```
 
-Ambiente live do Cursor (explícito):
+Ambiente real do Cursor (explícito):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `

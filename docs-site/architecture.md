@@ -30,7 +30,7 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
 | **Core** | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts — no hardcoded IDE install paths |
 | **Adapters** | Map core → agent layout; resolve placeholders; merge hooks/settings; toolkit-managed (**keyed**) uninstall |
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — select agent, sync, validate, uninstall |
-| **Validation** | Contract suite + fixture smokes; CI never requires a live `%USERPROFILE%` deploy for green |
+| **Validation** | Contract suite + fixture smoke tests; CI never requires a live `%USERPROFILE%` deploy for green |
 
 ## Repo layout
 
@@ -58,9 +58,9 @@ Core content must not hardcode a single IDE user-profile root. Adapters resolve 
 |--------|---------|
 | `scripts/toolkit.ps1` | Interactive toolkit menu (**Smart Manager**) |
 | `scripts/sync-agent.ps1` | Publish core into an agent InstallRoot |
-| `scripts/validate-agent.ps1` | Core suite + one-agent smoke |
+| `scripts/validate-agent.ps1` | Core suite + one-agent smoke test |
 | `scripts/validation/validate-core.ps1` | Repo contracts only (no install-root write) |
-| `.github/workflows/validate-toolkit.yml` | CI: validate-core, uninstall asserts, eight agent smokes |
+| `.github/workflows/validate-toolkit.yml` | CI: validate-core, uninstall asserts, eight agent smoke tests |
 
 Per-agent install trees (Cursor, Claude, Codex, …) live in the full architecture and adapters docs — not duplicated here. See [Adapters](../adapters/).
 

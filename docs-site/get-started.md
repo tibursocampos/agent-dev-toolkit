@@ -8,7 +8,7 @@ Clone the toolkit, validate the repo, sync an agent, then invoke a skill in an *
 |-------------|--------|
 | **PowerShell** | Windows: 5.1+ or pwsh 7+. macOS/Linux: pwsh 7+ |
 | **Git** | Clone / update this repo |
-| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE |
+| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE (agent filesystem host) |
 
 ## 1. Clone
 
@@ -29,8 +29,8 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 |------|--------|
 | **Validate core only** | Repo contracts only — **no** install-root write |
 | **Sync agent** | Publish skills/policy/hooks to a chosen target |
-| **Validate agent** | `validate-core` + adapter smoke for one agent |
-| **Sync then validate** | Sync, then smoke the same target |
+| **Validate agent** | `validate-core` + adapter smoke test for one agent |
+| **Sync then validate** | Sync, then smoke-test the same target |
 | **Uninstall agent** | Remove **toolkit-managed** (**keyed**) files (not a full install wipe) |
 
 ## 3. Validate the repo (safe)
@@ -45,7 +45,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
 ### Safe default — in-repo fixture
 
-Non-interactive sync **omits** `-InstallRoot` and writes the adapter fixture under `scripts/validation/fixtures/`. Use this for learning and CI-safe smoke; it does **not** change your live install.
+Non-interactive sync **omits** `-InstallRoot` and writes the adapter fixture under `scripts/validation/fixtures/`. Use this for learning and CI-safe checks; it does **not** change your live install.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -158,7 +158,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Symptom | Fix |
 |---------|-----|
 | Sync refuses InstallRoot | Add `-AllowUserHome` or confirm in the wizard |
-| Copilot TE02 | Pass `-Mode user` or `-Mode repo` |
+| Copilot sync failed (missing Mode) | Pass `-Mode user` or `-Mode repo` |
 | Skills missing in IDE | Sync **live install**; restart/trust hooks if required |
 | Expected an install-root write in CI-like run | Use fixtures / omit live InstallRoot |
 
