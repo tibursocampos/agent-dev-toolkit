@@ -7,6 +7,29 @@
 /docs/PLAN/
 /docs/documentation-plan/
 
+# GitHub Pages / MkDocs (build output + local caches — never commit)
+/site/
+/.cache/
+**/.cache/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.python-version
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+node_modules/
+
+# Impeccable local install / live mode (PRODUCT.md + docs/DESIGN-BRIEF.md stay tracked)
+.impeccable/
+
 # OS / editor
 .DS_Store
 Thumbs.db
