@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="diagram-title diagram-desc">
-  <title id="diagram-title">Core skills flow through adapters into agent homes</title>
+  <title id="diagram-title">Core skills flow through adapters into agent install roots</title>
   <desc id="diagram-desc">Flow diagram: shared core skills publish through per-agent adapters into eight agent install roots.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -34,9 +35,9 @@
   <!-- Flow adapters — agents -->
   <path class="flow" d="M 530 160 H 590"/>
 
-  <!-- Agent homes cluster -->
+  <!-- Agent install roots cluster -->
   <rect class="box" x="600" y="40" width="320" height="240" rx="4"/>
-  <text class="label" x="760" y="72" text-anchor="middle">Agent homes</text>
+  <text class="label" x="760" y="72" text-anchor="middle">Agent install roots</text>
 
   <rect class="node" x="624" y="96" width="128" height="36" rx="3"/>
   <text class="sub" x="688" y="119" text-anchor="middle">Cursor</text>
