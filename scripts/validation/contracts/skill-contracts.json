@@ -47,6 +47,12 @@
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
+      "id": "open-github-pr-gh-and-modes",
+      "skill": "open-github-pr",
+      "files": ["SKILL.md"],
+      "mustContain": ["gh pr create", "feature", "release", "STOP - Read before ANY tool call", "Must not"]
+    },
+    {
       "id": "code-review-no-gh",
       "skill": "code-review",
       "files": ["SKILL.md"],

@@ -94,7 +94,7 @@ Mode `repo` InstallRoot is usually the consumer repo’s `.github` folder, so `-
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
 
-Always add `-AllowUserHome` when InstallRoot resolves under the user profile. Layout details: [Adapters](adapters.md).
+Always add `-AllowUserHome` when InstallRoot resolves under the user profile. Layout details: [Adapters](../adapters/).
 
 ### Dry run
 
@@ -111,7 +111,7 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Typica
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + merged `settings.json` |
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
-| Others | See [Adapters](adapters.md) and [Architecture](architecture.md) |
+| Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
 
 ## 6. Open a consumer project
 
@@ -137,7 +137,9 @@ Then plan and implement one step:
 /sdd-develop - <plan-path> - Step 1
 ```
 
-Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing Forma A/B/C: [Using skills](using-skills.md).
+Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing Forma A/B/C: [Using skills](../using-skills/).
+
+After `/commit` and `/push`, open a PR with `/open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
 
 ## 8. After `git pull`
 
@@ -160,4 +162,4 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Skills missing in IDE | Sync **live home**; restart/trust hooks if required |
 | Expected a home write in CI-like run | Use fixtures / omit live InstallRoot |
 
-Next: [Using skills](using-skills.md) · [Adapters](adapters.md) · [Maintainers](maintainers.md)
+Next: [Using skills](../using-skills/) · [Adapters](../adapters/) · [Maintainers](../maintainers/)

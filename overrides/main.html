@@ -11,8 +11,17 @@
 {% endblock %}
 
 {# Ensure a skip link exists before chrome (Material also emits .md-skip). #}
+{# Locale: mkdocs-static-i18n 1.3 exposes i18n_page_locale / i18n_file_locale. #}
 {% block header %}
-  <a href="#adt-main" class="adt-skip-link">Skip to content</a>
+  {% set skip_label = 'Skip to content' %}
+  {% if i18n_page_locale is defined and i18n_page_locale == 'pt' %}
+    {% set skip_label = 'Ir para o conteúdo' %}
+  {% elif i18n_file_locale is defined and i18n_file_locale == 'pt' %}
+    {% set skip_label = 'Ir para o conteúdo' %}
+  {% elif page and page.file and page.file.locale and page.file.locale == 'pt' %}
+    {% set skip_label = 'Ir para o conteúdo' %}
+  {% endif %}
+  <a href="#adt-main" class="adt-skip-link">{{ skip_label }}</a>
   {{ super() }}
 {% endblock %}
 

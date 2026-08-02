@@ -36,7 +36,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 1. **Clone** the repo.
 2. **Sync** an agent (`sync-agent.ps1 -Agent <id>`), optionally with `-AllowUserHome` for a live home.
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1`.
-4. **Use skills** in the agent (e.g. `/sdd-spec` after sync).
+4. **Use skills** in the agent (e.g. `/sdd-spec` after sync; ops: `/commit` → `/push` → `/open-github-pr`).
 
 See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md).
 
@@ -45,6 +45,7 @@ See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS
 | Domain | Doc | What you learn |
 |--------|-----|----------------|
 | Core | [domains/core.md](domains/core.md) | Skills tree, policy, router, SDD contracts; shared guidelines + architecture selection (A/B/C) |
+| Git ops | [domains/git-ops.md](domains/git-ops.md) | `/commit` → `/push` → `/open-github-pr`; branch rules; feature vs release templates |
 | Adapters | [domains/adapters.md](domains/adapters.md) | Registry, tiers, publish surfaces |
 | CLI | [domains/cli-scripts.md](domains/cli-scripts.md) | toolkit / sync / validate parameters |
 | Validation & CI | [domains/validation-ci.md](domains/validation-ci.md) | Fixtures, smokes, workflow |

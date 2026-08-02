@@ -3,7 +3,7 @@
 ## Target shape
 
 ```text
-core/          # skills (kebab, 36 + _shared), policy, router, sdd contracts
+core/          # skills (kebab, 37 + _shared), policy, router, sdd contracts
 adapters/      # registry.json + _contract + per-agent thin *Adapter.ps1 + Publish-* siblings
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public docs (incl. SPAWN.md, ADAPTERS, VALIDATION)
@@ -48,7 +48,7 @@ Registry: all eight Tier 1 agents `subagents: native`. Antigravity effective cap
 
 <!-- BEGIN GENERATED: inventory-summary -->
 - Inventory at: 2026-07-31T23:38:19Z (refresh)
-- Stack: PowerShell + Markdown; 36 kebab skills; 36 Assert-*.ps1 scripts
+- Stack: PowerShell + Markdown; 37 kebab skills; 39 Assert-*.ps1 scripts
 - Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + Tier 1 (Claude/Cursor/Grok split modules), `docs/SPAWN.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
 - Adapter layout: thin `*Adapter.ps1` + `Publish-*` / `Uninstall-*` for Claude, Cursor, Grok (Codex/Copilot/OpenCode/ZCode/Antigravity already modular or thin)
 - Local SDD `features/` gitignored — not public doc source; use `docs/` + `core/skills/_shared/agents/`

@@ -177,9 +177,8 @@ Be specific: `path:line`, explain **why**, suggest **how** to fix. Include posit
 
 Create a PR only when the user asks and review is not **Changes required**:
 
-1. Ensure the feature branch is pushed (`git push` after confirmation).
-2. Open **Compare & pull request** in the GitHub web UI.
-3. Set base/head per repo policy; fill Summary and Test plan from the template.
+1. Ensure the feature branch is pushed (`/push` after confirmation if needed).
+2. Hand off to **`/open-github-pr`** (do not open the GitHub web UI compare flow from this skill; `/open-github-pr` owns CLI/templates/confirmation/auto-merge).
 
 No MCP work-item linking or mandatory corporate PR templates.
 

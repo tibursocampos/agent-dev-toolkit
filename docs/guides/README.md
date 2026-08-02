@@ -10,7 +10,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: Formas A / B / C for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push`), optional Caveman compression (via policy), and in-repo validation. Deploy once with `scripts/sync-agent.ps1 -Agent <id>`; then open any **consumer** project and invoke skills.
+A **multi-agent** skills and policy pack: Formas A / B / C for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with `scripts/sync-agent.ps1 -Agent <id>`; then open any **consumer** project and invoke skills.
 
 ---
 
@@ -61,6 +61,8 @@ flowchart TD
   Post[After code] --> CR["/code-review"]
   CR --> TC["/test-coverage optional .NET"]
   TC --> Commit["/commit"]
+  Commit --> Push["/push"]
+  Push --> PR["/open-github-pr optional"]
 ```
 
 **ASCII summary:**
@@ -72,7 +74,7 @@ New task
   ├─ Single medium/high feature?   -> Forma A: sdd-spec -> sdd-plan -> sdd-develop
   ├─ Rough backlog item?           -> Forma B: refine-story -> checklist? -> A or C
   ├─ Small stack change?           -> *-developer or /developer
-  └─ After code                    -> code-review -> test-coverage? -> commit
+  └─ After code                    -> code-review -> test-coverage? -> commit -> push -> open-github-pr?
 ```
 
 **Greenfield domain:** use Forma C — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
@@ -113,7 +115,7 @@ Related:
 
 1. `/code-review` (choose angles if prompted)
 2. Optional `/test-coverage` (.NET)
-3. `/commit` then `/push` (with confirmation)
+3. `/commit` then `/push` (with confirmation); optional `/open-github-pr` when opening a PR
 
 ---
 

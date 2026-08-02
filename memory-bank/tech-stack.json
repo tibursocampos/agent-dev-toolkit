@@ -56,7 +56,7 @@
     ],
     "notes": [
       "Tier 1 adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode",
-      "36 kebab skills under core/skills/ (+ _shared)",
+      "37 kebab skills under core/skills/ (+ _shared)",
       "Cursor + Grok adapters split Claude-style (thin entry + Publish-* / Uninstall-* siblings)",
       "InstallRoot fail-closed: strip extended (\\\\?\\) and device (\\\\.\\) path prefixes; Initialize-InstallRootForWrite + Confirm; orphan cleanup",
       "Managed skills prune/copy name containment; uninstall Assert-PathUnderInstallRootForDelete",

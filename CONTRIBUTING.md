@@ -55,4 +55,4 @@ Internal development uses the normal Git flow on branches with write access:
 | `develop` | Integration |
 | `master` / `main` | Stable release |
 
-Pull requests are **collaborators only**. Use [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). Feature/fix work targets **`develop`**; release PRs are **`develop` → `master` or `main`** (enforced by [`.github/workflows/enforce-release-source.yml`](.github/workflows/enforce-release-source.yml)). Required CI check: **`validate`** (`.github/workflows/validate-toolkit.yml`).
+Pull requests are **collaborators only**. Prefer `/open-github-pr` (after `/commit` / `/push`) or use [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) in the web UI. Feature/fix work targets **`develop`**; release PRs are **`develop` → `master` or `main`** (enforced by [`.github/workflows/enforce-release-source.yml`](.github/workflows/enforce-release-source.yml)). Required CI check: **`validate`** (`.github/workflows/validate-toolkit.yml`).
