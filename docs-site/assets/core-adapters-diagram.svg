@@ -20,10 +20,10 @@
   <!-- Core -->
   <rect class="box" x="40" y="90" width="200" height="140" rx="4"/>
   <text class="label" x="140" y="145" text-anchor="middle">Core skills</text>
-  <text class="sub" x="140" y="170" text-anchor="middle">SDD — policy — router</text>
+  <text class="sub" x="140" y="170" text-anchor="middle">SDD â€” policy â€” router</text>
   <text class="sub" x="140" y="190" text-anchor="middle">one shared surface</text>
 
-  <!-- Flow core — adapters -->
+  <!-- Flow core â€” adapters -->
   <path class="flow" d="M 250 160 H 310"/>
 
   <!-- Adapters -->
@@ -32,7 +32,7 @@
   <text class="sub" x="420" y="170" text-anchor="middle">per-agent publish</text>
   <text class="sub" x="420" y="190" text-anchor="middle">PowerShell sync</text>
 
-  <!-- Flow adapters — agents -->
+  <!-- Flow adapters â€” agents -->
   <path class="flow" d="M 530 160 H 590"/>
 
   <!-- Agent install roots cluster -->
