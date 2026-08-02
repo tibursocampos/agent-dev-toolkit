@@ -1,0 +1,635 @@
+/* =============================================================================
+   agent-dev-toolkit — committed dark design tokens (DESIGN-BRIEF)
+   Wave 1 Task B — tokens + chrome + home class API (no motion yet)
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Design tokens
+   ----------------------------------------------------------------------------- */
+:root {
+  --bg: oklch(0.16 0.02 250);
+  --surface: oklch(0.22 0.025 250);
+  --text: oklch(0.93 0.01 250);
+  --muted: oklch(0.70 0.02 250);
+  --accent: oklch(0.78 0.14 195);
+  --accent-dim: oklch(0.45 0.08 195);
+  --danger: oklch(0.65 0.18 25);
+
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --measure: 72ch;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-dim);
+
+  /* Material palette bridge — kill default purple/pink */
+  --md-default-fg-color: var(--text);
+  --md-default-fg-color--light: var(--muted);
+  --md-default-fg-color--lighter: color-mix(in oklch, var(--muted) 70%, var(--bg));
+  --md-default-fg-color--lightest: color-mix(in oklch, var(--muted) 40%, var(--bg));
+  --md-default-bg-color: var(--bg);
+  --md-default-bg-color--light: color-mix(in oklch, var(--surface) 80%, var(--bg));
+  --md-default-bg-color--lighter: var(--surface);
+  --md-default-bg-color--lightest: color-mix(in oklch, var(--surface) 60%, var(--bg));
+
+  --md-primary-fg-color: var(--accent);
+  --md-primary-fg-color--light: color-mix(in oklch, var(--accent) 80%, white);
+  --md-primary-fg-color--dark: var(--accent-dim);
+  --md-primary-bg-color: var(--bg);
+  --md-primary-bg-color--light: var(--surface);
+
+  --md-accent-fg-color: var(--accent);
+  --md-accent-fg-color--transparent: color-mix(in oklch, var(--accent) 10%, transparent);
+  --md-accent-bg-color: var(--bg);
+
+  --md-typeset-color: var(--text);
+  --md-typeset-a-color: var(--accent);
+  --md-typeset-mark-color: color-mix(in oklch, var(--accent) 35%, transparent);
+
+  --md-code-fg-color: var(--text);
+  --md-code-bg-color: var(--surface);
+  --md-code-hl-color: color-mix(in oklch, var(--accent) 20%, transparent);
+  --md-code-hl-color--light: color-mix(in oklch, var(--accent) 12%, transparent);
+
+  --md-footer-fg-color: var(--muted);
+  --md-footer-fg-color--light: var(--text);
+  --md-footer-fg-color--lighter: var(--muted);
+  --md-footer-bg-color: color-mix(in oklch, var(--bg) 85%, black);
+  --md-footer-bg-color--dark: var(--bg);
+
+  --md-typeset-table-color: color-mix(in oklch, var(--muted) 35%, transparent);
+  --md-typeset-table-color--light: color-mix(in oklch, var(--muted) 18%, transparent);
+
+  --md-admonition-fg-color: var(--text);
+  --md-admonition-bg-color: var(--surface);
+
+  --md-warning-fg-color: var(--danger);
+  --md-warning-bg-color: color-mix(in oklch, var(--danger) 12%, var(--surface));
+}
+
+/* Force dark scheme tokens even if Material scheme toggles */
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"] {
+  --md-default-fg-color: var(--text);
+  --md-default-fg-color--light: var(--muted);
+  --md-default-bg-color: var(--bg);
+  --md-default-bg-color--light: color-mix(in oklch, var(--surface) 80%, var(--bg));
+  --md-default-bg-color--lighter: var(--surface);
+  --md-primary-fg-color: var(--accent);
+  --md-primary-bg-color: var(--bg);
+  --md-accent-fg-color: var(--accent);
+  --md-typeset-a-color: var(--accent);
+  --md-code-bg-color: var(--surface);
+  --md-footer-bg-color: color-mix(in oklch, var(--bg) 85%, black);
+}
+
+/* -----------------------------------------------------------------------------
+   2. Base typography + chrome
+   ----------------------------------------------------------------------------- */
+html {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.md-typeset {
+  font-family: var(--font-body);
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.md-typeset h1 {
+  letter-spacing: -0.04em;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+}
+
+.md-typeset code,
+.md-typeset pre,
+.md-typeset kbd {
+  font-family: var(--font-code);
+}
+
+.md-typeset a {
+  color: var(--accent);
+}
+
+.md-typeset a:hover {
+  color: color-mix(in oklch, var(--accent) 85%, white);
+}
+
+.md-typeset a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Article measure guidance */
+.md-content__inner > :is(p, ul, ol, dl, blockquote, .admonition) {
+  max-width: var(--measure);
+}
+
+.md-header,
+.md-tabs {
+  background-color: var(--bg);
+  color: var(--text);
+  box-shadow: none;
+  border-bottom: 1px solid color-mix(in oklch, var(--accent-dim) 45%, transparent);
+}
+
+.md-header__title,
+.md-header__topic,
+.md-header__button,
+.md-tabs__link {
+  color: var(--text);
+}
+
+.md-tabs__link--active,
+.md-tabs__link:focus,
+.md-tabs__link:hover {
+  color: var(--accent);
+}
+
+.md-search__form {
+  background-color: var(--surface);
+}
+
+.md-search__input {
+  color: var(--text);
+}
+
+.md-search__input::placeholder {
+  color: var(--muted);
+}
+
+.md-footer {
+  border-top: 1px solid color-mix(in oklch, var(--accent-dim) 40%, transparent);
+}
+
+/* Kill Material primary purple header fill leftovers */
+.md-header--shadow,
+[data-md-color-primary] .md-header {
+  background-color: var(--bg);
+}
+
+/* Visible focus across Material chrome */
+.md-header__button:focus-visible,
+.md-nav__link:focus-visible,
+.md-tabs__link:focus-visible,
+.md-search__input:focus-visible,
+.md-footer a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* -----------------------------------------------------------------------------
+   3. Skip link
+   ----------------------------------------------------------------------------- */
+.adt-skip-link,
+.md-skip {
+  position: absolute;
+  inset-inline-start: var(--space-4);
+  top: var(--space-4);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.adt-skip-link:focus,
+.adt-skip-link:focus-visible,
+.md-skip:focus,
+.md-skip:focus-visible {
+  transform: translateY(0);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+#adt-main:focus {
+  outline: none;
+}
+
+#adt-main:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* -----------------------------------------------------------------------------
+   4. Home hero region API (Task D consumers)
+   ----------------------------------------------------------------------------- */
+
+/*
+  Contract for home page authors
+  --------------------------------
+  .home-hero              Outer composition for first viewport (no card chrome)
+  .home-brand             Product name — display font, hero-level
+  .home-headline          Single H1-scale line under brand
+  .home-lead              One supporting sentence (muted)
+  .home-cta               CTA group wrapper (primary + copy)
+  .home-cta__primary      Primary link/button — states below
+  .home-cta__copy         Copy-command button — states + success/error
+  .home-diagram           Dominant SVG diagram region
+  .agent-switcher         Switcher root (tablist/radiogroup markup in Task D)
+  .agent-switcher__tab    Per-agent control
+  .agent-switcher__note   One-line live-root note
+  .home-secondary-links   Below-fold Skills / Adapters row
+  .reveal                 Load reveal hook (Task F)
+  .reveal--brand          Brand stagger
+  .reveal--diagram        Diagram stagger
+  .reveal--switcher       Switcher stagger
+*/
+
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-block: var(--space-6) var(--space-7);
+  max-width: 56rem;
+}
+
+.home-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--text);
+  margin: 0;
+}
+
+.home-headline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+  letter-spacing: -0.04em;
+  line-height: 1.25;
+  color: var(--text);
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.home-lead {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  max-width: 42rem;
+}
+
+.home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: var(--space-2);
+}
+
+/* Shared interactive reset for CTA controls */
+.home-cta__primary,
+.home-cta__copy {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out;
+}
+
+.home-cta__primary {
+  background-color: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.home-cta__primary:hover {
+  background-color: color-mix(in oklch, var(--accent) 88%, white);
+  border-color: color-mix(in oklch, var(--accent) 88%, white);
+  color: var(--bg);
+}
+
+.home-cta__primary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.home-cta__primary:active {
+  background-color: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: var(--text);
+}
+
+.home-cta__primary:disabled,
+.home-cta__primary[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.home-cta__copy {
+  background-color: transparent;
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  font-family: var(--font-code);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.home-cta__copy:hover {
+  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.home-cta__copy:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.home-cta__copy:active {
+  background-color: color-mix(in oklch, var(--accent-dim) 35%, var(--surface));
+  border-color: var(--accent-dim);
+}
+
+.home-cta__copy.is-success,
+.home-cta__copy[data-state="success"],
+.home-cta__copy.is-success .md-button,
+.home-cta__copy[data-state="success"] .md-button,
+.home-cta__copy .md-button.is-success,
+.home-cta__copy .md-button[data-state="success"],
+.home-cta__copy button.is-success,
+.home-cta__copy button[data-state="success"] {
+  background-color: color-mix(in oklch, var(--accent) 16%, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.home-cta__copy.is-error,
+.home-cta__copy[data-state="error"],
+.home-cta__copy.is-error .md-button,
+.home-cta__copy[data-state="error"] .md-button,
+.home-cta__copy .md-button.is-error,
+.home-cta__copy .md-button[data-state="error"],
+.home-cta__copy button.is-error,
+.home-cta__copy button[data-state="error"] {
+  background-color: color-mix(in oklch, var(--danger) 14%, var(--surface));
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.home-cta__copy:disabled,
+.home-cta__copy[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.home-diagram {
+  width: 100%;
+  max-width: 52rem;
+  margin-block: var(--space-4);
+  color: var(--text);
+}
+
+.home-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Agent switcher — no pill cluster chrome; flat tab strip */
+.agent-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 52rem;
+}
+
+.agent-switcher__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-switcher__tab {
+  appearance: none;
+  background: transparent;
+  border: 1px solid color-mix(in oklch, var(--accent-dim) 55%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  transition: color 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.agent-switcher__tab:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+  background-color: color-mix(in oklch, var(--surface) 80%, transparent);
+}
+
+.agent-switcher__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.agent-switcher__tab[aria-selected="true"],
+.agent-switcher__tab.is-active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
+}
+
+.agent-switcher__tab:disabled,
+.agent-switcher__tab[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Parallel radiogroup markup (index.md uses option + radios) */
+.agent-switcher__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.agent-switcher__option {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid color-mix(in oklch, var(--accent-dim) 55%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  transition: color 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.agent-switcher__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.agent-switcher__option:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+  background-color: color-mix(in oklch, var(--surface) 80%, transparent);
+}
+
+.agent-switcher__option:focus-within {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.agent-switcher__option:has(input:checked) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
+}
+
+.agent-switcher__option:has(input:disabled) {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.agent-switcher__note {
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.home-secondary-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-block: var(--space-6) var(--space-4);
+  padding-block-start: var(--space-5);
+  border-top: 1px solid color-mix(in oklch, var(--accent-dim) 40%, transparent);
+}
+
+.home-secondary-links a {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.home-secondary-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.home-secondary-links a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* -----------------------------------------------------------------------------
+   5. Motion — load reveals (Wave 2 Task F)
+   ease-out-quart; opacity + translateY only; short stagger
+   ----------------------------------------------------------------------------- */
+@keyframes adt-reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: adt-reveal-up 560ms cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.reveal--brand {
+  animation-delay: 0ms;
+}
+
+.reveal--diagram {
+  animation-delay: 90ms;
+}
+
+.reveal--switcher {
+  animation-delay: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal--brand,
+  .reveal--diagram,
+  .reveal--switcher {
+    animation: none !important;
+    transition: none !important;
+  }
+}
