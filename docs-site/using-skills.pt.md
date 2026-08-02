@@ -12,38 +12,38 @@ Invoque as skills do toolkit após um sync bem-sucedido. A sintaxe slash abaixo 
 
 ```mermaid
 flowchart TD
-  Start([New task]) --> Q1{Multi-story / brownfield / need specialists?}
-  Q1 -->|Yes| FC[Forma C]
-  Q1 -->|No| Q2{Medium or high complexity single feature?}
-  Q2 -->|Yes| SDD[Forma A SDD]
-  Q2 -->|Rough backlog item only| FB[Forma B refine]
-  Q2 -->|No| Q3{Small fix one area?}
-  Q3 -->|Yes .NET| NET[dotnet-developer]
-  Q3 -->|Yes other stack| STACK[stack skill or developer]
-  Q3 -->|Unsure| DEV[developer router]
+  Start([Nova tarefa]) --> Q1{Multi-story / brownfield / precisa de especialistas?}
+  Q1 -->|Sim| FC[Forma C]
+  Q1 -->|Não| Q2{Feature única de complexidade média ou alta?}
+  Q2 -->|Sim| SDD[Forma A SDD]
+  Q2 -->|Só item de backlog informal| FB[Forma B refine]
+  Q2 -->|Não| Q3{Correção pequena em uma área?}
+  Q3 -->|Sim .NET| NET[dotnet-developer]
+  Q3 -->|Sim outra stack| STACK[skill de stack ou developer]
+  Q3 -->|Incerto| DEV[router developer]
   FC --> S0["/memory-bank-init Step 0"]
   S0 --> O1["/orchestrate-analyze"]
   O1 --> ArchGate{"Greenfield / needs_domain?"}
-  ArchGate -->|Yes| Confirm["architect draft → sim → ARCH"]
-  ArchGate -->|Brownfield mirror| O2
+  ArchGate -->|Sim| Confirm["rascunho architect → sim → ARCH"]
+  ArchGate -->|Espelho brownfield| O2
   Confirm --> O2["/orchestrate-deliver"]
-  O2 --> O3["/orchestrate-develop or /sdd-develop"]
+  O2 --> O3["/orchestrate-develop ou /sdd-develop"]
   FB --> Refine["/refine-story"]
-  Refine --> AorC[Then Forma A or C]
+  Refine --> AorC[Depois Forma A ou C]
   SDD --> Spec["/sdd-spec"]
   Spec --> Plan["/sdd-plan"]
-  Plan --> Impl["/sdd-develop one step"]
-  NET --> DoneNet[Code change]
+  Plan --> Impl["/sdd-develop um passo"]
+  NET --> DoneNet[Mudança de código]
   STACK --> DoneNet
   DEV --> STACK
-  Impl --> DoneSdd[Code change]
+  Impl --> DoneSdd[Mudança de código]
   O3 --> DoneSdd
   AorC --> SDD
   AorC --> FC
   DoneNet --> Post
   DoneSdd --> Post
-  Post[After code] --> CR["/code-review"]
-  CR --> TC["/test-coverage optional .NET"]
+  Post[Depois do código] --> CR["/code-review"]
+  CR --> TC["/test-coverage opcional .NET"]
   TC --> Commit["/commit"]
   Commit --> Push["/push"]
   Push --> PR["/open-github-pr"]
@@ -56,7 +56,7 @@ Nova tarefa
   ├─ Multi-story / brownfield?     -> Forma C: memory-bank-init → analyze → deliver → develop
   ├─ Greenfield / precisa domínio? -> Forma C: analyze (+ confirmação architect) antes de develop
   ├─ Feature única média/alta?     -> Forma A: sdd-spec → sdd-plan → sdd-develop
-  ├─ Item de backlog rudimentar?   -> Forma B: refine-story → checklist? → A ou C
+  ├─ Item de backlog informal?     -> Forma B: refine-story → checklist? → A ou C
   ├─ Mudança pequena de stack?     -> *-developer ou /developer
   └─ Depois do código              -> code-review → test-coverage? → commit → push → open-github-pr
 ```
@@ -69,7 +69,7 @@ Nova tarefa
 | **B** Backlog | Bug/story informal | `refine-story` → `split-story-checklist` opcional → A ou C | Prepara markdown estruturado |
 | **C** Orquestrada | Multi-story / brownfield / domínio greenfield | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam SDD clássico |
 
-Trabalho de domínio greenfield: prefira Forma C para que `/orchestrate-analyze` possa spawnar o roster **architect** (não é skill slash) — rascunho ARCH → você responde **sim** → ARCH aprovado — antes dos implementadores carregarem um estilo de arquitetura + overlay de stack. Brownfield: discover-first (espelhar ARCH existente).
+Trabalho de domínio greenfield: prefira Forma C para que `/orchestrate-analyze` possa acionar o roster **architect** (não é skill slash) — rascunho ARCH → você responde **sim** → ARCH aprovado — antes dos implementadores carregarem um estilo de arquitetura + overlay de stack. Brownfield: discover-first (espelhar ARCH existente).
 
 ## Invocar por agente
 
@@ -111,7 +111,7 @@ Use as superfícies agent-skills / custom-instructions do Copilot.
 | ZCode | `~/.zcode/skills` | Filesystem ADE |
 | Antigravity | `~/.gemini/config/skills` | Layout oficial `config/*` |
 
-Layouts de publish por agente: [Adapters](../adapters/).
+Layouts de publish por agente: [Adaptadores](../adapters/).
 
 ## Fluxos comuns
 
@@ -155,7 +155,7 @@ PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `de
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**37 skills** + `_shared`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `/architect` — o caminho architect é spawnado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**37 skills** + `_shared`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `/architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|
@@ -174,13 +174,13 @@ Fixture (seguro):
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
 ```
 
-Home live do Cursor (explícito):
+Ambiente live do Cursor (explícito):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
   -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-Arquivos gerenciados são sobrescritos; arquivos alienígenas no home do agente são preservados.
+Arquivos gerenciados são sobrescritos; arquivos não gerenciados (externos) no ambiente do agente são preservados.
 
-Próximo: [Começar](../get-started/) · [Adapters](../adapters/) · [Arquitetura](../architecture/) · [Início](../)
+Próximo: [Começar](../get-started/) · [Adaptadores](../adapters/) · [Arquitetura](../architecture/) · [Início](../)

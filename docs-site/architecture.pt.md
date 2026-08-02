@@ -1,8 +1,8 @@
 # Arquitetura
 
-**agent-dev-toolkit** mantém um **núcleo** neutro em relação ao agente (skills, policy, router, contratos SDD) e **adapters** que o publicam no layout nativo de instalação de cada agente. Operadores sincronizam via CLI; a CI valida contra fixtures, não contra lares live.
+**agent-dev-toolkit** mantém um **núcleo** neutro em relação ao agente (skills, policy, router, contratos SDD) e **adaptadores** que o publicam no layout nativo de instalação de cada agente. Operadores sincronizam via CLI; a CI valida contra fixtures, não contra ambientes live.
 
-Para o passeio pelo produto, comece em [Começar](../get-started/). Superfícies de publish por agente: [Adapters](../adapters/). Após o sync: [Usando skills](../using-skills/).
+Para o fluxo do produto, comece em [Começar](../get-started/). Superfícies de publish por agente: [Adaptadores](../adapters/). Após o sync: [Usando skills](../using-skills/).
 
 ## Fluxo em alto nível
 
@@ -17,9 +17,9 @@ Para o passeio pelo produto, comece em [Começar](../get-started/). Superfícies
 │    Cursor · Claude · Codex · Copilot · Antigravity ·    │
 │    OpenCode · Grok · ZCode                              │
 └──────────────────────────┬──────────────────────────────┘
-                           │ InstallRoot (fixture or live home)
+                           │ InstallRoot (fixture ou ambiente live)
 ┌──────────────────────────▼──────────────────────────────┐
-│  Agent home: ~/.cursor · ~/.claude · ~/.copilot · …     │
+│  Pasta de instalação: ~/.cursor · ~/.claude · ~/.copilot · … │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -27,8 +27,8 @@ Para o passeio pelo produto, comece em [Começar](../get-started/). Superfícies
 
 | Camada | Papel |
 |--------|-------|
-| **Core** | Agent Skills (`SKILL.md`), `_shared`, policy em markdown, router neutro, contratos SDD — sem paths de lar de IDE hardcoded |
-| **Adapters** | Mapeiam core → layout do agente; resolvem placeholders; fazem merge de hooks/settings; uninstall com chave |
+| **Core** | Agent Skills (`SKILL.md`), `_shared`, policy em markdown, router neutro, contratos SDD — sem paths de pasta de instalação de IDE hardcoded |
+| **Adaptadores** | Mapeiam core → layout do agente; resolvem placeholders; fazem merge de hooks/settings; uninstall seletivo (arquivos gerenciados) |
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — selecionar agente, sync, validar, uninstall |
 | **Validation** | Suite de contratos + smokes em fixture; a CI nunca exige deploy live em `%USERPROFILE%` para ficar verde |
 
@@ -44,7 +44,7 @@ docs/          # public documentation (source of truth for deep dives)
 
 ## Placeholders de path
 
-O conteúdo do core não deve hardcodar uma única raiz de perfil de usuário de IDE. Os adapters resolvem estes placeholders no publish:
+O conteúdo do core não deve hardcodar uma única raiz de perfil de usuário de IDE. Os adaptadores resolvem estes placeholders no publish:
 
 | Placeholder | Significado |
 |-------------|-------------|
@@ -59,10 +59,10 @@ O conteúdo do core não deve hardcodar uma única raiz de perfil de usuário de
 | `scripts/toolkit.ps1` | Smart Manager (menu interativo) |
 | `scripts/sync-agent.ps1` | Publica o core em um InstallRoot de agente |
 | `scripts/validate-agent.ps1` | Suite do core + smoke de um agente |
-| `scripts/validation/validate-core.ps1` | Apenas contratos do repositório (sem escrita no lar) |
+| `scripts/validation/validate-core.ps1` | Apenas contratos do repositório (sem escrita no ambiente do agente) |
 | `.github/workflows/validate-toolkit.yml` | CI: validate-core, asserts de uninstall, oito smokes de agente |
 
-As árvores de instalação por agente (Cursor, Claude, Codex, …) estão na documentação completa de arquitetura e de adapters — não são duplicadas aqui. Veja [Adapters](../adapters/).
+As árvores de instalação por agente (Cursor, Claude, Codex, …) estão na documentação completa de arquitetura e de adaptadores — não são duplicadas aqui. Veja [Adaptadores](../adapters/).
 
 ## Documentação completa no GitHub
 

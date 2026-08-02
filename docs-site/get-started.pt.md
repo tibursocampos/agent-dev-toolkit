@@ -25,17 +25,17 @@ Entrada principal — menu interativo (wizards de agente/alvo, Help):
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
-| Menu | Resultado |
+| Menu (rótulos em inglês no CLI) | Resultado |
 |------|-----------|
-| **Validate core only** | Só contratos do repo — **sem** escrita no home do agente |
+| **Validate core only** | Só contratos do repo — **sem** escrita no ambiente do agente |
 | **Sync agent** | Publica skills/policy/hooks no alvo escolhido |
-| **Validate agent** | `validate-core` + smoke do adapter para um agente |
+| **Validate agent** | `validate-core` + smoke do adaptador para um agente |
 | **Sync then validate** | Sync e, em seguida, smoke no mesmo alvo |
-| **Uninstall agent** | Remove arquivos **chaveados** do toolkit (não limpa o home inteiro) |
+| **Uninstall agent** | Remove arquivos **gerenciados** do toolkit (desinstalação seletiva — não limpa a pasta de instalação inteira) |
 
 ## 3. Validar o repositório (seguro)
 
-Confirma que o toolkit está saudável sem escrever no home do agente:
+Confirma que o toolkit está saudável sem escrever no ambiente do agente:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
@@ -45,7 +45,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
 ### Padrão seguro — fixture in-repo
 
-Sync não interativo **omite** `-InstallRoot` e grava a fixture do adapter em `scripts/validation/fixtures/`. Use para aprendizado e smoke seguro em CI; **não** altera o home live do agente.
+Sync não interativo **omite** `-InstallRoot` e grava a fixture do adaptador em `scripts/validation/fixtures/`. Use para aprendizado e smoke seguro em CI; **não** altera o ambiente live do agente.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -54,7 +54,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Validate -Agent cursor -Quie
 
 No menu interativo, escolha **In-repo fixture** para o mesmo caminho seguro.
 
-### Home live — opt-in explícito
+### Ambiente live — opt-in explícito
 
 Caminhos sob `%USERPROFILE%` / `$HOME` são recusados salvo se você passar `-AllowUserHome` (ou confirmar no wizard). O Sync interativo deixa o menu de alvo em **Live agent home** por padrão — confirme antes de gravar.
 
@@ -84,7 +84,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent copilot -Mode re
 
 No Mode `repo`, o InstallRoot costuma ser a pasta `.github` do repo consumidor, então `-AllowUserHome` muitas vezes não é necessário.
 
-#### Outros roots live
+#### Outras pastas de instalação live
 
 | Agente | InstallRoot típico |
 |--------|---------------------|
@@ -94,9 +94,9 @@ No Mode `repo`, o InstallRoot costuma ser a pasta `.github` do repo consumidor, 
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
 
-Sempre adicione `-AllowUserHome` quando o InstallRoot resolver sob o perfil do usuário. Detalhes de layout: [Adapters](../adapters/).
+Sempre adicione `-AllowUserHome` quando o InstallRoot resolver sob o perfil do usuário. Detalhes de layout: [Adaptadores](../adapters/).
 
-### Dry run
+### Simulação (dry run)
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
@@ -111,7 +111,7 @@ Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Artefato
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + `settings.json` mesclado |
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
-| Outros | Ver [Adapters](../adapters/) e [Arquitetura](../architecture/) |
+| Outros | Ver [Adaptadores](../adapters/) e [Arquitetura](../architecture/) |
 
 ## 6. Abrir um projeto consumidor
 
@@ -145,21 +145,21 @@ Depois de `/commit` e `/push`, abra um PR com `/open-github-pr` (feature → `de
 
 Reexecute o sync para cada agente que você usa. Sync é **update-in-place**: sobrescreve arquivos gerenciados e remove skills gerenciadas que saíram de `core/skills/`. Preserva `sdd/sessions/` e `sdd/manifest.json`.
 
-## 9. Uninstall (chaveado)
+## 9. Uninstall (desinstalação seletiva)
 
-Remove skills, policy/rules, routers e hooks gerenciados pelo toolkit — não o home inteiro do agente. Preserva `sdd/sessions/` e `sdd/manifest.json`.
+Remove skills, policy/rules, routers e hooks gerenciados pelo toolkit — não a pasta de instalação inteira do agente. Preserva `sdd/sessions/` e `sdd/manifest.json`.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 ```
 
-## Troubleshooting
+## Solução de problemas
 
 | Sintoma | Correção |
 |---------|----------|
 | Sync recusa InstallRoot | Adicione `-AllowUserHome` ou confirme no wizard |
 | Copilot TE02 | Passe `-Mode user` ou `-Mode repo` |
-| Skills ausentes no IDE | Sync no **home live**; reinicie/confie nos hooks se necessário |
-| Esperava escrita no home em run tipo CI | Use fixtures / omita InstallRoot live |
+| Skills ausentes no IDE | Sync no **ambiente live**; reinicie/confie nos hooks se necessário |
+| Esperava escrita no ambiente em run tipo CI | Use fixtures / omita InstallRoot live |
 
-Próximo: [Usando skills](../using-skills/) · [Adapters](../adapters/) · [Maintainers](../maintainers/)
+Próximo: [Usando skills](../using-skills/) · [Adaptadores](../adapters/) · [Mantenedores](../maintainers/)

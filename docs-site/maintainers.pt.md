@@ -20,7 +20,7 @@ Leituras aprofundadas no GitHub:
 
 ## Validação (local)
 
-Nenhum destes passos escreve na home live de um agente. Prefira caminhos de fixture em `InstallRoot`; nunca use `-AllowUserHome` para “fazer o CI passar”.
+Nenhum destes passos escreve no ambiente live de um agente. Prefira caminhos de fixture em `InstallRoot`; nunca use `-AllowUserHome` para “fazer o CI passar”.
 
 **Suíte core** (contratos, grafo de skills, fixtures — obrigatória antes do merge para mantenedores):
 
@@ -30,11 +30,11 @@ pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
 # Alias:
 pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
 
-# Quiet (CI-style):
+# Quiet (estilo CI):
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-**Validate por agente** (`validate-core` + smoke do adapter contra fixture):
+**Validate por agente** (`validate-core` + smoke do adaptador contra fixture):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
