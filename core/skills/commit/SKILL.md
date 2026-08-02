@@ -155,6 +155,10 @@ git push -u origin HEAD
 
 Never `git push --force` to `main`, `master`, or `develop`.
 
+After a successful push from this skill, follow `/push` §3: **ask** whether to open a PR with **`/open-github-pr`**. Do **not** create the pull request here — hand off to that skill on **sim**.
+
+If the user asked for commit + push + PR in one message: finish commit (and push if approved), then hand off to `/open-github-pr` (do not open the PR inside `/commit`).
+
 ### 7. Report
 
 - Branch name
@@ -162,11 +166,13 @@ Never `git push --force` to `main`, `master`, or `develop`.
 - Files included
 - Push status (if applicable)
 - SDD handoff: if mid-PLAN, remind to update PLAN via `sdd-develop` before the next step in a new chat
+- If push succeeded and PR was not declined: remind that PR opening is **`/open-github-pr`** only
 
 ## Must not
 
 - Commit on `main`, `master`, `develop`, or invalid branch names
 - External work-item APIs, mandatory PR creation, or org-only PR templates
+- **Creating or merging a GitHub pull request from this skill** — hand off to `/open-github-pr`
 - `git add -A` / `git add .` without review (unless user explicitly requests)
 - Deprecated commit skill aliases in user-facing handoff - use `commit` only
 - Auto-commit without message approval
@@ -182,4 +188,5 @@ Never `git push --force` to `main`, `master`, or `develop`.
 |-----------|------|
 | Continue SDD step | New session -> `/sdd-develop - <full-plan-path> - Step N` |
 | Review before PR | `/code-review` |
-| Create PR (user asks) | `/open-github-pr` (web UI fallback per `step-4-commits-pr.md`) |
+| Open PR (user sim / asks after commit or push) | **`/open-github-pr`** (required — not inline PR creation from `/commit`) |
+| Push only | `/push` (then `/push` offers `/open-github-pr`) |

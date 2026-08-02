@@ -19,7 +19,9 @@ Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: [CONTRIBUTING.md](../
 | `push` | `/push` | `git push -u origin HEAD` on a valid feature branch |
 | `open-github-pr` | `/open-github-pr` | Create PR with `gh pr create` (feature or release mode), template resolution, optional auto-merge |
 
-Do not invent force-pushes to `main` / `master` / `develop`. Prefer `/open-github-pr` over the web UI when `gh` is available; web UI remains a fallback (see step-4 handoff).
+Do not invent force-pushes to `main` / `master` / `develop`.  
+
+**Handoff rule:** `/commit` and `/push` must **not** open PRs themselves (`gh pr create` / web compare). After a successful push, `/push` asks whether to continue with **`/open-github-pr`**; that skill owns create + auto-merge confirmation. Prefer `/open-github-pr` over the web UI when `gh` is available; web UI remains a fallback only inside that skill (see step-4).
 
 ## Branch rules
 
@@ -61,7 +63,7 @@ Release PRs into `master`/`main` must come from `develop` (CI: [`.github/workflo
 
 1. Resolve mode (`feature` / `release`).
 2. Validate head/base for that mode.
-3. Preflight: `gh` on `PATH` (Windows fallback `C:\Program Files\GitHub CLI\gh.exe`) and `gh auth status`.
+3. Preflight: `gh` on `PATH`, then OS fallbacks (Windows Program Files; macOS Homebrew; Linux `/usr/bin` / `~/.local/bin`) and `gh auth status`.
 4. Ensure head is pushed (`/push` handoff if no upstream or local commits missing on `origin`).
 5. Resolve body template (repo first, then skill fallbacks).
 6. Draft title/body; for release, fill Included PRs table and commits (`origin/<base>..origin/develop`).

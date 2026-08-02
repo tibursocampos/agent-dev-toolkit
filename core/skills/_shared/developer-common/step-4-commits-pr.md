@@ -73,22 +73,24 @@ Ask user to approve message before committing when the skill is interactive.
 
 ## 4.4. Pull request (optional, user-driven)
 
-Create a PR only when the user asks. Use the repository’s template if present (`.github/pull_request_template.md`).
+Create a PR only when the user asks (or answers **sim** to the post-`/push` offer).
+
+**Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, optional auto-merge).  
+
+**`/commit` and `/push` must not** create or merge pull requests themselves (CLI or web compare) — they only hand off to `/open-github-pr`.
 
 Default integration base is **`develop`**. Release PRs are **`develop` → `master`/`main`** (not feature → release).
-
-**Prefer `/open-github-pr`** (uses `gh` CLI). Modes:
 
 | Mode | Head → base | When |
 |------|-------------|------|
 | **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
 | **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
 
-After push confirmation, invoke `/open-github-pr` so the agent drafts title/body from the template and runs `gh pr create`.
+After a successful `/push`, the push skill **asks** (pt-BR) whether to open a PR; on **sim**, load `/open-github-pr`.
 
-**Fallback — GitHub web UI** (when `gh` is unavailable or the user prefers it):
+**Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
 
-1. Push the feature branch (`git push -u origin HEAD`) after user confirmation.
+1. Ensure the feature branch is pushed.
 2. Open the repository on GitHub → **Compare & pull request** (or **Pull requests** → **New**).
 3. Set base to `develop` (or the base the user/PLAN specifies) and head to the current feature branch.
 4. Fill title/body from the template; include Summary and Test plan.

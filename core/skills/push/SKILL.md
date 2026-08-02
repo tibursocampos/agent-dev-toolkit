@@ -80,15 +80,32 @@ Never force-push protected/default branches.
 
 Return branch and push status.
 
+### 3. Offer PR via `/open-github-pr` (required prompt)
+
+After a successful push, **ask** the user (pt-BR) whether to open a PR. Do **not** create the pull request inside `/push`.
+
+```text
+Push concluído.
+
+Abrir pull request com /open-github-pr?
+(sim = invocar a skill /open-github-pr · agora não / cancelar)
+```
+
+- On **sim** (or explicit `/open-github-pr`): **STOP** this skill and hand off — load and follow `{{TOOLKIT_ROOT}}/skills/open-github-pr/SKILL.md` in the same or new turn (mode feature by default unless user said release). That skill owns template, body confirmation, and auto-merge ask.
+- On **agora não** / cancel: stop. Do not open a PR.
+- Web UI is **not** offered from `/push`; only `/open-github-pr` may mention web UI as its own fallback when the CLI is missing.
+
 ## Must not
 
 - Push from invalid branch
 - Force push default branches
 - External work-item APIs or mandatory PR creation
+- **Creating or merging a GitHub pull request from this skill** (CLI or web compare) — always hand off to `/open-github-pr`
 
 ## Handoff
 
 | Situation | Next |
 |-----------|------|
-| Create PR (user asks) | `/open-github-pr` (web UI fallback per `step-4-commits-pr.md`) |
-| Review before PR | `/code-review` |
+| User wants a PR after push (sim / asks to open PR) | **`/open-github-pr`** (required path — not inline PR creation) |
+| Review before PR | `/code-review` then `/open-github-pr` if still needed |
+| GitHub CLI missing | Still hand off to `/open-github-pr` (it runs preflight + STOP help / MCP fallback) |
