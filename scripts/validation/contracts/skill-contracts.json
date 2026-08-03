@@ -38,19 +38,30 @@
       "id": "commit-no-auto-pr-cli",
       "skill": "commit",
       "files": ["SKILL.md"],
+      "mustContain": ["open-github-pr", "fluxo completo", "Must not"],
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
       "id": "push-no-gh",
       "skill": "push",
       "files": ["SKILL.md"],
+      "mustContain": ["open-github-pr", "fluxo completo", "Must not"],
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
       "id": "open-github-pr-gh-and-modes",
       "skill": "open-github-pr",
       "files": ["SKILL.md"],
-      "mustContain": ["gh pr create", "feature", "release", "STOP - Read before ANY tool call", "Must not"]
+      "mustContain": [
+        "gh pr create",
+        "feature",
+        "release",
+        "STOP - Read before ANY tool call",
+        "Must not",
+        "Habilitar auto-merge após criar?",
+        "Agent routing (mandatory)",
+        "fluxo completo"
+      ]
     },
     {
       "id": "code-review-no-gh",
