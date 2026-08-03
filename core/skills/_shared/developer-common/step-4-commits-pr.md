@@ -75,9 +75,11 @@ Ask user to approve message before committing when the skill is interactive.
 
 Create a PR only when the user asks (or answers **sim** to the post-`/push` offer).
 
-**Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, optional auto-merge).  
+**Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, **mandatory** auto-merge ask).  
 
 **`/commit` and `/push` must not** create or merge pull requests themselves (CLI or web compare) — they only hand off to `/open-github-pr`.
+
+**Bundled intent:** phrases like `fluxo completo`, `abra o PR`, `criar PR`, `commit + push + PR`, or `open the PR` mean: after push, **enter `/open-github-pr` immediately** (do not invent a shortcut create). That skill still asks for title/body confirmation and auto-merge; do not infer auto-merge from those phrases.
 
 Default integration base is **`develop`**. Release PRs are **`develop` → `master`/`main`** (not feature → release).
 
@@ -86,7 +88,7 @@ Default integration base is **`develop`**. Release PRs are **`develop` → `mast
 | **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
 | **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
 
-After a successful `/push`, the push skill **asks** (pt-BR) whether to open a PR; on **sim**, load `/open-github-pr`.
+After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** (pt-BR) whether to open a PR; on **sim**, load `/open-github-pr`.
 
 **Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
 
