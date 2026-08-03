@@ -21,7 +21,9 @@ Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: [CONTRIBUTING.md](../
 
 Do not invent force-pushes to `main` / `master` / `develop`.  
 
-**Handoff rule:** `/commit` and `/push` must **not** open PRs themselves (`gh pr create` / web compare). After a successful push, `/push` asks whether to continue with **`/open-github-pr`**; that skill owns create + auto-merge confirmation. Prefer `/open-github-pr` over the web UI when `gh` is available; web UI remains a fallback only inside that skill (see step-4).
+**Handoff rule:** `/commit` and `/push` must **not** open PRs themselves (`gh pr create` / web compare). After a successful push, `/push` either hands off immediately when PR intent was already clear (`fluxo completo`, `abra o PR`, `commit + push + PR`, …) or asks whether to continue with **`/open-github-pr`**. That skill owns create + **mandatory** auto-merge confirmation. Prefer `/open-github-pr` over the web UI when `gh` is available; web UI remains a fallback only inside that skill (see step-4).
+
+**Agent rule:** never short-circuit with ad-hoc `gh pr create` from chat/`/commit`/`/push`. Always **Read** `core/skills/open-github-pr/SKILL.md` and run its confirmation + auto-merge ask.
 
 ## Branch rules
 
@@ -46,7 +48,7 @@ git checkout -b feat/<id>
 |-------|---------------------|
 | `/commit` | Commit message text (never auto-commit) |
 | `/push` | Guardrails/session re-check when missing; then push |
-| `/open-github-pr` | Mode (feature vs release if omitted), full title/body, and whether to enable auto-merge |
+| `/open-github-pr` | Mode (feature vs release if omitted), full title/body, **and** whether to enable auto-merge (ask every time; do not infer from “fluxo completo”) |
 
 User **sim** (or explicit approve) is required for mutating Git and for PR create. Skills ignore Caveman compression for commit/PR prose.
 

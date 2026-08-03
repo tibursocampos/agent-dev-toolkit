@@ -157,7 +157,15 @@ Never `git push --force` to `main`, `master`, or `develop`.
 
 After a successful push from this skill, follow `/push` §3: **ask** whether to open a PR with **`/open-github-pr`**. Do **not** create the pull request here — hand off to that skill on **sim**.
 
-If the user asked for commit + push + PR in one message: finish commit (and push if approved), then hand off to `/open-github-pr` (do not open the PR inside `/commit`).
+If the user asked for commit + push + PR in one message (EN/pt-BR), treat PR intent as already granted for **handoff only**:
+
+| Phrase examples (non-exhaustive) | After commit (+ push if approved) |
+|----------------------------------|-----------------------------------|
+| `fluxo completo`, `faça o fluxo completo` | **Read and follow** `open-github-pr/SKILL.md` end-to-end |
+| `abra o PR`, `abrir PR`, `criar PR`, `faça o PR` | same |
+| `commit + push + PR`, `push and open PR`, `open the PR` | same |
+
+Do **not** open the PR inside `/commit`. Do **not** skip `/open-github-pr` confirmation or its auto-merge ask. Load that skill’s `SKILL.md` before any PR-creation action.
 
 ### 7. Report
 
@@ -172,7 +180,8 @@ If the user asked for commit + push + PR in one message: finish commit (and push
 
 - Commit on `main`, `master`, `develop`, or invalid branch names
 - External work-item APIs, mandatory PR creation, or org-only PR templates
-- **Creating or merging a GitHub pull request from this skill** — hand off to `/open-github-pr`
+- **Creating or merging a GitHub pull request from this skill** — hand off to `/open-github-pr` (never run PR-create CLI or web compare from `/commit`)
+- Skipping `/open-github-pr` when the user already asked for a PR / “fluxo completo” — still hand off; that skill owns confirmation + auto-merge ask
 - `git add -A` / `git add .` without review (unless user explicitly requests)
 - Deprecated commit skill aliases in user-facing handoff - use `commit` only
 - Auto-commit without message approval

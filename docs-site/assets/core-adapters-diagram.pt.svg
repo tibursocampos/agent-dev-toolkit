@@ -2,18 +2,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="diagram-title diagram-desc">
   <title id="diagram-title">Skills do núcleo fluem pelos adaptadores até as pastas de instalação dos agentes</title>
   <desc id="diagram-desc">Diagrama: skills compartilhadas do núcleo são publicadas por adaptadores até oito pastas de instalação de agentes.</desc>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 8 5 L 0 8.5 Z" fill="#5ec8c0"/>
-    </marker>
-  </defs>
-  <style>
+  <style type="text/css">
     /* Hex teal --accent: img-sourced SVG cannot inherit page CSS currentColor */
-    .stroke { fill: none; stroke: #5ec8c0; stroke-width: 1.75; }
+    /* Avoid CSS url references: GitHub SVG sanitizer treats them as invalid image source */
     .box { fill: none; stroke: #5ec8c0; stroke-width: 1.75; }
-    .label { fill: #e8eef5; font-family: "Sora", "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
-    .sub { fill: #e8eef5; opacity: 0.72; font-family: "Sora", "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 12px; }
-    .flow { stroke: #5ec8c0; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    .label { fill: #e8eef5; font-family: Sora, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+    .sub { fill: #e8eef5; opacity: 0.72; font-family: Sora, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 12px; }
+    .flow { stroke: #5ec8c0; stroke-width: 2; fill: none; }
+    .arrow { fill: #5ec8c0; stroke: none; }
     .node { fill: none; stroke: #5ec8c0; stroke-width: 1.5; opacity: 0.9; }
   </style>
 
@@ -23,8 +19,9 @@
   <text class="sub" x="140" y="170" text-anchor="middle">SDD -- policy -- router</text>
   <text class="sub" x="140" y="190" text-anchor="middle">uma superfície compartilhada</text>
 
-  <!-- Flow core -- adapters -->
-  <path class="flow" d="M 250 160 H 310"/>
+  <!-- Flow core to adapters (arrow as polygon: sanitizer-safe) -->
+  <path class="flow" d="M 250 160 H 302"/>
+  <polygon class="arrow" points="302,154 314,160 302,166"/>
 
   <!-- Adapters -->
   <rect class="box" x="320" y="90" width="200" height="140" rx="4"/>
@@ -32,8 +29,9 @@
   <text class="sub" x="420" y="170" text-anchor="middle">publicação por agente</text>
   <text class="sub" x="420" y="190" text-anchor="middle">sync PowerShell</text>
 
-  <!-- Flow adapters -- agents -->
-  <path class="flow" d="M 530 160 H 590"/>
+  <!-- Flow adapters to agents -->
+  <path class="flow" d="M 530 160 H 582"/>
+  <polygon class="arrow" points="582,154 594,160 582,166"/>
 
   <!-- Agent install roots cluster -->
   <rect class="box" x="600" y="40" width="320" height="240" rx="4"/>

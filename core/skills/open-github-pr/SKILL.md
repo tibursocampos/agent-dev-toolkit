@@ -1,6 +1,13 @@
 ---
 name: open-github-pr
-description: Create a GitHub pull request with gh CLI (feature or release mode), template resolution, and optional auto-merge. Use when opening a PR or invoking /open-github-pr.
+description: >
+  Create a GitHub pull request with gh CLI (feature → develop or release develop → master/main),
+  template resolution, mandatory title/body confirmation, and mandatory auto-merge ask.
+  Use whenever the user wants a PR opened — including /open-github-pr, open PR, create pull request,
+  abrir PR, criar PR, abrir o PR, faça o PR, fazer o PR, open the PR, open a pull request,
+  fluxo completo (when PR is in scope), commit+push+PR, push and open PR, release PR,
+  or any handoff from /commit or /push that implies opening a pull request.
+  Never create a PR with ad-hoc gh commands outside this skill; follow this SKILL.md end-to-end.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,11 +35,26 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/open-github-pr`, `open PR`, `create pull request`, `abrir PR`.
+Invoke when **any** of these apply (slash, English, or pt-BR — including bundled “full flow” requests):
+
+| Kind | Examples |
+|------|----------|
+| Slash | `/open-github-pr` |
+| Explicit EN | `open PR`, `open the PR`, `create pull request`, `create a PR`, `open a pull request`, `make a PR` |
+| Explicit pt-BR | `abrir PR`, `abrir o PR`, `criar PR`, `criar o PR`, `faça o PR`, `fazer o PR`, `abre o PR`, `abra o PR` |
+| Bundled flow | `fluxo completo`, `faça o fluxo completo`, `commit push e PR`, `commit + push + PR`, `depois abra o PR`, `push and open PR` — after `/commit`/`/push` finish, **this** skill owns the PR step |
+| Handoff | User answers **sim** to `/push`’s “Abrir pull request com /open-github-pr?” prompt; or `/commit`/`/code-review` hand off for PR |
+
+### Agent routing (mandatory)
+
+1. **Before** any `gh pr create`, `gh pr merge`, or web Compare & pull request steps: **Read this entire `SKILL.md`** and follow Steps -1 → 8 in order.
+2. Do **not** invent a shortcut PR (raw `gh pr create` from `/commit`, `/push`, or ad-hoc chat). Those skills only **hand off** here.
+3. If the user already said they want a PR in the same message as commit/push (“fluxo completo”, “abra o PR”, etc.): after push succeeds, **enter this skill immediately** (do not skip confirmation or the auto-merge question).
+4. Step 6 is **never optional**: always present title/base/head/body **and** ask auto-merge (`sim` / `não`), including when `allow_auto_merge` is false (then report unavailable after create if they said sim).
 
 ## Outcome
 
-One GitHub pull request created via `gh pr create` (feature → `develop`, or release `develop` → `master`/`main`), using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved. No PR without content confirmation.
+One GitHub pull request created via `gh pr create` (feature → `develop`, or release `develop` → `master`/`main`), using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved. No PR without content confirmation **and** an explicit auto-merge answer.
 
 ## Lazy-load (only when needed)
 
@@ -191,7 +213,7 @@ Detect whether the repo allows auto-merge:
 gh api repos/{owner}/{repo} --jq .allow_auto_merge
 ```
 
-Present title, base, head, full body, and auto-merge availability. Ask (pt-BR):
+Present title, base, head, full body, template source path, and auto-merge availability. Ask (pt-BR):
 
 ```text
 Conteúdo do PR acima está ok?
@@ -203,7 +225,9 @@ Habilitar auto-merge após criar? (sim / não)
 (Disponível no repositório: <sim|não>)
 ```
 
-Only proceed on **sim**. Apply adjustments and re-confirm if requested. Auto-merge question: ask even when unavailable; if user says **sim** but `allow_auto_merge` is false, create the PR and report that auto-merge cannot be enabled.
+Only proceed on **sim** for content. Apply adjustments and re-confirm if requested.
+
+**Auto-merge question is mandatory every time** — including when the user already said “fluxo completo”, “abra o PR”, or similar. Do not infer auto-merge from those phrases. Ask even when unavailable; if user says **sim** but `allow_auto_merge` is false, create the PR and report that auto-merge cannot be enabled.
 
 ### 7. Create PR (and optional auto-merge)
 
@@ -234,6 +258,8 @@ Report the PR URL.
 ## Must not
 
 - Create a PR without Step -1 gate approval and content confirmation (`sim`)
+- Create a PR without asking the auto-merge question in Step 6 (even when auto-merge is unavailable)
+- Skip reading this `SKILL.md` and jump straight to `gh pr create` / web compare
 - Open a feature PR from `main` / `master` / `develop` or an invalid branch name
 - Open a release PR unless head is `develop` and base is `master` or `main`
 - Force-push protected branches
