@@ -9,14 +9,16 @@
   - plugin/skills/<id> matching core/skills
   - plugin/hooks/hooks.json + session_start.ps1
   - marketplace entry named agent-dev-toolkit (rewrite or remove catalog)
-  - InstallRoot/.agents/skills/<id> matching core/skills (USER-scope mirror)
+  - USER-scope skills/<id> matching core/skills (fixture InstallRoot/.agents/skills,
+    or live $HOME/.agents/skills when InstallRoot is ~/.codex with -AllowUserHome)
+  - rules/<file> matching core/policy (Publish-Policy)
   - InstallRoot/AGENTS.md (Publish-Router target) when provenance confirms toolkit ownership
     (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
 
   Operator-edited or drifted AGENTS.md is preserved.
 
   Does not wipe InstallRoot, plugin/, .agents/, or alien files (RN07 / CU03).
-  Never touches real ~/.codex. Uses Resolve-InstallRoot (USERPROFILE guard).
+  Live ~/.codex requires -AllowUserHome. Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 
 $script:CodexUninstallModuleDirectory = $PSScriptRoot
@@ -62,6 +64,31 @@ function Get-CodexManagedSkillIds {
         Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force |
             Select-Object -ExpandProperty Name
     )
+}
+
+function Get-CodexManagedRuleRelativePaths {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
+    )
+
+    $corePolicyRoot = Join-Path (
+        Join-Path $RepoRoot $script:CodexPathConstant.CoreDirectoryName
+    ) $script:CodexPathConstant.PolicyDirectoryName
+
+    if (-not (Test-Path -LiteralPath $corePolicyRoot)) {
+        return @()
+    }
+
+    $paths = New-Object System.Collections.Generic.List[string]
+    $files = Get-ChildItem -LiteralPath $corePolicyRoot -Recurse -File -Force
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($corePolicyRoot.Length).TrimStart('\', '/')
+        $paths.Add($relative) | Out-Null
+    }
+
+    return @($paths.ToArray())
 }
 
 function Remove-CodexPathIfPresent {
@@ -225,9 +252,9 @@ function Invoke-CodexUninstallToolkit {
     $pluginHooksRoot = Join-Path $pluginRoot $script:CodexPathConstant.HooksDirectoryName
     $pluginManifestDir = Join-Path $pluginRoot $script:CodexPathConstant.PluginManifestDirectoryName
     $pluginManifestPath = Join-Path $pluginManifestDir $script:CodexPathConstant.PluginManifestFileName
-    $userSkillsRoot = Join-Path $resolvedInstallRoot (
-        $script:CodexPathConstant.UserSkillsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar
-    )
+    $userSkillsRoot = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $userSkillsContainmentRoot = Resolve-CodexUserSkillsContainmentRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $rulesRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.RulesDirectoryName
     $agentsPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.AgentsFileName
     $marketplacePath = Join-Path (
         Join-Path (
@@ -260,11 +287,22 @@ function Invoke-CodexUninstallToolkit {
         }
 
         $userSkillPath = Join-Path $userSkillsRoot $skillId
-        $wouldRemoveUser = Remove-CodexPathIfPresent -Path $userSkillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
+        $wouldRemoveUser = Remove-CodexPathIfPresent -Path $userSkillPath -InstallRoot $userSkillsContainmentRoot -WhatIf:$WhatIf -Recurse
         if ($wouldRemoveUser) {
             $wouldRemovePaths.Add($userSkillPath) | Out-Null
             if (-not $WhatIf.IsPresent) {
                 $removedPaths.Add($userSkillPath) | Out-Null
+            }
+        }
+    }
+
+    foreach ($ruleRelative in (Get-CodexManagedRuleRelativePaths -RepoRoot $repoRoot)) {
+        $rulePath = Join-Path $rulesRoot ($ruleRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $wouldRemoveRule = Remove-CodexPathIfPresent -Path $rulePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+        if ($wouldRemoveRule) {
+            $wouldRemovePaths.Add($rulePath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($rulePath) | Out-Null
             }
         }
     }

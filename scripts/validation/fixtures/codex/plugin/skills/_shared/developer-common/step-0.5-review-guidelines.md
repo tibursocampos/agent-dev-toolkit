@@ -2,7 +2,7 @@
 
 **Required** before writing production code (~3-5 minutes). Reduces rework in review.
 
-Load **only** what the task needs. Paths assume install via `scripts/sync-agent.ps1` (host adapter sync); shared packs land under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/`.
+Load **only** what the task needs. Paths assume install via `scripts/sync-agent.ps1` (host adapter sync); shared packs land under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/`.
 
 ---
 
@@ -10,7 +10,7 @@ Load **only** what the task needs. Paths assume install via `scripts/sync-agent.
 
 Read a single principles file when available:
 
-- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/principles-cheatsheet.md`
+- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/principles-cheatsheet.md`
 
 If missing (before ETAPA 11), skip and rely on project `docs/` and stack guidelines below.
 
@@ -32,13 +32,13 @@ Do **not** glob all of `code-guidelines/`.
 
 | Need | Path |
 |------|------|
-| Layers / rings (ARCH = concentric / CA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` |
-| Vertical slice (ARCH = VSA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/vertical-slice.md` |
-| Tactical DDD (ARCH = ddd) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/ddd-tactical.md` |
-| Event-driven (ARCH = EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/event-driven.md` |
-| Tests (xUnit, Moq, Shouldly, `Should_<R>_When_<C>`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
-| **Structure and formatting** (one type per file, signatures/150 chars, constants, method order) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md` - normative §§ File structure, Method signatures, Follow existing patterns, Named constants, Method ordering |
-| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/checklist.md` |
+| Layers / rings (ARCH = concentric / CA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` |
+| Vertical slice (ARCH = VSA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/vertical-slice.md` |
+| Tactical DDD (ARCH = ddd) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/ddd-tactical.md` |
+| Event-driven (ARCH = EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/event-driven.md` |
+| Tests (xUnit, Moq, Shouldly, `Should_<R>_When_<C>`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| **Structure and formatting** (one type per file, signatures/150 chars, constants, method order) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md` - normative §§ File structure, Method signatures, Follow existing patterns, Named constants, Method ordering |
+| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/checklist.md` |
 
 Quick checks (always apply):
 
@@ -53,16 +53,16 @@ Quick checks (always apply):
 
 | Need | Path |
 |------|------|
-| Engineering core (not visual design) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| FE folder layout (ARCH / CONTINUITY) | Prefer `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-architecture.md` — not a full CA tree per framework |
-| Markup / CSS / SCSS | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/` |
-| Cross-stack tests | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-testing.md` |
-| React | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/react-guidelines/` |
-| Angular | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/angular-guidelines/` |
-| Vue | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/vue-guidelines/` |
-| Blazor | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/` |
-| Electron | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/` |
-| Vanilla / DOM | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/dom-patterns.md` |
+| Engineering core (not visual design) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-practices.md` |
+| FE folder layout (ARCH / CONTINUITY) | Prefer `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-architecture.md` — not a full CA tree per framework |
+| Markup / CSS / SCSS | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/` |
+| Cross-stack tests | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-testing.md` |
+| React | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/react-guidelines/` |
+| Angular | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/angular-guidelines/` |
+| Vue | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/vue-guidelines/` |
+| Blazor | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/` |
+| Electron | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/` |
+| Vanilla / DOM | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/dom-patterns.md` |
 
 Visual decisions: `docs/DESIGN-BRIEF.md` or `/impeccable` - do not invent palette/typography from generic guidelines.
 

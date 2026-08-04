@@ -112,7 +112,7 @@ Works with JavaScript disabled.
 | `cursor` | Cursor | `~/.cursor` |
 | `antigravity` | Antigravity | `~/.gemini` |
 | `claude` | Claude Code | `~/.claude` |
-| `codex` | Codex | `~/.codex` |
+| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`; dual-root) |
 | `copilot` | GitHub Copilot | `~/.copilot` |
 | `opencode` | OpenCode | `~/.config/opencode` |
 | `grok` | Grok Build | `~/.grok` |

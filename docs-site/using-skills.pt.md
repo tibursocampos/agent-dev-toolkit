@@ -101,11 +101,23 @@ Sync com `-Mode user` ou `-Mode repo`:
 
 Use os pontos de publicação agent-skills / custom-instructions do Copilot.
 
-### Codex / OpenCode / Grok / ZCode / Antigravity
+### Codex
+
+O Codex é **dual-root** — skills do plugin e rules em InstallRoot **não** compartilham um único `TOOLKIT_ROOT`:
+
+| Superfície | Local |
+|------------|-------|
+| Skills do plugin + CATALOG | Sob `InstallRoot/plugin` (sync padrão) |
+| Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
+| Produto / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
+| USER skills opcional | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` com `-UserScope` + `-AllowUserHome` |
+
+Sync padrão é **somente plugin**. Use `/help-skills` para o catálogo instalado — não carregue cada `SKILL.md`. Aceite os hooks com Codex `/hooks` após install real (smoke nunca exige isso).
+
+### OpenCode / Grok / ZCode / Antigravity
 
 | Agente | Local típico das skills | Dica |
 |--------|-------------------------|------|
-| Codex | Árvore empacotada no plugin | Aceite os hooks com Codex `/hooks` após install real |
 | OpenCode | `~/.config/opencode/skills` | Plugins JS em `plugins/` |
 | Grok | `~/.grok/skills` | Autorize via `/hooks-trust` se necessário |
 | ZCode | `~/.zcode/skills` | ADE (filesystem do agente) |
@@ -155,7 +167,7 @@ PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `de
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**37 skills** + `_shared`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `/architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: `/help-skills` → `_shared/skills-catalog/CATALOG.md` (não carregue cada `SKILL.md`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `/architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|
@@ -164,7 +176,7 @@ Pastas canônicas em `core/skills/` (**37 skills** + `_shared`). Packs em `_shar
 | **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
-| **Operacional** | `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ## Re-sync quando as skills parecerem desatualizadas
 

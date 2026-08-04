@@ -5,9 +5,10 @@ Publish surfaces for **Codex** (plugin + marketplace packaging). Default Install
 | Item | Value |
 |------|-------|
 | Agent id | `codex` |
-| Purpose | Publish bundled plugin skills, hooks, and router for Codex |
+| Purpose | Publish bundled plugin skills, hooks, rules, and router for Codex |
 | Sync fixture | `scripts/validation/fixtures/codex` |
 | `subagents` (registry) | `native` |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true |
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot .\scripts\validation\fixtures\codex
@@ -33,12 +34,31 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot .\scrip
 
 ## Dual root (honesty)
 
+Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/rules` — skills live under the plugin `TOOLKIT_ROOT`; rules live under InstallRoot only.
+
 | Surface | Path |
 |---------|------|
-| Product / config home (live wizard) | `~/.codex` |
+| Product / config home (live wizard) | `~/.codex` (`InstallRoot`) |
+| Plugin skills `TOOLKIT_ROOT` | `InstallRoot/plugin` (`plugin/skills/…`, incl. CATALOG via `/help-skills`) |
+| Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | USER skills discovery | `~/.agents/skills` |
-| Default toolkit sync | `InstallRoot/plugin/` (+ marketplace under `.agents/plugins`) |
-| Optional USER mirror | `Publish-Skills -UserScope` → `InstallRoot/.agents/skills` |
+| Default toolkit sync | **Plugin-only** under `InstallRoot/plugin/` (+ marketplace under `.agents/plugins`) |
+| Optional USER mirror (fixture) | `Publish-Skills -UserScope` → `InstallRoot/.agents/skills` |
+| Optional USER mirror (live `~/.codex` + `-AllowUserHome`) | `Publish-Skills -UserScope` → `$HOME/.agents/skills` |
+
+### Publish-Router / AGENTS.md
+
+`Publish-Router` materializes `InstallRoot/AGENTS.md` with **absolute** dual-root paths: no remaining `{{…}}` placeholders, and no live `docs/` links. Destination-aware: `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree first, then remaining `{{TOOLKIT_ROOT}}` → plugin root.
+
+### Choosing UserScope
+
+| Goal | Flags |
+|------|-------|
+| CI / fixture (default) | Omit `-UserScope` — plugin skills only |
+| Fixture USER mirror | `-UserScope` on non-live InstallRoot → `InstallRoot/.agents/skills` |
+| Live USER skills | `-InstallRoot ~/.codex -AllowUserHome -UserScope` → `$HOME/.agents/skills` |
+
+Smoke/CI never require a live `~/.agents/skills` write. Trust plugin hooks with Codex `/hooks` **manually** after a real install.
 
 ## `.codex-plugin` extras (honesty)
 

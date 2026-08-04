@@ -6,7 +6,7 @@ Use when writing the final report for the `code-review` skill. Keep the report i
 
 ## SDD artifact resolution
 
-Run in **step 0.5** before scoping the diff. Load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md`. On Windows, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/` is `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/`.
+Run in **step 0.5** before scoping the diff. Load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md`. On Windows, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/` is `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/`.
 
 ### Checklist
 

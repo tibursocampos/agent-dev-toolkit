@@ -122,7 +122,7 @@ Mode `repo` InstallRoot is typically the consumer repo’s `.github` folder (not
 | Agent | Typical InstallRoot |
 |-------|---------------------|
 | `antigravity` | `$env:USERPROFILE\.gemini` |
-| `codex` | `~/.codex` (USER skills: `~/.agents/skills`; see [ADAPTERS.md](ADAPTERS.md)) |
+| `codex` | `~/.codex` (product/AGENTS/rules); optional USER skills `~/.agents/skills` via `-UserScope` + `-AllowUserHome` — see [ADAPTERS.md](ADAPTERS.md) § Codex |
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
@@ -142,7 +142,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `hooks/`, merged `settings.json` |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
-| Codex | `plugin/` (+ marketplace), `AGENTS.md` |
+| Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
 | Grok | `.grok/skills`, `.grok/rules`, `.grok/hooks`, `AGENTS.md` |
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |

@@ -50,26 +50,26 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 | When | Path |
 |------|------|
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Pipeline Forma C, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/PIPELINE.md` |
-| Storage | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
-| Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/memory-bank-init/SKILL.md` |
-| Develop contract (source of truth) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/sdd-develop/SKILL.md` + `reference.md` |
-| SESSION gates | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/SESSION.md` |
-| CONTINUITY template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/templates/features/CONTINUITY.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Pipeline Forma C, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Storage | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/memory-bank-init/SKILL.md` |
+| Develop contract (source of truth) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/sdd-develop/SKILL.md` + `reference.md` |
+| SESSION gates | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/SESSION.md` |
+| CONTINUITY template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/templates/features/CONTINUITY.md` |
 | Anti-bypass, parallelism, handoffs | `skills/orchestrate-develop/reference.md` |
-| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SUBAGENT-MODEL.md` |
-| Code review (ask mode) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/code-review/SKILL.md` |
-| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
+| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Task subagent model (default omit; rare premium gate) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Code review (ask mode) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/code-review/SKILL.md` |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
 
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 

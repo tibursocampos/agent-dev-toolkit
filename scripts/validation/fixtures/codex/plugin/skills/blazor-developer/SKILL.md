@@ -63,24 +63,24 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | When | Path |
 |------|------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
-| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3-branching.md` |
-| Blazor components / lifecycle | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-components.md` |
-| Blazor state / forms | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-state.md` |
-| Blazor render modes | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-render-modes.md` |
-| Blazor JS interop | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-js-interop.md` |
-| Blazor routing / auth | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-routing-auth.md` |
-| Blazor performance | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-performance.md` |
-| Blazor testing (bUnit) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/blazor-testing.md` |
-| Blazor delivery checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blazor-guidelines/checklist.md` |
-| Frontend core | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| FE structure (ARCH / CONTINUITY needs folder layout) | Prefer `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-architecture.md` — **not** a per-framework CA tree |
-| Markup / styles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/` |
-| .NET patterns | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
-| API rings (when Blazor + concentric .NET API) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` — only if ARCH = concentric |
-| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ `architecture-selection.md` or **one** approved style — never glob `architecture/**`) |
-| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` |
+| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3-branching.md` |
+| Blazor components / lifecycle | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-components.md` |
+| Blazor state / forms | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-state.md` |
+| Blazor render modes | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-render-modes.md` |
+| Blazor JS interop | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-js-interop.md` |
+| Blazor routing / auth | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-routing-auth.md` |
+| Blazor performance | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-performance.md` |
+| Blazor testing (bUnit) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/blazor-testing.md` |
+| Blazor delivery checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blazor-guidelines/checklist.md` |
+| Frontend core | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-practices.md` |
+| FE structure (ARCH / CONTINUITY needs folder layout) | Prefer `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-architecture.md` — **not** a per-framework CA tree |
+| Markup / styles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/` |
+| .NET patterns | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| API rings (when Blazor + concentric .NET API) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` — only if ARCH = concentric |
+| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ `architecture-selection.md` or **one** approved style — never glob `architecture/**`) |
+| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` |
 
 Do not preload unrelated guideline trees. Load only the `blazor-guidelines` rows needed for the current task.
 
@@ -89,7 +89,7 @@ Do not preload unrelated guideline trees. Load only the `blazor-guidelines` rows
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 

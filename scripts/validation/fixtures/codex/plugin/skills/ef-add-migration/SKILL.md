@@ -40,8 +40,8 @@ A new EF Core migration in the **target workspace** (not this toolkit repo unles
 
 | When | Path |
 |------|------|
-| EF tool install / version notes | `skills/ef-add-migration/reference.md` (this repo) or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/ef-add-migration/reference.md` after sync |
-| .NET layering | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` |
+| EF tool install / version notes | `skills/ef-add-migration/reference.md` (this repo) or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/ef-add-migration/reference.md` after sync |
+| .NET layering | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` |
 
 ## Process
 

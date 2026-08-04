@@ -16,7 +16,7 @@ Stack-agnostic architecture **styles**. Selection happens in layer A (`../archit
 | **Optional companions** | Load `ddd-tactical.md` and/or `event-driven.md` **only** when A’s decision table selected them |
 | **No stack libs** | These files must not prescribe MediatR, Spring, Nest, Axon, EF, etc. |
 
-Paths after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/architecture/`
+Paths after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/architecture/`
 
 ---
 

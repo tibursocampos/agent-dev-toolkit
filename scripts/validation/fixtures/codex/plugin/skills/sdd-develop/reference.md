@@ -112,9 +112,9 @@ Load on demand - do not paste into PLAN:
 
 | Topic | File |
 |-------|------|
-| Layers, handlers, repositories | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` |
-| Tests, fakes, anti-patterns | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
-| Pre-PR checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/checklist.md` |
+| Layers, handlers, repositories | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` |
+| Tests, fakes, anti-patterns | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Pre-PR checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/checklist.md` |
 
 **Test stack (toolkit default):** xUnit, Moq, Shouldly; method names `Should_<Result>_When_<Condition>`.
 
@@ -126,7 +126,7 @@ dotnet test --filter "FullyQualifiedName~MyFeatureTests"
 dotnet test path/to/TestProject.csproj
 ```
 
-**Migrations:** when a PLAN step requires a new EF Core migration, hand off to `/ef-add-migration` (optional migration name in PascalCase). Resume the same PLAN step after migration files exist. Details: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/ef-add-migration/reference.md` or `skills/ef-add-migration/reference.md` in this toolkit repo.
+**Migrations:** when a PLAN step requires a new EF Core migration, hand off to `/ef-add-migration` (optional migration name in PascalCase). Resume the same PLAN step after migration files exist. Details: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/ef-add-migration/reference.md` or `skills/ef-add-migration/reference.md` in this toolkit repo.
 
 ---
 

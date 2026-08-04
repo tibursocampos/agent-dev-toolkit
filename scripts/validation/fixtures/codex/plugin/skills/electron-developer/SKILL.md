@@ -59,20 +59,20 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | When | Path |
 |------|------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
-| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3-branching.md` |
-| Electron security / CSP | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/electron-security.md` |
-| Electron main / renderer | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/electron-main-renderer.md` |
-| Electron preload | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/electron-preload.md` |
-| Electron IPC | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/electron-ipc.md` |
-| Electron packaging | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/electron-packaging.md` |
-| Electron delivery checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/electron-guidelines/checklist.md` |
+| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3-branching.md` |
+| Electron security / CSP | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/electron-security.md` |
+| Electron main / renderer | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/electron-main-renderer.md` |
+| Electron preload | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/electron-preload.md` |
+| Electron IPC | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/electron-ipc.md` |
+| Electron packaging | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/electron-packaging.md` |
+| Electron delivery checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/electron-guidelines/checklist.md` |
 | Renderer stack | `react-guidelines/` or `vue-guidelines/` or `javascript-guidelines/` |
-| Frontend core | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| Markup / styles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/` |
-| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/` |
-| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` |
+| Frontend core | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-practices.md` |
+| Markup / styles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/` |
+| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/` |
+| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` |
 
 Do not preload unrelated guideline trees. Load only the `electron-guidelines` rows needed for the current task.
 
@@ -81,7 +81,7 @@ Do not preload unrelated guideline trees. Load only the `electron-guidelines` ro
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 

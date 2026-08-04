@@ -49,29 +49,29 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
-| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0-context.md` |
-| Before coding | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
-| Branching | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3-branching.md` |
-| Pre-commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-4-commits-pr.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc` |
-| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-7-checklist.md` |
-| Spring Boot defaults | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/spring-boot-defaults.md` |
-| Layers / packages | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/layered-structure.md` |
-| Architecture boundaries | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/architecture-boundaries.md` |
-| Architecture (greenfield / style unset) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/architecture-selection.md` — then **one** approved style only |
-| Architecture (ARCH = concentric / clean / hexagonal) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/architecture/clean-hexagonal.md` (+ optional `principles/architecture/concentric-dependency.md`) |
-| Architecture (ARCH = vertical-slice / modulith) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/architecture/modulith-vertical.md` (+ optional `principles/architecture/vertical-slice.md`) |
-| Architecture (ARCH = ddd / tactical DDD) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/architecture/ddd-tactical.md` (+ optional `principles/architecture/ddd-tactical.md`) |
-| Architecture (ARCH = event-driven / EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/architecture/event-driven.md` (+ optional `principles/architecture/event-driven.md`) |
-| Java style | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/java-style.md` |
-| Build / BOM | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/build-and-bom.md` |
-| Configuration | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/configuration.md` |
-| Testing | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/testing.md` |
-| Security basics | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/security-basics.md` |
-| Final checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/checklist.md` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
+| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
+| Branching | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-4-commits-pr.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc` |
+| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-7-checklist.md` |
+| Spring Boot defaults | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/spring-boot-defaults.md` |
+| Layers / packages | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/layered-structure.md` |
+| Architecture boundaries | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/architecture-boundaries.md` |
+| Architecture (greenfield / style unset) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/architecture-selection.md` — then **one** approved style only |
+| Architecture (ARCH = concentric / clean / hexagonal) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/architecture/clean-hexagonal.md` (+ optional `principles/architecture/concentric-dependency.md`) |
+| Architecture (ARCH = vertical-slice / modulith) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/architecture/modulith-vertical.md` (+ optional `principles/architecture/vertical-slice.md`) |
+| Architecture (ARCH = ddd / tactical DDD) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/architecture/ddd-tactical.md` (+ optional `principles/architecture/ddd-tactical.md`) |
+| Architecture (ARCH = event-driven / EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/architecture/event-driven.md` (+ optional `principles/architecture/event-driven.md`) |
+| Java style | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/java-style.md` |
+| Build / BOM | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/build-and-bom.md` |
+| Configuration | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/configuration.md` |
+| Testing | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/testing.md` |
+| Security basics | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/security-basics.md` |
+| Final checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/checklist.md` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
 
 Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `java-guidelines` rows needed for the current task. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
 
@@ -80,7 +80,7 @@ Do **not** preload other stack guideline packs or corporate pipeline docs. Load 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
@@ -94,7 +94,7 @@ Confirm target repo (`pom.xml` and/or Gradle `build.gradle` / `build.gradle.kts`
 
 ### 1. Guidelines (step 0.5)
 
-Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `java-guidelines` files needed for this task. Confirm test stack aligned to the project (prefer **JUnit 5**, **Mockito**, **AssertJ** when greenfield).
+Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `java-guidelines` files needed for this task. Confirm test stack aligned to the project (prefer **JUnit 5**, **Mockito**, **AssertJ** when greenfield).
 
 ### 2. Branch (step 3)
 
@@ -140,9 +140,9 @@ Fix failures within scope. Ask before running the full multi-module suite if the
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
+Run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
 
-Before push/PR, run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-7-checklist.md` and `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/java-guidelines/checklist.md`.
+Before push/PR, run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-7-checklist.md` and `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/java-guidelines/checklist.md`.
 
 ### 8. SDD escalation
 

@@ -69,7 +69,7 @@ Add under **Process** (after gate check). Cap = `Lite` | `Full` | `Never` per `_
 **NEVER** - Ignore caveman_mode. Clear prose only. Do not compress commit/PR text.
 ```
 
-Lazy-load row when applicable: `| Caveman Mode (if active) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md - **{Lite|Full} cap** |`
+Lazy-load row when applicable: `| Caveman Mode (if active) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md - **{Lite|Full} cap** |`
 
 ---
 
@@ -93,7 +93,7 @@ Align with US02: do **not** redefine spawn policy in the skill body. Point + sho
 **Lazy-load row (required):**
 
 ```
-| Subagent-first / SPAWN.md | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md, E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md |
+| Subagent-first / SPAWN.md | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md, E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md |
 ```
 
 **Process block (after Caveman Step -1b, before workspace):**
