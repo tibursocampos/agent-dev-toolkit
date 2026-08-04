@@ -2,13 +2,13 @@
 
 Canonical contract for **when** and **how** to spawn specialist children across Tier 1 hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md`
 
-**Path decision (US02 ARCH):** stay under `_shared/agents/` — not `core/router/` (router is L0 index only).
+**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
 
 ## Capability `subagents`
 
-Read from `adapters/registry.json` (declared) and adapter `Get-Capabilities` (effective). Capability `subagents` is the string enum `native` | `none` (US02 Step 2).
+Read from `adapters/registry.json` (declared) and adapter `Get-Capabilities` (effective). Capability `subagents` is the string enum `native` | `none`.
 
 | Value | Meaning |
 |-------|---------|
@@ -17,12 +17,12 @@ Read from `adapters/registry.json` (declared) and adapter `Get-Capabilities` (ef
 
 - Type is a **string enum** (`native` \| `none`), not a boolean.
 - Missing key or unknown value → treat as `none` (safe degrade).
-- Never claim `native` without evidence (see story `ARCH/SPAWN_MATRIX.md`).
+- Never claim `native` without host product evidence (see `docs/SPAWN.md` + each `adapters/<id>/README.md` Spawn section).
 - **Antigravity:** prefer **effective** capability from `Get-Capabilities` (fail-closed version probe). Do not assume registry alone when the host may be pre-2.0.
 
 ## Host spawn equivalents
 
-Prefer the host-native mechanism when effective `subagents` is `native`. Details and version gates: `ARCH/SPAWN_MATRIX.md`.
+Prefer the host-native mechanism when effective `subagents` is `native`. Product links, registry values, and Antigravity probe: `docs/SPAWN.md`.
 
 | Agent | Prefer when `native` |
 |-------|----------------------|
@@ -34,6 +34,16 @@ Prefer the host-native mechanism when effective `subagents` is `native`. Details
 | `opencode` | OpenCode **Task** / `@` subagent |
 | `grok` | `spawn_subagent` |
 | `zcode` | ZCode **Agent** tool |
+
+### Antigravity effective capability
+
+| Layer | Role |
+|-------|------|
+| Registry `native` | Declared product line 2.0+ |
+| `Get-Capabilities` probe | Effective `native` \| `none` (fail-closed) |
+| This contract | Prefer native only when **effective** is `native` |
+
+Probe order: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0` when known → parseable `agy --version` `>= 1.0.0` as 2.0 harness proxy (CLI stays `1.x`; do **not** require CLI major ≥ 2) → else `none`.
 
 ## Decision tree
 
@@ -90,12 +100,12 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 ## Cross-refs (lazy-load)
 
 | File | Use |
-|------|-----|
+|------|------|
 | `ROSTER.md` | Which specialist roles / `needs_*` |
 | `RECEIPT.md` | Receipt schema + refusal tokens |
 | `SUBAGENT-MODEL.md` | Task `model` parameter policy |
 | `ROUTING.md` | Stack → `*-developer` |
-| Story ARCH `SPAWN_MATRIX.md` | Per-agent proposed `subagents` values |
+| `docs/SPAWN.md` | Tier-1 host matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping
 

@@ -42,7 +42,21 @@ Use Copilot’s agent-skills / custom-instructions surfaces ([GitHub docs](https
 
 ## Codex
 
-Default publish is **plugin-bundled** skills under the fixture/plugin tree. Trust plugin hooks with Codex `/hooks` **manually** after a real install — smoke never requires it. See [ADAPTERS.md](../ADAPTERS.md) § Codex.
+Codex is **dual-root** — do not treat skills and rules as one shared `TOOLKIT_ROOT`:
+
+| Surface | Location |
+|---------|----------|
+| Plugin skills + CATALOG (`TOOLKIT_ROOT` for skills) | Under `InstallRoot/plugin` (bundled skills tree) |
+| Rules / guardrails (Publish-Policy) | `InstallRoot/rules/*.md` |
+| Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) |
+| Optional USER skills mirror | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
+
+- **Default sync** is **plugin-only** (skills under `plugin/skills/`). Optional `-UserScope` mirrors skills for USER discovery; CI/fixtures use `InstallRoot/.agents/skills` and never require a live `~/.agents/skills` write.
+- **Publish-Router** materializes `AGENTS.md` with **absolute** dual-root paths (no `{{…}}` placeholders; no live `docs/` links). Do not resolve skill `_shared` under `InstallRoot/rules`.
+- After sync, invoke **`/help-skills`** for the installed catalog (`plugin/skills/_shared/skills-catalog/CATALOG.md`) — do **not** load every `SKILL.md` to list skills.
+- Trust plugin hooks with Codex `/hooks` **manually** after a real install — smoke never requires it.
+
+Details: [ADAPTERS.md](../ADAPTERS.md) § Codex · [adapters/codex/README.md](../../adapters/codex/README.md).
 
 ## OpenCode / Grok / ZCode / Antigravity
 
@@ -105,6 +119,7 @@ Managed files are overwritten; alien files in the agent home are preserved.
 
 ## Catalog and decision tree
 
-- Full list: [SKILLS.md](../SKILLS.md)
+- Installed map (agents): `/help-skills` → `_shared/skills-catalog/CATALOG.md` (**38** skills)
+- Human mirror: [SKILLS.md](../SKILLS.md)
 - Which Forma: [guides/README.md](README.md)
 - First-time path: [01-getting-started.md](01-getting-started.md)

@@ -220,8 +220,8 @@ Este PRD está pronto para a skill **plan**:
 
 Diretrizes (lazy-load após sync; não colar corpos aqui):
 
-- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md`
-- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md`
+- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md`
+- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md`
 
 ## 16. Notas
 

@@ -38,11 +38,11 @@ One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>`, with an
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
-| Branch rules | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc` |
-| Commit format | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc` |
-| Detailed Git flow | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-4-commits-pr.md` |
-| Pre-commit checks | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
-| Message validator (commit-message-validator step) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/format-validators/commit-message-validator.md` |
+| Branch rules | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc` |
+| Commit format | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc` |
+| Detailed Git flow | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-4-commits-pr.md` |
+| Pre-commit checks | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Message validator (commit-message-validator step) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/format-validators/commit-message-validator.md` |
 
 ## Process
 
@@ -155,6 +155,18 @@ git push -u origin HEAD
 
 Never `git push --force` to `main`, `master`, or `develop`.
 
+After a successful push from this skill, follow `/push` §3: **ask** whether to open a PR with **`/open-github-pr`**. Do **not** create the pull request here — hand off to that skill on **sim**.
+
+If the user asked for commit + push + PR in one message (EN/pt-BR), treat PR intent as already granted for **handoff only**:
+
+| Phrase examples (non-exhaustive) | After commit (+ push if approved) |
+|----------------------------------|-----------------------------------|
+| `fluxo completo`, `faça o fluxo completo` | **Read and follow** `open-github-pr/SKILL.md` end-to-end |
+| `abra o PR`, `abrir PR`, `criar PR`, `faça o PR` | same |
+| `commit + push + PR`, `push and open PR`, `open the PR` | same |
+
+Do **not** open the PR inside `/commit`. Do **not** skip `/open-github-pr` confirmation or its auto-merge ask. Load that skill’s `SKILL.md` before any PR-creation action.
+
 ### 7. Report
 
 - Branch name
@@ -162,11 +174,14 @@ Never `git push --force` to `main`, `master`, or `develop`.
 - Files included
 - Push status (if applicable)
 - SDD handoff: if mid-PLAN, remind to update PLAN via `sdd-develop` before the next step in a new chat
+- If push succeeded and PR was not declined: remind that PR opening is **`/open-github-pr`** only
 
 ## Must not
 
 - Commit on `main`, `master`, `develop`, or invalid branch names
 - External work-item APIs, mandatory PR creation, or org-only PR templates
+- **Creating or merging a GitHub pull request from this skill** — hand off to `/open-github-pr` (never run PR-create CLI or web compare from `/commit`)
+- Skipping `/open-github-pr` when the user already asked for a PR / “fluxo completo” — still hand off; that skill owns confirmation + auto-merge ask
 - `git add -A` / `git add .` without review (unless user explicitly requests)
 - Deprecated commit skill aliases in user-facing handoff - use `commit` only
 - Auto-commit without message approval
@@ -182,4 +197,5 @@ Never `git push --force` to `main`, `master`, or `develop`.
 |-----------|------|
 | Continue SDD step | New session -> `/sdd-develop - <full-plan-path> - Step N` |
 | Review before PR | `/code-review` |
-| Create PR (user asks) | Open PR in GitHub web UI per `step-4-commits-pr.md` |
+| Open PR (user sim / asks after commit or push) | **`/open-github-pr`** (required — not inline PR creation from `/commit`) |
+| Push only | `/push` (then `/push` offers `/open-github-pr`) |

@@ -40,17 +40,17 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 | When | Path (after `sync-cursor.ps1`) |
 |------|--------------------------------|
 | Integration overview | `docs/blip-plugin-integration.md` (in target or toolkit repo) |
-| Architecture | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/plugin-architecture.md` |
-| Design system | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/design-system.md` |
-| Iframe messages | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/blip-iframe-messages.md` |
-| Auth (Full profile) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/auth-and-permissions.md` |
-| External API | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/external-api-integration.md` |
-| Deploy / CI | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/blip-guidelines/deploy-and-ci.md` |
-| React guidelines | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/react-guidelines/` |
-| Frontend practices | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| Design brief template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc` |
+| Architecture | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/plugin-architecture.md` |
+| Design system | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/design-system.md` |
+| Iframe messages | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/blip-iframe-messages.md` |
+| Auth (Full profile) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/auth-and-permissions.md` |
+| External API | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/external-api-integration.md` |
+| Deploy / CI | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/blip-guidelines/deploy-and-ci.md` |
+| React guidelines | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/react-guidelines/` |
+| Frontend practices | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-practices.md` |
+| Design brief template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc` |
 
 Do not preload unrelated guideline trees.
 
@@ -142,7 +142,7 @@ Ask **(pt-BR)** what to implement next. Route by scope:
 | Plugin implementation | `/react-developer` (auto-loads `blip-guidelines/` when `blip-ds` present) |
 | Backend API (.NET) | `/dotnet-developer` in **separate repo** - not in plugin scaffold session |
 
-**DESIGN-BRIEF:** use template at `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md`. One session = design **or** implementation, not both.
+**DESIGN-BRIEF:** use template at `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md`. One session = design **or** implementation, not both.
 
 **External API:** if Phase 1 answer was REST backend, remind user to read `external-api-integration.md` during `react-developer` sessions.
 

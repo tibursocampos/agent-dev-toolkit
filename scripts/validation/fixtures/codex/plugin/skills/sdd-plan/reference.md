@@ -4,7 +4,7 @@ Use this template when writing the PLAN at the resolved path (repository or glob
 
 **File paths** and **test names** in English. No implementation code blocks in the PLAN.
 
-Storage rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md`. Pipeline guards: `PIPELINE.md`.
+Storage rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md`. Pipeline guards: `PIPELINE.md`.
 
 ## Filename and numbering
 
@@ -195,8 +195,8 @@ Copy from the heading below through **Checklist final**, then remove bracketed i
 - PRD: [caminho completo]
 - Docs do projeto: `docs/...`
 - Diretrizes (lazy-load; não colar corpos):
-  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md`
-  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md`
+  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md`
+  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md`
 
 ## Checklist final
 
@@ -249,6 +249,6 @@ Use **Pendente** / **Concluído** / **Bloqueado** (or English equivalents) on th
 - [ ] Every PRD acceptance criterion appears in some step
 - [ ] Step prose in pt-BR (unless English override)
 - [ ] No full implementation code blocks in the PLAN
-- [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/` outside `sdd/.../features/`)
+- [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/` outside `sdd/.../features/`)
 - [ ] Handoff: `/sdd-develop - <full-plan-path> - Step 1`
 - [ ] Initial progress `0/N`

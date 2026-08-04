@@ -52,7 +52,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 | `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks |
 | `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
 | `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
-| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: config/AGENTS under `.codex`; plugin sync under InstallRoot; USER skills via `-UserScope` |
+| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: plugin skills under `InstallRoot/plugin`; rules via Publish-Policy → `InstallRoot/rules`; USER skills via optional `-UserScope`; default sync **plugin-only** |
 | `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo` required |
 | `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS plugins only |
 | `grok` | Grok Build | `~/.grok` | Native `.grok` publish |
@@ -60,7 +60,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 
-## Skills preview (37)
+## Skills preview (38)
 
 | Group | Examples |
 |-------|----------|
@@ -68,9 +68,9 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 | Forma B | `refine-story`, `split-story-checklist` |
 | Forma C | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
-| Ops | `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
-Full list: **[docs/SKILLS.md](docs/SKILLS.md)**.
+Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `/help-skills` → `_shared/skills-catalog/CATALOG.md`.
 
 ## Documentation
 

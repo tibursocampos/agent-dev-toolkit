@@ -5,7 +5,7 @@ Shared steps for dev skills (`sdd-develop`, `commit`, `code-review`, `developer`
 **Version:** 2.0.0 (agent-dev-toolkit)  
 **Scope:** Git-only - no work-item trackers, no corporate PR APIs.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/`
 
 ---
 
@@ -38,7 +38,7 @@ In a skill `SKILL.md`, point to a step file instead of inlining:
 ```markdown
 ### Git branch
 
-Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3-branching.md`.
+Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3-branching.md`.
 ```
 
 Override only stack-specific commands (e.g. `dotnet test` vs `npm test`).
@@ -79,9 +79,9 @@ SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inli
 
 | Step | Rule / skill |
 |------|----------------|
-| 3 | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc` |
-| 4 | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc`, `commit` skill |
-| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
+| 3 | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc` |
+| 4 | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc`, `commit` skill |
+| Context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
 | SDD PLAN | `sdd-develop` skill |
 
 Rules win over conflicting text in step files.

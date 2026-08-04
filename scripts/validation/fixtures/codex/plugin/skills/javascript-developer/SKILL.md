@@ -55,35 +55,35 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
-| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0-context.md` |
-| Before coding | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
-| Branching | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3-branching.md` |
-| Pre-commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-4-commits-pr.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc` |
-| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-7-checklist.md` |
-| Node backend (Express/Fastify) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/node-backend.md` |
-| Architecture (greenfield / style unset) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/architecture-selection.md` — then **one** approved style only |
-| Architecture (ARCH = concentric / clean / hexagonal) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/architecture/concentric.md` (+ optional `principles/architecture/concentric-dependency.md`) |
-| Architecture (ARCH = vertical-slice / VSA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/architecture/vertical-slice.md` (+ optional `principles/architecture/vertical-slice.md`) |
-| Architecture (ARCH = event-driven / EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/architecture/event-driven.md` (+ optional `principles/architecture/event-driven.md`) |
-| Node security | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/node-security.md` |
-| Node structure / errors | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/node-structure-errors.md` |
-| TypeScript strict | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/typescript-strict.md` |
-| Clean code TS / JS | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/clean-code-ts.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/clean-code-js.md` |
-| Google TS style | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/google-ts-style.md` |
-| Frontend core (`html-css` / DOM work) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| DOM patterns (`html-css` stack) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/javascript-guidelines/dom-patterns.md` |
-| Semantic HTML (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/semantic-html.md` |
-| a11y basics (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/accessibility-basics.md` |
-| CSS foundations (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/css-foundations.md` |
-| Modern CSS (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/modern-css.md` |
-| SCSS (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/scss-guidelines.md` |
-| Inclusive components (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/inclusive-components.md` |
-| HTML/CSS checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/html-css-guidelines/checklist.md` |
+| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
+| Branching | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-4-commits-pr.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc` |
+| Pre-PR gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-7-checklist.md` |
+| Node backend (Express/Fastify) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/node-backend.md` |
+| Architecture (greenfield / style unset) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/architecture-selection.md` — then **one** approved style only |
+| Architecture (ARCH = concentric / clean / hexagonal) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/architecture/concentric.md` (+ optional `principles/architecture/concentric-dependency.md`) |
+| Architecture (ARCH = vertical-slice / VSA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/architecture/vertical-slice.md` (+ optional `principles/architecture/vertical-slice.md`) |
+| Architecture (ARCH = event-driven / EDA) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/architecture/event-driven.md` (+ optional `principles/architecture/event-driven.md`) |
+| Node security | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/node-security.md` |
+| Node structure / errors | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/node-structure-errors.md` |
+| TypeScript strict | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/typescript-strict.md` |
+| Clean code TS / JS | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/clean-code-ts.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/clean-code-js.md` |
+| Google TS style | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/google-ts-style.md` |
+| Frontend core (`html-css` / DOM work) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/frontend-guidelines/frontend-practices.md` |
+| DOM patterns (`html-css` stack) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/javascript-guidelines/dom-patterns.md` |
+| Semantic HTML (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/semantic-html.md` |
+| a11y basics (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/accessibility-basics.md` |
+| CSS foundations (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/css-foundations.md` |
+| Modern CSS (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/modern-css.md` |
+| SCSS (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/scss-guidelines.md` |
+| Inclusive components (`html-css`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/inclusive-components.md` |
+| HTML/CSS checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/html-css-guidelines/checklist.md` |
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
 
 Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `javascript-guidelines` (and frontend) rows needed for the current task. Preserve DOM/`html-css` paths when the task is UI — Node backend docs are additive. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
 
@@ -92,7 +92,7 @@ Do **not** preload other stack guideline packs or corporate pipeline docs. Load 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
@@ -106,7 +106,7 @@ Confirm Node/JS project (`package.json`, `tsconfig.json`, or JS/TS layout). Read
 
 ### 1. Guidelines (step 0.5)
 
-Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the guideline files needed for this task. For HTTP APIs load `node-backend.md`; for DOM/`html-css` load `dom-patterns.md` / frontend packs; load TypeScript/clean-code docs when applicable.
+Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the guideline files needed for this task. For HTTP APIs load `node-backend.md`; for DOM/`html-css` load `dom-patterns.md` / frontend packs; load TypeScript/clean-code docs when applicable.
 
 ### 2. Branch (step 3)
 
@@ -144,9 +144,9 @@ Add lint/type steps if configured. Fix failures within scope. Ask before running
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
+Run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
 
-Before push/PR, run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-7-checklist.md` and confirm Express/Fastify or DOM guidance used as needed.
+Before push/PR, run `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-7-checklist.md` and confirm Express/Fastify or DOM guidance used as needed.
 
 ### 8. SDD escalation
 

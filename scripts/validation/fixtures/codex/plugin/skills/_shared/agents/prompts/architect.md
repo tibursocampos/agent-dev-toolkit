@@ -29,7 +29,7 @@ When nature is `brownfield` **or** the repo already shows a clear architecture s
 
 When nature is `greenfield` **or** `needs_domain=true` without an established in-repo style:
 
-1. **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/architecture-selection.md` (camada A — WHEN).
+1. **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/architecture-selection.md` (camada A — WHEN).
 2. Propose **one** primary style (do not default silently to vertical-slice or any other style).
 3. Output **exactly these four sections** (English identifiers; prose language per parent skill):
 

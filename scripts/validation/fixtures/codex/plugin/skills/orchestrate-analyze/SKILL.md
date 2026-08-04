@@ -52,27 +52,27 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 | When | Path |
 |------|------|
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Forma C, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/PIPELINE.md` |
-| Storage, manifest, feature tree | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
-| Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/memory-bank-init/SKILL.md` |
-| Roster, `needs_*`, triage table | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/ROSTER.md` |
-| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SUBAGENT-MODEL.md` |
-| Stack routing (implement later) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/ROUTING.md` |
-| Templates | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
-| Specialist prompts | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
+| Pipeline Forma C, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Storage, manifest, feature tree | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/memory-bank-init/SKILL.md` |
+| Roster, `needs_*`, triage table | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/ROSTER.md` |
+| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Task subagent model (default omit; rare premium gate) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Stack routing (implement later) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/ROUTING.md` |
+| Templates | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
+| Specialist prompts | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` |
 | Triage tables, boundaries, NuGet example | `skills/orchestrate-analyze/reference.md` |
 | Scorecard rubric (reuse) | `skills/refine-story/reference.md` |
-| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
 
 ## Process
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
@@ -95,7 +95,7 @@ Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` (includes `/f
 
 ### 3. Step 0 - Memory Bank Gate
 
-Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` from step 2 - **never** under `features/NNN-slug/`.
+Follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` from step 2 - **never** under `features/NNN-slug/`.
 
 Before any bank write: confirm (pt-BR) per MEMORY-BANK.md / guardrails (`sim` / `ajustar` / `cancelar`). Healthy bank -> selective read only (no write). Explicit `skip` / `skip-memory-bank` -> log and continue (exception only).
 
@@ -246,7 +246,7 @@ Remind (pt-BR): O2 will ask série vs paralelo for per-story PRD/PLAN.
 
 ### 11. Context pressure (TE02 / RNF02)
 
-Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` thresholds (checkpoint / hard stop). When pressure is high:
+Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` thresholds (checkpoint / hard stop). When pressure is high:
 
 1. Persist latest `CONTINUITY.md` (estado atual short per CONTINUITY template, decisões, pendências, exact next `/…`).
 2. Offer session handoff - same phase, resume with feature path:

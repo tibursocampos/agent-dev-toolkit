@@ -45,9 +45,9 @@ Production-grade UI design artifacts and/or code per upstream Impeccable command
 
 | When | Path (after `sync-cursor.ps1`) |
 |------|--------------------------------|
-| Any sub-command | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/impeccable/reference/<command>.md` - **required before acting** |
+| Any sub-command | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/impeccable/reference/<command>.md` - **required before acting** |
 | Register | `reference/brand.md` or `reference/product.md` per routing rules below |
-| DESIGN-BRIEF contract | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
+| DESIGN-BRIEF contract | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
 | Hooks / live install | `reference/hooks.md` + `docs/impeccable-integration.md` |
 | Integration docs | `docs/impeccable-integration.md` in toolkit repo |
 

@@ -62,15 +62,15 @@ Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain a
 
 | When | Path (after sync) |
 |------|-------------------|
-| SDD artifact discovery (step 0.5) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-0-context.md` |
-| Before code analysis (.NET) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
-| Pre-PR gate (.NET) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/checklist.md` |
-| .NET coverage report | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/test-coverage/reference.md` (when PRD/user/PLAN requires coverage) |
-| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Final Git hygiene | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/step-7-checklist.md` |
-| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
+| SDD artifact discovery (step 0.5) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Repo context | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-0-context.md` |
+| Before code analysis (.NET) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
+| Pre-PR gate (.NET) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/checklist.md` |
+| .NET coverage report | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/test-coverage/reference.md` (when PRD/user/PLAN requires coverage) |
+| Principles | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Final Git hygiene | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/step-7-checklist.md` |
+| Spawn native vs fallback (capability `subagents`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
 | Report template | `reference.md` (this skill) |
 
 Prefer project `docs/standards/` or repo `AGENTS.md` over generic guidelines when both exist.
@@ -82,7 +82,7 @@ Do **not** preload `code-guidelines/languages/**` or corporate static-analysis w
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
@@ -129,7 +129,7 @@ Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is other
 ### 3. Standards and guidelines
 
 1. Project `docs/standards/` or equivalent
-2. `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/` for .NET (layers, tests: xUnit, Moq, Shouldly, `Should_<Result>_When_<Condition>`)
+2. `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/` for .NET (layers, tests: xUnit, Moq, Shouldly, `Should_<Result>_When_<Condition>`)
 3. Principles cheatsheet when installed
 
 ### 4. Code analysis
@@ -169,7 +169,7 @@ Record pass/fail in the report. Missing local run -> note as limitation.
 
 ### 7. Write report
 
-Use the template in `reference.md` (repo: `skills/code-review/reference.md`; installed: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/code-review/reference.md`).
+Use the template in `reference.md` (repo: `skills/code-review/reference.md`; installed: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/code-review/reference.md`).
 
 Be specific: `path:line`, explain **why**, suggest **how** to fix. Include positives.
 
@@ -177,9 +177,8 @@ Be specific: `path:line`, explain **why**, suggest **how** to fix. Include posit
 
 Create a PR only when the user asks and review is not **Changes required**:
 
-1. Ensure the feature branch is pushed (`git push` after confirmation).
-2. Open **Compare & pull request** in the GitHub web UI.
-3. Set base/head per repo policy; fill Summary and Test plan from the template.
+1. Ensure the feature branch is pushed (`/push` after confirmation if needed).
+2. Hand off to **`/open-github-pr`** (do not open the GitHub web UI compare flow from this skill; `/open-github-pr` owns CLI/templates/confirmation/auto-merge).
 
 No MCP work-item linking or mandatory corporate PR templates.
 

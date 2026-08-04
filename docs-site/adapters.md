@@ -17,6 +17,10 @@ Adapters publish the shared **core** (skills, policy, router, hooks where suppor
 
 All eight have concrete modules with publish + in-repo smoke test.
 
+## Codex note
+
+Codex is **dual-root**: plugin skills live under `InstallRoot/plugin` (`rules=true` Publish-Policy → `InstallRoot/rules`); product/AGENTS/hooks parent is InstallRoot (live `~/.codex`). Default sync is **plugin-only**; optional `-UserScope` mirrors skills to fixture `InstallRoot/.agents/skills` or live `~/.agents/skills` (needs `-AllowUserHome`). Full contract: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) · operator guide: [Using skills](../using-skills/).
+
 ## How sync works
 
 1. Resolve `-Agent <id>` in [`adapters/registry.json`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/registry.json).

@@ -89,7 +89,7 @@ No Mode `repo`, o InstallRoot costuma ser a pasta `.github` do repositório da a
 | Agente | InstallRoot típico |
 |--------|---------------------|
 | `antigravity` | `$env:USERPROFILE\.gemini` |
-| `codex` | `~/.codex` (skills USER: `~/.agents/skills`) |
+| `codex` | `~/.codex` (produto/AGENTS/rules); skills USER opcionais `~/.agents/skills` via `-UserScope` + `-AllowUserHome` — ver [Adaptadores](../adapters/) / [Usando skills](../using-skills/) |
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
@@ -111,6 +111,7 @@ Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Artefato
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + `settings.json` mesclado |
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
+| Codex | `plugin/` (+ marketplace), `rules/*.md`, `AGENTS.md` materializado; `.agents/skills` opcional com `-UserScope` (dual-root — skills e rules não compartilham um único TOOLKIT_ROOT) |
 | Outros | Ver [Adaptadores](../adapters/) e [Arquitetura](../architecture/) |
 
 ## 6. Abrir o projeto da aplicação

@@ -2,7 +2,7 @@
 
 Contract for **LLM model** on Cursor `Task` spawns from `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Orthogonal to **when** to spawn (`ROSTER.md`), **native vs fallback** (`SPAWN.md`), and to Memory Bank Gate policy `auto` (bank health — not the Cursor Auto model).
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SUBAGENT-MODEL.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SUBAGENT-MODEL.md`
 
 ## Default (almost every spawn)
 

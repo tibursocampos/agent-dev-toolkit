@@ -25,7 +25,7 @@ Centralize guidelines so:
 | **Selection first** | Greenfield/style choice → `principles/architecture-selection.md` before any style file |
 | **MVP scope** | `principles/` (+ architecture pack); language packs deferred |
 
-Paths after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/code-guidelines/`
+Paths after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/code-guidelines/`
 
 `.NET` stack details live in `dotnet-guidelines/` - not under `languages/dotnet/` in MVP.
 
@@ -107,7 +107,7 @@ principles/architecture/<one-primary>.md       # WHAT — never glob architectur
 
 ### .NET work
 
-Use `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/` - not `code-guidelines/languages/dotnet/` until v1.1.
+Use `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/` - not `code-guidelines/languages/dotnet/` until v1.1.
 
 ---
 

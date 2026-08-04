@@ -25,7 +25,7 @@ Gate check:
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
 2. If `caveman_mode` is false: continue without compression.
-3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
@@ -43,11 +43,11 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
-| Git / language policy | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/AGENTS.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc` |
-| Developer flow | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/GUIDE.md` |
-| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc` |
-| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` |
-| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/caveman/CAVEMAN.md` |
+| Git / language policy | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/AGENTS.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc` |
+| Developer flow | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/GUIDE.md` |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc` |
+| Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
+| Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` |
 
 Do **not** load `dev_persona` or Antigravity KI artifacts.
 
@@ -81,7 +81,7 @@ Premium UI without a brief -> suggest `/impeccable shape` before stack implement
    | `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
 
 2. **Invoke the specialized skill (if match found)**:
-   - Silently read the `SKILL.md` of the matched stack under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/`:
+   - Silently read the `SKILL.md` of the matched stack under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/`:
      - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, or `python-developer`
    - Assume the identity and instructions of that skill immediately.
    - Do **not** ask the user for confirmation to switch skills.

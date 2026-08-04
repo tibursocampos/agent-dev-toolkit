@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 37 kebab skills + _shared/
+  skills/     # 38 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md via /help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -22,11 +22,11 @@ Each skill is a folder with `SKILL.md` (and optional `reference.md`, assets). To
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer`, `impeccable` |
-| Ops | `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md) |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md) |
 | Docs | `document-plan`, `document-implement` |
-| Shared | `_shared/` (not a slash skill) |
+| Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md`) |
 
-Public catalog: [SKILLS.md](../SKILLS.md).
+Public catalog: [SKILLS.md](../SKILLS.md). Agents: `/help-skills` → installed CATALOG (do not load every `SKILL.md`).
 
 ### Placeholders
 
@@ -34,7 +34,7 @@ Skill and policy text may contain:
 
 | Placeholder | Meaning at publish |
 |-------------|--------------------|
-| `{{TOOLKIT_ROOT}}` | Agent toolkit install root |
+| `{{TOOLKIT_ROOT}}` | Agent toolkit install root (destination-aware; Codex: plugin skills vs InstallRoot `rules/`) |
 | `{{SDD_ROOT}}` | SDD state root (sessions, manifest) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy path for the target agent |
 

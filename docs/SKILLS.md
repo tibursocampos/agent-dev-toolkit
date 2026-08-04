@@ -1,8 +1,10 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**37 skills** + `_shared`). After sync, invoke them in your agent (Cursor slash form: `/<name>`). Compat phrases such as `use skill <name>` may also work depending on the agent.
+Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke them in your agent (Cursor slash form: `/<name>`). Compat phrases such as `use skill <name>` may also work depending on the agent.
 
-Shared packs live under `core/skills/_shared/` (SDD contracts helpers, guidelines, templates) — not invoked as slash skills.
+**Agent source of truth (installed):** `core/skills/_shared/skills-catalog/CATALOG.md` — present via `/help-skills` so agents do not load every `SKILL.md` (Ops discovery skill). This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**38** kebab skills). Prefer `/help-skills` in-session over pasting this entire page into the agent context.
+
+Shared packs live under `core/skills/_shared/` (SDD contracts helpers, guidelines, templates, skills-catalog) — not invoked as slash skills (except the catalog is read by `/help-skills`).
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `/architect` slash skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
@@ -79,6 +81,7 @@ Orchestrators **reuse** classic SDD contracts; they do not replace them.
 
 | Skill | Purpose |
 |-------|---------|
+| `help-skills` | Present the installed skill map from `_shared/skills-catalog/CATALOG.md` |
 | `code-review` | Structured review (quality / acceptance / security angles) |
 | `repair-dotnet-build` | Diagnose/fix .NET build and tests |
 | `test-coverage` | .NET Coverlet coverage report |

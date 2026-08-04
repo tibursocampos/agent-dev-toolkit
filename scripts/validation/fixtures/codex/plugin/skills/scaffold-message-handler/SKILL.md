@@ -49,9 +49,9 @@ In the **target workspace** (not this toolkit repo unless it is the .NET repo un
 
 | When | Path |
 |------|------|
-| Detection, checklist, scaffold notes | `skills/scaffold-message-handler/reference.md` or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/scaffold-message-handler/reference.md` after sync |
-| Generating or reviewing .NET code | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` |
-| C# / test naming | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Detection, checklist, scaffold notes | `skills/scaffold-message-handler/reference.md` or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/scaffold-message-handler/reference.md` after sync |
+| Generating or reviewing .NET code | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` |
+| C# / test naming | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | Small follow-up without SDD | `/dotnet-developer` |
 
 ## Process
@@ -140,4 +140,4 @@ Report: stack detected, paths touched, how to run locally, open risks (idempoten
 /sdd-develop - <full-plan-path> - Step N
 ```
 
-SDD `PLAN` paths: resolve per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` (`features/**/PLAN/PLAN_*.md` or global `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/features/**/PLAN/` only). Not root/flat `PLAN/` and not `docs/documentation-plan/plan.md`.
+SDD `PLAN` paths: resolve per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` (`features/**/PLAN/PLAN_*.md` or global `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/features/**/PLAN/` only). Not root/flat `PLAN/` and not `docs/documentation-plan/plan.md`.

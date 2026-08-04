@@ -2,7 +2,7 @@
 
 Load at **step -1** of every skill. Do not paste into PRD/PLAN/sdd-spec bodies.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/SESSION.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/SESSION.md`
 
 ## Session file locations
 

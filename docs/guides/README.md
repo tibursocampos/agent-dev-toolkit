@@ -89,7 +89,7 @@ New task
 | **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
 | **C** Orchestrated | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse classic SDD |
 
-Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Catalog: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Skill discovery after sync: `/help-skills` (agent SoT `CATALOG.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 
@@ -98,7 +98,7 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | Guide | Content |
 |-------|---------|
 | [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first `/sdd-spec` |
-| [02-using-skills.md](02-using-skills.md) | How to invoke skills in Cursor, Claude, Copilot, and others |
+| [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `/help-skills`) |
 
 Related:
 

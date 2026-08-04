@@ -2,9 +2,9 @@
 
 Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here once; skills **point** to this file — do not duplicate long bodies.
 
-**Mandatory:** read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
+**Mandatory:** read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/developer-common/subagent-first.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/developer-common/subagent-first.md`
 
 ---
 

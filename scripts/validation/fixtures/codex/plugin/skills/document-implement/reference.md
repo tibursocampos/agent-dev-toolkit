@@ -19,7 +19,7 @@ If the plan is missing:
 
 User may supply an alternate plan path; treat it like `docs/documentation-plan/plan.md` for updates.
 
-**Not SDD:** do not substitute `features/**/PLAN/PLAN_*.md` (Classic SDD) - those follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` and skills `sdd-spec` / `sdd-plan` / `sdd-develop` / `code-review`.
+**Not SDD:** do not substitute `features/**/PLAN/PLAN_*.md` (Classic SDD) - those follow `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` and skills `sdd-spec` / `sdd-plan` / `sdd-develop` / `code-review`.
 
 ---
 

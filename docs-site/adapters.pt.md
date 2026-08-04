@@ -19,6 +19,10 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcle
 
 Os oito têm módulos concretos com publicação e teste smoke no repositório.
 
+## Nota Codex
+
+O Codex é **dual-root**: skills do plugin em `InstallRoot/plugin` (`rules=true` Publish-Policy → `InstallRoot/rules`); pai de produto/AGENTS/hooks é o InstallRoot (live `~/.codex`). Sync padrão é **somente plugin**; `-UserScope` opcional espelha skills para fixture `InstallRoot/.agents/skills` ou live `~/.agents/skills` (exige `-AllowUserHome`). Contrato completo: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) · guia: [Usando skills](../using-skills/).
+
 ## Como o sync funciona
 
 1. Resolve `-Agent <id>` em [`adapters/registry.json`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/registry.json).

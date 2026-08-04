@@ -35,14 +35,113 @@ function Get-CodexNormalizedForwardSlashPath {
     return ($full -replace '\\', $script:CodexPathConstant.PathSeparatorForwardSlash)
 }
 
-function Get-CodexPlaceholderMap {
+function Test-CodexIsLiveOfficialInstallRoot {
+    <#
+    .SYNOPSIS
+      True when ResolvedInstallRoot is the live official ~/.codex home and -AllowUserHome is set.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $ResolvedInstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
     )
 
-    $toolkitRoot = Get-CodexNormalizedForwardSlashPath -Path $InstallRoot
+    if (-not $AllowUserHome.IsPresent) {
+        return $false
+    }
+
+    $userHome = [Environment]::GetFolderPath('UserProfile')
+    if ([string]::IsNullOrWhiteSpace($userHome)) {
+        return $false
+    }
+
+    $officialCodexHome = Join-Path $userHome $script:CodexPathConstant.OfficialCodexHomeRelativePath
+    $installFull = Get-CodexNormalizedForwardSlashPath -Path $ResolvedInstallRoot
+    $officialFull = Get-CodexNormalizedForwardSlashPath -Path $officialCodexHome
+    return [string]::Equals($installFull, $officialFull, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
+function Resolve-CodexUserSkillsRoot {
+    <#
+    .SYNOPSIS
+      Resolve USER-scope skills destination (fixture vs live ~/.agents/skills).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResolvedInstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    $relative = $script:CodexPathConstant.UserSkillsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar
+    if (Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $ResolvedInstallRoot -AllowUserHome:$AllowUserHome) {
+        $userHome = [Environment]::GetFolderPath('UserProfile')
+        if ([string]::IsNullOrWhiteSpace($userHome)) {
+            throw $script:CodexPublishMessage.LiveUserScopeRequiresAllowUserHome
+        }
+
+        return [System.IO.Path]::GetFullPath((Join-Path $userHome $relative))
+    }
+
+    return [System.IO.Path]::GetFullPath((Join-Path $ResolvedInstallRoot $relative))
+}
+
+function Resolve-CodexUserSkillsContainmentRoot {
+    <#
+    .SYNOPSIS
+      Containment root for managed publish/delete of USER-scope skills.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResolvedInstallRoot,
+
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if (Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $ResolvedInstallRoot -AllowUserHome:$AllowUserHome) {
+        $userHome = [Environment]::GetFolderPath('UserProfile')
+        if ([string]::IsNullOrWhiteSpace($userHome)) {
+            throw $script:CodexPublishMessage.LiveUserScopeRequiresAllowUserHome
+        }
+
+        return [System.IO.Path]::GetFullPath($userHome)
+    }
+
+    return [System.IO.Path]::GetFullPath($ResolvedInstallRoot)
+}
+
+function Get-CodexPlaceholderMap {
+    <#
+    .SYNOPSIS
+      Build placeholder map for a skills publish destination.
+
+    .DESCRIPTION
+      TOOLKIT_ROOT is the parent of PublishedSkillsRoot (plugin root or .agents),
+      so {{TOOLKIT_ROOT}}/skills/_shared resolves beside the published skills tree.
+      SDD_ROOT and GUARDRAILS_PATH stay under product InstallRoot (sdd/, rules/).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PublishedSkillsRoot
+    )
+
+    $toolkitRootPath = Split-Path -Parent $PublishedSkillsRoot
+    if ([string]::IsNullOrWhiteSpace($toolkitRootPath)) {
+        $toolkitRootPath = $PublishedSkillsRoot
+    }
+
+    $toolkitRoot = Get-CodexNormalizedForwardSlashPath -Path $toolkitRootPath
     $sddRoot = Get-CodexNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:CodexPathConstant.SddDirectoryName)
     $guardrailsPath = Get-CodexNormalizedForwardSlashPath -Path (
         Join-Path (Join-Path $InstallRoot $script:CodexPathConstant.RulesDirectoryName) $script:CodexPathConstant.GuardrailsFileName
@@ -318,10 +417,12 @@ function Invoke-CodexPublishSkills {
     $sourceSkillsRoot = Join-Path (Join-Path $repoRoot $script:CodexPathConstant.CoreDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $destinationSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
-    $userSkillsRoot = Join-Path $resolvedInstallRoot ($script:CodexPathConstant.UserSkillsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $userSkillsRoot = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $userSkillsContainmentRoot = Resolve-CodexUserSkillsContainmentRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $manifestPath = Join-Path (Join-Path $pluginRoot $script:CodexPathConstant.PluginManifestDirectoryName) $script:CodexPathConstant.PluginManifestFileName
     $marketplacePath = Get-CodexMarketplaceCatalogPath -InstallRoot $resolvedInstallRoot
     $userScopeEnabled = $UserScope.IsPresent
+    $liveUserScope = Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
 
     if (-not (Test-Path -LiteralPath $sourceSkillsRoot)) {
         throw ($script:CodexPublishMessage.CoreSkillsMissing -f $sourceSkillsRoot)
@@ -341,6 +442,7 @@ function Invoke-CodexPublishSkills {
             CommandName           = 'Publish-Skills'
             WhatIf                = $true
             UserScope             = $userScopeEnabled
+            LiveUserScope         = $(if ($userScopeEnabled) { $liveUserScope } else { $false })
             InstallRoot           = $resolvedInstallRoot
             PluginRoot            = $pluginRoot
             ManifestPath          = $manifestPath
@@ -358,7 +460,9 @@ function Invoke-CodexPublishSkills {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $destinationSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
-    $userSkillsRoot = Join-Path $resolvedInstallRoot ($script:CodexPathConstant.UserSkillsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $userSkillsRoot = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $userSkillsContainmentRoot = Resolve-CodexUserSkillsContainmentRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    $liveUserScope = Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $manifestPath = Join-Path (Join-Path $pluginRoot $script:CodexPathConstant.PluginManifestDirectoryName) $script:CodexPathConstant.PluginManifestFileName
     $marketplacePath = Get-CodexMarketplaceCatalogPath -InstallRoot $resolvedInstallRoot
 
@@ -368,12 +472,12 @@ function Invoke-CodexPublishSkills {
 
     $writtenManifest = Write-CodexPluginManifest -PluginRoot $pluginRoot -InstallRoot $resolvedInstallRoot
     Initialize-CodexToolkitManagedTreeLib
-    $placeholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot
+    $pluginPlaceholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $destinationSkillsRoot
     $publishResult = Invoke-ToolkitManagedSkillsPublish `
         -SourceSkillsRoot $sourceSkillsRoot `
         -DestinationSkillsRoot $destinationSkillsRoot `
         -InstallRoot $resolvedInstallRoot `
-        -PlaceholderMap $placeholderMap `
+        -PlaceholderMap $pluginPlaceholderMap `
         -TextFileExtensionPattern $script:CodexPathConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
@@ -383,11 +487,16 @@ function Invoke-CodexPublishSkills {
     $userSkillsFilesCopied = 0
     $publishedUserSkillsRoot = $null
     if ($userScopeEnabled) {
+        if ($liveUserScope) {
+            $null = Initialize-InstallRootForWrite -InstallRoot $userSkillsContainmentRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+        }
+
+        $userPlaceholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $userSkillsRoot
         $userPublishResult = Invoke-ToolkitManagedSkillsPublish `
             -SourceSkillsRoot $sourceSkillsRoot `
             -DestinationSkillsRoot $userSkillsRoot `
-            -InstallRoot $resolvedInstallRoot `
-            -PlaceholderMap $placeholderMap `
+            -InstallRoot $userSkillsContainmentRoot `
+            -PlaceholderMap $userPlaceholderMap `
             -TextFileExtensionPattern $script:CodexPathConstant.TextFileExtensionPattern `
             -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
             -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
@@ -408,6 +517,7 @@ function Invoke-CodexPublishSkills {
         CommandName           = 'Publish-Skills'
         WhatIf                = $false
         UserScope             = $userScopeEnabled
+        LiveUserScope         = $(if ($userScopeEnabled) { $liveUserScope } else { $false })
         InstallRoot           = $resolvedInstallRoot
         PluginRoot            = $pluginRoot
         ManifestPath          = $writtenManifest

@@ -2,7 +2,7 @@
 
 **Goal:** Work on a valid feature branch before editing tracked files.
 
-Canonical rule: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc` (overrides this file if they differ).
+Canonical rule: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc` (overrides this file if they differ).
 
 ---
 
