@@ -29,45 +29,35 @@ hide:
       <input type="radio" name="home-agent" value="cursor" data-agent-id="cursor" data-install-root="~/.cursor" data-install-hint="Typical install path: ~/.cursor (Windows: %USERPROFILE%\.cursor)" checked />
       <span>Cursor</span>
     </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Typical install path: ~/.claude (Windows: %USERPROFILE%\.claude)" />
+      <span>Claude Code</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Typical install path (user mode): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
+      <span>GitHub Copilot</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Typical install path: ~/.codex (plugin skills under plugin/; optional USER skills ~/.agents/skills with -UserScope)" />
+      <span>Codex</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Typical install path: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
+      <span>Antigravity</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Typical install path: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
+      <span>OpenCode</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Typical install path: ~/.grok (Windows: %USERPROFILE%\.grok)" />
+      <span>Grok Build</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Typical install path: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
+      <span>ZCode</span>
+    </label>
   </div>
-  <details class="agent-switcher__others">
-    <summary>Other agents</summary>
-    <div class="agent-switcher__options" role="presentation">
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Typical install path: ~/.claude (Windows: %USERPROFILE%\.claude)" />
-        <span>Claude Code</span>
-      </label>
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Typical install path (user mode): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
-        <span>GitHub Copilot</span>
-      </label>
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Typical install path: ~/.codex (plugin skills under plugin/; optional USER skills ~/.agents/skills with -UserScope)" />
-        <span>Codex</span>
-      </label>
-    </div>
-    <details class="agent-switcher__more">
-      <summary>More agents</summary>
-      <div class="agent-switcher__options" role="presentation">
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Typical install path: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
-          <span>Antigravity</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Typical install path: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
-          <span>OpenCode</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Typical install path: ~/.grok (Windows: %USERPROFILE%\.grok)" />
-          <span>Grok Build</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Typical install path: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
-          <span>ZCode</span>
-        </label>
-      </div>
-    </details>
-  </details>
   <p id="agent-install-hint" class="agent-switcher__hint" role="status" aria-live="polite" data-agent-install-hint>
     Typical install path: ~/.cursor (Windows: %USERPROFILE%\.cursor)
   </p>

@@ -316,7 +316,7 @@ Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware 
 | USER mirror (fixture) | `InstallRoot/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is **not** live `~/.codex` |
 | USER mirror (live) | `$HOME/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is live `~/.codex` **and** `-AllowUserHome` |
 
-Default sync is **plugin-only**. CI/fixtures never require a live `$HOME/.agents/skills` write. Live UserScope without `-AllowUserHome` fails closed.
+Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills root as OK without `-UserScope`. CI/fixtures never require a live `$HOME/.agents/skills` write. Live UserScope without `-AllowUserHome` fails closed.
 
 ### Publish layout (under InstallRoot)
 

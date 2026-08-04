@@ -2,8 +2,8 @@
  * Home agent switcher + sync-command clipboard helper.
  * Defensive no-op on pages without the home CTA / switcher markup.
  * Re-inits on MkDocs Material instant navigation via document$ when present.
- * Persists last agent id in sessionStorage; syncs aria-expanded on details disclosures.
- * Supports flat options and Default+Others disclosure (details or button+panel).
+ * Persists last agent id in sessionStorage.
+ * Flat 8-chip radiogroup on home; optional details/button disclosure binding is a no-op when absent.
  */
 (function () {
   "use strict";
