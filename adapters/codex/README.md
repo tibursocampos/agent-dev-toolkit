@@ -58,7 +58,7 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 | Fixture USER mirror | `-UserScope` on non-live InstallRoot → `InstallRoot/.agents/skills` |
 | Live USER skills | `-InstallRoot ~/.codex -AllowUserHome -UserScope` → `$HOME/.agents/skills` |
 
-Smoke/CI never require a live `~/.agents/skills` write. Trust plugin hooks with Codex `/hooks` **manually** after a real install.
+Smoke/CI: absent or empty USER skills root is OK without `-UserScope` (plugin-only). When mirrored, smoke asserts help-skills + CATALOG under the resolved USER root (fixture `InstallRoot/.agents/skills` or live `$HOME/.agents/skills`). Trust plugin hooks with Codex `/hooks` **manually** after a real install.
 
 ## `.codex-plugin` extras (honesty)
 

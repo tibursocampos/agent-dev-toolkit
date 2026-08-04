@@ -9,7 +9,7 @@ Visual direction probes: **skipped** (no native image-generation step in this ha
 | # | Decision |
 |---|----------|
 | Priority | All feasible issues from the critique (P1 + P2) |
-| Switcher | **Default agent + “Other agents”** progressive disclosure (not 8 equal chips) |
+| Switcher | **Flat 8 equal chips** in one radiogroup (no progressive disclosure) |
 | Scope | Full remediation of home + switcher findings |
 
 ## 1. Register and product context
@@ -40,7 +40,7 @@ Home (landing)                 [en + pt]
 1. Brand mark / name (hero-level) — `.home-brand`
 2. One headline + one supporting sentence — `.home-headline` / `.home-lead`
 3. Dominant visual: core → adapters → agents diagram (SVG) — `.home-diagram`
-4. Agent switcher — **technical default for copy/no-JS** (not a product endorsement) + disclosure **“Other agents”** (remaining Tier-1) → live-root hint
+4. Agent switcher — **technical default for copy/no-JS** (not a product endorsement); all 8 Tier-1 agents as equal chips in one radiogroup → live-root hint
 5. CTA group — **Copy sync command primary**; Get started secondary (text/outline)
 6. Optional one-line safe-default note (fixture-first / live home + `-AllowUserHome` is explicit) near copy
 7. Secondary link row into Skills / Adapters (below first viewport)
@@ -48,8 +48,7 @@ Home (landing)                 [en + pt]
 **Agent switcher UX (confirmed):**
 
 - Default selection for switcher UX only: `cursor` (or last explicit choice in-session if already chosen). **No “Recommended” badge** — toolkit is agent-agnostic.
-- Collapsed: show **one** selected control + short “Change agent” / “Other agents” control (≤4 visible choices at once when expanded grouping is used).
-- Expanded “Other agents”: remaining Tier-1 ids as radiogroup options (still all 8 reachable; not all equal in the first paint).
+- First paint: all 8 Tier-1 agents visible as equal chips in a single radiogroup (flex-wrap for narrow viewports).
 - On change: update `#sync-command` to `… -Agent <id>` **and** `#agent-install-hint` (live region).
 - No-JS fallback: server-rendered command **must** include `-Agent` for the default agent (never ship bare `toolkit.ps1` as the only copy target).
 
@@ -93,9 +92,7 @@ Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0
 |---------|--------|
 | Primary CTA (Copy) | default, hover, focus, active, disabled, success (“Copied”), error (“Clipboard denied” + recovery hint) |
 | Secondary CTA (Get started) | default, hover, focus, active, disabled |
-| Agent default chip | default, hover, focus, active (selected) |
-| Other agents disclosure | collapsed, expanded, focus |
-| Other-agent options | default, hover, focus, active (selected) |
+| Agent option chips | default, hover, focus, active (selected) |
 | Language switcher | default, hover, focus, active (current locale) |
 | Nav / search | Material defaults; ensure visible focus |
 | Decision tree (skills) | default, hover, focus; empty N/A |
@@ -105,7 +102,7 @@ Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0
 - [x] Skip link to main content (verify still present after chrome tweaks)
 - [ ] Focus order: skip → lang → nav → main → **diagram → switcher → copy CTA → Get started** → secondary links
 - [ ] Contrast AA: body 4.5:1; large 3:1; **filled primary uses `--on-accent` on `--accent`** (no light-on-teal fail)
-- [ ] Agent switcher remains a radiogroup (or equivalent) with accessible name; disclosure button has `aria-expanded`
+- [ ] Agent switcher remains a radiogroup with accessible name; all 8 options visible without disclosure
 - [ ] Copy success/error announced via live region; error offers select-all / manual copy path
 - [ ] `prefers-reduced-motion: reduce` disables entrance motion (EN + PT)
 - [ ] Language switcher: clear current language; `hreflang` / alternate links where plugin supports
@@ -122,7 +119,7 @@ Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0
 - Cards as lazy containers on the home hero
 - Per-agent “SDD runtime” footnotes or phantom capability flags in copy
 - Shipping incomplete PT pages with “Rascunho / EN canônica” banners instead of real parity
-- **Wall of 8 equal agent chips in first paint** (use default + Others)
+- **Progressive disclosure for agent list** (all 8 chips visible in first paint)
 - **CSS/markup class contract drift** (`.home-cta__primary` unused; `__hint` vs `__note`)
 - Peer-weight dual CTAs that compete before agent intent is clear
 - SVG hardcoded hex / system-ui labels that ignore brand tokens when avoidable
@@ -140,7 +137,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 |------|------|
 | Content root | `docs-site/` via `mkdocs.yml` `docs_dir`; do **not** publish `documentation-plan/` |
 | Class contract | Markup **must** use the CSS API: `.home-cta__primary` (or map Material classes explicitly in CSS — pick one system, no orphans). Prefer: `.agent-switcher__hint` **styled** (alias or rename `__note` → `__hint`). Style `.home-cta__status` and `.agent-switcher__label`. |
-| Switcher JS | Keep `agent-switcher.js`; extend for disclosure + ensure initial HTML command includes default `-Agent`. Copy recovery on clipboard deny. |
+| Switcher JS | Keep `agent-switcher.js`; ensure initial HTML command includes default `-Agent`. Copy recovery on clipboard deny. |
 | Diagram | Align stroke/label color to tokens (`currentColor` / CSS vars); name parity with chips (“Grok Build”, “GitHub Copilot”). Prefer display/body fonts in SVG text when practical. |
 | i18n (Option A) | EN + PT parity for all six nav pages; match reveal classes; glossary: install root / ambiente do agente (not “homes”/“lares”) |
 | Locale codes | `en`, `pt` (pt-BR copy) |
@@ -156,7 +153,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 
 1. **Align class contract** — wire markup ↔ `extra.css` (primary/copy/hint/status/label); stop styling wrappers as buttons accidentally.
 2. **Reorder home** — diagram → switcher → CTA; Copy primary, Get started secondary.
-3. **Switcher: default + Other agents** — collapse Tier-1 inventory; all 8 still selectable; update command + hint; no-JS default includes `-Agent`.
+3. **Switcher: flat 8 chips** — all Tier-1 agents visible in one radiogroup; update command + hint; no-JS default includes `-Agent`.
 4. **Contrast + SVG** — introduce `--on-accent`; fix filled CTA; token-align diagram; name parity.
 5. **PT parity** — real admonition (or styled notice), reveal classes, same IA/order as EN.
 6. **Copy error recovery** — live region + select/manual hint; optional fixture-first one-liner near CTA.
@@ -164,7 +161,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 
 **Acceptance**
 
-- [ ] First paint shows ≤1 recommended agent + disclosure (not 8 equal chips)
+- [ ] First paint shows all 8 equal agent chips in one radiogroup (no disclosure)
 - [ ] Focus/visual order: brand → copy path after agent intent; Copy is the primary home action
 - [ ] Static HTML default sync command includes `-Agent <default>`
 - [ ] Selecting any Tier-1 agent updates command + install hint (EN + PT)
@@ -174,5 +171,5 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 - [ ] Clipboard deny offers a recoverable next step
 - [ ] `mkdocs build` green; Pages reflects changes; no secrets / no `documentation-plan`
 
-**Handoff:** new conversation → `/javascript-developer` (switcher + copy) and/or `/developer` for MkDocs/CSS/i18n. Use `/i18n-manager` when extracting new UI strings (Other agents, recovery copy, safe-default note).
+**Handoff:** new conversation → `/javascript-developer` (switcher + copy) and/or `/developer` for MkDocs/CSS/i18n. Use `/i18n-manager` when extracting new UI strings (recovery copy, safe-default note).
 )
