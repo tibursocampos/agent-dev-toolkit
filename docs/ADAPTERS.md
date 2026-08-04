@@ -51,7 +51,7 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 | `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | Also reads `~/.agents/skills` / project `.cursor/` |
 | `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
 | `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | Project scope also uses repo `.claude/` |
-| `codex` | `~/.codex` | Dual: config/AGENTS/hooks/agents under `~/.codex`; USER skills discovery `~/.agents/skills`; default sync = **plugin** under InstallRoot | `-UserScope` mirrors skills under InstallRoot `.agents/skills` |
+| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin skills under `InstallRoot/plugin`; rules under `InstallRoot/rules`; USER skills discovery `~/.agents/skills` | Default = **plugin-only**; `-UserScope` → fixture `InstallRoot/.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | Same relative tree both modes |
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | Not `~/.opencode` |
 | `grok` | `~/.grok` | Native `.grok/skills\|rules\|hooks`; `AGENTS.md` | Also reads Claude/Cursor layouts; adapter writes native |
@@ -79,7 +79,7 @@ Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupporte
 | `cursor` | true | true | true | true | false | — |
 | `antigravity` | true | true | false | true | true | No native shell-hook parity; `Publish-Hooks` no-op |
 | `claude` | true | true | true | true | false | Hooks smoke = files only; trust UI out of scope |
-| `codex` | true | false | true | true | true | `Publish-Policy` no-op; `/hooks` trust manual |
+| `codex` | true | true | true | true | true | Dual-root; `Publish-Policy` → `rules/*.md`; `/hooks` trust manual |
 | `copilot` | true | true | true | false | false | `Publish-Router` no-op; router folds into `copilot-instructions.md` |
 | `opencode` | true | false | true | true | true | `HooksSemantics=plugin-only` (JS plugins, not PS1) |
 | `grok` | true | true | true | true | false | Native `.grok`; hooks trust UI out of smoke/CI |
@@ -293,40 +293,52 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 | Official marketplace | `.agents/plugins/marketplace.json` (fixture models local `source.path` `./plugin`) |
 | Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
-| Capabilities | `skills` / `hooks` / `router` / `plugin` = true; `rules` = false |
-| Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `.agents/plugins/marketplace.json`, `AGENTS.md`, `plugin/hooks/hooks.json` (+ `session_start.ps1`) |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true |
+| Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugin/hooks/hooks.json` (+ `session_start.ps1`) |
 | Hooks trust | Codex `/hooks` UI is **manual**; smoke/CI never invoke or require trust (RN03) |
 
-### Plugin skills vs `~/.agents/skills`
+### Dual-root honesty (skills vs rules)
 
-| Scope | Path under InstallRoot | When written |
-|-------|------------------------|--------------|
-| Plugin-bundled (default) | `plugin/skills/<kebab-id>/SKILL.md` | Default `Publish-Skills` |
-| USER mirror (opt-in) | `.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` only (fixture stand-in for `~/.agents/skills`) |
+| Surface | Location | `TOOLKIT_ROOT` note |
+|---------|----------|---------------------|
+| Plugin skills + CATALOG | `InstallRoot/plugin` (skills under `plugin/skills/`) | Skills paths resolve under the **plugin** root |
+| Rules / guardrails | `InstallRoot/rules/*.md` (Publish-Policy from `core/policy/`) | Rules are **not** under the plugin skills tree |
+| Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) | Router + hooks parent |
+| Optional USER skills | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Opt-in `-UserScope` only |
 
-Default sync is **plugin-only**. Real `$HOME/.agents/skills` is never touched without `-AllowUserHome` and an InstallRoot under USERPROFILE.
+Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware materialization: Publish-Router rewrites `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree, then remaining `{{TOOLKIT_ROOT}}` → plugin root.
+
+### Plugin skills vs UserScope
+
+| Scope | Path | When written |
+|-------|------|--------------|
+| Plugin-bundled (default) | `InstallRoot/plugin/skills/<kebab-id>/SKILL.md` | Default `Publish-Skills` |
+| USER mirror (fixture) | `InstallRoot/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is **not** live `~/.codex` |
+| USER mirror (live) | `$HOME/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is live `~/.codex` **and** `-AllowUserHome` |
+
+Default sync is **plugin-only**. CI/fixtures never require a live `$HOME/.agents/skills` write. Live UserScope without `-AllowUserHome` fails closed.
 
 ### Publish layout (under InstallRoot)
 
 | Relative path | Source / role |
 |---------------|---------------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` |
+| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `help-skills` + `_shared/skills-catalog/CATALOG.md`) |
+| `rules/*.md` | `Publish-Policy` from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
-| `AGENTS.md` | `Publish-Router` from `core/router/AGENTS.md` |
+| `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
 | `plugin/hooks/hooks.json` | `Publish-Hooks` (filesystem only; trust `/hooks` out of smoke) |
-| `.agents/skills/` | Optional `-UserScope` mirror of `core/skills` |
-
-`Publish-Policy` is a documented **no-op** (`rules=false`).
+| `.agents/skills/` | Optional `-UserScope` mirror of `core/skills` (fixture stand-in) |
 
 ### Smoke / sync (filesystem only — no `/hooks` trust)
 
 | Command | Behavior |
 |---------|----------|
 | `Publish-Skills` | Plugin manifest + skills + marketplace; optional `-UserScope` USER mirror |
-| `Publish-Router` | Writes `AGENTS.md` |
+| `Publish-Policy` | Copies `core/policy` → `InstallRoot/rules/*.md` |
+| `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
 | `Publish-Hooks` | Writes hooks **files** under `plugin/hooks/` |
-| `Invoke-SmokeValidate` | Asserts plugin, marketplace, `AGENTS.md`, hooks files (TE01–TE04); `RequiresHooksTrust=false` |
+| `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent codex` | Core validate + adapter smoke against fixture InstallRoot |
 

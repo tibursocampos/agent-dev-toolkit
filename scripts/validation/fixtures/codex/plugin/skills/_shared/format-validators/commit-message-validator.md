@@ -2,7 +2,7 @@
 
 Validates messages against **Conventional Commits** (Git-only - no work-item tracker APIs).
 
-**Related:** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc`, `skills/_shared/developer-common/step-4-commits-pr.md`.
+**Related:** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc`, `skills/_shared/developer-common/step-4-commits-pr.md`.
 
 ## Expected format
 

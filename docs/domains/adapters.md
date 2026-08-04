@@ -29,7 +29,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
 | `cursor` | `cursor/CursorAdapter.ps1` | `~/.cursor` |
 | `antigravity` | `antigravity/AntigravityAdapter.ps1` | `~/.gemini` |
 | `claude` | `claude/ClaudeAdapter.ps1` | `~/.claude` |
-| `codex` | `codex/CodexAdapter.ps1` | plugin + `.agents` |
+| `codex` | `codex/CodexAdapter.ps1` | `~/.codex` (dual-root: plugin skills + `rules/` + optional `~/.agents/skills`) |
 | `copilot` | `copilot/CopilotAdapter.ps1` | `~/.copilot` or `.github` |
 | `opencode` | `opencode/OpenCodeAdapter.ps1` | `~/.config/opencode` |
 | `grok` | `grok/GrokAdapter.ps1` | `~/.grok` |
@@ -61,6 +61,7 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 | Home guard | USERPROFILE paths need `-AllowUserHome` |
 | Copilot Mode | `-Mode user\|repo` required |
 | OpenCode hooks | Plugin JS only (`HooksSemantics=plugin-only`); CI smoke = filesystem only |
+| Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
@@ -72,7 +73,7 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 - [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; keyed uninstall (preserves SDD)
 - [adapters/antigravity/README.md](../../adapters/antigravity/README.md) — official `config/*`; spawn probe
 - [adapters/claude/README.md](../../adapters/claude/README.md) — settings merge, narrow permissions, keyed uninstall
-- [adapters/codex/README.md](../../adapters/codex/README.md) — plugin packaging; keyed uninstall
+- [adapters/codex/README.md](../../adapters/codex/README.md) — dual-root plugin/rules; UserScope; keyed uninstall
 - [adapters/copilot/README.md](../../adapters/copilot/README.md) — Mode user\|repo; keyed uninstall
 - [adapters/opencode/README.md](../../adapters/opencode/README.md) — plugin-only hooks; keyed uninstall
 - [adapters/grok/README.md](../../adapters/grok/README.md) — native `.grok`, trust note; keyed uninstall

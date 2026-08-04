@@ -5,18 +5,22 @@
 
 .DESCRIPTION
   Exposes the stable adapter contract for agent id `codex`.
-  Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Router /
-  Publish-Hooks / Get-SddRoot (-Prepare) are implemented (optional InstallRoot
-  maps plugin/marketplace/USER skills/AGENTS.md under the fixture;
-  Publish-Skills writes plugin.json + skills + marketplace; optional -UserScope
-  mirrors core/skills under InstallRoot/.agents/skills - fixture stand-in for
-  ~/.agents/skills; Publish-Router copies core/router -> AGENTS.md;
-  Publish-Hooks writes plugin/hooks/hooks.json). Publish-Policy is a documented
-  no-op (rules=false). Invoke-SmokeValidate is filesystem-only (TE01-TE04; no
-  /hooks trust UI). Uninstall-Toolkit removes keyed toolkit artifacts only
-  (plugin skills, marketplace entry, hooks files, USER-scope skills, AGENTS.md
-  - RN07/CU03). Does not write under USERPROFILE without -AllowUserHome. Trust
-  UI /hooks is out of scope for smoke (filesystem asserts only - RN03).
+  Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Policy /
+  Publish-Router / Publish-Hooks / Get-SddRoot (-Prepare) are implemented
+  (optional InstallRoot maps plugin/marketplace/USER skills/AGENTS.md/rules
+  under the fixture; Publish-Skills writes plugin.json + skills + marketplace;
+  optional -UserScope mirrors core/skills under InstallRoot/.agents/skills for
+  fixtures, or real $HOME/.agents/skills when InstallRoot is live ~/.codex with
+  -AllowUserHome; Publish-Policy copies core/policy -> InstallRoot/rules/*.md;
+  Publish-Router materializes core/router -> AGENTS.md (dual-root absolute paths);
+  Publish-Hooks writes
+  plugin/hooks/hooks.json). Invoke-SmokeValidate is filesystem-only (TE01-TE04
+  plus help-skills/CATALOG, rules/, materialized AGENTS.md, optional UserScope;
+  no /hooks trust UI). Uninstall-Toolkit removes keyed toolkit artifacts only
+  (plugin skills, marketplace entry, hooks files, USER-scope skills, rules,
+  AGENTS.md - RN07/CU03). Does not write under USERPROFILE without
+  -AllowUserHome. Trust UI /hooks is out of scope for smoke (filesystem asserts
+  only - RN03).
 #>
 
 $script:CodexAdapterDirectory = $PSScriptRoot
@@ -29,6 +33,7 @@ $script:CodexAdapterLibDir = Join-Path $script:CodexAdapterDirectory '..\..\scri
 
 . (Join-Path $script:CodexAdapterDirectory 'CodexPathConstants.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexSkills.ps1')
+. (Join-Path $script:CodexAdapterDirectory 'Publish-CodexPolicy.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexRouter.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexHooks.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Invoke-CodexSmokeValidate.ps1')
@@ -52,7 +57,7 @@ $script:CodexAdapterSubagentsNative = 'native'
 
 $script:CodexAdapterCapabilityFlags = [ordered]@{
     skills    = $true
-    rules     = $false
+    rules     = $true
     hooks     = $true
     router    = $true
     plugin    = $true
@@ -76,9 +81,9 @@ $script:CodexAdapterConstant = @{
     OfficialProjectAgentsDescription     = 'Project router surface for Codex is AGENTS.md at the project/InstallRoot scope.'
     FixtureRelativePath                  = 'scripts/validation/fixtures/codex'
     InstallRootOverrideParameter         = 'InstallRoot'
-    InstallRootOverrideDescription       = 'Pass -InstallRoot to target an in-repo fixture or an explicit path. Paths under USERPROFILE require -AllowUserHome. Live home models ~/.codex; USER skills remain ~/.agents/skills via -UserScope under a parent InstallRoot.'
+    InstallRootOverrideDescription       = 'Pass -InstallRoot to target an in-repo fixture or an explicit path. Paths under USERPROFILE require -AllowUserHome. Live home models ~/.codex; with -UserScope on live ~/.codex, USER skills write to real ~/.agents/skills.'
     UserScopeParameterName               = 'UserScope'
-    UserScopeDescription                 = 'Optional -UserScope mirrors core/skills under InstallRoot/.agents/skills (fixture stand-in for ~/.agents/skills). Default Publish-Skills is plugin-bundled only.'
+    UserScopeDescription                 = 'Optional -UserScope mirrors core/skills. Fixture: InstallRoot/.agents/skills. Live ~/.codex + -AllowUserHome: $HOME/.agents/skills. Default Publish-Skills is plugin-bundled only.'
     HooksTrustNote                       = 'Hooks trust via Codex /hooks UI is a human operational step; smoke validates files only.'
     ResolveInstallRootRelativePath       = 'scripts/_lib/Resolve-InstallRoot.ps1'
 }
@@ -87,7 +92,7 @@ $script:CodexAdapterMessage = @{
     NotImplemented      = '{0} is not implemented yet for the Codex adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired     = 'AgentId is required.'
     InstallRootRequired = 'InstallRoot is required.'
-    CapabilitiesReady   = 'Codex adapter capabilities reported (skills/plugin/router/hooks). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; trust UI /hooks out of scope; RN07 no wholesale wipe). SDD runtime prepared on sync.'
+    CapabilitiesReady   = 'Codex adapter capabilities reported (skills/plugin/rules/router/hooks). Publish + Invoke-SmokeValidate + keyed Uninstall-Toolkit ready (filesystem-only; trust UI /hooks out of scope; RN07 no wholesale wipe). SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
     SddRootResolved     = 'Codex SDD root resolved at {0}.'
     SddRootPrepared     = 'Prepared Codex SDD root at {0} (sessions={1}; manifestCreated={2}).'
@@ -116,7 +121,7 @@ function Get-CodexAdapterCommandNames {
 function Get-Capabilities {
     <#
     .SYNOPSIS
-      Report Codex adapter capability flags (skills/plugin/router/hooks).
+      Report Codex adapter capability flags (skills/plugin/rules/router/hooks).
     #>
     [CmdletBinding()]
     param(
@@ -266,9 +271,8 @@ function Publish-Skills {
 
     .DESCRIPTION
       Default: plugin-bundled skills + marketplace under InstallRoot.
-      -UserScope: also mirrors core/skills to InstallRoot/.agents/skills (fixture
-      stand-in for ~/.agents/skills). Never writes real $HOME/.agents/skills unless
-      InstallRoot is under USERPROFILE with -AllowUserHome.
+      -UserScope: also mirrors core/skills — fixture InstallRoot/.agents/skills, or
+      real $HOME/.agents/skills when InstallRoot is live ~/.codex with -AllowUserHome.
     #>
     [CmdletBinding()]
     param(
@@ -292,7 +296,7 @@ function Publish-Skills {
 function Publish-Policy {
     <#
     .SYNOPSIS
-      Publish policy surface for Codex - documented no-op (rules capability is false).
+      Publish core/policy into InstallRoot/rules as .md (Claude layout).
     #>
     [CmdletBinding()]
     param(
@@ -308,16 +312,7 @@ function Publish-Policy {
         throw $script:CodexAdapterMessage.InstallRootRequired
     }
 
-    return [PSCustomObject]@{
-        Success     = $true
-        Implemented = $true
-        Skipped     = $true
-        CommandName = 'Publish-Policy'
-        WhatIf      = $WhatIf.IsPresent
-        InstallRoot = $InstallRoot
-        Message     = $script:CodexPublishMessage.PolicyNoOpOk
-        ExitCode    = 0
-    }
+    return Invoke-CodexPublishPolicy -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Router {
@@ -423,8 +418,9 @@ function Invoke-SmokeValidate {
 function Uninstall-Toolkit {
     <#
     .SYNOPSIS
-      Remove keyed toolkit artifacts under InstallRoot (plugin/marketplace/hooks/USER skills/AGENTS.md).
+      Remove keyed toolkit artifacts under InstallRoot (plugin/marketplace/hooks/USER skills/rules/AGENTS.md).
       Does not wipe plugin/ or .agents/ wholesale or touch alien files (RN07 / CU03).
+      Live ~/.codex + prior UserScope also removes managed skills under $HOME/.agents/skills.
     #>
     [CmdletBinding()]
     param(

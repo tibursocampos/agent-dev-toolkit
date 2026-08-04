@@ -2,8 +2,8 @@
 
 **Goal:** Atomic conventional commits, push, and optional GitHub PR - no work-item tracker APIs.
 
-Rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/conventional-commits.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/branch-validation.mdc`.  
-Validator (when installed): `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/format-validators/commit-message-validator.md`.
+Rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/conventional-commits.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/branch-validation.mdc`.  
+Validator (when installed): `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/format-validators/commit-message-validator.md`.
 
 ---
 
@@ -73,13 +73,26 @@ Ask user to approve message before committing when the skill is interactive.
 
 ## 4.4. Pull request (optional, user-driven)
 
-Create a PR only when the user asks. Use the repository’s template if present (`.github/pull_request_template.md`).
+Create a PR only when the user asks (or answers **sim** to the post-`/push` offer).
+
+**Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, **mandatory** auto-merge ask).  
+
+**`/commit` and `/push` must not** create or merge pull requests themselves (CLI or web compare) — they only hand off to `/open-github-pr`.
+
+**Bundled intent:** phrases like `fluxo completo`, `abra o PR`, `criar PR`, `commit + push + PR`, or `open the PR` mean: after push, **enter `/open-github-pr` immediately** (do not invent a shortcut create). That skill still asks for title/body confirmation and auto-merge; do not infer auto-merge from those phrases.
 
 Default integration base is **`develop`**. Release PRs are **`develop` → `master`/`main`** (not feature → release).
 
-**Open the PR in the GitHub web UI** (no CLI required):
+| Mode | Head → base | When |
+|------|-------------|------|
+| **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
+| **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
 
-1. Push the feature branch (`git push -u origin HEAD`) after user confirmation.
+After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** (pt-BR) whether to open a PR; on **sim**, load `/open-github-pr`.
+
+**Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
+
+1. Ensure the feature branch is pushed.
 2. Open the repository on GitHub → **Compare & pull request** (or **Pull requests** → **New**).
 3. Set base to `develop` (or the base the user/PLAN specifies) and head to the current feature branch.
 4. Fill title/body from the template; include Summary and Test plan.

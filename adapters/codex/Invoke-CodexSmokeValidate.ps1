@@ -6,11 +6,14 @@
 .DESCRIPTION
   Asserts InstallRoot after Codex sync:
   - plugin/.codex-plugin/plugin.json valid + plugin/skills/*/SKILL.md (TE02)
+  - plugin/skills/help-skills/SKILL.md + plugin/skills/_shared/skills-catalog/CATALOG.md
   - .agents/plugins/marketplace.json entry source.path resolves (TE03)
-  - AGENTS.md at InstallRoot
+  - InstallRoot/rules/*.md when rules capable (Publish-Policy)
+  - AGENTS.md materialized (no {{…}} placeholders, no docs/ live links, dual-root paths)
   - plugin/hooks/hooks.json when hooks capable (TE04)
-  - .agents/skills fixture path modeled (optional skill folders validated)
+  - .agents/skills: skeleton may be empty; when UserScope mirrored, assert help-skills + CATALOG
   Never invokes Codex runtime or /hooks trust UI (RN03 / TE05 out of scope).
+  Never requires live $HOME/.agents/skills (fixture InstallRoot/.agents/skills only).
 #>
 
 $script:CodexSmokeHelperDirectory = $PSScriptRoot
@@ -179,6 +182,187 @@ function Get-CodexSmokeMarketplaceSourcePath {
     return $null
 }
 
+function Get-CodexSmokeHelpSkillsManifestPath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SkillsRoot
+    )
+
+    return [System.IO.Path]::GetFullPath(
+        (Join-Path (Join-Path $SkillsRoot $script:CodexPathConstant.HelpSkillsSkillId) $script:CodexPathConstant.SkillManifestFileName)
+    )
+}
+
+function Get-CodexSmokeSkillsCatalogPath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SkillsRoot
+    )
+
+    $sharedRoot = Join-Path $SkillsRoot $script:CodexPathConstant.SharedSkillsDirectoryName
+    $catalogDir = Join-Path $sharedRoot $script:CodexPathConstant.SkillsCatalogDirectoryName
+    return [System.IO.Path]::GetFullPath(
+        (Join-Path $catalogDir $script:CodexPathConstant.SkillsCatalogFileName)
+    )
+}
+
+function Test-CodexSmokeHelpSkillsAndCatalogPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SkillsRoot
+    )
+
+    $helpSkillsPath = Get-CodexSmokeHelpSkillsManifestPath -SkillsRoot $SkillsRoot
+    if (-not (Test-Path -LiteralPath $helpSkillsPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.Te02HelpSkillsMissing -f $helpSkillsPath)
+        }
+    }
+
+    $catalogPath = Get-CodexSmokeSkillsCatalogPath -SkillsRoot $SkillsRoot
+    if (-not (Test-Path -LiteralPath $catalogPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.Te02SkillsCatalogMissing -f $catalogPath)
+        }
+    }
+
+    return [PSCustomObject]@{
+        Ok      = $true
+        Message = ''
+    }
+}
+
+function Test-CodexSmokeRulesPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RulesRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot,
+
+        [Parameter()]
+        [System.Collections.Generic.List[string]] $MissingRelative
+    )
+
+    if ($null -eq $MissingRelative) {
+        $MissingRelative = [System.Collections.Generic.List[string]]::new()
+    }
+
+    $sourcePolicyRoot = Join-Path (
+        Join-Path $RepoRoot $script:CodexPathConstant.CoreDirectoryName
+    ) $script:CodexPathConstant.PolicyDirectoryName
+
+    if (-not (Test-Path -LiteralPath $RulesRoot -PathType Container)) {
+        $MissingRelative.Add(($script:CodexPathConstant.RulesDirectoryName + '/'))
+        return $false
+    }
+
+    if (-not (Test-Path -LiteralPath $sourcePolicyRoot -PathType Container)) {
+        $MissingRelative.Add(($script:CodexPathConstant.CoreDirectoryName + '/' + $script:CodexPathConstant.PolicyDirectoryName))
+        return $false
+    }
+
+    $extension = $script:CodexPathConstant.MarkdownExtension
+    $sourceFiles = @(
+        Get-ChildItem -LiteralPath $sourcePolicyRoot -File -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -eq $extension }
+    )
+
+    if ($sourceFiles.Count -lt 1) {
+        $MissingRelative.Add(($script:CodexPathConstant.CoreDirectoryName + '/' + $script:CodexPathConstant.PolicyDirectoryName + '/*' + $extension))
+        return $false
+    }
+
+    $ok = $true
+    foreach ($sourceFile in $sourceFiles) {
+        $relative = $sourceFile.FullName.Substring($sourcePolicyRoot.Length).TrimStart('\', '/')
+        $destinationPath = Join-Path $RulesRoot ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if (-not (Test-Path -LiteralPath $destinationPath -PathType Leaf)) {
+            $MissingRelative.Add(($script:CodexPathConstant.RulesDirectoryName + '/' + ($relative -replace '\\', '/')))
+            $ok = $false
+        }
+    }
+
+    return $ok
+}
+
+function Test-CodexSmokeAgentsMaterialized {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AgentsPath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ResolvedInstallRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $PluginRootPath
+    )
+
+    if (-not (Test-Path -LiteralPath $AgentsPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsMdMissing -f $AgentsPath)
+        }
+    }
+
+    $agentsText = [System.IO.File]::ReadAllText($AgentsPath)
+    if ([string]::IsNullOrWhiteSpace($agentsText)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsMdMissing -f $AgentsPath)
+        }
+    }
+
+    if ($agentsText -match $script:CodexPathConstant.PlaceholderResidualPattern) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsPlaceholderResidual -f $AgentsPath)
+        }
+    }
+
+    if (
+        ($agentsText -match $script:CodexPathConstant.RepoDocsBacktickLinkPattern) -or
+        ($agentsText -match $script:CodexPathConstant.RepoDocsBarePathPattern)
+    ) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsDocsLinkForbidden -f $AgentsPath)
+        }
+    }
+
+    if (-not (Get-Command -Name Get-CodexNormalizedForwardSlashPath -ErrorAction SilentlyContinue)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsDualRootMissing -f $AgentsPath)
+        }
+    }
+
+    $installAbsolute = Get-CodexNormalizedForwardSlashPath -Path $ResolvedInstallRoot
+    $pluginAbsolute = Get-CodexNormalizedForwardSlashPath -Path $PluginRootPath
+    $hasDualRootHeading = $agentsText.Contains($script:CodexPathConstant.RouterDualRootHeading)
+    $hasInstallPath = $agentsText.Contains($installAbsolute)
+    $hasPluginPath = $agentsText.Contains($pluginAbsolute)
+
+    if (-not ($hasDualRootHeading -and $hasInstallPath -and $hasPluginPath)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.AgentsDualRootMissing -f $AgentsPath)
+        }
+    }
+
+    return [PSCustomObject]@{
+        Ok      = $true
+        Message = ''
+    }
+}
+
 function Test-CodexUserSkillsFixture {
     [CmdletBinding()]
     param(
@@ -188,30 +372,62 @@ function Test-CodexUserSkillsFixture {
 
     if (-not (Test-Path -LiteralPath $UserSkillsRoot -PathType Container)) {
         return [PSCustomObject]@{
-            Ok      = $false
-            Message = ($script:CodexSmokeMessage.UserSkillsRootMissing -f $UserSkillsRoot)
+            Ok       = $false
+            Mirrored = $false
+            Message  = ($script:CodexSmokeMessage.UserSkillsRootMissing -f $UserSkillsRoot)
         }
     }
 
     $manifestName = $script:CodexPathConstant.SkillManifestFileName
     $skillDirs = @(Get-ChildItem -LiteralPath $UserSkillsRoot -Directory -Force -ErrorAction SilentlyContinue)
-    foreach ($dir in $skillDirs) {
-        if ([string]::Equals($dir.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)) {
-            continue
+    $kebabSkillDirs = @(
+        $skillDirs | Where-Object {
+            -not [string]::Equals($_.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)
         }
+    )
 
+    # Empty skeleton (.gitkeep only) is valid: default Publish-Skills is plugin-only.
+    if ($kebabSkillDirs.Count -lt 1) {
+        return [PSCustomObject]@{
+            Ok       = $true
+            Mirrored = $false
+            Message  = ''
+        }
+    }
+
+    foreach ($dir in $kebabSkillDirs) {
         $manifestPath = Join-Path $dir.FullName $manifestName
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
             return [PSCustomObject]@{
-                Ok      = $false
-                Message = ($script:CodexSmokeMessage.UserSkillsIncomplete -f $manifestPath)
+                Ok       = $false
+                Mirrored = $true
+                Message  = ($script:CodexSmokeMessage.UserSkillsIncomplete -f $manifestPath)
             }
         }
     }
 
+    $helpSkillsPath = Get-CodexSmokeHelpSkillsManifestPath -SkillsRoot $UserSkillsRoot
+    if (-not (Test-Path -LiteralPath $helpSkillsPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok       = $false
+            Mirrored = $true
+            Message  = ($script:CodexSmokeMessage.UserSkillsHelpSkillsMissing -f $helpSkillsPath)
+        }
+    }
+
+    $catalogPath = Get-CodexSmokeSkillsCatalogPath -SkillsRoot $UserSkillsRoot
+    if (-not (Test-Path -LiteralPath $catalogPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok       = $false
+            Mirrored = $true
+            Message  = ($script:CodexSmokeMessage.UserSkillsCatalogMissing -f $catalogPath)
+        }
+    }
+
     return [PSCustomObject]@{
-        Ok      = $true
-        Message = ''
+        Ok       = $true
+        Mirrored = $true
+        Message  = ''
     }
 }
 
@@ -258,18 +474,24 @@ function Invoke-CodexSmokeValidate {
     $agentsPath = $mapped.FixtureProjectAgentsPath
     $hooksPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.HooksFileName
     $userSkillsPath = $mapped.FixtureUserSkillsPath
+    $rulesPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.RulesDirectoryName
 
     $checks = [ordered]@{
-        PluginManifestValid   = $false
-        PluginSkillsPresent   = $false
-        MarketplaceEntryOk    = $false
-        AgentsMdPresent       = $false
-        HooksPresent          = $false
-        HooksRequired         = $false
-        UserSkillsFixtureOk   = $false
-        SddLayoutPresent      = $false
-        FilesystemOnly        = $true
-        RequiresHooksTrust    = $false
+        PluginManifestValid      = $false
+        PluginSkillsPresent      = $false
+        HelpSkillsCatalogPresent = $false
+        MarketplaceEntryOk       = $false
+        RulesPresent             = $false
+        RulesRequired            = $false
+        AgentsMdPresent          = $false
+        AgentsMaterializedOk     = $false
+        HooksPresent             = $false
+        HooksRequired            = $false
+        UserSkillsFixtureOk      = $false
+        UserSkillsMirrored       = $false
+        SddLayoutPresent         = $false
+        FilesystemOnly           = $true
+        RequiresHooksTrust       = $false
     }
 
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
@@ -303,6 +525,18 @@ function Invoke-CodexSmokeValidate {
             -ResolvedInstallRoot $resolvedInstallRoot `
             -Checks $checks `
             -Message ($script:CodexSmokeMessage.Te02PluginSkillsMissing -f $pluginSkillsPath) `
+            -ExitCode $exitFail
+    }
+
+    $catalogCheck = Test-CodexSmokeHelpSkillsAndCatalogPresent -SkillsRoot $pluginSkillsPath
+    $checks.HelpSkillsCatalogPresent = [bool]$catalogCheck.Ok
+    if (-not $catalogCheck.Ok) {
+        return New-CodexSmokeResult `
+            -Success $false `
+            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message $catalogCheck.Message `
             -ExitCode $exitFail
     }
 
@@ -392,22 +626,42 @@ function Invoke-CodexSmokeValidate {
             -ExitCode $exitFail
     }
 
-    $agentsOk = $false
-    if (Test-Path -LiteralPath $agentsPath -PathType Leaf) {
-        $agentsText = [System.IO.File]::ReadAllText($agentsPath)
-        $agentsOk = -not [string]::IsNullOrWhiteSpace($agentsText)
-    }
-    $checks.AgentsMdPresent = $agentsOk
-    if (-not $agentsOk) {
+    $agentsCheck = Test-CodexSmokeAgentsMaterialized `
+        -AgentsPath $agentsPath `
+        -ResolvedInstallRoot $resolvedInstallRoot `
+        -PluginRootPath $mapped.FixturePluginRootPath
+    $checks.AgentsMdPresent = (Test-Path -LiteralPath $agentsPath -PathType Leaf)
+    $checks.AgentsMaterializedOk = [bool]$agentsCheck.Ok
+    if (-not $agentsCheck.Ok) {
         return New-CodexSmokeResult `
             -Success $false `
             -ResolvedInstallRoot $resolvedInstallRoot `
             -Checks $checks `
-            -Message ($script:CodexSmokeMessage.AgentsMdMissing -f $agentsPath) `
+            -Message $agentsCheck.Message `
             -ExitCode $exitFail
     }
 
     $caps = Get-Capabilities
+    $rulesRequired = ($null -ne $caps) -and ($null -ne $caps.Capabilities) -and ($caps.Capabilities.rules -eq $true)
+    $checks.RulesRequired = [bool]$rulesRequired
+    if ($rulesRequired) {
+        $rulesMissing = [System.Collections.Generic.List[string]]::new()
+        $rulesOk = Test-CodexSmokeRulesPresent -RulesRoot $rulesPath -RepoRoot $repoRoot -MissingRelative $rulesMissing
+        $checks.RulesPresent = $rulesOk
+        if (-not $rulesOk) {
+            $listText = ($rulesMissing.ToArray() -join ', ')
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ($script:CodexSmokeMessage.RulesMissing -f $listText) `
+                -ExitCode $exitFail
+        }
+    }
+    else {
+        $checks.RulesPresent = Test-Path -LiteralPath $rulesPath -PathType Container
+    }
+
     $hooksRequired = ($null -ne $caps) -and ($null -ne $caps.Capabilities) -and ($caps.Capabilities.hooks -eq $true)
     $checks.HooksRequired = [bool]$hooksRequired
 
@@ -442,6 +696,7 @@ function Invoke-CodexSmokeValidate {
 
     $userSkillsCheck = Test-CodexUserSkillsFixture -UserSkillsRoot $userSkillsPath
     $checks.UserSkillsFixtureOk = [bool]$userSkillsCheck.Ok
+    $checks.UserSkillsMirrored = [bool]$userSkillsCheck.Mirrored
     if (-not $userSkillsCheck.Ok) {
         return New-CodexSmokeResult `
             -Success $false `

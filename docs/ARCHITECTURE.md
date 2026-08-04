@@ -36,7 +36,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 37 skills + `_shared`.
+- `core/skills/` — 38 skills + `_shared` (agent SoT: `/help-skills` → `skills-catalog/CATALOG.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -47,7 +47,7 @@ Product content under `core/` must not hardcode a single IDE user-profile instal
 
 | Placeholder | Meaning |
 |-------------|---------|
-| `{{TOOLKIT_ROOT}}` | Agent toolkit install root (skills, rules/policy, router) |
+| `{{TOOLKIT_ROOT}}` | Agent toolkit install root (skills / policy / router — **destination-aware**; Codex splits plugin skills vs InstallRoot rules) |
 | `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, global features) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
 
@@ -108,18 +108,20 @@ InstallRoot models `~/.gemini`. Official tree:
 
 ## Codex install layout
 
-InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks)). Live product home is `~/.codex` (config/AGENTS); USER skills discovery is `~/.agents/skills` (dual-root).
+InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks)). Live product home is `~/.codex` (config/AGENTS/rules); USER skills discovery is `~/.agents/skills` (dual-root). **Do not** treat plugin skills and InstallRoot rules as one shared `TOOLKIT_ROOT`.
 
 | Relative path | Role |
 |---------------|------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills (default) |
+| `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills (default); `TOOLKIT_ROOT` for skills paths |
+| `plugin/skills/_shared/skills-catalog/CATALOG.md` | Agent skill map via `/help-skills` |
+| `rules/*.md` | Publish-Policy from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
-| `AGENTS.md` | Router from `core/router/` |
+| `AGENTS.md` | Publish-Router: materialized dual-root **absolute** paths (no `{{…}}`; no live `docs/` links) |
 | `plugin/hooks/hooks.json` | Plugin hooks files; `/hooks` trust is **manual** |
-| `.agents/skills/` | Optional `-UserScope` stand-in for `~/.agents/skills` |
+| `.agents/skills/` | Optional `-UserScope` stand-in for `~/.agents/skills` (live: `$HOME/.agents/skills` + `-AllowUserHome`) |
 
-Fixture: `scripts/validation/fixtures/codex`. See [ADAPTERS.md](ADAPTERS.md).
+Default sync is **plugin-only**. Fixture: `scripts/validation/fixtures/codex`. See [ADAPTERS.md](ADAPTERS.md).
 
 ## Claude Code install layout
 

@@ -101,11 +101,23 @@ Sync with `-Mode user` or `-Mode repo`:
 
 Use Copilot’s agent-skills / custom-instructions surfaces.
 
-### Codex / OpenCode / Grok / ZCode / Antigravity
+### Codex
+
+Codex is **dual-root** — plugin skills and InstallRoot rules are not one shared `TOOLKIT_ROOT`:
+
+| Surface | Location |
+|---------|----------|
+| Plugin skills + CATALOG | Under `InstallRoot/plugin` (default sync) |
+| Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
+| Product / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
+| Optional USER skills | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
+
+Default sync is **plugin-only**. Invoke `/help-skills` for the installed catalog — do not load every `SKILL.md`. Trust hooks with Codex `/hooks` after a real install (smoke never requires it).
+
+### OpenCode / Grok / ZCode / Antigravity
 
 | Agent | Typical skills location | Tip |
 |-------|-------------------------|-----|
-| Codex | Plugin-bundled tree | Trust hooks with Codex `/hooks` after a real install |
 | OpenCode | `~/.config/opencode/skills` | JS plugins under `plugins/` |
 | Grok | `~/.grok/skills` | Trust via `/hooks-trust` if needed |
 | ZCode | `~/.zcode/skills` | ADE (agent filesystem) |
@@ -155,7 +167,7 @@ Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `dev
 
 ## Skills catalog (summary)
 
-Canonical folders under `core/skills/` (**37 skills** + `_shared`). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
+Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: `/help-skills` → `_shared/skills-catalog/CATALOG.md` (do not load every `SKILL.md`). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
 
 | Group | Skills |
 |-------|--------|
@@ -164,7 +176,7 @@ Canonical folders under `core/skills/` (**37 skills** + `_shared`). Shared packs
 | **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
-| **Operational** | `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operational** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ## Re-sync when skills feel stale
 

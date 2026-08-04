@@ -2,7 +2,7 @@
 
 Shared prompts and roles for `orchestrate-*` Task subagents. **English** prompt bodies. Keep this roster small - do **not** add 40 agent files.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/`
 
 **Spawn / degrade:** `SPAWN.md` (capability `subagents`, native vs fallback, child limits, no guideline paste). Do **not** duplicate that policy here.
 

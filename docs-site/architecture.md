@@ -20,6 +20,8 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
                            │ InstallRoot (fixture or live install)
 ┌──────────────────────────▼──────────────────────────────┐
 │  Install root: ~/.cursor · ~/.claude · ~/.copilot · …   │
+│  Codex also: plugin skills + InstallRoot/rules (dual)   │
+│           + optional ~/.agents/skills (UserScope)       │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -27,7 +29,7 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
 
 | Layer | Role |
 |-------|------|
-| **Core** | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts — no hardcoded IDE install paths |
+| **Core** | Agent Skills (`SKILL.md`), `_shared` (incl. CATALOG via `/help-skills`), policy markdown, neutral router, SDD contracts — no hardcoded IDE install paths |
 | **Adapters** | Map core → agent layout; resolve placeholders; merge hooks/settings; toolkit-managed (**keyed**) uninstall |
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — select agent, sync, validate, uninstall |
 | **Validation** | Contract suite + fixture smoke tests; CI never requires a live `%USERPROFILE%` deploy for green |
@@ -48,7 +50,7 @@ Core content must not hardcode a single IDE user-profile root. Adapters resolve 
 
 | Placeholder | Meaning |
 |-------------|---------|
-| `{{TOOLKIT_ROOT}}` | Agent toolkit install root (skills, rules/policy, router) |
+| `{{TOOLKIT_ROOT}}` | Agent toolkit install root (destination-aware; Codex splits plugin skills vs InstallRoot `rules/`) |
 | `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, global features) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
 

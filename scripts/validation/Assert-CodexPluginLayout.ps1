@@ -2,6 +2,8 @@
 # Tests:
 #   Should_WriteMarketplaceEntry_When_SyncCodex
 #   Should_ResolvePluginPathFromMarketplace_When_EntryPresent
+#   Should_PublishHelpSkillsAndCatalog_When_SyncCodex
+#   Should_MirrorHelpSkillsCatalog_When_UserScope
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -67,6 +69,11 @@ $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $manifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $publishedSkillsRoot = Join-Path $pluginRoot 'skills'
 $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.json'
+$userSkillsRoot = Join-Path $fixtureInstallRoot '.agents\skills'
+$helpSkillsPluginPath = Join-Path $publishedSkillsRoot 'help-skills\SKILL.md'
+$catalogPluginPath = Join-Path $publishedSkillsRoot '_shared\skills-catalog\CATALOG.md'
+$helpSkillsUserPath = Join-Path $userSkillsRoot 'help-skills\SKILL.md'
+$catalogUserPath = Join-Path $userSkillsRoot '_shared\skills-catalog\CATALOG.md'
 $expectedSourcePath = './plugin'
 $expectedPluginName = 'agent-dev-toolkit'
 
@@ -88,6 +95,22 @@ function Clear-CodexPublishedArtifacts {
     }
     if (Test-Path -LiteralPath $marketplacePath) {
         Remove-Item -LiteralPath $marketplacePath -Force
+    }
+    if (Test-Path -LiteralPath $userSkillsRoot) {
+        Get-ChildItem -LiteralPath $userSkillsRoot -Force | Remove-Item -Recurse -Force
+    }
+}
+
+function Restore-CodexFixtureGitkeep {
+    param([Parameter(Mandatory = $true)][string] $DirectoryPath)
+
+    if (-not (Test-Path -LiteralPath $DirectoryPath -PathType Container)) {
+        New-Item -ItemType Directory -Path $DirectoryPath -Force | Out-Null
+    }
+
+    $gitkeepPath = Join-Path $DirectoryPath '.gitkeep'
+    if (-not (Test-Path -LiteralPath $gitkeepPath -PathType Leaf)) {
+        New-Item -ItemType File -Path $gitkeepPath -Force | Out-Null
     }
 }
 
@@ -179,8 +202,46 @@ if ([string]$pluginManifest.name -ne $expectedPluginName) {
 
 Write-Pass -TestName $resolveTestName
 
+# --- Should_PublishHelpSkillsAndCatalog_When_SyncCodex ---
+$helpCatalogTestName = 'Should_PublishHelpSkillsAndCatalog_When_SyncCodex'
+
+if (-not (Test-Path -LiteralPath $helpSkillsPluginPath -PathType Leaf)) {
+    Write-Fail -TestName $helpCatalogTestName -Reason ("plugin help-skills SKILL.md missing: {0}" -f $helpSkillsPluginPath)
+}
+if (-not (Test-Path -LiteralPath $catalogPluginPath -PathType Leaf)) {
+    Write-Fail -TestName $helpCatalogTestName -Reason ("plugin skills catalog missing: {0}" -f $catalogPluginPath)
+}
+
+Write-Pass -TestName $helpCatalogTestName
+
+# --- Should_MirrorHelpSkillsCatalog_When_UserScope ---
+$userScopeTestName = 'Should_MirrorHelpSkillsCatalog_When_UserScope'
+
+$userScopePublish = Publish-Skills -InstallRoot $fixtureInstallRoot -UserScope
+if ($null -eq $userScopePublish -or $userScopePublish.Success -ne $true -or $userScopePublish.Implemented -ne $true) {
+    Write-Fail -TestName $userScopeTestName -Reason 'Publish-Skills -UserScope must succeed with Implemented = true'
+}
+if (-not (Test-Path -LiteralPath $helpSkillsUserPath -PathType Leaf)) {
+    Write-Fail -TestName $userScopeTestName -Reason ("USER-scope help-skills SKILL.md missing: {0}" -f $helpSkillsUserPath)
+}
+if (-not (Test-Path -LiteralPath $catalogUserPath -PathType Leaf)) {
+    Write-Fail -TestName $userScopeTestName -Reason ("USER-scope skills catalog missing: {0}" -f $catalogUserPath)
+}
+if ($null -eq $userScopePublish.UserScope -or $userScopePublish.UserScope -ne $true) {
+    Write-Fail -TestName $userScopeTestName -Reason 'Publish-Skills -UserScope result must report UserScope = true'
+}
+if ($null -ne $userScopePublish.PSObject.Properties['LiveUserScope'] -and $userScopePublish.LiveUserScope -eq $true) {
+    Write-Fail -TestName $userScopeTestName -Reason 'fixture InstallRoot UserScope must not report LiveUserScope = true'
+}
+
+Write-Pass -TestName $userScopeTestName
+
 # Keep fixture seed lean: drop published artifacts (dirs from Step 2 remain).
 Clear-CodexPublishedArtifacts
+Restore-CodexFixtureGitkeep -DirectoryPath $publishedSkillsRoot
+Restore-CodexFixtureGitkeep -DirectoryPath (Join-Path $pluginRoot 'hooks')
+Restore-CodexFixtureGitkeep -DirectoryPath $userSkillsRoot
+Restore-CodexFixtureGitkeep -DirectoryPath (Split-Path -Parent $marketplacePath)
 
 Write-Host 'Assert-CodexPluginLayout: ALL PASS'
 exit 0

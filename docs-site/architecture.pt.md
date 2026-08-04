@@ -20,6 +20,8 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Pontos de public
                            │ InstallRoot (fixture ou ambiente real)
 ┌──────────────────────────▼──────────────────────────────┐
 │  Pasta de instalação: ~/.cursor · ~/.claude · ~/.copilot · … │
+│  Codex também: skills do plugin + InstallRoot/rules (dual) │
+│           + ~/.agents/skills opcional (UserScope)          │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -27,7 +29,7 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Pontos de public
 
 | Camada | Papel |
 |--------|-------|
-| **Core** | Agent Skills (`SKILL.md`), `_shared`, policy em markdown, router neutro, contratos SDD — sem caminhos fixos em código de pasta de instalação de IDE |
+| **Core** | Agent Skills (`SKILL.md`), `_shared` (incl. CATALOG via `/help-skills`), policy em markdown, router neutro, contratos SDD — sem caminhos fixos em código de pasta de instalação de IDE |
 | **Adaptadores** | Mapeiam core → layout do agente; resolvem placeholders; fazem merge de hooks/settings; uninstall seletivo (arquivos gerenciados) |
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — selecionar agente, sync, validar, uninstall |
 | **Validação** | Suite de contratos + testes smoke em fixture; a CI nunca exige deploy real em `%USERPROFILE%` para ficar verde |
@@ -48,7 +50,7 @@ O conteúdo do core não deve fixar em código uma única raiz de perfil de usu�
 
 | Placeholder | Significado |
 |-------------|-------------|
-| `{{TOOLKIT_ROOT}}` | Raiz de instalação do toolkit no agente (skills, rules/policy, router) |
+| `{{TOOLKIT_ROOT}}` | Raiz de instalação do toolkit no agente (destination-aware; Codex separa skills do plugin vs `rules/` em InstallRoot) |
 | `{{SDD_ROOT}}` | Raiz de estado SDD (`preferences.json`, `sessions/`, features globais) |
 | `{{GUARDRAILS_PATH}}` | Path do arquivo de policy de guardrails para o agente de destino |
 

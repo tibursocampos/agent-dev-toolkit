@@ -61,7 +61,7 @@
       "module": "codex/CodexAdapter.ps1",
       "capabilities": {
         "skills": true,
-        "rules": false,
+        "rules": true,
         "hooks": true,
         "router": true,
         "plugin": true,

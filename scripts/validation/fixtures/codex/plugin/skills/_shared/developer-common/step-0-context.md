@@ -15,7 +15,7 @@ If the repository has `AGENTS.md` or `README.md` at the root, read the sections 
 | `docs/` | Feature-specific standards when listed in PLAN/PRD |
 | None | Infer conventions from existing code (Glob, Grep, Read) |
 
-Do not preload entire `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/` trees.
+Do not preload entire `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/` trees.
 
 ---
 
@@ -23,7 +23,7 @@ Do not preload entire `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixt
 
 1. You are in the **target repository** (not this toolkit repo unless that is the subject).
 2. Note default branch (`main`, `develop`, etc.) - ask if unclear.
-3. For SDD work: confirm PRD/PLAN paths when the user provides them. For **`code-review`**, resolve artifacts via `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/STORAGE.md` (repo + `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/`) - do not assume absence from an empty workspace `PRD/` folder alone.
+3. For SDD work: confirm PRD/PLAN paths when the user provides them. For **`code-review`**, resolve artifacts via `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` (repo + `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/`) - do not assume absence from an empty workspace `PRD/` folder alone.
 
 ---
 

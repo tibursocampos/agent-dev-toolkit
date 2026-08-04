@@ -11,7 +11,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes (visitors: read only) |
-| [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (37 skills) |
+| [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (38 skills; agent SoT via `/help-skills`) |
 
 ## Overview and architecture
 

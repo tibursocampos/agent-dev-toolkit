@@ -49,6 +49,17 @@
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
+      "id": "help-skills-reads-catalog",
+      "skill": "help-skills",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "STOP - Read before ANY tool call",
+        "skills-catalog/CATALOG.md",
+        "Must not",
+        "Invent skills"
+      ]
+    },
+    {
       "id": "open-github-pr-gh-and-modes",
       "skill": "open-github-pr",
       "files": ["SKILL.md"],

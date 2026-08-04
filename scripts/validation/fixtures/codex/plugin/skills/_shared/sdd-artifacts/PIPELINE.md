@@ -2,7 +2,7 @@
 
 Execution order, Cursor mode behavior, canonical paths, confirmation gates, and missing-artifact dialogs. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Forma C `orchestrate-*` - do not paste into PRD/PLAN bodies.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/PIPELINE.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/PIPELINE.md`
 
 Companion: `STORAGE.md` (folders, manifest, `.gitignore`).
 
@@ -69,7 +69,7 @@ Do **not** read, write, or continue Classic SDD from:
 - Repo-root `PRD/` / `PLAN/` / `docs/PRD/` / `docs/PLAN/` (gitignore safety net only - not an active flow)
 - Global-flat `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/PRD/` or `.../PLAN/` outside `features/`
 - Loose `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/` at repo root
-- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/` outside `sdd/<repo-id>/features/` (classic)
+- `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/` outside `sdd/<repo-id>/features/` (classic)
 - `docs/backlog/*.md`, arbitrary `docs/*.md`, repo-root `*.md` without feature tree
 
 ### Promote non-canonical `.md`

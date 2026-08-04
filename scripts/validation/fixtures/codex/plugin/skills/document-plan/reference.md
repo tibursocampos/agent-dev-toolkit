@@ -153,7 +153,7 @@ Add steps until domains and integrations from exploration are covered. Prefer 5-
 
 ## Context management
 
-Per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc`:
+Per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc`:
 
 - After overview + plan draft: checkpoint
 - When planning many domains in one session: save `plan.md` at ≥ 40% and hand off continuation

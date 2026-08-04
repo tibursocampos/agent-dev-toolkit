@@ -85,7 +85,7 @@ Use after user confirms the plan. Check off in session notes; not all rows apply
 
 ## Layering (when generating .NET code)
 
-Load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/dotnet-guidelines/clean-architecture.md` before writing code.
+Load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/dotnet-guidelines/clean-architecture.md` before writing code.
 
 Typical placement (adapt to repo):
 
@@ -137,4 +137,4 @@ If the target repo has no messaging libraries, proceed with the **MassTransit / 
 
 ## Context management
 
-Per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc`: after detection + requirements + large scaffold, checkpoint at ≥ 40% context; hand off with paths and pending checklist items.
+Per `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/rules/context-management.mdc`: after detection + requirements + large scaffold, checkpoint at ≥ 40% context; hand off with paths and pending checklist items.

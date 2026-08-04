@@ -2,7 +2,7 @@
 
 Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
 
-Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
+Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
 Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
 
