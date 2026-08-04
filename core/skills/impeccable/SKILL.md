@@ -24,6 +24,8 @@ Gate check:
 
 ---
 
+Inspired by [pbakaus/impeccable](https://github.com/pbakaus/impeccable) — this skill is a **partial toolkit harness**, not a full port. See `docs/CREDITS.md`.
+
 ## Trigger
 
 Use when user asks for `/impeccable`, `/impeccable`, or any Impeccable command (`shape`, `audit`, `polish`, `craft`, etc.).

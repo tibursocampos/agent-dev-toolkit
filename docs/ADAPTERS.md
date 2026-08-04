@@ -323,7 +323,7 @@ Default sync is **plugin-only**. CI/fixtures never require a live `$HOME/.agents
 | Relative path | Source / role |
 |---------------|---------------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `help-skills` + `_shared/skills-catalog/CATALOG.md`) |
+| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `help-skills` + `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | `rules/*.md` | `Publish-Policy` from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
 | `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
@@ -338,7 +338,7 @@ Default sync is **plugin-only**. CI/fixtures never require a live `$HOME/.agents
 | `Publish-Policy` | Copies `core/policy` → `InstallRoot/rules/*.md` |
 | `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
 | `Publish-Hooks` | Writes hooks **files** under `plugin/hooks/` |
-| `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
+| `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent codex` | Core validate + adapter smoke against fixture InstallRoot |
 

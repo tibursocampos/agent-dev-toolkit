@@ -17,6 +17,7 @@ Deep dives on GitHub:
 - [docs/REPO_GOVERNANCE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/REPO_GOVERNANCE.md)
 - [SECURITY.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/SECURITY.md)
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — full layout; site overview: [Architecture](../architecture/)
+- [docs/CREDITS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/CREDITS.md) — third-party inspiration; site: [Credits](../credits/)
 
 ## Validation (local)
 

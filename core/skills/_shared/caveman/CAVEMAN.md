@@ -6,7 +6,7 @@ Load on demand from skills at step -1 - do not pre-load.
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`
 
 Inspired by: https://github.com/juliusbrussee/caveman  
-Portable contract only — not a full port of that repository.
+Portable contract only — not a full port of that repository. Acknowledgments: `docs/CREDITS.md`.
 
 ---
 
@@ -19,7 +19,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 **Mouth smaller, brain same.** Compress style, not substance. Compress style, not language (chat stays pt-BR when that is the toolkit language policy).
 
 **Expected savings:** often 22–87% of *output prose* tokens on verbose replies.  
-**Honest cost:** loading this file adds ~1–1.5k input tokens per turn. Net-negative on short Q&A (~150 output tokens). Prefer ON for long review/debug/orchestration; OFF for terse coding Q&A. See `docs/TOKEN_BUDGET.md` and `docs/guides/07-caveman-mode.md`.
+**Honest cost:** loading this file adds ~1–1.5k input tokens per turn. Net-negative on short Q&A (~150 output tokens). Prefer ON for long review/debug/orchestration; OFF for terse coding Q&A. See `docs/guides/07-caveman-mode.md` and `docs/CREDITS.md`.
 
 ---
 
@@ -100,7 +100,7 @@ Resume caveman after the clear part is done.
 ## Boundaries
 
 - **Code / commit messages / PR bodies:** write normal (English per toolkit policy). Never caveman-compress artifact text.
-- **NEVER skills** (`commit`, `push`): ignore `caveman_mode` for chat around those flows — clear prose only.
+- **NEVER skills** (`help-skills`, `commit`, `push`, `open-github-pr`): ignore `caveman_mode` for chat around those flows — clear prose only.
 - Do not announce the style in third person ("me caveman think"). Exception: activation/status confirmations and explicit user questions about the mode.
 
 ---
@@ -109,7 +109,7 @@ Resume caveman after the clear part is done.
 
 | Skill / Context | Cap when mode ON |
 |---|---|
-| `commit`, `push` | **NEVER** — excluded regardless of setting |
+| `help-skills`, `commit`, `push`, `open-github-pr` | **NEVER** — excluded regardless of setting |
 | `sdd-spec`, `sdd-plan` | **LITE** |
 | `orchestrate-analyze`, `orchestrate-deliver` | **LITE** |
 | `document-plan`, `refine-story`, `memory-bank-init` | **LITE** |

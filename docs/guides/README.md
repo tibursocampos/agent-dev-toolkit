@@ -89,7 +89,7 @@ New task
 | **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
 | **C** Orchestrated | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse classic SDD |
 
-Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Skill discovery after sync: `/help-skills` (agent SoT `CATALOG.md`) · human list: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 
@@ -97,8 +97,9 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 
 | Guide | Content |
 |-------|---------|
-| [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first `/sdd-spec` |
-| [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `/help-skills`) |
+| [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first skill |
+| [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
+| [07-caveman-mode.md](07-caveman-mode.md) | Caveman default OFF, commands, levels, Auto-Clarity |
 
 Related:
 
@@ -121,4 +122,4 @@ Related:
 
 ## Caveman Mode
 
-Optional response compression is controlled by synced policy / preferences (e.g. `caveman on` / `caveman off` in chat when the rule is active). It does not change sync or validation scripts.
+Optional response compression. **Default OFF.** Commands: `caveman on` / `off` / `status` / `lite` / `full` / `ultra` (aliases: `stop caveman`, `normal mode`). Full guide: [07-caveman-mode.md](07-caveman-mode.md). Does not change sync or validation scripts.

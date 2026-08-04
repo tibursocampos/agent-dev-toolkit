@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 38 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md via /help-skills)
+  skills/     # 38 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -24,9 +24,9 @@ Each skill is a folder with `SKILL.md` (and optional `reference.md`, assets). To
 | Product / design | `blip-plugin-developer`, `impeccable` |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md) |
 | Docs | `document-plan`, `document-implement` |
-| Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md`) |
+| Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 
-Public catalog: [SKILLS.md](../SKILLS.md). Agents: `/help-skills` → installed CATALOG (do not load every `SKILL.md`).
+Public catalog: [SKILLS.md](../SKILLS.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`).
 
 ### Placeholders
 

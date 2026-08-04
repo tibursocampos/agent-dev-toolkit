@@ -1,8 +1,8 @@
 # Skills catalog (agent SoT)
 
-Lean skill map for agents after install. **Do not invent skills** — only names listed here exist as slash skills. Prefer `/<name>`; compat phrases such as `use skill <name>` may also work depending on the host.
+Lean skill map for agents after install. **Do not invent skills** — only names listed here exist as slash/id skills. Invoke by **skill id**; host UX may use slash `/` when supported, a skill picker, `@`-mention, or phrases such as `use skill <name>`.
 
-**Load this file via `/help-skills`** (or Read this path). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — architect is spawned from `orchestrate-analyze` / the agent roster.
+**Load via skill `help-skills`** (or Read this path). Operator nuances: sibling `OPERATOR.md` in this folder. Shared packs under `_shared/` are not slash skills. There is **no** `architect` slash skill — architect is spawned from `orchestrate-analyze` / the agent roster.
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
@@ -67,7 +67,7 @@ Total: **38** kebab skills.
 
 | Skill | Slash / phrases | Purpose |
 |-------|-----------------|---------|
-| `help-skills` | `/help-skills`, `list skills`, `skill catalog` | Present this catalog (lazy skill map) |
+| `help-skills` | `/help-skills`, `list skills`, `skill catalog` | Present this catalog + `OPERATOR.md` (static) |
 | `code-review` | `/code-review` | Structured review (quality / acceptance / security) |
 | `repair-dotnet-build` | `/repair-dotnet-build` | Diagnose/fix .NET build and tests |
 | `test-coverage` | `/test-coverage` | .NET Coverlet coverage report |

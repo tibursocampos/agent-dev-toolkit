@@ -6,6 +6,8 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-B
 
 Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
 
+**Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
+
 **Language:** This guideline is **English**. Consumer bank prose may be pt-BR or English (ask once on create if ambiguous). Paths and identifiers stay English.
 
 ---

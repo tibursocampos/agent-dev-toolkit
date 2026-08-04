@@ -1,12 +1,20 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke them in your agent (Cursor slash form: `/<name>`). Compat phrases such as `use skill <name>` may also work depending on the agent.
+Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke by **skill id**; host UX may use slash `/` when supported, a picker, `@`, or `use skill <name>`.
 
-**Agent source of truth (installed):** `core/skills/_shared/skills-catalog/CATALOG.md` — present via `/help-skills` so agents do not load every `SKILL.md` (Ops discovery skill). This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**38** kebab skills). Prefer `/help-skills` in-session over pasting this entire page into the agent context.
+**Agent source of truth (installed):**  
+- Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
+- Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Shared packs live under `core/skills/_shared/` (SDD contracts helpers, guidelines, templates, skills-catalog) — not invoked as slash skills (except the catalog is read by `/help-skills`).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**38** kebab skills).
 
-**Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `/architect` slash skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
+Shared packs live under `core/skills/_shared/` — not invoked as slash skills (except the catalog pack is read by `help-skills`).
+
+**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and `SPAWN.md`.
+
+**Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` slash skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
+
+Credits for Caveman / Impeccable / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
 ## Formas (A / B / C)
 
@@ -26,12 +34,12 @@ Decision tree: [guides/README.md](guides/README.md).
 | `sdd-plan` | Baby-step PLAN from an existing PRD |
 | `sdd-develop` | Execute **one** PLAN step per session |
 
-Example after Cursor sync:
+Example (skill ids; slash when host supports it):
 
 ```text
-/sdd-spec
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step N
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step N
 ```
 
 ## Forma B — backlog prep
@@ -75,13 +83,13 @@ Orchestrators **reuse** classic SDD contracts; they do not replace them.
 | Skill | Purpose |
 |-------|---------|
 | `blip-plugin-developer` | Scaffold Blip React extensions; hand off to `react-developer` |
-| `impeccable` | UI/UX design router; shape → `docs/DESIGN-BRIEF.md` |
+| `impeccable` | UI/UX design router; shape → `docs/DESIGN-BRIEF.md` (partial Impeccable harness — [CREDITS](CREDITS.md)) |
 
 ## Operational
 
 | Skill | Purpose |
 |-------|---------|
-| `help-skills` | Present the installed skill map from `_shared/skills-catalog/CATALOG.md` |
+| `help-skills` | Present installed static `CATALOG.md` + `OPERATOR.md` (no re-analysis) |
 | `code-review` | Structured review (quality / acceptance / security angles) |
 | `repair-dotnet-build` | Diagnose/fix .NET build and tests |
 | `test-coverage` | .NET Coverlet coverage report |
@@ -103,11 +111,24 @@ Orchestrators **reuse** classic SDD contracts; they do not replace them.
 | `document-plan` | Baby-step documentation plan under `docs/documentation-plan/` |
 | `document-implement` | Execute one documentation plan step |
 
+## Operator expectations (mirror of OPERATOR.md)
+
+| Area | What you will be asked / options |
+|------|----------------------------------|
+| Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
+| `code-review` | Choose single vs multi-angle (no silent default) |
+| Forma C | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain` |
+| `sdd-develop` | One PLAN step per session |
+| `document-plan` | Asks doc language before writing |
+| Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |
+
+Installed static notes: `_shared/skills-catalog/OPERATOR.md` via `help-skills`.
+
 ## After sync — sanity check
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
+pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
 ```
 
-Live Cursor home should contain `skills/sdd-spec/SKILL.md` (and peers). See [INSTALL.md](INSTALL.md) and [guides/02-using-skills.md](guides/02-using-skills.md).
+Live install should contain `skills/help-skills/SKILL.md` and peers under that agent’s root. See [INSTALL.md](INSTALL.md) and [guides/02-using-skills.md](guides/02-using-skills.md).

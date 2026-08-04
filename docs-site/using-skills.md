@@ -1,6 +1,12 @@
 # Using skills
 
-Invoke toolkit skills after a successful sync. Slash syntax below is the **Cursor** convention; other agents may use a skill picker, `@`-mention, or “use skill …” phrasing. Skill **ids** stay kebab-case folder names from `core/skills/`.
+Invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case folder names under `core/skills/`). Host UX varies: slash `/` when the agent supports it, skill picker, `@`-mention, or “use skill …” phrasing. Examples below often show slash form for brevity — the **id** is what matters across adapters.
+
+After any agent sync, invoke skill **`help-skills`** for the installed static catalog (`CATALOG.md` + `OPERATOR.md`) — do not load every `SKILL.md`.
+
+## Parallel specialists (default)
+
+After sync, the published router asks agents to prefer **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: `SPAWN.md` (see [Architecture](../architecture/)).
 
 ## Prerequisites
 
@@ -73,6 +79,8 @@ For greenfield domain work, prefer Forma C. `/orchestrate-analyze` can start the
 
 ## Invoke by agent
 
+Skill **`help-skills`** works on **every** synced adapter (not Codex-only).
+
 ### Cursor
 
 Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router: `AGENTS.md`.
@@ -82,13 +90,14 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | Slash menu | `/sdd-spec` |
 | With args | `/sdd-plan - path/to/PRD.md` |
 | Stack router | `/developer` |
+| Catalog | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
 Trust hooks in Cursor’s UI once if prompted (outside CI).
 
 ### Claude Code
 
-Skills under `~/.claude/skills/` (or project `.claude/`). Router: `CLAUDE.md`. Invoke via Claude’s skill / slash UX; names match kebab ids.
+Skills under `~/.claude/skills/` (or project `.claude/`). Router: `CLAUDE.md`. Invoke via Claude’s skill / slash UX; names match kebab ids. Catalog: `help-skills`.
 
 ### GitHub Copilot
 
@@ -99,7 +108,7 @@ Sync with `-Mode user` or `-Mode repo`:
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use Copilot’s agent-skills / custom-instructions surfaces.
+Use Copilot’s agent-skills / custom-instructions surfaces. Catalog skill id: `help-skills`.
 
 ### Codex
 
@@ -107,12 +116,12 @@ Codex is **dual-root** — plugin skills and InstallRoot rules are not one share
 
 | Surface | Location |
 |---------|----------|
-| Plugin skills + CATALOG | Under `InstallRoot/plugin` (default sync) |
+| Plugin skills + CATALOG + OPERATOR | Under `InstallRoot/plugin` (default sync) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
 | Optional USER skills | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
 
-Default sync is **plugin-only**. Invoke `/help-skills` for the installed catalog — do not load every `SKILL.md`. Trust hooks with Codex `/hooks` after a real install (smoke never requires it).
+Default sync is **plugin-only**. Invoke `help-skills` for the installed catalog — do not load every `SKILL.md`. Trust hooks with Codex `/hooks` after a real install (smoke never requires it).
 
 ### OpenCode / Grok / ZCode / Antigravity
 
@@ -123,7 +132,7 @@ Default sync is **plugin-only**. Invoke `/help-skills` for the installed catalog
 | ZCode | `~/.zcode/skills` | ADE (agent filesystem) |
 | Antigravity | `~/.gemini/config/skills` | Official `config/*` layout |
 
-Per-agent publish layouts: [Adapters](../adapters/).
+Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` + the skills-catalog pack.
 
 ## Common workflows
 
@@ -167,7 +176,7 @@ Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `dev
 
 ## Skills catalog (summary)
 
-Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: `/help-skills` → `_shared/skills-catalog/CATALOG.md` (do not load every `SKILL.md`). Shared packs under `_shared/` are not slash skills. There is **no** `/architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
+Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not slash skills. There is **no** `architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
 
 | Group | Skills |
 |-------|--------|
@@ -176,17 +185,38 @@ Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: `
 | **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
+| **Docs RAG** | `document-plan`, `document-implement` |
 | **Operational** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+
+### Operator expectations (high level)
+
+| Area | What you will be asked / options |
+|------|----------------------------------|
+| Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR mode feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| `code-review` | Choose single vs multi-angle (no silent default) |
+| Forma C | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain` |
+| `sdd-develop` | One PLAN step per session |
+| `document-plan` | Asks doc language before writing |
+| Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Caveman mode](../caveman/) |
+
+Installed static notes: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
 
 ## Re-sync when skills feel stale
 
-Fixture (safe):
+Fixture (safe) — any Tier-1 id:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude
 ```
 
-Live Cursor install (explicit):
+Live install example (Claude):
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude `
+  -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
+```
+
+Live Cursor:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
@@ -195,4 +225,4 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
 
 Managed files are overwritten; **non-toolkit** (alien) files in the agent install root are preserved.
 
-Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Home](../)
+Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Caveman](../caveman/) · [Home](../)

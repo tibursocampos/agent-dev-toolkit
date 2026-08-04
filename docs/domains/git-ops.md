@@ -2,7 +2,7 @@
 
 Day-to-day Git flow after code changes: Conventional Commits, push, and optional GitHub PR via `gh`. Skills live under `core/skills/` (`commit`, `push`, `open-github-pr`) and share branch rules plus the shared handoff in `core/skills/_shared/developer-common/step-4-commits-pr.md`.
 
-Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: [CONTRIBUTING.md](../../CONTRIBUTING.md).
+Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: installed `OPERATOR.md` via `help-skills`; human deep dive for git: this file. Also [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Skill chain
 
