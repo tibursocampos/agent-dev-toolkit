@@ -29,45 +29,35 @@ hide:
       <input type="radio" name="home-agent" value="cursor" data-agent-id="cursor" data-install-root="~/.cursor" data-install-hint="Pasta de instalação real típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)" checked />
       <span>Cursor</span>
     </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Pasta de instalação real típica: ~/.claude (Windows: %USERPROFILE%\.claude)" />
+      <span>Claude Code</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Pasta de instalação real típica (modo usuário): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
+      <span>GitHub Copilot</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Pasta de instalação real típica: ~/.codex (skills do plugin em plugin/; skills USER opcionais em ~/.agents/skills com -UserScope)" />
+      <span>Codex</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Pasta de instalação real típica: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
+      <span>Antigravity</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Pasta de instalação real típica: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
+      <span>OpenCode</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Pasta de instalação real típica: ~/.grok (Windows: %USERPROFILE%\.grok)" />
+      <span>Grok Build</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Pasta de instalação real típica: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
+      <span>ZCode</span>
+    </label>
   </div>
-  <details class="agent-switcher__others">
-    <summary>Outros agentes</summary>
-    <div class="agent-switcher__options" role="presentation">
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="claude" data-agent-id="claude" data-install-root="~/.claude" data-install-hint="Pasta de instalação real típica: ~/.claude (Windows: %USERPROFILE%\.claude)" />
-        <span>Claude Code</span>
-      </label>
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="copilot" data-agent-id="copilot" data-install-root="~/.copilot" data-install-hint="Pasta de instalação real típica (modo usuário): ~/.copilot (Windows: %USERPROFILE%\.copilot)" />
-        <span>GitHub Copilot</span>
-      </label>
-      <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Pasta de instalação real típica: ~/.codex (skills do plugin em plugin/; skills USER opcionais em ~/.agents/skills com -UserScope)" />
-        <span>Codex</span>
-      </label>
-    </div>
-    <details class="agent-switcher__more">
-      <summary>Mais agentes</summary>
-      <div class="agent-switcher__options" role="presentation">
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="antigravity" data-agent-id="antigravity" data-install-root="~/.gemini" data-install-hint="Pasta de instalação real típica: ~/.gemini (Windows: %USERPROFILE%\.gemini)" />
-          <span>Antigravity</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="opencode" data-agent-id="opencode" data-install-root="~/.config/opencode" data-install-hint="Pasta de instalação real típica: ~/.config/opencode (Windows: %USERPROFILE%\.config\opencode)" />
-          <span>OpenCode</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="grok" data-agent-id="grok" data-install-root="~/.grok" data-install-hint="Pasta de instalação real típica: ~/.grok (Windows: %USERPROFILE%\.grok)" />
-          <span>Grok Build</span>
-        </label>
-        <label class="agent-switcher__option">
-          <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Pasta de instalação real típica: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
-          <span>ZCode</span>
-        </label>
-      </div>
-    </details>
-  </details>
   <p id="agent-install-hint" class="agent-switcher__hint" role="status" aria-live="polite" data-agent-install-hint>
     Pasta de instalação real típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)
   </p>

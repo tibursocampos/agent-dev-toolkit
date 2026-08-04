@@ -30,7 +30,7 @@ After `sync-agent -Agent codex` (or CI ephemeral sync), `Invoke-SmokeValidate` c
 2. `plugin/skills/help-skills/SKILL.md` and `plugin/skills/_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`
 3. `InstallRoot/rules/` with every `core/policy/*.md` counterpart
 4. `AGENTS.md`: no leftover `{{…}}`, no live `docs/` links, dual-root callout + absolute InstallRoot/plugin paths
-5. UserScope: empty `.agents/skills` skeleton is OK (default sync is plugin-only). When `-UserScope` mirrored skills are present, smoke also requires help-skills + CATALOG + OPERATOR under `.agents/skills`
+5. UserScope: **absent or empty** `.agents/skills` is OK (default sync is plugin-only). When `-UserScope` mirrored skills are present, smoke also requires help-skills + CATALOG + OPERATOR under the USER skills root (fixture `InstallRoot/.agents/skills`; live `$HOME/.agents/skills`)
 
 RN03: smoke asserts hooks **files** only. Trust via Codex `/hooks` UI is a
 manual human step after a real install — never invoked by CI/smoke.

@@ -268,9 +268,8 @@ body {
   .home-diagram              Dominant SVG diagram region
   .agent-switcher            Switcher root (radiogroup)
   .agent-switcher__label     Visible radiogroup legend
+  .agent-switcher__options    Flat flex-wrap row of all 8 agent chips
   .agent-switcher__option    Per-agent radio + label (visible without JS)
-  .agent-switcher__others    <details> progressive disclosure (“Other agents”)
-  .agent-switcher__more      Nested <details> disclosure (same chrome as __others)
   .agent-switcher__badge     Optional compact label on an option (unused on home; keep for future)
   .agent-switcher__hint      Live-root install hint (__note aliases same rules)
   .home-secondary-links      Below-fold Skills / Adapters row
@@ -542,7 +541,7 @@ body {
   height: auto;
 }
 
-/* Agent switcher — readable without JS; default + “Other agents” disclosure */
+/* Agent switcher — readable without JS; flat 8-chip radiogroup with flex wrap */
 .agent-switcher {
   display: flex;
   flex-direction: column;
@@ -621,76 +620,6 @@ body {
   pointer-events: none;
 }
 
-/* Progressive disclosure — default visible; others/more collapsed in <details> */
-.agent-switcher__others,
-.agent-switcher__more {
-  margin: 0;
-  padding: 0;
-  border: none;
-  color: var(--muted);
-}
-
-.agent-switcher__others > summary,
-.agent-switcher__more > summary {
-  list-style: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 2.75rem;
-  padding: var(--space-2) 0;
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--muted);
-  border-radius: var(--radius-sm);
-  transition: color 120ms ease-out;
-}
-
-.agent-switcher__others > summary::-webkit-details-marker,
-.agent-switcher__more > summary::-webkit-details-marker {
-  display: none;
-}
-
-.agent-switcher__others > summary::before,
-.agent-switcher__more > summary::before {
-  content: "";
-  display: inline-block;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-inline-end: 2px solid currentColor;
-  border-block-end: 2px solid currentColor;
-  transform: rotate(-45deg);
-  transition: transform 120ms ease-out;
-}
-
-.agent-switcher__others[open] > summary::before,
-.agent-switcher__more[open] > summary::before {
-  transform: rotate(45deg);
-}
-
-.agent-switcher__others > summary:hover,
-.agent-switcher__more > summary:hover {
-  color: var(--text);
-}
-
-.agent-switcher__others > summary:focus-visible,
-.agent-switcher__more > summary:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  color: var(--accent);
-}
-
-.agent-switcher__others[open] > summary,
-.agent-switcher__more[open] > summary {
-  color: var(--accent);
-}
-
-.agent-switcher__others > .agent-switcher__options,
-.agent-switcher__more > .agent-switcher__options {
-  margin-block-start: var(--space-2);
-}
-
 .agent-switcher__badge {
   display: inline-flex;
   align-items: center;
@@ -707,13 +636,6 @@ body {
   letter-spacing: 0.02em;
   line-height: 1.2;
   text-transform: uppercase;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .agent-switcher__others > summary::before,
-  .agent-switcher__more > summary::before {
-    transition: none;
-  }
 }
 
 .agent-switcher__hint,

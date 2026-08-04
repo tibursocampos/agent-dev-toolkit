@@ -11,9 +11,9 @@
   - InstallRoot/rules/*.md when rules capable (Publish-Policy)
   - AGENTS.md materialized (no {{…}} placeholders, no docs/ live links, dual-root paths)
   - plugin/hooks/hooks.json when hooks capable (TE04)
-  - .agents/skills: skeleton may be empty; when UserScope mirrored, assert help-skills + CATALOG
+  - .agents/skills: absent or empty skeleton OK (plugin-only); when UserScope mirrored, assert help-skills + CATALOG
   Never invokes Codex runtime or /hooks trust UI (RN03 / TE05 out of scope).
-  Never requires live $HOME/.agents/skills (fixture InstallRoot/.agents/skills only).
+  Live UserScope root is $HOME/.agents/skills (via Resolve-CodexUserSkillsRoot); fixture uses InstallRoot/.agents/skills.
 #>
 
 $script:CodexSmokeHelperDirectory = $PSScriptRoot
@@ -370,11 +370,12 @@ function Test-CodexUserSkillsFixture {
         [string] $UserSkillsRoot
     )
 
+    # Absent root is valid: default Publish-Skills is plugin-only (live ~/.codex has no InstallRoot/.agents/skills).
     if (-not (Test-Path -LiteralPath $UserSkillsRoot -PathType Container)) {
         return [PSCustomObject]@{
-            Ok       = $false
+            Ok       = $true
             Mirrored = $false
-            Message  = ($script:CodexSmokeMessage.UserSkillsRootMissing -f $UserSkillsRoot)
+            Message  = ''
         }
     }
 
@@ -473,7 +474,7 @@ function Invoke-CodexSmokeValidate {
     $marketplacePath = Join-Path $marketplaceDir $script:CodexPathConstant.MarketplaceFileName
     $agentsPath = $mapped.FixtureProjectAgentsPath
     $hooksPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.HooksFileName
-    $userSkillsPath = $mapped.FixtureUserSkillsPath
+    $userSkillsPath = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $rulesPath = Join-Path $resolvedInstallRoot $script:CodexPathConstant.RulesDirectoryName
 
     $checks = [ordered]@{

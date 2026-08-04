@@ -91,12 +91,12 @@ $script:CodexSmokeMessage = @{
     AgentsPlaceholderResidual  = 'Codex agent ''codex'' smoke failed - AGENTS.md still contains unresolved {{…}} placeholders at: {0}'
     AgentsDocsLinkForbidden    = 'Codex agent ''codex'' smoke failed - AGENTS.md still references repo docs/ paths at: {0}'
     AgentsDualRootMissing      = 'Codex agent ''codex'' smoke failed - AGENTS.md missing dual-root callout or InstallRoot/plugin absolute paths at: {0}'
-    UserSkillsRootMissing      = 'Codex agent ''codex'' smoke failed - USER skills fixture path missing (expected .agents/skills under InstallRoot): {0}'
-    UserSkillsIncomplete       = 'Codex agent ''codex'' smoke failed - USER skills fixture has skill folder without SKILL.md: {0}'
+    UserSkillsRootMissing      = 'Codex agent ''codex'' smoke failed - USER skills root missing when mirror expected: {0}'
+    UserSkillsIncomplete       = 'Codex agent ''codex'' smoke failed - USER skills path has skill folder without SKILL.md: {0}'
     UserSkillsHelpSkillsMissing = 'Codex agent ''codex'' smoke failed - USER-scope mirror missing help-skills SKILL.md at: {0}'
     UserSkillsCatalogMissing   = 'Codex agent ''codex'' smoke failed - USER-scope mirror missing skills catalog CATALOG.md at: {0}'
     SddLayoutMissing           = 'Codex agent ''codex'' smoke failed - SDD layout incomplete under InstallRoot. Missing: {0}'
-    Passed                     = 'Codex Invoke-SmokeValidate PASS under {0} (filesystem-only; plugin help-skills/CATALOG + marketplace + rules + materialized AGENTS.md + hooks files; UserScope optional when mirrored; trust /hooks UI out of scope - RN03).'
+    Passed                     = 'Codex Invoke-SmokeValidate PASS under {0} (filesystem-only; plugin help-skills/CATALOG + marketplace + rules + materialized AGENTS.md + hooks files; absent/empty USER skills root OK without UserScope; trust /hooks UI out of scope - RN03).'
     FilesystemOnlyNote         = 'Smoke never invokes Codex runtime or /hooks trust UI.'
 }
 
