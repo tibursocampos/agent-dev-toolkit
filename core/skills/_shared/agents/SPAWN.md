@@ -6,6 +6,8 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
 **Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
 
+**Default preference (all adapters):** for multi-facet parent turns (planning, analysis, non-trivial questions, multi-angle execution), prefer specialist children **in parallel** and keep the current session as **parent**. Trivial / single-path work stays **in-parent**. Caps and fallback below still apply. Router always-on text: `core/router/AGENTS.md` → Parallel specialists.
+
 ## Capability `subagents`
 
 Read from `adapters/registry.json` (declared) and adapter `Get-Capabilities` (effective). Capability `subagents` is the string enum `native` | `none`.

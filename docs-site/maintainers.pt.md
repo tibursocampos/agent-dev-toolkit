@@ -17,6 +17,7 @@ Leituras aprofundadas no GitHub:
 - [docs/REPO_GOVERNANCE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/REPO_GOVERNANCE.md)
 - [SECURITY.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/SECURITY.md)
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — layout completo; visão no site: [Arquitetura](../architecture/)
+- [docs/CREDITS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/CREDITS.md) — inspiração de terceiros; site: [Créditos](../credits/)
 
 ## Validação (local)
 

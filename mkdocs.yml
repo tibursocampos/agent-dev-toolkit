@@ -34,8 +34,10 @@ plugins:
             Home: Home
             Get started: Get started
             Using skills: Using skills
+            Caveman: Caveman
             Adapters: Adapters
             Architecture: Architecture
+            Credits: Credits
             Maintainers: Maintainers
         - locale: pt
           name: Português
@@ -44,16 +46,20 @@ plugins:
             Home: Início
             Get started: Começar
             Using skills: Usando skills
+            Caveman: Caveman
             Adapters: Adaptadores
             Architecture: Arquitetura
+            Credits: Créditos
             Maintainers: Mantenedores
 
 nav:
   - Home: index.md
   - Get started: get-started.md
   - Using skills: using-skills.md
+  - Caveman: caveman.md
   - Adapters: adapters.md
   - Architecture: architecture.md
+  - Credits: credits.md
   - Maintainers: maintainers.md
 
 markdown_extensions:

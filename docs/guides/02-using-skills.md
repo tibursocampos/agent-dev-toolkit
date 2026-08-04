@@ -1,6 +1,12 @@
 # Using skills
 
-How to invoke toolkit skills after a successful sync. Slash syntax below is the **Cursor** convention; other agents may use a skill picker, `@`-mention, or “use skill …” phrasing — the skill **folder names** stay the same kebab-case ids from `core/skills/`.
+How to invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case under `core/skills/`). Host UX varies: slash `/` when supported, skill picker, `@`-mention, or “use skill …”.
+
+After any agent sync, invoke **`help-skills`** for the installed static catalog (`CATALOG.md` + `OPERATOR.md`).
+
+## Parallel specialists (default)
+
+After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`.
 
 ## Prerequisites
 
@@ -17,6 +23,7 @@ Skills sync to `~/.cursor/skills/<id>/SKILL.md`.
 | Slash menu | `/sdd-spec` |
 | With args | `/sdd-plan - path/to/PRD.md` |
 | Stack router | `/developer` |
+| Catalog | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
 Rules land as `~/.cursor/rules/*.mdc`. Router: `~/.cursor/AGENTS.md`. If hooks were published, complete Cursor’s hooks trust UI once (outside CI).
@@ -46,14 +53,14 @@ Codex is **dual-root** — do not treat skills and rules as one shared `TOOLKIT_
 
 | Surface | Location |
 |---------|----------|
-| Plugin skills + CATALOG (`TOOLKIT_ROOT` for skills) | Under `InstallRoot/plugin` (bundled skills tree) |
+| Plugin skills + CATALOG + OPERATOR (`TOOLKIT_ROOT` for skills) | Under `InstallRoot/plugin` (bundled skills tree) |
 | Rules / guardrails (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) |
 | Optional USER skills mirror | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
 
 - **Default sync** is **plugin-only** (skills under `plugin/skills/`). Optional `-UserScope` mirrors skills for USER discovery; CI/fixtures use `InstallRoot/.agents/skills` and never require a live `~/.agents/skills` write.
 - **Publish-Router** materializes `AGENTS.md` with **absolute** dual-root paths (no `{{…}}` placeholders; no live `docs/` links). Do not resolve skill `_shared` under `InstallRoot/rules`.
-- After sync, invoke **`/help-skills`** for the installed catalog (`plugin/skills/_shared/skills-catalog/CATALOG.md`) — do **not** load every `SKILL.md` to list skills.
+- After sync, invoke **`help-skills`** for the installed catalog (`plugin/skills/_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) — do **not** load every `SKILL.md` to list skills. The same skill id works on **all** adapters, not only Codex.
 - Trust plugin hooks with Codex `/hooks` **manually** after a real install — smoke never requires it.
 
 Details: [ADAPTERS.md](../ADAPTERS.md) § Codex · [adapters/codex/README.md](../../adapters/codex/README.md).
@@ -109,17 +116,19 @@ or `/dotnet-developer`, `/react-developer`, `/python-developer`, …
 
 Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `/open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
 
+## Catalog and decision tree
+
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**38** skills; all adapters)
+- Human mirror: [SKILLS.md](../SKILLS.md)
+- Caveman: [07-caveman-mode.md](07-caveman-mode.md)
+- Credits: [CREDITS.md](../CREDITS.md)
+- Which Forma: [guides/README.md](README.md)
+- First-time path: [01-getting-started.md](01-getting-started.md)
+
 ## Re-sync when skills feel stale
 
 ```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
 ```
 
 Managed files are overwritten; alien files in the agent home are preserved.
-
-## Catalog and decision tree
-
-- Installed map (agents): `/help-skills` → `_shared/skills-catalog/CATALOG.md` (**38** skills)
-- Human mirror: [SKILLS.md](../SKILLS.md)
-- Which Forma: [guides/README.md](README.md)
-- First-time path: [01-getting-started.md](01-getting-started.md)

@@ -36,7 +36,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 38 skills + `_shared` (agent SoT: `/help-skills` → `skills-catalog/CATALOG.md`).
+- `core/skills/` — 38 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -114,7 +114,7 @@ InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://develope
 |---------------|------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
 | `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills (default); `TOOLKIT_ROOT` for skills paths |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` | Agent skill map via `/help-skills` |
+| `plugin/skills/_shared/skills-catalog/CATALOG.md` (+ `OPERATOR.md`) | Agent skill map + operator notes via `help-skills` |
 | `rules/*.md` | Publish-Policy from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Publish-Router: materialized dual-root **absolute** paths (no `{{…}}`; no live `docs/` links) |

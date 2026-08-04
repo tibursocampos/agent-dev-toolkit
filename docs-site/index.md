@@ -28,7 +28,6 @@ hide:
     <label class="agent-switcher__option">
       <input type="radio" name="home-agent" value="cursor" data-agent-id="cursor" data-install-root="~/.cursor" data-install-hint="Typical install path: ~/.cursor (Windows: %USERPROFILE%\.cursor)" checked />
       <span>Cursor</span>
-      <span class="agent-switcher__badge">Recommended</span>
     </label>
   </div>
   <details class="agent-switcher__others">
@@ -43,7 +42,7 @@ hide:
         <span>GitHub Copilot</span>
       </label>
       <label class="agent-switcher__option">
-        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Typical install path: ~/.codex (USER skills also under ~/.agents/skills)" />
+        <input type="radio" name="home-agent" value="codex" data-agent-id="codex" data-install-root="~/.codex" data-install-hint="Typical install path: ~/.codex (plugin skills under plugin/; optional USER skills ~/.agents/skills with -UserScope)" />
         <span>Codex</span>
       </label>
     </div>
@@ -112,7 +111,7 @@ Works with JavaScript disabled.
 | `cursor` | Cursor | `~/.cursor` |
 | `antigravity` | Antigravity | `~/.gemini` |
 | `claude` | Claude Code | `~/.claude` |
-| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`; dual-root) |
+| `codex` | Codex | `~/.codex` (plugin; optional USER `~/.agents/skills` via `-UserScope`) |
 | `copilot` | GitHub Copilot | `~/.copilot` |
 | `opencode` | OpenCode | `~/.config/opencode` |
 | `grok` | Grok Build | `~/.grok` |
@@ -120,5 +119,7 @@ Works with JavaScript disabled.
 
 <nav class="home-secondary-links" aria-label="Secondary">
   <a href="using-skills/">Skills</a>
+  <a href="caveman/">Caveman</a>
   <a href="adapters/">Adapters</a>
+  <a href="credits/">Credits</a>
 </nav>

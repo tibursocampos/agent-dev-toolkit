@@ -26,11 +26,13 @@ Public documentation and marketing site for **agent-dev-toolkit**, deployed with
 
 ```text
 Home (landing)                 [en + pt]
- ├─ Get started                [en + pt]  ← INSTALL + guides/01
- ├─ Using skills               [en + pt]  ← SKILLS + guides/02 + decision tree
- ├─ Adapters                   [en + pt]  ← SITE-HARDEN trilha A
- ├─ Architecture               [en + pt]  ← site summary + GitHub deep links
- └─ Maintainers                [en + pt]  ← VALIDATION, governance, CONTRIBUTING
+ ├─ Get started                [en + pt]
+ ├─ Using skills               [en + pt]
+ ├─ Caveman                    [en + pt]
+ ├─ Adapters                   [en + pt]
+ ├─ Architecture               [en + pt]
+ ├─ Credits                    [en + pt]
+ └─ Maintainers                [en + pt]
 ```
 
 **Home regions (one composition, not a dashboard) — revised order:**
@@ -38,14 +40,14 @@ Home (landing)                 [en + pt]
 1. Brand mark / name (hero-level) — `.home-brand`
 2. One headline + one supporting sentence — `.home-headline` / `.home-lead`
 3. Dominant visual: core → adapters → agents diagram (SVG) — `.home-diagram`
-4. Agent switcher — **recommended default visible** + disclosure **“Other agents”** (remaining Tier-1) → live-root hint
+4. Agent switcher — **technical default for copy/no-JS** (not a product endorsement) + disclosure **“Other agents”** (remaining Tier-1) → live-root hint
 5. CTA group — **Copy sync command primary**; Get started secondary (text/outline)
 6. Optional one-line safe-default note (fixture-first / live home + `-AllowUserHome` is explicit) near copy
 7. Secondary link row into Skills / Adapters (below first viewport)
 
 **Agent switcher UX (confirmed):**
 
-- Default selection: `cursor` (or last explicit choice in-session if already chosen).
+- Default selection for switcher UX only: `cursor` (or last explicit choice in-session if already chosen). **No “Recommended” badge** — toolkit is agent-agnostic.
 - Collapsed: show **one** selected control + short “Change agent” / “Other agents” control (≤4 visible choices at once when expanded grouping is used).
 - Expanded “Other agents”: remaining Tier-1 ids as radiogroup options (still all 8 reachable; not all equal in the first paint).
 - On change: update `#sync-command` to `… -Agent <id>` **and** `#agent-install-hint` (live region).

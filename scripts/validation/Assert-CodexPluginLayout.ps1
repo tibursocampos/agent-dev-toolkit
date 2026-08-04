@@ -72,8 +72,10 @@ $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.js
 $userSkillsRoot = Join-Path $fixtureInstallRoot '.agents\skills'
 $helpSkillsPluginPath = Join-Path $publishedSkillsRoot 'help-skills\SKILL.md'
 $catalogPluginPath = Join-Path $publishedSkillsRoot '_shared\skills-catalog\CATALOG.md'
+$operatorPluginPath = Join-Path $publishedSkillsRoot '_shared\skills-catalog\OPERATOR.md'
 $helpSkillsUserPath = Join-Path $userSkillsRoot 'help-skills\SKILL.md'
 $catalogUserPath = Join-Path $userSkillsRoot '_shared\skills-catalog\CATALOG.md'
+$operatorUserPath = Join-Path $userSkillsRoot '_shared\skills-catalog\OPERATOR.md'
 $expectedSourcePath = './plugin'
 $expectedPluginName = 'agent-dev-toolkit'
 
@@ -211,6 +213,9 @@ if (-not (Test-Path -LiteralPath $helpSkillsPluginPath -PathType Leaf)) {
 if (-not (Test-Path -LiteralPath $catalogPluginPath -PathType Leaf)) {
     Write-Fail -TestName $helpCatalogTestName -Reason ("plugin skills catalog missing: {0}" -f $catalogPluginPath)
 }
+if (-not (Test-Path -LiteralPath $operatorPluginPath -PathType Leaf)) {
+    Write-Fail -TestName $helpCatalogTestName -Reason ("plugin skills OPERATOR.md missing: {0}" -f $operatorPluginPath)
+}
 
 Write-Pass -TestName $helpCatalogTestName
 
@@ -226,6 +231,9 @@ if (-not (Test-Path -LiteralPath $helpSkillsUserPath -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $catalogUserPath -PathType Leaf)) {
     Write-Fail -TestName $userScopeTestName -Reason ("USER-scope skills catalog missing: {0}" -f $catalogUserPath)
+}
+if (-not (Test-Path -LiteralPath $operatorUserPath -PathType Leaf)) {
+    Write-Fail -TestName $userScopeTestName -Reason ("USER-scope skills OPERATOR.md missing: {0}" -f $operatorUserPath)
 }
 if ($null -eq $userScopePublish.UserScope -or $userScopePublish.UserScope -ne $true) {
     Write-Fail -TestName $userScopeTestName -Reason 'Publish-Skills -UserScope result must report UserScope = true'

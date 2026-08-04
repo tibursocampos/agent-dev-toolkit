@@ -116,31 +116,35 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Typica
 
 ## 6. Open an application project
 
-Open the **application** repo you want to change (not only this toolkit). After a live Cursor sync, confirm files such as:
+Open the **application** repo you want to change (not only this toolkit). After a live sync, confirm router + a sample skill under that agent’s install root (examples):
 
 ```text
-%USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.claude\CLAUDE.md
+%USERPROFILE%\.claude\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.claude\skills\help-skills\SKILL.md
 ```
 
-Restart or reload the agent if skills do not appear. Trust hooks in the agent UI if prompted.
+Or for Cursor: `%USERPROFILE%\.cursor\AGENTS.md` and `skills\…`. Restart or reload the agent if skills do not appear. Trust hooks in the agent UI if prompted.
 
 ## 7. First skill
 
-```text
-/sdd-spec
-```
-
-Then plan and implement one step:
+Prefer skill ids; slash form when your host supports it:
 
 ```text
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step 1
+help-skills
 ```
 
-Small change without full SDD: `/developer` or a stack skill such as `/dotnet-developer`. Choosing a workflow (**Forma** A/B/C): [Using skills](../using-skills/).
+Then classic SDD:
 
-After `/commit` and `/push`, open a PR with `/open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
+```text
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step 1
+```
+
+Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a workflow (**Forma** A/B/C): [Using skills](../using-skills/).
+
+After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
 
 ## 8. After `git pull`
 
@@ -163,4 +167,4 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Skills missing in IDE | Sync **live install**; restart/trust hooks if required |
 | Expected an install-root write in CI-like run | Use fixtures / omit live InstallRoot |
 
-Next: [Using skills](../using-skills/) · [Adapters](../adapters/) · [Maintainers](../maintainers/)
+Next: [Using skills](../using-skills/) · [Caveman](../caveman/) · [Adapters](../adapters/) · [Credits](../credits/) · [Maintainers](../maintainers/)

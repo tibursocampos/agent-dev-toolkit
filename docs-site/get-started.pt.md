@@ -116,31 +116,35 @@ Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Artefato
 
 ## 6. Abrir o projeto da aplicação
 
-Abra o repositório da **aplicação** que você quer alterar (não só este toolkit). Após um sync na instalação real do Cursor, confira arquivos como:
+Abra o repositório da **aplicação** que você quer alterar (não só este toolkit). Após um sync na instalação real, confira o router + uma skill de exemplo no InstallRoot desse agente (exemplos):
 
 ```text
-%USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.claude\CLAUDE.md
+%USERPROFILE%\.claude\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.claude\skills\help-skills\SKILL.md
 ```
 
-Reinicie ou recarregue o agente se as skills não aparecerem. Aceite os hooks na UI do agente se solicitado.
+Ou no Cursor: `%USERPROFILE%\.cursor\AGENTS.md` e `skills\…`. Reinicie ou recarregue o agente se as skills não aparecerem. Aceite os hooks na UI do agente se solicitado.
 
 ## 7. Primeira skill
 
-```text
-/sdd-spec
-```
-
-Depois planeje e implemente um passo:
+Prefira ids de skill; forma slash quando o host suportar:
 
 ```text
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step 1
+help-skills
 ```
 
-Mudança pequena sem SDD completo: `/developer` ou uma skill de stack como `/dotnet-developer`. Escolher Forma A/B/C: [Usando skills](../using-skills/).
+Depois SDD clássico:
 
-Depois de `/commit` e `/push`, abra um PR com `/open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).
+```text
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step 1
+```
+
+Mudança pequena sem SDD completo: `developer` ou uma skill de stack como `dotnet-developer`. Escolher Forma A/B/C: [Usando skills](../using-skills/).
+
+Depois de `commit` e `push`, abra um PR com `open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).
 
 ## 8. Depois de `git pull`
 
@@ -163,4 +167,4 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Skills ausentes no IDE | Sync no **ambiente real do agente**; reinicie/aceite os hooks se necessário |
 | Esperava escrita no ambiente em run tipo CI | Use fixtures / omita InstallRoot real |
 
-Próximo: [Usando skills](../using-skills/) · [Adaptadores](../adapters/) · [Mantenedores](../maintainers/)
+Próximo: [Usando skills](../using-skills/) · [Caveman](../caveman/) · [Adaptadores](../adapters/) · [Créditos](../credits/) · [Mantenedores](../maintainers/)

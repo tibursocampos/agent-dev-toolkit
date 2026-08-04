@@ -53,10 +53,11 @@
       "skill": "help-skills",
       "files": ["SKILL.md"],
       "mustContain": [
-        "STOP - Read before ANY tool call",
         "skills-catalog/CATALOG.md",
+        "skills-catalog/OPERATOR.md",
         "Must not",
-        "Invent skills"
+        "Invent skills",
+        "NEVER"
       ]
     },
     {

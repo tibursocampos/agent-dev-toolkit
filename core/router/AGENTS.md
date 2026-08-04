@@ -1,8 +1,16 @@
 # Agent router (L0 index) - agent-dev-toolkit
 
-Lean **L0** router for agents after install under `{{TOOLKIT_ROOT}}/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer `/<skill>` (or host equivalent); load shared docs on demand.
+Lean **L0** router for agents after install under `{{TOOLKIT_ROOT}}/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names); invoke via your host’s UX (slash `/` when supported, skill picker, `@`-mention, or `use skill <name>`). Load shared docs on demand.
 
-**Skill map:** Read `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` or invoke `/help-skills`. Do not invent skill names.
+**Skill map:** Read `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
+
+## Parallel specialists (default)
+
+For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+
+- Honor `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
+- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+- User-facing chat remains pt-BR per language policy below.
 
 ## Language
 
@@ -58,6 +66,8 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 
 ## Agents / spawn (lazy)
 
+Default preference: parallel specialists for multi-facet parent turns — see **Parallel specialists (default)** above. Details:
+
 | Topic | Path |
 |-------|------|
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
@@ -83,7 +93,7 @@ Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under 
 
 ## Skills catalog
 
-Agent SoT: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`. Invoke `/help-skills` to present it. Prefer `/<name>`. Compat: `use skill <name>` may still work.
+Agent SoT: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (operator nuances). Invoke skill `help-skills` to present those static files — do not re-analyze every skill body.
 
 | Group | Examples |
 |-------|----------|

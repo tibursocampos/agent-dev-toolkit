@@ -34,6 +34,8 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Pontos de public
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — selecionar agente, sync, validar, uninstall |
 | **Validação** | Suite de contratos + testes smoke em fixture; a CI nunca exige deploy real em `%USERPROFILE%` para ficar verde |
 
+Após o sync, o router publicado prefere **subagentes especialistas em paralelo** para trabalho multi-facetado (esta sessão permanece como pai). Resumo humano: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); contrato do agente: `core/skills/_shared/agents/SPAWN.md`.
+
 ## Layout do repositório
 
 ```text

@@ -34,16 +34,17 @@ First use end-to-end: **[docs/guides/01-getting-started.md](docs/guides/01-getti
 
 ### Use skills (after sync)
 
-Open a consumer project in your agent and invoke skills (Cursor slash form shown):
+Open a consumer project in your agent and invoke skills by **id** (slash `/` when the host supports it):
 
 | Workflow | Invoke |
 |----------|--------|
-| Classic SDD | `/sdd-spec` → `/sdd-plan` → `/sdd-develop` |
-| Stack shortcut | `/developer` or `/dotnet-developer` / `/react-developer` / … |
-| Forma C | `/memory-bank-init` → `/orchestrate-analyze` → `/orchestrate-deliver` → `/orchestrate-develop` |
+| Catalog (all adapters) | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
+| Classic SDD | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| Stack shortcut | `developer` or `dotnet-developer` / `react-developer` / … |
+| Forma C | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
 | Greenfield ARCH | Via Forma C analyze: architect draft → **sim** confirm (not a slash skill) |
 
-Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**.
+Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
 
 ## Supported agents
 
@@ -52,7 +53,7 @@ Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guid
 | `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks |
 | `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
 | `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
-| `codex` | Codex | `~/.codex` (+ USER skills `~/.agents/skills`) | Dual-root: plugin skills under `InstallRoot/plugin`; rules via Publish-Policy → `InstallRoot/rules`; USER skills via optional `-UserScope`; default sync **plugin-only** |
+| `codex` | Codex | `~/.codex` | Dual-root: plugin skills under `InstallRoot/plugin`; rules via Publish-Policy → `InstallRoot/rules`; optional USER skills `~/.agents/skills` with `-UserScope`; default sync **plugin-only** |
 | `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo` required |
 | `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS plugins only |
 | `grok` | Grok Build | `~/.grok` | Native `.grok` publish |
@@ -70,7 +71,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
-Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `/help-skills` → `_shared/skills-catalog/CATALOG.md`.
+Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`.
 
 ## Documentation
 
@@ -81,6 +82,8 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `/help-skills` →
 | [docs/INSTALL.md](docs/INSTALL.md) | Clone, sync, live home, uninstall |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
+| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
+| [docs/guides/07-caveman-mode.md](docs/guides/07-caveman-mode.md) | Caveman default OFF, commands, levels |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers and install layouts |
 | [docs/ADAPTERS.md](docs/ADAPTERS.md) | Adapter registry and per-agent publish |

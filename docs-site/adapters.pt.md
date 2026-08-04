@@ -31,8 +31,9 @@ O Codex é **dual-root**: skills do plugin em `InstallRoot/plugin` (`rules=true`
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude
+pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
+# ou: -Agent cursor | copilot | codex | …
 ```
 
 ## Árvore de origem

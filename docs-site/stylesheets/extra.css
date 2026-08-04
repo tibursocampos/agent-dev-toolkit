@@ -271,7 +271,7 @@ body {
   .agent-switcher__option    Per-agent radio + label (visible without JS)
   .agent-switcher__others    <details> progressive disclosure (“Other agents”)
   .agent-switcher__more      Nested <details> disclosure (same chrome as __others)
-  .agent-switcher__badge     Compact “Recommended” label on an option
+  .agent-switcher__badge     Optional compact label on an option (unused on home; keep for future)
   .agent-switcher__hint      Live-root install hint (__note aliases same rules)
   .home-secondary-links      Below-fold Skills / Adapters row
   .reveal / .reveal--*       Load reveal hooks (prefers-reduced-motion gated)
