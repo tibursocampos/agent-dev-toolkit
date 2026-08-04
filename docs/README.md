@@ -11,7 +11,9 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes (visitors: read only) |
-| [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (38 skills; agent SoT via `/help-skills`) |
+| [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (38 skills; agent SoT via `help-skills` → CATALOG + OPERATOR) |
+| [CREDITS.md](CREDITS.md) | Everyone | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
+| [guides/07-caveman-mode.md](guides/07-caveman-mode.md) | Everyone | Caveman default OFF, commands, levels |
 
 ## Overview and architecture
 

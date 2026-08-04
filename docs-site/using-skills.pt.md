@@ -1,6 +1,12 @@
 # Usando skills
 
-Invoque as skills do toolkit após um sync bem-sucedido. A sintaxe slash abaixo é a convenção do **Cursor**; outros agentes podem usar seletor de skill, `@`-mention ou frases do tipo “use skill …”. Os **ids** das skills permanecem kebab-case (nomes de pasta em `core/skills/`).
+Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). A UX do host varia: slash `/` quando o agente suporta, seletor de skill, `@`-mention ou “use skill …”. Exemplos abaixo costumam usar slash por brevidade — o **id** é o que importa em todos os adapters.
+
+Após qualquer sync, invoque a skill **`help-skills`** para o catálogo estático instalado (`CATALOG.md` + `OPERATOR.md`) — não carregue cada `SKILL.md`.
+
+## Especialistas em paralelo (padrão)
+
+Após o sync, o router publicado pede aos agentes que prefiram **subagentes especialistas em paralelo** para planejamento, execução multi-facet, análise ou dúvidas não triviais, mantendo **esta sessão como pai**. Trabalho trivial / single-path fica no pai. Caps e fallback: `SPAWN.md` (ver [Arquitetura](../architecture/)).
 
 ## Pré-requisitos
 
@@ -73,6 +79,8 @@ Trabalho de domínio em projeto novo (greenfield): prefira Forma C. Assim `/orch
 
 ## Invocar por agente
 
+A skill **`help-skills`** funciona em **todos** os adapters sincronizados (não só Codex).
+
 ### Cursor
 
 Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router: `AGENTS.md`.
@@ -82,13 +90,14 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | Menu slash | `/sdd-spec` |
 | Com args | `/sdd-plan - path/to/PRD.md` |
 | Router de stack | `/developer` |
+| Catálogo | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
 Aceite os hooks na UI do Cursor uma vez se solicitado (fora de CI).
 
 ### Claude Code
 
-Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque via UX de skill / slash do Claude; os nomes coincidem com os ids kebab-case.
+Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque via UX de skill / slash do Claude; os nomes coincidem com os ids kebab-case. Catálogo: `help-skills`.
 
 ### GitHub Copilot
 
@@ -99,7 +108,7 @@ Sync com `-Mode user` ou `-Mode repo`:
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use os pontos de publicação agent-skills / custom-instructions do Copilot.
+Use os pontos de publicação agent-skills / custom-instructions do Copilot. Id do catálogo: `help-skills`.
 
 ### Codex
 
@@ -107,12 +116,12 @@ O Codex é **dual-root** — skills do plugin e rules em InstallRoot **não** co
 
 | Superfície | Local |
 |------------|-------|
-| Skills do plugin + CATALOG | Sob `InstallRoot/plugin` (sync padrão) |
+| Skills do plugin + CATALOG + OPERATOR | Sob `InstallRoot/plugin` (sync padrão) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Produto / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
 | USER skills opcional | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` com `-UserScope` + `-AllowUserHome` |
 
-Sync padrão é **somente plugin**. Use `/help-skills` para o catálogo instalado — não carregue cada `SKILL.md`. Aceite os hooks com Codex `/hooks` após install real (smoke nunca exige isso).
+Sync padrão é **somente plugin**. Use `help-skills` para o catálogo instalado — não carregue cada `SKILL.md`. Aceite os hooks com Codex `/hooks` após install real (smoke nunca exige isso).
 
 ### OpenCode / Grok / ZCode / Antigravity
 
@@ -123,7 +132,7 @@ Sync padrão é **somente plugin**. Use `/help-skills` para o catálogo instalad
 | ZCode | `~/.zcode/skills` | ADE (filesystem do agente) |
 | Antigravity | `~/.gemini/config/skills` | Layout oficial `config/*` |
 
-Layouts de publicação por agente: [Adaptadores](../adapters/).
+Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam `help-skills` + o pack skills-catalog.
 
 ## Fluxos comuns
 
@@ -167,7 +176,7 @@ PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `de
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: `/help-skills` → `_shared/skills-catalog/CATALOG.md` (não carregue cada `SKILL.md`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `/architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|
@@ -176,17 +185,38 @@ Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: 
 | **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
+| **Docs RAG** | `document-plan`, `document-implement` |
 | **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+
+### Expectativas do operador (visão geral)
+
+| Área | O que será pedido / opções |
+|------|----------------------------|
+| Git (`commit` / `push` / `open-github-pr`) | Confirmar mensagem de commit; confirmar push; modo PR feature vs release; confirmar título/corpo; **sempre** perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| `code-review` | Escolher single vs multi-angle (sem default silencioso) |
+| Forma C | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain` |
+| `sdd-develop` | Um passo do PLAN por sessão |
+| `document-plan` | Pergunta o idioma da doc antes de escrever |
+| Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Modo Caveman](../caveman/) |
+
+Notas estáticas instaladas: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
 
 ## Re-sync quando as skills parecerem desatualizadas
 
-Fixture (seguro):
+Fixture (seguro) — qualquer id Tier-1:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude
 ```
 
-Ambiente real do Cursor (explícito):
+Exemplo live (Claude):
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude `
+  -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
+```
+
+Live Cursor:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
@@ -195,4 +225,4 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
 
 Arquivos gerenciados são sobrescritos; arquivos não gerenciados (externos) no ambiente do agente são preservados.
 
-Próximo: [Começar](../get-started/) · [Adaptadores](../adapters/) · [Arquitetura](../architecture/) · [Início](../)
+Próximo: [Começar](../get-started/) · [Adaptadores](../adapters/) · [Arquitetura](../architecture/) · [Caveman](../caveman/) · [Início](../)

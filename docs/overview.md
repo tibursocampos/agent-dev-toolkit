@@ -27,7 +27,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 
 | Layer | Responsibility |
 |-------|----------------|
-| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **38** skills + `_shared` (agent SoT via `/help-skills` → `skills-catalog/CATALOG.md`) |
+| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **38** skills + `_shared` (agent SoT via `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all Tier-1) |
 | **CLI** | Select agent; sync / validate / list / uninstall |
 | **Validation** | Contract suite + fixture smokes; CI never requires `%USERPROFILE%` |
@@ -37,7 +37,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 1. **Clone** the repo.
 2. **Sync** an agent (`sync-agent.ps1 -Agent <id>`), optionally with `-AllowUserHome` for a live home. Codex defaults to **plugin-only**; add `-UserScope` only when you need the USER skills mirror (see [ADAPTERS.md](ADAPTERS.md) § Codex).
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture).
-4. **Use skills** in the agent (e.g. `/help-skills` for the installed map of **38** skills; `/sdd-spec` after sync; ops: `/commit` → `/push` → `/open-github-pr`).
+4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **38** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
 
 See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md), [guides/02-using-skills.md](guides/02-using-skills.md).
 
@@ -67,4 +67,7 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 - [Documentation index](README.md)
 - [Getting started](guides/01-getting-started.md)
 - [Using skills](guides/02-using-skills.md)
+- [Caveman mode](guides/07-caveman-mode.md)
+- [Credits](CREDITS.md)
+- [Spawn / subagents](SPAWN.md)
 - [Guides hub](guides/README.md)

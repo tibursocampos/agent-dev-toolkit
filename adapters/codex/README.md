@@ -39,7 +39,7 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 | Surface | Path |
 |---------|------|
 | Product / config home (live wizard) | `~/.codex` (`InstallRoot`) |
-| Plugin skills `TOOLKIT_ROOT` | `InstallRoot/plugin` (`plugin/skills/…`, incl. CATALOG via `/help-skills`) |
+| Plugin skills `TOOLKIT_ROOT` | `InstallRoot/plugin` (`plugin/skills/…`, incl. CATALOG + OPERATOR via `help-skills`) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | USER skills discovery | `~/.agents/skills` |
 | Default toolkit sync | **Plugin-only** under `InstallRoot/plugin/` (+ marketplace under `.agents/plugins`) |
