@@ -37,6 +37,10 @@ function Write-GrokSessionStartHookScript {
         [string] $HooksDirectory
     )
 
+    if (-not (Test-Path -LiteralPath $HooksDirectory)) {
+        New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
+    }
+
     $scriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName
     $lines = @(
         '#Requires -Version 5.1'
