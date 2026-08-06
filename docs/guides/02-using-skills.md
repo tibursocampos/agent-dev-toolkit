@@ -72,7 +72,7 @@ Codex is **dual-root** for packaging vs rules — do not treat skills and rules 
 | **`$` discovery** (InstallRoot skills mirror) | Live `~/.codex/skills` (after sync that mirrors for `$`) |
 | Rules / guardrails (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) |
-| Optional / default UserScope | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` |
+| Optional UserScope (opt-in) | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` (duplicates `$` if used with home skills) |
 
 - **Plugin path alone does not feed `$`.** Plugin/marketplace packaging stays separate; `$id` discovery uses the InstallRoot `skills/` mirror (and UserScope `~/.agents/skills` when enabled).
 - Invoke skills with **`$id`** (e.g. `$help-skills`, `$sdd-spec`). The native `$` or `/skills` picker is the product skills menu — **not** a `--menu` CLI flag.

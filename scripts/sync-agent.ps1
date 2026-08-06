@@ -26,8 +26,8 @@
 
 .PARAMETER UserScope
   Forwarded to Publish-Skills when the adapter declares -UserScope (Codex).
-  For live ~/.codex with -AllowUserHome, sync-agent defaults UserScope on so
-  ~/.agents/skills is also mirrored (in addition to always-on ~/.codex/skills).
+  Opt-in only: mirrors to ~/.agents/skills. Do not enable by default — Codex
+  already discovers InstallRoot/skills (~/.codex/skills); dual mirrors duplicate $ picks.
 
 .PARAMETER Mode
   Required for -Agent copilot: user|repo (TE02 when missing/invalid). Ignored for other agents.
@@ -187,19 +187,11 @@ try {
         ) {
             $publishArgs[$script:ToolkitConstant.AllowUserHomeParameterName] = $true
         }
-        if ($paramNames -contains $script:ToolkitConstant.UserScopeParameterName) {
-            $enableUserScope = $UserScope.IsPresent
-            if (
-                -not $enableUserScope -and
-                $AllowUserHome.IsPresent -and
-                [string]::Equals($resolved.AgentId, $script:ToolkitConstant.CodexAgentId, [System.StringComparison]::OrdinalIgnoreCase) -and
-                (Get-Command -Name Test-CodexIsLiveOfficialInstallRoot -ErrorAction SilentlyContinue)
-            ) {
-                $enableUserScope = [bool](Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome)
-            }
-            if ($enableUserScope) {
-                $publishArgs[$script:ToolkitConstant.UserScopeParameterName] = $true
-            }
+        if (
+            $UserScope.IsPresent -and
+            ($paramNames -contains $script:ToolkitConstant.UserScopeParameterName)
+        ) {
+            $publishArgs[$script:ToolkitConstant.UserScopeParameterName] = $true
         }
 
         $result = & $command @publishArgs

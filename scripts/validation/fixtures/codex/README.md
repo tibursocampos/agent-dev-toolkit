@@ -47,8 +47,8 @@ manual human step after a real install — never invoked by CI/smoke.
 - Optional `-UserScope` on a fixture InstallRoot: mirrors `core/skills` under
   `InstallRoot/.agents/skills` (stand-in for `~/.agents/skills`).
 - Optional `-UserScope` when InstallRoot is live `~/.codex` with `-AllowUserHome`:
-  writes real `$HOME/.agents/skills`. `sync-agent` defaults UserScope **on** for
-  that live pair (explicit `-UserScope` also works).
+  writes real `$HOME/.agents/skills`. **Opt-in only** via explicit `-UserScope`
+  (do not enable by default — duplicates Personal `$` picks alongside `~/.codex/skills`).
 
 Do not sync this tree to a live Codex home. CI and local smokes must use this
 fixture (or another path under the repo root).

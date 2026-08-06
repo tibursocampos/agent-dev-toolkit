@@ -135,7 +135,7 @@ Codex is **dual-root** for packaging vs rules. **Plugin path alone does not feed
 | **`$` discovery** | Live `~/.codex/skills` (InstallRoot skills mirror) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
-| Optional / default UserScope | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
+| Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
 
 Invoke with **`$id`** (e.g. `$help-skills`). Native `$` / `/skills` picker is the product menu — not a `--menu` flag. Trust hooks with Codex `/hooks` after a real install (trust UI, not skill invoke).
 

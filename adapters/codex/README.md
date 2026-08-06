@@ -49,7 +49,7 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 | USER skills discovery | `~/.agents/skills` |
 | Default toolkit sync | Plugin + marketplace + **home skills** under `InstallRoot/skills` |
 | Optional USER mirror (fixture) | `Publish-Skills -UserScope` → `InstallRoot/.agents/skills` |
-| Optional USER mirror (live `~/.codex` + `-AllowUserHome`) | `Publish-Skills -UserScope` → `$HOME/.agents/skills` (sync-agent **defaults UserScope on** for this live pair) |
+| Optional USER mirror (live `~/.codex` + `-AllowUserHome`) | `Publish-Skills -UserScope` → `$HOME/.agents/skills` (**opt-in only** — duplicates `$` picks if combined with home skills) |
 
 ### Publish-Router / AGENTS.md
 
@@ -61,7 +61,8 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 |------|-------|
 | CI / fixture (default) | Omit `-UserScope` — plugin + home `InstallRoot/skills` (no `.agents/skills` mirror) |
 | Fixture USER mirror | `-UserScope` on non-live InstallRoot → `InstallRoot/.agents/skills` |
-| Live `$` + USER skills | `-InstallRoot ~/.codex -AllowUserHome` → `~/.codex/skills` always; UserScope defaults **on** → `$HOME/.agents/skills` |
+| Live `$` discovery | `-InstallRoot ~/.codex -AllowUserHome` → `~/.codex/skills` only (omit `-UserScope`) |
+| Live `$` + extra USER mirror | Add explicit `-UserScope` → also `$HOME/.agents/skills` (**duplicates** Personal `$` picks) |
 
 Smoke/CI: absent or empty USER skills root is OK without `-UserScope`. Home `InstallRoot/skills/help-skills` + CATALOG are always required. When UserScope mirrored, smoke asserts help-skills + CATALOG under the resolved USER root. Trust plugin hooks with Codex `/hooks` **manually** after a real install.
 
