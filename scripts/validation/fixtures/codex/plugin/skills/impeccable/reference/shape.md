@@ -135,6 +135,12 @@ Color strategy (Restrained / Committed / Full palette / Drenched) + the theme sc
 
 If you ran the Visual Direction Probe step, name which probe direction won and what changed in the brief because of it.
 
+**3b. Signature motif**
+Name the **one** memorable visual or interaction idea this surface will be remembered by. Spend boldness there; keep the rest disciplined. Structural devices (eyebrows, numbering, dividers) must encode something true about the content—not decorate it. Numbered markers (01/02/03) only when the content is genuinely sequential.
+
+**3c. UX voice (when copy is material)**
+Active voice; controls name the outcome (“Save changes,” not “Submit”); same verb through the flow; empty/error states give direction, not apology. Prefer `clarify.md` when that reference is available.
+
 **4. Scope**
 Fidelity, breadth, interactivity, and time intent from the Scope section of the interview. Task-scoped; these don't persist beyond the brief.
 

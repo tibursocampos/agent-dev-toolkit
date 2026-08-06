@@ -2,7 +2,7 @@
 
 Publish surfaces for **Grok Build** (xAI). InstallRoot defaults to an in-repo fixture; paths under `USERPROFILE` require `-AllowUserHome`.
 
-Packaging target is **native** `.grok/skills|rules|hooks` ([docs.x.ai/build](https://docs.x.ai/build/overview)). Claude/Cursor compat layouts are **not** the sole publish destination. Hooks trust (`/hooks-trust` / `--trust`) is a **human** step; smoke and CI validate filesystem only and never write `trusted_folders.toml`.
+**Live InstallRoot = `~/.grok`** (Claude-style). Publish lands at `skills/`, `rules/`, and `hooks/` **directly under** that root — never nested as `~/.grok/.grok/skills`. Packaging target matches [docs.x.ai/build](https://docs.x.ai/build/overview). Claude/Cursor compat layouts are **not** the sole publish destination. Hooks trust (`/hooks-trust` / `--trust`) is a **human** step; smoke and CI validate filesystem only and never write `trusted_folders.toml`.
 
 ## File layout
 
@@ -25,9 +25,9 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 
 | Flag | Value | Notes |
 |------|-------|-------|
-| `skills` | true | `core/skills` → `.grok/skills/<id>/SKILL.md` |
-| `rules` | true | `core/policy` → `.grok/rules/*.md` |
-| `hooks` | true | Native JSON under `.grok/hooks` |
+| `skills` | true | `core/skills` → `skills/<id>/SKILL.md` under InstallRoot |
+| `rules` | true | `core/policy` → `rules/*.md` under InstallRoot |
+| `hooks` | true | Native JSON under `hooks/` |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md` |
 | `plugin` | false | Marketplace/plugins out of CI green |
 | `subagents` | `native` | Host `spawn_subagent`; see Spawn section |
@@ -50,26 +50,26 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 
 ## Publish layout (native)
 
-| Source | Destination under InstallRoot |
-|--------|-------------------------------|
-| `core/skills/<id>/` | `.grok/skills/<id>/SKILL.md` (+ assets) |
-| `core/policy/{name}.md` | `.grok/rules/{name}.md` |
+| Source | Destination under InstallRoot (`~/.grok`) |
+|--------|-------------------------------------------|
+| `core/skills/<id>/` | `skills/<id>/SKILL.md` (+ assets) |
+| `core/policy/{name}.md` | `rules/{name}.md` |
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`) |
-| Adapter hooks assets | `.grok/hooks/toolkit-session-start.json`, `session_start.ps1` |
+| Adapter hooks assets | `hooks/toolkit-session-start.json`, `session_start.ps1` |
 
-Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve relative to InstallRoot. Re-sync overwrites managed files; alien files under `.grok/` are left alone.
+Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** (the parent of `skills/_shared`). Re-sync overwrites managed files; alien files under InstallRoot are left alone.
 
 ### Native vs compat
 
-Grok Build may also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `.cursor/`). This adapter **writes** primarily to `.grok`. `Invoke-SmokeValidate` fails when only compat paths exist without required `.grok` artifacts.
+Grok Build may also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `.cursor/`). This adapter **writes** primarily under InstallRoot (`skills|rules|hooks`). `Invoke-SmokeValidate` fails when only compat paths exist without required native artifacts.
 
 ## Fixture + smoke
 
 | Item | Path / behavior |
 |------|-----------------|
-| InstallRoot (CI / smoke) | `scripts/validation/fixtures/grok` |
-| Skills / rules / hooks | `.grok/skills`, `.grok/rules`, `.grok/hooks` |
-| Router | `AGENTS.md` at fixture root |
+| InstallRoot (CI / smoke) | `scripts/validation/fixtures/grok` (models `~/.grok`) |
+| Skills / rules / hooks | `skills/`, `rules/`, `hooks/` (direct children of InstallRoot) |
+| Router | `AGENTS.md` at InstallRoot |
 | Trust UI | **Out of scope** for CI — no `/hooks-trust`, no `trusted_folders.toml` |
 
 ```powershell
@@ -78,7 +78,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent grok -InstallRoot $grokFix
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent grok -InstallRoot $grokFixture
 ```
 
-Live home:
+Live home (`~/.grok/skills`, not `~/.grok/.grok/skills`):
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent grok -InstallRoot "$env:USERPROFILE\.grok" -AllowUserHome
@@ -86,7 +86,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent grok -InstallRoot "$env:US
 
 ## Uninstall (keyed)
 
-Removes only toolkit-managed paths (core skill ids, core policy → rules files, toolkit hook JSON/script, `AGENTS.md`). Preserves alien skills/rules/hooks and `config.toml`. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe `.grok` wholesale.
+Removes only toolkit-managed paths (core skill ids, core policy → rules files, toolkit hook JSON/script, `AGENTS.md`). Preserves alien skills/rules/hooks and `config.toml`. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale.
 
 ## Official docs (xAI)
 

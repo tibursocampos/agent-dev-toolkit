@@ -1,13 +1,13 @@
 ---
 name: help-skills
-description: Present the installed static skills catalog (CATALOG.md + OPERATOR.md) without loading every SKILL.md. Use when listing skills or invoking /help-skills.
+description: Present the installed static skills catalog (CATALOG.md + OPERATOR.md) without loading every SKILL.md. Use when listing skills or invoking help-skills (host: /help-skills, $help-skills, use skill help-skills, or OpenCode skill tool).
 ---
 
 # Skill: help-skills
 
 ## Trigger
 
-Invoke when the user asks for: `/help-skills`, `list skills`, `skill catalog`, `which skills`, `mapa de skills`, or operator expectations / confirmations for a skill.
+Invoke when the user asks for skill **`help-skills`** (host forms: `/help-skills`, `$help-skills`, `use skill help-skills`, OpenCode `skill({ name: "help-skills" })`), or phrases: `list skills`, `skill catalog`, `which skills`, `mapa de skills`, or operator expectations / confirmations for a skill.
 
 ## Outcome
 
@@ -40,7 +40,7 @@ This skill is **read-only**. Do **not** require guardrails/SESSION/`sim` to show
 
 - Show groupings, skill ids, invoke phrases, and short purposes **from the file text**.
 - Prefer tables or short grouped lists already in the static files.
-- Point the user to invoke a specific skill next; do not load that skill body unless they ask to run it.
+- Point the user to invoke a specific skill next by **id** (host prefix from OPERATOR invoke matrix); do not load that skill body unless they ask to run it.
 - Do **not** summarize by inventing new wording that replaces the static guide.
 
 ## Must not
@@ -49,4 +49,4 @@ This skill is **read-only**. Do **not** require guardrails/SESSION/`sim` to show
 - Load every `SKILL.md` to answer a catalog or operator-notes question
 - Require `sim` / SESSION gates for read-only catalog presentation
 - Write application code, commit, push, or open PRs
-- Treat `_shared/` packs or architect spawn as slash skills
+- Treat `_shared/` packs or architect spawn as invocable skills

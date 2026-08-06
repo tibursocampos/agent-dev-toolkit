@@ -9,7 +9,9 @@
 
 $script:ToolkitConstant = @{
     AllowUserHomeParameterName     = 'AllowUserHome'
+    UserScopeParameterName         = 'UserScope'
     WhatIfParameterName            = 'WhatIf'
+    CodexAgentId                   = 'codex'
     UserProfileEnvironmentName     = 'USERPROFILE'
     CoreSkillsDirectoryName        = 'core'
     SkillsDirectoryName            = 'skills'

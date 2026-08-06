@@ -1,6 +1,6 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke by **skill id**; host UX may use slash `/` when supported, a picker, `@`, or `use skill <name>`.
+Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
@@ -8,11 +8,11 @@ Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_share
 
 Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**38** kebab skills).
 
-Shared packs live under `core/skills/_shared/` — not invoked as slash skills (except the catalog pack is read by `help-skills`).
+Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
 **Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and `SPAWN.md`.
 
-**Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` slash skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
+**Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
 Credits for Caveman / Impeccable / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
@@ -34,7 +34,7 @@ Decision tree: [guides/README.md](guides/README.md).
 | `sdd-plan` | Baby-step PLAN from an existing PRD |
 | `sdd-develop` | Execute **one** PLAN step per session |
 
-Example (skill ids; slash when host supports it):
+Example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
 
 ```text
 sdd-spec

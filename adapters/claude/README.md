@@ -7,6 +7,16 @@ Publish surfaces for **Claude Code**. InstallRoot defaults to an in-repo fixture
 | Agent id | `claude` |
 | `subagents` (registry) | `native` |
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path (live) | `~/.claude/skills/<id>/SKILL.md` (or project `.claude/`) |
+| Explicit form | `/id` |
+| Examples | `/help-skills`, `/sdd-spec`, `/sdd-plan` |
+
+Canonical form is the skill **id**; `/` is the Claude host prefix.
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |

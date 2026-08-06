@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Helpers for Grok Publish-Policy (core/policy -> .grok/rules).
+  Helpers for Grok Publish-Policy (core/policy -> InstallRoot/rules).
 #>
 
 function Copy-GrokCorePolicyTree {

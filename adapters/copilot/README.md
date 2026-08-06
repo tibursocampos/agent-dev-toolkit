@@ -13,6 +13,17 @@ Publish surfaces for **GitHub Copilot** (`Mode` `user` \| `repo`). Default Insta
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode user -InstallRoot .\scripts\validation\fixtures\copilot\user
 ```
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path | Mode `user`: `~/.copilot/skills` · Mode `repo`: `<repo>/.github/skills` |
+| Explicit form | `/id` |
+| Examples | `/help-skills`, `/dotnet-developer` |
+| After sync | `/skills reload` (CLI) so new skills appear |
+
+Canonical form is the skill **id**; `/` is the Copilot host prefix.
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |

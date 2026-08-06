@@ -123,8 +123,9 @@ function Get-CodexPlaceholderMap {
       Build placeholder map for a skills publish destination.
 
     .DESCRIPTION
-      TOOLKIT_ROOT is the parent of PublishedSkillsRoot (plugin root or .agents),
-      so {{TOOLKIT_ROOT}}/skills/_shared resolves beside the published skills tree.
+      TOOLKIT_ROOT is the parent of PublishedSkillsRoot (plugin root, InstallRoot for
+      home skills, or .agents for USER-scope), so {{TOOLKIT_ROOT}}/skills/_shared
+      resolves beside the published skills tree.
       SDD_ROOT and GUARDRAILS_PATH stay under product InstallRoot (sdd/, rules/).
     #>
     [CmdletBinding()]
@@ -417,6 +418,7 @@ function Invoke-CodexPublishSkills {
     $sourceSkillsRoot = Join-Path (Join-Path $repoRoot $script:CodexPathConstant.CoreDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $destinationSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
+    $homeSkillsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
     $userSkillsRoot = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $userSkillsContainmentRoot = Resolve-CodexUserSkillsContainmentRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $manifestPath = Join-Path (Join-Path $pluginRoot $script:CodexPathConstant.PluginManifestDirectoryName) $script:CodexPathConstant.PluginManifestFileName
@@ -437,29 +439,32 @@ function Invoke-CodexPublishSkills {
         }
 
         return [PSCustomObject]@{
-            Success               = $true
-            Implemented           = $true
-            CommandName           = 'Publish-Skills'
-            WhatIf                = $true
-            UserScope             = $userScopeEnabled
-            LiveUserScope         = $(if ($userScopeEnabled) { $liveUserScope } else { $false })
-            InstallRoot           = $resolvedInstallRoot
-            PluginRoot            = $pluginRoot
-            ManifestPath          = $manifestPath
-            MarketplacePath       = $marketplacePath
-            SkillsRoot            = $destinationSkillsRoot
-            UserSkillsRoot        = $(if ($userScopeEnabled) { $userSkillsRoot } else { $null })
-            SourceRoot            = $sourceSkillsRoot
-            FilesCopied           = 0
-            UserSkillsFilesCopied = 0
-            Message               = $whatIfMessage
-            ExitCode              = 0
+            Success                = $true
+            Implemented            = $true
+            CommandName            = 'Publish-Skills'
+            WhatIf                 = $true
+            UserScope              = $userScopeEnabled
+            LiveUserScope          = $(if ($userScopeEnabled) { $liveUserScope } else { $false })
+            InstallRoot            = $resolvedInstallRoot
+            PluginRoot             = $pluginRoot
+            ManifestPath           = $manifestPath
+            MarketplacePath        = $marketplacePath
+            SkillsRoot             = $destinationSkillsRoot
+            HomeSkillsRoot         = $homeSkillsRoot
+            UserSkillsRoot         = $(if ($userScopeEnabled) { $userSkillsRoot } else { $null })
+            SourceRoot             = $sourceSkillsRoot
+            FilesCopied            = 0
+            HomeSkillsFilesCopied  = 0
+            UserSkillsFilesCopied  = 0
+            Message                = $whatIfMessage
+            ExitCode               = 0
         }
     }
 
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $destinationSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
+    $homeSkillsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
     $userSkillsRoot = Resolve-CodexUserSkillsRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $userSkillsContainmentRoot = Resolve-CodexUserSkillsContainmentRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     $liveUserScope = Test-CodexIsLiveOfficialInstallRoot -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
@@ -484,6 +489,17 @@ function Invoke-CodexPublishSkills {
     $filesCopied = $publishResult.FilesCopied
     $writtenMarketplace = Write-CodexMarketplaceCatalog -InstallRoot $resolvedInstallRoot -PluginRoot $pluginRoot
 
+    $homePlaceholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $homeSkillsRoot
+    $homePublishResult = Invoke-ToolkitManagedSkillsPublish `
+        -SourceSkillsRoot $sourceSkillsRoot `
+        -DestinationSkillsRoot $homeSkillsRoot `
+        -InstallRoot $resolvedInstallRoot `
+        -PlaceholderMap $homePlaceholderMap `
+        -TextFileExtensionPattern $script:CodexPathConstant.TextFileExtensionPattern `
+        -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
+        -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
+    $homeSkillsFilesCopied = $homePublishResult.FilesCopied
+
     $userSkillsFilesCopied = 0
     $publishedUserSkillsRoot = $null
     if ($userScopeEnabled) {
@@ -505,10 +521,10 @@ function Invoke-CodexPublishSkills {
     }
 
     $message = if ($userScopeEnabled) {
-        ($script:CodexPublishMessage.PublishedOkWithUserScope -f $filesCopied, $userSkillsFilesCopied, $userSkillsRoot)
+        ($script:CodexPublishMessage.PublishedOkWithUserScope -f $filesCopied, $homeSkillsFilesCopied, $homeSkillsRoot, $userSkillsFilesCopied, $userSkillsRoot)
     }
     else {
-        ($script:CodexPublishMessage.PublishedOk -f $filesCopied, $destinationSkillsRoot)
+        ($script:CodexPublishMessage.PublishedOk -f $filesCopied, $homeSkillsFilesCopied, $homeSkillsRoot)
     }
 
     return [PSCustomObject]@{
@@ -523,9 +539,11 @@ function Invoke-CodexPublishSkills {
         ManifestPath          = $writtenManifest
         MarketplacePath       = $writtenMarketplace
         SkillsRoot            = $destinationSkillsRoot
+        HomeSkillsRoot        = $homeSkillsRoot
         UserSkillsRoot        = $publishedUserSkillsRoot
         SourceRoot            = $sourceSkillsRoot
         FilesCopied           = $filesCopied
+        HomeSkillsFilesCopied = $homeSkillsFilesCopied
         UserSkillsFilesCopied = $userSkillsFilesCopied
         Message               = $message
         ExitCode              = 0

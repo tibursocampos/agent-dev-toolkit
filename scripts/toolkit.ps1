@@ -22,6 +22,10 @@
 .PARAMETER AllowUserHome
   Forwarded to sync-agent / validate-agent / Uninstall-Toolkit.
 
+.PARAMETER UserScope
+  Forwarded to sync-agent for adapters that declare Publish-Skills -UserScope (Codex).
+  Live ~/.codex + -AllowUserHome also defaults UserScope on inside sync-agent.
+
 .PARAMETER Quiet
   Forwarded to validate-agent / validate-core.
 
@@ -71,6 +75,9 @@ param(
 
     [Parameter()]
     [switch] $AllowUserHome,
+
+    [Parameter()]
+    [switch] $UserScope,
 
     [Parameter()]
     [switch] $Quiet,
@@ -579,6 +586,10 @@ function Build-AgentForwardTable {
     }
     if ($allow) {
         $table['AllowUserHome'] = $true
+    }
+
+    if ($UserScope.IsPresent) {
+        $table[$script:ToolkitConstant.UserScopeParameterName] = $true
     }
 
     if ($ForValidate) {

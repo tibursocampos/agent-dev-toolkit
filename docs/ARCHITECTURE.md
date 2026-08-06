@@ -182,16 +182,16 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiS
 
 ## Grok Build install layout
 
-InstallRoot models `~/.grok` / project `.grok` — **native** tree:
+InstallRoot **is** `~/.grok` (or project `.grok` passed as InstallRoot) — **native** tree (Claude-style; not nested `.grok/.grok`):
 
 | Relative path | Role |
 |---------------|------|
-| `.grok/skills` | Kebab Agent Skills |
-| `.grok/rules` | Policy markdown |
-| `.grok/hooks` | Native hooks; `/hooks-trust` is **manual** |
+| `skills` | Kebab Agent Skills → live `~/.grok/skills` |
+| `rules` | Policy markdown → live `~/.grok/rules` |
+| `hooks` | Native hooks; `/hooks-trust` is **manual** |
 | `AGENTS.md` | Router |
 
-Claude/Cursor paths may be read by the product as compat; MVP **publish** targets `.grok`. Fixture: `scripts/validation/fixtures/grok`.
+Claude/Cursor paths may be read by the product as compat; MVP **publish** targets InstallRoot directly. Fixture: `scripts/validation/fixtures/grok` (models `~/.grok`).
 
 ## CI
 

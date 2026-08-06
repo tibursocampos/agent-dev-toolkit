@@ -27,6 +27,8 @@ Gate check:
 
 # Skill: memory-bank-init
 
+Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.com/github/spec-kit); this skill does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
+
 ## Trigger
 
 Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Forma C Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
