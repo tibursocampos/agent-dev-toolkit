@@ -42,10 +42,11 @@ if ([string]::IsNullOrWhiteSpace($userProfile)) {
     Write-Fail -TestName 'Assert-GrokNativeLayoutPreconditions' -Reason 'USERPROFILE is not set'
 }
 
+# Fixture InstallRoot models ~/.grok — skills/rules/hooks are direct children.
 $expectedRelativeDirs = @(
-    '.grok\skills',
-    '.grok\rules',
-    '.grok\hooks'
+    'skills',
+    'rules',
+    'hooks'
 )
 
 foreach ($rel in $expectedRelativeDirs) {
@@ -65,11 +66,11 @@ if ($null -eq $roots -or $roots.Implemented -ne $true -or $roots.Success -ne $tr
     Write-Fail -TestName $mapName -Reason 'Get-InstallRoots must succeed with InstallRoot fixture'
 }
 
-$expectedUserRoot = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot '.grok'))
-$expectedProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot '.grok'))
-$expectedSkills = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot '.grok\skills'))
-$expectedRules = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot '.grok\rules'))
-$expectedHooks = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot '.grok\hooks'))
+$expectedUserRoot = [System.IO.Path]::GetFullPath($fixtureInstallRoot)
+$expectedProjectRoot = [System.IO.Path]::GetFullPath($fixtureInstallRoot)
+$expectedSkills = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot 'skills'))
+$expectedRules = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot 'rules'))
+$expectedHooks = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot 'hooks'))
 $expectedAgents = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot 'AGENTS.md'))
 
 if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialUserRootRelativePath) -or $roots.OfficialUserRootRelativePath -ne '.grok') {
@@ -78,14 +79,14 @@ if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialUserRootRelativePath) -o
 if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialProjectRootRelativePath) -or $roots.OfficialProjectRootRelativePath -ne '.grok') {
     Write-Fail -TestName $mapName -Reason ("expected OfficialProjectRootRelativePath .grok, got {0}" -f $roots.OfficialProjectRootRelativePath)
 }
-if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialSkillsRelativePath) -or $roots.OfficialSkillsRelativePath -ne '.grok/skills') {
-    Write-Fail -TestName $mapName -Reason ("expected OfficialSkillsRelativePath .grok/skills, got {0}" -f $roots.OfficialSkillsRelativePath)
+if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialSkillsRelativePath) -or $roots.OfficialSkillsRelativePath -ne 'skills') {
+    Write-Fail -TestName $mapName -Reason ("expected OfficialSkillsRelativePath skills, got {0}" -f $roots.OfficialSkillsRelativePath)
 }
-if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialRulesRelativePath) -or $roots.OfficialRulesRelativePath -ne '.grok/rules') {
-    Write-Fail -TestName $mapName -Reason ("expected OfficialRulesRelativePath .grok/rules, got {0}" -f $roots.OfficialRulesRelativePath)
+if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialRulesRelativePath) -or $roots.OfficialRulesRelativePath -ne 'rules') {
+    Write-Fail -TestName $mapName -Reason ("expected OfficialRulesRelativePath rules, got {0}" -f $roots.OfficialRulesRelativePath)
 }
-if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialHooksRelativePath) -or $roots.OfficialHooksRelativePath -ne '.grok/hooks') {
-    Write-Fail -TestName $mapName -Reason ("expected OfficialHooksRelativePath .grok/hooks, got {0}" -f $roots.OfficialHooksRelativePath)
+if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialHooksRelativePath) -or $roots.OfficialHooksRelativePath -ne 'hooks') {
+    Write-Fail -TestName $mapName -Reason ("expected OfficialHooksRelativePath hooks, got {0}" -f $roots.OfficialHooksRelativePath)
 }
 if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialAgentsFileName) -or $roots.OfficialAgentsFileName -ne 'AGENTS.md') {
     Write-Fail -TestName $mapName -Reason ("expected OfficialAgentsFileName AGENTS.md, got {0}" -f $roots.OfficialAgentsFileName)
@@ -160,7 +161,7 @@ if (-not $rejectedViaAdapter) {
 }
 
 $allowedRoots = Get-InstallRoots -AgentId $grokAgentId -InstallRoot $userProfileInstallRoot -AllowUserHome
-$expectedAllowedSkills = [System.IO.Path]::GetFullPath((Join-Path $userProfileInstallRoot '.grok\skills'))
+$expectedAllowedSkills = [System.IO.Path]::GetFullPath((Join-Path $userProfileInstallRoot 'skills'))
 if (-not [string]::Equals([System.IO.Path]::GetFullPath([string]$allowedRoots.FixtureSkillsPath), $expectedAllowedSkills, $comparison)) {
     Write-Fail -TestName $failName -Reason ("AllowUserHome mapping mismatch: {0}" -f $allowedRoots.FixtureSkillsPath)
 }

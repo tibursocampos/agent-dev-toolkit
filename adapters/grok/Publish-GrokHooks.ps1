@@ -1,12 +1,17 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Helpers for Grok Publish-Hooks (native JSON under .grok/hooks).
+  Helpers for Grok Publish-Hooks (native JSON under InstallRoot/hooks).
 #>
 
 function New-GrokMinimalHooksObject {
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SessionStartScriptPath
+    )
+
+    $command = ($script:GrokAdapterConstant.HooksSessionStartCommandTemplate -f $SessionStartScriptPath)
 
     return [ordered]@{
         description = $script:GrokAdapterConstant.HooksDescription
@@ -16,7 +21,7 @@ function New-GrokMinimalHooksObject {
                     hooks = @(
                         [ordered]@{
                             type    = $script:GrokAdapterConstant.HooksCommandType
-                            command = $script:GrokAdapterConstant.HooksSessionStartCommandTemplate
+                            command = $command
                         }
                     )
                 }
@@ -31,6 +36,10 @@ function Write-GrokSessionStartHookScript {
         [Parameter(Mandatory = $true)]
         [string] $HooksDirectory
     )
+
+    if (-not (Test-Path -LiteralPath $HooksDirectory)) {
+        New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
+    }
 
     $scriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName
     $lines = @(
@@ -55,8 +64,10 @@ function Write-GrokHooksJson {
         New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
     }
 
+    $sessionScriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName
+    $normalizedScriptPath = Get-GrokNormalizedForwardSlashPath -Path $sessionScriptPath
     $hooksPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksJsonFileName
-    $payload = New-GrokMinimalHooksObject
+    $payload = New-GrokMinimalHooksObject -SessionStartScriptPath $normalizedScriptPath
     $json = ($payload | ConvertTo-Json -Depth $script:GrokAdapterConstant.JsonConvertDepthDeep)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($hooksPath, $json, $utf8NoBom)
@@ -137,8 +148,8 @@ function Invoke-GrokPublishHooks {
     $hooksDirectory = $mapped.FixtureHooksPath
     $hooksJsonPath = Join-Path $hooksDirectory $script:GrokAdapterConstant.HooksJsonFileName
 
+    $writtenSession = Write-GrokSessionStartHookScript -HooksDirectory $hooksDirectory
     $writtenHooks = Write-GrokHooksJson -HooksDirectory $hooksDirectory
-    $sessionScript = Write-GrokSessionStartHookScript -HooksDirectory $hooksDirectory
 
     return [PSCustomObject]@{
         Success          = $true
@@ -149,7 +160,7 @@ function Invoke-GrokPublishHooks {
         InstallRoot      = $resolvedInstallRoot
         HooksRoot        = $hooksDirectory
         HooksPath        = $writtenHooks
-        SessionStartPath = $sessionScript
+        SessionStartPath = $writtenSession
         HooksRelative    = $script:GrokAdapterConstant.OfficialHooksRelativePath
         HooksTrustNote   = $hooksTrustNote
         Message          = ($script:GrokAdapterMessage.HooksPublishedOk -f $hooksDirectory)

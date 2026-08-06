@@ -46,16 +46,16 @@ All Tier 1 agents have concrete modules with publish + in-repo smoke. See the pe
 
 Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` (Enter = live home). CI and non-interactive defaults still use in-repo fixtures unless `-AllowUserHome` is set.
 
-| Agent | Live InstallRoot | Skills / rules / hooks (summary) | Notes |
-|-------|------------------|----------------------------------|-------|
-| `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | Also reads `~/.agents/skills` / project `.cursor/` |
-| `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
-| `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | Project scope also uses repo `.claude/` |
-| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin skills under `InstallRoot/plugin`; rules under `InstallRoot/rules`; USER skills discovery `~/.agents/skills` | Default = **plugin-only**; `-UserScope` → fixture `InstallRoot/.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
-| `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | Same relative tree both modes |
-| `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | Not `~/.opencode` |
-| `grok` | `~/.grok` | Native `.grok/skills\|rules\|hooks`; `AGENTS.md` | Also reads Claude/Cursor layouts; adapter writes native |
-| `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | ADE filesystem — not GLM Coding Plan |
+| Agent | Live InstallRoot | Skills / rules / hooks (summary) | Skill invoke | Notes |
+|-------|------------------|----------------------------------|--------------|-------|
+| `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | `/id` (e.g. `/help-skills`) | Also reads `~/.agents/skills` / project `.cursor/` |
+| `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md` | `use skill id` or `/id` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
+| `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | `/id` (e.g. `/sdd-spec`) | Project scope also uses repo `.claude/` |
+| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`) + optional/default UserScope `~/.agents/skills`; rules under `InstallRoot/rules` | `$id` (e.g. `$help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
+| `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | `/id`; after sync `/skills reload` | Same relative tree both modes |
+| `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
+| `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
+| `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | `$id` (e.g. `$help-skills`) | ADE filesystem — not GLM Coding Plan |
 
 Primary audit source for adapter paths: this table + each agent section below + `adapters/<id>/README.md`.
 
@@ -82,7 +82,7 @@ Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupporte
 | `codex` | true | true | true | true | true | Dual-root; `Publish-Policy` → `rules/*.md`; `/hooks` trust manual |
 | `copilot` | true | true | true | false | false | `Publish-Router` no-op; router folds into `copilot-instructions.md` |
 | `opencode` | true | false | true | true | true | `HooksSemantics=plugin-only` (JS plugins, not PS1) |
-| `grok` | true | true | true | true | false | Native `.grok`; hooks trust UI out of smoke/CI |
+| `grok` | true | true | true | true | false | Native under `~/.grok` InstallRoot; hooks trust UI out of smoke/CI |
 | `zcode` | true | false | true | true | false | `Publish-Policy` no-op |
 
 All eight agents declare `subagents: native` (host product docs), including **Antigravity**. **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` probe (`ADT_ANTIGRAVITY_SUBAGENTS` / `agy` / product version) — pré-2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
@@ -290,6 +290,7 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 | Packaging | Codex **plugin** under InstallRoot `plugin/` (`.codex-plugin/plugin.json` + bundled skills + hooks) |
 | Official product home | `~/.codex` (config.toml, AGENTS.md, hooks, agents) — live wizard InstallRoot |
 | Official USER skills | `~/.agents/skills` (fixture: `InstallRoot/.agents/skills` via optional `-UserScope`) |
+| Official `$` skills mirror | `InstallRoot/skills` (live `~/.codex/skills`) — feeds `$id` discovery; plugin path alone does **not** |
 | Official marketplace | `.agents/plugins/marketplace.json` (fixture models local `source.path` `./plugin`) |
 | Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
@@ -301,10 +302,13 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 
 | Surface | Location | `TOOLKIT_ROOT` note |
 |---------|----------|---------------------|
-| Plugin skills + CATALOG | `InstallRoot/plugin` (skills under `plugin/skills/`) | Skills paths resolve under the **plugin** root |
+| Plugin skills + CATALOG | `InstallRoot/plugin` (skills under `plugin/skills/`) | Plugin packaging; **does not** feed `$` by itself |
+| `$` discovery mirror | `InstallRoot/skills` (live `~/.codex/skills`) | Feeds `$id` invoke |
 | Rules / guardrails | `InstallRoot/rules/*.md` (Publish-Policy from `core/policy/`) | Rules are **not** under the plugin skills tree |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) | Router + hooks parent |
-| Optional USER skills | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Opt-in `-UserScope` only |
+| Optional / default UserScope | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Additional USER discovery |
+
+**Skill invoke:** `$id` (e.g. `$help-skills`). Native `$` or `/skills` picker = product skills menu — **not** a `--menu` flag. Codex `/hooks` = hooks trust UI, not skill invoke.
 
 Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware materialization: Publish-Router rewrites `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree, then remaining `{{TOOLKIT_ROOT}}` → plugin root.
 
@@ -443,34 +447,36 @@ Default smoke never writes under `%USERPROFILE%\.zcode` unless `-AllowUserHome` 
 
 This module covers **ZCode (Z.ai ADE)** filesystem surfaces only: skills, `AGENTS.md`, and hooks/config under `.zcode`. Use the ZCode ADE adapter here, or the host agent’s own adapter, when you need skill/hooks publish — not GLM Coding Plan.
 
-## Grok Build (`grok`) — native `.grok`
+## Grok Build (`grok`) — native `~/.grok`
 
 | Item | Value |
 |------|-------|
 | Agent id | `grok` |
 | Module | `adapters/grok/GrokAdapter.ps1` |
-| Official user root | `~/.grok` (relative `.grok` under USERPROFILE) |
-| Official project scope | `.grok/` under the repository / InstallRoot |
-| Fixture | `scripts/validation/fixtures/grok` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
+| Official user root | `~/.grok` (relative `.grok` under USERPROFILE) — **InstallRoot is this directory** |
+| Official project scope | Pass project `.grok/` as InstallRoot (skills/rules/hooks directly under it) |
+| Expected live skills | `~/.grok/skills` (product path; not `~/.grok/.grok/skills`) |
+| Fixture | `scripts/validation/fixtures/grok` (models `~/.grok`; pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` = true; `plugin` = false |
-| Native layout | `.grok/skills/<id>/SKILL.md`, `.grok/rules/*.md`, `.grok/hooks/*.json` (+ `session_start.ps1`) |
+| Native layout | `skills/<id>/SKILL.md`, `rules/*.md`, `hooks/*.json` (+ `session_start.ps1`) under InstallRoot |
 | Router | `AGENTS.md` at InstallRoot (from `core/router`) |
-| Hooks trust | `/hooks-trust` or `--trust` is **manual**; smoke/CI never write `trusted_folders.toml` |
+| Skill invoke | `/id` (e.g. `/help-skills`) |
+| Hooks trust | `/hooks-trust` or `--trust` is **manual** (trust UI, not skill invoke); smoke/CI never write `trusted_folders.toml` |
 
 ### Native write vs Claude/Cursor compat (RN02)
 
-Grok Build can also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `.cursor/`). This adapter **must publish natively** under `.grok/*` — it is not enough to mirror only Claude/Cursor layouts and rely on compat. `Invoke-SmokeValidate` fails (TE04) when compat paths exist without the required native `.grok` artifacts.
+Grok Build can also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `.cursor/`). This adapter **must publish natively** under InstallRoot (`skills|rules|hooks`) — it is not enough to mirror only Claude/Cursor layouts and rely on compat. `Invoke-SmokeValidate` fails (TE04) when compat paths exist without the required native artifacts. Do **not** publish relative `.grok/skills` when InstallRoot is already `~/.grok` (that yields `~/.grok/.grok/skills`).
 
 ### Publish + smoke (filesystem only)
 
 | Command | Behavior |
 |---------|----------|
-| `Publish-Skills` | Copies `core/skills` → `.grok/skills` with placeholder resolve |
-| `Publish-Policy` | Copies `core/policy` → `.grok/rules/*.md` |
+| `Publish-Skills` | Copies `core/skills` → `skills/` under InstallRoot with placeholder resolve (`TOOLKIT_ROOT` = InstallRoot) |
+| `Publish-Policy` | Copies `core/policy` → `rules/*.md` |
 | `Publish-Router` | Writes `AGENTS.md`; rewrites `.mdc` → `.md` refs |
-| `Publish-Hooks` | Writes native SessionStart JSON + script under `.grok/hooks` |
-| `Invoke-SmokeValidate` | Asserts `.grok` layout (TE01–TE05); **does not** invoke trust UI |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `.grok` / `config.toml`). Preserves `sdd/sessions` + `sdd/manifest.json` |
+| `Publish-Hooks` | Writes native SessionStart JSON + script under `hooks/` |
+| `Invoke-SmokeValidate` | Asserts InstallRoot layout (TE01–TE05); **does not** invoke trust UI |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of InstallRoot / `config.toml`). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent grok` | Core validate + adapter smoke against fixture InstallRoot |
 
 CI green does **not** use Grok trust UI. Operator may run `/hooks-trust` (or `--trust`) on a real install **outside** CI.

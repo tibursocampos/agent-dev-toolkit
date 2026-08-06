@@ -12,11 +12,22 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 
 | Topic | Expectation |
 |-------|-------------|
-| Invoke | Use **skill ids** (kebab-case). Host UX varies: slash `/`, picker, `@`, or `use skill <name>`. |
+| Invoke | Use **skill ids** (kebab-case). Host prefixes differ — see matrix below. Compat: `use skill <id>` / natural language when the host accepts it. |
 | Gates | Most mutating skills require guardrails + SESSION; user **`sim`** before writes. Silence ≠ approval. |
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
 | Caveman **NEVER** | `help-skills`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
+
+### Invoke matrix (host prefixes)
+
+| Host | Explicit form | Example |
+|------|---------------|---------|
+| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
+| Codex / ZCode | `$id` | `$help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+
+Codex: plugin packaging alone does not feed `$`; `$` uses InstallRoot `skills/` (`~/.codex/skills`) + optional UserScope. `/hooks` and `/hooks-trust` are trust UI, not skill invoke. There is no `$skill --menu` product flag.
 
 ---
 
@@ -34,7 +45,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Confirmations / options | Handoffs |
 |-------|-------------------------|----------|
-| `commit` | Feature branch only (`feature/<slug>` or `feat/<id>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional `/push`; PR only via `open-github-pr`. |
+| `commit` | Feature branch only (`feature/<slug>` or `feat/<id>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional skill `push`; PR only via `open-github-pr`. |
 | `push` | Confirm before push. No force on protected branches. | After success: hand off to `open-github-pr` immediately when PR intent was clear, else ask. |
 | `open-github-pr` | Modes: **feature** (head → `develop`) or **release** (`develop` → `master`/`main`). Confirm **title/body** every time. Ask **auto-merge** every time (`sim`/`não`) — do not infer from “fluxo completo”. Needs `gh` auth. | Owns all `gh pr create`; commit/push must not invent PR shortcuts. |
 
@@ -95,4 +106,4 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 - Invent skill names outside `CATALOG.md`
 - Load every `SKILL.md` only to list or explain operator expectations covered here
-- Treat `_shared/` packs or architect spawn as slash skills
+- Treat `_shared/` packs or architect spawn as invocable skills

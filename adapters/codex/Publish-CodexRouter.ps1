@@ -104,6 +104,9 @@ function Add-CodexRouterDualRootCallout {
         [string] $PluginRootAbsolute,
 
         [Parameter(Mandatory = $true)]
+        [string] $HomeSkillsRootAbsolute,
+
+        [Parameter(Mandatory = $true)]
         [string] $RulesRootAbsolute,
 
         [Parameter(Mandatory = $true)]
@@ -122,6 +125,7 @@ function Add-CodexRouterDualRootCallout {
         '| Surface | Absolute path |',
         '|---------|---------------|',
         ("| InstallRoot (product / AGENTS / rules parent) | `{0}` |" -f $InstallRootAbsolute),
+        ("| {0} | `{1}` |" -f $script:CodexPathConstant.RouterHomeSkillsTableLabel, $HomeSkillsRootAbsolute),
         ("| Plugin skills TOOLKIT_ROOT | `{0}` |" -f $PluginRootAbsolute),
         ("| Rules (Publish-Policy) | `{0}` |" -f $RulesRootAbsolute),
         ("| Guardrails | `{0}` |" -f $GuardrailsPathAbsolute),
@@ -159,6 +163,8 @@ function Resolve-CodexRouterPlaceholdersInText {
     $installAbsolute = Get-CodexNormalizedForwardSlashPath -Path $InstallRoot
     $pluginRoot = Get-CodexRouterPluginRoot -InstallRoot $InstallRoot
     $pluginAbsolute = Get-CodexNormalizedForwardSlashPath -Path $pluginRoot
+    $homeSkillsRoot = Join-Path $InstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
+    $homeSkillsAbsolute = Get-CodexNormalizedForwardSlashPath -Path $homeSkillsRoot
     $rulesRoot = Get-CodexRouterRulesRoot -InstallRoot $InstallRoot
     $rulesAbsolute = Get-CodexNormalizedForwardSlashPath -Path $rulesRoot
     $sddAbsolute = Get-CodexNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:CodexPathConstant.SddDirectoryName)
@@ -197,6 +203,7 @@ function Resolve-CodexRouterPlaceholdersInText {
         -Text $updated `
         -InstallRootAbsolute $installAbsolute `
         -PluginRootAbsolute $pluginAbsolute `
+        -HomeSkillsRootAbsolute $homeSkillsAbsolute `
         -RulesRootAbsolute $rulesAbsolute `
         -CatalogPathAbsolute $catalogAbsolute `
         -GuardrailsPathAbsolute $guardrailsAbsolute

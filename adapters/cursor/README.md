@@ -13,6 +13,17 @@ Publish surfaces for **Cursor** (`~/.cursor`). Default InstallRoot is an in-repo
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot .\scripts\validation\fixtures\cursor-install-root
 ```
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path (live) | `~/.cursor/skills/<id>/SKILL.md` |
+| Explicit form | `/id` |
+| Examples | `/help-skills`, `/sdd-spec`, `/developer` |
+| Also | Customize → Skills (picker / auto) |
+
+Canonical form is the skill **id**; `/` is the Cursor host prefix. Hooks trust UI is separate from skill invoke.
+
 ## File layout
 
 Registry entry remains `adapters/cursor/CursorAdapter.ps1` (thin contract surface). Implementation is Claude/Grok-style siblings, dotted in order:

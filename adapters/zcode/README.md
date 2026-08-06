@@ -13,6 +13,17 @@ Publish surfaces for **ZCode ADE** (`~/.zcode`). Default InstallRoot is an in-re
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent zcode -InstallRoot .\scripts\validation\fixtures\zcode-install-root
 ```
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path (live) | `~/.zcode/skills/<id>/SKILL.md` |
+| Explicit form | `$id` |
+| Examples | `$help-skills`, `$sdd-spec` |
+| After sync | Settings → Skills → Refresh if the product requires it |
+
+Canonical form is the skill **id**; `$` is the ZCode host prefix (same token as Codex, different product).
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |

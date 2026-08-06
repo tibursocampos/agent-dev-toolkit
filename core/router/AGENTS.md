@@ -1,6 +1,15 @@
 # Agent router (L0 index) - agent-dev-toolkit
 
-Lean **L0** router for agents after install under `{{TOOLKIT_ROOT}}/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names); invoke via your host’s UX (slash `/` when supported, skill picker, `@`-mention, or `use skill <name>`). Load shared docs on demand.
+Lean **L0** router for agents after install under `{{TOOLKIT_ROOT}}/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
+
+| Host family | Explicit form | Example |
+|-------------|---------------|---------|
+| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
+| Codex / ZCode | `$id` | `$help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+
+Compat when the host accepts it: `use skill <id>` / natural language. Codex `/hooks` and Grok `/hooks-trust` are trust UI, not skill invoke. Load shared docs on demand.
 
 **Skill map:** Read `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
 
@@ -23,7 +32,7 @@ For **planning**, **multi-facet execution**, **analysis**, or **non-trivial ques
 
 ## Formas (workflows)
 
-Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: `/help-skills` + CATALOG Formas section.
+Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `help-skills` + CATALOG Formas section.
 
 | Forma | When | Pipeline |
 |-------|------|----------|
@@ -39,12 +48,12 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 
 | Need | Skill |
 |------|--------|
-| Skill map / catalog | `help-skills` — `/help-skills` |
-| Stack router / ad-hoc | `developer` — `/developer` |
-| Explicit .NET | `dotnet-developer` — `/dotnet-developer` |
-| Explicit Java | `java-developer` — `/java-developer` |
-| Frontend UI design | `impeccable` — `/impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
-| Blip React plugin | `blip-plugin-developer` — `/blip-plugin-developer` → `react-developer` |
+| Skill map / catalog | `help-skills` |
+| Stack router / ad-hoc | `developer` |
+| Explicit .NET | `dotnet-developer` |
+| Explicit Java | `java-developer` |
+| Frontend UI design | `impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
+| Blip React plugin | `blip-plugin-developer` → `react-developer` |
 
 ### Optional flows (index)
 

@@ -48,14 +48,20 @@ function Get-GrokMappedInstallPaths {
         [string] $ResolvedInstallRoot
     )
 
-    $projectRoot = Join-Path $ResolvedInstallRoot ($script:GrokAdapterConstant.OfficialProjectRootRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    # InstallRoot IS the Grok home (~/.grok or fixture modeling it). Publish
+    # skills/rules/hooks as siblings under that root (Claude-style), never
+    # nest another .grok/ segment (avoids ~/.grok/.grok/skills).
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    $skillsRel = $script:GrokAdapterConstant.OfficialSkillsRelativePath -replace '/', $sep
+    $rulesRel = $script:GrokAdapterConstant.OfficialRulesRelativePath -replace '/', $sep
+    $hooksRel = $script:GrokAdapterConstant.OfficialHooksRelativePath -replace '/', $sep
 
     return [PSCustomObject]@{
-        FixtureUserRootPath      = Join-Path $ResolvedInstallRoot ($script:GrokAdapterConstant.OfficialUserRootRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        FixtureProjectRootPath   = $projectRoot
-        FixtureSkillsPath        = Join-Path $ResolvedInstallRoot ($script:GrokAdapterConstant.OfficialSkillsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        FixtureRulesPath         = Join-Path $ResolvedInstallRoot ($script:GrokAdapterConstant.OfficialRulesRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        FixtureHooksPath         = Join-Path $ResolvedInstallRoot ($script:GrokAdapterConstant.OfficialHooksRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        FixtureUserRootPath      = $ResolvedInstallRoot
+        FixtureProjectRootPath   = $ResolvedInstallRoot
+        FixtureSkillsPath        = Join-Path $ResolvedInstallRoot $skillsRel
+        FixtureRulesPath         = Join-Path $ResolvedInstallRoot $rulesRel
+        FixtureHooksPath         = Join-Path $ResolvedInstallRoot $hooksRel
         FixtureProjectAgentsPath = Join-Path $ResolvedInstallRoot $script:GrokAdapterConstant.OfficialAgentsFileName
     }
 }

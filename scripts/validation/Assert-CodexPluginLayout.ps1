@@ -3,6 +3,7 @@
 #   Should_WriteMarketplaceEntry_When_SyncCodex
 #   Should_ResolvePluginPathFromMarketplace_When_EntryPresent
 #   Should_PublishHelpSkillsAndCatalog_When_SyncCodex
+#   Should_PublishHomeSkillsHelpSkillsCatalog_When_SyncCodex
 #   Should_MirrorHelpSkillsCatalog_When_UserScope
 $ErrorActionPreference = 'Stop'
 
@@ -68,11 +69,15 @@ $fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $manifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $publishedSkillsRoot = Join-Path $pluginRoot 'skills'
+$homeSkillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.json'
 $userSkillsRoot = Join-Path $fixtureInstallRoot '.agents\skills'
 $helpSkillsPluginPath = Join-Path $publishedSkillsRoot 'help-skills\SKILL.md'
 $catalogPluginPath = Join-Path $publishedSkillsRoot '_shared\skills-catalog\CATALOG.md'
 $operatorPluginPath = Join-Path $publishedSkillsRoot '_shared\skills-catalog\OPERATOR.md'
+$helpSkillsHomePath = Join-Path $homeSkillsRoot 'help-skills\SKILL.md'
+$catalogHomePath = Join-Path $homeSkillsRoot '_shared\skills-catalog\CATALOG.md'
+$operatorHomePath = Join-Path $homeSkillsRoot '_shared\skills-catalog\OPERATOR.md'
 $helpSkillsUserPath = Join-Path $userSkillsRoot 'help-skills\SKILL.md'
 $catalogUserPath = Join-Path $userSkillsRoot '_shared\skills-catalog\CATALOG.md'
 $operatorUserPath = Join-Path $userSkillsRoot '_shared\skills-catalog\OPERATOR.md'
@@ -91,6 +96,9 @@ if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
 function Clear-CodexPublishedArtifacts {
     if (Test-Path -LiteralPath $publishedSkillsRoot) {
         Get-ChildItem -LiteralPath $publishedSkillsRoot -Force | Remove-Item -Recurse -Force
+    }
+    if (Test-Path -LiteralPath $homeSkillsRoot) {
+        Get-ChildItem -LiteralPath $homeSkillsRoot -Force | Remove-Item -Recurse -Force
     }
     if (Test-Path -LiteralPath $manifestPath) {
         Remove-Item -LiteralPath $manifestPath -Force
@@ -219,6 +227,32 @@ if (-not (Test-Path -LiteralPath $operatorPluginPath -PathType Leaf)) {
 
 Write-Pass -TestName $helpCatalogTestName
 
+# --- Should_PublishHomeSkillsHelpSkillsCatalog_When_SyncCodex ---
+$homeCatalogTestName = 'Should_PublishHomeSkillsHelpSkillsCatalog_When_SyncCodex'
+
+if ($null -eq $publishResult.HomeSkillsRoot -or [string]::IsNullOrWhiteSpace([string]$publishResult.HomeSkillsRoot)) {
+    Write-Fail -TestName $homeCatalogTestName -Reason 'Publish-Skills result must report HomeSkillsRoot'
+}
+$normalizedHomeSkills = [System.IO.Path]::GetFullPath([string]$publishResult.HomeSkillsRoot)
+$expectedHomeSkills = [System.IO.Path]::GetFullPath($homeSkillsRoot)
+if (-not [string]::Equals($normalizedHomeSkills, $expectedHomeSkills, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Write-Fail -TestName $homeCatalogTestName -Reason ("HomeSkillsRoot mismatch: {0}" -f $publishResult.HomeSkillsRoot)
+}
+if (-not (Test-Path -LiteralPath $helpSkillsHomePath -PathType Leaf)) {
+    Write-Fail -TestName $homeCatalogTestName -Reason ("home skills help-skills SKILL.md missing: {0}" -f $helpSkillsHomePath)
+}
+if (-not (Test-Path -LiteralPath $catalogHomePath -PathType Leaf)) {
+    Write-Fail -TestName $homeCatalogTestName -Reason ("home skills catalog missing: {0}" -f $catalogHomePath)
+}
+if (-not (Test-Path -LiteralPath $operatorHomePath -PathType Leaf)) {
+    Write-Fail -TestName $homeCatalogTestName -Reason ("home skills OPERATOR.md missing: {0}" -f $operatorHomePath)
+}
+if ($null -eq $publishResult.HomeSkillsFilesCopied -or [int]$publishResult.HomeSkillsFilesCopied -lt 1) {
+    Write-Fail -TestName $homeCatalogTestName -Reason 'HomeSkillsFilesCopied must be >= 1 after default Publish-Skills'
+}
+
+Write-Pass -TestName $homeCatalogTestName
+
 # --- Should_MirrorHelpSkillsCatalog_When_UserScope ---
 $userScopeTestName = 'Should_MirrorHelpSkillsCatalog_When_UserScope'
 
@@ -247,6 +281,7 @@ Write-Pass -TestName $userScopeTestName
 # Keep fixture seed lean: drop published artifacts (dirs from Step 2 remain).
 Clear-CodexPublishedArtifacts
 Restore-CodexFixtureGitkeep -DirectoryPath $publishedSkillsRoot
+Restore-CodexFixtureGitkeep -DirectoryPath $homeSkillsRoot
 Restore-CodexFixtureGitkeep -DirectoryPath (Join-Path $pluginRoot 'hooks')
 Restore-CodexFixtureGitkeep -DirectoryPath $userSkillsRoot
 Restore-CodexFixtureGitkeep -DirectoryPath (Split-Path -Parent $marketplacePath)

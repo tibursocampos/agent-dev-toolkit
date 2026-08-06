@@ -1,23 +1,87 @@
 # Agent router (L0 index) - agent-dev-toolkit
 
-Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer `/<skill>` (or host equivalent); load shared docs on demand.
+Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
 
-**Skill map:** Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md` or invoke `/help-skills`. Do not invent skill names.
+| Host family | Explicit form | Example |
+|-------------|---------------|---------|
+| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
+| Codex / ZCode | `$id` | `$help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+
+Compat when the host accepts it: `use skill <id>` / natural language. Codex `/hooks` and Grok `/hooks-trust` are trust UI, not skill invoke. Load shared docs on demand.
+
+**Skill map:** Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
+
+## Parallel specialists (default)
+
+For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
+- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+- User-facing chat remains pt-BR per language policy below.
 
 
 ## Codex dual-root paths (installed)
 
-Codex InstallRoot `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex` uses dual roots: plugin skills vs InstallRoot rules. Prefer absolute paths below.
+Codex InstallRoot `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex` uses dual roots: home/plugin skills vs InstallRoot rules. Prefer absolute paths below. Invoke toolkit skills with `$<skill-id>` (for example `$help-skills`).
 
 | Surface | Absolute path |
 |---------|---------------|
 | InstallRoot (product / AGENTS / rules parent) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex |
+| Home skills (`# Agent router (L0 index) - agent-dev-toolkit
+
+Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
+
+| Host family | Explicit form | Example |
+|-------------|---------------|---------|
+| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
+| Codex / ZCode | `$id` | `$help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+
+Compat when the host accepts it: `use skill <id>` / natural language. Codex `/hooks` and Grok `/hooks-trust` are trust UI, not skill invoke. Load shared docs on demand.
+
+**Skill map:** Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
+
+## Parallel specialists (default)
+
+For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
+- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+- User-facing chat remains pt-BR per language policy below.
+
+ discovery / InstallRoot/skills) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills |
 | Plugin skills TOOLKIT_ROOT | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin |
 | Rules (Publish-Policy) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules |
 | Guardrails | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/guardrails.md |
 | Skills catalog | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md |
 
-Do not resolve skill `_shared` paths under InstallRoot/skills or InstallRoot/rules — they live under the plugin skills TOOLKIT_ROOT. Rules and guardrails live under InstallRoot/rules only.
+Codex `# Agent router (L0 index) - agent-dev-toolkit
+
+Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
+
+| Host family | Explicit form | Example |
+|-------------|---------------|---------|
+| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
+| Codex / ZCode | `$id` | `$help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+
+Compat when the host accepts it: `use skill <id>` / natural language. Codex `/hooks` and Grok `/hooks-trust` are trust UI, not skill invoke. Load shared docs on demand.
+
+**Skill map:** Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
+
+## Parallel specialists (default)
+
+For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
+- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+- User-facing chat remains pt-BR per language policy below.
+
+ discovery reads InstallRoot/skills (TOOLKIT_ROOT = InstallRoot). Plugin skills under InstallRoot/plugin remain for marketplace packaging (TOOLKIT_ROOT = plugin). Do not resolve skill `_shared` under InstallRoot/rules — rules and guardrails live under InstallRoot/rules only.
 
 ## Language
 | Context | Rule |
@@ -29,7 +93,7 @@ Do not resolve skill `_shared` paths under InstallRoot/skills or InstallRoot/rul
 
 ## Formas (workflows)
 
-Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: `/help-skills` + CATALOG Formas section.
+Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `help-skills` + CATALOG Formas section.
 
 | Forma | When | Pipeline |
 |-------|------|----------|
@@ -45,12 +109,12 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 
 | Need | Skill |
 |------|--------|
-| Skill map / catalog | `help-skills` — `/help-skills` |
-| Stack router / ad-hoc | `developer` — `/developer` |
-| Explicit .NET | `dotnet-developer` — `/dotnet-developer` |
-| Explicit Java | `java-developer` — `/java-developer` |
-| Frontend UI design | `impeccable` — `/impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
-| Blip React plugin | `blip-plugin-developer` — `/blip-plugin-developer` → `react-developer` |
+| Skill map / catalog | `help-skills` |
+| Stack router / ad-hoc | `developer` |
+| Explicit .NET | `dotnet-developer` |
+| Explicit Java | `java-developer` |
+| Frontend UI design | `impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
+| Blip React plugin | `blip-plugin-developer` → `react-developer` |
 
 ### Optional flows (index)
 
@@ -71,6 +135,8 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 | Memory-bank (Forma C) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 
 ## Agents / spawn (lazy)
+
+Default preference: parallel specialists for multi-facet parent turns — see **Parallel specialists (default)** above. Details:
 
 | Topic | Path |
 |-------|------|
@@ -97,7 +163,7 @@ Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/c
 
 ## Skills catalog
 
-Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md`. Invoke `/help-skills` to present it. Prefer `/<name>`. Compat: `use skill <name>` may still work.
+Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (operator nuances). Invoke skill `help-skills` to present those static files — do not re-analyze every skill body.
 
 | Group | Examples |
 |-------|----------|

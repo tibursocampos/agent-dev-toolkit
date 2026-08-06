@@ -38,6 +38,7 @@ $codexModulePath = Join-Path $repoRoot 'adapters\codex\CodexAdapter.ps1'
 $fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $pluginSkillsRoot = Join-Path $pluginRoot 'skills'
+$homeSkillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $pluginHooksRoot = Join-Path $pluginRoot 'hooks'
 $pluginManifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.json'
@@ -88,6 +89,7 @@ function Clear-CodexPublishedTreeContents {
 
 function Clear-CodexFixturePublishedArtifacts {
     Clear-CodexPublishedTreeContents -DirectoryPath $pluginSkillsRoot
+    Clear-CodexPublishedTreeContents -DirectoryPath $homeSkillsRoot
     Clear-CodexPublishedTreeContents -DirectoryPath $pluginHooksRoot
     Clear-CodexPublishedTreeContents -DirectoryPath (Join-Path $pluginRoot '.codex-plugin')
     Clear-CodexPublishedTreeContents -DirectoryPath $userSkillsRoot
@@ -127,6 +129,11 @@ function Assert-CodexToolkitArtifactsAbsent {
         $pluginSkill = Join-Path $pluginSkillsRoot $id
         if (Test-Path -LiteralPath $pluginSkill) {
             Write-Fail -TestName $TestName -Reason ("managed plugin skill still present: {0}" -f $id)
+        }
+
+        $homeSkill = Join-Path $homeSkillsRoot $id
+        if (Test-Path -LiteralPath $homeSkill) {
+            Write-Fail -TestName $TestName -Reason ("managed home skill ($ discovery) still present: {0}" -f $id)
         }
 
         $userSkill = Join-Path $userSkillsRoot $id
@@ -170,6 +177,10 @@ if ($null -eq $userScopePublish -or $userScopePublish.Success -ne $true) {
 if (-not (Test-CodexToolkitPluginPresent)) {
     Write-Fail -TestName $removeTest -Reason 'expected toolkit plugin skills after sync'
 }
+$homeHelpSkills = Join-Path $homeSkillsRoot 'help-skills\SKILL.md'
+if (-not (Test-Path -LiteralPath $homeHelpSkills -PathType Leaf)) {
+    Write-Fail -TestName $removeTest -Reason ("expected home skills ($ discovery) after sync: {0}" -f $homeHelpSkills)
+}
 if (-not (Test-CodexToolkitHooksPresent)) {
     Write-Fail -TestName $removeTest -Reason 'expected toolkit hooks after sync'
 }
@@ -206,8 +217,8 @@ if ($null -eq $uninstall.WholesaleWipe -or $uninstall.WholesaleWipe -ne $false) 
 
 Assert-CodexToolkitArtifactsAbsent -TestName $removeTest
 
-# Skeleton dirs must remain (no wholesale plugin / .agents wipe)
-foreach ($dir in @($pluginRoot, $pluginSkillsRoot, $pluginHooksRoot, (Join-Path $fixtureInstallRoot '.agents'), $userSkillsRoot)) {
+# Skeleton dirs must remain (no wholesale plugin / skills / .agents wipe)
+foreach ($dir in @($pluginRoot, $pluginSkillsRoot, $homeSkillsRoot, $pluginHooksRoot, (Join-Path $fixtureInstallRoot '.agents'), $userSkillsRoot)) {
     if (-not (Test-Path -LiteralPath $dir)) {
         Write-Fail -TestName $removeTest -Reason ("keyed uninstall must not wipe directory tree: {0}" -f $dir)
     }
@@ -245,6 +256,10 @@ Set-Content -LiteralPath $alienMarketplaceNotePath -Value ("{0}`n" -f $alienMark
 $alienUserSkillDir = Join-Path $userSkillsRoot $alienSkillId
 New-Item -ItemType Directory -Path $alienUserSkillDir -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $alienUserSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+
+$alienHomeSkillDir = Join-Path $homeSkillsRoot $alienSkillId
+New-Item -ItemType Directory -Path $alienHomeSkillDir -Force | Out-Null
+Set-Content -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
 
 $syncLines2 = @(& $syncAgentScript -Agent codex -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
 $syncExit2 = $LASTEXITCODE
@@ -294,6 +309,10 @@ if (-not (Test-Path -LiteralPath (Join-Path $alienUserSkillDir 'SKILL.md'))) {
     Write-Fail -TestName $keepTest -Reason 'alien USER skill must survive keyed uninstall'
 }
 
+if (-not (Test-Path -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md'))) {
+    Write-Fail -TestName $keepTest -Reason 'alien home skill ($ discovery) must survive keyed uninstall'
+}
+
 Assert-CodexToolkitArtifactsAbsent -TestName $keepTest
 
 # Idempotent / WhatIf smoke
@@ -314,6 +333,7 @@ Remove-Item -LiteralPath $alienConfigPath -Force
 Remove-Item -LiteralPath $alienConfigDir -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $alienMarketplaceNotePath -Force
 Remove-Item -LiteralPath $alienUserSkillDir -Recurse -Force
+Remove-Item -LiteralPath $alienHomeSkillDir -Recurse -Force
 
 # Restore a clean published fixture for subsequent steps / local use
 Clear-CodexFixturePublishedArtifacts

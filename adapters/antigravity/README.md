@@ -13,6 +13,16 @@ Publish surfaces for **Antigravity** (`~/.gemini` official `config/*`). Default 
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent antigravity -InstallRoot .\scripts\validation\fixtures\antigravity-install-root
 ```
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path (live) | `~/.gemini/config/skills` |
+| Explicit form | `use skill id` or `/id` |
+| Examples | `use skill sdd-plan`, `/help-skills` |
+
+Canonical form is the skill **id**.
+
 ## Spawn / subagents (honesty)
 
 Hierarchical subagents exist since **Antigravity 2.0** via `invoke_subagent` (async by default, nesting ≤10, optional git worktrees). Pré-2.0 Agent Manager ran parallel agents in separate conversations — not parent→child in-session delegation.
