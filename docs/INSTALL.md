@@ -122,7 +122,7 @@ Mode `repo` InstallRoot is typically the consumer repo’s `.github` folder (not
 | Agent | Typical InstallRoot |
 |-------|---------------------|
 | `antigravity` | `$env:USERPROFILE\.gemini` |
-| `codex` | `~/.codex` (product/AGENTS/rules); optional USER skills `~/.agents/skills` via `-UserScope` + `-AllowUserHome` — see [ADAPTERS.md](ADAPTERS.md) § Codex |
+| `codex` | `~/.codex` (product/AGENTS/rules); `$` skills `~/.codex/skills`; optional USER skills `~/.agents/skills` via `-UserScope` + `-AllowUserHome` — see [ADAPTERS.md](ADAPTERS.md) § Codex |
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
@@ -142,9 +142,9 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `hooks/`, merged `settings.json` |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
-| Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
+| Codex | `plugin/` (+ marketplace), `skills/` (`$` mirror), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
-| Grok | `.grok/skills`, `.grok/rules`, `.grok/hooks`, `AGENTS.md` |
+| Grok | `skills/`, `rules/`, `hooks/`, `AGENTS.md` (InstallRoot = `~/.grok`) |
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |
 | Antigravity | `config/skills`, `config/plugins`, managed markdown |
 
@@ -171,11 +171,15 @@ After a live Cursor sync, confirm files such as:
 
 ## 6. Use skills
 
-Open a **consumer project** in the agent (not only this toolkit repo). Example (Cursor):
+Open a **consumer project** in the agent (not only this toolkit repo). Canonical form is the **skill id**; host prefixes differ (`/`, `$`, `use skill`, OpenCode `skill` tool). Matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+
+Cursor / Claude example:
 
 ```text
 /sdd-spec
 ```
+
+Codex / ZCode: `$sdd-spec`. After Copilot sync: `/skills reload`.
 
 See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-using-skills.md](guides/02-using-skills.md).
 

@@ -7,11 +7,12 @@
   Asserts InstallRoot after Codex sync:
   - plugin/.codex-plugin/plugin.json valid + plugin/skills/*/SKILL.md (TE02)
   - plugin/skills/help-skills/SKILL.md + plugin/skills/_shared/skills-catalog/CATALOG.md
+  - InstallRoot/skills/help-skills/SKILL.md + CATALOG (Codex $ discovery; always published)
   - .agents/plugins/marketplace.json entry source.path resolves (TE03)
   - InstallRoot/rules/*.md when rules capable (Publish-Policy)
   - AGENTS.md materialized (no {{…}} placeholders, no docs/ live links, dual-root paths)
   - plugin/hooks/hooks.json when hooks capable (TE04)
-  - .agents/skills: absent or empty skeleton OK (plugin-only); when UserScope mirrored, assert help-skills + CATALOG
+  - .agents/skills: absent or empty skeleton OK (plugin+home default); when UserScope mirrored, assert help-skills + CATALOG
   Never invokes Codex runtime or /hooks trust UI (RN03 / TE05 out of scope).
   Live UserScope root is $HOME/.agents/skills (via Resolve-CodexUserSkillsRoot); fixture uses InstallRoot/.agents/skills.
 #>
@@ -228,6 +229,42 @@ function Test-CodexSmokeHelpSkillsAndCatalogPresent {
         return [PSCustomObject]@{
             Ok      = $false
             Message = ($script:CodexSmokeMessage.Te02SkillsCatalogMissing -f $catalogPath)
+        }
+    }
+
+    return [PSCustomObject]@{
+        Ok      = $true
+        Message = ''
+    }
+}
+
+function Test-CodexSmokeHomeSkillsPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $HomeSkillsRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $HomeSkillsRoot -PathType Container)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.HomeSkillsRootMissing -f $HomeSkillsRoot)
+        }
+    }
+
+    $helpSkillsPath = Get-CodexSmokeHelpSkillsManifestPath -SkillsRoot $HomeSkillsRoot
+    if (-not (Test-Path -LiteralPath $helpSkillsPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.HomeSkillsHelpSkillsMissing -f $helpSkillsPath)
+        }
+    }
+
+    $catalogPath = Get-CodexSmokeSkillsCatalogPath -SkillsRoot $HomeSkillsRoot
+    if (-not (Test-Path -LiteralPath $catalogPath -PathType Leaf)) {
+        return [PSCustomObject]@{
+            Ok      = $false
+            Message = ($script:CodexSmokeMessage.HomeSkillsCatalogMissing -f $catalogPath)
         }
     }
 
@@ -470,6 +507,7 @@ function Invoke-CodexSmokeValidate {
     $mapped = Get-CodexMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $manifestPath = $mapped.FixturePluginManifestPath
     $pluginSkillsPath = $mapped.FixturePluginSkillsPath
+    $homeSkillsPath = $mapped.FixtureHomeSkillsPath
     $marketplaceDir = $mapped.FixtureMarketplacePath
     $marketplacePath = Join-Path $marketplaceDir $script:CodexPathConstant.MarketplaceFileName
     $agentsPath = $mapped.FixtureProjectAgentsPath
@@ -481,6 +519,7 @@ function Invoke-CodexSmokeValidate {
         PluginManifestValid      = $false
         PluginSkillsPresent      = $false
         HelpSkillsCatalogPresent = $false
+        HomeSkillsPresent        = $false
         MarketplaceEntryOk       = $false
         RulesPresent             = $false
         RulesRequired            = $false
@@ -538,6 +577,18 @@ function Invoke-CodexSmokeValidate {
             -ResolvedInstallRoot $resolvedInstallRoot `
             -Checks $checks `
             -Message $catalogCheck.Message `
+            -ExitCode $exitFail
+    }
+
+    $homeSkillsCheck = Test-CodexSmokeHomeSkillsPresent -HomeSkillsRoot $homeSkillsPath
+    $checks.HomeSkillsPresent = [bool]$homeSkillsCheck.Ok
+    if (-not $homeSkillsCheck.Ok) {
+        return New-CodexSmokeResult `
+            -Success $false `
+            -ErrorCode $script:CodexPathConstant.SmokeTe02Code `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message $homeSkillsCheck.Message `
             -ExitCode $exitFail
     }
 

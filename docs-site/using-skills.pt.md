@@ -1,8 +1,23 @@
 # Usando skills
 
-Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). A UX do host varia: slash `/` quando o agente suporta, seletor de skill, `@`-mention ou “use skill …”. Exemplos abaixo costumam usar slash por brevidade — o **id** é o que importa em todos os adapters.
+Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). O **id** é estável entre hosts; o prefixo é específico do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat: `use skill <id>` ou linguagem natural alinhada à `description` da skill.
 
 Após qualquer sync, invoque a skill **`help-skills`** para o catálogo estático instalado (`CATALOG.md` + `OPERATOR.md`) — não carregue cada `SKILL.md`.
+
+**Não é invoke de skill:** Codex `/hooks` e Grok `/hooks-trust` são UI de trust de hooks. Não existe flag de produto Codex `$skill --menu` — `$` / `/skills` é o picker nativo de skills.
+
+## Matriz canônica de invoke
+
+| Host | Path das skills (live, típico) | Forma explícita | Exemplo |
+|------|--------------------------------|-----------------|---------|
+| Cursor | `~/.cursor/skills` | `/id` | `/help-skills` |
+| Claude | `~/.claude/skills` | `/id` | `/sdd-spec` |
+| Codex | `~/.codex/skills` (+ opcional `~/.agents/skills`) | `$id` | `$help-skills` |
+| Copilot | `~/.copilot/skills` ou `<repo>/.github/skills` | `/id` (+ `/skills reload` após sync) | `/dotnet-developer` |
+| OpenCode | `~/.config/opencode/skills` | ferramenta `skill` | `skill({ name: "help-skills" })` |
+| Antigravity | `~/.gemini/config/skills` | `use skill id` ou `/id` | `use skill sdd-plan` |
+| Grok | `~/.grok/skills` | `/id` | `/help-skills` |
+| ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
 
 ## Especialistas em paralelo (padrão)
 
@@ -63,7 +78,7 @@ Nova tarefa
   ├─ Projeto novo / precisa domínio?     -> Forma C: analyze (+ confirmação architect) antes de develop
   ├─ Feature única média/alta?           -> Forma A: sdd-spec → sdd-plan → sdd-develop
   ├─ Item de backlog informal?           -> Forma B: refine-story → checklist? → A ou C
-  ├─ Mudança pequena de stack?           -> *-developer ou /developer
+  ├─ Mudança pequena de stack?           -> *-developer ou developer
   └─ Depois do código                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
@@ -75,11 +90,11 @@ Nova tarefa
 | **B** Backlog | Bug/story informal | `refine-story` → `split-story-checklist` opcional → A ou C | Prepara markdown estruturado |
 | **C** Orquestrada | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam SDD clássico |
 
-Trabalho de domínio em projeto novo (greenfield): prefira Forma C. Assim `/orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill slash). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
+Trabalho de domínio em projeto novo (greenfield): prefira Forma C. Assim `orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill id). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
 
 ## Invocar por agente
 
-A skill **`help-skills`** funciona em **todos** os adapters sincronizados (não só Codex).
+A skill **`help-skills`** funciona em **todos** os adapters sincronizados (não só Codex). Use a forma do host na matriz acima.
 
 ### Cursor
 
@@ -93,11 +108,11 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | Catálogo | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
-Aceite os hooks na UI do Cursor uma vez se solicitado (fora de CI).
+Também Customize → Skills. Aceite os hooks na UI do Cursor uma vez se solicitado (fora de CI).
 
 ### Claude Code
 
-Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque via UX de skill / slash do Claude; os nomes coincidem com os ids kebab-case. Catálogo: `help-skills`.
+Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque com `/id` (ex.: `/sdd-spec`, `/help-skills`).
 
 ### GitHub Copilot
 
@@ -108,40 +123,50 @@ Sync com `-Mode user` ou `-Mode repo`:
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use os pontos de publicação agent-skills / custom-instructions do Copilot. Id do catálogo: `help-skills`.
+Invoque com `/id`. Após o sync, rode **`/skills reload`**. Id do catálogo: `help-skills`.
 
 ### Codex
 
-O Codex é **dual-root** — skills do plugin e rules em InstallRoot **não** compartilham um único `TOOLKIT_ROOT`:
+O Codex é **dual-root** para packaging vs rules. **O path do plugin sozinho não alimenta `$`.**
 
 | Superfície | Local |
 |------------|-------|
-| Skills do plugin + CATALOG + OPERATOR | Sob `InstallRoot/plugin` (sync padrão) |
+| Skills do plugin + CATALOG + OPERATOR | Sob `InstallRoot/plugin` (packaging) |
+| **Discovery `$`** | Live `~/.codex/skills` (espelho em InstallRoot) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Produto / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
-| USER skills opcional | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` com `-UserScope` + `-AllowUserHome` |
+| UserScope opcional / default | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
 
-Sync padrão é **somente plugin**. Use `help-skills` para o catálogo instalado — não carregue cada `SKILL.md`. Aceite os hooks com Codex `/hooks` após install real (smoke nunca exige isso).
+Invoque com **`$id`** (ex.: `$help-skills`). O picker nativo `$` / `/skills` é o menu do produto — não uma flag `--menu`. Aceite hooks com Codex `/hooks` após install real (UI de trust, não invoke de skill).
 
-### OpenCode / Grok / ZCode / Antigravity
+### OpenCode
 
-| Agente | Local típico das skills | Dica |
-|--------|-------------------------|------|
-| OpenCode | `~/.config/opencode/skills` | Plugins JS em `plugins/` |
-| Grok | `~/.grok/skills` | Autorize via `/hooks-trust` se necessário |
-| ZCode | `~/.zcode/skills` | ADE (filesystem do agente) |
-| Antigravity | `~/.gemini/config/skills` | Layout oficial `config/*` |
+Skills: `~/.config/opencode/skills`. Invoque via a ferramenta **`skill`**: `skill({ name: "help-skills" })`. Plugins JS em `plugins/`.
+
+### Grok
+
+Path live esperado: `~/.grok/skills`. Invoque com `/id` (ex.: `/help-skills`). Trust de hooks via `/hooks-trust` se necessário (não é invoke de skill).
+
+### ZCode
+
+Skills: `~/.zcode/skills`. Invoque com **`$id`** (ex.: `$help-skills`). Atualize em Settings → Skills se o produto exigir.
+
+### Antigravity
+
+Skills: `~/.gemini/config/skills`. Invoque com **`use skill <id>`** ou `/id` (ex.: `use skill sdd-plan`).
 
 Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam `help-skills` + o pack skills-catalog.
 
 ## Fluxos comuns
 
+Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode).
+
 ### Forma A
 
 ```text
-/sdd-spec
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step N
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step N
 ```
 
 Uma sessão de develop = **um** passo do PLAN.
@@ -149,34 +174,34 @@ Uma sessão de develop = **um** passo do PLAN.
 ### Forma C
 
 ```text
-/memory-bank-init
-/orchestrate-analyze
+memory-bank-init
+orchestrate-analyze
 ```
 
-Depois `/orchestrate-deliver` e `/orchestrate-develop` (ou `/sdd-develop`). Orquestradores **reusam** contratos SDD clássicos; não os substituem.
+Depois `orchestrate-deliver` e `orchestrate-develop` (ou `sdd-develop`). Orquestradores **reusam** contratos SDD clássicos; não os substituem.
 
 ### Mudança pequena de stack
 
 ```text
-/developer
+developer
 ```
 
-ou `/dotnet-developer`, `/react-developer`, `/python-developer`, …
+ou `dotnet-developer`, `react-developer`, `python-developer`, …
 
 ### Depois da implementação
 
 ```text
-/code-review
-/commit
-/push
-/open-github-pr
+code-review
+commit
+push
+open-github-pr
 ```
 
-PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `develop` → `master`/`main`. Prefira `/open-github-pr` à UI web quando `gh` estiver disponível.
+PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `develop` → `master`/`main`. Prefira `open-github-pr` à UI web quando `gh` estiver disponível.
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills slash. **Não** existe skill slash `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|

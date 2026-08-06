@@ -7,6 +7,7 @@
   Removes only known toolkit-managed paths under InstallRoot:
   - plugin/.codex-plugin/plugin.json (and empty .codex-plugin dir)
   - plugin/skills/<id> matching core/skills
+  - InstallRoot/skills/<id> matching core/skills (Codex $ discovery home mirror)
   - plugin/hooks/hooks.json + session_start.ps1
   - marketplace entry named agent-dev-toolkit (rewrite or remove catalog)
   - USER-scope skills/<id> matching core/skills (fixture InstallRoot/.agents/skills,
@@ -17,7 +18,7 @@
 
   Operator-edited or drifted AGENTS.md is preserved.
 
-  Does not wipe InstallRoot, plugin/, .agents/, or alien files (RN07 / CU03).
+  Does not wipe InstallRoot, plugin/, .agents/, skills/, or alien files (RN07 / CU03).
   Live ~/.codex requires -AllowUserHome. Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 
@@ -249,6 +250,7 @@ function Invoke-CodexUninstallToolkit {
 
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $pluginSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
+    $homeSkillsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.HomeSkillsRelativePath
     $pluginHooksRoot = Join-Path $pluginRoot $script:CodexPathConstant.HooksDirectoryName
     $pluginManifestDir = Join-Path $pluginRoot $script:CodexPathConstant.PluginManifestDirectoryName
     $pluginManifestPath = Join-Path $pluginManifestDir $script:CodexPathConstant.PluginManifestFileName
@@ -283,6 +285,15 @@ function Invoke-CodexUninstallToolkit {
             $wouldRemovePaths.Add($pluginSkillPath) | Out-Null
             if (-not $WhatIf.IsPresent) {
                 $removedPaths.Add($pluginSkillPath) | Out-Null
+            }
+        }
+
+        $homeSkillPath = Join-Path $homeSkillsRoot $skillId
+        $wouldRemoveHome = Remove-CodexPathIfPresent -Path $homeSkillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
+        if ($wouldRemoveHome) {
+            $wouldRemovePaths.Add($homeSkillPath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($homeSkillPath) | Out-Null
             }
         }
 

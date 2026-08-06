@@ -13,6 +13,16 @@ Publish surfaces for **OpenCode** (skills + JS plugins). Default InstallRoot is 
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent opencode -InstallRoot .\scripts\validation\fixtures\opencode
 ```
 
+## How to invoke
+
+| Item | Value |
+|------|-------|
+| Skills path (live) | `~/.config/opencode/skills` |
+| Explicit form | OpenCode **`skill` tool** (not slash-first) |
+| Example | `skill({ name: "help-skills" })` |
+
+Canonical form is the skill **id** / `name` argument.
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |

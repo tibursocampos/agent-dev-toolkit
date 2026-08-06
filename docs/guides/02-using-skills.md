@@ -1,8 +1,23 @@
 # Using skills
 
-How to invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case under `core/skills/`). Host UX varies: slash `/` when supported, skill picker, `@`-mention, or “use skill …”.
+How to invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>` or natural language matching the skill `description`.
 
 After any agent sync, invoke **`help-skills`** for the installed static catalog (`CATALOG.md` + `OPERATOR.md`).
+
+**Not skill invoke:** Codex `/hooks` and Grok `/hooks-trust` are **hooks trust UI**, not skill shortcuts. There is **no** Codex product flag `$skill --menu` — the `$` / `/skills` picker is the native skills menu.
+
+## Canonical invoke matrix
+
+| Host | Skills path (live, typical) | Explicit form | Example |
+|------|-----------------------------|----------------|---------|
+| Cursor | `~/.cursor/skills` | `/id` | `/help-skills` |
+| Claude | `~/.claude/skills` | `/id` | `/sdd-spec` |
+| Codex | `~/.codex/skills` (+ optional `~/.agents/skills`) | `$id` | `$help-skills` |
+| Copilot | `~/.copilot/skills` or `<repo>/.github/skills` | `/id` (+ `/skills reload` after sync) | `/dotnet-developer` |
+| OpenCode | `~/.config/opencode/skills` | `skill` tool | `skill({ name: "help-skills" })` |
+| Antigravity | `~/.gemini/config/skills` | `use skill id` or `/id` | `use skill sdd-plan` |
+| Grok | `~/.grok/skills` | `/id` | `/help-skills` |
+| ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
 
 ## Parallel specialists (default)
 
@@ -26,13 +41,13 @@ Skills sync to `~/.cursor/skills/<id>/SKILL.md`.
 | Catalog | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
-Rules land as `~/.cursor/rules/*.mdc`. Router: `~/.cursor/AGENTS.md`. If hooks were published, complete Cursor’s hooks trust UI once (outside CI).
+Also: Customize → Skills (picker / auto). Rules land as `~/.cursor/rules/*.mdc`. Router: `~/.cursor/AGENTS.md`. If hooks were published, complete Cursor’s hooks trust UI once (outside CI).
 
 ## Claude Code
 
 Skills sync to `~/.claude/skills/` (or project `.claude/`). Router file is `CLAUDE.md`. Rules stay `.md` under `rules/`.
 
-Invoke skills via Claude’s skill / slash UX for custom skills (names match kebab ids, e.g. `sdd-spec`). Review `settings.json` merge and trust hooks in Claude’s UI if required.
+Invoke with `/id` (e.g. `/sdd-spec`, `/help-skills`). Review `settings.json` merge and trust hooks in Claude’s UI if required.
 
 Module notes: [adapters/claude/README.md](../../adapters/claude/README.md).
 
@@ -45,43 +60,65 @@ Requires sync with `-Mode user` or `-Mode repo`:
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use Copilot’s agent-skills / custom-instructions surfaces ([GitHub docs](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)). JetBrains/Eclipse Copilot paths are out of scope.
+Invoke with `/id` (e.g. `/dotnet-developer`, `/help-skills`). After sync, run **`/skills reload`** so the CLI picks up new skills. JetBrains/Eclipse Copilot paths are out of scope.
 
 ## Codex
 
-Codex is **dual-root** — do not treat skills and rules as one shared `TOOLKIT_ROOT`:
+Codex is **dual-root** for packaging vs rules — do not treat skills and rules as one shared `TOOLKIT_ROOT`:
 
 | Surface | Location |
 |---------|----------|
-| Plugin skills + CATALOG + OPERATOR (`TOOLKIT_ROOT` for skills) | Under `InstallRoot/plugin` (bundled skills tree) |
+| Plugin skills + CATALOG + OPERATOR (plugin packaging) | Under `InstallRoot/plugin` (bundled skills tree) |
+| **`$` discovery** (InstallRoot skills mirror) | Live `~/.codex/skills` (after sync that mirrors for `$`) |
 | Rules / guardrails (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) |
-| Optional USER skills mirror | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
+| Optional / default UserScope | Fixture: `InstallRoot/.agents/skills` · Live: `~/.agents/skills` |
 
-- **Default sync** is **plugin-only** (skills under `plugin/skills/`). Optional `-UserScope` mirrors skills for USER discovery; CI/fixtures use `InstallRoot/.agents/skills` and never require a live `~/.agents/skills` write.
-- **Publish-Router** materializes `AGENTS.md` with **absolute** dual-root paths (no `{{…}}` placeholders; no live `docs/` links). Do not resolve skill `_shared` under `InstallRoot/rules`.
-- After sync, invoke **`help-skills`** for the installed catalog (`plugin/skills/_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) — do **not** load every `SKILL.md` to list skills. The same skill id works on **all** adapters, not only Codex.
-- Trust plugin hooks with Codex `/hooks` **manually** after a real install — smoke never requires it.
+- **Plugin path alone does not feed `$`.** Plugin/marketplace packaging stays separate; `$id` discovery uses the InstallRoot `skills/` mirror (and UserScope `~/.agents/skills` when enabled).
+- Invoke skills with **`$id`** (e.g. `$help-skills`, `$sdd-spec`). The native `$` or `/skills` picker is the product skills menu — **not** a `--menu` CLI flag.
+- After sync, invoke **`help-skills`** for the installed catalog — do **not** load every `SKILL.md` to list skills. The same skill id works on **all** adapters.
+- Trust plugin hooks with Codex `/hooks` **manually** after a real install — that is trust UI, not skill invoke. Smoke never requires it.
 
 Details: [ADAPTERS.md](../ADAPTERS.md) § Codex · [adapters/codex/README.md](../../adapters/codex/README.md).
 
-## OpenCode / Grok / ZCode / Antigravity
+## OpenCode
 
-| Agent | Skills location (typical) | Invoke tip |
-|-------|---------------------------|------------|
-| OpenCode | `~/.config/opencode/skills` | JS plugins under `plugins/` (not PS1 hooks) |
-| Grok | `~/.grok/skills` | Native `.grok`; trust via `/hooks-trust` if needed |
-| ZCode | `~/.zcode/skills` | ADE filesystem; not GLM Coding Plan |
-| Antigravity | `~/.gemini/config/skills` | Official `config/*` layout |
+Skills sync to `~/.config/opencode/skills`. Invoke via the **`skill` tool** (not slash-first):
+
+```text
+skill({ name: "help-skills" })
+```
+
+JS behavior extensions live under `plugins/` (not PS1 hooks). Module: [adapters/opencode/README.md](../../adapters/opencode/README.md).
+
+## Grok
+
+Expected live skills path: **`~/.grok/skills`**. Invoke with `/id` (e.g. `/help-skills`). Native `.grok` layout; hooks trust via `/hooks-trust` if needed (trust UI, not skill invoke).
+
+Module: [adapters/grok/README.md](../../adapters/grok/README.md).
+
+## ZCode
+
+Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). ADE filesystem — not GLM Coding Plan. After sync, refresh skills in Settings → Skills if the product requires it.
+
+Module: [adapters/zcode/README.md](../../adapters/zcode/README.md).
+
+## Antigravity
+
+Skills sync to `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`, `/help-skills`). Official `config/*` layout.
+
+Module: [adapters/antigravity/README.md](../../adapters/antigravity/README.md).
 
 ## Common workflows
+
+Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, or OpenCode `skill` tool).
 
 ### Forma A
 
 ```text
-/sdd-spec
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step N
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step N
 ```
 
 One develop session = **one** PLAN step.
@@ -89,32 +126,32 @@ One develop session = **one** PLAN step.
 ### Forma C — architecture confirm (greenfield / `needs_domain`)
 
 ```text
-/memory-bank-init
-/orchestrate-analyze
+memory-bank-init
+orchestrate-analyze
 ```
 
-When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a slash skill): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick).
+When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a skill id): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick).
 
-Later `/orchestrate-develop` or `/sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree.
+Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree.
 
 ### Small stack change
 
 ```text
-/developer
+developer
 ```
 
-or `/dotnet-developer`, `/react-developer`, `/python-developer`, …
+or `dotnet-developer`, `react-developer`, `python-developer`, …
 
 ### After implementation
 
 ```text
-/code-review
-/commit
-/push
-/open-github-pr   # optional, when opening a PR
+code-review
+commit
+push
+open-github-pr   # optional, when opening a PR
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `/open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
+Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
 
 ## Catalog and decision tree
 

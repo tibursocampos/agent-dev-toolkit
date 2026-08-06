@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Grok filesystem smoke validate (native .grok layout; TE01-TE05 files only).
+  Grok filesystem smoke validate (InstallRoot = ~/.grok layout; TE01-TE05 files only).
 #>
 
 function Test-GrokPathHasSkillManifest {
@@ -186,7 +186,7 @@ function Invoke-GrokSmokeValidate {
     if ($hooksCapable -and -not $hasNativeHooks) { $nativeRequiredMissing = $true }
     if ($routerCapable -and -not $hasNativeRouter) { $nativeRequiredMissing = $true }
 
-    # TE04: compat-only layout (RN02) - Claude/Cursor present without required native .grok.
+    # TE04: compat-only layout (RN02) - Claude/Cursor present without required native skills/rules/hooks.
     if ($hasCompatArtifacts -and $nativeRequiredMissing) {
         return New-GrokSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
             $script:GrokAdapterMessage.SmokeTe04CompatOnly -f $resolvedInstallRoot

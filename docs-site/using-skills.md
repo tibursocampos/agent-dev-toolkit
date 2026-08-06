@@ -1,8 +1,23 @@
 # Using skills
 
-Invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case folder names under `core/skills/`). Host UX varies: slash `/` when the agent supports it, skill picker, `@`-mention, or “use skill …” phrasing. Examples below often show slash form for brevity — the **id** is what matters across adapters.
+Invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case folder names under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat: `use skill <id>` or natural language matching the skill `description`.
 
 After any agent sync, invoke skill **`help-skills`** for the installed static catalog (`CATALOG.md` + `OPERATOR.md`) — do not load every `SKILL.md`.
+
+**Not skill invoke:** Codex `/hooks` and Grok `/hooks-trust` are hooks trust UI. There is no Codex `$skill --menu` product flag — `$` / `/skills` is the native skills picker.
+
+## Canonical invoke matrix
+
+| Host | Skills path (live, typical) | Explicit form | Example |
+|------|-----------------------------|----------------|---------|
+| Cursor | `~/.cursor/skills` | `/id` | `/help-skills` |
+| Claude | `~/.claude/skills` | `/id` | `/sdd-spec` |
+| Codex | `~/.codex/skills` (+ optional `~/.agents/skills`) | `$id` | `$help-skills` |
+| Copilot | `~/.copilot/skills` or `<repo>/.github/skills` | `/id` (+ `/skills reload` after sync) | `/dotnet-developer` |
+| OpenCode | `~/.config/opencode/skills` | `skill` tool | `skill({ name: "help-skills" })` |
+| Antigravity | `~/.gemini/config/skills` | `use skill id` or `/id` | `use skill sdd-plan` |
+| Grok | `~/.grok/skills` | `/id` | `/help-skills` |
+| ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
 
 ## Parallel specialists (default)
 
@@ -63,7 +78,7 @@ New task
   ├─ Greenfield / needs_domain?    -> Forma C: analyze (+ architect confirm) before develop
   ├─ Single medium/high feature?   -> Forma A: sdd-spec → sdd-plan → sdd-develop
   ├─ Rough backlog item?           -> Forma B: refine-story → checklist? → A or C
-  ├─ Small stack change?           -> *-developer or /developer
+  ├─ Small stack change?           -> *-developer or developer
   └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
@@ -75,11 +90,11 @@ New task
 | **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
 | **C** Orchestrated | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse classic SDD |
 
-For greenfield domain work, prefer Forma C. `/orchestrate-analyze` can start the roster **architect** specialist (not a slash skill). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
+For greenfield domain work, prefer Forma C. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
 
 ## Invoke by agent
 
-Skill **`help-skills`** works on **every** synced adapter (not Codex-only).
+Skill **`help-skills`** works on **every** synced adapter (not Codex-only). Use the host form from the matrix above.
 
 ### Cursor
 
@@ -93,11 +108,11 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | Catalog | `/help-skills` |
 | Forma C Step 0 | `/memory-bank-init` |
 
-Trust hooks in Cursor’s UI once if prompted (outside CI).
+Also Customize → Skills. Trust hooks in Cursor’s UI once if prompted (outside CI).
 
 ### Claude Code
 
-Skills under `~/.claude/skills/` (or project `.claude/`). Router: `CLAUDE.md`. Invoke via Claude’s skill / slash UX; names match kebab ids. Catalog: `help-skills`.
+Skills under `~/.claude/skills/` (or project `.claude/`). Router: `CLAUDE.md`. Invoke with `/id` (e.g. `/sdd-spec`, `/help-skills`).
 
 ### GitHub Copilot
 
@@ -108,40 +123,50 @@ Sync with `-Mode user` or `-Mode repo`:
 | `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
 | `repo` | `<repo>/.github/skills`, … |
 
-Use Copilot’s agent-skills / custom-instructions surfaces. Catalog skill id: `help-skills`.
+Invoke with `/id`. After sync, run **`/skills reload`**. Catalog: `help-skills`.
 
 ### Codex
 
-Codex is **dual-root** — plugin skills and InstallRoot rules are not one shared `TOOLKIT_ROOT`:
+Codex is **dual-root** for packaging vs rules. **Plugin path alone does not feed `$`.**
 
 | Surface | Location |
 |---------|----------|
-| Plugin skills + CATALOG + OPERATOR | Under `InstallRoot/plugin` (default sync) |
+| Plugin skills + CATALOG + OPERATOR | Under `InstallRoot/plugin` (packaging) |
+| **`$` discovery** | Live `~/.codex/skills` (InstallRoot skills mirror) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | Product / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
-| Optional USER skills | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` with `-UserScope` + `-AllowUserHome` |
+| Optional / default UserScope | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
 
-Default sync is **plugin-only**. Invoke `help-skills` for the installed catalog — do not load every `SKILL.md`. Trust hooks with Codex `/hooks` after a real install (smoke never requires it).
+Invoke with **`$id`** (e.g. `$help-skills`). Native `$` / `/skills` picker is the product menu — not a `--menu` flag. Trust hooks with Codex `/hooks` after a real install (trust UI, not skill invoke).
 
-### OpenCode / Grok / ZCode / Antigravity
+### OpenCode
 
-| Agent | Typical skills location | Tip |
-|-------|-------------------------|-----|
-| OpenCode | `~/.config/opencode/skills` | JS plugins under `plugins/` |
-| Grok | `~/.grok/skills` | Trust via `/hooks-trust` if needed |
-| ZCode | `~/.zcode/skills` | ADE (agent filesystem) |
-| Antigravity | `~/.gemini/config/skills` | Official `config/*` layout |
+Skills: `~/.config/opencode/skills`. Invoke via the **`skill` tool**: `skill({ name: "help-skills" })`. JS plugins under `plugins/`.
+
+### Grok
+
+Expected live path: `~/.grok/skills`. Invoke with `/id` (e.g. `/help-skills`). Hooks trust via `/hooks-trust` if needed (not skill invoke).
+
+### ZCode
+
+Skills: `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). Refresh in Settings → Skills if needed.
+
+### Antigravity
+
+Skills: `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`).
 
 Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` + the skills-catalog pack.
 
 ## Common workflows
 
+Flow examples use **skill ids**. Prefix with your host form (`/`, `$`, `use skill`, or OpenCode `skill` tool).
+
 ### Forma A
 
 ```text
-/sdd-spec
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step N
+sdd-spec
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step N
 ```
 
 One develop session = **one** PLAN step.
@@ -149,34 +174,34 @@ One develop session = **one** PLAN step.
 ### Forma C
 
 ```text
-/memory-bank-init
-/orchestrate-analyze
+memory-bank-init
+orchestrate-analyze
 ```
 
-Then `/orchestrate-deliver` and `/orchestrate-develop` (or `/sdd-develop`). Orchestrators **reuse** classic SDD contracts; they do not replace them.
+Then `orchestrate-deliver` and `orchestrate-develop` (or `sdd-develop`). Orchestrators **reuse** classic SDD contracts; they do not replace them.
 
 ### Small stack change
 
 ```text
-/developer
+developer
 ```
 
-or `/dotnet-developer`, `/react-developer`, `/python-developer`, …
+or `dotnet-developer`, `react-developer`, `python-developer`, …
 
 ### After implementation
 
 ```text
-/code-review
-/commit
-/push
-/open-github-pr
+code-review
+commit
+push
+open-github-pr
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `/open-github-pr` over the web UI when `gh` is available.
+Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` over the web UI when `gh` is available.
 
 ## Skills catalog (summary)
 
-Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not slash skills. There is **no** `architect` slash skill — the architect path is spawned from `orchestrate-analyze`.
+Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — the architect path is spawned from `orchestrate-analyze`.
 
 | Group | Skills |
 |-------|--------|

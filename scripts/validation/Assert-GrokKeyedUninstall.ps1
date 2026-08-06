@@ -37,9 +37,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $grokModulePath = Join-Path $repoRoot 'adapters\grok\GrokAdapter.ps1'
 $fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok'
-$skillsRoot = Join-Path $fixtureInstallRoot '.grok\skills'
-$rulesRoot = Join-Path $fixtureInstallRoot '.grok\rules'
-$hooksRoot = Join-Path $fixtureInstallRoot '.grok\hooks'
+$skillsRoot = Join-Path $fixtureInstallRoot 'skills'
+$rulesRoot = Join-Path $fixtureInstallRoot 'rules'
+$hooksRoot = Join-Path $fixtureInstallRoot 'hooks'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
 $gitkeepName = '.gitkeep'
 $configTomlName = 'config.toml'
@@ -83,7 +83,7 @@ function Clear-GrokFixturePublishedArtifacts {
         Remove-Item -LiteralPath $agentsPath -Force
     }
 
-    $configToml = Join-Path (Join-Path $fixtureInstallRoot '.grok') $configTomlName
+    $configToml = Join-Path $fixtureInstallRoot $configTomlName
     if (Test-Path -LiteralPath $configToml) {
         Remove-Item -LiteralPath $configToml -Force
     }
@@ -125,13 +125,13 @@ if ($syncExit -ne 0) {
 }
 
 if (-not (Test-GrokToolkitSkillPresent)) {
-    Write-Fail -TestName $removeTest -Reason 'expected toolkit skills under .grok/skills after sync'
+    Write-Fail -TestName $removeTest -Reason 'expected toolkit skills under skills/ after sync'
 }
 if (-not (Test-GrokToolkitRulePresent)) {
-    Write-Fail -TestName $removeTest -Reason 'expected toolkit rules under .grok/rules after sync'
+    Write-Fail -TestName $removeTest -Reason 'expected toolkit rules under rules/ after sync'
 }
 if (-not (Test-GrokToolkitHooksPresent)) {
-    Write-Fail -TestName $removeTest -Reason 'expected toolkit hooks under .grok/hooks after sync'
+    Write-Fail -TestName $removeTest -Reason 'expected toolkit hooks under hooks/ after sync'
 }
 if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
@@ -168,8 +168,8 @@ if (Test-Path -LiteralPath $agentsPath) {
     Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'
 }
 
-# Skeleton dirs must remain (no wholesale .grok wipe)
-foreach ($dir in @($skillsRoot, $rulesRoot, $hooksRoot, (Join-Path $fixtureInstallRoot '.grok'))) {
+# Skeleton dirs must remain (no wholesale InstallRoot wipe)
+foreach ($dir in @($skillsRoot, $rulesRoot, $hooksRoot, $fixtureInstallRoot)) {
     if (-not (Test-Path -LiteralPath $dir)) {
         Write-Fail -TestName $removeTest -Reason ("keyed uninstall must not wipe directory tree: {0}" -f $dir)
     }
@@ -192,7 +192,7 @@ Set-Content -LiteralPath $alienRulePath -Value ("# {0}`n" -f $alienRuleMarker) -
 $alienHookPath = Join-Path $hooksRoot $alienHookFileName
 Set-Content -LiteralPath $alienHookPath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $alienHookMarker) -Encoding UTF8
 
-$configTomlPath = Join-Path (Join-Path $fixtureInstallRoot '.grok') $configTomlName
+$configTomlPath = Join-Path $fixtureInstallRoot $configTomlName
 Set-Content -LiteralPath $configTomlPath -Value ("# {0}`nkeep=true`n" -f $configTomlName) -Encoding UTF8
 
 $syncLines2 = @(& $syncAgentScript -Agent grok -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })

@@ -85,26 +85,30 @@ Restart the agent or reload the window if skills do not appear immediately. Trus
 
 ## 6. Run your first skill
 
-Classic SDD — create a PRD:
+Canonical form is the **skill id**. Host prefixes differ (`/id`, `$id`, `use skill id`, OpenCode `skill` tool) — see [02-using-skills.md](02-using-skills.md).
+
+Classic SDD — create a PRD (Cursor/Claude example with `/`):
 
 ```text
 /sdd-spec
 ```
 
+Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
+
 Then plan and implement one step:
 
 ```text
-/sdd-plan - <prd-path>
-/sdd-develop - <plan-path> - Step 1
+sdd-plan - <prd-path>
+sdd-develop - <plan-path> - Step 1
 ```
 
 Small change without full SDD:
 
 ```text
-/developer
+developer
 ```
 
-or a stack skill such as `/dotnet-developer` / `/react-developer`.
+or a stack skill such as `dotnet-developer` / `react-developer`.
 
 ## 7. Next reading
 
@@ -116,4 +120,4 @@ or a stack skill such as `/dotnet-developer` / `/react-developer`.
 | Adapter layouts | [ADAPTERS.md](../ADAPTERS.md) |
 | App architecture A/B/C + confirm gate | [domains/core.md](../domains/core.md) § Code guidelines |
 
-Greenfield domain work: prefer Forma C (`/orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).
+Greenfield domain work: prefer Forma C (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).

@@ -7,23 +7,24 @@
   Exposes the stable adapter contract for agent id `grok`.
   Get-Capabilities / Get-InstallRoots / Publish-Skills / Publish-Policy /
   Publish-Router / Publish-Hooks are implemented (optional InstallRoot maps
-  user ~/.grok and project .grok/skills|rules|hooks under the fixture).
-  Publish-Skills copies core/skills into .grok/skills; Publish-Policy copies
-  core/policy into .grok/rules/*.md; Publish-Router writes AGENTS.md from
-  core/router; Publish-Hooks writes native JSON under .grok/hooks (never
-  trusted_folders.toml). Invoke-SmokeValidate asserts native `.grok`
-  filesystem layout (TE01-TE05). Uninstall-Toolkit removes only known toolkit
-  artifacts under InstallRoot (keyed; never wipes ~/.grok / config.toml).
+  the Grok home: live ~/.grok, fixture modeling the same layout).
+  Publish-Skills copies core/skills into InstallRoot/skills; Publish-Policy
+  copies core/policy into InstallRoot/rules/*.md; Publish-Router writes
+  AGENTS.md from core/router; Publish-Hooks writes native JSON under
+  InstallRoot/hooks (never trusted_folders.toml). Invoke-SmokeValidate
+  asserts native skills/rules/hooks filesystem layout (TE01-TE05).
+  Uninstall-Toolkit removes only known toolkit artifacts under InstallRoot
+  (keyed; never wipes InstallRoot / config.toml).
   Does not write under USERPROFILE without -AllowUserHome.
-  Packaging target is native `.grok/skills|rules|hooks` (docs.x.ai/build).
-  Claude/Cursor compat is not the sole publish destination. Hooks trust
-  (`/hooks-trust` / `--trust`) is a human step; smoke is filesystem-only.
+  Packaging target is native skills|rules|hooks under InstallRoot = ~/.grok
+  (docs.x.ai/build). Claude/Cursor compat is not the sole publish destination.
+  Hooks trust (`/hooks-trust` / `--trust`) is a human step; smoke is filesystem-only.
 
 .NOTES
   Initial capabilities (Step 1 decision):
-  - skills = true (Agent Skills under .grok/skills)
-  - rules = true (.grok/rules/*.md from core/policy)
-  - hooks = true (.grok/hooks JSON; trust UI manual)
+  - skills = true (Agent Skills under InstallRoot/skills → live ~/.grok/skills)
+  - rules = true (InstallRoot/rules/*.md from core/policy)
+  - hooks = true (InstallRoot/hooks JSON; trust UI manual)
   - router = true (AGENTS.md / project-rules surface)
   - plugin = false (marketplace/plugins out of MVP CI green)
 #>
@@ -184,7 +185,7 @@ function Get-InstallRoots {
 function Publish-Skills {
     <#
     .SYNOPSIS
-      Publish core/skills into InstallRoot/.grok/skills (kebab folders) with placeholder resolution.
+      Publish core/skills into InstallRoot/skills (kebab folders) with placeholder resolution.
     #>
     [CmdletBinding()]
     param(
@@ -206,7 +207,7 @@ function Publish-Skills {
 function Publish-Policy {
     <#
     .SYNOPSIS
-      Publish core/policy into InstallRoot/.grok/rules as .md (native Grok rules).
+      Publish core/policy into InstallRoot/rules as .md (native Grok rules).
     #>
     [CmdletBinding()]
     param(
@@ -250,7 +251,7 @@ function Publish-Router {
 function Publish-Hooks {
     <#
     .SYNOPSIS
-      Publish native Grok hooks JSON under InstallRoot/.grok/hooks (docs.x.ai/build/features/hooks).
+      Publish native Grok hooks JSON under InstallRoot/hooks (docs.x.ai/build/features/hooks).
       Trust via /hooks-trust or --trust is manual; never writes trusted_folders.toml.
     #>
     [CmdletBinding()]
@@ -326,8 +327,8 @@ function Invoke-SmokeValidate {
 function Uninstall-Toolkit {
     <#
     .SYNOPSIS
-      Remove keyed toolkit artifacts published under InstallRoot (.grok skills/rules/hooks + AGENTS.md).
-      Does not wipe .grok wholesale or touch config.toml (RN07 / CU03).
+      Remove keyed toolkit artifacts published under InstallRoot (skills/rules/hooks + AGENTS.md).
+      Does not wipe InstallRoot wholesale or touch config.toml (RN07 / CU03).
     #>
     [CmdletBinding()]
     param(
