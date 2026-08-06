@@ -16,6 +16,14 @@ UI/UX command flow and design guidance draw from **[pbakaus/impeccable](https://
 
 The toolkit skill `impeccable` is a **partial, adapter-synced harness** (subset of references, `DESIGN-BRIEF.md` handoff, toolkit gates). Full upstream install/hooks are optional and require **explicit user consent**. Behavior is not identical to running Impeccable standalone.
 
+## Anthropic frontend-design (optional external)
+
+Distinctive-UI heuristics (signature motif, compact token plan before code, UX writing intent) are **inspired in part by** [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
+
+**Canonical stack for product UI in this toolkit:** `/impeccable` → `docs/DESIGN-BRIEF.md` → stack `*-developer`. We do **not** ship Anthropic `frontend-design` as a sibling Core skill.
+
+Use the upstream skill only as an **optional external** reference for one-shot Claude.ai / artifact sessions outside the product handoff path. Do not vendor that repository into Core.
+
 ## Memory-bank and Spec Kit
 
 The Forma C `memory-bank/` layout and gate policies are a **toolkit-specific durable workspace map** (PowerShell inventory, no Spec Kit toolchain).

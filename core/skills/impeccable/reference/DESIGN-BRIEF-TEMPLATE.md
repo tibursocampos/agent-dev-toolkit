@@ -24,6 +24,16 @@ High-level structure: pages, regions, components, data flow.
 
 OKLCH palette roles, typography scale, spacing rhythm. Link to `DESIGN.md` when tokens live there.
 
+For craft/shape handoff, prefer a compact lock: **4–6 named color roles**, display + body (+ utility) type roles, and a one-sentence layout concept.
+
+## 4b. Signature motif
+
+The single memorable visual or interaction idea for this surface. Implementers must preserve it; do not add competing “bold” accents during `*-developer` sessions.
+
+## 4c. UX voice (when copy is material)
+
+Voice notes for labels, CTAs, empty and error copy (active voice, consistent verbs, directional empty/error). Optional when the surface is imagery-led with minimal chrome.
+
 ## 5. State map
 
 Per interactive control, document all eight states where applicable: default, hover, focus, active, disabled, loading, error, empty.
@@ -34,7 +44,7 @@ Focus order, labels, contrast targets (4.5:1 body, 3:1 large text), keyboard pat
 
 ## 7. Anti-patterns explicitly avoided
 
-List upstream bans the design refuses (e.g. glassmorphism default, gradient text, identical card grids).
+List upstream bans the design refuses (e.g. glassmorphism default, gradient text, identical card grids, cream body, unearned dark+acid accent, broadsheet-hairline default).
 
 ## 8. Target stack
 

@@ -72,17 +72,24 @@ Produce production-grade code and design choices. Match-and-refuse absolute bans
 - Hero-metric template, identical card grids, eyebrow on every section
 - Numbered section markers (01/02/03) as default scaffolding
 - Text overflow at breakpoints; cream/sand/beige body backgrounds (OKLCH warm-neutral band)
+- Near-black + single acid-green / vermilion accent as an unearned default (same cluster family as cream+serif+terracotta and broadsheet-hairline layouts)
 - Overused fonts (Inter as default); bounce/elastic easing; `transition-all` reflex
 - Cards as lazy default; nested cards always wrong
 - Image hover transforms (Tailwind group-hover on images)
 
+**Signature:** Spend boldness once. Name one memorable motif that carries the brief; keep surroundings quiet. Cut decoration that does not serve that motif (Chanel cut).
+
+**Hero as thesis:** Open with the most characteristic thing in the subject's world (headline, image, motion, live demo)—not a generic metric strip unless that *is* the product story.
+
 **Typography:** body ≤65-75ch; display clamp max ≤6rem; letter-spacing floor ≥-0.04em on display headings.
 
-**Motion:** ease-out-quart/quint/expo; `@media (prefers-reduced-motion: reduce)` on every animation.
+**Motion:** ease-out-quart/quint/expo; `@media (prefers-reduced-motion: reduce)` on every animation. Prefer one orchestrated moment over scattered effects.
 
 **Color:** OKLCH; verify contrast (4.5:1 body, 3:1 large); pick color strategy (Restrained / Committed / Full palette / Drenched) before picking colors.
 
 **Slop test:** If someone could say "AI made that" without doubt, it failed. Run first-order and second-order category-reflex checks (see register refs).
+
+**External note:** Anthropic `frontend-design` is optional inspiration only—not a Core sibling. See `docs/CREDITS.md`. Canonical path remains impeccable → DESIGN-BRIEF → `*-developer`.
 
 ## Commands
 
@@ -162,7 +169,10 @@ SDD composability: `shape` may also feed PRD sections when user is in SDD flow; 
 
 One invocation = one Impeccable command outcome. After `shape` brief is saved, or after `polish`/`audit` report, **STOP**. Do not continue to `react-developer` in the same session.
 
-#--------|------|
+## Handoff
+
+| Situation | Next |
+|-----------|------|
 | Brief confirmed | New session -> `react-developer` / `angular-developer` / `developer` |
 | Large feature + PRD | `sdd-spec` -> `sdd-plan` -> `sdd-develop` |
 | Commit design artifacts | `/commit` (user request only) |
