@@ -24,7 +24,8 @@
 
 .PARAMETER UserScope
   Forwarded to sync-agent for adapters that declare Publish-Skills -UserScope (Codex).
-  Live ~/.codex + -AllowUserHome also defaults UserScope on inside sync-agent.
+  Opt-in only — do not combine with the always-on ~/.codex/skills mirror unless you
+  intentionally want a second Personal discovery root (duplicates $ picks).
 
 .PARAMETER Quiet
   Forwarded to validate-agent / validate-core.

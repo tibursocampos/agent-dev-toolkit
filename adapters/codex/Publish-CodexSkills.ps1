@@ -502,6 +502,7 @@ function Invoke-CodexPublishSkills {
 
     $userSkillsFilesCopied = 0
     $publishedUserSkillsRoot = $null
+    $userSkillsPruned = 0
     if ($userScopeEnabled) {
         if ($liveUserScope) {
             $null = Initialize-InstallRootForWrite -InstallRoot $userSkillsContainmentRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
@@ -518,6 +519,24 @@ function Invoke-CodexPublishSkills {
             -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
         $userSkillsFilesCopied = $userPublishResult.FilesCopied
         $publishedUserSkillsRoot = $userSkillsRoot
+    }
+    else {
+        # Without -UserScope, prune a leftover USER mirror so Codex $ does not list
+        # the same skill twice (InstallRoot/skills + ~/.agents/skills).
+        $userManagedManifest = Join-Path $userSkillsRoot $script:ToolkitConstant.ManagedSkillsManifestFileName
+        if (Test-Path -LiteralPath $userManagedManifest) {
+            if ($liveUserScope) {
+                $null = Initialize-InstallRootForWrite -InstallRoot $userSkillsContainmentRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+            }
+
+            $prunedUserSkillNames = @(
+                Sync-ToolkitManagedSkillFolders `
+                    -DestinationSkillsRoot $userSkillsRoot `
+                    -CurrentSkillNames @() `
+                    -InstallRoot $userSkillsContainmentRoot
+            )
+            $userSkillsPruned = $prunedUserSkillNames.Count
+        }
     }
 
     $message = if ($userScopeEnabled) {
@@ -545,6 +564,7 @@ function Invoke-CodexPublishSkills {
         FilesCopied           = $filesCopied
         HomeSkillsFilesCopied = $homeSkillsFilesCopied
         UserSkillsFilesCopied = $userSkillsFilesCopied
+        UserSkillsPruned      = $userSkillsPruned
         Message               = $message
         ExitCode              = 0
     }
