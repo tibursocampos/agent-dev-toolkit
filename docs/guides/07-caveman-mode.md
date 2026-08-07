@@ -14,7 +14,7 @@ Credits: [CREDITS.md](../CREDITS.md) — inspired by [JuliusBrussee/caveman](htt
 { "caveman_mode": false, "caveman_level": "full" }
 ```
 
-Location: `{{SDD_ROOT}}/preferences.json` (under the agent’s published SDD root after sync).
+Location: `{{SDD_ROOT}}/preferences.json` (under the agent’s published SDD root after sync). At runtime, resolve via host-aware `effective_SDD_ROOT` (`STORAGE.md`) so prefs never land under a foreign agent home.
 
 ## Commands (in chat)
 
