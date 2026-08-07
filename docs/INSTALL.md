@@ -96,6 +96,8 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor `
   -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
+If you also sync Claude/Codex (or other agents), disable Cursor’s **Include third-party Plugins, Skills, and other configs** so installs stay isolated — see [adapters/cursor/README.md](../adapters/cursor/README.md#multi-agent-installs--third-party-skills).
+
 #### Claude Code → `~/.claude`
 
 ```powershell

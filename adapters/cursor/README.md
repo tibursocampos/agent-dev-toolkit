@@ -73,6 +73,15 @@ Skills prefer Task when `subagents=native`; fallback in-parent when Task unavail
 
 Removes only toolkit-managed paths (core skill ids, core policy → `rules/*.mdc`, toolkit hook scripts, `AGENTS.md`) and reverse-merges `hooks.json` (drop toolkit-managed handlers by strict `-File` command identity; keep aliens and alien top-level keys). Publish merge may match broader `hooks/<script>` paths; uninstall matching is strict `-File`. Preserves alien skills/rules/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
 
+## Multi-agent installs / third-party skills
+
+When this toolkit is installed **per agent** via sync (separate Cursor and Claude/Codex installs), **do not** let Cursor load the other agents’ skills or configs.
+
+1. **Recommendation:** In Cursor Settings → Rules, Skills, Subagents, **disable** **Include third-party Plugins, Skills, and other configs**.
+2. **Why:** Cross-loading Claude/Codex compatibility paths can resolve the wrong `SDD_ROOT` and write into `~/.claude/sdd` (or similar) when both toolkit installs exist. Each agent gets its own sync; do not share skills across agents via IDE import.
+3. **Publish model:** The toolkit already publishes separately to `~/.cursor` and `~/.claude` (and other InstallRoots). Rely on those syncs — not on Cursor importing third-party agent homes.
+4. **Storage mode** (repository vs global / live home) remains a **user choice**. This note does not require forcing repository-scoped install.
+
 ## Official docs (Cursor)
 
 - [Rules + AGENTS.md](https://cursor.com/docs/rules)

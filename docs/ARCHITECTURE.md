@@ -51,6 +51,8 @@ Product content under `core/` must not hardcode a single IDE user-profile instal
 | `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, global features) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
 
+Adapters may bake absolute paths at publish; at **runtime** skills resolve SDD state via host-aware `effective_SDD_ROOT` (`STORAGE.md`) so a foreign agent's baked `{{SDD_ROOT}}` never wins over the current host.
+
 Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contain-ide.json` (merged in skill contracts). Core suite entry: `scripts/validation/validate-core.ps1` (alias `validate-all.ps1`; no home deploy).
 
 ### Conscious exceptions

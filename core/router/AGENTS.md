@@ -15,10 +15,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## Parallel specialists (default)
 
-For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-- Honor `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
-- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+Always-on policy (after publish): `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` (source: `core/policy/orchestrator-session.md`).
+
+- Honor `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
+- **Trivial / single-path** Q&A stays in-parent — do not spawn for noise.
 - User-facing chat remains pt-BR per language policy below.
 
 ## Language
@@ -75,10 +78,11 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 
 ## Agents / spawn (lazy)
 
-Default preference: parallel specialists for multi-facet parent turns — see **Parallel specialists (default)** above. Details:
+Default preference: this session stays parent/orchestrator; specialists for heavy work — see **Parallel specialists (default)** above. Details:
 
 | Topic | Path |
 |-------|------|
+| Orchestrator session (always-on) | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Roster / `needs_*` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
@@ -92,6 +96,7 @@ Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under 
 | Rule | Path |
 |------|------|
 | Guardrails (git, write, gates) | `{{GUARDRAILS_PATH}}` |
+| Orchestrator session | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
 | AI stealth | `{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc` |
 | SDD pipeline | `{{TOOLKIT_ROOT}}/rules/sdd-pipeline-guards.mdc` |
 | Context management | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
