@@ -35,7 +35,7 @@ Total: **38** kebab skills.
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `memory-bank-init` | `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0) |
+| `memory-bank-init` | `memory-bank-init` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
 | `orchestrate-analyze` | `orchestrate-analyze` | Triage, specialists, backlog structure |
 | `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |
 | `orchestrate-develop` | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` |

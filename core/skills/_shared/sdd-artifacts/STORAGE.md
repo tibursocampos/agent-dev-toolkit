@@ -226,7 +226,7 @@ If a repository entry has top-level `storage_mode` and `path` (no `classic`), mi
 }
 ```
 
-Run `.\scripts\maintainers\migrate-manifest-v2.ps1` to persist. Write back on first skill run after migration.
+**Persist migration:** TBD — no shipped `migrate-manifest-v2` script in this toolkit. Apply the mapping **in memory** on read; write the v2 `classic` shape back on the first skill run that updates the manifest.
 
 ### Resolution algorithm
 

@@ -104,7 +104,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 ## 5. O que é publicado
 
-Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Artefatos típicos:
+Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + seed de `manifest.json` schema v2 quando ausente). Artefatos típicos:
 
 | Agente | Sob InstallRoot |
 |--------|-----------------|
@@ -113,6 +113,13 @@ Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Artefato
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
 | Codex | `plugin/` (+ marketplace), `rules/*.md`, `AGENTS.md` materializado; `.agents/skills` opcional com `-UserScope` (dual-root — skills e rules não compartilham um único TOOLKIT_ROOT) |
 | Outros | Ver [Adaptadores](../adapters/) e [Arquitetura](../architecture/) |
+
+**Armazenamento SDD (primeira gravação Classic):** as skills perguntam **repositório** vs **global** quando o projeto ainda não está no manifesto.
+
+- **Repositório** — `features/` + `memory-bank/` na raiz do projeto da aplicação
+- **Global** — a mesma árvore sob `{{SDD_ROOT}}/<repo-id>/` (fora do git do projeto)
+
+Install/sync: [docs/INSTALL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md). Layout do core: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md). Contrato de storage: [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
 
 ## 6. Abrir o projeto da aplicação
 
@@ -163,7 +170,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Sintoma | Correção |
 |---------|----------|
 | Sync recusa InstallRoot | Adicione `-AllowUserHome` ou confirme no wizard |
-| Copilot TE02 | Falha de sync do Copilot (modo ausente) — passe `-Mode user` ou `-Mode repo` |
+| Copilot TE02 | Mode ausente/inválido — passe `-Mode user` ou `-Mode repo` |
 | Skills ausentes no IDE | Sync no **ambiente real do agente**; reinicie/aceite os hooks se necessário |
 | Esperava escrita no ambiente em run tipo CI | Use fixtures / omita InstallRoot real |
 
