@@ -85,7 +85,7 @@ $script:CodexAdapterConstant = @{
     InstallRootOverrideParameter         = 'InstallRoot'
     InstallRootOverrideDescription       = 'Pass -InstallRoot to target an in-repo fixture or an explicit path. Paths under USERPROFILE require -AllowUserHome. Live home models ~/.codex; Publish-Skills always writes InstallRoot/skills for $ discovery; with -UserScope on live ~/.codex, USER skills also write to real ~/.agents/skills.'
     UserScopeParameterName               = 'UserScope'
-    UserScopeDescription                 = 'Optional -UserScope also mirrors core/skills. Fixture: InstallRoot/.agents/skills. Live ~/.codex + -AllowUserHome: $HOME/.agents/skills (sync-agent defaults UserScope on for that live pair). Home skills InstallRoot/skills always publish for $ discovery.'
+    UserScopeDescription                 = 'Optional -UserScope also mirrors core/skills to ~/.agents/skills (opt-in only). Home skills InstallRoot/skills always publish for $ discovery; do not enable UserScope by default or the $ picker lists each skill twice.'
     HooksTrustNote                       = 'Hooks trust via Codex /hooks UI is a human operational step; smoke validates files only.'
     ResolveInstallRootRelativePath       = 'scripts/_lib/Resolve-InstallRoot.ps1'
 }

@@ -51,7 +51,7 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 | `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | `/id` (e.g. `/help-skills`) | Also reads `~/.agents/skills` / project `.cursor/` |
 | `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md` | `use skill id` or `/id` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
 | `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | `/id` (e.g. `/sdd-spec`) | Project scope also uses repo `.claude/` |
-| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`) + optional/default UserScope `~/.agents/skills`; rules under `InstallRoot/rules` | `$id` (e.g. `$help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
+| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`); optional `-UserScope` `~/.agents/skills` (opt-in only — duplicates `$` if both); rules under `InstallRoot/rules` | `$id` (e.g. `$help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
 | `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | `/id`; after sync `/skills reload` | Same relative tree both modes |
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
 | `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
@@ -306,7 +306,7 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 | `$` discovery mirror | `InstallRoot/skills` (live `~/.codex/skills`) | Feeds `$id` invoke |
 | Rules / guardrails | `InstallRoot/rules/*.md` (Publish-Policy from `core/policy/`) | Rules are **not** under the plugin skills tree |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) | Router + hooks parent |
-| Optional / default UserScope | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Additional USER discovery |
+| Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Extra USER discovery — **do not** enable with home skills or `$` duplicates |
 
 **Skill invoke:** `$id` (e.g. `$help-skills`). Native `$` or `/skills` picker = product skills menu — **not** a `--menu` flag. Codex `/hooks` = hooks trust UI, not skill invoke.
 
