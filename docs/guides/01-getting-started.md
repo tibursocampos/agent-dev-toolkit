@@ -52,8 +52,8 @@ Choose **Sync agent**, then:
 
 | Target | Use when |
 |--------|----------|
-| In-repo fixture | Learning / CI-safe (default) |
-| Live agent home | Deploy to `~/.cursor`, `~/.claude`, … |
+| In-repo fixture | Learning / CI-safe (non-interactive omit `-InstallRoot`) |
+| Live agent home | Deploy to `~/.cursor`, `~/.claude`, … (wizard Enter default) |
 | Custom path | Unusual InstallRoot |
 
 Copilot: the wizard asks for **Mode** `user` or `repo`.
@@ -94,6 +94,15 @@ Classic SDD — create a PRD (Cursor/Claude example with `/`):
 ```
 
 Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
+
+**First Classic / Forma C write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
+
+| Choice | PRD / PLAN / feature tree | Memory bank |
+|--------|---------------------------|-------------|
+| Repository | `$Cwd/features/NNN-slug/...` | `$Cwd/memory-bank/` |
+| Global | Under `classic.path` on the SDD root (outside the consumer git tree) | Same `<path>/memory-bank/` |
+
+There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/sdd/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
 
 Then plan and implement one step:
 

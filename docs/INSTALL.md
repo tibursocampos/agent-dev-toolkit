@@ -152,6 +152,17 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare`.
 
+### Storage (SDD artifacts)
+
+After prepare, `manifest.json` (schema **v2**) lives under the effective SDD root (`effective_SDD_ROOT` = `<InstallRoot>/sdd`; docs may still say `{{SDD_ROOT}}`). Per-project Classic settings are `repositories[<cwd>].classic.storage_mode` and `.path`.
+
+| Mode | Where artifacts land |
+|------|----------------------|
+| **repository** | `$Cwd/features/` + `$Cwd/memory-bank/` |
+| **global** | Path under the SDD root (`classic.path`, typically `{{SDD_ROOT}}/<repo-id>/`) — `features/` + `memory-bank/` co-located there |
+
+Seed never overwrites an existing manifest. Full contract: [STORAGE.md](../core/sdd/STORAGE.md). Domain summary: [domains/core.md](domains/core.md) § SDD.
+
 Full layouts: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md).
 
 ## 5. Verify

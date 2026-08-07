@@ -63,12 +63,24 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
 
 **RN:** subagent-first = preference + fallback. Antigravity: use **effective** capability (probe), not registry alone.
 
+## Specialists (`needs_*` → ROSTER)
+
+O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
+
+## Task `model`
+
+Default: **omit** `model` on Task → child inherits the parent session model. Premium / alternate slug only when the gate in `SUBAGENT-MODEL.md` fires **and** the user answers **sim** (silence ≠ approval). Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
+
+## Orchestrate parents
+
+`orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `*-developer` / `sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
+
 ## Related
 
 | Path | Role |
 |------|------|
 | `core/skills/_shared/agents/SPAWN.md` | Canonical agent contract (when/how; anti-paste; child payload) |
-| `core/skills/_shared/agents/ROSTER.md` | Which roles / `needs_*` |
+| `core/skills/_shared/agents/ROSTER.md` | Which roles / `needs_*` spawn map (O1) |
 | `core/skills/_shared/agents/RECEIPT.md` | Specialist receipt schema |
 | `core/skills/_shared/agents/SUBAGENT-MODEL.md` | Cursor Task `model` policy |
 | `adapters/<id>/README.md` | Per-host Spawn / subagents honesty |

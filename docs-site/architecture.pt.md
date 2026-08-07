@@ -34,7 +34,7 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Pontos de public
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — selecionar agente, sync, validar, uninstall |
 | **Validação** | Suite de contratos + testes smoke em fixture; a CI nunca exige deploy real em `%USERPROFILE%` para ficar verde |
 
-Após o sync, o router publicado prefere **subagentes especialistas em paralelo** para trabalho multi-facetado (esta sessão permanece como pai). Resumo humano: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); contrato do agente: `core/skills/_shared/agents/SPAWN.md`.
+Após o sync, o router publicado prefere **subagentes especialistas em paralelo** para trabalho multi-facetado (esta sessão permanece como pai). Caps: filhos `*-developer` **≤ 2**; paralelo `orchestrate-*` **≤ 4** (em ondas se houver mais). Resumo humano: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); contrato do agente: `core/skills/_shared/agents/SPAWN.md`.
 
 ## Layout do repositório
 
@@ -53,8 +53,12 @@ O conteúdo do core não deve fixar em código uma única raiz de perfil de usu�
 | Placeholder | Significado |
 |-------------|-------------|
 | `{{TOOLKIT_ROOT}}` | Raiz de instalação do toolkit no agente (destination-aware; Codex separa skills do plugin vs `rules/` em InstallRoot) |
-| `{{SDD_ROOT}}` | Raiz de estado SDD (`preferences.json`, `sessions/`, features globais) |
+| `{{SDD_ROOT}}` | Estado SDD sob InstallRoot (`sessions/`, `preferences.json`, `manifest.json` v2, árvores de features **globais** opcionais) |
 | `{{GUARDRAILS_PATH}}` | Path do arquivo de policy de guardrails para o agente de destino |
+
+Em runtime, as skills preferem **`effective_SDD_ROOT`** consciente do host (`<InstallRoot>/sdd`) a um `{{SDD_ROOT}}` baked de outro agente — ver [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) e [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
+
+**Artefatos repositório vs global:** no modo **repositório**, Classic `features/` + `memory-bank/` ficam no cwd do projeto da aplicação; no modo **global**, a mesma árvore fica sob `{{SDD_ROOT}}/<repo-id>/`. A pasta `sdd/` do InstallRoot sempre guarda sessions, prefs e o manifesto por repo — não a árvore de features do modo repositório.
 
 ## Pontos de entrada
 

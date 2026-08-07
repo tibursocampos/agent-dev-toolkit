@@ -46,6 +46,6 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 
 | Path | Purpose |
 |------|---------|
-| [documentation-plan/plan.md](documentation-plan/plan.md) | Doc plan progress for maintainers |
+| `documentation-plan/` (local / gitignored) | Maintainer-only doc plan (`plan.md` via `document-plan` / `document-implement`). **Not versioned** in this toolkit — create locally when needed; do not link or publish it. |
 
 For daily skill choice, prefer **[guides/README.md](guides/README.md)** over reading `SKILL.md` files directly.

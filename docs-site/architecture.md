@@ -34,7 +34,7 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — select agent, sync, validate, uninstall |
 | **Validation** | Contract suite + fixture smoke tests; CI never requires a live `%USERPROFILE%` deploy for green |
 
-After sync, the published router prefers **parallel specialist subagents** for multi-facet work (this session stays parent). Human summary: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); agent contract: `core/skills/_shared/agents/SPAWN.md`.
+After sync, the published router prefers **parallel specialist subagents** for multi-facet work (this session stays parent). Caps: `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Human summary: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); agent contract: `core/skills/_shared/agents/SPAWN.md`.
 
 ## Repo layout
 
@@ -53,8 +53,12 @@ Core content must not hardcode a single IDE user-profile root. Adapters resolve 
 | Placeholder | Meaning |
 |-------------|---------|
 | `{{TOOLKIT_ROOT}}` | Agent toolkit install root (destination-aware; Codex splits plugin skills vs InstallRoot `rules/`) |
-| `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, global features) |
+| `{{SDD_ROOT}}` | SDD state under InstallRoot (`sessions/`, `preferences.json`, `manifest.json` v2, optional **global** feature trees) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
+
+At runtime, skills prefer host-aware **`effective_SDD_ROOT`** (`<InstallRoot>/sdd`) over a baked `{{SDD_ROOT}}` from another agent home — see [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) and [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
+
+**Repository vs global artifacts:** **repository** mode keeps Classic `features/` + `memory-bank/` in the application project cwd; **global** mode keeps the same tree under `{{SDD_ROOT}}/<repo-id>/`. The InstallRoot `sdd/` folder always holds sessions, prefs, and the per-repo manifest — not the repository-mode feature tree.
 
 ## Entry points
 

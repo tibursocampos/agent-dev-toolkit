@@ -21,7 +21,11 @@ After any agent sync, invoke **`help-skills`** for the installed static catalog 
 
 ## Parallel specialists (default)
 
-After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`.
+After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**).
+
+- **`needs_*` → specialist:** O1 spawn map lives in `ROSTER.md` (`Flags (needs_*)`) — point there; do not paste the roster.
+- **Task `model`:** omit by default (inherit parent); premium/alternate only with `SUBAGENT-MODEL.md` gate + user **sim**.
+- **Orchestrate parents:** coordinate / receipts / synthesis — **must not** implement application code.
 
 ## Prerequisites
 
@@ -130,7 +134,7 @@ memory-bank-init
 orchestrate-analyze
 ```
 
-When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a skill id): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick).
+When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a skill id): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick). Other O1 specialists follow `needs_*` in `ROSTER.md`. Parent stays coordinator (no app code); Task `model` omitted unless gated + **sim** ([SPAWN.md](../SPAWN.md)).
 
 Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree.
 
