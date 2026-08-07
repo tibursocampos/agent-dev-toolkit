@@ -21,7 +21,12 @@ After any agent sync, invoke skill **`help-skills`** for the installed static ca
 
 ## Parallel specialists (default)
 
-After sync, the published router asks agents to prefer **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: `SPAWN.md` (see [Architecture](../architecture/)).
+After sync, the published router asks agents to prefer **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent.
+
+- **`needs_*` → roster** — which roles to spawn: [ROSTER.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/ROSTER.md)
+- **Task `model`** — omit by default (child inherits the parent session model); see [SUBAGENT-MODEL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/SUBAGENT-MODEL.md)
+- **Orchestrator parent** — this session stays lean (goals, gates, paths, receipts); **no application code** in the parent when specialists run
+- **Caps** — `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Fallback when `subagents=none`: in-parent, never hard-fail — [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md) · [Architecture](../architecture/)
 
 ## Prerequisites
 

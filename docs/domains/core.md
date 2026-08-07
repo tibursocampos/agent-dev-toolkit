@@ -35,7 +35,7 @@ Skill and policy text may contain:
 | Placeholder | Meaning at publish |
 |-------------|--------------------|
 | `{{TOOLKIT_ROOT}}` | Agent toolkit install root (destination-aware; Codex: plugin skills vs InstallRoot `rules/`) |
-| `{{SDD_ROOT}}` | SDD state root (sessions, manifest) |
+| `{{SDD_ROOT}}` | SDD state root (sessions, prefs, manifest; optional global Classic tree). Runtime: `effective_SDD_ROOT` |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy path for the target agent |
 
 `core/` on disk keeps placeholders; adapters resolve them in the destination. Needles that ban IDE home hardcodes live under `scripts/validation/contracts/`.
@@ -64,9 +64,25 @@ Source router document (typically `AGENTS.md`). Published as:
 
 Portable contracts such as `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Source of truth for pipeline text. Runtime state (`<InstallRoot>/sdd/sessions/`, `manifest.json`) is prepared on every sync via `Get-SddRoot -Prepare`.
 
-Public state file name: **`manifest.json`** (no version suffix in the filename).
+Public state file name: **`manifest.json`** (no version suffix in the filename). Schema **v2** stores per-cwd Classic settings under `repositories[<cwd>].classic` (`storage_mode`, `path`).
 
-Copies also ship inside `core/skills/_shared/sdd-artifacts/` for skill lazy-load.
+Copies also ship inside `core/skills/_shared/sdd-artifacts/` for skill lazy-load. Full rules: [STORAGE.md](../../core/sdd/STORAGE.md).
+
+### Artifact storage (repository vs global)
+
+Where Classic / Forma C writes land is chosen once per project (first SDD write). Modes share the same co-location rule: `features/` and `memory-bank/` always sit under one storage root — **never** place `memory-bank/` under `features/NNN-slug/`.
+
+| Mode | Feature root | Memory-bank root |
+|------|--------------|------------------|
+| **repository** | `$Cwd/features/NNN-slug/` | `$Cwd/memory-bank/` |
+| **global** | `<classic.path>/features/NNN-slug/` | `<classic.path>/memory-bank/` |
+
+- **repository:** artifacts under the consumer workspace (`features/` + `memory-bank/` at `$Cwd`).
+- **global:** `<classic.path>` is under the host SDD root (typically `{{SDD_ROOT}}/<repo-id>/`, or the path stored in the manifest). Outside the consumer git tree; skills do not edit project `.gitignore`.
+
+Manifest keys: `classic.storage_mode` (`repository` \| `global`) and `classic.path`. Runtime resolves the host-aware root as `effective_SDD_ROOT` (`<InstallRoot>/sdd`); docs and publish may still show `{{SDD_ROOT}}`. Sync prepares that root via `Get-SddRoot -Prepare` (seed `manifest.json` only when absent).
+
+No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `features/NNN-slug/...`.
 
 ## Code guidelines and architecture selection
 

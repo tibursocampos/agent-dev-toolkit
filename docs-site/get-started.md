@@ -104,7 +104,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 ## 5. What gets published
 
-Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Typical artifacts:
+Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + seed `manifest.json` schema v2 when absent). Typical artifacts:
 
 | Agent | Under InstallRoot |
 |-------|-------------------|
@@ -113,6 +113,13 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`). Typica
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
 | Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` (dual-root — not one shared TOOLKIT_ROOT for skills+rules) |
 | Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
+
+**SDD storage (first Classic write):** skills ask **repository** vs **global** when the project is not yet in the manifest.
+
+- **Repository** — `features/` + `memory-bank/` under the application project cwd
+- **Global** — same tree under `{{SDD_ROOT}}/<repo-id>/` (outside the project git tree)
+
+Install/sync deep dive: [docs/INSTALL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md). Core layout: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md). Storage contract: [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
 
 ## 6. Open an application project
 
@@ -163,7 +170,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 | Symptom | Fix |
 |---------|-----|
 | Sync refuses InstallRoot | Add `-AllowUserHome` or confirm in the wizard |
-| Copilot sync failed (missing Mode) | Pass `-Mode user` or `-Mode repo` |
+| Copilot TE02 | Missing/invalid `-Mode` — pass `-Mode user` or `-Mode repo` |
 | Skills missing in IDE | Sync **live install**; restart/trust hooks if required |
 | Expected an install-root write in CI-like run | Use fixtures / omit live InstallRoot |
 

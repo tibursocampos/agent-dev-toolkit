@@ -48,10 +48,12 @@ Product content under `core/` must not hardcode a single IDE user-profile instal
 | Placeholder | Meaning |
 |-------------|---------|
 | `{{TOOLKIT_ROOT}}` | Agent toolkit install root (skills / policy / router — **destination-aware**; Codex splits plugin skills vs InstallRoot rules) |
-| `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, global features) |
+| `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, `manifest.json`, optional global Classic tree) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
 
-Adapters may bake absolute paths at publish; at **runtime** skills resolve SDD state via host-aware `effective_SDD_ROOT` (`STORAGE.md`) so a foreign agent's baked `{{SDD_ROOT}}` never wins over the current host.
+Adapters may bake absolute paths at publish; at **runtime** skills resolve SDD state via host-aware `effective_SDD_ROOT` ([STORAGE.md](../core/sdd/STORAGE.md)) so a foreign agent's baked `{{SDD_ROOT}}` never wins over the current host.
+
+**SDD_ROOT vs cwd artifacts:** `effective_SDD_ROOT` (`{{SDD_ROOT}}` in docs) holds global sessions, preferences, and `manifest.json` (schema v2), plus optional **global** Classic `features/` + `memory-bank/` when `classic.storage_mode` is `global`. **Repository** mode keeps those trees under the consumer `$Cwd` instead. Deep dive: [domains/core.md](domains/core.md) § SDD — do not paste the full STORAGE contract here.
 
 Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contain-ide.json` (merged in skill contracts). Core suite entry: `scripts/validation/validate-core.ps1` (alias `validate-all.ps1`; no home deploy).
 
