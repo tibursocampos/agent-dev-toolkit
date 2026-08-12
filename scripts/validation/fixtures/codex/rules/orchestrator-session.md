@@ -34,14 +34,23 @@ Prefer specialist subagents (parallel when independent) for analysis, multi-file
 
 ---
 
+## Read SPAWN before decide
+
+- Before `CreatePlan` / any plan that cites Task, subagents, or orchestration: **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/agents/SPAWN.md` first.
+- Before the first spawn vs in-parent decision in a chat when work is **not** thin-trivial: **Read** SPAWN.md.
+- Multi-file analysis / non-trivial planning → spawn specialists; this chat stays parent/orchestrator.
+- Citing Task/orchestration in a plan without having Read SPAWN = failed checklist.
+
+Caps, host table, and child payload rules live in SPAWN.md — use the **Read** triggers above (do not skip the Read and cite the contract from memory).
+
+---
+
 ## Capability and fallback
 
 | Effective `subagents` | Behavior |
 |----------------------|----------|
 | `native` (Task / host equivalent) | Prefer spawn except the thin trivial exception |
 | `none` or Task unavailable | Same outcome **in-parent** (or documented handoff). **Never** hard-fail only because Task is absent |
-
-Load `SPAWN.md` for caps, host table, and child payload rules.
 
 ---
 

@@ -1,6 +1,6 @@
 # Spawn / subagents (Tier 1)
 
-Human summary of the portable spawn contract. Agents load the canonical skill contract at `core/skills/_shared/agents/SPAWN.md` (published under `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` after sync).
+Human summary of the portable spawn contract. Agents **Read** the canonical skill contract at `core/skills/_shared/agents/SPAWN.md` (published under `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` after sync) before `CreatePlan` that cites orchestration/Task/subagents and before the first non-trivial spawn vs in-parent decision.
 
 Per-adapter honesty notes: each `adapters/<id>/README.md` → **Spawn / subagents**. Registry capability: `docs/ADAPTERS.md`.
 
