@@ -246,7 +246,7 @@ Full contract: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/an
 
 ## 1. In-session commands
 
-Watch chat for exact commands; update `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/sdd/preferences.json`:
+Watch chat for exact commands; update `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/preferences.json`:
 
 | Command | Action |
 |---------|--------|
@@ -259,7 +259,7 @@ Also accept `stop caveman` / `normal mode` as off.
 
 ## 2. Preference check (every session / task start)
 
-1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/sdd/preferences.json`.
+1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/preferences.json`.
 2. If missing: create `{ "caveman_mode": false, "caveman_level": "full" }`.
 3. If `caveman_mode` is `true`:
    - Load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/skills/_shared/caveman/CAVEMAN.md`.
@@ -280,6 +280,8 @@ Also accept `stop caveman` / `normal mode` as off.
 **Full / Ultra** (develop, review, ops, stack developers, general chat): telegraphic fragments; pattern `[thing] [action] [reason]. [next].`; no preambles/pleasantries/tool narration. Ultra = max terseness when unambiguous.
 
 **Boundaries:** code, commit messages, and PR bodies stay normal prose (English). Chat style only.
+
+**Subagents:** when mode ON, child prompts and returns follow Caveman (inherit parent intensity; end receipt per `RECEIPT.md`). When OFF, still prefer compact receipts for token control. See `orchestrator-session.md` + `SPAWN.md`.
 
 ---
 description: Checkpoint multi-step SDD skills when context is high; persist PLAN/PRD before continuing
@@ -432,6 +434,66 @@ BREAKING CHANGE: /login endpoint removed
 After `scripts/sync-cursor.ps1`: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/rules/conventional-commits.mdc` (see `docs/INSTALL.md`)
 
 ---
+description: Keep this chat as lean parent orchestrator; prefer specialist subagents for heavy work
+alwaysApply: true
+---
+
+# Orchestrator session (parent stays lean)
+
+**Applies to:** every conversation in this toolkit install. Do **not** require the user to restate this each session.
+
+Full spawn contract: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/skills/_shared/agents/SPAWN.md`. Model param: `SUBAGENT-MODEL.md`. Receipts: `RECEIPT.md`. Caveman: `skills/_shared/caveman/CAVEMAN.md` + `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/preferences.json`.
+
+---
+
+## Role of this session
+
+This chat = **parent / orchestrator**.
+
+Parent keeps minimal context:
+
+- goals and acceptance gates
+- scoped paths
+- specialist receipts
+- synthesis / next actions for the user
+
+Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that.
+
+---
+
+## Prefer specialists (when `subagents` is `native`)
+
+Prefer specialist subagents (parallel when independent) for analysis, multi-file edits, script/batch runs, long builds/tests, and non-trivial planning. Parent synthesizes; child does the heavy pass.
+
+**Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
+
+---
+
+## Capability and fallback
+
+| Effective `subagents` | Behavior |
+|----------------------|----------|
+| `native` (Task / host equivalent) | Prefer spawn except the thin trivial exception |
+| `none` or Task unavailable | Same outcome **in-parent** (or documented handoff). **Never** hard-fail only because Task is absent |
+
+Load `SPAWN.md` for caps, host table, and child payload rules.
+
+---
+
+## Child I/O (Caveman-scoped)
+
+- Child **prompts**, child **execution style**, and child **returns** honor Caveman when mode is ON (intensity from parent prefs).
+- Require end receipt per `RECEIPT.md` when Caveman ON; prefer compact receipt even when OFF (token control).
+- Parent passes **scoped paths + receipt requirement + role** — not guideline dumps or full policy packs.
+- Expand child context only when the task truly needs it (security dumps, ambiguous architecture, user asked for full detail). Auto-Clarity / never-compress gates still apply.
+
+---
+
+## Model on spawn
+
+Default: **omit `model`** — child uses the **same model as this parent session**. Different slug only when extremely necessary, and only after explicit user approval per `SUBAGENT-MODEL.md`. Silence ≠ approval for an alternate model.
+
+---
 description: SDD agent artifacts (PRD, PLAN) in Brazilian Portuguese by default; code always English
 alwaysApply: true
 ---
@@ -487,7 +549,7 @@ Apply only when the user explicitly requests it in the **same** prompt that invo
 
 Then write the **SDD `.md` artifact** in English using the English template sections in `reference.md` (if documented) or equivalent structure. Confirm in one chat line. Code remains English.
 
-Set `artifact_language` to `"en"` in `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/sdd/<repo-id>/manifest.json` when using global storage.
+Set `artifact_language` to `"en"` in `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/<repo-id>/manifest.json` when using global storage.
 
 ## Skills and conflicts
 
@@ -521,12 +583,18 @@ Full detail: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/anti
 
 ### Classic SDD (writes and execution)
 
-- PRD: `features/NNN-slug/USnn/PRD/NNN_*.md` (default story `US01`) or global under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/sdd/<repo-id>/features/...`.
+- PRD: `features/NNN-slug/USnn/PRD/NNN_*.md` (default story `US01`) or global under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/<repo-id>/features/...`.
 - PLAN: `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` or global equivalent. PLAN `NNN` matches PRD.
 - Numbering (`NNN`): from `features/*/` only (workspace + global feature root).
 - Root/flat `PRD/` / `PLAN/` / `docs/PRD/` / `docs/PLAN/`: **not** valid Classic SDD paths - do not read, write, or update-in-place for execution. Keep those patterns in `.gitignore` **only as a safety net** (`STORAGE.md`).
 
 Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Forma B stories (`STORY.md`); `docs/backlog/` is a shortcut only.
+
+Cited `.md` outside `features/` (including `.cursor/plans/`) must be **promoted** (Read + copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS`) before backlog **sim**. Pointer-only = fail O1.
+
+O2 refuses empty required siblings: if FEATURE `needs_*` (or brownfield) and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/`, **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do not replace this gate.
+
+PLAN magro requires a canonical path: do not omit SQL/DDL/OpenAPI from PLAN unless bank phase 2 or ARCH/ANALYSIS already holds the body; create that file first, then cite the path.
 
 ## Missing PRD or PLAN
 
@@ -546,7 +614,7 @@ When Phase A is done but persistence is pending, tell the user to switch to **Ag
 ## Boundaries
 
 - `sdd-spec` / `sdd-plan`: no production or test code changes.
-- `sdd-develop`: **one PLAN step per develop session** (unchanged contract). Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/config/sdd/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
+- `sdd-develop`: **one PLAN step per develop session** (unchanged contract). Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/antigravity-install-root/sdd/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
 - `code-review`: does not write PRD/PLAN; hand off findings with `/sdd-spec`.
 
 ---

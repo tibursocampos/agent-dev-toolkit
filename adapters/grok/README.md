@@ -30,6 +30,7 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | `hooks` | true | Native JSON under `hooks/` |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md` |
 | `plugin` | false | Marketplace/plugins out of CI green |
+| `agents` | false | No documented custom-agents dir; `Publish-Agents` no-op |
 | `subagents` | `native` | Host `spawn_subagent`; see Spawn section |
 
 ## Spawn / subagents (honesty)
@@ -39,6 +40,7 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Tool **`spawn_subagent`**; config `[subagents]` / `GROK_SUBAGENTS` / `--no-subagents` |
 | Toolkit contract | Prefer `spawn_subagent` when `subagents=native`; SPAWN fallback if feature disabled |
+| Published files | **Skip.** Grok has no documented custom-agents directory. `Publish-Agents` is a documented no-op (`agents=false`). |
 
 ### Official references (subagents)
 

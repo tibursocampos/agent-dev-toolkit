@@ -4,7 +4,9 @@ Single source of truth for the **workspace-scoped** `memory-bank/` contract and 
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+Companion skill: `memory-bank-init`. Optional inventory script (or synced copy if present): `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+
+**Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
 **Language:** This guideline is **English**. Consumer bank prose may be pt-BR or English (ask once on create if ambiguous). Paths and identifiers stay English.
 
@@ -19,7 +21,7 @@ Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke
 
 **Must not:** place `memory-bank/` under `features/NNN-slug/`. CONTINUITY must not duplicate bank body.
 
-**Forma A (Classic SDD):** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop`.
+**Forma A (Classic SDD):** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Forma C (`orchestrate-*`) and to promote; Forma A does not require the bank.
 
 ---
 
@@ -64,9 +66,19 @@ memory-bank/
 | `.inventory/gaps.md` | Missing / uncertain areas (incl. phase-2 stubs) |
 | `.inventory/refresh-history.jsonl` | Append-only refresh log |
 
-**Out of MVP (phase 2 / gaps only):** `api-contracts`, `database-schema`, `component-catalog` - list in `gaps.md` when detected as relevant, do not require files.
-
 Templates: `skills/_shared/templates/memory-bank/` in this toolkit.
+
+### Phase 2 files (rich contracts)
+
+| File | When **BLOCKING** (or promote immediately) |
+|------|--------------------------------------------|
+| `database-schema.md` | Prior / cited content already has DDL or SQL |
+| `api-contracts.md` | Prior / cited content already has OpenAPI / Swagger |
+| `component-catalog.md` | Prior / cited content already has a UI component map |
+
+If that body already exists in Prior or a cited `.md`, the matching phase 2 file is **BLOCKING**: write or promote it immediately, or flag `- [ ] BLOCKING:` in `gaps.md` until written. Empty `gaps.md` phase 2 stubs in that case are **not** “optional forever”.
+
+When those signals are **absent**, list the topic in `gaps.md` only — do not require the file.
 
 ---
 
@@ -94,9 +106,9 @@ If `sources.json` missing but markdown files exist -> treat as **incomplete** (r
 
 ### Blocking gaps
 
-Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` forces stale/incomplete until checked off or removed after human ack.
+Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` forces stale/incomplete until checked off or removed after human ack. Phase 2 files that are BLOCKING (Prior/cited already has DDL, OpenAPI, or a UI component map) must use this flag until the file is written/promoted.
 
-**Inventory merge:** `Invoke-MemoryBankInventory.ps1` regenerates MVP/phase-2 stubs in `gaps.md` but **preserves** any existing line containing `BLOCKING:` (does not wipe human gate flags on refresh).
+**Inventory merge (agent-enforced):** On create/refresh/refresh-light, regenerate MVP/phase-2 stubs in `gaps.md` but **preserve** any existing line containing `BLOCKING:` — agents must not wipe human gate flags even when `Invoke-MemoryBankInventory.ps1` is absent (use Glob/Grep per `memory-bank-init/reference.md`).
 
 ---
 
@@ -170,23 +182,27 @@ After O3 has changed application code (at least one develop child succeeded with
 
 | Phase | Step N? |
 |-------|---------|
-| **O3** (`orchestrate-develop`) | **Yes** when code changed this run |
-| **O1** | Optional point promote only (architecture/domain/risk fact) - not full inventory by default |
-| **O2** | **No** end refresh (O2 does not change app code) |
+| **O3** (`orchestrate-develop`) | **Yes** when code changed this run (`refresh-light`) |
+| **O1** | After ARCH **sim**: **point-promote** / update `memory-bank/architecture.md` so it is not left draft / `needs-confirm`. Optional point-promote of domain/risk facts. **Not** a full inventory refresh. |
+| **O2** | **No** full inventory refresh (O2 does not change app code). If style changed or ARCH was approved this feature, do **not** exit with status `fresh` — set `refreshed` (point-promote `architecture.md` if not already). |
 
-Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already handles stale.
+Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already handles stale. **Point-promote** of `architecture.md` after ARCH **sim** is the exception: a targeted file update, **not** a full inventory refresh.
 
 ---
 
-## Inventory script
+## Inventory (script or agent fallback)
+
+Prefer toolkit script when present:
 
 ```powershell
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
+If the script is absent, agents run equivalent Glob/Grep per `memory-bank-init/reference.md`.
+
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
-- Output: `sources.json`, updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`.
+- Output: `sources.json`, updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
 
 ---
 

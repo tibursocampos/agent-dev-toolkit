@@ -85,7 +85,7 @@ Target repo. Resolve PLAN:
 | Canonical PLAN path given (`features/.../PLAN/` or global `.../features/.../PLAN/`) | `Read` at exact path; update **that** file in place |
 | Root/flat `PLAN/` or other non-canonical path | **STOP** - ask user to migrate under `features/.../PLAN/` via `sdd-plan`; do not execute |
 | No canonical PLAN path | Glob `features/**/PLAN/PLAN_*.md` only (workspace + global feature root); if not found, use `PIPELINE.md` section `sdd-develop` without PLAN (options 1-3) |
-| Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` for Prior context only - **do not** change multi-step rules |
+| Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
 Detect stack from PLAN step.
@@ -114,7 +114,7 @@ Offer `/commit`; do not auto-commit.
 
 ### 7. Report
 
-Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <full-plan-path> - Step N+1`.
+Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan-path> - Step N+1`.
 
 ## Must not
 
@@ -123,17 +123,20 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <full-plan-pat
 - Implement in Plan/Ask without Agent
 - Bypass one-step via orchestrator parent implementing code
 - Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
+- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 
 ## Handoff
 
 | Situation | Next |
 |-----------|------|
 | Commit | `/commit` |
-| Next step | New session -> `/sdd-develop - <full-plan-path> - Step N+1` |
+| Next step | New session -> `/sdd-develop - <portable-plan-path> - Step N+1` |
 | All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
-Example full path (Forma A):
+Example portable path (Forma A, repository):
 
 ```
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2
 ```
+
+(Global: prefix with `sdd/<repo-id>/`.)

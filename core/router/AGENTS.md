@@ -15,13 +15,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## Parallel specialists (default)
 
-**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-Always-on policy (after publish): `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` (source: `core/policy/orchestrator-session.md`).
+Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
 
 - Honor `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
-- **Trivial / single-path** Q&A stays in-parent — do not spawn for noise.
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
 
 ## Language
@@ -82,7 +82,7 @@ Default preference: this session stays parent/orchestrator; specialists for heav
 
 | Topic | Path |
 |-------|------|
-| Orchestrator session (always-on) | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
+| Orchestrator session (always-on) | Cursor `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` (other hosts: rewrite extension, or this Parallel specialists section when `rules=false`) |
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Roster / `needs_*` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
@@ -91,7 +91,7 @@ Default preference: this session stays parent/orchestrator; specialists for heav
 
 ## Rules (always-on)
 
-Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under `core/policy/` where applicable).
+Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under `core/policy/` where applicable). Cursor-oriented `.mdc` names below; other hosts rewrite the extension or skip this table when `rules=false` (OpenCode/ZCode: honor Parallel specialists — no rules file).
 
 | Rule | Path |
 |------|------|

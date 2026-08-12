@@ -18,6 +18,16 @@ For **net-new UI** without a brief, recommend `/impeccable shape` in a new sessi
 3. **Styling**: Follow project conventions (vanilla CSS, SCSS, CSS modules, or framework-specific styling). Do not introduce a new styling system unless the task requires it.
 4. **Color without a design system**: Prefer OKLCH custom properties; verify contrast (4.5:1 body text, 3:1 large text).
 
+## CSS specificity and cascade
+
+When implementing from a brief, keep selector specificity intentional:
+
+- Prefer a single consistent approach (utility classes, BEM, or CSS modules)—do not mix type selectors (`.section`) and element/utility overrides that cancel each other’s padding/margin.
+- Prefer composition and custom properties over ever-increasing specificity wars.
+- Before shipping, scan for competing rules on the same property (especially spacing between sections and CTAs).
+
+Visual tokens still come from `DESIGN-BRIEF.md`; this section is engineering hygiene only.
+
 ## SEO and semantic HTML
 
 Always implement SEO best practices on every page:

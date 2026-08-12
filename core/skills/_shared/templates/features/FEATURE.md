@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **Id** | `{{NNN}}-{{slug}}` |
-| **Path** | `features/{{NNN}}-{{slug}}/` |
+| **Path** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path — see `STORAGE.md` § Portable path) |
 | **Scope** | backend \| frontend \| fullstack |
 | **Nature** | greenfield \| brownfield \| operational |
 | **Complexity** | trivial \| medium \| complex |

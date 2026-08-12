@@ -117,6 +117,7 @@ Resume caveman after the clear part is done.
 | `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
 | Forma C specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
+| Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
 | General chat | **FULL** (or prefs `caveman_level`) |
 
 **Skill cap vs prefs:** effective level = min(skill cap, prefs `caveman_level`) with NEVER winning. Lite skills never escalate to full/ultra from prefs.
@@ -191,7 +192,7 @@ When mode ON, agents may propose compacting prose in `CONTINUITY.md` or memory-b
 | Participating skills (see table) | Step -1, if `caveman_mode` true |
 | `rules/caveman-mode.md` (alwaysApply) | Global toggle + preference check every session |
 | `rules/guardrails.md` / `AGENTS.md` | Never-compress + command UX pointers |
-| Forma C agent prompts | Receipt schema when mode ON |
+| Forma C agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
 
 ### Canonical Step -1 block (copy into skills)
 

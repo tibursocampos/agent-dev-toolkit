@@ -27,10 +27,13 @@ List concrete security risks and mitigations relevant to the change.
 
 ## Output
 
-Notes under story `SEC/` (or return markdown): checklist of risks with severity (high/med/low) and mitigation.
+Notes under story `SEC/` (or return markdown for the parent to save under `SEC/`): checklist of risks with severity (high/med/low) and mitigation.
+
+Do **not** route security findings to CONTINUITY as a substitute for `SEC/`. CONTINUITY may point at the `SEC/` path only.
 
 ## Rules
 
 - No org-only tooling unless the repo already uses it.
 - No code changes.
+- Write `SEC/` on disk when `needs_security` is true; never skip to a CONTINUITY note.
 - If evidence is missing, say what to verify - do not invent vulnerabilities (**verify-if-missing**).

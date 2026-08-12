@@ -14,10 +14,10 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
 | Role id | When to spawn | Writes (under feature/story) | Must not |
 |---------|---------------|------------------------------|----------|
-| `repo_analyst` | Brownfield / impact unclear | `ANALYSIS/` notes | App code; invent APIs |
-| `architect` | `needs_domain`, cross-cutting design, or **greenfield** (no established style) | `ARCH/` notes (draft until confirm on greenfield) | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield |
-| `security` | `needs_security` | `SEC/` notes (subset) | compliance theater |
-| `database` | `needs_database` | `ANALYSIS/` or `ARCH/` DB slice | Force a vendor; corp DBA rules |
+| `repo_analyst` | Brownfield / impact unclear / `needs_api` | `ANALYSIS/` notes (**folder on disk**) | App code; invent APIs; CONTINUITY-only substitute |
+| `architect` | `needs_domain`, cross-cutting design, **greenfield**, or **brownfield** (mirror) | `ARCH/` notes (**folder on disk**; draft until confirm on greenfield) | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield; skip ARCH on brownfield |
+| `security` | `needs_security` | `SEC/` notes (**folder on disk**) | compliance theater; route findings to CONTINUITY instead of `SEC/` |
+| `database` | `needs_database` or brownfield with persistence | `ARCH/` DB slice (**folder on disk**) | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
 | `qa_checklist` | Before handoff / review | Checklist bullets in CONTINUITY or STORY only | Write production tests silently; **no** Task spawn; **no** `prompts/qa*.md` file |
 
 Stacks (`react`, `dotnet`, …) are **not** duplicated here - route via existing `*-developer` skills (`ROUTING.md`).
@@ -28,16 +28,18 @@ Set on `FEATURE.md` during O1 triage. Spawn a Task specialist **only** when the 
 
 | Flag | Spawn when true | Specialist / action | Prompt |
 |------|-----------------|---------------------|--------|
-| `needs_api` | API / package / integration surface | `repo_analyst` (+ `architect` if contract-heavy) | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
-| (brownfield / impact unclear) | Nature `brownfield` or impact unclear | `repo_analyst` (discover / mirror; do **not** re-pick architecture style) | `prompts/repo_analyst.md` |
-| (greenfield / no established style) | Nature `greenfield` **or** no in-repo architecture style | `architect` → **architecture-selection** propose + operator **confirm** before final ARCH | `prompts/architect.md` + `code-guidelines/principles/architecture-selection.md` |
-| `needs_domain` | Domain / cross-cutting design | `architect` (same confirm gate when style is not yet established) | `prompts/architect.md` |
-| `needs_database` | Persistence / schema | `database` | `prompts/database.md` |
-| `needs_frontend` | UI work | No O1 Task - note in CONTINUITY; route via `ROUTING.md` at implement | - |
-| `needs_security` | Auth, secrets, PII, supply-chain, threat surface | `security` | `prompts/security.md` |
-| `needs_devops` | Deploy / pipeline notes | Short CONTINUITY note only | - |
+| `needs_api` | API / package / integration surface | `repo_analyst` (+ `architect` if contract-heavy); **write `ANALYSIS/`** | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
+| (brownfield / impact unclear) | Nature `brownfield` or impact unclear | `repo_analyst` **and** `architect` (discover / **mirror ARCH**; skip style re-pick only) + `database` when persistence is in scope; folders on disk | `prompts/repo_analyst.md`, `prompts/architect.md`, `prompts/database.md` |
+| (greenfield / no established style) | Nature `greenfield` **or** no in-repo architecture style | `architect` → **architecture-selection** propose + operator **confirm** before final ARCH; **write `ARCH/`** | `prompts/architect.md` + `code-guidelines/principles/architecture-selection.md` |
+| `needs_domain` | Domain / cross-cutting design | `architect` (same confirm gate when style is not yet established); **write `ARCH/`** | `prompts/architect.md` |
+| `needs_database` | Persistence / schema | `database`; **write `ARCH/` DB slice** | `prompts/database.md` |
+| `needs_frontend` | UI work | No O1 Task - note in CONTINUITY only; route via `ROUTING.md` at implement | - |
+| `needs_security` | Auth, secrets, PII, supply-chain, threat surface | `security`; **write `SEC/`** | `prompts/security.md` |
+| `needs_devops` | Deploy / pipeline notes | Short CONTINUITY note only (no Task) | - |
 
-**Architecture confirm gate (greenfield / `needs_domain` without established style):** architect returns ARCH **draft** → parent asks operator (**sim** / ajustar / cancelar) → only on **sim** write ARCH **approved**. Until **sim**, treat receipt as `needs-confirm.` — silence is not approval. Brownfield: discover-first / mirror; skip style re-selection.
+**Folder on disk:** when a flag above is **true** (or nature is brownfield), spawn Task when `subagents=native`, else **in-parent write**. The matching story folder **must exist on disk** before backlog approval: `needs_api` / brownfield → `ANALYSIS/`; `needs_domain` / brownfield → `ARCH/`; `needs_database` → `ARCH/` (DB slice); `needs_security` → `SEC/`. Do **not** substitute a CONTINUITY handoff note for these flags. `needs_frontend` / `needs_devops` remain CONTINUITY-only (no Task, no specialist folder).
+
+**Architecture confirm gate (greenfield / `needs_domain` without established style):** architect returns ARCH **draft** → parent asks operator (**sim** / ajustar / cancelar) → only on **sim** write ARCH **approved**. Until **sim**, treat receipt as `needs-confirm.` — silence is not approval. **Brownfield:** skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a mirror ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline).
 
 **TE01 / security signals:** Prefer `false` for ambiguous flags **except** when auth, secrets, PII, feed tokens, or supply-chain appear in the description - then ask explicitly or set `needs_security=true` (do not default those signals to `false`).
 

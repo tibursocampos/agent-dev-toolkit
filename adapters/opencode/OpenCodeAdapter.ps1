@@ -53,6 +53,7 @@ $script:OpenCodeAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -67,6 +68,7 @@ $script:OpenCodeAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $true
+    agents    = $false
     subagents = $script:OpenCodeAdapterSubagentsNative
 }
 
@@ -325,6 +327,39 @@ function Publish-Router {
     }
 
     return Invoke-OpenCodePublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Documented no-op - OpenCode does not use custom agent markdown files.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:OpenCodeAdapterMessage.InstallRootRequired
+    }
+
+    return [PSCustomObject]@{
+        Success     = $true
+        Implemented = $true
+        CommandName = 'Publish-Agents'
+        NoOp        = $true
+        WhatIf      = [bool]$WhatIf.IsPresent
+        AllowUserHome = [bool]$AllowUserHome.IsPresent
+        InstallRoot = $InstallRoot.Trim()
+        FilesCopied = 0
+        Message     = $script:OpenCodePublishMessage.AgentsNoOp
+        ExitCode    = 0
+    }
 }
 
 function Publish-Hooks {

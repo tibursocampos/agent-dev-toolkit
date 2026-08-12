@@ -67,8 +67,9 @@ Brand surfaces have permission for Committed, Full palette, and Drenched strateg
 
 - Asymmetric compositions are one option. Break the grid intentionally for emphasis.
 - Fluid spacing with `clamp()` that breathes on larger viewports. Vary for rhythm: generous separations, tight groupings.
-- For image-led briefs (hotels, restaurants, magazines, photography), full-bleed hero imagery with overlaid menu and centered headline is a canonical move; let the photograph be the design.
+- **Hero as thesis.** Open with the most characteristic thing in the subject's world—headline, photograph, motion, live demo—not a generic big-number + supporting-stats + gradient-accent template unless that *is* the product story. Full-bleed hero imagery with overlaid menu and centered headline is a canonical move for image-led briefs; let the photograph (or the thesis element) be the design.
 - When cards ARE the right affordance, use `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))` for breakpoint-free responsiveness.
+- Structural devices (numbering, eyebrows, dividers, labels) must encode something true about the content. Numbered markers only when order carries information the reader needs.
 
 ## Imagery
 

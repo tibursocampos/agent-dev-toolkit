@@ -2,13 +2,13 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Feature** | `features/{{NNN}}-{{slug}}/` |
+| **Feature** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path) |
 | **Updated** | {{ISO8601}} |
 | **Phase** | analyze \| deliver \| develop \| review |
 | **Last agent** | {{AGENT_OR_SKILL}} |
 | **Complexity** | trivial \| medium \| complex |
 | **Nature** | greenfield \| brownfield \| operational |
-| **Memory-bank** | `{{BANK_PATH}}` (resolved via `STORAGE.md`: `$Cwd/memory-bank/` or `<classic.path>/memory-bank/` - never under this feature) |
+| **Memory-bank** | `{{BANK_PATH}}` — examples: repository `memory-bank/`; global `sdd/<repo-id>/memory-bank/` (never under this feature; see `STORAGE.md` § Portable path) |
 | **Memory-bank status** | fresh \| refreshed \| created |
 
 ## Estado atual
@@ -50,9 +50,9 @@ Máx. síntese + paths. Detalhes ficam em `STORY.md` / `PRD` / `PLAN` / notas so
 
 1. **Who updates:** every O1/O2/O3 stage and any specialist Task that finishes a meaningful note set.
 2. **When:** before human approval gates; at ≥40% context pause; before session handoff.
-3. **What to write:** phase, last agent, estado atual (≤10 lines), new decisões, open pendências, exact next `/…` string with **full paths**.
-4. **What not to write:** full PRD/PLAN bodies, guideline dumps, application code, or the body of `memory-bank/` (path + status only); never secrets, API keys, feed tokens, connection strings, or PII - use `***` / env var names only.
+3. **What to write:** phase, last agent, estado atual (≤10 lines), new decisões, open pendências, exact next `/…` string with **portable paths** (`STORAGE.md` § Portable path — not OS absolute).
+4. **What not to write:** full PRD/PLAN bodies, guideline dumps, application code, or the body of `memory-bank/` (path + status only); never secrets, API keys, feed tokens, connection strings, or PII - use `***` / env var names only. Schema/product forks: **pointers only** (path to `ANALYSIS/` / `ARCH/` / bank phase 2) — do not pile unresolved vendor/schema/product choices here. Operational blockers (waiting on human, missing env) may stay in Pendências.
 5. **Merge:** append decisões; replace estado atual; never delete unresolved pendências without marking done. Prefer specialist **receipts** (`_shared/agents/RECEIPT.md`) over dumping full specialist chat.
-6. **Memory-bank:** update path/status after Step 0 (`fresh` = healthy read; `created` / `refreshed` = init wrote). Also after O3 Step N `refresh-light`. Bank co-locates with `features/` via manifest; never under `features/NNN-slug/`. Commit bank when product knowledge; never commit secrets.
+6. **Memory-bank:** update path/status after Step 0 (`fresh` = healthy read; `created` / `refreshed` = init wrote). After ARCH **sim** (O1), set status **`refreshed`** (point-promote of `architecture.md` — not a full inventory refresh). O2 must not exit `fresh` if style changed / ARCH was approved this feature. Also after O3 Step N `refresh-light`. Bank co-locates with `features/` via manifest; never under `features/NNN-slug/`. Commit bank when product knowledge; never commit secrets.
 7. **Language:** artifact prose default **pt-BR**; skill names and paths in English.
 8. **Compact (optional):** if this file grows large and caveman is ON, offer `_shared/caveman/COMPACT.md` (backup `.original.md` + validators + user **sim**). Never auto-compact.

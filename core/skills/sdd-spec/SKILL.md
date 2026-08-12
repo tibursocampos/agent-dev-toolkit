@@ -69,7 +69,13 @@ Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.m
 
 ### 1. Requirements
 
-**Prior context** (chat, code-review, backlog, **feature siblings**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings). When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, and story `STORY.md` / optional `REFINE|ANALYSIS|ARCH|SEC` before asking.
+**Prior context** (chat, code-review, backlog, **feature siblings**, **promoted bank**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings).
+
+**Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including `.cursor/plans/`), follow `PIPELINE.md` § Promote: **Read** and copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS` before synthesizing the PRD. Prefer **promoted siblings and memory-bank** over re-asking. Pointer-only citations are not Prior context.
+
+When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true (those folders are **required**, not optional). Prefer sibling/bank content over re-asking; still max **3** gap questions.
+
+**Required siblings STOP:** If FEATURE `needs_*` is true (or brownfield) and the story lacks the matching `ANALYSIS/` / `ARCH/` / `SEC/` folder/files: **STOP**. Do **not** Write PRD. Return to O1 (`/orchestrate-analyze`) or create those folders first. Max-3 gap questions do **not** replace this gate.
 
 **Otherwise** ask (pt-BR):
 
@@ -94,7 +100,7 @@ Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/ris
 
 ### 6.75 Confirm before write
 
-Show title, `NNN`, **full canonical path** (resolved under the active storage-mode directory), storage mode, bullets, and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only.
+Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets, and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only.
 
 Record `artifact_language` (default pt-BR) from manifest or user override.
 
@@ -105,22 +111,26 @@ Record `artifact_language` (default pt-BR) from manifest or user override.
 3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `reference.md`.
 4. Product `docs/` in scope: ask doc language first.
 
-Report path, storage, language, `.gitignore` changes. Handoff with **full** feature path:
+Report path, storage, language, `.gitignore` changes. Handoff with **portable** feature path (`STORAGE.md` § Portable path):
 
 ```
 /sdd-plan - features/NNN-slug/US01/PRD/NNN_short_feature_slug.md
 ```
 
+(Global: `sdd/<repo-id>/features/...`.)
+
 ## Must not
 
 - English PRD body by default; implementation code in PRD
 - `Write` outside canonical feature PRD folders (never root/flat `PRD/`); skip confirm-before-write
+- Write PRD when flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing for true FEATURE `needs_*` / brownfield — **STOP**; max-3 gap questions do not replace this gate
 - `Edit`/`Write` production or test code; create PLAN in this session
 - Claim "PRD saved" without successful `Write`
 - External trackers; paste full guideline bodies into PRD
+- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 
 ## Handoff
 
 ```
-/sdd-plan - <full-prd-path-under-features>
+/sdd-plan - <portable-prd-path-under-features>
 ```

@@ -81,6 +81,14 @@ function Get-ZCodeSmokeLayoutGaps {
         $gaps.Add($script:ZCodePublishMessage.SmokeAgentsMissing) | Out-Null
     }
 
+    $customAgentsRoot = Join-Path $InstallRoot $script:ZCodePathConstant.CustomAgentsDirectoryName
+    foreach ($agentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
+        $agentFilePath = Join-Path $customAgentsRoot $agentFileName
+        if (-not (Test-Path -LiteralPath $agentFilePath -PathType Leaf)) {
+            $gaps.Add(($script:ZCodePathConstant.CustomAgentsDirectoryName + '/' + $agentFileName)) | Out-Null
+        }
+    }
+
     $cliConfigPath = Join-Path (Join-Path $InstallRoot $script:ZCodePathConstant.CliDirectoryName) $script:ZCodePathConstant.CliConfigFileName
     $hooksJsonPath = Join-Path (Join-Path $InstallRoot $script:ZCodePathConstant.HooksDirectoryName) $script:ZCodePathConstant.HooksJsonFileName
 

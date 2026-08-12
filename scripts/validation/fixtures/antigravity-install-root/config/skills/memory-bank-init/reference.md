@@ -12,6 +12,9 @@ Companion to `SKILL.md`. Contract authority: `_shared/sdd-artifacts/MEMORY-BANK.
 | `templates/memory-bank/domain-knowledge.md` | `memory-bank/domain-knowledge.md` |
 | `templates/memory-bank/conventions.md` | `memory-bank/conventions.md` |
 | `templates/memory-bank/known-risks.md` | `memory-bank/known-risks.md` |
+| `templates/memory-bank/database-schema.md` | `memory-bank/database-schema.md` (phase 2 — when relevant / BLOCKING) |
+| `templates/memory-bank/api-contracts.md` | `memory-bank/api-contracts.md` (phase 2 — when relevant / BLOCKING) |
+| `templates/memory-bank/component-catalog.md` | `memory-bank/component-catalog.md` (phase 2 — when relevant / BLOCKING) |
 | `templates/memory-bank/.inventory/*` | `memory-bank/.inventory/*` |
 
 Replace `{{PLACEHOLDERS}}` with evidenced values or `TBD` + gap entry. Never invent product domain names.
@@ -87,4 +90,5 @@ Use: `ConnectionStrings__Default` (name only), `***`, or “see secret store”.
 | Lockfile newer than `sources.json` | stale -> refresh after confirm |
 | Global storage | `bank_root` = `<classic.path>/memory-bank/`; no `.gitignore` edit |
 | O3 code changed | Step N -> `refresh-light` after confirm |
+| Prior/cited has DDL/OpenAPI/UI map | Write matching phase 2 file (BLOCKING) or `- [ ] BLOCKING:` until written |
 | Inventory script | does not touch files outside `<bank_root>/.inventory/` (and skill may create sibling bank markdown) |

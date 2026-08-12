@@ -58,8 +58,8 @@ ARCH draft (4 sections) → operator sim / ajustar / cancelar → ARCH approved
 |------|------|
 | Draft | Architect proposes via `architecture-selection` + `prompts/architect.md`; optional scaffold `templates/features/story/ARCH/architecture-decision.md` |
 | Confirm | Parent asks pt-BR (SKILL §7b). Silence ≠ approval. Receipt stays `needs-confirm.` until **sim** |
-| Approved | Persist final ARCH with style id; CONTINUITY notes decision; implementers load **one** `principles/architecture/<style>.md` + matching stack overlay C |
-| Brownfield | Discover/mirror existing style — **do not** re-pick; skip this gate when style is already established |
+| Approved | Persist final ARCH with style id; CONTINUITY notes decision; **point-promote** `memory-bank/architecture.md` (if not already) so it is not left draft / `needs-confirm`; Memory-bank status `refreshed`; implementers load **one** `principles/architecture/<style>.md` + matching stack overlay C |
+| Brownfield | Skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write mirror ARCH (layers, DDL, EF vs Dapper or equivalent, pipeline). ARCH is **not** optional when `needs_domain` or brownfield. |
 
 **Must not:** silent vertical-slice (or any) default; final ARCH before **sim**; glob all architecture overlays in O1.
 
@@ -71,7 +71,7 @@ Copy (pt-BR) — see SKILL §7b.
 
 **Canonical source:** `skills/_shared/agents/ROSTER.md` (`needs_*` table). Keep this section as a short pointer - edit ROSTER when the map changes.
 
-Spawn Task **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`). If `subagents=none` or Task unavailable → **fallback** **in-parent** specialist notes (never hard-fail). Parallelize when multiple specialists apply; concurrent Task cap **≤4** per `SPAWN.md`. Brownfield / impact-unclear -> prefer `repo_analyst` (mirror style). Greenfield / no established style -> spawn `architect` and run **Architecture confirm gate**. Optional stage notes: `impact` / `risk` / `generate-story` prompts.
+Spawn Task **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`). If `subagents=none` or Task unavailable → **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` (never skip; never CONTINUITY substitute for those flags). Parallelize when multiple specialists apply; concurrent Task cap **≤4** per `SPAWN.md`. Brownfield / impact-unclear -> `repo_analyst` **and** `architect` (mirror ARCH; skip style re-pick only) + `database` when persistence is in scope. Greenfield / no established style -> spawn `architect` and run **Architecture confirm gate**. ARCH is **not** optional when `needs_domain` or brownfield. Optional stage notes: `impact` / `risk` / `generate-story` prompts.
 
 **Stacks are not roster roles** - do not spawn `react`/`dotnet` agents in O1. Route implementation later via `ROUTING.md`.
 
@@ -89,10 +89,10 @@ features/NNN-slug/
 ├── CONTINUITY.md
 ├── US01/
 │   ├── STORY.md
-│   ├── REFINE/          # optional, on demand
-│   ├── ANALYSIS/        # optional - repo_analyst / impact notes
-│   ├── ARCH/            # optional - architect / database slice
-│   └── SEC/             # optional - security notes
+│   ├── REFINE/          # optional / on demand
+│   ├── ANALYSIS/        # required when needs_api or brownfield
+│   ├── ARCH/            # required when needs_domain, needs_database, or brownfield
+│   └── SEC/             # required when needs_security
 └── TS01/                # as needed
     └── STORY.md
 ```
@@ -100,7 +100,7 @@ features/NNN-slug/
 | O1 writes | O1 does **not** write |
 |-----------|------------------------|
 | `FEATURE.md`, `CONTINUITY.md`, `STORY.md` | `PRD/`, `PLAN/` (O2) |
-| Optional `ANALYSIS/` / `ARCH/` / `SEC/` / `REFINE/` under story | App/test source files |
+| Flag-gated `ANALYSIS/` / `ARCH/` / `SEC/` under story; `REFINE/` on demand | App/test source files |
 | | Repo-root `REFINE|ANALYSIS|ARCH|SEC|PRD|PLAN` |
 
 Templates: `skills/_shared/templates/features/`.
@@ -125,11 +125,11 @@ Update `CONTINUITY.md` when:
 | **Phase** | `analyze` during O1 |
 | **Last agent** | `orchestrate-analyze` or specialist role id |
 | **Memory-bank** | Resolved `bank_root` (`STORAGE.md`); never a feature-relative bank |
-| **Memory-bank status** | `fresh` \| `refreshed` \| `created` (from Step 0) |
+| **Memory-bank status** | `fresh` \| `refreshed` \| `created` (from Step 0; **`refreshed`** after ARCH **sim** / point-promote) |
 | **Estado atual** | ≤10 lines; replace on update |
 | **Decisões** | Append; do not erase history |
 | **Pendências** | Keep open items until done |
-| **Handoff tipado** | Exact `/…` with **full path** |
+| **Handoff tipado** | Exact `/…` with **portable path** (`STORAGE.md` § Portable path) |
 | **What not to write** | Full PRD/PLAN bodies, guideline dumps, application code, memory-bank body |
 
 ---
@@ -179,11 +179,11 @@ Scorecard: reuse `skills/refine-story/reference.md` (universal + type-specific).
 ## Canonical handoff strings
 
 ```text
-/orchestrate-deliver - <full-feature-path>
+/orchestrate-deliver - <portable-feature-path>
 ```
 
 ```text
-/orchestrate-analyze - <full-feature-path>
+/orchestrate-analyze - <portable-feature-path>
 ```
 
 ```text
@@ -199,8 +199,8 @@ O2 **series vs parallel** is chosen inside `orchestrate-deliver` - document the 
 After O2 (for awareness only):
 
 ```text
-/sdd-develop - <full-plan-path> - Step N
-/orchestrate-develop - <full-feature-path>
+/sdd-develop - <portable-plan-path> - Step N
+/orchestrate-develop - <portable-feature-path>
 ```
 
 ---

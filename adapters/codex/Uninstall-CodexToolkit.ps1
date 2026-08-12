@@ -362,6 +362,19 @@ function Invoke-CodexUninstallToolkit {
         $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
     }
 
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
+    $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
+    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
+        $agentFilePath = Join-Path $customAgentsRoot $agentFileName
+        $wouldRemoveAgent = Remove-CodexPathIfPresent -Path $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+        if ($wouldRemoveAgent) {
+            $wouldRemovePaths.Add($agentFilePath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($agentFilePath) | Out-Null
+            }
+        }
+    }
+
     $count = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
     $message = if ($WhatIf.IsPresent) {
         if ($count -eq 0) {

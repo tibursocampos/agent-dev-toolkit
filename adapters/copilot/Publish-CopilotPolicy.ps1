@@ -9,9 +9,29 @@
   - core/router/AGENTS.md -> InstallRoot/copilot-instructions.md
   Mode user: InstallRoot models ~/.copilot. Mode repo: InstallRoot models .github.
   Placeholders resolved after copy. Re-publish overwrites managed files; does not delete aliens.
+  Cursor alwaysApply: true in policy frontmatter is rewritten to Copilot-native applyTo: "**".
   Smoke is filesystem-only - Copilot IDE extension is out of scope.
   Mode repo must target a fixture InstallRoot - never the toolkit working-tree .github by default.
 #>
+
+function Convert-CopilotAlwaysApplyFrontmatterToApplyTo {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Text
+    )
+
+    $alwaysApplyToken = $script:CopilotPathConstant.AlwaysApplyFrontmatterToken
+    $applyToToken = $script:CopilotPathConstant.ApplyToAllFrontmatterToken
+    if ([string]::IsNullOrEmpty($alwaysApplyToken) -or [string]::IsNullOrEmpty($applyToToken)) {
+        return $Text
+    }
+    if (-not $Text.Contains($alwaysApplyToken)) {
+        return $Text
+    }
+
+    return $Text.Replace($alwaysApplyToken, $applyToToken)
+}
 
 function Convert-CopilotRouterMdcReferencesToInstructions {
     [CmdletBinding()]
@@ -22,11 +42,22 @@ function Convert-CopilotRouterMdcReferencesToInstructions {
 
     $mdcExtension = $script:CopilotPathConstant.CursorRuleExtension
     $instructionsExtension = $script:CopilotPathConstant.InstructionsFileExtension
+    $sep = $script:CopilotPathConstant.PathSeparatorForwardSlash
+    $toolkitRoot = $script:CopilotPathConstant.PlaceholderToolkitRoot
+    $rulesDir = $script:CopilotPathConstant.CursorRulesDirectoryName
+    $instructionsDir = $script:CopilotPathConstant.InstructionsDirectoryName
     if ([string]::IsNullOrEmpty($mdcExtension) -or [string]::IsNullOrEmpty($instructionsExtension)) {
         return $Text
     }
 
-    return $Text.Replace($mdcExtension, $instructionsExtension)
+    $updated = $Text
+    $toolkitRulesPrefix = $toolkitRoot + $sep + $rulesDir + $sep
+    $toolkitInstructionsPrefix = $toolkitRoot + $sep + $instructionsDir + $sep
+    if (-not [string]::IsNullOrEmpty($toolkitRoot) -and -not [string]::IsNullOrEmpty($rulesDir) -and $updated.Contains($toolkitRulesPrefix)) {
+        $updated = $updated.Replace($toolkitRulesPrefix, $toolkitInstructionsPrefix)
+    }
+
+    return $updated.Replace($mdcExtension, $instructionsExtension)
 }
 
 function Get-CopilotInstructionsDestinationName {
@@ -60,7 +91,10 @@ function Copy-CopilotCorePolicyAsInstructions {
     foreach ($file in $sourceFiles) {
         $destinationName = Get-CopilotInstructionsDestinationName -SourceFileName $file.Name
         $destinationPath = Join-Path $DestinationInstructionsRoot $destinationName
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
+        $raw = [System.IO.File]::ReadAllText($file.FullName)
+        $converted = Convert-CopilotAlwaysApplyFrontmatterToApplyTo -Text $raw
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($destinationPath, $converted, $utf8NoBom)
         $filesCopied++
     }
 

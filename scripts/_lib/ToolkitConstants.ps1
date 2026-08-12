@@ -15,6 +15,14 @@ $script:ToolkitConstant = @{
     UserProfileEnvironmentName     = 'USERPROFILE'
     CoreSkillsDirectoryName        = 'core'
     SkillsDirectoryName            = 'skills'
+    AgentsDirectoryName            = 'agents'
+    ExpectedCustomAgentFileNames   = @(
+        'repo-analyst.md',
+        'architect.md',
+        'database.md',
+        'security.md',
+        'shell-runner.md'
+    )
     ReadmeFileName                 = 'README.md'
     PathSeparator                  = [System.IO.Path]::DirectorySeparatorChar
     AdaptersDirectoryName          = 'adapters'
@@ -125,6 +133,7 @@ $script:ToolkitConstant = @{
         'Publish-Skills',
         'Publish-Policy',
         'Publish-Router',
+        'Publish-Agents',
         'Publish-Hooks'
     )
     CopilotAgentId                 = 'copilot'
@@ -237,6 +246,9 @@ $script:ToolkitMessage = @{
     ManagedCopyPathEscapesRoot         = 'Managed copy path escapes root. Path: {0}; Root: {1}'
     SourceSkillsRootRequired           = 'SourceSkillsRoot is required.'
     DestinationSkillsRootRequired      = 'DestinationSkillsRoot is required.'
+    SourceAgentsRootRequired           = 'SourceAgentsRoot is required.'
+    DestinationAgentsRootRequired      = 'DestinationAgentsRoot is required.'
+    CoreAgentsMissing                  = 'Core agents source is missing: {0}'
     ValidateCoreMissing                = 'validate-core entry not found: {0}'
     RouterDocLinkDoesNotExist          = '{0} does not exist under repo root'
     RouterDocLinksMissingTargets       = 'missing targets: {0}'
@@ -344,7 +356,7 @@ $script:ToolkitMessage = @{
 Menu actions
 ------------
 [1] Sync agent
-    Publishes core skills/policy/router/hooks into an agent InstallRoot via sync-agent.ps1.
+    Publishes core skills/policy/router/agents/hooks into an agent InstallRoot via sync-agent.ps1.
     Wizard: pick agent -> fixture | live home | custom path -> confirm.
 
 [2] Validate agent

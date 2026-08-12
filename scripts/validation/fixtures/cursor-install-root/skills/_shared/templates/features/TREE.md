@@ -13,10 +13,10 @@ features/NNN-slug/
 ├── CONTINUITY.md
 └── US01/                         # or TSnn; Forma A default = US01
     ├── STORY.md
-    ├── REFINE/                   # optional
-    ├── ANALYSIS/                 # optional
-    ├── ARCH/                     # optional
-    ├── SEC/                      # optional
+    ├── REFINE/                   # optional / on demand
+    ├── ANALYSIS/                 # required when needs_api or brownfield
+    ├── ARCH/                     # required when needs_domain, needs_database, or brownfield
+    ├── SEC/                      # required when needs_security
     ├── PRD/
     │   └── NNN_short_slug.md
     └── PLAN/
@@ -28,6 +28,6 @@ features/NNN-slug/
 | `FEATURE.md` | Feature overview template |
 | `CONTINUITY.md` | Cross-agent continuity template |
 | `story/STORY.md` | Per-story template (place as `USnn/STORY.md` or `TSnn/STORY.md`) |
-| `story/.gitkeep-subfolders` | Lists expected optional subfolders |
+| `story/.gitkeep-subfolders` | Lists expected subfolders (`REFINE/` on demand; `ANALYSIS|ARCH|SEC` flag-gated) |
 
 Agent artifact prose default: **pt-BR**. Identifiers and paths: **English**.

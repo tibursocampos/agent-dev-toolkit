@@ -297,6 +297,7 @@ function Invoke-ClaudeSmokeValidate {
         RulesPresent          = $false
         HookScriptsPresent    = $false
         ClaudeMdPresent       = $false
+        CustomAgentFilesPresent = $false
         SettingsMergeComplete = $false
         SddLayoutPresent      = $false
         FilesystemOnly        = $true
@@ -327,6 +328,18 @@ function Invoke-ClaudeSmokeValidate {
     if (-not $claudeMdOk) {
         $missing.Add($script:ClaudePathConstant.ClaudeMdFileName)
     }
+
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.CustomAgentsDirectoryName
+    $expectedAgentNames = @($script:ToolkitConstant.ExpectedCustomAgentFileNames)
+    $customAgentsOk = $true
+    foreach ($agentFileName in $expectedAgentNames) {
+        $agentPath = Join-Path $customAgentsRoot $agentFileName
+        if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
+            $missing.Add(($script:ClaudePathConstant.CustomAgentsDirectoryName + '/' + $agentFileName))
+            $customAgentsOk = $false
+        }
+    }
+    $checks.CustomAgentFilesPresent = $customAgentsOk
 
     $settingsOk = Test-ClaudeSmokeSettingsMergeComplete -SettingsPath $settingsPath -InstallRoot $resolvedInstallRoot -MissingRelative $missing
     $checks.SettingsMergeComplete = $settingsOk

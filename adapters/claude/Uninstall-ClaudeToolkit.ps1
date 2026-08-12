@@ -365,6 +365,19 @@ function Invoke-ClaudeUninstallToolkit {
         $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
     }
 
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.CustomAgentsDirectoryName
+    $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
+    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
+        $agentFilePath = Join-Path $customAgentsRoot $agentFileName
+        $hit = Remove-ClaudeManagedPathIfPresent -Path $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+        if ($hit) {
+            $wouldRemovePaths.Add($agentFilePath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($agentFilePath) | Out-Null
+            }
+        }
+    }
+
     $hooksRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.HooksDirectoryName
     foreach ($hookRelative in (Get-ClaudeManagedHookRelativePaths)) {
         $hookPath = Join-Path $hooksRoot ($hookRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)

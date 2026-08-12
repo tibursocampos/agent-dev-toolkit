@@ -30,6 +30,7 @@ Canonical form is the skill **id** / `name` argument.
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Agents with `mode: subagent`; primary invokes via **Task** tool; manual `@` mention |
 | Toolkit contract | Prefer OpenCode Task / subagent when `subagents=native`; SPAWN fallback otherwise |
+| Published files | **Skip.** OpenCode does not use custom agent markdown files. `Publish-Agents` is a documented no-op (`agents=false`). Do not invent `agents/`. |
 
 ### Official references
 

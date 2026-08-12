@@ -32,6 +32,7 @@ $expectedPolicyNames = @(
     'context-management.md',
     'conventional-commits.md',
     'guardrails.md',
+    'orchestrator-session.md',
     'sdd-artifact-language-pt-br.md',
     'sdd-pipeline-guards.md',
     'user-language-pt-br.md'
