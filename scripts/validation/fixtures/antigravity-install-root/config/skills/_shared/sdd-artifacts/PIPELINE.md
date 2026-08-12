@@ -23,7 +23,7 @@ Inside **O1** (`orchestrate-analyze`), after the architect specialist (or in-par
 1. Produce ARCH **draft** (propose style via `code-guidelines/principles/architecture-selection.md` + `agents/prompts/architect.md`).
 2. Ask operator (**sim** / ajustar / cancelar). Silence ≠ approval; receipt stays `needs-confirm.` until **sim**.
 3. On **sim** only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
-4. **Brownfield** with an established style: discover/mirror — do **not** re-pick; skip this gate.
+4. **Brownfield** with an established style: skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a **mirror** ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline). Do **not** skip ARCH because a style already exists.
 
 Do **not** start O2 / implementation waves with an unconfirmed greenfield style. Details: `orchestrate-analyze` SKILL §7b, `ROSTER.md`, `reference.md` § Architecture confirm gate.
 
@@ -38,9 +38,9 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 | `plan` | PLAN + manifest under feature story | PRD body; production/test code |
 | `sdd-develop` | Code (English) + PLAN progress | New PRD/PLAN files; **multiple PLAN steps** |
 | `memory-bank-init` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
-| `orchestrate-analyze` | Feature tree + STORY + CONTINUITY (incl. Memory-bank ref); ARCH confirm when greenfield/`needs_domain` | App code; skip Step 0 / human backlog approval / ARCH confirm when required |
+| `orchestrate-analyze` | Feature tree + STORY + CONTINUITY (incl. Memory-bank ref); ARCH confirm when greenfield/`needs_domain`; promote cited non-feature `.md`; specialist folders when flags true | App code; skip Step 0 / human backlog approval / ARCH confirm when required; approve backlog if required folders missing or promote is pointer-only |
 | `orchestrate-deliver` | PRD/PLAN per story (via sdd contracts) | App code; skip Step 0 when wired |
-| `orchestrate-develop` | CONTINUITY + spawn step subagents; Step N refresh-light | App code in parent; multi-step in one child; skip Step 0 when wired |
+| `orchestrate-develop` | CONTINUITY + spawn step subagents; Step N refresh-light | App code in parent; multi-step in one child; skip Step 0 when wired; treat `.cursor/plans/` as O3 input |
 
 ## Canonical paths
 
@@ -72,7 +72,22 @@ Do **not** read, write, or continue Classic SDD from:
 - `{{TOOLKIT_ROOT}}/` outside `sdd/<repo-id>/features/` (classic)
 - `docs/backlog/*.md`, arbitrary `docs/*.md`, repo-root `*.md` without feature tree
 
+**O3 input:** `orchestrate-develop` / `sdd-develop` read only `features/` + memory-bank. **Allow Read** of cited Cursor plans for promote (O1/O2). **Forbid** treating `.cursor/plans/` (or any host plans dir) as O3 execution input.
+
 ### Promote non-canonical `.md`
+
+Applies when the user cites any `.md` **outside** `features/` — including Cursor plans (`C:/Users/rapha/.cursor/plans/*.md`, `~/.cursor/plans/`, or any host `.cursor/plans/` directory), `docs/*.md`, repo-root `*.md`, and root/flat `PRD/` / `PLAN/`.
+
+#### Mandatory promote (O1 / O2)
+
+1. **Read** the cited file (allowed). Do **not** treat `.cursor/plans/` as O3 input — O3 reads only `features/` + memory-bank.
+2. Copy **rich content** (DDL, SQL, JSON, mermaid, tables, OpenAPI, config examples) into canonical destinations as relevant:
+   - memory-bank phase 2: `database-schema.md`, `api-contracts.md`, `component-catalog.md`, `config-examples.md`
+   - and/or story `ARCH/` | `SEC/` | `ANALYSIS/`
+3. Pointer-only / bibliography-only (links or titles without copied bodies) = **fail O1**. Do **not** mark the backlog approved.
+4. **PLAN magro:** do not paste SQL/DDL/OpenAPI into PLAN. Bodies live in bank phase 2 and/or ARCH/ANALYSIS. PLAN **cites the canonical path**. If that path does not exist, O1/O2 must create the canonical file first — do not omit the body from PLAN without a canonical destination (`sdd-plan` Outcome + Must not).
+
+#### Classic PRD / PLAN promote (Forma A / missing canonical)
 
 1. `Read` the file the user cited.
 2. Build PRD (or PLAN) content per `spec/reference.md` or `plan/reference.md`.
@@ -130,15 +145,17 @@ When the thread already has requirements, review findings, or refined backlog:
 - Do **not** run the full `spec` questionnaire.
 - Provide a structured summary + **at most 3** gap questions.
 - Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
+- Prefer **promoted** siblings and memory-bank over re-asking. A citation of a non-feature `.md` is not Prior context until § Promote has copied rich content.
 
 ### Feature / story siblings (Forma A / C)
 
 When the working path is under `features/NNN-slug/` (or the user names that feature):
 
 1. `Read` `FEATURE.md` and `CONTINUITY.md` at the feature root when present.
-2. `Read` sibling story files under the same feature: `STORY.md`, optional `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, and existing `PRD/` / `PLAN/` for that story.
-3. Prefer sibling content over re-asking; still max **3** gap questions.
+2. `Read` sibling story files under the same feature: `STORY.md`; `REFINE/` when present (**optional / on demand**); `ANALYSIS/`, `ARCH/`, `SEC/` when FEATURE `needs_*` or brownfield requires them (**not** optional in that case); and existing `PRD/` / `PLAN/` for that story.
+3. Prefer sibling content and promoted bank files over re-asking; still max **3** gap questions.
 4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies.
+5. If FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing: O2 / `sdd-spec` **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate. Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
 
 If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` - ask the user to create via `sdd-spec` / Forma C.
 

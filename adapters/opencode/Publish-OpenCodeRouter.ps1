@@ -8,7 +8,9 @@
   (fixture models ~/.config/opencode/AGENTS.md). Resolves {{TOOLKIT_ROOT}},
   {{SDD_ROOT}}, and {{GUARDRAILS_PATH}} under InstallRoot. Does not publish a
   Cursor-style rules/*.mdc tree (rules capability is false; use Publish-Policy no-op).
-  Uses Resolve-InstallRoot (USERPROFILE guard).
+  Strips dangling rules/orchestrator-session.mdc and rules/guardrails.md(c) file
+  pointers so Parallel specialists is the always-on surface. Uses Resolve-InstallRoot
+  (USERPROFILE guard).
 #>
 
 $script:OpenCodeRouterModuleDirectory = $PSScriptRoot
@@ -61,7 +63,71 @@ function Get-OpenCodeRouterPublishContent {
         }
     }
 
-    return $updated
+    return (Convert-OpenCodeRouterDanglingRulesPointers -Text $updated)
+}
+
+function Convert-OpenCodeRouterDanglingRulesPointers {
+    <#
+    .SYNOPSIS
+      Strip rules/*.mdc (and guardrails.md) file-to-open pointers. OpenCode is rules=false;
+      Parallel specialists is the always-on surface.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Text
+    )
+
+    $sep = $script:OpenCodePathConstant.PathSeparatorForwardSlash
+    $rulesDir = $script:OpenCodePathConstant.RulesDirectoryName
+    $orchestratorToken = $rulesDir + $sep + $script:OpenCodePathConstant.OrchestratorSessionMdcFileName
+    $orchestratorMdToken = $rulesDir + $sep + $script:OpenCodePathConstant.OrchestratorSessionMdFileName
+    $guardrailsMdcToken = $rulesDir + $sep + $script:OpenCodePathConstant.GuardrailsMdcFileName
+    $guardrailsMdToken = $rulesDir + $sep + $script:OpenCodePathConstant.GuardrailsFileName
+    $pointer = $script:OpenCodePathConstant.RulesFalseAlwaysOnPointer
+    $heading = $script:OpenCodePathConstant.RulesAlwaysOnHeading
+    $replacement = $script:OpenCodePathConstant.RulesFalseAlwaysOnSection
+
+    $updated = $Text
+    if (-not [string]::IsNullOrEmpty($heading) -and $updated.Contains($heading)) {
+        $headingPattern = '(?ms)^' + [regex]::Escape($heading) + '.*?(?=^## )'
+        $updated = [regex]::Replace($updated, $headingPattern, $replacement)
+    }
+
+    $danglingTokens = @(
+        $orchestratorToken,
+        $guardrailsMdcToken,
+        $orchestratorMdToken,
+        $guardrailsMdToken
+    )
+
+    $lines = $updated -split '\r?\n', -1
+    $kept = New-Object System.Collections.Generic.List[string]
+    foreach ($line in $lines) {
+        $isTableRow = $line.TrimStart().StartsWith('|')
+        $hit = $false
+        foreach ($token in $danglingTokens) {
+            if (-not [string]::IsNullOrEmpty($token) -and $line.Contains($token)) {
+                $hit = $true
+                break
+            }
+        }
+        if ($isTableRow -and $hit) {
+            continue
+        }
+        if ($hit) {
+            foreach ($token in $danglingTokens) {
+                if ([string]::IsNullOrEmpty($token) -or -not $line.Contains($token)) {
+                    continue
+                }
+                $spanPattern = '`[^`]*' + [regex]::Escape($token) + '[^`]*`'
+                $line = [regex]::Replace($line, $spanPattern, ('`' + $pointer + '`'))
+            }
+        }
+        $kept.Add($line)
+    }
+
+    return ($kept -join "`n")
 }
 
 function Invoke-OpenCodePublishRouter {

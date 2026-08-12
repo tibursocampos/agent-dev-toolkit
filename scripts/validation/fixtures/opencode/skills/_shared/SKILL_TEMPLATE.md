@@ -12,17 +12,19 @@ Skill body (process, guardrails, handoff) must be **English**. User-facing promp
 ---
 name: your-skill-name
 description: >-
-  <WHAT in one sentence>. <WHEN / natural phrases>. Use when invoking /your-skill-name.
+  <WHAT in one sentence>. <WHEN / natural phrases>. Use when invoking
+  your-skill-name (host examples: /your-skill-name, $your-skill-name, use skill your-skill-name).
 ---
 ```
 
 | Field | Rules |
 |-------|--------|
 | `name` | kebab-case; max 64 chars; equals folder name |
-| `description` | English, third person; **WHAT + WHEN**; soft target **~180-280** chars; hard max **1024** (Cursor). Always include `"/<name>"` matching `name`. Prefer slash-menu readability over listing every stack detail. |
+| `description` | English, third person; **WHAT + WHEN**; soft target **~180-280** chars; hard max **1024** (Cursor). Always include the skill **id** matching `name`. Host prefixes (`/`, `$`, `use skill`) are examples — canonical form is the id. Prefer id readability over listing every stack detail. |
 
-**Invoke (canonical in docs / handoffs / Trigger):** `` `/<name> - <args>` ``  
-**Compat:** `use skill <name>` still works (hooks / muscle memory); do not make it the primary example.
+**Invoke (canonical in docs / handoffs / Trigger):** skill id `` `<name> - <args>` ``  
+**Host examples:** `/<name>`, `$<name>` (Codex/ZCode), `use skill <name>` (Antigravity / compat), OpenCode `skill({ name: "<name>" })`.  
+**Compat:** `use skill <name>` / natural language still work when the host accepts them; do not document `/` as universal.
 
 ---
 
@@ -79,12 +81,12 @@ The STOP block above is ~27 lines and does not count toward editorial budget.
 
 **Size:** hard limit **500 lines** total per `SKILL.md` (Cursor / Agent Skills). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
 
-- **Trigger** - lead with `/<name>`; optional one-line note that `use skill <name>` still works
+- **Trigger** - lead with skill **id** `<name>`; note host forms (`/<name>`, `$<name>`, `use skill <name>`, OpenCode `skill` tool) briefly
 - **Outcome**
 - **Lazy-load**
 - **Process** (include Caveman Step -1b or NEVER block)
 - **Must not**
-- **Handoff** - exact next string: `` `/next-skill - <full-paths>` ``
+- **Handoff** - exact next skill id: `` `<next-skill> - <full-paths>` `` (host prefixes optional in examples)
 
 ### New `*-developer` skills — subagent-first (mandatory)
 

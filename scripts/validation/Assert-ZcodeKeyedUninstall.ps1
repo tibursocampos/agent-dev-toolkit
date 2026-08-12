@@ -42,6 +42,7 @@ $zcodeModulePath = Join-Path $repoRoot 'adapters\zcode\ZCodeAdapter.ps1'
 $fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
+$customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.md'
 $cliConfigPath = Join-Path $fixtureInstallRoot 'cli\config.json'
 $hooksJsonPath = Join-Path $fixtureInstallRoot 'hooks\hooks.json'
 $sddRoot = Join-Path $fixtureInstallRoot 'sdd'
@@ -175,6 +176,9 @@ if (-not (Test-ZcodeToolkitSkillPresent)) {
 if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
 }
+if (-not (Test-Path -LiteralPath $customAgentSamplePath)) {
+    Write-Fail -TestName $removeTest -Reason 'expected custom subagent file after sync'
+}
 if (-not (Test-ZcodeToolkitHooksMarkerPresent)) {
     Write-Fail -TestName $removeTest -Reason 'expected toolkit hooks marker in cli/config.json after sync'
 }
@@ -209,6 +213,9 @@ if (Test-ZcodeToolkitSkillPresent) {
 }
 if (Test-Path -LiteralPath $agentsPath) {
     Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'
+}
+if (Test-Path -LiteralPath $customAgentSamplePath) {
+    Write-Fail -TestName $removeTest -Reason 'custom subagent file should be removed after uninstall'
 }
 if (Test-ZcodeToolkitHooksMarkerPresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit hooks marker should be removed from cli/config.json'

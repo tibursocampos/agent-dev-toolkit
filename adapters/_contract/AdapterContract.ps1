@@ -15,6 +15,7 @@ $script:AdapterContractCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -27,6 +28,7 @@ $script:AdapterCapabilityNames = @(
     'hooks',
     'router',
     'plugin',
+    'agents',
     'subagents'
 )
 
@@ -169,6 +171,26 @@ function Publish-Router {
     }
 
     return New-AdapterNotImplementedResult -CommandName 'Publish-Router'
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents custom subagent markdown into the agent InstallRoot. Stub - no filesystem writes.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:AdapterContractMessage.InstallRootRequired
+    }
+
+    return New-AdapterNotImplementedResult -CommandName 'Publish-Agents'
 }
 
 function Publish-Hooks {

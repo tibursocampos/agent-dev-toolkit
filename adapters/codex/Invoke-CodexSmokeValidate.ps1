@@ -525,6 +525,7 @@ function Invoke-CodexSmokeValidate {
         RulesRequired            = $false
         AgentsMdPresent          = $false
         AgentsMaterializedOk     = $false
+        CustomAgentFilesPresent  = $false
         HooksPresent             = $false
         HooksRequired            = $false
         UserSkillsFixtureOk      = $false
@@ -690,6 +691,24 @@ function Invoke-CodexSmokeValidate {
             -ResolvedInstallRoot $resolvedInstallRoot `
             -Checks $checks `
             -Message $agentsCheck.Message `
+            -ExitCode $exitFail
+    }
+
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
+    $missingCustomAgents = New-Object System.Collections.Generic.List[string]
+    foreach ($agentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
+        $agentPath = Join-Path $customAgentsRoot $agentFileName
+        if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
+            $missingCustomAgents.Add(($script:CodexPathConstant.CustomAgentsDirectoryName + '/' + $agentFileName)) | Out-Null
+        }
+    }
+    $checks.CustomAgentFilesPresent = ($missingCustomAgents.Count -eq 0)
+    if ($missingCustomAgents.Count -gt 0) {
+        return New-CodexSmokeResult `
+            -Success $false `
+            -ResolvedInstallRoot $resolvedInstallRoot `
+            -Checks $checks `
+            -Message ($script:CodexSmokeMessage.CustomAgentFilesMissing -f ($missingCustomAgents -join ', ')) `
             -ExitCode $exitFail
     }
 

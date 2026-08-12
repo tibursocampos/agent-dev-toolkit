@@ -14,9 +14,11 @@ Before any PRD/PLAN write:
 - [ ] `FEATURE.md` + `CONTINUITY.md` exist (Memory-bank path/status updated if create/refresh)
 - [ ] Backlog human-approved (FEATURE/stories `approved`, or explicit **sim** in this session recorded)
 - [ ] Story list from `US*/STORY.md` + `TS*/STORY.md`
+- [ ] Flag-gated required siblings present (`ANALYSIS/` / `ARCH/` / `SEC/` when FEATURE `needs_*` or brownfield) — else **STOP** / return to O1; do **not** Write PRD/PLAN; max-3 gap questions do not replace this gate
 - [ ] Mode chosen: **série** or **paralelo** (user asked; not assumed)
 
 If backlog not approved -> hand off to O1; do not invent approval (RN01).
+If required siblings missing -> **STOP** / return to O1; do not Write PRD/PLAN.
 
 ---
 
@@ -27,13 +29,13 @@ Same contract as O1 (`MEMORY-BANK.md`). Run after feature resolve, **before** mo
 | Check | Pass |
 |-------|------|
 | Bank path | Resolved `bank_root` via `STORAGE.md` |
-| Healthy bank | Selective read; status `fresh`; no rewrite |
+| Healthy bank | Selective read; status `fresh` unless style changed / ARCH approved this feature → then `refreshed` (point-promote `architecture.md` if not already); no full inventory rewrite |
 | Missing/stale | Confirm -> create/refresh; status `created`/`refreshed` |
 | Gitignore | Repository only; global = no `.gitignore` edit |
 | CONTINUITY | Path + status only; phase/handoff still CONTINUITY-owned |
 | Children | Parallel draft Tasks get `memoryBankPath` read-only |
 | Forma A | Memory-bank **not** required (CA7) |
-| End refresh | **No** (O2 does not change app code) |
+| End refresh | **No** full inventory (O2 does not change app code). Do **not** exit `fresh` if style changed / ARCH approved this feature |
 
 ---
 
@@ -43,7 +45,7 @@ Same contract as O1 (`MEMORY-BANK.md`). Run after feature resolve, **before** mo
 |--|-----------|--------------|
 | Who drafts / writes | Parent runs contracts end-to-end (Write after **sim**) | Task children **draft only** when `subagents=native` (no disk Write); parent Writes after **sim**. Else **fallback** série **in-parent** (`SPAWN.md`) |
 | Order | Spec -> plan -> (optional approve) -> next | Children concurrent; parent aggregates drafts then writes |
-| Deps | Natural - finish dependency stories first | Block spawn until deps have PRD+PLAN (or user waives) |
+| Deps | Natural - finish dependency stories first | Block spawn until deps have PRD+PLAN (or user waives **story order** only — not missing SEC/ARCH/ANALYSIS) |
 | Context (RNF01) | Higher in parent | Parent lean (paths + draft summaries) |
 | Confirm-before-write | Inline in parent | Always parent gate after aggregation |
 | Best when | Few stories; tight review | Many independent stories; brownfield batch |
@@ -91,7 +93,7 @@ Artifact prose default **pt-BR**; identifiers and skill names **English**.
 | Spec | `skills/sdd-spec/SKILL.md` | Canonical PRD under story `PRD/` |
 | Plan | `skills/sdd-plan/SKILL.md` | Canonical PLAN under story `PLAN/` |
 
-Prior context for each story: `STORY.md` + optional `REFINE|ANALYSIS|ARCH|SEC` + feature `FEATURE.md` / `CONTINUITY.md`. Max **3** gap questions if Prior context incomplete (`PIPELINE.md`).
+Prior context for each story: `STORY.md` + `REFINE/` when present (optional / on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them (**not** optional in that case) + feature `FEATURE.md` / `CONTINUITY.md`. Prefer promoted siblings/bank over re-asking. Max **3** gap questions if Prior context incomplete (`PIPELINE.md`). Max-3 gap questions do **not** replace the required-siblings STOP: missing `ANALYSIS/` / `ARCH/` / `SEC/` when flags require them → **STOP** / return to O1; do **not** Write PRD/PLAN.
 
 Parent must **not** invent a shorter “PRD lite” process that skips confirm-before-write or acceptance sections required by those skills.
 
@@ -147,7 +149,7 @@ Update `CONTINUITY.md` when:
 |-------|------|
 | **Phase** | `deliver` during/after O2 |
 | **Last agent** | `orchestrate-deliver` |
-| **Memory-bank** | Path + `fresh`\|`refreshed`\|`created` from Step 0 |
+| **Memory-bank** | Path + `fresh`\|`refreshed`\|`created` from Step 0; **not** `fresh` if style changed / ARCH approved this feature |
 | **Estado atual** | ≤10 lines; which stories done/pending |
 | **Decisões** | Append mode + approval scope |
 | **Pendências** | Stories still missing PRD/PLAN or approval |
@@ -196,7 +198,7 @@ Same pattern with absolute paths when the invoke used absolute feature roots (gl
 
 Escalate **to Forma A alone** when only one story and user skips O2 batching.
 
-Escalate **to O1** when backlog not approved or stories missing.
+Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
 
 Do **not** claim `sdd-develop` one-step contract changed.
 

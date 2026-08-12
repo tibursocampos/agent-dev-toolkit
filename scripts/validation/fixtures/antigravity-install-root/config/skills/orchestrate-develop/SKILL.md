@@ -137,7 +137,7 @@ Silence ≠ approval (RN01).
 Child must:
 
 1. Load and follow `sdd-develop/SKILL.md` (gates, validate step, git branch, implement, tests, update PLAN, report)
-2. Receive **only** that PLAN path + step number + lean Prior context paths (PRD, STORY, CONTINUITY, FEATURE, **`memory-bank/` path**) - not full guideline dumps or full bank body
+2. Receive **only** that PLAN path + step number + lean Prior context paths (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memory-bank/` path**) - not full guideline dumps or full bank body
 3. Use **PLAN-scoped SESSION** per `SESSION.md` (`plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` when this spawn is parallel on the same PLAN)
 4. Return: `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`
 5. **STOP** after that step - must not start Step N+1 in the same child
@@ -179,7 +179,7 @@ Steps {A} e {B} parecem independentes. Executar em paralelo?
 | Different PLANs | `sessions/{repoHash}/plan-{planHash}.json` each |
 | Same PLAN, parallel-safe steps | `sessions/{repoHash}/plan-{planHash}-step-{N}.json` each |
 
-Child prompt **must** include: `planPath`, `step`, `memoryBankPath` (read-only), and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”.
+Child prompt **must** include: `planPath`, `step`, `memoryBankPath` (read-only), Prior-context paths including `ARCH|SEC|ANALYSIS` when present, and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”.
 
 If unsure about file independence -> **série**. Concurrent parallel Task cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Task unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
 

@@ -29,10 +29,10 @@ features/NNN-slug/
 ├── CONTINUITY.md              # Cross-agent / cross-session handoff
 └── USnn/ or TSnn/             # Story folder (nn = 01, 02, …)
     ├── STORY.md               # Refined story + scorecard / deps
-    ├── REFINE/                # Refine / breakdown scratch (optional)
-    ├── ANALYSIS/              # Impact / risk notes (optional)
-    ├── ARCH/                  # Architecture notes (optional)
-    ├── SEC/                   # Security notes (optional)
+    ├── REFINE/                # Refine / breakdown scratch (optional / on demand)
+    ├── ANALYSIS/              # Impact / risk notes (required when needs_api or brownfield)
+    ├── ARCH/                  # Architecture notes (required when needs_domain, needs_database, or brownfield)
+    ├── SEC/                   # Security notes (required when needs_security)
     ├── PRD/                   # Canonical PRD for this story
     │   └── NNN_short_slug.md
     └── PLAN/
@@ -44,7 +44,7 @@ features/NNN-slug/
 | `NNN` | Three digits; shared across feature folder and PRD/PLAN filenames |
 | `slug` | kebab-case feature id |
 | `USnn` / `TSnn` | User story or technical story; zero-padded index |
-| Story subfolders | Create on demand; do not create the same names at **repo root** |
+| Story subfolders | `REFINE/` optional / on demand. `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
 
 **Forma A (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
 
@@ -111,13 +111,37 @@ Do **not** scan repo-root `PRD/` / `PLAN/` or global-flat `PRD/` / `PLAN/` for n
 | PRD | `NNN_short_feature_slug.md` | `features/NNN-slug/USnn/PRD/...` |
 | PLAN | `PLAN_NNN_short_feature_slug.md` | `features/NNN-slug/USnn/PLAN/...` |
 
+## Portable path (1A)
+
+**Portable path** is the only form allowed inside FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / memory-bank cites and typed handoffs **written into those artifacts**.
+
+| Storage mode | Form inside artifacts | Example |
+|--------------|----------------------|---------|
+| **global** | Relative to agent **InstallRoot** | `sdd/blip-api-eventos/features/002-eventos-image-and-gifts/TS01/PRD/002_ts01_loki_forcontext.md` |
+| **repository** | Relative to repo root (`$Cwd`) | `features/002-eventos-image-and-gifts/TS01/PRD/002_ts01_loki_forcontext.md` |
+| **Same-story siblings** | Relative to current file (allowed) | `../PRD/...`, `./ARCH/...` |
+| **Forbidden in artifacts** | OS absolute / user-home InstallRoot | `C:/Users/...`, `<userHome>/.cursor/sdd/...`, `<userHome>/.claude/sdd/...` |
+
+**"Full path" in handoffs** means the **portable path** (this section), **not** an OS absolute.
+
+OK to show OS absolute in chat confirm UI / SESSION hashing / sync logs — **not** in written SDD artifact bodies.
+
+Runtime: resolve `InstallRoot` + portable path → absolute **only** at Read/Write time.
+
 ## Handoff paths
 
-Always pass the **full path** used on disk:
+Always pass the **portable path** (1A) — never OS absolute / user-home InstallRoot embeds inside artifacts:
 
 ```text
 /sdd-plan - features/003-feature/US01/PRD/003_feature.md
 /sdd-develop - features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
+```
+
+Global storage example (relative to InstallRoot):
+
+```text
+/sdd-plan - sdd/<repo-id>/features/003-feature/US01/PRD/003_feature.md
+/sdd-develop - sdd/<repo-id>/features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
 ```
 
 ## Forbidden paths (not used)
@@ -212,7 +236,7 @@ Core source keeps placeholders `{{SDD_ROOT}}`; publish may still bake absolutes.
 }
 ```
 
-Use placeholder paths in docs; never hardcode `C:/Users/<name>/...`.
+Use placeholder / portable paths in docs and **artifact bodies**; never hardcode `C:/Users/<name>/...` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) inside FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites.
 
 **Legacy:** older manifests may still contain a `speckit` section. Ignore it; do not require or rewrite it automatically (optional cleanup documented at end of feature 004).
 

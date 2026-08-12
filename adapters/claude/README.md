@@ -24,6 +24,7 @@ Canonical form is the skill **id**; `/` is the Claude host prefix.
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Claude Code **Agent** / Task-equivalent spawn |
 | Toolkit contract | Prefer Task/Agent naming in skills when `subagents=native`; SPAWN in-parent fallback otherwise |
+| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.claude/agents/`). Small roster only (not every `*-developer` skill). |
 
 Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/agents/SPAWN.md`.
 
@@ -77,11 +78,12 @@ Pass `-InstallRoot <repo>/scripts/validation/fixtures/claude`. Do not use `%USER
 | `Publish-Skills` | Implemented |
 | `Publish-Policy` | Implemented |
 | `Publish-Router` | Implemented |
+| `Publish-Agents` | Implemented (`core/agents/` → `InstallRoot/agents/`) |
 | `Publish-Hooks` (scripts + settings merge) | Implemented |
 | `Invoke-ClaudeMergeSettings` | Implemented |
 | `Invoke-SmokeValidate` | Implemented — filesystem only; lists missing relative paths on failure |
 | `validate-agent -Agent claude` | Core + smoke against fixture |
-| `sync-agent -Agent claude` | Publish-Skills → Policy → Router → Hooks |
+| `sync-agent -Agent claude` | Publish-Skills → Policy → Router → Agents → Hooks |
 | `toolkit.ps1 -Action ListAgents` | Lists registry entry `claude` |
 | `Uninstall-Toolkit` | Keyed removal + settings reverse-merge; WhatIf supported |
 

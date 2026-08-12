@@ -8,6 +8,8 @@
   resolves {{TOOLKIT_ROOT}}, {{SDD_ROOT}}, and {{GUARDRAILS_PATH}} at the
   destination only (core/router stays placeholder-bearing). ZCode ADE does not
   publish a Cursor-style rules/*.mdc tree; router material stays AGENTS.md only.
+  Strips dangling rules/orchestrator-session.mdc and rules/guardrails.md(c) file
+  pointers so Parallel specialists is the always-on surface.
   Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 
@@ -54,7 +56,72 @@ function Get-ZCodeRouterPublishContent {
 
     $raw = [System.IO.File]::ReadAllText($sourceAgentsPath)
     $placeholderMap = Get-ZCodePlaceholderMap -InstallRoot $resolvedInstallRoot
-    return (Resolve-ZCodePlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap)
+    $resolved = Resolve-ZCodePlaceholdersInText -Text $raw -PlaceholderMap $placeholderMap
+    return (Convert-ZCodeRouterDanglingRulesPointers -Text $resolved)
+}
+
+function Convert-ZCodeRouterDanglingRulesPointers {
+    <#
+    .SYNOPSIS
+      Strip rules/*.mdc file-to-open pointers. ZCode is rules=false;
+      Parallel specialists is the always-on surface.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Text
+    )
+
+    $sep = $script:ZCodePathConstant.PathSeparatorForwardSlash
+    $rulesDir = $script:ZCodePathConstant.CursorRulesDirectoryName
+    $orchestratorToken = $rulesDir + $sep + $script:ZCodePathConstant.OrchestratorSessionMdcFileName
+    $orchestratorMdToken = $rulesDir + $sep + $script:ZCodePathConstant.OrchestratorSessionMdFileName
+    $guardrailsMdcToken = $rulesDir + $sep + $script:ZCodePathConstant.GuardrailsFileName
+    $guardrailsMdToken = $rulesDir + $sep + $script:ZCodePathConstant.GuardrailsMdFileName
+    $pointer = $script:ZCodePathConstant.RulesFalseAlwaysOnPointer
+    $heading = $script:ZCodePathConstant.RulesAlwaysOnHeading
+    $replacement = $script:ZCodePathConstant.RulesFalseAlwaysOnSection
+
+    $updated = $Text
+    if (-not [string]::IsNullOrEmpty($heading) -and $updated.Contains($heading)) {
+        $headingPattern = '(?ms)^' + [regex]::Escape($heading) + '.*?(?=^## )'
+        $updated = [regex]::Replace($updated, $headingPattern, $replacement)
+    }
+
+    $danglingTokens = @(
+        $orchestratorToken,
+        $guardrailsMdcToken,
+        $orchestratorMdToken,
+        $guardrailsMdToken
+    )
+
+    $lines = $updated -split '\r?\n', -1
+    $kept = New-Object System.Collections.Generic.List[string]
+    foreach ($line in $lines) {
+        $isTableRow = $line.TrimStart().StartsWith('|')
+        $hit = $false
+        foreach ($token in $danglingTokens) {
+            if (-not [string]::IsNullOrEmpty($token) -and $line.Contains($token)) {
+                $hit = $true
+                break
+            }
+        }
+        if ($isTableRow -and $hit) {
+            continue
+        }
+        if ($hit) {
+            foreach ($token in $danglingTokens) {
+                if ([string]::IsNullOrEmpty($token) -or -not $line.Contains($token)) {
+                    continue
+                }
+                $spanPattern = '`[^`]*' + [regex]::Escape($token) + '[^`]*`'
+                $line = [regex]::Replace($line, $spanPattern, ('`' + $pointer + '`'))
+            }
+        }
+        $kept.Add($line)
+    }
+
+    return ($kept -join "`n")
 }
 
 function Invoke-ZCodePublishRouter {

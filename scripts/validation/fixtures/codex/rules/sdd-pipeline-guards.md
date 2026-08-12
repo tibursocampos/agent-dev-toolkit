@@ -23,6 +23,12 @@ Full detail: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/code
 
 Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Forma B stories (`STORY.md`); `docs/backlog/` is a shortcut only.
 
+Cited `.md` outside `features/` (including `.cursor/plans/`) must be **promoted** (Read + copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS`) before backlog **sim**. Pointer-only = fail O1.
+
+O2 refuses empty required siblings: if FEATURE `needs_*` (or brownfield) and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/`, **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do not replace this gate.
+
+PLAN magro requires a canonical path: do not omit SQL/DDL/OpenAPI from PLAN unless bank phase 2 or ARCH/ANALYSIS already holds the body; create that file first, then cite the path.
+
 ## Missing PRD or PLAN
 
 Ask structured options in **pt-BR** before a dry handoff (`PIPELINE.md` § Missing canonical artifact): create artifact first vs send details in the next message.

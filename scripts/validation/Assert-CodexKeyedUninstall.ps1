@@ -43,6 +43,7 @@ $pluginHooksRoot = Join-Path $pluginRoot 'hooks'
 $pluginManifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.json'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
+$customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.md'
 $userSkillsRoot = Join-Path $fixtureInstallRoot '.agents\skills'
 $gitkeepName = '.gitkeep'
 $alienSkillId = 'alien-codex-skill-'
@@ -148,6 +149,9 @@ function Assert-CodexToolkitArtifactsAbsent {
     if (Test-Path -LiteralPath $agentsPath) {
         Write-Fail -TestName $TestName -Reason 'AGENTS.md must be removed by keyed uninstall'
     }
+    if (Test-Path -LiteralPath $customAgentSamplePath) {
+        Write-Fail -TestName $TestName -Reason 'custom subagent file must be removed by keyed uninstall'
+    }
     if (Test-Path -LiteralPath $marketplacePath) {
         $raw = [System.IO.File]::ReadAllText($marketplacePath)
         if ($raw -match 'agent-dev-toolkit') {
@@ -186,6 +190,9 @@ if (-not (Test-CodexToolkitHooksPresent)) {
 }
 if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
+}
+if (-not (Test-Path -LiteralPath $customAgentSamplePath)) {
+    Write-Fail -TestName $removeTest -Reason 'expected custom subagent file after sync'
 }
 if (-not (Test-Path -LiteralPath $marketplacePath)) {
     Write-Fail -TestName $removeTest -Reason 'expected marketplace.json after sync'

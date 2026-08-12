@@ -1,10 +1,12 @@
 # Specialist receipt (Caveman ON)
 
-When/how to spawn children (native vs fallback, limits): `SPAWN.md` — do not paste spawn policy here.
+When/how to spawn children (native vs fallback, limits): `SPAWN.md` — do not paste spawn policy here. Parent orchestrator policy: `core/policy/orchestrator-session.md`.
+
+**Subagent I/O is Caveman-scoped:** child prompts, execution style, and returns honor `skills/_shared/caveman/CAVEMAN.md` + parent prefs intensity. Parent passes scoped paths + receipt requirement + role — not guideline dumps.
 
 When `caveman_mode` is true in `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd/preferences.json`, every Forma C specialist pass must end with a **structured receipt** (ultra style). Parent chat may stay Full/Lite per skill cap; the **reinjected** specialist summary uses this schema.
 
-When caveman is OFF: still prefer tight bullets; receipt schema optional.
+When caveman is OFF: still prefer a compact receipt / tight bullets (token control); schema recommended.
 
 ## Receipt schema
 

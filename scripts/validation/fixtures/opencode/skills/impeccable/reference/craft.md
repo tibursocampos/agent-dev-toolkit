@@ -74,6 +74,21 @@ If the harness lacks native image generation, **state in one line that the visua
 
 Whether you generated mocks or not: don't replace required imagery with generic cards, bullets, emoji, fake metrics, decorative CSS panels, or filler copy. Image-led briefs (restaurants, hotels, magazines, photography, hobbyist communities, food, travel, fashion, product) need real or sourced imagery in the build, not CSS scenery.
 
+## Step 3.5: Compact token plan + signature (before code)
+
+Before Step 4, lock a **compact token plan** from the confirmed brief (and approved mock when present). Keep it short—this is a ritual, not a second discovery interview. Honor all user gates above; do **not** skip confirmation by “thinking privately.”
+
+Write (or confirm from the brief) these four lines:
+
+1. **Color:** 4–6 named roles with hex/OKLCH values (or token refs already in the project).
+2. **Type:** display + body (+ utility if needed)—families and roles, not “Inter by default.”
+3. **Layout:** one-sentence concept for hierarchy and rhythm.
+4. **Signature:** the single memorable motif this surface will be remembered by (and nowhere else competing for that attention).
+
+Then **self-critique once:** would this plan fit any similar page in the category, or is it specific to *this* brief? If it reads as a generic default, revise the weak axis and state what changed. Apply a Chanel cut: remove one decorative accessory that does not serve the signature.
+
+Only then proceed to Step 4. Derive colors and type from this plan; do not invent a parallel system mid-build.
+
 ## Step 4: Build to Production Quality
 
 **Precondition.** If Step 3 routed you to codex.md (native image generation available), Steps A through D in that file must be complete before any code: questions answered, palette confirmed, mocks generated, one direction approved or delegated. **Do not mention implementation, file paths, or patch plans until that's done.** A confirmed shape brief is not enough; the model that compressed those gates is the model that already failed this flow.
@@ -84,6 +99,7 @@ Implement the feature following the design brief. Build in passes so structure, 
 
 - **Real content.** No placeholder copy, placeholder images, dead links, fake controls, or unused scaffold at presentation time.
 - **Preserve the approved mock's major ingredients.** Missing hero objects, world/product imagery, section structure, CTA/nav treatment, or distinctive motifs are blocking defects unless the user accepted the change.
+- **Honor the compact token plan + signature** from Step 3.5 (or the confirmed brief’s Signature motif). Competing “bold” accents that dilute the signature are defects.
 - **Semantic first.** Real headings, landmarks, labels, form associations, button/link semantics, accessible names, state announcements where needed.
 - **Deliberate spacing and alignment.** No default gaps, arbitrary margins, unbalanced whitespace, or accidental optical misalignment.
 - **Intentional typography.** Chosen loading strategy, clear hierarchy, readable measure, stable line breaks, no overflow at any width.

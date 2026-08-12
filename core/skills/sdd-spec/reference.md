@@ -14,7 +14,7 @@ Storage: `STORAGE.md`. Pipeline (confirm-before-write, canonical paths, modes): 
 | Sequence | Next `NNN` (3 digits) after listing PRDs under `features/**/PRD/` only (workspace + global feature root for `<repo-id>`) |
 | Slug | Short ASCII summary (kebab-case or snake_case; Portuguese words allowed) |
 | Example (repo) | `features/002-exportacao-perfil/US01/PRD/002_exportacao_perfil_usuario.md` |
-| Example (global) | `{{SDD_ROOT}}/acme-payments-api/features/002-exportacao-perfil/US01/PRD/002_exportacao_perfil_usuario.md` |
+| Example (global) | `sdd/acme-payments-api/features/002-exportacao-perfil/US01/PRD/002_exportacao_perfil_usuario.md` (portable path relative to InstallRoot) |
 
 ## Storage and `.gitignore` (spec skill)
 
@@ -209,7 +209,7 @@ Espelhar critérios de aceite; incluir borda e falha.
 Este PRD está pronto para a skill **plan**:
 
 ```
-/sdd-plan - <caminho-completo-do-prd>
+/sdd-plan - <caminho-portátil-do-prd>
 ```
 
 ## 15. Referências
@@ -258,4 +258,4 @@ Use only when the user requests English in the skill invocation. Same structure;
 - [ ] Body in pt-BR unless English override
 - [ ] Type/method/API names in English where cited
 - [ ] Status **Pronto para planejamento** (or **Ready for planning** if EN override)
-- [ ] Handoff: `/sdd-plan - <full-prd-path>`
+- [ ] Handoff: `/sdd-plan - <portable-prd-path>`

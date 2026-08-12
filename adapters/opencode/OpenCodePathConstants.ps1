@@ -15,6 +15,18 @@ $script:OpenCodePathConstant = @{
     RulesDirectoryName        = 'rules'
     SddDirectoryName          = 'sdd'
     GuardrailsFileName        = 'guardrails.md'
+    CursorRuleExtension       = '.mdc'
+    OrchestratorSessionMdcFileName = 'orchestrator-session.mdc'
+    OrchestratorSessionMdFileName = 'orchestrator-session.md'
+    GuardrailsMdcFileName     = 'guardrails.mdc'
+    RulesAlwaysOnHeading      = '## Rules (always-on)'
+    RulesFalseAlwaysOnPointer = 'this Parallel specialists section (no rules file)'
+    RulesFalseAlwaysOnSection = @'
+## Rules (always-on)
+
+This host does not publish a rules tree (`rules=false`). Honor **Parallel specialists (default)** above — that section is the always-on orchestrator policy.
+
+'@
     SkillManifestFileName     = 'SKILL.md'
     SharedSkillsDirectoryName = '_shared'
     AssetsDirectoryName       = 'assets'
@@ -42,6 +54,7 @@ $script:OpenCodePublishMessage = @{
     RouterPublishedOk     = 'OpenCode Publish-Router: published AGENTS.md to {0}'
     RouterWhatIfOk        = 'OpenCode Publish-Router: WhatIf - would publish AGENTS.md to {0}'
     PolicyNoOp            = 'OpenCode has no dedicated policy/rules surface; Publish-Policy is a documented no-op (rules=false). Router guidance is AGENTS.md via Publish-Router.'
+    AgentsNoOp            = 'OpenCode does not use custom agent markdown files; Publish-Agents is a no-op. Host spawn is Task / @ mention (mode: subagent).'
     HooksAssetsMissing    = 'OpenCode Publish-Hooks: plugin assets are missing: {0}'
     HooksPublishedOk      = 'OpenCode Publish-Hooks: published {0} plugin file(s) to {1} (Decision A - JS plugin; no shell/PS1 hooks; RN03/RN04)'
     HooksWhatIfOk         = 'OpenCode Publish-Hooks: WhatIf - would publish JS plugin files to {0}'

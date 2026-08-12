@@ -175,6 +175,48 @@ function Test-CursorSmokeAgentsPresent {
     return -not [string]::IsNullOrWhiteSpace($text)
 }
 
+function Test-CursorSmokeCustomAgentFilesPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $CustomAgentsRoot,
+
+        [Parameter()]
+        [System.Collections.Generic.List[string]] $MissingRelative
+    )
+
+    $dirName = $script:CursorAdapterConstant.CustomAgentsDirectoryName
+    $expectedNames = @($script:ToolkitConstant.ExpectedCustomAgentFileNames)
+    if ($expectedNames.Count -eq 0) {
+        $expectedNames = @('repo-analyst.md', 'architect.md', 'database.md', 'security.md', 'shell-runner.md')
+    }
+
+    if (-not (Test-Path -LiteralPath $CustomAgentsRoot -PathType Container)) {
+        foreach ($name in $expectedNames) {
+            $MissingRelative.Add(($dirName + '/' + $name))
+        }
+        return $false
+    }
+
+    $allPresent = $true
+    foreach ($name in $expectedNames) {
+        $path = Join-Path $CustomAgentsRoot $name
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            $MissingRelative.Add(($dirName + '/' + $name))
+            $allPresent = $false
+            continue
+        }
+
+        $text = [System.IO.File]::ReadAllText($path)
+        if ([string]::IsNullOrWhiteSpace($text)) {
+            $MissingRelative.Add(($dirName + '/' + $name + ' (empty)'))
+            $allPresent = $false
+        }
+    }
+
+    return $allPresent
+}
+
 function Invoke-CursorSmokeValidate {
     <#
     .SYNOPSIS
@@ -211,17 +253,19 @@ function Invoke-CursorSmokeValidate {
     $hooksPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksDirectoryName
     $hooksJsonPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksJsonFileName
     $agentsPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.AgentsMarkdownFileName
+    $customAgentsPath = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.CustomAgentsDirectoryName
 
     $missing = [System.Collections.Generic.List[string]]::new()
     $checks = [ordered]@{
-        SkillsPresent      = $false
-        RulesMdcPresent    = $false
-        HookScriptsPresent = $false
-        HooksJsonPresent   = $false
-        AgentsPresent      = $false
-        SddLayoutPresent   = $false
-        FilesystemOnly     = $true
-        RequiresHooksTrustUi = $false
+        SkillsPresent           = $false
+        RulesMdcPresent         = $false
+        HookScriptsPresent      = $false
+        HooksJsonPresent        = $false
+        AgentsPresent           = $false
+        CustomAgentFilesPresent = $false
+        SddLayoutPresent        = $false
+        FilesystemOnly          = $true
+        RequiresHooksTrustUi    = $false
     }
 
     $skillsOk = Test-CursorSmokeSkillManifestPresent -SkillsRoot $skillsPath
@@ -247,6 +291,9 @@ function Invoke-CursorSmokeValidate {
     if (-not $agentsOk) {
         $missing.Add($script:CursorAdapterConstant.AgentsMarkdownFileName)
     }
+
+    $customAgentsOk = Test-CursorSmokeCustomAgentFilesPresent -CustomAgentsRoot $customAgentsPath -MissingRelative $missing
+    $checks.CustomAgentFilesPresent = $customAgentsOk
 
     $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $missing
     $checks.SddLayoutPresent = $sddOk

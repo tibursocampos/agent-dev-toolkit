@@ -14,6 +14,7 @@
         "hooks": true,
         "router": true,
         "plugin": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -31,6 +32,7 @@
         "hooks": false,
         "router": true,
         "plugin": true,
+        "agents": false,
         "subagents": "native"
       },
       "publishSurface": {
@@ -48,6 +50,7 @@
         "hooks": true,
         "router": true,
         "plugin": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -65,6 +68,7 @@
         "hooks": true,
         "router": true,
         "plugin": true,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -82,6 +86,7 @@
         "hooks": true,
         "router": false,
         "plugin": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -99,6 +104,7 @@
         "hooks": true,
         "router": true,
         "plugin": true,
+        "agents": false,
         "subagents": "native"
       },
       "publishSurface": {
@@ -116,6 +122,7 @@
         "hooks": true,
         "router": true,
         "plugin": false,
+        "agents": false,
         "subagents": "native"
       },
       "publishSurface": {
@@ -133,6 +140,7 @@
         "hooks": true,
         "router": true,
         "plugin": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {

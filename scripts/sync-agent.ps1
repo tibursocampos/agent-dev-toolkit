@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   Resolves -Agent against adapters/registry.json, loads the adapter module, and
-  invokes Publish-Skills / Publish-Policy / Publish-Router / Publish-Hooks, then
+  invokes Publish-Skills / Publish-Policy / Publish-Router / Publish-Agents / Publish-Hooks, then
   always runs Get-SddRoot -Prepare (sessions directory + seed manifest.json if
   missing; never overwrites existing manifest or clears sessions).
   Stub modules return Implemented = false; sync exits non-zero (TE04) without

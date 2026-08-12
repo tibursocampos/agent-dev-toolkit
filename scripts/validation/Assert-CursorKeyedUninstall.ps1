@@ -45,6 +45,7 @@ $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $rulesRoot = Join-Path $fixtureInstallRoot 'rules'
 $hooksRoot = Join-Path $fixtureInstallRoot 'hooks'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
+$customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.md'
 $hooksJsonPath = Join-Path $fixtureInstallRoot 'hooks.json'
 $sddRoot = Join-Path $fixtureInstallRoot 'sdd'
 $sessionsPath = Join-Path $sddRoot 'sessions'
@@ -216,6 +217,9 @@ if (-not (Test-CursorToolkitHookScriptPresent)) {
 if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
 }
+if (-not (Test-Path -LiteralPath $customAgentSamplePath)) {
+    Write-Fail -TestName $removeTest -Reason 'expected custom subagent file after sync'
+}
 if (-not (Test-Path -LiteralPath $sessionsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected sdd/sessions after sync'
 }
@@ -256,6 +260,9 @@ if (Test-CursorToolkitHookScriptPresent) {
 }
 if (Test-Path -LiteralPath $agentsPath) {
     Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'
+}
+if (Test-Path -LiteralPath $customAgentSamplePath) {
+    Write-Fail -TestName $removeTest -Reason 'custom subagent file should be removed after uninstall'
 }
 
 if (-not (Test-Path -LiteralPath $sessionProbePath)) {

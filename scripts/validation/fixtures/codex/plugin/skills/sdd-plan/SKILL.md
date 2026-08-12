@@ -34,6 +34,8 @@ Invoke when the user asks for: `/sdd-plan`, `create plan`, `execution plan`.
 
 A **PLAN** in **pt-BR** at a **canonical** path under `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` (same story as the PRD; global under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/<repo-id>/features/...`). Root/flat `PLAN/` is **not** a valid Classic SDD path. Same `NNN` as PRD. Each step = one `sdd-develop` session. Paths and test names in **English**; no code blocks.
 
+**PLAN magro:** do not paste SQL/DDL/JSON/OpenAPI into the PLAN. Refuse to omit those bodies from PLAN **unless** the canonical path already exists (bank phase 2 `database-schema.md` / `api-contracts.md` / `component-catalog.md`, or story `ARCH/` / `ANALYSIS/`). If missing, O1/O2 must create the canonical file first; PLAN only **cites the path**.
+
 ## Lazy-load (only when needed)
 
 | When | Path |
@@ -96,7 +98,8 @@ Glob/Grep/Read. Steps ~20-45 min each. Doc-update steps: **sdd-develop** asks do
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
 3. Template `reference.md`; PRD header = full PRD path; steps **Pendente**; `0/N`.
-4. Warn if overwriting PLAN with completed steps.
+4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing, **STOP** — O1/O2 creates that file first; PLAN cites the path only.
+5. Warn if overwriting PLAN with completed steps.
 
 ### 7. Validate with user
 
@@ -105,6 +108,8 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 ## Must not
 
 - Write PLAN in English by default; embed implementation code
+- Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists (bank phase 2 or `ARCH/` / `ANALYSIS/`) — O1/O2 must create that file first; PLAN then cites the path
+- Paste SQL/DDL/JSON/OpenAPI into PLAN when a canonical path already exists (cite the path only — PLAN magro)
 - Create or overwrite PRD; sdd-develop or commit here
 - Write PLAN without canonical PRD (except explicit user choice **2** with specs)
 - Skip confirm-before-write; claim PLAN saved without `Write`

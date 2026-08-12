@@ -21,7 +21,7 @@ After any agent sync, invoke **`help-skills`** for the installed static catalog 
 
 ## Parallel specialists (default)
 
-After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**).
+After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. **Thin trivial exception:** single-path Q&A or a one-file edit with no spread risk stays in-parent; if analysis spans multiple files, a one-file change might extend, or there is any doubt → spawn. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**).
 
 - **`needs_*` → specialist:** O1 spawn map lives in `ROSTER.md` (`Flags (needs_*)`) — point there; do not paste the roster.
 - **Task `model`:** omit by default (inherit parent); premium/alternate only with `SUBAGENT-MODEL.md` gate + user **sim**.

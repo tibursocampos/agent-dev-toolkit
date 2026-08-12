@@ -27,6 +27,7 @@ $script:CopilotAdapterLibDir = Join-Path $script:CopilotAdapterDirectory '..\..\
 . (Join-Path $script:CopilotAdapterDirectory 'CopilotPathConstants.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotSkills.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotPolicy.ps1')
+. (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotAgents.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotHooks.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Invoke-CopilotSmokeValidate.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Uninstall-CopilotToolkit.ps1')
@@ -39,6 +40,7 @@ $script:CopilotAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -53,6 +55,7 @@ $script:CopilotAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $false
     plugin    = $false
+    agents    = $true
     subagents = $script:CopilotAdapterSubagentsNative
 }
 
@@ -419,6 +422,32 @@ function Publish-Router {
         Message     = $script:CopilotPublishMessage.RouterNoOp
         ExitCode    = 0
     }
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents/*.md into InstallRoot/agents for Mode repo (.github/agents/).
+    .DESCRIPTION
+      Mode user is a documented no-op (no Copilot user-home agents directory).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [string] $Mode,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:CopilotAdapterMessage.InstallRootRequired
+    }
+
+    return Invoke-CopilotPublishAgents -InstallRoot $InstallRoot -Mode $Mode -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

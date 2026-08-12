@@ -31,6 +31,7 @@ Canonical form is the skill **id**; `/` is the Copilot host prefix.
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Copilot CLI **`/fleet`** (parallel subagents); optional custom agents in `.github/agents/` |
 | Toolkit contract | Prefer `/fleet` (or host equivalent) when `subagents=native`; SPAWN in-parent fallback otherwise |
+| Published files | `Publish-Agents` **Mode repo** copies `core/agents/` → `InstallRoot/agents/` (`.github/agents/`). Mode user is a no-op (no documented Copilot user-home agents dir). |
 
 ### Official references
 
