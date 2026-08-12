@@ -8,6 +8,8 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 
+**Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
+
 Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file). Router index: `core/router/AGENTS.md` → Parallel specialists.
 
 ## Capability `subagents`

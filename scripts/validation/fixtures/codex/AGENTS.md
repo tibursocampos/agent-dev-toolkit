@@ -19,7 +19,7 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
@@ -53,7 +53,7 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
@@ -85,7 +85,7 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
