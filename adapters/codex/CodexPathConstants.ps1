@@ -42,6 +42,7 @@ $script:CodexPathConstant = @{
     MarketplacePolicyAuthentication = 'ON_INSTALL'
     RouterDirectoryName            = 'router'
     AgentsFileName                 = 'AGENTS.md'
+    CustomAgentsDirectoryName      = 'agents'
     SkillsCatalogDirectoryName     = 'skills-catalog'
     SkillsCatalogFileName          = 'CATALOG.md'
     HelpSkillsSkillId              = 'help-skills'
@@ -90,6 +91,7 @@ $script:CodexSmokeMessage = @{
     Te04HooksInvalid           = 'TE04: Codex agent ''codex'' smoke failed - hooks.json missing or not valid JSON at: {0}'
     RulesMissing               = 'Codex agent ''codex'' smoke failed - rules capable but InstallRoot/rules incomplete. Missing: {0}'
     AgentsMdMissing            = 'Codex agent ''codex'' smoke failed - AGENTS.md missing or empty at: {0}'
+    CustomAgentFilesMissing    = 'Codex agent ''codex'' smoke failed - custom subagent file(s) missing under InstallRoot/agents: {0}'
     AgentsPlaceholderResidual  = 'Codex agent ''codex'' smoke failed - AGENTS.md still contains unresolved {{…}} placeholders at: {0}'
     AgentsDocsLinkForbidden    = 'Codex agent ''codex'' smoke failed - AGENTS.md still references repo docs/ paths at: {0}'
     AgentsDualRootMissing      = 'Codex agent ''codex'' smoke failed - AGENTS.md missing dual-root callout or InstallRoot/plugin absolute paths at: {0}'
@@ -129,6 +131,9 @@ $script:CodexPublishMessage = @{
     CorePolicyMissing       = 'Codex Publish-Policy: core policy source is missing: {0}'
     PolicyPublishedOk       = 'Codex Publish-Policy: published {0} file(s) from core/policy to {1}'
     PolicyWhatIfOk          = 'Codex Publish-Policy: WhatIf - would publish core/policy to {0}'
+    CoreAgentsMissing       = 'Codex Publish-Agents: core agents source is missing: {0}'
+    AgentsPublishedOk       = 'Codex Publish-Agents: published {0} custom subagent file(s) from core/agents to {1}'
+    AgentsWhatIfOk          = 'Codex Publish-Agents: WhatIf - would publish {0} custom subagent file(s) to {1}'
     LiveUserScopeRequiresAllowUserHome = 'Codex Publish-Skills: live ~/.codex UserScope write to $HOME/.agents/skills requires -AllowUserHome.'
 }
 

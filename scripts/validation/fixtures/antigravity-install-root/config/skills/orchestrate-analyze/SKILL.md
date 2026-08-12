@@ -37,14 +37,14 @@ Optional: pasted feature description, existing notes path, or prior refine outpu
 Under the resolved classic feature root (`STORAGE.md`, `$Workflow = classic`):
 
 1. `features/NNN-slug/FEATURE.md` - triage, scope, nature, complexity, `needs_*`
-2. `features/NNN-slug/CONTINUITY.md` - phase, decisions, typed handoff, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`)
+2. `features/NNN-slug/CONTINUITY.md` - phase, decisions, typed handoff, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote)
 3. `features/NNN-slug/USnn/STORY.md` and/or `TSnn/STORY.md` - BDD + scorecard summary + deps
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** triage. Resolve `bank_root` via `STORAGE.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **never** under `features/NNN-slug/`.
 
-**Human gate:** backlog must be explicitly approved (`sim` / `ajustar` / `cancelar`) before O2. **Silence is not approval** (RN01). When greenfield / `needs_domain` without an established style, an **architecture confirm gate** (ARCH draft → **sim** → ARCH approved) runs after the architect pass and before treating style as selected (SKILL §7b).
+**Human gate:** backlog must be explicitly approved (`sim` / `ajustar` / `cancelar`) before O2. **Silence is not approval** (RN01). Do **not** mark approved if required specialist folders are missing or cited non-feature `.md` was not promoted (pointer-only = fail O1). When greenfield / `needs_domain` without an established style, an **architecture confirm gate** (ARCH draft → **sim** → ARCH approved) runs after the architect pass and before treating style as selected (SKILL §7b). Brownfield skips **style re-pick** only — still write mirror ARCH.
 
-Orchestrator **does not** implement application code. Specialists write notes under story `ANALYSIS/` / `ARCH/` / `SEC/` only when spawned.
+Orchestrator **does not** implement application code. When a `needs_*` flag (or brownfield) is true, specialists **must** write notes under story `ANALYSIS/` / `ARCH/` / `SEC/` (folder on disk required). `REFINE/` remains on demand. Do **not** route those notes to CONTINUITY as a substitute.
 
 Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). Does **not** call trackers.
 
@@ -99,13 +99,15 @@ Follow `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` (policy de
 
 Before any bank write: confirm (pt-BR) per MEMORY-BANK.md / guardrails (`sim` / `ajustar` / `cancelar`). Healthy bank -> selective read only (no write). Explicit `skip` / `skip-memory-bank` -> log and continue (exception only).
 
-Record `bank_path` + status (`fresh` | `created` | `refreshed` | skipped) for CONTINUITY (steps 6 and 8).
+Record `bank_path` + status (`fresh` | `created` | `refreshed` | skipped) for CONTINUITY (steps 6 and 8). After ARCH **sim** (step 7b): **point-promote** `memory-bank/architecture.md` (if not already) and set status `refreshed` — not a full inventory refresh (`MEMORY-BANK.md`).
 
 **Must not:** dump the entire bank into the parent prompt; create bank under `features/`; write app code during Step 0.
 
 ### 4. Collect description and triage
 
 Ask for (or reuse Prior context): goal, current behavior, constraints, known repos/areas. Use selective memory-bank facts as Prior context - do not re-ask what the bank already states clearly.
+
+If the user cites a `.md` **outside** `features/` (including Cursor `.cursor/plans/` or any host plans dir): **Read** it and **promote** per `PIPELINE.md` § Promote — copy rich content (DDL, JSON, mermaid, tables, OpenAPI) into memory-bank phase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`, `config-examples.md` as relevant) and/or story `ARCH|SEC|ANALYSIS`. A citation is not Prior context until promote is done. Pointer-only / bibliography-only → **fail O1** (do not mark backlog approved). Allow Read of cited plans; never treat `.cursor/plans/` as O3 input.
 
 Set and record:
 
@@ -146,11 +148,11 @@ Only continue to step 6+ if the user explicitly chooses **2**.
 1. Glob existing `NNN` under `features/*/` only (workspace + global feature root) per `STORAGE.md`. Next = max + 1. Do **not** number from root/flat `PRD/` or `PLAN/`.
 2. Propose `NNN-slug` (kebab-case) and **full path**.
 3. Confirm before first Write (pt-BR): **“Posso gravar a árvore em `{path}`? (sim / ajustar / cancelar)”** - silence ≠ approval.
-4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0), story folders `USnn`/`TSnn` as needed. Optional subfolders (`ANALYSIS/`, `ARCH/`, `SEC/`, `REFINE/`) **on demand** under the story - never at repo root. Do **not** create `PRD/` / `PLAN/` yet (O2). Do **not** create `memory-bank/` under the feature path.
+4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0), story folders `USnn`/`TSnn` as needed. Under the story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true — **required on disk**, not on demand. `REFINE/` remains **optional / on demand**. Do **not** create `PRD/` / `PLAN/` yet (O2). Do **not** create `memory-bank/` under the feature path.
 
 ### 7. Spawn Task specialists (conditional, parallel)
 
-**SPAWN first:** load `SPAWN.md`; consult capability `subagents` (`native` \| `none`). Prefer Task when `native`; if `subagents=none` or Task unavailable → **fallback** **in-parent** (same specialist notes under `ANALYSIS/` / `ARCH/` / `SEC/`, or handoff note in CONTINUITY) — never hard-fail for missing Task. Concurrent Task cap **≤4** per `SPAWN.md` (wave if more; do not invent a new cap).
+**SPAWN first:** load `SPAWN.md`; consult capability `subagents` (`native` \| `none`). Prefer Task when `native`; if `subagents=none` or Task unavailable → **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip** required folders; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield. Never hard-fail for missing Task. Concurrent Task cap **≤4** per `SPAWN.md` (wave if more; do not invent a new cap). `needs_frontend` / `needs_devops` stay CONTINUITY-only (no Task).
 
 Spawn a Task subagent **only** when `subagents=native` **and** `ROSTER.md` canonical `needs_*` / brownfield rules say so. Load prompt from `skills/_shared/agents/prompts/`. When multiple specialists apply, spawn **in parallel** within the SPAWN ≤4 cap; if more flags apply, batch in waves of ≤4 or ask (pt-BR) to run série.
 
@@ -158,12 +160,12 @@ Spawn a Task subagent **only** when `subagents=native` **and** `ROSTER.md` canon
 
 | Signal (see ROSTER) | Specialist | Prompt |
 |---------------------|------------|--------|
-| `needs_api` or brownfield / impact unclear | `repo_analyst` | `prompts/repo_analyst.md` |
-| `needs_domain`, contract-heavy API, or **greenfield** (no established style) | `architect` | `prompts/architect.md` |
-| `needs_database` | `database` | `prompts/database.md` |
-| `needs_security` | `security` | `prompts/security.md` |
-| `needs_frontend` | *(no O1 specialist)* - note in CONTINUITY; route at implement via `ROUTING.md` |
-| `needs_devops` | short CONTINUITY note only | - |
+| `needs_api` or brownfield / impact unclear | `repo_analyst` → `ANALYSIS/` | `prompts/repo_analyst.md` |
+| `needs_domain`, contract-heavy API, **greenfield**, or **brownfield** (mirror; skip style re-pick only) | `architect` → `ARCH/` | `prompts/architect.md` |
+| `needs_database` or brownfield with persistence | `database` → `ARCH/` DB slice | `prompts/database.md` |
+| `needs_security` | `security` → `SEC/` | `prompts/security.md` |
+| `needs_frontend` | *(no O1 specialist)* - CONTINUITY note only; route at implement via `ROUTING.md` |
+| `needs_devops` | short CONTINUITY note only (no Task) | - |
 | Story drafting aid | use `generate-story` patterns | `prompts/generate-story.md` |
 | Optional stage notes | `impact` / `risk` | `prompts/impact.md`, `prompts/risk.md` |
 
@@ -187,26 +189,28 @@ Posso gravar o ARCH aprovado com este estilo?
 
 | Answer | Action |
 |--------|--------|
-| **sim** | Persist ARCH **approved**; record style id in CONTINUITY; continue step 8 |
+| **sim** | Persist ARCH **approved**; record style id in CONTINUITY; **point-promote** / update `memory-bank/architecture.md` (if not already) so it is not left draft / `needs-confirm`; set Memory-bank status `refreshed`; continue step 8 |
 | **ajustar** | Revise proposal with architect (or in-parent); re-present; ask again |
 | **cancelar** | Leave draft; do **not** treat style as selected |
 | *(silence / other)* | **not** approval — keep `needs-confirm.`; wait |
 
-4. **Until sim:** do not write final ARCH; do not invent a silent default style (including vertical-slice). Brownfield with an established style: **skip** this gate — discover/mirror only (no re-pick).
+4. **Until sim:** do not write final ARCH; do not invent a silent default style (including vertical-slice). Brownfield with an established style: **skip this confirm gate** (style re-pick / style-id only) — still spawn `architect` and `database` (when persistence is in scope) and write a **mirror** ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline). Do **not** skip ARCH because a style already exists.
 
 Canonical details: `ROSTER.md` architecture confirm gate + `reference.md` § Architecture confirm gate.
 
 ### 8. Synthesize artifacts
 
-Merge specialist notes + user input into:
+Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into:
 
 1. **FEATURE.md** - overview, story index, all `needs_*`, status `draft`
-2. **CONTINUITY.md** - phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`)
+2. **CONTINUITY.md** - phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list.
 3. **STORY.md** per US/TS - template structure; BDD Given/When/Then; deps; scorecard summary (rubric from `refine-story/reference.md`; map /100 -> 1-5 in STORY table)
 
-Use `generate-story` prompt patterns for drafts. Prefer pt-BR artifact prose; paths/ids English. CONTINUITY references the bank only - **do not** paste bank body into CONTINUITY.
+Use `generate-story` prompt patterns for drafts. Prefer pt-BR artifact prose; paths/ids English. CONTINUITY references the bank only - **do not** paste bank body into CONTINUITY. PLAN magro (O2): bodies stay in bank/ARCH/ANALYSIS; PLAN cites the canonical path — if that path is missing, create the canonical file first.
 
 ### 9. Human backlog approval (RN01)
+
+Before asking: required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only). Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
 
 Present the backlog (feature summary + story table + scorecard highlights). Ask (pt-BR):
 
@@ -267,6 +271,11 @@ Do **not** paste full specialist dumps into the parent chat.
 - Call `*-developer` / `developer` to **implement** code (suggesting the trivial shortcut is allowed)
 - Skip human backlog approval or treat silence as `sim`
 - Skip the architecture confirm gate on greenfield / `needs_domain` (no established style), or write final ARCH / pick a silent style default before operator **sim**
+- Skip `architect` / `database` (or skip writing mirror ARCH) on brownfield — skip **style re-pick / confirm gate** only
+- Leave `memory-bank/architecture.md` draft / `needs-confirm` after ARCH **sim** (point-promote that file; not a full inventory refresh)
+- Pile unresolved product/schema choices only in CONTINUITY when `needs_database` / `needs_domain` (write them under `ANALYSIS/` / `ARCH/`; CONTINUITY may pointer only)
+- Approve backlog when required `ANALYSIS/` / `ARCH/` / `SEC/` folders are missing for true flags / brownfield
+- Treat pointer-only cited `.md` as promoted; treat `.cursor/plans/` as O3 input
 - Write PRD/PLAN (O2 owns that via `sdd-spec` / `sdd-plan` contracts)
 - Create external work-item tracker or org-only compliance content
 - Create ~40 agent files or expand the roster beyond `ROSTER.md`
@@ -275,7 +284,7 @@ Do **not** paste full specialist dumps into the parent chat.
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine spawns
-- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** **in-parent** / handoff per `SPAWN.md`)
+- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` per `SPAWN.md`; never skip required folders)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
 - Paste guideline packs into Task child prompts
 

@@ -6,9 +6,9 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
 **Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
 
-**Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Trivial / single-path Q&A stays **in-parent**. Caps and fallback below still apply.
+**Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 
-Always-on policy: `core/policy/orchestrator-session.md` → after publish `rules/orchestrator-session.mdc`. Router index: `core/router/AGENTS.md` → Parallel specialists.
+Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file). Router index: `core/router/AGENTS.md` → Parallel specialists.
 
 ## Capability `subagents`
 
@@ -53,21 +53,25 @@ Probe order: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0`
 
 ```text
 Need specialist work?
-  ├─ trivial single-path Q&A / one-liner → in-parent (always; no spawn for noise)
-  ├─ analysis / multi-file / script-batch / long build-test /
-  │  deep investigation / non-trivial planning
+  ├─ trivial: single-path Q&A OR one-file edit with no spread risk → in-parent
+  │  (always; no spawn for noise)
+  ├─ analysis spans multiple files / one-file might extend / any doubt /
+  │  script-batch / long build-test / deep investigation / non-trivial planning
   │    ├─ subagents == native → prefer Task / host equivalent (table above)
-  │    └─ else                → fallback in-parent or documented handoff
+  │    └─ else                → fallback in-parent (O1 flags: write ANALYSIS/ARCH/SEC; never CONTINUITY substitute)
   │                             NEVER hard-fail only because Task is absent
   └─ *-developer trivial path → in-parent (always)
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `orchestrate-analyze` / `deliver` / `develop` | Task (or host equivalent) per roster/caps | Same specialist work **in-parent**, or handoff note in CONTINUITY / chat |
+| `orchestrate-analyze` | Task (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
+| `orchestrate-deliver` / `develop` | Task (or host equivalent) per roster/caps | Same specialist work **in-parent** (never hard-fail) |
 | `code-review` multi-angle | Parallel specialist Tasks / host equivalents | Sequential in-parent angles |
 | `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |
 | Parent general chat (analysis / multi-file / long build-test) | Specialist Task when independent work is heavy | Same work in-parent |
+
+`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Task, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
 
 **RN:** Subagent-first = **preference + fallback**, never hard-require Task. Parent stays orchestrator per `orchestrator-session` policy.
 

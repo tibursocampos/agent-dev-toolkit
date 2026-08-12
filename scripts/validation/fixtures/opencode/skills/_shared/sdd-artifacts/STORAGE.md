@@ -29,10 +29,10 @@ features/NNN-slug/
 ├── CONTINUITY.md              # Cross-agent / cross-session handoff
 └── USnn/ or TSnn/             # Story folder (nn = 01, 02, …)
     ├── STORY.md               # Refined story + scorecard / deps
-    ├── REFINE/                # Refine / breakdown scratch (optional)
-    ├── ANALYSIS/              # Impact / risk notes (optional)
-    ├── ARCH/                  # Architecture notes (optional)
-    ├── SEC/                   # Security notes (optional)
+    ├── REFINE/                # Refine / breakdown scratch (optional / on demand)
+    ├── ANALYSIS/              # Impact / risk notes (required when needs_api or brownfield)
+    ├── ARCH/                  # Architecture notes (required when needs_domain, needs_database, or brownfield)
+    ├── SEC/                   # Security notes (required when needs_security)
     ├── PRD/                   # Canonical PRD for this story
     │   └── NNN_short_slug.md
     └── PLAN/
@@ -44,7 +44,7 @@ features/NNN-slug/
 | `NNN` | Three digits; shared across feature folder and PRD/PLAN filenames |
 | `slug` | kebab-case feature id |
 | `USnn` / `TSnn` | User story or technical story; zero-padded index |
-| Story subfolders | Create on demand; do not create the same names at **repo root** |
+| Story subfolders | `REFINE/` optional / on demand. `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
 
 **Forma A (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
 
@@ -156,11 +156,45 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 
 > **Used by:** all `sdd-*`, `refine-story`, `split-story-checklist`, and Forma C `orchestrate-*` skills.
 
+### Effective SDD_ROOT (host-aware)
+
+Resolve **before** reading `manifest.json` or any global classic path. Does **not** force repository vs global — user choice stays. Does **not** migrate existing trees.
+
+1. Detect **current host InstallRoot** for this chat session (not "whichever skill pack happened to load"):
+
+   | Host | InstallRoot |
+   |------|-------------|
+   | Cursor | `<userHome>/.cursor` |
+   | Claude Code | `<userHome>/.claude` |
+   | Codex | `<userHome>/.codex` |
+   | Copilot | `<userHome>/.copilot` (or documented adapter InstallRoot) |
+   | Grok | `<userHome>/.grok` |
+   | Antigravity / Gemini | `<userHome>/.gemini` (or adapter InstallRoot) |
+   | OpenCode | `~/.config/opencode` (adapter root) |
+   | ZCode | `<userHome>/.zcode` |
+
+2. Host detection signals (in order):
+   - IDE / product identity in the session
+   - Path of **this chat's** primary rules / `AGENTS.md` under an agent home
+   - If a loaded skill path is under agent home A but the session is clearly host B, **prefer B**
+
+3. `effective_SDD_ROOT` = `<InstallRoot>/sdd`
+
+4. If a baked absolute `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd` in the loaded SKILL points under a **different** agent home than `effective_SDD_ROOT`, **ignore the baked path** and use `effective_SDD_ROOT`. Optionally warn once in chat (pt-BR): `Skills de outro agente detectadas; usando SDD do host atual.`
+
+5. Read/write `manifest.json`, `preferences.json`, sessions, and global classic.path **only** under `effective_SDD_ROOT`.
+
+6. Do **not** invent a third shared `~/.agents/sdd` unless already documented — stick to per-agent `InstallRoot/sdd`.
+
+Core source keeps placeholders `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd`; publish may still bake absolutes. Runtime **must** apply this override when the baked path's agent home ≠ the current host agent home.
+
 ### Manifest location
 
 ```
-E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd/manifest.json
+<effective_SDD_ROOT>/manifest.json
 ```
+
+(Docs and core source may still write `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd/manifest.json`; at runtime expand to `effective_SDD_ROOT`.)
 
 ### Manifest structure (v2)
 
@@ -192,19 +226,21 @@ If a repository entry has top-level `storage_mode` and `path` (no `classic`), mi
 }
 ```
 
-Run `.\scripts\maintainers\migrate-manifest-v2.ps1` to persist. Write back on first skill run after migration.
+**Persist migration:** TBD — no shipped `migrate-manifest-v2` script in this toolkit. Apply the mapping **in memory** on read; write the v2 `classic` shape back on the first skill run that updates the manifest.
 
 ### Resolution algorithm
 
 Execute at skill load time, before any read or write. Parameter: `$Workflow` = `classic` (only supported workflow).
 
 ```
+0. Resolve effective_SDD_ROOT (host-aware) — see section above.
 1. Normalize $Cwd (replace \ with /, trim trailing /).
-2. Read manifest.json; ensure schema_version = 2 (migrate v1 if needed).
+2. Read manifest.json from effective_SDD_ROOT; ensure schema_version = 2
+   (migrate v1 if needed).
 3. Look up repositories[$Cwd].
 4. If NOT found (first run):
    a. Ask user (pt-BR) storage for classic SDD (local vs global).
-   b. Write classic section only.
+   b. Write classic section only (under effective_SDD_ROOT).
    c. Set session gate storage_confirmed = true after user sim.
 5. If found: read repositories[$Cwd].classic.storage_mode and .path
    (ignore any legacy speckit key).
@@ -213,6 +249,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
                     bank_root   = $Cwd/memory-bank/
    - global     -> feature_root = <classic.path>/features/
                     bank_root   = <classic.path>/memory-bank/
+   (global paths must resolve under effective_SDD_ROOT; never under a foreign agent home).
 7. For classic feature writes and reads: resolve only under
    features/NNN-slug/[USnn|TSnn]/{PRD|PLAN|...}
    (Forma A default story = US01 when unspecified).
@@ -233,7 +270,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 
 | Check | repository | global |
 |-------|------------|--------|
-| Feature root | `$Cwd/features/NNN-slug/` | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/sdd/<repo-id>/features/NNN-slug/` (or manifest path) |
+| Feature root | `$Cwd/features/NNN-slug/` | `<effective_SDD_ROOT>/<repo-id>/features/NNN-slug/` (or manifest path under effective root) |
 | Memory-bank root | `$Cwd/memory-bank/` | `<classic.path>/memory-bank/` |
 | PRD/PLAN | Under story `PRD/` / `PLAN/` only | Same under global feature root |
 | `.gitignore` SDD block | Required (incl. `/features/`, safety-net `/PRD/` `/PLAN/`; **not** `/memory-bank/`) | Do **not** edit project `.gitignore` |

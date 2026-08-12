@@ -6,7 +6,9 @@ Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/f
 
 **Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
 
-**Default preference (all adapters):** for multi-facet parent turns (planning, analysis, non-trivial questions, multi-angle execution), prefer specialist children **in parallel** and keep the current session as **parent**. Trivial / single-path work stays **in-parent**. Caps and fallback below still apply. Router always-on text: `core/router/AGENTS.md` → Parallel specialists.
+**Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
+
+Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file). Router index: `core/router/AGENTS.md` → Parallel specialists.
 
 ## Capability `subagents`
 
@@ -51,28 +53,38 @@ Probe order: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0`
 
 ```text
 Need specialist work?
-  ├─ trivial (*-developer)     → in-parent (always)
-  ├─ subagents == native       → prefer Task / host equivalent (table above)
-  └─ else                      → fallback in-parent or documented handoff
-                                 NEVER hard-fail only because Task is absent
+  ├─ trivial: single-path Q&A OR one-file edit with no spread risk → in-parent
+  │  (always; no spawn for noise)
+  ├─ analysis spans multiple files / one-file might extend / any doubt /
+  │  script-batch / long build-test / deep investigation / non-trivial planning
+  │    ├─ subagents == native → prefer Task / host equivalent (table above)
+  │    └─ else                → fallback in-parent (O1 flags: write ANALYSIS/ARCH/SEC; never CONTINUITY substitute)
+  │                             NEVER hard-fail only because Task is absent
+  └─ *-developer trivial path → in-parent (always)
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `orchestrate-analyze` / `deliver` / `develop` | Task (or host equivalent) per roster/caps | Same specialist work **in-parent**, or handoff note in CONTINUITY / chat |
+| `orchestrate-analyze` | Task (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
+| `orchestrate-deliver` / `develop` | Task (or host equivalent) per roster/caps | Same specialist work **in-parent** (never hard-fail) |
 | `code-review` multi-angle | Parallel specialist Tasks / host equivalents | Sequential in-parent angles |
 | `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |
+| Parent general chat (analysis / multi-file / long build-test) | Specialist Task when independent work is heavy | Same work in-parent |
 
-**RN:** Subagent-first = **preference + fallback**, never hard-require Task.
+`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Task, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
+
+**RN:** Subagent-first = **preference + fallback**, never hard-require Task. Parent stays orchestrator per `orchestrator-session` policy.
 
 ## Child payload (minimum)
 
 When spawning (native path):
 
 1. Pass **scoped paths** (files/dirs the child may read/write).
-2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body).
+2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
 3. Point to role prompt under `skills/_shared/agents/prompts/` when Forma C roster applies.
-4. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
+5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 
 ## Limits
 
@@ -82,11 +94,11 @@ When spawning (native path):
 | `orchestrate-*` parallel Tasks | **≤ 4** concurrent (existing skill caps; wave if more) |
 | `qa_checklist` | **No** Task — CONTINUITY/STORY only (`ROSTER.md`) |
 
-Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by default).
+Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**).
 
 ## Receipt and synthesis
 
-- Child ends with receipt rows (Caveman ON: required; OFF: still prefer tight bullets).
+- Child I/O is Caveman-scoped: prompts, style, and returns honor Caveman when ON; end with receipt rows (Caveman ON: required; OFF: still prefer receipt / tight bullets).
 - Parent synthesizes into CONTINUITY / chat — **facts and paths only**.
 - Do not dump full specialist transcripts into CONTINUITY.
 
@@ -103,10 +115,12 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 
 | File | Use |
 |------|------|
+| `core/policy/orchestrator-session.md` | Always-on parent/orchestrator policy |
 | `ROSTER.md` | Which specialist roles / `needs_*` |
-| `RECEIPT.md` | Receipt schema + refusal tokens |
-| `SUBAGENT-MODEL.md` | Task `model` parameter policy |
+| `RECEIPT.md` | Receipt schema + refusal tokens (Caveman-scoped child returns) |
+| `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
+| `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
 | `docs/SPAWN.md` | Tier-1 host matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping

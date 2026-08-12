@@ -53,6 +53,7 @@ $script:GrokAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -67,6 +68,7 @@ $script:GrokAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $false
+    agents    = $false
     subagents = $script:GrokAdapterSubagentsNative
 }
 
@@ -246,6 +248,38 @@ function Publish-Router {
     }
 
     return Invoke-GrokPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Documented no-op - Grok Build has no documented custom-agents directory.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:GrokAdapterMessage.InstallRootRequired
+    }
+
+    return [PSCustomObject]@{
+        Success     = $true
+        Implemented = $true
+        CommandName = 'Publish-Agents'
+        NoOp        = $true
+        WhatIf      = [bool]$WhatIf.IsPresent
+        InstallRoot = $InstallRoot.Trim()
+        FilesCopied = 0
+        Message     = $script:GrokAdapterMessage.AgentsNoOp
+        ExitCode    = 0
+    }
 }
 
 function Publish-Hooks {

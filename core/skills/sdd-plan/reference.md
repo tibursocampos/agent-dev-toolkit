@@ -14,8 +14,8 @@ Storage rules: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`. Pipel
 | Sequence | Same `NNN` (3 digits) as the source PRD |
 | Slug | Short ASCII summary (kebab-case or snake_case; Portuguese allowed) |
 | Example (repo) | `features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` |
-| Example (global) | `{{SDD_ROOT}}/acme-payments-api/features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` |
-| PRD link | Full path to PRD on disk (must be under `features/.../PRD/`) |
+| Example (global) | `sdd/acme-payments-api/features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` (portable path relative to InstallRoot) |
+| PRD link | **Portable path** to PRD (`STORAGE.md` § Portable path; must be under `features/.../PRD/` or `sdd/<repo-id>/features/.../PRD/`) |
 
 ## Storage and `.gitignore` (plan skill)
 
@@ -36,7 +36,7 @@ Copy from the heading below through **Checklist final**, then remove bracketed i
 
 | Campo | Valor |
 |-------|--------|
-| **PRD** | [caminho completo do PRD] |
+| **PRD** | [caminho portátil do PRD — `STORAGE.md` § Portable path; ex. repo `features/.../PRD/...md` ou global `sdd/<repo-id>/features/.../PRD/...md`] |
 | **Repositório** | [nome do PRD / raiz git] |
 | **Stack** | [.NET / Angular / outro] |
 | **Complexidade** | Baixa / Média / Alta |
@@ -192,7 +192,7 @@ Copy from the heading below through **Checklist final**, then remove bracketed i
 
 ## Referências
 
-- PRD: [caminho completo]
+- PRD: [caminho portátil do PRD]
 - Docs do projeto: `docs/...`
 - Diretrizes (lazy-load; não colar corpos):
   - `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`
@@ -206,7 +206,7 @@ Copy from the heading below through **Checklist final**, then remove bracketed i
 - [ ] Cenários de teste cobrem CA e bordas
 - [ ] (Opcional/.NET) Passo final de qualidade com cobertura ≥ 80% via `test-coverage`
 - [ ] Sem código de implementação embutido no PLAN
-- [ ] Handoff: `/sdd-develop - <caminho-completo-do-plan> - Step 1`
+- [ ] Handoff: `/sdd-develop - <caminho-portátil-do-plan> - Step 1`
 ```
 
 ---
@@ -249,6 +249,7 @@ Use **Pendente** / **Concluído** / **Bloqueado** (or English equivalents) on th
 - [ ] Every PRD acceptance criterion appears in some step
 - [ ] Step prose in pt-BR (unless English override)
 - [ ] No full implementation code blocks in the PLAN
+- [ ] PLAN magro: SQL/DDL/JSON/OpenAPI omitted **only** if a canonical path already exists (bank phase 2 or `ARCH/` / `ANALYSIS/`); otherwise create that file first and cite the path
 - [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `{{TOOLKIT_ROOT}}/` outside `sdd/.../features/`)
-- [ ] Handoff: `/sdd-develop - <full-plan-path> - Step 1`
+- [ ] Handoff: `/sdd-develop - <portable-plan-path> - Step 1`
 - [ ] Initial progress `0/N`

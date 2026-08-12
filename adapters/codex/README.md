@@ -25,6 +25,7 @@ Use **`$<skill-id>`** (example: `$help-skills`). Plugin-only paths do **not** fe
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Parallel **subagent** workflows (prompt / `AGENTS.md` / skill instructions); custom agents under `.codex/agents/` or `~/.codex/agents/` |
 | Toolkit contract | Prefer spawn language in skills when `subagents=native`; SPAWN fallback if multi-agent tools disabled |
+| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.codex/agents/`). Distinct from USER skills `.agents/skills`. |
 
 ### Official references
 

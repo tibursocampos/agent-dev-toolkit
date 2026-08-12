@@ -151,7 +151,7 @@ Use after PLAN is saved:
 ```markdown
 ## Step N complete
 
-**PLAN:** <full-plan-path>
+**PLAN:** <portable-plan-path>
 **Step:** N - [title]
 **Branch:** feature/... or feat/...
 **Files:** [list]
@@ -159,7 +159,7 @@ Use after PLAN is saved:
 **Progress:** N/M (X%)
 
 **Next (new chat):**
-/sdd-develop - <full-plan-path> - Step N+1
+/sdd-develop - <portable-plan-path> - Step N+1
 ```
 
 ---

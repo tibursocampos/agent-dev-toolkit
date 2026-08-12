@@ -24,7 +24,7 @@ File: `adapters/registry.json`
 | `displayName` | Human label |
 | `tier` | `1` for MVP agents |
 | `module` | Path relative to `adapters/` (dot-source target) |
-| `capabilities` | Capability map: boolean publish flags + string `subagents` enum (`native` \| `none`) |
+| `capabilities` | Capability map: boolean publish flags (`skills`, `rules`, `hooks`, `router`, `plugin`, `agents`) + string `subagents` enum (`native` \| `none`) |
 | `publishSurface` | Optional whole-file router targets the adapter may publish (`wholeFileRouter`: relative paths under InstallRoot). Antigravity uses managed markdown blocks (`[]`); Copilot folds router into `copilot-instructions.md` via `Publish-Policy` (`[]`). Sync records sha256 in InstallRoot `.toolkit-managed-publish.json`; uninstall removes whole-file routers only when inventory hash matches. |
 
 ### Tier 1 agents
@@ -70,20 +70,21 @@ Flags on each registry entry and on `Get-Capabilities` output:
 | `hooks` | Can publish hooks |
 | `router` | Can publish router material from `core/router/` |
 | `plugin` | Agent uses a plugin/extension packaging surface |
+| `agents` | Can publish roster custom subagent markdown from `core/agents/` into the host `agents/` directory |
 | `subagents` | String enum `native` \| `none` — host Task/equivalent for SPAWN (`core/skills/_shared/agents/SPAWN.md`). **Not** boolean. Stub/`Get-Capabilities` defaults must never mint `native`. Per-adapter evidence and host spawn mechanism: each `adapters/<id>/README.md` (**Spawn / subagents**). Tier-1 matrix: [SPAWN.md](SPAWN.md). |
 
 Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupported ones):
 
-| Agent | skills | rules | hooks | router | plugin | Notes |
-|-------|--------|-------|-------|--------|--------|-------|
-| `cursor` | true | true | true | true | false | — |
-| `antigravity` | true | true | false | true | true | No native shell-hook parity; `Publish-Hooks` no-op |
-| `claude` | true | true | true | true | false | Hooks smoke = files only; trust UI out of scope |
-| `codex` | true | true | true | true | true | Dual-root; `Publish-Policy` → `rules/*.md`; `/hooks` trust manual |
-| `copilot` | true | true | true | false | false | `Publish-Router` no-op; router folds into `copilot-instructions.md` |
-| `opencode` | true | false | true | true | true | `HooksSemantics=plugin-only` (JS plugins, not PS1) |
-| `grok` | true | true | true | true | false | Native under `~/.grok` InstallRoot; hooks trust UI out of smoke/CI |
-| `zcode` | true | false | true | true | false | `Publish-Policy` no-op |
+| Agent | skills | rules | hooks | router | plugin | agents | Notes |
+|-------|--------|-------|-------|--------|--------|--------|-------|
+| `cursor` | true | true | true | true | false | true | `Publish-Agents` → `InstallRoot/agents/` |
+| `antigravity` | true | true | false | true | true | false | No native shell-hook parity; `Publish-Hooks` / `Publish-Agents` no-op |
+| `claude` | true | true | true | true | false | true | Hooks smoke = files only; trust UI out of scope |
+| `codex` | true | true | true | true | true | true | Dual-root; `Publish-Policy` → `rules/*.md`; `/hooks` trust manual; `Publish-Agents` → `InstallRoot/agents/` (not `.agents/skills`) |
+| `copilot` | true | true | true | false | false | true | `Publish-Router` no-op; `Publish-Agents` repo → `.github/agents/`; user mode no-op |
+| `opencode` | true | false | true | true | true | false | `HooksSemantics=plugin-only` (JS plugins, not PS1); `Publish-Agents` no-op |
+| `grok` | true | true | true | true | false | false | Native under `~/.grok` InstallRoot; no documented agents dir; `Publish-Agents` no-op |
+| `zcode` | true | false | true | true | false | true | `Publish-Policy` no-op; `Publish-Agents` → `InstallRoot/agents/` |
 
 All eight agents declare `subagents: native` (host product docs), including **Antigravity**. **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` probe (`ADT_ANTIGRAVITY_SUBAGENTS` / `agy` / product version) — pré-2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
 ## Cursor (`cursor`) — publish + smoke
@@ -96,8 +97,8 @@ All eight agents declare `subagents: native` (host product docs), including **An
 | Official docs | [Rules + AGENTS.md](https://cursor.com/docs/rules), [Skills](https://cursor.com/docs/context/skills), [Hooks](https://cursor.com/docs/hooks), [Subagents](https://cursor.com/docs/context/subagents), [Agent best practices](https://cursor.com/blog/agent-best-practices) |
 | Fixture | `scripts/validation/fixtures/cursor-install-root` (InstallRoot models the Cursor root; seed may include custom `hooks.json`) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
-| Capabilities | `skills` / `rules` / `hooks` / `router` = true; `plugin` = false |
-| Key artifacts | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/*.ps1`, `hooks.json`, `sdd/sessions`, `sdd/manifest.json` |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `agents` = true; `plugin` = false |
+| Key artifacts | `skills/`, `rules/*.mdc`, `AGENTS.md`, `agents/*.md`, `hooks/*.ps1`, `hooks.json`, `sdd/sessions`, `sdd/manifest.json` |
 | Content source | `core/` only |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent cursor` — **no** Cursor trust UI, **no** live `~/.cursor` writes in CI |
 
@@ -108,6 +109,7 @@ All eight agents declare `subagents: native` (host product docs), including **An
 | `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved) |
 | `rules/*.mdc` | `Publish-Policy` from `core/policy/` (`.md` → `.mdc`; no orphan `.md` rules) |
 | `AGENTS.md` | `Publish-Router` from `core/router/AGENTS.md` |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` (roster: repo-analyst, architect, database, security, shell-runner) |
 | `hooks/*.ps1` | `Publish-Hooks` from `adapters/cursor/assets/hooks/` |
 | `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`; invalid JSON fail-closed) |
 | `sdd/sessions/` + `sdd/manifest.json` | `Get-SddRoot -Prepare` (seed manifest only when absent) |
@@ -143,6 +145,7 @@ Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merg
 | Capabilities | `skills` / `rules` / `router` / `plugin` = true; `hooks` = false (no native shell-hook parity) |
 | Key artifacts | kebab skills + `skills.json`, GUARDRAILS / `dev_persona` from core, managed `AGENTS.md` / `GEMINI.md` |
 | `Publish-Hooks` | **No-op** while `hooks=false`: Success/Implemented, zero writes under `config/hooks` or `antigravity-ide/plugins`. Default smoke **ignores** hooks requirement and does **not** gate on the legacy bridge (opt-in / docs only). |
+| `Publish-Agents` | **No-op** (`agents=false`): Success/Implemented. Host spawn is `invoke_subagent` only — no custom agent markdown files. |
 | `Invoke-SmokeValidate` | Filesystem-only under InstallRoot (kebab skills, `skills.json`, GUARDRAILS, `dev_persona`, managed AGENTS/GEMINI). Hooks/legacy bridge not gated. |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (core skill folders, `dev_persona`, managed plugin dir, managed `skills.json` entry, managed markdown blocks). Preserves alien skills / hooks / legacy bridge. Preserves `sdd/sessions` + `sdd/manifest.json`. |
 
@@ -150,7 +153,7 @@ Default smoke/CI targets the **official** `config/*` layout under InstallRoot (k
 
 **Out of scope:** live Knowledge Items (KI) injection; IDE trust UI / interactive prompts. CI covers Antigravity via `Invoke-AntigravityCiSmoke.ps1` (ephemeral fixture filesystem sync+validate — no live `~/.gemini`).
 
-`Publish-Skills` / `Publish-Policy` / `Publish-Router` / `Publish-Hooks` (no-op) / `Invoke-SmokeValidate` / `Uninstall-Toolkit` are implemented. Operator E2E:
+`Publish-Skills` / `Publish-Policy` / `Publish-Router` / `Publish-Agents` (no-op) / `Publish-Hooks` (no-op) / `Invoke-SmokeValidate` / `Uninstall-Toolkit` are implemented. Operator E2E:
 
 ```powershell
 $antigravityFixture = Join-Path $PWD 'scripts\validation\fixtures\antigravity-install-root'
@@ -173,8 +176,8 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent antigravity
 | Mode `repo` | InstallRoot models `.github` (fixture — not the toolkit working-tree `.github` by default) |
 | Fixtures | `scripts/validation/fixtures/copilot/user`, `scripts/validation/fixtures/copilot/repo` |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
-| Capabilities | `skills` / `rules` / `hooks` = true; `router` / `plugin` = false |
-| Key artifacts (relative under InstallRoot) | `skills/<kebab-id>/SKILL.md`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/*` |
+| Capabilities | `skills` / `rules` / `hooks` / `agents` = true; `router` / `plugin` = false |
+| Key artifacts (relative under InstallRoot) | `skills/<kebab-id>/SKILL.md`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/*`; Mode repo also `agents/*.md` |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent copilot -Mode <mode>` — **no** Copilot IDE extension, **no** GitHub login, **no** user profile |
 | Uninstall | Keyed removal of toolkit skills / instructions / hooks only (RN07 — no wholesale wipe of `~/.copilot` or `.github`). Preserves `sdd/sessions` + `sdd/manifest.json` |
 
@@ -195,6 +198,7 @@ Relative layout under either InstallRoot is the same: `skills/`, `instructions/`
 | `instructions/*.instructions.md` | `Publish-Policy` from `core/policy/` (`.md` → `*.instructions.md`; no fake Cursor `.mdc`) |
 | `copilot-instructions.md` | `Publish-Policy` from `core/router/AGENTS.md` (always-on instructions) |
 | `hooks/*` | `Publish-Hooks` from `adapters/copilot/assets/hooks/` when `hooks=true` |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` **Mode repo only** (`.github/agents/`). Mode user is a documented no-op (no Copilot user-home agents dir). |
 
 `Publish-Router` is a documented **no-op** (`router=false`). Router guidance is folded into `copilot-instructions.md` via `Publish-Policy`.
 
@@ -236,8 +240,8 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | Official docs | [Features](https://code.claude.com/docs/en/features-overview), [Memory / rules](https://code.claude.com/docs/en/memory), [Skills](https://code.claude.com/docs/en/skills), [Hooks](https://code.claude.com/docs/en/hooks), [`.claude` directory](https://code.claude.com/docs/en/claude-directory), [Steering blog](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more) |
 | Fixture | `scripts/validation/fixtures/claude/` (InstallRoot models the Claude root; includes pre-existing `settings.json` for merge CT) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
-| Capabilities | `skills` / `rules` / `hooks` / `router` = true; `plugin` = false |
-| Key artifacts | `skills/`, `rules/*.md`, `hooks/*.ps1`, `CLAUDE.md`, merged `settings.json` |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `agents` = true; `plugin` = false |
+| Key artifacts | `skills/`, `rules/*.md`, `hooks/*.ps1`, `CLAUDE.md`, `agents/*.md`, merged `settings.json` |
 | Content source | `core/` only (packaging layout may follow Claude / ai-prompts docs as **reference** — never copy Athena content) |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent claude` — **no** Claude trust UI, **no** live `~/.claude` writes in CI |
 
@@ -248,6 +252,7 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved) |
 | `rules/*.md` | `Publish-Policy` from `core/policy/` (keep `.md`; not Cursor `.mdc`) |
 | `CLAUDE.md` | `Publish-Router` from `core/router/AGENTS.md` (`.mdc` refs rewritten to `.md`) |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` |
 | `hooks/*.ps1` | `Publish-Hooks` from `adapters/claude/assets/hooks/` |
 | `settings.json` | Merge after hooks publish (see below) |
 
@@ -294,7 +299,7 @@ Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merg
 | Official marketplace | `.agents/plugins/marketplace.json` (fixture models local `source.path` `./plugin`) |
 | Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
-| Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` = true |
 | Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugin/hooks/hooks.json` (+ `session_start.ps1`) |
 | Hooks trust | Codex `/hooks` UI is **manual**; smoke/CI never invoke or require trust (RN03) |
 
@@ -331,6 +336,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `rules/*.md` | `Publish-Policy` from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
 | `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` (live `~/.codex/agents/`; **not** `.agents/skills`) |
 | `plugin/hooks/hooks.json` | `Publish-Hooks` (filesystem only; trust `/hooks` out of smoke) |
 | `.agents/skills/` | Optional `-UserScope` mirror of `core/skills` (fixture stand-in) |
 
@@ -341,6 +347,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `Publish-Skills` | Plugin manifest + skills + marketplace; optional `-UserScope` USER mirror |
 | `Publish-Policy` | Copies `core/policy` → `InstallRoot/rules/*.md` |
 | `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
+| `Publish-Agents` | Copies `core/agents/` → `InstallRoot/agents/` (live `~/.codex/agents/`) |
 | `Publish-Hooks` | Writes hooks **files** under `plugin/hooks/` |
 | `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
@@ -371,11 +378,12 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent codex -InstallRoot $co
 | Official docs | [opencode.ai](https://opencode.ai), [rules](https://opencode.ai/docs/rules/), [skills](https://opencode.ai/docs/skills/), [config](https://opencode.ai/docs/config/), [agents](https://opencode.ai/docs/agents/), [plugins](https://opencode.ai/docs/plugins/) |
 | Fixture | `scripts/validation/fixtures/opencode/` (InstallRoot models the config root; does **not** nest another `.config/opencode`) |
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
-| Capabilities | `skills` / `hooks` / `router` / `plugin` = true; `rules` = false |
+| Capabilities | `skills` / `hooks` / `router` / `plugin` = true; `rules` / `agents` = false |
 | Hooks semantics | `HooksSemantics=plugin-only` — OpenCode uses **JavaScript plugins**, not shell/PS1 hooks (unlike Cursor/Claude). Smoke never requires `.ps1` hooks |
 | MVP hooks (Decision A) | `Publish-Hooks` copies `plugins/agent-dev-toolkit-marker.js` from `adapters/opencode/assets/plugins/` |
 | Key artifacts | `skills/<kebab-id>/SKILL.md`, `AGENTS.md`, `plugins/agent-dev-toolkit-marker.js` |
 | `Publish-Policy` | Documented **no-op** (`rules=false`; no dedicated OpenCode policy surface) |
+| `Publish-Agents` | Documented **no-op** (`agents=false`; do not invent `agents/` — host spawn is Task / `@`) |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent opencode` / `Invoke-OpenCodeCiSmoke.ps1` — **no** OpenCode product runtime, **no** real `~/.config/opencode` writes in CI |
 | Uninstall | Keyed removal of toolkit skills, `AGENTS.md`, and the marker plugin only (RN07 — no wholesale wipe). Preserves `sdd/sessions` + `sdd/manifest.json` |
 
@@ -410,8 +418,8 @@ CI uses the in-repo fixture only. Do not sync to a live `~/.config/opencode` for
 | Official user root | `~/.zcode` (relative `.zcode` under USERPROFILE) |
 | Official docs | [Agents](https://zcode.z.ai/en/docs/agents), [Subagents](https://zcode.z.ai/en/docs/subagents), [Skills](https://zcode.z.ai/en/docs/skill), [Hooks](https://zcode.z.ai/en/docs/hooks), [Plugins](https://zcode.z.ai/en/docs/plugin) |
 | Fixture override | `-InstallRoot <path>` (in-repo fixture `scripts/validation/fixtures/zcode-install-root`; USERPROFILE paths require `-AllowUserHome`) |
-| Capabilities | `skills` / `hooks` / `router` = true; `rules` / `plugin` = false |
-| Key artifacts under InstallRoot | `skills/<id>/SKILL.md`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json`, `sdd/sessions/`, `sdd/manifest.json` |
+| Capabilities | `skills` / `hooks` / `router` / `agents` = true; `rules` / `plugin` = false |
+| Key artifacts under InstallRoot | `skills/<id>/SKILL.md`, `AGENTS.md`, `agents/*.md`, `cli/config.json`, `hooks/hooks.json`, `sdd/sessions/`, `sdd/manifest.json` |
 
 ### Install layout (relative to InstallRoot / `~/.zcode`)
 
@@ -419,6 +427,7 @@ CI uses the in-repo fixture only. Do not sync to a live `~/.config/opencode` for
 |---------------|------|
 | `skills/<kebab-id>/SKILL.md` | Agent Skills from `core/skills/` |
 | `AGENTS.md` | Router surface from `core/router/AGENTS.md` (no Cursor `rules/*.mdc` tree) |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` (live `~/.zcode/agents/`) |
 | `cli/config.json` | Hooks config (`hooks.enabled: true` when applicable) |
 | `hooks/hooks.json` | User-level hooks merge (non-destructive; preserves custom entries) |
 | `sdd/sessions/` + `sdd/manifest.json` | `Get-SddRoot -Prepare` (seed manifest only when absent) |
@@ -474,6 +483,7 @@ Grok Build can also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `
 | `Publish-Skills` | Copies `core/skills` → `skills/` under InstallRoot with placeholder resolve (`TOOLKIT_ROOT` = InstallRoot) |
 | `Publish-Policy` | Copies `core/policy` → `rules/*.md` |
 | `Publish-Router` | Writes `AGENTS.md`; rewrites `.mdc` → `.md` refs |
+| `Publish-Agents` | Documented **no-op** (`agents=false`; Grok has no documented custom-agents directory; host spawn is `spawn_subagent`) |
 | `Publish-Hooks` | Writes native SessionStart JSON + script under `hooks/` |
 | `Invoke-SmokeValidate` | Asserts InstallRoot layout (TE01–TE05); **does not** invoke trust UI |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of InstallRoot / `config.toml`). Preserves `sdd/sessions` + `sdd/manifest.json` |
@@ -507,6 +517,7 @@ Module: `adapters/_contract/AdapterContract.ps1` (shared stub). Concrete modules
 | `Publish-Skills` | Publish skills into `InstallRoot` | Not-implemented result; **no** filesystem writes |
 | `Publish-Policy` | Publish policy into `InstallRoot` | Not-implemented result; **no** filesystem writes |
 | `Publish-Router` | Publish router into `InstallRoot` | Not-implemented result; **no** filesystem writes |
+| `Publish-Agents` | Publish roster custom subagent markdown from `core/agents/` | Not-implemented result; **no** filesystem writes |
 | `Publish-Hooks` | Publish hooks into `InstallRoot` | Not-implemented result; **no** filesystem writes |
 | `Get-SddRoot` | Resolve / prepare `<InstallRoot>/sdd` runtime root | Contract stub returns not-implemented; concrete adapters implement; source of truth for contracts remains `core/sdd/` |
 | `Invoke-SmokeValidate` | Smoke against fixture `InstallRoot` | Not-implemented result; must not require live user-profile sync |

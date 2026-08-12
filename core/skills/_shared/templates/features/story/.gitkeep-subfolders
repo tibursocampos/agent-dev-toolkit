@@ -1,4 +1,6 @@
-# Expected optional subfolders under each USnn/ or TSnn/ directory:
-# REFINE/, ANALYSIS/, ARCH/, SEC/, PRD/, PLAN/
-# Create on demand when a skill writes into them.
+# Expected subfolders under each USnn/ or TSnn/ directory:
+# REFINE/ — optional / on demand
+# ANALYSIS/, ARCH/, SEC/ — required on disk when FEATURE needs_* (or brownfield) is true
+# PRD/, PLAN/ — O2
+# Never create these names at repo root.
 # This file is documentation only — not copied into consumer repos automatically.

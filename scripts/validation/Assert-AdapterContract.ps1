@@ -77,6 +77,7 @@ $requiredCommands = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -88,6 +89,7 @@ $requiredDocMarkers = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Invoke-SmokeValidate',
     'Get-SddRoot',
@@ -97,6 +99,7 @@ $requiredDocMarkers = @(
     'hooks',
     'router',
     'plugin',
+    'agents',
     'subagents',
     'registry.json'
 )
@@ -237,11 +240,11 @@ Write-Pass -TestName $moduleSubagentsName
 
 # --- Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded ---
 # Isolated child process per module reconciles every boolean capability flag
-# (skills, rules, hooks, router, plugin) between registry.json and the
+# (skills, rules, hooks, router, plugin, agents) between registry.json and the
 # module's own Get-Capabilities output. subagents is a native/none enum and is
 # already reconciled above; it is intentionally excluded here.
 $moduleCapabilitiesName = 'Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded'
-$booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'plugin')
+$booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'plugin', 'agents')
 $capabilitiesProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-capabilities-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
 $capabilitiesProbeBody = @'
 param(

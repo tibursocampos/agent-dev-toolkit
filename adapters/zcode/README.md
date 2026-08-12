@@ -31,6 +31,7 @@ Canonical form is the skill **id**; `$` is the ZCode host prefix (same token as 
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Primary launches subagents via **Agent** tool; built-ins `general-purpose` / `Explore`; custom under `~/.zcode/agents/` |
 | Toolkit contract | Prefer Agent tool when `subagents=native`; SPAWN fallback otherwise |
+| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.zcode/agents/`). |
 
 Do not confuse with the unrelated open-source CLI named “Z-CODE” (different project).
 

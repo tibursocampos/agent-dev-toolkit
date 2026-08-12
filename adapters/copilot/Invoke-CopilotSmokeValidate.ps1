@@ -212,6 +212,17 @@ function Invoke-CopilotSmokeValidateCore {
         $completed.Add('hooks-json-schema')
     }
 
+    if ($normalizedMode -eq $script:CopilotPathConstant.ModeRepo) {
+        $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
+        foreach ($agentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
+            $agentPath = Join-Path $customAgentsRoot $agentFileName
+            if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
+                return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.CustomAgentsMissing -f $agentPath)
+            }
+            $completed.Add(('custom-agent:{0}' -f $agentFileName))
+        }
+    }
+
     try {
         Assert-CopilotSmokeNoExcludedIdePaths -InstallRoot $resolvedInstallRoot -Mode $normalizedMode
         $completed.Add('no-excluded-ide-paths')

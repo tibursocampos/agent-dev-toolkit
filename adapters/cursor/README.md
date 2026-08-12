@@ -52,6 +52,7 @@ Non-`Copy-ToolkitManagedTree` writes under InstallRoot are fail-closed via `Asse
 | `hooks` | true | Scripts under `hooks/` + root `hooks.json` merge |
 | `router` | true | `core/router/AGENTS.md` → `AGENTS.md` |
 | `plugin` | false | — |
+| `agents` | true | `core/agents` → `agents/*.md` (Task targets) |
 | `subagents` | `native` | Host Task tool; see Spawn section |
 
 ## Spawn / subagents (honesty)
@@ -62,6 +63,7 @@ Non-`Copy-ToolkitManagedTree` writes under InstallRoot are fail-closed via `Asse
 | Effective (`Get-Capabilities`) | `native` (static) |
 | Host mechanism | Cursor **Task** tool |
 | Toolkit contract | `core/skills/_shared/agents/SPAWN.md` + `SUBAGENT-MODEL.md` |
+| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.cursor/agents/`). Roster: `repo-analyst`, `architect`, `database`, `security`, `shell-runner`. Parent stays the main agent. |
 
 Skills prefer Task when `subagents=native`; fallback in-parent when Task unavailable (never hard-fail).
 
@@ -71,7 +73,7 @@ Skills prefer Task when `subagents=native`; fallback in-parent when Task unavail
 
 ## Uninstall (keyed)
 
-Removes only toolkit-managed paths (core skill ids, core policy → `rules/*.mdc`, toolkit hook scripts, `AGENTS.md`) and reverse-merges `hooks.json` (drop toolkit-managed handlers by strict `-File` command identity; keep aliens and alien top-level keys). Publish merge may match broader `hooks/<script>` paths; uninstall matching is strict `-File`. Preserves alien skills/rules/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
+Removes only toolkit-managed paths (core skill ids, core policy → `rules/*.mdc`, toolkit hook scripts, `AGENTS.md`, roster `agents/*.md`) and reverse-merges `hooks.json` (drop toolkit-managed handlers by strict `-File` command identity; keep aliens and alien top-level keys). Publish merge may match broader `hooks/<script>` paths; uninstall matching is strict `-File`. Preserves alien skills/rules/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
 
 ## Multi-agent installs / third-party skills
 

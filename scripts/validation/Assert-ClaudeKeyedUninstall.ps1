@@ -151,6 +151,15 @@ function Assert-ManagedArtifactsPresent {
             Write-Fail -TestName $TestName -Reason ("expected managed hook after sync: {0}" -f $hookName)
         }
     }
+
+    $coreAgentsRoot = Join-Path (Join-Path $repoRoot 'core') 'agents'
+    $customAgentsPath = Join-Path $workInstallRoot 'agents'
+    $agentFiles = @(Get-ChildItem -LiteralPath $coreAgentsRoot -File -Filter '*.md' -Force | Select-Object -ExpandProperty Name)
+    foreach ($name in $agentFiles) {
+        if (-not (Test-Path -LiteralPath (Join-Path $customAgentsPath $name))) {
+            Write-Fail -TestName $TestName -Reason ("expected managed custom agent after sync: {0}" -f $name)
+        }
+    }
 }
 
 function Assert-ManagedArtifactsAbsent {
@@ -182,6 +191,15 @@ function Assert-ManagedArtifactsAbsent {
     foreach ($hookName in @('context-before-prompt.ps1', 'context-pre-compact.ps1', 'plan-after-edit.ps1', '_hook-common.ps1')) {
         if (Test-Path -LiteralPath (Join-Path $hooksPath $hookName)) {
             Write-Fail -TestName $TestName -Reason ("managed hook still present after uninstall: {0}" -f $hookName)
+        }
+    }
+
+    $coreAgentsRoot = Join-Path (Join-Path $repoRoot 'core') 'agents'
+    $customAgentsPath = Join-Path $workInstallRoot 'agents'
+    $agentFiles = @(Get-ChildItem -LiteralPath $coreAgentsRoot -File -Filter '*.md' -Force | Select-Object -ExpandProperty Name)
+    foreach ($name in $agentFiles) {
+        if (Test-Path -LiteralPath (Join-Path $customAgentsPath $name)) {
+            Write-Fail -TestName $TestName -Reason ("managed custom agent still present after uninstall: {0}" -f $name)
         }
     }
 }
@@ -289,7 +307,7 @@ if ($syncExit -ne 0) {
     Write-Fail -TestName $syncName -Reason ("sync-agent -Agent claude failed (exit {0}): {1}" -f $syncExit, $syncOutput.Trim())
 }
 
-$expectedPublishOrder = @('Publish-Skills', 'Publish-Policy', 'Publish-Router', 'Publish-Hooks')
+$expectedPublishOrder = @('Publish-Skills', 'Publish-Policy', 'Publish-Router', 'Publish-Agents', 'Publish-Hooks')
 $lastIndex = -1
 foreach ($commandName in $expectedPublishOrder) {
     $matched = $false

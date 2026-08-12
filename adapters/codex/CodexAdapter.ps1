@@ -35,6 +35,7 @@ $script:CodexAdapterLibDir = Join-Path $script:CodexAdapterDirectory '..\..\scri
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexSkills.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexPolicy.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexRouter.ps1')
+. (Join-Path $script:CodexAdapterDirectory 'Publish-CodexAgents.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexHooks.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Invoke-CodexSmokeValidate.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Uninstall-CodexToolkit.ps1')
@@ -47,6 +48,7 @@ $script:CodexAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -61,6 +63,7 @@ $script:CodexAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $true
+    agents    = $true
     subagents = $script:CodexAdapterSubagentsNative
 }
 
@@ -342,6 +345,28 @@ function Publish-Router {
     }
 
     return Invoke-CodexPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents/*.md into InstallRoot/agents (live ~/.codex/agents/).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:CodexAdapterMessage.InstallRootRequired
+    }
+
+    return Invoke-CodexPublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

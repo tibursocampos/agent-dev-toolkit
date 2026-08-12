@@ -34,15 +34,24 @@ Rubric detail: `refine-story/reference.md` (scores **/100**). Map to this table 
 
 - {{DEP_STORY_OR_NONE}}
 
+## Decisões em aberto
+
+Quando `needs_database` / `needs_domain`: apontar para `ANALYSIS/` (ex. `open-decisions.md`) — não o corpo de CONTINUITY.
+
+| Campo | Valor |
+|-------|--------|
+| **Open decisions** | `{{STORY_ID}}/ANALYSIS/` (ou N/A) |
+
 ## Subpastas esperadas
 
 | Pasta | Uso |
 |-------|-----|
-| `REFINE/` | Refine / breakdown |
-| `ANALYSIS/` | Impacto / risco |
-| `ARCH/` | Arquitetura |
-| `SEC/` | Segurança |
-| `PRD/` | PRD canônico da história |
-| `PLAN/` | PLAN canônico da história |
+| `REFINE/` | Refine / breakdown — **opcional / sob demanda** |
+| `ANALYSIS/` | Impacto / risco — **obrigatória** se FEATURE `needs_api` ou nature brownfield |
+| `ARCH/` | Arquitetura — **obrigatória** se FEATURE `needs_domain` / `needs_database` ou brownfield |
+| `SEC/` | Segurança — **obrigatória** se FEATURE `needs_security` |
+| `PRD/` | PRD canônico da história (O2) |
+| `PLAN/` | PLAN canônico da história (O2) |
 
 Não criar essas pastas na **raiz** do repositório.
+Não escrever “sob demanda” / “on demand” para `SEC/` / `ARCH/` / `ANALYSIS/` se a flag correspondente em FEATURE for true.

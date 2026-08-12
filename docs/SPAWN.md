@@ -51,9 +51,9 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
 
 ## Behavior matrix
 
-| `subagents` | Orchestrate / code-review multi-angle | `*-developer` medium/complex | Trivial developer |
-|-------------|----------------------------------------|------------------------------|-------------------|
-| `native` | Prefer Task (or host equivalent); receipt; no guideline paste | Up to **2** children; paths + receipt | In-parent |
+| `subagents` | Orchestrate / code-review multi-angle | `*-developer` medium/complex | Thin trivial |
+|-------------|----------------------------------------|------------------------------|--------------|
+| `native` | Prefer Task (or host equivalent); receipt; no guideline paste | Up to **2** children; paths + receipt | In-parent: single-path Q&A **or** one-file edit with no spread risk. If analysis spans multiple files, a one-file change might extend, or any doubt → spawn |
 | `none` | In-parent / documented handoff; **never** hard-fail | Same outcome in-parent | In-parent |
 
 | Context | Cap |
@@ -66,6 +66,8 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
 ## Specialists (`needs_*` → ROSTER)
 
 O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
+
+**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. OpenCode / Antigravity / Grok skip file publish (native Task / `invoke_subagent` / `spawn_subagent` only).
 
 ## Task `model`
 

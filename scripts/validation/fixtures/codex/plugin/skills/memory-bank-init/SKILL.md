@@ -47,11 +47,16 @@ memory-bank/
   domain-knowledge.md
   conventions.md
   known-risks.md
+  database-schema.md      # phase 2 — when relevant / BLOCKING
+  api-contracts.md        # phase 2 — when relevant / BLOCKING
+  component-catalog.md    # phase 2 — when relevant / BLOCKING
   .inventory/
     sources.json
     gaps.md
     refresh-history.jsonl
 ```
+
+MVP files are always required. Phase 2 files: write from templates when Prior/cited content or inventory signals make them relevant. If Prior already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (or promote immediately) — empty `gaps.md` phase 2 is not “optional forever” (`MEMORY-BANK.md`).
 
 | `storage_mode` | `bank_root` |
 |----------------|-------------|
@@ -136,7 +141,7 @@ Rules:
 - Preserve `<!-- BEGIN GENERATED: … -->` / `<!-- END GENERATED: … -->` discipline (`reference.md`)
 - **No secrets** - env names / `***` only
 - Evidence-based domain/architecture; unknowns -> `gaps.md`
-- Phase-2 contracts stay as gap lines only (no new required files)
+- Phase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`): write from templates when relevant; if Prior/cited already has DDL/OpenAPI/UI map, those files are **BLOCKING** (promote immediately or `- [ ] BLOCKING:` until written)
 
 ### 7. Report + handoff
 
@@ -161,3 +166,4 @@ Handoff examples:
 - Edit consumer `.gitignore` when `storage_mode` is **global**
 - Add or require `/memory-bank/` in `.gitignore`
 - Commit secrets into the bank (keys, tokens, connection strings, raw `.env`)
+- Leave phase 2 as gaps-only when Prior/cited already has DDL, OpenAPI, or a UI component map (those files are **BLOCKING** — write/promote or `- [ ] BLOCKING:`)

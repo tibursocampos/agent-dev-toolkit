@@ -27,6 +27,7 @@ $script:CursorAdapterLibDir = Join-Path $script:CursorAdapterDirectory '..\..\sc
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorSkills.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorPolicy.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorRouter.ps1')
+. (Join-Path $script:CursorAdapterDirectory 'Publish-CursorAgents.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorHooks.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Invoke-CursorSmokeValidate.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Uninstall-CursorToolkit.ps1')
@@ -39,6 +40,7 @@ $script:CursorAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -53,6 +55,7 @@ $script:CursorAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $false
+    agents    = $true
     subagents = $script:CursorAdapterSubagentsNative
 }
 
@@ -201,6 +204,28 @@ function Publish-Router {
     }
 
     return Invoke-CursorPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents/*.md into InstallRoot/agents (Cursor Task targets).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $WhatIf,
+        [Parameter()]
+        [switch] $AllowUserHome
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:CursorAdapterMessage.InstallRootRequired
+    }
+
+    return Invoke-CursorPublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

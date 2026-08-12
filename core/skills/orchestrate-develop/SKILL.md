@@ -44,7 +44,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Parent orchestrator never** writes application code, never marks multiple PLAN steps done in one child, and never bypasses `sdd-develop` gates (`step_confirmed`, tests before complete).
 
-**Alternative (always valid):** user runs manual `/sdd-develop - <full-plan-path> - Step N` without this skill (RF05 / CA5). Manual Forma A does **not** require memory-bank (CA7).
+**Alternative (always valid):** user runs manual `/sdd-develop - <portable-plan-path> - Step N` without this skill (RF05 / CA5). Manual Forma A does **not** require memory-bank (CA7).
 
 ## Lazy-load
 
@@ -94,8 +94,8 @@ Repository mode: ensure SDD `.gitignore` per `STORAGE.md` before any bank write.
 ```text
 Não encontrei PLAN sob `{path}`.
 
-1) /orchestrate-deliver - <full-feature-path>
-2) /sdd-plan - <full-prd-path>
+1) /orchestrate-deliver - <portable-feature-path>
+2) /sdd-plan - <portable-prd-path>
 3) cancelar
 ```
 
@@ -128,7 +128,7 @@ Silence ≠ approval (RN01).
 
 ### 5. Spawn exactly one step child (CA5)
 
-**SPAWN first:** load `SPAWN.md`; consult capability `subagents`. Prefer Task when `native`. If `subagents=none` or Task unavailable → **fallback** handoff to `/sdd-develop - <full-plan-path> - Step N` (note in CONTINUITY / chat) — never hard-fail; parent still must not write app code.
+**SPAWN first:** load `SPAWN.md`; consult capability `subagents`. Prefer Task when `native`. If `subagents=none` or Task unavailable → **fallback** handoff to `/sdd-develop - <portable-plan-path> - Step N` (note in CONTINUITY / chat) — never hard-fail; parent still must not write app code.
 
 **Hard rule (native path):** one Task = one PLAN step = full `sdd-develop` contract.
 
@@ -137,7 +137,7 @@ Silence ≠ approval (RN01).
 Child must:
 
 1. Load and follow `sdd-develop/SKILL.md` (gates, validate step, git branch, implement, tests, update PLAN, report)
-2. Receive **only** that PLAN path + step number + lean Prior context paths (PRD, STORY, CONTINUITY, FEATURE, **`memory-bank/` path**) - not full guideline dumps or full bank body
+2. Receive **only** that PLAN path + step number + lean Prior context paths (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memory-bank/` path**) - not full guideline dumps or full bank body
 3. Use **PLAN-scoped SESSION** per `SESSION.md` (`plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` when this spawn is parallel on the same PLAN)
 4. Return: `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`
 5. **STOP** after that step - must not start Step N+1 in the same child
@@ -179,7 +179,7 @@ Steps {A} e {B} parecem independentes. Executar em paralelo?
 | Different PLANs | `sessions/{repoHash}/plan-{planHash}.json` each |
 | Same PLAN, parallel-safe steps | `sessions/{repoHash}/plan-{planHash}-step-{N}.json` each |
 
-Child prompt **must** include: `planPath`, `step`, `memoryBankPath` (read-only), and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”.
+Child prompt **must** include: `planPath`, `step`, `memoryBankPath` (read-only), Prior-context paths including `ARCH|SEC|ANALYSIS` when present, and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”.
 
 If unsure about file independence -> **série**. Concurrent parallel Task cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Task unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
 
@@ -201,13 +201,13 @@ Stop spawning and emit handoff when any of:
 Resume string:
 
 ```text
-/orchestrate-develop - <full-feature-path>
+/orchestrate-develop - <portable-feature-path>
 ```
 
 Or per PLAN:
 
 ```text
-/orchestrate-develop - <full-plan-path>
+/orchestrate-develop - <portable-plan-path>
 ```
 
 ### 8. CONTINUITY
@@ -220,7 +220,7 @@ On each meaningful milestone (before/after child, pause, story done):
 | **Last agent** | `orchestrate-develop` |
 | **Memory-bank** | Path + status from Step 0 (`fresh` / `refreshed` / `created`) |
 | **Estado atual** | Short per CONTINUITY template: active PLAN, last step done, next step |
-| **Handoff tipado** | Exact next `/…` with **full paths** |
+| **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
 
 Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it.
 
@@ -248,10 +248,10 @@ When a story or feature develop pass completes (or user asks to review mid-way):
 /code-review - multi-angle
 
 ## Continuar develop manual (alternativa a O3)
-/sdd-develop - <full-plan-path> - Step {N}
+/sdd-develop - <portable-plan-path> - Step {N}
 
 ## Continuar O3
-/orchestrate-develop - <full-feature-path>
+/orchestrate-develop - <portable-feature-path>
 
 ## Memory-bank (manual)
 /memory-bank-init - refresh-light
@@ -291,6 +291,7 @@ Full copy in `reference.md`.
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
 - Paste guideline packs into Task child prompts
+- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 
 ## Handoff
 
@@ -304,11 +305,11 @@ Full copy in `reference.md`.
 ### Canonical strings
 
 ```text
-/orchestrate-develop - <full-feature-path>
+/orchestrate-develop - <portable-feature-path>
 ```
 
 ```text
-/sdd-develop - <full-plan-path> - Step N
+/sdd-develop - <portable-plan-path> - Step N
 ```
 
 ```text

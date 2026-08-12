@@ -530,3 +530,110 @@ function Invoke-ToolkitManagedSkillsPublish {
         PrunedSkillNames  = $prunedSkillNames
     }
 }
+
+function Get-ToolkitCoreAgentsRoot {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
+    )
+
+    return (Join-Path (Join-Path $RepoRoot $script:ToolkitConstant.CoreSkillsDirectoryName) $script:ToolkitConstant.AgentsDirectoryName)
+}
+
+function Get-ToolkitManagedAgentFileNames {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SourceAgentsRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $SourceAgentsRoot)) {
+        return @()
+    }
+
+    return @(
+        Get-ChildItem -LiteralPath $SourceAgentsRoot -File -ErrorAction Stop |
+            Where-Object { $_.Extension -eq '.md' } |
+            ForEach-Object { $_.Name }
+    )
+}
+
+function Invoke-ToolkitManagedAgentsPublish {
+    <#
+    .SYNOPSIS
+      Copy core/agents markdown into InstallRoot/agents and resolve placeholders.
+
+    .DESCRIPTION
+      Overwrites toolkit-managed agent files. Does not prune alien files under
+      DestinationAgentsRoot (user custom subagents stay).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SourceAgentsRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $DestinationAgentsRoot,
+
+        [Parameter()]
+        [System.Collections.IDictionary] $PlaceholderMap,
+
+        [Parameter()]
+        [string] $TextFileExtensionPattern = $script:ToolkitConstant.DefaultTextFileExtensionPattern,
+
+        [Parameter()]
+        [string[]] $UnresolvedTokens,
+
+        [Parameter()]
+        [string] $UnresolvedMessageFormat = $script:ToolkitMessage.PlaceholderUnresolved,
+
+        [Parameter()]
+        [switch] $SkipPlaceholderResolve,
+
+        [Parameter()]
+        [string] $InstallRoot
+    )
+
+    if ([string]::IsNullOrWhiteSpace($SourceAgentsRoot)) {
+        throw $script:ToolkitMessage.SourceAgentsRootRequired
+    }
+
+    if ([string]::IsNullOrWhiteSpace($DestinationAgentsRoot)) {
+        throw $script:ToolkitMessage.DestinationAgentsRootRequired
+    }
+
+    if (-not (Test-Path -LiteralPath $SourceAgentsRoot)) {
+        throw ($script:ToolkitMessage.CoreAgentsMissing -f $SourceAgentsRoot)
+    }
+
+    $copyParams = @{
+        SourceRoot      = $SourceAgentsRoot
+        DestinationRoot = $DestinationAgentsRoot
+    }
+    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+        $copyParams['InstallRoot'] = $InstallRoot
+    }
+
+    $filesCopied = Copy-ToolkitManagedTree @copyParams
+    $agentFileNames = @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $SourceAgentsRoot)
+
+    if (-not $SkipPlaceholderResolve.IsPresent) {
+        if ($null -eq $PlaceholderMap) {
+            throw $script:ToolkitMessage.PlaceholderMapRequired
+        }
+
+        Resolve-ToolkitPlaceholdersInTree `
+            -RootPath $DestinationAgentsRoot `
+            -PlaceholderMap $PlaceholderMap `
+            -TextFileExtensionPattern $TextFileExtensionPattern `
+            -UnresolvedTokens $UnresolvedTokens `
+            -UnresolvedMessageFormat $UnresolvedMessageFormat
+    }
+
+    return [PSCustomObject]@{
+        FilesCopied    = $filesCopied
+        AgentFileCount = $agentFileNames.Count
+        AgentFileNames = $agentFileNames
+    }
+}

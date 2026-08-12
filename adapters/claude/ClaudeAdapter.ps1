@@ -25,6 +25,7 @@ $script:ClaudeAdapterLibDir = Join-Path $script:ClaudeAdapterDirectory '..\..\sc
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeSkills.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudePolicy.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeRouter.ps1')
+. (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeAgents.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Merge-ClaudeSettings.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeHooks.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Invoke-ClaudeSmokeValidate.ps1')
@@ -38,6 +39,7 @@ $script:ClaudeAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -52,6 +54,7 @@ $script:ClaudeAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $false
+    agents    = $true
     subagents = $script:ClaudeAdapterSubagentsNative
 }
 
@@ -225,6 +228,28 @@ function Publish-Router {
     }
 
     return Invoke-ClaudePublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents/*.md into InstallRoot/agents (Claude Code Agent targets).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:ClaudeAdapterMessage.InstallRootRequired
+    }
+
+    return Invoke-ClaudePublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

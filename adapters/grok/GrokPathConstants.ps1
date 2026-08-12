@@ -82,6 +82,7 @@ $script:GrokAdapterMessage = @{
     HooksPublishedOk          = 'Grok Publish-Hooks: published native JSON under {0} (filesystem only; trust /hooks-trust or --trust is manual)'
     HooksWhatIfOk             = 'Grok Publish-Hooks: WhatIf - would publish native hooks under {0}'
     HooksSkippedNotCapable    = 'Grok Publish-Hooks: skipped - hooks capability is false; no hooks files written under {0}'
+    AgentsNoOp                = 'Grok Build has no documented custom-agents directory; Publish-Agents is a no-op. Host spawn is spawn_subagent (not agent markdown files).'
     SmokePassed               = 'Grok Invoke-SmokeValidate: PASS under {0} (native ~/.grok-layout filesystem checks only; hooks trust /hooks-trust or --trust is manual - TE05 files only).'
     SmokeTe02SkillsMissing    = 'Grok Invoke-SmokeValidate TE02: expected native skills under {0} (at least one SKILL.md); path missing or empty after publish.'
     SmokeTe03RulesMissing     = 'Grok Invoke-SmokeValidate TE03: rules capability is true but no .md rules found under {0}.'

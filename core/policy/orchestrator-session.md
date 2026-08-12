@@ -15,30 +15,22 @@ Full spawn contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Model pa
 
 This chat = **parent / orchestrator**.
 
-Keep parent context lean. Prefer holding only:
+Parent keeps minimal context:
 
 - goals and acceptance gates
 - scoped paths
 - specialist receipts
 - synthesis / next actions for the user
 
-Do **not** turn the parent into the heavy worker when specialists are available.
+Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that.
 
 ---
 
 ## Prefer specialists (when `subagents` is `native`)
 
-Prefer specialist subagents (parallel when independent) for:
+Prefer specialist subagents (parallel when independent) for analysis, multi-file edits, script/batch runs, long builds/tests, and non-trivial planning. Parent synthesizes; child does the heavy pass.
 
-- analysis / deep investigation
-- multi-file edits
-- script or batch runs
-- long builds / long tests
-- non-trivial planning
-
-Parent synthesizes results. Child does the heavy pass.
-
-**Trivial exception:** single-path Q&A / one-liner answers may stay **in-parent**. Do not spawn for noise.
+**Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 
 ---
 
@@ -46,7 +38,7 @@ Parent synthesizes results. Child does the heavy pass.
 
 | Effective `subagents` | Behavior |
 |----------------------|----------|
-| `native` (Task / host equivalent) | Prefer spawn for the work classes above |
+| `native` (Task / host equivalent) | Prefer spawn except the thin trivial exception |
 | `none` or Task unavailable | Same outcome **in-parent** (or documented handoff). **Never** hard-fail only because Task is absent |
 
 Load `SPAWN.md` for caps, host table, and child payload rules.

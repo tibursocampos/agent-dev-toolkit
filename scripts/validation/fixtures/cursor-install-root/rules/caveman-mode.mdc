@@ -45,3 +45,5 @@ Also accept `stop caveman` / `normal mode` as off.
 **Full / Ultra** (develop, review, ops, stack developers, general chat): telegraphic fragments; pattern `[thing] [action] [reason]. [next].`; no preambles/pleasantries/tool narration. Ultra = max terseness when unambiguous.
 
 **Boundaries:** code, commit messages, and PR bodies stay normal prose (English). Chat style only.
+
+**Subagents:** when mode ON, child prompts and returns follow Caveman (inherit parent intensity; end receipt per `RECEIPT.md`). When OFF, still prefer compact receipts for token control. See `orchestrator-session.md` + `SPAWN.md`.

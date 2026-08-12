@@ -96,7 +96,7 @@ Steps {A} e {B} parecem independentes. Executar em paralelo?
 (sim / série / cancelar)
 ```
 
-Each child prompt must include `planPath`, `step`, and instruction to use the matching scoped SESSION file.
+Each child prompt must include `planPath`, `step`, Prior-context paths (`ARCH|SEC|ANALYSIS` when present), and instruction to use the matching scoped SESSION file.
 
 ---
 
@@ -123,7 +123,7 @@ Give each child:
 1. Exact PLAN path + step number/title
 2. Instruction: execute `/sdd-develop` contract for **this step only** - load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
-4. Prior-context paths only (PRD, STORY, CONTINUITY, FEATURE, **`memoryBankPath`**) - do not paste bodies; selective bank read only
+4. Prior-context paths only (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**) - do not paste bodies; selective bank read only
 5. Must stop after updating PLAN for this step; must run targeted tests before complete
 6. Return: `{ planPath, step, status: done|blocked, files[], testsSummary, nextStep?, blockedReason? }`
 7. Must not: other PLAN steps; weaken gates; skip tests; auto-commit unless user asked inside that child session; write develop gates to the flat repo session when PLAN path is known; write under `memory-bank/` unless this child is explicitly running memory-bank-init (normal develop children: read-only)

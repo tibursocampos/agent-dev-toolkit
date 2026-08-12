@@ -51,6 +51,7 @@ $script:AntigravityAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -68,6 +69,7 @@ $script:AntigravityAdapterCapabilityFlags = [ordered]@{
     hooks     = $false
     router    = $true
     plugin    = $true
+    agents    = $false
     subagents = $script:AntigravityAdapterSubagentsNative
 }
 
@@ -130,6 +132,7 @@ $script:AntigravityAdapterMessage = @{
     SkillsJsonWriteFailed     = 'Antigravity Publish-Skills: failed to write skills.json at {0}: {1}'
     HooksNoOpNotCapable       = 'Antigravity Publish-Hooks: hooks capability is false - no-op (no files written under config/hooks or legacy bridge antigravity-ide/plugins). Default smoke ignores hooks and does not gate on the legacy bridge.'
     HooksWouldNoOp            = 'Antigravity Publish-Hooks: WhatIf - would no-op (hooks=false); no writes under {0} or legacy bridge {1}'
+    AgentsNoOp                = 'Antigravity has no custom-agent markdown directory; Publish-Agents is a no-op. Host spawn is invoke_subagent only.'
 }
 
 function New-AntigravityAdapterNotImplementedResult {
@@ -843,6 +846,38 @@ function Publish-Router {
     }
 
     return Invoke-AntigravityPublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Documented no-op - Antigravity has no custom-agent markdown files (invoke_subagent only).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:AntigravityAdapterMessage.InstallRootRequired
+    }
+
+    return [PSCustomObject]@{
+        Success     = $true
+        Implemented = $true
+        CommandName = 'Publish-Agents'
+        NoOp        = $true
+        WhatIf      = [bool]$WhatIf.IsPresent
+        InstallRoot = $InstallRoot.Trim()
+        FilesCopied = 0
+        Message     = $script:AntigravityAdapterMessage.AgentsNoOp
+        ExitCode    = 0
+    }
 }
 
 function Publish-Hooks {

@@ -15,10 +15,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## Parallel specialists (default)
 
-For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
-- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
 
 
@@ -46,10 +49,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## Parallel specialists (default)
 
-For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
-- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
 
  discovery / InstallRoot/skills) | E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills |
@@ -75,10 +81,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## Parallel specialists (default)
 
-For **planning**, **multi-facet execution**, **analysis**, or **non-trivial questions**: prefer specialist subagents **in parallel**; keep **this session as the parent** (synthesize results / receipts). Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native vs fallback **in-parent**; concurrent caps).
-- **Trivial / single-path** work stays in-parent — do not spawn for noise.
+Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.md`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
+
+- Honor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat remains pt-BR per language policy below.
 
  discovery reads InstallRoot/skills (TOOLKIT_ROOT = InstallRoot). Plugin skills under InstallRoot/plugin remain for marketplace packaging (TOOLKIT_ROOT = plugin). Do not resolve skill `_shared` under InstallRoot/rules — rules and guardrails live under InstallRoot/rules only.
@@ -136,10 +145,11 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 
 ## Agents / spawn (lazy)
 
-Default preference: parallel specialists for multi-facet parent turns — see **Parallel specialists (default)** above. Details:
+Default preference: this session stays parent/orchestrator; specialists for heavy work — see **Parallel specialists (default)** above. Details:
 
 | Topic | Path |
 |-------|------|
+| Orchestrator session (always-on) | Cursor `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/orchestrator-session.md` (other hosts: rewrite extension, or this Parallel specialists section when `rules=false`) |
 | Spawn contract (native vs fallback) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/SPAWN.md` |
 | Roster / `needs_*` | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/agents/RECEIPT.md` |
@@ -148,11 +158,12 @@ Default preference: parallel specialists for multi-facet parent turns — see **
 
 ## Rules (always-on)
 
-Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/` after sync-agent (source policy under `core/policy/` where applicable).
+Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/` after sync-agent (source policy under `core/policy/` where applicable). Cursor-oriented `.md` names below; other hosts rewrite the extension or skip this table when `rules=false` (OpenCode/ZCode: honor Parallel specialists — no rules file).
 
 | Rule | Path |
 |------|------|
 | Guardrails (git, write, gates) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/guardrails.md` |
+| Orchestrator session | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/orchestrator-session.md` |
 | AI stealth | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/ai-stealth.md` |
 | SDD pipeline | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/sdd-pipeline-guards.md` |
 | Context management | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.md` |

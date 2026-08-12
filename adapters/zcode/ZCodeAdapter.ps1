@@ -34,6 +34,7 @@ $script:ZCodeAdapterLibDir = Join-Path $script:ZCodeAdapterDirectory '..\..\scri
 . (Join-Path $script:ZCodeAdapterDirectory 'ZCodePathConstants.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeSkills.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeRouter.ps1')
+. (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeAgents.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeHooks.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Invoke-ZCodeSmokeValidate.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Uninstall-ZCodeToolkit.ps1')
@@ -46,6 +47,7 @@ $script:ZCodeAdapterCommandNames = @(
     'Publish-Skills',
     'Publish-Policy',
     'Publish-Router',
+    'Publish-Agents',
     'Publish-Hooks',
     'Get-SddRoot',
     'Invoke-SmokeValidate',
@@ -60,6 +62,7 @@ $script:ZCodeAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $false
+    agents    = $true
     subagents = $script:ZCodeAdapterSubagentsNative
 }
 
@@ -254,6 +257,28 @@ function Publish-Router {
     }
 
     return Invoke-ZCodePublishRouter -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
+}
+
+function Publish-Agents {
+    <#
+    .SYNOPSIS
+      Publish core/agents/*.md into InstallRoot/agents (live ~/.zcode/agents/).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+        [Parameter()]
+        [switch] $AllowUserHome,
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        throw $script:ZCodeAdapterMessage.InstallRootRequired
+    }
+
+    return Invoke-ZCodePublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

@@ -12,9 +12,11 @@ Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 - [ ] conventions aligned with AGENTS/README
 - [ ] known-risks reviewed once
 
-## Phase 2 / optional rich contracts
+## Phase 2 / rich contracts
 
-List only when signals suggest they matter; do **not** create these files in MVP.
+When Prior/cited content already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (write/promote it, or `- [ ] BLOCKING:` until written). Empty stubs here are **not** “optional forever” in that case.
+
+When those signals are absent, list only; do not require files.
 
 - [ ] api-contracts (OpenAPI/Swagger detected: {{OPENAPI_HINT}})
 - [ ] database-schema (EF/Prisma/SQL migrations detected: {{DB_HINT}})

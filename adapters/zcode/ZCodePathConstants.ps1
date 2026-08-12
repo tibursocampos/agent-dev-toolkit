@@ -12,10 +12,22 @@ $script:ZCodePathConstant = @{
     SkillsDirectoryName       = 'skills'
     RouterDirectoryName       = 'router'
     AgentsFileName            = 'AGENTS.md'
+    CustomAgentsDirectoryName = 'agents'
     CursorRulesDirectoryName  = 'rules'
     CursorMdcExtension        = '.mdc'
     SddDirectoryName          = 'sdd'
     GuardrailsFileName        = 'guardrails.mdc'
+    OrchestratorSessionMdcFileName = 'orchestrator-session.mdc'
+    OrchestratorSessionMdFileName = 'orchestrator-session.md'
+    GuardrailsMdFileName      = 'guardrails.md'
+    RulesAlwaysOnHeading      = '## Rules (always-on)'
+    RulesFalseAlwaysOnPointer = 'this Parallel specialists section (no rules file)'
+    RulesFalseAlwaysOnSection = @'
+## Rules (always-on)
+
+This host does not publish a rules tree (`rules=false`). Honor **Parallel specialists (default)** above — that section is the always-on orchestrator policy.
+
+'@
     SkillManifestFileName     = 'SKILL.md'
     SharedSkillsDirectoryName = '_shared'
     FixtureInstallRootRel     = 'scripts/validation/fixtures/zcode-install-root'
@@ -55,10 +67,14 @@ $script:ZCodePublishMessage = @{
     SmokeFailGaps         = 'ZCode smoke: required layout incomplete under InstallRoot {0}. Missing: {1}'
     SmokeSkillsMissing    = 'skills/<id>/SKILL.md'
     SmokeAgentsMissing    = 'AGENTS.md'
+    SmokeCustomAgentsMissing = 'agents/<roster>.md'
     SmokeCliConfigMissing = 'cli/config.json'
     SmokeHooksJsonMissing = 'hooks/hooks.json'
     SmokeHooksEnabledOff  = 'cli/config.json (hooks.enabled must be true)'
     SmokeHooksSurfaceGap  = 'hooks surface (cli/config.json with hooks.enabled:true and/or hooks/hooks.json)'
     SmokeRelativeSep      = '; '
     PolicyNoOp            = 'ZCode ADE has no Cursor-style rules/*.mdc policy surface; Publish-Policy is a documented no-op (rules=false). Router guidance is AGENTS.md via Publish-Router.'
+    CoreAgentsMissing     = 'ZCode Publish-Agents: core agents source is missing: {0}'
+    AgentsPublishedOk     = 'ZCode Publish-Agents: published {0} custom subagent file(s) from core/agents to {1}'
+    AgentsWhatIfOk        = 'ZCode Publish-Agents: WhatIf - would publish {0} custom subagent file(s) to {1}'
 }
