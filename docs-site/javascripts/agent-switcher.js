@@ -3,7 +3,8 @@
  * Defensive no-op on pages without the home CTA / switcher markup.
  * Re-inits on MkDocs Material instant navigation via document$ when present.
  * Persists last agent id in sessionStorage.
- * Flat 8-chip radiogroup on home; optional details/button disclosure binding is a no-op when absent.
+ * Flat agent-chip radiogroup on home; optional details/button disclosure binding is a no-op when absent.
+ * Primary copy target is always interactive toolkit.ps1. Switcher updates install hint + secondary scripting command.
  */
 (function () {
   "use strict";
@@ -12,6 +13,8 @@
   var STORAGE_KEY = "adt-home-agent";
   var STATUS_SUCCESS_MS = 2500;
   var STATUS_ERROR_MS = 8000;
+  var BASE_TOOLKIT_COMMAND =
+    "pwsh -NoProfile -File .\\scripts\\toolkit.ps1";
   var BASE_SYNC_COMMAND =
     "pwsh -NoProfile -File .\\scripts\\toolkit.ps1 -Action Sync";
 
@@ -63,6 +66,9 @@
     var hintEl = document.querySelector(
       "[data-agent-install-hint], #agent-install-hint, .agent-switcher__hint"
     );
+    var scriptCommandEl = document.querySelector(
+      "[data-sync-script-command], #sync-script-command"
+    );
 
     if (!switcher || !commandEl || !copyBtn || !statusEl || !hintEl) {
       return null;
@@ -74,6 +80,7 @@
       copyBtn: copyBtn,
       statusEl: statusEl,
       hintEl: hintEl,
+      scriptCommandEl: scriptCommandEl,
       copyShell: copyBtn.closest(".home-cta__copy") || copyBtn,
     };
   }
@@ -121,7 +128,7 @@
     return "";
   }
 
-  function syncCommandFor(radio) {
+  function scriptCommandFor(radio) {
     var agentId = radio && radio.getAttribute("data-agent-id");
     if (agentId && agentId.trim()) {
       return BASE_SYNC_COMMAND + " -Agent " + agentId.trim();
@@ -140,7 +147,12 @@
     if (hint) {
       home.hintEl.textContent = hint;
     }
-    home.commandEl.textContent = syncCommandFor(radio);
+    if (!(home.commandEl.textContent || "").trim()) {
+      home.commandEl.textContent = BASE_TOOLKIT_COMMAND;
+    }
+    if (home.scriptCommandEl) {
+      home.scriptCommandEl.textContent = scriptCommandFor(radio);
+    }
   }
 
   function readStoredAgentId() {

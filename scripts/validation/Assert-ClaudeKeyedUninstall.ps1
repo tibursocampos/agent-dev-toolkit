@@ -328,11 +328,11 @@ foreach ($commandName in $expectedPublishOrder) {
 
 Assert-ManagedArtifactsPresent -TestName $syncName
 
-$validateLines = @(& $validateAgentScript -Agent claude -InstallRoot $workInstallRoot -Quiet *>&1 | ForEach-Object { "$_" })
+$validateLines = @(& $validateAgentScript -Agent claude -InstallRoot $workInstallRoot -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName $syncName -Reason ("validate-agent -Agent claude failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
+    Write-Fail -TestName $syncName -Reason ("validate-agent -Agent claude -SkipCore failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
 }
 
 $userProfileInstallRoot = Join-Path $userProfile $userProbeRelative
@@ -355,19 +355,9 @@ if ($seedAfterSync -notmatch [regex]::Escape('stale-user-prompt')) {
 Write-Pass -TestName $syncName
 
 # --- Should_RemoveManagedArtifacts_When_UninstallClaudeOnFixture ---
+# Reuse the work root from the orchestrator sync above (one Publish-Skills).
 $removeName = 'Should_RemoveManagedArtifacts_When_UninstallClaudeOnFixture'
 
-Initialize-ClaudeStep8WorkRoot
-Ensure-AlienArtifacts
-
-$syncLines2 = @(& $syncAgentScript -Agent claude -InstallRoot $workInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit2 = $LASTEXITCODE
-if ($null -eq $syncExit2) { $syncExit2 = 0 }
-if ($syncExit2 -ne 0) {
-    Write-Fail -TestName $removeName -Reason ("sync-agent prep failed (exit {0})" -f $syncExit2)
-}
-
-# Re-place aliens after sync (sync may not delete them, but ensure present)
 Ensure-AlienArtifacts
 Assert-ManagedArtifactsPresent -TestName $removeName
 

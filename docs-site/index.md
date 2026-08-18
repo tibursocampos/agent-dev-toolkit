@@ -9,12 +9,12 @@ hide:
 
 <p class="home-brand reveal reveal--brand">agent-dev-toolkit</p>
 
-<h1 class="home-headline">One shared skills core. Eight agent install roots.</h1>
+<h1 class="home-headline">One shared skills core. Adapters into each agent home (10 agents).</h1>
 
-<p class="home-lead">Sync shared skills through adapters with one PowerShell command—pick your agent, copy the sync command, then run it.</p>
+<p class="home-lead">Sync shared skills through adapters—pick your agent, copy the interactive toolkit command, then run it.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
-  <img src="assets/core-adapters-diagram.svg" width="960" height="320" alt="Core skills flow through adapters into each agent's install root" />
+  <img src="assets/core-adapters-diagram.svg" width="960" height="368" alt="Core skills flow through adapters into each agent's install root" />
 </figure>
 
 <div
@@ -57,6 +57,14 @@ hide:
       <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Typical install path: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
       <span>ZCode</span>
     </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="hermes" data-agent-id="hermes" data-install-root="~/.hermes" data-install-hint="Typical install path: ~/.hermes (Windows: %USERPROFILE%\.hermes)" />
+      <span>Hermes</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="openhands" data-agent-id="openhands" data-install-root="~/.agents" data-install-hint="Typical install: project .agents/skills; live user ~/.agents/skills (Windows: %USERPROFILE%\.agents\skills)" />
+      <span>OpenHands</span>
+    </label>
   </div>
   <p id="agent-install-hint" class="agent-switcher__hint" role="status" aria-live="polite" data-agent-install-hint>
     Typical install path: ~/.cursor (Windows: %USERPROFILE%\.cursor)
@@ -65,14 +73,17 @@ hide:
 
 <div class="home-cta">
   <div class="home-cta__copy">
-    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1</code>
     <button type="button" class="home-cta__primary" id="copy-sync-command" data-copy-target="#sync-command" aria-describedby="copy-sync-status">
-      Copy sync command
+      Copy toolkit command
     </button>
     <span id="copy-sync-status" class="home-cta__status" role="status" aria-live="polite" data-copy-status></span>
   </div>
   <a class="home-cta__secondary md-button" href="get-started/">Get started</a>
-  <p class="home-cta__note">Default sync targets an in-repo fixture (test folder)—omit <code>-InstallRoot</code>. A live install needs <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__script">
+    Scripting (optional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+  </p>
+  <p class="home-cta__note">Interactive <code>toolkit.ps1</code> is the install entry. Non-interactive sync defaults to an in-repo fixture (test folder)—omit <code>-InstallRoot</code>. A live install needs <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -88,7 +99,7 @@ Works with JavaScript disabled.
    pwsh -NoProfile -File .\scripts\toolkit.ps1
    ```
 
-3. **Or sync non-interactively** (fixture first; add `-InstallRoot` and `-AllowUserHome` for a live install path):
+3. **Optional — non-interactive sync** (fixture first; add `-InstallRoot` and `-AllowUserHome` for a live install path). Advanced: `scripts/sync-agent.ps1`.
 
    ```powershell
    pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -106,6 +117,8 @@ Works with JavaScript disabled.
 | `opencode` | OpenCode | `~/.config/opencode` |
 | `grok` | Grok Build | `~/.grok` |
 | `zcode` | ZCode | `~/.zcode` |
+| `hermes` | Hermes | `~/.hermes` |
+| `openhands` | OpenHands | Project `.agents/skills`; live user `~/.agents/skills` |
 
 <nav class="home-secondary-links" aria-label="Secondary">
   <a href="using-skills/">Skills</a>

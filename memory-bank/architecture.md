@@ -19,7 +19,7 @@ memory-bank/   # durable workspace map (Forma C Step 0)
 | Adapter | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture root. Claude/Cursor/Grok: thin entry + `Publish-*` / `Uninstall-*` modules |
 | CLI | `toolkit.ps1` chooses agent for sync/validate/uninstall |
 | Lib | `Resolve-InstallRoot` (AllowUserHome, reparse, `\\?\` / `\\.\` strip, Initialize-for-write); `Copy-ToolkitManagedTree` (managed prune/copy containment) |
-| CI | validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes |
+| CI | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 
 ## Entry points
 
@@ -31,7 +31,7 @@ memory-bank/   # durable workspace map (Forma C Step 0)
 
 ## Uninstall honesty
 
-Keyed `Uninstall-Toolkit` implemented for all eight Tier-1 agents (including Cursor and ZCode).  
+Keyed `Uninstall-Toolkit` implemented for all registry adapters (including Cursor, ZCode, Hermes, OpenHands).  
 Preserves `sdd/sessions` and `sdd/manifest.json` (operator runtime state).
 
 ## Sync prepare (SDD state root)
@@ -40,7 +40,7 @@ Every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` w
 
 ## Subagents
 
-Registry: all eight Tier 1 agents `subagents: native`. Antigravity effective capability fail-closed via `Get-Capabilities` probe. Contract: `core/skills/_shared/agents/SPAWN.md` + `docs/SPAWN.md`.
+Registry: each adapter declares `subagents: native` or `none` (OpenHands is `none`). Antigravity effective capability fail-closed via `Get-Capabilities` probe. Contract: `core/skills/_shared/agents/SPAWN.md` + `docs/SPAWN.md`.
 
 ## OpenCode hooks
 
@@ -49,7 +49,7 @@ Registry: all eight Tier 1 agents `subagents: native`. Antigravity effective cap
 <!-- BEGIN GENERATED: inventory-summary -->
 - Inventory at: 2026-07-31T23:38:19Z (refresh)
 - Stack: PowerShell + Markdown; 37 kebab skills; 39 Assert-*.ps1 scripts
-- Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + Tier 1 (Claude/Cursor/Grok split modules), `docs/SPAWN.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
+- Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + per-agent modules (Claude/Cursor/Grok/Hermes/OpenHands split), `docs/SPAWN.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
 - Adapter layout: thin `*Adapter.ps1` + `Publish-*` / `Uninstall-*` for Claude, Cursor, Grok (Codex/Copilot/OpenCode/ZCode/Antigravity already modular or thin)
 - Local SDD `features/` gitignored — not public doc source; use `docs/` + `core/skills/_shared/agents/`
 <!-- END GENERATED: inventory-summary -->

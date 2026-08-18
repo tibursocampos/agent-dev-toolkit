@@ -2,6 +2,8 @@
 
 Deploy **agent-dev-toolkit** core content into one or more coding agents via adapters.
 
+**Option 1 (recommended):** interactive Smart Manager — `pwsh -NoProfile -File .\scripts\toolkit.ps1` (first command after clone). **Option 2+:** `-Action Sync` / `sync-agent.ps1` for scripting and CI.
+
 > **Repository policy:** public — clone and fork freely. **No upstream contributions.** See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Prerequisites
@@ -10,7 +12,7 @@ Deploy **agent-dev-toolkit** core content into one or more coding agents via ada
 |-------------|--------|
 | **PowerShell** | Windows: **5.1+** or **pwsh 7+**. macOS/Linux: **pwsh 7+** ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
 | **Git** | Clone / update this repo |
-| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE |
+| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands |
 
 ## 1. Clone
 
@@ -19,7 +21,7 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
-## 2. Toolkit CLI (recommended)
+## 2. Toolkit CLI (option 1 — recommended)
 
 **Primary entry** — interactive Smart Manager (clear screen, agent/target wizards, Help):
 
@@ -34,7 +36,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 | **Sync then validate** | Sync, then smoke the same target |
 | **Validate core only** | Repo contracts only — **no** agent home write |
 | **Validation lab** | Run `validate-core` or an `Invoke-*CiSmoke` script |
-| **Uninstall agent** | Remove **keyed** toolkit files from InstallRoot for all Tier-1 agents (not a full home wipe). Preserves `sdd/sessions` and `sdd/manifest.json` |
+| **Uninstall agent** | Remove **keyed** toolkit files from InstallRoot (not a full home wipe). Preserves `sdd/sessions` and `sdd/manifest.json` |
 | **Help and docs** | In-menu explanation of actions and equivalent flags |
 
 ### Validate core vs Validate agent
@@ -66,9 +68,9 @@ Sync / Validate / Uninstall **require** `-Agent` when not using the menu (no sil
 | `-Quiet` / `-SkipSmoke` | Forwarded to validate-agent / validate-core |
 | `-Action Backup` | Not implemented (fail-closed unless `-ForceStub` for tests) |
 
-## 3. Sync to an agent (direct scripts)
+## 3. Sync to an agent (option 2+ — direct scripts)
 
-Prefer the menu for day-to-day use. These call the same orchestrators the CLI uses.
+Prefer the menu (option 1) for day-to-day use. These call the same orchestrators the CLI uses.
 
 ### Interactive Sync: live home is the wizard default
 
@@ -128,6 +130,8 @@ Mode `repo` InstallRoot is typically the consumer repo’s `.github` folder (not
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
+| `hermes` | `$env:USERPROFILE\.hermes` (skills + `AGENTS.md` directly under that root — not `~/.hermes/.hermes/skills`) |
+| `openhands` | Project tree as InstallRoot; user skills `$env:USERPROFILE\.agents` + `-AllowUserHome` (skills land at `skills/`, not `~/.agents/.agents/skills`) |
 
 Always add `-AllowUserHome` when the InstallRoot resolves under the user profile.
 
@@ -148,6 +152,8 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
 | Grok | `skills/`, `rules/`, `hooks/`, `AGENTS.md` (InstallRoot = `~/.grok`) |
 | ZCode | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` |
+| Hermes | `skills/`, `AGENTS.md` (router + folded policy; no `rules/`); seed `MEMORY.md` if missing (never `SOUL.md`) |
+| OpenHands | Project: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/hooks.json` + `hooks/*.sh`, `.plugin/plugin.json`. User skills: `skills/` under `~/.agents` |
 | Antigravity | `config/skills`, `config/plugins`, managed markdown |
 
 Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare`.
@@ -198,9 +204,9 @@ See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-
 
 ## 7. Uninstall
 
-Uninstall is **keyed** for all Tier-1 agents: removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home. It **preserves** `sdd/sessions/` and `sdd/manifest.json` (operator runtime state).
+Uninstall is **keyed** for every registered adapter: removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home. It **preserves** `sdd/sessions/` and `sdd/manifest.json` (operator runtime state).
 
-All eight Tier-1 adapters implement keyed uninstall (CI asserts cover them, including Cursor and ZCode).
+CI keyed-uninstall asserts cover all adapters, including Hermes and OpenHands.
 
 Use menu **Uninstall agent** (same wizard as Sync for target), or:
 

@@ -9,13 +9,13 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
-## 2. Open the Smart Manager
+## 2. Open the Smart Manager (option 1)
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
-This is the **recommended** entry point. The menu clears the screen, walks you through agent + target selection, and includes **Help and docs**.
+This is the **recommended** entry point (option 1). The menu clears the screen, walks you through agent + target selection, and includes **Help and docs**. **Option 2+** (`-Action Sync` / `sync-agent.ps1`) is for scripting and CI — see [INSTALL.md](../INSTALL.md).
 
 Quick path to learn safely:
 
@@ -42,7 +42,7 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
 
 ## 4. Sync your agent
 
-### Recommended — interactive wizard
+### Option 1 — interactive wizard
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1
@@ -58,7 +58,7 @@ Choose **Sync agent**, then:
 
 Copilot: the wizard asks for **Mode** `user` or `repo`.
 
-### Scripting shortcuts
+### Option 2+ — scripting / CI
 
 ```powershell
 # Fixture
@@ -69,7 +69,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor `
   -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-More agents and uninstall: [INSTALL.md](../INSTALL.md).
+Same orchestrators as the menu: `sync-agent.ps1` is equivalent for scripting. More agents (including Hermes and OpenHands) and uninstall: [INSTALL.md](../INSTALL.md).
 
 ## 5. Open a consumer project
 

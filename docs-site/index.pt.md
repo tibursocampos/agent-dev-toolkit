@@ -9,12 +9,12 @@ hide:
 
 <p class="home-brand reveal reveal--brand">agent-dev-toolkit</p>
 
-<h1 class="home-headline">Um núcleo compartilhado de skills. Oito ambientes de agente.</h1>
+<h1 class="home-headline">Um núcleo compartilhado de skills. Adaptadores em cada pasta de agente (10 agentes).</h1>
 
-<p class="home-lead">Sincronize skills compartilhadas via adaptadores com um comando PowerShell — escolha o agente, copie o comando de sync e execute.</p>
+<p class="home-lead">Sincronize skills compartilhadas via adaptadores — escolha o agente, copie o comando interativo do toolkit e execute.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
-  <img src="assets/core-adapters-diagram.svg" width="960" height="320" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
+  <img src="assets/core-adapters-diagram.pt.svg" width="960" height="368" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
 </figure>
 
 <div
@@ -57,6 +57,14 @@ hide:
       <input type="radio" name="home-agent" value="zcode" data-agent-id="zcode" data-install-root="~/.zcode" data-install-hint="Pasta de instalação real típica: ~/.zcode (Windows: %USERPROFILE%\.zcode)" />
       <span>ZCode</span>
     </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="hermes" data-agent-id="hermes" data-install-root="~/.hermes" data-install-hint="Pasta de instalação real típica: ~/.hermes (Windows: %USERPROFILE%\.hermes)" />
+      <span>Hermes</span>
+    </label>
+    <label class="agent-switcher__option">
+      <input type="radio" name="home-agent" value="openhands" data-agent-id="openhands" data-install-root="~/.agents" data-install-hint="Instalação típica: projeto .agents/skills; usuário live ~/.agents/skills (Windows: %USERPROFILE%\.agents\skills)" />
+      <span>OpenHands</span>
+    </label>
   </div>
   <p id="agent-install-hint" class="agent-switcher__hint" role="status" aria-live="polite" data-agent-install-hint>
     Pasta de instalação real típica: ~/.cursor (Windows: %USERPROFILE%\.cursor)
@@ -65,14 +73,17 @@ hide:
 
 <div class="home-cta">
   <div class="home-cta__copy">
-    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1</code>
     <button type="button" class="home-cta__primary" id="copy-sync-command" data-copy-target="#sync-command" aria-describedby="copy-sync-status">
-      Copiar comando de sync
+      Copiar comando do toolkit
     </button>
     <span id="copy-sync-status" class="home-cta__status" role="status" aria-live="polite" data-copy-status></span>
   </div>
   <a class="home-cta__secondary md-button" href="get-started/">Começar</a>
-  <p class="home-cta__note">O sync padrão usa uma fixture (pasta de teste no repo)—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__script">
+    Script (opcional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+  </p>
+  <p class="home-cta__note">O <code>toolkit.ps1</code> interativo é a entrada de instalação. O sync não interativo usa uma fixture (pasta de teste no repo) por padrão—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -88,7 +99,7 @@ Funciona com JavaScript desativado.
    pwsh -NoProfile -File .\scripts\toolkit.ps1
    ```
 
-3. **Ou sincronize sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação real):
+3. **Opcional — sync sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação real). Avançado: `scripts/sync-agent.ps1`.
 
    ```powershell
    pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
@@ -106,6 +117,8 @@ Funciona com JavaScript desativado.
 | `opencode` | OpenCode | `~/.config/opencode` |
 | `grok` | Grok Build | `~/.grok` |
 | `zcode` | ZCode | `~/.zcode` |
+| `hermes` | Hermes | `~/.hermes` |
+| `openhands` | OpenHands | Projeto `.agents/skills`; usuário live `~/.agents/skills` |
 
 <nav class="home-secondary-links" aria-label="Secundário">
   <a href="using-skills/">Usando skills</a>

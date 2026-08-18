@@ -64,7 +64,9 @@ $expectedIds = @(
     'copilot',
     'opencode',
     'grok',
-    'zcode'
+    'zcode',
+    'hermes',
+    'openhands'
 )
 
 # --- Should_ExposeCliUiAndHelpConstants_When_LibsLoaded ---
@@ -81,8 +83,16 @@ foreach ($key in @('ToolkitHelpActionsBody', 'ToolkitHelpCoreVsAgentBody', 'Tool
         Write-Fail -TestName $uiName -Reason ("expected ToolkitMessage.{0}" -f $key)
     }
 }
-if (-not $script:ToolkitConstant.ContainsKey('CiSmokeScripts') -or @($script:ToolkitConstant.CiSmokeScripts).Count -lt 8) {
-    Write-Fail -TestName $uiName -Reason 'expected ToolkitConstant.CiSmokeScripts with 8 entries'
+$expectedCiSmokeScriptCount = [int]$script:ToolkitConstant.ExpectedCiSmokeScriptCount
+if (-not $script:ToolkitConstant.ContainsKey('CiSmokeScripts') -or @($script:ToolkitConstant.CiSmokeScripts).Count -lt $expectedCiSmokeScriptCount) {
+    Write-Fail -TestName $uiName -Reason ('expected ToolkitConstant.CiSmokeScripts with {0} entries' -f $expectedCiSmokeScriptCount)
+}
+$labMenuChoices = @($script:ToolkitConstant.ToolkitLabMenuChoices)
+foreach ($smoke in @($script:ToolkitConstant.CiSmokeScripts)) {
+    $smokeId = [string]$smoke.Id
+    if ($labMenuChoices -notcontains $smokeId) {
+        Write-Fail -TestName $uiName -Reason ("expected ToolkitConstant.ToolkitLabMenuChoices to include smoke id '{0}'" -f $smokeId)
+    }
 }
 if (-not $script:ToolkitConstant.ContainsKey('ToolkitMainMenuChoices')) {
     Write-Fail -TestName $uiName -Reason 'expected ToolkitConstant.ToolkitMainMenuChoices'
@@ -158,11 +168,11 @@ if ($uninstallMissing.Output -notmatch 'requires -Agent' -and $uninstallMissing.
 }
 
 $uninstallCursor = Invoke-ScriptCapture -ScriptPath $toolkitScript -ArgumentList @('-Action', 'Uninstall', '-Agent', 'cursor')
-if ($uninstallCursor.ExitCode -eq 0) {
-    Write-Fail -TestName $uninstallName -Reason 'Uninstall for cursor (not-implemented) must exit non-zero'
+if ($uninstallCursor.ExitCode -ne 0) {
+    Write-Fail -TestName $uninstallName -Reason ("expected Uninstall cursor on fixture to succeed; exit={0}; output={1}" -f $uninstallCursor.ExitCode, $uninstallCursor.Output.Trim())
 }
-if ($uninstallCursor.Output -notmatch '(?i)not implemented' -and $uninstallCursor.Output -notmatch 'Uninstall-Toolkit') {
-    Write-Fail -TestName $uninstallName -Reason ("expected not-implemented Uninstall-Toolkit wiring for cursor; got: {0}" -f $uninstallCursor.Output.Trim())
+if ($uninstallCursor.Output -notmatch 'Uninstall completed') {
+    Write-Fail -TestName $uninstallName -Reason ("expected Uninstall completed for cursor; got: {0}" -f $uninstallCursor.Output.Trim())
 }
 
 $uninstallClaude = Invoke-ScriptCapture -ScriptPath $toolkitScript -ArgumentList @('-Action', 'Uninstall', '-Agent', 'claude')

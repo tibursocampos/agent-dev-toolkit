@@ -21,6 +21,8 @@ Versioned InstallRoots under `scripts/validation/fixtures/`:
 | `opencode/` | OpenCode config root |
 | `grok/` | Grok Build |
 | `zcode-install-root/` | ZCode ADE |
+| `hermes/` | Hermes (`~/.hermes` model) |
+| `openhands/` | OpenHands project tree |
 | `antigravity-install-root/` | Antigravity |
 | `install-root/` | Generic smoke harness |
 
@@ -38,6 +40,8 @@ CI harnesses often copy a fixture to an **ephemeral** work root so the versioned
 | `Invoke-OpenCodeCiSmoke.ps1` | Yes |
 | `Invoke-GrokCiSmoke.ps1` | Yes |
 | `Invoke-ZCodeCiSmoke.ps1` | Yes |
+| `Invoke-HermesCiSmoke.ps1` | Yes |
+| `Invoke-OpenHandsCiSmoke.ps1` | Yes |
 | `Invoke-SmokeHarness.ps1` | Core / local |
 
 Operator guide: [VALIDATION.md](../VALIDATION.md).
@@ -57,15 +61,15 @@ Workflow: [`.github/workflows/validate-toolkit.yml`](../../.github/workflows/val
 Job steps (order):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode) — **not** wired into validate-core
+2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes, OpenHands) — **not** wired into validate-core
 3. `Assert-SyncAllowUserHomeForward.ps1`
-4. Eight agent CI smokes: Cursor → Antigravity → Claude → Codex → Copilot suite → OpenCode → Grok → ZCode
+4. Ten agent CI smokes (Copilot is a suite): Cursor → Antigravity → Claude → Codex → Copilot suite → OpenCode → Grok → ZCode → Hermes → OpenHands
 
 OpenCode smoke is filesystem-only (no product runtime).
 
 ## Local parity
 
-Mirrors CI order: `validate-core` → keyed uninstall asserts → `Assert-SyncAllowUserHomeForward` → 8 agent smokes.
+Mirrors CI order: `validate-core` → keyed uninstall asserts → `Assert-SyncAllowUserHomeForward` → 10 agent smokes (Copilot is a suite).
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
@@ -78,6 +82,8 @@ pwsh -NoProfile -File .\scripts\validation\Assert-AntigravityKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-GrokKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-CursorKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-ZcodeKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-HermesKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-OpenHandsKeyedUninstall.ps1
 
 pwsh -NoProfile -File .\scripts\validation\Assert-SyncAllowUserHomeForward.ps1
 
@@ -89,14 +95,18 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1 -Quiet
 pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1 -Quiet
 pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1 -Quiet
 pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1 -Quiet
 ```
 
 ## Out of smoke scope
 
-- Live `~/.cursor`, `~/.claude`, `~/.copilot`, …
+- Live `~/.cursor`, `~/.claude`, `~/.copilot`, `~/.hermes`, `~/.agents`, …
 - Agent hook **trust** UIs
 - Copilot JetBrains/Eclipse host layouts
 - GLM Coding Plan (endpoint-only) — not ZCode ADE
+- Hermes gateway / `SOUL.md` / `config.yaml` secrets
+- OpenHands Automation Server, sandbox YAML, or legacy microagents
 
 ## Related
 

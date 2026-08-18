@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Toolkit unificado: um **core** portável de skills/rules/router (catálogo Cursor/Antigravity, Formas A/B/C) e **adapters** que publicam esse core nos perfis de agentes (Cursor, Antigravity, Claude Code, Codex, Copilot, OpenCode, Grok Build, ZCode). Twins `cursor-dev-toolkit` e `antigravity-dev-toolkit` permanecem intactos.
+Toolkit unificado: um **core** portável de skills/rules/router (catálogo, Formas A/B/C) e **adapters** que publicam esse core nos perfis de agentes (Cursor, Antigravity, Claude Code, Codex, Copilot, OpenCode, Grok Build, ZCode, Hermes, OpenHands). Twins `cursor-dev-toolkit` e `antigravity-dev-toolkit` permanecem intactos.
 
 ## Actors / users
 
@@ -17,8 +17,8 @@ Toolkit unificado: um **core** portável de skills/rules/router (catálogo Curso
 
 ## Boundaries
 
-- In scope: core kebab + adapters Tier 1 + smoke **in-repo** (fixtures, sem exigir install no perfil do usuário para CI)
-- Out of scope (MVP): Tier 2 (Windsurf, Cline, Roo, Gemini CLI, Warp); Tier 3 thin/out; catálogos Athena/Supply
+- In scope: core kebab + registry adapters + smoke **in-repo** (fixtures, sem exigir install no perfil do usuário para CI)
+- Out of scope: produtos que não estão em `adapters/registry.json`
 
 ## Links
 

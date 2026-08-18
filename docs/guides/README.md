@@ -10,17 +10,17 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: Formas A / B / C for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with `scripts/sync-agent.ps1 -Agent <id>`; then open any **consumer** project and invoke skills.
+A **multi-agent** skills and policy pack: Formas A / B / C for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
 
 ---
 
 ## Getting started
 
-1. Clone and sync. Follow [Install](../INSTALL.md) and [01 - Getting started](01-getting-started.md).
+1. Clone and sync. Follow [Install](../INSTALL.md) (option 1 = interactive `toolkit.ps1`) and [01 - Getting started](01-getting-started.md).
 2. Open the **project you are building** in your agent (not only this toolkit repo).
 3. Use the [decision tree](#which-skill-should-i-use) below, then [02 - Using skills](02-using-skills.md).
 
-Re-run `sync-agent.ps1` after `git pull` so published skills stay current.
+Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published skills stay current. Scripting: `sync-agent.ps1`.
 
 ---
 
@@ -106,7 +106,7 @@ Related:
 | Doc | Content |
 |-----|---------|
 | [../INSTALL.md](../INSTALL.md) | Sync flags, live home, uninstall |
-| [../VALIDATION.md](../VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes |
+| [../VALIDATION.md](../VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite) |
 | [../SKILLS.md](../SKILLS.md) | Full skill list |
 | [../ADAPTERS.md](../ADAPTERS.md) | Per-agent publish layouts |
 

@@ -39,7 +39,9 @@ if (-not (Test-Path -LiteralPath $validateAgentScript)) {
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $opencodeModulePath = Join-Path $repoRoot 'adapters\opencode\OpenCodeAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode'
+$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode'
+$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode-keyed-uninstall-work'
+$fixtureInstallRoot = $workInstallRoot
 $skillsDirName = 'skills'
 $agentsFileName = 'AGENTS.md'
 $pluginsDirName = 'plugins'
@@ -54,11 +56,18 @@ $alienSkillManifestContent = "# Alien skill`nMust survive keyed uninstall.`n"
 if (-not (Test-Path -LiteralPath $opencodeModulePath)) {
     Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallPreconditions' -Reason ("missing OpenCode module: {0}" -f $opencodeModulePath)
 }
-if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
-    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallPreconditions' -Reason ("missing OpenCode fixture: {0}" -f $fixtureInstallRoot)
+if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
+    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallPreconditions' -Reason ("missing OpenCode seed fixture: {0}" -f $seedFixtureRoot)
 }
 
 . $opencodeModulePath
+
+function Initialize-OpenCodeKeyedUninstallWorkRoot {
+    if (Test-Path -LiteralPath $workInstallRoot) {
+        Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
+    }
+    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+}
 
 $skillsPath = Join-Path $fixtureInstallRoot $skillsDirName
 $agentsPath = Join-Path $fixtureInstallRoot $agentsFileName
@@ -131,7 +140,8 @@ function Assert-UnrelatedPreserved {
     }
 }
 
-# --- E2E seed: sync -> validate ---
+# --- E2E seed: one sync -> validate (work root; no tracked-fixture restore) ---
+Initialize-OpenCodeKeyedUninstallWorkRoot
 & $syncAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot
 $syncExit = $LASTEXITCODE
 if ($null -eq $syncExit) { $syncExit = 0 }
@@ -139,17 +149,35 @@ if ($syncExit -ne 0) {
     Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2ESync' -Reason ("sync-agent -Agent opencode failed (exit {0})" -f $syncExit)
 }
 
-& $validateAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot -Quiet
+& $validateAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot -Quiet -SkipCore
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2EValidate' -Reason ("validate-agent -Agent opencode failed (exit {0})" -f $validateExit)
+    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2EValidate' -Reason ("validate-agent -Agent opencode -SkipCore failed (exit {0})" -f $validateExit)
 }
 
 Ensure-AlienArtifacts
 
 # --- Should_RemoveToolkitArtifacts_When_UninstallOpenCodeFixture ---
 $removeName = 'Should_RemoveToolkitArtifacts_When_UninstallOpenCodeFixture'
+$keepName = 'Should_KeepUnrelatedFiles_When_UninstallOpenCodeFixture'
+
+$whatIfResult = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot -WhatIf
+if ($null -eq $whatIfResult -or $whatIfResult.Success -ne $true -or $whatIfResult.WhatIf -ne $true) {
+    Write-Fail -TestName $removeName -Reason 'WhatIf uninstall must return Success with WhatIf=true'
+}
+if (-not (Test-Path -LiteralPath $agentsPath)) {
+    Write-Fail -TestName $removeName -Reason 'WhatIf must not remove AGENTS.md'
+}
+if (-not (Test-Path -LiteralPath $pluginMarkerPath)) {
+    Write-Fail -TestName $removeName -Reason 'WhatIf must not remove plugin marker'
+}
+if (-not (Test-Path -LiteralPath $alienSkillManifestPath)) {
+    Write-Fail -TestName $removeName -Reason 'WhatIf must preserve alien skill'
+}
+if (-not (Test-Path -LiteralPath $alienPluginPath)) {
+    Write-Fail -TestName $removeName -Reason 'WhatIf must preserve alien plugin'
+}
 
 $uninstallResult = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstallResult -or $uninstallResult.Implemented -ne $true) {
@@ -173,7 +201,6 @@ if ([string]$uninstallResult.Message -notmatch '(?i)keyed|RN07|wholesale') {
 
 Assert-ToolkitArtifactsAbsent -TestName $removeName
 
-# Smoke must fail after uninstall (skills/AGENTS gone) - proves removal took effect
 $smokeAfter = Invoke-SmokeValidate -InstallRoot $fixtureInstallRoot
 if ($null -eq $smokeAfter -or $smokeAfter.Success -ne $false) {
     Write-Fail -TestName $removeName -Reason 'Invoke-SmokeValidate must fail after uninstall removed toolkit artifacts'
@@ -181,68 +208,17 @@ if ($null -eq $smokeAfter -or $smokeAfter.Success -ne $false) {
 
 Write-Pass -TestName $removeName
 
-# --- Should_KeepUnrelatedFiles_When_UninstallOpenCodeFixture ---
-$keepName = 'Should_KeepUnrelatedFiles_When_UninstallOpenCodeFixture'
-
 Assert-UnrelatedPreserved -TestName $keepName
 
-# Re-run uninstall when already clean - still Success, still preserve aliens
 $uninstallAgain = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstallAgain -or $uninstallAgain.Success -ne $true -or $uninstallAgain.Implemented -ne $true) {
     Write-Fail -TestName $keepName -Reason 'idempotent Uninstall-Toolkit must remain Success when artifacts already gone'
 }
 Assert-UnrelatedPreserved -TestName $keepName
-
-# WhatIf must not delete aliens or recreate wipe
-Ensure-AlienArtifacts
-# Re-sync then WhatIf
-& $syncAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot
-$syncWhatIfPrep = $LASTEXITCODE
-if ($null -eq $syncWhatIfPrep) { $syncWhatIfPrep = 0 }
-if ($syncWhatIfPrep -ne 0) {
-    Write-Fail -TestName $keepName -Reason ("sync before WhatIf failed (exit {0})" -f $syncWhatIfPrep)
-}
-Ensure-AlienArtifacts
-
-$whatIfResult = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot -WhatIf
-if ($null -eq $whatIfResult -or $whatIfResult.Success -ne $true -or $whatIfResult.WhatIf -ne $true) {
-    Write-Fail -TestName $keepName -Reason 'WhatIf uninstall must return Success with WhatIf=true'
-}
-if (-not (Test-Path -LiteralPath $agentsPath)) {
-    Write-Fail -TestName $keepName -Reason 'WhatIf must not remove AGENTS.md'
-}
-if (-not (Test-Path -LiteralPath $pluginMarkerPath)) {
-    Write-Fail -TestName $keepName -Reason 'WhatIf must not remove plugin marker'
-}
-if (-not (Test-Path -LiteralPath $alienSkillManifestPath)) {
-    Write-Fail -TestName $keepName -Reason 'WhatIf must preserve alien skill'
-}
-if (-not (Test-Path -LiteralPath $alienPluginPath)) {
-    Write-Fail -TestName $keepName -Reason 'WhatIf must preserve alien plugin'
-}
-
-# Final e2e: real uninstall after WhatIf sync state
-$finalUninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
-if ($null -eq $finalUninstall -or $finalUninstall.Success -ne $true) {
-    Write-Fail -TestName $keepName -Reason 'final Uninstall-Toolkit after WhatIf prep must succeed'
-}
 Assert-ToolkitArtifactsAbsent -TestName $keepName
-Assert-UnrelatedPreserved -TestName $keepName
 
-# Cleanup alien artifacts so fixture stays lean for sibling asserts (keep README / dir shells)
-if (Test-Path -LiteralPath $alienSkillPath) {
-    Remove-Item -LiteralPath $alienSkillPath -Recurse -Force
-}
-if (Test-Path -LiteralPath $alienPluginPath) {
-    Remove-Item -LiteralPath $alienPluginPath -Force
-}
-
-# Restore publish so later  steps / local validate still have a complete fixture
-& $syncAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot
-$restoreExit = $LASTEXITCODE
-if ($null -eq $restoreExit) { $restoreExit = 0 }
-if ($restoreExit -ne 0) {
-    Write-Fail -TestName $keepName -Reason ("fixture restore sync failed (exit {0})" -f $restoreExit)
+if (Test-Path -LiteralPath $workInstallRoot) {
+    Remove-Item -LiteralPath $workInstallRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Pass -TestName $keepName

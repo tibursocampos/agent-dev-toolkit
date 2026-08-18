@@ -7,7 +7,7 @@
 | Core | Catálogo canônico de skills/policy/router (kebab-case) |
 | Adapter | Camada que mapeia core → filesystem/config de um agent |
 | Fixture root | Diretório temp/repo usado pelos smokes no lugar do home do usuário |
-| Tier 1 | Cursor, Antigravity, Claude, Codex, Copilot, OpenCode, Grok, ZCode |
+| Supported agents | Cursor, Antigravity, Claude, Codex, Copilot, OpenCode, Grok, ZCode, Hermes, OpenHands |
 | Agent Skills | Padrão aberto `dir/SKILL.md` com frontmatter `name`/`description` |
 
 ## Formas (process)

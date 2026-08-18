@@ -29,7 +29,7 @@ Hierarchical subagents exist since **Antigravity 2.0** via `invoke_subagent` (as
 
 | Field | Value |
 |-------|-------|
-| Registry | `native` (Tier 1 assumes product line 2.0+) |
+| Registry | `native` (product line 2.0+) |
 | Effective (`Get-Capabilities`) | **Probe fail-closed** — see below |
 | Host mechanism | `invoke_subagent` / `define_subagent` / `/agents` |
 | Published files | **Skip.** Antigravity has no custom-agent markdown directory. `Publish-Agents` is a documented no-op (`agents=false`). Host spawn is `invoke_subagent` only. |

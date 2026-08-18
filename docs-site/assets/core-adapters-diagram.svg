@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="diagram-title diagram-desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 368" role="img" aria-labelledby="diagram-title diagram-desc">
   <title id="diagram-title">Core skills flow through adapters into agent install roots</title>
-  <desc id="diagram-desc">Flow diagram: shared core skills publish through per-agent adapters into eight agent install roots.</desc>
+  <desc id="diagram-desc">Flow diagram: shared core skills publish through per-agent adapters into each agent install root (10 agents).</desc>
   <style type="text/css">
     /* Hex teal --accent: img-sourced SVG cannot inherit page CSS currentColor */
     /* Avoid CSS url references: GitHub SVG sanitizer treats them as invalid image source */
@@ -14,46 +14,51 @@
   </style>
 
   <!-- Core -->
-  <rect class="box" x="40" y="90" width="200" height="140" rx="4"/>
-  <text class="label" x="140" y="145" text-anchor="middle">Core skills</text>
-  <text class="sub" x="140" y="170" text-anchor="middle">SDD -- policy -- router</text>
-  <text class="sub" x="140" y="190" text-anchor="middle">one shared surface</text>
+  <rect class="box" x="40" y="114" width="200" height="140" rx="4"/>
+  <text class="label" x="140" y="169" text-anchor="middle">Core skills</text>
+  <text class="sub" x="140" y="194" text-anchor="middle">SDD -- policy -- router</text>
+  <text class="sub" x="140" y="214" text-anchor="middle">one shared surface</text>
 
   <!-- Flow core to adapters (arrow as polygon: sanitizer-safe) -->
-  <path class="flow" d="M 250 160 H 302"/>
-  <polygon class="arrow" points="302,154 314,160 302,166"/>
+  <path class="flow" d="M 250 184 H 302"/>
+  <polygon class="arrow" points="302,178 314,184 302,190"/>
 
   <!-- Adapters -->
-  <rect class="box" x="320" y="90" width="200" height="140" rx="4"/>
-  <text class="label" x="420" y="145" text-anchor="middle">Adapters</text>
-  <text class="sub" x="420" y="170" text-anchor="middle">per-agent publish</text>
-  <text class="sub" x="420" y="190" text-anchor="middle">PowerShell sync</text>
+  <rect class="box" x="320" y="114" width="200" height="140" rx="4"/>
+  <text class="label" x="420" y="169" text-anchor="middle">Adapters</text>
+  <text class="sub" x="420" y="194" text-anchor="middle">per-agent publish</text>
+  <text class="sub" x="420" y="214" text-anchor="middle">PowerShell sync</text>
 
   <!-- Flow adapters to agents -->
-  <path class="flow" d="M 530 160 H 582"/>
-  <polygon class="arrow" points="582,154 594,160 582,166"/>
+  <path class="flow" d="M 530 184 H 582"/>
+  <polygon class="arrow" points="582,178 594,184 582,190"/>
 
   <!-- Agent install roots cluster -->
-  <rect class="box" x="600" y="40" width="320" height="240" rx="4"/>
-  <text class="label" x="760" y="72" text-anchor="middle">Agent install roots</text>
+  <rect class="box" x="600" y="24" width="320" height="320" rx="4"/>
+  <text class="label" x="760" y="52" text-anchor="middle">Agent install roots</text>
 
-  <rect class="node" x="624" y="96" width="128" height="36" rx="3"/>
-  <text class="sub" x="688" y="119" text-anchor="middle">Cursor</text>
-  <rect class="node" x="768" y="96" width="128" height="36" rx="3"/>
-  <text class="sub" x="832" y="119" text-anchor="middle">Antigravity</text>
+  <rect class="node" x="624" y="68" width="128" height="36" rx="3"/>
+  <text class="sub" x="688" y="91" text-anchor="middle">Cursor</text>
+  <rect class="node" x="768" y="68" width="128" height="36" rx="3"/>
+  <text class="sub" x="832" y="91" text-anchor="middle">Antigravity</text>
 
-  <rect class="node" x="624" y="144" width="128" height="36" rx="3"/>
-  <text class="sub" x="688" y="167" text-anchor="middle">Claude Code</text>
-  <rect class="node" x="768" y="144" width="128" height="36" rx="3"/>
-  <text class="sub" x="832" y="167" text-anchor="middle">Codex</text>
+  <rect class="node" x="624" y="116" width="128" height="36" rx="3"/>
+  <text class="sub" x="688" y="139" text-anchor="middle">Claude Code</text>
+  <rect class="node" x="768" y="116" width="128" height="36" rx="3"/>
+  <text class="sub" x="832" y="139" text-anchor="middle">Codex</text>
 
-  <rect class="node" x="624" y="192" width="128" height="36" rx="3"/>
-  <text class="sub" x="688" y="215" text-anchor="middle">GitHub Copilot</text>
-  <rect class="node" x="768" y="192" width="128" height="36" rx="3"/>
-  <text class="sub" x="832" y="215" text-anchor="middle">OpenCode</text>
+  <rect class="node" x="624" y="164" width="128" height="36" rx="3"/>
+  <text class="sub" x="688" y="187" text-anchor="middle">GitHub Copilot</text>
+  <rect class="node" x="768" y="164" width="128" height="36" rx="3"/>
+  <text class="sub" x="832" y="187" text-anchor="middle">OpenCode</text>
 
-  <rect class="node" x="624" y="240" width="128" height="28" rx="3"/>
-  <text class="sub" x="688" y="259" text-anchor="middle">Grok Build</text>
-  <rect class="node" x="768" y="240" width="128" height="28" rx="3"/>
-  <text class="sub" x="832" y="259" text-anchor="middle">ZCode</text>
+  <rect class="node" x="624" y="212" width="128" height="36" rx="3"/>
+  <text class="sub" x="688" y="235" text-anchor="middle">Grok Build</text>
+  <rect class="node" x="768" y="212" width="128" height="36" rx="3"/>
+  <text class="sub" x="832" y="235" text-anchor="middle">ZCode</text>
+
+  <rect class="node" x="624" y="260" width="128" height="36" rx="3"/>
+  <text class="sub" x="688" y="283" text-anchor="middle">Hermes</text>
+  <rect class="node" x="768" y="260" width="128" height="36" rx="3"/>
+  <text class="sub" x="832" y="283" text-anchor="middle">OpenHands</text>
 </svg>

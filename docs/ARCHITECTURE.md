@@ -19,7 +19,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
-| CI | `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 8 agent smokes on push/PR — no live-home sync for green |
+| CI | `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent smokes on push/PR (Copilot is a suite) — no live-home sync for green |
 
 ## Application architecture selection
 
@@ -77,6 +77,8 @@ Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contai
 - `scripts/validation/Invoke-OpenCodeCiSmoke.ps1`
 - `scripts/validation/Invoke-GrokCiSmoke.ps1`
 - `scripts/validation/Invoke-ZCodeCiSmoke.ps1`
+- `scripts/validation/Invoke-HermesCiSmoke.ps1`
+- `scripts/validation/Invoke-OpenHandsCiSmoke.ps1`
 - `.github/workflows/validate-toolkit.yml`
 
 ## Cursor install layout
@@ -197,14 +199,41 @@ InstallRoot **is** `~/.grok` (or project `.grok` passed as InstallRoot) — **na
 
 Claude/Cursor paths may be read by the product as compat; MVP **publish** targets InstallRoot directly. Fixture: `scripts/validation/fixtures/grok` (models `~/.grok`).
 
+## Hermes install layout
+
+InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGENTS.md` sit **directly under** that root (never `~/.hermes/.hermes/skills`):
+
+| Relative path | Role |
+|---------------|------|
+| `skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (live `~/.hermes/skills`) |
+| `AGENTS.md` | Router from `core/router` plus folded `core/policy` (no `rules/` tree) |
+| `MEMORY.md` | Seeded once if missing; never overwritten |
+| `SOUL.md` | **Never** created or overwritten |
+
+`Publish-Hooks` / `Publish-Agents` are documented no-ops (`hooks=false`, `agents=false`). Subagents: host **`delegate_task`**. Do not emit gateway tokens, `config.yaml` secrets, cron, or `delegation.*` YAML. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
+
+## OpenHands install layout
+
+**Project** InstallRoot (CI / typical sync) models a repository tree — not a nested user-home `.agents/.agents`:
+
+| Relative path | Role |
+|---------------|------|
+| `.agents/skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (**not** legacy microagents) |
+| `.agents/agents/*.md` | Roster from `core/agents/` (SDK/plugin; not Canvas Profile; not native spawn) |
+| `AGENTS.md` | Router + folded policy (no `rules/` tree) |
+| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks (never `.ps1`) |
+| `.plugin/plugin.json` | Plugin metadata (skills still work without the plugin) |
+
+**Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-OpenHandsCiSmoke.ps1`.
+
 ## CI
 
 Workflow `.github/workflows/validate-toolkit.yml` on `windows-latest` (no USERPROFILE deploy for green):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode) — separate step; not inside validate-core
+2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes, OpenHands) — separate step; not inside validate-core
 3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
-4. Eight agent CI smokes: Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode
+4. Ten agent CI smokes (Copilot is a suite): Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode, Hermes, OpenHands
 
 OpenCode and peer smokes assert published files on fixtures only — they do **not** launch product runtimes. Details: [VALIDATION.md](VALIDATION.md), [domains/validation-ci.md](domains/validation-ci.md).
 

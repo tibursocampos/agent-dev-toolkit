@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 # Tests:
-#   Should_HaveReadmePerTier1Adapter_When_AdaptersInspected
+#   Should_HaveReadmePerAdapter_When_AdaptersInspected
 #   Should_LinkAdaptersDoc_When_StubRead
 $ErrorActionPreference = 'Stop'
 
@@ -29,11 +29,11 @@ function Write-Fail {
 }
 
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
-    Write-Fail -TestName 'Assert-Tier1AdapterReadmesPreconditions' -Reason ("missing {0}" -f $repoRootScript)
+    Write-Fail -TestName 'Assert-AdapterReadmesPreconditions' -Reason ("missing {0}" -f $repoRootScript)
 }
 
 if (-not (Test-Path -LiteralPath $constantsScript)) {
-    Write-Fail -TestName 'Assert-Tier1AdapterReadmesPreconditions' -Reason ("missing {0}" -f $constantsScript)
+    Write-Fail -TestName 'Assert-AdapterReadmesPreconditions' -Reason ("missing {0}" -f $constantsScript)
 }
 
 . $repoRootScript
@@ -45,19 +45,19 @@ $registryPath = Join-Path $adaptersDir $script:ToolkitConstant.RegistryFileName
 $readmeFileName = $script:ToolkitConstant.ReadmeFileName
 
 if (-not (Test-Path -LiteralPath $registryPath)) {
-    Write-Fail -TestName 'Assert-Tier1AdapterReadmesPreconditions' -Reason ("missing {0}" -f $registryPath)
+    Write-Fail -TestName 'Assert-AdapterReadmesPreconditions' -Reason ("missing {0}" -f $registryPath)
 }
 
 $registry = Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json
-$tier1Agents = @($registry.agents | Where-Object { $_.tier -eq 1 })
-if ($tier1Agents.Count -eq 0) {
-    Write-Fail -TestName 'Assert-Tier1AdapterReadmesPreconditions' -Reason 'registry has no tier 1 agents'
+$registryAgents = @($registry.agents)
+if ($registryAgents.Count -eq 0) {
+    Write-Fail -TestName 'Assert-AdapterReadmesPreconditions' -Reason 'registry has no agents'
 }
 
-# --- Should_HaveReadmePerTier1Adapter_When_AdaptersInspected ---
-$existenceName = 'Should_HaveReadmePerTier1Adapter_When_AdaptersInspected'
+# --- Should_HaveReadmePerAdapter_When_AdaptersInspected ---
+$existenceName = 'Should_HaveReadmePerAdapter_When_AdaptersInspected'
 $missingReadmes = @()
-foreach ($agent in $tier1Agents) {
+foreach ($agent in $registryAgents) {
     $readmePath = Join-Path (Join-Path $adaptersDir $agent.id) $readmeFileName
     if (-not (Test-Path -LiteralPath $readmePath)) {
         $missingReadmes += $agent.id
@@ -74,7 +74,7 @@ Write-Pass -TestName $existenceName
 $linkName = 'Should_LinkAdaptersDoc_When_StubRead'
 $missingLinks = @()
 $missingFixtures = @()
-foreach ($agent in $tier1Agents) {
+foreach ($agent in $registryAgents) {
     $readmePath = Join-Path (Join-Path $adaptersDir $agent.id) $readmeFileName
     $text = Get-Content -LiteralPath $readmePath -Raw
     $hasAdaptersDoc = ($text -like ("*{0}*" -f $adaptersDocMarker)) -or ($text -like ("*{0}*" -f $adaptersDocRelativeLink))
