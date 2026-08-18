@@ -12,7 +12,6 @@ File: `adapters/registry.json`
 |-------|---------|
 | `id` | CLI `-Agent` token |
 | `displayName` | Human label |
-| `tier` | `1` for supported agents |
 | `module` | Path under `adapters/` to dot-source |
 | `capabilities` | Boolean publish flags + string `subagents` enum (`native` \| `none`) |
 
@@ -22,7 +21,7 @@ List agents:
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
 ```
 
-## Tier 1 agents
+## Registered agents
 
 | id | Module | Typical live root |
 |----|--------|-------------------|
@@ -34,6 +33,8 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
 | `opencode` | `opencode/OpenCodeAdapter.ps1` | `~/.config/opencode` |
 | `grok` | `grok/GrokAdapter.ps1` | `~/.grok` |
 | `zcode` | `zcode/ZCodeAdapter.ps1` | `~/.zcode` |
+| `hermes` | `hermes/HermesAdapter.ps1` | `~/.hermes` (skills + `AGENTS.md` at that root) |
+| `openhands` | `openhands/OpenHandsAdapter.ps1` | Project tree; user skills `~/.agents/skills` |
 
 Contract stubs / shared helpers: `adapters/_contract/AdapterContract.ps1`.
 
@@ -46,13 +47,13 @@ Contract stubs / shared helpers: `adapters/_contract/AdapterContract.ps1`.
 | `Publish-Skills` / `Publish-Policy` / `Publish-Router` / `Publish-Hooks` | Publish into InstallRoot |
 | `Get-SddRoot` | Resolve / prepare SDD state root |
 | `Invoke-SmokeValidate` | Fixture filesystem smoke |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (all Tier-1; preserves SDD state) |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (all adapters; preserves SDD state) |
 
 Orchestrators: `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`, `scripts/toolkit.ps1`. **Backup** (`-Action Backup`) is a CLI stub only — it does **not** call an adapter.
 
 ## Subagents / SPAWN
 
-Capability `subagents` is the string enum `native` \| `none` (not boolean). Registry declares `native` for all eight Tier 1 agents (including Antigravity). Effective capability may differ (Antigravity fail-closed version probe). Contract: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`. Per-host spawn mechanism: each adapter README **Spawn / subagents** section.
+Capability `subagents` is the string enum `native` \| `none` (not boolean). Most adapters declare `native`. **OpenHands** declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability may differ (fail-closed version probe). Contract: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`. Per-host spawn mechanism: each adapter README **Spawn / subagents** section.
 
 ## Notable semantics
 
@@ -64,8 +65,10 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 | Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
+| Hermes | Native `~/.hermes`; policy folded into `AGENTS.md`; no `rules/`; hooks/plugin/agents false; `delegate_task`; MEMORY.md seed-if-missing; never SOUL.md/gateway |
+| OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell hooks; `subagents=none` |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
-| Keyed uninstall | All Tier-1 agents; preserves `sdd/sessions` + `sdd/manifest.json` |
+| Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
 | Sync prepare | Every sync runs `Get-SddRoot -Prepare` |
 
 ## Module READMEs
@@ -78,6 +81,8 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Regi
 - [adapters/opencode/README.md](../../adapters/opencode/README.md) — plugin-only hooks; keyed uninstall
 - [adapters/grok/README.md](../../adapters/grok/README.md) — native `.grok`, trust note; keyed uninstall
 - [adapters/zcode/README.md](../../adapters/zcode/README.md) — ADE filesystem; keyed uninstall (preserves SDD)
+- [adapters/hermes/README.md](../../adapters/hermes/README.md) — native `~/.hermes`; folded policy; `delegate_task`; keyed uninstall
+- [adapters/openhands/README.md](../../adapters/openhands/README.md) — project tree + user skills; not microagents; keyed uninstall
 
 ## Related
 

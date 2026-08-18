@@ -1,6 +1,6 @@
 # Usando skills
 
-Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). O **id** é estável entre hosts; o prefixo é específico do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat: `use skill <id>` ou linguagem natural alinhada à `description` da skill.
+Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). O **id** é estável entre hosts; o prefixo é específico do host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands). Compat: `use skill <id>` ou linguagem natural alinhada à `description` da skill.
 
 Após qualquer sync, invoque a skill **`help-skills`** para o catálogo estático instalado (`CATALOG.md` + `OPERATOR.md`) — não carregue cada `SKILL.md`.
 
@@ -18,6 +18,8 @@ Após qualquer sync, invoque a skill **`help-skills`** para o catálogo estátic
 | Antigravity | `~/.gemini/config/skills` | `use skill id` ou `/id` | `use skill sdd-plan` |
 | Grok | `~/.grok/skills` | `/id` | `/help-skills` |
 | ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
+| Hermes | `~/.hermes/skills` | `/id` | `/help-skills` |
+| OpenHands | `.agents/skills` (projeto) / `~/.agents/skills` (usuário) | `name` da skill (o agente carrega quando for relevante) | `help-skills` |
 
 ## Especialistas em paralelo (padrão)
 
@@ -160,11 +162,19 @@ Skills: `~/.zcode/skills`. Invoque com **`$id`** (ex.: `$help-skills`). Atualize
 
 Skills: `~/.gemini/config/skills`. Invoque com **`use skill <id>`** ou `/id` (ex.: `use skill sdd-plan`).
 
+### Hermes
+
+Skills: `~/.hermes/skills`. Invoque com **`/id`** (ex.: `/help-skills`). Oficial: cada skill instalada vira comando slash. Subagentes: ferramenta `delegate_task` do host (`subagents=native`). Sem roster `agents/*.md`.
+
+### OpenHands
+
+Skills de projeto: `.agents/skills`. Skills do usuário live: `~/.agents/skills`. O agente carrega a skill pelo `name` / `description` quando for relevante (`triggers` opcionais no frontmatter). Canvas não é spawn de subagente — `subagents=none`; fallback SPAWN no pai. O roster publicado `.agents/agents/*.md` é SDK/plugin, não Canvas Profile.
+
 Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam `help-skills` + o pack skills-catalog.
 
 ## Fluxos comuns
 
-Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode).
+Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands).
 
 ### Forma A
 
@@ -233,7 +243,7 @@ Notas estáticas instaladas: `_shared/skills-catalog/OPERATOR.md` (via `help-ski
 
 ## Re-sync quando as skills parecerem desatualizadas
 
-Fixture (seguro) — qualquer id Tier-1:
+Fixture (seguro) — qualquer id de agente suportado:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude

@@ -2,16 +2,15 @@
 # Tests:
 #   Should_NotOverwriteOperatorManifest_When_GetSddRootPrepareTwice
 #   Should_PreserveSessions_When_GetSddRootPrepareTwice
-#   Should_NotOverwriteOperatorManifest_When_SyncPrepareTwice
 #
 # SDD runtime contract: Get-SddRoot -Prepare seeds manifest only when absent and
 # never clears sessions/. Uses the Cursor fixture InstallRoot shape.
+# Full sync-twice coverage lives in Cursor CI smoke (Invoke-CursorCiSmoke), not here.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
 $repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
-$syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -31,10 +30,8 @@ function Get-Utf8NoBomEncoding {
     return (New-Object System.Text.UTF8Encoding $false)
 }
 
-foreach ($required in @($repoRootScript, $syncAgentScript)) {
-    if (-not (Test-Path -LiteralPath $required)) {
-        Write-Fail -TestName 'Assert-SddRootPrepareIdempotentPreconditions' -Reason ("missing {0}" -f $required)
-    }
+if (-not (Test-Path -LiteralPath $repoRootScript)) {
+    Write-Fail -TestName 'Assert-SddRootPrepareIdempotentPreconditions' -Reason ("missing {0}" -f $repoRootScript)
 }
 
 . $repoRootScript
@@ -140,41 +137,9 @@ Assert-OperatorManifestUnchanged -TestName $sessionsTest
 
 Write-Pass -TestName $sessionsTest
 
-# --- Should_NotOverwriteOperatorManifest_When_SyncPrepareTwice ---
-$syncTwiceTest = 'Should_NotOverwriteOperatorManifest_When_SyncPrepareTwice'
-
-Initialize-SddPrepareWorkRoot
-
-$syncLines = @(& $syncAgentScript -Agent cursor -InstallRoot $workInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit = $LASTEXITCODE
-if ($null -eq $syncExit) { $syncExit = 0 }
-if ($syncExit -ne 0) {
-    Write-Fail -TestName $syncTwiceTest -Reason ("first sync-agent prepare failed (exit {0}): {1}" -f $syncExit, ($syncLines -join [Environment]::NewLine).Trim())
-}
-if (-not (Test-Path -LiteralPath $manifestPath)) {
-    Write-Fail -TestName $syncTwiceTest -Reason 'first sync must seed manifest.json when absent'
-}
-
-Write-OperatorManifest
-Set-Content -LiteralPath $sessionProbePath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionProbeMarker) -Encoding UTF8
-
-$syncLines2 = @(& $syncAgentScript -Agent cursor -InstallRoot $workInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit2 = $LASTEXITCODE
-if ($null -eq $syncExit2) { $syncExit2 = 0 }
-if ($syncExit2 -ne 0) {
-    Write-Fail -TestName $syncTwiceTest -Reason ("second sync-agent prepare failed (exit {0}): {1}" -f $syncExit2, ($syncLines2 -join [Environment]::NewLine).Trim())
-}
-
-Assert-OperatorManifestUnchanged -TestName $syncTwiceTest
-if (-not (Test-Path -LiteralPath $sessionProbePath)) {
-    Write-Fail -TestName $syncTwiceTest -Reason 'sessions/ probe must survive second sync prepare'
-}
-
 if (Test-Path -LiteralPath $workInstallRoot) {
     Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
 }
-
-Write-Pass -TestName $syncTwiceTest
 
 Write-Host 'Assert-SddRootPrepareIdempotent: ALL PASS'
 exit 0

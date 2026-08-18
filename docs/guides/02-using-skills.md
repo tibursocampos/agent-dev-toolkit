@@ -18,6 +18,8 @@ After any agent sync, invoke **`help-skills`** for the installed static catalog 
 | Antigravity | `~/.gemini/config/skills` | `use skill id` or `/id` | `use skill sdd-plan` |
 | Grok | `~/.grok/skills` | `/id` | `/help-skills` |
 | ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
+| Hermes | `~/.hermes/skills` | `/id` | `/help-skills` |
+| OpenHands | Project `.agents/skills` or `~/.agents/skills` | Agent Skills (product discovery; mention skill id) | `help-skills` |
 
 ## Parallel specialists (default)
 
@@ -107,6 +109,18 @@ Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). A
 
 Module: [adapters/zcode/README.md](../../adapters/zcode/README.md).
 
+## Hermes
+
+Skills sync to **`~/.hermes/skills`** (directly under that home — not `~/.hermes/.hermes/skills`). Invoke with `/id` (e.g. `/help-skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). `MEMORY.md` is seeded only if missing; `SOUL.md` is never written. Hooks / plugin / agents roster are not published. Subagents: host **`delegate_task`**.
+
+Module: [adapters/hermes/README.md](../../adapters/hermes/README.md).
+
+## OpenHands
+
+**Project** sync writes Agent Skills to `<InstallRoot>/.agents/skills/` (not legacy microagents). **User** skills home: `~/.agents/skills` with `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome`. Invoke via product Agent Skills discovery (mention the skill id). Router + folded policy: `AGENTS.md`. Hooks: `.openhands/hooks.json` + `.openhands/hooks/*.sh` (shell, not `.ps1`). Plugin metadata: `.plugin/plugin.json` (skills still work without the plugin). Roster markdown under `.agents/agents/` is not native spawn (`subagents=none` — SPAWN fallback in-parent).
+
+Module: [adapters/openhands/README.md](../../adapters/openhands/README.md).
+
 ## Antigravity
 
 Skills sync to `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`, `/help-skills`). Official `config/*` layout.
@@ -115,7 +129,7 @@ Module: [adapters/antigravity/README.md](../../adapters/antigravity/README.md).
 
 ## Common workflows
 
-Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, or OpenCode `skill` tool).
+Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands product discovery).
 
 ### Forma A
 

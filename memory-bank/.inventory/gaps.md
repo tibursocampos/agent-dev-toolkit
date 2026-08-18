@@ -8,7 +8,7 @@ Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 - [x] project-context filled from evidence
 - [x] tech-stack.json matches detected manifests (PowerShell + Markdown; no package manifests)
 - [x] architecture entry points verified (toolkit / sync / validate / validate-core / CI)
-- [x] domain-knowledge has at least one evidenced area (Core/Adapter/Formas/Tier 1 terms)
+- [x] domain-knowledge has at least one evidenced area (Core/Adapter/Formas/supported-agent terms)
 - [x] conventions aligned with AGENTS/README
 - [x] known-risks reviewed (path safety Waves 1–8, uninstall stubs, OpenCode hooks, subagents probe, no features/ doc links)
 

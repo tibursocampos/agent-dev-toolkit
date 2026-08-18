@@ -1,6 +1,6 @@
 # Adapters
 
-Tier 1 agent registry and per-agent publish modules live here. Orchestrators resolve an agent via `registry.json`, then load the module named on that entry.
+Agent registry and per-agent publish modules live here. Orchestrators resolve an agent via `registry.json`, then load the module named on that entry.
 
 | Path | Role | README |
 |------|------|--------|
@@ -14,6 +14,8 @@ Tier 1 agent registry and per-agent publish modules live here. Orchestrators res
 | `opencode/` | OpenCode — skills + JS plugins | [README](opencode/README.md) |
 | `grok/` | Grok Build — native `.grok` publish | [README](grok/README.md) |
 | `zcode/` | ZCode ADE — `~/.zcode` filesystem | [README](zcode/README.md) |
+| `hermes/` | Hermes — `~/.hermes`; policy folded into `AGENTS.md` | [README](hermes/README.md) |
+| `openhands/` | OpenHands — project `.agents/` + `.openhands/` | [README](openhands/README.md) |
 
 Public contract: [docs/ADAPTERS.md](../docs/ADAPTERS.md).
 

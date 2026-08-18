@@ -55,16 +55,16 @@
       ".github/workflows/enforce-release-source.yml"
     ],
     "notes": [
-      "Tier 1 adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode",
+      "Adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands",
       "37 kebab skills under core/skills/ (+ _shared)",
       "Cursor + Grok adapters split Claude-style (thin entry + Publish-* / Uninstall-* siblings)",
       "InstallRoot fail-closed: strip extended (\\\\?\\) and device (\\\\.\\) path prefixes; Initialize-InstallRootForWrite + Confirm; orphan cleanup",
       "Managed skills prune/copy name containment; uninstall Assert-PathUnderInstallRootForDelete",
-      "Capability subagents: native|none; registry all eight native; Antigravity effective via fail-closed probe",
-      "Keyed uninstall for all Tier-1 agents; preserves sdd/sessions + sdd/manifest.json",
+      "Capability subagents: native|none; OpenHands none; Antigravity effective via fail-closed probe",
+      "Keyed uninstall for all registry adapters; preserves sdd/sessions + sdd/manifest.json",
       "Sync prepare: Get-SddRoot -Prepare on every sync (sdd/sessions + seed manifest when absent)",
       "OpenCode hooks = plugin JS only; CI smoke = filesystem fixture not product runtime",
-      "CI: validate-core + keyed uninstall asserts + Assert-SyncAllowUserHomeForward + 8 agent smokes",
+      "CI: validate-core + keyed uninstall asserts + Assert-SyncAllowUserHomeForward + 10 agent smokes",
       "Public docs must not link repo features/ story paths (Assert-NoFeaturesDocLinks)"
     ]
   }

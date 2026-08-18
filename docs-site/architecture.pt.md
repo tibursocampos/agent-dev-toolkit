@@ -15,13 +15,14 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Pontos de public
 ┌──────────────────────────▼──────────────────────────────┐
 │  adapters/<agent>/  ← registry.json                     │
 │    Cursor · Claude · Codex · Copilot · Antigravity ·    │
-│    OpenCode · Grok · ZCode                              │
+│    OpenCode · Grok · ZCode · Hermes · OpenHands         │
 └──────────────────────────┬──────────────────────────────┘
                            │ InstallRoot (fixture ou ambiente real)
 ┌──────────────────────────▼──────────────────────────────┐
-│  Pasta de instalação: ~/.cursor · ~/.claude · ~/.copilot · … │
+│  Pasta de instalação: ~/.cursor · ~/.claude · ~/.hermes · … │
 │  Codex também: skills do plugin + InstallRoot/rules (dual) │
 │           + ~/.agents/skills opcional (UserScope)          │
+│  OpenHands: projeto .agents/skills · live ~/.agents        │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -68,7 +69,7 @@ Em runtime, as skills preferem **`effective_SDD_ROOT`** consciente do host (`<In
 | `scripts/sync-agent.ps1` | Publica o core em um InstallRoot de agente |
 | `scripts/validate-agent.ps1` | Suite do core + teste smoke de um agente |
 | `scripts/validation/validate-core.ps1` | Apenas contratos do repositório (sem escrita no ambiente do agente) |
-| `.github/workflows/validate-toolkit.yml` | CI: validate-core, asserts de uninstall, oito testes smoke de agente |
+| `.github/workflows/validate-toolkit.yml` | CI: validate-core, asserts de uninstall, dez testes smoke de agente |
 
 As árvores de instalação por agente (Cursor, Claude, Codex, …) estão na documentação completa de arquitetura e de adaptadores — não são duplicadas aqui. Veja [Adaptadores](../adapters/).
 
@@ -76,4 +77,4 @@ As árvores de instalação por agente (Cursor, Claude, Codex, …) estão na do
 
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — camadas, placeholders, pontos de entrada, layouts de instalação por agente, CI
 - [docs/overview.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/overview.md) — problema, fluxo do operador, restrições de design
-- [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, tiers, pontos de publicação, tabelas de InstallRoot
+- [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, pontos de publicação, tabelas de InstallRoot
