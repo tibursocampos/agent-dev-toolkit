@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Shared SDD runtime layout prepare for all Tier-1 adapters.
+  Shared SDD runtime layout prepare for all adapters.
 
 .DESCRIPTION
   Creates <InstallRoot>/sdd and sdd/sessions when missing; seeds manifest.json
@@ -214,7 +214,7 @@ function Initialize-SddRootLayout {
 function Invoke-ToolkitGetSddRoot {
     <#
     .SYNOPSIS
-      Resolve or prepare <InstallRoot>/sdd for any Tier-1 adapter.
+      Resolve or prepare <InstallRoot>/sdd for any adapter.
     #>
     [CmdletBinding()]
     param(

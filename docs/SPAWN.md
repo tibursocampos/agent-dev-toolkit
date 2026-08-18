@@ -1,4 +1,4 @@
-# Spawn / subagents (Tier 1)
+# Spawn / subagents
 
 Human summary of the portable spawn contract. Agents **Read** the canonical skill contract at `core/skills/_shared/agents/SPAWN.md` (published under `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` after sync) before `CreatePlan` that cites orchestration/Task/subagents and before the first non-trivial spawn vs in-parent decision.
 
@@ -15,7 +15,7 @@ Per-adapter honesty notes: each `adapters/<id>/README.md` → **Spawn / subagent
 - Declared: `adapters/registry.json`. Effective: adapter `Get-Capabilities` (may differ; see Antigravity).
 - Missing/unknown → treat as `none`. Stubs/defaults must never mint `native`.
 
-## Tier 1 inventory × host spawn
+## Inventory × host spawn
 
 Sources: official host product docs (primary), `adapters/registry.json`, SPAWN / `SUBAGENT-MODEL.md` / `orchestrate-*`.
 
@@ -29,6 +29,8 @@ Sources: official host product docs (primary), `adapters/registry.json`, SPAWN /
 | `opencode` | OpenCode | `mode: subagent` + **Task** tool — [opencode.ai/docs/agents](https://opencode.ai/docs/agents/) | `native` | OpenCode Task |
 | `grok` | Grok Build | `spawn_subagent` + `[subagents]` — [docs.x.ai](https://docs.x.ai/build/settings/reference), [x.ai/cli](https://x.ai/cli) | `native` | `spawn_subagent` |
 | `zcode` | ZCode | **Agent** tool + `~/.zcode/agents/` — [zcode subagents](https://zcode.z.ai/en/docs/subagents) | `native` | ZCode Agent tool |
+| `hermes` | Hermes | Tool **`delegate_task`** (isolated child; optional `role=orchestrator`) — [delegation](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) | `native` | `delegate_task` |
+| `openhands` | OpenHands | Canvas / ACP is not parent→child. SDK `TaskToolSet` is not Canvas. [Skills](https://docs.openhands.dev/overview/skills) | `none` | In-parent (SPAWN fallback) |
 
 **Honesty:** promote/demote only with product evidence. Demote registry `native` → `none` only with a documented regression. Absence of a Spawn section in an adapter README does **not** by itself imply `none`.
 
@@ -38,7 +40,7 @@ Pré-2.0: Agent Manager with parallel agents in separate conversations — **not
 
 | Layer | Value | Role |
 |-------|-------|------|
-| `registry.json` | `native` | Declared Tier 1 product capability (2.0+) |
+| `registry.json` | `native` | Declared product capability (2.0+) |
 | `Get-Capabilities` | probe → `native` \| `none` | Effective on this machine |
 | SPAWN / skills | Prefer native only if effective = `native` | Never hard-fail |
 
@@ -67,7 +69,7 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
 
 O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
 
-**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. OpenCode / Antigravity / Grok skip file publish (native Task / `invoke_subagent` / `spawn_subagent` only).
+**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. OpenCode / Antigravity / Grok / Hermes skip file publish (`agents=false`; native Task / `invoke_subagent` / `spawn_subagent` / `delegate_task` only). OpenHands writes `.agents/agents/*.md` as an SDK/plugin **roster** — that is not Canvas Profile and not native spawn (`subagents=none`; SPAWN fallback in-parent).
 
 ## Task `model`
 

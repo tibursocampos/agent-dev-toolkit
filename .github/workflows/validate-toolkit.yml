@@ -22,7 +22,7 @@ jobs:
           ./scripts/validation/validate-core.ps1 -Quiet
         working-directory: ${{ github.workspace }}
 
-      # Fixture-local keyed uninstall (all Tier-1 agents including Cursor/ZCode).
+      # Fixture-local keyed uninstall (all registry agents including Cursor/ZCode).
       # Not in validate-core: those asserts call validate-agent which re-enters validate-core.
       - name: Run keyed uninstall asserts
         shell: pwsh
@@ -36,7 +36,9 @@ jobs:
             'Assert-AntigravityKeyedUninstall.ps1',
             'Assert-GrokKeyedUninstall.ps1',
             'Assert-CursorKeyedUninstall.ps1',
-            'Assert-ZcodeKeyedUninstall.ps1'
+            'Assert-ZcodeKeyedUninstall.ps1',
+            'Assert-HermesKeyedUninstall.ps1',
+            'Assert-OpenHandsKeyedUninstall.ps1'
           )
           foreach ($script in $scripts) {
             $path = Join-Path './scripts/validation' $script
@@ -109,4 +111,18 @@ jobs:
         shell: pwsh
         run: |
           ./scripts/validation/Invoke-ZCodeCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # Hermes sync+validate against ephemeral copy of in-repo fixture (no ~/.hermes).
+      - name: Run Hermes CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-HermesCiSmoke.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      # OpenHands sync+validate against ephemeral copy of in-repo fixture (no ~/.agents).
+      - name: Run OpenHands CI smoke
+        shell: pwsh
+        run: |
+          ./scripts/validation/Invoke-OpenHandsCiSmoke.ps1 -Quiet
         working-directory: ${{ github.workspace }}

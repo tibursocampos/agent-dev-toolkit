@@ -39,7 +39,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $zcodeModulePath = Join-Path $repoRoot 'adapters\zcode\ZCodeAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
+$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
+$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-keyed-uninstall-work'
+$fixtureInstallRoot = $workInstallRoot
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
 $customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.md'
@@ -64,11 +66,29 @@ $sessionProbeMarker = 'sdd-session-must-survive'
 if (-not (Test-Path -LiteralPath $zcodeModulePath)) {
     Write-Fail -TestName 'Assert-ZcodeKeyedUninstallPreconditions' -Reason ("missing ZCode module: {0}" -f $zcodeModulePath)
 }
-if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
-    Write-Fail -TestName 'Assert-ZcodeKeyedUninstallPreconditions' -Reason ("missing ZCode fixture: {0}" -f $fixtureInstallRoot)
+if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
+    Write-Fail -TestName 'Assert-ZcodeKeyedUninstallPreconditions' -Reason ("missing ZCode seed fixture: {0}" -f $seedFixtureRoot)
 }
 
 . $zcodeModulePath
+
+function Initialize-ZcodeKeyedUninstallWorkRoot {
+    if (Test-Path -LiteralPath $workInstallRoot) {
+        Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
+    }
+    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+}
+
+function Invoke-ZcodeKeyedUninstallSync {
+    param([Parameter(Mandatory = $true)][string] $TestName)
+
+    $syncLines = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
+    $syncExit = $LASTEXITCODE
+    if ($null -eq $syncExit) { $syncExit = 0 }
+    if ($syncExit -ne 0) {
+        Write-Fail -TestName $TestName -Reason ("sync-agent -Agent zcode failed (exit {0}): {1}" -f $syncExit, ($syncLines -join [Environment]::NewLine).Trim())
+    }
+}
 
 function Clear-ZcodePublishedTreeContents {
     param(
@@ -161,14 +181,9 @@ function Assert-ZcodeAlienJsonKeysPreserved {
 # --- Should_RemoveToolkitArtifacts_When_UninstallZcodeFixture ---
 $removeTest = 'Should_RemoveToolkitArtifacts_When_UninstallZcodeFixture'
 
+Initialize-ZcodeKeyedUninstallWorkRoot
 Clear-ZcodeFixturePublishedArtifacts
-
-$syncLines = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit = $LASTEXITCODE
-if ($null -eq $syncExit) { $syncExit = 0 }
-if ($syncExit -ne 0) {
-    Write-Fail -TestName $removeTest -Reason ("sync-agent -Agent zcode failed (exit {0}): {1}" -f $syncExit, ($syncLines -join [Environment]::NewLine).Trim())
-}
+Invoke-ZcodeKeyedUninstallSync -TestName $removeTest
 
 if (-not (Test-ZcodeToolkitSkillPresent)) {
     Write-Fail -TestName $removeTest -Reason 'expected toolkit skills after sync'
@@ -263,12 +278,7 @@ if (-not (Test-Path -LiteralPath $sessionsPath)) {
 }
 Set-Content -LiteralPath $sessionProbePath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionProbeMarker) -Encoding UTF8
 
-$syncLines2 = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit2 = $LASTEXITCODE
-if ($null -eq $syncExit2) { $syncExit2 = 0 }
-if ($syncExit2 -ne 0) {
-    Write-Fail -TestName $keepTest -Reason ("sync-agent failed before keep-unrelated uninstall (exit {0}): {1}" -f $syncExit2, ($syncLines2 -join [Environment]::NewLine).Trim())
-}
+Invoke-ZcodeKeyedUninstallSync -TestName $keepTest
 
 $uninstallKeep = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
@@ -296,21 +306,18 @@ if (Test-Path -LiteralPath $agentsPath) {
 Write-Pass -TestName $keepTest
 
 # --- Should_FailClosedWhen_InvalidJsonOverlayOnUninstallZcodeFixture ---
+# --- Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallZcodeFixture ---
 $invalidJsonTest = 'Should_FailClosedWhen_InvalidJsonOverlayOnUninstallZcodeFixture'
+$whatIfTest = 'Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallZcodeFixture'
 
 Clear-ZcodeFixturePublishedArtifacts
-
-$syncLines3 = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit3 = $LASTEXITCODE
-if ($null -eq $syncExit3) { $syncExit3 = 0 }
-if ($syncExit3 -ne 0) {
-    Write-Fail -TestName $invalidJsonTest -Reason ("sync-agent failed before invalid JSON overlay test (exit {0}): {1}" -f $syncExit3, ($syncLines3 -join [Environment]::NewLine).Trim())
-}
+Invoke-ZcodeKeyedUninstallSync -TestName $invalidJsonTest
 
 if (-not (Test-ZcodeToolkitSkillPresent)) {
     Write-Fail -TestName $invalidJsonTest -Reason 'expected toolkit skills after sync before invalid JSON injection'
 }
 
+$cliBeforeInvalid = [System.IO.File]::ReadAllText($cliConfigPath)
 [System.IO.File]::WriteAllText($cliConfigPath, $invalidJsonOverlayPayload, (Get-Utf8NoBomEncoding))
 
 $uninstallInvalid = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
@@ -326,17 +333,7 @@ if (-not (Test-ZcodeToolkitSkillPresent)) {
 
 Write-Pass -TestName $invalidJsonTest
 
-# --- Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallZcodeFixture ---
-$whatIfTest = 'Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallZcodeFixture'
-
-Clear-ZcodeFixturePublishedArtifacts
-
-$syncLines4 = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit4 = $LASTEXITCODE
-if ($null -eq $syncExit4) { $syncExit4 = 0 }
-if ($syncExit4 -ne 0) {
-    Write-Fail -TestName $whatIfTest -Reason ("sync-agent failed before WhatIf/idempotent test (exit {0}): {1}" -f $syncExit4, ($syncLines4 -join [Environment]::NewLine).Trim())
-}
+[System.IO.File]::WriteAllText($cliConfigPath, $cliBeforeInvalid, (Get-Utf8NoBomEncoding))
 
 if (-not (Test-Path -LiteralPath $sessionsPath)) {
     New-Item -ItemType Directory -Path $sessionsPath -Force | Out-Null
@@ -383,17 +380,8 @@ if ([System.IO.File]::ReadAllText($manifestPath) -ne $manifestBeforeWhatIf) {
 
 Write-Pass -TestName $whatIfTest
 
-Remove-Item -LiteralPath $alienSkillDir -Recurse -Force -ErrorAction SilentlyContinue
-if (Test-Path -LiteralPath $sessionProbePath) {
-    Remove-Item -LiteralPath $sessionProbePath -Force -ErrorAction SilentlyContinue
-}
-
-Clear-ZcodeFixturePublishedArtifacts
-$restoreLines = @(& $syncAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$restoreExit = $LASTEXITCODE
-if ($null -eq $restoreExit) { $restoreExit = 0 }
-if ($restoreExit -ne 0) {
-    Write-Fail -TestName 'Assert-ZcodeKeyedUninstallRestore' -Reason ("fixture restore sync failed (exit {0}): {1}" -f $restoreExit, ($restoreLines -join [Environment]::NewLine).Trim())
+if (Test-Path -LiteralPath $workInstallRoot) {
+    Remove-Item -LiteralPath $workInstallRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host 'Assert-ZcodeKeyedUninstall: ALL PASS'

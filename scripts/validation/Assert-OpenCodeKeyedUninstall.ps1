@@ -139,11 +139,11 @@ if ($syncExit -ne 0) {
     Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2ESync' -Reason ("sync-agent -Agent opencode failed (exit {0})" -f $syncExit)
 }
 
-& $validateAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot -Quiet
+& $validateAgentScript -Agent opencode -InstallRoot $fixtureInstallRoot -Quiet -SkipCore
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2EValidate' -Reason ("validate-agent -Agent opencode failed (exit {0})" -f $validateExit)
+    Write-Fail -TestName 'Assert-OpenCodeKeyedUninstallE2EValidate' -Reason ("validate-agent -Agent opencode -SkipCore failed (exit {0})" -f $validateExit)
 }
 
 Ensure-AlienArtifacts

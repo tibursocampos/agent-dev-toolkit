@@ -137,11 +137,11 @@ if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
 }
 
-$validateLines = @(& $validateAgentScript -Agent grok -Quiet *>&1 | ForEach-Object { "$_" })
+$validateLines = @(& $validateAgentScript -Agent grok -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName $removeTest -Reason ("validate-agent -Agent grok failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
+    Write-Fail -TestName $removeTest -Reason ("validate-agent -Agent grok -SkipCore failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
 }
 
 $uninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot

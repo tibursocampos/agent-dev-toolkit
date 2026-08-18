@@ -328,11 +328,11 @@ foreach ($commandName in $expectedPublishOrder) {
 
 Assert-ManagedArtifactsPresent -TestName $syncName
 
-$validateLines = @(& $validateAgentScript -Agent claude -InstallRoot $workInstallRoot -Quiet *>&1 | ForEach-Object { "$_" })
+$validateLines = @(& $validateAgentScript -Agent claude -InstallRoot $workInstallRoot -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName $syncName -Reason ("validate-agent -Agent claude failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
+    Write-Fail -TestName $syncName -Reason ("validate-agent -Agent claude -SkipCore failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
 }
 
 $userProfileInstallRoot = Join-Path $userProfile $userProbeRelative

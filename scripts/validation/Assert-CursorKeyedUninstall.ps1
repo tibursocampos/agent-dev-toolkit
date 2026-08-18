@@ -40,7 +40,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-install-root'
+$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-install-root'
+$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-keyed-uninstall-work'
+$fixtureInstallRoot = $workInstallRoot
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $rulesRoot = Join-Path $fixtureInstallRoot 'rules'
 $hooksRoot = Join-Path $fixtureInstallRoot 'hooks'
@@ -66,11 +68,29 @@ $invalidHooksJsonPayload = '{ "version": 1, "hooks": { invalid }'
 if (-not (Test-Path -LiteralPath $cursorModulePath)) {
     Write-Fail -TestName 'Assert-CursorKeyedUninstallPreconditions' -Reason ("missing Cursor module: {0}" -f $cursorModulePath)
 }
-if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
-    Write-Fail -TestName 'Assert-CursorKeyedUninstallPreconditions' -Reason ("missing Cursor fixture: {0}" -f $fixtureInstallRoot)
+if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
+    Write-Fail -TestName 'Assert-CursorKeyedUninstallPreconditions' -Reason ("missing Cursor seed fixture: {0}" -f $seedFixtureRoot)
 }
 
 . $cursorModulePath
+
+function Initialize-CursorKeyedUninstallWorkRoot {
+    if (Test-Path -LiteralPath $workInstallRoot) {
+        Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
+    }
+    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+}
+
+function Invoke-CursorKeyedUninstallSync {
+    param([Parameter(Mandatory = $true)][string] $TestName)
+
+    $syncLines = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
+    $syncExit = $LASTEXITCODE
+    if ($null -eq $syncExit) { $syncExit = 0 }
+    if ($syncExit -ne 0) {
+        Write-Fail -TestName $TestName -Reason ("sync-agent -Agent cursor failed (exit {0}): {1}" -f $syncExit, ($syncLines -join [Environment]::NewLine).Trim())
+    }
+}
 
 function Get-Utf8NoBomEncoding {
     return (New-Object System.Text.UTF8Encoding $false)
@@ -196,14 +216,9 @@ function Assert-CursorHooksJsonReverseMergePreserved {
 # --- Should_RemoveToolkitArtifacts_When_UninstallCursorFixture ---
 $removeTest = 'Should_RemoveToolkitArtifacts_When_UninstallCursorFixture'
 
+Initialize-CursorKeyedUninstallWorkRoot
 Clear-CursorFixturePublishedArtifacts
-
-$syncLines = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit = $LASTEXITCODE
-if ($null -eq $syncExit) { $syncExit = 0 }
-if ($syncExit -ne 0) {
-    Write-Fail -TestName $removeTest -Reason ("sync-agent -Agent cursor failed (exit {0}): {1}" -f $syncExit, ($syncLines -join [Environment]::NewLine).Trim())
-}
+Invoke-CursorKeyedUninstallSync -TestName $removeTest
 
 if (-not (Test-CursorToolkitSkillPresent)) {
     Write-Fail -TestName $removeTest -Reason 'expected toolkit skills after sync'
@@ -283,7 +298,10 @@ if ($manifestAfter -ne $manifestBefore) {
 Write-Pass -TestName $removeTest
 
 # --- Should_KeepUnrelatedFilesAndSdd_When_UninstallCursorFixture ---
+# --- Should_PreserveAlienHooksJsonAndStrictMatching_When_UninstallCursorFixture ---
+# One Publish-Skills: plant aliens, sync, overlay hooks.json, uninstall once.
 $keepTest = 'Should_KeepUnrelatedFilesAndSdd_When_UninstallCursorFixture'
+$hooksJsonTest = 'Should_PreserveAlienHooksJsonAndStrictMatching_When_UninstallCursorFixture'
 
 Clear-CursorFixturePublishedArtifacts
 
@@ -302,12 +320,8 @@ if (-not (Test-Path -LiteralPath $sessionsPath)) {
 }
 Set-Content -LiteralPath $sessionProbePath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionProbeMarker) -Encoding UTF8
 
-$syncLines2 = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit2 = $LASTEXITCODE
-if ($null -eq $syncExit2) { $syncExit2 = 0 }
-if ($syncExit2 -ne 0) {
-    Write-Fail -TestName $keepTest -Reason ("sync-agent failed before keep-unrelated uninstall (exit {0}): {1}" -f $syncExit2, ($syncLines2 -join [Environment]::NewLine).Trim())
-}
+Invoke-CursorKeyedUninstallSync -TestName $keepTest
+Add-CursorFixtureHooksJsonAlienOverlay
 
 $uninstallKeep = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
@@ -336,48 +350,23 @@ if (Test-Path -LiteralPath $agentsPath) {
 
 Write-Pass -TestName $keepTest
 
-# --- Should_PreserveAlienHooksJsonAndStrictMatching_When_UninstallCursorFixture ---
-$hooksJsonTest = 'Should_PreserveAlienHooksJsonAndStrictMatching_When_UninstallCursorFixture'
-
-Clear-CursorFixturePublishedArtifacts
-
-$syncLines3 = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit3 = $LASTEXITCODE
-if ($null -eq $syncExit3) { $syncExit3 = 0 }
-if ($syncExit3 -ne 0) {
-    Write-Fail -TestName $hooksJsonTest -Reason ("sync-agent failed before hooks.json uninstall (exit {0}): {1}" -f $syncExit3, ($syncLines3 -join [Environment]::NewLine).Trim())
-}
-
-Add-CursorFixtureHooksJsonAlienOverlay
-
-$uninstallHooks = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
-if ($null -eq $uninstallHooks -or $uninstallHooks.Success -ne $true) {
-    Write-Fail -TestName $hooksJsonTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstallHooks) { 'null' } else { $uninstallHooks.Message }))
-}
-
 Assert-CursorHooksJsonReverseMergePreserved -TestName $hooksJsonTest
-if (Test-CursorToolkitSkillPresent) {
-    Write-Fail -TestName $hooksJsonTest -Reason 'toolkit skills should be removed after hooks.json reverse-merge uninstall'
-}
-
 Write-Pass -TestName $hooksJsonTest
 
 # --- Should_FailClosedWhen_InvalidHooksJsonOnUninstallCursorFixture ---
+# --- Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallCursorFixture ---
+# One Publish-Skills: fail-closed on invalid JSON, then restore hooks.json (no resync) for WhatIf.
 $invalidJsonTest = 'Should_FailClosedWhen_InvalidHooksJsonOnUninstallCursorFixture'
+$whatIfTest = 'Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallCursorFixture'
 
 Clear-CursorFixturePublishedArtifacts
-
-$syncLines4 = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit4 = $LASTEXITCODE
-if ($null -eq $syncExit4) { $syncExit4 = 0 }
-if ($syncExit4 -ne 0) {
-    Write-Fail -TestName $invalidJsonTest -Reason ("sync-agent failed before invalid hooks.json test (exit {0}): {1}" -f $syncExit4, ($syncLines4 -join [Environment]::NewLine).Trim())
-}
+Invoke-CursorKeyedUninstallSync -TestName $invalidJsonTest
 
 if (-not (Test-CursorToolkitSkillPresent)) {
     Write-Fail -TestName $invalidJsonTest -Reason 'expected toolkit skills after sync before invalid hooks.json injection'
 }
 
+$hooksJsonBeforeInvalid = [System.IO.File]::ReadAllText($hooksJsonPath)
 [System.IO.File]::WriteAllText($hooksJsonPath, $invalidHooksJsonPayload, (Get-Utf8NoBomEncoding))
 
 $uninstallInvalid = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
@@ -396,17 +385,7 @@ if (-not (Test-Path -LiteralPath $agentsPath)) {
 
 Write-Pass -TestName $invalidJsonTest
 
-# --- Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallCursorFixture ---
-$whatIfTest = 'Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallCursorFixture'
-
-Clear-CursorFixturePublishedArtifacts
-
-$syncLines5 = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit5 = $LASTEXITCODE
-if ($null -eq $syncExit5) { $syncExit5 = 0 }
-if ($syncExit5 -ne 0) {
-    Write-Fail -TestName $whatIfTest -Reason ("sync-agent failed before WhatIf/idempotent test (exit {0}): {1}" -f $syncExit5, ($syncLines5 -join [Environment]::NewLine).Trim())
-}
+[System.IO.File]::WriteAllText($hooksJsonPath, $hooksJsonBeforeInvalid, (Get-Utf8NoBomEncoding))
 
 if (-not (Test-Path -LiteralPath $sessionsPath)) {
     New-Item -ItemType Directory -Path $sessionsPath -Force | Out-Null
@@ -453,19 +432,8 @@ if ([System.IO.File]::ReadAllText($manifestPath) -ne $manifestBeforeWhatIf) {
 
 Write-Pass -TestName $whatIfTest
 
-Remove-Item -LiteralPath $alienSkillDir -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath $alienRulePath -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath $alienHookPath -Force -ErrorAction SilentlyContinue
-if (Test-Path -LiteralPath $sessionProbePath) {
-    Remove-Item -LiteralPath $sessionProbePath -Force -ErrorAction SilentlyContinue
-}
-
-Clear-CursorFixturePublishedArtifacts
-$restoreLines = @(& $syncAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$restoreExit = $LASTEXITCODE
-if ($null -eq $restoreExit) { $restoreExit = 0 }
-if ($restoreExit -ne 0) {
-    Write-Fail -TestName 'Assert-CursorKeyedUninstallRestore' -Reason ("fixture restore sync failed (exit {0}): {1}" -f $restoreExit, ($restoreLines -join [Environment]::NewLine).Trim())
+if (Test-Path -LiteralPath $workInstallRoot) {
+    Remove-Item -LiteralPath $workInstallRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host 'Assert-CursorKeyedUninstall: ALL PASS'

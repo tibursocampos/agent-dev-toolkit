@@ -1,10 +1,10 @@
 # Portable spawn contract (Forma C + developers)
 
-Canonical contract for **when** and **how** to spawn specialist children across Tier 1 hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
+Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
-**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
+**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human host matrix: `docs/SPAWN.md`.
 
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 
@@ -123,7 +123,7 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
-| `docs/SPAWN.md` | Tier-1 host matrix, product evidence, Antigravity probe |
+| `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping
 

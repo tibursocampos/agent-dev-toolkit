@@ -144,11 +144,11 @@ if ($agentsText -notmatch 'agent-dev-toolkit:managed:begin') {
     Write-Fail -TestName $passName -Reason 'sync must upsert managed AGENTS.md block'
 }
 
-& $validateAgentScript -Agent $agentId -InstallRoot $workInstallRoot -Quiet
+& $validateAgentScript -Agent $agentId -InstallRoot $workInstallRoot -Quiet -SkipCore
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName $passName -Reason ("validate-agent -Agent antigravity -InstallRoot <fixture> failed (exit {0})" -f $validateExit)
+    Write-Fail -TestName $passName -Reason ("validate-agent -Agent antigravity -SkipCore -InstallRoot <fixture> failed (exit {0})" -f $validateExit)
 }
 
 $smokeAfter = Invoke-SmokeValidate -InstallRoot $workInstallRoot
@@ -222,13 +222,6 @@ if (-not $normalizedWorkRoot.StartsWith($normalizedRepoRoot, $comparison)) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $workInstallRoot ('config' + $sep + 'AGENTS.md')))) {
     Write-Fail -TestName $homeGuardName -Reason 'fixture sync must publish AGENTS.md under in-repo work InstallRoot (not home)'
-}
-
-& $validateAgentScript -Agent $agentId -InstallRoot $workInstallRoot -Quiet
-$validateHomeExit = $LASTEXITCODE
-if ($null -eq $validateHomeExit) { $validateHomeExit = 0 }
-if ($validateHomeExit -ne 0) {
-    Write-Fail -TestName $homeGuardName -Reason ("validate-agent fixture run failed during home-guard check (exit {0})" -f $validateHomeExit)
 }
 
 $sentinelExistsAfter = Test-Path -LiteralPath $userGeminiSentinel

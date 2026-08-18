@@ -4,7 +4,7 @@ Os adaptadores publicam o **core** compartilhado (skills, policy, router e hooks
 
 Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcleo e dos adaptadores: [Arquitetura](../architecture/). Depois do sync: [Usando skills](../using-skills/).
 
-## Agentes Tier-1
+## Agentes suportados
 
 | id | Nome de exibição |
 |----|------------------|
@@ -16,24 +16,37 @@ Para o fluxo do produto, comece em [Começar](../get-started/). Visão do núcle
 | `opencode` | OpenCode |
 | `grok` | Grok Build |
 | `zcode` | ZCode |
+| `hermes` | Hermes |
+| `openhands` | OpenHands |
 
-Os oito têm módulos concretos com publicação e teste smoke no repositório.
+Conjunto fechado implementado: estes 10 ids. Cada um tem módulo concreto com publicação e teste smoke no repositório.
 
 ## Nota Codex
 
 O Codex é **dual-root**: skills do plugin em `InstallRoot/plugin` (`rules=true` Publish-Policy → `InstallRoot/rules`); pai de produto/AGENTS/hooks é o InstallRoot (live `~/.codex`). Sync padrão é **somente plugin**; `-UserScope` opcional espelha skills para fixture `InstallRoot/.agents/skills` ou live `~/.agents/skills` (exige `-AllowUserHome`). Contrato completo: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) · guia: [Usando skills](../using-skills/).
 
+## Nota Hermes
+
+O InstallRoot live é `~/.hermes`. Skills e `AGENTS.md` ficam **direto** nessa raiz (`~/.hermes/skills`, não `~/.hermes/.hermes/skills`). Policy é dobrada em `AGENTS.md` (sem árvore `rules/`). Hooks não são publicados. Invoque skills com `/id` (cada skill instalada vira comando slash).
+
+## Nota OpenHands
+
+O InstallRoot de **projeto** é a raiz do repo: skills em `.agents/skills/`, roster em `.agents/agents/`, `AGENTS.md` dobrado, hooks shell em `.openhands/`, metadados de plugin em `.plugin/plugin.json`. **Skills do usuário live** usam `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` para skills em `~/.agents/skills`. Canvas **não** é spawn de subagente (`subagents=none`; fallback SPAWN no pai).
+
 ## Como o sync funciona
 
-1. Resolve `-Agent <id>` em [`adapters/registry.json`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/registry.json).
-2. Carrega o módulo do adaptador (`Publish-*`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`, …).
-3. O `InstallRoot` padrão é uma fixture in-repo; caminhos reais sob USERPROFILE exigem `-AllowUserHome` explícito.
+1. Prefira o `scripts/toolkit.ps1` interativo (Smart Manager).
+2. Resolve `-Agent <id>` em [`adapters/registry.json`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/registry.json).
+3. Carrega o módulo do adaptador (`Publish-*`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`, …).
+4. O `InstallRoot` padrão é uma fixture in-repo; caminhos reais sob USERPROFILE exigem `-AllowUserHome` explícito.
 
 ```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
-# ou: -Agent cursor | copilot | codex | …
+# ou: -Agent cursor | copilot | hermes | openhands | …
 ```
 
 ## Árvore de origem

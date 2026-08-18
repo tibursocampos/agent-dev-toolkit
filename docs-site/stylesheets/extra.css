@@ -264,11 +264,12 @@ body {
   .home-cta__secondary       Outline secondary (Get started)
   .home-cta__copy            Copy-command shell (layout + success/error)
   .home-cta__note            Muted fixture-first hint (full-width under CTAs)
+  .home-cta__script          Secondary scripting command (full-width; not the copy default)
   .home-cta__status          Live region for copy success/error
   .home-diagram              Dominant SVG diagram region
   .agent-switcher            Switcher root (radiogroup)
   .agent-switcher__label     Visible radiogroup legend
-  .agent-switcher__options    Flat flex-wrap row of all 8 agent chips
+  .agent-switcher__options    Flat flex-wrap row of all agent chips
   .agent-switcher__option    Per-agent radio + label (visible without JS)
   .agent-switcher__badge     Optional compact label on an option (unused on home; keep for future)
   .agent-switcher__hint      Live-root install hint (__note aliases same rules)
@@ -462,7 +463,8 @@ body {
   overflow-x: auto;
 }
 
-.home-cta__note {
+.home-cta__note,
+.home-cta__script {
   font-family: var(--font-body);
   font-size: 0.875rem;
   line-height: 1.5;
@@ -472,9 +474,26 @@ body {
 }
 
 .home-cta__note,
+.home-cta__script,
 .home-cta__status {
   flex-basis: 100%;
   width: 100%;
+}
+
+.home-cta__script code,
+.home-cta__script [data-sync-script-command] {
+  font-family: var(--font-code);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid color-mix(in oklch, var(--accent-dim) 50%, transparent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: middle;
 }
 
 .home-cta__status {
@@ -541,7 +560,7 @@ body {
   height: auto;
 }
 
-/* Agent switcher — readable without JS; flat 8-chip radiogroup with flex wrap */
+/* Agent switcher — readable without JS; flat radiogroup of all agent chips with flex wrap */
 .agent-switcher {
   display: flex;
   flex-direction: column;

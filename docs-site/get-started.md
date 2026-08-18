@@ -8,7 +8,7 @@ Clone the toolkit, validate the repo, sync an agent, then invoke a skill in an *
 |-------------|--------|
 | **PowerShell** | Windows: 5.1+ or pwsh 7+. macOS/Linux: pwsh 7+ |
 | **Git** | Clone / update this repo |
-| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE (agent filesystem host) |
+| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands (agent filesystem host) |
 
 ## 1. Clone
 
@@ -93,6 +93,8 @@ Mode `repo` InstallRoot is usually the application project's `.github` folder, s
 | `opencode` | `$env:USERPROFILE\.config\opencode` |
 | `grok` | `$env:USERPROFILE\.grok` |
 | `zcode` | `$env:USERPROFILE\.zcode` |
+| `hermes` | `$env:USERPROFILE\.hermes` |
+| `openhands` | Project repo root (skills at `.agents/skills`); live user `$env:USERPROFILE\.agents` (skills at `skills/`) |
 
 Always add `-AllowUserHome` when InstallRoot resolves under the user profile. Layout details: [Adapters](../adapters/).
 
@@ -112,6 +114,8 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + seed `manifest.json` sch
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + merged `settings.json` |
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
 | Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` (dual-root — not one shared TOOLKIT_ROOT for skills+rules) |
+| Hermes | `skills/`, `AGENTS.md` (no `rules/` tree; hooks not published) |
+| OpenHands | Project: `.agents/skills/`, `.agents/agents/`, `AGENTS.md`, `.openhands/hooks`, `.plugin/plugin.json`. Live user skills: `~/.agents/skills` |
 | Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
 
 **SDD storage (first Classic write):** skills ask **repository** vs **global** when the project is not yet in the manifest.

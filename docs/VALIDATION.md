@@ -8,7 +8,7 @@ How to run the in-repo test suite and agent smokes. **None of these steps requir
 |----------|----------------------|-------------|
 | **Visitor** | Understanding that tests exist; **not** expected to run the suite | None — clone/fork and read [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md) / [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | **Operator** | Syncing skills to an agent home and checking a fixture install | Optional: [Core suite](#core-suite) (`validate-core`); [Per-agent validate](#per-agent-validate) against a fixture `InstallRoot` — **never** `-AllowUserHome` to “make CI pass” |
-| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`). **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](domains/validation-ci.md#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full matrix = `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 8 agent CI smokes |
+| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`). **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](domains/validation-ci.md#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full matrix = `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent CI smokes (Copilot is a suite) |
 
 **Maintainers vs visitors:** Visitors do not need PowerShell validation. Maintainers own the green bar — run **validate-core** on every change that touches contracts, skills, router, or validation scripts; run the relevant **CI smoke** when an adapter or publish path changes. Operators may run the same scripts against fixtures; that does not grant upstream PR rights ([CONTRIBUTING.md](../CONTRIBUTING.md)).
 
@@ -62,6 +62,8 @@ These mirror [`.github/workflows/validate-toolkit.yml`](../.github/workflows/val
 | `Invoke-OpenCodeCiSmoke.ps1` | OpenCode filesystem sync+validate on ephemeral fixture (**not** product runtime) |
 | `Invoke-GrokCiSmoke.ps1` | Grok sync+validate on ephemeral Grok fixture |
 | `Invoke-ZCodeCiSmoke.ps1` | ZCode ADE fixture InstallRoot |
+| `Invoke-HermesCiSmoke.ps1` | Hermes sync+validate on ephemeral Hermes fixture (models `~/.hermes`) |
+| `Invoke-OpenHandsCiSmoke.ps1` | OpenHands filesystem sync+validate on ephemeral project fixture |
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
@@ -72,6 +74,8 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
 pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1
 pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1
 pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1
 ```
 
 ### Manual fixture sync (same idea)
@@ -93,14 +97,14 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode repo -Instal
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode repo -InstallRoot $copilotRepo
 ```
 
-Other fixture roots: `fixtures/codex`, `fixtures/opencode`, `fixtures/grok`, `fixtures/zcode-install-root`, `fixtures/antigravity-install-root`.
+Other fixture roots: `fixtures/codex`, `fixtures/opencode`, `fixtures/grok`, `fixtures/zcode-install-root`, `fixtures/antigravity-install-root`, `fixtures/hermes`, `fixtures/openhands`.
 
 ## What CI runs
 
 Workflow: `.github/workflows/validate-toolkit.yml` on `windows-latest` (checkout only; no secrets; no home sync for green):
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`, `Assert-CursorKeyedUninstall.ps1`, `Assert-ZcodeKeyedUninstall.ps1`
+2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`, `Assert-CursorKeyedUninstall.ps1`, `Assert-ZcodeKeyedUninstall.ps1`, `Assert-HermesKeyedUninstall.ps1`, `Assert-OpenHandsKeyedUninstall.ps1`
 3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
 4. `Invoke-CursorCiSmoke.ps1 -Quiet`
 5. `Invoke-AntigravityCiSmoke.ps1 -Quiet`
@@ -110,6 +114,8 @@ Workflow: `.github/workflows/validate-toolkit.yml` on `windows-latest` (checkout
 9. `Invoke-OpenCodeCiSmoke.ps1 -Quiet` (filesystem fixture smoke — **not** OpenCode product runtime)
 10. `Invoke-GrokCiSmoke.ps1 -Quiet`
 11. `Invoke-ZCodeCiSmoke.ps1 -Quiet`
+12. `Invoke-HermesCiSmoke.ps1 -Quiet`
+13. `Invoke-OpenHandsCiSmoke.ps1 -Quiet`
 
 ## Safety rules
 

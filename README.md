@@ -1,6 +1,6 @@
 ﻿# Agent Dev Toolkit
 
-Unified multi-agent skills **core** with per-agent **adapters**. Sync the same SDD workflows, stack skills, and policy into Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, and ZCode ADE.
+Unified multi-agent skills **core** with per-agent **adapters**. Sync the same SDD workflows, stack skills, and policy into Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, and OpenHands.
 
 **Public** — clone and fork freely; **no upstream contributions**; GitHub Issues are **bugs only** (see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/REPO_GOVERNANCE.md](docs/REPO_GOVERNANCE.md)). Security: [SECURITY.md](SECURITY.md).
 
@@ -80,7 +80,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/README.md](docs/README.md) | Documentation index / TOC |
 | [docs/overview.md](docs/overview.md) | Architecture overview (RAG-friendly) |
 | [docs/INSTALL.md](docs/INSTALL.md) | Clone, sync, live home, uninstall |
-| [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 8 agent smokes |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
 | [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
 | [docs/guides/07-caveman-mode.md](docs/guides/07-caveman-mode.md) | Caveman default OFF, commands, levels |
@@ -96,7 +96,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | Domain | Content |
 |--------|---------|
 | [docs/domains/core.md](docs/domains/core.md) | Skills, policy, router, SDD |
-| [docs/domains/adapters.md](docs/domains/adapters.md) | Registry + Tier 1 adapters |
+| [docs/domains/adapters.md](docs/domains/adapters.md) | Registry + adapters |
 | [docs/domains/cli-scripts.md](docs/domains/cli-scripts.md) | toolkit / sync / validate |
 | [docs/domains/validation-ci.md](docs/domains/validation-ci.md) | Fixtures and CI workflow |
 
@@ -119,9 +119,9 @@ agent-dev-toolkit/
 
 - Default `InstallRoot` is an **in-repo fixture** — CI never writes under `%USERPROFILE%`.
 - Live agent home requires **`-AllowUserHome`**.
-- Uninstall is **keyed** (toolkit artifacts only) for all Tier-1 agents — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
+- Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-CI runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, plus all eight agent CI smokes on push/PR to `develop` / `master` / `main` (see `.github/workflows/validate-toolkit.yml`). Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
+CI runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, plus all ten agent CI smokes on push/PR to `develop` / `master` / `main` (see `.github/workflows/validate-toolkit.yml`). Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
 
 ## License
 

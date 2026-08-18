@@ -1,12 +1,10 @@
 {
   "schemaVersion": 1,
-  "tier": 1,
   "contractModule": "_contract/AdapterContract.ps1",
   "agents": [
     {
       "id": "cursor",
       "displayName": "Cursor",
-      "tier": 1,
       "module": "cursor/CursorAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -24,7 +22,6 @@
     {
       "id": "antigravity",
       "displayName": "Antigravity",
-      "tier": 1,
       "module": "antigravity/AntigravityAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -42,7 +39,6 @@
     {
       "id": "claude",
       "displayName": "Claude Code",
-      "tier": 1,
       "module": "claude/ClaudeAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -60,7 +56,6 @@
     {
       "id": "codex",
       "displayName": "Codex",
-      "tier": 1,
       "module": "codex/CodexAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -78,7 +73,6 @@
     {
       "id": "copilot",
       "displayName": "GitHub Copilot",
-      "tier": 1,
       "module": "copilot/CopilotAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -96,7 +90,6 @@
     {
       "id": "opencode",
       "displayName": "OpenCode",
-      "tier": 1,
       "module": "opencode/OpenCodeAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -114,7 +107,6 @@
     {
       "id": "grok",
       "displayName": "Grok Build",
-      "tier": 1,
       "module": "grok/GrokAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -132,7 +124,6 @@
     {
       "id": "zcode",
       "displayName": "ZCode",
-      "tier": 1,
       "module": "zcode/ZCodeAdapter.ps1",
       "capabilities": {
         "skills": true,
@@ -142,6 +133,40 @@
         "plugin": false,
         "agents": true,
         "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
+      }
+    },
+    {
+      "id": "hermes",
+      "displayName": "Hermes",
+      "module": "hermes/HermesAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": false,
+        "router": true,
+        "plugin": false,
+        "agents": false,
+        "subagents": "native"
+      },
+      "publishSurface": {
+        "wholeFileRouter": ["AGENTS.md"]
+      }
+    },
+    {
+      "id": "openhands",
+      "displayName": "OpenHands",
+      "module": "openhands/OpenHandsAdapter.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "plugin": true,
+        "agents": true,
+        "subagents": "none"
       },
       "publishSurface": {
         "wholeFileRouter": ["AGENTS.md"]

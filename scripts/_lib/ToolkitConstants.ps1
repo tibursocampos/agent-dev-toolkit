@@ -12,6 +12,8 @@ $script:ToolkitConstant = @{
     UserScopeParameterName         = 'UserScope'
     WhatIfParameterName            = 'WhatIf'
     CodexAgentId                   = 'codex'
+    HermesAgentId                  = 'hermes'
+    OpenHandsAgentId               = 'openhands'
     UserProfileEnvironmentName     = 'USERPROFILE'
     CoreSkillsDirectoryName        = 'core'
     SkillsDirectoryName            = 'skills'
@@ -60,7 +62,7 @@ $script:ToolkitConstant = @{
     AssertCanonicalCloneUrlScriptName = 'Assert-CanonicalCloneUrl.ps1'
     CanonicalCloneUrlCheckName     = 'canonical-clone-url'
     AssertTier1AdapterReadmesScriptName = 'Assert-Tier1AdapterReadmes.ps1'
-    Tier1AdapterReadmesCheckName   = 'tier1-adapter-readmes'
+    Tier1AdapterReadmesCheckName   = 'adapter-readmes'
     AssertSyncAllowUserHomeForwardScriptName = 'Assert-SyncAllowUserHomeForward.ps1'
     SyncAllowUserHomeForwardCheckName = 'sync-allow-user-home-forward'
     AssertCiWorkflowScriptName         = 'Assert-CiWorkflow.ps1'
@@ -87,7 +89,9 @@ $script:ToolkitConstant = @{
         @{ CheckName = 'antigravity-keyed-uninstall'; ScriptName = 'Assert-AntigravityKeyedUninstall.ps1' },
         @{ CheckName = 'grok-keyed-uninstall'; ScriptName = 'Assert-GrokKeyedUninstall.ps1' },
         @{ CheckName = 'cursor-keyed-uninstall'; ScriptName = 'Assert-CursorKeyedUninstall.ps1' },
-        @{ CheckName = 'zcode-keyed-uninstall'; ScriptName = 'Assert-ZcodeKeyedUninstall.ps1' }
+        @{ CheckName = 'zcode-keyed-uninstall'; ScriptName = 'Assert-ZcodeKeyedUninstall.ps1' },
+        @{ CheckName = 'hermes-keyed-uninstall'; ScriptName = 'Assert-HermesKeyedUninstall.ps1' },
+        @{ CheckName = 'openhands-keyed-uninstall'; ScriptName = 'Assert-OpenHandsKeyedUninstall.ps1' }
     )
     AllowUserHomeProbeNamePrefix       = '.agent-dev-toolkit-allowuserhome-probe-'
     RelativeParentPathSegment          = '..'
@@ -180,7 +184,8 @@ $script:ToolkitConstant = @{
     ToolkitChoiceNoShort           = 'no'
     ToolkitMainMenuChoices         = @('0', '1', '2', '3', '4', '5', '6', '7')
     ToolkitTargetMenuChoices       = @('0', '1', '2', '3')
-    ToolkitLabMenuChoices          = @('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    ToolkitLabMenuChoices          = @('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
+    ExpectedCiSmokeScriptCount     = 10
     ToolkitHelpMenuChoices         = @('0', '1', '2', '3')
     ToolkitCopilotModeMenuChoices  = @('0', '1', '2')
     ToolkitConfirmRunChoices       = @('0', 'y', 'n', 'yes', 'no')
@@ -194,7 +199,9 @@ $script:ToolkitConstant = @{
         @{ Id = '5'; Label = 'Copilot CI smoke suite'; RelativePath = 'scripts/validation/Invoke-CopilotCiSmokeSuite.ps1' },
         @{ Id = '6'; Label = 'OpenCode CI smoke'; RelativePath = 'scripts/validation/Invoke-OpenCodeCiSmoke.ps1' },
         @{ Id = '7'; Label = 'Grok CI smoke'; RelativePath = 'scripts/validation/Invoke-GrokCiSmoke.ps1' },
-        @{ Id = '8'; Label = 'ZCode CI smoke'; RelativePath = 'scripts/validation/Invoke-ZCodeCiSmoke.ps1' }
+        @{ Id = '8'; Label = 'ZCode CI smoke'; RelativePath = 'scripts/validation/Invoke-ZCodeCiSmoke.ps1' },
+        @{ Id = '9'; Label = 'Hermes CI smoke'; RelativePath = 'scripts/validation/Invoke-HermesCiSmoke.ps1' },
+        @{ Id = '10'; Label = 'OpenHands CI smoke'; RelativePath = 'scripts/validation/Invoke-OpenHandsCiSmoke.ps1' }
     )
 }
 
@@ -413,7 +420,7 @@ Validate agent:
 Validate core:
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
-Uninstall (fixture; all Tier-1 agents; preserves SDD sessions/manifest):
+Uninstall (fixture; all registry agents; preserves SDD sessions/manifest):
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 
 Copilot requires -Mode user|repo.

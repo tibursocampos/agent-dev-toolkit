@@ -198,11 +198,11 @@ if (-not (Test-Path -LiteralPath $marketplacePath)) {
     Write-Fail -TestName $removeTest -Reason 'expected marketplace.json after sync'
 }
 
-$validateLines = @(& $validateAgentScript -Agent codex -Quiet *>&1 | ForEach-Object { "$_" })
+$validateLines = @(& $validateAgentScript -Agent codex -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
-    Write-Fail -TestName $removeTest -Reason ("validate-agent -Agent codex failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
+    Write-Fail -TestName $removeTest -Reason ("validate-agent -Agent codex -SkipCore failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
 }
 
 $uninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot

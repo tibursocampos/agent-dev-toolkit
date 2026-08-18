@@ -1,12 +1,12 @@
 ﻿#Requires -Version 5.1
 # Tests:
-#   Should_ListTier1Agents_When_RegistryLoaded
+#   Should_ListRegistryAgents_When_RegistryLoaded
 #   Should_ExposeRequiredAdapterCommands_When_ContractDotSourced
-#   Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachTier1Loaded
+#   Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded
 #   Should_DocumentPublishAndSmokeApis_When_AdaptersDocRead
 #   Should_ExposeSubagentsCapability_When_RegistryLoaded
-#   Should_MatchModuleSubagents_When_EachTier1Loaded
-#   Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded
+#   Should_MatchModuleSubagents_When_EachAdapterLoaded
+#   Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded
 #   Should_DeclarePublishSurface_When_RegistryLoaded
 #   Should_IncludeSubagentsInContractCapabilityNames
 $ErrorActionPreference = 'Stop'
@@ -46,7 +46,7 @@ $registryPath = Join-Path $repoRoot 'adapters\registry.json'
 $contractPath = Join-Path $repoRoot 'adapters\_contract\AdapterContract.ps1'
 $adaptersDocPath = Join-Path $repoRoot 'docs\ADAPTERS.md'
 
-$expectedTier1Ids = @(
+$expectedRegistryAgentIds = @(
     'cursor',
     'antigravity',
     'claude',
@@ -54,12 +54,14 @@ $expectedTier1Ids = @(
     'copilot',
     'opencode',
     'grok',
-    'zcode'
+    'zcode',
+    $script:ToolkitConstant.HermesAgentId,
+    $script:ToolkitConstant.OpenHandsAgentId
 )
 
-$subagentsCapabilityName = 'subagents'
-$subagentsNativeValue = 'native'
-$subagentsNoneValue = 'none'
+$subagentsCapabilityName = $script:ToolkitConstant.SubagentsCapabilityName
+$subagentsNativeValue = $script:ToolkitConstant.SubagentsNativeValue
+$subagentsNoneValue = $script:ToolkitConstant.SubagentsNoneValue
 $expectedSubagentsByAgentId = @{
     cursor      = $subagentsNativeValue
     claude      = $subagentsNativeValue
@@ -69,6 +71,8 @@ $expectedSubagentsByAgentId = @{
     opencode    = $subagentsNativeValue
     grok        = $subagentsNativeValue
     zcode       = $subagentsNativeValue
+    hermes      = $subagentsNativeValue
+    openhands   = $subagentsNoneValue
 }
 
 $requiredCommands = @(
@@ -110,22 +114,22 @@ foreach ($required in @($registryPath, $contractPath, $adaptersDocPath)) {
     }
 }
 
-# --- Should_ListTier1Agents_When_RegistryLoaded ---
-$listName = 'Should_ListTier1Agents_When_RegistryLoaded'
+# --- Should_ListRegistryAgents_When_RegistryLoaded ---
+$listName = 'Should_ListRegistryAgents_When_RegistryLoaded'
 $registry = Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json
 if ($null -eq $registry.agents) {
     Write-Fail -TestName $listName -Reason 'registry.agents is missing'
 }
 
 $ids = @($registry.agents | ForEach-Object { $_.id })
-foreach ($expectedId in $expectedTier1Ids) {
+foreach ($expectedId in $expectedRegistryAgentIds) {
     if ($ids -notcontains $expectedId) {
-        Write-Fail -TestName $listName -Reason ("missing Tier 1 id: {0}" -f $expectedId)
+        Write-Fail -TestName $listName -Reason ("missing registry id: {0}" -f $expectedId)
     }
 }
 
-if ($ids.Count -ne $expectedTier1Ids.Count) {
-    Write-Fail -TestName $listName -Reason ("expected {0} agents, got {1}" -f $expectedTier1Ids.Count, $ids.Count)
+if ($ids.Count -ne $expectedRegistryAgentIds.Count) {
+    Write-Fail -TestName $listName -Reason ("expected {0} agents, got {1}" -f $expectedRegistryAgentIds.Count, $ids.Count)
 }
 
 foreach ($agent in $registry.agents) {
@@ -170,10 +174,10 @@ foreach ($agent in $registry.agents) {
 
 Write-Pass -TestName $subagentsRegistryName
 
-# --- Should_MatchModuleSubagents_When_EachTier1Loaded ---
+# --- Should_MatchModuleSubagents_When_EachAdapterLoaded ---
 # Isolated child process per module (avoids Get-Capabilities name collisions).
 # Antigravity: ADT_ANTIGRAVITY_SUBAGENTS=native so declared registry value is comparable in CI without agy.
-$moduleSubagentsName = 'Should_MatchModuleSubagents_When_EachTier1Loaded'
+$moduleSubagentsName = 'Should_MatchModuleSubagents_When_EachAdapterLoaded'
 $antigravityOverrideEnvName = 'ADT_ANTIGRAVITY_SUBAGENTS'
 $childProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-subagents-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
 $childProbeBody = @'
@@ -238,12 +242,12 @@ finally {
 
 Write-Pass -TestName $moduleSubagentsName
 
-# --- Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded ---
+# --- Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded ---
 # Isolated child process per module reconciles every boolean capability flag
 # (skills, rules, hooks, router, plugin, agents) between registry.json and the
 # module's own Get-Capabilities output. subagents is a native/none enum and is
 # already reconciled above; it is intentionally excluded here.
-$moduleCapabilitiesName = 'Should_MatchModuleBooleanCapabilities_When_EachTier1Loaded'
+$moduleCapabilitiesName = 'Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded'
 $booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'plugin', 'agents')
 $capabilitiesProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-capabilities-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
 $capabilitiesProbeBody = @'
@@ -322,8 +326,8 @@ Write-Pass -TestName $moduleCapabilitiesName
 
 # --- Should_DeclarePublishSurface_When_RegistryLoaded ---
 $publishSurfaceName = 'Should_DeclarePublishSurface_When_RegistryLoaded'
-$publishSurfaceProperty = 'publishSurface'
-$wholeFileRouterProperty = 'wholeFileRouter'
+$publishSurfaceProperty = $script:ToolkitConstant.RegistryPublishSurfacePropertyName
+$wholeFileRouterProperty = $script:ToolkitConstant.RegistryPublishSurfaceWholeFileRouterPropertyName
 $expectedWholeFileRouterByAgentId = @{
     cursor      = @('AGENTS.md')
     antigravity = @()
@@ -333,6 +337,8 @@ $expectedWholeFileRouterByAgentId = @{
     opencode    = @('AGENTS.md')
     grok        = @('AGENTS.md')
     zcode       = @('AGENTS.md')
+    hermes      = @('AGENTS.md')
+    openhands   = @('AGENTS.md')
 }
 
 foreach ($agent in $registry.agents) {
@@ -382,10 +388,10 @@ foreach ($agent in $registry.agents) {
 
 Write-Pass -TestName $publishSurfaceName
 
-# --- Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachTier1Loaded ---
+# --- Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded ---
 # toolkit.ps1 may splat -AllowUserHome / -WhatIf into Uninstall-Toolkit; every
-# Tier-1 module must bind those switches (stubs may accept and ignore).
-$uninstallParamsName = 'Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachTier1Loaded'
+# registry module must bind those switches (stubs may accept and ignore).
+$uninstallParamsName = 'Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded'
 $requiredUninstallParameterNames = @('AllowUserHome', 'WhatIf')
 $uninstallProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-uninstall-params-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
 $uninstallProbeBody = @'

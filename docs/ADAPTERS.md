@@ -22,12 +22,11 @@ File: `adapters/registry.json`
 |-------|---------|
 | `id` | CLI / `-Agent` id (kebab-safe token) |
 | `displayName` | Human label |
-| `tier` | `1` for MVP agents |
 | `module` | Path relative to `adapters/` (dot-source target) |
 | `capabilities` | Capability map: boolean publish flags (`skills`, `rules`, `hooks`, `router`, `plugin`, `agents`) + string `subagents` enum (`native` \| `none`) |
 | `publishSurface` | Optional whole-file router targets the adapter may publish (`wholeFileRouter`: relative paths under InstallRoot). Antigravity uses managed markdown blocks (`[]`); Copilot folds router into `copilot-instructions.md` via `Publish-Policy` (`[]`). Sync records sha256 in InstallRoot `.toolkit-managed-publish.json`; uninstall removes whole-file routers only when inventory hash matches. |
 
-### Tier 1 agents
+### Registered agents
 
 | id | displayName |
 |----|-------------|
@@ -39,8 +38,10 @@ File: `adapters/registry.json`
 | `opencode` | OpenCode |
 | `grok` | Grok Build |
 | `zcode` | ZCode |
+| `hermes` | Hermes |
+| `openhands` | OpenHands |
 
-All Tier 1 agents have concrete modules with publish + in-repo smoke. See the per-agent sections below.
+Every listed agent has a concrete module with publish + in-repo smoke. See the per-agent sections below.
 
 ## Official install roots (contract)
 
@@ -56,6 +57,8 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
 | `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
 | `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | `$id` (e.g. `$help-skills`) | ADE filesystem — not GLM Coding Plan |
+| `hermes` | `~/.hermes` | `skills/`, `AGENTS.md` (folded policy; no `rules/`); seed `MEMORY.md` if missing | `/id` (e.g. `/help-skills`) | Never `SOUL.md`; hooks/plugin/agents false; `delegate_task` |
+| `openhands` | Project tree; user skills `~/.agents` | Project: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/` hooks, `.plugin/plugin.json` | Agent Skills (product discovery; mention skill id) | Not microagents. User skills: `-InstallRoot ~/.agents -AllowUserHome`. `subagents=none` |
 
 Primary audit source for adapter paths: this table + each agent section below + `adapters/<id>/README.md`.
 
@@ -71,9 +74,9 @@ Flags on each registry entry and on `Get-Capabilities` output:
 | `router` | Can publish router material from `core/router/` |
 | `plugin` | Agent uses a plugin/extension packaging surface |
 | `agents` | Can publish roster custom subagent markdown from `core/agents/` into the host `agents/` directory |
-| `subagents` | String enum `native` \| `none` — host Task/equivalent for SPAWN (`core/skills/_shared/agents/SPAWN.md`). **Not** boolean. Stub/`Get-Capabilities` defaults must never mint `native`. Per-adapter evidence and host spawn mechanism: each `adapters/<id>/README.md` (**Spawn / subagents**). Tier-1 matrix: [SPAWN.md](SPAWN.md). |
+| `subagents` | String enum `native` \| `none` — host Task/equivalent for SPAWN (`core/skills/_shared/agents/SPAWN.md`). **Not** boolean. Stub/`Get-Capabilities` defaults must never mint `native`. Per-adapter evidence and host spawn mechanism: each `adapters/<id>/README.md` (**Spawn / subagents**). Matrix: [SPAWN.md](SPAWN.md). |
 
-Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupported ones):
+Honesty matrix (**registry** publish surfaces — do not claim unsupported ones):
 
 | Agent | skills | rules | hooks | router | plugin | agents | Notes |
 |-------|--------|-------|-------|--------|--------|--------|-------|
@@ -85,8 +88,11 @@ Honesty matrix (Tier 1 **registry** publish surfaces — do not claim unsupporte
 | `opencode` | true | false | true | true | true | false | `HooksSemantics=plugin-only` (JS plugins, not PS1); `Publish-Agents` no-op |
 | `grok` | true | true | true | true | false | false | Native under `~/.grok` InstallRoot; no documented agents dir; `Publish-Agents` no-op |
 | `zcode` | true | false | true | true | false | true | `Publish-Policy` no-op; `Publish-Agents` → `InstallRoot/agents/` |
+| `hermes` | true | true | false | true | false | false | Native under `~/.hermes`; policy folded into `AGENTS.md` (no `rules/`); `Publish-Hooks` / `Publish-Agents` no-op; MEMORY.md seed-if-missing; never SOUL.md |
+| `openhands` | true | true | true | true | true | true | Project tree; policy folded into `AGENTS.md`; shell hooks under `.openhands/`; `Publish-Agents` → `.agents/agents/` (roster, not native spawn); not microagents |
 
-All eight agents declare `subagents: native` (host product docs), including **Antigravity**. **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` probe (`ADT_ANTIGRAVITY_SUBAGENTS` / `agy` / product version) — pré-2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
+Most adapters declare `subagents: native` (host product docs), including **Antigravity**. **OpenHands** declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` probe (`ADT_ANTIGRAVITY_SUBAGENTS` / `agy` / product version) — pré-2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
+
 ## Cursor (`cursor`) — publish + smoke
 
 | Item | Value |
@@ -452,7 +458,7 @@ Default smoke never writes under `%USERPROFILE%\.zcode` unless `-AllowUserHome` 
 
 ### Not GLM Coding Plan (CA5 / RN04)
 
-**GLM Coding Plan** (Z.ai endpoint / Base URL / MCP only — skills stay on the host) is **not** this adapter and remains **Tier 3 / out of scope**. Do not use agent id `zcode` for endpoint-only GLM setup.
+**GLM Coding Plan** (Z.ai endpoint / Base URL / MCP only — skills stay on the host) is **not** this adapter and remains **out of scope**. Do not use agent id `zcode` for endpoint-only GLM setup.
 
 This module covers **ZCode (Z.ai ADE)** filesystem surfaces only: skills, `AGENTS.md`, and hooks/config under `.zcode`. Use the ZCode ADE adapter here, or the host agent’s own adapter, when you need skill/hooks publish — not GLM Coding Plan.
 
@@ -506,9 +512,146 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent grok -InstallRoot $gro
 
 Module notes: `adapters/grok/README.md`.
 
+## Hermes (`hermes`) — native `~/.hermes`
+
+| Item | Value |
+|------|-------|
+| Agent id | `hermes` |
+| Module | `adapters/hermes/HermesAdapter.ps1` |
+| Official user root | `~/.hermes` (relative `.hermes` under USERPROFILE) — **InstallRoot is this directory** |
+| Expected live skills | `~/.hermes/skills` (product path; not `~/.hermes/.hermes/skills`) |
+| Official docs | [Skills](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills), [Creating skills](https://hermes-agent.nousresearch.com/docs/developer-guide/creating-skills), [Subagent delegation (`delegate_task`)](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation), [Context files](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) |
+| Fixture | `scripts/validation/fixtures/hermes` (models `~/.hermes`; pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
+| Capabilities | `skills` / `rules` / `router` = true; `hooks` / `plugin` / `agents` = false; `subagents` = `native` |
+| Native layout | `skills/<id>/SKILL.md` + `AGENTS.md` under InstallRoot |
+| Router + policy | Combined `AGENTS.md` (folded `core/policy`; **no** `rules/` directory) |
+| Skill invoke | `/id` (e.g. `/help-skills`) |
+| `MEMORY.md` | Seeded once if missing; never overwritten |
+| `SOUL.md` | **Never** created or overwritten |
+
+### Native write vs nested home (RN02)
+
+Publish lands at `skills/` and `AGENTS.md` **directly under** InstallRoot. Do **not** publish relative `.hermes/skills` when InstallRoot is already `~/.hermes` (that yields `~/.hermes/.hermes/skills`). `Publish-Policy` folds `core/policy` into `AGENTS.md` — it does **not** write a `rules/` tree or `.mdc`. `Publish-Hooks` and `Publish-Agents` are documented no-ops.
+
+Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** and **`GUARDRAILS_PATH` = InstallRoot/AGENTS.md**. Re-sync overwrites managed files; alien files under InstallRoot are left alone.
+
+### MEMORY.md seed
+
+On publish, if `MEMORY.md` is absent at InstallRoot, the adapter writes a short seed file. If `MEMORY.md` already exists, it is left untouched.
+
+### Project skills trust
+
+User-home `~/.hermes/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). The adapter never writes `config.yaml` or gateway tokens.
+
+### Publish + smoke (filesystem only)
+
+| Command | Behavior |
+|---------|----------|
+| `Publish-Skills` | Copies `core/skills` → `skills/` under InstallRoot with placeholder resolve; MEMORY.md seed-if-missing; best-effort `hermes skills trust` |
+| `Publish-Policy` | Folds `core/policy` into `AGENTS.md` (no `rules/` directory) |
+| `Publish-Router` | Writes `AGENTS.md` (combined with folded policy); rewrites `.mdc` → `.md` and `rules/` pointers to this file |
+| `Publish-Agents` | Documented **no-op** (`agents=false`; no `agents/*.md` roster) |
+| `Publish-Hooks` | Documented **no-op** (`hooks=false`; no Cursor `hooks.json`; no Hermes `config.yaml` hooks) |
+| `Invoke-SmokeValidate` | Native-layout filesystem assert; missing `hermes` CLI is not a CI failure |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (core skill ids and toolkit-owned `AGENTS.md`). Preserves alien skills, `config.yaml`, `MEMORY.md`, `SOUL.md`, `sdd/sessions`, `sdd/manifest.json`. Never deletes gateway tokens |
+| `validate-agent -Agent hermes` | Core validate + adapter smoke against fixture InstallRoot |
+
+### Out of scope (do not emit)
+
+Gateway / platform tokens / `config.yaml` secrets; `cron/jobs.json`; Kanban, voice, Curator, Profiles; `inline_shell`; Python `plugin.yaml`; `delegation.*` YAML. Do **not** invent gateway or sandbox features.
+
+```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1
+# scripting:
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent hermes
+$hermesFixture = Join-Path $PWD 'scripts\validation\fixtures\hermes'
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot $hermesFixture
+pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent hermes -InstallRoot $hermesFixture
+# CI / local harness (ephemeral work root; keeps versioned seed intact):
+pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1
+```
+
+Live home (`~/.hermes/skills`, not `~/.hermes/.hermes/skills`):
+
+```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent hermes `
+  -InstallRoot "$env:USERPROFILE\.hermes" -AllowUserHome
+```
+
+Module notes: `adapters/hermes/README.md`.
+
+## OpenHands (`openhands`) — project tree + optional user skills
+
+| Item | Value |
+|------|-------|
+| Agent id | `openhands` |
+| Module | `adapters/openhands/OpenHandsAdapter.ps1` |
+| Project InstallRoot | Repository tree: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/`, `.plugin/` |
+| Live user skills | `~/.agents/skills` via `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` (skills at `skills/` — not `~/.agents/.agents/skills`) |
+| Official docs | [Skills overview](https://docs.openhands.dev/overview/skills), [Creating skills](https://docs.openhands.dev/overview/skills/creating), [Repository hooks](https://docs.openhands.dev/openhands/usage/customization/hooks), [Plugins](https://docs.openhands.dev/overview/plugins) |
+| Fixture | `scripts/validation/fixtures/openhands` (project tree; USERPROFILE requires `-AllowUserHome`) |
+| Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` = true; `subagents` = `none` |
+| Skill invoke | Agent Skills (product discovery; mention skill id) — **not** legacy microagents |
+| Hooks | Shell, not `.ps1`: `.openhands/hooks.json` + `.openhands/hooks/*.sh` |
+
+`AGENTS.md`, hooks, and plugin metadata are **project-scoped** (not the user-home tree). Skills still work **without** the plugin. Canvas Profile is **not** the `.agents/agents/` roster.
+
+### Spawn honesty
+
+Registry / `Get-Capabilities` is `none`. OpenHands loop runs until `FinishAction` on the **main** agent. Canvas / ACP is not parent→child spawn (not Cursor Task, not Hermes `delegate_task`). SDK `TaskToolSet` is not the Canvas product. SPAWN fallback **in-parent**. Never claim `native`.
+
+### Publish layout (project InstallRoot)
+
+| Relative path | Source / role |
+|---------------|---------------|
+| `.agents/skills/<id>/SKILL.md` | `Publish-Skills` from `core/skills/` (+ `_shared/`; placeholders resolved) |
+| `AGENTS.md` | Router from `core/router` plus folded `core/policy` (no `rules/` tree) |
+| `.agents/agents/*.md` | `Publish-Agents` from `core/agents/` (SDK/plugin roster — not native spawn) |
+| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | `Publish-Hooks` from adapter asset `session_start.sh` |
+| `.plugin/plugin.json` | Plugin metadata (points at `./.agents/skills/` and `./.openhands/hooks.json`) |
+
+Placeholders resolve with **`TOOLKIT_ROOT` = InstallRoot/.agents`** (parent of `skills/_shared`). `GUARDRAILS_PATH` is `InstallRoot/AGENTS.md`. When InstallRoot is live user home `~/.agents`, `TOOLKIT_ROOT` is that directory and skills publish at `skills/` (no nested `.agents`).
+
+### Publish + smoke (filesystem only)
+
+| Command | Behavior |
+|---------|----------|
+| `Publish-Skills` | Agent Skills under `.agents/skills/` (or `skills/` on live `~/.agents`); `_shared/` copied |
+| `Publish-Policy` | Folds `core/policy` into `AGENTS.md` (no Cursor `.mdc` `rules/` tree) |
+| `Publish-Router` | Writes `AGENTS.md` (combined with folded policy); rewrites `.mdc` → `.md` |
+| `Publish-Agents` | Copies `core/agents/` → `.agents/agents/` (roster; not Canvas Profile) |
+| `Publish-Hooks` | Shell hooks under `.openhands/` (never `.ps1`) |
+| `Invoke-SmokeValidate` | Native-layout filesystem assert on the project fixture |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (core skill ids, toolkit hook JSON/script, `.plugin/plugin.json`, roster agent markdown, owned `AGENTS.md`). Preserves alien skills/hooks/plugin/agents files and `sdd/sessions` / `sdd/manifest.json` |
+| `validate-agent -Agent openhands` | Core validate + adapter smoke against fixture InstallRoot |
+
+### Out of scope (do not emit)
+
+Automation Server config, cron, GitHub webhooks, sandbox YAML, LLM model config, or secrets. Do **not** publish legacy `.openhands/microagents/`.
+
+```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1
+# scripting:
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent openhands
+$openhandsFixture = Join-Path $PWD 'scripts\validation\fixtures\openhands'
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent openhands -InstallRoot $openhandsFixture
+pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent openhands -InstallRoot $openhandsFixture
+# CI / local harness (ephemeral work root; keeps versioned seed intact):
+pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1
+```
+
+Live user skills home:
+
+```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent openhands `
+  -InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome
+```
+
+Module notes: `adapters/openhands/README.md`.
+
 ## Public commands (contract)
 
-Module: `adapters/_contract/AdapterContract.ps1` (shared stub). Concrete modules: `adapters/cursor/CursorAdapter.ps1`, `adapters/antigravity/AntigravityAdapter.ps1`, `adapters/claude/ClaudeAdapter.ps1`, `adapters/codex/CodexAdapter.ps1`, `adapters/copilot/CopilotAdapter.ps1`, `adapters/opencode/OpenCodeAdapter.ps1`, `adapters/grok/GrokAdapter.ps1`, `adapters/zcode/ZCodeAdapter.ps1`.
+Module: `adapters/_contract/AdapterContract.ps1` (shared stub). Concrete modules: `adapters/cursor/CursorAdapter.ps1`, `adapters/antigravity/AntigravityAdapter.ps1`, `adapters/claude/ClaudeAdapter.ps1`, `adapters/codex/CodexAdapter.ps1`, `adapters/copilot/CopilotAdapter.ps1`, `adapters/opencode/OpenCodeAdapter.ps1`, `adapters/grok/GrokAdapter.ps1`, `adapters/zcode/ZCodeAdapter.ps1`, `adapters/hermes/HermesAdapter.ps1`, `adapters/openhands/OpenHandsAdapter.ps1`.
 
 | Command | Intent | Contract stub (unused modules) |
 |---------|--------|--------------------|
@@ -521,14 +664,14 @@ Module: `adapters/_contract/AdapterContract.ps1` (shared stub). Concrete modules
 | `Publish-Hooks` | Publish hooks into `InstallRoot` | Not-implemented result; **no** filesystem writes |
 | `Get-SddRoot` | Resolve / prepare `<InstallRoot>/sdd` runtime root | Contract stub returns not-implemented; concrete adapters implement; source of truth for contracts remains `core/sdd/` |
 | `Invoke-SmokeValidate` | Smoke against fixture `InstallRoot` | Not-implemented result; must not require live user-profile sync |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts | Contract stub returns not-implemented; all Tier-1 adapters implement keyed uninstall (preserves `sdd/sessions` + `sdd/manifest.json`; **no** InstallRoot wipe) |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts | Contract stub returns not-implemented; all adapters implement keyed uninstall (preserves `sdd/sessions` + `sdd/manifest.json`; **no** InstallRoot wipe) |
 
 Helpers (not part of the publish surface, used by tests/docs):
 
 - `Get-AdapterContractCommandNames`
 - `Get-AdapterCapabilityNames`
 
-### Module READMEs (all eight)
+### Module READMEs
 
 - [adapters/cursor/README.md](../adapters/cursor/README.md)
 - [adapters/antigravity/README.md](../adapters/antigravity/README.md)
@@ -538,6 +681,8 @@ Helpers (not part of the publish surface, used by tests/docs):
 - [adapters/opencode/README.md](../adapters/opencode/README.md)
 - [adapters/grok/README.md](../adapters/grok/README.md)
 - [adapters/zcode/README.md](../adapters/zcode/README.md)
+- [adapters/hermes/README.md](../adapters/hermes/README.md)
+- [adapters/openhands/README.md](../adapters/openhands/README.md)
 
 Spawn / subagents honesty: [SPAWN.md](SPAWN.md) + each README **Spawn / subagents** section.
 
@@ -559,13 +704,13 @@ Stubs **must not** write under `%USERPROFILE%` (or equivalent). Future smoke use
 - Public state file name: `manifest.json` only (RN04 — do not brand the public file with a version suffix).
 - Shared helper for the InstallRoot state layout: `scripts/_lib/Initialize-SddRootLayout.ps1` (`Invoke-ToolkitGetSddRoot`).
 
-### All Tier-1 agents — SDD root
+### All adapters — SDD root
 
 | Item | Value |
 |------|-------|
 | `Get-SddRoot` | Returns `<InstallRoot>/sdd` (`SddRoot`, `SessionsPath`, `ManifestPath`) |
 | `Get-SddRoot -Prepare` | Creates `sdd/sessions/` if missing; seeds minimal `manifest.json` (`schema_version: 2`, empty `repositories`) only when the file is absent — **never overwrites** an existing manifest |
-| Sync | `scripts/sync-agent.ps1` **always** calls `Get-SddRoot -Prepare` after `Publish-*` (every Tier-1 agent) |
+| Sync | `scripts/sync-agent.ps1` **always** calls `Get-SddRoot -Prepare` after `Publish-*` (every registered agent) |
 | Uninstall | Keyed uninstall **must not** remove `sdd/sessions/` or `sdd/manifest.json` |
 | Guard | Prepare writes respect `Resolve-InstallRoot` (`-AllowUserHome` required under USERPROFILE) |
 

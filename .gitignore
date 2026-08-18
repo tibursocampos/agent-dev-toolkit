@@ -110,6 +110,8 @@ scripts/validation/fixtures/claude-sync-uninstall-test-manual/
 scripts/validation/fixtures/claude-sync-uninstall-work/
 scripts/validation/fixtures/cursor-keyed-uninstall-work/
 scripts/validation/fixtures/zcode-keyed-uninstall-work/
+scripts/validation/fixtures/*-keyed-uninstall-work/
+scripts/validation/fixtures/*-strict-probe/
 
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md

@@ -15,13 +15,14 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
 ┌──────────────────────────▼──────────────────────────────┐
 │  adapters/<agent>/  ← registry.json                     │
 │    Cursor · Claude · Codex · Copilot · Antigravity ·    │
-│    OpenCode · Grok · ZCode                              │
+│    OpenCode · Grok · ZCode · Hermes · OpenHands         │
 └──────────────────────────┬──────────────────────────────┘
                            │ InstallRoot (fixture or live install)
 ┌──────────────────────────▼──────────────────────────────┐
-│  Install root: ~/.cursor · ~/.claude · ~/.copilot · …   │
+│  Install root: ~/.cursor · ~/.claude · ~/.hermes · …    │
 │  Codex also: plugin skills + InstallRoot/rules (dual)   │
 │           + optional ~/.agents/skills (UserScope)       │
+│  OpenHands: project .agents/skills · live ~/.agents     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -68,7 +69,7 @@ At runtime, skills prefer host-aware **`effective_SDD_ROOT`** (`<InstallRoot>/sd
 | `scripts/sync-agent.ps1` | Publish core into an agent InstallRoot |
 | `scripts/validate-agent.ps1` | Core suite + one-agent smoke test |
 | `scripts/validation/validate-core.ps1` | Repo contracts only (no install-root write) |
-| `.github/workflows/validate-toolkit.yml` | CI: validate-core, uninstall asserts, eight agent smoke tests |
+| `.github/workflows/validate-toolkit.yml` | CI: validate-core, uninstall asserts, ten agent smoke tests |
 
 Per-agent install trees (Cursor, Claude, Codex, …) live in the full architecture and adapters docs — not duplicated here. See [Adapters](../adapters/).
 
@@ -76,4 +77,4 @@ Per-agent install trees (Cursor, Claude, Codex, …) live in the full architectu
 
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — layers, placeholders, entry points, per-agent install layouts, CI
 - [docs/overview.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/overview.md) — problem statement, operator workflow, design constraints
-- [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, tiers, publish surfaces, InstallRoot tables
+- [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, publish surfaces, InstallRoot tables
