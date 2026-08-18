@@ -35,7 +35,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $codexModulePath = Join-Path $repoRoot 'adapters\codex\CodexAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
+$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
+$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex-keyed-uninstall-work'
+$fixtureInstallRoot = $workInstallRoot
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $pluginSkillsRoot = Join-Path $pluginRoot 'skills'
 $homeSkillsRoot = Join-Path $fixtureInstallRoot 'skills'
@@ -58,11 +60,18 @@ $alienMarketplaceNoteMarker = 'alien-marketplace-keep'
 if (-not (Test-Path -LiteralPath $codexModulePath)) {
     Write-Fail -TestName 'Assert-CodexKeyedUninstallPreconditions' -Reason ("missing Codex module: {0}" -f $codexModulePath)
 }
-if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
-    Write-Fail -TestName 'Assert-CodexKeyedUninstallPreconditions' -Reason ("missing Codex fixture: {0}" -f $fixtureInstallRoot)
+if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
+    Write-Fail -TestName 'Assert-CodexKeyedUninstallPreconditions' -Reason ("missing Codex seed fixture: {0}" -f $seedFixtureRoot)
 }
 
 . $codexModulePath
+
+function Initialize-CodexKeyedUninstallWorkRoot {
+    if (Test-Path -LiteralPath $workInstallRoot) {
+        Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
+    }
+    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+}
 
 function Get-CodexCoreSkillIds {
     $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
@@ -163,6 +172,7 @@ function Assert-CodexToolkitArtifactsAbsent {
 # --- Should_RemoveToolkitArtifacts_When_UninstallCodexFixture (e2e sync -> validate -> uninstall) ---
 $removeTest = 'Should_RemoveToolkitArtifacts_When_UninstallCodexFixture'
 
+Initialize-CodexKeyedUninstallWorkRoot
 Clear-CodexFixturePublishedArtifacts
 
 $syncLines = @(& $syncAgentScript -Agent codex -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
@@ -198,12 +208,37 @@ if (-not (Test-Path -LiteralPath $marketplacePath)) {
     Write-Fail -TestName $removeTest -Reason 'expected marketplace.json after sync'
 }
 
-$validateLines = @(& $validateAgentScript -Agent codex -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
+$validateLines = @(& $validateAgentScript -Agent codex -InstallRoot $fixtureInstallRoot -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
 if ($null -eq $validateExit) { $validateExit = 0 }
 if ($validateExit -ne 0) {
     Write-Fail -TestName $removeTest -Reason ("validate-agent -Agent codex -SkipCore failed (exit {0}): {1}" -f $validateExit, ($validateLines -join [Environment]::NewLine).Trim())
 }
+
+$alienSkillDir = Join-Path $pluginSkillsRoot $alienSkillId
+New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
+Set-Content -LiteralPath (Join-Path $alienSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+$alienHookPath = Join-Path $pluginHooksRoot $alienHookFileName
+if (-not (Test-Path -LiteralPath $pluginHooksRoot)) {
+    New-Item -ItemType Directory -Path $pluginHooksRoot -Force | Out-Null
+}
+Set-Content -LiteralPath $alienHookPath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $alienHookMarker) -Encoding UTF8
+$alienConfigPath = Join-Path $fixtureInstallRoot ($alienConfigRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$alienConfigDir = Split-Path -Parent $alienConfigPath
+New-Item -ItemType Directory -Path $alienConfigDir -Force | Out-Null
+Set-Content -LiteralPath $alienConfigPath -Value ("# {0}`nkeep=true`n" -f $alienConfigMarker) -Encoding UTF8
+$marketplaceDir = Split-Path -Parent $marketplacePath
+if (-not (Test-Path -LiteralPath $marketplaceDir)) {
+    New-Item -ItemType Directory -Path $marketplaceDir -Force | Out-Null
+}
+$alienMarketplaceNotePath = Join-Path $marketplaceDir $alienMarketplaceNoteName
+Set-Content -LiteralPath $alienMarketplaceNotePath -Value ("{0}`n" -f $alienMarketplaceNoteMarker) -Encoding UTF8
+$alienUserSkillDir = Join-Path $userSkillsRoot $alienSkillId
+New-Item -ItemType Directory -Path $alienUserSkillDir -Force | Out-Null
+Set-Content -LiteralPath (Join-Path $alienUserSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+$alienHomeSkillDir = Join-Path $homeSkillsRoot $alienSkillId
+New-Item -ItemType Directory -Path $alienHomeSkillDir -Force | Out-Null
+Set-Content -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
 
 $uninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstall -or $uninstall.Implemented -ne $true -or $uninstall.Success -ne $true) {
@@ -233,52 +268,7 @@ foreach ($dir in @($pluginRoot, $pluginSkillsRoot, $homeSkillsRoot, $pluginHooks
 
 Write-Pass -TestName $removeTest
 
-# --- Should_KeepUnrelatedFiles_When_UninstallCodexFixture ---
 $keepTest = 'Should_KeepUnrelatedFiles_When_UninstallCodexFixture'
-
-Clear-CodexFixturePublishedArtifacts
-
-$alienSkillDir = Join-Path $pluginSkillsRoot $alienSkillId
-New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
-Set-Content -LiteralPath (Join-Path $alienSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
-
-$alienHookPath = Join-Path $pluginHooksRoot $alienHookFileName
-if (-not (Test-Path -LiteralPath $pluginHooksRoot)) {
-    New-Item -ItemType Directory -Path $pluginHooksRoot -Force | Out-Null
-}
-Set-Content -LiteralPath $alienHookPath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $alienHookMarker) -Encoding UTF8
-
-$alienConfigPath = Join-Path $fixtureInstallRoot ($alienConfigRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$alienConfigDir = Split-Path -Parent $alienConfigPath
-New-Item -ItemType Directory -Path $alienConfigDir -Force | Out-Null
-Set-Content -LiteralPath $alienConfigPath -Value ("# {0}`nkeep=true`n" -f $alienConfigMarker) -Encoding UTF8
-
-$marketplaceDir = Split-Path -Parent $marketplacePath
-if (-not (Test-Path -LiteralPath $marketplaceDir)) {
-    New-Item -ItemType Directory -Path $marketplaceDir -Force | Out-Null
-}
-$alienMarketplaceNotePath = Join-Path $marketplaceDir $alienMarketplaceNoteName
-Set-Content -LiteralPath $alienMarketplaceNotePath -Value ("{0}`n" -f $alienMarketplaceNoteMarker) -Encoding UTF8
-
-$alienUserSkillDir = Join-Path $userSkillsRoot $alienSkillId
-New-Item -ItemType Directory -Path $alienUserSkillDir -Force | Out-Null
-Set-Content -LiteralPath (Join-Path $alienUserSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
-
-$alienHomeSkillDir = Join-Path $homeSkillsRoot $alienSkillId
-New-Item -ItemType Directory -Path $alienHomeSkillDir -Force | Out-Null
-Set-Content -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
-
-$syncLines2 = @(& $syncAgentScript -Agent codex -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$syncExit2 = $LASTEXITCODE
-if ($null -eq $syncExit2) { $syncExit2 = 0 }
-if ($syncExit2 -ne 0) {
-    Write-Fail -TestName $keepTest -Reason ("sync-agent failed before keep-unrelated uninstall (exit {0}): {1}" -f $syncExit2, ($syncLines2 -join [Environment]::NewLine).Trim())
-}
-
-$uninstallKeep = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
-if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
-    Write-Fail -TestName $keepTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstallKeep) { 'null' } else { $uninstallKeep.Message }))
-}
 
 if (-not (Test-Path -LiteralPath (Join-Path $alienSkillDir 'SKILL.md'))) {
     Write-Fail -TestName $keepTest -Reason 'alien plugin skill directory must survive keyed uninstall'
@@ -287,7 +277,6 @@ $alienSkillText = [System.IO.File]::ReadAllText((Join-Path $alienSkillDir 'SKILL
 if ($alienSkillText -notmatch [regex]::Escape($alienSkillMarker)) {
     Write-Fail -TestName $keepTest -Reason 'alien plugin skill content must be preserved'
 }
-
 if (-not (Test-Path -LiteralPath $alienHookPath)) {
     Write-Fail -TestName $keepTest -Reason 'alien hook file must survive keyed uninstall'
 }
@@ -295,7 +284,6 @@ $alienHookText = [System.IO.File]::ReadAllText($alienHookPath)
 if ($alienHookText -notmatch [regex]::Escape($alienHookMarker)) {
     Write-Fail -TestName $keepTest -Reason 'alien hook content must be preserved'
 }
-
 if (-not (Test-Path -LiteralPath $alienConfigPath)) {
     Write-Fail -TestName $keepTest -Reason '.codex/config.toml alien path must not be touched (RN07)'
 }
@@ -303,7 +291,6 @@ $alienConfigText = [System.IO.File]::ReadAllText($alienConfigPath)
 if ($alienConfigText -notmatch [regex]::Escape($alienConfigMarker)) {
     Write-Fail -TestName $keepTest -Reason 'alien .codex config content must be preserved'
 }
-
 if (-not (Test-Path -LiteralPath $alienMarketplaceNotePath)) {
     Write-Fail -TestName $keepTest -Reason 'alien marketplace-adjacent file must survive'
 }
@@ -311,18 +298,15 @@ $alienNoteText = [System.IO.File]::ReadAllText($alienMarketplaceNotePath)
 if ($alienNoteText -notmatch [regex]::Escape($alienMarketplaceNoteMarker)) {
     Write-Fail -TestName $keepTest -Reason 'alien marketplace note content must be preserved'
 }
-
 if (-not (Test-Path -LiteralPath (Join-Path $alienUserSkillDir 'SKILL.md'))) {
     Write-Fail -TestName $keepTest -Reason 'alien USER skill must survive keyed uninstall'
 }
-
 if (-not (Test-Path -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md'))) {
     Write-Fail -TestName $keepTest -Reason 'alien home skill ($ discovery) must survive keyed uninstall'
 }
 
 Assert-CodexToolkitArtifactsAbsent -TestName $keepTest
 
-# Idempotent / WhatIf smoke
 $whatIfResult = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot -WhatIf
 if ($null -eq $whatIfResult -or $whatIfResult.Success -ne $true -or $whatIfResult.WhatIf -ne $true) {
     Write-Fail -TestName $keepTest -Reason 'Uninstall-Toolkit -WhatIf must succeed after keyed removal'
@@ -333,25 +317,11 @@ if ($null -eq $idempotent -or $idempotent.Success -ne $true) {
     Write-Fail -TestName $keepTest -Reason 'idempotent Uninstall-Toolkit must remain Success when artifacts already gone'
 }
 
-# Cleanup alien probes so fixture stays tidy for later steps
-Remove-Item -LiteralPath $alienSkillDir -Recurse -Force
-Remove-Item -LiteralPath $alienHookPath -Force
-Remove-Item -LiteralPath $alienConfigPath -Force
-Remove-Item -LiteralPath $alienConfigDir -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath $alienMarketplaceNotePath -Force
-Remove-Item -LiteralPath $alienUserSkillDir -Recurse -Force
-Remove-Item -LiteralPath $alienHomeSkillDir -Recurse -Force
-
-# Restore a clean published fixture for subsequent steps / local use
-Clear-CodexFixturePublishedArtifacts
-$restoreLines = @(& $syncAgentScript -Agent codex -InstallRoot $fixtureInstallRoot *>&1 | ForEach-Object { "$_" })
-$restoreExit = $LASTEXITCODE
-if ($null -eq $restoreExit) { $restoreExit = 0 }
-if ($restoreExit -ne 0) {
-    Write-Fail -TestName 'Assert-CodexKeyedUninstallRestore' -Reason ("fixture restore sync failed (exit {0}): {1}" -f $restoreExit, ($restoreLines -join [Environment]::NewLine).Trim())
-}
-
 Write-Pass -TestName $keepTest
+
+if (Test-Path -LiteralPath $workInstallRoot) {
+    Remove-Item -LiteralPath $workInstallRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host 'Assert-CodexKeyedUninstall: ALL PASS'
 exit 0

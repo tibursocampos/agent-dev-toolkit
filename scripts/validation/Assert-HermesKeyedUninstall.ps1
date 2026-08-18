@@ -123,6 +123,17 @@ try {
     # --- Should_RemoveToolkitArtifacts_When_UninstallHermesFixture ---
     $removeTest = 'Should_RemoveToolkitArtifacts_When_UninstallHermesFixture'
     Initialize-HermesKeyedUninstallWorkRoot
+
+    $alienSkillDir = Join-Path (Get-HermesWorkSkillsRoot) $alienSkillId
+    New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $alienSkillDir $skillManifestName) -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+    $alienMemoryPath = Join-Path $workInstallRoot $memoryFileName
+    Set-Content -LiteralPath $alienMemoryPath -Value ("# {0}`n" -f $alienMemoryMarker) -Encoding UTF8
+    $alienSoulPath = Join-Path $workInstallRoot $soulFileName
+    Set-Content -LiteralPath $alienSoulPath -Value ("# {0}`n" -f $alienSoulMarker) -Encoding UTF8
+    $configYamlPath = Join-Path $workInstallRoot $configYamlName
+    Set-Content -LiteralPath $configYamlPath -Value ("# {0}`n{1}`n" -f $configYamlName, $configYamlMarker) -Encoding UTF8
+
     Invoke-HermesDirectPublishAndPrepare
 
     if (-not (Test-HermesToolkitSkillPresent)) {
@@ -133,17 +144,33 @@ try {
     }
     $memoryPath = Join-Path $workInstallRoot $memoryFileName
     if (-not (Test-Path -LiteralPath $memoryPath)) {
-        Write-Fail -TestName $removeTest -Reason 'expected MEMORY.md seed after publish'
+        Write-Fail -TestName $removeTest -Reason 'expected MEMORY.md after publish'
+    }
+    $memoryAfterPublish = [System.IO.File]::ReadAllText($memoryPath)
+    if ($memoryAfterPublish -notmatch [regex]::Escape($alienMemoryMarker)) {
+        Write-Fail -TestName $removeTest -Reason 'publish must not overwrite existing MEMORY.md'
     }
     $soulPath = Join-Path $workInstallRoot $soulFileName
-    if (Test-Path -LiteralPath $soulPath) {
-        Write-Fail -TestName $removeTest -Reason 'publish must not create SOUL.md'
+    if (-not (Test-Path -LiteralPath $soulPath)) {
+        Write-Fail -TestName $removeTest -Reason 'existing SOUL.md must remain after publish'
+    }
+    $soulAfterPublish = [System.IO.File]::ReadAllText($soulPath)
+    if ($soulAfterPublish -notmatch [regex]::Escape($alienSoulMarker)) {
+        Write-Fail -TestName $removeTest -Reason 'publish must not overwrite existing SOUL.md'
     }
 
     $smoke = Invoke-SmokeValidate -InstallRoot $workInstallRoot
     if ($null -eq $smoke -or $smoke.Success -ne $true) {
         Write-Fail -TestName $removeTest -Reason ("expected Invoke-SmokeValidate PASS, got: {0}" -f $(if ($null -eq $smoke) { 'null' } else { $smoke.Message }))
     }
+
+    $sddRoot = Join-Path $workInstallRoot $sddDirectoryName
+    $sessionsRoot = Join-Path $sddRoot $sessionsDirectoryName
+    if (-not (Test-Path -LiteralPath $sessionsRoot)) {
+        New-Item -ItemType Directory -Path $sessionsRoot -Force | Out-Null
+    }
+    $sessionAlienPath = Join-Path $sessionsRoot $sessionAlienName
+    Set-Content -LiteralPath $sessionAlienPath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionAlienMarker) -Encoding UTF8
 
     $uninstall = Uninstall-Toolkit -InstallRoot $workInstallRoot
     if ($null -eq $uninstall -or $uninstall.Implemented -ne $true -or $uninstall.Success -ne $true) {
@@ -184,37 +211,7 @@ try {
 
     Write-Pass -TestName $removeTest
 
-    # --- Should_KeepUnrelatedFiles_When_UninstallHermesFixture ---
     $keepTest = 'Should_KeepUnrelatedFiles_When_UninstallHermesFixture'
-    Initialize-HermesKeyedUninstallWorkRoot
-
-    $alienSkillDir = Join-Path (Get-HermesWorkSkillsRoot) $alienSkillId
-    New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
-    Set-Content -LiteralPath (Join-Path $alienSkillDir $skillManifestName) -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
-
-    $alienMemoryPath = Join-Path $workInstallRoot $memoryFileName
-    Set-Content -LiteralPath $alienMemoryPath -Value ("# {0}`n" -f $alienMemoryMarker) -Encoding UTF8
-
-    $alienSoulPath = Join-Path $workInstallRoot $soulFileName
-    Set-Content -LiteralPath $alienSoulPath -Value ("# {0}`n" -f $alienSoulMarker) -Encoding UTF8
-
-    $configYamlPath = Join-Path $workInstallRoot $configYamlName
-    Set-Content -LiteralPath $configYamlPath -Value ("# {0}`n{1}`n" -f $configYamlName, $configYamlMarker) -Encoding UTF8
-
-    Invoke-HermesDirectPublishAndPrepare
-
-    $sddRoot = Join-Path $workInstallRoot $sddDirectoryName
-    $sessionsRoot = Join-Path $sddRoot $sessionsDirectoryName
-    if (-not (Test-Path -LiteralPath $sessionsRoot)) {
-        New-Item -ItemType Directory -Path $sessionsRoot -Force | Out-Null
-    }
-    $sessionAlienPath = Join-Path $sessionsRoot $sessionAlienName
-    Set-Content -LiteralPath $sessionAlienPath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionAlienMarker) -Encoding UTF8
-
-    $uninstallKeep = Uninstall-Toolkit -InstallRoot $workInstallRoot
-    if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
-        Write-Fail -TestName $keepTest -Reason ("expected successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstallKeep) { 'null' } else { $uninstallKeep.Message }))
-    }
 
     if (-not (Test-Path -LiteralPath (Join-Path $alienSkillDir $skillManifestName))) {
         Write-Fail -TestName $keepTest -Reason 'alien skill directory must survive keyed uninstall'

@@ -93,6 +93,12 @@ function Initialize-AntigravityE2EWorkRoot {
 
 # --- Should_PassValidateAgent_When_AntigravityFixtureUsed ---
 $passName = 'Should_PassValidateAgent_When_AntigravityFixtureUsed'
+$homeGuardName = 'Should_NotWriteUserGeminiProfile_When_CiSmokeRuns'
+
+$userGeminiRoot = [System.IO.Path]::GetFullPath((Join-Path $userProfile '.gemini'))
+$userGeminiSentinel = Join-Path $userGeminiRoot $userGeminiSentinelRel
+$sentinelExistedBefore = Test-Path -LiteralPath $userGeminiSentinel
+$normalizedRepoRoot = [System.IO.Path]::GetFullPath($repoRoot)
 
 Initialize-AntigravityE2EWorkRoot
 
@@ -143,6 +149,22 @@ if ($agentsText -notmatch [regex]::Escape($seedAgentsMarker)) {
 if ($agentsText -notmatch 'agent-dev-toolkit:managed:begin') {
     Write-Fail -TestName $passName -Reason 'sync must upsert managed AGENTS.md block'
 }
+
+$normalizedWorkRoot = [System.IO.Path]::GetFullPath($workInstallRoot)
+if ($normalizedWorkRoot.StartsWith($userGeminiRoot, $comparison)) {
+    Write-Fail -TestName $homeGuardName -Reason 'work InstallRoot must not resolve under USERPROFILE/.gemini'
+}
+if (-not $normalizedWorkRoot.StartsWith($normalizedRepoRoot, $comparison)) {
+    Write-Fail -TestName $homeGuardName -Reason 'work InstallRoot must stay under the toolkit repo'
+}
+if (-not (Test-Path -LiteralPath (Join-Path $workInstallRoot ('config' + $sep + 'AGENTS.md')))) {
+    Write-Fail -TestName $homeGuardName -Reason 'fixture sync must publish AGENTS.md under in-repo work InstallRoot (not home)'
+}
+$sentinelExistsAfter = Test-Path -LiteralPath $userGeminiSentinel
+if ($sentinelExistedBefore -ne $sentinelExistsAfter) {
+    Write-Fail -TestName $homeGuardName -Reason 'suite must not create or remove sentinel under USERPROFILE/.gemini'
+}
+Write-Pass -TestName $homeGuardName
 
 & $validateAgentScript -Agent $agentId -InstallRoot $workInstallRoot -Quiet -SkipCore
 $validateExit = $LASTEXITCODE
@@ -196,40 +218,6 @@ if (-not (Test-Path -LiteralPath $seedFixtureRoot -PathType Container)) {
 }
 
 Write-Pass -TestName $passName
-
-# --- Should_NotWriteUserGeminiProfile_When_CiSmokeRuns ---
-$homeGuardName = 'Should_NotWriteUserGeminiProfile_When_CiSmokeRuns'
-
-$userGeminiRoot = [System.IO.Path]::GetFullPath((Join-Path $userProfile '.gemini'))
-$userGeminiSentinel = Join-Path $userGeminiRoot $userGeminiSentinelRel
-$sentinelExistedBefore = Test-Path -LiteralPath $userGeminiSentinel
-$normalizedRepoRoot = [System.IO.Path]::GetFullPath($repoRoot)
-
-Initialize-AntigravityE2EWorkRoot
-& $syncAgentScript -Agent $agentId -InstallRoot $workInstallRoot
-$syncHomeExit = $LASTEXITCODE
-if ($null -eq $syncHomeExit) { $syncHomeExit = 0 }
-if ($syncHomeExit -ne 0) {
-    Write-Fail -TestName $homeGuardName -Reason ("sync-agent fixture run failed during home-guard check (exit {0})" -f $syncHomeExit)
-}
-
-$normalizedWorkRoot = [System.IO.Path]::GetFullPath($workInstallRoot)
-if ($normalizedWorkRoot.StartsWith($userGeminiRoot, $comparison)) {
-    Write-Fail -TestName $homeGuardName -Reason 'work InstallRoot must not resolve under USERPROFILE/.gemini'
-}
-if (-not $normalizedWorkRoot.StartsWith($normalizedRepoRoot, $comparison)) {
-    Write-Fail -TestName $homeGuardName -Reason 'work InstallRoot must stay under the toolkit repo'
-}
-if (-not (Test-Path -LiteralPath (Join-Path $workInstallRoot ('config' + $sep + 'AGENTS.md')))) {
-    Write-Fail -TestName $homeGuardName -Reason 'fixture sync must publish AGENTS.md under in-repo work InstallRoot (not home)'
-}
-
-$sentinelExistsAfter = Test-Path -LiteralPath $userGeminiSentinel
-if ($sentinelExistedBefore -ne $sentinelExistsAfter) {
-    Write-Fail -TestName $homeGuardName -Reason 'suite must not create or remove sentinel under USERPROFILE/.gemini'
-}
-
-Write-Pass -TestName $homeGuardName
 
 # --- Should_FailSync_When_InstallRootIsUserProfileWithoutAllow ---
 $failSyncName = 'Should_FailSync_When_InstallRootIsUserProfileWithoutAllow'

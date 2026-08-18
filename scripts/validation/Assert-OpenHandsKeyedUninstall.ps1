@@ -153,6 +153,21 @@ try {
         Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after publish'
     }
 
+    $mappedKeep = Get-OpenHandsWorkMappedPaths
+    $alienSkillDir = Join-Path $mappedKeep.FixtureSkillsPath $alienSkillId
+    New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $alienSkillDir $skillManifestName) -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+    $alienHookPath = Join-Path $mappedKeep.FixtureHooksScriptsPath $alienHookFileName
+    Set-Content -LiteralPath $alienHookPath -Value ("# {0}`nexit 0`n" -f $alienHookMarker) -Encoding UTF8
+    New-Item -ItemType Directory -Path $mappedKeep.FixtureCustomAgentsPath -Force | Out-Null
+    $alienAgentPath = Join-Path $mappedKeep.FixtureCustomAgentsPath $alienAgentFileName
+    Set-Content -LiteralPath $alienAgentPath -Value ("# {0}`n" -f $alienAgentMarker) -Encoding UTF8
+    New-Item -ItemType Directory -Path $mappedKeep.FixturePluginPath -Force | Out-Null
+    $alienPluginPath = Join-Path $mappedKeep.FixturePluginPath $alienPluginFileName
+    Set-Content -LiteralPath $alienPluginPath -Value ("# {0}`n" -f $alienPluginMarker) -Encoding UTF8
+    $configTomlPath = Join-Path $workInstallRoot $configTomlName
+    Set-Content -LiteralPath $configTomlPath -Value ("# {0}`nkeep=true`n" -f $configTomlName) -Encoding UTF8
+
     $uninstall = Uninstall-Toolkit -InstallRoot $workInstallRoot
     if ($null -eq $uninstall -or $uninstall.Implemented -ne $true -or $uninstall.Success -ne $true) {
         Write-Fail -TestName $removeTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstall) { 'null' } else { $uninstall.Message }))
@@ -189,40 +204,7 @@ try {
 
     Write-Pass -TestName $removeTest
 
-    # --- Should_KeepUnrelatedFiles_When_UninstallOpenHandsFixture ---
     $keepTest = 'Should_KeepUnrelatedFiles_When_UninstallOpenHandsFixture'
-    Initialize-OpenHandsKeyedUninstallWorkRoot
-    $mappedKeep = Get-OpenHandsWorkMappedPaths
-
-    $alienSkillDir = Join-Path $mappedKeep.FixtureSkillsPath $alienSkillId
-    New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
-    Set-Content -LiteralPath (Join-Path $alienSkillDir $skillManifestName) -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
-
-    $alienHookPath = Join-Path $mappedKeep.FixtureHooksScriptsPath $alienHookFileName
-    Set-Content -LiteralPath $alienHookPath -Value ("# {0}`nexit 0`n" -f $alienHookMarker) -Encoding UTF8
-
-    New-Item -ItemType Directory -Path $mappedKeep.FixtureCustomAgentsPath -Force | Out-Null
-    $alienAgentPath = Join-Path $mappedKeep.FixtureCustomAgentsPath $alienAgentFileName
-    Set-Content -LiteralPath $alienAgentPath -Value ("# {0}`n" -f $alienAgentMarker) -Encoding UTF8
-
-    New-Item -ItemType Directory -Path $mappedKeep.FixturePluginPath -Force | Out-Null
-    $alienPluginPath = Join-Path $mappedKeep.FixturePluginPath $alienPluginFileName
-    Set-Content -LiteralPath $alienPluginPath -Value ("# {0}`n" -f $alienPluginMarker) -Encoding UTF8
-
-    $configTomlPath = Join-Path $workInstallRoot $configTomlName
-    Set-Content -LiteralPath $configTomlPath -Value ("# {0}`nkeep=true`n" -f $configTomlName) -Encoding UTF8
-
-    try {
-        Invoke-OpenHandsDirectPublishAll
-    }
-    catch {
-        Write-Fail -TestName $keepTest -Reason $_.Exception.Message
-    }
-
-    $uninstallKeep = Uninstall-Toolkit -InstallRoot $workInstallRoot
-    if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
-        Write-Fail -TestName $keepTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstallKeep) { 'null' } else { $uninstallKeep.Message }))
-    }
 
     if (-not (Test-Path -LiteralPath (Join-Path $alienSkillDir $skillManifestName))) {
         Write-Fail -TestName $keepTest -Reason 'alien skill directory must survive keyed uninstall'

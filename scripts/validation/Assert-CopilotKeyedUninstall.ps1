@@ -232,6 +232,7 @@ $userName = 'Should_RemoveToolkitArtifacts_When_UninstallCopilotUserFixture'
 Clear-CopilotFixturePublishedTree -FixtureRoot $fixtureUserRoot
 Invoke-CopilotSyncValidate -FixtureRoot $fixtureUserRoot -Mode $modeUser -TestName $userName
 Assert-ToolkitArtifactsPresent -FixtureRoot $fixtureUserRoot -TestName $userName
+Add-AlienFilesUnderFixture -FixtureRoot $fixtureUserRoot
 
 $uninstallUser = Uninstall-Toolkit -InstallRoot $fixtureUserRoot -Mode $modeUser
 if ($null -eq $uninstallUser) {
@@ -262,6 +263,14 @@ if ($null -eq $smokeAfterUser -or $smokeAfterUser.Success -eq $true) {
 
 Write-Pass -TestName $userName
 
+$keepName = 'Should_KeepUnrelatedFiles_When_UninstallCopilotFixture'
+Assert-AlienFilesPresent -FixtureRoot $fixtureUserRoot -TestName $keepName
+$skillsGitkeep = Join-Path (Join-Path $fixtureUserRoot $skillsDirName) $gitkeepName
+if (-not (Test-Path -LiteralPath $skillsGitkeep)) {
+    Write-Fail -TestName $keepName -Reason 'fixture .gitkeep under skills/ must remain'
+}
+Write-Pass -TestName $keepName
+
 # --- Should_RemoveToolkitArtifacts_When_UninstallCopilotRepoFixture ---
 $repoName = 'Should_RemoveToolkitArtifacts_When_UninstallCopilotRepoFixture'
 
@@ -285,29 +294,6 @@ if ($null -eq $smokeAfterRepo -or $smokeAfterRepo.Success -eq $true) {
 }
 
 Write-Pass -TestName $repoName
-
-# --- Should_KeepUnrelatedFiles_When_UninstallCopilotFixture ---
-$keepName = 'Should_KeepUnrelatedFiles_When_UninstallCopilotFixture'
-
-Clear-CopilotFixturePublishedTree -FixtureRoot $fixtureUserRoot
-Invoke-CopilotFixtureSync -FixtureRoot $fixtureUserRoot -Mode $modeUser -TestName $keepName
-Assert-ToolkitArtifactsPresent -FixtureRoot $fixtureUserRoot -TestName $keepName
-Add-AlienFilesUnderFixture -FixtureRoot $fixtureUserRoot
-
-$uninstallKeep = Uninstall-Toolkit -InstallRoot $fixtureUserRoot -Mode $modeUser
-if ($null -eq $uninstallKeep -or $uninstallKeep.Success -ne $true) {
-    Write-Fail -TestName $keepName -Reason ("uninstall must succeed; got: {0}" -f $(if ($null -eq $uninstallKeep) { 'null' } else { $uninstallKeep.Message }))
-}
-
-Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureUserRoot -TestName $keepName
-Assert-AlienFilesPresent -FixtureRoot $fixtureUserRoot -TestName $keepName
-
-$skillsGitkeep = Join-Path (Join-Path $fixtureUserRoot $skillsDirName) $gitkeepName
-if (-not (Test-Path -LiteralPath $skillsGitkeep)) {
-    Write-Fail -TestName $keepName -Reason 'fixture .gitkeep under skills/ must remain'
-}
-
-Write-Pass -TestName $keepName
 
 Write-Host 'Assert-CopilotKeyedUninstall: all tests PASS'
 exit 0
