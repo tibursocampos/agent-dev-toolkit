@@ -153,7 +153,7 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step 1
 ```
 
-Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a workflow (**Forma** A/B/C): [Using skills](../using-skills/).
+Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a work track (**Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**; formerly Forma A/B/C): [Using skills](../using-skills/).
 
 After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
 

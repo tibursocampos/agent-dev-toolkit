@@ -1,0 +1,5 @@
+{"ts":"2026-08-21T15:00:00Z","event":"develop_start","feature":"features/000-fixture-trace-archive","summary":"Archive-smoke fixture start"}
+{"ts":"2026-08-21T15:10:00Z","event":"evidence","feature":"features/000-fixture-trace-archive","summary":"validate-evidence cheap then standard"}
+{"ts":"2026-08-21T15:20:00Z","event":"converge","feature":"features/000-fixture-trace-archive","summary":"Accepted CHANGE for living current.","paths":["features/000-fixture-trace-archive/CHANGE.md"]}
+{"ts":"2026-08-21T15:30:00Z","event":"sync_current","feature":"features/000-fixture-trace-archive","summary":"Selective sync to memory-bank domain baseline.","targets":["memory-bank/domain-knowledge.md"]}
+{"ts":"2026-08-21T15:40:00Z","event":"archive","feature":"features/000-fixture-trace-archive","status":"archived","summary":"Brownfield wave archived; living specs coherent with TRACE."}

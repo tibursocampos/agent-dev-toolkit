@@ -194,10 +194,54 @@ Do not auto-create PRs or link external trackers.
 - [ ] Only this step’s scope implemented
 - [ ] Tests added/updated per step and AC mapping
 - [ ] Targeted build/test commands run successfully
+- [ ] Evidence-or-zero: if level ≥ `cheap`, `features/NNN-slug/EVD/` + `STATE.md` updated and `validate-evidence` exit 0 (`EVD-STATE-CONTRACT.md`)
+- [ ] Verifier ran sequentially in this session — **Verifier ≠ O3** (do not spawn Task/O3 parallel children as the evidence gate)
+- [ ] Living loop (when closing wave): `TRACE.jsonl` has converge → sync_current → archive; `validate-trace -RequireArchiveComplete` exit 0 (`TRACE-ARCHIVE-CONTRACT.md`)
 - [ ] No forbidden patterns from `csharp-patterns.md` (if .NET)
 - [ ] Branch valid per `branch-validation.mdc`
 - [ ] PLAN progress and next step updated
 - [ ] Context checkpoint executed
+
+---
+
+## Evidence-or-zero (REQ-005 / CA4)
+
+Canonical paths: `features/NNN-slug/EVD/`, `features/NNN-slug/STATE.md`.
+
+| Level | Gate |
+|-------|------|
+| `off` | No evidence required |
+| `cheap` | STATE + EVD + ≥1 non-empty cited evidence file |
+| `standard` | Every matrix row has non-empty EVD file |
+| `strict` | `standard` + every Result = `pass` |
+
+```powershell
+.\scripts\validation\validate-evidence.ps1 -FeatureRoot features/NNN-slug [-Level cheap]
+```
+
+Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Smoke: `Assert-EvidenceContract.ps1`.
+
+**Verifier ≠ O3:** never use orchestrate-develop Task parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
+
+---
+
+## Living loop + TRACE (REQ-006 / CA5)
+
+Canonical path: `features/NNN-slug/TRACE.jsonl`.
+
+| Phase | Event | Action |
+|-------|-------|--------|
+| converge | `converge` | Decide which CHANGE/PRD deltas become current |
+| sync current | `sync_current` | Selective write to `memory-bank/` / named `docs/` (`targets[]`) |
+| archive | `archive` | Close wave; `status` = `archived` |
+
+```powershell
+.\scripts\validation\validate-trace.ps1 -FeatureRoot features/NNN-slug [-RequireArchiveComplete]
+```
+
+Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`. Smoke: `Assert-TraceArchiveContract.ps1`.
+
+Mid-feature: optional trail events; TRACE may be absent until close. At archive: require living-loop triad + coherent sync targets (no `openspec/` / `.specs/` / SQLite SoT).
 
 ---
 

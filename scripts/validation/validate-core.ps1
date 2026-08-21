@@ -73,6 +73,16 @@ $uninstallPathSafetyScriptName = $script:ToolkitConstant.AssertUninstallPathSafe
 $uninstallPathSafetyCheckName = $script:ToolkitConstant.UninstallPathSafetyCheckName
 $sddRootPrepareIdempotentScriptName = $script:ToolkitConstant.AssertSddRootPrepareIdempotentScriptName
 $sddRootPrepareIdempotentCheckName = $script:ToolkitConstant.SddRootPrepareIdempotentCheckName
+$selectiveRetrievalScriptName = $script:ToolkitConstant.AssertSelectiveRetrievalScriptName
+$selectiveRetrievalCheckName = $script:ToolkitConstant.SelectiveRetrievalCheckName
+$validatePrdPlanScriptName = $script:ToolkitConstant.AssertValidatePrdPlanScriptName
+$validatePrdPlanCheckName = $script:ToolkitConstant.ValidatePrdPlanCheckName
+$changeContractScriptName = $script:ToolkitConstant.AssertChangeContractScriptName
+$changeContractCheckName = $script:ToolkitConstant.ChangeContractCheckName
+$evidenceContractScriptName = $script:ToolkitConstant.AssertEvidenceContractScriptName
+$evidenceContractCheckName = $script:ToolkitConstant.EvidenceContractCheckName
+$traceArchiveContractScriptName = $script:ToolkitConstant.AssertTraceArchiveContractScriptName
+$traceArchiveContractCheckName = $script:ToolkitConstant.TraceArchiveContractCheckName
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -128,7 +138,12 @@ $coreChecks = @(
     @{ Name = $noFeaturesDocLinksCheckName; Script = $noFeaturesDocLinksScriptName },
     @{ Name = $managedSkillsPathSafetyCheckName; Script = $managedSkillsPathSafetyScriptName },
     @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
-    @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName }
+    @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName },
+    @{ Name = $selectiveRetrievalCheckName; Script = $selectiveRetrievalScriptName },
+    @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
+    @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
+    @{ Name = $evidenceContractCheckName; Script = $evidenceContractScriptName },
+    @{ Name = $traceArchiveContractCheckName; Script = $traceArchiveContractScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

@@ -14,3 +14,5 @@
 | Managed-skills prune / copy path escape via `..` names | Sanitize names + under-root asserts; Assert-ManagedSkillsPathSafety |
 | Uninstall `Remove-Item` following junction outside InstallRoot | `Assert-PathUnderInstallRootForDelete` immediately before each delete |
 | Docs linking story `features/**` paths | Public docs use `docs/SPAWN.md` / `core/skills/_shared/agents/SPAWN.md` only; Assert-NoFeaturesDocLinks |
+| Scope creep: second CLI / OpenSpec / SQLite as SoT | Feature 005 OOS; P-DOC states same skill flow + markdown SoT; no `openspec/` / `.specs/` / `.specify/` |
+| Forma alias left as permanent brand | RN07: remove `(formerly Forma …)` in the release after track introduction |

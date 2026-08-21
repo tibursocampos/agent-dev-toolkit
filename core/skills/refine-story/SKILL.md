@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/refine-story`, `refine backlog item`, `/refine-story`, or quick intake before SDD / Forma C.
+Invoke when the user asks for: `/refine-story`, `refine backlog item`, `/refine-story`, or quick intake before SDD / Orchestrated Delivery.
 
 Optional: path to existing notes, or pasted description.
 
@@ -48,6 +48,7 @@ Does **not** create or update cards in external work-item trackers.
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
+| Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Type templates | `skills/_shared/backlog-item-types/{bug,user-story,technical-story}.md` or `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/` after sync |
 | Scorecard rubric, boundaries vs O1 / sdd-spec | `skills/refine-story/reference.md` |
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
@@ -93,7 +94,9 @@ Follow the type file **Output template** and **Writing guidelines**. Combine use
 
 **Steps:** one responsibility per step; infinitive verbs; layer order when applicable; explicit dependencies; note parallel steps when independent (feeds `split-story-checklist` topological grouping).
 
-**BDD:** **Given / When / Then / And**; verifiable outcomes; avoid vague "works correctly".
+**BDD:** **Given / When / Then / And**; verifiable outcomes; **challenge vagueness** — avoid "works correctly", "as expected", "properly", "funciona corretamente". When handing off to `sdd-spec`, note that PRD will require stable **REQ-IDs**, OOS, and verifiable CA (`templates/sdd/PRD.md`).
+
+**Selective retrieval:** do **not** dump entire `memory-bank/` or paste a full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Paths + short summaries only.
 
 ### 4. Quality scorecard
 
@@ -110,7 +113,7 @@ Ask where to save (pt-BR):
 ```text
 Onde gravar o item refinado?
 
-1) features/NNN-slug/USnn/STORY.md (recomendado - Forma B alinhada ao storage)
+1) features/NNN-slug/USnn/STORY.md (recomendado - Backlog Refine *(formerly Forma B)* alinhada ao storage)
 2) docs/backlog/<slug>.md (atalho)
 3) Só chat (não gravar)
 ```
@@ -128,8 +131,8 @@ Write prose in that language; paths and identifiers stay in English. Slug from t
 | Situation | Next |
 |-----------|------|
 | Break into implementation checklist | `/split-story-checklist` (same content or saved path) |
-| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Forma C O1) |
-| Medium/high complexity single feature (Forma A) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Orchestrated Delivery *(formerly Forma C)* O1) |
+| Medium/high complexity single feature (Classic SDD *(formerly Forma A)*) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
 | Small isolated change | `/developer` / stack `*-developer` |
 | Commit saved file | `/commit` |
 
@@ -139,7 +142,9 @@ Write prose in that language; paths and identifiers stay in English. Slug from t
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards
 - Write `docs/backlog/` before the language question when choosing shortcut
 - Duplicate full PRD/PLAN templates - hand off to `sdd-spec` / `sdd-plan` or O1
+- Do not dump entire `memory-bank/` or paste full PRD into prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
 - Invent architecture that belongs to O1 specialists
+- Do not ship vague BDD without challenge
 
 ## Handoff examples
 

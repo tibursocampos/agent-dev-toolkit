@@ -6,7 +6,7 @@ description: Implement or fix small-to-medium JavaScript/Node features without f
 ## STOP - Read before ANY tool call
 
 1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-contracts/SESSION.md`; load session-state for `$Cwd`
+2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
 3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
 5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
@@ -85,7 +85,24 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
-Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `javascript-guidelines` (and frontend) rows needed for the current task. Preserve DOM/`html-css` paths when the task is UI — Node backend docs are additive. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+**Never by default:** do not preload other stack guideline packs, the full `javascript-guidelines/` tree, all `html-css-guidelines/`, or corporate pipeline docs. Load only the rows needed for the current task. Preserve DOM/`html-css` paths when the task is UI — Node backend docs are additive. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+
+**Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index; fan-out to Node vs DOM vs architecture overlay only on trigger. Do not open every `html-css-guidelines/` file for a pure API task (or every Node file for a pure DOM task).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Workspace / AGENTS | `developer-common/step-0-context.md` |
+| Which guidelines to open | `developer-common/step-0.5-review-guidelines.md` |
+| Express/Fastify HTTP API | `javascript-guidelines/node-backend.md` |
+| Style unset / greenfield | `code-guidelines/principles/architecture-selection.md` → then **one** `javascript-guidelines/architecture/<style>.md` |
+| Node security / structure | `node-security.md` / `node-structure-errors.md` |
+| TypeScript / clean code | matching `typescript-strict.md` / `clean-code-*.md` / `google-ts-style.md` |
+| DOM / `html-css` UI | `dom-patterns.md` + needed `html-css-guidelines/` / `frontend-guidelines/` rows |
+| DESIGN-BRIEF present | `docs/DESIGN-BRIEF.md` (acceptance; do not reinterpret) |
+| Branch / pre-commit / commit | matching `developer-common/step-3*.md` / `step-4-commits-pr.md` |
+| Pre-PR | `developer-common/step-7-checklist.md` |
 
 ## Process
 

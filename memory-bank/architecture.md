@@ -7,7 +7,7 @@ core/          # skills (kebab, 37 + _shared), policy, router, sdd contracts
 adapters/      # registry.json + _contract + per-agent thin *Adapter.ps1 + Publish-* siblings
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public docs (incl. SPAWN.md, ADAPTERS, VALIDATION)
-memory-bank/   # durable workspace map (Forma C Step 0)
+memory-bank/   # durable workspace map (Orchestrated Delivery Step 0; formerly Forma C)
 .github/workflows/  # validate-toolkit.yml (+ enforce-release-source.yml)
 ```
 

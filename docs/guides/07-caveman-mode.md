@@ -58,7 +58,7 @@ These ignore `caveman_mode` for chat compression: **`help-skills`**, **`commit`*
 
 | Prefer ON | Prefer OFF |
 |-----------|------------|
-| Long review, Forma C orchestration, verbose debug | Short coding Q&A (loading the contract can cost more than you save) |
+| Long review, Orchestrated Delivery, verbose debug | Short coding Q&A (loading the contract can cost more than you save) |
 
 Optional continuity compaction (`COMPACT.md`) is separate and needs explicit user `sim` — not a port of upstream `caveman-compress`.
 

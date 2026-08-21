@@ -78,6 +78,117 @@ $script:ToolkitConstant = @{
     UninstallPathSafetyCheckName       = 'uninstall-path-safety'
     AssertSddRootPrepareIdempotentScriptName = 'Assert-SddRootPrepareIdempotent.ps1'
     SddRootPrepareIdempotentCheckName  = 'sdd-root-prepare-idempotent'
+    AssertSelectiveRetrievalScriptName = 'Assert-SelectiveRetrieval.ps1'
+    SelectiveRetrievalCheckName        = 'selective-retrieval'
+    SelectiveRetrievalRuleId           = 'SR-NO-FULL-DUMP'
+    SelectiveRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md'
+    SelectiveRetrievalInScopeRelativePaths = @(
+        'core/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md',
+        'core/skills/_shared/templates/sdd/PRD.md',
+        'core/skills/_shared/templates/sdd/PLAN.md',
+        'core/skills/sdd-spec/SKILL.md',
+        'core/skills/sdd-spec/reference.md',
+        'core/skills/sdd-plan/SKILL.md',
+        'core/skills/sdd-plan/reference.md',
+        'core/skills/refine-story/SKILL.md',
+        'core/skills/refine-story/reference.md'
+    )
+    ValidatePrdScriptName              = 'validate-prd.ps1'
+    ValidatePlanScriptName             = 'validate-plan.ps1'
+    AssertValidatePrdPlanScriptName    = 'Assert-ValidatePrdPlan.ps1'
+    ValidatePrdPlanCheckName           = 'validate-prd-plan'
+    SddArtifactFixturesRelativeDir     = 'scripts/validation/fixtures/sdd-artifacts'
+    SddArtifactReqIdPattern            = '(?i)\bREQ-(\d{3})\b'
+    SddArtifactAcceptancePattern       = '(?im)^#{2,3}\s*CA\d+\b'
+    SddArtifactPrdHeaderPattern        = '(?im)^\|\s*\*{0,2}PRD\*{0,2}\s*\|\s*`?([^|`]+?)`?\s*\|'
+    SddArtifactReqMapSectionPattern    = '(?i)Mapa\s+REQ|REQ\s*(→|->)\s*passo|REQ\s*->\s*step'
+    ValidatePrdPlanSkillWiringRelativePaths = @(
+        'core/skills/sdd-spec/SKILL.md',
+        'core/skills/sdd-spec/reference.md',
+        'core/skills/sdd-plan/SKILL.md',
+        'core/skills/sdd-plan/reference.md'
+    )
+    ValidatePrdFixtureValidRelativePath = 'prd/valid.md'
+    ValidatePrdFixtureInvalidNoReqRelativePath = 'prd/invalid-no-req.md'
+    ValidatePrdFixtureInvalidNoAcRelativePath = 'prd/invalid-no-ac.md'
+    ValidatePlanFixtureValidRelativePath = 'plan/valid.md'
+    ValidatePlanFixtureInvalidMissingReqRelativePath = 'plan/invalid-missing-req.md'
+    ValidatePlanFixtureCompanionPrdRelativePath = 'plan/companion-prd.md'
+    ValidateChangeScriptName           = 'validate-change.ps1'
+    AssertChangeContractScriptName     = 'Assert-ChangeContract.ps1'
+    ChangeContractCheckName            = 'change-contract'
+    ChangeContractGuideRelativePath    = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
+    ChangeTemplateRelativePath         = 'core/skills/_shared/templates/features/CHANGE.md'
+    SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|MODIFIED|REMOVED)\b'
+    SddArtifactChangeForbiddenCurrentPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
+    ValidateChangeFixtureValidRelativePath = 'change/valid.md'
+    ValidateChangeFixtureInvalidNoSectionsRelativePath = 'change/invalid-no-sections.md'
+    ChangeContractSkillWiringRelativePaths = @(
+        'core/skills/sdd-spec/SKILL.md',
+        'core/skills/sdd-spec/reference.md',
+        'core/skills/orchestrate-deliver/SKILL.md',
+        'core/skills/orchestrate-deliver/reference.md',
+        'core/skills/orchestrate-analyze/SKILL.md',
+        'core/skills/orchestrate-develop/SKILL.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
+    )
+    ChangeContractTasksPolicyRelativePaths = @(
+        'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md',
+        'core/skills/split-story-checklist/SKILL.md',
+        'core/skills/split-story-checklist/reference.md'
+    )
+    ValidateEvidenceScriptName         = 'validate-evidence.ps1'
+    AssertEvidenceContractScriptName   = 'Assert-EvidenceContract.ps1'
+    EvidenceContractCheckName          = 'evidence-contract'
+    EvidenceContractGuideRelativePath  = 'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
+    StateTemplateRelativePath          = 'core/skills/_shared/templates/features/STATE.md'
+    EvdTemplateReadmeRelativePath      = 'core/skills/_shared/templates/features/EVD/README.md'
+    SddArtifactStateFileName           = 'STATE.md'
+    SddArtifactEvdDirectoryName        = 'EVD'
+    SddArtifactEvidenceLevelDefault    = 'cheap'
+    SddArtifactEvidenceLevelFieldPattern = '(?im)\|\s*\*{0,2}Evidence level\*{0,2}\s*\|\s*`?(off|cheap|standard|strict)`?\s*\|'
+    SddArtifactEvidenceMatrixHeadingPattern = '(?im)^#{1,3}\s*AC\s*(.|->)\s*evidence matrix\b'
+    ValidateEvidenceFixtureValidRelativeDir = 'evidence/valid'
+    ValidateEvidenceFixtureInvalidZeroRelativeDir = 'evidence/invalid-zero'
+    EvidenceContractSkillWiringRelativePaths = @(
+        'core/skills/sdd-develop/SKILL.md',
+        'core/skills/sdd-develop/reference.md',
+        'core/skills/orchestrate-develop/SKILL.md',
+        'core/skills/orchestrate-develop/reference.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
+    )
+    EvidenceVerifierNoO3RelativePaths = @(
+        'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md',
+        'core/skills/sdd-develop/SKILL.md',
+        'core/skills/orchestrate-develop/SKILL.md'
+    )
+    ValidateTraceScriptName            = 'validate-trace.ps1'
+    AssertTraceArchiveContractScriptName = 'Assert-TraceArchiveContract.ps1'
+    TraceArchiveContractCheckName      = 'trace-archive-contract'
+    TraceArchiveContractGuideRelativePath = 'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
+    TraceTemplateRelativePath          = 'core/skills/_shared/templates/features/TRACE.jsonl'
+    SddArtifactTraceFileName           = 'TRACE.jsonl'
+    SddArtifactTraceEventConverge      = 'converge'
+    SddArtifactTraceEventSyncCurrent   = 'sync_current'
+    SddArtifactTraceEventArchive       = 'archive'
+    SddArtifactTraceArchiveStatusAllowed = @('archived', 'closed')
+    SddArtifactTraceFeaturePathPattern = '(?i)^features/[0-9]{3}-[a-z0-9][a-z0-9\-]*$'
+    SddArtifactTraceAllowedTargetPattern = '(?i)^(memory-bank/|docs/)'
+    SddArtifactTraceForbiddenTargetPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
+    ValidateTraceFixtureValidRelativeDir = 'trace/valid'
+    ValidateTraceFixtureInvalidIncompleteRelativeDir = 'trace/invalid-incomplete'
+    ValidateTraceFixtureInvalidBadJsonRelativeDir = 'trace/invalid-bad-json'
+    ValidateTraceFixtureArchiveSmokeRelativeDir = 'trace/archive-smoke'
+    TraceArchiveContractSkillWiringRelativePaths = @(
+        'core/skills/sdd-develop/SKILL.md',
+        'core/skills/sdd-develop/reference.md',
+        'core/skills/orchestrate-develop/SKILL.md',
+        'core/skills/orchestrate-develop/reference.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
+    )
     # Fixture-local keyed uninstall asserts (no live-home write). Kept out of
     # validate-core because they call validate-agent which re-enters validate-core.
     # CI runs them via a dedicated workflow step (inline loop over this list).
