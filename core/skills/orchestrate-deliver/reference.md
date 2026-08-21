@@ -244,6 +244,198 @@ Parent merges drafts -> human **sim** -> parent runs `sdd-spec` / `sdd-plan` con
 
 ---
 
+## Process — Caveman (Lite cap)
+
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+2. If `caveman_mode` is false: continue without compression.
+3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
+5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+
+---
+
+## Process — Resolve feature and storage
+
+Load `STORAGE.md`. Run resolution with `$Workflow = classic`.
+
+Accept feature path from invoke (preferred) or Glob under feature root:
+
+- **repository** -> `$Cwd/features/NNN-slug/`; bank `$Cwd/memory-bank/`
+- **global** -> `<classic.path>/features/NNN-slug/`; bank `<classic.path>/memory-bank/`
+
+**Path sanitize (required):** normalize the invoke path (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under `$Cwd/features/` (repository) or `<classic.path>/features/` (global). Ask again in pt-BR for a canonical path - do not Read/Write outside the feature root.
+
+Repository mode: ensure SDD `.gitignore` per `STORAGE.md` (`/features/` + safety-net; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets) before writes under feature or bank roots. **Global:** do not edit `.gitignore`.
+
+`Read` `FEATURE.md` + `CONTINUITY.md`. If missing: **STOP** - ask for O1 first:
+
+```text
+Não encontrei FEATURE.md / CONTINUITY.md em `{path}`.
+
+1) /orchestrate-analyze - <portable-feature-path>
+2) cancelar
+```
+
+---
+
+## Process — Preconditions (approved backlog + siblings)
+
+Verify backlog is human-approved:
+
+| Signal | Accept |
+|--------|--------|
+| `FEATURE.md` **Status** | `approved` (or stories listed as approved) |
+| CONTINUITY | O1 handoff / note that backlog was approved with **sim** |
+
+If still `draft` or approval unclear: **STOP** - do not invent approval:
+
+```text
+Backlog ainda não aprovado em `{feature-path}`.
+
+1) Voltar ao O1: /orchestrate-analyze - <portable-feature-path>
+2) Você confirma aprovação agora? (sim / cancelar)
+```
+
+Only continue after explicit **sim** (then record in CONTINUITY) or O1 re-approval.
+
+Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build work list (id, title, path, deps from STORY if present). Skip stories already having both PRD+PLAN unless user asks to refresh.
+
+**Required siblings STOP (flag-gated):** If FEATURE `needs_*` is true (or nature is brownfield) and the story lacks the matching sibling folder/files (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md` / `PIPELINE.md` § Feature / story siblings): **STOP**. Return to O1. Do **not** Write PRD/PLAN. Max-3 gap questions do **not** replace this gate. Waive-deps remains for **story order**, not for missing SEC/ARCH/ANALYSIS.
+
+```text
+Faltam pastas obrigatórias em `{story-path}` (FEATURE needs_* / brownfield).
+
+O2 não grava PRD/PLAN sem ANALYSIS|ARCH|SEC quando a flag correspondente é true. Max-3 perguntas de gap não substituem este gate.
+
+1) Voltar ao O1: /orchestrate-analyze - <portable-feature-path>
+2) cancelar
+```
+
+See also § Preconditions checklist.
+
+---
+
+## Process — Choose mode (RF03)
+
+Ask (pt-BR) - never assume. Only after the required-siblings STOP has passed — copy in § Approval gates (mode selection).
+
+| Choice | Behavior |
+|--------|----------|
+| **1 série** | Parent runs contracts sequentially; lower context risk |
+| **2 paralelo** | Prefer Task when `subagents=native` (`SPAWN.md`): one Task per story for **drafts only**; parent aggregates, gates `sim`, then **parent** writes via `sdd-spec` / `sdd-plan`. Concurrent Task cap **≤4** per `SPAWN.md`; if N>4, wave ≤4 or prefer série. If `subagents=none` or Task unavailable → **fallback** to série **in-parent** (same contracts; never hard-fail) |
+| **3** | Stop; no writes |
+
+Document the choice in `CONTINUITY.md` (decisões). Before any paralelo Task wave: load `SPAWN.md` and consult capability `subagents`.
+
+**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default. Premium slug only after the rare hard-task gate + user **sim**; **não** / silence → omit `model`.
+
+See also § Mode comparison (RF03).
+
+---
+
+## Process — Per-story contracts
+
+For each story in the work list:
+
+**Target paths** (`PIPELINE.md` canonical):
+
+```text
+features/NNN-slug/{USnn|TSnn}/PRD/NNN_*.md
+features/NNN-slug/{USnn|TSnn}/PLAN/PLAN_NNN_*.md
+```
+
+**Input to contracts:** `STORY.md` + `REFINE/` when present (on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them + feature `FEATURE.md` / `CONTINUITY.md` + selective `memory-bank/` paths from Step 0 (Prior context - max 3 gap questions total per story if needed). Prefer promoted siblings/bank over re-asking.
+
+**Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate.
+
+| Stage | Contract | Must follow |
+|-------|----------|-------------|
+| Spec | `sdd-spec` | Confirm-before-write; pt-BR PRD; no PLAN; no app code |
+| Plan | `sdd-plan` | Requires PRD on disk; baby-step PLAN; no app code |
+
+**Série:** for story S: load `sdd-spec` -> write PRD after **sim** -> load `sdd-plan` -> write PLAN after **sim** -> optional per-story approval -> next story.
+
+**Paralelo (native only):** when `subagents=native`, spawn Task with prompt that: (1) reads story siblings + **memory-bank path** (read-only, selective), (2) drafts PRD then PLAN content for **that story only** (in the Task return - markdown bodies or structured sections), (3) returns **intended** paths + 5-bullet summary + draft text, (4) **must not** `Write` PRD/PLAN to disk. Parent aggregates drafts -> presents for approval -> on **sim**, parent runs `sdd-spec` / `sdd-plan` contracts and performs the only disk writes. Else (**fallback**): run série **in-parent** — do not hard-fail for missing Task.
+
+Respect story **deps**: do not parallelize a story before its dependency stories have PRD+PLAN (or user explicitly waives). Waive-deps is for **story order** only — not for missing `SEC/` / `ARCH/` / `ANALYSIS`.
+
+See also § Contract reuse + § Task child prompt skeleton + § Per-story path layout.
+
+---
+
+## Process — Approval answers (RN01)
+
+After drafts exist (or after each story in série), present summary table (id, PRD path, PLAN path, 3 bullets). Ask (pt-BR) — copy in § Approval gates.
+
+Offer **por história** vs **lote** when N > 1.
+
+| Answer | Action |
+|--------|--------|
+| **sim** (por história) | Set `write_confirmed` as needed per artifact write; write that story's PRD/PLAN; clear `write_confirmed` after; mark story deliver status; continue |
+| **sim** (lote) | **One** batch `sim` authorizes Write for **only** the PRD/PLAN paths listed in the approval table. Parent writes that set (serie within parent); set/clear `write_confirmed` around the batch (or per artifact if contracts require). Do **not** reuse a stale `write_confirmed=true` from an earlier story for unlisted paths |
+| **ajustar** | Revise named story via sdd-spec/sdd-plan contract; re-ask |
+| **cancelar** | Leave drafts; do not emit O3 / develop handoff as approved |
+| *(silence)* | **not** approval - wait |
+
+---
+
+## Process — CONTINUITY + multi-path handoff (RF04)
+
+On approval:
+
+1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path).
+2. Optionally update `FEATURE.md` / story statuses to reflect deliver done.
+3. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings.
+
+Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Forma A (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
+
+See also § CONTINUITY update checklist.
+
+---
+
+## Process — Context pressure (TE02 / RNF02)
+
+Honor `context-management.mdc` thresholds. When pressure is high:
+
+1. Persist `CONTINUITY.md` (estado, decisões, which stories done/pending, exact next invoke).
+2. Offer resume:
+
+```text
+/orchestrate-deliver - <portable-feature-path>
+```
+
+Do **not** paste full PRD/PLAN bodies into the parent chat.
+
+---
+
+## Must not (full)
+
+- Skip Step 0 Memory Bank Gate (unless explicit user `skip-memory-bank`)
+- Create `memory-bank/` under `features/NNN-slug/` or replace CONTINUITY with bank body
+- Dump entire memory-bank into parent or child prompts
+- Write application/production code or tests (`*.cs`, `*.tsx`, `*.ts`, `*.js`, `*.vue`, `*.py`, migrations, etc.)
+- Call `*-developer` / `developer` / `sdd-develop` / `orchestrate-develop` to **implement** (handoff strings only)
+- Rewrite or fork the `sdd-spec` / `sdd-plan` process into a parallel undocumented flow
+- Skip human approval or treat silence as `sim`
+- Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; max-3 gap questions do not replace this gate
+- Treat waive-deps as a waiver for missing `SEC/` / `ARCH/` / `ANALYSIS` (waive-deps is **story order** only)
+- Exit O2 with Memory-bank status `fresh` if style changed or ARCH was approved this feature (set `refreshed`; point-promote `architecture.md` if not already)
+- Write PRD/PLAN at repo root or outside the story folder
+- Create external work-item tracker or org-only compliance content
+- Change the `sdd-develop` one-step-per-session contract
+- Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
+- Assume série vs paralelo without asking
+- Let parallel Task children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
+- Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
+- Require memory-bank for Forma A / manual `sdd-*` (CA7 - gate is Forma C `orchestrate-*` only)
+- Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
+- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
+- Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
+- Paste guideline packs into Task child prompts
+- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+
+---
+
 ## Explicit exclusions
 
 Do **not** introduce:

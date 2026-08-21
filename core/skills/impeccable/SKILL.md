@@ -55,6 +55,10 @@ Production-grade UI design artifacts and/or code per upstream Impeccable command
 
 Do **not** preload all 28 references. Load only the command reference + register for the current task.
 
+**Never by default:** do not glob `reference/**` or preload every command file at session start.
+
+**Progressive load (index-then-fanout):** (1) `PRODUCT.md` / setup context, (2) `reference/<command>.md` for the active command, (3) register (`brand.md` **or** `product.md` — not both unless routing requires), (4) fan-out to `DESIGN-BRIEF-TEMPLATE.md` / `hooks.md` / integration docs only when that command needs them.
+
 ## Setup (every session, before commands)
 
 1. **Project context:** Read `PRODUCT.md` from workspace root (or monorepo target path). If missing -> **STOP** and run `init` flow (`reference/init.md`) before any other command.
