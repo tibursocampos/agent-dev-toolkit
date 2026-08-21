@@ -39,6 +39,25 @@ function Test-HermesAgentsMdContainsPolicyFold {
     return $text.Contains($script:HermesAdapterConstant.PolicyFoldSectionHeading)
 }
 
+function Test-HermesAgentsMdContainsSpawnBridge {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AgentsMdPath
+    )
+
+    if (-not (Test-Path -LiteralPath $AgentsMdPath)) {
+        return $false
+    }
+
+    $text = [System.IO.File]::ReadAllText($AgentsMdPath)
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return $false
+    }
+
+    return $text.Contains($script:HermesAdapterConstant.SpawnBridgeSectionHeading)
+}
+
 function Test-HermesForbiddenRulesTreePublished {
     [CmdletBinding()]
     param(
@@ -172,6 +191,7 @@ function Invoke-HermesSmokeValidate {
 
     $hasNativeSkills = Test-HermesPathHasSkillManifest -SkillsRoot $mapped.FixtureSkillsPath
     $hasPolicyFold = Test-HermesAgentsMdContainsPolicyFold -AgentsMdPath $mapped.FixtureProjectAgentsPath
+    $hasSpawnBridge = Test-HermesAgentsMdContainsSpawnBridge -AgentsMdPath $mapped.FixtureProjectAgentsPath
     $hasNativeRouter = Test-Path -LiteralPath $mapped.FixtureProjectAgentsPath
     $hasForbiddenRulesTree = Test-HermesForbiddenRulesTreePublished -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot
     $hasForbiddenHooks = Test-HermesForbiddenHooksPublished -HooksRoot $mapped.FixtureHooksPath
@@ -184,6 +204,7 @@ function Invoke-HermesSmokeValidate {
     $checks = [ordered]@{
         SkillsPresent        = $hasNativeSkills
         PolicyFoldPresent    = $hasPolicyFold
+        SpawnBridgePresent   = $hasSpawnBridge
         RouterPresent        = $hasNativeRouter
         ForbiddenRulesTree   = $hasForbiddenRulesTree
         ForbiddenHooks       = $hasForbiddenHooks
@@ -200,6 +221,7 @@ function Invoke-HermesSmokeValidate {
     $nativeRequiredMissing = $false
     if ($skillsCapable -and -not $hasNativeSkills) { $nativeRequiredMissing = $true }
     if ($rulesCapable -and -not $hasPolicyFold) { $nativeRequiredMissing = $true }
+    if ($rulesCapable -and -not $hasSpawnBridge) { $nativeRequiredMissing = $true }
     if ($routerCapable -and -not $hasNativeRouter) { $nativeRequiredMissing = $true }
 
     if ($hasCompatArtifacts -and $nativeRequiredMissing) {
@@ -231,6 +253,12 @@ function Invoke-HermesSmokeValidate {
     if ($rulesCapable -and -not $hasPolicyFold) {
         return New-HermesSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
             $script:HermesAdapterMessage.SmokeTe03PolicyFoldMissing -f $mapped.FixtureProjectAgentsPath
+        )
+    }
+
+    if ($rulesCapable -and -not $hasSpawnBridge) {
+        return New-HermesSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
+            $script:HermesAdapterMessage.SmokeTe03SpawnBridgeMissing -f $mapped.FixtureProjectAgentsPath
         )
     }
 

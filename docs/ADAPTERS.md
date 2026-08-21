@@ -524,14 +524,14 @@ Module notes: `adapters/grok/README.md`.
 | Fixture | `scripts/validation/fixtures/hermes` (models `~/.hermes`; pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `router` = true; `hooks` / `plugin` / `agents` = false; `subagents` = `native` |
 | Native layout | `skills/<id>/SKILL.md` + `AGENTS.md` under InstallRoot |
-| Router + policy | Combined `AGENTS.md` (folded `core/policy`; **no** `rules/` directory) |
+| Router + policy | Combined `AGENTS.md` (folded `core/policy` + Hermes-only spawn bridge; **no** `rules/` directory) |
 | Skill invoke | `/id` (e.g. `/help-skills`) |
 | `MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
 ### Native write vs nested home (RN02)
 
-Publish lands at `skills/` and `AGENTS.md` **directly under** InstallRoot. Do **not** publish relative `.hermes/skills` when InstallRoot is already `~/.hermes` (that yields `~/.hermes/.hermes/skills`). `Publish-Policy` folds `core/policy` into `AGENTS.md` — it does **not** write a `rules/` tree or `.mdc`. `Publish-Hooks` and `Publish-Agents` are documented no-ops.
+Publish lands at `skills/` and `AGENTS.md` **directly under** InstallRoot. Do **not** publish relative `.hermes/skills` when InstallRoot is already `~/.hermes` (that yields `~/.hermes/.hermes/skills`). `Publish-Policy` folds `core/policy` into `AGENTS.md` and appends the Hermes-only spawn bridge — it does **not** write a `rules/` tree or `.mdc`. `Publish-Hooks` and `Publish-Agents` are documented no-ops. Core skills/policy/router must **not** teach `delegate_task` outside the SPAWN host map (anti-hallucination for other adapters).
 
 Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** and **`GUARDRAILS_PATH` = InstallRoot/AGENTS.md**. Re-sync overwrites managed files; alien files under InstallRoot are left alone.
 
@@ -548,8 +548,8 @@ User-home `~/.hermes/skills/` does **not** need trust. If InstallRoot is **not**
 | Command | Behavior |
 |---------|----------|
 | `Publish-Skills` | Copies `core/skills` → `skills/` under InstallRoot with placeholder resolve; MEMORY.md seed-if-missing; best-effort `hermes skills trust` |
-| `Publish-Policy` | Folds `core/policy` into `AGENTS.md` (no `rules/` directory) |
-| `Publish-Router` | Writes `AGENTS.md` (combined with folded policy); rewrites `.mdc` → `.md` and `rules/` pointers to this file |
+| `Publish-Policy` | Folds `core/policy` into `AGENTS.md` (no `rules/` directory); appends Hermes-only spawn bridge from `adapters/hermes/assets/spawn-bridge.md` |
+| `Publish-Router` | Writes `AGENTS.md` (router + folded policy + spawn bridge); rewrites `.mdc` → `.md` and `rules/` pointers to this file |
 | `Publish-Agents` | Documented **no-op** (`agents=false`; no `agents/*.md` roster) |
 | `Publish-Hooks` | Documented **no-op** (`hooks=false`; no Cursor `hooks.json`; no Hermes `config.yaml` hooks) |
 | `Invoke-SmokeValidate` | Native-layout filesystem assert; missing `hermes` CLI is not a CI failure |

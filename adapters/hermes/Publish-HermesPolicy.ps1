@@ -140,6 +140,24 @@ function Get-HermesFoldedPolicyMarkdown {
     return (($parts.ToArray()) -join ([Environment]::NewLine + [Environment]::NewLine))
 }
 
+function Get-HermesSpawnBridgeMarkdown {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
+    )
+
+    # Asset lives beside this publish script under adapters/hermes/assets/.
+    $bridgePath = Join-Path (Join-Path $PSScriptRoot $script:HermesAdapterConstant.AssetsDirectoryName) $script:HermesAdapterConstant.SpawnBridgeAssetFileName
+    if (-not (Test-Path -LiteralPath $bridgePath)) {
+        throw ($script:HermesAdapterMessage.SpawnBridgeAssetMissing -f $bridgePath)
+    }
+
+    # RepoRoot kept for call-site consistency with other publish helpers.
+    $null = $RepoRoot
+    return [System.IO.File]::ReadAllText($bridgePath).TrimEnd()
+}
+
 function Get-HermesAgentsMdPublishContent {
     [CmdletBinding()]
     param(
@@ -176,8 +194,14 @@ function Get-HermesAgentsMdPublishContent {
     $routerConverted = Convert-HermesMdcReferencesToMd -Text $routerResolved
     $routerRewritten = Convert-HermesRulesPathReferencesToAgentsMd -Text $routerConverted -ToolkitRootForwardSlash $toolkitRoot
     $foldedPolicy = Get-HermesFoldedPolicyMarkdown -SourcePolicyRoot $sourcePolicyRoot -PlaceholderMap $placeholderMap -ToolkitRootForwardSlash $toolkitRoot
+    $spawnBridge = Get-HermesSpawnBridgeMarkdown -RepoRoot $repoRoot
 
-    return ($routerRewritten.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + $foldedPolicy.TrimEnd() + [Environment]::NewLine)
+    $nl = [Environment]::NewLine
+    return (
+        $routerRewritten.TrimEnd() + $nl + $nl +
+        $foldedPolicy.TrimEnd() + $nl + $nl +
+        $spawnBridge + $nl
+    )
 }
 
 function Write-HermesManagedAgentsMd {
