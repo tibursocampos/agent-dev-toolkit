@@ -39,6 +39,8 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 
 `validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
 
+`Assert-HermesSpawnIsolation.ps1` (check name `hermes-spawn-isolation`) keeps Hermes `delegate_task` out of core policy/router/skills (SPAWN host-map allowlist only) and proves the Hermes AGENTS spawn bridge does not leak into other adapters’ published `AGENTS.md` / rules.
+
 ## Per-agent validate
 
 Runs `validate-core`, then the adapter’s `Invoke-SmokeValidate` against a fixture InstallRoot (default from the registry / adapter):

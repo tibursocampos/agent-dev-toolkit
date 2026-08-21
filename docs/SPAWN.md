@@ -34,6 +34,8 @@ Sources: official host product docs (primary), `adapters/registry.json`, SPAWN /
 
 **Honesty:** promote/demote only with product evidence. Demote registry `native` → `none` only with a documented regression. Absence of a Spawn section in an adapter README does **not** by itself imply `none`.
 
+**Anti-hallucination:** agents must use **only** their own host row from the portable SPAWN map (`core/skills/_shared/agents/SPAWN.md` § Use only the current host row). Hermes-only operability (`delegate_task` goal/context bridge) is appended to Hermes `AGENTS.md` at publish — it must **not** appear in core policy/router or in other adapters’ published `AGENTS.md` / rules.
+
 ## Antigravity dual-layer (version gate)
 
 Pré-2.0: Agent Manager with parallel agents in separate conversations — **not** hierarchical in-session delegation. Since 2.0: `invoke_subagent` (async, nesting ≤10, worktrees).

@@ -47,6 +47,8 @@ $adapterContractScriptName = $script:ToolkitConstant.AssertAdapterContractScript
 $adapterContractCheckName = $script:ToolkitConstant.AdapterContractCheckName
 $orchestrateSpawnFallbackScriptName = $script:ToolkitConstant.AssertOrchestrateSpawnFallbackScriptName
 $orchestrateSpawnFallbackCheckName = $script:ToolkitConstant.OrchestrateSpawnFallbackCheckName
+$hermesSpawnIsolationScriptName = $script:ToolkitConstant.AssertHermesSpawnIsolationScriptName
+$hermesSpawnIsolationCheckName = $script:ToolkitConstant.HermesSpawnIsolationCheckName
 $antigravitySubagentsProbeScriptName = $script:ToolkitConstant.AssertAntigravityOfficialLayoutScriptName
 $antigravitySubagentsProbeCheckName = $script:ToolkitConstant.AntigravitySubagentsProbeCheckName
 $javaDeveloperRoutingScriptName = $script:ToolkitConstant.AssertJavaDeveloperRoutingScriptName
@@ -126,6 +128,7 @@ $coreChecks = @(
     @{ Name = $spawnContractCheckName; Script = $spawnContractScriptName },
     @{ Name = $adapterContractCheckName; Script = $adapterContractScriptName },
     @{ Name = $orchestrateSpawnFallbackCheckName; Script = $orchestrateSpawnFallbackScriptName },
+    @{ Name = $hermesSpawnIsolationCheckName; Script = $hermesSpawnIsolationScriptName },
     @{ Name = $antigravitySubagentsProbeCheckName; Script = $antigravitySubagentsProbeScriptName },
     @{ Name = $javaDeveloperRoutingCheckName; Script = $javaDeveloperRoutingScriptName },
     @{ Name = $installRootSafetyCheckName; Script = $installRootSafetyScriptName },
