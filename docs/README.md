@@ -9,7 +9,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [INSTALL.md](INSTALL.md) | Everyone | Prerequisites, clone, sync, live home, uninstall |
-| [guides/README.md](guides/README.md) | Daily usage | Decision tree — which skill / Forma to use |
+| [guides/README.md](guides/README.md) | Daily usage | Decision tree — which skill / **work track** to use |
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite; visitors: read only) |
@@ -48,6 +48,6 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 
 | Path | Purpose |
 |------|---------|
-| `documentation-plan/` (local / gitignored) | Maintainer-only doc plan (`plan.md` via `document-plan` / `document-implement`). **Not versioned** in this toolkit — create locally when needed; do not link or publish it. |
+| `documentation-plan/plan.md` | Maintainer doc plan (`document-plan` / `document-implement`). **Gitignored** — created/updated at feature **P-DOC** (e.g. 005 modernize SDD contracts). Do not publish via MkDocs. |
 
 For daily skill choice, prefer **[guides/README.md](guides/README.md)** over reading `SKILL.md` files directly.

@@ -30,15 +30,15 @@ Run **before** triage (SKILL §3). Contract: `MEMORY-BANK.md`. Skill: `memory-ba
 | | `brownfield` | Touches existing modules, packages, APIs, or data |
 | | `operational` | Ops/process/tooling (scripts, CI, sync) more than product domain |
 | **Complexity** | `trivial` | One file / isolated fix; clear stack skill |
-| | `medium` | Single story or small feature; Forma A often enough |
+| | `medium` | Single story or small feature; Classic SDD *(formerly Forma A)* often enough |
 | | `complex` | Multi-story, unclear blast radius, or several `needs_*` true |
 | **Scope** | `backend` / `frontend` / `fullstack` | Primary delivery surface |
 
 | Complexity | Suggested path (RF01) |
 |------------|------------------------|
 | `trivial` | `developer` / `*-developer` - skip full O1 unless user insists |
-| `medium` | Forma A (`sdd-spec` -> …) **or** O1 if multi-US/TS |
-| `complex` | Full Forma C O1 -> approval -> O2 |
+| `medium` | Classic SDD *(formerly Forma A)* (`sdd-spec` -> …) **or** O1 if multi-US/TS |
+| `complex` | Full Orchestrated Delivery *(formerly Forma C)* O1 -> approval -> O2 |
 
 **TE01:** If nature or any `needs_*` is unclear after a short Prior-context pass, ask ≤3 high-cost questions. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
 

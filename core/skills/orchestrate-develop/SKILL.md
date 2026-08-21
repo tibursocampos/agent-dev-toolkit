@@ -1,6 +1,6 @@
 ---
 name: orchestrate-develop
-description: Forma C O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
+description: Orchestrated Delivery *(formerly Forma C)* O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Forma C O3 after O2 handoff.
+Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery *(formerly Forma C)* O3 after O2 handoff.
 
 Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a story.
 
@@ -44,14 +44,20 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Parent orchestrator never** writes application code, never marks multiple PLAN steps done in one child, and never bypasses `sdd-develop` gates (`step_confirmed`, tests before complete).
 
-**Alternative (always valid):** user runs manual `/sdd-develop - <portable-plan-path> - Step N` without this skill (RF05 / CA5). Manual Forma A does **not** require memory-bank (CA7).
+**Alternative (always valid):** user runs manual `/sdd-develop - <portable-plan-path> - Step N` without this skill (RF05 / CA5). Manual Classic SDD *(formerly Forma A)* does **not** require memory-bank (CA7).
+
+**Mental map (ids unchanged):** O3 ≈ **apply** (implement PLAN steps via `sdd-develop`). O1 ≈ explore; O2 ≈ FEATURE+PRD+CHANGE. See `CHANGE-CONTRACT.md`.
+
+**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Task parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
+
+**Living loop / TRACE (REQ-006 / CA5):** at feature-wave close, children (or the final develop child) append `features/NNN-slug/TRACE.jsonl` and run **converge → sync current → archive**, then `validate-trace -RequireArchiveComplete`. Parent must **not** use O3 parallelism as the archive verifier. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
 ## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Pipeline Forma C, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
@@ -72,7 +78,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 | Situation | Path |
 |-----------|------|
-| Gate / Forma C | `PIPELINE.md` |
+| Gate / Orchestrated Delivery | `PIPELINE.md` |
 | Feature / PLAN / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Before Task / fallback to manual develop | `SPAWN.md` |
@@ -88,7 +94,7 @@ Read `reference.md` for procedural tables, prompts, and checklists under each st
 Apply Full caveman prefs when active. Details: `reference.md` § Process — Caveman (Full cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery *(formerly Forma C)*) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
 
 ### 2. Resolve feature / PLAN set
 Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queue or **STOP** if missing. Details: `reference.md` § Process — Resolve feature / PLAN set.

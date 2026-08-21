@@ -1,0 +1,3 @@
+{"ts":"2026-08-21T14:00:00Z","event":"converge","feature":"features/000-fixture-trace-bad","summary":"ok"}
+this is not json
+{"ts":"2026-08-21T14:10:00Z","event":"archive","feature":"features/000-fixture-trace-bad","status":"archived","summary":"bad middle line"}

@@ -60,7 +60,7 @@ Soft warn (do not auto-fail): bullet count changes by more than ~15% — tell th
 
 ## When to suggest
 
-- CONTINUITY.md grown large after many Forma C passes
+- CONTINUITY.md grown large after many Orchestrated Delivery *(formerly Forma C)* passes
 - User said `caveman on` and asks to shrink context / memory
 - Step N memory refresh-light when narrative files dominate token cost
 

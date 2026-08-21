@@ -70,7 +70,7 @@ Copies also ship inside `core/skills/_shared/sdd-artifacts/` for skill lazy-load
 
 ### Artifact storage (repository vs global)
 
-Where Classic / Forma C writes land is chosen once per project (first SDD write). Modes share the same co-location rule: `features/` and `memory-bank/` always sit under one storage root — **never** place `memory-bank/` under `features/NNN-slug/`.
+Where Classic SDD / Orchestrated Delivery *(formerly Forma C)* writes land is chosen once per project (first SDD write). Modes share the same co-location rule: `features/` and `memory-bank/` always sit under one storage root — **never** place `memory-bank/` under `features/NNN-slug/`.
 
 | Mode | Feature root | Memory-bank root |
 |------|--------------|------------------|
@@ -83,6 +83,27 @@ Where Classic / Forma C writes land is chosen once per project (first SDD write)
 Manifest keys: `classic.storage_mode` (`repository` \| `global`) and `classic.path`. Runtime resolves the host-aware root as `effective_SDD_ROOT` (`<InstallRoot>/sdd`); docs and publish may still show `{{SDD_ROOT}}`. Sync prepares that root via `Get-SddRoot -Prepare` (seed `manifest.json` only when absent).
 
 No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `features/NNN-slug/...`.
+
+### Work tracks and internal contracts
+
+| Track | Alias (this release only) | Call flow |
+|-------|---------------------------|-----------|
+| **Classic SDD** | *(formerly Forma A)* | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| **Backlog Refine** | *(formerly Forma B)* | `refine-story` → `split-story-checklist` |
+| **Orchestrated Delivery** | *(formerly Forma C)* | Step 0 → O1 → O2 → O3 \| `sdd-develop` |
+
+Skill ids and invocation stay the same. Inside those skills, contracts add gates/artifacts:
+
+| Contract | Path / script | Role |
+|----------|---------------|------|
+| REQ + AC | PRD/PLAN templates | Stable IDs; PLAN covers REQ |
+| Structural validate | `validate-prd` / `validate-plan` (+ CHANGE/EVD/TRACE validators) | Deterministic exit codes; not LLM-as-validator |
+| CHANGE | `features/NNN-slug/CHANGE.md` | Brownfield delta vs current |
+| EVD + STATE | `features/NNN-slug/EVD/`, `STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`) |
+| TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync |
+| Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
+
+**OOS:** SQLite/FTS as deliverable; second toolkit; folders `openspec/`, `.specs/`, `.specify/`. Alias Forma removed in the **next** release after this track rename (RN07).
 
 ## Code guidelines and architecture selection
 
@@ -100,7 +121,7 @@ Styles under B (load **one** primary file): `concentric-dependency`, `vertical-s
 
 ### Architect confirm gate
 
-- **Greenfield** / `needs_domain` with no established ARCH style: specialist `architect` (`_shared/agents/prompts/architect.md`, roster in `_shared/agents/ROSTER.md`) proposes a draft → operator answers **sim** → final ARCH is written. Silence is not approval (`needs-confirm` until sim). Spawned from Forma C `orchestrate-analyze` (§7b), not as a slash skill.
+- **Greenfield** / `needs_domain` with no established ARCH style: specialist `architect` (`_shared/agents/prompts/architect.md`, roster in `_shared/agents/ROSTER.md`) proposes a draft → operator answers **sim** → final ARCH is written. Silence is not approval (`needs-confirm` until sim). Spawned from Orchestrated Delivery `orchestrate-analyze` (§7b), not as a slash skill.
 - **Brownfield:** discover existing layout / ARCH first and **mirror**; do not re-pick a style unless the operator asks.
 
 ### Token discipline

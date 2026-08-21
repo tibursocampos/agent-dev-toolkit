@@ -1,6 +1,6 @@
 ---
 name: orchestrate-deliver
-description: Forma C O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
+description: Orchestrated Delivery *(formerly Forma C)* O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Forma C O2 after an approved O1 backlog.
+Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Orchestrated Delivery *(formerly Forma C)* O2 after an approved O1 backlog.
 
 Required: full feature path (or resolvable `features/NNN-slug/`).
 
@@ -38,7 +38,10 @@ Under each approved story folder (`USnn` / `TSnn`):
 
 1. `PRD/NNN_*.md` - via **`sdd-spec` contract** (what, not how)
 2. `PLAN/PLAN_NNN_*.md` - via **`sdd-plan` contract** (baby steps)
-3. Feature `CONTINUITY.md` - phase `deliver`, decisions, typed multi-path handoff, **Memory-bank** path + status
+3. Feature-root `CHANGE.md` - **required when FEATURE Nature is brownfield** (ADDED \| MODIFIED \| REMOVED vs current `memory-bank/` docs; **greenfield** must not force an empty stub) — `CHANGE-CONTRACT.md` / `sdd-spec`
+4. Feature `CONTINUITY.md` - phase `deliver`, decisions, typed multi-path handoff, **Memory-bank** path + status
+
+**Mental map (ids unchanged):** O2 ≈ **FEATURE + PRD + CHANGE** (then PLAN). O1 ≈ explore; O3 ≈ apply. Skill ids stay `orchestrate-*`.
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** mode selection / story contracts. Resolve `bank_root` via `STORAGE.md` - never under `features/`. CONTINUITY remains the feature phase/handoff source; bank does not replace it.
 
@@ -51,13 +54,14 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Forma C, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | CONTINUITY / FEATURE templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/` |
 | Spec contract | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` as needed) |
 | Plan contract | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` as needed) |
+| CHANGE brownfield / current | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
 | Process details, modes, approval, Must not | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
@@ -71,7 +75,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 
 | Situation | Path |
 |-----------|------|
-| Gate / Forma C / siblings STOP | `PIPELINE.md` |
+| Gate / Orchestrated Delivery / siblings STOP | `PIPELINE.md` |
 | Feature / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Before paralelo Task wave | `SPAWN.md` |
@@ -87,7 +91,7 @@ Read `reference.md` for procedural tables, prompts, and checklists under each st
 Apply Lite caveman prefs when active. Details: `reference.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery *(formerly Forma C)*) and `SESSION.md`. **STOP** if any gate unchecked.
 
 ### 2. Resolve feature and storage
 Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEATURE/CONTINUITY missing. Details: `reference.md` § Process — Resolve feature and storage.
@@ -108,7 +112,7 @@ Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-on
 Present summary; **sim** / ajustar / cancelar (por história | lote). Details: `reference.md` § Process — Approval answers + § Approval gates.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
-Update CONTINUITY phase `deliver`; emit manual `sdd-develop` + O3 handoff paths. Details: `reference.md` § Process — CONTINUITY + multi-path handoff + § Example handoff.
+Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); emit manual `sdd-develop` + O3 handoff paths. Details: `reference.md` § Process — CONTINUITY + multi-path handoff + § Example handoff + § Cross-artifact analyze.
 
 ### 9. Context pressure (TE02 / RNF02)
 Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Details: `reference.md` § Process — Context pressure.
@@ -125,7 +129,7 @@ Enforce the full list in `reference.md` § Must not (full). Critical always-on: 
 | Context pause mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
-| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Forma A) |
+| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD *(formerly Forma A)*) |
 
 ### Canonical develop handoffs
 

@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-spec`, `create spec`, `new feature`.
 
 ## Outcome
 
-A complete **PRD** (agent `.md` artifact) in **Brazilian Portuguese (pt-BR)** at a **canonical** path under `features/NNN-slug/USnn/PRD/` (Forma A default story `US01`; or `TSnn`). Global: `{{SDD_ROOT}}/<repo-id>/features/...`. Root/flat `PRD/` is **not** a valid Classic SDD path. English only if the user overrides in this invocation. Mandatory input for **sdd-plan**.
+A complete **PRD** (agent `.md` artifact) in **Brazilian Portuguese (pt-BR)** at a **canonical** path under `features/NNN-slug/USnn/PRD/` (Classic SDD *(formerly Forma A)* default story `US01`; or `TSnn`). Global: `{{SDD_ROOT}}/<repo-id>/features/...`. Root/flat `PRD/` is **not** a valid Classic SDD path. English only if the user overrides in this invocation. Mandatory input for **sdd-plan**.
 
 ## PRD boundaries
 
@@ -44,6 +44,9 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 |------|-------------------|
 | Pipeline guards, modes, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| CHANGE brownfield / current specs (`CHANGE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
+| PRD document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PRD.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | SDD artifact language | `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc` |
 | .NET / C# context | `dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
@@ -65,15 +68,15 @@ Apply Phase A/B: in Plan/Ask, draft in chat only until Agent + user **sim** on s
 
 ### 0. Workspace
 
-Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.md`. Detect stack. Resolve `<repo-id>` and classic feature root (`STORAGE.md`). Glob PRDs under `features/**/PRD/` only (workspace + global feature root) for `NNN`. Forma A default story folder = `US01` when unspecified.
+Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.md`. Detect stack. Resolve `<repo-id>` and classic feature root (`STORAGE.md`). Glob PRDs under `features/**/PRD/` only (workspace + global feature root) for `NNN`. Classic SDD *(formerly Forma A)* default story folder = `US01` when unspecified.
 
 ### 1. Requirements
 
-**Prior context** (chat, code-review, backlog, **feature siblings**, **promoted bank**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings).
+**Prior context** (chat, code-review, backlog, **feature siblings**, **promoted bank**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings). Apply **selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste a full PRD into prompts/handoffs — paths + short summaries only.
 
 **Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including `.cursor/plans/`), follow `PIPELINE.md` § Promote: **Read** and copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS` before synthesizing the PRD. Prefer **promoted siblings and memory-bank** over re-asking. Pointer-only citations are not Prior context.
 
-When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true (those folders are **required**, not optional). Prefer sibling/bank content over re-asking; still max **3** gap questions.
+When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true (those folders are **required**, not optional). Prefer sibling/bank content over re-asking; still max **3** gap questions. Bank reads = named files only (never recurse-load the whole tree into context).
 
 **Required siblings STOP:** If FEATURE `needs_*` is true (or brownfield) and the story lacks the matching `ANALYSIS/` / `ARCH/` / `SEC/` folder/files: **STOP**. Do **not** Write PRD. Return to O1 (`/orchestrate-analyze`) or create those folders first. Max-3 gap questions do **not** replace this gate.
 
@@ -92,7 +95,11 @@ Wait for answers.
 
 ### 2-5. Confirm repo, explore code, clarify (<=5), technical analysis
 
-Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/risks for the PRD.
+Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/risks for the PRD. Capture **blast radius** when multiple areas change.
+
+### 5.5 Challenge vagueness + REQ contract
+
+Before drafting: challenge vague goals/AC ("works correctly", "as expected", "funciona corretamente"). Require observable outcomes. Assign stable **REQ-NNN** IDs mapped to CA; list explicit **OOS**; use **EARS** only when hybrid clarity helps (not universal). Details: `reference.md` + `templates/sdd/PRD.md`.
 
 ### 6. Context checkpoint
 
@@ -100,7 +107,7 @@ Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/ris
 
 ### 6.75 Confirm before write
 
-Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets, and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only.
+Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets (incl. REQ count / OOS), and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only.
 
 Record `artifact_language` (default pt-BR) from manifest or user override.
 
@@ -108,8 +115,25 @@ Record `artifact_language` (default pt-BR) from manifest or user override.
 
 1. Validate path per `PIPELINE.md` section Path validation - abort if non-canonical (**writes** only under `features/.../PRD/`).
 2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
-3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `reference.md`.
-4. Product `docs/` in scope: ask doc language first.
+3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `templates/sdd/PRD.md` (authoring rules in `reference.md`).
+4. **Brownfield CHANGE (REQ-004):** If FEATURE `Nature` is `brownfield` (or sibling FEATURE under `features/NNN-slug/` says brownfield), also Write `features/NNN-slug/CHANGE.md` from `templates/features/CHANGE.md` with **ADDED \| MODIFIED \| REMOVED** vs **current** (`memory-bank/` living docs — never `openspec/` / `.specs/` / `.specify/`). **Greenfield** must **not** force an empty CHANGE stub. Details: `CHANGE-CONTRACT.md`.
+5. Product `docs/` in scope: ask doc language first.
+
+### 7.5 Structural validate before advance
+
+After a successful `Write`, run structural **`validate-prd`** (no LLM) before handoff:
+
+```
+.\scripts\validation\validate-prd.ps1 -Path <written-prd-path>
+```
+
+When `CHANGE.md` was written (brownfield), also run:
+
+```
+.\scripts\validation\validate-change.ps1 -Path <features/NNN-slug/CHANGE.md>
+```
+
+(Toolkit consumers: same script names under the synced InstallRoot validation folder when present.) Exit ≠ 0 → **STOP**; fix REQ-IDs / CA headings / CHANGE sections; re-run until exit 0. Do **not** advance to `/sdd-plan` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`, `Assert-ChangeContract.ps1`.
 
 Report path, storage, language, `.gitignore` changes. Handoff with **portable** feature path (`STORAGE.md` § Portable path):
 
@@ -126,7 +150,11 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 - Write PRD when flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing for true FEATURE `needs_*` / brownfield — **STOP**; max-3 gap questions do not replace this gate
 - `Edit`/`Write` production or test code; create PLAN in this session
 - Claim "PRD saved" without successful `Write`
-- External trackers; paste full guideline bodies into PRD
+- External trackers; do not paste full guideline bodies into PRD
+- Do not dump entire `memory-bank/` or paste full PRD into prompts/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
+- Do not ship vague CA/REQ without challenge; do not omit REQ-IDs or OOS from the PRD body
+- Do not hand off to `sdd-plan` when `validate-prd` exits ≠ 0
+- Do not hand off when brownfield lacks `features/NNN-slug/CHANGE.md` or `validate-change` exits ≠ 0; do not invent empty CHANGE for greenfield
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 
 ## Handoff

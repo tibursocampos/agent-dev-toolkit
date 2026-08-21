@@ -1,0 +1,2 @@
+{"ts":"2026-08-21T14:00:00Z","event":"develop_start","feature":"features/000-fixture-trace-incomplete","summary":"Missing living-loop triad on purpose"}
+{"ts":"2026-08-21T14:05:00Z","event":"note","feature":"features/000-fixture-trace-incomplete","summary":"Incomplete TRACE for Assert-TraceArchiveContract"}

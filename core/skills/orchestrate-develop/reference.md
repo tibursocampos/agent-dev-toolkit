@@ -14,7 +14,7 @@ Anti-bypass checklist, step queue, safe parallelism, CONTINUITY, Task child prom
 - [ ] Parent will **not** implement app code
 - [ ] Child prompts include `memoryBankPath` (read-only, selective)
 
-If no PLAN -> hand off to O2 / `sdd-plan`. If user prefers no orchestrator -> document manual `sdd-develop` and stop (Forma A: no memory-bank gate - CA7).
+If no PLAN -> hand off to O2 / `sdd-plan`. If user prefers no orchestrator -> document manual `sdd-develop` and stop (Classic SDD *(formerly Forma A)*: no memory-bank gate - CA7).
 
 ---
 
@@ -88,6 +88,11 @@ Parallel O3 is **supported**. Root cause of gate races is fixed by PLAN-scoped (
 | Same PLAN steps marked parallel-safe + disjoint files + `plan-{hash}-step-{N}.json` each | Guessing independence without asking |
 | Serial default when unsure; **cap 4** concurrent children (wave if more) | Worktrees / multi-checkout for multi-US (out of MVP) |
 | After any `plan-{hash}-step-*.json` exists for a PLAN, keep using PLAN+step for that PLAN | Mixing `plan-{hash}.json` and `plan-{hash}-step-N.json` on the same PLAN |
+| Implementation parallelism for disjoint ready steps (with **sim**) | Using O3 / Task parallelism **as the evidence verifier** (**Verifier ≠ O3**) |
+
+Evidence-or-zero (`EVD/` + `STATE.md`, levels `off`\|`cheap`\|`standard`\|`strict`) runs **inside** each `sdd-develop` child via `validate-evidence` — sequential script gate. See `EVD-STATE-CONTRACT.md`.
+
+Living loop TRACE (`converge` → `sync_current` → `archive` at `features/NNN-slug/TRACE.jsonl`) runs at wave close via `validate-trace -RequireArchiveComplete` — also sequential; **not** an O3 parallel verifier. See `TRACE-ARCHIVE-CONTRACT.md`.
 
 Ask before parallel:
 
@@ -125,6 +130,8 @@ Give each child:
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
 4. Prior-context paths only (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**) - do not paste bodies; selective bank read only
 5. Must stop after updating PLAN for this step; must run targeted tests before complete
+5b. When level ≥ `cheap`: update `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)
+5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)
 6. Return: `{ planPath, step, status: done|blocked, files[], testsSummary, nextStep?, blockedReason? }`
 7. Must not: other PLAN steps; weaken gates; skip tests; auto-commit unless user asked inside that child session; write develop gates to the flat repo session when PLAN path is known; write under `memory-bank/` unless this child is explicitly running memory-bank-init (normal develop children: read-only)
 
@@ -202,7 +209,7 @@ Handoff `/code-review` (user may pass `- single` / `- multi-angle`; if omitted, 
 | Writes | PRD/PLAN | CONTINUITY + spawns implementers | Code + PLAN progress |
 | App code | No | Children only | Yes (the skill itself) |
 | Steps per session | N/A | **One** per child | **One** |
-| Required? | After O1 for Forma C | **Optional** | Always valid |
+| Required? | After O1 for Orchestrated Delivery *(formerly Forma C)* | **Optional** | Always valid |
 
 ---
 
@@ -254,7 +261,7 @@ Repository mode: ensure SDD `.gitignore` per `STORAGE.md` before any bank write.
 |--------|--------|
 | Feature path | Glob `**/PLAN/PLAN_*.md` under that feature; build story/PLAN queue |
 | Single PLAN path | Work that PLAN only; still update feature `CONTINUITY.md` if present |
-| Missing PLAN | **STOP** - suggest O2 or Forma A |
+| Missing PLAN | **STOP** - suggest O2 or Classic SDD *(formerly Forma A)* |
 
 ```text
 Não encontrei PLAN sob `{path}`.
@@ -412,12 +419,16 @@ If no app code changed this run, skip Step N. See also § Step N - refresh-light
 - Force multi-angle code-review
 - Introduce git worktrees for multi-US parallelism (MVP)
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
-- Require memory-bank for manual Forma A `sdd-develop` (CA7)
+- Require memory-bank for manual Classic SDD *(formerly Forma A)* `sdd-develop` (CA7)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
 - Paste guideline packs into Task child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+- Use O3 / Task parallelism as the evidence verifier (**Verifier ≠ O3**; evidence-or-zero is sequential `validate-evidence` in `sdd-develop`)
+- Mark develop children done at level ≥ `cheap` without passing `validate-evidence` (`EVD-STATE-CONTRACT.md`)
+- Use O3 / Task parallelism as the archive / TRACE verifier (**Verifier ≠ O3**; living loop is sequential `validate-trace`)
+- Declare feature archive done without `validate-trace -RequireArchiveComplete` (`TRACE-ARCHIVE-CONTRACT.md`)
 
 ---
 
@@ -429,5 +440,5 @@ If no app code changed this run, skip Step N. See also § Step N - refresh-light
 - Mandatory multi-angle review
 - Git worktrees for multi-US
 - external work-item tracker or org-only compliance content
-- Spec Kit / `.specify` (removed from toolkit - use Formas A/B/C)
+- Spec Kit / `.specify` (removed from toolkit - use Classic SDD / Backlog Refine / Orchestrated Delivery)
 - Weakening `sdd-develop` one-step contract

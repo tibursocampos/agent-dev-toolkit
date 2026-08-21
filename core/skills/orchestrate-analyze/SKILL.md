@@ -1,6 +1,6 @@
 ---
 name: orchestrate-analyze
-description: Forma C O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
+description: Orchestrated Delivery *(formerly Forma C)* O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Forma C analysis for a complex / multi-story / brownfield feature.
+Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Orchestrated Delivery *(formerly Forma C)* analysis for a complex / multi-story / brownfield feature.
 
 Optional: pasted feature description, existing notes path, or prior refine output.
 
@@ -48,12 +48,14 @@ Orchestrator **does not** implement application code. When a `needs_*` flag (or 
 
 Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). Does **not** call trackers.
 
+**Mental map (ids unchanged):** O1 ≈ **explore** (FEATURE, stories, specialists). O2 ≈ FEATURE+PRD+CHANGE; O3 ≈ apply. See `CHANGE-CONTRACT.md`.
+
 ## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Forma C, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
@@ -75,7 +77,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 | Situation | Path |
 |-----------|------|
-| Gate / Forma C / promote | `PIPELINE.md` |
+| Gate / Orchestrated Delivery / promote | `PIPELINE.md` |
 | Feature root / bank root / portable paths | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Set `needs_*` / brownfield spawn rules | `ROSTER.md` |
@@ -93,7 +95,7 @@ Read `reference.md` for procedural tables, prompts, and checklists under each st
 Apply Lite caveman prefs when active. Details: `reference.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery *(formerly Forma C)*) and `SESSION.md`. **STOP** if any gate unchecked.
 
 ### 2. Resolve storage
 Load `STORAGE.md` (`$Workflow = classic`); resolve feature + bank roots; path sanitize; gitignore per STORAGE. Details: `reference.md` § Process — Resolve storage.
@@ -139,8 +141,8 @@ Enforce the full list in `reference.md` § Must not (full). Critical always-on: 
 | Backlog approved | `/orchestrate-deliver - <portable-feature-path>` |
 | Context pause mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
 | Trivial after triage | `/developer` or stack `*-developer` |
-| Single clear story, skip O2 multi | `/sdd-spec` (Forma A) after STORY exists |
-| Informal single item only | `/refine-story` (Forma B) |
+| Single clear story, skip O2 multi | `/sdd-spec` (Classic SDD *(formerly Forma A)*) after STORY exists |
+| Informal single item only | `/refine-story` (Backlog Refine *(formerly Forma B)*) |
 
 ### Canonical O2 handoff (exact pattern)
 

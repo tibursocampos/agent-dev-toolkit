@@ -16,17 +16,21 @@ Shared packs live under `core/skills/_shared/` — not invoked as skills (except
 
 Credits for Caveman / Impeccable / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
-## Formas (A / B / C)
+## Work tracks
 
-| Forma | Skills | When |
-|-------|--------|------|
-| **A** Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
-| **B** Backlog prep | `refine-story`, `split-story-checklist` | Rough bug/story first |
-| **C** Orchestrated | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+Canonical operator names (skill ids unchanged). Alias *(formerly Forma …)* only in **this** release; remove in the **following** release (RN07).
+
+| Track | Alias (this release) | Skills | When |
+|-------|----------------------|--------|------|
+| **Classic SDD** | *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
+| **Backlog Refine** | *(formerly Forma B)* | `refine-story`, `split-story-checklist` | Rough bug/story first |
+| **Orchestrated Delivery** | *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+
+**Phrase:** same SDD/orchestration call flow; extra gates and artifacts inside — not new skills or tracks as products.
 
 Decision tree: [guides/README.md](guides/README.md).
 
-## Classic SDD (Forma A)
+## Classic SDD *(formerly Forma A)*
 
 | Skill | Purpose |
 |-------|---------|
@@ -42,7 +46,7 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
 ```
 
-## Forma B — backlog prep
+## Backlog Refine *(formerly Forma B)*
 
 | Skill | Purpose |
 |-------|---------|
@@ -51,16 +55,16 @@ sdd-develop - <plan-path> - Step N
 
 Prefer story folders when present; see [guides/README.md](guides/README.md).
 
-## Forma C — orchestration
+## Orchestrated Delivery *(formerly Forma C)*
 
 | Skill | Purpose |
 |-------|---------|
-| `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0 for Forma C) |
+| `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0 for Orchestrated Delivery) |
 | `orchestrate-analyze` | Triage, specialists, backlog structure |
 | `orchestrate-deliver` | PRD + PLAN per story via `sdd-spec` / `sdd-plan` contracts |
 | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` contract |
 
-Orchestrators **reuse** classic SDD contracts; they do not replace them.
+Orchestrators **reuse** Classic SDD contracts; they do not replace them. Internal contracts (REQ, CHANGE, EVD/STATE, TRACE, validate-*) run inside the same invocations.
 
 ## Developer routing and stack
 
@@ -117,7 +121,7 @@ Orchestrators **reuse** classic SDD contracts; they do not replace them.
 |------|----------------------------------|
 | Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
 | `code-review` | Choose single vs multi-angle (no silent default) |
-| Forma C | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code |
+| Orchestrated Delivery *(formerly Forma C)* | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code |
 | `sdd-develop` | One PLAN step per session |
 | `document-plan` | Asks doc language before writing |
 | Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |

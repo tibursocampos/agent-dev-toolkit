@@ -1,16 +1,20 @@
-# PRD template (spec skill)
+# PRD authoring (spec skill)
 
-Use this template when writing the PRD at the resolved path (repository or global). **Default:** all section titles and body text in **Brazilian Portuguese (pt-BR)**. English only if the user overrides in the skill invocation - see `sdd-artifact-language-pt-br.mdc`.
+Authoritative document template: `skills/_shared/templates/sdd/PRD.md` (toolkit: `core/skills/_shared/templates/sdd/PRD.md`).
+
+**Default:** section titles and body in **Brazilian Portuguese (pt-BR)**. English only if the user overrides in the skill invocation - see `sdd-artifact-language-pt-br.mdc`.
 
 **Identifiers** (types, methods, APIs, paths, test names) stay in **English**. No implementation code in the PRD.
 
-Storage: `STORAGE.md`. Pipeline (confirm-before-write, canonical paths, modes): `PIPELINE.md`.
+Storage: `STORAGE.md`. Pipeline (confirm-before-write, canonical paths, modes): `PIPELINE.md`.  
+Selective retrieval: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`).  
+Brownfield CHANGE / current specs: `CHANGE-CONTRACT.md` (template `templates/features/CHANGE.md`).
 
 ## Filename and numbering
 
 | Part | Rule |
 |------|------|
-| Folder | From manifest: `features/NNN-slug/USnn/PRD/` (Forma A default `US01`) or global under `<classic.path>/features/...` |
+| Folder | From manifest: `features/NNN-slug/USnn/PRD/` (Classic SDD *(formerly Forma A)* default `US01`) or global under `<classic.path>/features/...` |
 | Sequence | Next `NNN` (3 digits) after listing PRDs under `features/**/PRD/` only (workspace + global feature root for `<repo-id>`) |
 | Slug | Short ASCII summary (kebab-case or snake_case; Portuguese words allowed) |
 | Example (repo) | `features/002-exportacao-perfil/US01/PRD/002_exportacao_perfil_usuario.md` |
@@ -30,231 +34,61 @@ If the PRD scope includes creating or updating **project** docs under `docs/` or
 
 ---
 
-## Document template (pt-BR - default)
+## Template usage
 
-Copy from the heading below through **Histórico de alterações**, then remove instructional comments in brackets.
+1. `Read` `skills/_shared/templates/sdd/PRD.md`.
+2. Copy into the canonical PRD path; remove instructional brackets.
+3. Fill **REQ-IDs** (`REQ-NNN`), **verifiable** CA (BDD), **OOS**, and **blast radius** when impact spans multiple areas.
+4. **EARS** is hybrid/optional — use only when event/condition clarity helps; never require EARS for every REQ.
 
-```markdown
-# PRD: [Nome da feature]
+## Challenge vagueness (before Write)
 
-| Campo | Valor |
-|-------|--------|
-| **Sequência** | NNN |
-| **Rastreamento** | [issue GitHub / slug / TBD] |
-| **Versão** | 1 |
-| **Data** | AAAA-MM-DD |
-| **Status** | Pronto para planejamento |
-| **Prioridade** | Alta / Média / Baixa |
-| **Complexidade** | Baixa / Média / Alta |
-| **Repositório** | [nome na raiz do git] |
-| **Stack** | [.NET / Angular / outro] |
+Reject or rewrite acceptance / REQ text that cannot be verified. Examples of **forbidden** phrasing: "works correctly", "as expected", "properly", "funciona corretamente", "como esperado", "de forma adequada".
 
-## 1. Visão geral
+Every CA must state an **observable** outcome (test, script exit code, checklist item, or measurable UI/API result). Every functional REQ maps to ≥1 CA.
 
-### 1.1 Contexto
+## Selective retrieval
 
-[Por que é necessário? Situação atual e problema.]
+- Prior context: summary + max **3** gap questions; prefer sibling/bank **paths** over bodies (`PIPELINE.md`, `SELECTIVE-RETRIEVAL.md`).
+- **Must not** dump entire `memory-bank/` or paste the full PRD into chat handoffs / CONTINUITY / child prompts — cite portable paths.
+- Enforcement smoke: `scripts/validation/Assert-SelectiveRetrieval.ps1`.
 
-### 1.2 Objetivo
+## English override
 
-[Resultado desejado após a implementação.]
-
-## 2. Critérios de aceite
-
-Use BDD: **Dado** / **Quando** / **Então** / **E**.
-
-### CA1 - [Nome descritivo]
-
-**Dado** [contexto inicial]
-**Quando** [ação]
-**Então** [resultado esperado]
-**E** [condição extra opcional]
-
-### CA2 - [Nome descritivo]
-
-**Dado** [contexto inicial]
-**Quando** [ação]
-**Então** [resultado esperado]
-
-## 3. Escopo técnico (alto nível)
-
-### 3.1 Componentes a modificar
-
-[Listar módulos, serviços ou áreas - sem código.]
-
-### 3.2 Novos componentes
-
-[Listar módulos, endpoints ou artefatos - sem código.]
-
-### 3.3 Reuso sem alteração
-
-[Peças existentes reutilizadas como estão.]
-
-### 3.4 Fluxo de dados
-
-[Fluxo textual ou descrição de diagrama entre componentes.]
-
-## 4. Especificações técnicas
-
-Descrever responsabilidades e contratos **sem** exemplos de código.
-
-### 4.1 Domínio / entidades
-
-[Campos, tipos, restrições no nível de negócio.]
-
-### 4.2 DTOs / commands / queries
-
-[Entradas e saídas - nomes opcionais, formatos obrigatórios.]
-
-### 4.3 Handlers / serviços
-
-[Responsabilidades de negócio.]
-
-### 4.4 Acesso a dados
-
-[Operações necessárias - padrões leitura/escrita.]
-
-### 4.5 Eventos / mensageria
-
-[Payloads publicados ou consumidos, se houver.]
-
-### 4.6 Validações
-
-[Regras e expectativas de erro.]
-
-## 5. Regras de negócio
-
-- **RN01**: [Regra]
-- **RN02**: [Regra]
-
-## 6. Requisitos funcionais
-
-- **RF01**: [Requisito]
-- **RF02**: [Requisito]
-
-## 7. Requisitos não funcionais
-
-- **RNF01**: [Performance, segurança, observabilidade, etc.]
-- **RNF02**: [Requisito]
-
-## 8. Migrações de banco (se aplicável)
-
-**Migração necessária?** Sim / Não
-
-Se sim: tabelas/colunas afetadas, impacto em dados existentes, reversibilidade.
-
-## 9. Integrações (se aplicável)
-
-### 9.1 Sistemas externos
-
-[Listar APIs, filas, terceiros.]
-
-### 9.2 Mudanças de contrato
-
-[Alterações de payload ou API; breaking change Sim/Não com justificativa.]
-
-## 10. Tratamento de erros
-
-### TE01 - [Nome do cenário]
-
-- **Situação**: [Quando ocorre]
-- **Tratamento**: [Comportamento esperado]
-- **Mensagem usuário/log**: [Intenção da mensagem]
-
-## 11. Casos de uso
-
-### CU01 - [Caso de uso principal]
-
-**Ator:** [Usuário / sistema / serviço]
-
-**Pré-condições:**
-
-- [Condição]
-
-**Fluxo principal:**
-
-1. [Passo]
-2. [Passo]
-3. [Resultado esperado]
-
-**Fluxos alternativos:**
-
-- **FA01**: [Exceção ou ramo]
-
-## 12. Cenários de teste
-
-Espelhar critérios de aceite; incluir borda e falha.
-
-### CT1 - [Caminho feliz]
-
-**Dado** … **Quando** … **Então** …
-
-### CT2 - [Validação / borda]
-
-**Dado** … **Quando** … **Então** …
-
-## 13. Definição de pronto
-
-- [ ] Implementação alinhada a este PRD
-- [ ] Testes unitários/integração para o novo comportamento
-- [ ] .NET: xUnit, Moq, Shouldly; nomes `Should_<Result>_When_<Condition>`
-- [ ] Migrações aplicadas e verificadas (se aplicável)
-- [ ] Code review concluído
-- [ ] Build passa local/CI
-
-**Angular (se aplicável):** build, typecheck e testes de frontend passam.
-
-## 14. Próximos passos
-
-Este PRD está pronto para a skill **plan**:
-
-```
-/sdd-plan - <caminho-portátil-do-prd>
-```
-
-## 15. Referências
-
-- [Docs do projeto em `docs/`]
-- [PRDs relacionados]
-- [Links externos]
-
-Diretrizes (lazy-load após sync; não colar corpos aqui):
-
-- `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`
-- `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md`
-
-## 16. Notas
-
-**Riscos:**
-
-- [Risco]
-
-**Dependências:**
-
-- [Dependência]
-
-## 17. Histórico de alterações
-
-| Data | Versão | Autor | Descrição |
-|------|---------|--------|-------------|
-| AAAA-MM-DD | 1 | [Nome] | Versão inicial |
-```
+When the user requests English in the skill invocation: same structure as the shared template; section titles in English (`## 1. Overview`, **Given**/**When**/**Then**, status **Ready for planning**). Set manifest `artifact_language` to `en`. Keep REQ-IDs, OOS, blast radius, and optional EARS rules.
 
 ---
 
-## English override template
+## Structural validate (`validate-prd`)
 
-Use only when the user requests English in the skill invocation. Same structure; section titles in English (`## 1. Overview`, **Given**/**When**/**Then**, status **Ready for planning**). Set manifest `artifact_language` to `en`.
+Before `/sdd-plan` handoff, run:
 
----
+```
+.\scripts\validation\validate-prd.ps1 -Path <prd-path>
+```
+
+Exit 0 required (REQ-NNN + CA headings present). Exit ≠ 0 → fix and re-run. Fixtures/smoke: `scripts/validation/Assert-ValidatePrdPlan.ps1`. Deterministic scripts only (RNF-001) — never use an LLM as the structural validator.
+
+## Brownfield CHANGE (`validate-change`)
+
+When FEATURE **Nature** is **brownfield**, also Write `features/NNN-slug/CHANGE.md` (ADDED \| MODIFIED \| REMOVED vs **current** `memory-bank/` docs) and run:
+
+```
+.\scripts\validation\validate-change.ps1 -Path <features/NNN-slug/CHANGE.md>
+```
+
+**Greenfield** must **not** force an empty CHANGE stub. Contract: `CHANGE-CONTRACT.md`. Smoke: `Assert-ChangeContract.ps1`.
 
 ## Quality checklist (before handoff)
 
 - [ ] User confirmed **sim** on canonical path (`PIPELINE.md` § Confirm before write)
 - [ ] Path matches `features/**/PRD/NNN_*.md` or global `.../features/**/PRD/NNN_*.md` only
+- [ ] Body follows `templates/sdd/PRD.md` (REQ-IDs, verifiable CA, OOS; EARS only if useful)
+- [ ] Vague AC/REQ challenged and rewritten
+- [ ] `validate-prd` exit 0 on the written path
+- [ ] Brownfield: `CHANGE.md` present + `validate-change` exit 0; greenfield: no empty CHANGE forced
 - [ ] No implementation code in the PRD; no production/test code edited in `spec` session
-- [ ] Every acceptance criterion is testable
-- [ ] Complexity and risks documented
+- [ ] No full memory-bank / PRD dump prescribed in this skill session
 - [ ] Body in pt-BR unless English override
 - [ ] Type/method/API names in English where cited
 - [ ] Status **Pronto para planejamento** (or **Ready for planning** if EN override)

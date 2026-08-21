@@ -42,6 +42,8 @@ A **PLAN** in **pt-BR** at a **canonical** path under `features/NNN-slug/USnn/PL
 |------|------|
 | Pipeline guards, missing PRD dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| PLAN document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PLAN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | SDD language, context, .NET | `sdd-artifact-language-pt-br.mdc`, `context-management.mdc`, `dotnet-guidelines/*.md` |
 
@@ -75,11 +77,11 @@ Glob canonical PRDs under `features/**/PRD/` only (workspace + global feature ro
 | Non-canonical `.md` (root `PRD/`, `docs/PRD/`, etc.) | Promote under `features/...` via `sdd-spec` or ask for a canonical feature path |
 | PRD under feature story | Load Prior context siblings (`PIPELINE.md` § Feature / story siblings) |
 
-Summarize PRD; ask to proceed.
+Summarize PRD (**cite portable path** — **must not** paste the full PRD body into chat dumps, PLAN, or child prompts; `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Ask to proceed.
 
 ### 2-4. Explore, technical questions (<=10), baby steps
 
-Glob/Grep/Read. Steps ~20-45 min each. Doc-update steps: **sdd-develop** asks doc language.
+Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`). Steps ~20-45 min each. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. Challenge vague Aceite ("as expected", "funciona"). Doc-update steps: **sdd-develop** asks doc language.
 
 ### 5. Context checkpoint
 
@@ -97,9 +99,20 @@ Glob/Grep/Read. Steps ~20-45 min each. Doc-update steps: **sdd-develop** asks do
 
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
-3. Template `reference.md`; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`.
+3. Body from `templates/sdd/PLAN.md` (authoring rules in `reference.md`); PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete.
 4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing, **STOP** — O1/O2 creates that file first; PLAN cites the path only.
 5. Warn if overwriting PLAN with completed steps.
+
+### 6.5 Structural validate before advance
+
+After a successful `Write`, run structural **`validate-plan`** (and prefer a prior **`validate-prd`** on the source PRD) before handoff:
+
+```
+.\scripts\validation\validate-prd.ps1 -Path <source-prd-path>
+.\scripts\validation\validate-plan.ps1 -Path <written-plan-path> -PrdPath <source-prd-path>
+```
+
+Exit ≠ 0 → **STOP**; fix REQ→step coverage (or PRD structure); re-run until exit 0. Do **not** advance to `/sdd-develop` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`.
 
 ### 7. Validate with user
 
@@ -114,6 +127,9 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 - Write PLAN without canonical PRD (except explicit user choice **2** with specs)
 - Skip confirm-before-write; claim PLAN saved without `Write`
 - `NNN` mismatch vs PRD; new writes outside `features/.../PLAN/`
+- Do not dump entire `memory-bank/` or paste full PRD into PLAN/prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
+- Do not omit REQ→step coverage or ship vague Aceite without challenge
+- Do not hand off to `sdd-develop` when `validate-plan` (or `validate-prd` on the source) exits ≠ 0
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 
 ## Handoff

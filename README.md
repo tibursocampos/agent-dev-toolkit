@@ -39,10 +39,13 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 | Workflow | Invoke |
 |----------|--------|
 | Catalog (all adapters) | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
-| Classic SDD | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| Classic SDD *(formerly Forma A)* | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| Backlog Refine *(formerly Forma B)* | `refine-story` → `split-story-checklist` |
 | Stack shortcut | `developer` or `dotnet-developer` / `react-developer` / … |
-| Forma C | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
-| Greenfield ARCH | Via Forma C analyze: architect draft → **sim** confirm (not a slash skill) |
+| Orchestrated Delivery *(formerly Forma C)* | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
+| Greenfield ARCH | Via Orchestrated Delivery analyze: architect draft → **sim** confirm (not a slash skill) |
+
+Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
 
 Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
 
@@ -65,9 +68,9 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
 
 | Group | Examples |
 |-------|----------|
-| Forma A (SDD) | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| Forma B | `refine-story`, `split-story-checklist` |
-| Forma C | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| Classic SDD *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| Backlog Refine *(formerly Forma B)* | `refine-story`, `split-story-checklist` |
+| Orchestrated Delivery *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
@@ -108,7 +111,7 @@ agent-dev-toolkit/
   adapters/             # registry.json + per-agent modules
   scripts/              # toolkit.ps1, sync-agent, validate-agent, validation/
   docs/                 # public documentation
-  memory-bank/          # durable workspace map (Forma C Step 0)
+  memory-bank/          # durable workspace map (Orchestrated Delivery Step 0)
   .github/workflows/    # validate-toolkit.yml (+ enforce-release-source.yml)
   README.md
   CONTRIBUTING.md

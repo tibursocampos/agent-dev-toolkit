@@ -37,6 +37,8 @@ Smoke harness alone (fixture `InstallRoot` under the repo):
 pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 ```
 
+`validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
+
 ## Per-agent validate
 
 Runs `validate-core`, then the adapter’s `Invoke-SmokeValidate` against a fixture InstallRoot (default from the registry / adapter):

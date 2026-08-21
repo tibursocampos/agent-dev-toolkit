@@ -133,7 +133,7 @@ Do not leave test-only steps inside feature implementation groups.
 
 **Next:** Group 1 - [name]
 
-## SDD / Forma C handoff
+## SDD / Orchestrated Delivery *(formerly Forma C)* handoff
 
 ```
 /sdd-spec -> /sdd-plan -> /sdd-develop
@@ -172,9 +172,18 @@ Do **not** use `docs/documentation-plan/plan.md`.
 | Aspect | `split-story-checklist` | `sdd-plan` | `orchestrate-deliver` (O2) |
 |--------|-------------------|------------|----------------------------|
 | Input | Refined steps / STORY | PRD | Approved US/TS backlog |
-| Output | Local checklist | `PLAN_*.md` under feature | PRD+PLAN per story |
+| Output | Local checklist | `PLAN_*.md` under feature | PRD+PLAN per story (+ CHANGE when brownfield) |
 | Granularity | Engineering groups + waves | Baby steps + token budget | Multi-story orchestration |
 | Tracker | Never | Never | Never |
+
+## TASKS complexity policy (REQ-004)
+
+| FEATURE **Complexity** | Behavior |
+|------------------------|----------|
+| `trivial` (small) | **Do not** require TASKS / `REFINE/tasks.md` — skip Write unless operator insists |
+| `medium` or `complex` | **Require** TASKS checklist before considering the breakdown done |
+
+Align with `CHANGE-CONTRACT.md`. Brownfield CHANGE is owned by O2 / `sdd-spec`, not this skill.
 
 ---
 

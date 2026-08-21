@@ -121,12 +121,12 @@ Document manual smoke: `npm start` -> open inside Blip portal -> verify iframe h
 
 ### Phase 2 - Documentation flow
 
-Ask **(pt-BR)**: "Qual fluxo de documentação? (SDD Forma A, Forma C, PRD/brief existente, ou escopo informal?)"
+Ask **(pt-BR)**: "Qual fluxo de documentação? (Classic SDD *(formerly Forma A)*, Orchestrated Delivery *(formerly Forma C)*, PRD/brief existente, ou escopo informal?)"
 
 | Choice | Next command (new session each step) |
 |--------|--------------------------------------|
-| **SDD (Forma A)** | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
-| **Forma C** | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
+| **Classic SDD** *(formerly Forma A)* | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| **Orchestrated Delivery** *(formerly Forma C)* | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
 | **Existing PRD/brief** | Skip spec; proceed to `sdd-plan` with provided doc |
 | **Informal / small** | Document scope in `README.md`; handoff directly to implementation / `developer` |
 

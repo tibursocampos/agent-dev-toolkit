@@ -51,14 +51,14 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 ---
 
-## Forma A / B / C
+## Classic SDD / Backlog Refine / Orchestrated Delivery
 
 | Skill | Operator notes |
 |-------|----------------|
 | `sdd-spec` / `sdd-plan` | Classic SDD. Caveman cap **Lite** when mode ON. |
 | `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
-| `refine-story` / `split-story-checklist` | Forma B prep before A or C. |
-| `memory-bank-init` | Forma C Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
+| `refine-story` / `split-story-checklist` | Backlog Refine *(formerly Forma B)* prep before Classic SDD or Orchestrated Delivery. |
+| `memory-bank-init` | Orchestrated Delivery *(formerly Forma C)* Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
 | `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
 | `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |
 | `orchestrate-develop` | One PLAN step per child via `sdd-develop`; parent does not implement. |

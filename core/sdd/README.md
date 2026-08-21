@@ -19,7 +19,7 @@ Portable SDD references for adapters and validation. Skills may keep install-tim
 | `PIPELINE.md` | Spec / plan / develop order, canonical paths, confirmation gates |
 | `STORAGE.md` | Storage modes, feature tree, manifest resolution |
 | `SESSION.md` | Repo vs develop session files and gates |
-| `MEMORY-BANK.md` | Forma C Step 0 / Step N bank gate |
+| `MEMORY-BANK.md` | Orchestrated Delivery *(formerly Forma C)* Step 0 / Step N bank gate |
 
 ## Adapter note (`Get-SddRoot`)
 
