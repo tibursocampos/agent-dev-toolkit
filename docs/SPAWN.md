@@ -21,7 +21,7 @@ Sources: official host product docs (primary), `adapters/registry.json`, SPAWN /
 
 | Agent id | Display | Product evidence | Registry `subagents` | Prefer when effective `native` |
 |----------|---------|------------------|----------------------|--------------------------------|
-| `cursor` | Cursor | Cursor **Task** (Forma C / `SUBAGENT-MODEL`) | `native` | Cursor Task |
+| `cursor` | Cursor | Cursor **Task** (Orchestrated Delivery / `SUBAGENT-MODEL`) | `native` | Cursor Task |
 | `claude` | Claude Code | Agent/Task in Claude Code | `native` | Agent / Task |
 | `antigravity` | Antigravity | `invoke_subagent` (+ `define_subagent`, `/agents`, worktrees) since **2.0** — [docs](https://antigravity.google/docs/subagents), [CLI](https://antigravity.google/docs/cli/subagents) | `native` (declared) | Effective via probe → `invoke_subagent` or fallback |
 | `codex` | Codex | Parallel spawn via prompt / `AGENTS.md` / skills; `.codex/agents/` — [codex/subagents](https://developers.openai.com/codex/subagents) | `native` | Spawn agents (prompt/skill) |

@@ -4,7 +4,7 @@ When/how to spawn children (native vs fallback, limits): `SPAWN.md` — do not p
 
 **Subagent I/O is Caveman-scoped:** child prompts, execution style, and returns honor `skills/_shared/caveman/CAVEMAN.md` + parent prefs intensity. Parent passes scoped paths + receipt requirement + role — not guideline dumps.
 
-When `caveman_mode` is true in `{{SDD_ROOT}}/preferences.json`, every Forma C specialist pass must end with a **structured receipt** (ultra style). Parent chat may stay Full/Lite per skill cap; the **reinjected** specialist summary uses this schema.
+When `caveman_mode` is true in `{{SDD_ROOT}}/preferences.json`, every Orchestrated Delivery *(formerly Forma C)* specialist pass must end with a **structured receipt** (ultra style). Parent chat may stay Full/Lite per skill cap; the **reinjected** specialist summary uses this schema.
 
 When caveman is OFF: still prefer a compact receipt / tight bullets (token control); schema recommended.
 

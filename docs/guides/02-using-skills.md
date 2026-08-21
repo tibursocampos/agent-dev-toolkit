@@ -45,7 +45,7 @@ Skills sync to `~/.cursor/skills/<id>/SKILL.md`.
 | With args | `/sdd-plan - path/to/PRD.md` |
 | Stack router | `/developer` |
 | Catalog | `/help-skills` |
-| Forma C Step 0 | `/memory-bank-init` |
+| Orchestrated Delivery Step 0 | `/memory-bank-init` |
 
 Also: Customize → Skills (picker / auto). Rules land as `~/.cursor/rules/*.mdc`. Router: `~/.cursor/AGENTS.md`. If hooks were published, complete Cursor’s hooks trust UI once (outside CI).
 
@@ -131,7 +131,7 @@ Module: [adapters/antigravity/README.md](../../adapters/antigravity/README.md).
 
 Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands product discovery).
 
-### Forma A
+### Classic SDD *(formerly Forma A)*
 
 ```text
 sdd-spec
@@ -139,9 +139,9 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
 ```
 
-One develop session = **one** PLAN step.
+One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE) run inside the same skill ids — no new slash skills.
 
-### Forma C — architecture confirm (greenfield / `needs_domain`)
+### Orchestrated Delivery *(formerly Forma C)* — architecture confirm (greenfield / `needs_domain`)
 
 ```text
 memory-bank-init
@@ -177,7 +177,7 @@ Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `dev
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Caveman: [07-caveman-mode.md](07-caveman-mode.md)
 - Credits: [CREDITS.md](../CREDITS.md)
-- Which Forma: [guides/README.md](README.md)
+- Which work track: [guides/README.md](README.md)
 - First-time path: [01-getting-started.md](01-getting-started.md)
 
 ## Re-sync when skills feel stale

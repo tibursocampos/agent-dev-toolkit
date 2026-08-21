@@ -61,6 +61,8 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Develop templates / step report | `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
+| EVD / STATE / evidence-or-zero (`EVD-STATE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
+| TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
 | Branch / commits | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
 | Developer-common (on trigger) | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
 | .NET guidelines (on trigger) | **one** file under `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
@@ -110,6 +112,39 @@ Feature branch per `branch-validation.mdc`.
 
 Glob/Grep/Read scope. Code/tests in English; targeted build/test.
 
+### 4b. Evidence-or-zero (REQ-005 / CA4)
+
+When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
+
+1. Create/update `features/NNN-slug/EVD/` and `features/NNN-slug/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`).
+2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
+3. Run structural gate (deterministic — never LLM-as-validator):
+
+```powershell
+.\scripts\validation\validate-evidence.ps1 -FeatureRoot <features/NNN-slug> [-Level cheap]
+```
+
+Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
+
+**Verifier ≠ O3:** evidence verification runs **sequentially** in this develop session via `validate-evidence`. Do **not** use O3 / Task parallelism as the verifier mechanism.
+
+### 4c. Living loop + TRACE (REQ-006 / CA5)
+
+When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
+
+1. Append events to `features/NNN-slug/TRACE.jsonl` (template: `templates/features/TRACE.jsonl`; contract: `TRACE-ARCHIVE-CONTRACT.md`).
+2. Run **converge → sync current → archive**: selective updates to living docs (`memory-bank/` / named `docs/`); do **not** dump full bank/PRD (`SR-NO-FULL-DUMP`).
+3. Ensure TRACE includes ordered living-loop events `converge`, `sync_current`, `archive`.
+4. Run structural gate (deterministic — never LLM-as-validator):
+
+```powershell
+.\scripts\validation\validate-trace.ps1 -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
+```
+
+Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, optional trail events may be appended; missing TRACE is OK until archive-complete.
+
+**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Task/O3 parallelism as the archive gate.
+
 ### 5. Commit (optional)
 
 Offer `/commit`; do not auto-commit.
@@ -130,6 +165,10 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan
 - Bypass one-step via orchestrator parent implementing code
 - Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+- Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
+- Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
+- Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
+- Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
 
 ## Handoff
 
@@ -139,7 +178,7 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan
 | Next step | New session -> `/sdd-develop - <portable-plan-path> - Step N+1` |
 | All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
-Example portable path (Forma A, repository):
+Example portable path (Classic SDD *(formerly Forma A)*, repository):
 
 ```
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2

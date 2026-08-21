@@ -32,7 +32,7 @@ Orchestrators and specialists **do not** reimplement stack work. Point implement
 
 **Caveman receipts:** when `caveman_mode` is ON, specialists return the schema in `RECEIPT.md` (ultra structured findings). Parent inherits prefs `caveman_level` but **never** compresses gates or artifact drafts. Prefer level `ultra` only for long multi-specialist O1 sessions. Load `_shared/caveman/CAVEMAN.md` only if mode ON.
 
-**Memory-bank (Forma C Step 0):** after gate, pass resolved `bank_root` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/` per `STORAGE.md`) as **read-only** Prior context to specialists / O2 draft Tasks / O3 develop children (selective files). Do not place bank under `features/`. Forma A / manual `sdd-*` do not require the gate. Optional narrative compact: `_shared/caveman/COMPACT.md` (user **sim**).
+**Memory-bank (Orchestrated Delivery *(formerly Forma C)* Step 0):** after gate, pass resolved `bank_root` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/` per `STORAGE.md`) as **read-only** Prior context to specialists / O2 draft Tasks / O3 develop children (selective files). Do not place bank under `features/`. Classic SDD *(formerly Forma A)* / manual `sdd-*` do not require the gate. Optional narrative compact: `_shared/caveman/COMPACT.md` (user **sim**).
 
 ## Review
 

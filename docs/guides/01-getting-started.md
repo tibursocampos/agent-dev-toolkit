@@ -95,7 +95,7 @@ Classic SDD — create a PRD (Cursor/Claude example with `/`):
 
 Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
 
-**First Classic / Forma C write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
+**First Classic SDD / Orchestrated Delivery write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
 
 | Choice | PRD / PLAN / feature tree | Memory bank |
 |--------|---------------------------|-------------|
@@ -129,4 +129,4 @@ or a stack skill such as `dotnet-developer` / `react-developer`.
 | Adapter layouts | [ADAPTERS.md](../ADAPTERS.md) |
 | App architecture A/B/C + confirm gate | [domains/core.md](../domains/core.md) § Code guidelines |
 
-Greenfield domain work: prefer Forma C (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).
+Greenfield domain work: prefer Orchestrated Delivery *(formerly Forma C)* (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).

@@ -33,4 +33,5 @@
 ## Links
 
 - CONTINUITY: `./CONTINUITY.md`
+- CHANGE (brownfield vs current): `./CHANGE.md` — required when **Nature** = `brownfield`; greenfield must not force an empty stub (`CHANGE-CONTRACT.md`)
 - Stories: `./US01/STORY.md` (ajustar ids)

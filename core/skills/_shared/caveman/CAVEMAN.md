@@ -65,7 +65,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 |-------|----------|
 | **lite** | No filler/hedging. Keep articles and full sentences. Professional but tight. |
 | **full** (default) | Drop articles where clear. Fragments OK. Short synonyms. No tool-call narration. No decorative emoji. Quote shortest decisive error line unless asked for full log. |
-| **ultra** | Strip conjunctions when order stays unambiguous. One word when enough. State each fact once. Prefer for long Forma C / review sessions only. |
+| **ultra** | Strip conjunctions when order stays unambiguous. One word when enough. State each fact once. Prefer for long Orchestrated Delivery *(formerly Forma C)* / review sessions only. |
 
 **Pattern (full/ultra):** `[thing] [action] [reason]. [next step].`
 
@@ -116,7 +116,7 @@ Resume caveman after the clear part is done.
 | `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
 | `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
-| Forma C specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
+| Orchestrated Delivery *(formerly Forma C)* specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
 | Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
 | General chat | **FULL** (or prefs `caveman_level`) |
 
@@ -192,7 +192,7 @@ When mode ON, agents may propose compacting prose in `CONTINUITY.md` or memory-b
 | Participating skills (see table) | Step -1, if `caveman_mode` true |
 | `rules/caveman-mode.md` (alwaysApply) | Global toggle + preference check every session |
 | `rules/guardrails.md` / `AGENTS.md` | Never-compress + command UX pointers |
-| Forma C agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
+| Orchestrated Delivery *(formerly Forma C)* agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
 
 ### Canonical Step -1 block (copy into skills)
 

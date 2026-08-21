@@ -34,7 +34,7 @@ Same contract as O1 (`MEMORY-BANK.md`). Run after feature resolve, **before** mo
 | Gitignore | Repository only; global = no `.gitignore` edit |
 | CONTINUITY | Path + status only; phase/handoff still CONTINUITY-owned |
 | Children | Parallel draft Tasks get `memoryBankPath` read-only |
-| Forma A | Memory-bank **not** required (CA7) |
+| Classic SDD *(formerly Forma A)* | Memory-bank **not** required (CA7) |
 | End refresh | **No** full inventory (O2 does not change app code). Do **not** exit `fresh` if style changed / ARCH approved this feature |
 
 ---
@@ -188,7 +188,7 @@ Global storage: same pattern with InstallRoot-relative portable paths (`sdd/<rep
 
 ## Boundaries vs O1 / sdd-* / O3
 
-| Aspect | O1 `orchestrate-analyze` | O2 `orchestrate-deliver` | Forma A `sdd-spec`/`sdd-plan` | O3 `orchestrate-develop` |
+| Aspect | O1 `orchestrate-analyze` | O2 `orchestrate-deliver` | Classic SDD *(formerly Forma A)* `sdd-spec`/`sdd-plan` | O3 `orchestrate-develop` |
 |--------|--------------------------|--------------------------|-------------------------------|--------------------------|
 | Purpose | Triage + US/TS backlog | PRD+PLAN per approved story | One story PRD or PLAN | Implement PLAN steps |
 | Input | Feature description | Approved `features/NNN-slug/` | Story/requirements | Approved PLAN paths |
@@ -196,7 +196,7 @@ Global storage: same pattern with InstallRoot-relative portable paths (`sdd/<rep
 | Contracts | Specialists (`needs_*`) | **Reuses** sdd-spec / sdd-plan | Is the contract | **Reuses** sdd-develop |
 | App code | No | No | No | Children only; parent no |
 
-Escalate **to Forma A alone** when only one story and user skips O2 batching.
+Escalate **to Classic SDD alone** *(formerly Forma A)* when only one story and user skips O2 batching.
 
 Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
 
@@ -385,11 +385,28 @@ On approval:
 
 1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path).
 2. Optionally update `FEATURE.md` / story statuses to reflect deliver done.
-3. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings.
+3. Run **cross-artifact analyze** (§ Cross-artifact analyze) — brownfield must have `CHANGE.md`; greenfield must not force an empty CHANGE stub.
+4. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings. Include CHANGE path when present.
 
-Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Forma A (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
+Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Classic SDD *(formerly Forma A)* (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
 
 See also § CONTINUITY update checklist.
+
+---
+
+## Cross-artifact analyze (O2 handoff / REQ-004)
+
+Before develop handoff, verify against `CHANGE-CONTRACT.md`:
+
+| Check | Pass |
+|-------|------|
+| Nature ↔ CHANGE | `brownfield` → `features/NNN-slug/CHANGE.md` exists; `greenfield` → do **not** invent empty CHANGE |
+| CHANGE structure | When present: ADDED \| MODIFIED \| REMOVED; `validate-change.ps1` exit 0 |
+| Current baselines | CHANGE cites `memory-bank/` (or other living docs) — never `openspec/` / `.specs/` / `.specify/` |
+| Complexity ↔ TASKS | `medium` / `complex` → TASKS (`REFINE/tasks.md` or `TASKS.md`); `trivial` (small) → TASKS **not** required |
+| Selective retrieval | No full memory-bank / PRD dump in CHANGE or CONTINUITY handoff |
+
+**Mental map (ids unchanged):** O1 `orchestrate-analyze` ≈ explore · O2 `orchestrate-deliver` ≈ FEATURE+PRD+CHANGE · O3 `orchestrate-develop` ≈ apply.
 
 ---
 
@@ -417,6 +434,8 @@ Do **not** paste full PRD/PLAN bodies into the parent chat.
 - Call `*-developer` / `developer` / `sdd-develop` / `orchestrate-develop` to **implement** (handoff strings only)
 - Rewrite or fork the `sdd-spec` / `sdd-plan` process into a parallel undocumented flow
 - Skip human approval or treat silence as `sim`
+- Advance develop handoff when brownfield lacks `features/NNN-slug/CHANGE.md`, or when greenfield was forced an empty CHANGE stub
+- Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without operator **sim** deferral
 - Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; max-3 gap questions do not replace this gate
 - Treat waive-deps as a waiver for missing `SEC/` / `ARCH/` / `ANALYSIS` (waive-deps is **story order** only)
 - Exit O2 with Memory-bank status `fresh` if style changed or ARCH was approved this feature (set `refreshed`; point-promote `architecture.md` if not already)
@@ -427,7 +446,7 @@ Do **not** paste full PRD/PLAN bodies into the parent chat.
 - Assume série vs paralelo without asking
 - Let parallel Task children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Require memory-bank for Forma A / manual `sdd-*` (CA7 - gate is Forma C `orchestrate-*` only)
+- Require memory-bank for Classic SDD *(formerly Forma A)* / manual `sdd-*` (CA7 - gate is Orchestrated Delivery *(formerly Forma C)* `orchestrate-*` only)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
@@ -446,5 +465,5 @@ Do **not** introduce:
 - External work-item tracker or org-only compliance fields
 - Assumed série/paralelo without asking
 - Changes to `sdd-develop` one-PLAN-step-per-session contract
-- Spec Kit / worktree multi-US changes (out of Forma C MVP)
+- Spec Kit / worktree multi-US changes (out of Orchestrated Delivery MVP)
 - Repo-root `PRD/` / `PLAN/` new writes

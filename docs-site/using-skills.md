@@ -36,15 +36,15 @@ After sync, the published router asks agents to prefer **parallel specialist sub
 2. Opened an **application project** (the project you are building) in that agent — not only this toolkit repo.
 3. Optional: validated with `toolkit.ps1 -Action Validate -Agent <id>`.
 
-## Which workflow (Forma) / skill?
+## Which workflow (work track) / skill?
 
 ```mermaid
 flowchart TD
   Start([New task]) --> Q1{Multi-story / brownfield / need specialists?}
-  Q1 -->|Yes| FC[Forma C]
+  Q1 -->|Yes| FC[Orchestrated Delivery]
   Q1 -->|No| Q2{Medium or high complexity single feature?}
-  Q2 -->|Yes| SDD[Forma A SDD]
-  Q2 -->|Rough backlog item only| FB[Forma B refine]
+  Q2 -->|Yes| SDD[Classic SDD]
+  Q2 -->|Rough backlog item only| FB[Backlog Refine]
   Q2 -->|No| Q3{Small fix one area?}
   Q3 -->|Yes .NET| NET[dotnet-developer]
   Q3 -->|Yes other stack| STACK[stack skill or developer]
@@ -57,7 +57,7 @@ flowchart TD
   Confirm --> O2["/orchestrate-deliver"]
   O2 --> O3["/orchestrate-develop or /sdd-develop"]
   FB --> Refine["/refine-story"]
-  Refine --> AorC[Then Forma A or C]
+  Refine --> AorC[Then Classic SDD or Orchestrated Delivery]
   SDD --> Spec["/sdd-spec"]
   Spec --> Plan["/sdd-plan"]
   Plan --> Impl["/sdd-develop one step"]
@@ -81,23 +81,25 @@ flowchart TD
 
 ```
 New task
-  ├─ Multi-story / brownfield?     -> Forma C: memory-bank-init → analyze → deliver → develop
-  ├─ Greenfield / needs_domain?    -> Forma C: analyze (+ architect confirm) before develop
-  ├─ Single medium/high feature?   -> Forma A: sdd-spec → sdd-plan → sdd-develop
-  ├─ Rough backlog item?           -> Forma B: refine-story → checklist? → A or C
+  ├─ Multi-story / brownfield?     -> Orchestrated Delivery: memory-bank-init → analyze → deliver → develop
+  ├─ Greenfield / needs_domain?    -> Orchestrated Delivery: analyze (+ architect confirm) before develop
+  ├─ Single medium/high feature?   -> Classic SDD: sdd-spec → sdd-plan → sdd-develop
+  ├─ Rough backlog item?           -> Backlog Refine: refine-story → checklist? → Classic or Orchestrated
   ├─ Small stack change?           -> *-developer or developer
   └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
 ```
 
-### Workflows (Forma A / B / C)
+### Work tracks
 
-| Forma | When | Pipeline | Notes |
+| Track | When | Pipeline | Notes |
 |-------|------|----------|-------|
-| **A** Classic | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
-| **C** Orchestrated | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse classic SDD |
+| **Classic SDD** *(formerly Forma A)* | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
+| **Backlog Refine** *(formerly Forma B)* | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
+| **Orchestrated Delivery** *(formerly Forma C)* | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse Classic SDD |
 
-For greenfield domain work, prefer Forma C. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
+Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) add gates/artifacts only — not a second toolkit. SQLite/FTS is not a deliverable.
+
+For greenfield domain work, prefer Orchestrated Delivery *(formerly Forma C)*. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
 
 ## Invoke by agent
 
@@ -113,7 +115,7 @@ Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router
 | With args | `/sdd-plan - path/to/PRD.md` |
 | Stack router | `/developer` |
 | Catalog | `/help-skills` |
-| Forma C Step 0 | `/memory-bank-init` |
+| Orchestrated Delivery Step 0 | `/memory-bank-init` |
 
 Also Customize → Skills. Trust hooks in Cursor’s UI once if prompted (outside CI).
 
@@ -176,7 +178,7 @@ Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` +
 
 Flow examples use **skill ids**. Prefix with your host form (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands skill `name`).
 
-### Forma A
+### Classic SDD *(formerly Forma A)*
 
 ```text
 sdd-spec
@@ -184,9 +186,9 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
 ```
 
-One develop session = **one** PLAN step.
+One develop session = **one** PLAN step. Internal contracts run inside the same skill ids.
 
-### Forma C
+### Orchestrated Delivery *(formerly Forma C)*
 
 ```text
 memory-bank-init
@@ -220,9 +222,9 @@ Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: s
 
 | Group | Skills |
 |-------|--------|
-| **Forma A** | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| **Forma B** | `refine-story`, `split-story-checklist` |
-| **Forma C** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| **Classic SDD** *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| **Backlog Refine** *(formerly Forma B)* | `refine-story`, `split-story-checklist` |
+| **Orchestrated Delivery** *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
@@ -234,7 +236,7 @@ Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: s
 |------|----------------------------------|
 | Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR mode feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
 | `code-review` | Choose single vs multi-angle (no silent default) |
-| Forma C | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain` |
+| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain` |
 | `sdd-develop` | One PLAN step per session |
 | `document-plan` | Asks doc language before writing |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Caveman mode](../caveman/) |

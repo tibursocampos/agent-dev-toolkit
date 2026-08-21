@@ -1,4 +1,4 @@
-# Portable spawn contract (Forma C + developers)
+# Portable spawn contract (Orchestrated Delivery *(formerly Forma C)* + developers)
 
 Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
@@ -83,7 +83,7 @@ When spawning (native path):
 
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
-3. Point to role prompt under `skills/_shared/agents/prompts/` when Forma C roster applies.
+3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery *(formerly Forma C)* roster applies.
 4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.

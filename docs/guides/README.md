@@ -10,7 +10,9 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: Formas A / B / C for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** *(formerly Forma A/B/C — alias this release only)* for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+
+**Same call flow:** skill ids and slash/`$id` handoffs stay; internal contracts add gates and artifacts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) — not a second toolkit or SQLite/FTS deliverable.
 
 ---
 
@@ -29,10 +31,10 @@ Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published ski
 ```mermaid
 flowchart TD
   Start([New task]) --> Q1{Multi-story / brownfield / need specialists?}
-  Q1 -->|Yes| FC[Forma C]
+  Q1 -->|Yes| FC[Orchestrated Delivery]
   Q1 -->|No| Q2{Medium or high complexity single feature?}
-  Q2 -->|Yes| SDD[Forma A SDD]
-  Q2 -->|Rough backlog item only| FB[Forma B refine]
+  Q2 -->|Yes| SDD[Classic SDD]
+  Q2 -->|Rough backlog item only| FB[Backlog Refine]
   Q2 -->|No| Q3{Small fix one area?}
   Q3 -->|Yes .NET| NET[dotnet-developer]
   Q3 -->|Yes other stack| STACK[stack skill or developer]
@@ -45,7 +47,7 @@ flowchart TD
   Confirm --> O2["/orchestrate-deliver"]
   O2 --> O3["/orchestrate-develop or /sdd-develop"]
   FB --> Refine["/refine-story"]
-  Refine --> AorC[Then Forma A or C]
+  Refine --> AorC[Then Classic SDD or Orchestrated Delivery]
   SDD --> Spec["/sdd-spec"]
   Spec --> Plan["/sdd-plan"]
   Plan --> Impl["/sdd-develop one step"]
@@ -69,27 +71,27 @@ flowchart TD
 
 ```
 New task
-  ├─ Multi-story / brownfield?     -> Forma C: memory-bank-init -> O1 -> O2 -> O3|sdd-develop
-  ├─ Greenfield / needs domain?    -> Forma C: O1 (+ architect confirm) before develop loads one style
-  ├─ Single medium/high feature?   -> Forma A: sdd-spec -> sdd-plan -> sdd-develop
-  ├─ Rough backlog item?           -> Forma B: refine-story -> checklist? -> A or C
+  ├─ Multi-story / brownfield?     -> Orchestrated Delivery: memory-bank-init -> O1 -> O2 -> O3|sdd-develop
+  ├─ Greenfield / needs domain?    -> Orchestrated Delivery: O1 (+ architect confirm) before develop loads one style
+  ├─ Single medium/high feature?   -> Classic SDD: sdd-spec -> sdd-plan -> sdd-develop
+  ├─ Rough backlog item?           -> Backlog Refine: refine-story -> checklist? -> Classic or Orchestrated
   ├─ Small stack change?           -> *-developer or /developer
   └─ After code                    -> code-review -> test-coverage? -> commit -> push -> open-github-pr?
 ```
 
-**Greenfield domain:** use Forma C — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
+**Greenfield domain:** use Orchestrated Delivery *(formerly Forma C)* — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
 
 ---
 
-## Formas A / B / C
+## Work tracks
 
-| Forma | When | Pipeline | Notes |
+| Track | When | Pipeline | Notes |
 |-------|------|----------|-------|
-| **A** Classic | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **B** Backlog | Informal bug/story | `refine-story` → optional `split-story-checklist` → A or C | Prepares structured markdown |
-| **C** Orchestrated | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse classic SDD |
+| **Classic SDD** *(formerly Forma A)* | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
+| **Backlog Refine** *(formerly Forma B)* | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
+| **Orchestrated Delivery** *(formerly Forma C)* | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse Classic SDD |
 
-Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 

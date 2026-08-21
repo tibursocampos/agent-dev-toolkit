@@ -153,7 +153,7 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step 1
 ```
 
-Mudança pequena sem SDD completo: `developer` ou uma skill de stack como `dotnet-developer`. Escolher Forma A/B/C: [Usando skills](../using-skills/).
+Mudança pequena sem SDD completo: `developer` ou uma skill de stack como `dotnet-developer`. Escolher trilha **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** (formerly Forma A/B/C): [Usando skills](../using-skills/).
 
 Depois de `commit` e `push`, abra um PR com `open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).
 
