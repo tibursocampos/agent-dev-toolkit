@@ -54,10 +54,10 @@ If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as t
 
 If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
 
-## Lazy-load references
+## Lazy-load (only when needed)
 
-| When | Path |
-|------|------|
+| When | Path (after `scripts/sync-cursor.ps1`) |
+|------|----------------------------------------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
 | Branch / commit | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
 | Electron security / CSP | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/electron-security.md` |
@@ -66,15 +66,19 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Electron IPC | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/electron-ipc.md` |
 | Electron packaging | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/electron-packaging.md` |
 | Electron delivery checklist | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/checklist.md` |
-| Renderer stack | `react-guidelines/` or `vue-guidelines/` or `javascript-guidelines/` |
+| Renderer stack (React) | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/` — only files needed for the renderer task |
+| Renderer stack (Vue) | `{{TOOLKIT_ROOT}}/skills/_shared/vue-guidelines/` — only files needed for the renderer task |
+| Renderer stack (vanilla/JS) | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/` — only files needed for the renderer task |
 | Frontend core | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Markup / styles | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/` |
-| Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/` |
+| Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ **one** approved style — never glob `architecture/**`) |
 | Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 
-Do not preload unrelated guideline trees. Load only the `electron-guidelines` rows needed for the current task.
+**Never by default:** do not preload the full `electron-guidelines/` pack plus all renderer stacks. Load security first when IPC/CSP changes; fan-out to main/preload/IPC/packaging only for that surface.
+
+**Progressive load:** DESIGN-BRIEF / workspace context first; then the Electron row for the active concern; open one renderer pack file only when editing renderer UI.
 
 ## Process
 

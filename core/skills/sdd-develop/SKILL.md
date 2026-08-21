@@ -55,12 +55,18 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 
 ## Lazy-load (only when needed)
 
-| When | Path |
-|------|------|
+| When | Path (after `scripts/sync-cursor.ps1`) |
+|------|----------------------------------------|
 | Pipeline, missing PLAN dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
-| Storage | `STORAGE.md` |
+| Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| .NET, Git, context | `dotnet-guidelines/*.md`, `branch-validation.mdc`, `conventional-commits.mdc`, `developer-common/GUIDE.md`, `context-management.mdc` |
+| Develop templates / step report | `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
+| Branch / commits | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
+| Developer-common (on trigger) | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
+| .NET guidelines (on trigger) | **one** file under `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
+| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+
+**Never by default:** do not preload all `dotnet-guidelines/*.md` or the full developer-common pack. Contract first (`PIPELINE` + `STORAGE`), then fan-out on trigger.
 
 ## Process
 
