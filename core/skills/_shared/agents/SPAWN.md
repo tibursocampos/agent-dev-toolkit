@@ -40,6 +40,12 @@ Prefer the host-native mechanism when effective `subagents` is `native`. Product
 | `opencode` | OpenCode **Task** / `@` subagent |
 | `grok` | `spawn_subagent` |
 | `zcode` | ZCode **Agent** tool |
+| `hermes` | `delegate_task` |
+| `openhands` | In-parent / SPAWN fallback (`subagents=none`) |
+
+### Use only the current host row
+
+When spawning, use **only** the mechanism in the table row for the **current** host agent id. Never invoke another host’s spawn API (example: Cursor must not call `delegate_task`; Hermes must not call Cursor **Task**). Other rows exist for the portable map and honesty matrix only.
 
 ### Antigravity effective capability
 

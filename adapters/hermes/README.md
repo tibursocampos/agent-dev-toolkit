@@ -15,11 +15,12 @@ Registry entry remains `adapters/hermes/HermesAdapter.ps1` (thin contract surfac
 | `HermesAdapter.ps1` | Entry: `$PSScriptRoot`, dot-source siblings, `Get-Capabilities` / `Get-InstallRoots`, thin `Publish-*` / `Invoke-SmokeValidate` / `Uninstall-Toolkit` wrappers |
 | `HermesPathConstants.ps1` | `$script:HermesAdapterConstant` + `$script:HermesAdapterMessage` (shared by siblings) |
 | `Publish-HermesSkills.ps1` | Shared path/placeholder helpers + `Invoke-HermesPublishSkills` + MEMORY.md seed + best-effort `hermes skills trust` |
-| `Publish-HermesPolicy.ps1` | Fold `core/policy` into `AGENTS.md` (`Invoke-HermesPublishPolicy`) |
+| `Publish-HermesPolicy.ps1` | Fold `core/policy` into `AGENTS.md` + append spawn bridge (`Invoke-HermesPublishPolicy`) |
 | `Publish-HermesRouter.ps1` | `Invoke-HermesPublishRouter` (same combined `AGENTS.md`) |
 | `Publish-HermesHooks.ps1` | Documented no-op (`hooks=false`) |
 | `Invoke-HermesSmokeValidate.ps1` | Native-layout smoke helpers + `Invoke-HermesSmokeValidate` |
 | `Uninstall-HermesToolkit.ps1` | Keyed `Invoke-HermesUninstallToolkit` |
+| `assets/spawn-bridge.md` | Hermes-only spawn operability block appended to managed `AGENTS.md` |
 
 Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*` implementations — same pattern as Grok.
 
@@ -42,7 +43,8 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Tool **`delegate_task`** (isolated child; optional `role=orchestrator`) |
 | Toolkit contract | Prefer `delegate_task` when `subagents=native`; honor `SPAWN.md`. Do **not** emit `delegation.*` YAML (`max_spawn_depth`, worktree isolation, etc.) — that is user config in `config.yaml` |
-| Published files | **Skip.** Hermes has no `agents/*.md` roster. `Publish-Agents` is a documented no-op (`agents=false`) |
+| Published files | **Skip** roster. Hermes has no `agents/*.md`. `Publish-Agents` is a documented no-op (`agents=false`) |
+| Spawn bridge | `adapters/hermes/assets/spawn-bridge.md` is **appended** to managed `AGENTS.md` on Publish-Policy/Router (Hermes-only). Core skills/policy/router must **not** teach `delegate_task` outside the SPAWN host map |
 
 ### Official references (subagents / skills / context)
 
@@ -58,6 +60,7 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 | `core/skills/<id>/` | `skills/<id>/SKILL.md` (+ assets, including `_shared/`) |
 | `core/policy/*.md` | Folded into `AGENTS.md` (no `rules/` directory) |
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`; `rules/` path refs rewritten to this file) |
+| `adapters/hermes/assets/spawn-bridge.md` | Appended after folded policy (Hermes-only spawn operability; not in core) |
 | Missing `MEMORY.md` | Seeded once; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 | Hooks / gateway / cron | **Not emitted** |
