@@ -79,9 +79,19 @@ $expectedUserRoot = [System.IO.Path]::GetFullPath($fixtureInstallRoot)
 $expectedProjectRoot = [System.IO.Path]::GetFullPath($fixtureInstallRoot)
 $expectedSkills = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot $skillsDirectoryName))
 $expectedAgents = [System.IO.Path]::GetFullPath((Join-Path $fixtureInstallRoot $agentsFileName))
+$resolvedOfficialHome = Resolve-HermesOfficialUserRoot
+if ([string]::IsNullOrWhiteSpace($resolvedOfficialHome)) {
+    Write-Fail -TestName $mapName -Reason 'Resolve-HermesOfficialUserRoot must return a live Hermes home path'
+}
 
 if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialUserRootRelativePath) -or $roots.OfficialUserRootRelativePath -ne $officialUserRootName) {
-    Write-Fail -TestName $mapName -Reason ("expected OfficialUserRootRelativePath {0}, got {1}" -f $officialUserRootName, $roots.OfficialUserRootRelativePath)
+    Write-Fail -TestName $mapName -Reason ("expected OfficialUserRootRelativePath {0} (layout model), got {1}" -f $officialUserRootName, $roots.OfficialUserRootRelativePath)
+}
+if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialUserRootPath)) {
+    Write-Fail -TestName $mapName -Reason 'OfficialUserRootPath must be the resolved live Hermes home'
+}
+if (-not [string]::Equals([System.IO.Path]::GetFullPath([string]$roots.OfficialUserRootPath), [System.IO.Path]::GetFullPath($resolvedOfficialHome), [System.StringComparison]::OrdinalIgnoreCase)) {
+    Write-Fail -TestName $mapName -Reason ("OfficialUserRootPath mismatch vs Resolve-HermesOfficialUserRoot: {0} vs {1}" -f $roots.OfficialUserRootPath, $resolvedOfficialHome)
 }
 if ([string]::IsNullOrWhiteSpace([string]$roots.OfficialProjectRootRelativePath) -or $roots.OfficialProjectRootRelativePath -ne $officialUserRootName) {
     Write-Fail -TestName $mapName -Reason ("expected OfficialProjectRootRelativePath {0}, got {1}" -f $officialUserRootName, $roots.OfficialProjectRootRelativePath)
@@ -114,14 +124,18 @@ if (-not [string]::Equals([System.IO.Path]::GetFullPath([string]$roots.FixturePr
 }
 
 if (-not (Test-IsPathUnderOrEqual -ChildPath $roots.FixtureUserRootPath -ParentPath $repoRoot)) {
-    Write-Fail -TestName $mapName -Reason 'mapped USER .hermes path must stay under repo (fixture), not real HOME'
+    Write-Fail -TestName $mapName -Reason 'mapped USER Hermes path must stay under repo (fixture), not real HOME'
 }
 if (-not (Test-IsPathUnderOrEqual -ChildPath $roots.ResolvedInstallRoot -ParentPath $repoRoot)) {
     Write-Fail -TestName $mapName -Reason 'ResolvedInstallRoot must stay under repo root'
 }
 
-$homeHermes = Join-Path $userProfile $officialUserRootName
-if ([string]::Equals([System.IO.Path]::GetFullPath([string]$roots.FixtureUserRootPath), [System.IO.Path]::GetFullPath($homeHermes), $comparison)) {
+if ([string]::Equals([System.IO.Path]::GetFullPath([string]$roots.FixtureUserRootPath), [System.IO.Path]::GetFullPath($resolvedOfficialHome), $comparison)) {
+    Write-Fail -TestName $mapName -Reason 'FixtureUserRootPath must not equal the live official Hermes home'
+}
+
+$legacyPhantomHome = Join-Path $userProfile $officialUserRootName
+if ([string]::Equals([System.IO.Path]::GetFullPath([string]$roots.FixtureUserRootPath), [System.IO.Path]::GetFullPath($legacyPhantomHome), $comparison)) {
     Write-Fail -TestName $mapName -Reason 'FixtureUserRootPath must not equal real USERPROFILE/.hermes'
 }
 

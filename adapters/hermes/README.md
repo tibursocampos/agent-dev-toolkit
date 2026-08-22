@@ -2,7 +2,7 @@
 
 Publish surfaces for **Hermes Agent** (Nous Research). InstallRoot defaults to an in-repo fixture; paths under `USERPROFILE` require `-AllowUserHome`.
 
-**Live InstallRoot = `~/.hermes`**. Publish lands at `skills/` and `AGENTS.md` **directly under** that root — never nested as `~/.hermes/.hermes/skills`. Do not publish a `rules/` tree, Cursor `hooks.json`, Hermes `config.yaml` hooks, gateway tokens, cron/jobs, Kanban, voice, Curator, Profiles, or `inline_shell`. Never write `SOUL.md`.
+**Live InstallRoot = `$HERMES_HOME`** (Windows Native/Desktop: `%LOCALAPPDATA%\hermes` when unset; POSIX/WSL: `~/.hermes`). Publish lands at `skills/` and `AGENTS.md` **directly under** that root — never nested as `$HERMES_HOME/.hermes/skills`. Do not publish a `rules/` tree, Cursor `hooks.json`, Hermes `config.yaml` hooks, gateway tokens, cron/jobs, Kanban, voice, Curator, Profiles, or `inline_shell`. Never write `SOUL.md`. Do not set `skills.external_dirs` when publishing into the official home.
 
 Install the toolkit first (`.\scripts\toolkit.ps1`), then sync this adapter.
 
@@ -28,7 +28,7 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 
 | Flag | Value | Notes |
 |------|-------|-------|
-| `skills` | true | `core/skills` → `skills/<id>/SKILL.md` under InstallRoot (live `~/.hermes/skills`) |
+| `skills` | true | `core/skills` → `skills/<id>/SKILL.md` under InstallRoot (live `$HERMES_HOME/skills`) |
 | `rules` | true | **Do not** publish `rules/` or `.mdc`. Fold `core/policy/*.md` into `AGENTS.md` |
 | `hooks` | false | `Publish-Hooks` no-op. No Cursor `hooks.json`. No Hermes `config.yaml` hooks. No invented plugins |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md`, combined with folded policy (idempotent overwrite of managed `AGENTS.md`) |
@@ -55,7 +55,7 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 
 ## Publish layout (native)
 
-| Source | Destination under InstallRoot (`~/.hermes`) |
+| Source | Destination under InstallRoot (`$HERMES_HOME`) |
 |--------|-------------------------------------------|
 | `core/skills/<id>/` | `skills/<id>/SKILL.md` (+ assets, including `_shared/`) |
 | `core/policy/*.md` | Folded into `AGENTS.md` (no `rules/` directory) |
@@ -69,17 +69,17 @@ Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve w
 
 ### MEMORY.md seed
 
-On publish, if `MEMORY.md` is absent at InstallRoot, the adapter writes a short seed file. If `MEMORY.md` already exists, it is left untouched. `SOUL.md` is never created or overwritten.
+On publish, if `memories/MEMORY.md` is absent at InstallRoot, the adapter writes a short seed file. If it already exists, it is left untouched. `SOUL.md` is never created or overwritten.
 
 ### Project skills trust
 
-User-home `~/.hermes/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `~/.hermes/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). The adapter never writes `config.yaml` or gateway tokens.
+Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `$HERMES_HOME/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). The adapter never writes `config.yaml` or gateway tokens.
 
 ## Fixture + smoke
 
 | Item | Path / behavior |
 |------|-----------------|
-| InstallRoot (CI / smoke) | `scripts/validation/fixtures/hermes` (models `~/.hermes`) |
+| InstallRoot (CI / smoke) | `scripts/validation/fixtures/hermes` (models Hermes home layout) |
 | Skills | `skills/` (direct child of InstallRoot) |
 | Router + policy | `AGENTS.md` at InstallRoot |
 | Rules / hooks | **Not present** — do not add `rules/` or hooks JSON |
@@ -94,10 +94,12 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot $herme
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent hermes -InstallRoot $hermesFixture
 ```
 
-Live home (`~/.hermes/skills`, not `~/.hermes/.hermes/skills`):
+Live home (`$HERMES_HOME/skills`, Windows: `%LOCALAPPDATA%\hermes\skills`):
 
 ```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot "$env:USERPROFILE\.hermes" -AllowUserHome
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot "$env:LOCALAPPDATA\hermes" -AllowUserHome
+# or when HERMES_HOME is set:
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot $env:HERMES_HOME -AllowUserHome
 ```
 
 Direct module verification (no registry required):
@@ -113,7 +115,7 @@ Invoke-SmokeValidate -InstallRoot $hermesFixture
 
 ## Uninstall (keyed)
 
-Removes only toolkit-managed paths (core skill ids and toolkit-owned `AGENTS.md`). Preserves alien skills, `config.yaml`, `MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
+Removes only toolkit-managed paths (core skill ids and toolkit-owned `AGENTS.md`). Preserves alien skills, `config.yaml`, `memories/MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
 
 ## Out of scope (do not emit)
 

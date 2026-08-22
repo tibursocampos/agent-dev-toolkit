@@ -127,11 +127,7 @@ function Get-InstallRoots {
         throw $script:HermesAdapterMessage.AgentIdRequired
     }
 
-    $userHome = [Environment]::GetFolderPath('UserProfile')
-    $officialFull = $null
-    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
-        $officialFull = Join-Path $userHome $script:HermesAdapterConstant.OfficialUserRootRelativePath
-    }
+    $officialFull = Resolve-HermesOfficialUserRoot
 
     $resolvedInstallRoot = $null
     $mapped = $null
