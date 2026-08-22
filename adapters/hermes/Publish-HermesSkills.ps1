@@ -39,6 +39,95 @@ function Initialize-HermesInstallRootResolver {
     . $resolveScript
 }
 
+function Test-HermesIsWindowsPlatform {
+    [CmdletBinding()]
+    param()
+
+    if ($PSVersionTable.PSObject.Properties.Name -contains 'Platform') {
+        if ($PSVersionTable.Platform -eq 'Win32NT') {
+            return $true
+        }
+        if ($PSVersionTable.Platform -eq 'Unix') {
+            return $false
+        }
+    }
+
+    if ($PSVersionTable.PSObject.Properties.Name -contains 'PSVersion' -and $PSVersionTable.PSVersion.Major -ge 6) {
+        return [bool]$IsWindows
+    }
+
+    return ($env:OS -like '*Windows*')
+}
+
+function Get-HermesEnvironmentVariableValue {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Name
+    )
+
+    $processValue = [Environment]::GetEnvironmentVariable($Name, 'Process')
+    if (-not [string]::IsNullOrWhiteSpace($processValue)) {
+        return $processValue.Trim()
+    }
+
+    $userValue = [Environment]::GetEnvironmentVariable($Name, 'User')
+    if (-not [string]::IsNullOrWhiteSpace($userValue)) {
+        return $userValue.Trim()
+    }
+
+    $machineValue = [Environment]::GetEnvironmentVariable($Name, 'Machine')
+    if (-not [string]::IsNullOrWhiteSpace($machineValue)) {
+        return $machineValue.Trim()
+    }
+
+    return $null
+}
+
+function Resolve-HermesOfficialUserRoot {
+    [CmdletBinding()]
+    param()
+
+    $envName = $script:HermesAdapterConstant.HermesHomeEnvironmentVariableName
+    $fromEnv = Get-HermesEnvironmentVariableValue -Name $envName
+    if (-not [string]::IsNullOrWhiteSpace($fromEnv)) {
+        $expanded = [Environment]::ExpandEnvironmentVariables($fromEnv)
+        return [System.IO.Path]::GetFullPath($expanded)
+    }
+
+    if (Test-HermesIsWindowsPlatform) {
+        $localAppData = [Environment]::GetFolderPath('LocalApplicationData')
+        if ([string]::IsNullOrWhiteSpace($localAppData)) {
+            $userHome = [Environment]::GetFolderPath('UserProfile')
+            $localAppData = Join-Path $userHome 'AppData\Local'
+        }
+
+        return [System.IO.Path]::GetFullPath(
+            (Join-Path $localAppData $script:HermesAdapterConstant.WindowsHermesDirectoryName)
+        )
+    }
+
+    $userHome = [Environment]::GetFolderPath('UserProfile')
+    if ([string]::IsNullOrWhiteSpace($userHome)) {
+        return $null
+    }
+
+    return [System.IO.Path]::GetFullPath(
+        (Join-Path $userHome $script:HermesAdapterConstant.OfficialUserRootRelativePath)
+    )
+}
+
+function Get-HermesMemoryFilePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResolvedInstallRoot
+    )
+
+    $memoriesDir = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.MemoriesDirectoryName
+    return (Join-Path $memoriesDir $script:HermesAdapterConstant.MemoryFileName)
+}
+
 function Get-HermesMappedInstallPaths {
     [CmdletBinding()]
     param(
@@ -58,7 +147,7 @@ function Get-HermesMappedInstallPaths {
         FixtureRulesPath         = $agentsPath
         FixtureHooksPath         = Join-Path $ResolvedInstallRoot $hooksRel
         FixtureProjectAgentsPath = $agentsPath
-        FixtureMemoryPath        = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.MemoryFileName
+        FixtureMemoryPath        = Get-HermesMemoryFilePath -ResolvedInstallRoot $ResolvedInstallRoot
         FixtureSoulPath          = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.SoulFileName
     }
 }
@@ -193,12 +282,11 @@ function Test-HermesInstallRootIsOfficialUserHome {
         [string] $ResolvedInstallRoot
     )
 
-    $userHome = [Environment]::GetFolderPath('UserProfile')
-    if ([string]::IsNullOrWhiteSpace($userHome)) {
+    $officialHome = Resolve-HermesOfficialUserRoot
+    if ([string]::IsNullOrWhiteSpace($officialHome)) {
         return $false
     }
 
-    $officialHome = Join-Path $userHome $script:HermesAdapterConstant.OfficialUserRootRelativePath
     $comparison = [System.StringComparison]::OrdinalIgnoreCase
     return [string]::Equals(
         [System.IO.Path]::GetFullPath($ResolvedInstallRoot),
@@ -214,7 +302,7 @@ function Initialize-HermesMemoryFileIfMissing {
         [string] $ResolvedInstallRoot
     )
 
-    $memoryPath = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.MemoryFileName
+    $memoryPath = Get-HermesMemoryFilePath -ResolvedInstallRoot $ResolvedInstallRoot
     if (Test-Path -LiteralPath $memoryPath) {
         return [PSCustomObject]@{
             Path    = $memoryPath
@@ -222,8 +310,9 @@ function Initialize-HermesMemoryFileIfMissing {
         }
     }
 
-    if (-not (Test-Path -LiteralPath $ResolvedInstallRoot)) {
-        New-Item -ItemType Directory -Path $ResolvedInstallRoot -Force | Out-Null
+    $memoriesDir = Split-Path -Parent $memoryPath
+    if (-not (Test-Path -LiteralPath $memoriesDir)) {
+        New-Item -ItemType Directory -Path $memoriesDir -Force | Out-Null
     }
 
     Write-HermesUtf8NoBomFile -Path $memoryPath -Content $script:HermesAdapterConstant.MemorySeedContent
