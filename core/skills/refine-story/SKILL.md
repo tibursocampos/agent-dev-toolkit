@@ -54,6 +54,7 @@ Does **not** create or update cards in external work-item trackers.
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
 | Story template | `skills/_shared/templates/features/story/STORY.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

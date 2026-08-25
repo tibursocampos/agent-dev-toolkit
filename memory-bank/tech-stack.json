@@ -31,6 +31,7 @@
       ".gitignore",
       "core/skills/",
       "core/skills/_shared/agents/SPAWN.md",
+      "core/skills/_shared/agents/LANGUAGE.md",
       "core/policy/",
       "core/router/",
       "core/sdd/",

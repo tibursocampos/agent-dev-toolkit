@@ -35,7 +35,7 @@ For the product walkthrough, start at [Get started](../get-started/). Per-agent 
 | **CLI** | `toolkit.ps1` / `sync-agent` / `validate-agent` — select agent, sync, validate, uninstall |
 | **Validation** | Contract suite + fixture smoke tests; CI never requires a live `%USERPROFILE%` deploy for green |
 
-After sync, the published router prefers **parallel specialist subagents** for multi-facet work (this session stays parent). Caps: `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Human summary: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); agent contract: `core/skills/_shared/agents/SPAWN.md`.
+After sync, the published router prefers **parallel specialist subagents** for multi-facet work (this session stays parent). Caps: `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Human summary: [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md); agent contract: `core/skills/_shared/agents/SPAWN.md`. Language surfaces: `core/skills/_shared/agents/LANGUAGE.md` (chat + artifacts match user chat; spawn/receipts **en-US**).
 
 ## Repo layout
 

@@ -22,16 +22,19 @@ Always-on policy source: `core/policy/orchestrator-session.md`. After publish, h
 - **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
-- User-facing chat remains pt-BR per language policy below.
+- User-facing chat and persisted artifacts match the **user chat language**; spawn / child prompts / agent receipts stay **en-US** (`LANGUAGE.md`).
 
 ## Language
 
+Two surfaces (host-agnostic — `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`):
+
 | Context | Rule |
 |---------|------|
-| SDD agent artifacts (`features/**` — FEATURE/STORY/PRD/PLAN/CONTINUITY) | Brazilian Portuguese (pt-BR) — `sdd-artifact-language-pt-br.mdc` |
+| User chat + persisted artifacts (FEATURE/STORY/PRD/PLAN/ANALYSIS/ARCH/SEC, product `docs/` / README) | **Same as user chat** in this session |
+| Internal thinking, spawn / Task child prompts, specialist contexts, receipts for agents | **Always en-US** |
 | Source code, tests, commits, identifiers | English always |
-| Project docs (repo documentation folder, README deliverables) | Ask pt-BR or English in skill before writing |
-| User-facing chat replies | Brazilian Portuguese (pt-BR) — `user-language-pt-br.mdc` |
+
+Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published rules `sdd-artifact-language-pt-br.mdc` / `user-language-pt-br.mdc` are Cursor defaults; honor `LANGUAGE.md` when chat is not pt-BR.
 
 ## Tracks (workflows)
 
@@ -84,6 +87,7 @@ Default preference: this session stays parent/orchestrator; specialists for heav
 |-------|------|
 | Orchestrator session (always-on) | Cursor `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` (other hosts: rewrite extension, or this Parallel specialists section when `rules=false`) |
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Roster / `needs_*` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
 | Task `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |

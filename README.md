@@ -47,7 +47,7 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 
 Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
 
-Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
+Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
 
 ## Supported agents
 

@@ -45,6 +45,7 @@ One **documentation plan step** completed in the target repo: new/updated markdo
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Session gates (PLAN-scoped) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 
