@@ -49,6 +49,7 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 | PRD document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PRD.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | SDD artifact language | `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | .NET / C# context | `dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 

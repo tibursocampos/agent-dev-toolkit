@@ -49,6 +49,7 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 | Plan template, domain checklist | `skills/document-plan/reference.md` or `{{TOOLKIT_ROOT}}/skills/document-plan/reference.md` after sync |
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` (read section Read-only discovery - do not conflate paths) |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

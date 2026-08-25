@@ -1,8 +1,9 @@
 # Conventions
 
 - Source identifiers, skill bodies, scripts: **English**
-- SDD artifacts (FEATURE/STORY/PRD/PLAN/CONTINUITY/CHANGE/STATE): **pt-BR** prose; paths/ids English
-- Chat with operator: **pt-BR**
+- SDD artifacts (FEATURE/STORY/PRD/PLAN/ANALYSIS/ARCH/SEC, product docs): **same as user chat**; paths/ids English
+- Chat with operator: **same as user chat**
+- Internal spawn / Task child prompts / agent receipts: **always en-US** (`core/skills/_shared/agents/LANGUAGE.md`)
 - Canonical tracks: Classic SDD / Backlog Refine / Orchestrated Delivery (alias formerly Forma A|B|C this release only)
 - Feature artifact paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`
 - Skill folder names: **kebab-case** only (no Antigravity underscore map)

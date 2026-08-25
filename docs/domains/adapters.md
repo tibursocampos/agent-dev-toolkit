@@ -53,7 +53,7 @@ Orchestrators: `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`, `scripts/
 
 ## Subagents / SPAWN
 
-Capability `subagents` is the string enum `native` \| `none` (not boolean). Most adapters declare `native`. **OpenHands** declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability may differ (fail-closed version probe). Contract: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`. Per-host spawn mechanism: each adapter README **Spawn / subagents** section.
+Capability `subagents` is the string enum `native` \| `none` (not boolean). Most adapters declare `native`. **OpenHands** declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability may differ (fail-closed version probe). Contract: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md`. Language surfaces: `core/skills/_shared/agents/LANGUAGE.md` (chat + artifacts match user chat; spawn/receipts **en-US**). Per-host spawn mechanism: each adapter README **Spawn / subagents** section.
 
 ## Notable semantics
 

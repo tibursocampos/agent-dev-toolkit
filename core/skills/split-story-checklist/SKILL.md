@@ -65,6 +65,7 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 | Grouping, topology, output template | `skills/split-story-checklist/reference.md` |
 | Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `reference.md` § SDD PLAN resolution |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

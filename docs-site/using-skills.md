@@ -29,6 +29,7 @@ After sync, the published router asks agents to prefer **parallel specialist sub
 - **Task `model`** — omit by default (child inherits the parent session model); see [SUBAGENT-MODEL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/SUBAGENT-MODEL.md)
 - **Orchestrator parent** — this session stays lean (goals, gates, paths, receipts); **no application code** in the parent when specialists run
 - **Caps** — `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Fallback when `subagents=none`: in-parent, never hard-fail — [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md) · [Architecture](../architecture/)
+- **Language surfaces** — user chat + persisted artifacts match the chat language; child prompts and agent receipts stay **en-US** ([LANGUAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/LANGUAGE.md))
 
 ## Prerequisites
 

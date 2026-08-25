@@ -1,7 +1,9 @@
 ﻿#Requires -Version 5.1
 # Tests:
 #   Should_Fail_When_SpawnMdMissing
+#   Should_Fail_When_LanguageMdMissing
 #   Should_Pass_When_SpawnAndSubagentsPresent
+#   Should_Pass_When_LanguageMdAndEnUsSpawnPresent
 #   Should_Fail_When_RegistryMissingSubagents
 $ErrorActionPreference = 'Stop'
 
@@ -132,6 +134,31 @@ if ($missingSubagents.Count -gt 0) {
 }
 
 Write-Pass -TestName $passName
+
+# --- Should_Fail_When_LanguageMdMissing ---
+$failLanguageName = 'Should_Fail_When_LanguageMdMissing'
+$languageRel = $script:ToolkitConstant.LanguageMdRelativePath
+$inventedLanguageRel = $script:ToolkitConstant.InventedMissingLanguageMdRel
+if (Test-SpawnMdPresent -RepoRoot $repoRoot -RelativePath $inventedLanguageRel) {
+    Write-Fail -TestName $failLanguageName -Reason ($script:ToolkitMessage.LanguageMdNegativeExpectedFail -f $inventedLanguageRel)
+}
+
+Write-Pass -TestName $failLanguageName
+
+# --- Should_Pass_When_LanguageMdAndEnUsSpawnPresent ---
+$passLanguageName = 'Should_Pass_When_LanguageMdAndEnUsSpawnPresent'
+if (-not (Test-SpawnMdPresent -RepoRoot $repoRoot -RelativePath $languageRel)) {
+    Write-Fail -TestName $passLanguageName -Reason ($script:ToolkitMessage.LanguageMdMissing -f $languageRel)
+}
+
+$spawnMdPath = Join-Path $repoRoot ($spawnRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$spawnText = [System.IO.File]::ReadAllText($spawnMdPath)
+$enUsMarker = $script:ToolkitConstant.LanguageEnUsSpawnMarker
+if ($spawnText -notmatch [regex]::Escape('LANGUAGE.md') -or $spawnText -notmatch [regex]::Escape($enUsMarker)) {
+    Write-Fail -TestName $passLanguageName -Reason $script:ToolkitMessage.SpawnMissingEnUsLanguageMarker
+}
+
+Write-Pass -TestName $passLanguageName
 
 Write-Host 'Assert-SpawnContract: ALL PASS'
 exit 0

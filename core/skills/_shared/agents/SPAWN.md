@@ -93,6 +93,7 @@ When spawning (native path):
 4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
+7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
 
 ## Limits
 
@@ -129,6 +130,7 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
+| `LANGUAGE.md` | Two language surfaces; en-US spawn; no full PLAN dump |
 | `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping

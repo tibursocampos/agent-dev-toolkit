@@ -29,6 +29,7 @@ Após o sync, o router publicado pede aos agentes que prefiram **subagentes espe
 - **`model` no Task** — omitir por padrão (o filho herda o modelo da sessão pai); ver [SUBAGENT-MODEL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/SUBAGENT-MODEL.md)
 - **Pai orquestrador** — esta sessão fica enxuta (metas, gates, paths, receipts); **sem código da aplicação** no pai quando há especialistas
 - **Caps** — filhos `*-developer` **≤ 2**; paralelo `orchestrate-*` **≤ 4** (em ondas se houver mais). Fallback com `subagents=none`: no pai, nunca hard-fail — [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md) · [Arquitetura](../architecture/)
+- **Superfícies de idioma** — chat do usuário + artefatos persistidos = idioma do chat; prompts de filhos e receipts para agentes = **en-US** ([LANGUAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/LANGUAGE.md))
 
 ## Pré-requisitos
 
