@@ -40,7 +40,7 @@ Every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` w
 
 ## Subagents
 
-Registry: each adapter declares `subagents: native` or `none` (OpenHands is `none`). Antigravity effective capability fail-closed via `Get-Capabilities` probe. Contract: `core/skills/_shared/agents/SPAWN.md` + `docs/SPAWN.md`.
+Registry: each adapter declares `subagents: native` or `none` (OpenHands is `none`). Antigravity effective capability fail-closed via `Get-Capabilities` probe. Contract: `core/skills/_shared/agents/SPAWN.md` + `docs/SPAWN.md`. Language surfaces: `core/skills/_shared/agents/LANGUAGE.md`.
 
 ## OpenCode hooks
 

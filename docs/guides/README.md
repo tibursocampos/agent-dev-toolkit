@@ -4,7 +4,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 **Audience:** developers using any supported agent with this toolkit’s skills.
 
-**Language:** guides are in **English**. Chat language may follow synced policy (e.g. pt-BR user-language rules). Application source code stays English unless you decide otherwise.
+**Language:** guides are in **English**. User chat and persisted artifacts follow the operator’s chat language; spawn / Task child prompts and agent receipts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). Application source code stays English.
 
 ---
 

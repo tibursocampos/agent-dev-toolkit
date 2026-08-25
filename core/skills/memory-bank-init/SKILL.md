@@ -77,6 +77,7 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Inventory script | toolkit `scripts/inventory/Invoke-MemoryBankInventory.ps1` (or synced copy if present) |
 | Fill patterns, markers | `skills/memory-bank-init/reference.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

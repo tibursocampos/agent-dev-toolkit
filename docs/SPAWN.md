@@ -86,6 +86,7 @@ Default: **omit** `model` on Task → child inherits the parent session model. P
 | Path | Role |
 |------|------|
 | `core/skills/_shared/agents/SPAWN.md` | Canonical agent contract (when/how; anti-paste; child payload) |
+| `core/skills/_shared/agents/LANGUAGE.md` | Two language surfaces; child prompts always en-US; paths + excerpt (no full PLAN dump) |
 | `core/skills/_shared/agents/ROSTER.md` | Which roles / `needs_*` spawn map (O1) |
 | `core/skills/_shared/agents/RECEIPT.md` | Specialist receipt schema |
 | `core/skills/_shared/agents/SUBAGENT-MODEL.md` | Cursor Task `model` policy |

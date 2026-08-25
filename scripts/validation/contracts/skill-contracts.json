@@ -457,6 +457,10 @@
     {
       "id": "Should_FindElectronGuidelines_When_PackDensified",
       "path": "core/skills/_shared/electron-guidelines/checklist.md"
+    },
+    {
+      "id": "Should_FindLanguageSurfacesPack_When_AgentsSharedPresent",
+      "path": "core/skills/_shared/agents/LANGUAGE.md"
     }
   ]
 }

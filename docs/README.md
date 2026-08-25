@@ -25,6 +25,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Layers, core paths, per-agent install layouts |
 | [ADAPTERS.md](ADAPTERS.md) | Registry, capabilities, per-agent publish details |
 | [SPAWN.md](SPAWN.md) | Spawn / subagents matrix (human summary; agents use `core/skills/_shared/agents/SPAWN.md`) |
+| Language surfaces | Chat + artifacts = user chat language; spawn/receipts = en-US (`core/skills/_shared/agents/LANGUAGE.md`) |
 
 ## Domains (deep dives)
 

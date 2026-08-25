@@ -37,7 +37,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 1. **Clone** the repo.
 2. **Option 1 — interactive:** `pwsh -NoProfile -File .\scripts\toolkit.ps1` (Sync wizard). **Option 2+ — scripting/CI:** `toolkit.ps1 -Action Sync -Agent <id>` or `sync-agent.ps1 -Agent <id>`. Live home needs `-AllowUserHome`. Codex defaults to **plugin-only**; add `-UserScope` only when you need the USER skills mirror (see [ADAPTERS.md](ADAPTERS.md) § Codex).
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture).
-4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **38** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
+4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **38** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
 
 See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md), [guides/02-using-skills.md](guides/02-using-skills.md).
 
@@ -71,4 +71,5 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 - [Caveman mode](guides/07-caveman-mode.md)
 - [Credits](CREDITS.md)
 - [Spawn / subagents](SPAWN.md)
+- Language surfaces: `core/skills/_shared/agents/LANGUAGE.md`
 - [Guides hub](guides/README.md)
