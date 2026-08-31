@@ -71,6 +71,8 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `python-guidelines` rows needed for the current task (FastAPI **and/or** Flask **and** pytest as applicable). **MUST NOT** glob `architecture/**` — load hub + **one** principles style from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
 
+**Never by default:** do not preload other stack guideline packs. Load only Python rows needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

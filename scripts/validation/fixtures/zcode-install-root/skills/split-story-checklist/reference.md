@@ -1,4 +1,4 @@
-# split-story-checklist - reference
+﻿# split-story-checklist - reference
 
 Grouping heuristics and templates for `skills/split-story-checklist/SKILL.md`. Keep `SKILL.md` under 500 lines; use this file for extended detail.
 
@@ -7,7 +7,7 @@ Grouping heuristics and templates for `skills/split-story-checklist/SKILL.md`. K
 ## Parsing steps from refined markdown
 
 | Item type | Section headings to search |
-|-----------|---------------------------|
+|-----------|
 | User Story / Technical Story | `### Steps` (emoji heading variants allowed) |
 | STORY.md | `## Steps` or steps embedded after description |
 | Bug | `### Suggested fix` or `### Steps` |
@@ -133,7 +133,7 @@ Do not leave test-only steps inside feature implementation groups.
 
 **Next:** Group 1 - [name]
 
-## SDD / Forma C handoff
+## SDD / Orchestrated Delivery handoff
 
 ```
 /sdd-spec -> /sdd-plan -> /sdd-develop

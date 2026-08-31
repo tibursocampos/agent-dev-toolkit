@@ -204,10 +204,16 @@ function Invoke-CopilotSmokeValidateCore {
 
         $hooksJsonPath = Join-Path $hooksRoot 'hooks.json'
         try {
-            $null = Get-Content -LiteralPath $hooksJsonPath -Raw | ConvertFrom-Json
+            $hooksObj = Get-Content -LiteralPath $hooksJsonPath -Raw | ConvertFrom-Json
         }
         catch {
             return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, $hooksJsonPath)
+        }
+        if ($null -eq $hooksObj.version -or [int]$hooksObj.version -ne 1) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (expected version:1)' -f $hooksJsonPath))
+        }
+        if ($null -eq $hooksObj.hooks -or -not ($hooksObj.hooks.PSObject.Properties.Name -contains 'preToolUse')) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (missing preToolUse)' -f $hooksJsonPath))
         }
         $completed.Add('hooks-json-schema')
     }

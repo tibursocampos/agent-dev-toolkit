@@ -1,4 +1,4 @@
----
+﻿---
 name: blip-plugin-developer
 description: Scaffold a new Blip React plugin (create-blip-extension), config:plugin, and SDD handoff to react-developer. Use for new Blip plugins or when invoking /blip-plugin-developer.
 ---
@@ -111,12 +111,12 @@ Document manual smoke: `npm start` -> open inside Blip portal -> verify iframe h
 
 ### Phase 2 - Documentation flow
 
-Ask **(pt-BR)**: "Qual fluxo de documentação? (SDD Forma A, Forma C, PRD/brief existente, ou escopo informal?)"
+Ask **(pt-BR)**: "Qual fluxo de documentação? (SDD Classic SDD, Orchestrated Delivery, PRD/brief existente, ou escopo informal?)"
 
 | Choice | Next command (new session each step) |
 |--------|--------------------------------------|
-| **SDD (Forma A)** | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
-| **Forma C** | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
+| **SDD (Classic SDD)** | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| **Orchestrated Delivery** | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
 | **Existing PRD/brief** | Skip spec; proceed to `sdd-plan` with provided doc |
 | **Informal / small** | Document scope in `README.md`; handoff directly to implementation / `developer` |
 

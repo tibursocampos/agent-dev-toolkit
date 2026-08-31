@@ -125,6 +125,7 @@ function Invoke-OpenCodeSmokeValidate {
     $checks = [ordered]@{
         SkillsPresent       = $false
         AgentsMdPresent     = $false
+        CustomAgentsPresent = $false
         PluginMarkerPresent = $false
         PluginRequired      = $false
         ShellHooksRequired  = $false
@@ -162,6 +163,26 @@ function Invoke-OpenCodeSmokeValidate {
     }
 
     $caps = Get-Capabilities
+    $agentsCapable = ($null -ne $caps) -and ($null -ne $caps.Capabilities) -and ($caps.Capabilities.agents -eq $true)
+    if ($agentsCapable) {
+        $customAgentsRoot = $mapped.FixtureCustomAgentsPath
+        $customAgentsOk = $false
+        if (Test-Path -LiteralPath $customAgentsRoot) {
+            $mdFiles = @(Get-ChildItem -LiteralPath $customAgentsRoot -File -Filter '*.md' -ErrorAction SilentlyContinue)
+            $customAgentsOk = ($mdFiles.Count -gt 0)
+        }
+        $checks.CustomAgentsPresent = $customAgentsOk
+        if (-not $customAgentsOk) {
+            return New-OpenCodeSmokeResult `
+                -Success $false `
+                -ErrorCode $script:OpenCodePathConstant.SmokeTe02Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ($script:OpenCodeSmokeMessage.Te02CustomAgentsMissing -f $customAgentsRoot) `
+                -ExitCode 1
+        }
+    }
+
     $pluginRequired = ($null -ne $caps) -and ($null -ne $caps.Capabilities) -and `
         ($caps.Capabilities.hooks -eq $true) -and ($caps.Capabilities.plugin -eq $true)
     $checks.PluginRequired = [bool]$pluginRequired

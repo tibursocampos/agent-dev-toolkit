@@ -42,6 +42,8 @@ Current branch pushed to `origin` with upstream set when needed. No force-push o
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 
+**Never by default:** do not preload CAVEMAN.md or PR templates. Load branch/push rules only when needed.
+
 ## Process
 
 ### Caveman Mode

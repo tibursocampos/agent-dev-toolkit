@@ -1,11 +1,13 @@
 {
-  "toolkit": "agent-dev-toolkit",
-  "agent": "copilot",
-  "note": "Minimal hooks descriptor for filesystem smoke. Copilot IDE extension runtime and GitHub login are out of scope.",
-  "hooks": [
-    {
-      "name": "toolkit-smoke-marker",
-      "description": "Marks toolkit-managed hooks under InstallRoot/hooks for sync/validate asserts."
-    }
-  ]
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "powershell": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "timeoutSec": 15
+      }
+    ]
+  }
 }

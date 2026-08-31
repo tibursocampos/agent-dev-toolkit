@@ -61,6 +61,26 @@ $claudeSettingsMergeScriptName = $script:ToolkitConstant.AssertClaudeSettingsMer
 $claudeSettingsMergeCheckName = $script:ToolkitConstant.ClaudeSettingsMergeCheckName
 $cursorHooksMergeScriptName = $script:ToolkitConstant.AssertCursorHooksMergeScriptName
 $cursorHooksMergeCheckName = $script:ToolkitConstant.CursorHooksMergeCheckName
+$cursorPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCursorPathSecretsGuardScriptName
+$cursorPathSecretsGuardCheckName = $script:ToolkitConstant.CursorPathSecretsGuardCheckName
+$claudePathSecretsGuardScriptName = $script:ToolkitConstant.AssertClaudePathSecretsGuardScriptName
+$claudePathSecretsGuardCheckName = $script:ToolkitConstant.ClaudePathSecretsGuardCheckName
+$codexPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCodexPathSecretsGuardScriptName
+$codexPathSecretsGuardCheckName = $script:ToolkitConstant.CodexPathSecretsGuardCheckName
+$copilotPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCopilotPathSecretsGuardScriptName
+$copilotPathSecretsGuardCheckName = $script:ToolkitConstant.CopilotPathSecretsGuardCheckName
+$openHandsPathSecretsGuardScriptName = $script:ToolkitConstant.AssertOpenHandsPathSecretsGuardScriptName
+$openHandsPathSecretsGuardCheckName = $script:ToolkitConstant.OpenHandsPathSecretsGuardCheckName
+$zcodePathSecretsGuardScriptName = $script:ToolkitConstant.AssertZcodePathSecretsGuardScriptName
+$zcodePathSecretsGuardCheckName = $script:ToolkitConstant.ZcodePathSecretsGuardCheckName
+$grokPathSecretsGuardScriptName = $script:ToolkitConstant.AssertGrokPathSecretsGuardScriptName
+$grokPathSecretsGuardCheckName = $script:ToolkitConstant.GrokPathSecretsGuardCheckName
+$openCodePathSecretsGuardScriptName = $script:ToolkitConstant.AssertOpenCodePathSecretsGuardScriptName
+$openCodePathSecretsGuardCheckName = $script:ToolkitConstant.OpenCodePathSecretsGuardCheckName
+$antigravityPathSecretsGuardScriptName = $script:ToolkitConstant.AssertAntigravityPathSecretsGuardScriptName
+$antigravityPathSecretsGuardCheckName = $script:ToolkitConstant.AntigravityPathSecretsGuardCheckName
+$hermesPathSecretsGuardScriptName = $script:ToolkitConstant.AssertHermesPathSecretsGuardScriptName
+$hermesPathSecretsGuardCheckName = $script:ToolkitConstant.HermesPathSecretsGuardCheckName
 $canonicalCloneUrlScriptName = $script:ToolkitConstant.AssertCanonicalCloneUrlScriptName
 $canonicalCloneUrlCheckName = $script:ToolkitConstant.CanonicalCloneUrlCheckName
 $tier1AdapterReadmesScriptName = $script:ToolkitConstant.AssertTier1AdapterReadmesScriptName
@@ -69,6 +89,8 @@ $ciWorkflowScriptName = $script:ToolkitConstant.AssertCiWorkflowScriptName
 $ciWorkflowCheckName = $script:ToolkitConstant.CiWorkflowCheckName
 $noFeaturesDocLinksScriptName = $script:ToolkitConstant.AssertNoFeaturesDocLinksScriptName
 $noFeaturesDocLinksCheckName = $script:ToolkitConstant.NoFeaturesDocLinksCheckName
+$noFormaAliasScriptName = $script:ToolkitConstant.AssertNoFormaAliasScriptName
+$noFormaAliasCheckName = $script:ToolkitConstant.NoFormaAliasCheckName
 $managedSkillsPathSafetyScriptName = $script:ToolkitConstant.AssertManagedSkillsPathSafetyScriptName
 $managedSkillsPathSafetyCheckName = $script:ToolkitConstant.ManagedSkillsPathSafetyCheckName
 $uninstallPathSafetyScriptName = $script:ToolkitConstant.AssertUninstallPathSafetyScriptName
@@ -85,6 +107,26 @@ $evidenceContractScriptName = $script:ToolkitConstant.AssertEvidenceContractScri
 $evidenceContractCheckName = $script:ToolkitConstant.EvidenceContractCheckName
 $traceArchiveContractScriptName = $script:ToolkitConstant.AssertTraceArchiveContractScriptName
 $traceArchiveContractCheckName = $script:ToolkitConstant.TraceArchiveContractCheckName
+$orchestratorCharterPublishedScriptName = $script:ToolkitConstant.AssertOrchestratorCharterPublishedScriptName
+$orchestratorCharterPublishedCheckName = $script:ToolkitConstant.OrchestratorCharterPublishedCheckName
+$orchestratorCommandsScriptName = $script:ToolkitConstant.AssertOrchestratorCommandsScriptName
+$orchestratorCommandsCheckName = $script:ToolkitConstant.OrchestratorCommandsCheckName
+$preferencesSchemaScriptName = $script:ToolkitConstant.AssertPreferencesSchemaScriptName
+$preferencesSchemaCheckName = $script:ToolkitConstant.PreferencesSchemaCheckName
+$planExecutionPolicyScriptName = $script:ToolkitConstant.AssertPlanExecutionPolicyScriptName
+$planExecutionPolicyCheckName = $script:ToolkitConstant.PlanExecutionPolicyCheckName
+$prdStructureScriptName = $script:ToolkitConstant.AssertPrdStructureScriptName
+$prdStructureCheckName = $script:ToolkitConstant.PrdStructureCheckName
+$planStructureScriptName = $script:ToolkitConstant.AssertPlanStructureScriptName
+$planStructureCheckName = $script:ToolkitConstant.PlanStructureCheckName
+$skillLazyLoadScriptName = $script:ToolkitConstant.AssertSkillLazyLoadScriptName
+$skillLazyLoadCheckName = $script:ToolkitConstant.SkillLazyLoadCheckName
+$storySizingContractScriptName = $script:ToolkitConstant.AssertStorySizingContractScriptName
+$storySizingContractCheckName = $script:ToolkitConstant.StorySizingContractCheckName
+$intentClassificationScriptName = $script:ToolkitConstant.AssertIntentClassificationScriptName
+$intentClassificationCheckName = $script:ToolkitConstant.IntentClassificationCheckName
+$memoryBankInventoryScriptName = $script:ToolkitConstant.AssertMemoryBankInventoryScriptName
+$memoryBankInventoryCheckName = $script:ToolkitConstant.MemoryBankInventoryCheckName
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -135,10 +177,21 @@ $coreChecks = @(
     @{ Name = $smokeHarnessSafetyCheckName; Script = $smokeHarnessSafetyScriptName },
     @{ Name = $claudeSettingsMergeCheckName; Script = $claudeSettingsMergeScriptName },
     @{ Name = $cursorHooksMergeCheckName; Script = $cursorHooksMergeScriptName },
+    @{ Name = $cursorPathSecretsGuardCheckName; Script = $cursorPathSecretsGuardScriptName },
+    @{ Name = $claudePathSecretsGuardCheckName; Script = $claudePathSecretsGuardScriptName },
+    @{ Name = $codexPathSecretsGuardCheckName; Script = $codexPathSecretsGuardScriptName },
+    @{ Name = $copilotPathSecretsGuardCheckName; Script = $copilotPathSecretsGuardScriptName },
+    @{ Name = $openHandsPathSecretsGuardCheckName; Script = $openHandsPathSecretsGuardScriptName },
+    @{ Name = $zcodePathSecretsGuardCheckName; Script = $zcodePathSecretsGuardScriptName },
+    @{ Name = $grokPathSecretsGuardCheckName; Script = $grokPathSecretsGuardScriptName },
+    @{ Name = $openCodePathSecretsGuardCheckName; Script = $openCodePathSecretsGuardScriptName },
+    @{ Name = $antigravityPathSecretsGuardCheckName; Script = $antigravityPathSecretsGuardScriptName },
+    @{ Name = $hermesPathSecretsGuardCheckName; Script = $hermesPathSecretsGuardScriptName },
     @{ Name = $canonicalCloneUrlCheckName; Script = $canonicalCloneUrlScriptName },
     @{ Name = $tier1AdapterReadmesCheckName; Script = $tier1AdapterReadmesScriptName },
     @{ Name = $ciWorkflowCheckName; Script = $ciWorkflowScriptName },
     @{ Name = $noFeaturesDocLinksCheckName; Script = $noFeaturesDocLinksScriptName },
+    @{ Name = $noFormaAliasCheckName; Script = $noFormaAliasScriptName },
     @{ Name = $managedSkillsPathSafetyCheckName; Script = $managedSkillsPathSafetyScriptName },
     @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
     @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName },
@@ -146,7 +199,17 @@ $coreChecks = @(
     @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
     @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
     @{ Name = $evidenceContractCheckName; Script = $evidenceContractScriptName },
-    @{ Name = $traceArchiveContractCheckName; Script = $traceArchiveContractScriptName }
+    @{ Name = $traceArchiveContractCheckName; Script = $traceArchiveContractScriptName },
+    @{ Name = $orchestratorCharterPublishedCheckName; Script = $orchestratorCharterPublishedScriptName },
+    @{ Name = $orchestratorCommandsCheckName; Script = $orchestratorCommandsScriptName },
+    @{ Name = $preferencesSchemaCheckName; Script = $preferencesSchemaScriptName },
+    @{ Name = $planExecutionPolicyCheckName; Script = $planExecutionPolicyScriptName },
+    @{ Name = $prdStructureCheckName; Script = $prdStructureScriptName },
+    @{ Name = $planStructureCheckName; Script = $planStructureScriptName },
+    @{ Name = $storySizingContractCheckName; Script = $storySizingContractScriptName },
+    @{ Name = $intentClassificationCheckName; Script = $intentClassificationScriptName },
+    @{ Name = $skillLazyLoadCheckName; Script = $skillLazyLoadScriptName },
+    @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

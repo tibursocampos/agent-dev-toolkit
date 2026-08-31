@@ -1,4 +1,4 @@
-# Agent router (L0 index) - agent-dev-toolkit
+﻿# Agent router (L0 index) - agent-dev-toolkit
 
 Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
 
@@ -33,17 +33,17 @@ Always-on policy source: `core/policy/orchestrator-session.md`. After publish, h
 | Project docs (repo documentation folder, README deliverables) | Ask pt-BR or English in skill before writing |
 | User-facing chat replies | Brazilian Portuguese (pt-BR) — `user-language-pt-br.mdc` |
 
-## Formas (workflows)
+## Work tracks
 
-Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `help-skills` + CATALOG Formas section.
+Three coexisting **work tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `help-skills` + CATALOG Tracks section.
 
-| Forma | When | Pipeline |
+| Track | When | Pipeline |
 |-------|------|----------|
-| **A** Classic SDD | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **B** Backlog prep | Informal item before SDD | `refine-story` → `split-story-checklist` → A or C |
-| **C** Orchestrated | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
+| **Classic SDD** | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| **Backlog Refine** | Informal item before SDD | `refine-story` → `split-story-checklist` → Classic SDD or Orchestrated Delivery |
+| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
 
-**Checkpoint:** one `sdd-develop` session = one PLAN step. Forma C Step 0 = Memory Bank Gate (`E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`.
+**Checkpoint:** one `sdd-develop` session = one PLAN step. Orchestrated Delivery Step 0 = Memory Bank Gate (`E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`.
 
 **Enforcement:** `this Parallel specialists section (no rules file)`, `sdd-pipeline-guards.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/SESSION.md`.
 
@@ -74,7 +74,7 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 | Pipeline / modes | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage / manifest | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Session gates | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/SESSION.md` |
-| Memory-bank (Forma C) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Memory-bank (Orchestrated Delivery) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 
 ## Agents / spawn (lazy)
 
@@ -100,7 +100,7 @@ Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-
 |-------|----------|
 | Catalog | `help-skills` |
 | Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| Forma C | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
 | Ops / quality | `code-review`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate` |
 | Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |

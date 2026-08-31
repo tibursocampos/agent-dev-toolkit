@@ -1,4 +1,4 @@
-# Caveman Mode - Response Compression Guideline
+﻿# Caveman Mode - Response Compression Guideline
 
 Single source of truth for Caveman Mode behavior across all participating skills.
 Load on demand from skills at step -1 - do not pre-load.
@@ -31,17 +31,23 @@ conversational filler, preambles, and polite wrapper text — while preserving
 ```json
 {
   "caveman_mode": false,
-  "caveman_level": "full"
+  "caveman_level": "full",
+  "orchestrator_mode": "always",
+  "artifact_language": null,
+  "verify_mode": false
 }
 ```
 
 - `caveman_mode` — master switch (bool).
 - `caveman_level` — `lite` | `full` | `ultra` (default `full` when mode is ON). Skill participation may *cap* intensity (e.g. planning skills use Lite rules even if prefs say `ultra`).
+- `orchestrator_mode` — `always` | `adaptive` (default `always`). See `core/policy/orchestrator-session.md`.
+- `artifact_language` — optional override (`pt-BR`, `en`, …); when `null`, match user chat per `LANGUAGE.md`.
+- `verify_mode` — optional O3 post-implement verifier (`false` default). When `true`, parent spawns read-only verifier after implementer returns (`orchestrate-develop` Step 5.5).
 
 **Resolution algorithm (run by always-on rule `caveman-mode` and at Step -1 of participating skills):**
 
 ```
-1. If preferences.json missing: create { "caveman_mode": false, "caveman_level": "full" }. Mode = OFF.
+1. If preferences.json missing: create { "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }. Mode = OFF.
 2. Read caveman_mode / caveman_level (missing level => "full").
 3. If caveman_mode false: Mode = OFF — skip compression rules.
 4. If true: Mode = ON — apply intensity (see Levels), show activation notice once per session.
@@ -65,7 +71,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 |-------|----------|
 | **lite** | No filler/hedging. Keep articles and full sentences. Professional but tight. |
 | **full** (default) | Drop articles where clear. Fragments OK. Short synonyms. No tool-call narration. No decorative emoji. Quote shortest decisive error line unless asked for full log. |
-| **ultra** | Strip conjunctions when order stays unambiguous. One word when enough. State each fact once. Prefer for long Orchestrated Delivery *(formerly Forma C)* / review sessions only. |
+| **ultra** | Strip conjunctions when order stays unambiguous. One word when enough. State each fact once. Prefer for long Orchestrated Delivery / review sessions only. |
 
 **Pattern (full/ultra):** `[thing] [action] [reason]. [next step].`
 
@@ -116,7 +122,7 @@ Resume caveman after the clear part is done.
 | `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
 | `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
-| Orchestrated Delivery *(formerly Forma C)* specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
+| Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
 | Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
 | General chat | **FULL** (or prefs `caveman_level`) |
 
@@ -192,7 +198,7 @@ When mode ON, agents may propose compacting prose in `CONTINUITY.md` or memory-b
 | Participating skills (see table) | Step -1, if `caveman_mode` true |
 | `rules/caveman-mode.md` (alwaysApply) | Global toggle + preference check every session |
 | `rules/guardrails.md` / `AGENTS.md` | Never-compress + command UX pointers |
-| Orchestrated Delivery *(formerly Forma C)* agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
+| Orchestrated Delivery agent prompts / subagent I/O | Receipt schema when mode ON; child prompts/returns Caveman-scoped (`SPAWN.md`, `RECEIPT.md`) |
 
 ### Canonical Step -1 block (copy into skills)
 

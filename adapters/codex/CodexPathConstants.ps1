@@ -56,13 +56,30 @@ $script:CodexPathConstant = @{
     HooksDirectoryName             = 'hooks'
     HooksFileName                  = 'hooks.json'
     HooksSessionStartScriptName    = 'session_start.ps1'
+    HooksGuardScriptName           = 'guard-pre-tool.ps1'
+    HooksGuardAssetsRelativePath   = 'assets\hooks\guard-pre-tool.ps1'
     HooksDefaultRelativePath       = './hooks/hooks.json'
     HooksSessionStartEventName     = 'SessionStart'
+    HooksPreToolUseEventName       = 'PreToolUse'
     HooksCommandType               = 'command'
     HooksSessionStartStatusMessage = 'Loading Agent Dev Toolkit Codex plugin context'
+    HooksPreToolUseStatusMessage   = 'Checking path/secrets policy'
     HooksSessionStartCommandTemplate = 'pwsh -NoProfile -File "${PLUGIN_ROOT}/hooks/session_start.ps1"'
-    HooksDescription               = 'Minimal Codex plugin lifecycle hooks for agent-dev-toolkit (files only; trust via /hooks is manual).'
+    HooksPreToolUseCommandTemplate = 'pwsh -NoProfile -File "${PLUGIN_ROOT}/hooks/guard-pre-tool.ps1"'
+    HooksPreToolUseBashMatcher     = 'Bash'
+    HooksPreToolUsePatchMatcher    = 'apply_patch|Edit|Write'
+    HooksDescription               = 'Codex plugin PreToolUse path/secrets guards for agent-dev-toolkit (files only; trust via /hooks is manual).'
     HooksTrustComment              = 'RN03: smoke asserts hooks files only - never invoke or require Codex /hooks trust UI.'
+    SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
+    SharedGuardCommonFileName      = 'GuardCommon.ps1'
+    CustomAgentTomlExtension       = '.toml'
+    ExpectedCustomAgentTomlFileNames = @(
+        'repo-analyst.toml',
+        'architect.toml',
+        'database.toml',
+        'security.toml',
+        'shell-runner.toml'
+    )
     UserScopeParameterName         = 'UserScope'
     UserSkillsRelativePath         = '.agents/skills'
     HomeSkillsRelativePath         = 'skills'
@@ -125,15 +142,17 @@ $script:CodexPublishMessage = @{
     RouterRepoDocsLinkForbidden = 'Codex Publish-Router: published AGENTS.md still references repo docs/ paths at: {0}'
     RouterDualRootIntro     = 'Codex InstallRoot `{0}` uses dual roots: home/plugin skills vs InstallRoot rules. Prefer absolute paths below. Invoke toolkit skills with `$<skill-id>` (for example `$help-skills`).'
     RouterDualRootNote      = 'Codex `$` discovery reads InstallRoot/skills (TOOLKIT_ROOT = InstallRoot). Plugin skills under InstallRoot/plugin remain for marketplace packaging (TOOLKIT_ROOT = plugin). Do not resolve skill `_shared` under InstallRoot/rules — rules and guardrails live under InstallRoot/rules only.'
-    HooksPublishedOk        = 'Codex Publish-Hooks: published hooks/hooks.json under {0} (filesystem only; trust /hooks is manual)'
+    HooksPublishedOk        = 'Codex Publish-Hooks: published PreToolUse guard under {0} (filesystem only; trust /hooks is manual)'
     HooksWhatIfOk           = 'Codex Publish-Hooks: WhatIf - would publish hooks under {0}'
     HooksSkippedNotCapable  = 'Codex Publish-Hooks: skipped - hooks capability is false; no hooks files written under {0}'
+    HooksAssetsMissing      = 'Codex Publish-Hooks: guard hook asset missing: {0}'
     CorePolicyMissing       = 'Codex Publish-Policy: core policy source is missing: {0}'
     PolicyPublishedOk       = 'Codex Publish-Policy: published {0} file(s) from core/policy to {1}'
     PolicyWhatIfOk          = 'Codex Publish-Policy: WhatIf - would publish core/policy to {0}'
     CoreAgentsMissing       = 'Codex Publish-Agents: core agents source is missing: {0}'
-    AgentsPublishedOk       = 'Codex Publish-Agents: published {0} custom subagent file(s) from core/agents to {1}'
-    AgentsWhatIfOk          = 'Codex Publish-Agents: WhatIf - would publish {0} custom subagent file(s) to {1}'
+    AgentsPublishedOk       = 'Codex Publish-Agents: published {0} custom subagent .toml file(s) from core/agents to {1}'
+    AgentsWhatIfOk          = 'Codex Publish-Agents: WhatIf - would publish {0} custom subagent .toml file(s) to {1}'
+    AgentsFrontmatterMissing = 'Codex Publish-Agents: agent markdown missing required frontmatter name/description: {0}'
     LiveUserScopeRequiresAllowUserHome = 'Codex Publish-Skills: live ~/.codex UserScope write to $HOME/.agents/skills requires -AllowUserHome.'
 }
 

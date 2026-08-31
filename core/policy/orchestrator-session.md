@@ -11,6 +11,37 @@ Full spawn contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Model pa
 
 ---
 
+## ORCHESTRATOR CHARTER
+
+1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that.
+2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
+3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
+
+---
+
+## In-session commands
+
+Watch chat for exact commands; update `{{SDD_ROOT}}/preferences.json`:
+
+| Command | Action |
+|---------|--------|
+| `orchestrator always` | Set `orchestrator_mode: "always"`. Confirm: `[Orchestrator] Mode set to always (parent orchestrator enforced).` |
+| `orchestrator adaptive` | Set `orchestrator_mode: "adaptive"`. Confirm: `[Orchestrator] Mode set to adaptive (may keep thin trivial work in-parent).` |
+| `orchestrator status` | Report current `orchestrator_mode`. |
+
+Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `parent adaptive`, `orchestrate status`.
+
+## Preference check (every session / task start)
+
+1. Read `{{SDD_ROOT}}/preferences.json`.
+2. If missing: create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }`.
+3. If `orchestrator_mode` is missing: default `"always"`.
+4. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
+5. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
+6. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead.
+
+---
+
 ## Role of this session
 
 This chat = **parent / orchestrator**.

@@ -10,27 +10,39 @@ Present both via skill **`help-skills`** (all adapters) — do not load every `S
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
-**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + **sim**; `orchestrate-*` parents coordinate / receipts only — **no** application code.
+**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + **sim**; `orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs: [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
 Credits for Caveman / Impeccable / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
+## Lazy-load (invocable skills)
+
+Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enforced by `Assert-SkillLazyLoad.ps1`).
+
+| Piece | Role |
+|-------|------|
+| `SKILL.md` | Gate + Process; must include `## Lazy-load` and `**Never by default:**` |
+| `reference.md` | Optional routing index (≤50 lines when section files exist) |
+| `references/*.md` | Section bodies (impeccable may use `reference/`) |
+
+**FAIL** when `**Never by default:**` is missing, or a monolithic `reference.md` is **>150** lines without a split into `references/` (or `reference/`). Agents load only the section needed for the current Process step — never glob all references at skill start.
+
 ## Work tracks
 
-Canonical operator names (skill ids unchanged). Alias *(formerly Forma …)* only in **this** release; remove in the **following** release (RN07).
+| Track | Skills | When |
+|-------|--------|------|
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
+| **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
+| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
-| Track | Alias (this release) | Skills | When |
-|-------|----------------------|--------|------|
-| **Classic SDD** | *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
-| **Backlog Refine** | *(formerly Forma B)* | `refine-story`, `split-story-checklist` | Rough bug/story first |
-| **Orchestrated Delivery** | *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+Use these track names only (no legacy Forma aliases). Same call flow; extra gates and artifacts inside — not new skills or tracks as products.
 
-**Phrase:** same SDD/orchestration call flow; extra gates and artifacts inside — not new skills or tracks as products.
+**Backlog helpers (shared, not slash skills):** `story-sizing.md` (how many / how large); optional `persona-context.md` (Who/Job/Outcome for **User Stories** only). FEATURE table includes a **Product intent** column. Selective retrieval, REQ-ID, CHANGE, EVD/STATE, and TRACE living-loop remain gates inside the skills above.
 
 Decision tree: [guides/README.md](guides/README.md).
 
-## Classic SDD *(formerly Forma A)*
+## Classic SDD
 
 | Skill | Purpose |
 |-------|---------|
@@ -46,7 +58,7 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
 ```
 
-## Backlog Refine *(formerly Forma B)*
+## Backlog Refine
 
 | Skill | Purpose |
 |-------|---------|
@@ -55,7 +67,7 @@ sdd-develop - <plan-path> - Step N
 
 Prefer story folders when present; see [guides/README.md](guides/README.md).
 
-## Orchestrated Delivery *(formerly Forma C)*
+## Orchestrated Delivery
 
 | Skill | Purpose |
 |-------|---------|
@@ -121,10 +133,11 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 |------|----------------------------------|
 | Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
 | `code-review` | Choose single vs multi-angle (no silent default) |
-| Orchestrated Delivery *(formerly Forma C)* | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code |
+| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per session |
 | `document-plan` | Asks doc language before writing |
 | Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |
+| Lazy-load | `SKILL.md` + section refs only; see [SKILL-REFERENCE-RETRIEVAL.md](../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) |
 
 Installed static notes: `_shared/skills-catalog/OPERATOR.md` via `help-skills`.
 

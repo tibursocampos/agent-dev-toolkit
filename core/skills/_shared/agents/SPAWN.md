@@ -1,4 +1,4 @@
-# Portable spawn contract (Orchestrated Delivery *(formerly Forma C)* + developers)
+﻿# Portable spawn contract (Orchestrated Delivery + developers)
 
 Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
@@ -83,17 +83,42 @@ Need specialist work?
 
 **RN:** Subagent-first = **preference + fallback**, never hard-require Task. Parent stays orchestrator per `orchestrator-session` policy.
 
+## Minimal handoff payload (parent → child)
+
+When spawning (native path), pass **only**:
+
+| Field | Content |
+|-------|---------|
+| **Role** | Specialist id or roster role (e.g. `dotnet-developer`, `repo-analyst`) |
+| **Scoped paths** | Files/dirs the child may read/write |
+| **Receipt** | Require end-of-pass receipt per `RECEIPT.md` |
+| **Excerpt** | Short pointer or excerpt of user-language artifacts — **not** full PLAN/PRD bodies |
+
+Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+
 ## Child payload (minimum)
 
 When spawning (native path):
 
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
-3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery *(formerly Forma C)* roster applies.
+3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
 4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
+
+## Post-change validation (child → parent)
+
+When the child **changes files**, the end receipt (or final summary when receipt schema is relaxed) **must** include:
+
+| Field | Content |
+|-------|---------|
+| **build** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
+| **tests** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
+| **summary** | One-line outcome for parent synthesis |
+
+Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not dump full child transcripts.
 
 ## Limits
 

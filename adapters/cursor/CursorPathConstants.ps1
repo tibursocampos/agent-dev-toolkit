@@ -43,10 +43,14 @@ $script:CursorAdapterConstant = @{
     SmokeTe04Code                  = 'TE04'
     ManagedHookScriptNames         = @(
         '_hook-common.ps1',
+        'GuardCommon.ps1',
         'context-before-prompt.ps1',
         'context-pre-compact.ps1',
+        'guard-pre-tool.ps1',
         'plan-after-edit.ps1'
     )
+    SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
+    SharedGuardCommonFileName      = 'GuardCommon.ps1'
     AtomicWriteTempSuffix          = '.tmp'
     AtomicWriteMaxAttempts         = 3
     AtomicWriteRetryDelayMilliseconds = 50

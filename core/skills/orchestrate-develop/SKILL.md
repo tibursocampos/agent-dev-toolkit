@@ -1,6 +1,6 @@
----
+﻿---
 name: orchestrate-develop
-description: Orchestrated Delivery *(formerly Forma C)* O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
+description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery *(formerly Forma C)* O3 after O2 handoff.
+Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery O3 after O2 handoff.
 
 Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a story.
 
@@ -44,7 +44,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Parent orchestrator never** writes application code, never marks multiple PLAN steps done in one child, and never bypasses `sdd-develop` gates (`step_confirmed`, tests before complete).
 
-**Alternative (always valid):** user runs manual `/sdd-develop - <portable-plan-path> - Step N` without this skill (RF05 / CA5). Manual Classic SDD *(formerly Forma A)* does **not** require memory-bank (CA7).
+**Alternative (always valid):** user runs manual `/sdd-develop - <portable-plan-path> - Step N` without this skill (RF05 / CA5). Manual Classic SDD does **not** require memory-bank (CA7).
 
 **Mental map (ids unchanged):** O3 ≈ **apply** (implement PLAN steps via `sdd-develop`). O1 ≈ explore; O2 ≈ FEATURE+PRD+CHANGE. See `CHANGE-CONTRACT.md`.
 
@@ -64,7 +64,8 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Develop contract (source of truth) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` + `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
 | SESSION gates | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
 | CONTINUITY template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/CONTINUITY.md` |
-| Process details, anti-bypass, parallelism, Must not | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/reference.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
@@ -72,7 +73,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Never by default:** do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
 
-**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, `SPAWN.md` before spawn, `sdd-develop` contract into the child prompt path only, and `orchestrate-develop/reference.md` for Process step details / anti-bypass / parallelism / Must not when needed.
+**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, `SPAWN.md` before spawn, `sdd-develop` contract into the child prompt path only, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
@@ -83,53 +84,64 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Before Task / fallback to manual develop | `SPAWN.md` |
 | Child implement contract | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` |
-| Process steps / anti-bypass / parallel / Must not | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/reference.md` |
+| Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
+| Anti-bypass checklist (CA5) | `references/anti-bypass.md` |
+| Step queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
+| Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
+| Safe parallelism | `references/parallelism.md` |
+| CONTINUITY / handoff / stop conditions | `references/continuity-handoff.md` |
+| Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
+| Caveman / resolve feature / PLAN set | `references/process-common.md` |
+| Must not (full) | `references/must-not.md` |
 | Review handoff | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
 
 ## Process
 
-Read `reference.md` for procedural tables, prompts, and checklists under each step. Do not skip gates.
+Read `references/<section>.md` for procedural tables, prompts, and checklists under each step — **not** full `reference.md`. Do not skip gates.
 
 ### Step -1b - Caveman Mode (Full cap)
-Apply Full caveman prefs when active. Details: `reference.md` § Process — Caveman (Full cap).
+Apply Full caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Full cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery *(formerly Forma C)*) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
 
 ### 2. Resolve feature / PLAN set
-Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queue or **STOP** if missing. Details: `reference.md` § Process — Resolve feature / PLAN set.
+Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queue or **STOP** if missing. Read `references/process-common.md` § Process — Resolve feature / PLAN set.
 
 ### 3. Step 0 - Memory Bank Gate
-Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Details: `reference.md` § Step 0 - Memory Bank Gate.
+Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Build step queue (deps)
-Parse pending steps; respect Deps; present queue; wait for **sim**. Details: `reference.md` § Process — Build step queue + § Step queue algorithm.
+Parse pending steps; respect Deps; present queue; wait for **sim**. Read `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-SPAWN first; one Task = one PLAN step = full `sdd-develop` contract; omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Details: `reference.md` § Process — Spawn one step child + § Task child prompt skeleton + § Anti-bypass checklist.
+SPAWN first; one Task = one PLAN step = full `sdd-develop` contract; omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
+
+### 5.5 Post-implement verifier (opt-in)
+When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.
 
 ### 6. Safe parallelism (optional)
-Default **serial**. Parallel only when all independence conditions + user **sim** + distinct SESSION files; cap ≤4. Details: `reference.md` § Process — Safe parallelism + § Safe parallelism rules.
+Default **serial**. Parallel only when all independence conditions + user **sim** + distinct SESSION files; cap ≤4. Read `references/parallelism.md`.
 
 ### 7. Stop conditions
-Stop on story/feature done, context pressure, child blocked, or **cancelar**. Details: `reference.md` § Process — Stop conditions.
+Stop on story/feature done, context pressure, child blocked, or **cancelar**. Read `references/continuity-handoff.md` § Process — Stop conditions.
 
 ### 8. CONTINUITY
-Update phase / Memory-bank / estado / handoff at each milestone. Details: `reference.md` § Process — CONTINUITY fields + § CONTINUITY checklist.
+Update phase / Memory-bank / estado / handoff at each milestone. Read `references/continuity-handoff.md`.
 
 ### 9. Step N - Memory Bank refresh-light (after code changes)
-When a child changed app files: confirm → `refresh-light` → CONTINUITY `refreshed` (or skip). Details: `reference.md` § Process — Step N refresh-light + § Step N - refresh-light.
+When a child changed app files: confirm → `refresh-light` → CONTINUITY `refreshed` (or skip). Read `references/continuity-handoff.md` § Process — Step N refresh-light and `references/preconditions.md` § Step N - refresh-light.
 
 ### 10. Handoff - code-review + manual alternative
-Emit review + manual `/sdd-develop` + continue O3 strings. Details: `reference.md` § Handoff copy.
+Emit review + manual `/sdd-develop` + continue O3 strings. Read `references/continuity-handoff.md` § Handoff copy.
 
 ## Anti-bypass checklist (must enforce)
 
-Parent and children **must not** bypass CA5. Enforce the full table in `reference.md` § Anti-bypass checklist before every spawn and before marking any step done. Critical: parent writes **no** app code; one child = one PLAN step; **sim** before next spawn; PLAN-scoped SESSION files for parallel children.
+Parent and children **must not** bypass CA5. Enforce the full table in `references/anti-bypass.md` before every spawn and before marking any step done. Critical: parent writes **no** app code; one child = one PLAN step; **sim** before next spawn; PLAN-scoped SESSION files for parallel children.
 
 ## Must not
 
-Enforce the full list in `reference.md` § Must not (full). Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only.
+Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only.
 
 ## Handoff
 

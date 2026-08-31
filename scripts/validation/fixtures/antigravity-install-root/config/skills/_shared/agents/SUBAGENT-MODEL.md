@@ -1,4 +1,4 @@
-# Task subagent model policy (Forma C)
+﻿# Task subagent model policy (Orchestrated Delivery)
 
 Contract for **LLM model** on Cursor `Task` spawns from `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop`, and other parent spawns under `SPAWN.md`. Orthogonal to **when** to spawn (`ROSTER.md`), **native vs fallback** (`SPAWN.md` + `orchestrator-session` policy), and to Memory Bank Gate policy `auto` (bank health — not the Cursor Auto model).
 

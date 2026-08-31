@@ -1,4 +1,4 @@
-# Skills operator notes (agent SoT)
+﻿# Skills operator notes (agent SoT)
 
 Static operator-facing nuances for installed skills. **Read this file** (with `CATALOG.md`) via skill `help-skills` — do **not** re-analyze every `SKILL.md` to answer catalog or “what will I be asked?” questions.
 
@@ -15,6 +15,7 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 | Invoke | Use **skill ids** (kebab-case). Host prefixes differ — see matrix below. Compat: `use skill <id>` / natural language when the host accepts it. |
 | Gates | Most mutating skills require guardrails + SESSION; user **`sim`** before writes. Silence ≠ approval. |
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
+| Orchestrator mode | Default **`always`**. Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). See `docs/guides/08-orchestrator-mode.md` + `orchestrator-session` policy. |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
 | Caveman **NEVER** | `help-skills`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
 
@@ -57,8 +58,8 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 |-------|----------------|
 | `sdd-spec` / `sdd-plan` | Classic SDD. Caveman cap **Lite** when mode ON. |
 | `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
-| `refine-story` / `split-story-checklist` | Backlog Refine *(formerly Forma B)* prep before Classic SDD or Orchestrated Delivery. |
-| `memory-bank-init` | Orchestrated Delivery *(formerly Forma C)* Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
+| `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
+| `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
 | `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
 | `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |
 | `orchestrate-develop` | One PLAN step per child via `sdd-develop`; parent does not implement. |

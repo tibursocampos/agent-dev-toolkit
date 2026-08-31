@@ -1,4 +1,4 @@
-# Getting started
+﻿# Getting started
 
 End-to-end path from clone to first skill invoke.
 
@@ -83,6 +83,8 @@ Confirm skills are visible (Cursor example after live sync):
 
 Restart the agent or reload the window if skills do not appear immediately. Trust hooks in the agent UI if prompted (manual; not part of CI).
 
+On first sync, if `preferences.json` is missing under the SDD root, the wizard asks **Always orchestrate** (default) vs **Adaptive** — see [08-orchestrator-mode.md](08-orchestrator-mode.md).
+
 ## 6. Run your first skill
 
 Canonical form is the **skill id**. Host prefixes differ (`/id`, `$id`, `use skill id`, OpenCode `skill` tool) — see [02-using-skills.md](02-using-skills.md).
@@ -98,7 +100,7 @@ Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
 **First Classic SDD / Orchestrated Delivery write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
 
 | Choice | PRD / PLAN / feature tree | Memory bank |
-|--------|---------------------------|-------------|
+|--------|-------------|
 | Repository | `$Cwd/features/NNN-slug/...` | `$Cwd/memory-bank/` |
 | Global | Under `classic.path` on the SDD root (outside the consumer git tree) | Same `<path>/memory-bank/` |
 
@@ -123,10 +125,10 @@ or a stack skill such as `dotnet-developer` / `react-developer`.
 
 | Goal | Doc |
 |------|-----|
-| Which Forma / skill | [guides/README.md](README.md) |
+| Which work track / skill | [guides/README.md](README.md) |
 | Invoke tips per agent | [02-using-skills.md](02-using-skills.md) |
 | Full catalog | [SKILLS.md](../SKILLS.md) |
 | Adapter layouts | [ADAPTERS.md](../ADAPTERS.md) |
 | App architecture A/B/C + confirm gate | [domains/core.md](../domains/core.md) § Code guidelines |
 
-Greenfield domain work: prefer Orchestrated Delivery *(formerly Forma C)* (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).
+Greenfield domain work: prefer Orchestrated Delivery (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).

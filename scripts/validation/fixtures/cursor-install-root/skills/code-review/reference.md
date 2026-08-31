@@ -295,7 +295,7 @@ Run when PRD, PLAN, or user requires coverage evidence:
 ```
 
 | Result from test-coverage | code-review decision |
-|---------------------------|---------------------|
+|---------------------|
 | Pass (≥ threshold) | May approve if all other criteria met |
 | Fail (&lt; threshold) | **Alterações necessárias** |
 | Not run, target required | Note limitation; ask user to run or waive explicitly |

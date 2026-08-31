@@ -140,14 +140,14 @@ if ([string]::Equals([System.IO.Path]::GetFullPath([string]$roots.FixtureUserRoo
 }
 
 $caps = Get-Capabilities -AgentId $hermesAgentId
-if ($caps.Capabilities.hooks -ne $false) {
-    Write-Fail -TestName $mapName -Reason 'hooks capability must be false'
+if ($caps.Capabilities.hooks -ne $true) {
+    Write-Fail -TestName $mapName -Reason 'hooks capability must be true'
 }
 if ($caps.Capabilities.agents -ne $false) {
     Write-Fail -TestName $mapName -Reason 'agents capability must be false'
 }
-if ($caps.Capabilities.plugin -ne $false) {
-    Write-Fail -TestName $mapName -Reason 'plugin capability must be false'
+if ($caps.Capabilities.plugin -ne $true) {
+    Write-Fail -TestName $mapName -Reason 'plugin capability must be true'
 }
 if ($caps.Capabilities.subagents -ne 'native') {
     Write-Fail -TestName $mapName -Reason 'subagents capability must be native'

@@ -65,8 +65,9 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
-| Hermes | Native `~/.hermes`; policy folded into `AGENTS.md`; no `rules/`; hooks/plugin/agents false; `delegate_task`; MEMORY.md seed-if-missing; never SOUL.md/gateway |
-| OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell hooks; `subagents=none` |
+| Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (path/secrets dual); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |
+| OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
+| Path/secrets guard | Shared `adapters/_shared/guard-rules.md` + `GuardCommon.ps1` — outside workspace deny; write without path deny; host wiring in [ADAPTERS.md](../ADAPTERS.md) |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
 | Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
 | Sync prepare | Every sync runs `Get-SddRoot -Prepare` |

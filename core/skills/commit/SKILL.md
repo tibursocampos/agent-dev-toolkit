@@ -43,159 +43,43 @@ One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>`, with an
 | Detailed Git flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 | Pre-commit checks | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
 | Message validator (commit-message-validator step) | `{{TOOLKIT_ROOT}}/skills/_shared/format-validators/commit-message-validator.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/commit/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/commit/references/<section>.md` |
 
+**Never by default:** do not preload all `references/*.md` or CAVEMAN.md. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Validate branch / workspace | `references/validate-branch.md` |
+| Inspect changes / pre-commit | `references/inspect-changes.md` |
+| Draft message | `references/draft-message.md` |
+| Commit and push | `references/commit-and-push.md` |
+| Must not (full) | `references/must-not.md` |
 ## Process
 
-### Caveman Mode
-**NEVER** - This skill ignores `caveman_mode`. Use clear prose always. Do not load `CAVEMAN.md` for chat compression. Commit/PR text stays normal English.
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
-### 0. Workspace
+### 0–1. Workspace and validate branch
+Follow `references/validate-branch.md` (Caveman **NEVER**; branch blocker before any `git add`/`commit`/`push`).
 
-Confirm the **target repository** (not this toolkit repo unless that is the project). Read `AGENTS.md` / `README.md` if present.
-
-### 1. Validate branch (blocker)
-
-Before any `git add`, `git commit`, or `git push`, enforce `branch-validation.mdc`:
-
-- Allowed: `feature/<slug>`, `feat/<id>` (single segment after prefix)
-- Blocked: `main`, `master`, `develop`, nested `feature/a/b`, or any other pattern
-
-If blocked, stop and show how to create a valid branch. Do not stage or commit.
-
-### 2. Inspect changes
-
-Run in parallel:
-
-```bash
-git status
-git diff --staged
-git diff
-git log --oneline -10
-```
-
-If the working tree is clean and there is nothing to commit, report and stop.
-
-Summarize: files changed, nature (feat/fix/refactor/test/docs), scope, breaking changes.
-
-### 3. Pre-commit validation
-
-Follow `step-3.5-precommit-validation.md` when changes are non-trivial (secrets scan, build/quick test per stack). User may skip with explicit acknowledgment.
+### 2–3. Inspect changes and pre-commit
+Follow `references/inspect-changes.md`.
 
 ### 4. Draft commit message
+Follow `references/draft-message.md`. Present message and **wait for user confirmation** before committing.
 
-Apply `conventional-commits.mdc` and `step-4-commits-pr.md`:
-
-```
-<type>[optional scope][!]: <description>
-
-[optional body - why, not what]
-
-Refs: #<issue>    # optional footer
-```
-
-Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-
-Present the proposed message and **wait for user confirmation** before committing. Apply edits if requested.
-
-Prefer **atomic commits**: stage explicit paths - avoid `git add -A` unless the user explicitly requests it.
-
-### 5. Commit
-
-After approval, write the **exact** user-approved text to a message file. The file must contain **only** Conventional Commits content - no footers, no trailers, no `Co-authored-by` lines.
-
-```bash
-git add <explicit paths>
-git commit -F <path-to-approved-message.txt>
-```
-
-Use **only** `-F` or a single `-m` with the approved subject (and optional body via `-F`). Do **not** use:
-
-- `git commit --trailer` / `--trailer=…` (any trailer flag)
-- Extra `-m` blocks for footers or attribution
-- `--author` overrides for Cursor or any AI agent
-- Any line containing `Co-authored-by:` in the message you write
-
-**Never** append `Co-authored-by: Cursor`, `Co-authored-by: Antigravity`, or similar - not in the message file, not in chat drafts shown to git, not in any form.
-
-#### 5.1 Post-commit verification (mandatory)
-
-Cursor or other tooling may inject `Co-authored-by: Cursor` **after** the agent runs `git commit`. The agent must **not** leave that in place.
-
-Immediately after every commit:
-
-```bash
-git log -1 --format=%B
-```
-
-If the output contains `Co-authored-by:` (any variant, any email), strip it and amend:
-
-1. Rewrite the message file with **only** the approved Conventional Commits text (no `Co-authored-by` lines).
-2. Run `git commit --amend -F <path-to-approved-message.txt>`.
-3. Re-check with `git log -1 --format=%B`.
-4. If the trailer is still present, run `git commit --amend -F <path-to-approved-message.txt> --no-verify` **only** to remove the unauthorized co-author line - do not skip hooks for any other reason.
-5. If the trailer **still** remains (`prepare-commit-msg` may run even with `--no-verify`), amend with hooks disabled:
-
-```bash
-git -c core.hooksPath=<empty-directory> commit --amend -F <path-to-approved-message.txt>
-```
-
-Use a temporary empty folder (not the repo `.git/hooks`). Re-check `git log -1 --format=%B`.
-
-Report the final message body in chat (without co-author trailers).
-
-Do not use `git commit --amend` on shared or pushed history unless the user explicitly requests it and amend rules apply.
-
-### 6. Push (optional)
-
-Push only when the user asks:
-
-```bash
-git push -u origin HEAD
-```
-
-Never `git push --force` to `main`, `master`, or `develop`.
-
-After a successful push from this skill, follow `/push` §3: **ask** whether to open a PR with **`/open-github-pr`**. Do **not** create the pull request here — hand off to that skill on **sim**.
-
-If the user asked for commit + push + PR in one message (EN/pt-BR), treat PR intent as already granted for **handoff only**:
-
-| Phrase examples (non-exhaustive) | After commit (+ push if approved) |
-|----------------------------------|-----------------------------------|
-| `fluxo completo`, `faça o fluxo completo` | **Read and follow** `open-github-pr/SKILL.md` end-to-end |
-| `abra o PR`, `abrir PR`, `criar PR`, `faça o PR` | same |
-| `commit + push + PR`, `push and open PR`, `open the PR` | same |
-
-Do **not** open the PR inside `/commit`. Do **not** skip `/open-github-pr` confirmation or its auto-merge ask. Load that skill’s `SKILL.md` before any PR-creation action.
-
-### 7. Report
-
-- Branch name
-- Short commit hash (`git rev-parse --short HEAD`)
-- Files included
-- Push status (if applicable)
-- SDD handoff: if mid-PLAN, remind to update PLAN via `sdd-develop` before the next step in a new chat
-- If push succeeded and PR was not declined: remind that PR opening is **`/open-github-pr`** only
-
+### 5–7. Commit, push, report
+Follow `references/commit-and-push.md` (post-commit `Co-authored-by` strip mandatory; optional push; PR handoff to `/open-github-pr` only).
 ## Must not
 
-- Commit on `main`, `master`, `develop`, or invalid branch names
-- External work-item APIs, mandatory PR creation, or org-only PR templates
-- **Creating or merging a GitHub pull request from this skill** — hand off to `/open-github-pr` (never run PR-create CLI or web compare from `/commit`)
-- Skipping `/open-github-pr` when the user already asked for a PR / “fluxo completo” — still hand off; that skill owns confirmation + auto-merge ask
-- `git add -A` / `git add .` without review (unless user explicitly requests)
-- Deprecated commit skill aliases in user-facing handoff - use `commit` only
-- Auto-commit without message approval
-- **AI co-author trailers (absolute)** - never write, suggest, or leave in place:
-  - `Co-authored-by: Cursor` / `cursoragent@cursor.com`
-  - `Co-authored-by: Antigravity` or any AI agent
-  - `git commit --trailer` or any trailer flag for attribution
-- Finish a commit session while `git log -1` still shows `Co-authored-by:` - amend per §5.1 first
-
+Enforce the full list in `references/must-not.md`. Critical always-on: no commit on blocked branches; no PR create from this skill; no auto-commit without message approval; never leave `Co-authored-by:` in `git log -1`. When the user asks for **fluxo completo** / PR after commit, hand off to `/open-github-pr` (do not create the PR here).
 ## Handoff
 
 | Situation | Next |
 |-----------|------|
 | Continue SDD step | New session -> `/sdd-develop - <full-plan-path> - Step N` |
 | Review before PR | `/code-review` |
-| Open PR (user sim / asks after commit or push) | **`/open-github-pr`** (required — not inline PR creation from `/commit`) |
+| Open PR (user sim / asks after commit or push / **fluxo completo**) | **`/open-github-pr`** (required — not inline PR creation from `/commit`) |
 | Push only | `/push` (then `/push` offers `/open-github-pr`) |

@@ -25,7 +25,7 @@ Also accept `stop caveman` / `normal mode` as off.
 ## 2. Preference check (every session / task start)
 
 1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: create `{ "caveman_mode": false, "caveman_level": "full" }`.
+2. If missing: create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }`.
 3. If `caveman_mode` is `true`:
    - Load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`.
    - Apply intensity: `lite` | `full` | `ultra` (default `full`), capped by active skill participation table in that file.

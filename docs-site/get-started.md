@@ -1,4 +1,4 @@
-# Get started
+﻿# Get started
 
 Clone the toolkit, validate the repo, sync an agent, then invoke a skill in an **application project** (the project you are building).
 
@@ -114,8 +114,8 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + seed `manifest.json` sch
 | Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + merged `settings.json` |
 | Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
 | Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` (dual-root — not one shared TOOLKIT_ROOT for skills+rules) |
-| Hermes | `skills/`, `AGENTS.md` (no `rules/` tree; hooks not published) |
-| OpenHands | Project: `.agents/skills/`, `.agents/agents/`, `AGENTS.md`, `.openhands/hooks`, `.plugin/plugin.json`. Live user skills: `~/.agents/skills` |
+| Hermes | `skills/`, `AGENTS.md` (no `rules/`); plugin `agent-dev-toolkit-guard` + `agent-hooks` path/secrets; keyed `config.yaml` only |
+| OpenHands | Project: `.agents/skills/`, `.agents/agents/`, `AGENTS.md`, `.openhands/hooks` (`guard_pre_tool.sh` path/secrets), `.plugin/plugin.json`. Live user skills: `~/.agents/skills` |
 | Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
 
 **SDD storage (first Classic write):** skills ask **repository** vs **global** when the project is not yet in the manifest.
@@ -153,7 +153,7 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step 1
 ```
 
-Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a work track (**Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**; formerly Forma A/B/C): [Using skills](../using-skills/).
+Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a work track (**Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**): [Using skills](../using-skills/).
 
 After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
 

@@ -22,7 +22,7 @@ Então {{THEN}}
 
 ## Scorecard (resumo)
 
-Rubric detail: `refine-story/reference.md` (scores **/100**). Map to this table as **1-5** (approx. `/20`, round nearest; floor 1 if score > 0).
+Rubric detail: `refine-story/references/scorecard-rubric.md` (scores **/100**). Map to this table as **1-5** (approx. `/20`, round nearest; floor 1 if score > 0).
 
 | Critério | Nota (1-5) | Nota |
 |----------|------------|------|

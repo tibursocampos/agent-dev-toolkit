@@ -11,7 +11,12 @@ Credits: [CREDITS.md](../CREDITS.md) — inspired by [JuliusBrussee/caveman](htt
 **OFF.** If `preferences.json` is missing, agents create:
 
 ```json
-{ "caveman_mode": false, "caveman_level": "full" }
+{
+  "caveman_mode": false,
+  "caveman_level": "full",
+  "orchestrator_mode": "always",
+  "artifact_language": null
+}
 ```
 
 Location: `{{SDD_ROOT}}/preferences.json` (under the agent’s published SDD root after sync). At runtime, resolve via host-aware `effective_SDD_ROOT` (`STORAGE.md`) so prefs never land under a foreign agent home.

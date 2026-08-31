@@ -34,7 +34,8 @@ Skills and guides in scope **must not** prescribe a full dump of:
 | `core/skills/sdd-plan/SKILL.md` | Summarize PRD; do not paste full body into PLAN/chat dumps |
 | `core/skills/sdd-plan/reference.md` | Template pointer + quality gates |
 | `core/skills/refine-story/SKILL.md` | Lean intake; no bank/PRD dump |
-| `core/skills/refine-story/reference.md` | Boundaries + guardrails |
+| `core/skills/refine-story/references/boundary.md` | Boundaries (no bank/PRD dump) |
+| `core/skills/refine-story/references/guardrails.md` | Guardrails / checklist |
 | `core/skills/_shared/templates/sdd/PRD.md` | REQ/AC/OOS contract |
 | `core/skills/_shared/templates/sdd/PLAN.md` | REQ→step + selective note |
 | This file | Normative rule |

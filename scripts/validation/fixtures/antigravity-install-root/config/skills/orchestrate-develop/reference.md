@@ -1,4 +1,4 @@
-# orchestrate-develop - reference
+﻿# orchestrate-develop - reference
 
 Anti-bypass checklist, step queue, safe parallelism, CONTINUITY, Task child prompt, and handoffs for `skills/orchestrate-develop/SKILL.md`. Keep `SKILL.md` lean.
 
@@ -14,7 +14,7 @@ Anti-bypass checklist, step queue, safe parallelism, CONTINUITY, Task child prom
 - [ ] Parent will **not** implement app code
 - [ ] Child prompts include `memoryBankPath` (read-only, selective)
 
-If no PLAN -> hand off to O2 / `sdd-plan`. If user prefers no orchestrator -> document manual `sdd-develop` and stop (Forma A: no memory-bank gate - CA7).
+If no PLAN -> hand off to O2 / `sdd-plan`. If user prefers no orchestrator -> document manual `sdd-develop` and stop (Classic SDD: no memory-bank gate - CA7).
 
 ---
 
@@ -202,7 +202,7 @@ Handoff `/code-review` (user may pass `- single` / `- multi-angle`; if omitted, 
 | Writes | PRD/PLAN | CONTINUITY + spawns implementers | Code + PLAN progress |
 | App code | No | Children only | Yes (the skill itself) |
 | Steps per session | N/A | **One** per child | **One** |
-| Required? | After O1 for Forma C | **Optional** | Always valid |
+| Required? | After O1 for Orchestrated Delivery | **Optional** | Always valid |
 
 ---
 

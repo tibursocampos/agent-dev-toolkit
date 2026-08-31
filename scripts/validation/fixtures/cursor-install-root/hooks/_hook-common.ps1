@@ -1,9 +1,34 @@
 ﻿# Shared helpers for agent-dev-toolkit Cursor hooks (Windows PowerShell 5.1+).
 # Dot-sourced by hook scripts; not invoked directly by hooks.json.
+# Path/secret guards: adapters/_shared/GuardCommon.ps1 (see guard-rules.md).
 
 Set-StrictMode -Version Latest
 
 $script:ToolkitHooksStateDir = Join-Path $env:USERPROFILE '.cursor\hooks-state'
+
+# Load shared path/secret helpers (sibling after publish, or adapters/_shared in-repo).
+$_guardCommonCandidates = @(
+    (Join-Path $PSScriptRoot 'GuardCommon.ps1'),
+    (Join-Path $PSScriptRoot '..\..\..\_shared\GuardCommon.ps1')
+)
+$_guardCommonLoaded = $false
+foreach ($_guardCandidate in $_guardCommonCandidates) {
+    try {
+        $_guardFull = [System.IO.Path]::GetFullPath($_guardCandidate)
+    }
+    catch {
+        continue
+    }
+    if (Test-Path -LiteralPath $_guardFull) {
+        . $_guardFull
+        $_guardCommonLoaded = $true
+        break
+    }
+}
+if (-not $_guardCommonLoaded) {
+    throw "GuardCommon.ps1 not found relative to $PSScriptRoot (expected sibling or adapters/_shared)."
+}
+Remove-Variable -Name _guardCommonCandidates, _guardCommonLoaded, _guardCandidate, _guardFull -ErrorAction SilentlyContinue
 
 function Ensure-HooksStateDir {
     if (-not (Test-Path $script:ToolkitHooksStateDir)) {
@@ -72,4 +97,10 @@ function Test-SddSkillPrompt([string] $Prompt) {
         return $false
     }
     return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|split-story-checklist|repair-dotnet-build|test-coverage|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
+}
+
+function Write-PreToolJson([hashtable] $Payload) {
+    $json = $Payload | ConvertTo-Json -Compress -Depth 6
+    Write-Output $json
+    exit 0
 }

@@ -107,18 +107,18 @@ Funciona com JavaScript desativado.
 
 ## Agentes suportados
 
-| Id do agente | Nome de exibição | Pasta de instalação típica |
-|--------------|------------------|----------------------------|
-| `cursor` | Cursor | `~/.cursor` |
-| `antigravity` | Antigravity | `~/.gemini` |
-| `claude` | Claude Code | `~/.claude` |
-| `codex` | Codex | `~/.codex` (plugin; USER opcional `~/.agents/skills` via `-UserScope`) |
-| `copilot` | GitHub Copilot | `~/.copilot` |
-| `opencode` | OpenCode | `~/.config/opencode` |
-| `grok` | Grok Build | `~/.grok` |
-| `zcode` | ZCode | `~/.zcode` |
-| `hermes` | Hermes | `~/.hermes` |
-| `openhands` | OpenHands | Projeto `.agents/skills`; usuário live `~/.agents/skills` |
+| Id do agente | Nome de exibição | Pasta de instalação típica | Notas |
+|--------------|------------------|----------------------------|-------|
+| `cursor` | Cursor | `~/.cursor` | Hooks path/secrets; roster agents |
+| `antigravity` | Antigravity | `~/.gemini` | PreToolUse em `config/hooks` |
+| `claude` | Claude Code | `~/.claude` | PreToolUse path/secrets |
+| `codex` | Codex | `~/.codex` (plugin; USER opcional `~/.agents/skills` via `-UserScope`) | PreToolUse; `agents/*.toml` |
+| `copilot` | GitHub Copilot | `~/.copilot` | hooks `version:1` preToolUse |
+| `opencode` | OpenCode | `~/.config/opencode` | JS path/secrets; publica agents |
+| `grok` | Grok Build | `~/.grok` | PreToolUse; publica agents |
+| `zcode` | ZCode | `~/.zcode` | PreToolUse |
+| `hermes` | Hermes | `~/.hermes` | Plugin + shell path/secrets |
+| `openhands` | OpenHands | Projeto `.agents/skills`; usuário live `~/.agents/skills` | `guard_pre_tool.sh` fail-closed |
 
 <nav class="home-secondary-links" aria-label="Secundário">
   <a href="using-skills/">Usando skills</a>

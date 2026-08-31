@@ -1,10 +1,10 @@
-# Memory Bank Gate (Forma C Step 0)
+# Memory Bank Gate (Orchestrated Delivery Step 0)
 
 Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+Companion skill: `memory-bank-init`. Optional inventory script (or synced copy if present): `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
@@ -21,7 +21,7 @@ Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke
 
 **Must not:** place `memory-bank/` under `features/NNN-slug/`. CONTINUITY must not duplicate bank body.
 
-**Forma A (Classic SDD):** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Forma C (`orchestrate-*`) and to promote; Forma A does not require the bank.
+**Classic SDD:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery (`orchestrate-*`) and to promote; Classic SDD does not require the bank.
 
 ---
 
@@ -108,7 +108,7 @@ If `sources.json` missing but markdown files exist -> treat as **incomplete** (r
 
 Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` forces stale/incomplete until checked off or removed after human ack. Phase 2 files that are BLOCKING (Prior/cited already has DDL, OpenAPI, or a UI component map) must use this flag until the file is written/promoted.
 
-**Inventory merge:** `Invoke-MemoryBankInventory.ps1` regenerates MVP/phase-2 stubs in `gaps.md` but **preserves** any existing line containing `BLOCKING:` (does not wipe human gate flags on refresh).
+**Inventory merge (agent-enforced):** On create/refresh/refresh-light, regenerate MVP/phase-2 stubs in `gaps.md` but **preserve** any existing line containing `BLOCKING:` — agents must not wipe human gate flags even when `Invoke-MemoryBankInventory.ps1` is absent (use Glob/Grep per `memory-bank-init/reference.md`).
 
 ---
 
@@ -127,7 +127,7 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt.
+6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt. Normative rule for SDD/refine skills: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke `Assert-SelectiveRetrieval.ps1`.
 
 ### Modes (`memory-bank-init`)
 
@@ -165,7 +165,7 @@ Toolkit itself may keep templates only - not a live bank unless documenting the 
 8. Record status for CONTINUITY: fresh | refreshed | created
 ```
 
-**Wiring:** O1, O2, and O3 (`orchestrate-*`) implement Step 0. Forma A (`sdd-*`) does not require the gate.
+**Wiring:** O1, O2, and O3 (`orchestrate-*`) implement Step 0. Classic SDD (`sdd-*`) does not require the gate.
 
 ---
 
@@ -190,15 +190,19 @@ Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already
 
 ---
 
-## Inventory script
+## Inventory (script or agent fallback)
+
+Prefer toolkit script when present:
 
 ```powershell
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
+If the script is absent, agents run equivalent Glob/Grep per `memory-bank-init/reference.md`.
+
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
-- Output: `sources.json`, updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`.
+- Output: `sources.json`, updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
 
 ---
 

@@ -92,7 +92,7 @@ $alienHookMarker = 'alien-notification-hook'
 $userAllowEntry = 'Bash(git status)'
 $legacyBroadAllowPwsh = 'Bash(pwsh *)'
 $legacyBroadAllowPowershell = 'Bash(powershell *)'
-$managedHookEvents = @('UserPromptSubmit', 'PreCompact', 'PostToolUse')
+$managedHookEvents = @('UserPromptSubmit', 'PreCompact', 'PostToolUse', 'PreToolUse')
 $invalidJsonMarker = '{ this is not valid json'
 
 

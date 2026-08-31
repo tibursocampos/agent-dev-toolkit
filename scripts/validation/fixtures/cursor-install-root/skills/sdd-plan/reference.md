@@ -1,10 +1,13 @@
-# PLAN template (plan skill)
+# PLAN authoring (plan skill)
 
-Use this template when writing the PLAN at the resolved path (repository or global). **Default:** section titles and body in **Brazilian Portuguese (pt-BR)**. English only on explicit skill invocation override - see `sdd-artifact-language-pt-br.mdc`.
+Authoritative document template: `skills/_shared/templates/sdd/PLAN.md` (toolkit: `core/skills/_shared/templates/sdd/PLAN.md`).
+
+**Default:** section titles and body in **Brazilian Portuguese (pt-BR)**. English only on explicit skill invocation override - see `sdd-artifact-language-pt-br.mdc`.
 
 **File paths** and **test names** in English. No implementation code blocks in the PLAN.
 
-Storage rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/STORAGE.md`. Pipeline guards: `PIPELINE.md`.
+Storage rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/STORAGE.md`. Pipeline guards: `PIPELINE.md`.  
+Selective retrieval: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`).
 
 ## Filename and numbering
 
@@ -14,8 +17,8 @@ Storage rules: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cu
 | Sequence | Same `NNN` (3 digits) as the source PRD |
 | Slug | Short ASCII summary (kebab-case or snake_case; Portuguese allowed) |
 | Example (repo) | `features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` |
-| Example (global) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/sdd/acme-payments-api/features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` |
-| PRD link | Full path to PRD on disk (must be under `features/.../PRD/`) |
+| Example (global) | `sdd/acme-payments-api/features/002-exportacao-perfil/US01/PLAN/PLAN_002_exportacao_perfil_usuario.md` (portable path relative to InstallRoot) |
+| PRD link | **Portable path** to PRD (`STORAGE.md` § Portable path; must be under `features/.../PRD/` or `sdd/<repo-id>/features/.../PRD/`) |
 
 ## Storage and `.gitignore` (plan skill)
 
@@ -27,187 +30,26 @@ If a step updates **project** `docs/` or README, the **plan** or **implement** s
 
 ---
 
-## Document template (pt-BR - default)
+## Template usage
 
-Copy from the heading below through **Checklist final**, then remove bracketed instructions.
+1. `Read` `skills/_shared/templates/sdd/PLAN.md`.
+2. Copy into the canonical PLAN path; remove instructional brackets.
+3. Fill **Mapa REQ → passo** so every PRD `REQ-NNN` appears in ≥1 step.
+4. Each step **Aceite** cites CA and/or REQ with verifiable outcomes (no vague language).
 
-```markdown
-# PLAN: [Nome da feature]
+## Challenge vagueness
 
-| Campo | Valor |
-|-------|--------|
-| **PRD** | [caminho completo do PRD] |
-| **Repositório** | [nome do PRD / raiz git] |
-| **Stack** | [.NET / Angular / outro] |
-| **Complexidade** | Baixa / Média / Alta |
-| **Total de passos** | N (MVP) + M opcionais |
-| **Progresso** | 0/N |
+Before finalizing steps: rewrite Aceite lines that say "works", "ok", "as expected", "funciona", "como esperado". Prefer observable checks (tests named, script exit, checklist item).
 
-```
-[⚪⚪⚪⚪⚪⚪⚪⚪] 0% (0/N)
-```
+## Selective retrieval
 
-## Objetivos
+- Summarize the PRD for planning; **cite** the portable PRD path — **must not** paste the full PRD body into the PLAN or into Task/child prompts.
+- **Must not** dump entire `memory-bank/` when exploring Prior context.
+- Enforcement smoke: `scripts/validation/Assert-SelectiveRetrieval.ps1`.
 
-- [ ] O1: [Resultado mensurável ligado ao PRD]
-- [ ] O2: [Resultado mensurável]
-- [ ] O3: [Opcional]
+## PLAN magro
 
-## Árvore alvo (entregáveis)
-
-[Listar arquivos ou módulos principais - só caminhos, sem código.]
-
-```
-[repo-root]/
-├── [caminhos da exploração]
-└── [tests]
-```
-
-## Estratégia de validação
-
-- [ ] [Como a feature será verificada - unitário, integração, manual]
-- [ ] .NET: xUnit, Moq, Shouldly; `Should_<Result>_When_<Condition>`
-- [ ] Build passa local / CI
-- [ ] (Opcional/.NET) Cobertura nos arquivos alterados ≥ 80% via `/test-coverage`
-
----
-
-## Passos de implementação
-
-### ⏳ PASSO 1: [Título curto]
-
-**Status:** Pendente | **Concluído:** - | **Deps:** nenhuma | **Orçamento de tokens:** ~[k] | **Tempo:** [min]
-
-**Entregáveis:**
-
-- [ ] [Artefato concreto 1]
-- [ ] [Artefato concreto 2]
-
-**Arquivos:**
-
-- `path/to/File.cs` (novo ou alterar)
-
-**Tarefas:**
-
-1. [Ação]
-2. [Ação]
-
-**Testes:**
-
-- [ ] `Should_<Result>_When_<Condition>`
-- [ ] [Cenário adicional]
-
-**Aceite:**
-
-- [ ] [Critério do CA do PRD]
-- [ ] Build e testes direcionados passam
-
-**Notas:** [Riscos; aviso se passo denso com 4+ arquivos]
-
----
-
-### ⏳ PASSO 2: [Título curto]
-
-**Status:** Pendente | **Concluído:** - | **Deps:** 1 | **Orçamento de tokens:** ~[k] | **Tempo:** [min]
-
-[Repetir estrutura do bloco PASSO para cada baby step.]
-
----
-
-### ⏳ PASSO N (Opcional - Qualidade): Verificação de cobertura
-
-**Status:** Pendente | **Concluído:** - | **Deps:** [último passo funcional] | **Orçamento de tokens:** ~[k] | **Tempo:** [min]
-
-**Quando aplicar:**
-
-- [ ] Projeto .NET com `coverlet.collector` disponível (ou possível de instalar no escopo)
-
-**Entregáveis:**
-
-- [ ] Relatório de cobertura anexado/registrado no passo
-- [ ] Lista de arquivos alterados com cobertura por arquivo (changed files)
-
-**Arquivos:**
-
-- `tests/...` (sem obrigatoriedade de novos arquivos)
-
-**Tarefas:**
-
-1. Executar `/test-coverage` com base branch adequada
-2. Coletar métricas: new code, branch/overall, por arquivo alterado
-3. Registrar resultado e gaps para follow-up (quando houver)
-
-**Aceite:**
-
-- [ ] Cobertura nos arquivos alterados ≥ 80% (meta: 100% quando viável)
-- [ ] Se não aplicável, justificar explicitamente (ex.: stack sem .NET/coverlet)
-
-**Notas:** Este passo é opcional para stacks sem suporte a `coverlet.collector`.
-
----
-
-## Ordem de execução
-
-**Caminho crítico:** 1 -> 2 -> … -> N
-
-**Próximo passo:** PASSO 1 - [título]
-
----
-
-## Mapa de componentes
-
-| Camada / área | Caminhos |
-|---------------|----------|
-| Domain | [paths] |
-| Application | [paths] |
-| Infrastructure | [paths] |
-| API / UI | [paths] |
-| Tests | [paths] |
-
-## Estratégia de testes
-
-### Unitários
-
-- [ ] [Cenário]
-
-### Integração
-
-- [ ] [Cenário]
-
-### Manual (se necessário)
-
-- [ ] [Cenário]
-
-## Decisões técnicas
-
-| Tópico | Decisão | Justificativa |
-|--------|---------|---------------|
-| [ex.: nome da propriedade] | [escolha] | [por quê] |
-
-## Riscos e mitigações
-
-| Risco | Impacto | Mitigação |
-|-------|---------|-----------|
-| [Risco 1] | Baixo/Médio/Alto | [Ação] |
-
-## Referências
-
-- PRD: [caminho completo]
-- Docs do projeto: `docs/...`
-- Diretrizes (lazy-load; não colar corpos):
-  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/dotnet-guidelines/clean-architecture.md`
-  - `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/dotnet-guidelines/csharp-patterns.md`
-
-## Checklist final
-
-- [ ] Todos os critérios de aceite do PRD mapeados em passos
-- [ ] Cada passo cabe em uma sessão implement
-- [ ] Dependências explícitas; sem ciclos
-- [ ] Cenários de teste cobrem CA e bordas
-- [ ] (Opcional/.NET) Passo final de qualidade com cobertura ≥ 80% via `test-coverage`
-- [ ] Sem código de implementação embutido no PLAN
-- [ ] Handoff: `/sdd-develop - <caminho-completo-do-plan> - Step 1`
-```
+Do not paste SQL/DDL/JSON/OpenAPI into the PLAN. Cite canonical paths (bank phase 2 or story `ARCH/` / `ANALYSIS/`). If the canonical file is missing, **STOP** — O1/O2 creates it first.
 
 ---
 
@@ -242,14 +84,29 @@ Use **Pendente** / **Concluído** / **Bloqueado** (or English equivalents) on th
 
 ---
 
+## Structural validate (`validate-plan`)
+
+Before `/sdd-develop` handoff, run:
+
+```
+.\scripts\validation\validate-prd.ps1 -Path <prd-path>
+.\scripts\validation\validate-plan.ps1 -Path <plan-path> -PrdPath <prd-path>
+```
+
+Exit 0 required: PLAN has REQ→step map and covers every PRD `REQ-NNN`. Exit ≠ 0 → fix and re-run. Fixtures/smoke: `scripts/validation/Assert-ValidatePrdPlan.ps1`. Deterministic scripts only (RNF-001) — never use an LLM as the structural validator.
+
 ## Quality checklist (before handoff)
 
 - [ ] User confirmed **sim** on canonical PLAN path (`PIPELINE.md` § Confirm before write)
 - [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
-- [ ] Every PRD acceptance criterion appears in some step
+- [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
+- [ ] Every PRD REQ and acceptance criterion appears in some step
+- [ ] Vague Aceite challenged and rewritten
+- [ ] `validate-prd` and `validate-plan` exit 0 on the written paths
 - [ ] Step prose in pt-BR (unless English override)
 - [ ] No full implementation code blocks in the PLAN
+- [ ] No full PRD / memory-bank dump in PLAN or handoff prompts
 - [ ] PLAN magro: SQL/DDL/JSON/OpenAPI omitted **only** if a canonical path already exists (bank phase 2 or `ARCH/` / `ANALYSIS/`); otherwise create that file first and cite the path
 - [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/` outside `sdd/.../features/`)
-- [ ] Handoff: `/sdd-develop - <full-plan-path> - Step 1`
+- [ ] Handoff: `/sdd-develop - <portable-plan-path> - Step 1`
 - [ ] Initial progress `0/N`

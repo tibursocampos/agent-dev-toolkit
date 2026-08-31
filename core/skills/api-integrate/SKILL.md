@@ -55,6 +55,8 @@ A typed, modular, and robust API client containing:
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 
+**Never by default:** do not preload unrelated stack guidelines or full OpenAPI dumps. Load only paths needed for the current integration.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

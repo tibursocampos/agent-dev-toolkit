@@ -13,6 +13,15 @@ Invoke when the user asks for skill **`help-skills`** (host forms: `/help-skills
 
 User sees the **static** skill map and operator notes from the installed catalog files — **without** loading every `SKILL.md` and **without** re-analyzing or paraphrasing the catalog into a new essay.
 
+## Lazy-load (only when needed)
+
+| When | Path |
+|------|------|
+| Skills map (always for this skill) | `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` |
+| Operator notes / confirmations | `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/OPERATOR.md` |
+
+**Never by default:** do not preload individual skill `SKILL.md` bodies, `reference.md`, or guideline packs when answering catalog or operator questions.
+
 ## Paths (required)
 
 | File | Path |

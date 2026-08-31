@@ -63,6 +63,7 @@ function Get-GrokMappedInstallPaths {
         FixtureRulesPath         = Join-Path $ResolvedInstallRoot $rulesRel
         FixtureHooksPath         = Join-Path $ResolvedInstallRoot $hooksRel
         FixtureProjectAgentsPath = Join-Path $ResolvedInstallRoot $script:GrokAdapterConstant.OfficialAgentsFileName
+        FixtureCustomAgentsPath  = Join-Path $ResolvedInstallRoot $script:GrokAdapterConstant.CustomAgentsDirectoryName
     }
 }
 

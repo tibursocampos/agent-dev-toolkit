@@ -11,7 +11,7 @@
   - config/skills/dev_persona/SKILL.md (CA1)
   - managed markers in config/AGENTS.md and/or config/GEMINI.md (CA1)
   Fails on underscore-only skill trees (TE04) or missing GUARDRAILS/dev_persona (TE05).
-  Hooks capability is false: smoke ignores config/hooks and the legacy bridge (CA4 N/A).
+  When hooks=true: asserts config/hooks/hooks.json + guard scripts. Legacy bridge not gated.
   Resolves InstallRoot via Resolve-InstallRoot (TE01). Never writes outside InstallRoot.
 #>
 
@@ -21,11 +21,11 @@ if ([string]::IsNullOrWhiteSpace($script:AntigravitySmokeHelperDirectory)) {
 }
 
 $script:AntigravitySmokeMessage = @{
-    Passed                   = 'Antigravity Invoke-SmokeValidate PASS under {0} (filesystem-only; official config/*; hooks ignored - capability false; legacy bridge not gated).'
+    Passed                   = 'Antigravity Invoke-SmokeValidate PASS under {0} (filesystem-only; official config/*; hooks gated when capable; legacy bridge not gated).'
     Te01InvalidInstallRoot   = 'Antigravity Invoke-SmokeValidate TE01: InstallRoot rejected ({0}). Use an in-repo fixture or pass -AllowUserHome for USERPROFILE paths.'
     Te04UnderscoreOnlySkills = 'Antigravity Invoke-SmokeValidate TE04: kebab skill folders missing under {0}; underscore-only or empty skill tree is not allowed (CA3).'
     Te05MissingArtifacts     = 'Antigravity Invoke-SmokeValidate TE05: required artifact(s) missing or incomplete under InstallRoot: {0}'
-    FilesystemOnlyNote       = 'Smoke validates published files under InstallRoot only; hooks and antigravity-ide/plugins are out of default smoke scope.'
+    FilesystemOnlyNote       = 'Smoke validates published files under InstallRoot only; antigravity-ide/plugins legacy bridge is out of default smoke scope.'
 }
 
 function New-AntigravitySmokeResult {
@@ -65,7 +65,7 @@ function New-AntigravitySmokeResult {
         FilesystemOnly         = $true
         RequiresRuntime        = $false
         RequiresShellHooks     = $false
-        SmokeIgnoresHooks      = $true
+        SmokeIgnoresHooks      = $false
         SmokeTargetsLegacyBridge = $false
         ErrorCode              = $ErrorCode
         ResolvedInstallRoot    = $ResolvedInstallRoot
@@ -310,7 +310,8 @@ function Invoke-AntigravitySmokeValidate {
         ManagedAgentsOrGeminiPresent    = $false
         ForbiddenUnderscorePhraseAbsent = $false
         SddLayoutPresent                = $false
-        HooksIgnored                    = $true
+        HooksPresent                    = $false
+        HooksIgnored                    = $false
         LegacyBridgeNotGated            = $true
         FilesystemOnly                  = $true
     }
@@ -375,6 +376,28 @@ function Invoke-AntigravitySmokeValidate {
 
     $sddOk = Test-ToolkitSddLayoutPresent -InstallRoot $resolvedInstallRoot -MissingRelative $missing
     $checks.SddLayoutPresent = $sddOk
+
+    $hooksCapable = $true
+    if ($null -ne $script:AntigravityAdapterCapabilityFlags -and $script:AntigravityAdapterCapabilityFlags.Contains('hooks')) {
+        $hooksCapable = [bool]$script:AntigravityAdapterCapabilityFlags['hooks']
+    }
+
+    if ($hooksCapable) {
+        $hooksOk = $true
+        foreach ($hookFile in @($script:AntigravityPathConstant.SmokeExpectedHookFileNames)) {
+            $candidate = Join-Path $paths.FixtureHooksPath $hookFile
+            if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+                $hooksOk = $false
+                $missing.Add(($script:AntigravityAdapterConstant.OfficialHooksRelativePath + '/' + $hookFile))
+            }
+        }
+        $checks.HooksPresent = $hooksOk
+        $checks.HooksIgnored = $false
+    }
+    else {
+        $checks.HooksPresent = $false
+        $checks.HooksIgnored = $true
+    }
 
     if ($missing.Count -gt 0) {
         $listText = ($missing.ToArray() -join ', ')

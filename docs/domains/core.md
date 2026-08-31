@@ -14,7 +14,17 @@ core/
 
 ## Skills (`core/skills/`)
 
-Each skill is a folder with `SKILL.md` (and optional `reference.md`, assets). Top-level folders:
+Each invocable skill is a folder with `SKILL.md` plus optional lazy-load references. Contract: [`SKILL-REFERENCE-RETRIEVAL.md`](../../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) (`Assert-SkillLazyLoad.ps1`).
+
+| Layout | Role |
+|--------|------|
+| `SKILL.md` | Gate + Process; **must** have `## Lazy-load` and `**Never by default:**` |
+| `reference.md` | Optional index (≤50 lines when section files exist) |
+| `references/*.md` | Section bodies (`reference/` for impeccable) |
+
+**FAIL** if `**Never by default:**` is missing or monolithic `reference.md` **>150** lines without split. Load one section per Process step — do not preload all references.
+
+Top-level folders:
 
 | Group | Folders |
 |-------|---------|
@@ -70,7 +80,7 @@ Copies also ship inside `core/skills/_shared/sdd-artifacts/` for skill lazy-load
 
 ### Artifact storage (repository vs global)
 
-Where Classic SDD / Orchestrated Delivery *(formerly Forma C)* writes land is chosen once per project (first SDD write). Modes share the same co-location rule: `features/` and `memory-bank/` always sit under one storage root — **never** place `memory-bank/` under `features/NNN-slug/`.
+Where Classic SDD / Orchestrated Delivery writes land is chosen once per project (first SDD write). Modes share the same co-location rule: `features/` and `memory-bank/` always sit under one storage root — **never** place `memory-bank/` under `features/NNN-slug/`.
 
 | Mode | Feature root | Memory-bank root |
 |------|--------------|------------------|
@@ -86,13 +96,15 @@ No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `feat
 
 ### Work tracks and internal contracts
 
-| Track | Alias (this release only) | Call flow |
-|-------|---------------------------|-----------|
-| **Classic SDD** | *(formerly Forma A)* | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **Backlog Refine** | *(formerly Forma B)* | `refine-story` → `split-story-checklist` |
-| **Orchestrated Delivery** | *(formerly Forma C)* | Step 0 → O1 → O2 → O3 \| `sdd-develop` |
+| Track | Call flow |
+|-------|-----------|
+| **Classic SDD** | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| **Backlog Refine** | `refine-story` → `split-story-checklist` |
+| **Orchestrated Delivery** | Step 0 → O1 → O2 → O3 \| `sdd-develop` |
 
-Skill ids and invocation stay the same. Inside those skills, contracts add gates/artifacts:
+Track names only — no Forma aliases. Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md).
+
+Inside those skills, contracts add gates/artifacts:
 
 | Contract | Path / script | Role |
 |----------|---------------|------|
@@ -102,8 +114,9 @@ Skill ids and invocation stay the same. Inside those skills, contracts add gates
 | EVD + STATE | `features/NNN-slug/EVD/`, `STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`) |
 | TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync |
 | Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
+| Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
 
-**OOS:** SQLite/FTS as deliverable; second toolkit; folders `openspec/`, `.specs/`, `.specify/`. Alias Forma removed in the **next** release after this track rename (RN07).
+**OOS:** SQLite/FTS as deliverable; second toolkit; folders `openspec/`, `.specs/`, `.specify/`.
 
 ## Code guidelines and architecture selection
 

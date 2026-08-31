@@ -5,7 +5,8 @@
 
 .DESCRIPTION
   Deterministic checks only — no LLM. Exit 0 when the PRD has at least one
-  REQ-NNN and one acceptance criterion heading (CAn). Exit 1 otherwise.
+  REQ-NNN, one acceptance criterion heading (CAn), and required structural
+  sections (Execution policy, acceptance, requirements, OOS). Exit 1 otherwise.
 
 .PARAMETER Path
   Absolute or relative path to a PRD .md file.
@@ -75,12 +76,24 @@ $reqIds = @(
 
 $acMatches = [regex]::Matches($text, $acPattern)
 
+$sectionChecks = @(
+    @{ Label = 'Execution policy section'; Pattern = $script:ToolkitConstant.SddArtifactPrdExecutionPolicyPattern },
+    @{ Label = 'Acceptance criteria section (## 2.)'; Pattern = $script:ToolkitConstant.SddArtifactPrdAcceptanceSectionPattern },
+    @{ Label = 'Requirements section (## 4. REQ-IDs)'; Pattern = $script:ToolkitConstant.SddArtifactPrdRequirementsSectionPattern },
+    @{ Label = 'Out-of-scope section (## 5. OOS)'; Pattern = $script:ToolkitConstant.SddArtifactPrdOosSectionPattern }
+)
+
 $failures = [System.Collections.Generic.List[string]]::new()
 if ($reqIds.Count -lt 1) {
     $failures.Add('missing REQ-NNN identifiers (expected at least one REQ-001 style id)')
 }
 if ($acMatches.Count -lt 1) {
     $failures.Add('missing acceptance criteria headings (expected ### CAn / ## CAn)')
+}
+foreach ($sectionCheck in $sectionChecks) {
+    if ($text -notmatch $sectionCheck.Pattern) {
+        $failures.Add(('missing required section: {0}' -f $sectionCheck.Label))
+    }
 }
 
 if ($failures.Count -gt 0) {

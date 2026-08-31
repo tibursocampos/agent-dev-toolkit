@@ -40,10 +40,15 @@ A new EF Core migration in the **target workspace** (not this toolkit repo unles
 
 | When | Path |
 |------|------|
-| EF tool install / version notes | `skills/ef-add-migration/reference.md` (this repo) or `{{TOOLKIT_ROOT}}/skills/ef-add-migration/reference.md` after sync |
+| Reference index (routing only) | `skills/ef-add-migration/reference.md` or `{{TOOLKIT_ROOT}}/skills/ef-add-migration/reference.md` after sync |
+| Process step detail (lazy) | `skills/ef-add-migration/references/<section>.md` |
 | .NET layering | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
 
+**Never by default:** do not preload all `references/*.md`, full EF docs, or unrelated dotnet guideline packs. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
 ## Process
+
+Read `references/<section>.md` for discovery/commands — **not** full `reference.md`.
 
 ### 0. Workspace
 
@@ -51,7 +56,7 @@ Confirm the **target .NET repository** (`.sln` or `*.csproj` with `DbContext`). 
 
 ### 1. Discover project layout
 
-Use **Glob** and **Grep** (not hardcoded paths). Full checklist: `reference.md` section Discovery.
+Use **Glob** and **Grep** (not hardcoded paths). Full checklist: `references/discovery.md`.
 
 Summarize before running `dotnet ef`:
 
@@ -68,7 +73,7 @@ If any value is ambiguous, ask the user once.
 ### 2. Migration name
 
 - **Name provided:** normalize to PascalCase.
-- **Name omitted:** inspect `git diff` / `git status`, infer from entity/schema changes (see `reference.md` section Naming), present suggestion, wait for confirmation.
+- **Name omitted:** inspect `git diff` / `git status`, infer from entity/schema changes (see `references/naming.md`), present suggestion, wait for confirmation.
 
 ### 3. Ensure `dotnet-ef`
 
@@ -76,7 +81,7 @@ If any value is ambiguous, ask the user once.
 dotnet ef --version
 ```
 
-If missing, follow `reference.md` section EF tool (global or local tool-path; no fixed version in this skill body).
+If missing, follow `references/ef-tool.md` (global or local tool-path; no fixed version in this skill body).
 
 ### 4. Add migration
 
@@ -86,15 +91,15 @@ From solution root:
 dotnet ef migrations add <MigrationName> -s <StartupProject> -p <TargetProject> -c <DbContext>
 ```
 
-Use `./dotnet-ef` instead of `dotnet ef` when a repo-local tool is documented in `reference.md` or repo README.
+Use `./dotnet-ef` instead of `dotnet ef` when a repo-local tool is documented in `references/ef-tool.md` or repo README. Command details: `references/commands.md`.
 
 ### 5. Verify and summarize
 
-Confirm new `*.cs` + `*.Designer.cs` and updated `*ModelSnapshot.cs` under the migrations folder. Optionally note how to apply locally (`database update` - details in `reference.md`).
+Confirm new `*.cs` + `*.Designer.cs` and updated `*ModelSnapshot.cs` under the migrations folder (`references/artifacts.md`). Optionally note how to apply locally (`database update` - details in `references/commands.md`). SDD handoff: `references/sdd-cross-cut.md`.
 
 ## Must not
 
-- Hardcode EF tool package versions in `SKILL.md` (use `reference.md`)
+- Hardcode EF tool package versions in `SKILL.md` (use `references/ef-tool.md`)
 - Assume corporate feeds or organization-specific URLs
 - Run migrations against production without explicit user request
 - Modify this toolkit repo when the user intended a consumer repo

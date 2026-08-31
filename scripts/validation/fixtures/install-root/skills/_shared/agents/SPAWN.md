@@ -1,4 +1,4 @@
-# Portable spawn contract (Forma C + developers)
+﻿# Portable spawn contract (Orchestrated Delivery + developers)
 
 Canonical contract for **when** and **how** to spawn specialist children across Tier 1 hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
@@ -59,7 +59,7 @@ When spawning (native path):
 
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body).
-3. Point to role prompt under `skills/_shared/agents/prompts/` when Forma C roster applies.
+3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
 4. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 
 ## Limits

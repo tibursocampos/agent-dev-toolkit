@@ -12,11 +12,11 @@
 
 ## Work tracks (process)
 
-| Track | Alias (this release only) | Flow |
-|-------|---------------------------|------|
-| **Classic SDD** | *(formerly Forma A)* | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **Backlog Refine** | *(formerly Forma B)* | `refine-story` → `split-story-checklist` |
-| **Orchestrated Delivery** | *(formerly Forma C)* | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` \| `sdd-develop` |
+| Track | Flow |
+|-------|------|
+| **Classic SDD** | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| **Backlog Refine** | `refine-story` → `split-story-checklist` |
+| **Orchestrated Delivery** | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` \| `sdd-develop` |
 
 Skill ids unchanged. Alias removed in the **following** release (RN07).
 

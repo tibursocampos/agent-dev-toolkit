@@ -62,7 +62,38 @@ Template: `skills/_shared/templates/features/TRACE.jsonl`.
 
 ### Optional trail events (allowed anytime)
 
-Examples: `develop_start`, `step_done`, `evidence`, `validate`, `note`. Same required fields (`ts`, `event`, `feature`); extra keys allowed. These do **not** replace the three living-loop events for archive-complete.
+Same required fields (`ts`, `event`, `feature`) on every line. Extra keys allowed on informal events. These do **not** replace the three living-loop events for archive-complete.
+
+**Informal examples** (no extra field contract): `develop_start`, `step_done`, `evidence`, `validate`, `note` — typically include a short `summary`.
+
+**Normative orchestration events** (when used, extra fields below are **required**):
+
+| `event` | Extra fields | Rule |
+|---------|--------------|------|
+| `retrieval` | `paths` (non-empty string array), `reason` (non-empty string) | Selective read audit (`SR-NO-FULL-DUMP`); portable paths only — no drive letters or user-home embeds |
+| `gate` | `gate_id` (non-empty string), `response` (non-empty string) | Human or SESSION gate checkpoint (e.g. step approval, ARCH confirm) |
+| `spawn` | `role` (non-empty string), `reason` (non-empty string), `outcome` (non-empty string) | Specialist spawn or in-parent fallback decision (`SPAWN.md`) |
+| `specialist_complete` | `role` (non-empty string), `summary` (non-empty string) | Specialist pass finished; one-line outcome for parent synthesis |
+
+Do **not** create a parallel trail (e.g. `.agent-trace/`) — extend this `TRACE.jsonl` only.
+
+#### JSON examples (orchestration events)
+
+```json
+{"ts":"2026-08-21T11:00:00Z","event":"retrieval","feature":"features/042-auth","paths":["memory-bank/domain-knowledge.md","features/042-auth/CONTINUITY.md"],"reason":"O3 step 2 prior context"}
+```
+
+```json
+{"ts":"2026-08-21T11:05:00Z","event":"gate","feature":"features/042-auth","gate_id":"o3-step-spawn","response":"sim"}
+```
+
+```json
+{"ts":"2026-08-21T11:06:00Z","event":"spawn","feature":"features/042-auth","role":"sdd-develop","reason":"PLAN step 2","outcome":"spawned"}
+```
+
+```json
+{"ts":"2026-08-21T11:45:00Z","event":"specialist_complete","feature":"features/042-auth","role":"sdd-develop","summary":"Step 2 done; tests pass"}
+```
 
 ## Coherence (living specs ↔ archive)
 

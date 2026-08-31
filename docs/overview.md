@@ -59,8 +59,9 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 - **Fixture-first CI:** smokes use `scripts/validation/fixtures/…`.
 - **Keyed uninstall:** remove toolkit-managed artifacts only for all registered adapters. Preserves `sdd/sessions` and `sdd/manifest.json`.
 - **Sync prepare:** every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` when absent; seed never overwrites). Manifest schema v2; storage modes and work tracks in [domains/core.md](domains/core.md) § SDD / [STORAGE.md](../core/sdd/STORAGE.md).
-- **Same skill call flow:** Classic SDD / Backlog Refine / Orchestrated Delivery add internal gates and artifacts (REQ, validate scripts, CHANGE, EVD, STATE, TRACE, selective retrieval) — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
-- **Honest capabilities:** registry / `Get-Capabilities` flags reflect real publish support for `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` / `subagents` (e.g. OpenCode hooks are plugin JS only; OpenHands `subagents=none`).
+- **Same skill call flow:** Classic SDD / Backlog Refine / Orchestrated Delivery add internal gates and artifacts (REQ, validate scripts, CHANGE, EVD, STATE, TRACE, selective retrieval, skill lazy-load) — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
+- **Honest capabilities:** registry / `Get-Capabilities` flags reflect real publish support for `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` / `subagents` (e.g. OpenCode hooks are plugin JS only; Hermes plugin+shell path/secrets; OpenHands `subagents=none`).
+- **Path/secrets guards:** native pre-tool deny via shared `adapters/_shared/GuardCommon.ps1` — see [ADAPTERS.md](ADAPTERS.md) § Shared path/secrets guard.
 - **Codex dual-root:** plugin skills + CATALOG live under `InstallRoot/plugin`; Publish-Policy writes `InstallRoot/rules`; product/AGENTS/hooks parent is InstallRoot (live `~/.codex`). Optional `-UserScope` mirrors skills to fixture `InstallRoot/.agents/skills` or live `~/.agents/skills` — default sync is **plugin-only**. Do not treat skills and rules as one shared TOOLKIT_ROOT.
 
 ## Navigation
@@ -69,6 +70,7 @@ Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md
 - [Getting started](guides/01-getting-started.md)
 - [Using skills](guides/02-using-skills.md)
 - [Caveman mode](guides/07-caveman-mode.md)
+- [Orchestrator mode](guides/08-orchestrator-mode.md)
 - [Credits](CREDITS.md)
 - [Spawn / subagents](SPAWN.md)
 - Language surfaces: `core/skills/_shared/agents/LANGUAGE.md`

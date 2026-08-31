@@ -6,6 +6,7 @@ Agent registry and per-agent publish modules live here. Orchestrators resolve an
 |------|------|--------|
 | `registry.json` | Agent ids, display names, capability flags, module paths | — |
 | `_contract/AdapterContract.ps1` | Shared contract helpers / stub surface | — |
+| `_shared/` | Cross-adapter hook helpers (`GuardCommon.ps1`, `guard-rules.md`) | — |
 | `cursor/` | Cursor — `~/.cursor` publish + fixture smoke | [README](cursor/README.md) |
 | `antigravity/` | Antigravity — `~/.gemini` official `config/*` | [README](antigravity/README.md) |
 | `claude/` | Claude Code — skills, rules, `CLAUDE.md`, settings merge | [README](claude/README.md) |

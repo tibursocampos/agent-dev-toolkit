@@ -40,6 +40,7 @@ Classify task complexity
 1. Pass scoped **paths** only (files/dirs the child may touch).
 2. Require a **receipt** per `RECEIPT.md` (lazy-load — do not paste the schema body).
 3. Point to role/skill paths; **do not** paste `_shared/*-guidelines/`, full SKILL bodies, or large policy dumps.
+4. Child prompts and agent receipts: **always en-US** (`LANGUAGE.md`). Pass **paths + excerpt** of user-language artifacts — no full PLAN/PRD dump.
 
 Cap: **≤ 2** children per task wave (`*-developer`).
 
@@ -57,8 +58,9 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | `fallback` | Degrade when none / no Task |
 | `receipt` | Child end-of-pass requirement |
 | `paths` | Scoped child payload |
+| `LANGUAGE.md` | Two surfaces; en-US spawn |
 
-Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` — this file does not replace it.
+Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` — this file does not replace it. Language surfaces: `LANGUAGE.md`.
 
 ---
 

@@ -27,11 +27,15 @@ Codex is **dual-root**: plugin skills live under `InstallRoot/plugin` (`rules=tr
 
 ## Hermes note
 
-Live InstallRoot is `~/.hermes`. Skills and `AGENTS.md` land **directly** under that root (`~/.hermes/skills`, not `~/.hermes/.hermes/skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). Hooks are not published. Invoke skills with `/id` (each installed skill is a slash command).
+Live InstallRoot is `$HERMES_HOME` (typical `~/.hermes`). Skills and `AGENTS.md` land **directly** under that root. Policy is folded into `AGENTS.md` (no `rules/` tree). Hooks **are** published: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets; keyed merge of `config.yaml` only for `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. Invoke skills with `/id`. `Publish-Agents` is a no-op.
 
 ## OpenHands note
 
-**Project** InstallRoot is the repo root: skills at `.agents/skills/`, roster at `.agents/agents/`, folded `AGENTS.md`, shell hooks under `.openhands/`, plugin metadata at `.plugin/plugin.json`. **Live user skills** use `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` so skills land at `~/.agents/skills`. Canvas is **not** subagent spawn (`subagents=none`; SPAWN fallback in-parent).
+**Project** InstallRoot is the repo root: skills at `.agents/skills/`, roster at `.agents/agents/`, folded `AGENTS.md`, shell hooks under `.openhands/` (incl. `guard_pre_tool.sh` for `pre_tool_use` path/secrets, fail-closed), plugin metadata at `.plugin/plugin.json`. **Live user skills** use `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` so skills land at `~/.agents/skills`. Canvas is **not** subagent spawn (`subagents=none`; SPAWN fallback in-parent).
+
+## Path/secrets (all capable hosts)
+
+Shared rules: [`adapters/_shared/guard-rules.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/guard-rules.md) + `GuardCommon.ps1`. Outside-workspace and pathless writes are deny. Full host matrix: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md).
 
 ## How sync works
 

@@ -1,6 +1,6 @@
 ---
 name: sdd-develop
-description: Execute one PLAN baby step (code in English; PLAN in file language, pt-BR default). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
+description: Execute one PLAN baby step (code in English; PLAN in file language per LANGUAGE.md). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **code and tests in English**; PLAN updated in place. Do not start the next step in the same develop session scope.
+One **PLAN step** done: **code and tests in English**; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
@@ -55,17 +55,26 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 
 ## Lazy-load (only when needed)
 
-| When | Path |
-|------|------|
+| When | Path (after `scripts/sync-cursor.ps1`) |
+|------|----------------------------------------|
 | Pipeline, missing PLAN dialog | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
-| Storage | `STORAGE.md` |
+| Storage | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| .NET, Git, context | `dotnet-guidelines/*.md`, `branch-validation.mdc`, `conventional-commits.mdc`, `developer-common/GUIDE.md`, `context-management.mdc` |
+| Develop templates / step report | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/sdd-develop/reference.md` |
+| EVD / STATE / evidence-or-zero (`EVD-STATE-CONTRACT`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
+| TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
+| Branch / commits | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/conventional-commits.mdc` |
+| Developer-common (on trigger) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
+| .NET guidelines (on trigger) | **one** file under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
+| Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md` |
+
+**Never by default:** do not preload all `dotnet-guidelines/*.md` or the full developer-common pack. Contract first (`PIPELINE` + `STORAGE`), then fan-out on trigger.
 
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
-1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/sdd/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
 2. If `caveman_mode` is false: continue without compression.
 3. If true: load `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
@@ -102,7 +111,40 @@ Feature branch per `branch-validation.mdc`.
 
 ### 3-4. Analyze and implement
 
-Glob/Grep/Read scope. Code/tests in English; targeted build/test.
+Glob/Grep/Read scope. Code/tests in English; targeted build/test. When spawned as a child, end with `{ build, tests, summary }` per PLAN **Execution policy** and `SPAWN.md`.
+
+### 4b. Evidence-or-zero (REQ-005 / CA4)
+
+When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
+
+1. Create/update `features/NNN-slug/EVD/` and `features/NNN-slug/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`).
+2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
+3. Run structural gate (deterministic — never LLM-as-validator):
+
+```powershell
+.\scripts\validation\validate-evidence.ps1 -FeatureRoot <features/NNN-slug> [-Level cheap]
+```
+
+Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
+
+**Verifier ≠ O3:** evidence verification runs **sequentially** in this develop session via `validate-evidence`. Do **not** use O3 / Task parallelism as the verifier mechanism.
+
+### 4c. Living loop + TRACE (REQ-006 / CA5)
+
+When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
+
+1. Append events to `features/NNN-slug/TRACE.jsonl` (template: `templates/features/TRACE.jsonl`; contract: `TRACE-ARCHIVE-CONTRACT.md`).
+2. Run **converge → sync current → archive**: selective updates to living docs (`memory-bank/` / named `docs/`); do **not** dump full bank/PRD (`SR-NO-FULL-DUMP`).
+3. Ensure TRACE includes ordered living-loop events `converge`, `sync_current`, `archive`.
+4. Run structural gate (deterministic — never LLM-as-validator):
+
+```powershell
+.\scripts\validation\validate-trace.ps1 -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
+```
+
+Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, optional trail events may be appended; missing TRACE is OK until archive-complete.
+
+**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Task/O3 parallelism as the archive gate.
 
 ### 5. Commit (optional)
 
@@ -114,7 +156,7 @@ Offer `/commit`; do not auto-commit.
 
 ### 7. Report
 
-Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <full-plan-path> - Step N+1`.
+Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan-path> - Step N+1`.
 
 ## Must not
 
@@ -123,17 +165,24 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <full-plan-pat
 - Implement in Plan/Ask without Agent
 - Bypass one-step via orchestrator parent implementing code
 - Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
+- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+- Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
+- Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
+- Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
+- Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
 
 ## Handoff
 
 | Situation | Next |
 |-----------|------|
 | Commit | `/commit` |
-| Next step | New session -> `/sdd-develop - <full-plan-path> - Step N+1` |
+| Next step | New session -> `/sdd-develop - <portable-plan-path> - Step N+1` |
 | All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
-Example full path (Forma A):
+Example portable path (Classic SDD, repository):
 
 ```
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2
 ```
+
+(Global: prefix with `sdd/<repo-id>/`.)

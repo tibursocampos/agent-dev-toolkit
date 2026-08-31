@@ -78,6 +78,8 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 
 **Primary mobile pack:** `react-native-guidelines/`. Do **not** depend only on `react-guidelines/` for navigation, StyleSheet, platform, or RNTL. Do **not** load `blip-guidelines/` (Blip plugins are web React). Do not preload unrelated guideline trees.
 
+**Never by default:** do not preload other stack guideline packs. Load only rows needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

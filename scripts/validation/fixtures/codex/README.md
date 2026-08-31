@@ -19,7 +19,7 @@ codex/
 │   ├── skills/          # bundled plugin skills (default Publish-Skills)
 │   │   ├── help-skills/SKILL.md
 │   │   └── _shared/skills-catalog/CATALOG.md + OPERATOR.md
-│   └── hooks/           # hooks.json + session_start.ps1 via Publish-Hooks
+│   └── hooks/           # hooks.json + guard-pre-tool.ps1 via Publish-Hooks (PreToolUse)
 ├── rules/               # core/policy/*.md via Publish-Policy (capability rules=true)
 ├── AGENTS.md            # materialized by Publish-Router (dual-root absolute paths)
 └── sdd/                 # SDD runtime (sessions + manifest)
