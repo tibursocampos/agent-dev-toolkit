@@ -61,6 +61,27 @@ $script:ToolkitConstant = @{
     ClaudeSettingsMergeCheckName   = 'claude-settings-merge'
     AssertCursorHooksMergeScriptName = 'Assert-CursorHooksMerge.ps1'
     CursorHooksMergeCheckName      = 'cursor-hooks-merge'
+    AssertCursorPathSecretsGuardScriptName = 'Assert-CursorPathSecretsGuard.ps1'
+    CursorPathSecretsGuardCheckName = 'cursor-path-secrets-guard'
+    AssertClaudePathSecretsGuardScriptName = 'Assert-ClaudePathSecretsGuard.ps1'
+    ClaudePathSecretsGuardCheckName = 'claude-path-secrets-guard'
+    AssertCodexPathSecretsGuardScriptName = 'Assert-CodexPathSecretsGuard.ps1'
+    CodexPathSecretsGuardCheckName = 'codex-path-secrets-guard'
+    AssertCopilotPathSecretsGuardScriptName = 'Assert-CopilotPathSecretsGuard.ps1'
+    CopilotPathSecretsGuardCheckName = 'copilot-path-secrets-guard'
+    AssertOpenHandsPathSecretsGuardScriptName = 'Assert-OpenHandsPathSecretsGuard.ps1'
+    OpenHandsPathSecretsGuardCheckName = 'openhands-path-secrets-guard'
+    AssertZcodePathSecretsGuardScriptName = 'Assert-ZcodePathSecretsGuard.ps1'
+    ZcodePathSecretsGuardCheckName = 'zcode-path-secrets-guard'
+    AssertGrokPathSecretsGuardScriptName = 'Assert-GrokPathSecretsGuard.ps1'
+    GrokPathSecretsGuardCheckName = 'grok-path-secrets-guard'
+    AssertOpenCodePathSecretsGuardScriptName = 'Assert-OpenCodePathSecretsGuard.ps1'
+    OpenCodePathSecretsGuardCheckName = 'opencode-path-secrets-guard'
+    AssertAntigravityPathSecretsGuardScriptName = 'Assert-AntigravityPathSecretsGuard.ps1'
+    AntigravityPathSecretsGuardCheckName = 'antigravity-path-secrets-guard'
+    AssertHermesPathSecretsGuardScriptName = 'Assert-HermesPathSecretsGuard.ps1'
+    HermesPathSecretsGuardCheckName = 'hermes-path-secrets-guard'
+    CursorHooksAssetsRelativePath  = 'adapters/cursor/assets/hooks'
     AssertCanonicalCloneUrlScriptName = 'Assert-CanonicalCloneUrl.ps1'
     CanonicalCloneUrlCheckName     = 'canonical-clone-url'
     AssertTier1AdapterReadmesScriptName = 'Assert-Tier1AdapterReadmes.ps1'
@@ -74,6 +95,15 @@ $script:ToolkitConstant = @{
     NoFeaturesDocLinksSpawnMatrixPattern = 'SPAWN_MATRIX'
     NoFeaturesDocLinksFeatureFolderPattern = 'features/\d{3}-'
     NoFeaturesDocLinksSyntheticForbiddenSample = 'See features/002-example/US02/ARCH/SPAWN_MATRIX.md'
+    AssertNoFormaAliasScriptName       = 'Assert-NoFormaAlias.ps1'
+    NoFormaAliasCheckName              = 'no-forma-alias'
+    NoFormaAliasFormaLetterPattern    = '\bForma [ABC]\b'
+    NoFormaAliasFormerlyPattern        = 'formerly Forma'
+    NoFormaAliasFormerlyTrackAliasPattern = 'formerly Classic SDD/B/C'
+    NoFormaAliasWorkflowsHeadingPattern = 'Formas \(workflows\)'
+    NoFormaAliasSlashPattern           = 'Forma A/B/C'
+    NoFormaAliasPipePattern            = 'Forma A\|B\|C'
+    NoFormaAliasSyntheticForbiddenSample = 'Classic SDD (Forma A) and Orchestrated Delivery *(formerly Forma C)*; Formas (workflows); Forma A/B/C; Forma A|B|C; formerly Classic SDD/B/C'
     AssertManagedSkillsPathSafetyScriptName = 'Assert-ManagedSkillsPathSafety.ps1'
     ManagedSkillsPathSafetyCheckName   = 'managed-skills-path-safety'
     AssertUninstallPathSafetyScriptName = 'Assert-UninstallPathSafety.ps1'
@@ -93,8 +123,19 @@ $script:ToolkitConstant = @{
         'core/skills/sdd-plan/SKILL.md',
         'core/skills/sdd-plan/reference.md',
         'core/skills/refine-story/SKILL.md',
-        'core/skills/refine-story/reference.md'
+        'core/skills/refine-story/references/boundary.md',
+        'core/skills/refine-story/references/guardrails.md'
     )
+    AssertSkillLazyLoadScriptName      = 'Assert-SkillLazyLoad.ps1'
+    SkillLazyLoadCheckName             = 'skill-lazy-load'
+    SkillReferenceRetrievalRuleId      = 'SR-LAZY-REFERENCE'
+    SkillReferenceRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md'
+    CoreSkillsRootRelativePath         = 'core/skills'
+    SharedSkillsDirectoryName          = '_shared'
+    SkillLazyLoadHeadingPattern        = '(?im)^## Lazy-load'
+    SkillLazyLoadNeverByDefaultPattern = '(?i)\*\*Never by default:\*\*'
+    SkillLazyLoadReferenceLineThreshold = 150
+    SkillLazyLoadReferenceIndexLineThreshold = 50
     ValidatePrdScriptName              = 'validate-prd.ps1'
     ValidatePlanScriptName             = 'validate-plan.ps1'
     AssertValidatePrdPlanScriptName    = 'Assert-ValidatePrdPlan.ps1'
@@ -113,7 +154,9 @@ $script:ToolkitConstant = @{
     ValidatePrdFixtureValidRelativePath = 'prd/valid.md'
     ValidatePrdFixtureInvalidNoReqRelativePath = 'prd/invalid-no-req.md'
     ValidatePrdFixtureInvalidNoAcRelativePath = 'prd/invalid-no-ac.md'
+    ValidatePrdFixtureInvalidNoSectionsRelativePath = 'prd/invalid-no-sections.md'
     ValidatePlanFixtureValidRelativePath = 'plan/valid.md'
+    ValidatePlanFixtureInvalidNoSectionsRelativePath = 'plan/invalid-no-sections.md'
     ValidatePlanFixtureInvalidMissingReqRelativePath = 'plan/invalid-missing-req.md'
     ValidatePlanFixtureCompanionPrdRelativePath = 'plan/companion-prd.md'
     ValidateChangeScriptName           = 'validate-change.ps1'
@@ -175,13 +218,30 @@ $script:ToolkitConstant = @{
     SddArtifactTraceEventConverge      = 'converge'
     SddArtifactTraceEventSyncCurrent   = 'sync_current'
     SddArtifactTraceEventArchive       = 'archive'
+    SddArtifactTraceEventRetrieval     = 'retrieval'
+    SddArtifactTraceEventGate          = 'gate'
+    SddArtifactTraceEventSpawn         = 'spawn'
+    SddArtifactTraceEventSpecialistComplete = 'specialist_complete'
+    SddArtifactTraceNormativeOptionalEvents = @(
+        'develop_start'
+        'step_done'
+        'evidence'
+        'validate'
+        'note'
+        'retrieval'
+        'gate'
+        'spawn'
+        'specialist_complete'
+    )
     SddArtifactTraceArchiveStatusAllowed = @('archived', 'closed')
+    SddArtifactTracePortablePathPattern  = '(?i)^[A-Za-z]:[/\\]|^~[/\\]|\\Users\\|\\\.cursor\\|\\\.claude\\'
     SddArtifactTraceFeaturePathPattern = '(?i)^features/[0-9]{3}-[a-z0-9][a-z0-9\-]*$'
     SddArtifactTraceAllowedTargetPattern = '(?i)^(memory-bank/|docs/)'
     SddArtifactTraceForbiddenTargetPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
     ValidateTraceFixtureValidRelativeDir = 'trace/valid'
     ValidateTraceFixtureInvalidIncompleteRelativeDir = 'trace/invalid-incomplete'
     ValidateTraceFixtureInvalidBadJsonRelativeDir = 'trace/invalid-bad-json'
+    ValidateTraceFixtureInvalidOrchestrationRelativeDir = 'trace/invalid-orchestration'
     ValidateTraceFixtureArchiveSmokeRelativeDir = 'trace/archive-smoke'
     TraceArchiveContractSkillWiringRelativePaths = @(
         'core/skills/sdd-develop/SKILL.md',
@@ -191,6 +251,95 @@ $script:ToolkitConstant = @{
         'core/skills/_shared/sdd-artifacts/STORAGE.md',
         'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
     )
+    AssertOrchestratorCharterPublishedScriptName = 'Assert-OrchestratorCharterPublished.ps1'
+    OrchestratorCharterPublishedCheckName        = 'orchestrator-charter-published'
+    AssertOrchestratorCommandsScriptName         = 'Assert-OrchestratorCommands.ps1'
+    OrchestratorCommandsCheckName                = 'orchestrator-commands'
+    AssertPreferencesSchemaScriptName            = 'Assert-PreferencesSchema.ps1'
+    PreferencesSchemaCheckName                   = 'preferences-schema'
+    AssertPlanExecutionPolicyScriptName          = 'Assert-PlanExecutionPolicy.ps1'
+    PlanExecutionPolicyCheckName                 = 'plan-execution-policy'
+    AssertPrdStructureScriptName                 = 'Assert-PrdStructure.ps1'
+    PrdStructureCheckName                        = 'prd-structure'
+    AssertPlanStructureScriptName                = 'Assert-PlanStructure.ps1'
+    PlanStructureCheckName                       = 'plan-structure'
+    PrdStructureTemplateRelativePath             = 'core/skills/_shared/templates/sdd/PRD.md'
+    PlanStructureTemplateRelativePath            = 'core/skills/_shared/templates/sdd/PLAN.md'
+    PrdRequiredSectionMarkers                    = @(
+        '## Execution policy',
+        '## 2. Critérios de aceite',
+        '## 4. Requisitos (REQ-IDs)',
+        '## 5. Fora de escopo (OOS)'
+    )
+    PlanRequiredSectionMarkers                   = @(
+        '## Execution policy',
+        '## Mapa REQ → passo',
+        '## Passos de implementação'
+    )
+    PrdStructureSkillWiringRelativePaths         = @(
+        'core/skills/sdd-spec/SKILL.md',
+        'core/skills/sdd-spec/reference.md'
+    )
+    PlanStructureSkillWiringRelativePaths        = @(
+        'core/skills/sdd-plan/SKILL.md',
+        'core/skills/sdd-plan/reference.md'
+    )
+    SddArtifactPrdExecutionPolicyPattern         = '(?im)^##\s+Execution policy\s*$'
+    SddArtifactPrdAcceptanceSectionPattern       = '(?im)^##\s+2\.\s+(Critérios de aceite|Acceptance criteria)\s*$'
+    SddArtifactPrdRequirementsSectionPattern     = '(?im)^##\s+4\.\s+(Requisitos \(REQ-IDs\)|Requirements \(REQ-IDs\))\s*$'
+    SddArtifactPrdOosSectionPattern              = '(?im)^##\s+5\.\s+(Fora de escopo|Out of scope)\b'
+    SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+Execution policy\s*$'
+    SddArtifactPlanStepHeadingPattern            = '(?im)^#{2,3}\s*(⏳|🔄|✅|❌)?\s*(PASSO|STEP)\s+\d+'
+    AssertStorySizingContractScriptName          = 'Assert-StorySizingContract.ps1'
+    StorySizingContractCheckName                 = 'story-sizing-contract'
+    StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
+    AssertIntentClassificationScriptName         = 'Assert-IntentClassification.ps1'
+    IntentClassificationCheckName                = 'intent-classification'
+    IntentClassificationContractRelativePath   = 'core/skills/orchestrate-analyze/references/intent-classification.md'
+    InvokeMemoryBankInventoryScriptRelativePath  = 'scripts/inventory/Invoke-MemoryBankInventory.ps1'
+    AssertMemoryBankInventoryScriptName          = 'Assert-MemoryBankInventory.ps1'
+    MemoryBankInventoryCheckName                 = 'memory-bank-inventory'
+    MemoryBankInventoryFixtureRelativeDir        = 'scripts/validation/fixtures/memory-bank-inventory-work'
+    OrchestratorSessionPolicyRelativePath        = 'core/policy/orchestrator-session.md'
+    OrchestratorCharterHeadingMarker             = 'ORCHESTRATOR CHARTER'
+    OrchestratorCharterRuleMarkers               = @(
+        'Parent orchestrator-only',
+        'Delegate in parallel',
+        'Post-change validation'
+    )
+    OrchestratorCommandMarkers                   = @(
+        'orchestrator always',
+        'orchestrator adaptive',
+        'orchestrator status',
+        'orchestrate always',
+        'parent adaptive',
+        'orchestrate status'
+    )
+    PreferencesSchemaDocRelativePaths            = @(
+        'core/policy/caveman-mode.md',
+        'core/skills/_shared/caveman/CAVEMAN.md',
+        'core/sdd/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE.md'
+    )
+    PreferencesSchemaKeyMarkers                  = @(
+        'caveman_mode',
+        'caveman_level',
+        'orchestrator_mode',
+        'artifact_language',
+        'verify_mode'
+    )
+    ExecutionPolicyHeadingMarker                 = '## Execution policy'
+    ExecutionPolicyTemplateRelativePaths         = @(
+        'core/skills/_shared/templates/sdd/PLAN.md',
+        'core/skills/_shared/templates/sdd/PRD.md'
+    )
+    ExecutionPolicySkillWiringRelativePaths      = @(
+        'core/skills/sdd-plan/SKILL.md',
+        'core/skills/sdd-spec/SKILL.md',
+        'core/skills/sdd-develop/SKILL.md'
+    )
+    ToolkitOrchestratorInstallMenuChoices        = @('1', '2')
+    PreferencesFileName                          = 'preferences.json'
     # Fixture-local keyed uninstall asserts (no live-home write). Kept out of
     # validate-core because they call validate-agent which re-enters validate-core.
     # CI runs them via a dedicated workflow step (inline loop over this list).
@@ -384,6 +533,20 @@ $script:ToolkitMessage = @{
     NoFeaturesDocLinksNegativeExpectedFail = 'synthetic features story path / SPAWN_MATRIX sample did not match forbidden patterns'
     NoFeaturesDocLinksNoScanTargets    = 'no versioned markdown scan targets found (docs/, root README/CONTRIBUTING/SECURITY, adapters/*/README.md)'
     NoFeaturesDocLinksViolations       = 'published docs must not reference gitignored features/ story artifacts (use docs/SPAWN.md or core SPAWN.md): {0}'
+    NoFormaAliasNegativeExpectedFail   = 'synthetic Forma alias sample did not match forbidden patterns'
+    NoFormaAliasNoScanTargets          = 'no markdown scan targets found (core/, docs/, docs-site/, memory-bank/, README.md, PRODUCT.md)'
+    NoFormaAliasViolations             = 'Forma A/B/C aliases must use work-track names only: {0}'
+    OrchestratorCharterMissingMarker   = '{0} missing orchestrator charter marker: {1}'
+    OrchestratorCommandMissingMarker   = 'orchestrator-session missing command marker: {0}'
+    PreferencesSchemaMissingKey        = '{0} missing preferences key: {1}'
+    ExecutionPolicyMissingHeading      = '{0} missing ## Execution policy'
+    ExecutionPolicySkillMissingRef     = '{0} must reference Execution policy'
+    ToolkitOrchestratorInstallPromptHeader = 'Orchestrator mode (preferences.json missing)'
+    ToolkitOrchestratorInstallPromptAlwaysLine = '  [1] Always orchestrate (default)'
+    ToolkitOrchestratorInstallPromptAdaptiveLine = '  [2] Adaptive'
+    ToolkitOrchestratorInstallPromptMenu = 'Choice'
+    ToolkitOrchestratorInstallDefaultChoice = '1'
+    ToolkitOrchestratorPreferencesCreated = 'Created preferences.json at {0} (orchestrator_mode={1}).'
     SpawnMdMissing                     = 'SPAWN contract missing or empty: {0}'
     SpawnMdNegativeExpectedFail        = 'invented missing SPAWN path did not fail existence check: {0}'
     LanguageMdMissing                  = 'LANGUAGE contract missing or empty: {0}'

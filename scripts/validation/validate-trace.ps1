@@ -75,6 +75,110 @@ function Test-AllowedSyncTarget {
     return ($normalized -match $script:ToolkitConstant.SddArtifactTraceAllowedTargetPattern)
 }
 
+function Test-PortableTracePath {
+    param([Parameter(Mandatory = $true)][string] $Path)
+    $normalized = ($Path -replace '\\', '/').Trim()
+    if ([string]::IsNullOrWhiteSpace($normalized)) {
+        return $false
+    }
+    return ($normalized -notmatch $script:ToolkitConstant.SddArtifactTracePortablePathPattern)
+}
+
+function Test-NonEmptyStringField {
+    param([Parameter(Mandatory = $false)] $Value)
+    return -not [string]::IsNullOrWhiteSpace([string]$Value)
+}
+
+function Test-NonEmptyStringArrayField {
+    param([Parameter(Mandatory = $false)] $Value)
+    if ($null -eq $Value) {
+        return $false
+    }
+    $items = @($Value | ForEach-Object { [string]$_ })
+    if ($items.Count -eq 0) {
+        return $false
+    }
+    foreach ($item in $items) {
+        if ([string]::IsNullOrWhiteSpace($item)) {
+            return $false
+        }
+    }
+    return $true
+}
+
+function Get-TraceFieldValue {
+    param(
+        [Parameter(Mandatory = $true)] $Object,
+        [Parameter(Mandatory = $true)][string] $Name
+    )
+    $prop = $Object.PSObject.Properties[$Name]
+    if ($null -eq $prop) {
+        return ''
+    }
+    return [string]$prop.Value
+}
+
+function Add-NormativeOptionalEventFailures {
+    param(
+        [Parameter(Mandatory = $true)] $EventRecord,
+        [Parameter(Mandatory = $true)] $FailureList
+    )
+
+    $line = $EventRecord.Line
+    $obj = $EventRecord.Object
+    $eventName = $EventRecord.Event
+
+    switch ($eventName) {
+        $script:ToolkitConstant.SddArtifactTraceEventRetrieval {
+            $pathsValue = $null
+            $pathsProp = $obj.PSObject.Properties['paths']
+            if ($null -ne $pathsProp) {
+                $pathsValue = $pathsProp.Value
+            }
+            if (-not (Test-NonEmptyStringArrayField -Value $pathsValue)) {
+                [void]$FailureList.Add(("line {0}: retrieval requires non-empty paths[]" -f $line))
+            }
+            else {
+                foreach ($p in @($pathsValue | ForEach-Object { [string]$_ })) {
+                    if (-not (Test-PortableTracePath -Path $p)) {
+                        [void]$FailureList.Add(("line {0}: retrieval path '{1}' must be portable (no drive letter or user-home embed)" -f $line, $p))
+                    }
+                }
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'reason'))) {
+                [void]$FailureList.Add(("line {0}: retrieval requires non-empty reason" -f $line))
+            }
+        }
+        $script:ToolkitConstant.SddArtifactTraceEventGate {
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'gate_id'))) {
+                [void]$FailureList.Add(("line {0}: gate requires non-empty gate_id" -f $line))
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'response'))) {
+                [void]$FailureList.Add(("line {0}: gate requires non-empty response" -f $line))
+            }
+        }
+        $script:ToolkitConstant.SddArtifactTraceEventSpawn {
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'role'))) {
+                [void]$FailureList.Add(("line {0}: spawn requires non-empty role" -f $line))
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'reason'))) {
+                [void]$FailureList.Add(("line {0}: spawn requires non-empty reason" -f $line))
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'outcome'))) {
+                [void]$FailureList.Add(("line {0}: spawn requires non-empty outcome" -f $line))
+            }
+        }
+        $script:ToolkitConstant.SddArtifactTraceEventSpecialistComplete {
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'role'))) {
+                [void]$FailureList.Add(("line {0}: specialist_complete requires non-empty role" -f $line))
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $obj -Name 'summary'))) {
+                [void]$FailureList.Add(("line {0}: specialist_complete requires non-empty summary" -f $line))
+            }
+        }
+    }
+}
+
 $resolvedRoot = Resolve-FeatureRootPath -Path $FeatureRoot
 if (-not (Test-Path -LiteralPath $resolvedRoot)) {
     Write-ValidateFail -Message ("feature root not found: {0}" -f $FeatureRoot)
@@ -142,12 +246,15 @@ foreach ($line in $lines) {
         [void]$failures.Add(("line {0}: feature must be portable features/NNN-slug (got '{1}')" -f $lineNumber, $feature))
     }
 
-    [void]$events.Add([PSCustomObject]@{
-            Line   = $lineNumber
-            Ts     = $ts
-            Event  = $eventName.Trim().ToLowerInvariant()
-            Object = $obj
-        })
+    $normalizedEvent = $eventName.Trim().ToLowerInvariant()
+    $eventRecord = [PSCustomObject]@{
+        Line   = $lineNumber
+        Ts     = $ts
+        Event  = $normalizedEvent
+        Object = $obj
+    }
+    Add-NormativeOptionalEventFailures -EventRecord $eventRecord -FailureList $failures
+    [void]$events.Add($eventRecord)
 }
 
 if ($failures.Count -gt 0) {

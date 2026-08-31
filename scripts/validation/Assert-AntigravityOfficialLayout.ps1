@@ -152,12 +152,12 @@ if ($c.skills -ne $true -or $c.rules -ne $true -or $c.router -ne $true -or $c.pl
     Write-Fail -TestName $capsName -Reason 'expected skills/rules/router/plugin = true'
 }
 
-if ($c.hooks -ne $false) {
-    Write-Fail -TestName $capsName -Reason 'hooks must be false (honest: no native shell-hook parity)'
+if ($c.hooks -ne $true) {
+    Write-Fail -TestName $capsName -Reason 'hooks must be true (PreToolUse path/secrets under config/hooks)'
 }
 
 if ([string]::IsNullOrWhiteSpace([string]$caps.Message) -or $caps.Message -notmatch '(?i)hooks') {
-    Write-Fail -TestName $capsName -Reason 'Capabilities Message must mention hooks honesty'
+    Write-Fail -TestName $capsName -Reason 'Capabilities Message must mention hooks'
 }
 
 Write-Pass -TestName $capsName

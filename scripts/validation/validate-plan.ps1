@@ -4,8 +4,9 @@
   Structural validation for Classic SDD PLAN markdown (REQ-003 / CA2).
 
 .DESCRIPTION
-  Deterministic checks only — no LLM. Requires a REQ->step map and full coverage
-  of every REQ-NNN from the linked PRD. Exit 0 on success; exit 1 on failure.
+  Deterministic checks only — no LLM. Requires Execution policy, REQ->step map,
+  at least one PASSO/STEP heading, and full coverage of every REQ-NNN from the
+  linked PRD. Exit 0 on success; exit 1 on failure.
 
 .PARAMETER Path
   Absolute or relative path to a PLAN .md file.
@@ -130,6 +131,16 @@ if ([string]::IsNullOrWhiteSpace($planText)) {
 $mapSectionPattern = $script:ToolkitConstant.SddArtifactReqMapSectionPattern
 if ($planText -notmatch $mapSectionPattern) {
     Write-ValidateFail -Message 'missing REQ-to-step map section (expected "Mapa REQ -> passo" or equivalent)'
+    exit 1
+}
+
+if ($planText -notmatch $script:ToolkitConstant.SddArtifactPlanExecutionPolicyPattern) {
+    Write-ValidateFail -Message 'missing required section: Execution policy'
+    exit 1
+}
+
+if ($planText -notmatch $script:ToolkitConstant.SddArtifactPlanStepHeadingPattern) {
+    Write-ValidateFail -Message 'missing implementation step headings (expected PASSO N or STEP N)'
     exit 1
 }
 

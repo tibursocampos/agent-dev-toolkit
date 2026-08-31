@@ -4,6 +4,7 @@
 #   Should_Pass_When_ValidTraceFixture
 #   Should_Fail_When_IncompleteTrace_RequireArchive
 #   Should_Fail_When_BadJsonTrace
+#   Should_Fail_When_InvalidOrchestrationEvents
 #   Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard
 #   Should_Pass_When_SkillsWireTraceArchiveContract
 #
@@ -87,7 +88,11 @@ $requiredContractMarkers = @(
     'archive',
     'validate-trace',
     'memory-bank/',
-    'openspec'
+    'openspec',
+    'retrieval',
+    'gate',
+    'spawn',
+    'specialist_complete'
 )
 foreach ($marker in $requiredContractMarkers) {
     if ($contractText -notmatch [regex]::Escape($marker)) {
@@ -135,6 +140,13 @@ if ($badJsonResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_BadJsonTrace' -Reason 'expected non-zero exit for invalid JSONL'
 }
 Write-Pass -TestName 'Should_Fail_When_BadJsonTrace'
+
+$invalidOrchestrationRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateTraceFixtureInvalidOrchestrationRelativeDir
+$invalidOrchestrationResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $invalidOrchestrationRoot }
+if ($invalidOrchestrationResult.ExitCode -eq 0) {
+    Write-Fail -TestName 'Should_Fail_When_InvalidOrchestrationEvents' -Reason 'expected non-zero exit for normative orchestration event schema violations'
+}
+Write-Pass -TestName 'Should_Fail_When_InvalidOrchestrationEvents'
 
 $smokeRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateTraceFixtureArchiveSmokeRelativeDir
 $changePath = Join-Path $smokeRoot 'CHANGE.md'
