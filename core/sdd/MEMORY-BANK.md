@@ -1,4 +1,4 @@
-# Memory Bank Gate (Orchestrated Delivery *(formerly Forma C)* Step 0)
+﻿# Memory Bank Gate (Orchestrated Delivery Step 0)
 
 Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
 
@@ -21,7 +21,7 @@ Companion skill: `memory-bank-init`. Optional inventory script (or synced copy i
 
 **Must not:** place `memory-bank/` under `features/NNN-slug/`. CONTINUITY must not duplicate bank body.
 
-**Classic SDD *(formerly Forma A)*:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery *(formerly Forma C)* (`orchestrate-*`) and to promote; Classic SDD *(formerly Forma A)* does not require the bank.
+**Classic SDD:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery (`orchestrate-*`) and to promote; Classic SDD does not require the bank.
 
 ---
 
@@ -165,7 +165,7 @@ Toolkit itself may keep templates only - not a live bank unless documenting the 
 8. Record status for CONTINUITY: fresh | refreshed | created
 ```
 
-**Wiring:** O1, O2, and O3 (`orchestrate-*`) implement Step 0. Classic SDD *(formerly Forma A)* (`sdd-*`) does not require the gate.
+**Wiring:** O1, O2, and O3 (`orchestrate-*`) implement Step 0. Classic SDD (`sdd-*`) does not require the gate.
 
 ---
 

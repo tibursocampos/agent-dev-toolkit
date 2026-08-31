@@ -1,6 +1,6 @@
 # SDD pipeline guards (spec / plan / implement)
 
-Execution order, Cursor mode behavior, canonical paths, confirmation gates, and missing-artifact dialogs. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Orchestrated Delivery *(formerly Forma C)* `orchestrate-*` - do not paste into PRD/PLAN bodies.
+Execution order, Cursor mode behavior, canonical paths, confirmation gates, and missing-artifact dialogs. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Orchestrated Delivery `orchestrate-*` - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
@@ -10,17 +10,16 @@ Companion: `STORAGE.md` (folders, manifest, `.gitignore`, **portable path** for 
 
 ## Work tracks
 
-| Track | Alias (this release only) | Flow | Canonical writes |
-|-------|---------------------------|------|------------------|
-| **Classic SDD** | *(formerly Forma A)* | `sdd-spec` -> `sdd-plan` -> `sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
-| **Backlog Refine** | *(formerly Forma B)* | `refine-story` -> `split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
-| **Orchestrated Delivery** | *(formerly Forma C)* | **Step 0** memory-bank gate -> `orchestrate-analyze` -> `orchestrate-deliver` -> `orchestrate-develop` **or** manual `sdd-develop` | Same `features/` tree; CONTINUITY between stages; bank co-located via manifest (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) |
+| Track | Flow | Canonical writes |
+|-------|------|------------------|
+| **Classic SDD** | `sdd-spec` -> `sdd-plan` -> `sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
+| **Backlog Refine** | `refine-story` -> `split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
+| **Orchestrated Delivery** | **Step 0** memory-bank gate -> `orchestrate-analyze` -> `orchestrate-deliver` -> `orchestrate-develop` **or** manual `sdd-develop` | Same `features/` tree; CONTINUITY between stages; bank co-located via manifest (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) |
 
 Tracks coexist (Classic SDD / Backlog Refine / Orchestrated Delivery only). Skill ids (`sdd-*`, `orchestrate-*`, `refine-story`, …) are **unchanged**. **Classic SDD** does **not** require memory-bank. Gate contract: `MEMORY-BANK.md`.
 
-**Alias sunset (RN07):** keep `(formerly Forma A|B|C)` only in the release that introduces these track names; **remove** those aliases in the **following** release. Do not treat “Forma A/B/C” as canonical labels in this release.
 
-### Orchestrated Delivery *(formerly Forma C)* — ARCH confirm gate (architecture selection)
+### Orchestrated Delivery — ARCH confirm gate (architecture selection)
 
 Inside **O1** (`orchestrate-analyze`), after the architect specialist (or in-parent fallback) when nature is **`greenfield`** or **`needs_domain`** without an established in-repo style:
 
@@ -33,11 +32,11 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 
 ## Skill order
 
-- **Classic SDD** *(formerly Forma A)*: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery** *(formerly Forma C)*: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O2 reuses `sdd-spec` / `sdd-plan` contracts per story. O3 reuses `sdd-develop` contract (**one PLAN step per subagent / session**) and runs Step N **refresh-light** after code changes.
+- **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
+- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O2 reuses `sdd-spec` / `sdd-plan` contracts per story. O3 reuses `sdd-develop` contract (**one PLAN step per subagent / session**) and runs Step N **refresh-light** after code changes.
 
 | Skill | Writes | Must not in same session |
-|-------|--------|---------------------------|
+|-------|--------|
 | `spec` | PRD + manifest under feature story | PLAN; production/test code (`*.cs`, migrations, etc.) |
 | `plan` | PLAN + manifest under feature story | PRD body; production/test code |
 | `sdd-develop` | Code (English) + PLAN progress | New PRD/PLAN files; **multiple PLAN steps** |
@@ -55,7 +54,7 @@ Preferred (Classic SDD / Orchestrated Delivery):
 - `features/NNN-slug/USnn/PRD/NNN_*.md` or `features/NNN-slug/TSnn/PRD/NNN_*.md` (workspace)
 - `{{SDD_ROOT}}/<repo-id>/features/NNN-slug/USnn/PRD/NNN_*.md` (global; or manifest classic path)
 
-Classic SDD *(formerly Forma A)* when story unspecified: use **`US01`**.
+Classic SDD when story unspecified: use **`US01`**.
 
 `NNN` = three digits. Slug after underscore in filename.
 
@@ -91,7 +90,7 @@ Applies when the user cites any `.md` **outside** `features/` — including Curs
 3. Pointer-only / bibliography-only (links or titles without copied bodies) = **fail O1**. Do **not** mark the backlog approved.
 4. **PLAN magro:** do not paste SQL/DDL/OpenAPI into PLAN. Bodies live in bank phase 2 and/or ARCH/ANALYSIS. PLAN **cites the canonical path**. If that path does not exist, O1/O2 must create the canonical file first — do not omit the body from PLAN without a canonical destination (`sdd-plan` Outcome + Must not).
 
-#### Classic PRD / PLAN promote (Classic SDD *(formerly Forma A)* / missing canonical)
+#### Classic PRD / PLAN promote (Classic SDD / missing canonical)
 
 1. `Read` the file the user cited.
 2. Build PRD (or PLAN) content per `spec/reference.md` or `plan/reference.md`.
@@ -162,7 +161,7 @@ When the working path is under `features/NNN-slug/` (or the user names that feat
 4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies; do not dump entire `memory-bank/` or full PRD bodies.
 5. If FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing: O2 / `sdd-spec` **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate. Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
 
-If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` - ask the user to create via `sdd-spec` / Orchestrated Delivery *(formerly Forma C)*.
+If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` - ask the user to create via `sdd-spec` / Orchestrated Delivery.
 
 ## Missing canonical artifact - ask before handoff
 
@@ -211,7 +210,7 @@ Before `Write`, confirm the target matches **new-write** patterns:
 
 Root or flat `PRD/` / `PLAN/` paths are **invalid** for Classic SDD - promote under `features/` before write/develop.
 
-### Classic SDD *(formerly Forma A)* path example (full)
+### Classic SDD path example (full)
 
 ```text
 features/004-export-profile/US01/PRD/004_export_profile.md
@@ -228,8 +227,8 @@ If validation fails, do not write - fix path or promote.
 | Consumer | Use |
 |----------|-----|
 | `sdd-spec`, `sdd-plan`, `sdd-develop` | Step -1 load; steps reference § by name |
-| `orchestrate-*` | Orchestrated Delivery *(formerly Forma C)* order; feature Prior context; CONTINUITY |
-| `refine-story`, `split-story-checklist` | Backlog Refine *(formerly Forma B)*; prefer feature STORY paths |
+| `orchestrate-*` | Orchestrated Delivery order; feature Prior context; CONTINUITY |
+| `refine-story`, `split-story-checklist` | Backlog Refine; prefer feature STORY paths |
 | `STORAGE.md` | Folders, manifest, invalid-path summary |
 | `rules/sdd-pipeline-guards.mdc` | Short always-on reminder |
 | `code-review` | Handoff to `sdd-spec` for new PRD; read-only SDD discovery |

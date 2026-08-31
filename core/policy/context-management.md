@@ -64,6 +64,7 @@ To continue in this session, the user must reply: force continue
 Context-only hooks under `{{TOOLKIT_ROOT}}/hooks/` (see `docs/HOOKS.md`):
 
 - `beforeSubmitPrompt` - track `use skill sdd-spec|sdd-plan|sdd-develop|orchestrate-*|...` (always allows submit)
+- `preToolUse` - deny Write outside allowed scopes (`features/`, `memory-bank/`, `docs/`, standard app trees) and block obvious secret patterns in write content
 - `afterFileEdit` - record `features/**/PLAN/PLAN_*.md` edits
 - `preCompact` - user message at 40%/80% usage before compaction
 
