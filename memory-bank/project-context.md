@@ -1,4 +1,4 @@
-# Project context
+﻿# Project context
 
 | Field | Value |
 |-------|--------|
@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Toolkit unificado: um **core** portável de skills/rules/router (catálogo; tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**, alias *(formerly Forma A|B|C)* só nesta release) e **adapters** que publicam esse core nos perfis de agentes (Cursor, Antigravity, Claude Code, Codex, Copilot, OpenCode, Grok Build, ZCode, Hermes, OpenHands). Twins `cursor-dev-toolkit` e `antigravity-dev-toolkit` permanecem intactos.
+Toolkit unificado: um **core** portável de skills/rules/router (catálogo; tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**, alias só nesta release) e **adapters** que publicam esse core nos perfis de agentes (Cursor, Antigravity, Claude Code, Codex, Copilot, OpenCode, Grok Build, ZCode, Hermes, OpenHands). Twins `cursor-dev-toolkit` e `antigravity-dev-toolkit` permanecem intactos.
 
 **Frase-guia SDD:** mesmo fluxo de chamada das skills; gates e artefatos a mais (REQ, validate, CHANGE, EVD, STATE, TRACE, retrieval seletivo) — sem segundo toolkit nem pastas `openspec/` / `.specs/` / `.specify/`. SQLite/FTS fora do escopo atual (OOS).
 
