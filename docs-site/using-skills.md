@@ -1,4 +1,4 @@
-# Using skills
+﻿# Using skills
 
 Invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case folder names under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands skill `name`). Compat: `use skill <id>` or natural language matching the skill `description`.
 
@@ -94,13 +94,15 @@ New task
 
 | Track | When | Pipeline | Notes |
 |-------|------|----------|-------|
-| **Classic SDD** *(formerly Forma A)* | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **Backlog Refine** *(formerly Forma B)* | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
-| **Orchestrated Delivery** *(formerly Forma C)* | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse Classic SDD |
+| **Classic SDD** | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
+| **Backlog Refine** | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Story sizing + optional persona/JTBD (User Stories only); FEATURE Product intent |
+| **Orchestrated Delivery** | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse Classic SDD |
 
-Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) add gates/artifacts only — not a second toolkit. SQLite/FTS is not a deliverable.
+Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) add gates/artifacts only — not a second toolkit. Invocable skills use lazy-load (`SKILL.md` + optional `reference.md` / `references/*`); contract: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS is not a deliverable.
 
-For greenfield domain work, prefer Orchestrated Delivery *(formerly Forma C)*. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
+Orchestrator mode (parent lean; specialists do heavy work): default `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md).
+
+For greenfield domain work, prefer Orchestrated Delivery. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
 
 ## Invoke by agent
 
@@ -151,27 +153,27 @@ Invoke with **`$id`** (e.g. `$help-skills`). Native `$` / `/skills` picker is th
 
 ### OpenCode
 
-Skills: `~/.config/opencode/skills`. Invoke via the **`skill` tool**: `skill({ name: "help-skills" })`. JS plugins under `plugins/`.
+Skills: `~/.config/opencode/skills`. Invoke via the **`skill` tool**: `skill({ name: "help-skills" })`. JS plugins under `plugins/` (`tool.execute.before` path/secrets throw). Roster: `InstallRoot/agents/` (`agents=true`).
 
 ### Grok
 
-Expected live path: `~/.grok/skills`. Invoke with `/id` (e.g. `/help-skills`). Hooks trust via `/hooks-trust` if needed (not skill invoke).
+Expected live path: `~/.grok/skills`. Invoke with `/id` (e.g. `/help-skills`). Hooks trust via `/hooks-trust` if needed (not skill invoke). PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`.
 
 ### ZCode
 
-Skills: `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). Refresh in Settings → Skills if needed.
+Skills: `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). Refresh in Settings → Skills if needed. PreToolUse path/secrets.
 
 ### Antigravity
 
-Skills: `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`).
+Skills: `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`). PreToolUse path/secrets under `config/hooks`.
 
 ### Hermes
 
-Skills: `~/.hermes/skills`. Invoke with **`/id`** (e.g. `/help-skills`). Official: every installed skill is a slash command. Subagents: host `delegate_task` (`subagents=native`). No `agents/*.md` roster.
+Skills: `~/.hermes/skills`. Invoke with **`/id`** (e.g. `/help-skills`). Official: every installed skill is a slash command. Hooks: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (keyed `config.yaml` only). Subagents: host `delegate_task` (`subagents=native`). No `agents/*.md` roster (`agents=false`). Never SOUL / tokens / gateway.
 
 ### OpenHands
 
-Project skills: `.agents/skills`. Live user skills: `~/.agents/skills`. The agent loads a skill by `name` / `description` when relevant (optional frontmatter `triggers`). Do not treat Canvas as subagents — `subagents=none`; SPAWN fallback is in-parent. Published `.agents/agents/*.md` is an SDK/plugin roster, not Canvas Profile.
+Project skills: `.agents/skills`. Live user skills: `~/.agents/skills`. The agent loads a skill by `name` / `description` when relevant (optional frontmatter `triggers`). Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed). Do not treat Canvas as subagents — `subagents=none`; SPAWN fallback is in-parent. Published `.agents/agents/*.md` is an SDK/plugin roster, not Canvas Profile.
 
 Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` + the skills-catalog pack.
 
@@ -179,7 +181,7 @@ Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` +
 
 Flow examples use **skill ids**. Prefix with your host form (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands skill `name`).
 
-### Classic SDD *(formerly Forma A)*
+### Classic SDD
 
 ```text
 sdd-spec
@@ -189,7 +191,7 @@ sdd-develop - <plan-path> - Step N
 
 One develop session = **one** PLAN step. Internal contracts run inside the same skill ids.
 
-### Orchestrated Delivery *(formerly Forma C)*
+### Orchestrated Delivery
 
 ```text
 memory-bank-init
@@ -223,9 +225,9 @@ Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: s
 
 | Group | Skills |
 |-------|--------|
-| **Classic SDD** *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| **Backlog Refine** *(formerly Forma B)* | `refine-story`, `split-story-checklist` |
-| **Orchestrated Delivery** *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| **Backlog Refine** | `refine-story`, `split-story-checklist` |
+| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
@@ -241,6 +243,7 @@ Canonical folders under `core/skills/` (**38 skills** + `_shared`). Agent SoT: s
 | `sdd-develop` | One PLAN step per session |
 | `document-plan` | Asks doc language before writing |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Caveman mode](../caveman/) |
+| Orchestrator | Default `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
 
 Installed static notes: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
 

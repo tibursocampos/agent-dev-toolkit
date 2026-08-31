@@ -16,6 +16,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (38 skills; agent SoT via `help-skills` → CATALOG + OPERATOR) |
 | [CREDITS.md](CREDITS.md) | Everyone | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
 | [guides/07-caveman-mode.md](guides/07-caveman-mode.md) | Everyone | Caveman default OFF, commands, levels |
+| [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md) | Everyone | Orchestrator charter, `orchestrator_mode`, commands |
 
 ## Overview and architecture
 

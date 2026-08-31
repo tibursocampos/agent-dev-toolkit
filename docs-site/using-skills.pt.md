@@ -1,4 +1,4 @@
-# Usando skills
+﻿# Usando skills
 
 Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). O **id** é estável entre hosts; o prefixo é específico do host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands). Compat: `use skill <id>` ou linguagem natural alinhada à `description` da skill.
 
@@ -94,13 +94,15 @@ Nova tarefa
 
 | Trilha | Quando | Pipeline | Notas |
 |--------|--------|----------|-------|
-| **Classic SDD** *(formerly Forma A)* | Uma feature clara | `sdd-spec` → `sdd-plan` → `sdd-develop` | Sem memory-bank obrigatório |
-| **Backlog Refine** *(formerly Forma B)* | Bug/story informal | `refine-story` → `split-story-checklist` opcional → Classic ou Orchestrated | Prepara markdown estruturado |
-| **Orchestrated Delivery** *(formerly Forma C)* | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam Classic SDD |
+| **Classic SDD** | Uma feature clara | `sdd-spec` → `sdd-plan` → `sdd-develop` | Sem memory-bank obrigatório |
+| **Backlog Refine** | Bug/story informal | `refine-story` → `split-story-checklist` opcional → Classic ou Orchestrated | Story sizing + persona/JTBD opcional (só User Stories); coluna Product intent no FEATURE |
+| **Orchestrated Delivery** | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam Classic SDD |
 
-Mesmo fluxo de chamada das skills; contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE) são gates/artefatos a mais — não um segundo toolkit. SQLite/FTS não é entrega.
+Mesmo fluxo de chamada das skills; contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) são gates/artefatos a mais — não um segundo toolkit. Skills invocáveis usam lazy-load (`SKILL.md` + `reference.md` / `references/*` opcional); contrato: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS não é entrega.
 
-Trabalho de domínio em projeto novo (greenfield): prefira Orchestrated Delivery *(formerly Forma C)*. Assim `orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill id). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
+Modo orchestrator (pai enxuto; especialistas fazem o trabalho pesado): padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md).
+
+Trabalho de domínio em projeto novo (greenfield): prefira Orchestrated Delivery. Assim `orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill id). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
 
 ## Invocar por agente
 
@@ -151,27 +153,27 @@ Invoque com **`$id`** (ex.: `$help-skills`). O picker nativo `$` / `/skills` é 
 
 ### OpenCode
 
-Skills: `~/.config/opencode/skills`. Invoque via a ferramenta **`skill`**: `skill({ name: "help-skills" })`. Plugins JS em `plugins/`.
+Skills: `~/.config/opencode/skills`. Invoque via a ferramenta **`skill`**: `skill({ name: "help-skills" })`. Plugins JS em `plugins/` (`tool.execute.before` path/secrets throw). Roster: `InstallRoot/agents/` (`agents=true`).
 
 ### Grok
 
-Path live esperado: `~/.grok/skills`. Invoque com `/id` (ex.: `/help-skills`). Trust de hooks via `/hooks-trust` se necessário (não é invoke de skill).
+Path live esperado: `~/.grok/skills`. Invoque com `/id` (ex.: `/help-skills`). Trust de hooks via `/hooks-trust` se necessário (não é invoke de skill). PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`.
 
 ### ZCode
 
-Skills: `~/.zcode/skills`. Invoque com **`$id`** (ex.: `$help-skills`). Atualize em Settings → Skills se o produto exigir.
+Skills: `~/.zcode/skills`. Invoque com **`$id`** (ex.: `$help-skills`). Atualize em Settings → Skills se o produto exigir. PreToolUse path/secrets.
 
 ### Antigravity
 
-Skills: `~/.gemini/config/skills`. Invoque com **`use skill <id>`** ou `/id` (ex.: `use skill sdd-plan`).
+Skills: `~/.gemini/config/skills`. Invoque com **`use skill <id>`** ou `/id` (ex.: `use skill sdd-plan`). PreToolUse path/secrets em `config/hooks`.
 
 ### Hermes
 
-Skills: `~/.hermes/skills`. Invoque com **`/id`** (ex.: `/help-skills`). Oficial: cada skill instalada vira comando slash. Subagentes: ferramenta `delegate_task` do host (`subagents=native`). Sem roster `agents/*.md`.
+Skills: `~/.hermes/skills`. Invoque com **`/id`** (ex.: `/help-skills`). Oficial: cada skill instalada vira comando slash. Hooks: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (`config.yaml` só chaves gerenciadas). Subagentes: ferramenta `delegate_task` do host (`subagents=native`). Sem roster `agents/*.md` (`agents=false`). Nunca SOUL / tokens / gateway.
 
 ### OpenHands
 
-Skills de projeto: `.agents/skills`. Skills do usuário live: `~/.agents/skills`. O agente carrega a skill pelo `name` / `description` quando for relevante (`triggers` opcionais no frontmatter). Canvas não é spawn de subagente — `subagents=none`; fallback SPAWN no pai. O roster publicado `.agents/agents/*.md` é SDK/plugin, não Canvas Profile.
+Skills de projeto: `.agents/skills`. Skills do usuário live: `~/.agents/skills`. O agente carrega a skill pelo `name` / `description` quando for relevante (`triggers` opcionais no frontmatter). Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed). Canvas não é spawn de subagente — `subagents=none`; fallback SPAWN no pai. O roster publicado `.agents/agents/*.md` é SDK/plugin, não Canvas Profile.
 
 Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam `help-skills` + o pack skills-catalog.
 
@@ -179,7 +181,7 @@ Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam 
 
 Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands).
 
-### Classic SDD *(formerly Forma A)*
+### Classic SDD
 
 ```text
 sdd-spec
@@ -189,7 +191,7 @@ sdd-develop - <plan-path> - Step N
 
 Uma sessão de develop = **um** passo do PLAN. Contratos internos rodam nos mesmos skill ids.
 
-### Orchestrated Delivery *(formerly Forma C)*
+### Orchestrated Delivery
 
 ```text
 memory-bank-init
@@ -223,9 +225,9 @@ Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: 
 
 | Grupo | Skills |
 |-------|--------|
-| **Classic SDD** *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| **Backlog Refine** *(formerly Forma B)* | `refine-story`, `split-story-checklist` |
-| **Orchestrated Delivery** *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| **Backlog Refine** | `refine-story`, `split-story-checklist` |
+| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
@@ -241,6 +243,7 @@ Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: 
 | `sdd-develop` | Um passo do PLAN por sessão |
 | `document-plan` | Pergunta o idioma da doc antes de escrever |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Modo Caveman](../caveman/) |
+| Orchestrator | Padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
 
 Notas estáticas instaladas: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
 

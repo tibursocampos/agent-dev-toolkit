@@ -1,4 +1,4 @@
-# Using skills
+﻿# Using skills
 
 How to invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>` or natural language matching the skill `description`.
 
@@ -95,29 +95,29 @@ Skills sync to `~/.config/opencode/skills`. Invoke via the **`skill` tool** (not
 skill({ name: "help-skills" })
 ```
 
-JS behavior extensions live under `plugins/` (not PS1 hooks). Module: [adapters/opencode/README.md](../../adapters/opencode/README.md).
+JS behavior extensions live under `plugins/` (not PS1 hooks) — `tool.execute.before` path/secrets throw. `Publish-Agents` → `InstallRoot/agents/`. Module: [adapters/opencode/README.md](../../adapters/opencode/README.md).
 
 ## Grok
 
-Expected live skills path: **`~/.grok/skills`**. Invoke with `/id` (e.g. `/help-skills`). Native `.grok` layout; hooks trust via `/hooks-trust` if needed (trust UI, not skill invoke).
+Expected live skills path: **`~/.grok/skills`**. Invoke with `/id` (e.g. `/help-skills`). Native `.grok` layout; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`. Hooks trust via `/hooks-trust` if needed (trust UI, not skill invoke).
 
 Module: [adapters/grok/README.md](../../adapters/grok/README.md).
 
 ## ZCode
 
-Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). ADE filesystem — not GLM Coding Plan. After sync, refresh skills in Settings → Skills if the product requires it.
+Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). ADE filesystem — not GLM Coding Plan. PreToolUse path/secrets. After sync, refresh skills in Settings → Skills if the product requires it.
 
 Module: [adapters/zcode/README.md](../../adapters/zcode/README.md).
 
 ## Hermes
 
-Skills sync to **`~/.hermes/skills`** (directly under that home — not `~/.hermes/.hermes/skills`). Invoke with `/id` (e.g. `/help-skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). `MEMORY.md` is seeded only if missing; `SOUL.md` is never written. Hooks / plugin / agents roster are not published. Subagents: host **`delegate_task`**.
+Skills sync to **`~/.hermes/skills`** (directly under that home — not `~/.hermes/.hermes/skills`). Invoke with `/id` (e.g. `/help-skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). `memories/MEMORY.md` is seeded only if missing; `SOUL.md` is never written. Hooks **are** published: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL/tokens/gateway). `Publish-Agents` is a no-op (`agents=false`). Subagents: host **`delegate_task`**.
 
 Module: [adapters/hermes/README.md](../../adapters/hermes/README.md).
 
 ## OpenHands
 
-**Project** sync writes Agent Skills to `<InstallRoot>/.agents/skills/` (not legacy microagents). **User** skills home: `~/.agents/skills` with `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome`. Invoke via product Agent Skills discovery (mention the skill id). Router + folded policy: `AGENTS.md`. Hooks: `.openhands/hooks.json` + `.openhands/hooks/*.sh` (shell, not `.ps1`). Plugin metadata: `.plugin/plugin.json` (skills still work without the plugin). Roster markdown under `.agents/agents/` is not native spawn (`subagents=none` — SPAWN fallback in-parent).
+**Project** sync writes Agent Skills to `<InstallRoot>/.agents/skills/` (not legacy microagents). **User** skills home: `~/.agents/skills` with `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome`. Invoke via product Agent Skills discovery (mention the skill id). Router + folded policy: `AGENTS.md`. Hooks: `.openhands/hooks.json` + `.openhands/hooks/*.sh` including `guard_pre_tool.sh` for `pre_tool_use` path/secrets (fail-closed; shell, not `.ps1`). Plugin metadata: `.plugin/plugin.json` (skills still work without the plugin). Roster markdown under `.agents/agents/` is not native spawn (`subagents=none` — SPAWN fallback in-parent).
 
 Module: [adapters/openhands/README.md](../../adapters/openhands/README.md).
 
@@ -131,7 +131,7 @@ Module: [adapters/antigravity/README.md](../../adapters/antigravity/README.md).
 
 Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands product discovery).
 
-### Classic SDD *(formerly Forma A)*
+### Classic SDD
 
 ```text
 sdd-spec
@@ -141,7 +141,7 @@ sdd-develop - <plan-path> - Step N
 
 One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE) run inside the same skill ids — no new slash skills.
 
-### Orchestrated Delivery *(formerly Forma C)* — architecture confirm (greenfield / `needs_domain`)
+### Orchestrated Delivery — architecture confirm (greenfield / `needs_domain`)
 
 ```text
 memory-bank-init

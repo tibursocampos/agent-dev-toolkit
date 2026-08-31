@@ -39,10 +39,10 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 | Workflow | Invoke |
 |----------|--------|
 | Catalog (all adapters) | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
-| Classic SDD *(formerly Forma A)* | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| Backlog Refine *(formerly Forma B)* | `refine-story` → `split-story-checklist` |
+| Classic SDD | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| Backlog Refine | `refine-story` → `split-story-checklist` |
 | Stack shortcut | `developer` or `dotnet-developer` / `react-developer` / … |
-| Orchestrated Delivery *(formerly Forma C)* | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
+| Orchestrated Delivery | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
 | Greenfield ARCH | Via Orchestrated Delivery analyze: architect draft → **sim** confirm (not a slash skill) |
 
 Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
@@ -53,24 +53,26 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 | id | Display name | Typical live root | Notes |
 |----|--------------|-------------------|--------|
-| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks |
-| `antigravity` | Antigravity | `~/.gemini` | Official `config/*` layout |
-| `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge |
-| `codex` | Codex | `~/.codex` | Dual-root: plugin skills under `InstallRoot/plugin`; rules via Publish-Policy → `InstallRoot/rules`; optional USER skills `~/.agents/skills` with `-UserScope`; default sync **plugin-only** |
-| `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo` required |
-| `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS plugins only |
-| `grok` | Grok Build | `~/.grok` | Native `.grok` publish |
-| `zcode` | ZCode (Z.ai ADE) | `~/.zcode` | ADE filesystem; not GLM Coding Plan |
+| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks; path/secrets `preToolUse` + `beforeShellExecution` (`failClosed`, GuardCommon); `agents/` |
+| `antigravity` | Antigravity | `~/.gemini` | Official `config/*`; PreToolUse path/secrets under `config/hooks` |
+| `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge; PreToolUse path/secrets deny |
+| `codex` | Codex | `~/.codex` | Dual-root plugin + rules; PreToolUse path/secrets; `agents/*.toml`; optional `-UserScope`; default **plugin-only** |
+| `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo`; hooks `version:1` `preToolUse` path/secrets |
+| `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS `tool.execute.before` path/secrets throw; `agents=true` → `InstallRoot/agents/` |
+| `grok` | Grok Build | `~/.grok` | Native publish; PreToolUse path/secrets; `agents=true` → `InstallRoot/agents/` |
+| `zcode` | ZCode (Z.ai ADE) | `~/.zcode` | ADE filesystem; PreToolUse path/secrets; not GLM Coding Plan |
+| `hermes` | Hermes | `$HERMES_HOME` | Plugin + shell `agent-hooks` path/secrets; keyed `config.yaml` only; never SOUL/tokens/gateway |
+| `openhands` | OpenHands | Project tree; user `~/.agents` | Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
 
-Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**.
+Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
 ## Skills preview (38)
 
 | Group | Examples |
 |-------|----------|
-| Classic SDD *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| Backlog Refine *(formerly Forma B)* | `refine-story`, `split-story-checklist` |
-| Orchestrated Delivery *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| Backlog Refine | `refine-story`, `split-story-checklist` |
+| Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
@@ -87,6 +89,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
 | [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
 | [docs/guides/07-caveman-mode.md](docs/guides/07-caveman-mode.md) | Caveman default OFF, commands, levels |
+| [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers and install layouts |
 | [docs/ADAPTERS.md](docs/ADAPTERS.md) | Adapter registry and per-agent publish |
