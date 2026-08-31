@@ -105,6 +105,47 @@ function Test-HermesForbiddenHooksPublished {
     return (Test-Path -LiteralPath $hooksJsonPath)
 }
 
+function Test-HermesRequiredPluginHooksPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject] $MappedPaths
+    )
+
+    $missing = [System.Collections.Generic.List[string]]::new()
+    $pluginRoot = Join-Path $MappedPaths.FixturePluginsPath $script:HermesAdapterConstant.GuardPluginDirectoryName
+    foreach ($name in @($script:HermesAdapterConstant.SmokeExpectedPluginFileNames)) {
+        $candidate = Join-Path $pluginRoot $name
+        if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+            $missing.Add(('plugins/{0}/{1}' -f $script:HermesAdapterConstant.GuardPluginDirectoryName, $name))
+        }
+    }
+
+    foreach ($name in @($script:HermesAdapterConstant.SmokeExpectedAgentHookFileNames)) {
+        $candidate = Join-Path $MappedPaths.FixtureAgentHooksPath $name
+        if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+            $missing.Add(('agent-hooks/{0}' -f $name))
+        }
+    }
+
+    $configOk = $false
+    if (Test-Path -LiteralPath $MappedPaths.FixtureConfigYamlPath -PathType Leaf) {
+        $yaml = [System.IO.File]::ReadAllText($MappedPaths.FixtureConfigYamlPath)
+        $pluginName = $script:HermesAdapterConstant.GuardPluginDirectoryName
+        $hasPlugin = $yaml -match ("(?m)^\s*-\s*{0}\s*$" -f [regex]::Escape($pluginName))
+        $hasMatcher = $yaml -match [regex]::Escape($script:HermesAdapterConstant.HooksPreToolCallMatcher)
+        $configOk = $hasPlugin -and $hasMatcher
+    }
+    if (-not $configOk) {
+        $missing.Add('config.yaml (plugins.enabled + hooks.pre_tool_call)')
+    }
+
+    return [PSCustomObject]@{
+        Ok      = ($missing.Count -eq 0)
+        Missing = @($missing.ToArray())
+    }
+}
+
 function Test-HermesCompatArtifactsPresent {
     [CmdletBinding()]
     param(
@@ -195,6 +236,7 @@ function Invoke-HermesSmokeValidate {
     $hasNativeRouter = Test-Path -LiteralPath $mapped.FixtureProjectAgentsPath
     $hasForbiddenRulesTree = Test-HermesForbiddenRulesTreePublished -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot
     $hasForbiddenHooks = Test-HermesForbiddenHooksPublished -HooksRoot $mapped.FixtureHooksPath
+    $requiredHooks = Test-HermesRequiredPluginHooksPresent -MappedPaths $mapped
     $hasCompatArtifacts = Test-HermesCompatArtifactsPresent -InstallRoot $resolvedInstallRoot
     $hasMemory = Test-Path -LiteralPath $mapped.FixtureMemoryPath
 
@@ -208,6 +250,7 @@ function Invoke-HermesSmokeValidate {
         RouterPresent        = $hasNativeRouter
         ForbiddenRulesTree   = $hasForbiddenRulesTree
         ForbiddenHooks       = $hasForbiddenHooks
+        PluginHooksPresent   = $requiredHooks.Ok
         CompatPresent        = $hasCompatArtifacts
         MemoryPresent        = $hasMemory
         SddLayoutPresent     = $hasSddLayout
@@ -217,6 +260,8 @@ function Invoke-HermesSmokeValidate {
     $skillsCapable = [bool]$capabilityFlags.skills
     $rulesCapable = [bool]$capabilityFlags.rules
     $routerCapable = [bool]$capabilityFlags.router
+    $hooksCapable = [bool]$capabilityFlags.hooks
+    $pluginCapable = [bool]$capabilityFlags.plugin
 
     $nativeRequiredMissing = $false
     if ($skillsCapable -and -not $hasNativeSkills) { $nativeRequiredMissing = $true }
@@ -247,6 +292,13 @@ function Invoke-HermesSmokeValidate {
         $hooksJsonPath = Join-Path $mapped.FixtureHooksPath $script:HermesAdapterConstant.ForbiddenToolkitHooksJsonFileName
         return New-HermesSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
             $script:HermesAdapterMessage.SmokeTe03ForbiddenHooks -f $hooksJsonPath
+        )
+    }
+
+    if (($hooksCapable -or $pluginCapable) -and -not $requiredHooks.Ok) {
+        $missingText = ($requiredHooks.Missing -join ', ')
+        return New-HermesSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
+            $script:HermesAdapterMessage.SmokeTe03HooksMissing -f $resolvedInstallRoot, $missingText
         )
     }
 

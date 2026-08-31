@@ -8,7 +8,10 @@
   AGENTS.md is removed only when provenance confirms toolkit ownership
   (.toolkit-managed-publish.json sha256, or legacy hash match to combined
   router+policy publish). Operator-edited AGENTS.md is preserved.
-  Preserves alien skills, config.yaml, MEMORY.md, SOUL.md, sdd/sessions,
+  Also removes plugins/agent-dev-toolkit-guard and agent-hooks toolkit files,
+  and reverse-merges keyed plugins.enabled / hooks.pre_tool_call entries in
+  config.yaml without touching other keys (gateway/tokens preserved).
+  Preserves alien skills, config.yaml secrets, MEMORY.md, SOUL.md, sdd/sessions,
   and sdd/manifest.json. Never wipes InstallRoot.
 #>
 
@@ -53,7 +56,57 @@ function Get-HermesKnownToolkitArtifactPaths {
         }
     }
 
+    $pluginRoot = Join-Path $MappedPaths.FixturePluginsPath $script:HermesAdapterConstant.GuardPluginDirectoryName
+    if (Test-Path -LiteralPath $pluginRoot) {
+        $paths.Add([System.IO.Path]::GetFullPath($pluginRoot))
+    }
+
+    foreach ($hookFile in @($script:HermesAdapterConstant.SmokeExpectedAgentHookFileNames)) {
+        $candidate = Join-Path $MappedPaths.FixtureAgentHooksPath $hookFile
+        if (Test-Path -LiteralPath $candidate) {
+            $paths.Add([System.IO.Path]::GetFullPath($candidate))
+        }
+    }
+
     return @($paths.ToArray())
+}
+
+function Remove-HermesToolkitConfigYamlKeys {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $ConfigPath,
+        [Parameter(Mandatory = $true)][string] $PluginName,
+        [Parameter()][switch] $WhatIf
+    )
+
+    if (-not (Test-Path -LiteralPath $ConfigPath)) {
+        return $false
+    }
+
+    $text = [System.IO.File]::ReadAllText($ConfigPath)
+    $original = $text
+    $escaped = [regex]::Escape($PluginName)
+    $text = [regex]::Replace($text, ("(?m)^\s*-\s*{0}\s*\r?\n?" -f $escaped), '')
+
+    if (Get-Command -Name Remove-HermesToolkitPreToolCallEntries -ErrorAction SilentlyContinue) {
+        $text = Remove-HermesToolkitPreToolCallEntries -YamlText $text
+    }
+    else {
+        $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?terminal\|write_file\|patch["'']?\s*\r?\n(?:\s+[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:\s+[^\r\n]*\r?\n)*?'
+        $text = [regex]::Replace($text, $pattern, '')
+    }
+
+    if ($text -eq $original) {
+        return $false
+    }
+
+    if ($WhatIf.IsPresent) {
+        return $true
+    }
+
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($ConfigPath, $text, $utf8)
+    return $true
 }
 
 function Invoke-HermesUninstallToolkit {
@@ -86,6 +139,14 @@ function Invoke-HermesUninstallToolkit {
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-HermesKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
     $routerNotes = New-Object System.Collections.Generic.List[string]
+
+    $configTouched = Remove-HermesToolkitConfigYamlKeys `
+        -ConfigPath $mapped.FixtureConfigYamlPath `
+        -PluginName $script:HermesAdapterConstant.GuardPluginDirectoryName `
+        -WhatIf:$WhatIf
+    if ($configTouched) {
+        $routerNotes.Add(('config.yaml keyed plugins.enabled / hooks.pre_tool_call reverse-merge ({0})' -f $mapped.FixtureConfigYamlPath)) | Out-Null
+    }
 
     $agentsPath = $mapped.FixtureProjectAgentsPath
     $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `

@@ -50,7 +50,10 @@ function Copy-CopilotHookFilesTree {
         [string] $SourceHooksRoot,
 
         [Parameter(Mandatory = $true)]
-        [string] $DestinationHooksRoot
+        [string] $DestinationHooksRoot,
+
+        [Parameter()]
+        [string] $RepoRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationHooksRoot)) {
@@ -69,6 +72,15 @@ function Copy-CopilotHookFilesTree {
 
         Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
         $filesCopied++
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
+        $sharedSource = Join-Path $RepoRoot $script:CopilotPathConstant.SharedGuardCommonRelativePath
+        if (Test-Path -LiteralPath $sharedSource) {
+            $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
+            Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+            $filesCopied++
+        }
     }
 
     return $filesCopied
@@ -147,7 +159,10 @@ function Invoke-CopilotPublishHooks {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destinationHooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName
 
-    $filesCopied = Copy-CopilotHookFilesTree -SourceHooksRoot $sourceHooksRoot -DestinationHooksRoot $destinationHooksRoot
+    $filesCopied = Copy-CopilotHookFilesTree `
+        -SourceHooksRoot $sourceHooksRoot `
+        -DestinationHooksRoot $destinationHooksRoot `
+        -RepoRoot $repoRoot
     $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-CopilotPlaceholdersInTree -RootPath $destinationHooksRoot -PlaceholderMap $placeholderMap
     Assert-CopilotPlaceholdersResolved -RootPath $destinationHooksRoot

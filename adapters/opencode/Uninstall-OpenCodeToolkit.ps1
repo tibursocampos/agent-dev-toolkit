@@ -172,6 +172,21 @@ function Invoke-OpenCodeUninstallToolkit {
         }
     }
 
+    $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.CustomAgentsDirectoryName
+    if (Test-Path -LiteralPath $sourceAgentsRoot) {
+        Get-ChildItem -LiteralPath $sourceAgentsRoot -File | ForEach-Object {
+            $candidate = Join-Path $customAgentsRoot $_.Name
+            $wouldRemoveAgent = Remove-OpenCodePathIfPresent -Path $candidate -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+            if ($wouldRemoveAgent) {
+                $wouldRemovePaths.Add($candidate) | Out-Null
+                if (-not $WhatIf.IsPresent) {
+                    $removedPaths.Add($candidate) | Out-Null
+                }
+            }
+        }
+    }
+
     $message = if ($WhatIf.IsPresent) {
         $script:OpenCodeUninstallMessage.WhatIfOk -f $wouldRemovePaths.Count, $resolvedInstallRoot
     }

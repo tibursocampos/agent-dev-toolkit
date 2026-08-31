@@ -10,8 +10,9 @@
   - config/plugins/agent-dev-toolkit (GUARDRAILS)
   - managed entry id in config/skills.json
   - managed begin/end blocks in config/AGENTS.md and config/GEMINI.md
+  - toolkit-managed files under config/hooks (hooks.json, guard scripts, GuardCommon.ps1)
 
-  Does not wipe InstallRoot, config/hooks, alien skills, or the legacy
+  Does not wipe InstallRoot, alien skills, or the legacy
   antigravity-ide/plugins bridge. Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 
@@ -275,7 +276,18 @@ function Invoke-AntigravityUninstallToolkit {
         }
     }
 
-    # Explicitly never touch legacy bridge or hooks tree.
+    foreach ($hookFile in @($script:AntigravityPathConstant.SmokeExpectedHookFileNames)) {
+        $hookPath = Join-Path $mapped.FixtureHooksPath $hookFile
+        $wouldRemoveHook = Remove-AntigravityPathIfPresent -Path $hookPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+        if ($wouldRemoveHook) {
+            $wouldRemovePaths.Add($hookPath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($hookPath) | Out-Null
+            }
+        }
+    }
+
+    # Explicitly never touch legacy bridge.
     $legacyBridgePath = Join-Path $resolvedInstallRoot ($script:AntigravityAdapterConstant.LegacyBridgeRelativePath -replace '/', $sep)
     $hooksPath = $mapped.FixtureHooksPath
 

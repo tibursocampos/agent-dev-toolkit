@@ -27,7 +27,7 @@ This adapter does **not** emit Automation Server config, cron, GitHub webhooks, 
 |------|-------|-------|
 | `skills` | true | `core/skills` → `.agents/skills/<id>/SKILL.md` (Agent Skills; **not** legacy microagents). Placeholders resolved; `_shared/` copied. Works **without** the plugin. |
 | `rules` | true | **Does not** publish a Cursor `.mdc` `rules/` tree. Folds `core/policy` into `AGENTS.md` with the router. |
-| `hooks` | true | Shell, not `.ps1`. `.openhands/hooks.json` + `.openhands/hooks/*.sh`. Filesystem only. |
+| `hooks` | true | Shell entrypoint `.sh` under `.openhands/hooks/` (`session_start.sh`, `guard_pre_tool.sh`); may ship colocated `.ps1` + `GuardCommon.ps1` for GuardCommon evaluation. Filesystem only. |
 | `router` | true | `core/router/AGENTS.md` → `InstallRoot/AGENTS.md` (plus folded policy). |
 | `plugin` | true | `.plugin/plugin.json` packages skills+hooks metadata. Skills still work without the plugin. |
 | `agents` | true | `core/agents/*.md` → `.agents/agents/*.md` (SDK/plugin roster). **Canvas Profile is not this roster.** |
@@ -56,7 +56,7 @@ This adapter does **not** emit Automation Server config, cron, GitHub webhooks, 
 | `core/policy/*.md` | Folded into `AGENTS.md` (no `rules/` tree) |
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`; `rules/` pointers rewritten to the folded section) |
 | `core/agents/*.md` | `.agents/agents/*.md` |
-| Adapter hook asset | `.openhands/hooks.json`, `.openhands/hooks/session_start.sh` |
+| Adapter hook asset | `.openhands/hooks.json`, `.openhands/hooks/session_start.sh`, `.openhands/hooks/guard_pre_tool.sh` (+ ps1/GuardCommon helper) |
 | Plugin metadata | `.plugin/plugin.json` (points at `./.agents/skills/` and `./.openhands/hooks.json`) |
 
 Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot/.agents`** (parent of `skills/_shared`). `GUARDRAILS_PATH` is `InstallRoot/AGENTS.md` because policy is folded there. Re-sync overwrites managed files; alien files under InstallRoot are left alone.

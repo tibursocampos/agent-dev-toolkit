@@ -137,7 +137,9 @@ function Get-HermesMappedInstallPaths {
 
     $sep = [System.IO.Path]::DirectorySeparatorChar
     $skillsRel = $script:HermesAdapterConstant.OfficialSkillsRelativePath -replace '/', $sep
-    $hooksRel = $script:HermesAdapterConstant.OfficialHooksRelativePath -replace '/', $sep
+    $agentHooksRel = $script:HermesAdapterConstant.AgentHooksDirectoryName -replace '/', $sep
+    $pluginsRel = $script:HermesAdapterConstant.PluginsDirectoryName -replace '/', $sep
+    $gatewayHooksRel = $script:HermesAdapterConstant.GatewayHooksDirectoryName -replace '/', $sep
     $agentsPath = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.OfficialAgentsFileName
 
     return [PSCustomObject]@{
@@ -145,7 +147,10 @@ function Get-HermesMappedInstallPaths {
         FixtureProjectRootPath   = $ResolvedInstallRoot
         FixtureSkillsPath        = Join-Path $ResolvedInstallRoot $skillsRel
         FixtureRulesPath         = $agentsPath
-        FixtureHooksPath         = Join-Path $ResolvedInstallRoot $hooksRel
+        FixtureHooksPath         = Join-Path $ResolvedInstallRoot $gatewayHooksRel
+        FixtureAgentHooksPath    = Join-Path $ResolvedInstallRoot $agentHooksRel
+        FixturePluginsPath       = Join-Path $ResolvedInstallRoot $pluginsRel
+        FixtureConfigYamlPath    = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.ConfigYamlFileName
         FixtureProjectAgentsPath = $agentsPath
         FixtureMemoryPath        = Get-HermesMemoryFilePath -ResolvedInstallRoot $ResolvedInstallRoot
         FixtureSoulPath          = Join-Path $ResolvedInstallRoot $script:HermesAdapterConstant.SoulFileName

@@ -72,6 +72,17 @@ function Get-OpenHandsKnownToolkitArtifactPaths {
         $paths.Add([System.IO.Path]::GetFullPath($hooksScript))
     }
 
+    foreach ($extraHook in @(
+            $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName,
+            $script:OpenHandsAdapterConstant.HooksGuardPreToolPs1Name,
+            $script:OpenHandsAdapterConstant.SharedGuardCommonFileName
+        )) {
+        $extraPath = Join-Path $MappedPaths.FixtureHooksScriptsPath $extraHook
+        if (Test-Path -LiteralPath $extraPath) {
+            $paths.Add([System.IO.Path]::GetFullPath($extraPath))
+        }
+    }
+
     $pluginManifest = $MappedPaths.FixturePluginManifestPath
     if (Test-Path -LiteralPath $pluginManifest) {
         $paths.Add([System.IO.Path]::GetFullPath($pluginManifest))

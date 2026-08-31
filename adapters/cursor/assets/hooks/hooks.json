@@ -1,6 +1,19 @@
 {
   "version": 1,
   "hooks": {
+    "preToolUse": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "matcher": "Write|StrReplace|Edit|MultiEdit|search_replace|Delete|Shell",
+        "failClosed": true
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "failClosed": true
+      }
+    ],
     "beforeSubmitPrompt": [
       {
         "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-before-prompt.ps1"

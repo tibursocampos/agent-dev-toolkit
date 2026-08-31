@@ -9,13 +9,23 @@ if ([string]::IsNullOrWhiteSpace($script:OpenHandsHooksModuleDirectory)) {
     $script:OpenHandsHooksModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-function Get-OpenHandsHooksAssetPath {
+function Get-OpenHandsHooksAssetsDirectory {
     [CmdletBinding()]
     param()
 
     return (Join-Path (
-            Join-Path (Join-Path $script:OpenHandsHooksModuleDirectory $script:OpenHandsAdapterConstant.AssetsDirectoryName) $script:OpenHandsAdapterConstant.AssetsHooksDirectoryName
-        ) $script:OpenHandsAdapterConstant.HooksSessionStartScriptName)
+            Join-Path $script:OpenHandsHooksModuleDirectory $script:OpenHandsAdapterConstant.AssetsDirectoryName
+        ) $script:OpenHandsAdapterConstant.AssetsHooksDirectoryName)
+}
+
+function Get-OpenHandsHooksAssetPath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FileName
+    )
+
+    return (Join-Path (Get-OpenHandsHooksAssetsDirectory) $FileName)
 }
 
 function New-OpenHandsMinimalHooksObject {
@@ -34,12 +44,26 @@ function New-OpenHandsMinimalHooksObject {
                 )
             }
         )
+        ($script:OpenHandsAdapterConstant.HooksPreToolUseEventSnake) = @(
+            [ordered]@{
+                matcher = $script:OpenHandsAdapterConstant.HooksPreToolUseMatcher
+                hooks   = @(
+                    [ordered]@{
+                        command = $script:OpenHandsAdapterConstant.HooksGuardPreToolCommandRelative
+                        timeout = [int]$script:OpenHandsAdapterConstant.HooksTimeoutPreToolSeconds
+                    }
+                )
+            }
+        )
     }
 }
 
-function Write-OpenHandsSessionStartHookScript {
+function Copy-OpenHandsHookScriptAsset {
     [CmdletBinding()]
     param(
+        [Parameter(Mandatory = $true)]
+        [string] $SourceFileName,
+
         [Parameter(Mandatory = $true)]
         [string] $HooksScriptsDirectory,
 
@@ -47,7 +71,7 @@ function Write-OpenHandsSessionStartHookScript {
         [string] $InstallRoot
     )
 
-    $sourceScript = Get-OpenHandsHooksAssetPath
+    $sourceScript = Get-OpenHandsHooksAssetPath -FileName $SourceFileName
     if (-not (Test-Path -LiteralPath $sourceScript)) {
         throw ($script:OpenHandsAdapterMessage.HooksAssetsMissing -f $sourceScript)
     }
@@ -57,7 +81,7 @@ function Write-OpenHandsSessionStartHookScript {
         New-Item -ItemType Directory -Path $HooksScriptsDirectory -Force | Out-Null
     }
 
-    $destinationPath = Join-Path $HooksScriptsDirectory $script:OpenHandsAdapterConstant.HooksSessionStartScriptName
+    $destinationPath = Join-Path $HooksScriptsDirectory $SourceFileName
     Assert-ToolkitManagedPathContained `
         -CandidatePath $destinationPath `
         -RootPath $InstallRoot `
@@ -65,6 +89,38 @@ function Write-OpenHandsSessionStartHookScript {
         -RequireStrictChild
 
     Copy-Item -LiteralPath $sourceScript -Destination $destinationPath -Force
+    return $destinationPath
+}
+
+function Copy-OpenHandsSharedGuardCommon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $HooksScriptsDirectory,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    $repoRoot = Get-OpenHandsAdapterRepoRoot
+    $source = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:OpenHandsAdapterConstant.SharedGuardCommonFileName
+    if (-not (Test-Path -LiteralPath $source)) {
+        throw ($script:OpenHandsAdapterMessage.HooksAssetsMissing -f $source)
+    }
+
+    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $HooksScriptsDirectory -InstallRoot $InstallRoot
+    if (-not (Test-Path -LiteralPath $HooksScriptsDirectory)) {
+        New-Item -ItemType Directory -Path $HooksScriptsDirectory -Force | Out-Null
+    }
+
+    $destinationPath = Join-Path $HooksScriptsDirectory $script:OpenHandsAdapterConstant.SharedGuardCommonFileName
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $destinationPath `
+        -RootPath $InstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+
+    Copy-Item -LiteralPath $source -Destination $destinationPath -Force
     return $destinationPath
 }
 
@@ -121,6 +177,7 @@ function Invoke-OpenHandsPublishHooks {
     $hooksScriptsDirectory = $mapped.FixtureHooksScriptsPath
     $hooksJsonPath = Join-Path $hooksDirectory $script:OpenHandsAdapterConstant.HooksJsonFileName
     $hooksScriptPath = Join-Path $hooksScriptsDirectory $script:OpenHandsAdapterConstant.HooksSessionStartScriptName
+    $guardScriptPath = Join-Path $hooksScriptsDirectory $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName
 
     $hooksCapable = $true
     if ($null -ne $script:OpenHandsAdapterCapabilityFlags -and $script:OpenHandsAdapterCapabilityFlags.Contains('hooks')) {
@@ -129,19 +186,20 @@ function Invoke-OpenHandsPublishHooks {
 
     if (-not $hooksCapable) {
         return [PSCustomObject]@{
-            Success        = $true
-            Implemented    = $true
-            Skipped        = $true
-            CommandName    = 'Publish-Hooks'
-            WhatIf         = $WhatIf.IsPresent
-            InstallRoot    = $resolvedInstallRoot
-            HooksRoot      = $hooksDirectory
-            HooksPath      = $null
+            Success          = $true
+            Implemented      = $true
+            Skipped          = $true
+            CommandName      = 'Publish-Hooks'
+            WhatIf           = $WhatIf.IsPresent
+            InstallRoot      = $resolvedInstallRoot
+            HooksRoot        = $hooksDirectory
+            HooksPath        = $null
             SessionStartPath = $null
-            HooksRelative  = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
-            HooksTrustNote = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
-            Message        = ($script:OpenHandsAdapterMessage.HooksSkippedNotCapable -f $hooksDirectory)
-            ExitCode       = 0
+            GuardPreToolPath = $null
+            HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
+            HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
+            Message          = ($script:OpenHandsAdapterMessage.HooksSkippedNotCapable -f $hooksDirectory)
+            ExitCode         = 0
         }
     }
 
@@ -156,6 +214,7 @@ function Invoke-OpenHandsPublishHooks {
             HooksRoot        = $hooksDirectory
             HooksPath        = $hooksJsonPath
             SessionStartPath = $hooksScriptPath
+            GuardPreToolPath = $guardScriptPath
             HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
             HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
             Message          = ($script:OpenHandsAdapterMessage.HooksWhatIfOk -f $hooksDirectory)
@@ -168,7 +227,19 @@ function Invoke-OpenHandsPublishHooks {
     $hooksDirectory = $mapped.FixtureHooksPath
     $hooksScriptsDirectory = $mapped.FixtureHooksScriptsPath
 
-    $writtenSession = Write-OpenHandsSessionStartHookScript -HooksScriptsDirectory $hooksScriptsDirectory -InstallRoot $resolvedInstallRoot
+    $writtenSession = Copy-OpenHandsHookScriptAsset `
+        -SourceFileName $script:OpenHandsAdapterConstant.HooksSessionStartScriptName `
+        -HooksScriptsDirectory $hooksScriptsDirectory `
+        -InstallRoot $resolvedInstallRoot
+    $writtenGuardSh = Copy-OpenHandsHookScriptAsset `
+        -SourceFileName $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName `
+        -HooksScriptsDirectory $hooksScriptsDirectory `
+        -InstallRoot $resolvedInstallRoot
+    $writtenGuardPs1 = Copy-OpenHandsHookScriptAsset `
+        -SourceFileName $script:OpenHandsAdapterConstant.HooksGuardPreToolPs1Name `
+        -HooksScriptsDirectory $hooksScriptsDirectory `
+        -InstallRoot $resolvedInstallRoot
+    $null = Copy-OpenHandsSharedGuardCommon -HooksScriptsDirectory $hooksScriptsDirectory -InstallRoot $resolvedInstallRoot
     $writtenHooks = Write-OpenHandsHooksJson -HooksDirectory $hooksDirectory -InstallRoot $resolvedInstallRoot
 
     return [PSCustomObject]@{
@@ -181,9 +252,11 @@ function Invoke-OpenHandsPublishHooks {
         HooksRoot        = $hooksDirectory
         HooksPath        = $writtenHooks
         SessionStartPath = $writtenSession
+        GuardPreToolPath = $writtenGuardSh
+        GuardPreToolPs1  = $writtenGuardPs1
         HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
         HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
-        Message          = ($script:OpenHandsAdapterMessage.HooksPublishedOk -f $writtenHooks, $writtenSession)
+        Message          = ($script:OpenHandsAdapterMessage.HooksPublishedOk -f $writtenHooks)
         ExitCode         = 0
     }
 }

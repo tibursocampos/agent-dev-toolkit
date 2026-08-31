@@ -26,7 +26,7 @@
       "capabilities": {
         "skills": true,
         "rules": true,
-        "hooks": false,
+        "hooks": true,
         "router": true,
         "plugin": true,
         "agents": false,
@@ -97,7 +97,7 @@
         "hooks": true,
         "router": true,
         "plugin": true,
-        "agents": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -114,7 +114,7 @@
         "hooks": true,
         "router": true,
         "plugin": false,
-        "agents": false,
+        "agents": true,
         "subagents": "native"
       },
       "publishSurface": {
@@ -145,9 +145,9 @@
       "capabilities": {
         "skills": true,
         "rules": true,
-        "hooks": false,
+        "hooks": true,
         "router": true,
-        "plugin": false,
+        "plugin": true,
         "agents": false,
         "subagents": "native"
       },

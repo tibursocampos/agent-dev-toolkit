@@ -2,7 +2,7 @@
 
 Publish surfaces for **Hermes Agent** (Nous Research). InstallRoot defaults to an in-repo fixture; paths under `USERPROFILE` require `-AllowUserHome`.
 
-**Live InstallRoot = `$HERMES_HOME`** (Windows Native/Desktop: `%LOCALAPPDATA%\hermes` when unset; POSIX/WSL: `~/.hermes`). Publish lands at `skills/` and `AGENTS.md` **directly under** that root — never nested as `$HERMES_HOME/.hermes/skills`. Do not publish a `rules/` tree, Cursor `hooks.json`, Hermes `config.yaml` hooks, gateway tokens, cron/jobs, Kanban, voice, Curator, Profiles, or `inline_shell`. Never write `SOUL.md`. Do not set `skills.external_dirs` when publishing into the official home.
+**Live InstallRoot = `$HERMES_HOME`** (Windows Native/Desktop: `%LOCALAPPDATA%\hermes` when unset; POSIX/WSL: `~/.hermes`). Publish lands at `skills/` and `AGENTS.md` **directly under** that root — never nested as `$HERMES_HOME/.hermes/skills`. Do not publish a `rules/` tree, Cursor `hooks.json`, gateway tokens, cron/jobs, Kanban, voice, Curator, Profiles, or `inline_shell`. Never write `SOUL.md`. Do not set `skills.external_dirs` when publishing into the official home.
 
 Install the toolkit first (`.\scripts\toolkit.ps1`), then sync this adapter.
 
@@ -17,10 +17,12 @@ Registry entry remains `adapters/hermes/HermesAdapter.ps1` (thin contract surfac
 | `Publish-HermesSkills.ps1` | Shared path/placeholder helpers + `Invoke-HermesPublishSkills` + MEMORY.md seed + best-effort `hermes skills trust` |
 | `Publish-HermesPolicy.ps1` | Fold `core/policy` into `AGENTS.md` + append spawn bridge (`Invoke-HermesPublishPolicy`) |
 | `Publish-HermesRouter.ps1` | `Invoke-HermesPublishRouter` (same combined `AGENTS.md`) |
-| `Publish-HermesHooks.ps1` | Documented no-op (`hooks=false`) |
+| `Publish-HermesHooks.ps1` | Plugin + `agent-hooks` path/secrets dual (`hooks=true`, `plugin=true`) |
 | `Invoke-HermesSmokeValidate.ps1` | Native-layout smoke helpers + `Invoke-HermesSmokeValidate` |
 | `Uninstall-HermesToolkit.ps1` | Keyed `Invoke-HermesUninstallToolkit` |
 | `assets/spawn-bridge.md` | Hermes-only spawn operability block appended to managed `AGENTS.md` |
+| `assets/plugins/agent-dev-toolkit-guard/` | Official Hermes plugin (`plugin.yaml` + `__init__.py` `pre_tool_call`) |
+| `assets/agent-hooks/` | Shell dual `guard-pre-tool.sh` / `.ps1` |
 
 Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*` implementations — same pattern as Grok.
 
@@ -30,11 +32,22 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 |------|-------|-------|
 | `skills` | true | `core/skills` → `skills/<id>/SKILL.md` under InstallRoot (live `$HERMES_HOME/skills`) |
 | `rules` | true | **Do not** publish `rules/` or `.mdc`. Fold `core/policy/*.md` into `AGENTS.md` |
-| `hooks` | false | `Publish-Hooks` no-op. No Cursor `hooks.json`. No Hermes `config.yaml` hooks. No invented plugins |
+| `hooks` | true | Shell dual under `agent-hooks/` + keyed `hooks.pre_tool_call` (`terminal\|write_file\|patch`, `fail_closed: true`) |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md`, combined with folded policy (idempotent overwrite of managed `AGENTS.md`) |
-| `plugin` | false | No marketplace plugin surface; no-op |
+| `plugin` | true | `plugins/agent-dev-toolkit-guard` + best-effort `hermes plugins enable`; fallback keyed `plugins.enabled` only |
 | `agents` | false | No `agents/*.md` roster; `Publish-Agents` no-op |
 | `subagents` | `native` | Host `delegate_task`; see Spawn section |
+
+## Hooks / plugin (path + secrets)
+
+Official refs: [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks), [Plugins](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins).
+
+| Surface | Path / behavior |
+|---------|-----------------|
+| Plugin | `plugins/agent-dev-toolkit-guard/` — `register(ctx)` → `pre_tool_call` returns `{ action: "block", message }` |
+| Shell dual | `agent-hooks/guard-pre-tool.ps1` (+ `.sh`) |
+| Config merge | **Only** `plugins.enabled` list + `hooks.pre_tool_call` entry — never gateway/tokens/`SOUL.md`/memories |
+| Enable | Best-effort `hermes plugins enable agent-dev-toolkit-guard` |
 
 ## Spawn / subagents (honesty)
 
@@ -52,6 +65,8 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 - [Creating skills](https://hermes-agent.nousresearch.com/docs/developer-guide/creating-skills)
 - [Subagent delegation (`delegate_task`)](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation)
 - [Context files (`AGENTS.md`, `MEMORY.md`, `SOUL.md`)](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files)
+- [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks)
+- [Plugins](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins)
 
 ## Publish layout (native)
 
@@ -61,9 +76,10 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 | `core/policy/*.md` | Folded into `AGENTS.md` (no `rules/` directory) |
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`; `rules/` path refs rewritten to this file) |
 | `adapters/hermes/assets/spawn-bridge.md` | Appended after folded policy (Hermes-only spawn operability; not in core) |
+| `assets/plugins/agent-dev-toolkit-guard/` | `plugins/agent-dev-toolkit-guard/` |
+| `assets/agent-hooks/` | `agent-hooks/` (+ published `GuardCommon.ps1`) |
 | Missing `MEMORY.md` | Seeded once; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
-| Hooks / gateway / cron | **Not emitted** |
 
 Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** and **`GUARDRAILS_PATH` = InstallRoot/AGENTS.md**. Re-sync overwrites managed files; alien files under InstallRoot are left alone.
 
@@ -73,7 +89,7 @@ On publish, if `memories/MEMORY.md` is absent at InstallRoot, the adapter writes
 
 ### Project skills trust
 
-Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `$HERMES_HOME/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). The adapter never writes `config.yaml` or gateway tokens.
+Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `$HERMES_HOME/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). Publish-Hooks may keyed-merge **only** `plugins.enabled` and `hooks.pre_tool_call` in `config.yaml` — never gateway tokens or other secrets.
 
 ## Fixture + smoke
 
@@ -82,7 +98,7 @@ Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoo
 | InstallRoot (CI / smoke) | `scripts/validation/fixtures/hermes` (models Hermes home layout) |
 | Skills | `skills/` (direct child of InstallRoot) |
 | Router + policy | `AGENTS.md` at InstallRoot |
-| Rules / hooks | **Not present** — do not add `rules/` or hooks JSON |
+| Plugin + hooks | **Required** — `plugins/agent-dev-toolkit-guard/` + `agent-hooks/` + keyed `config.yaml` |
 | Trust CLI | Best-effort; missing `hermes` CLI is not a CI failure |
 
 ```powershell
@@ -109,21 +125,21 @@ Direct module verification (no registry required):
 Publish-Skills -InstallRoot $hermesFixture
 Publish-Policy -InstallRoot $hermesFixture
 Publish-Router -InstallRoot $hermesFixture
+Publish-Hooks -InstallRoot $hermesFixture
 Get-SddRoot -InstallRoot $hermesFixture -Prepare
 Invoke-SmokeValidate -InstallRoot $hermesFixture
 ```
 
 ## Uninstall (keyed)
 
-Removes only toolkit-managed paths (core skill ids and toolkit-owned `AGENTS.md`). Preserves alien skills, `config.yaml`, `memories/MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
+Removes toolkit-managed paths (core skill ids, toolkit-owned `AGENTS.md`, `plugins/agent-dev-toolkit-guard`, `agent-hooks` guard files) and reverse-merges keyed `plugins.enabled` / `hooks.pre_tool_call` from `config.yaml`. Preserves alien skills, other `config.yaml` keys/secrets, `memories/MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
 
 ## Out of scope (do not emit)
 
-- Gateway / platform tokens / `config.yaml` secrets
+- Gateway / platform tokens / unrelated `config.yaml` secrets
 - `cron/jobs.json`
 - Kanban, voice, Curator, Profiles
 - `inline_shell`
-- Python `plugin.yaml`
 - `delegation.*` YAML
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).

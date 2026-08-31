@@ -1,0 +1,16 @@
+{
+  "agent-dev-toolkit-path-secrets-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"./config/hooks/guard-pre-tool.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

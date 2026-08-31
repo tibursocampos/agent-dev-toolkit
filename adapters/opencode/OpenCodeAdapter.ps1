@@ -42,6 +42,7 @@ $script:OpenCodeAdapterLibDir = Join-Path $script:OpenCodeAdapterDirectory '..\.
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeSkills.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeRouter.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeHooks.ps1')
+. (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeAgents.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Invoke-OpenCodeSmokeValidate.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Uninstall-OpenCodeToolkit.ps1')
 
@@ -68,7 +69,7 @@ $script:OpenCodeAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $true
-    agents    = $false
+    agents    = $true
     subagents = $script:OpenCodeAdapterSubagentsNative
 }
 
@@ -80,7 +81,9 @@ $script:OpenCodeAdapterConstant = @{
     OfficialAgentsFileName           = 'AGENTS.md'
     OfficialAgentsDescription        = 'OpenCode router surface is AGENTS.md at the config/InstallRoot scope (global: ~/.config/opencode/AGENTS.md).'
     OfficialPluginsRelativePath      = 'plugins'
-    OfficialPluginsDescription       = 'OpenCode plugins live under plugins/ relative to the config/InstallRoot (Decision A: Publish-Hooks copies a minimal JS marker; see https://opencode.ai/docs/plugins/).'
+    OfficialPluginsDescription       = 'OpenCode plugins live under plugins/ relative to the config/InstallRoot (Decision A: Publish-Hooks copies a JS plugin with tool.execute.before path/secrets deny; see https://opencode.ai/docs/plugins/).'
+    OfficialCustomAgentsRelativePath = 'agents'
+    OfficialCustomAgentsDescription  = 'Custom agent markdown publishes under agents/*.md relative to the config/InstallRoot (live ~/.config/opencode/agents/).'
     FixtureRelativePath              = 'scripts/validation/fixtures/opencode'
     InstallRootOverrideParameter     = 'InstallRoot'
     InstallRootOverrideDescription   = 'Pass -InstallRoot to target an in-repo fixture modeling ~/.config/opencode. Paths under USERPROFILE require -AllowUserHome.'
@@ -94,7 +97,7 @@ $script:OpenCodeAdapterMessage = @{
     NotImplemented            = '{0} is not implemented yet for the OpenCode adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired           = 'AgentId is required.'
     InstallRootRequired       = 'InstallRoot is required.'
-    CapabilitiesReady         = 'OpenCode adapter capabilities reported (skills/router/hooks=plugin-only Decision A JS plugin; plugin=true). Get-SddRoot (-Prepare) and smoke ready; smoke validates files only (no OpenCode runtime; no shell hooks). SDD runtime prepared on sync.'
+    CapabilitiesReady         = 'OpenCode adapter capabilities reported (skills/router/agents/hooks=plugin-only Decision A JS plugin with path/secrets deny; plugin=true). Get-SddRoot (-Prepare) and smoke ready; smoke validates files only (no OpenCode runtime; no shell hooks). SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
     SddRootResolved           = 'OpenCode SDD root resolved at {0}.'
     SddRootPrepared           = 'Prepared OpenCode SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
@@ -154,9 +157,10 @@ function Get-OpenCodeMappedInstallPaths {
     )
 
     return [PSCustomObject]@{
-        FixtureSkillsPath  = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialSkillsRelativePath
-        FixtureAgentsPath  = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialAgentsFileName
-        FixturePluginsPath = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialPluginsRelativePath
+        FixtureSkillsPath         = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialSkillsRelativePath
+        FixtureAgentsPath         = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialAgentsFileName
+        FixturePluginsPath        = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialPluginsRelativePath
+        FixtureCustomAgentsPath   = Join-Path $ResolvedInstallRoot $script:OpenCodeAdapterConstant.OfficialCustomAgentsRelativePath
     }
 }
 
@@ -332,7 +336,7 @@ function Publish-Router {
 function Publish-Agents {
     <#
     .SYNOPSIS
-      Documented no-op - OpenCode does not use custom agent markdown files.
+      Publish core/agents markdown into InstallRoot/agents.
     #>
     [CmdletBinding()]
     param(
@@ -348,18 +352,7 @@ function Publish-Agents {
         throw $script:OpenCodeAdapterMessage.InstallRootRequired
     }
 
-    return [PSCustomObject]@{
-        Success     = $true
-        Implemented = $true
-        CommandName = 'Publish-Agents'
-        NoOp        = $true
-        WhatIf      = [bool]$WhatIf.IsPresent
-        AllowUserHome = [bool]$AllowUserHome.IsPresent
-        InstallRoot = $InstallRoot.Trim()
-        FilesCopied = 0
-        Message     = $script:OpenCodePublishMessage.AgentsNoOp
-        ExitCode    = 0
-    }
+    return Invoke-OpenCodePublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

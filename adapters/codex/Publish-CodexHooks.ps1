@@ -1,10 +1,11 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json).
+  Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
 
 .DESCRIPTION
-  Writes filesystem hooks only. RN03: never invoke or assert Codex /hooks trust UI.
+  Writes PreToolUse path/secrets guard for Bash and apply_patch|Edit|Write.
+  RN03: never invoke or assert Codex /hooks trust UI.
 #>
 
 $script:CodexHooksModuleDirectory = $PSScriptRoot
@@ -19,20 +20,36 @@ function Get-CodexHooksAdapterRepoRoot {
     return (Split-Path -Parent (Split-Path -Parent $script:CodexHooksModuleDirectory))
 }
 
-function New-CodexMinimalHooksObject {
+function New-CodexPreToolUseHooksObject {
     [CmdletBinding()]
     param()
 
+    $c = $script:CodexPathConstant
+    $guardCommand = $c.HooksPreToolUseCommandTemplate
+    $bashMatcher = $c.HooksPreToolUseBashMatcher
+    $patchMatcher = $c.HooksPreToolUsePatchMatcher
+
     return [ordered]@{
-        description = $script:CodexPathConstant.HooksDescription
+        description = $c.HooksDescription
         hooks       = [ordered]@{
-            ($script:CodexPathConstant.HooksSessionStartEventName) = @(
+            ($c.HooksPreToolUseEventName) = @(
                 [ordered]@{
-                    hooks = @(
+                    matcher = $bashMatcher
+                    hooks   = @(
                         [ordered]@{
-                            type          = $script:CodexPathConstant.HooksCommandType
-                            command       = $script:CodexPathConstant.HooksSessionStartCommandTemplate
-                            statusMessage = $script:CodexPathConstant.HooksSessionStartStatusMessage
+                            type          = $c.HooksCommandType
+                            command       = $guardCommand
+                            statusMessage = $c.HooksPreToolUseStatusMessage
+                        }
+                    )
+                },
+                [ordered]@{
+                    matcher = $patchMatcher
+                    hooks   = @(
+                        [ordered]@{
+                            type          = $c.HooksCommandType
+                            command       = $guardCommand
+                            statusMessage = $c.HooksPreToolUseStatusMessage
                         }
                     )
                 }
@@ -41,23 +58,47 @@ function New-CodexMinimalHooksObject {
     }
 }
 
-function Write-CodexSessionStartHookScript {
+function Write-CodexGuardPreToolScript {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $HooksDirectory
+        [string] $HooksDirectory,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
     )
 
-    $scriptPath = Join-Path $HooksDirectory $script:CodexPathConstant.HooksSessionStartScriptName
-    $lines = @(
-        '#Requires -Version 5.1'
-        '# Codex plugin SessionStart hook - exit 0; no trust UI interaction.'
-        '# ' + $script:CodexPathConstant.HooksTrustComment
-        'exit 0'
-    )
-    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($scriptPath, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8NoBom)
-    return $scriptPath
+    if (-not (Test-Path -LiteralPath $HooksDirectory)) {
+        New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
+    }
+
+    $sourceGuard = Join-Path $script:CodexHooksModuleDirectory $script:CodexPathConstant.HooksGuardAssetsRelativePath
+    if (-not (Test-Path -LiteralPath $sourceGuard)) {
+        # Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets).
+        $sourceGuard = Join-Path (Join-Path $script:CodexHooksModuleDirectory 'assets\hooks') $script:CodexPathConstant.HooksGuardScriptName
+    }
+    $destGuard = Join-Path $HooksDirectory $script:CodexPathConstant.HooksGuardScriptName
+    if (Test-Path -LiteralPath $sourceGuard) {
+        Copy-Item -LiteralPath $sourceGuard -Destination $destGuard -Force
+    }
+    else {
+        throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceGuard)
+    }
+
+    $sharedSource = Join-Path $RepoRoot $script:CodexPathConstant.SharedGuardCommonRelativePath
+    if (Test-Path -LiteralPath $sharedSource) {
+        $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
+        Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+    }
+
+    # Thin _hook-common for Codex (loads GuardCommon + Read/Write helpers).
+    $commonSource = Join-Path (Split-Path -Parent $sourceGuard) '_hook-common.ps1'
+    $destCommon = Join-Path $HooksDirectory '_hook-common.ps1'
+    if (Test-Path -LiteralPath $commonSource) {
+        Copy-Item -LiteralPath $commonSource -Destination $destCommon -Force
+    }
+
+    return $destGuard
 }
 
 function Write-CodexHooksJson {
@@ -72,7 +113,7 @@ function Write-CodexHooksJson {
     }
 
     $hooksPath = Join-Path $HooksDirectory $script:CodexPathConstant.HooksFileName
-    $payload = New-CodexMinimalHooksObject
+    $payload = New-CodexPreToolUseHooksObject
     $json = ($payload | ConvertTo-Json -Depth 8)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($hooksPath, $json, $utf8NoBom)
@@ -112,18 +153,18 @@ function Invoke-CodexPublishHooks {
 
     if (-not $hooksCapable) {
         return [PSCustomObject]@{
-            Success       = $true
-            Implemented   = $true
-            Skipped       = $true
-            CommandName   = 'Publish-Hooks'
-            WhatIf        = $WhatIf.IsPresent
-            InstallRoot   = $resolvedInstallRoot
-            PluginRoot    = $pluginRoot
-            HooksPath     = $null
-            HooksRelative = $script:CodexPathConstant.HooksDefaultRelativePath
+            Success        = $true
+            Implemented    = $true
+            Skipped        = $true
+            CommandName    = 'Publish-Hooks'
+            WhatIf         = $WhatIf.IsPresent
+            InstallRoot    = $resolvedInstallRoot
+            PluginRoot     = $pluginRoot
+            HooksPath      = $null
+            HooksRelative  = $script:CodexPathConstant.HooksDefaultRelativePath
             HooksTrustNote = $script:CodexPathConstant.HooksTrustComment
-            Message       = ($script:CodexPublishMessage.HooksSkippedNotCapable -f $pluginRoot)
-            ExitCode      = 0
+            Message        = ($script:CodexPublishMessage.HooksSkippedNotCapable -f $pluginRoot)
+            ExitCode       = 0
         }
     }
 
@@ -154,7 +195,13 @@ function Invoke-CodexPublishHooks {
     }
 
     $writtenHooks = Write-CodexHooksJson -HooksDirectory $hooksDirectory
-    $sessionScript = Write-CodexSessionStartHookScript -HooksDirectory $hooksDirectory
+    $guardPath = Write-CodexGuardPreToolScript -HooksDirectory $hooksDirectory -RepoRoot $repoRoot
+
+    # Remove legacy SessionStart-only script if present (replaced by PreToolUse guard).
+    $legacySession = Join-Path $hooksDirectory $script:CodexPathConstant.HooksSessionStartScriptName
+    if (Test-Path -LiteralPath $legacySession) {
+        Remove-Item -LiteralPath $legacySession -Force -ErrorAction SilentlyContinue
+    }
 
     return [PSCustomObject]@{
         Success          = $true
@@ -165,7 +212,7 @@ function Invoke-CodexPublishHooks {
         InstallRoot      = $resolvedInstallRoot
         PluginRoot       = $pluginRoot
         HooksPath        = $writtenHooks
-        SessionStartPath = $sessionScript
+        GuardScriptPath  = $guardPath
         HooksRelative    = $script:CodexPathConstant.HooksDefaultRelativePath
         HooksTrustNote   = $script:CodexPathConstant.HooksTrustComment
         Message          = ($script:CodexPublishMessage.HooksPublishedOk -f $hooksDirectory)
