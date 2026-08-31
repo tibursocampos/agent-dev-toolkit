@@ -1,6 +1,6 @@
 ---
 name: memory-bank-init
-description: Create or refresh workspace memory-bank/ (MVP contract + read-only inventory). Path follows STORAGE manifest. No app code; no uv/specify. Use when invoking /memory-bank-init or Orchestrated Delivery *(formerly Forma C)* Step 0 / Step N needs create/refresh/refresh-light.
+description: Create or refresh workspace memory-bank/ (MVP contract + read-only inventory). Path follows STORAGE manifest. No app code; no uv/specify. Use when invoking /memory-bank-init or Orchestrated Delivery Step 0 / Step N needs create/refresh/refresh-light.
 ---
 
 ## STOP - Read before ANY tool call
@@ -31,7 +31,7 @@ Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.
 
 ## Trigger
 
-Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery *(formerly Forma C)* Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
+Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
 
 Optional args: `create` (default if missing), `refresh`, `refresh-light`, path to consumer repo.
 
@@ -75,11 +75,16 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
 | Inventory script | toolkit `scripts/inventory/Invoke-MemoryBankInventory.ps1` (or synced copy if present) |
-| Fill patterns, markers | `skills/memory-bank-init/reference.md` |
+| Reference index (routing only) | `skills/memory-bank-init/reference.md` |
+| Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
+**Never by default:** do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
 ## Process
+
+Read `references/<section>.md` for procedural tables and checklists — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -124,25 +129,33 @@ Write only after **sim**.
 Prefer script (always scan `$Cwd`; write inventory under `bank_root`):
 
 ```powershell
+# create (default)
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
+
+# refresh / refresh-light — pass -Action to match mode for refresh-history.jsonl
+.\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh
+.\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh-light
 ```
 
-If script path unavailable, run equivalent Glob/Grep from `reference.md` and write **only** under `<bank_root>/.inventory/`.
+Output per source: `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic). Re-runs preserve paths from existing `sources.json` plus default discovery.
+
+If script path unavailable, run equivalent Glob/Grep from `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/`.
 
 ### 6. Scaffold or refresh files
 
 | Mode | Action |
 |------|--------|
-| create | Copy templates from `templates/memory-bank/`; fill GENERATED regions + obvious fields from inventory/README/AGENTS |
+| create | Copy templates from `templates/memory-bank/`; fill GENERATED regions + obvious fields from inventory/README/AGENTS (`references/template-map.md`, `references/tech-stack.md`) |
 | refresh | Re-run inventory; update GENERATED regions and `tech-stack.json`; preserve human prose outside markers |
 | refresh-light | Re-run inventory; update GENERATED regions and `tech-stack.json` only; do not rewrite human prose sections; append history with `action: refresh-light`. If `caveman_mode` ON and narrative files are large, **offer** (do not auto-run) compact via `COMPACT.md` for `known-risks.md` / feature `CONTINUITY.md` after inventory. |
 
 Rules:
 
-- Preserve `<!-- BEGIN GENERATED: … -->` / `<!-- END GENERATED: … -->` discipline (`reference.md`)
-- **No secrets** - env names / `***` only
+- Preserve `<!-- BEGIN GENERATED: … -->` / `<!-- END GENERATED: … -->` discipline (`references/generated-markers.md`)
+- **No secrets** - env names / `***` only (`references/secrets.md`)
 - Evidence-based domain/architecture; unknowns -> `gaps.md`
 - Phase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`): write from templates when relevant; if Prior/cited already has DDL/OpenAPI/UI map, those files are **BLOCKING** (promote immediately or `- [ ] BLOCKING:` until written)
+- Versioning / `.gitignore`: `references/versioning.md`. Dry-run checks: `references/dry-run.md`
 
 ### 7. Report + handoff
 

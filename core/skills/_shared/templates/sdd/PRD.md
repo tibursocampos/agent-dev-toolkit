@@ -1,4 +1,4 @@
-# PRD: [Nome da feature]
+﻿# PRD: [Nome da feature]
 
 | Campo | Valor |
 |-------|--------|
@@ -11,7 +11,17 @@
 | **Complexidade** | Baixa / Média / Alta |
 | **Repositório** | [nome na raiz do git] |
 | **Stack** | [.NET / Angular / outro] |
-| **Track** | Classic SDD *(formerly Forma A)* / Backlog Refine *(formerly Forma B)* / Orchestrated Delivery *(formerly Forma C)* |
+| **Track** | Classic SDD / Backlog Refine / Orchestrated Delivery |
+
+## Execution policy
+
+| Field | Value |
+|-------|--------|
+| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `always`) |
+| **Parent role** | Orchestrator only — delegate implementation to specialists |
+| **Child validation** | After file changes: child runs build + tests; reports `{ build, tests, summary }` |
+| **Handoff** | Scoped paths + receipt per `SPAWN.md` — no full PRD dump into child prompts |
+| **Artifact language** | Same as user chat (`LANGUAGE.md`); override via `preferences.json` `artifact_language` or manifest |
 
 ## 1. Visão geral
 

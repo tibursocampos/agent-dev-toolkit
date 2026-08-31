@@ -1,4 +1,4 @@
-# Feature tree scaffold (Classic SDD / Backlog Refine / Orchestrated Delivery)
+﻿# Feature tree scaffold (Classic SDD / Backlog Refine / Orchestrated Delivery)
 
 Copy this layout under the resolved Classic feature root (`STORAGE.md`):
 
@@ -15,7 +15,7 @@ features/NNN-slug/
 ├── EVD/                          # post-impl evidence (evidence-or-zero); see EVD-STATE-CONTRACT.md
 ├── STATE.md                      # AC → evidence matrix + evidence level (off|cheap|standard|strict)
 ├── TRACE.jsonl                   # append-only event trail; living loop converge → sync_current → archive
-└── US01/                         # or TSnn; Classic SDD *(formerly Forma A)* default = US01
+└── US01/                         # or TSnn; Classic SDD default = US01
     ├── STORY.md
     ├── REFINE/                   # optional / on demand; tasks.md when complexity ≥ medium
     ├── ANALYSIS/                 # required when needs_api or brownfield

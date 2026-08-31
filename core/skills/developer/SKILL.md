@@ -51,6 +51,8 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 
 Do **not** load `dev_persona` or Antigravity KI artifacts.
 
+**Never by default:** do not preload all stack guideline packs. Route first; load only the selected stack skill paths.
+
 ## Frontend design routing
 
 Before UI implementation, check project context:

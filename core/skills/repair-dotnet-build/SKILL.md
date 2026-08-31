@@ -48,12 +48,17 @@ Structured diagnosis, proposed fixes with rationale, fixes applied only after us
 
 | When | Path |
 |------|------|
-| Locale / timezone / Bogus heuristics | `skills/repair-dotnet-build/reference.md` or `{{TOOLKIT_ROOT}}/skills/repair-dotnet-build/reference.md` after sync |
+| Reference index (routing only) | `skills/repair-dotnet-build/reference.md` or `{{TOOLKIT_ROOT}}/skills/repair-dotnet-build/reference.md` after sync |
+| Process step detail (lazy) | `skills/repair-dotnet-build/references/<section>.md` |
 | C# patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Commit | `/commit` |
 
+**Never by default:** do not preload all `references/*.md` or the full dotnet-guidelines tree. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
 ## Process
+
+Read `references/<section>.md` for heuristics and templates — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -68,7 +73,7 @@ Confirm **target repository** (`.sln` or test projects). Summarize failure sourc
 
 ### 1. Collect failure evidence
 
-**Local (default):**
+**Local (default):** follow `references/local-commands.md`.
 
 ```bash
 dotnet build
@@ -77,13 +82,13 @@ dotnet test --no-build
 
 Capture errors: file, line, test name, expected vs actual.
 
-**Pasted log:** extract compile errors, restore failures, and test failures (`[FAIL]`, `Error Message`, `Expected`/`Actual`).
+**Pasted log:** extract compile errors, restore failures, and test failures (`references/pasted-ci-log.md`).
 
-**CI log (optional):** if the user pastes a GitHub Actions (or other CI) log, parse failed steps the same way as pasted local logs. Do not fetch remote CI via CLI or API - ask for a paste when remote logs are needed.
+**CI log (optional):** if the user pastes a GitHub Actions (or other CI) log, parse failed steps the same way (`references/ci-logs.md`). Do not fetch remote CI via CLI or API - ask for a paste when remote logs are needed.
 
 ### 2. Structured diagnosis
 
-Present:
+Present using `references/diagnosis-template.md`:
 
 ```
 ## Build diagnosis
@@ -101,13 +106,13 @@ Categories: compile, restore/NuGet, test assertion, configuration, pipeline conf
 
 ### 3. Root-cause investigation
 
-For each item, Read/Grep the codebase. Apply heuristics in `reference.md` section Common causes (culture, timezone, Bogus seed, fixture order, glob in CI YAML).
+For each item, Read/Grep the codebase. Apply heuristics in `references/common-causes.md` (culture, timezone, Bogus seed, fixture order, glob in CI YAML).
 
 Load `csharp-patterns.md` only when editing production or test code.
 
 ### 4. Propose fixes
 
-List each change: file, problem, cause, proposed fix. **Wait for user confirmation** before Edit/Write.
+List each change: file, problem, cause, proposed fix (`references/fix-proposal.md`). **Wait for user confirmation** before Edit/Write.
 
 ### 5. Apply and validate
 
@@ -118,15 +123,11 @@ dotnet build
 dotnet test --no-build
 ```
 
-Or scoped test filter when the repo is large (see `reference.md` section Scoped test).
+Or scoped test filter when the repo is large (see `references/local-commands.md`).
 
 ### 6. Handoff
 
-When build and targeted tests pass, offer:
-
-```
-/commit
-```
+When build and targeted tests pass, offer `/commit` (`references/commit-handoff.md`, `references/related-skills.md`).
 
 Do not auto-commit. Do not push unless the user asks via commit skill or explicitly.
 

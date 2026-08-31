@@ -46,11 +46,23 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Plan template, domain checklist | `skills/document-plan/reference.md` or `{{TOOLKIT_ROOT}}/skills/document-plan/reference.md` after sync |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/document-plan/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/document-plan/references/<section>.md` |
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` (read section Read-only discovery - do not conflate paths) |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
+**Never by default:** do not preload full `reference.md` when `references/` exists; load one section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Stack detection | `references/stack-detection.md` |
+| Output paths | `references/output-paths.md` |
+| Plan template | `references/plan-template.md` |
+| Execution update / SDD boundary | `references/execution-update.md` |
+| Planning checklist | `references/planning-checklist.md` |
 ## Process
 
 ### Step -1b - Caveman Mode (Lite cap)
@@ -63,7 +75,7 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 ### 0. Workspace and stack
 
 1. Confirm **target repository** (consumer app/service - not the toolkit unless explicit).
-2. Detect stack with Glob (see `reference.md` section Stack detection). Summarize: languages, frameworks, layout - **do not** assume a fixed corporate stack.
+2. Detect stack with Glob (see `references/stack-detection.md`). Summarize: languages, frameworks, layout - **do not** assume a fixed corporate stack.
 3. Read `AGENTS.md` / `README.md` if present.
 
 **Not SDD:** this skill writes `docs/documentation-plan/plan.md` only - not `PLAN/PLAN_*.md` or `{{SDD_ROOT}}/<repo-id>/PLAN/`. Feature PRD/PLAN use `sdd-spec` / `sdd-plan` / `sdd-develop` per `STORAGE.md`.
@@ -82,7 +94,7 @@ Record the choice in the session and in `docs/documentation-plan/plan.md` header
 |------|--------|
 | `docs/documentation-plan/plan.md` | If exists: read completed steps; resume or ask to overwrite |
 | `docs/overview.md` | Use user-provided path, existing file, or generate from exploration |
-| Neither | Create both per `reference.md` |
+| Neither | Create both per `references/output-paths.md` + `references/plan-template.md` |
 
 ### 3. Explore and draft overview
 
@@ -90,7 +102,7 @@ Glob/Grep/Read: solution layout, main entry points, bounded contexts, external i
 
 ### 4. Write documentation plan
 
-Create or update `docs/documentation-plan/plan.md` using `reference.md` section Plan template:
+Create or update `docs/documentation-plan/plan.md` using `references/plan-template.md` (checklist: `references/planning-checklist.md`):
 
 - Baby steps per business/technical domain
 - Steps for integrations, architecture patterns, and folder conventions
@@ -99,7 +111,7 @@ Create or update `docs/documentation-plan/plan.md` using `reference.md` section 
 
 ### 5. Context checkpoint
 
-After finishing overview + plan (or after each major planning chunk if the repo is large), follow `context-management.mdc`: at **>= 40%** context, save `plan.md` and pause; ask whether to continue in a new chat.
+After finishing overview + plan (or after each major planning chunk if the repo is large), follow `context-management.mdc` + `references/execution-update.md`: at **>= 40%** context, save `plan.md` and pause; ask whether to continue in a new chat.
 
 ### 6. Summarize handoff
 

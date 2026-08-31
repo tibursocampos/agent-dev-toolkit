@@ -54,6 +54,8 @@ Documented performance improvements verified by local benchmarking:
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 
+**Never by default:** do not preload unrelated stack guideline packs. Load only profiling paths needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

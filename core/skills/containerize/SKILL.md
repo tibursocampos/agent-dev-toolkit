@@ -52,6 +52,8 @@ A set of production-ready container configurations:
 | DevOps context | `{{TOOLKIT_ROOT}}/skills/_shared/devops-guidelines/deployment-process.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 
+**Never by default:** do not preload unrelated developer guidelines or full Docker docs. Load only rows needed for the current containerize task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

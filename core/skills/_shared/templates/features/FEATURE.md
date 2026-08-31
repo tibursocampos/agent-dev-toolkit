@@ -15,9 +15,11 @@
 
 ## Histórias
 
-| Id | Tipo | Título | Status |
-|----|------|--------|--------|
-| US01 | US | {{STORY_TITLE}} | draft |
+| Id | Tipo | Título | Rationale | Product intent | Status |
+|----|------|--------|-----------|----------------|--------|
+| US01 | US | {{STORY_TITLE}} | {{WHY_THIS_STORY}} | {{WHO_JOB_OUTCOME_OR_N_A}} | draft |
+
+`Product intent` = optional Who / Job / Outcome (or `n/a` for pure TS/Bug). See `skills/_shared/backlog-item-types/persona-context.md`. `Rationale` = why this story is separate (sizing).
 
 ## Flags (`needs_*`)
 

@@ -10,15 +10,14 @@ Total: **38** kebab skills.
 
 ## Tracks
 
-| Track | Alias (this release only) | Skills | When |
-|-------|---------------------------|--------|------|
-| **Classic SDD** | *(formerly Forma A)* | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
-| **Backlog Refine** | *(formerly Forma B)* | `refine-story`, `split-story-checklist` | Rough bug/story first |
-| **Orchestrated Delivery** | *(formerly Forma C)* | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+| Track | Skills | When |
+|-------|--------|------|
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
+| **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
+| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
-Alias sunset: remove `(formerly Forma …)` in the **following** release (RN07). Skill ids unchanged.
 
-## Classic SDD *(formerly Forma A)*
+## Classic SDD
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
@@ -26,14 +25,14 @@ Alias sunset: remove `(formerly Forma …)` in the **following** release (RN07).
 | `sdd-plan` | `sdd-plan` | Baby-step PLAN from an existing PRD |
 | `sdd-develop` | `sdd-develop` | Execute **one** PLAN step per session |
 
-## Backlog Refine *(formerly Forma B)* — backlog prep
+## Backlog Refine — backlog prep
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `refine-story` | `refine-story` | Refine bug/story into structured markdown + BDD |
 | `split-story-checklist` | `split-story-checklist` | Dependency-aware task checklist (BE/FE/tests) |
 
-## Orchestrated Delivery *(formerly Forma C)* — orchestration
+## Orchestrated Delivery — orchestration
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|

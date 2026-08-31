@@ -1,6 +1,6 @@
 ---
 name: sdd-develop
-description: Execute one PLAN baby step (code in English; PLAN in file language, pt-BR default). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
+description: Execute one PLAN baby step (code in English; PLAN in file language per LANGUAGE.md). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **code and tests in English**; PLAN updated in place. Do not start the next step in the same develop session scope.
+One **PLAN step** done: **code and tests in English**; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
@@ -60,7 +60,8 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Pipeline, missing PLAN dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Develop templates / step report | `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/<section>.md` |
 | EVD / STATE / evidence-or-zero (`EVD-STATE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
 | TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
 | Branch / commits | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
@@ -69,12 +70,26 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload all `dotnet-guidelines/*.md` or the full developer-common pack. Contract first (`PIPELINE` + `STORAGE`), then fan-out on trigger.
+**Never by default:** do not preload all `dotnet-guidelines/*.md`, the full developer-common pack, or all `references/*.md`. Contract first (`PIPELINE` + `STORAGE`), then fan-out on trigger — **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| PLAN update protocol | `references/plan-update.md` |
+| Git preparation | `references/git-checklist.md` |
+| Pre-implementation analysis | `references/code-analysis.md` |
+| Stack pointers | `references/stack-pointers.md` |
+| Session report / checkpoint | `references/session-report.md` |
+| Evidence-or-zero | `references/evidence-or-zero.md` |
+| Living loop + TRACE | `references/living-loop-trace.md` |
+| Quality self-check | `references/quality-self-check.md` |
+| Optional flows | `references/optional-flows.md` |
+| Forbidden | `references/forbidden.md` |
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
 2. If `caveman_mode` is false: continue without compression.
 3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
@@ -103,21 +118,21 @@ After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or cr
 
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests; ask to proceed.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from step **Aceite**; ask to proceed.
 
 ### 2. Git
 
-Feature branch per `branch-validation.mdc`.
+Feature branch per `branch-validation.mdc`. Read `references/git-checklist.md`.
 
 ### 3-4. Analyze and implement
 
-Glob/Grep/Read scope. Code/tests in English; targeted build/test.
+Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`.  Code/tests in English; targeted build/test. When spawned as a child, end with `{ build, tests, summary }` per PLAN **Execution policy** and `SPAWN.md`.
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 
-When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
+Read `references/evidence-or-zero.md`. When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
 
-1. Create/update `features/NNN-slug/EVD/` and `features/NNN-slug/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`).
+1. Create/update `features/NNN-slug/EVD/` and `features/NNN-slug/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`; detail: `references/evidence-or-zero.md`).
 2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
 3. Run structural gate (deterministic — never LLM-as-validator):
 
@@ -131,7 +146,7 @@ Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
 
 ### 4c. Living loop + TRACE (REQ-006 / CA5)
 
-When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
+Read `references/living-loop-trace.md`. When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
 
 1. Append events to `features/NNN-slug/TRACE.jsonl` (template: `templates/features/TRACE.jsonl`; contract: `TRACE-ARCHIVE-CONTRACT.md`).
 2. Run **converge → sync current → archive**: selective updates to living docs (`memory-bank/` / named `docs/`); do **not** dump full bank/PRD (`SR-NO-FULL-DUMP`).
@@ -152,13 +167,15 @@ Offer `/commit`; do not auto-commit.
 
 ### 6. Update PLAN + checkpoint
 
-`reference.md`: mark step done, progress, next step. Save before context pause (>=40%).
+`references/plan-update.md`: mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. Save before context pause (>=40%).
 
 ### 7. Report
 
-Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan-path> - Step N+1`.
+Use `references/session-report.md`. Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan-path> - Step N+1`.
 
 ## Must not
+
+Also enforce `references/forbidden.md`. Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
 
 - Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged)
 - Create PRD/PLAN; skip PLAN save; modify `.gitignore`
@@ -179,7 +196,7 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan
 | Next step | New session -> `/sdd-develop - <portable-plan-path> - Step N+1` |
 | All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
-Example portable path (Classic SDD *(formerly Forma A)*, repository):
+Example portable path (Classic SDD, repository):
 
 ```
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2

@@ -1,6 +1,6 @@
-# SDD artifact storage (sdd-spec / sdd-plan / sdd-develop)
+﻿# SDD artifact storage (sdd-spec / sdd-plan / sdd-develop)
 
-Single source of truth for where Classic SDD and Orchestrated Delivery *(formerly Forma C)* artifacts are written. Load on demand from skills - do not paste this file into PRD/PLAN bodies.
+Single source of truth for where Classic SDD and Orchestrated Delivery artifacts are written. Load on demand from skills - do not paste this file into PRD/PLAN bodies.
 
 **Language:** This guideline file is **English**. Default **agent artifact** prose (FEATURE, STORY, PRD, PLAN, CONTINUITY) is **pt-BR** (`sdd-artifact-language-pt-br.mdc`). **Chat** replies and the storage prompt below are **pt-BR** unless the user overrides in the skill invocation.
 
@@ -17,7 +17,7 @@ Use `{{SDD_ROOT}}/...` on macOS/Linux when expanding paths in tools.
 
 **Co-location:** `features/` and `memory-bank/` always share the same storage root (`$Cwd` or `<classic.path>`). Never place `memory-bank/` under `features/NNN-slug/`. Contract details: `MEMORY-BANK.md`.
 
-**New writes (Classic SDD *(formerly Forma A)* / preferred Backlog Refine *(formerly Forma B)* / Orchestrated Delivery *(formerly Forma C)*):** only under `features/NNN-slug/` (never loose `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, `PRD/`, or `PLAN/` at repo root).
+**New writes (Classic SDD / preferred Backlog Refine / Orchestrated Delivery):** only under `features/NNN-slug/` (never loose `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, `PRD/`, or `PLAN/` at repo root).
 
 **No legacy root flow:** do **not** read, write, glob, or continue develop from repo-root / global-flat `PRD/` or `PLAN/`. Those patterns remain in `.gitignore` only as a safety net against accidental files.
 
@@ -25,7 +25,7 @@ Use `{{SDD_ROOT}}/...` on macOS/Linux when expanding paths in tools.
 
 ```text
 features/NNN-slug/
-├── FEATURE.md                 # Feature overview (Orchestrated Delivery *(formerly Forma C)* / optional Classic SDD *(formerly Forma A)*)
+├── FEATURE.md                 # Feature overview (Orchestrated Delivery / optional Classic SDD)
 ├── CONTINUITY.md              # Cross-agent / cross-session handoff
 ├── CHANGE.md                  # Brownfield delta vs current (ADDED|MODIFIED|REMOVED); required when Nature=brownfield — see CHANGE-CONTRACT.md
 ├── EVD/                       # Post-impl evidence files (evidence-or-zero); see EVD-STATE-CONTRACT.md
@@ -54,7 +54,7 @@ features/NNN-slug/
 | `TRACE.jsonl` | Feature-root append-only JSONL trail. Living loop **converge → sync current → archive** (REQ-006 / CA5). Gate via `validate-trace.ps1` (`-RequireArchiveComplete` at close). Contract: `TRACE-ARCHIVE-CONTRACT.md`. |
 | Story subfolders | `REFINE/` optional / on demand (`tasks.md` when complexity ≥ medium). `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
 
-**Classic SDD *(formerly Forma A)* (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
+**Classic SDD (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
 
 **Templates (scaffold only):** `skills/_shared/templates/features/` in this toolkit repo (includes `CHANGE.md`, `STATE.md`, `EVD/README.md`, `TRACE.jsonl`).  
 **SDD PRD/PLAN document templates:** `skills/_shared/templates/sdd/PRD.md` and `skills/_shared/templates/sdd/PLAN.md` (authoring rules in `sdd-spec` / `sdd-plan` `reference.md`).
@@ -71,7 +71,7 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
 
    | Pattern | When used |
    |---------|-----------|
-   | `/features/` | Canonical Classic SDD / Orchestrated Delivery *(formerly Forma C)* artifacts (repo root only) |
+   | `/features/` | Canonical Classic SDD / Orchestrated Delivery artifacts (repo root only) |
    | `/docs/features/` | Reserved alternate under docs |
    | `/PRD/` | Safety net - ignore accidental root PRD (not a write destination) |
    | `/PLAN/` | Safety net - ignore accidental root PLAN (not a write destination) |
@@ -166,7 +166,7 @@ Do **not** read, write, or continue Classic SDD from:
 | `$Cwd/docs/PRD/`, `$Cwd/docs/PLAN/` | Same |
 | `<global>/PRD/`, `<global>/PLAN/` (flat, outside `features/`) | Same |
 | Loose `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` at repo root | Must live under `features/NNN-slug/USnn/` |
-| `docs/backlog/` | Backlog Refine *(formerly Forma B)* shortcut drafts only - not canonical PRD/PLAN |
+| `docs/backlog/` | Backlog Refine shortcut drafts only - not canonical PRD/PLAN |
 | Generic `docs/*.md`, repo-root markdown without feature tree | Not SDD storage |
 
 When the user cites a non-canonical `.md`: read it, build the artifact per skill templates, confirm path (`PIPELINE.md` § Confirm before write), then `Write` only under `features/NNN-slug/...`.
@@ -178,7 +178,7 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 | sdd-spec | Yes (confirm path) | Repository mode only | PRD under `features/.../PRD/` |
 | sdd-plan | Yes if manifest missing | Repository mode only | PLAN under `features/.../PLAN/` |
 | sdd-develop | No - uses PLAN path from input | No | Updates same PLAN file |
-| orchestrate-* (Orchestrated Delivery *(formerly Forma C)*) | Yes if first run | Repository mode only | Feature tree + stories |
+| orchestrate-* (Orchestrated Delivery) | Yes if first run | Repository mode only | Feature tree + stories |
 | memory-bank-init | Yes (resolve bank root) | Repository mode: SDD block for `features/` etc. only — **not** `/memory-bank/` (commit bank when product knowledge; never commit secrets) | Bank under resolved `bank_root` |
 | refine-story | Prefer feature `STORY.md` | No (unless first SDD write) | Optional `docs/backlog/` shortcut |
 | split-story-checklist | Prefer feature story folder | No | Task checklist under story / backlog |
@@ -190,7 +190,7 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 
 ## Global manifest and dynamic storage resolution (schema v2)
 
-> **Used by:** all `sdd-*`, `refine-story`, `split-story-checklist`, and Orchestrated Delivery *(formerly Forma C)* `orchestrate-*` skills.
+> **Used by:** all `sdd-*`, `refine-story`, `split-story-checklist`, and Orchestrated Delivery `orchestrate-*` skills.
 
 ### Effective SDD_ROOT (host-aware)
 
@@ -252,6 +252,36 @@ Use placeholder / portable paths in docs and **artifact bodies**; never hardcode
 
 **Legacy:** older manifests may still contain a `speckit` section. Ignore it; do not require or rewrite it automatically (optional cleanup documented at end of feature 004).
 
+### Preferences location
+
+```
+<effective_SDD_ROOT>/preferences.json
+```
+
+Toolkit-wide runtime preferences (Caveman Mode, orchestrator mode, optional artifact language override). Create on first read when missing — agents and `toolkit.ps1` seed the default schema below.
+
+### Preferences structure
+
+```json
+{
+  "caveman_mode": false,
+  "caveman_level": "full",
+  "orchestrator_mode": "always",
+  "artifact_language": null,
+  "verify_mode": false
+}
+```
+
+| Key | Type | Default | Purpose |
+|-----|------|---------|---------|
+| `caveman_mode` | bool | `false` | Response compression master switch (`caveman-mode` policy) |
+| `caveman_level` | string | `"full"` | `lite` \| `full` \| `ultra` when mode ON |
+| `orchestrator_mode` | string | `"always"` | `always` \| `adaptive` — parent orchestrator policy (`orchestrator-session`) |
+| `artifact_language` | string \| null | `null` | Optional SDD artifact language override; when `null`, match user chat per `LANGUAGE.md` |
+| `verify_mode` | bool | `false` | When `true`, O3 spawns a read-only verifier child after each implementer returns (`orchestrate-develop` Step 5.5) |
+
+In-session commands update this file (`caveman on|off|…`, `orchestrator always|adaptive|status`). Interactive first sync via `toolkit.ps1` may prompt for orchestrator mode when the file is missing.
+
 ### Legacy migration (v1 -> v2)
 
 If a repository entry has top-level `storage_mode` and `path` (no `classic`), migrate in memory:
@@ -288,7 +318,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
    (global paths must resolve under effective_SDD_ROOT; never under a foreign agent home).
 7. For classic feature writes and reads: resolve only under
    features/NNN-slug/[USnn|TSnn]/{PRD|PLAN|...}
-   (Classic SDD *(formerly Forma A)* default story = US01 when unspecified).
+   (Classic SDD default story = US01 when unspecified).
    Never use repo-root or global-flat PRD/ / PLAN/.
 8. For memory-bank writes/reads: only under bank_root (never under features/NNN-slug/).
 ```

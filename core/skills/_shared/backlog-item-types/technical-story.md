@@ -2,6 +2,8 @@
 
 Templates and writing rules for `refine-story`. Output is **markdown in chat** (optional save under `docs/backlog/` in the target repo). No external tracker API.
 
+**Persona / JTBD:** Optional and usually **out of scope** for pure Technical Stories. Do **not** require Who / Job / Outcome; use technical motivation in Context. See `persona-context.md`. Scorecard must not penalize absence of persona.
+
 ---
 
 ## Required sections

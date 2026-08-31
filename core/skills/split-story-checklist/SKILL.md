@@ -53,7 +53,7 @@ In the **target workspace**, a grouped checklist (backend / frontend / tests) wi
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
-**TASKS complexity gate (REQ-004):** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md`.
+**TASKS complexity gate (REQ-004):** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md` + `references/complexity-policy.md`.
 
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
@@ -62,11 +62,25 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Grouping, topology, output template | `skills/split-story-checklist/reference.md` |
-| Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `reference.md` § SDD PLAN resolution |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/<section>.md` |
+| Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `references/plan-resolution.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
+**Never by default:** do not preload all `references/*.md`. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Parsing steps | `references/parsing.md` |
+| Topology / grouping | `references/topology-grouping.md` |
+| Output template | `references/output-template.md` |
+| SDD / O2 handoff boundary | `references/sdd-handoff.md` |
+| PLAN resolution | `references/plan-resolution.md` |
+| TASKS complexity policy | `references/complexity-policy.md` |
+| Exclusions | `references/exclusions.md` |
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
@@ -80,7 +94,7 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 
 1. Confirm target repository.
 2. Load refined content from feature story, path, chat, or paste.
-3. Extract steps from Steps / Suggested fix (`reference.md` § Parsing).
+3. Extract steps from Steps / Suggested fix (`references/parsing.md`).
 4. Read sibling `FEATURE.md` **Complexity** when under `features/NNN-slug/` (`CHANGE-CONTRACT.md` TASKS policy).
 
 If no steps found, stop and suggest `/refine-story`.
@@ -99,7 +113,7 @@ Record in the output file header. Paths stay English.
 
 ### 2. Group steps (deps + topology)
 
-Apply `reference.md` § Grouping and § Topological order:
+Apply `references/topology-grouping.md`:
 
 - Honor explicit `Depends on:` edges first (Kahn / levels)
 - Then layer / repo heuristics
@@ -109,7 +123,7 @@ Apply `reference.md` § Grouping and § Topological order:
 
 ### 3. Build checklist file
 
-Write preferred path under the story folder (or shortcut) using `reference.md` § Output template - honor Persistence order above (`REFINE/tasks.md` default):
+Write preferred path under the story folder (or shortcut) using `references/output-template.md` - honor Persistence order above (`REFINE/tasks.md` default):
 
 - Implementation groups with `- [ ]` per original step (preserve titles and dependencies)
 - Separate **Tests** section when test steps exist
@@ -133,6 +147,8 @@ Show group names, dependency waves, output path, and suggested next skills.
 | Commit checklist file | `/commit` |
 
 ## Must not
+
+Also enforce `references/exclusions.md`. Handoff boundary: `references/sdd-handoff.md`. PLAN path: `references/plan-resolution.md`.
 
 - Create or update external tracker cards via external work-item APIs
 - Add fixed "workflow" tasks (manual sign-off checklist, Datadog, SDD/DevAI tags) unless the user explicitly requests a custom section

@@ -53,6 +53,8 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 | Angular directives / templates | `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/standalone-and-templates.md`, `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/style-and-structure.md`, `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/signals-and-state.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 
+**Never by default:** do not preload all language guideline packs. Load only paths needed for the current refactor scope.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
