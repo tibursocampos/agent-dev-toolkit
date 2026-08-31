@@ -53,6 +53,8 @@ In the **target workspace**, a grouped checklist (backend / frontend / tests) wi
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
+**TASKS complexity gate (REQ-004):** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md`.
+
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
 ## Lazy-load
@@ -63,6 +65,7 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 | Grouping, topology, output template | `skills/split-story-checklist/reference.md` |
 | Resolve SDD PLAN path (handoff) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/STORAGE.md` + `reference.md` § SDD PLAN resolution |
 | Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 
@@ -78,8 +81,13 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 1. Confirm target repository.
 2. Load refined content from feature story, path, chat, or paste.
 3. Extract steps from Steps / Suggested fix (`reference.md` § Parsing).
+4. Read sibling `FEATURE.md` **Complexity** when under `features/NNN-slug/` (`CHANGE-CONTRACT.md` TASKS policy).
 
 If no steps found, stop and suggest `/refine-story`.
+
+If Complexity is `trivial` (small): **STOP Write** of TASKS — tell the operator (pt-BR) that TASKS is not required for trivial/small; offer optional checklist only if they insist.
+
+If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
 
 ### 1. Documentation language (blocker before Write)
 

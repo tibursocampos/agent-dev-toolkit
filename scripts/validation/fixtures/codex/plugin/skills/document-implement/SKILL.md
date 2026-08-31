@@ -1,4 +1,4 @@
----
+﻿---
 name: document-implement
 description: Execute the next pending step from docs/documentation-plan/plan.md and write domain docs for RAG. Use when documenting the repo or invoking /document-implement.
 ---
@@ -63,7 +63,7 @@ One **documentation plan step** completed in the target repo: new/updated markdo
 4. Read the plan. Read **Doc language** from plan header. If missing, ask: **pt-BR** or **English** before writing `docs/`.
 5. Re-detect stack briefly (Glob per `document-plan/reference.md` section Stack detection) if plan is stale.
 
-**Not Classic/Forma C SDD:** only the documentation plan applies here - not `features/**/PLAN/`. For feature delivery PRD/PLAN, use `sdd-spec` / `sdd-plan` / `sdd-develop` and `STORAGE.md`.
+**Not Classic/Orchestrated Delivery SDD:** only the documentation plan applies here - not `features/**/PLAN/`. For feature delivery PRD/PLAN, use `sdd-spec` / `sdd-plan` / `sdd-develop` and `STORAGE.md`.
 
 ### 1. Select step
 

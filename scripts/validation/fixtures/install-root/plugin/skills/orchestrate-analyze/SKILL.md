@@ -1,6 +1,6 @@
----
+﻿---
 name: orchestrate-analyze
-description: Forma C O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
+description: Orchestrated Delivery O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Forma C analysis for a complex / multi-story / brownfield feature.
+Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Orchestrated Delivery analysis for a complex / multi-story / brownfield feature.
 
 Optional: pasted feature description, existing notes path, or prior refine output.
 
@@ -53,7 +53,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Forma C, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, feature tree | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/memory-bank-init/SKILL.md` |
@@ -77,7 +77,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 ### 1. Gate check
 
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
 
 ### 2. Resolve storage
 
@@ -123,7 +123,7 @@ Suggest path (RF01):
 | Complexity | Suggestion |
 |------------|------------|
 | `trivial` | Shortcut `developer` / stack `*-developer` (step 5) |
-| `medium` | Forma A (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) **or** continue O1 if multi-story |
+| `medium` | Classic SDD (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) **or** continue O1 if multi-story |
 | `complex` | Continue full O1 (this skill) |
 
 ### 5. Trivial shortcut
@@ -252,8 +252,8 @@ Do **not** paste full specialist dumps into the parent chat.
 | Backlog approved | `/orchestrate-deliver - <full-feature-path>` |
 | Context pause mid-O1 | `/orchestrate-analyze - <full-feature-path>` |
 | Trivial after triage | `/developer` or stack `*-developer` |
-| Single clear story, skip O2 multi | `/sdd-spec` (Forma A) after STORY exists |
-| Informal single item only | `/refine-story` (Forma B) |
+| Single clear story, skip O2 multi | `/sdd-spec` (Classic SDD) after STORY exists |
+| Informal single item only | `/refine-story` (Backlog Refine) |
 
 ### Canonical O2 handoff (exact pattern)
 

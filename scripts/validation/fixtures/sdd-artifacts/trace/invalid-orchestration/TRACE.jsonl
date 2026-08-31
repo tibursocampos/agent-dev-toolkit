@@ -1,0 +1,4 @@
+{"ts":"2026-08-21T14:00:00Z","event":"retrieval","feature":"features/000-fixture-trace-orchestration","paths":[],"reason":"Missing paths on purpose"}
+{"ts":"2026-08-21T14:01:00Z","event":"gate","feature":"features/000-fixture-trace-orchestration","gate_id":"step-approval"}
+{"ts":"2026-08-21T14:02:00Z","event":"spawn","feature":"features/000-fixture-trace-orchestration","role":"sdd-develop","reason":"PLAN step 1"}
+{"ts":"2026-08-21T14:03:00Z","event":"specialist_complete","feature":"features/000-fixture-trace-orchestration","role":"sdd-develop"}

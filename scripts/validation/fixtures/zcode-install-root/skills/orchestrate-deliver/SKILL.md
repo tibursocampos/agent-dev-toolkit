@@ -1,6 +1,6 @@
----
+﻿---
 name: orchestrate-deliver
-description: Forma C O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
+description: Orchestrated Delivery O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Forma C O2 after an approved O1 backlog.
+Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Orchestrated Delivery O2 after an approved O1 backlog.
 
 Required: full feature path (or resolvable `features/NNN-slug/`).
 
@@ -51,7 +51,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Forma C, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, confirm, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, feature tree | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/skills/memory-bank-init/SKILL.md` |
@@ -74,7 +74,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 
 ### 1. Gate check
 
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
 
 ### 2. Resolve feature and storage
 
@@ -221,7 +221,7 @@ On approval:
 ```text
 ## Handoff O2 -> develop
 
-### Manual (Forma A per story)
+### Manual (Classic SDD per story)
 /sdd-develop - <full-plan-path-US01> - Step 1
 /sdd-develop - <full-plan-path-TS01> - Step 1
 
@@ -229,7 +229,7 @@ On approval:
 /orchestrate-develop - <full-feature-path>
 ```
 
-Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Forma A (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
+Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Classic SDD (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
 
 ### 9. Context pressure (TE02 / RNF02)
 
@@ -263,7 +263,7 @@ Do **not** paste full PRD/PLAN bodies into the parent chat.
 - Assume série vs paralelo without asking
 - Let parallel Task children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Require memory-bank for Forma A / manual `sdd-*` (CA7 - gate is Forma C `orchestrate-*` only)
+- Require memory-bank for Classic SDD / manual `sdd-*` (CA7 - gate is Orchestrated Delivery `orchestrate-*` only)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
@@ -277,7 +277,7 @@ Do **not** paste full PRD/PLAN bodies into the parent chat.
 | Context pause mid-O2 | `/orchestrate-deliver - <full-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <full-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <full-feature-path>` (do not Write PRD/PLAN) |
-| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Forma A) |
+| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD) |
 
 ### Canonical develop handoffs
 

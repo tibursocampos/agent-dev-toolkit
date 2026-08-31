@@ -1,4 +1,4 @@
-# PRD template (spec skill)
+﻿# PRD template (spec skill)
 
 Use this template when writing the PRD at the resolved path (repository or global). **Default:** all section titles and body text in **Brazilian Portuguese (pt-BR)**. English only if the user overrides in the skill invocation - see `sdd-artifact-language-pt-br.mdc`.
 
@@ -10,7 +10,7 @@ Storage: `STORAGE.md`. Pipeline (confirm-before-write, canonical paths, modes): 
 
 | Part | Rule |
 |------|------|
-| Folder | From manifest: `features/NNN-slug/USnn/PRD/` (Forma A default `US01`) or global under `<classic.path>/features/...` |
+| Folder | From manifest: `features/NNN-slug/USnn/PRD/` (Classic SDD default `US01`) or global under `<classic.path>/features/...` |
 | Sequence | Next `NNN` (3 digits) after listing PRDs under `features/**/PRD/` only (workspace + global feature root for `<repo-id>`) |
 | Slug | Short ASCII summary (kebab-case or snake_case; Portuguese words allowed) |
 | Example (repo) | `features/002-exportacao-perfil/US01/PRD/002_exportacao_perfil_usuario.md` |

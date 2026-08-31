@@ -15,7 +15,7 @@ antigravity-install-root/          # models ~/.gemini
 └── config/
     ├── skills/                    # kebab Agent Skills (+ dev_persona after sync)
     ├── plugins/                   # GUARDRAILS under managed plugin id after sync
-    ├── hooks/                     # present; Publish-Hooks is no-op (hooks=false)
+    ├── hooks/                     # PreToolUse path/secrets guard after Publish-Hooks (hooks=true)
     ├── skills.json                # upserted by Publish-Skills
     ├── AGENTS.md                  # managed block by Publish-Router
     └── GEMINI.md                  # managed block by Publish-Router

@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **Id** | `{{NNN}}-{{slug}}` |
-| **Path** | `features/{{NNN}}-{{slug}}/` |
+| **Path** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path — see `STORAGE.md` § Portable path) |
 | **Scope** | backend \| frontend \| fullstack |
 | **Nature** | greenfield \| brownfield \| operational |
 | **Complexity** | trivial \| medium \| complex |
@@ -33,4 +33,5 @@
 ## Links
 
 - CONTINUITY: `./CONTINUITY.md`
+- CHANGE (brownfield vs current): `./CHANGE.md` — required when **Nature** = `brownfield`; greenfield must not force an empty stub (`CHANGE-CONTRACT.md`)
 - Stories: `./US01/STORY.md` (ajustar ids)

@@ -1,4 +1,4 @@
-# Portable agent roster (Forma C)
+﻿# Portable agent roster (Orchestrated Delivery)
 
 Shared prompts and roles for `orchestrate-*` Task subagents. **English** prompt bodies. Keep this roster small - do **not** add 40 agent files.
 
@@ -52,8 +52,8 @@ Set on `FEATURE.md` during O1 triage. Spawn a Task specialist **only** when the 
 | Complexity | Suggested path |
 |------------|----------------|
 | `trivial` | `developer` / stack skill (skip O1) |
-| `medium` | Forma A or Forma B |
-| `complex` | Forma C O1 |
+| `medium` | Classic SDD or Backlog Refine |
+| `complex` | Orchestrated Delivery O1 |
 
 ## Prompt files
 

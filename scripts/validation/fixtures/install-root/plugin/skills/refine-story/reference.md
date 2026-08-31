@@ -1,4 +1,4 @@
-# refine-story - reference
+﻿# refine-story - reference
 
 Scorecard, guardrails, and boundaries for `skills/refine-story/SKILL.md`. Keep `SKILL.md` under 500 lines; use this file for extended detail.
 
@@ -6,7 +6,7 @@ Scorecard, guardrails, and boundaries for `skills/refine-story/SKILL.md`. Keep `
 
 ## Boundary: refine vs O1 vs sdd-spec
 
-| Aspect | `refine-story` (Forma B) | `orchestrate-analyze` (O1) | `sdd-spec` (Forma A) |
+| Aspect | `refine-story` (Backlog Refine) | `orchestrate-analyze` (O1) | `sdd-spec` (Classic SDD) |
 |--------|----------------------------------|----------------------------|----------------------|
 | Purpose | Fast intake - one backlog item + scorecard | Multi-agent triage + US/TS backlog for a feature | Full PRD for one story/feature |
 | Output | Structured markdown + scorecard | `FEATURE.md`, `CONTINUITY.md`, `STORY.md` × N | PRD under `features/.../PRD/` |

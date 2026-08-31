@@ -1,4 +1,4 @@
----
+﻿---
 name: sdd-spec
 description: Create a PRD for a new feature or change (agent PRD .md, pt-BR default under features/). Feeds sdd-plan. Use when creating a spec or invoking /sdd-spec.
 ---
@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-spec`, `create spec`, `new feature`.
 
 ## Outcome
 
-A complete **PRD** (agent `.md` artifact) in **Brazilian Portuguese (pt-BR)** at a **canonical** path under `features/NNN-slug/USnn/PRD/` (Forma A default story `US01`; or `TSnn`). Global: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/sdd/<repo-id>/features/...`. Root/flat `PRD/` is **not** a valid Classic SDD path. English only if the user overrides in this invocation. Mandatory input for **sdd-plan**.
+A complete **PRD** (agent `.md` artifact) in **Brazilian Portuguese (pt-BR)** at a **canonical** path under `features/NNN-slug/USnn/PRD/` (Classic SDD default story `US01`; or `TSnn`). Global: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-install-root/sdd/<repo-id>/features/...`. Root/flat `PRD/` is **not** a valid Classic SDD path. English only if the user overrides in this invocation. Mandatory input for **sdd-plan**.
 
 ## PRD boundaries
 
@@ -65,7 +65,7 @@ Apply Phase A/B: in Plan/Ask, draft in chat only until Agent + user **sim** on s
 
 ### 0. Workspace
 
-Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.md`. Detect stack. Resolve `<repo-id>` and classic feature root (`STORAGE.md`). Glob PRDs under `features/**/PRD/` only (workspace + global feature root) for `NNN`. Forma A default story folder = `US01` when unspecified.
+Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.md`. Detect stack. Resolve `<repo-id>` and classic feature root (`STORAGE.md`). Glob PRDs under `features/**/PRD/` only (workspace + global feature root) for `NNN`. Classic SDD default story folder = `US01` when unspecified.
 
 ### 1. Requirements
 

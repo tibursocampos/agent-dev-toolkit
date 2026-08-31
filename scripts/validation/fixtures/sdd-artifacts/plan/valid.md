@@ -7,6 +7,15 @@
 | **Progresso** | 0/2 |
 | **Status** | approved |
 
+## Execution policy
+
+| Field | Value |
+|-------|--------|
+| **Orchestrator mode** | `always` |
+| **Parent role** | Orchestrator only |
+| **Child validation** | build + tests |
+| **Handoff** | Scoped paths per SPAWN.md |
+
 ## Objetivos
 
 - [ ] O1: Cover both companion REQs

@@ -1,12 +1,14 @@
-# Portable spawn contract (Forma C + developers)
+# Portable spawn contract (Orchestrated Delivery + developers)
 
-Canonical contract for **when** and **how** to spawn specialist children across Tier 1 hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
+Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
 Install path after sync: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SPAWN.md`
 
-**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human Tier-1 matrix: `docs/SPAWN.md`.
+**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human host matrix: `docs/SPAWN.md`.
 
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
+
+**Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
 
 Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file). Router index: `core/router/AGENTS.md` → Parallel specialists.
 
@@ -38,6 +40,12 @@ Prefer the host-native mechanism when effective `subagents` is `native`. Product
 | `opencode` | OpenCode **Task** / `@` subagent |
 | `grok` | `spawn_subagent` |
 | `zcode` | ZCode **Agent** tool |
+| `hermes` | `delegate_task` |
+| `openhands` | In-parent / SPAWN fallback (`subagents=none`) |
+
+### Use only the current host row
+
+When spawning, use **only** the mechanism in the table row for the **current** host agent id. Never invoke another host’s spawn API (example: Cursor must not call `delegate_task`; Hermes must not call Cursor **Task**). Other rows exist for the portable map and honesty matrix only.
 
 ### Antigravity effective capability
 
@@ -75,16 +83,42 @@ Need specialist work?
 
 **RN:** Subagent-first = **preference + fallback**, never hard-require Task. Parent stays orchestrator per `orchestrator-session` policy.
 
+## Minimal handoff payload (parent → child)
+
+When spawning (native path), pass **only**:
+
+| Field | Content |
+|-------|---------|
+| **Role** | Specialist id or roster role (e.g. `dotnet-developer`, `repo-analyst`) |
+| **Scoped paths** | Files/dirs the child may read/write |
+| **Receipt** | Require end-of-pass receipt per `RECEIPT.md` |
+| **Excerpt** | Short pointer or excerpt of user-language artifacts — **not** full PLAN/PRD bodies |
+
+Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+
 ## Child payload (minimum)
 
 When spawning (native path):
 
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
-3. Point to role prompt under `skills/_shared/agents/prompts/` when Forma C roster applies.
+3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
 4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/sdd/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
+7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
+
+## Post-change validation (child → parent)
+
+When the child **changes files**, the end receipt (or final summary when receipt schema is relaxed) **must** include:
+
+| Field | Content |
+|-------|---------|
+| **build** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
+| **tests** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
+| **summary** | One-line outcome for parent synthesis |
+
+Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not dump full child transcripts.
 
 ## Limits
 
@@ -121,7 +155,8 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
-| `docs/SPAWN.md` | Tier-1 host matrix, product evidence, Antigravity probe |
+| `LANGUAGE.md` | Two language surfaces; en-US spawn; no full PLAN dump |
+| `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping
 

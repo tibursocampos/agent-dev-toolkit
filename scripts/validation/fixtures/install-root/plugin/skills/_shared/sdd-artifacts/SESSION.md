@@ -1,4 +1,4 @@
-# Session state and gates
+﻿# Session state and gates
 
 Load at **step -1** of every skill. Do not paste into PRD/PLAN/sdd-spec bodies.
 
@@ -27,7 +27,7 @@ E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/sdd/s
 | `sdd-develop` / O3 child | Classic `.../PLAN/PLAN_*.md` under `features/` |
 | `document-implement` | `$Cwd/docs/documentation-plan/plan.md` (or user-given alternate doc plan path) |
 
-Use **PLAN+step** files when `orchestrate-develop` spawns parallel children on the **same** PLAN (steps marked parallel-safe). Default Forma A / O3 série: one `plan-{plan-hash}.json` per PLAN.
+Use **PLAN+step** files when `orchestrate-develop` spawns parallel children on the **same** PLAN (steps marked parallel-safe). Default Classic SDD / O3 série: one `plan-{plan-hash}.json` per PLAN.
 
 **Do not mix scopes on the same PLAN:** if any `plan-{planHash}-step-*.json` exists for that PLAN, serial spawns for that PLAN **must** also use PLAN+step files (never fall back to `plan-{planHash}.json` mid-feature).
 
@@ -126,7 +126,7 @@ Legacy repo files may still contain unused `step_confirmed` / `tests_run` keys. 
 3. Write only the files touched.
 4. **STOP** that develop scope - handoff to new conversation (or next O3 child with its own scoped file).
 
-## Parallel O3 (Forma C)
+## Parallel O3 (Orchestrated Delivery)
 
 Parallel `sdd-develop` children **must** use distinct develop session files:
 
