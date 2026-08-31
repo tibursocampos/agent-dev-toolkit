@@ -402,6 +402,25 @@ function Copy-CursorHookScripts {
         Copy-Item -LiteralPath $_.FullName -Destination $destPath -Force
         $copied++
     }
+
+    # Shared path/secret helpers (adapters/_shared) published beside host hooks.
+    $repoRootForShared = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
+    $sharedGuardSource = Join-Path $repoRootForShared $script:CursorAdapterConstant.SharedGuardCommonRelativePath
+    if (Test-Path -LiteralPath $sharedGuardSource) {
+        $sharedDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedGuardCommonFileName
+        Assert-ToolkitManagedPathContained `
+            -CandidatePath $sharedDest `
+            -RootPath $destRootFull `
+            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+        Assert-ToolkitManagedPathContained `
+            -CandidatePath $sharedDest `
+            -RootPath $InstallRoot `
+            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+            -RequireStrictChild
+        Copy-Item -LiteralPath $sharedGuardSource -Destination $sharedDest -Force
+        $copied++
+    }
+
     return $copied
 }
 
@@ -437,6 +456,10 @@ function Invoke-CursorPublishHooks {
     $destHooksJson = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksJsonFileName
     $scriptCount = @(Get-ChildItem -LiteralPath $sourceHooksRoot -File -ErrorAction Stop |
             Where-Object { $_.Name -ne $script:CursorAdapterConstant.HooksJsonFileName }).Count
+    $sharedGuardForCount = Join-Path $repoRoot $script:CursorAdapterConstant.SharedGuardCommonRelativePath
+    if (Test-Path -LiteralPath $sharedGuardForCount) {
+        $scriptCount++
+    }
 
     # Validate toolkit + user JSON before any mutation (TE03: fail closed, do not truncate).
     $null = Merge-CursorHooksJsonContent -ToolkitHooksPath $sourceHooksJson -UserHooksPath $destHooksJson

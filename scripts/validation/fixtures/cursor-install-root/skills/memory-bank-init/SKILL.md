@@ -1,6 +1,6 @@
 ---
 name: memory-bank-init
-description: Create or refresh workspace memory-bank/ (MVP contract + read-only inventory). Path follows STORAGE manifest. No app code; no uv/specify. Use when invoking /memory-bank-init or Forma C Step 0 / Step N needs create/refresh/refresh-light.
+description: Create or refresh workspace memory-bank/ (MVP contract + read-only inventory). Path follows STORAGE manifest. No app code; no uv/specify. Use when invoking /memory-bank-init or Orchestrated Delivery Step 0 / Step N needs create/refresh/refresh-light.
 ---
 
 ## STOP - Read before ANY tool call
@@ -31,7 +31,7 @@ Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.
 
 ## Trigger
 
-Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Forma C Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
+Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
 
 Optional args: `create` (default if missing), `refresh`, `refresh-light`, path to consumer repo.
 
@@ -77,6 +77,7 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Inventory script | toolkit `scripts/inventory/Invoke-MemoryBankInventory.ps1` (or synced copy if present) |
 | Fill patterns, markers | `skills/memory-bank-init/reference.md` |
 | Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

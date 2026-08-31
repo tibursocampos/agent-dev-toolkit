@@ -31,7 +31,13 @@ function Copy-ClaudeHookScriptsTree {
         [string] $SourceHooksRoot,
 
         [Parameter(Mandatory = $true)]
-        [string] $DestinationHooksRoot
+        [string] $DestinationHooksRoot,
+
+        [Parameter()]
+        [string] $InstallRoot,
+
+        [Parameter()]
+        [string] $RepoRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationHooksRoot)) {
@@ -50,6 +56,16 @@ function Copy-ClaudeHookScriptsTree {
 
         Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
         $filesCopied++
+    }
+
+    # Shared path/secret helpers beside published hooks.
+    if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
+        $sharedSource = Join-Path $RepoRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath
+        if (Test-Path -LiteralPath $sharedSource) {
+            $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
+            Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+            $filesCopied++
+        }
     }
 
     return $filesCopied
@@ -104,7 +120,11 @@ function Invoke-ClaudePublishHooks {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destinationHooksRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.HooksDirectoryName
 
-    $filesCopied = Copy-ClaudeHookScriptsTree -SourceHooksRoot $sourceHooksRoot -DestinationHooksRoot $destinationHooksRoot
+    $filesCopied = Copy-ClaudeHookScriptsTree `
+        -SourceHooksRoot $sourceHooksRoot `
+        -DestinationHooksRoot $destinationHooksRoot `
+        -InstallRoot $resolvedInstallRoot `
+        -RepoRoot $repoRoot
     $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-ClaudePlaceholdersInTree -RootPath $destinationHooksRoot -PlaceholderMap $placeholderMap
     Assert-ClaudePlaceholdersResolved -RootPath $destinationHooksRoot

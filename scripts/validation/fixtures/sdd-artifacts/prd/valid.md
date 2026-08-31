@@ -1,10 +1,19 @@
-# PRD: Fixture valid structural sample
+﻿# PRD: Fixture valid structural sample
 
 | Campo | Valor |
 |-------|--------|
 | **Sequência** | 999 |
 | **Status** | Pronto para planejamento |
-| **Track** | Classic SDD *(formerly Forma A)* |
+| **Track** | Classic SDD |
+
+## Execution policy
+
+| Field | Value |
+|-------|--------|
+| **Orchestrator mode** | `always` |
+| **Parent role** | Orchestrator only |
+| **Child validation** | build + tests |
+| **Handoff** | Scoped paths per SPAWN.md |
 
 ## 1. Visão geral
 

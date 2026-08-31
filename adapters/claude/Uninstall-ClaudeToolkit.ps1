@@ -124,7 +124,8 @@ function Get-ClaudeManagedHookEventNames {
     return @(
         $c.HookEventUserPromptSubmit,
         $c.HookEventPreCompact,
-        $c.HookEventPostToolUse
+        $c.HookEventPostToolUse,
+        $c.HookEventPreToolUse
     )
 }
 

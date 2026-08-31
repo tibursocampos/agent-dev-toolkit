@@ -10,11 +10,12 @@
   live ~/.hermes, fixture modeling the same layout).
   Publish-Skills copies core/skills into InstallRoot/skills.
   Publish-Policy and Publish-Router write the same managed AGENTS.md
-  (router body + folded core/policy). Publish-Hooks and Publish-Agents are
-  no-ops. Invoke-SmokeValidate asserts native skills/AGENTS.md layout.
-  Uninstall-Toolkit removes only known toolkit artifacts under InstallRoot
-  (keyed; never wipes InstallRoot / config.yaml / MEMORY.md / SOUL.md).
-  Does not write under USERPROFILE without -AllowUserHome.
+  (router body + folded core/policy). Publish-Hooks installs the
+  agent-dev-toolkit-guard plugin + agent-hooks shell dual (hooks=true, plugin=true).
+  Publish-Agents is a no-op. Invoke-SmokeValidate asserts native skills/AGENTS.md
+  layout plus plugin/hooks. Uninstall-Toolkit removes only known toolkit artifacts
+  under InstallRoot (keyed; never wipes InstallRoot / config.yaml secrets /
+  MEMORY.md / SOUL.md). Does not write under USERPROFILE without -AllowUserHome.
   MEMORY.md is seeded only when missing. SOUL.md is never created or overwritten.
 #>
 
@@ -54,9 +55,9 @@ $script:HermesAdapterSubagentsNative = 'native'
 $script:HermesAdapterCapabilityFlags = [ordered]@{
     skills    = $true
     rules     = $true
-    hooks     = $false
+    hooks     = $true
     router    = $true
-    plugin    = $false
+    plugin    = $true
     agents    = $false
     subagents = $script:HermesAdapterSubagentsNative
 }
@@ -164,6 +165,9 @@ function Get-InstallRoots {
         FixtureSkillsPath               = $(if ($null -ne $mapped) { $mapped.FixtureSkillsPath } else { $null })
         FixtureRulesPath                = $(if ($null -ne $mapped) { $mapped.FixtureRulesPath } else { $null })
         FixtureHooksPath                = $(if ($null -ne $mapped) { $mapped.FixtureHooksPath } else { $null })
+        FixtureAgentHooksPath           = $(if ($null -ne $mapped) { $mapped.FixtureAgentHooksPath } else { $null })
+        FixturePluginsPath              = $(if ($null -ne $mapped) { $mapped.FixturePluginsPath } else { $null })
+        FixtureConfigYamlPath           = $(if ($null -ne $mapped) { $mapped.FixtureConfigYamlPath } else { $null })
         FixtureProjectAgentsPath        = $(if ($null -ne $mapped) { $mapped.FixtureProjectAgentsPath } else { $null })
         Message                         = ('{0} {1} {2}' -f $script:HermesAdapterConstant.OfficialUserRootDescription, $script:HermesAdapterConstant.OfficialProjectRootDescription, $script:HermesAdapterConstant.InstallRootOverrideDescription)
     }
@@ -270,7 +274,7 @@ function Publish-Agents {
 function Publish-Hooks {
     <#
     .SYNOPSIS
-      Documented no-op - Hermes hooks capability is false.
+      Publish Hermes plugin + agent-hooks path/secrets guard (hooks=true, plugin=true).
     #>
     [CmdletBinding()]
     param(

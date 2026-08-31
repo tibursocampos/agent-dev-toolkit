@@ -84,6 +84,8 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 
 Do **not** preload unrelated guideline trees. Do not redesign `angular-guidelines/` in this skill — load existing pack rows only.
 
+**Never by default:** do not preload other stack guideline packs or corporate pipeline docs. Load only rows needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

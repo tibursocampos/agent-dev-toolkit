@@ -58,10 +58,10 @@ For Hybrid targets, note platform-specific constraints in section 9 of the brief
 
 If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
 
-## Lazy-load references
+## Lazy-load (only when needed)
 
-| When | Path |
-|------|------|
+| When | Path (after `scripts/sync-cursor.ps1`) |
+|------|----------------------------------------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
 | Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/branch-validation.mdc`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/developer-common/step-3-branching.md` |
 | Blazor components / lifecycle | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blazor-guidelines/blazor-components.md` |
@@ -82,7 +82,22 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/caveman/CAVEMAN.md` |
 
-Do not preload unrelated guideline trees. Load only the `blazor-guidelines` rows needed for the current task.
+**Never by default:** do not preload the full `blazor-guidelines/` pack, all `html-css-guidelines/`, or every `dotnet-guidelines/` file. Load **one** Blazor topic file (or small set) when that surface is in scope.
+
+**Progressive load:** `step-0-context` / DESIGN-BRIEF first; then fan-out to the matching Blazor row(s) only when implementing that concern.
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Components / lifecycle | `blazor-guidelines/blazor-components.md` |
+| Forms / state | `blazor-guidelines/blazor-state.md` |
+| Render modes (WASM/Server/Hybrid) | `blazor-guidelines/blazor-render-modes.md` |
+| JS interop | `blazor-guidelines/blazor-js-interop.md` |
+| Routing / auth | `blazor-guidelines/blazor-routing-auth.md` |
+| Perf | `blazor-guidelines/blazor-performance.md` |
+| Tests (bUnit) | `blazor-guidelines/blazor-testing.md` |
+| Pre-PR | `blazor-guidelines/checklist.md` |
 
 ## Process
 

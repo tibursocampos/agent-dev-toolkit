@@ -73,15 +73,19 @@ function Test-OpenHandsNativeHooksPresent {
 
     $hooksJsonPath = Join-Path $HooksRoot $script:OpenHandsAdapterConstant.HooksJsonFileName
     $hooksScriptPath = Join-Path $HooksScriptsRoot $script:OpenHandsAdapterConstant.HooksSessionStartScriptName
-    if (-not ((Test-Path -LiteralPath $hooksJsonPath) -and (Test-Path -LiteralPath $hooksScriptPath))) {
+    $guardScriptPath = Join-Path $HooksScriptsRoot $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName
+    if (-not ((Test-Path -LiteralPath $hooksJsonPath) -and (Test-Path -LiteralPath $hooksScriptPath) -and (Test-Path -LiteralPath $guardScriptPath))) {
         return $false
     }
 
     try {
         $hooksJson = Get-Content -LiteralPath $hooksJsonPath -Raw | ConvertFrom-Json
-        $eventName = $script:OpenHandsAdapterConstant.HooksSessionStartEventSnake
-        $eventValue = $hooksJson.$eventName
-        if ($null -eq $eventValue) {
+        $sessionEvent = $script:OpenHandsAdapterConstant.HooksSessionStartEventSnake
+        $preToolEvent = $script:OpenHandsAdapterConstant.HooksPreToolUseEventSnake
+        if ($null -eq $hooksJson.$sessionEvent) {
+            return $false
+        }
+        if ($null -eq $hooksJson.$preToolEvent) {
             return $false
         }
         return $true

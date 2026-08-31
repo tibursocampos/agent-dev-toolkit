@@ -7,7 +7,7 @@ description: Scaffold a new Blip React plugin (create-blip-extension), config:pl
 ## STOP - Read before ANY tool call
 
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/guardrails.mdc`
-2. Read `_shared/sdd-opcodes/SESSION.md`; load session-state for `$Cwd`
+2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
 3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
 5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
@@ -35,10 +35,10 @@ For **existing** Blip plugin repos ( `blip-ds` in `package.json` ), use `/react-
 
 A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile documented, SDD path chosen, and clear handoff to implementation skills.
 
-## Lazy-load references
+## Lazy-load (only when needed)
 
-| When | Path (after `sync-cursor.ps1`) |
-|------|--------------------------------|
+| When | Path (after `scripts/sync-cursor.ps1`) |
+|------|----------------------------------------|
 | Integration overview | `docs/blip-plugin-integration.md` (in target or toolkit repo) |
 | Architecture | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blip-guidelines/plugin-architecture.md` |
 | Design system | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blip-guidelines/design-system.md` |
@@ -46,13 +46,15 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 | Auth (Full profile) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blip-guidelines/auth-and-permissions.md` |
 | External API | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blip-guidelines/external-api-integration.md` |
 | Deploy / CI | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/blip-guidelines/deploy-and-ci.md` |
-| React guidelines | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/react-guidelines/` |
+| React guidelines | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/react-guidelines/` — only files needed for scaffold UI |
 | Frontend practices | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Design brief template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
 | Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SPAWN.md` |
 | Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/branch-validation.mdc` |
 
-Do not preload unrelated guideline trees.
+**Never by default:** do not preload the full `blip-guidelines/` pack, all `react-guidelines/`, or impeccable command refs. Load architecture + design-system for scaffold; fan-out to auth/iframe/API/deploy only when that profile step runs.
+
+**Progressive load:** integration overview / architecture first; then the Blip row for the active scaffold step.
 
 ## Must not (defaults)
 
@@ -119,12 +121,12 @@ Document manual smoke: `npm start` -> open inside Blip portal -> verify iframe h
 
 ### Phase 2 - Documentation flow
 
-Ask **(pt-BR)**: "Qual fluxo de documentação? (SDD Forma A, Forma C, PRD/brief existente, ou escopo informal?)"
+Ask **(pt-BR)**: "Qual fluxo de documentação? (Classic SDD, Orchestrated Delivery, PRD/brief existente, ou escopo informal?)"
 
 | Choice | Next command (new session each step) |
 |--------|--------------------------------------|
-| **SDD (Forma A)** | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
-| **Forma C** | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
+| **Classic SDD** | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| **Orchestrated Delivery** | `/orchestrate-analyze` -> `/orchestrate-deliver` -> develop |
 | **Existing PRD/brief** | Skip spec; proceed to `sdd-plan` with provided doc |
 | **Informal / small** | Document scope in `README.md`; handoff directly to implementation / `developer` |
 

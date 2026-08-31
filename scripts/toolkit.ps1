@@ -109,6 +109,8 @@ $libDir = Join-Path $scriptDir '_lib'
 . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 . (Join-Path $libDir 'Resolve-AdapterFixtureInstallRoot.ps1')
 . (Join-Path $libDir 'Assert-CopilotAgentMode.ps1')
+. (Join-Path $libDir 'Initialize-SddRootLayout.ps1')
+. (Join-Path $libDir 'Initialize-SddPreferences.ps1')
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
@@ -601,12 +603,54 @@ function Build-AgentForwardTable {
     return $table
 }
 
+function Invoke-ToolkitPostSyncPreferences {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string] $OverrideInstallRoot,
+
+        [Parameter()]
+        [Nullable[bool]] $OverrideAllowUserHome,
+
+        [Parameter()]
+        [switch] $Interactive,
+
+        [Parameter()]
+        [switch] $WhatIf
+    )
+
+    $effectiveRoot = if (-not [string]::IsNullOrWhiteSpace($OverrideInstallRoot)) {
+        $OverrideInstallRoot
+    }
+    else {
+        $InstallRoot
+    }
+
+    if ([string]::IsNullOrWhiteSpace($effectiveRoot)) {
+        return
+    }
+
+    $allow = $AllowUserHome.IsPresent
+    if ($null -ne $OverrideAllowUserHome) {
+        $allow = [bool]$OverrideAllowUserHome
+    }
+
+    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $effectiveRoot -AllowUserHome:$allow -RepoRoot $repoRoot
+    $sddResult = Invoke-ToolkitGetSddRoot -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -Prepare -AllowUserHome:$allow -WhatIf:$WhatIf.IsPresent
+    if ($null -eq $sddResult -or [string]::IsNullOrWhiteSpace([string]$sddResult.SddRoot)) {
+        return
+    }
+
+    $null = Invoke-ToolkitEnsurePreferences -SddRoot $sddResult.SddRoot -Interactive:$Interactive.IsPresent -WhatIf:$WhatIf.IsPresent
+}
+
 function Invoke-ToolkitSync {
     param(
         [Parameter(Mandatory = $true)][string] $AgentId,
         [Parameter()][string] $OverrideInstallRoot,
         [Parameter()][string] $OverrideMode,
-        [Parameter()][Nullable[bool]] $OverrideAllowUserHome
+        [Parameter()][Nullable[bool]] $OverrideAllowUserHome,
+        [Parameter()][switch] $PromptOrchestratorMode
     )
 
     Write-ToolkitStepBanner -Title ("Sync agent ({0})" -f $AgentId)
@@ -614,7 +658,18 @@ function Invoke-ToolkitSync {
     if ($WhatIf.IsPresent) {
         $syncTable[$script:ToolkitConstant.WhatIfParameterName] = $true
     }
-    return (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.SyncAgentRelativePath -ArgumentTable $syncTable)
+    $syncOk = (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.SyncAgentRelativePath -ArgumentTable $syncTable)
+    if (-not $syncOk) {
+        return $false
+    }
+
+    Invoke-ToolkitPostSyncPreferences `
+        -OverrideInstallRoot $OverrideInstallRoot `
+        -OverrideAllowUserHome $OverrideAllowUserHome `
+        -Interactive:$PromptOrchestratorMode.IsPresent `
+        -WhatIf:$WhatIf.IsPresent
+
+    return $true
 }
 
 function Invoke-ToolkitValidate {
@@ -832,13 +887,13 @@ function Invoke-ToolkitActionFromContext {
 
     switch ($ActionName) {
         { $_ -eq $script:ToolkitConstant.ToolkitActionSync } {
-            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow)
+            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptOrchestratorMode)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionValidate } {
             return (Invoke-ToolkitValidate -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionSyncAndValidate } {
-            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow
+            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptOrchestratorMode
             if (-not $syncOk) {
                 Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitSkippingValidateAfterSync
                 return $false

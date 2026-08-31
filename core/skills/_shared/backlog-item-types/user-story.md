@@ -15,6 +15,12 @@ Templates and writing rules for `refine-story`. Output is **markdown in chat** (
 | Acceptance criteria | Business-verifiable BDD |
 | Technical acceptance criteria | Implementation-verifiable checklist (not BDD) |
 
+## Optional sections
+
+| Section | Purpose |
+|---------|---------|
+| Who / Job / Outcome | Persona, JTBD, problem, evidence — see `persona-context.md`. Omit when Objective already states beneficiary and value. |
+
 ---
 
 ## Output template
@@ -28,6 +34,15 @@ Templates and writing rules for `refine-story`. Output is **markdown in chat** (
 [What must be delivered and the value generated - user or business perspective.]
 
 ---
+
+### Who / Job / Outcome (optional)
+- **Who:** [role / segment]
+- **Job:** [JTBD in one sentence]
+- **Outcome:** [progress the user measures]
+- **Problem:** [optional — friction today]
+- **Evidence:** [optional — quote, metric, ticket]
+
+Guideline: `skills/_shared/backlog-item-types/persona-context.md`
 
 ### 🔗 Dependencies (omit if none)
 - [dependency id or link]
@@ -110,7 +125,10 @@ When input is thin, ask:
 
 **Objective:** Beneficiary perspective - not "the system must". Include value (e.g. removes manual step).
 
+**Who / Job / Outcome:** Optional. Load `persona-context.md` when who/job/outcome clarifies value beyond Objective. Do not invent named fictional personas. Scorecard does not require this block.
+
 **Dependencies:** Omit section if none.
+
 
 **Acceptance criteria (business):** No HTTP codes, class names, or DB details. Cover main flow, business rule, and user-visible failure. Use **Given / When / Then / And**.
 

@@ -49,12 +49,17 @@ In the **target workspace** (not this toolkit repo unless it is the .NET repo un
 
 | When | Path |
 |------|------|
-| Detection, checklist, scaffold notes | `skills/scaffold-message-handler/reference.md` or `{{TOOLKIT_ROOT}}/skills/scaffold-message-handler/reference.md` after sync |
+| Reference index (routing only) | `skills/scaffold-message-handler/reference.md` or `{{TOOLKIT_ROOT}}/skills/scaffold-message-handler/reference.md` after sync |
+| Process step detail (lazy) | `skills/scaffold-message-handler/references/<section>.md` |
 | Generating or reviewing .NET code | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
 | C# / test naming | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | Small follow-up without SDD | `/dotnet-developer` |
 
+**Never by default:** do not preload all `references/*.md`, full messaging docs, or unrelated guideline packs. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
 ## Process
+
+Read `references/<section>.md` for detection/checklists — **not** full `reference.md`.
 
 ### 0. Workspace
 
@@ -62,7 +67,7 @@ Confirm **target .NET repository** (`.sln` or worker/API with messaging). If the
 
 ### 1. Detect messaging stack
 
-Grep/Glob per `reference.md` section Stack detection. Report:
+Grep/Glob per `references/stack-detection.md`. Report:
 
 | Signal | Likely stack |
 |--------|----------------|
@@ -79,11 +84,11 @@ Do **not** require corporate `docs/consumidores/` paths.
 
 Glob existing consumers/handlers in the repo. Note: namespace layout, registration (`AddMassTransit`, hosted service, etc.), message contract location, test project pattern.
 
-If **no** consumer exists, say so and propose a layout consistent with Clean Architecture after reading `clean-architecture.md`.
+If **no** consumer exists, say so and propose a layout consistent with Clean Architecture after reading `clean-architecture.md` (`references/layering.md`).
 
 ### 3. Collect requirements (blocker before code)
 
-Ask using `reference.md` section Requirements checklist. Minimum:
+Ask using `references/requirements-checklist.md`. Minimum:
 
 - Queue or topic name (and subscription if applicable)
 - Message contract (type name, key fields, schema source)
@@ -96,7 +101,7 @@ Wait for answers. Do not invent queue names or payloads.
 
 ### 4. Propose scaffold plan
 
-Present:
+Present (`references/scaffold-checklist.md`):
 
 - Files to add or extend (paths from repo conventions)
 - Registration point (DI / MassTransit config)
@@ -108,14 +113,14 @@ Ask explicit confirmation before writing code.
 
 After confirmation:
 
-1. Load `clean-architecture.md` and `csharp-patterns.md`
+1. Load `clean-architecture.md` and `csharp-patterns.md` (`references/layering.md`, `references/test-guidance.md`)
 2. Mirror naming and folder structure from step 2
 3. Add consumer/handler, contract if missing, registration, and tests
 4. Run `dotnet build` and targeted `dotnet test` for affected projects
 
 ### 6. Summarize handoff
 
-Report: stack detected, paths touched, how to run locally, open risks (idempotency, poison messages).
+Report: stack detected, paths touched, how to run locally, open risks (idempotency, poison messages). See `references/related-skills.md`, `references/exclusions.md`, `references/context-management.md`.
 
 | Situation | Next |
 |-----------|------|

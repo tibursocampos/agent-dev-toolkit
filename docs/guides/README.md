@@ -1,4 +1,4 @@
-# User guides
+﻿# User guides
 
 Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../INSTALL.md) — you should not need to read every `SKILL.md` under the agent home for daily work.
 
@@ -10,7 +10,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** *(formerly Forma A/B/C — alias this release only)* for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
 
 **Same call flow:** skill ids and slash/`$id` handoffs stay; internal contracts add gates and artifacts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) — not a second toolkit or SQLite/FTS deliverable.
 
@@ -79,7 +79,7 @@ New task
   └─ After code                    -> code-review -> test-coverage? -> commit -> push -> open-github-pr?
 ```
 
-**Greenfield domain:** use Orchestrated Delivery *(formerly Forma C)* — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
+**Greenfield domain:** use Orchestrated Delivery — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
 
 ---
 
@@ -87,9 +87,9 @@ New task
 
 | Track | When | Pipeline | Notes |
 |-------|------|----------|-------|
-| **Classic SDD** *(formerly Forma A)* | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **Backlog Refine** *(formerly Forma B)* | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
-| **Orchestrated Delivery** *(formerly Forma C)* | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse Classic SDD |
+| **Classic SDD** | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
+| **Backlog Refine** | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
+| **Orchestrated Delivery** | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse Classic SDD |
 
 Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
@@ -102,6 +102,7 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first skill |
 | [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
 | [07-caveman-mode.md](07-caveman-mode.md) | Caveman default OFF, commands, levels, Auto-Clarity |
+| [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands, PRD/PLAN execution policy |
 
 Related:
 
@@ -125,3 +126,7 @@ Related:
 ## Caveman Mode
 
 Optional response compression. **Default OFF.** Commands: `caveman on` / `off` / `status` / `lite` / `full` / `ultra` (aliases: `stop caveman`, `normal mode`). Full guide: [07-caveman-mode.md](07-caveman-mode.md). Does not change sync or validation scripts.
+
+## Orchestrator mode
+
+Parent stays lean; specialists do heavy work. **Default `always`.** Commands: `orchestrator always` / `adaptive` / `status`. Full guide: [08-orchestrator-mode.md](08-orchestrator-mode.md).

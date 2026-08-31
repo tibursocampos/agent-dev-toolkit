@@ -42,6 +42,7 @@ $script:GrokAdapterLibDir = Join-Path $script:GrokAdapterDirectory '..\..\script
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokPolicy.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokRouter.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokHooks.ps1')
+. (Join-Path $script:GrokAdapterDirectory 'Publish-GrokAgents.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Invoke-GrokSmokeValidate.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Uninstall-GrokToolkit.ps1')
 
@@ -68,7 +69,7 @@ $script:GrokAdapterCapabilityFlags = [ordered]@{
     hooks     = $true
     router    = $true
     plugin    = $false
-    agents    = $false
+    agents    = $true
     subagents = $script:GrokAdapterSubagentsNative
 }
 
@@ -253,7 +254,7 @@ function Publish-Router {
 function Publish-Agents {
     <#
     .SYNOPSIS
-      Documented no-op - Grok Build has no documented custom-agents directory.
+      Publish core/agents markdown into InstallRoot/agents.
     #>
     [CmdletBinding()]
     param(
@@ -269,17 +270,7 @@ function Publish-Agents {
         throw $script:GrokAdapterMessage.InstallRootRequired
     }
 
-    return [PSCustomObject]@{
-        Success     = $true
-        Implemented = $true
-        CommandName = 'Publish-Agents'
-        NoOp        = $true
-        WhatIf      = [bool]$WhatIf.IsPresent
-        InstallRoot = $InstallRoot.Trim()
-        FilesCopied = 0
-        Message     = $script:GrokAdapterMessage.AgentsNoOp
-        ExitCode    = 0
-    }
+    return Invoke-GrokPublishAgents -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Publish-Hooks {

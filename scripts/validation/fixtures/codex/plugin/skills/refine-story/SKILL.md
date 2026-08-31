@@ -1,4 +1,4 @@
----
+﻿---
 name: refine-story
 description: Refine a Bug, User Story, or Technical Story into structured markdown with BDD acceptance and a quality scorecard. Use when refining backlog or invoking /refine-story.
 ---
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/refine-story`, `refine backlog item`, `/refine-story`, or quick intake before SDD / Forma C.
+Invoke when the user asks for: `/refine-story`, `refine backlog item`, `/refine-story`, or quick intake before SDD / Orchestrated Delivery.
 
 Optional: path to existing notes, or pasted description.
 
@@ -110,7 +110,7 @@ Ask where to save (pt-BR):
 ```text
 Onde gravar o item refinado?
 
-1) features/NNN-slug/USnn/STORY.md (recomendado - Forma B alinhada ao storage)
+1) features/NNN-slug/USnn/STORY.md (recomendado - Backlog Refine alinhada ao storage)
 2) docs/backlog/<slug>.md (atalho)
 3) Só chat (não gravar)
 ```
@@ -128,8 +128,8 @@ Write prose in that language; paths and identifiers stay in English. Slug from t
 | Situation | Next |
 |-----------|------|
 | Break into implementation checklist | `/split-story-checklist` (same content or saved path) |
-| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Forma C O1) |
-| Medium/high complexity single feature (Forma A) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Orchestrated Delivery O1) |
+| Medium/high complexity single feature (Classic SDD) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
 | Small isolated change | `/developer` / stack `*-developer` |
 | Commit saved file | `/commit` |
 

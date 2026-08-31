@@ -12,6 +12,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File hooks/guard-pre-tool.ps1",
+            "enabled": true
+          }
+        ]
+      }
     ]
   }
 }

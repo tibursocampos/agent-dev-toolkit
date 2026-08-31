@@ -30,7 +30,7 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | `hooks` | true | Native JSON under `hooks/` |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md` |
 | `plugin` | false | Marketplace/plugins out of CI green |
-| `agents` | false | No documented custom-agents dir; `Publish-Agents` no-op |
+| `agents` | true | `core/agents` → `agents/<id>.md` under InstallRoot |
 | `subagents` | `native` | Host `spawn_subagent`; see Spawn section |
 
 ## Spawn / subagents (honesty)
@@ -40,7 +40,7 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Tool **`spawn_subagent`**; config `[subagents]` / `GROK_SUBAGENTS` / `--no-subagents` |
 | Toolkit contract | Prefer `spawn_subagent` when `subagents=native`; SPAWN fallback if feature disabled |
-| Published files | **Skip.** Grok has no documented custom-agents directory. `Publish-Agents` is a documented no-op (`agents=false`). |
+| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.grok/agents/`). |
 
 ### Official references (subagents)
 
@@ -57,7 +57,8 @@ Public `Publish-Skills` (etc.) in `GrokAdapter.ps1` forward to `Invoke-Grok*` im
 | `core/skills/<id>/` | `skills/<id>/SKILL.md` (+ assets) |
 | `core/policy/{name}.md` | `rules/{name}.md` |
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`) |
-| Adapter hooks assets | `hooks/toolkit-session-start.json`, `session_start.ps1` |
+| `core/agents/*.md` | `agents/*.md` |
+| Adapter hooks assets | `hooks/toolkit-session-start.json`, `session_start.ps1`, `guard-pre-tool.ps1` (+ `GuardCommon.ps1`) |
 
 Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** (the parent of `skills/_shared`). Re-sync overwrites managed files; alien files under InstallRoot are left alone.
 

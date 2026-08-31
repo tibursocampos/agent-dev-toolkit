@@ -66,7 +66,24 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 | Final checklist | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/dotnet-guidelines/checklist.md` |
 | Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/context-management.mdc` |
 
-Do **not** preload `code-guidelines/languages/**` or corporate pipeline docs. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+**Never by default:** do not preload all `dotnet-guidelines/` files, all `developer-common/step-*.md`, or `code-guidelines/languages/**` / corporate pipeline docs. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+
+**Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index for which packs to open; fan-out to individual `step-3*` / `step-4` / `step-7` only when that process step runs. For architecture: selection/contract (`architecture-selection.md` or ARCH) → **one** `dotnet-guidelines/` overlay → `csharp-patterns.md` / checklist only when coding or pre-PR.
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Workspace / AGENTS | `developer-common/step-0-context.md` |
+| Which guidelines to open | `developer-common/step-0.5-review-guidelines.md` |
+| Style unset / greenfield | `code-guidelines/principles/architecture-selection.md` → then **one** overlay |
+| ARCH = concentric / CA / onion / hexagonal | `dotnet-guidelines/clean-architecture.md` |
+| ARCH = vertical-slice / VSA | `dotnet-guidelines/vertical-slice.md` |
+| ARCH = ddd | `dotnet-guidelines/ddd-tactical.md` |
+| ARCH = event-driven / EDA | `dotnet-guidelines/event-driven.md` |
+| C# / tests | `dotnet-guidelines/csharp-patterns.md` |
+| Branch / pre-commit / commit | matching `developer-common/step-3*.md` / `step-4-commits-pr.md` |
+| Pre-PR | `developer-common/step-7-checklist.md` + `dotnet-guidelines/checklist.md` |
 
 ## Process
 

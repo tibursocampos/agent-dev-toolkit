@@ -1,4 +1,4 @@
----
+﻿---
 description: SDD pipeline order, canonical PRD/PLAN paths, confirm-before-write, Plan/Ask vs Agent phases
 alwaysApply: true
 ---
@@ -9,8 +9,8 @@ Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load w
 
 ## Order
 
-- **Classic SDD (Forma A)**: `sdd-spec` -> `sdd-plan` -> `sdd-develop`. Do not create a PLAN without a canonical PRD (unless "PLAN direto"). Do not implement without a canonical PLAN.
-- **Forma C**: `orchestrate-analyze` -> `orchestrate-deliver` -> (`orchestrate-develop` \| `sdd-develop`) after human gates.
+- **Classic SDD**: `sdd-spec` -> `sdd-plan` -> `sdd-develop`. Do not create a PLAN without a canonical PRD (unless "PLAN direto"). Do not implement without a canonical PLAN.
+- **Orchestrated Delivery**: `orchestrate-analyze` -> `orchestrate-deliver` -> (`orchestrate-develop` \| `sdd-develop`) after human gates.
 
 ## Canonical paths only
 
@@ -21,7 +21,7 @@ Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load w
 - Numbering (`NNN`): from `features/*/` only (workspace + global feature root).
 - Root/flat `PRD/` / `PLAN/` / `docs/PRD/` / `docs/PLAN/`: **not** valid Classic SDD paths - do not read, write, or update-in-place for execution. Keep those patterns in `.gitignore` **only as a safety net** (`STORAGE.md`).
 
-Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Forma B stories (`STORY.md`); `docs/backlog/` is a shortcut only.
+Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Backlog Refine stories (`STORY.md`); `docs/backlog/` is a shortcut only.
 
 Cited `.md` outside `features/` (including `.cursor/plans/`) must be **promoted** (Read + copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS`) before backlog **sim**. Pointer-only = fail O1.
 

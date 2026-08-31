@@ -1,4 +1,4 @@
----
+﻿---
 name: sdd-develop
 description: Execute one PLAN baby step (code in English; PLAN in file language, pt-BR default). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
 ---
@@ -132,7 +132,7 @@ Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <full-plan-pat
 | Next step | New session -> `/sdd-develop - <full-plan-path> - Step N+1` |
 | All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
-Example full path (Forma A):
+Example full path (Classic SDD):
 
 ```
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2

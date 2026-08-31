@@ -23,6 +23,16 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent antigravity -InstallRoot .
 
 Canonical form is the skill **id**.
 
+## Hooks (path / secrets)
+
+| Item | Value |
+|------|-------|
+| Capability | `hooks=true` |
+| Publish | `config/hooks/hooks.json` + `guard-pre-tool.ps1` (+ `_hook-common.ps1`, `GuardCommon.ps1`) |
+| Matcher | `write_to_file\|replace_file_content\|multi_replace_file_content\|run_command` |
+| Deny shape | `{ "decision": "deny", "reason": "…" }` |
+| Out of scope | Sidecars / Automations; legacy `antigravity-ide/plugins` bridge |
+
 ## Spawn / subagents (honesty)
 
 Hierarchical subagents exist since **Antigravity 2.0** via `invoke_subagent` (async by default, nesting ≤10, optional git worktrees). Pré-2.0 Agent Manager ran parallel agents in separate conversations — not parent→child in-session delegation.

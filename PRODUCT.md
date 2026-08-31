@@ -1,4 +1,4 @@
-# Product
+﻿# Product
 
 ## Register
 
@@ -9,7 +9,7 @@ brand
 Two equal primary audiences for the public docs site:
 
 1. **Explorers** — developers who have not synced the toolkit yet; they need a clear “why this exists” and a one-command path to try it.
-2. **Operators** — people who already use a supported agent (Cursor, Claude Code, Copilot, Codex, Hermes, OpenHands, …); they need the right sync/validate commands, agent install roots, and which Forma/skill to invoke.
+2. **Operators** — people who already use a supported agent (Cursor, Claude Code, Copilot, Codex, Hermes, OpenHands, …); they need the right sync/validate commands, agent install roots, and which work track/skill to invoke.
 
 Secondary: maintainers who need validation/CI and governance (reachable, not on the first viewport).
 

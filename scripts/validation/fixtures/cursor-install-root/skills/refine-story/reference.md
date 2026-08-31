@@ -1,4 +1,4 @@
-# refine-story - reference
+﻿# refine-story - reference
 
 Scorecard, guardrails, and boundaries for `skills/refine-story/SKILL.md`. Keep `SKILL.md` under 500 lines; use this file for extended detail.
 
@@ -6,7 +6,7 @@ Scorecard, guardrails, and boundaries for `skills/refine-story/SKILL.md`. Keep `
 
 ## Boundary: refine vs O1 vs sdd-spec
 
-| Aspect | `refine-story` (Forma B) | `orchestrate-analyze` (O1) | `sdd-spec` (Forma A) |
+| Aspect | `refine-story` (Backlog Refine) | `orchestrate-analyze` (O1) | `sdd-spec` (Classic SDD) |
 |--------|----------------------------------|----------------------------|----------------------|
 | Purpose | Fast intake - one backlog item + scorecard | Multi-agent triage + US/TS backlog for a feature | Full PRD for one story/feature |
 | Output | Structured markdown + scorecard | `FEATURE.md`, `CONTINUITY.md`, `STORY.md` × N | PRD under `features/.../PRD/` |
@@ -17,7 +17,9 @@ Scorecard, guardrails, and boundaries for `skills/refine-story/SKILL.md`. Keep `
 
 Escalate to **O1** when: multiple stories, unclear flags (`needs_*`), brownfield impact needs parallel specialists.
 
-Escalate to **sdd-spec** when: single story is clear enough for a PRD (or after refine approval).
+Escalate to **sdd-spec** when: single story is clear enough for a PRD (or after refine approval). PRD contract (REQ-IDs, verifiable CA, OOS, optional hybrid EARS) lives in `templates/sdd/PRD.md` — refine does **not** invent a parallel PRD body.
+
+**Selective retrieval:** `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP` — **must not** dump entire `memory-bank/` or paste full PRD into refine output/handoffs. Smoke: `Assert-SelectiveRetrieval.ps1`.
 
 Do **not** expand refine into a full PRD inline.
 

@@ -163,6 +163,10 @@ function Get-ClaudeManagedHooksObject {
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPostToolUse
     ) -Matcher $c.HookMatcherPostToolUse
 
+    $hooks[$c.HookEventPreToolUse] = New-ClaudeManagedHookEventEntries -Command (
+        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreToolUse
+    ) -Matcher $c.HookMatcherPreToolUse
+
     return $hooks
 }
 
@@ -180,6 +184,7 @@ function Get-ClaudeManagedHookScriptFileNameMap {
         $c.HookEventUserPromptSubmit = $c.HookScriptUserPromptSubmit
         $c.HookEventPreCompact       = $c.HookScriptPreCompact
         $c.HookEventPostToolUse      = $c.HookScriptPostToolUse
+        $c.HookEventPreToolUse       = $c.HookScriptPreToolUse
     }
 }
 
@@ -249,7 +254,8 @@ function Get-ClaudeManagedPermissionsAllowEntries {
     foreach ($scriptFileName in @(
             $c.HookScriptUserPromptSubmit,
             $c.HookScriptPreCompact,
-            $c.HookScriptPostToolUse
+            $c.HookScriptPostToolUse,
+            $c.HookScriptPreToolUse
         )) {
         $command = Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $scriptFileName
         $entries.Add(($format -f $command)) | Out-Null

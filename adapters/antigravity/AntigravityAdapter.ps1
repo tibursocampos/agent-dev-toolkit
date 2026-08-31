@@ -15,11 +15,11 @@
   writes GUARDRAILS.md from core/policy under
   config/plugins/agent-dev-toolkit. Publish-Router materializes skills/dev_persona
   from core/router and upserts managed blocks in config/AGENTS.md and config/GEMINI.md.
-  Publish-Hooks is a capability-honest no-op (hooks=false): no writes under
-  config/hooks or the legacy antigravity-ide/plugins bridge. Get-SddRoot (-Prepare)
+  Publish-Hooks publishes PreToolUse path/secrets guard under
+  config/hooks (hooks=true). Get-SddRoot (-Prepare)
   prepares InstallRoot/sdd (sessions + manifest seed). Invoke-SmokeValidate
   asserts official config/* artifacts (kebab skills, GUARDRAILS, dev_persona,
-  skills.json). Uninstall-Toolkit removes keyed toolkit artifacts only.
+  skills.json, hooks when capable). Uninstall-Toolkit removes keyed toolkit artifacts only.
   Does not write under USERPROFILE without -AllowUserHome.
 #>
 
@@ -31,6 +31,7 @@ if ([string]::IsNullOrWhiteSpace($script:AntigravityAdapterDirectory)) {
 . (Join-Path $script:AntigravityAdapterDirectory 'AntigravityPathConstants.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityPolicy.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityRouter.ps1')
+. (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityHooks.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Invoke-AntigravitySmokeValidate.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Uninstall-AntigravityToolkit.ps1')
 
@@ -58,7 +59,7 @@ $script:AntigravityAdapterCommandNames = @(
     'Uninstall-Toolkit'
 )
 
-# Honest flags: Antigravity IDE has no Cursor-equivalent shell hooks (ENFORCEMENT / hooks investigation).
+# Honest flags: Antigravity PreToolUse hooks under config/hooks (path/secrets).
 # Registry declares subagents=native (Antigravity 2.0+); Get-Capabilities uses fail-closed host probe.
 $script:AntigravityAdapterSubagentsNative = 'native'
 $script:AntigravityAdapterSubagentsNone = 'none'
@@ -66,7 +67,7 @@ $script:AntigravityAdapterSubagentsNone = 'none'
 $script:AntigravityAdapterCapabilityFlags = [ordered]@{
     skills    = $true
     rules     = $true
-    hooks     = $false
+    hooks     = $true
     router    = $true
     plugin    = $true
     agents    = $false
@@ -118,7 +119,7 @@ $script:AntigravityAdapterMessage = @{
     NotImplemented            = '{0} is not implemented yet for the Antigravity adapter. Publish/smoke land in later adapter PLAN steps; stubs must not mutate InstallRoot.'
     AgentIdRequired           = 'AgentId is required.'
     InstallRootRequired       = 'InstallRoot is required.'
-    CapabilitiesReady         = 'Antigravity adapter capabilities reported (skills/rules/router/plugin; hooks=false - no native shell-hook parity; subagents via fail-closed host probe / ADT_ANTIGRAVITY_SUBAGENTS override). Publish-Skills/Policy/Router ready; Publish-Hooks is a documented no-op; Get-SddRoot (-Prepare) and Invoke-SmokeValidate ready (filesystem-only; hooks/legacy bridge ignored); Uninstall-Toolkit keyed removal ready. SDD runtime prepared on sync.'
+    CapabilitiesReady         = 'Antigravity adapter capabilities reported (skills/rules/router/plugin/hooks; subagents via fail-closed host probe / ADT_ANTIGRAVITY_SUBAGENTS override). Publish-Skills/Policy/Router/Hooks ready; Get-SddRoot (-Prepare) and Invoke-SmokeValidate ready (filesystem-only; legacy bridge ignored); Uninstall-Toolkit keyed removal ready. SDD runtime prepared on sync.'
     ResolveInstallRootMissing = 'Resolve-InstallRoot helper not found at: {0}'
     SddRootResolved           = 'Antigravity SDD root resolved at {0}.'
     SddRootPrepared           = 'Prepared Antigravity SDD root at {0} (sessionsCreated={1}; manifestCreated={2}).'
@@ -372,7 +373,7 @@ function Resolve-AntigravitySubagentsCapability {
 function Get-Capabilities {
     <#
     .SYNOPSIS
-      Report Antigravity adapter capability flags (honest hooks=false; subagents via host probe).
+      Report Antigravity adapter capability flags (hooks=true PreToolUse path/secrets; subagents via host probe).
     #>
     [CmdletBinding()]
     param(
@@ -883,12 +884,12 @@ function Publish-Agents {
 function Publish-Hooks {
     <#
     .SYNOPSIS
-      Honor Get-Capabilities hooks flag under InstallRoot.
+      Publish PreToolUse path/secrets guard under InstallRoot/config/hooks when hooks=true.
 
     .DESCRIPTION
-      When hooks=false (Antigravity MVP): documented no-op - Success/Implemented,
-      no filesystem writes under official config/hooks or legacy antigravity-ide/plugins.
-      Default smoke must not require hooks files or the legacy bridge (opt-in only).
+      Copies adapters/antigravity/assets/hooks (+ GuardCommon.ps1) to official config/hooks.
+      Never writes under legacy antigravity-ide/plugins. Sidecars/Automations remain OOS.
+      When hooks=false: documented no-op.
     #>
     [CmdletBinding()]
     param(
@@ -904,50 +905,7 @@ function Publish-Hooks {
         throw $script:AntigravityAdapterMessage.InstallRootRequired
     }
 
-    $resolvedInstallRoot = Resolve-AntigravityInstallRootPath -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome
-    $officialHooksRelative = $script:AntigravityAdapterConstant.OfficialHooksRelativePath
-    $legacyBridgeRelative = $script:AntigravityAdapterConstant.LegacyBridgeRelativePath
-    $sep = [System.IO.Path]::DirectorySeparatorChar
-    $officialHooksPath = Join-Path $resolvedInstallRoot ($officialHooksRelative -replace '/', $sep)
-    $legacyBridgePath = Join-Path $resolvedInstallRoot ($legacyBridgeRelative -replace '/', $sep)
-
-    $hooksCapable = $false
-    if ($null -ne $script:AntigravityAdapterCapabilityFlags -and $script:AntigravityAdapterCapabilityFlags.Contains('hooks')) {
-        $hooksCapable = [bool]$script:AntigravityAdapterCapabilityFlags['hooks']
-    }
-
-    if (-not $hooksCapable) {
-        $message = if ($WhatIf.IsPresent) {
-            ($script:AntigravityAdapterMessage.HooksWouldNoOp -f $officialHooksRelative, $legacyBridgeRelative)
-        }
-        else {
-            $script:AntigravityAdapterMessage.HooksNoOpNotCapable
-        }
-
-        return [PSCustomObject]@{
-            Success                  = $true
-            Implemented              = $true
-            NoOp                     = $true
-            Skipped                  = $true
-            CommandName              = 'Publish-Hooks'
-            WhatIf                   = [bool]$WhatIf.IsPresent
-            InstallRoot              = $resolvedInstallRoot
-            OfficialHooksRelativePath = $officialHooksRelative
-            OfficialHooksPath        = $officialHooksPath
-            LegacyBridgeRelativePath = $legacyBridgeRelative
-            LegacyBridgePath         = $legacyBridgePath
-            FilesCopied              = 0
-            RequiresShellHooks       = $false
-            SmokeIgnoresHooks        = $true
-            SmokeTargetsLegacyBridge = $false
-            Message                  = $message
-            ExitCode                 = 0
-        }
-    }
-
-    # Future: when hooks capability becomes true, publish under OfficialHooksRelativePath only
-    # (never default to LegacyBridgeRelativePath). Unreachable while hooks=false.
-    return New-AntigravityAdapterNotImplementedResult -CommandName 'Publish-Hooks'
+    return Invoke-AntigravityPublishHooks -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -WhatIf:$WhatIf
 }
 
 function Get-SddRoot {
@@ -986,7 +944,7 @@ function Invoke-SmokeValidate {
     <#
     .SYNOPSIS
       Run Antigravity filesystem smoke against a fixture InstallRoot (official config/*).
-      Asserts kebab skills, skills.json, GUARDRAILS, dev_persona; ignores hooks/legacy bridge.
+      Asserts kebab skills, skills.json, GUARDRAILS, dev_persona, hooks when capable; ignores legacy bridge.
     #>
     [CmdletBinding()]
     param(
@@ -1009,9 +967,9 @@ function Uninstall-Toolkit {
       Remove keyed toolkit artifacts from InstallRoot.
     .DESCRIPTION
       Removes published core skill folders, dev_persona, the managed plugin
-      directory (GUARDRAILS), the managed skills.json entry, and managed
-      AGENTS.md/GEMINI.md blocks. Preserves alien content, hooks, and the
-      legacy bridge. Supports -WhatIf and -AllowUserHome.
+      directory (GUARDRAILS), the managed skills.json entry, managed
+      AGENTS.md/GEMINI.md blocks, and toolkit config/hooks files. Preserves alien
+      content and the legacy bridge. Supports -WhatIf and -AllowUserHome.
     #>
     [CmdletBinding()]
     param(

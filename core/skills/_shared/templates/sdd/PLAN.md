@@ -1,4 +1,4 @@
-# PLAN: [Nome da feature]
+﻿# PLAN: [Nome da feature]
 
 | Campo | Valor |
 |-------|--------|
@@ -8,8 +8,17 @@
 | **Complexidade** | Baixa / Média / Alta |
 | **Total de passos** | N |
 | **Progresso** | 0/N |
-| **Track** | Classic SDD *(formerly Forma A)* / … |
+| **Track** | Classic SDD / … |
 | **Status** | draft / approved |
+
+## Execution policy
+
+| Field | Value |
+|-------|--------|
+| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `always`) |
+| **Parent role** | Orchestrator only — delegate implementation to specialists |
+| **Child validation** | After file changes: child runs build + tests; reports `{ build, tests, summary }` |
+| **Handoff** | Scoped paths + receipt per `SPAWN.md` — no full PLAN/PRD dump into child prompts |
 
 ```
 [⚪⚪⚪⚪⚪⚪⚪⚪] 0% (0/N)
@@ -61,7 +70,7 @@ Todo REQ do PRD deve aparecer. Aceite de cada passo cita REQ e/ou CA.
 
 **Aceite:**
 
-- [ ] [CA / REQ do PRD — verificável]
+- [ ] [REQ-NNN / CA from PRD — verifiable; cite REQ id explicitly]
 - [ ] Build e testes direcionados passam (quando houver código)
 
 **Notas:** [Riscos; aviso se passo denso]

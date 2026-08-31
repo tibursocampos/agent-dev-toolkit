@@ -1,4 +1,4 @@
-# Agent router (L0 index) - agent-dev-toolkit
+﻿# Agent router (L0 index) - agent-dev-toolkit
 
 Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer `/<skill>` (or host equivalent); load shared docs on demand.
 
@@ -11,17 +11,17 @@ Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-too
 | Project docs (`docs/`, README deliverables) | Ask pt-BR or English in skill before writing |
 | User-facing chat replies | Brazilian Portuguese (pt-BR) — `user-language-pt-br.mdc` |
 
-## Formas (workflows)
+## Work tracks
 
-Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-slug/` (see `core/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: `docs/guides/README.md`.
+Three coexisting **work tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `core/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: `docs/guides/README.md`.
 
-| Forma | When | Pipeline |
+| Track | When | Pipeline |
 |-------|------|----------|
-| **A** Classic SDD | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **B** Backlog prep | Informal item before SDD | `refine-story` → `split-story-checklist` → A or C |
-| **C** Orchestrated | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
+| **Classic SDD** | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
+| **Backlog Refine** | Informal item before SDD | `refine-story` → `split-story-checklist` → Classic SDD or Orchestrated Delivery |
+| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
 
-**Checkpoint:** one `sdd-develop` session = one PLAN step. Forma C Step 0 = Memory Bank Gate (`core/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`.
+**Checkpoint:** one `sdd-develop` session = one PLAN step. Orchestrated Delivery Step 0 = Memory Bank Gate (`core/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`.
 
 **Enforcement:** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/rules/guardrails.mdc`, `sdd-pipeline-guards.mdc`, `core/skills/_shared/sdd-artifacts/SESSION.md`.
 
@@ -51,7 +51,7 @@ Three coexisting **Formas**. Classic / Forma C writes land under `features/NNN-s
 | Pipeline / modes | `core/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage / manifest | `core/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Session gates | `core/skills/_shared/sdd-artifacts/SESSION.md` |
-| Memory-bank (Forma C) | `core/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Memory-bank (Orchestrated Delivery) | `core/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 
 ## Agents / spawn (lazy)
 
@@ -85,7 +85,7 @@ Full list: `docs/SKILLS.md`. Prefer `/<name>`. Compat: `use skill <name>` may st
 | Group | Examples |
 |-------|----------|
 | Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| Forma C | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
 | Ops / quality | `code-review`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate` |
 | Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |

@@ -329,6 +329,35 @@ function Invoke-ZCodePublishHooks {
     $null = Merge-ZCodeJsonFile -SourcePath $sourceCliConfig -DestinationPath $destinationCliConfig -InstallRoot $resolvedInstallRoot -ForceHooksEnabled
     $null = Merge-ZCodeJsonFile -SourcePath $sourceHooksJson -DestinationPath $destinationHooksJson -InstallRoot $resolvedInstallRoot
 
+    $sourceGuard = Join-Path $script:ZCodeHooksModuleDirectory (Join-Path $script:ZCodePathConstant.HooksDirectoryName $script:ZCodePathConstant.HooksGuardPreToolScriptName)
+    $destinationGuard = Join-Path $resolvedInstallRoot (Join-Path $script:ZCodePathConstant.HooksDirectoryName $script:ZCodePathConstant.HooksGuardPreToolScriptName)
+    if (-not (Test-Path -LiteralPath $sourceGuard)) {
+        throw ($script:ZCodePublishMessage.HooksSourceMissing -f $sourceGuard)
+    }
+    $hooksDir = Split-Path -Parent $destinationGuard
+    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $hooksDir -InstallRoot $resolvedInstallRoot
+    if (-not (Test-Path -LiteralPath $hooksDir)) {
+        New-Item -ItemType Directory -Path $hooksDir -Force | Out-Null
+    }
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $destinationGuard `
+        -RootPath $resolvedInstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    Copy-Item -LiteralPath $sourceGuard -Destination $destinationGuard -Force
+
+    $sharedGuardSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:ZCodePathConstant.SharedGuardCommonFileName
+    $sharedGuardDest = Join-Path $hooksDir $script:ZCodePathConstant.SharedGuardCommonFileName
+    if (-not (Test-Path -LiteralPath $sharedGuardSource)) {
+        throw ($script:ZCodePublishMessage.HooksSourceMissing -f $sharedGuardSource)
+    }
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $sharedGuardDest `
+        -RootPath $resolvedInstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    Copy-Item -LiteralPath $sharedGuardSource -Destination $sharedGuardDest -Force
+
     return [PSCustomObject]@{
         Success          = $true
         Implemented      = $true
@@ -337,9 +366,10 @@ function Invoke-ZCodePublishHooks {
         InstallRoot      = $resolvedInstallRoot
         CliConfigPath    = $destinationCliConfig
         HooksJsonPath    = $destinationHooksJson
+        GuardScriptPath  = $destinationGuard
         SourceCliConfig  = $sourceCliConfig
         SourceHooksJson  = $sourceHooksJson
-        FilesWritten     = 2
+        FilesWritten     = 4
         Message          = ($script:ZCodePublishMessage.HooksPublishedOk -f $destinationCliConfig, $destinationHooksJson)
         ExitCode         = 0
     }

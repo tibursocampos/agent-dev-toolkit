@@ -75,6 +75,8 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `java-guidelines` rows needed for the current task. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
 
+**Never by default:** do not preload other stack guideline packs. Load only Java/Spring rows needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

@@ -1,6 +1,6 @@
----
+﻿---
 name: orchestrate-deliver
-description: Orchestrated Delivery *(formerly Forma C)* O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
+description: Orchestrated Delivery O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Orchestrated Delivery *(formerly Forma C)* O2 after an approved O1 backlog.
+Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Orchestrated Delivery O2 after an approved O1 backlog.
 
 Required: full feature path (or resolvable `features/NNN-slug/`).
 
@@ -62,14 +62,15 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Spec contract | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` as needed) |
 | Plan contract | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` as needed) |
 | CHANGE brownfield / current | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
-| Process details, modes, approval, Must not | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
 
-**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, then `sdd-spec` → `sdd-plan` per story, and `orchestrate-deliver/reference.md` for Process step details / mode / approval / Must not when needed.
+**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, then `sdd-spec` → `sdd-plan` per story, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
@@ -81,45 +82,51 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Before paralelo Task wave | `SPAWN.md` |
 | Write PRD (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` |
 | Write PLAN (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` |
-| Process steps / mode / batch approval / Must not | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
+| Preconditions / Step 0 / siblings STOP | `references/preconditions.md` |
+| Mode série vs paralelo | `references/mode-selection.md` |
+| Per-story contracts / Task child skeleton | `references/per-story-contracts.md` |
+| Approval gates / answers | `references/approval-gates.md` |
+| CONTINUITY / handoff / cross-artifact | `references/continuity-handoff.md` |
+| Caveman / resolve / context pressure | `references/process-common.md` |
+| Boundaries / Must not | `references/boundaries-must-not.md` |
 
 ## Process
 
-Read `reference.md` for procedural tables, prompts, and checklists under each step. Do not skip gates.
+Read `references/<section>.md` for procedural tables, prompts, and checklists under each step — **not** full `reference.md`. Do not skip gates.
 
 ### Step -1b - Caveman Mode (Lite cap)
-Apply Lite caveman prefs when active. Details: `reference.md` § Process — Caveman (Lite cap).
+Apply Lite caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery *(formerly Forma C)*) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
 
 ### 2. Resolve feature and storage
-Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEATURE/CONTINUITY missing. Details: `reference.md` § Process — Resolve feature and storage.
+Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEATURE/CONTINUITY missing. Read `references/process-common.md` § Process — Resolve feature and storage.
 
 ### 3. Step 0 - Memory Bank Gate
-Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Update CONTINUITY Memory-bank fields; pass `bank_path` into parallel draft Tasks read-only. Details: `reference.md` § Step 0 - Memory Bank Gate.
+Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Update CONTINUITY Memory-bank fields; pass `bank_path` into parallel draft Tasks read-only. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Preconditions (approved backlog)
-Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing. Details: `reference.md` § Process — Preconditions + § Preconditions checklist.
+Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing. Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
-Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Details: `reference.md` § Process — Choose mode + § Mode comparison (RF03).
+Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
-Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-only children + parent Write after **sim**). Per-story STOP if required siblings missing. Details: `reference.md` § Process — Per-story contracts + § Contract reuse + § Task child prompt skeleton.
+Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-only children + parent Write after **sim**). Per-story STOP if required siblings missing. Read `references/per-story-contracts.md`.
 
 ### 7. Approval - per story or batch (RN01)
-Present summary; **sim** / ajustar / cancelar (por história | lote). Details: `reference.md` § Process — Approval answers + § Approval gates.
+Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
-Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); emit manual `sdd-develop` + O3 handoff paths. Details: `reference.md` § Process — CONTINUITY + multi-path handoff + § Example handoff + § Cross-artifact analyze.
+Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); emit manual `sdd-develop` + O3 handoff paths. Read `references/continuity-handoff.md`.
 
 ### 9. Context pressure (TE02 / RNF02)
-Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Details: `reference.md` § Process — Context pressure.
+Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `references/process-common.md` § Process — Context pressure.
 
 ## Must not
 
-Enforce the full list in `reference.md` § Must not (full). Critical always-on: no app code; no PRD/PLAN without required siblings; no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only.
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only.
 
 ## Handoff
 
@@ -129,7 +136,7 @@ Enforce the full list in `reference.md` § Must not (full). Critical always-on: 
 | Context pause mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
-| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD *(formerly Forma A)*) |
+| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD) |
 
 ### Canonical develop handoffs
 

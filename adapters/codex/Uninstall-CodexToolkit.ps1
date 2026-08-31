@@ -8,7 +8,7 @@
   - plugin/.codex-plugin/plugin.json (and empty .codex-plugin dir)
   - plugin/skills/<id> matching core/skills
   - InstallRoot/skills/<id> matching core/skills (Codex $ discovery home mirror)
-  - plugin/hooks/hooks.json + session_start.ps1
+  - plugin/hooks/hooks.json + guard-pre-tool.ps1 (+ GuardCommon/_hook-common; legacy session_start.ps1 cleaned if present)
   - marketplace entry named agent-dev-toolkit (rewrite or remove catalog)
   - USER-scope skills/<id> matching core/skills (fixture InstallRoot/.agents/skills,
     or live $HOME/.agents/skills when InstallRoot is ~/.codex with -AllowUserHome)
@@ -319,8 +319,11 @@ function Invoke-CodexUninstallToolkit {
     }
 
     $hooksJsonPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksFileName
-    $hooksScriptPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksSessionStartScriptName
-    foreach ($hooksPath in @($hooksJsonPath, $hooksScriptPath)) {
+    $hooksGuardPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksGuardScriptName
+    $hooksCommonPath = Join-Path $pluginHooksRoot '_hook-common.ps1'
+    $hooksSharedPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.SharedGuardCommonFileName
+    $hooksLegacySessionPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksSessionStartScriptName
+    foreach ($hooksPath in @($hooksJsonPath, $hooksGuardPath, $hooksCommonPath, $hooksSharedPath, $hooksLegacySessionPath)) {
         $wouldRemoveHooks = Remove-CodexPathIfPresent -Path $hooksPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
         if ($wouldRemoveHooks) {
             $wouldRemovePaths.Add($hooksPath) | Out-Null
@@ -365,12 +368,16 @@ function Invoke-CodexUninstallToolkit {
     $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
     foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
-        $agentFilePath = Join-Path $customAgentsRoot $agentFileName
-        $wouldRemoveAgent = Remove-CodexPathIfPresent -Path $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-        if ($wouldRemoveAgent) {
-            $wouldRemovePaths.Add($agentFilePath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($agentFilePath) | Out-Null
+        # Current publish emits .toml; also remove stale .md from older publishes.
+        $tomlName = [System.IO.Path]::ChangeExtension($agentFileName, $script:CodexPathConstant.CustomAgentTomlExtension)
+        foreach ($name in @($tomlName, $agentFileName)) {
+            $agentFilePath = Join-Path $customAgentsRoot $name
+            $wouldRemoveAgent = Remove-CodexPathIfPresent -Path $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+            if ($wouldRemoveAgent) {
+                $wouldRemovePaths.Add($agentFilePath) | Out-Null
+                if (-not $WhatIf.IsPresent) {
+                    $removedPaths.Add($agentFilePath) | Out-Null
+                }
             }
         }
     }

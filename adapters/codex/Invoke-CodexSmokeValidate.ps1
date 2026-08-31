@@ -696,7 +696,7 @@ function Invoke-CodexSmokeValidate {
 
     $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.CustomAgentsDirectoryName
     $missingCustomAgents = New-Object System.Collections.Generic.List[string]
-    foreach ($agentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
+    foreach ($agentFileName in @($script:CodexPathConstant.ExpectedCustomAgentTomlFileNames)) {
         $agentPath = Join-Path $customAgentsRoot $agentFileName
         if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
             $missingCustomAgents.Add(($script:CodexPathConstant.CustomAgentsDirectoryName + '/' + $agentFileName)) | Out-Null
@@ -748,7 +748,7 @@ function Invoke-CodexSmokeValidate {
         }
 
         try {
-            $null = [System.IO.File]::ReadAllText($hooksPath) | ConvertFrom-Json
+            $hooksJson = [System.IO.File]::ReadAllText($hooksPath) | ConvertFrom-Json
             $checks.HooksPresent = $true
         }
         catch {
@@ -760,6 +760,30 @@ function Invoke-CodexSmokeValidate {
                 -Message ($script:CodexSmokeMessage.Te04HooksInvalid -f $hooksPath) `
                 -ExitCode $exitFail
         }
+
+        $hooksObj = $hooksJson.hooks
+        if ($null -eq $hooksObj -or -not ($hooksObj.PSObject.Properties.Name -contains $script:CodexPathConstant.HooksPreToolUseEventName)) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex hooks.json missing PreToolUse at: {0}" -f $hooksPath) `
+                -ExitCode $exitFail
+        }
+        $checks.HooksPreToolUsePresent = $true
+
+        $guardScriptPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.HooksGuardScriptName
+        if (-not (Test-Path -LiteralPath $guardScriptPath -PathType Leaf)) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex guard-pre-tool.ps1 missing at: {0}" -f $guardScriptPath) `
+                -ExitCode $exitFail
+        }
+        $checks.GuardScriptPresent = $true
     }
     else {
         $checks.HooksPresent = Test-Path -LiteralPath $hooksPath -PathType Leaf

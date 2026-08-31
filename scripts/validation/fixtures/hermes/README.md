@@ -10,12 +10,16 @@ of this folder. Paths resolve under the toolkit repo — never under
 ```
 hermes/               # InstallRoot (= live ~/.hermes)
 ├── skills/           # mirrors ~/.hermes/skills (empty until first publish)
+├── plugins/          # agent-dev-toolkit-guard after Publish-Hooks
+├── agent-hooks/      # shell dual guard after Publish-Hooks
+├── config.yaml       # keyed plugins.enabled + hooks.pre_tool_call only
 ├── AGENTS.md         # placeholder until Publish-Policy / Publish-Router
 └── sdd/              # prepared by Get-SddRoot -Prepare
 ```
 
-Do **not** add a `rules/` tree or hooks JSON. Hermes folds policy into
-`AGENTS.md`. Do not nest another `.hermes/` under this fixture.
+Do **not** add a `rules/` tree or Cursor-style hooks JSON. Hermes folds policy into
+`AGENTS.md` and uses official plugin + `agent-hooks` for path/secrets. Do not nest
+another `.hermes/` under this fixture.
 
 CI and local smokes must use this fixture (or another path under the repo
 root). `MEMORY.md` is seeded on publish only when missing.

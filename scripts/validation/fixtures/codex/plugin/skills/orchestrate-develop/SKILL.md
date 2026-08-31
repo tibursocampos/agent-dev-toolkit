@@ -1,6 +1,6 @@
----
+﻿---
 name: orchestrate-develop
-description: Forma C O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
+description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -28,7 +28,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Forma C O3 after O2 handoff.
+Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery O3 after O2 handoff.
 
 Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a story.
 
@@ -44,14 +44,14 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Parent orchestrator never** writes application code, never marks multiple PLAN steps done in one child, and never bypasses `sdd-develop` gates (`step_confirmed`, tests before complete).
 
-**Alternative (always valid):** user runs manual `/sdd-develop - <full-plan-path> - Step N` without this skill (RF05 / CA5). Manual Forma A does **not** require memory-bank (CA7).
+**Alternative (always valid):** user runs manual `/sdd-develop - <full-plan-path> - Step N` without this skill (RF05 / CA5). Manual Classic SDD does **not** require memory-bank (CA7).
 
 ## Lazy-load
 
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Pipeline Forma C, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Pipeline Orchestrated Delivery, paths | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/plugin/skills/memory-bank-init/SKILL.md` |
@@ -75,7 +75,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ### 1. Gate check
 
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Forma C) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
 
 ### 2. Resolve feature / PLAN set
 
@@ -89,7 +89,7 @@ Repository mode: ensure SDD `.gitignore` per `STORAGE.md` before any bank write.
 |--------|--------|
 | Feature path | Glob `**/PLAN/PLAN_*.md` under that feature; build story/PLAN queue |
 | Single PLAN path | Work that PLAN only; still update feature `CONTINUITY.md` if present |
-| Missing PLAN | **STOP** - suggest O2 or Forma A |
+| Missing PLAN | **STOP** - suggest O2 or Classic SDD |
 
 ```text
 Não encontrei PLAN sob `{path}`.
@@ -286,7 +286,7 @@ Full copy in `reference.md`.
 - Force multi-angle code-review
 - Introduce git worktrees for multi-US parallelism (MVP)
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
-- Require memory-bank for manual Forma A `sdd-develop` (CA7)
+- Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)

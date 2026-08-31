@@ -1,4 +1,4 @@
-# Architecture
+﻿# Architecture
 
 Architecture for **agent-dev-toolkit**: shared **core**, concrete **adapters**, CLI orchestrators, and in-repo validation / CI.
 
@@ -30,7 +30,7 @@ How consumer apps pick a style (separate from the toolkit’s own core/adapters 
 | **Greenfield** | Roster specialist **architect** (`core/skills/_shared/agents/`) proposes via Layer A (`architecture-selection.md`) → ARCH **draft** → operator **sim** → ARCH approved. No silent default style. |
 | **Brownfield** | **Discover-first:** mirror in-repo / approved ARCH style; skip re-selection unless the operator asks to change it. |
 
-After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery *(formerly Forma C)* wires the confirm gate in `orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
+After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery wires the confirm gate in `orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
 
 ## Source policy
 
@@ -90,8 +90,9 @@ InstallRoot models `~/.cursor`. Default publish/smoke targets:
 | `skills/<kebab-id>/SKILL.md` | Agent Skills from `core/skills/` (placeholders resolved) |
 | `rules/*.mdc` | Policy from `core/policy/` (`.md` → `.mdc`) |
 | `AGENTS.md` | Router from `core/router/AGENTS.md` |
-| `hooks/*.ps1` | Hook scripts from `adapters/cursor/assets/hooks/` |
-| `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`) |
+| `hooks/*.ps1` | Hook scripts from `adapters/cursor/assets/hooks/` (incl. `guard-pre-tool.ps1` + published `GuardCommon.ps1`) |
+| `hooks.json` | Merge at InstallRoot root; path/secrets `preToolUse` + `beforeShellExecution` (`failClosed`) |
+| `agents/*.md` | Roster from `core/agents/` when `agents=true` |
 | `sdd/sessions/` | SDD sessions directory (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Minimal seed when absent; never overwrite existing |
 
@@ -105,7 +106,7 @@ InstallRoot models `~/.gemini`. Official tree:
 |---------------|------|
 | `config/skills` | Kebab Agent Skills + `dev_persona` |
 | `config/plugins` | Plugin surface (e.g. GUARDRAILS under managed plugin id) |
-| `config/hooks` | Official hooks directory (`hooks=false` → Publish-Hooks no-op) |
+| `config/hooks` | Official hooks directory (`hooks=true` → PreToolUse path/secrets guard) |
 | `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` | Discovery / managed markdown |
 
 **Legacy bridge** `antigravity-ide/plugins` is documentation / opt-in only — **not** a CI or default-smoke gate.
@@ -151,7 +152,8 @@ InstallRoot models `~/.config/opencode` ([docs](https://opencode.ai/docs/config/
 |---------------|------|
 | `skills/<kebab-id>/SKILL.md` | Agent Skills |
 | `AGENTS.md` | Router |
-| `plugins/*.js` | OpenCode JS plugins (MVP marker plugin) |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` (`agents=true`) |
+| `plugins/*.js` | OpenCode JS plugins (`tool.execute.before` path/secrets throw) |
 
 Hooks are **plugin-only** (no shell/PS1 parity). CI smoke (`Invoke-OpenCodeCiSmoke.ps1`) is **filesystem-only** sync+validate against an ephemeral fixture — **not** an OpenCode product runtime.
 
@@ -163,8 +165,9 @@ InstallRoot models `~/.zcode` (ADE filesystem — **not** GLM Coding Plan):
 |---------------|------|
 | `skills/<id>/SKILL.md` | Kebab Agent Skills |
 | `AGENTS.md` | Router surface |
+| `agents/*.md` | `Publish-Agents` (`agents=true`) |
 | `cli/config.json` | Hooks config |
-| `hooks/hooks.json` | User-level hooks merge |
+| `hooks/hooks.json` | User-level hooks merge (PreToolUse path/secrets) |
 
 Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiSmoke.ps1`.
 
@@ -182,7 +185,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiS
 | `skills/<kebab-id>/SKILL.md` | Agent Skills |
 | `instructions/*.instructions.md` | Policy |
 | `copilot-instructions.md` | Always-on instructions from router source |
-| `hooks/*` | Adapter hooks when `hooks=true` |
+| `hooks/*` | Adapter hooks when `hooks=true` (`version:1` `preToolUse` path/secrets) |
 
 **Out of scope:** JetBrains and Eclipse Copilot IDE layouts. CI: `Invoke-CopilotCiSmokeSuite.ps1`.
 
@@ -194,7 +197,8 @@ InstallRoot **is** `~/.grok` (or project `.grok` passed as InstallRoot) — **na
 |---------------|------|
 | `skills` | Kebab Agent Skills → live `~/.grok/skills` |
 | `rules` | Policy markdown → live `~/.grok/rules` |
-| `hooks` | Native hooks; `/hooks-trust` is **manual** |
+| `agents` | Roster from `core/agents/` (`agents=true`) |
+| `hooks` | Native hooks incl. PreToolUse path/secrets; `/hooks-trust` is **manual** |
 | `AGENTS.md` | Router |
 
 Claude/Cursor paths may be read by the product as compat; MVP **publish** targets InstallRoot directly. Fixture: `scripts/validation/fixtures/grok` (models `~/.grok`).
@@ -205,12 +209,13 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 | Relative path | Role |
 |---------------|------|
-| `skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (live `~/.hermes/skills`) |
+| `skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (live `$HERMES_HOME/skills`) |
 | `AGENTS.md` | Router from `core/router` plus folded `core/policy` (no `rules/` tree) |
-| `MEMORY.md` | Seeded once if missing; never overwritten |
+| `plugins/agent-dev-toolkit-guard` + `agent-hooks/` | Path/secrets dual hooks (`hooks=true`, `plugin=true`) |
+| `memories/MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
-`Publish-Hooks` / `Publish-Agents` are documented no-ops (`hooks=false`, `agents=false`). Subagents: host **`delegate_task`**. Do not emit gateway tokens, `config.yaml` secrets, cron, or `delegation.*` YAML. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
 
 ## OpenHands install layout
 
@@ -221,7 +226,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `.agents/skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (**not** legacy microagents) |
 | `.agents/agents/*.md` | Roster from `core/agents/` (SDK/plugin; not Canvas Profile; not native spawn) |
 | `AGENTS.md` | Router + folded policy (no `rules/` tree) |
-| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks (never `.ps1`) |
+| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks incl. `guard_pre_tool.sh` for `pre_tool_use` path/secrets (never `.ps1`) |
 | `.plugin/plugin.json` | Plugin metadata (skills still work without the plugin) |
 
 **Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-OpenHandsCiSmoke.ps1`.

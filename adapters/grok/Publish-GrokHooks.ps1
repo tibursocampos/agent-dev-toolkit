@@ -4,14 +4,32 @@
   Helpers for Grok Publish-Hooks (native JSON under InstallRoot/hooks).
 #>
 
+$script:GrokHooksModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:GrokHooksModuleDirectory)) {
+    $script:GrokHooksModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
+function Get-GrokHooksAssetsDirectory {
+    [CmdletBinding()]
+    param()
+
+    return (Join-Path (
+            Join-Path $script:GrokHooksModuleDirectory $script:GrokAdapterConstant.AssetsDirectoryName
+        ) $script:GrokAdapterConstant.AssetsHooksDirectoryName)
+}
+
 function New-GrokMinimalHooksObject {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $SessionStartScriptPath
+        [string] $SessionStartScriptPath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $GuardPreToolScriptPath
     )
 
-    $command = ($script:GrokAdapterConstant.HooksSessionStartCommandTemplate -f $SessionStartScriptPath)
+    $sessionCommand = ($script:GrokAdapterConstant.HooksSessionStartCommandTemplate -f $SessionStartScriptPath)
+    $guardCommand = ($script:GrokAdapterConstant.HooksSessionStartCommandTemplate -f $GuardPreToolScriptPath)
 
     return [ordered]@{
         description = $script:GrokAdapterConstant.HooksDescription
@@ -21,7 +39,18 @@ function New-GrokMinimalHooksObject {
                     hooks = @(
                         [ordered]@{
                             type    = $script:GrokAdapterConstant.HooksCommandType
-                            command = $command
+                            command = $sessionCommand
+                        }
+                    )
+                }
+            )
+            ($script:GrokAdapterConstant.HooksPreToolUseEventName) = @(
+                [ordered]@{
+                    matcher = $script:GrokAdapterConstant.HooksPreToolUseMatcher
+                    hooks   = @(
+                        [ordered]@{
+                            type    = $script:GrokAdapterConstant.HooksCommandType
+                            command = $guardCommand
                         }
                     )
                 }
@@ -53,6 +82,56 @@ function Write-GrokSessionStartHookScript {
     return $scriptPath
 }
 
+function Copy-GrokGuardHookAssets {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $HooksDirectory,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
+        $repoRoot = Get-GrokAdapterRepoRoot
+        . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+    }
+
+    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $HooksDirectory -InstallRoot $InstallRoot
+    if (-not (Test-Path -LiteralPath $HooksDirectory)) {
+        New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
+    }
+
+    $assetsDir = Get-GrokHooksAssetsDirectory
+    $sourceGuard = Join-Path $assetsDir $script:GrokAdapterConstant.HooksGuardPreToolScriptName
+    if (-not (Test-Path -LiteralPath $sourceGuard)) {
+        throw ($script:GrokAdapterMessage.HooksAssetsMissing -f $sourceGuard)
+    }
+
+    $destGuard = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksGuardPreToolScriptName
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $destGuard `
+        -RootPath $InstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    Copy-Item -LiteralPath $sourceGuard -Destination $destGuard -Force
+
+    $repoRoot = Get-GrokAdapterRepoRoot
+    $sourceCommon = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:GrokAdapterConstant.SharedGuardCommonFileName
+    if (-not (Test-Path -LiteralPath $sourceCommon)) {
+        throw ($script:GrokAdapterMessage.HooksAssetsMissing -f $sourceCommon)
+    }
+    $destCommon = Join-Path $HooksDirectory $script:GrokAdapterConstant.SharedGuardCommonFileName
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $destCommon `
+        -RootPath $InstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    Copy-Item -LiteralPath $sourceCommon -Destination $destCommon -Force
+
+    return $destGuard
+}
+
 function Write-GrokHooksJson {
     [CmdletBinding()]
     param(
@@ -65,9 +144,11 @@ function Write-GrokHooksJson {
     }
 
     $sessionScriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName
-    $normalizedScriptPath = Get-GrokNormalizedForwardSlashPath -Path $sessionScriptPath
+    $guardScriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksGuardPreToolScriptName
+    $normalizedSession = Get-GrokNormalizedForwardSlashPath -Path $sessionScriptPath
+    $normalizedGuard = Get-GrokNormalizedForwardSlashPath -Path $guardScriptPath
     $hooksPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksJsonFileName
-    $payload = New-GrokMinimalHooksObject -SessionStartScriptPath $normalizedScriptPath
+    $payload = New-GrokMinimalHooksObject -SessionStartScriptPath $normalizedSession -GuardPreToolScriptPath $normalizedGuard
     $json = ($payload | ConvertTo-Json -Depth $script:GrokAdapterConstant.JsonConvertDepthDeep)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($hooksPath, $json, $utf8NoBom)
@@ -146,9 +227,9 @@ function Invoke-GrokPublishHooks {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $hooksDirectory = $mapped.FixtureHooksPath
-    $hooksJsonPath = Join-Path $hooksDirectory $script:GrokAdapterConstant.HooksJsonFileName
 
     $writtenSession = Write-GrokSessionStartHookScript -HooksDirectory $hooksDirectory
+    $writtenGuard = Copy-GrokGuardHookAssets -HooksDirectory $hooksDirectory -InstallRoot $resolvedInstallRoot
     $writtenHooks = Write-GrokHooksJson -HooksDirectory $hooksDirectory
 
     return [PSCustomObject]@{
@@ -161,10 +242,10 @@ function Invoke-GrokPublishHooks {
         HooksRoot        = $hooksDirectory
         HooksPath        = $writtenHooks
         SessionStartPath = $writtenSession
+        GuardPreToolPath = $writtenGuard
         HooksRelative    = $script:GrokAdapterConstant.OfficialHooksRelativePath
         HooksTrustNote   = $hooksTrustNote
         Message          = ($script:GrokAdapterMessage.HooksPublishedOk -f $hooksDirectory)
         ExitCode         = 0
     }
 }
-

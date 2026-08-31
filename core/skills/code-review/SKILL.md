@@ -53,7 +53,7 @@ A structured **review report** with severity tiers (critical / important / nice-
 |-------|------|
 | Base branch | `main`, `develop` - ask once if missing |
 | Feature branch | Current branch or named branch |
-| PRD / PLAN (SDD) | Optional in invocation; **resolve in step 0.5** if omitted (see `reference.md` section SDD artifact resolution) |
+| PRD / PLAN (SDD) | Optional in invocation; **resolve in step 0.5** if omitted (see `references/sdd-resolution.md`) |
 | Review mode | Explicit in invoke **or** answer to step 0.25 - never silent default |
 
 Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain ambiguous. For a quick review without SDD artifacts, base branch + changed paths suffice after 0.5 reports no artifacts.
@@ -71,13 +71,27 @@ Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain a
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Final Git hygiene | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Report template | `reference.md` (this skill) |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/code-review/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/code-review/references/<section>.md` |
 
 Prefer project `docs/standards/` or repo `AGENTS.md` over generic guidelines when both exist.
 
-Do **not** preload `code-guidelines/languages/**` or corporate static-analysis workflows.
+**Never by default:** do not preload all `references/*.md`, full guideline packs, or `code-guidelines/languages/**`. Load **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| SDD artifact resolution (0.5) | `references/sdd-resolution.md` |
+| Report template | `references/report-template.md` |
+| Verification / approval / coverage | `references/verification.md` |
+| .NET checklist | `references/dotnet-checklist.md` |
+| Frontend checklist | `references/frontend-checklist.md` |
+| Code smells | `references/code-smells.md` |
+| Multi-angle mode | `references/multi-angle.md` |
 ## Process
+
+Read `references/<section>.md` for procedural tables and checklists — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -87,23 +101,20 @@ Do **not** preload `code-guidelines/languages/**` or corporate static-analysis w
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
 ### 0. Workspace
-
 Confirm target repo (not this toolkit repo unless that is the subject). Detect stack (`*.sln` -> .NET; `angular.json` -> Angular). Read `AGENTS.md` / `README.md`. Load dotnet-guidelines only for .NET reviews.
 
 ### 0.25 Review mode (single vs multi-angle)
-
 Resolve mode from the invocation **or** from the user's answer to the Trigger prompt.
 
 | Signal in invoke / reply | Mode |
 |--------------------------|------|
 | `single` / `single-angle` / `simples` / `1` | Single reviewer (steps -1..8 only) |
-| `multi-angle` / `multi-ângulo` / `2` / named `ângulos: …` | Multi-angle (see section below) |
+| `multi-angle` / `multi-ângulo` / `2` / named `ângulos: …` | Multi-angle (see `references/multi-angle.md`) |
 
 If still unset: **STOP** - ask the Trigger prompt **(pt-BR)** - do not continue to 0.5/1 until answered. Novice-friendly: never pick a default for them.
 
 ### 0.5 Resolve SDD artifacts
-
-Load `STORAGE.md`. Follow **`reference.md` section SDD artifact resolution** (manifest, globs repo + `{{SDD_ROOT}}/<repo-id>/`, pair by `NNN`). Use full paths in the report. If one PRD/PLAN pair -> read both before the diff review. If none after a full search -> note **SDD limitation** in the report (technical review only). If ambiguous -> ask once in pt-BR with numbered options.
+Load `STORAGE.md`. Follow **`references/sdd-resolution.md`**. Use full paths in the report. If one PRD/PLAN pair -> read both before the diff review. If none after a full search -> note **SDD limitation** in the report (technical review only). If ambiguous -> ask once in pt-BR with numbered options.
 
 ### 1. Scope the diff
 
@@ -117,7 +128,6 @@ git log <base>..<head> --oneline
 Default `<head>` to current branch. List files; confirm with user before deep review if the set is large.
 
 ### 2. SDD traceability (when artifacts found or user provided)
-
 Skip this section only when step 0.5 found no PRD/PLAN (document limitation - do not claim artifacts do not exist).
 
 - PLAN progress bar and step statuses match completed work
@@ -127,79 +137,31 @@ Skip this section only when step 0.5 found no PRD/PLAN (document limitation - do
 Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is otherwise correct).
 
 ### 3. Standards and guidelines
-
 1. Project `docs/standards/` or equivalent
 2. `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` for .NET (layers, tests: xUnit, Moq, Shouldly, `Should_<Result>_When_<Condition>`)
 3. Principles cheatsheet when installed
 
 ### 4. Code analysis
-
-Review changed files for:
-
-| Area | Focus |
-|------|--------|
-| Correctness | Logic, edge cases, error handling |
-| Architecture | Layer boundaries, DI, no domain -> infrastructure leaks |
-| Tests | Behavior covered; meaningful assertions; no trivial tests |
-| Security | Secrets, injection, authz, sensitive logs |
-| Performance | N+1, unbounded work, missing async where I/O |
-| Maintainability | Naming, method size, duplication; magic values / structure - see `csharp-patterns.md` normative sections |
-
-Use the checklists in `reference.md` - do not paste full guideline bodies into the report.
+Review changed files using focus areas + checklists in `references/verification.md`, `references/dotnet-checklist.md`, `references/frontend-checklist.md`, and `references/code-smells.md` - do not paste full guideline bodies into the report.
 
 ### 5. Run verification (when feasible)
-
-| Stack | Commands |
-|-------|----------|
-| .NET | `dotnet build`, `dotnet test` (scoped if large) |
-| .NET coverage | `/test-coverage` when PRD, PLAN, or user sets a coverage target (default threshold **80%** on changed production files) |
-| Node | `npm run build`, `npm test` per project scripts |
-
-For .NET with a coverage target: run `test-coverage` before final decision; paste the summary into the report section Testes (see `reference.md`). If `test-coverage` reports **Fail** (< threshold), treat as **Changes required** unless the user documents an accepted exception.
-
-Record pass/fail in the report. Missing local run -> note as limitation.
+Follow `references/verification.md`. For .NET with a coverage target: run `test-coverage` before final decision; paste the summary into the report section Testes. If `test-coverage` reports **Fail** (< threshold), treat as **Changes required** unless the user documents an accepted exception. Record pass/fail in the report. Missing local run -> note as limitation.
 
 ### 6. Decision
-
-| Decision | When |
-|----------|------|
-| **Approved** | PRD/PLAN met; no critical issues; tests/build green; coverage >= threshold when target applies |
-| **Approved with reservations** | Minor gaps; no security/correctness blockers; coverage at or above threshold with documented gaps below 100% target |
-| **Changes required** | Critical bugs/security; PRD gaps; build/test failures; coverage < threshold on changed files when target applies |
+Apply approval criteria in `references/verification.md` (**Approved** / **Approved with reservations** / **Changes required**).
 
 ### 7. Write report
-
-Use the template in `reference.md` (repo: `skills/code-review/reference.md`; installed: `{{TOOLKIT_ROOT}}/skills/code-review/reference.md`).
-
-Be specific: `path:line`, explain **why**, suggest **how** to fix. Include positives.
+Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. Include positives.
 
 ### 8. Optional PR (user-driven)
-
 Create a PR only when the user asks and review is not **Changes required**:
-
 1. Ensure the feature branch is pushed (`/push` after confirmation if needed).
 2. Hand off to **`/open-github-pr`** (do not open the GitHub web UI compare flow from this skill; `/open-github-pr` owns CLI/templates/confirmation/auto-merge).
 
 No MCP work-item linking or mandatory corporate PR templates.
 
 ## Multi-angle mode (when chosen)
-
-Run **only** after step **0.25** resolved to multi-angle (explicit flag **or** user chose option 2 / named angles). Single mode = steps -1..8 as one reviewer - never implied by silence.
-
-**SPAWN first:** load `SPAWN.md`; consult capability `subagents`. Prefer parallel Task when `native`; if `subagents=none` or Task unavailable → **fallback** sequential **in-parent** angles (same checklists; never hard-fail). Concurrent Task cap stays within orchestrate ≤4 from `SPAWN.md` (multi-angle uses ≤3 angles).
-
-When multi-angle:
-
-1. After scoping the diff (step 1) and resolving SDD artifacts (0.5), if `subagents=native`: spawn up to **3 parallel Task** subagents - one per requested angle (default all three if user said multi without subset):
-   - **quality** - correctness, architecture, tests, maintainability, performance
-   - **acceptance (aceite)** - PRD criteria / PLAN deliverables vs the diff
-   - **security** - AuthZ/AuthN, injection, secrets/PII, dangerous defaults (hints: `_shared/agents/prompts/security.md`)
-   Else (**fallback**): run those angles **in-parent** sequentially (same prompts/checklists; no Task required).
-2. Parent synthesizes Task outputs (or in-parent angle notes) into **one** report using the existing `reference.md` template (map findings to críticos / importantes / nice-to-have).
-3. Decision matrix (step 6) and coverage gates are unchanged - multi-angle does **not** change decision semantics, does **not** auto-block O3 or the SDD pipeline, and does **not** require separate blind-reviewer skills.
-
-See `reference.md` section **Multi-angle mode** for invoke examples and per-angle checklists.
-
+Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Task when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged.
 ## Must not
 
 - Write or update PRD/PLAN files (hand off to `/sdd-spec` / `/sdd-plan`)

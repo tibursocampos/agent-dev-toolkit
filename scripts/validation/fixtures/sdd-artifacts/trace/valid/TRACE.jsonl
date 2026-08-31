@@ -1,4 +1,8 @@
 {"ts":"2026-08-21T14:00:00Z","event":"develop_start","feature":"features/000-fixture-trace","summary":"Fixture trail start"}
+{"ts":"2026-08-21T14:02:00Z","event":"retrieval","feature":"features/000-fixture-trace","paths":["memory-bank/domain-knowledge.md"],"reason":"O3 step prior context"}
+{"ts":"2026-08-21T14:04:00Z","event":"gate","feature":"features/000-fixture-trace","gate_id":"o3-step-spawn","response":"sim"}
+{"ts":"2026-08-21T14:06:00Z","event":"spawn","feature":"features/000-fixture-trace","role":"sdd-develop","reason":"PLAN step 1","outcome":"spawned"}
+{"ts":"2026-08-21T14:08:00Z","event":"specialist_complete","feature":"features/000-fixture-trace","role":"sdd-develop","summary":"Step 1 done"}
 {"ts":"2026-08-21T14:10:00Z","event":"converge","feature":"features/000-fixture-trace","summary":"Accepted CHANGE deltas for fixture living current.","paths":["features/000-fixture-trace/CHANGE.md"]}
 {"ts":"2026-08-21T14:20:00Z","event":"sync_current","feature":"features/000-fixture-trace","summary":"Selective sync into memory-bank domain baseline.","targets":["memory-bank/domain-knowledge.md"]}
 {"ts":"2026-08-21T14:30:00Z","event":"archive","feature":"features/000-fixture-trace","status":"archived","summary":"Fixture wave archived; TRACE coherent."}

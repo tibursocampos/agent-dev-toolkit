@@ -50,13 +50,32 @@ Does **not** create or update cards in external work-item trackers.
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Type templates | `skills/_shared/backlog-item-types/{bug,user-story,technical-story}.md` or `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/` after sync |
-| Scorecard rubric, boundaries vs O1 / sdd-spec | `skills/refine-story/reference.md` |
+| Persona / JTBD (optional; User Story only) | `references/product-persona.md` → `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refine-story/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/<section>.md` |
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
 | Story template | `skills/_shared/templates/features/story/STORY.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
+**Never by default:** do not preload all `references/*.md`, all backlog-item-types, or `persona-context.md` for Bug/Technical Story. Load **one** type file + **one** section per step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Boundary vs O1 / sdd-spec | `references/boundary.md` |
+| Scorecard rubric | `references/scorecard-rubric.md` |
+| Scorecard template | `references/scorecard-template.md` |
+| Guardrails | `references/guardrails.md` |
+| Persistence | `references/persistence.md` |
+| Split-story handoff | `references/split-handoff.md` |
+| Product persona / JTBD | `references/product-persona.md` → `persona-context.md` |
+| Exclusions | `references/exclusions.md` |
+
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -83,7 +102,7 @@ Which type?
 3) Technical Story
 ```
 
-Load the matching file from `_shared/backlog-item-types/`. Map: User Story -> `USnn`, Technical Story -> `TSnn`, Bug -> prefer `USnn` or note under existing story.
+Load the matching file from `_shared/backlog-item-types/`. Map: User Story -> `USnn`, Technical Story -> `TSnn`, Bug -> prefer `USnn` or note under existing story. For User Story when who/job/outcome helps: load `references/product-persona.md` (points at `persona-context.md`).
 
 ### 2. Collect description
 
@@ -101,20 +120,20 @@ Follow the type file **Output template** and **Writing guidelines**. Combine use
 
 ### 4. Quality scorecard
 
-Immediately after the markdown, score per `reference.md` section Scorecard. Show total / 100, strengths, and specific improvements.
+Immediately after the markdown, score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Show total / 100, strengths, and specific improvements.
 
 ### 5. Validation (chat-only)
 
-Before presenting as final, check `reference.md` section Guardrails.
+Before presenting as final, check `references/guardrails.md`.
 
 ### 6. Optional persistence
 
-Ask where to save (pt-BR):
+Follow `references/persistence.md`. Ask where to save (pt-BR):
 
 ```text
 Onde gravar o item refinado?
 
-1) features/NNN-slug/USnn/STORY.md (recomendado - Backlog Refine *(formerly Forma B)* alinhada ao storage)
+1) features/NNN-slug/USnn/STORY.md (recomendado - Backlog Refine alinhada ao storage)
 2) docs/backlog/<slug>.md (atalho)
 3) Só chat (não gravar)
 ```
@@ -132,12 +151,14 @@ Write prose in that language; paths and identifiers stay in English. Slug from t
 | Situation | Next |
 |-----------|------|
 | Break into implementation checklist | `/split-story-checklist` (same content or saved path) |
-| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Orchestrated Delivery *(formerly Forma C)* O1) |
-| Medium/high complexity single feature (Classic SDD *(formerly Forma A)*) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| Multi-story / complex / needs specialists | `/orchestrate-analyze` (Orchestrated Delivery O1) |
+| Medium/high complexity single feature (Classic SDD) | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
 | Small isolated change | `/developer` / stack `*-developer` |
 | Commit saved file | `/commit` |
 
 ## Must not
+
+Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Product voice: `references/product-persona.md`. Split handoff: `references/split-handoff.md`.
 
 - Call tracker REST APIs, MCP work-item integrations, or PAT scripts for external trackers
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards

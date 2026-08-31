@@ -1,4 +1,4 @@
-# Caveman Compact - Continuity / memory prose
+﻿# Caveman Compact - Continuity / memory prose
 
 Lean, optional compression of **narrative** context files so later sessions spend fewer input tokens.
 Not a port of upstream `caveman-compress`. Agent-driven rewrite with **hard validators** + user `sim`.
@@ -60,7 +60,7 @@ Soft warn (do not auto-fail): bullet count changes by more than ~15% — tell th
 
 ## When to suggest
 
-- CONTINUITY.md grown large after many Forma C passes
+- CONTINUITY.md grown large after many Orchestrated Delivery passes
 - User said `caveman on` and asks to shrink context / memory
 - Step N memory refresh-light when narrative files dominate token cost
 

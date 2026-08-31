@@ -4,8 +4,8 @@
 |-------|--------|
 | **Id** | {{STORY_ID}} |
 | **Tipo** | US \| TS \| Bug |
-| **Feature** | `features/{{NNN}}-{{slug}}/` |
-| **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` |
+| **Feature** | `features/{{NNN}}-{{slug}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/` (global; portable path) |
+| **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (global) |
 | **Status** | draft \| approved \| in-progress \| done |
 
 ## Descrição

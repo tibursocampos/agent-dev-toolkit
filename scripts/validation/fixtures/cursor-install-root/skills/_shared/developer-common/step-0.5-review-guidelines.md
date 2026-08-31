@@ -4,6 +4,8 @@
 
 Load **only** what the task needs. Paths assume install via `scripts/sync-agent.ps1` (host adapter sync); shared packs land under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/`.
 
+**Progressive load (index-then-fanout):** treat this file as the **index**. Read principles cheatsheet (and architecture-selection when style is unset) first; fan-out to **one** stack overlay / guideline file only when that surface is in scope. Do not preload all `developer-common/step-*.md` here — parent skills load those steps when the process reaches them.
+
 ---
 
 ## 1. Principles (always - one file)

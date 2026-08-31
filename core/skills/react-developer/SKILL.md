@@ -79,6 +79,8 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 
 Do **not** preload unrelated guideline trees. Do not redesign `react-guidelines/` in this skill — load existing pack rows only. For **mobile** React Native / Expo, route to `/react-native-developer` instead.
 
+**Never by default:** do not preload other stack guideline packs or full frontend trees. Load only rows needed for the current task.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)

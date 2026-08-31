@@ -1,4 +1,4 @@
-# Feature tree scaffold (Forma A / B / C)
+﻿# Feature tree scaffold (Classic SDD / B / C)
 
 Copy this layout under the resolved Classic feature root (`STORAGE.md`):
 
@@ -11,7 +11,7 @@ Do **not** create `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, `PRD/`, or `PLAN/` at
 features/NNN-slug/
 ├── FEATURE.md
 ├── CONTINUITY.md
-└── US01/                         # or TSnn; Forma A default = US01
+└── US01/                         # or TSnn; Classic SDD default = US01
     ├── STORY.md
     ├── REFINE/                   # optional / on demand
     ├── ANALYSIS/                 # required when needs_api or brownfield

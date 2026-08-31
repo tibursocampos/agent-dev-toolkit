@@ -1,6 +1,6 @@
 ---
 name: sdd-plan
-description: Create a baby-step PLAN from an existing PRD (agent PLAN .md, pt-BR default). Feeds sdd-develop. Use when creating a plan or invoking /sdd-plan.
+description: Create a baby-step PLAN from an existing PRD (agent PLAN .md; language per LANGUAGE.md + preferences). Feeds sdd-develop. Use when creating a plan or invoking /sdd-plan.
 ---
 
 ## STOP - Read before ANY tool call
@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-plan`, `create plan`, `execution plan`.
 
 ## Outcome
 
-A **PLAN** in **pt-BR** at a **canonical** path under `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` (same story as the PRD; global under `{{SDD_ROOT}}/<repo-id>/features/...`). Root/flat `PLAN/` is **not** a valid Classic SDD path. Same `NNN` as PRD. Each step = one `sdd-develop` session. Paths and test names in **English**; no code blocks.
+A **PLAN** in the **user chat language** (or `preferences.json` / manifest `artifact_language` when set) at a **canonical** path under `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` (same story as the PRD; global under `{{SDD_ROOT}}/<repo-id>/features/...`). Root/flat `PLAN/` is **not** a valid Classic SDD path. Same `NNN` as PRD. Each step = one `sdd-develop` session. Paths and test names in **English**; no code blocks. Include **## Execution policy** from `templates/sdd/PLAN.md` (orchestrator mode, parent/child validation, handoff).
 
 **PLAN magro:** do not paste SQL/DDL/JSON/OpenAPI into the PLAN. Refuse to omit those bodies from PLAN **unless** the canonical path already exists (bank phase 2 `database-schema.md` / `api-contracts.md` / `component-catalog.md`, or story `ARCH/` / `ANALYSIS/`). If missing, O1/O2 must create the canonical file first; PLAN only **cites the path**.
 
@@ -47,11 +47,17 @@ A **PLAN** in **pt-BR** at a **canonical** path under `features/NNN-slug/USnn/PL
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | SDD language, context, .NET | `sdd-artifact-language-pt-br.mdc`, `context-management.mdc`, `dotnet-guidelines/*.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/<section>.md` |
+
+**Never by default:** do not preload all `references/*.md`, full sdd-spec/develop packs, or all templates. Contract first (`PIPELINE` + `STORAGE`); load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Process
 
+Read `references/<section>.md` for authoring tables and checklists — **not** full `reference.md`.
+
 ### Step -1b - Caveman Mode (Lite cap)
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
 2. If `caveman_mode` is false: continue without compression.
 3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
@@ -82,7 +88,7 @@ Summarize PRD (**cite portable path** — **must not** paste the full PRD body i
 
 ### 2-4. Explore, technical questions (<=10), baby steps
 
-Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`). Steps ~20-45 min each. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. Challenge vague Aceite ("as expected", "funciona"). Doc-update steps: **sdd-develop** asks doc language.
+Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`; `references/selective-retrieval.md`). Steps ~20-45 min each (`references/baby-step-sizing.md`). Map every PRD **REQ-NNN** into **Mapa REQ → passo** (complete coverage — no orphan REQs). Each step **Aceite** must cite at least one **REQ-NNN** and/or CA with verifiable outcomes. Challenge vague Aceite ("as expected", "funciona") — `references/challenge-vagueness.md`.
 
 ### 5. Context checkpoint
 
@@ -100,13 +106,13 @@ Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank
 
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
-3. Body from `templates/sdd/PLAN.md` (authoring rules in `reference.md`); PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete.
-4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing, **STOP** — O1/O2 creates that file first; PLAN cites the path only.
+3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA.
+4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing, **STOP** — O1/O2 creates that file first; PLAN cites the path only (`references/plan-magro.md`).
 5. Warn if overwriting PLAN with completed steps.
 
 ### 6.5 Structural validate before advance
 
-After a successful `Write`, run structural **`validate-plan`** (and prefer a prior **`validate-prd`** on the source PRD) before handoff:
+After a successful `Write`, run structural **`validate-plan`** (and prefer a prior **`validate-prd`** on the source PRD) before handoff (`references/validate-plan.md`):
 
 ```
 .\scripts\validation\validate-prd.ps1 -Path <source-prd-path>
@@ -121,7 +127,7 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 
 ## Must not
 
-- Write PLAN in English by default; embed implementation code
+- Write PLAN in a language other than user chat / `artifact_language` without override; embed implementation code
 - Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists (bank phase 2 or `ARCH/` / `ANALYSIS/`) — O1/O2 must create that file first; PLAN then cites the path
 - Paste SQL/DDL/JSON/OpenAPI into PLAN when a canonical path already exists (cite the path only — PLAN magro)
 - Create or overwrite PRD; sdd-develop or commit here

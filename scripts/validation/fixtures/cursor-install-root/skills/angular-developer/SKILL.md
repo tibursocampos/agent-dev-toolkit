@@ -6,7 +6,7 @@ description: Implement or fix small-to-medium Angular features without full SDD 
 ## STOP - Read before ANY tool call
 
 1. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/guardrails.mdc`
-2. Read `_shared/sdd-contracts/SESSION.md`; load session-state for `$Cwd`
+2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
 3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
 5. This skill body is **English**; user-facing prompts may be **(pt-BR)**

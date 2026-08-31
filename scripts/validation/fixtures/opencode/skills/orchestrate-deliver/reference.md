@@ -1,4 +1,4 @@
-# orchestrate-deliver - reference
+﻿# orchestrate-deliver - reference
 
 Modes, approval gates, path layout, CONTINUITY checklist, handoff examples, and boundaries for `skills/orchestrate-deliver/SKILL.md`. Keep `SKILL.md` lean; use this file for extended detail.
 
@@ -34,7 +34,7 @@ Same contract as O1 (`MEMORY-BANK.md`). Run after feature resolve, **before** mo
 | Gitignore | Repository only; global = no `.gitignore` edit |
 | CONTINUITY | Path + status only; phase/handoff still CONTINUITY-owned |
 | Children | Parallel draft Tasks get `memoryBankPath` read-only |
-| Forma A | Memory-bank **not** required (CA7) |
+| Classic SDD | Memory-bank **not** required (CA7) |
 | End refresh | **No** full inventory (O2 does not change app code). Do **not** exit `fresh` if style changed / ARCH approved this feature |
 
 ---
@@ -188,7 +188,7 @@ Same pattern with absolute paths when the invoke used absolute feature roots (gl
 
 ## Boundaries vs O1 / sdd-* / O3
 
-| Aspect | O1 `orchestrate-analyze` | O2 `orchestrate-deliver` | Forma A `sdd-spec`/`sdd-plan` | O3 `orchestrate-develop` |
+| Aspect | O1 `orchestrate-analyze` | O2 `orchestrate-deliver` | Classic SDD `sdd-spec`/`sdd-plan` | O3 `orchestrate-develop` |
 |--------|--------------------------|--------------------------|-------------------------------|--------------------------|
 | Purpose | Triage + US/TS backlog | PRD+PLAN per approved story | One story PRD or PLAN | Implement PLAN steps |
 | Input | Feature description | Approved `features/NNN-slug/` | Story/requirements | Approved PLAN paths |
@@ -196,7 +196,7 @@ Same pattern with absolute paths when the invoke used absolute feature roots (gl
 | Contracts | Specialists (`needs_*`) | **Reuses** sdd-spec / sdd-plan | Is the contract | **Reuses** sdd-develop |
 | App code | No | No | No | Children only; parent no |
 
-Escalate **to Forma A alone** when only one story and user skips O2 batching.
+Escalate **to Classic SDD alone** when only one story and user skips O2 batching.
 
 Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
 
@@ -254,5 +254,5 @@ Do **not** introduce:
 - External work-item tracker or org-only compliance fields
 - Assumed série/paralelo without asking
 - Changes to `sdd-develop` one-PLAN-step-per-session contract
-- Spec Kit / worktree multi-US changes (out of Forma C MVP)
+- Spec Kit / worktree multi-US changes (out of Orchestrated Delivery MVP)
 - Repo-root `PRD/` / `PLAN/` new writes

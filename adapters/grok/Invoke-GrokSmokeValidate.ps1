@@ -62,6 +62,13 @@ function Test-GrokNativeHooksPresent {
         if ($null -eq $hooksJson.hooks.SessionStart) {
             return $false
         }
+        if ($null -eq $hooksJson.hooks.PreToolUse) {
+            return $false
+        }
+        $guardPath = Join-Path $HooksRoot $script:GrokAdapterConstant.HooksGuardPreToolScriptName
+        if (-not (Test-Path -LiteralPath $guardPath)) {
+            return $false
+        }
         return $true
     }
     catch {
@@ -160,6 +167,7 @@ function Invoke-GrokSmokeValidate {
     $hasNativeRules = Test-GrokPathHasMarkdownFiles -DirectoryPath $mapped.FixtureRulesPath
     $hasNativeHooks = Test-GrokNativeHooksPresent -HooksRoot $mapped.FixtureHooksPath
     $hasNativeRouter = Test-Path -LiteralPath $mapped.FixtureProjectAgentsPath
+    $hasCustomAgents = Test-GrokPathHasMarkdownFiles -DirectoryPath $mapped.FixtureCustomAgentsPath
     $hasCompatArtifacts = Test-GrokCompatArtifactsPresent -InstallRoot $resolvedInstallRoot
 
     $sddMissing = [System.Collections.Generic.List[string]]::new()
@@ -170,6 +178,7 @@ function Invoke-GrokSmokeValidate {
         RulesPresent     = $hasNativeRules
         HooksPresent     = $hasNativeHooks
         RouterPresent    = $hasNativeRouter
+        AgentsPresent    = $hasCustomAgents
         CompatPresent    = $hasCompatArtifacts
         SddLayoutPresent = $hasSddLayout
         HooksTrustNote   = $script:GrokAdapterConstant.HooksTrustNote
@@ -179,12 +188,14 @@ function Invoke-GrokSmokeValidate {
     $rulesCapable = [bool]$capabilityFlags.rules
     $hooksCapable = [bool]$capabilityFlags.hooks
     $routerCapable = [bool]$capabilityFlags.router
+    $agentsCapable = [bool]$capabilityFlags.agents
 
     $nativeRequiredMissing = $false
     if ($skillsCapable -and -not $hasNativeSkills) { $nativeRequiredMissing = $true }
     if ($rulesCapable -and -not $hasNativeRules) { $nativeRequiredMissing = $true }
     if ($hooksCapable -and -not $hasNativeHooks) { $nativeRequiredMissing = $true }
     if ($routerCapable -and -not $hasNativeRouter) { $nativeRequiredMissing = $true }
+    if ($agentsCapable -and -not $hasCustomAgents) { $nativeRequiredMissing = $true }
 
     # TE04: compat-only layout (RN02) - Claude/Cursor present without required native skills/rules/hooks.
     if ($hasCompatArtifacts -and $nativeRequiredMissing) {
@@ -215,6 +226,12 @@ function Invoke-GrokSmokeValidate {
     if ($routerCapable -and -not $hasNativeRouter) {
         return New-GrokSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
             $script:GrokAdapterMessage.SmokeTe03RouterMissing -f $mapped.FixtureProjectAgentsPath
+        )
+    }
+
+    if ($agentsCapable -and -not $hasCustomAgents) {
+        return New-GrokSmokeValidateResult -Success $false -InstallRoot $resolvedInstallRoot -Checks $checks -Message (
+            $script:GrokAdapterMessage.SmokeTe03AgentsMissing -f $mapped.FixtureCustomAgentsPath
         )
     }
 

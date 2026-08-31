@@ -49,6 +49,7 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 | Plan template, domain checklist | `skills/document-plan/reference.md` or `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/document-plan/reference.md` after sync |
 | SDD vs RAG plan boundary | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/STORAGE.md` (read section Read-only discovery - do not conflate paths) |
 | Context pressure | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/context-management.mdc` |
+| Language surfaces (chat vs spawn) | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md` |
 
 ## Process
 

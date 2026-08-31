@@ -79,6 +79,26 @@ function Get-GrokKnownToolkitArtifactPaths {
         $paths.Add([System.IO.Path]::GetFullPath($hooksScript))
     }
 
+    $guardScript = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.HooksGuardPreToolScriptName
+    if (Test-Path -LiteralPath $guardScript) {
+        $paths.Add([System.IO.Path]::GetFullPath($guardScript))
+    }
+
+    $guardCommon = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.SharedGuardCommonFileName
+    if (Test-Path -LiteralPath $guardCommon) {
+        $paths.Add([System.IO.Path]::GetFullPath($guardCommon))
+    }
+
+    $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $RepoRoot
+    if (Test-Path -LiteralPath $sourceAgentsRoot) {
+        Get-ChildItem -LiteralPath $sourceAgentsRoot -File | ForEach-Object {
+            $candidate = Join-Path $MappedPaths.FixtureCustomAgentsPath $_.Name
+            if (Test-Path -LiteralPath $candidate) {
+                $paths.Add([System.IO.Path]::GetFullPath($candidate))
+            }
+        }
+    }
+
     return @($paths.ToArray())
 }
 

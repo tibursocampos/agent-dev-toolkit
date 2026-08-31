@@ -2,6 +2,8 @@
 
 Templates and writing rules for `refine-story`. Output is **markdown in chat** (optional save under `docs/backlog/` in the target repo). No external tracker API.
 
+**Persona / JTBD:** Not required. Do not add Who / Job / Outcome for bugs. Scorecard must not penalize absence of persona (`persona-context.md`).
+
 ---
 
 ## Required sections
@@ -37,7 +39,9 @@ Templates and writing rules for `refine-story`. Output is **markdown in chat** (
 - [repo or service 1]
 - [repo or service 2]
 
-**Affected files or components:**
+**Primary area:** (optional — repo, service, or module where fix is expected; omit if unknown)
+
+**Affected files or components:** (optional hints — prefer behavior in steps)
 - [path or component]
 
 **Steps to reproduce:**
@@ -53,14 +57,15 @@ Templates and writing rules for `refine-story`. Output is **markdown in chat** (
 
 ### 🧩 Suggested fix (steps)
 
-**Step 1 - [Action title]**
-[What to do]
-- File: [path]
+**Step 1 - [Behavior-oriented action title]**
+[What to change and why — verifiable outcome for this step]
+- Primary area: [repo / module — optional if already at story level]
+- Touch: [path or component — optional hint]
 - Depends on: [none / Step N]
 
-**Step 2 - [Action title]**
+**Step 2 - [Behavior-oriented action title]**
 [What to do]
-- File: [path]
+- Touch: [path — optional]
 - Depends on: [Step 1]
 
 ---
@@ -111,7 +116,9 @@ When input is thin, ask:
 
 **Error:** Describe what **happens**, not vague "does not work". Reproduction steps must be specific enough for another dev without extra context. Include concrete evidence.
 
-**Suggested fix steps:** Same structure as Technical Story steps - one responsibility per step, file hint, explicit dependencies.
+**Primary area:** Optional at story level (repo/service/module). Do not replace objective or reproduction context.
+
+**Suggested fix steps:** Same structure as Technical Story steps — one responsibility per step; **titles name behavior**, not file/class only (`story-sizing.md`); optional `Touch:` hint; explicit dependencies.
 
 **Expected Result:** State positive correct behavior, not only absence of error. BDD scenarios reuse reproduction conditions. Include non-regression for adjacent flows when relevant.
 
@@ -127,6 +134,6 @@ When input is thin, ask:
 
 **Steps to reproduce:** POST `/api/orders` with `{ "customerId": "valid-guid", "notes": "" }` -> 500.
 
-**Step 1 - Validate empty optional field in command** - Application layer - depends on: none.
+**Step 1 - Validate empty optional field in create-order command** - Application - depends on: none. Touch: `OrderValidator` (optional).
 
 **Expected:** HTTP 400 with validation message when `notes` is invalid; HTTP 201 when valid.
