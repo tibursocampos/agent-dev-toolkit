@@ -45,7 +45,7 @@ $pluginHooksRoot = Join-Path $pluginRoot 'hooks'
 $pluginManifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $marketplacePath = Join-Path $fixtureInstallRoot '.agents\plugins\marketplace.json'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
-$customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.md'
+$customAgentSamplePath = Join-Path $fixtureInstallRoot 'agents\repo-analyst.toml'
 $userSkillsRoot = Join-Path $fixtureInstallRoot '.agents\skills'
 $gitkeepName = '.gitkeep'
 $alienSkillId = 'alien-codex-skill-'
@@ -124,8 +124,8 @@ function Test-CodexToolkitPluginPresent {
 
 function Test-CodexToolkitHooksPresent {
     $hooksJson = Join-Path $pluginHooksRoot 'hooks.json'
-    $hooksScript = Join-Path $pluginHooksRoot 'session_start.ps1'
-    return ((Test-Path -LiteralPath $hooksJson) -and (Test-Path -LiteralPath $hooksScript))
+    $hooksGuard = Join-Path $pluginHooksRoot 'guard-pre-tool.ps1'
+    return ((Test-Path -LiteralPath $hooksJson) -and (Test-Path -LiteralPath $hooksGuard))
 }
 
 function Assert-CodexToolkitArtifactsAbsent {
