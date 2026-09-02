@@ -24,6 +24,8 @@ Gate check:
 
 ---
 
+# Skill: javascript-developer
+
 ## Trigger
 
 Invoke when the user asks for: `/javascript-developer`, `js fix`, `node fix`, `implement Express/Fastify feature`, or for **small** JavaScript/TypeScript work that does not need a full PRD/PLAN cycle.
@@ -31,25 +33,6 @@ Invoke when the user asks for: `/javascript-developer`, `js fix`, `node fix`, `i
 ## Outcome
 
 Working **JavaScript/TypeScript** code and tests in the open workspace: npm test/build (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Covers **Node backend** (Express/Fastify; Nest recognized only) **and** existing DOM/`html-css` routes — Node backend is an extension, not a replacement. Does not replace SDD for multi-step or cross-repo features. There is **no** `node-developer` skill.
-
-## When to prefer SDD instead
-
-Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
-
-| Signal | Indicator |
-|--------|-----------|
-| Layers | 3+ packages/layers (API, services, persistence, workers) across many modules |
-| Database | New or altered schema / migrations |
-| Repos | Backend and another repo or service |
-| Integrations | New messaging, external APIs, or consumers |
-| Size | 10+ files or estimated 4+ hours |
-| PLAN exists | User already has an approved PLAN - use `sdd-develop` |
-
-## DESIGN-BRIEF acceptance
-
-If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists with `target_stack: html-css`, treat it as the acceptance source. Map to DOM/vanilla or light libs; do **not** reinterpret visual decisions.
-
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
 
 ## Lazy-load (only when needed)
 
@@ -84,8 +67,10 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/javascript-developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/javascript-developer/references/<section>.md` |
 
-**Never by default:** do not preload other stack guideline packs, the full `javascript-guidelines/` tree, all `html-css-guidelines/`, or corporate pipeline docs. Load only the rows needed for the current task. Preserve DOM/`html-css` paths when the task is UI — Node backend docs are additive. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+**Never by default:** do not preload all `references/*.md`. do not preload other stack guideline packs, the full `javascript-guidelines/` tree, all `html-css-guidelines/`, or corporate pipeline docs. Load only the rows needed for the current task. Preserve DOM/`html-css` paths when the task is UI — Node backend docs are additive. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted). Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 **Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index; fan-out to Node vs DOM vs architecture overlay only on trigger. Do not open every `html-css-guidelines/` file for a pure API task (or every Node file for a pure DOM task).
 
@@ -93,18 +78,13 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 
 | Situation | Path |
 |-----------|------|
-| Workspace / AGENTS | `developer-common/step-0-context.md` |
-| Which guidelines to open | `developer-common/step-0.5-review-guidelines.md` |
-| Express/Fastify HTTP API | `javascript-guidelines/node-backend.md` |
-| Style unset / greenfield | `code-guidelines/principles/architecture-selection.md` → then **one** `javascript-guidelines/architecture/<style>.md` |
-| Node security / structure | `node-security.md` / `node-structure-errors.md` |
-| TypeScript / clean code | matching `typescript-strict.md` / `clean-code-*.md` / `google-ts-style.md` |
-| DOM / `html-css` UI | `dom-patterns.md` + needed `html-css-guidelines/` / `frontend-guidelines/` rows |
-| DESIGN-BRIEF present | `docs/DESIGN-BRIEF.md` (acceptance; do not reinterpret) |
-| Branch / pre-commit / commit | matching `developer-common/step-3*.md` / `step-4-commits-pr.md` |
-| Pre-PR | `developer-common/step-7-checklist.md` |
+| Scope / SDD escalation / design brief | `references/scope.md` |
+| Implement flow | `references/execute-flow.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -113,82 +93,15 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
-### Subagent-first (before implement)
+### 0. Scope
+Follow `references/scope.md` (SDD escalation, design brief / host detection when present).
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm Node/JS project (`package.json`, `tsconfig.json`, or JS/TS layout). Read `AGENTS.md` / `README.md`. Detect Express vs Fastify from dependencies; if Nest deps appear, recognize Nest and follow the existing Nest layout — **no** Nest skill and **no** `node-developer`. Summarize the user request and acceptance. Keep DOM/`html-css` routing when the task is frontend.
-
-### 1. Guidelines (step 0.5)
-
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the guideline files needed for this task. For HTTP APIs load `node-backend.md`; for DOM/`html-css` load `dom-patterns.md` / frontend packs; load TypeScript/clean-code docs when applicable.
-
-### 2. Branch (step 3)
-
-Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>` - never commit on `main` / `master` / `develop`.
-
-### 3. Plan micro-steps
-
-List 3-7 concrete tasks (files to touch, tests to add). Stay within one session when possible; checkpoint per `context-management.mdc` (>= 40% -> pause, offer `/commit`).
-
-### 4. Implement
-
-Match existing project patterns (Glob/Read similar modules first).
-
-| Surface | Typical work |
-|---------|----------------|
-| Node API | Express routers / Fastify plugins, validation, services |
-| Nest (recognition) | Follow existing Nest modules — no dedicated Nest pack |
-| DOM / html-css | Vanilla or light libs per DESIGN-BRIEF |
-| Shared TS/JS | Types, utils, scripts |
-
-Apply the matching `javascript-guidelines` docs while writing - do not paste full bodies into chat.
-
-### 5. Tests
-
-Add or update tests for changed behavior. Prefer integration-style HTTP tests when the project already uses them; unit tests for isolated logic. Runners: Jest / Vitest / Mocha / `node:test` per project.
-
-### 6. Build and test
-
-```bash
-npm test
-npm run build
-```
-
-Add lint/type steps if configured. Fix failures within scope. Ask before running the full suite if the repo is very large.
-
-### 7. Pre-commit (step 3.5) and handoff
-
-Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
-
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and confirm Express/Fastify or DOM guidance used as needed.
-
-### 8. SDD escalation
-
-If scope grows during work, stop and recommend:
-
-```
-/sdd-spec - [feature description]
-# then
-/sdd-plan - PRD/...
-# then
-/sdd-develop - PLAN/... - Step 1
-```
+### 1. Execute
+Follow `references/execute-flow.md` (subagent-first, workspace → guidelines → branch → implement → tests → handoff).
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- Create or route to a separate `node-developer` skill (Node backend stays here)
-- Treat Nest as a default skill or guidelines pack (recognition only)
-- Drop DOM/`html-css` support in favor of backend-only routing
-- Nested `feature/base/...` branches; commit on default integration branches
-- Speculative features outside stated acceptance (YAGNI)
-- Auto-commit or auto-PR without user request
-- Deprecated SDD skill aliases in handoff text - use `sdd-spec`, `sdd-plan`, `sdd-develop`, `commit` only
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
 
 ## Handoff
 

@@ -48,85 +48,38 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/developer/references/<section>.md` |
 
 Do **not** load `dev_persona` or Antigravity KI artifacts.
 
-**Never by default:** do not preload all stack guideline packs. Route first; load only the selected stack skill paths.
+**Never by default:** do not preload all `references/*.md` or all stack guideline packs. Route first; load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
-## Frontend design routing
+## Reference routing
 
-Before UI implementation, check project context:
+| Situation | Path |
+|-----------|------|
+| Frontend / design brief | `references/frontend-design-routing.md` |
+| Stack match table | `references/stack-routing.md` |
+| Fallback execution | `references/fallback-execution.md` |
+| Must not (full) | `references/must-not.md` |
 
-1. If the task is **net-new UI** or a **visual redesign** and `PRODUCT.md` is missing -> recommend `/impeccable init` first (new session).
-2. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists -> treat it as acceptance source; delegate to the matching `*-developer` skill **without reinterpreting visual decisions**.
-3. One session = design (`impeccable shape`) **or** implementation (`*-developer`), not both.
+## Process
 
-Premium UI without a brief -> suggest `/impeccable shape` before stack implementation.
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
-## Routing Logic
+### 0. Frontend design routing
+Follow `references/frontend-design-routing.md` when the task touches UI.
 
-1. **Inspect the workspace** - identify stack in this order (frameworks before generic Node):
+### 1. Stack routing
+Follow `references/stack-routing.md` (e.g. `pom.xml` / `build.gradle` → `java-developer`). On match, load that stack `SKILL.md` and stop this router.
 
-   | Signal | Route to |
-   |--------|----------|
-   | User asks for **new** Blip plugin scaffold (no existing `blip-ds` project) | `blip-plugin-developer` |
-   | `package.json` with `blip-ds` and `iframe-message-proxy` (existing Blip plugin) | `react-developer` (loads `blip-guidelines/`) |
-   | `.csproj` with `Microsoft.AspNetCore.Components`, or `_Imports.razor` / `App.razor` | `blazor-developer` |
-   | `package.json` with `electron`, `electron-builder`, or `electron-vite` | `electron-developer` |
-   | `package.json` with `vue` (and not React/Angular) | `vue-developer` |
-   | `package.json` with `react-native` or `expo` | `react-native-developer` |
-   | `package.json` with `react` | `react-developer` |
-   | `package.json` with `@angular/core` or `angular` | `angular-developer` |
-   | `package.json` (Node.js, no framework above) | `javascript-developer` |
-   | `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
-   | `pom.xml`, `build.gradle`, `build.gradle.kts`, or `settings.gradle` | `java-developer` |
-   | `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
-
-2. **Invoke the specialized skill (if match found)**:
-   - Silently read the `SKILL.md` of the matched stack under `{{TOOLKIT_ROOT}}/skills/`:
-     - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, or `python-developer`
-   - Assume the identity and instructions of that skill immediately.
-   - Do **not** ask the user for confirmation to switch skills.
-
-3. **Fallback mode (if no match found)**:
-   - If no major framework structure is detected (e.g., isolated `.html`, `.sh`, `.bat`, `.ps1` files), **do not delegate**.
-   - Assume the task directly using standard, secure engineering practices as a Senior Developer.
-   - Proceed to the Execution Process below.
-
-## Execution Process (fallback mode only)
-
-### Subagent-first (before implement)
-
-Stack `*-developer` skills own this policy when routed. In fallback mode: classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm target repo, read `README.md` (if exists), and summarize requested acceptance.
-
-### 1. Micro-plan
-
-Define 2-5 concrete tasks. Checkpoint context usage after each major change per `context-management.mdc`.
-
-### 2. Implement
-
-Write clean, maintainable code following universal best practices for the target language (e.g., HTML, Bash, Python script).
-
-### 3. Tests / Validation
-
-Run local scripts or linting tools to ensure the code executes without syntax errors.
-
-### 4. Handoff
-
-Offer `/commit`. Do not commit automatically.
+### 2. Fallback only
+If no stack match: follow `references/fallback-execution.md`.
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- Auto-commit or auto-PR
-- Leave AI traces in code comments or identifiers (see `ai-stealth.mdc`)
-- Delegate when a clear stack match exists
+Enforce the full list in `references/must-not.md`. Critical: route before implement; no guideline dumps into children; no auto-commit.
 
 ## Handoff
 

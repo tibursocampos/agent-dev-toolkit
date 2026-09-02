@@ -45,7 +45,7 @@ Documented performance improvements verified by local benchmarking:
 2. Optimization proposal (e.g., eager loading, projection, indexes, caching, memory span allocations).
 3. Micro-benchmark results comparing execution speed and memory allocations (before vs. after).
 
-## Lazy-load
+## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
@@ -53,10 +53,22 @@ Documented performance improvements verified by local benchmarking:
 | JavaScript / TypeScript | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-js.md` |
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/performance-profile/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/performance-profile/references/<section>.md` |
 
-**Never by default:** do not preload unrelated stack guideline packs. Load only profiling paths needed for the current task.
+**Never by default:** do not preload all `references/*.md` or unrelated stack guideline packs. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Target / audit / workflow | `references/target-audit.md` |
+| Benchmark / optimize | `references/benchmark-optimize.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -67,75 +79,14 @@ Documented performance improvements verified by local benchmarking:
 
 ### -1. Re-check guardrails and session
 
-Confirm `guardrails.mdc` and `SESSION.md` are loaded.
-If missing, ask user (pt-BR):
+Confirm `guardrails.mdc` and `SESSION.md` are loaded. If missing, ask (pt-BR) before continuing.
 
-```text
-Antes do profiling, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
+### 0–1. Target and audit
+Follow `references/target-audit.md`. Wait for workflow choice.
 
-Posso seguir? (sim / ajustar / cancelar)
-```
-
-
-### 0. Target Identification
-
-* Locate the target method, database routine, or loop structure.
-* Confirm what metrics are critical: Execution Time (ms) or Memory Allocation (MB/GC cycles).
-
-### 1. Static Performance Audit & Workflow Decision
-
-* Analyze the target code for common anti-patterns:
-  * Database: N+1 queries (no eager loading), lack of projection (`select new`), missing query limits (`Take`/`limit`), unindexed search fields.
-  * Memory: Excessive allocations inside loops, duplicate string concatenations, boxing/unboxing.
-* Present the diagnostic report summarizing the bottlenecks.
-* Stop and ask the user to choose the workflow execution path for applying and benchmarking these optimizations:
-  * **Option A - Direct Developer Skill (`/developer`):** For straightforward local optimization and benchmark setup.
-  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For complex structural refactorings or query tuning requiring formal specifications (PRD) and a detailed plan (PLAN) in Portuguese.
-  * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
-* **Wait for explicit user choice** before writing code or initializing another workflow.
-
-### 2. Configure Benchmark
-
-* Propose the setup for a benchmark suite:
-  * C#: Create a BenchmarkDotNet class under the test project.
-  * Python: Write a test script utilizing `timeit` or `cProfile`.
-  * TS/JS: Write a benchmark script utilizing Node's `perf_hooks` or `benchmark.js`.
-* Wait for confirmation, then write the benchmark script/class.
-
-### 3. Collect Baseline (Before)
-
-* Instruct the user/agent to run the benchmark script and capture the execution outputs:
-  * Capture Mean Time, Standard Deviation, and Allocated Bytes.
-* Document the baseline metrics.
-
-### 4. Implement & Verify Optimization
-
-* Write the optimized implementation in a separate branch or method variant (e.g. `CalculateOptimized`).
-* Run the benchmark again to compare:
-  * Verify that optimization achieves measurable improvements (e.g. 20% speedup or lower GC allocation) without regression.
-* Present a comparison table:
-
-| Variant | Mean Time | Allocated Bytes |
-|---------|-----------|-----------------|
-| Baseline | ... | ... |
-| Optimized | ... | ... |
-
-### 5. Apply Final Changes
-
-* Replace the old code with the validated optimized version.
-* Run compiler checks and regular test suites to ensure behavior remains identical.
-
-### 6. Handoff
-
-* Offer committing the optimizations:
-
-```
-/commit
-```
+### 2–6. Benchmark, optimize, handoff
+Follow `references/benchmark-optimize.md`.
 
 ## Must not
 
-* Perform optimizations without a benchmark validation.
-* Introduce breaking changes or bypass domain validation rules to improve speed.
+Enforce the full list in `references/must-not.md`. Critical: no optimization without benchmark; no domain-rule bypass for speed.

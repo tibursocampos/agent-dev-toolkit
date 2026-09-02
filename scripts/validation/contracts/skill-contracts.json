@@ -44,19 +44,36 @@
     {
       "id": "push-no-gh",
       "skill": "push",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/handoff-pr.md"],
+      "match": "any-file",
       "mustContain": ["open-github-pr", "fluxo completo", "Must not"],
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
       "id": "help-skills-reads-catalog",
       "skill": "help-skills",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/must-not.md"],
+      "match": "any-file",
       "mustContain": [
         "skills-catalog/CATALOG.md",
         "skills-catalog/OPERATOR.md",
         "Must not",
         "Invent skills",
+        "NEVER"
+      ]
+    },
+    {
+      "id": "read-sdd-artifact-source-context",
+      "skill": "read-sdd-artifact",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "RSA-SOURCE-CONTEXT",
+        "source_context",
+        "path_traversal",
+        "outside_features",
+        "Lazy-load",
+        "Never by default",
+        "Must not",
         "NEVER"
       ]
     },
@@ -114,7 +131,8 @@
     {
       "id": "Should_ReferenceFastapiFlaskPytest_When_PythonSkillLoaded",
       "skill": "python-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "python-guidelines/fastapi.md",
@@ -135,7 +153,8 @@
     {
       "id": "Should_CoverNodeBackend_When_JavascriptDeveloperLoaded",
       "skill": "javascript-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "javascript-guidelines/node-backend.md",
@@ -156,7 +175,8 @@
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
       "skill": "angular-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "SPAWN.md",
@@ -173,7 +193,8 @@
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
       "skill": "react-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "SPAWN.md",
@@ -190,7 +211,8 @@
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
       "skill": "vue-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "SPAWN.md",
@@ -207,7 +229,8 @@
     {
       "id": "Should_ExposeSddTable_When_FrontendDeveloperLoaded",
       "skill": "react-native-developer",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/scope.md", "references/execute-flow.md"],
+      "match": "any-file",
       "mustContain": [
         "When to prefer SDD instead",
         "SPAWN.md",

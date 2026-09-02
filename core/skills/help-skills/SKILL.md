@@ -3,6 +3,7 @@ name: help-skills
 description: Present the installed static skills catalog (CATALOG.md + OPERATOR.md) without loading every SKILL.md. Use when listing skills or invoking help-skills (host: /help-skills, $help-skills, use skill help-skills, or OpenCode skill tool).
 ---
 
+
 # Skill: help-skills
 
 ## Trigger
@@ -19,8 +20,17 @@ User sees the **static** skill map and operator notes from the installed catalog
 |------|------|
 | Skills map (always for this skill) | `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` |
 | Operator notes / confirmations | `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/OPERATOR.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/help-skills/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/help-skills/references/<section>.md` |
 
-**Never by default:** do not preload individual skill `SKILL.md` bodies, `reference.md`, or guideline packs when answering catalog or operator questions.
+**Never by default:** do not preload all `references/*.md`, individual skill `SKILL.md` bodies, or guideline packs when answering catalog or operator questions. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Present catalog | `references/present-catalog.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Paths (required)
 
@@ -32,30 +42,11 @@ User sees the **static** skill map and operator notes from the installed catalog
 
 ## Process
 
-### Caveman Mode
-**NEVER** — This skill ignores `caveman_mode`. Present the catalog in clear prose (pt-BR for the user). Do not load `CAVEMAN.md` for chat compression.
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
-### 0. No mutating gates
-
-This skill is **read-only**. Do **not** require guardrails/SESSION/`sim` to show the catalog. Do not invent skill names.
-
-### 1. Read static files (required)
-
-1. **Read** `CATALOG.md` (path table above).
-2. **Read** `OPERATOR.md` when the user asks about confirmations, options, quirks, Caveman, or “what will I be asked?” — or when presenting a full help response that should include operator expectations. For a bare “list skills”, CATALOG alone is enough; still mention that `OPERATOR.md` exists for nuances.
-3. If either required file for the answer is missing, **STOP** and tell the user (pt-BR) the catalog is not installed — suggest re-running agent sync. Do **not** invent a skill list from memory.
-
-### 2. Present (do not rewrite)
-
-- Show groupings, skill ids, invoke phrases, and short purposes **from the file text**.
-- Prefer tables or short grouped lists already in the static files.
-- Point the user to invoke a specific skill next by **id** (host prefix from OPERATOR invoke matrix); do not load that skill body unless they ask to run it.
-- Do **not** summarize by inventing new wording that replaces the static guide.
+### Present catalog
+Follow `references/present-catalog.md`.
 
 ## Must not
 
-- Invent skills that are not in `CATALOG.md`
-- Load every `SKILL.md` to answer a catalog or operator-notes question
-- Require `sim` / SESSION gates for read-only catalog presentation
-- Write application code, commit, push, or open PRs
-- Treat `_shared/` packs or architect spawn as invocable skills
+Enforce the full list in `references/must-not.md`. Critical: catalog-only; no inventing skills; no loading every `SKILL.md`.
