@@ -123,10 +123,20 @@ $skillLazyLoadScriptName = $script:ToolkitConstant.AssertSkillLazyLoadScriptName
 $skillLazyLoadCheckName = $script:ToolkitConstant.SkillLazyLoadCheckName
 $storySizingContractScriptName = $script:ToolkitConstant.AssertStorySizingContractScriptName
 $storySizingContractCheckName = $script:ToolkitConstant.StorySizingContractCheckName
+$productArtifactQualityScriptName = $script:ToolkitConstant.AssertProductArtifactQualityScriptName
+$productArtifactQualityCheckName = $script:ToolkitConstant.ProductArtifactQualityCheckName
 $intentClassificationScriptName = $script:ToolkitConstant.AssertIntentClassificationScriptName
 $intentClassificationCheckName = $script:ToolkitConstant.IntentClassificationCheckName
 $memoryBankInventoryScriptName = $script:ToolkitConstant.AssertMemoryBankInventoryScriptName
 $memoryBankInventoryCheckName = $script:ToolkitConstant.MemoryBankInventoryCheckName
+$planLedgerContractScriptName = $script:ToolkitConstant.AssertPlanLedgerContractScriptName
+$planLedgerContractCheckName = $script:ToolkitConstant.PlanLedgerContractCheckName
+$traceEmitterFailOpenScriptName = $script:ToolkitConstant.AssertTraceEmitterFailOpenScriptName
+$traceEmitterFailOpenCheckName = $script:ToolkitConstant.TraceEmitterFailOpenCheckName
+$executionModesScriptName = $script:ToolkitConstant.AssertExecutionModesScriptName
+$executionModesCheckName = $script:ToolkitConstant.ExecutionModesCheckName
+$publishSpawnKnobsScriptName = $script:ToolkitConstant.AssertPublishSpawnKnobsScriptName
+$publishSpawnKnobsCheckName = $script:ToolkitConstant.PublishSpawnKnobsCheckName
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -207,9 +217,14 @@ $coreChecks = @(
     @{ Name = $prdStructureCheckName; Script = $prdStructureScriptName },
     @{ Name = $planStructureCheckName; Script = $planStructureScriptName },
     @{ Name = $storySizingContractCheckName; Script = $storySizingContractScriptName },
+    @{ Name = $productArtifactQualityCheckName; Script = $productArtifactQualityScriptName },
     @{ Name = $intentClassificationCheckName; Script = $intentClassificationScriptName },
     @{ Name = $skillLazyLoadCheckName; Script = $skillLazyLoadScriptName },
-    @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName }
+    @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName },
+    @{ Name = $planLedgerContractCheckName; Script = $planLedgerContractScriptName },
+    @{ Name = $executionModesCheckName; Script = $executionModesScriptName },
+    @{ Name = $traceEmitterFailOpenCheckName; Script = $traceEmitterFailOpenScriptName },
+    @{ Name = $publishSpawnKnobsCheckName; Script = $publishSpawnKnobsScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.
