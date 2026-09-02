@@ -98,7 +98,9 @@ Nova tarefa
 | **Backlog Refine** | Bug/story informal | `refine-story` → `split-story-checklist` opcional → Classic ou Orchestrated | Story sizing + persona/JTBD opcional (só User Stories); coluna Product intent no FEATURE |
 | **Orchestrated Delivery** | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam Classic SDD |
 
-Mesmo fluxo de chamada das skills; contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) são gates/artefatos a mais — não um segundo toolkit. Skills invocáveis usam lazy-load (`SKILL.md` + `reference.md` / `references/*` opcional); contrato: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS não é entrega.
+Mesmo fluxo de chamada das skills; contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, invocation/provenance, PLAN-LEDGER) são gates/artefatos a mais — não um segundo toolkit. Skills invocáveis usam lazy-load (`SKILL.md` + `reference.md` / `references/*` opcional); contrato: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS não é entrega.
+
+**Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, e quando chamar `read-sdd-artifact` — [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md) (Invocation / provenance / `read-sdd-artifact`). Normas de qualidade de produto em `_shared/backlog-item-types/` (carregue **um** arquivo por vez).
 
 Modo orchestrator (pai enxuto; especialistas fazem o trabalho pesado): padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md).
 
@@ -187,9 +189,31 @@ Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `
 sdd-spec
 sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
+read-sdd-artifact - <portable-features-path>   # opcional: normaliza → source_context
 ```
 
-Uma sessão de develop = **um** passo do PLAN. Contratos internos rodam nos mesmos skill ids.
+Uma sessão de develop = **um** passo do PLAN. Contratos internos (REQ, validate, CHANGE em brownfield, EVD/STATE, TRACE, invocation/provenance) rodam nos mesmos skill ids. Use `read-sdd-artifact` quando o handoff precisar de envelope tipado `source_context` (não é um quarto estágio de autoria). Detalhe: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md).
+
+### Backlog Refine — modos + checklist
+
+```text
+refine-story - feature    # User Story / Bug
+refine-story - tech       # Technical Story (TSnn)
+refine-story - split      # reformatar passos → pronto para checklist
+split-story-checklist - <story-or-backlog-path>
+```
+
+O modo é **obrigatório** (`feature` \| `tech` \| `split`). Omitir → a skill pergunta uma vez; não assuma `feature`. Modos são playbooks na mesma trilha Backlog Refine — não novas trilhas slash. Scorecard/checklist carregam **um** arquivo de `_shared/backlog-item-types/` por vez.
+
+### API standards vs clientes tipados
+
+```text
+api-standards                 # REST / versionamento / erros / naming / higiene de segurança (agnóstico)
+api-standards - versioning    # foco opcional: rest | versioning | errors | naming | security
+api-integrate - <openapi>     # OpenAPI → clientes tipados / DTOs
+```
+
+Use **`api-standards`** para revisão de design (só packing; sem contratos de empresa). Use **`api-integrate`** quando precisar de clientes gerados a partir de OpenAPI.
 
 ### Orchestrated Delivery
 
@@ -198,7 +222,7 @@ memory-bank-init
 orchestrate-analyze
 ```
 
-Depois `orchestrate-deliver` e `orchestrate-develop` (ou `sdd-develop`). Orquestradores **reusam** contratos Classic SDD; não os substituem.
+Depois `orchestrate-deliver` e `orchestrate-develop` (ou `sdd-develop`). Orquestradores **reusam** contratos Classic SDD; não os substituem. Antes do backlog **sim**, O1 pode desafiar FEATURE/US/PRD rasos (qualidade de artefato de produto) — veja [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#product-artifact-quality-backlog-item-types).
 
 ### Mudança pequena de stack
 
@@ -221,17 +245,17 @@ PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `de
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**40 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
 | **Backlog Refine** | `refine-story`, `split-story-checklist` |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
-| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ### Expectativas do operador (visão geral)
 
@@ -240,7 +264,10 @@ Pastas canônicas em `core/skills/` (**38 skills** + `_shared`). SoT do agente: 
 | Git (`commit` / `push` / `open-github-pr`) | Confirmar mensagem de commit; confirmar push; modo PR feature vs release; confirmar título/corpo; **sempre** perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
 | `code-review` | Escolher single vs multi-angle (sem default silencioso) |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain` |
+| `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso) |
+| `api-standards` vs `api-integrate` | Design/padrões → `api-standards`; OpenAPI → clientes → `api-integrate` |
 | `sdd-develop` | Um passo do PLAN por sessão |
+| `read-sdd-artifact` | Normalização opcional → `source_context` (só paths sob `features/`) |
 | `document-plan` | Pergunta o idioma da doc antes de escrever |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Modo Caveman](../caveman/) |
 | Orchestrator | Padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |

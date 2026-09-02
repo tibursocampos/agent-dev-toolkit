@@ -73,8 +73,23 @@ Em runtime, as skills preferem **`effective_SDD_ROOT`** consciente do host (`<In
 
 As árvores de instalação por agente (Cursor, Claude, Codex, …) estão na documentação completa de arquitetura e de adaptadores — não são duplicadas aqui. Veja [Adaptadores](../adapters/).
 
+## Contratos de maturidade (mesmo fluxo de chamada)
+
+Superfícies da feature **006** em `core/skills/_shared/sdd-artifacts/` e packs relacionados. Mesmos skill ids Classic SDD / Backlog Refine / Orchestrated Delivery — mais gates e artefatos, não um segundo toolkit.
+
+| Superfície | O que faz | Detalhe |
+|------------|-----------|---------|
+| **Invocation** | `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#invocation-contexts-direct-vs-orchestrated) |
+| **Provenance** | `agreed` vs `invented` (`CONTRACT-PROVENANCE.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#contract-provenance-agreed-vs-invented) |
+| **`read-sdd-artifact`** | Normaliza FEATURE/STORY/PRD/PLAN → `source_context` | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#skill-read-sdd-artifact-source_context) |
+| **PLAN-LEDGER** | Claim atômico de passo O3 (`PLAN-LEDGER-CONTRACT.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#plan-ledger-atomic-step-claim) |
+| **TRACE archive** | SoT do living loop: só `features/NNN-slug/TRACE.jsonl` | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#trace-archive-living-loop) |
+
+Não invente raízes TRACE alternativas (`.agent-trace/`, OpenSpec / `.specs/` / `.specify/`, SQLite/FTS como SoT). Emissores por host só onde há wire — [Adaptadores](../adapters/).
+
 ## Documentação completa no GitHub
 
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — camadas, placeholders, pontos de entrada, layouts de instalação por agente, CI
 - [docs/overview.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/overview.md) — problema, fluxo do operador, restrições de design
 - [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, pontos de publicação, tabelas de InstallRoot
+- [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md) — contratos SDD, invocation, TRACE, PLAN-LEDGER

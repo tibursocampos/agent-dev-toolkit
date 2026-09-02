@@ -137,9 +137,31 @@ Flow examples below use **skill ids**. Prefix with your host form from the matri
 sdd-spec
 sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
+read-sdd-artifact - <portable-features-path>   # optional: normalize → source_context
 ```
 
-One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE) run inside the same skill ids — no new slash skills.
+One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE, invocation/provenance) run inside the same skill ids. Use `read-sdd-artifact` when a handoff needs a typed `source_context` envelope (not a fourth authoring stage). Detail: [domains/core.md](../domains/core.md) § Invocation / provenance / `read-sdd-artifact`.
+
+### Backlog Refine — modes + checklist
+
+```text
+refine-story - feature    # User Story / Bug
+refine-story - tech       # Technical Story (TSnn)
+refine-story - split      # reshape steps → ready for checklist
+split-story-checklist - <story-or-backlog-path>
+```
+
+Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it → skill asks once; do not assume `feature`. Same Backlog Refine track — modes are playbooks, not new slash tracks. After refine, optional `split-story-checklist` then Classic SDD or Orchestrated Delivery. Scorecard and checklist load **one** file from `_shared/backlog-item-types/` (INVEST, AC budget, anti-task-shatter) — never the whole folder. Detail: [domains/core.md](../domains/core.md) § Composable skills · [Product artifact quality](../domains/core.md#product-artifact-quality-backlog-item-types) · [SKILLS.md](../SKILLS.md) § Backlog Refine.
+
+### API standards vs typed clients
+
+```text
+api-standards                 # agnostic REST / versioning / errors / naming / security hygiene
+api-standards - versioning    # optional focus: rest | versioning | errors | naming | security
+api-integrate - <openapi>     # OpenAPI → typed clients / DTOs (out of scope for api-standards)
+```
+
+Use **`api-standards`** for design review and packing-only conventions (no company contracts). Use **`api-integrate`** when you already have (or will produce) OpenAPI and need generated clients. Handoff is the same call flow — not a second toolkit. Catalog: [SKILLS.md](../SKILLS.md) § Operational.
 
 ### Orchestrated Delivery — architecture confirm (greenfield / `needs_domain`)
 
@@ -149,6 +171,8 @@ orchestrate-analyze
 ```
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a skill id): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick). Other O1 specialists follow `needs_*` in `ROSTER.md`. Parent stays coordinator (no app code); Task `model` omitted unless gated + **sim** ([SPAWN.md](../SPAWN.md)).
+
+Before backlog **sim**, O1 synthesis runs **product artifact quality** gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale) — see [Product artifact quality](../domains/core.md#product-artifact-quality-backlog-item-types). Classic `sdd-spec` Step 5.5 challenges the same depth on FEATURE/STORY/PRD siblings.
 
 Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree.
 
@@ -173,7 +197,7 @@ Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `dev
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**38** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**40** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Caveman: [07-caveman-mode.md](07-caveman-mode.md)
 - Credits: [CREDITS.md](../CREDITS.md)

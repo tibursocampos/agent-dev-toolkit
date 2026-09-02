@@ -1,8 +1,9 @@
-{"ts":"2026-08-21T12:00:00Z","event":"develop_start","feature":"features/NNN-slug","summary":"Replace with real feature slug; append-only trail (REQ-006 / CA5)."}
+{"ts":"2026-08-21T12:00:00Z","event":"develop_start","feature":"features/NNN-slug","summary":"Replace with real feature slug; append-only trail (REQ-005 / CA5)."}
 {"ts":"2026-08-21T12:15:00Z","event":"retrieval","feature":"features/NNN-slug","paths":["memory-bank/domain-knowledge.md"],"reason":"Selective read for step context"}
 {"ts":"2026-08-21T12:20:00Z","event":"gate","feature":"features/NNN-slug","gate_id":"step-approval","response":"sim"}
 {"ts":"2026-08-21T12:25:00Z","event":"spawn","feature":"features/NNN-slug","role":"sdd-develop","reason":"PLAN step N","outcome":"spawned"}
-{"ts":"2026-08-21T12:28:00Z","event":"specialist_complete","feature":"features/NNN-slug","role":"sdd-develop","summary":"Step N done"}
+{"ts":"2026-08-21T12:28:00Z","event":"specialist_complete","feature":"features/NNN-slug","role":"sdd-develop","summary":"Step N done","tokens":{"prompt":1200,"completion":800,"total":2000},"duration":45000,"spawn":{"role":"sdd-develop","outcome":"completed","reason":"PLAN step N"}}
+{"ts":"2026-08-21T12:29:00Z","event":"step_done","feature":"features/NNN-slug","summary":"Optional metrics as number or {ms}","tokens":2000,"duration":{"ms":1200}}
 {"ts":"2026-08-21T12:30:00Z","event":"converge","feature":"features/NNN-slug","summary":"Accepted CHANGE deltas for living current.","paths":["features/NNN-slug/CHANGE.md"]}
 {"ts":"2026-08-21T12:45:00Z","event":"sync_current","feature":"features/NNN-slug","summary":"Selective sync into memory-bank living docs.","targets":["memory-bank/domain-knowledge.md"]}
 {"ts":"2026-08-21T13:00:00Z","event":"archive","feature":"features/NNN-slug","status":"archived","summary":"Feature wave closed; TRACE coherent with living specs."}

@@ -26,6 +26,10 @@ Inspirado em [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) �
 
 Skills podem limitar a intensidade (planejamento costuma ser Lite; develop Full). **NEVER** comprimir em `help-skills`, `commit`, `push`, `open-github-pr`.
 
+## Nunca comprimido
+
+Drafts de produto (FEATURE / STORY / PRD) e gates de confirmação ficam em prosa completa — o Caveman nunca os comprime. Paths, erros e avisos de segurança também permanecem intactos.
+
 ## Auto-Clarity
 
 Suspende a compressão em avisos de segurança, confirmações irreversíveis, sequências multi-passo ambíguas ou quando o usuário pede esclarecimento — depois retoma.

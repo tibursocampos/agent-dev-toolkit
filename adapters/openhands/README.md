@@ -2,7 +2,7 @@
 
 Publish surfaces for **OpenHands**. Default InstallRoot is an in-repo **project** fixture; paths under `USERPROFILE` require `-AllowUserHome`.
 
-**Project InstallRoot** (CI / typical sync) models a repository tree: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/`, `.plugin/`. **Live user skills** (`~/.agents/skills`) use `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` so skills land at `skills/` directly under that home — never `~/.agents/.agents/skills`. `AGENTS.md`, hooks, and plugin metadata are project-scoped (not the user-home tree).
+**Project InstallRoot** (CI / typical sync) models a repository tree: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/`, `.plugin/`. **Live user skills** (`~/.agents/skills`) use `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` so skills land at `skills/` directly under that home â€” never `~/.agents/.agents/skills`. `AGENTS.md`, hooks, and plugin metadata are project-scoped (not the user-home tree).
 
 This adapter does **not** emit Automation Server config, cron, GitHub webhooks, sandbox YAML, LLM model config, or secrets.
 
@@ -25,20 +25,20 @@ This adapter does **not** emit Automation Server config, cron, GitHub webhooks, 
 
 | Flag | Value | Notes |
 |------|-------|-------|
-| `skills` | true | `core/skills` → `.agents/skills/<id>/SKILL.md` (Agent Skills; **not** legacy microagents). Placeholders resolved; `_shared/` copied. Works **without** the plugin. |
+| `skills` | true | `core/skills` â†’ `.agents/skills/<id>/SKILL.md` (Agent Skills; **not** legacy microagents). Placeholders resolved; `_shared/` copied. Works **without** the plugin. |
 | `rules` | true | **Does not** publish a Cursor `.mdc` `rules/` tree. Folds `core/policy` into `AGENTS.md` with the router. |
 | `hooks` | true | Shell entrypoint `.sh` under `.openhands/hooks/` (`session_start.sh`, `guard_pre_tool.sh`); may ship colocated `.ps1` + `GuardCommon.ps1` for GuardCommon evaluation. Filesystem only. |
-| `router` | true | `core/router/AGENTS.md` → `InstallRoot/AGENTS.md` (plus folded policy). |
+| `router` | true | `core/router/AGENTS.md` â†’ `InstallRoot/AGENTS.md` (plus folded policy). |
 | `plugin` | true | `.plugin/plugin.json` packages skills+hooks metadata. Skills still work without the plugin. |
-| `agents` | true | `core/agents/*.md` → `.agents/agents/*.md` (SDK/plugin roster). **Canvas Profile is not this roster.** |
-| `subagents` | `none` | Canvas/ACP is not parent→child. SDK `TaskToolSet` exists but is not Canvas. SPAWN fallback in-parent. Never `native`. |
+| `agents` | true | `core/agents/*.md` â†’ `.agents/agents/*.md` (SDK/plugin roster). **Canvas Profile is not this roster.** |
+| `subagents` | `none` | Canvas/ACP is not parentâ†’child. SDK `TaskToolSet` exists but is not Canvas. SPAWN fallback in-parent. Never `native`. |
 
 ## Spawn / subagents (honesty)
 
 | Field | Value |
 |-------|-------|
 | Registry / `Get-Capabilities` | `none` |
-| Host mechanism | OpenHands **loop** runs until `FinishAction` on the **main** agent. Canvas / ACP is not parent→child spawn (not Cursor Task, not Hermes `delegate_task`). SDK `TaskToolSet` is not the Canvas product. |
+| Host mechanism | OpenHands **loop** runs until `FinishAction` on the **main** agent. Canvas / ACP is not parentâ†’child spawn (not Cursor Task, not Hermes `delegate_task`). SDK `TaskToolSet` is not the Canvas product. |
 | Toolkit contract | SPAWN fallback **in-parent**. Do not claim `native`. |
 | Published files | `Publish-Agents` writes `.agents/agents/*.md` as an SDK/plugin **roster**. That is not Canvas Profile and not native subagent spawn. |
 
@@ -120,9 +120,15 @@ Removes only toolkit-managed paths (core skill ids, toolkit hook JSON/script, `.
 
 ## Official docs (OpenHands)
 
-- [Skills overview](https://docs.openhands.dev/overview/skills) — `AGENTS.md`, `.agents/skills/`, `~/.agents/skills/`; prefer Agent Skills over legacy `.openhands/microagents/`
+- [Skills overview](https://docs.openhands.dev/overview/skills) â€” `AGENTS.md`, `.agents/skills/`, `~/.agents/skills/`; prefer Agent Skills over legacy `.openhands/microagents/`
 - [Creating skills](https://docs.openhands.dev/overview/skills/creating)
-- [Repository hooks](https://docs.openhands.dev/openhands/usage/customization/hooks) — `.openhands/hooks.json` + `.openhands/hooks/*.sh`
-- [Plugins](https://docs.openhands.dev/overview/plugins) — `.plugin/plugin.json`; plugin `hooks/hooks.json` is the packaged form (this adapter publishes **repository** hooks under `.openhands/` and metadata at `.plugin/plugin.json`)
+- [Repository hooks](https://docs.openhands.dev/openhands/usage/customization/hooks) â€” `.openhands/hooks.json` + `.openhands/hooks/*.sh`
+- [Plugins](https://docs.openhands.dev/overview/plugins) â€” `.plugin/plugin.json`; plugin `hooks/hooks.json` is the packaged form (this adapter publishes **repository** hooks under `.openhands/` and metadata at `.plugin/plugin.json`)
 
 Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).
+## TRACE emitters (honesty)
+
+| Field | Value |
+|-------|-------|
+| TRACE append | **None** — limited shell hook surface; do not fake Cursor/Claude `hooks.json` parity |
+| Matrix | `adapters/_shared/trace-emitter-honesty.md` |

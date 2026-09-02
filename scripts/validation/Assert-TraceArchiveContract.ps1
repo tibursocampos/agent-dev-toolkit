@@ -5,10 +5,11 @@
 #   Should_Fail_When_IncompleteTrace_RequireArchive
 #   Should_Fail_When_BadJsonTrace
 #   Should_Fail_When_InvalidOrchestrationEvents
+#   Should_Fail_When_InvalidRunMetrics
 #   Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard
 #   Should_Pass_When_SkillsWireTraceArchiveContract
 #
-# REQ-006 / CA5: converge -> sync current -> archive; TRACE.jsonl; living markdown SoT.
+# REQ-005 / CA5: converge -> sync current -> archive; TRACE.jsonl; living markdown SoT; optional tokens/duration/spawn.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -92,7 +93,12 @@ $requiredContractMarkers = @(
     'retrieval',
     'gate',
     'spawn',
-    'specialist_complete'
+    'specialist_complete',
+    'tokens',
+    'duration',
+    '.agent-trace/',
+    'git-notes',
+    'Redact'
 )
 foreach ($marker in $requiredContractMarkers) {
     if ($contractText -notmatch [regex]::Escape($marker)) {
@@ -107,6 +113,11 @@ foreach ($ev in @('converge', 'sync_current', 'archive')) {
         if ($templateText -notmatch ('"event"\s*:\s*"{0}"' -f $ev)) {
             Write-Fail -TestName 'Should_Pass_When_TraceArchiveContractPresent' -Reason ("TRACE template missing event {0}" -f $ev)
         }
+    }
+}
+foreach ($metricMarker in @('"tokens"', '"duration"', '"spawn"')) {
+    if ($templateText -notmatch [regex]::Escape($metricMarker)) {
+        Write-Fail -TestName 'Should_Pass_When_TraceArchiveContractPresent' -Reason ("TRACE template missing metric field marker {0}" -f $metricMarker)
     }
 }
 Write-Pass -TestName 'Should_Pass_When_TraceArchiveContractPresent'
@@ -147,6 +158,26 @@ if ($invalidOrchestrationResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_InvalidOrchestrationEvents' -Reason 'expected non-zero exit for normative orchestration event schema violations'
 }
 Write-Pass -TestName 'Should_Fail_When_InvalidOrchestrationEvents'
+
+$metricsWorkRoot = Join-Path $env:TEMP ('adt-trace-metrics-{0}' -f [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Force -Path $metricsWorkRoot | Out-Null
+try {
+    $badMetricsLines = @(
+        '{"ts":"2026-08-21T14:00:00Z","event":"step_done","feature":"features/000-fixture-trace-metrics","summary":"bad tokens","tokens":-1}',
+        '{"ts":"2026-08-21T14:01:00Z","event":"step_done","feature":"features/000-fixture-trace-metrics","summary":"bad duration object","duration":{"seconds":1}}',
+        '{"ts":"2026-08-21T14:02:00Z","event":"specialist_complete","feature":"features/000-fixture-trace-metrics","role":"sdd-develop","summary":"bad nested spawn","spawn":{"role":"sdd-develop"}}',
+        '{"ts":"2026-08-21T14:03:00Z","event":"spawn","feature":"features/000-fixture-trace-metrics","role":"sdd-develop","reason":"x","outcome":"spawned","spawn":{"role":"x","outcome":"y"}}'
+    )
+    Set-Content -LiteralPath (Join-Path $metricsWorkRoot 'TRACE.jsonl') -Value ($badMetricsLines -join [Environment]::NewLine) -Encoding UTF8
+    $invalidMetricsResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $metricsWorkRoot }
+    if ($invalidMetricsResult.ExitCode -eq 0) {
+        Write-Fail -TestName 'Should_Fail_When_InvalidRunMetrics' -Reason 'expected non-zero exit for invalid tokens/duration/spawn metrics'
+    }
+    Write-Pass -TestName 'Should_Fail_When_InvalidRunMetrics'
+}
+finally {
+    Remove-Item -LiteralPath $metricsWorkRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 $smokeRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateTraceFixtureArchiveSmokeRelativeDir
 $changePath = Join-Path $smokeRoot 'CHANGE.md'

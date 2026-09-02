@@ -8,7 +8,7 @@ Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `EVD-STATE-CONT
 
 ---
 
-## Purpose (REQ-006 / CA5)
+## Purpose (REQ-005 / CA5; living loop)
 
 **P3 living loop** after P0–P2 contracts exist:
 
@@ -16,13 +16,13 @@ Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `EVD-STATE-CONT
 converge → sync current → archive
 ```
 
-Event trail (markdown SoT, append-only):
+**Single SoT** event trail (JSON Lines, append-only):
 
 ```text
 features/NNN-slug/TRACE.jsonl
 ```
 
-Do **not** invent `openspec/`, `.specs/`, `.specify/`, or SQLite/FTS as the trail or archive SoT.
+Do **not** invent `openspec/`, `.specs/`, `.specify/`, SQLite/FTS, **`.agent-trace/`**, a second JSONL trail, or **git-notes as SoT** for this trail (RNF-003). Git-notes may exist elsewhere for other workflows; they are **not** the TRACE source of truth in this contract.
 
 ## Living loop phases
 
@@ -52,6 +52,28 @@ Template: `skills/_shared/templates/features/TRACE.jsonl`.
 | `event` | string | Event name (see below) |
 | `feature` | string | Portable feature root: `features/NNN-slug` |
 
+### Optional run metrics (REQ-005 / CA5)
+
+Cross-cutting fields — **optional**. When a key is **present**, it is **normative** (validate-trace rejects malformed values). Emitters and harvest use these when the host exposes usage/timing/spawn context.
+
+| Field | Type | Rule when present |
+|-------|------|-------------------|
+| `tokens` | number **or** object | Number ≥ 0 = total token count. Object: at least one of `prompt`, `completion`, `total`; each present value is a number ≥ 0 |
+| `duration` | number **or** object | Number ≥ 0 = elapsed milliseconds. Object: required `ms` (number ≥ 0) |
+| `spawn` | object | Nested spawn context on non-`spawn` events (e.g. `specialist_complete`, `step_done`). Requires non-empty string `role` and `outcome`; optional non-empty `reason`. Do **not** nest `spawn` on the top-level `event:"spawn"` line — use the orchestration fields `role` / `reason` / `outcome` there |
+
+These fields never carry secrets, auth tokens, or PII (see **Redact / secrets** below).
+
+#### JSON examples (run metrics)
+
+```json
+{"ts":"2026-08-21T11:45:00Z","event":"specialist_complete","feature":"features/042-auth","role":"sdd-develop","summary":"Step 2 done; tests pass","tokens":{"prompt":1200,"completion":800,"total":2000},"duration":45000,"spawn":{"role":"sdd-develop","outcome":"completed","reason":"PLAN step 2"}}
+```
+
+```json
+{"ts":"2026-08-21T11:46:00Z","event":"step_done","feature":"features/042-auth","summary":"PASSO 5 schema extension","tokens":2000,"duration":{"ms":1200}}
+```
+
 ### Living-loop event names
 
 | `event` | Extra fields | Rule |
@@ -75,7 +97,17 @@ Same required fields (`ts`, `event`, `feature`) on every line. Extra keys allowe
 | `spawn` | `role` (non-empty string), `reason` (non-empty string), `outcome` (non-empty string) | Specialist spawn or in-parent fallback decision (`SPAWN.md`) |
 | `specialist_complete` | `role` (non-empty string), `summary` (non-empty string) | Specialist pass finished; one-line outcome for parent synthesis |
 
-Do **not** create a parallel trail (e.g. `.agent-trace/`) — extend this `TRACE.jsonl` only.
+Do **not** create a parallel trail (e.g. `.agent-trace/`) — extend this `TRACE.jsonl` only. Do **not** treat git-notes as a substitute SoT for TRACE.
+
+### Redact / secrets (RNF-001)
+
+TRACE payloads and emitter appends must **never** log:
+
+- Auth secrets, API keys, passwords, private keys, connection strings
+- Bearer/session tokens or raw `.env` values
+- PII (names, emails, phone numbers) beyond what a portable path already encodes
+
+Use env var **names**, placeholders (`***`, `YOUR_TOKEN`), or omit. Fail-open emitters must not echo sensitive tool bodies into TRACE. Structural validate does not scan for secrets — operators and emitters own redact before append.
 
 #### JSON examples (orchestration events)
 
@@ -127,8 +159,11 @@ Exit 0 = OK. Exit ≠ 0 = fix before declaring archive done. Smoke: `Assert-Trac
 
 ## Must not
 
-- Use SQLite / FTS / OpenSpec / `.specs/` as TRACE or archive SoT
+- Use SQLite / FTS / OpenSpec / `.specs/` / **`.agent-trace/`** / a second JSONL as TRACE or archive SoT
+- Treat **git-notes** as TRACE SoT under this contract
 - Dump full `memory-bank/` or full PRD into TRACE payloads (`SR-NO-FULL-DUMP`)
+- Log secrets, auth tokens, or PII in TRACE (RNF-001)
+- Emit malformed `tokens` / `duration` / nested `spawn` when those keys are present
 - Skip `sync_current` targets that point at forbidden trees
 - Treat O3 parallelism as the archive verifier (same as evidence: sequential script gate)
 - Create autonomous “controllers” or a second CLI for this loop (OOS)

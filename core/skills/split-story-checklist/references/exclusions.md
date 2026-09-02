@@ -7,6 +7,8 @@ Do **not** auto-generate:
 - manual sign-off checklist / DESKCHECK tag tasks
 - "Review own PR" with Sonar/Snyk boilerplate as mandatory rows
 - Child tasks on remote boards via external tracker REST/CLI
+- **One US/TS per file/class/script** (anti-task-shatter RN01) — keep as SMART task rows under the parent story
+- New `features/.../USnn/` or `TSnn/` folders invented from checklist split
 
 If the user wants a custom workflow section, add it under **Before PR** with their wording only.
 

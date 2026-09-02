@@ -37,6 +37,22 @@ O InstallRoot de **projeto** é a raiz do repo: skills em `.agents/skills/`, ros
 
 Regras compartilhadas: [`adapters/_shared/guard-rules.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/guard-rules.md) + `GuardCommon.ps1`. Fora do workspace e write sem path = deny. Matriz completa: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md).
 
+## Honestidade dos Publish knobs (depth / threads / inherit)
+
+O Publish pode emitir **somente** honesty de depth/threads alinhada ao SPAWN e model **inherit** (ou omitir model). Caps: `*-developer` **≤2**, `orchestrate-*` **≤4**. Nunca fixe slug de model filho≠pai no publish. Hosts com `agents=false` / no-op (Hermes, OpenCode, Antigravity): **não** emita knobs `delegation.max_spawn_depth` do host. Contrato: [`spawn-publish-honesty.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/spawn-publish-honesty.md) · [domains/adapters.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/adapters.md#publish-knobs-honesty-depth--threads--inherit).
+
+## Honestidade do emissor TRACE
+
+SoT do trail continua sendo só `features/NNN-slug/TRACE.jsonl`. Emissores são fail-open (exit 0; nunca anexam secrets / `tool_input`). Claim apenas o que está wired:
+
+| Claim | Hosts |
+|-------|--------|
+| **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (PostToolUse / SubagentStop) |
+| **Asset only** — sem wire live PostToolUse | Codex (`Publish-Hooks` ainda só PreToolUse guard) |
+| **Not claimed** | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
+
+Contrato: [`trace-emitter-honesty.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/trace-emitter-honesty.md) · assert `Assert-TraceEmitterFailOpen.ps1`.
+
 ## Como o sync funciona
 
 1. Prefira o `scripts/toolkit.ps1` interativo (Smart Manager).

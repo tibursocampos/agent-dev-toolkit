@@ -24,6 +24,8 @@ Gate check:
 
 ---
 
+# Skill: dotnet-developer
+
 ## Trigger
 
 Invoke when the user asks for: `/dotnet-developer`, `dotnet fix`, `implement .NET feature`, or for **small** backend work that does not need a full PRD/PLAN cycle.
@@ -31,19 +33,6 @@ Invoke when the user asks for: `/dotnet-developer`, `dotnet fix`, `implement .NE
 ## Outcome
 
 Working **.NET** code and tests in the open workspace: build and tests green, on a valid feature branch, with optional commit handoff. Does not replace SDD for multi-step or cross-repo features.
-
-## When to prefer SDD instead
-
-Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
-
-| Signal | Indicator |
-|--------|-----------|
-| Layers | 3+ layers (Domain, Application, Infrastructure, API) |
-| Database | New or altered schema / migrations |
-| Repos | Backend and another repo or service |
-| Integrations | New messaging, external APIs, or consumers |
-| Size | 10+ files or estimated 4+ hours |
-| PLAN exists | User already has an approved PLAN - use `sdd-develop` |
 
 ## Lazy-load (only when needed)
 
@@ -65,8 +54,10 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Final checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/dotnet-developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/dotnet-developer/references/<section>.md` |
 
-**Never by default:** do not preload all `dotnet-guidelines/` files, all `developer-common/step-*.md`, or `code-guidelines/languages/**` / corporate pipeline docs. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
+**Never by default:** do not preload all `references/*.md`. do not preload all `dotnet-guidelines/` files, all `developer-common/step-*.md`, or `code-guidelines/languages/**` / corporate pipeline docs. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted). Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 **Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index for which packs to open; fan-out to individual `step-3*` / `step-4` / `step-7` only when that process step runs. For architecture: selection/contract (`architecture-selection.md` or ARCH) → **one** `dotnet-guidelines/` overlay → `csharp-patterns.md` / checklist only when coding or pre-PR.
 
@@ -74,18 +65,13 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 | Situation | Path |
 |-----------|------|
-| Workspace / AGENTS | `developer-common/step-0-context.md` |
-| Which guidelines to open | `developer-common/step-0.5-review-guidelines.md` |
-| Style unset / greenfield | `code-guidelines/principles/architecture-selection.md` → then **one** overlay |
-| ARCH = concentric / CA / onion / hexagonal | `dotnet-guidelines/clean-architecture.md` |
-| ARCH = vertical-slice / VSA | `dotnet-guidelines/vertical-slice.md` |
-| ARCH = ddd | `dotnet-guidelines/ddd-tactical.md` |
-| ARCH = event-driven / EDA | `dotnet-guidelines/event-driven.md` |
-| C# / tests | `dotnet-guidelines/csharp-patterns.md` |
-| Branch / pre-commit / commit | matching `developer-common/step-3*.md` / `step-4-commits-pr.md` |
-| Pre-PR | `developer-common/step-7-checklist.md` + `dotnet-guidelines/checklist.md` |
+| Scope / SDD escalation / design brief | `references/scope.md` |
+| Implement flow | `references/execute-flow.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -94,82 +80,15 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
-### Subagent-first (before implement)
+### 0. Scope
+Follow `references/scope.md` (SDD escalation, design brief / host detection when present).
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm target repo (`*.sln` / `*.csproj`). Read `AGENTS.md` / `README.md`. Summarize the user request and acceptance (from issue text, PRD snippet, or user description).
-
-### 1. Guidelines (step 0.5)
-
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Confirm test stack: **xUnit**, **Moq**, **Shouldly**, `Should_<Result>_When_<Condition>`.
-
-### 2. Branch (step 3)
-
-Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>` - never commit on `main` / `master` / `develop`.
-
-### 3. Plan micro-steps
-
-List 3-7 concrete tasks (files to touch, tests to add). Stay within one session when possible; checkpoint per `context-management.mdc` (>= 40% -> pause, offer `/commit`).
-
-### 4. Implement
-
-Match existing project patterns (Glob/Read similar types first).
-
-| Layer | Typical work |
-|-------|----------------|
-| Domain | Entities, value objects, domain services |
-| Application | Commands/queries, handlers, validators |
-| Infrastructure | EF, repositories, external clients |
-| API | Endpoints, DTOs, auth filters |
-
-Apply the **one** ARCH-matched architecture overlay (see lazy-load table) and `csharp-patterns.md` from `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` while writing - do not paste full bodies into chat. Never glob `architecture/**`.
-
-### 5. Tests
-
-Add or update tests for changed behavior. Prefer integration tests for real flows when the project already uses them; unit tests for isolated logic.
-
-### 6. Build and test
-
-```bash
-dotnet build
-dotnet test --no-build
-```
-
-Fix failures within scope. Ask before running full-solution tests if the repo is very large.
-
-### 7. Pre-commit (step 3.5) and handoff
-
-Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
-
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md`.
-
-### 8. SDD escalation
-
-If scope grows during work, stop and recommend:
-
-```
-/sdd-spec - [feature description]
-# then
-/sdd-plan - PRD/...
-# then
-/sdd-develop - PLAN/... - Step 1
-```
+### 1. Execute
+Follow `references/execute-flow.md` (subagent-first, workspace → guidelines → branch → implement → tests → handoff).
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- External work-item APIs, `repo-mappings.json`, or org-only pipeline/Key Vault mapping guides
-- Obsolete test stacks or naming conventions (use xUnit/Moq/`Should_When_` only)
-- Obsolete guideline paths (use `dotnet-guidelines/` only)
-- Nested `feature/base/...` branches; commit on default integration branches
-- Speculative features outside stated acceptance (YAGNI)
-- Auto-commit or auto-PR without user request
-- Deprecated SDD skill aliases in handoff text - use `sdd-spec`, `sdd-plan`, `sdd-develop`, `commit` only
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
 
 ## Handoff
 

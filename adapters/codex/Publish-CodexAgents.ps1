@@ -9,6 +9,18 @@
   (live ~/.codex/agents/). Distinct from Codex USER skills root .agents/skills.
 #>
 
+$script:CodexAdapterAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:CodexAdapterAgentsModuleDirectory)) {
+    $script:CodexAdapterAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
+# Load SPAWN knobs at script scope (dotsource inside a function stays local-only).
+$_codexSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:CodexAdapterAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_codexSpawnKnobsPath
+Remove-Variable -Name _codexSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function ConvertTo-CodexTomlSingleQuotedString {
     param([Parameter(Mandatory = $true)][string] $Value)
     # TOML single-quoted: only escape single quotes by doubling.
@@ -28,6 +40,7 @@ function Get-CodexAgentFrontmatterFields {
 
     $name = ''
     $description = ''
+    $model = ''
     $body = $MarkdownText
 
     if ($MarkdownText -match '(?s)\A---\r?\n(.*?)\r?\n---\r?\n?(.*)\z') {
@@ -39,11 +52,15 @@ function Get-CodexAgentFrontmatterFields {
         if ($fm -match '(?m)^description:\s*(.+)$') {
             $description = $Matches[1].Trim().Trim('"').Trim("'")
         }
+        if ($fm -match '(?m)^model:\s*(.+)$') {
+            $model = $Matches[1].Trim().Trim('"').Trim("'")
+        }
     }
 
     return [PSCustomObject]@{
         Name        = $name
         Description = $description
+        Model       = $model
         Body        = $body.Trim()
     }
 }
@@ -59,12 +76,19 @@ function Convert-CodexAgentMarkdownToToml {
         throw ($script:CodexPublishMessage.AgentsFrontmatterMissing -f $SourcePath)
     }
 
-    $lines = @(
-        ('name = {0}' -f (ConvertTo-CodexTomlSingleQuotedString -Value $fields.Name))
-        ('description = {0}' -f (ConvertTo-CodexTomlSingleQuotedString -Value $fields.Description))
-        ('developer_instructions = {0}' -f (ConvertTo-CodexTomlMultilineBasicString -Value $fields.Body))
-    )
-    return ($lines -join [Environment]::NewLine) + [Environment]::NewLine
+    # REQ-008: emit parent inherit honesty; omit model key (Codex inherits when unset).
+    Assert-SpawnModelNotDivergentPin -ModelValue $fields.Model -SourcePath $SourcePath
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    foreach ($comment in @(Get-SpawnPublishHonestyComments)) {
+        $lines.Add($comment) | Out-Null
+    }
+    $lines.Add(('name = {0}' -f (ConvertTo-CodexTomlSingleQuotedString -Value $fields.Name))) | Out-Null
+    $lines.Add(('description = {0}' -f (ConvertTo-CodexTomlSingleQuotedString -Value $fields.Description))) | Out-Null
+    $lines.Add(('developer_instructions = {0}' -f (ConvertTo-CodexTomlMultilineBasicString -Value $fields.Body))) | Out-Null
+    $toml = ($lines -join [Environment]::NewLine) + [Environment]::NewLine
+    Assert-CodexTomlSpawnKnobs -TomlText $toml
+    return $toml
 }
 
 function Invoke-CodexPublishAgents {

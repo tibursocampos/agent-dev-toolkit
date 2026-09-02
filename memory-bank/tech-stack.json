@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-07-31T23:38:19Z",
+  "generated_at": "2026-09-02T19:04:30Z",
   "languages": ["PowerShell", "Markdown"],
   "frameworks": [],
   "package_managers": [],
@@ -47,6 +47,8 @@
       "adapters/opencode/",
       "adapters/zcode/",
       "adapters/antigravity/",
+      "adapters/hermes/",
+      "adapters/openhands/",
       "scripts/_lib/Resolve-InstallRoot.ps1",
       "scripts/_lib/Copy-ToolkitManagedTree.ps1",
       "docs/SPAWN.md",
@@ -57,7 +59,8 @@
     ],
     "notes": [
       "Adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands",
-      "37 kebab skills under core/skills/ (+ _shared)",
+      "40 kebab skills under core/skills/ (+ _shared)",
+      "79 Assert-*.ps1 validation scripts",
       "Cursor + Grok adapters split Claude-style (thin entry + Publish-* / Uninstall-* siblings)",
       "InstallRoot fail-closed: strip extended (\\\\?\\) and device (\\\\.\\) path prefixes; Initialize-InstallRootForWrite + Confirm; orphan cleanup",
       "Managed skills prune/copy name containment; uninstall Assert-PathUnderInstallRootForDelete",
@@ -65,7 +68,7 @@
       "Keyed uninstall for all registry adapters; preserves sdd/sessions + sdd/manifest.json",
       "Sync prepare: Get-SddRoot -Prepare on every sync (sdd/sessions + seed manifest when absent)",
       "OpenCode hooks = plugin JS only; CI smoke = filesystem fixture not product runtime",
-      "CI: validate-core + keyed uninstall asserts + Assert-SyncAllowUserHomeForward + 10 agent smokes",
+      "CI: validate-core + keyed uninstall asserts + Assert-SyncAllowUserHomeForward + agent smokes",
       "Public docs must not link repo features/ story paths (Assert-NoFeaturesDocLinks)"
     ]
   }

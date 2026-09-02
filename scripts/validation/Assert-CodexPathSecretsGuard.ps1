@@ -152,7 +152,40 @@ if ($toml -notmatch 'developer_instructions = ') {
 if ($toml -notmatch 'Do useful work') {
     Write-Fail -TestName 'Should_Pass_When_AgentsEmitToml' -Reason 'toml body not mapped to developer_instructions'
 }
+if ($toml -notmatch [regex]::Escape('# toolkit.spawn.model = inherit')) {
+    Write-Fail -TestName 'Should_Pass_When_AgentsEmitToml' -Reason 'toml missing inherit honesty comment'
+}
+if ($toml -notmatch [regex]::Escape('# toolkit.spawn.developer_threads = 2')) {
+    Write-Fail -TestName 'Should_Pass_When_AgentsEmitToml' -Reason 'toml missing developer_threads honesty'
+}
+if ($toml -notmatch [regex]::Escape('# toolkit.spawn.orchestrate_threads = 4')) {
+    Write-Fail -TestName 'Should_Pass_When_AgentsEmitToml' -Reason 'toml missing orchestrate_threads honesty'
+}
+if ($toml -match '(?m)^\s*model\s*=') {
+    Write-Fail -TestName 'Should_Pass_When_AgentsEmitToml' -Reason 'toml must omit model key (parent inherit)'
+}
 Write-Pass -TestName 'Should_Pass_When_AgentsEmitToml'
+
+$divergentMd = @"
+---
+name: bad-agent
+description: Must reject divergent model pin.
+model: gpt-5.6-luna-medium
+---
+
+# bad-agent
+"@
+$divergentThrew = $false
+try {
+    [void](Convert-CodexAgentMarkdownToToml -MarkdownText $divergentMd -SourcePath 'bad.md')
+}
+catch {
+    $divergentThrew = $true
+}
+if (-not $divergentThrew) {
+    Write-Fail -TestName 'Should_Fail_When_DivergentModelPin' -Reason 'expected throw for luna pin'
+}
+Write-Pass -TestName 'Should_Fail_When_DivergentModelPin'
 
 Write-Host 'Assert-CodexPathSecretsGuard: ALL PASS'
 exit 0

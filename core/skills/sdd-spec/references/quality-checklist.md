@@ -4,6 +4,8 @@
 - [ ] Path matches `features/**/PRD/NNN_*.md` or global `.../features/**/PRD/NNN_*.md` only
 - [ ] Body follows `templates/sdd/PRD.md` (REQ-NNN ids, verifiable CA, OOS; EARS only if useful)
 - [ ] Vague AC/REQ challenged and rewritten
+- [ ] Product depth challenged: metrics (§1.3), MoSCoW (§4.3), Severity on open questions (§5.1); FEATURE/STORY sibling depth when present (`references/challenge-vagueness.md`)
+- [ ] No implementation how/code in the PRD from depth challenges
 - [ ] `validate-prd` exit 0 on the written path
 - [ ] Brownfield: `CHANGE.md` present + `validate-change` exit 0; greenfield: no empty CHANGE forced
 - [ ] No implementation code in the PRD; no production/test code edited in `spec` session

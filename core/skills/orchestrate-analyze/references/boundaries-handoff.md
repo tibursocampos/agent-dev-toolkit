@@ -18,6 +18,8 @@ Scorecard: reuse `skills/refine-story/references/scorecard-rubric.md` (universal
 
 Story sizing: `skills/_shared/backlog-item-types/story-sizing.md` — load at synthesis; merge/split before human gate; FEATURE table **Rationale** column required.
 
+Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until gates pass and backlog **sim**.
+
 ---
 
 ## Canonical handoff strings

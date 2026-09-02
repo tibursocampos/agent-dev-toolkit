@@ -54,14 +54,19 @@ $script:ClaudeSettingsJsonConstant = @{
     HookEventPreCompact            = 'PreCompact'
     HookEventPostToolUse           = 'PostToolUse'
     HookEventPreToolUse            = 'PreToolUse'
+    HookEventSubagentStop          = 'SubagentStop'
     HookScriptUserPromptSubmit     = 'context-before-prompt.ps1'
     HookScriptPreCompact           = 'context-pre-compact.ps1'
     HookScriptPostToolUse          = 'plan-after-edit.ps1'
     HookScriptPreToolUse           = 'guard-pre-tool.ps1'
+    HookScriptTraceEmit            = 'emit-trace.ps1'
     HookMatcherPostToolUse         = 'Write|Edit'
     HookMatcherPreToolUse          = 'Write|Edit|Bash|PowerShell'
+    HookMatcherTracePostToolUse    = 'Write|Edit|Bash|PowerShell'
     SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
+    SharedTraceEmitCommonRelativePath = 'adapters\_shared\TraceEmitCommon.ps1'
+    SharedTraceEmitCommonFileName  = 'TraceEmitCommon.ps1'
 }
 
 # Legacy broad allow entries (uninstall + re-sync strip only; never re-added by default).

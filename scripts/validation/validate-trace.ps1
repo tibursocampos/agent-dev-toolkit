@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Structural validation for features/NNN-slug/TRACE.jsonl (REQ-006 / CA5).
+  Structural validation for features/NNN-slug/TRACE.jsonl (REQ-005 / CA5).
 
 .DESCRIPTION
   Deterministic TRACE + living-loop checks - no LLM.
@@ -118,6 +118,110 @@ function Get-TraceFieldValue {
     return [string]$prop.Value
 }
 
+function Test-NonNegativeNumber {
+    param([Parameter(Mandatory = $false)] $Value)
+    if ($null -eq $Value) {
+        return $false
+    }
+    if ($Value -is [bool]) {
+        return $false
+    }
+    if ($Value -is [string]) {
+        return $false
+    }
+    $asDouble = 0.0
+    if (-not [double]::TryParse([string]$Value, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$asDouble)) {
+        return $false
+    }
+    return ($asDouble -ge 0)
+}
+
+function Test-TraceJsonObject {
+    param([Parameter(Mandatory = $false)] $Value)
+    if ($null -eq $Value) {
+        return $false
+    }
+    if ($Value -is [string] -or $Value -is [bool] -or $Value -is [Array] -or $Value -is [ValueType]) {
+        return $false
+    }
+    return ($null -ne $Value.PSObject)
+}
+
+function Add-OptionalRunMetricFailures {
+    param(
+        [Parameter(Mandatory = $true)] $EventRecord,
+        [Parameter(Mandatory = $true)] $FailureList
+    )
+
+    $line = $EventRecord.Line
+    $obj = $EventRecord.Object
+    $eventName = $EventRecord.Event
+
+    $tokensProp = $obj.PSObject.Properties['tokens']
+    if ($null -ne $tokensProp) {
+        $tokensValue = $tokensProp.Value
+        if (Test-TraceJsonObject -Value $tokensValue) {
+            $knownKeys = @('prompt', 'completion', 'total')
+            $presentCount = 0
+            foreach ($key in $knownKeys) {
+                $kp = $tokensValue.PSObject.Properties[$key]
+                if ($null -ne $kp) {
+                    $presentCount++
+                    if (-not (Test-NonNegativeNumber -Value $kp.Value)) {
+                        [void]$FailureList.Add(("line {0}: tokens.{1} must be a non-negative number" -f $line, $key))
+                    }
+                }
+            }
+            if ($presentCount -eq 0) {
+                [void]$FailureList.Add(("line {0}: tokens object requires at least one of prompt, completion, total" -f $line))
+            }
+        }
+        elseif (-not (Test-NonNegativeNumber -Value $tokensValue)) {
+            [void]$FailureList.Add(("line {0}: tokens must be a non-negative number or object" -f $line))
+        }
+    }
+
+    $durationProp = $obj.PSObject.Properties['duration']
+    if ($null -ne $durationProp) {
+        $durationValue = $durationProp.Value
+        if (Test-TraceJsonObject -Value $durationValue) {
+            $msProp = $durationValue.PSObject.Properties['ms']
+            if ($null -eq $msProp) {
+                [void]$FailureList.Add(("line {0}: duration object requires ms (non-negative number)" -f $line))
+            }
+            elseif (-not (Test-NonNegativeNumber -Value $msProp.Value)) {
+                [void]$FailureList.Add(("line {0}: duration.ms must be a non-negative number" -f $line))
+            }
+        }
+        elseif (-not (Test-NonNegativeNumber -Value $durationValue)) {
+            [void]$FailureList.Add(("line {0}: duration must be a non-negative number or object with ms" -f $line))
+        }
+    }
+
+    $spawnProp = $obj.PSObject.Properties['spawn']
+    if ($null -ne $spawnProp) {
+        if ($eventName -eq $script:ToolkitConstant.SddArtifactTraceEventSpawn) {
+            [void]$FailureList.Add(("line {0}: do not nest spawn on event 'spawn'; use top-level role/reason/outcome" -f $line))
+        }
+        elseif (-not (Test-TraceJsonObject -Value $spawnProp.Value)) {
+            [void]$FailureList.Add(("line {0}: spawn field must be an object with role and outcome" -f $line))
+        }
+        else {
+            $spawnValue = $spawnProp.Value
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $spawnValue -Name 'role'))) {
+                [void]$FailureList.Add(("line {0}: spawn.role must be a non-empty string" -f $line))
+            }
+            if (-not (Test-NonEmptyStringField -Value (Get-TraceFieldValue -Object $spawnValue -Name 'outcome'))) {
+                [void]$FailureList.Add(("line {0}: spawn.outcome must be a non-empty string" -f $line))
+            }
+            $reasonProp = $spawnValue.PSObject.Properties['reason']
+            if ($null -ne $reasonProp -and -not (Test-NonEmptyStringField -Value ([string]$reasonProp.Value))) {
+                [void]$FailureList.Add(("line {0}: spawn.reason when present must be a non-empty string" -f $line))
+            }
+        }
+    }
+}
+
 function Add-NormativeOptionalEventFailures {
     param(
         [Parameter(Mandatory = $true)] $EventRecord,
@@ -127,6 +231,8 @@ function Add-NormativeOptionalEventFailures {
     $line = $EventRecord.Line
     $obj = $EventRecord.Object
     $eventName = $EventRecord.Event
+
+    Add-OptionalRunMetricFailures -EventRecord $EventRecord -FailureList $FailureList
 
     switch ($eventName) {
         $script:ToolkitConstant.SddArtifactTraceEventRetrieval {

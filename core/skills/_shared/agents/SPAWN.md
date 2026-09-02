@@ -6,6 +6,16 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
 **Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human host matrix: `docs/SPAWN.md`.
 
+## Invocation axes (A ≠ B ≠ C)
+
+Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
+
+| Axis | Owns | Rule |
+|------|------|------|
+| **A** | This file | Spawn vs in-parent decision. **Thin trivial exception intact** (RN01) — never remove spawn choice. |
+| **B** | `SUBAGENT-MODEL.md` | Omit/inherit `model` (same as parent session). SPAWN does **not** pin child ≠ parent. |
+| **C** | `SUBAGENT-MODEL.md` | Alternate slug only after gate + explicit approval. SPAWN does **not** invent model escapes. |
+
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 
 **Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.

@@ -35,81 +35,42 @@ Use for `/push`, `push changes`, or `/push`.
 
 Current branch pushed to `origin` with upstream set when needed. No force-push on protected branches.
 
-## Lazy-load
+## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/push/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/push/references/<section>.md` |
 
-**Never by default:** do not preload CAVEMAN.md or PR templates. Load branch/push rules only when needed.
+**Never by default:** do not preload all `references/*.md`, CAVEMAN.md, or PR templates. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Validate branch / Caveman NEVER | `references/validate-branch.md` |
+| Execute push | `references/execute-push.md` |
+| PR handoff | `references/handoff-pr.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
 
-### Caveman Mode
-**NEVER** - This skill ignores `caveman_mode`. Use clear prose always. Do not load `CAVEMAN.md` for chat compression. Commit/PR text stays normal English.
-
-### -1. Re-check guardrails and session
-
-If missing, ask user (pt-BR):
-
-```text
-Antes do push, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
-
-Posso seguir? (sim / ajustar / cancelar)
-```
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### 0. Validate branch
-
-Enforce `branch-validation.mdc`:
-
-- Allowed: `feature/<slug>`, `feat/<id>`
-- Blocked: `main`, `master`, `develop`, invalid patterns
-
-If blocked, stop and show how to create a valid branch. Do not push.
+Follow `references/validate-branch.md`.
 
 ### 1. Push
+Follow `references/execute-push.md`.
 
-```bash
-git push -u origin HEAD
-```
-
-Never force-push protected/default branches.
-
-### 2. Report
-
-Return branch and push status.
-
-### 3. Offer or hand off PR via `/open-github-pr` (required)
-
-After a successful push, decide:
-
-**A) User already asked for a PR in this conversation** (same or earlier turn) — examples: `fluxo completo`, `abra o PR`, `abrir PR`, `criar PR`, `faça o PR`, `open the PR`, `create pull request`, `commit + push + PR`, or answered **sim** to a prior PR offer.
-
-→ **STOP** `/push` and **immediately** load `{{TOOLKIT_ROOT}}/skills/open-github-pr/SKILL.md`. Follow it end-to-end (mode, template, body confirmation, **mandatory auto-merge ask**). Do not create the PR inside `/push`.
-
-**B) No prior PR intent** — **ask** (pt-BR); do **not** create the pull request inside `/push`.
-
-```text
-Push concluído.
-
-Abrir pull request com /open-github-pr?
-(sim = invocar a skill /open-github-pr · agora não / cancelar)
-```
-
-- On **sim** (or explicit `/open-github-pr`): **STOP** this skill and hand off — load and follow `{{TOOLKIT_ROOT}}/skills/open-github-pr/SKILL.md` in the same or new turn (mode feature by default unless user said release). That skill owns template, body confirmation, and auto-merge ask.
-- On **agora não** / cancel: stop. Do not open a PR.
-- Web UI is **not** offered from `/push`; only `/open-github-pr` may mention web UI as its own fallback when the CLI is missing.
+### 2–3. Report and PR handoff
+Follow `references/handoff-pr.md`.
 
 ## Must not
 
-- Push from invalid branch
-- Force push default branches
-- External work-item APIs or mandatory PR creation
-- **Creating or merging a GitHub pull request from this skill** (CLI or web compare) — always hand off to `/open-github-pr`
-- Skipping the handoff when PR intent was already clear (`fluxo completo`, `abra o PR`, etc.) — still load `/open-github-pr` for confirmation + auto-merge ask
+Enforce the full list in `references/must-not.md`. Critical: no invalid-branch push; no force-push defaults; never create PRs here — hand off to `/open-github-pr`.
 
 ## Handoff
 

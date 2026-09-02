@@ -4,6 +4,18 @@ Contract for **LLM model** on Cursor `Task` spawns from `orchestrate-analyze`, `
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`
 
+## Invocation axes (A ≠ B ≠ C)
+
+Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
+
+| Axis | Owns | Rule |
+|------|------|------|
+| **A** | `SPAWN.md` | Spawn vs in-parent (thin-trivial in-parent preserved). **This file does not decide spawn.** |
+| **B** | This file | Default: **omit `model`** → child **inherits** the parent session model (RN02). |
+| **C** | This file | No alternate-slug escape without the gate below **and** explicit user approval. Silence ≠ approval. |
+
+Cross-PLAN: every spawn omits `model` by default (Axis B). Pinning child model ≠ parent by default is forbidden (FEATURE non-goal / RN02).
+
 ## Default (almost every spawn)
 
 1. Call `Task` **without** the `model` parameter.

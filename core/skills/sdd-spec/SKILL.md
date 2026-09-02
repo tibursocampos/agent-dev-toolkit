@@ -42,8 +42,11 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 
 | When | Path (after sync) |
 |------|-------------------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/references/command.md` |
 | Pipeline guards, modes, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
+| Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | CHANGE brownfield / current specs (`CHANGE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
 | PRD document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PRD.md` |
@@ -54,12 +57,14 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/references/<section>.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Product depth challenge (Step 5.5) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md`, `invest-and-story-quality.md`, `gherkin-budget.md`, `clarify-depth.md`, `product-evidence-lite.md` |
+| Anti-task-shatter titles (only if task-shaped) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 
-**Never by default:** do not preload all `references/*.md`, full sdd-plan/develop packs, or all templates. Contract first (`PIPELINE` + `STORAGE`); load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full sdd-plan/develop packs, all templates, or all `backlog-item-types/*`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load Product-depth norms only at Step 5.5 (or when FEATURE/STORY siblings are thin).
 
 ## Process
 
-Read `references/<section>.md` for authoring tables and checklists — **not** full `reference.md`.
+After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for authoring tables — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
@@ -71,6 +76,8 @@ Read `references/<section>.md` for authoring tables and checklists — **not** f
 ### -1. Pipeline and mode
 
 Load `STORAGE.md` and `PIPELINE.md`. Use `STORAGE.md` schema v2 and run the dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute the storage mode selection flow and persist it in `manifest.json`.
+Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless parent handoff marks `orchestrated`. Apply the matching observable table.
+Load `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): distinguish `agreed` vs `invented` on every REQ/CA/assumption while authoring; never present invented as agreed (TE02).
 Apply Phase A/B: in Plan/Ask, draft in chat only until Agent + user **sim** on section Confirm below. Pipeline lock: no PLAN, no `Edit`/`Write` on `*.cs`, `*.csproj`, migrations.
 
 ### 0. Workspace
@@ -104,9 +111,13 @@ Wait for answers.
 
 Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/risks for the PRD. Capture **blast radius** when multiple areas change.
 
-### 5.5 Challenge vagueness + REQ contract
+### 5.5 Challenge vagueness + product depth + REQ contract
 
 Before drafting: challenge vague goals/AC ("works correctly", "as expected", "funciona corretamente"). Require observable outcomes. Assign stable **REQ-NNN** IDs (required — at least one; strongly recommended for every functional behavior) mapped to CA; list explicit **OOS**; use **EARS** only when hybrid clarity helps (not universal). Details: `references/challenge-vagueness.md`, `references/req-tracking.md`, `templates/sdd/PRD.md`.
+
+**Product depth (lazy):** challenge FEATURE/STORY siblings and the PRD draft for mandatory depth — FEATURE Problem/Goals/Non-goals/Evidence; STORY Objective + Who/Job/Outcome (US) + AC budget happy/rule/failure; PRD **metrics**, **MoSCoW**, open questions with **Severity**. Cite norms via portable paths; ask what/outcome gaps only — **no how, no implementation code**. Load backlog norms from the Lazy-load table only in this step.
+
+Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agreed`; agent defaults / inferences → `invented` (Assumptions / open questions) until confirm. Invented must stay visibly labeled in the draft and must not be written as locked requirements.
 
 ### 6. Context checkpoint
 
@@ -114,7 +125,7 @@ Before drafting: challenge vague goals/AC ("works correctly", "as expected", "fu
 
 ### 6.75 Confirm before write
 
-Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets (incl. REQ-NNN count / OOS), and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only.
+Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets (incl. REQ-NNN count / OOS), remaining **`invented`** assumptions (if any), and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only. On **sim**, listed bullets in that confirm become `agreed` for the Write (`CONTRACT-PROVENANCE.md`).
 
 Record `artifact_language` from `preferences.json`, manifest, or user override (`LANGUAGE.md` — do not hard-code pt-BR).
 
@@ -159,7 +170,11 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 - Claim "PRD saved" without successful `Write`
 - External trackers; do not paste full guideline bodies into PRD
 - Do not dump entire `memory-bank/` or paste full PRD into prompts/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
+- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
+- Do not ignore `CP-AGREED-VS-INVENTED` — never present `invented` content as `agreed` (`CONTRACT-PROVENANCE.md` / TE02)
 - Do not ship vague CA/REQ without challenge; do not omit REQ-IDs or OOS from the PRD body
+- Do not ship a PRD missing metrics (§1.3), MoSCoW (§4.3), or Severity on remaining open questions (§5.1) without challenging depth first (`references/challenge-vagueness.md`)
+- Do not put implementation how/code into the PRD while challenging product depth
 - Do not hand off to `sdd-plan` when `validate-prd` exits ≠ 0
 - Do not hand off when brownfield lacks `features/NNN-slug/CHANGE.md` or `validate-change` exits ≠ 0; do not invent empty CHANGE for greenfield
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path

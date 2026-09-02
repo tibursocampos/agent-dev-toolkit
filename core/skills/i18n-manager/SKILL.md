@@ -29,7 +29,7 @@ Gate check:
 
 ## Trigger
 
-Invoke when the user requests: `/i18n-manager`, `localize code`, `/i18n-manager`, or asks to internationalize a component.
+Invoke when the user requests: `/i18n-manager`, `localize code`, or asks to internationalize a component.
 
 **Arguments (optional):**
 
@@ -42,85 +42,52 @@ Invoke when the user requests: `/i18n-manager`, `localize code`, `/i18n-manager`
 1. Refactored code files where raw strings are replaced by framework-native translation variables or helpers (e.g. `_localizer["Key"]`, `t('Key')`).
 2. Updated localization resource files (`.resx` for C#, `.json` translation dictionaries for JavaScript/TypeScript).
 
-## Lazy-load
+## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/string-manipulation.md` |
 | React / Angular | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/i18n-manager/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/i18n-manager/references/<section>.md` |
 
-**Never by default:** do not preload unrelated stack guideline packs. Load only i18n paths needed for the current task.
+**Never by default:** do not preload all `references/*.md`, unrelated stack guideline packs, or `memory-bank`/PRD dumps. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Frame context / gates | `references/frame-context.md` |
+| Scan literals + workflow choice | `references/scan-and-workflow.md` |
+| Resource bundles + code refactor | `references/localize-apply.md` |
+| Build, verify, handoff | `references/build-verify-handoff.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
 
-### Step -1b - Caveman Mode (Full cap)
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
-2. If `caveman_mode` is false: continue without compression.
-3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Full** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
-4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
-5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
-### -1. Re-check guardrails and session
+### Step -1b / -1. Caveman + gates
+Follow `references/frame-context.md`.
 
-Confirm `guardrails.mdc` and `SESSION.md` are loaded.
-If missing, ask user (pt-BR):
+### 0–1. Frame context and scan
+Follow `references/frame-context.md` then `references/scan-and-workflow.md`. Wait for explicit workflow choice before writing.
 
-```text
-Antes da localizacao, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
+### 2–3. Apply localization
+Follow `references/localize-apply.md`.
 
-Posso seguir? (sim / ajustar / cancelar)
-```
-
-
-### 0. Frame the Context
-
-* Identify the localization pattern used in the repository:
-  * Dotnet: `.resx` resources with `IStringLocalizer<T>`.
-  * React: `react-i18next` (`useTranslation()` hook, `t('key')`).
-  * Angular: `@angular/core` i18n attributes or packages like `ngx-translate`/`transloco`.
-* Confirm the primary language (usually English for resources) and target translation languages.
-
-### 1. Scan for String Literals & Workflow Decision
-
-* Read target files and identify raw text content in HTML tags or hardcoded string variables.
-* **Filter out:**
-  * Log templates (like warning logs).
-  * System keys (like routing paths, config names, constants, and dictionary keys).
-* Present a list of candidate strings with suggested keys (e.g. `WelcomeMessage`, `SubmitButtonLabel`).
-* Stop and ask the user to choose the workflow execution path to refactor and localize these strings:
-  * **Option A - Direct Developer Skill (`/developer`):** For straightforward local string extraction and key replacements.
-  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For massive application-wide localization tasks requiring formal specifications (PRD) and a detailed plan (PLAN) in Portuguese.
-  * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
-* **Wait for explicit user choice** before writing code or initializing another workflow.
-
-### 2. Update Resource Bundles
-
-* Write or append the translations to the resource files:
-  * JSON bundles: add key/value fields in `en.json`, `pt.json`, etc.
-  * Dotnet XML: add `<data name="Key"><value>Text</value></data>` nodes in target `.resx` files.
-* Ensure keys are sorted alphabetically to prevent duplicate entries and maintain layout.
-
-### 3. Code Refactoring
-
-* Replace the hardcoded string literal in the code file with the dynamic localization call.
-* Inject the localizer dependency if it is not already available (e.g. adding `private readonly IStringLocalizer<T> _localizer` to C# constructor, or `const { t } = useTranslation()` in React component).
-
-### 4. Build and Verify
-
-* Run the project build script (`dotnet build`, `npm run build`) to ensure that imports, injections, and variables compile correctly.
-
-### 5. Handoff
-
-* Offer committing the refactored code and resources:
-
-```
-/commit
-```
+### 4–5. Build, verify, handoff
+Follow `references/build-verify-handoff.md`.
 
 ## Must not
 
-* Extract string keys with generic names (like `Text1`, `String2`).
-* Mutate logger strings or database connection configurations.
+Enforce the full list in `references/must-not.md`. Critical: no generic keys (`Text1`); no mutating logger/config strings; no write before workflow choice.
+
+## Handoff
+
+| Situation | Next |
+|-----------|------|
+| Commit refactors | `/commit` |
+| Large app-wide i18n via SDD | `/sdd-spec` then plan/develop |
+| Stack-specific coding help | `/developer` or matching `*-developer` |

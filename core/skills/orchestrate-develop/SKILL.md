@@ -56,8 +56,10 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Pipeline Orchestrated Delivery, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
@@ -66,19 +68,21 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | CONTINUITY template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/CONTINUITY.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/<section>.md` |
+| Execution modes (`REQ-003` / CA3; queue/claim/parallelism) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/execution-modes.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
-**Never by default:** do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
 
-**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, `SPAWN.md` before spawn, `sdd-develop` contract into the child prompt path only, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; after gates load `references/command.md` for step discovery; fan-out to `MEMORY-BANK.md` at Step 0, `SPAWN.md` before spawn, `sdd-develop` contract into the child prompt path only, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
 | Situation | Path |
 |-----------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Gate / Orchestrated Delivery | `PIPELINE.md` |
 | Feature / PLAN / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
@@ -89,6 +93,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Step queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism | `references/parallelism.md` |
+| Execution modes (serial/parallel/manual + ledger) | `references/execution-modes.md` |
 | CONTINUITY / handoff / stop conditions | `references/continuity-handoff.md` |
 | Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
 | Caveman / resolve feature / PLAN set | `references/process-common.md` |
@@ -97,13 +102,16 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Process
 
-Read `references/<section>.md` for procedural tables, prompts, and checklists under each step — **not** full `reference.md`. Do not skip gates.
+After gates: **Read `references/command.md`** for ordered step discovery (do not dump this Process section into child prompts). Then load `references/<section>.md` for the current step only — **not** full `reference.md`. Do not skip gates.
 
 ### Step -1b - Caveman Mode (Full cap)
 Apply Full caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Full cap).
 
 ### 1. Gate check
 Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Ask user **sim** before spawning the first develop child.
+
+### 1b. Resolve invocation context
+Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; every develop child handoff must include `invocation_context: orchestrated` (path cite only — no contract body dump).
 
 ### 2. Resolve feature / PLAN set
 Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queue or **STOP** if missing. Read `references/process-common.md` § Process — Resolve feature / PLAN set.
@@ -112,16 +120,16 @@ Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queu
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Build step queue (deps)
-Parse pending steps; respect Deps; present queue; wait for **sim**. Read `references/step-queue-spawn.md`.
+Parse pending steps; respect Deps; resolve **execution mode** (`serial` default); present queue; wait for **sim**. Read `references/execution-modes.md` and `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-SPAWN first; one Task = one PLAN step = full `sdd-develop` contract; omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
+SPAWN first; honor execution mode + PLAN-LEDGER claim (`Invoke-ExecutionModeGate` / `Invoke-PlanLedgerClaim`); one Task = one PLAN step = full `sdd-develop` contract; omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/execution-modes.md`, `references/step-queue-spawn.md`, and `references/anti-bypass.md`.
 
 ### 5.5 Post-implement verifier (opt-in)
 When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.
 
 ### 6. Safe parallelism (optional)
-Default **serial**. Parallel only when all independence conditions + user **sim** + distinct SESSION files; cap ≤4. Read `references/parallelism.md`.
+Default **serial** mode. Parallel only when mode is `parallel` **and** all independence conditions + user **sim** + distinct SESSION files; cap ≤4. Mode violations reject/audit — never silent ignore. Read `references/execution-modes.md` and `references/parallelism.md`.
 
 ### 7. Stop conditions
 Stop on story/feature done, context pressure, child blocked, or **cancelar**. Read `references/continuity-handoff.md` § Process — Stop conditions.
@@ -141,7 +149,7 @@ Parent and children **must not** bypass CA5. Enforce the full table in `referenc
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only.
+Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

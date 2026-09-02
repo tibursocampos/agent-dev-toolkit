@@ -12,6 +12,8 @@
 - Leave `memory-bank/architecture.md` draft / `needs-confirm` after ARCH **sim** (point-promote that file; not a full inventory refresh)
 - Pile unresolved product/schema choices only in CONTINUITY when `needs_database` / `needs_domain` (write them under `ANALYSIS/` / `ARCH/`; CONTINUITY may pointer only)
 - Approve backlog when required `ANALYSIS/` / `ARCH/` / `SEC/` folders are missing for true flags / brownfield
+- Present human backlog approval when product artifact quality gates fail (FEATURE missing Problem/Goals/Non-goals — TE01; task-shaped/layer-only candidate promoted to US/TS — TE02; >4 US/TS without explicit FEATURE split rationale — RN03)
+- Create `USnn`/`TSnn` for a title that is verb+file/class/script or layer-only (keep as PLAN/refine step; record anti-task-shatter rationale)
 - Treat pointer-only cited `.md` as promoted; treat `.cursor/plans/` as O3 input
 - Write PRD/PLAN (O2 owns that via `sdd-spec` / `sdd-plan` contracts)
 - Create external work-item tracker or org-only compliance content
@@ -26,6 +28,7 @@
 - Paste guideline packs into Task child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
+- Dump integral `memory-bank/` or full PRD into CONTINUITY, child prompts, or FEATURE/STORY (`SR-NO-FULL-DUMP`)
 
 ---
 

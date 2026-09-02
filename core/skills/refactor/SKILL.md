@@ -42,7 +42,7 @@ Invoke when the user requests: `/refactor`, `refactor code`, `/refactor`, or whe
 
 Safely refactored code with lower cognitive complexity, improved testability, and adherence to language-specific clean code guidelines, without breaking existing test suites.
 
-## Lazy-load
+## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
@@ -52,10 +52,23 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 | React components | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/components-and-state.md`, `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/hooks-and-effects.md` |
 | Angular directives / templates | `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/standalone-and-templates.md`, `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/style-and-structure.md`, `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/signals-and-state.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refactor/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refactor/references/<section>.md` |
 
-**Never by default:** do not preload all language guideline packs. Load only paths needed for the current refactor scope.
+**Never by default:** do not preload all `references/*.md` or all language guideline packs. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Detect stack / guidelines | `references/detect-guidelines.md` |
+| Smells analysis | `references/smells-analysis.md` |
+| Workflow / execution | `references/workflow-execution.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -66,66 +79,17 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 
 ### -1. Re-check guardrails and session
 
-Confirm `guardrails.mdc` and `SESSION.md` are loaded before continuing.
-If missing, ask user (pt-BR):
+Confirm `guardrails.mdc` and `SESSION.md` are loaded. If missing, ask (pt-BR) before continuing.
 
-```text
-Antes do refactor, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
+### 0. Detect stack
+Follow `references/detect-guidelines.md`.
 
-Posso seguir? (sim / ajustar / cancelar)
-```
+### 1. Smells analysis
+Follow `references/smells-analysis.md`.
 
-
-### 0. Detect Tech Stack and Load Guidelines
-
-* Check the current workspace files (look for `.csproj`, `package.json`, `requirements.txt`, etc.).
-* Lazy-load the corresponding language guidelines from `{{TOOLKIT_ROOT}}/skills/_shared/`.
-
-### 1. Code Smells Analysis
-
-* Read the target file. Identify code smells:
-  * Methods or functions exceeding 30 lines.
-  * Deep nesting (more than 3 levels of indentation).
-  * Magic strings or hardcoded parameters.
-  * Duplicate blocks of code within the file.
-  * Violation of SOLID principles (e.g., class doing too many things).
-* Present a summary of identified smells.
-
-### 2. Workflow Decision & Path Selection
-
-* Present the summary of identified code smells and debt.
-* Stop and ask the user to choose the workflow execution path based on the scope:
-  * **Option A - Direct Developer Skill (`/developer`):** For straightforward local refactoring edits.
-  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For complex structural refactorings requiring a formal specification (PRD) and a step-by-step checklist (PLAN) in Portuguese.
-  * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
-* **Wait for explicit user choice** before writing code or initializing another workflow.
-
-### 3. Step-by-Step Execution & Validation
-
-* For each accepted refactoring step:
-  * Apply the minimum diff modification.
-  * Run compiler checks (e.g. `dotnet build`, `npm run build`, `mypy` or build/typecheck commands).
-  * Run the unit test suite (e.g. `dotnet test`, `npm test`, `pytest`).
-  * If validation fails:
-    * Revert the current step immediately.
-    * Explain the failure and discuss alternative approaches.
-  * If validation passes, proceed to the next step.
-
-### 4. Code Formatting
-
-* Once all steps are complete, run the target formatter on the refactored files (e.g. CSharpier, Prettier, Black, Ruff) to align with style rules.
-
-### 5. Handoff
-
-* Ask the user if they want to review the final diff and handoff to the commit skill:
-
-```
-/commit
-```
+### 2–5. Workflow, execute, format, handoff
+Follow `references/workflow-execution.md`.
 
 ## Must not
 
-* Perform functional changes (adding features, fixing bugs) at the same time as refactoring.
-* Commit or push changes automatically without explicit user confirmation.
+Enforce the full list in `references/must-not.md`. Critical: refactor only (no feature/bug mix); no auto-commit.
