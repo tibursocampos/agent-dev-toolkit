@@ -8,3 +8,4 @@
 {"hints":["powershell","markdown","36-skills","cursor-grok-split","installroot-path-safety"],"repo":"E:/Source/Repos/agent-dev-toolkit","action":"refresh","at":"2026-07-31T23:38:19Z"}
 {"at":"2026-08-31T12:31:55.6183877Z","action":"refresh","repo":"agent-dev-toolkit","hints":["markdown","powershell"]}
 {"at":"2026-08-31T12:32:25.4784792Z","action":"refresh","repo":"agent-dev-toolkit","hints":["markdown","powershell"]}
+{"at":"2026-09-02T19:04:31.6514363Z","action":"refresh-light","repo":"agent-dev-toolkit","hints":["markdown","powershell"]}
