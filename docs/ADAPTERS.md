@@ -708,6 +708,24 @@ Helpers (not part of the publish surface, used by tests/docs):
 
 Spawn / subagents honesty: [SPAWN.md](SPAWN.md) + each README **Spawn / subagents** section.
 
+### Publish knobs honesty (depth / threads / inherit)
+
+Source: [`adapters/_shared/spawn-publish-honesty.md`](../adapters/_shared/spawn-publish-honesty.md) + `SpawnPublishKnobs.ps1`. RAG summary: [domains/adapters.md](domains/adapters.md#publish-knobs-honesty-depth--threads--inherit).
+
+Publish may emit **only** SPAWN-aligned depth/threads honesty and model **inherit** (or omit model). Caps: developer **≤2**, orchestrate **≤4**. Never pin child≠parent model slug at publish time. Hermes / OpenCode / Antigravity (`agents=false` or no-op): do **not** emit host `delegation.max_spawn_depth` / config.toml knobs.
+
+### TRACE emitter honesty
+
+Source: [`adapters/_shared/trace-emitter-honesty.md`](../adapters/_shared/trace-emitter-honesty.md). RAG summary: [domains/adapters.md](domains/adapters.md#trace-emitter-honesty).
+
+| Claim | Hosts |
+|-------|--------|
+| **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (PostToolUse / SubagentStop) |
+| **Asset only** — not live PostToolUse wire | Codex (`Publish-Hooks` still PreToolUse guard) |
+| **Not claimed** | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
+
+Assert: `Assert-TraceEmitterFailOpen.ps1`. Core trail schema: `TRACE-ARCHIVE-CONTRACT.md` → `features/NNN-slug/TRACE.jsonl` only.
+
 ### Not-implemented result shape
 
 ```text

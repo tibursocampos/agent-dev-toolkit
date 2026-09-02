@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**38 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**40 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**38** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**40** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -32,13 +32,15 @@ Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enfo
 
 | Track | Skills | When |
 |-------|--------|------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
 Use these track names only (no legacy Forma aliases). Same call flow; extra gates and artifacts inside — not new skills or tracks as products.
 
-**Backlog helpers (shared, not slash skills):** `story-sizing.md` (how many / how large); optional `persona-context.md` (Who/Job/Outcome for **User Stories** only). FEATURE table includes a **Product intent** column. Selective retrieval, REQ-ID, CHANGE, EVD/STATE, and TRACE living-loop remain gates inside the skills above.
+**Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, language/spawn lock, and when to call `read-sdd-artifact` — [domains/core.md](domains/core.md) § Invocation contexts / Contract provenance / Language / `read-sdd-artifact`.
+
+**Backlog helpers (shared, not slash skills):** folder `core/skills/_shared/backlog-item-types/` — `story-sizing.md`; optional `persona-context.md` (Who/Job/Outcome for **User Stories** only); product-quality norms (`invest-and-story-quality.md`, `anti-task-shatter.md`, `gherkin-budget.md`, `feature-altitude.md`, …). FEATURE table includes a **Product intent** column. Load **one** file at a time. Detail: [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types). Selective retrieval, REQ-ID, CHANGE, EVD/STATE, and TRACE living-loop remain gates inside the skills above.
 
 Decision tree: [guides/README.md](guides/README.md).
 
@@ -49,6 +51,7 @@ Decision tree: [guides/README.md](guides/README.md).
 | `sdd-spec` | Create a PRD for a new feature or change |
 | `sdd-plan` | Baby-step PLAN from an existing PRD |
 | `sdd-develop` | Execute **one** PLAN step per session |
+| `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN under `features/` into `source_context` (reject traversal / outside features) |
 
 Example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
 
@@ -64,6 +67,16 @@ sdd-develop - <plan-path> - Step N
 |-------|---------|
 | `refine-story` | Refine a bug, user story, or technical story into structured markdown with BDD acceptance |
 | `split-story-checklist` | Break refined steps into a dependency-aware task checklist (backend, frontend, tests) |
+
+**`refine-story` modes (mandatory — no silent default):**
+
+| Mode | When | Default item types | Playbook (lazy) |
+|------|------|--------------------|-----------------|
+| **feature** | Product-facing outcome or defect | User Story or Bug (`USnn`) | `core/skills/refine-story/references/feature.md` |
+| **tech** | Technical problem → solution | Technical Story (`TSnn`) | `…/references/tech.md` |
+| **split** | Steps ready for checklist | Any type — shape deps / parallel-safe | `…/references/split.md` |
+
+If the invoke omits a mode, the skill asks once (pt-BR) and loads **only** the chosen playbook — never all three. Mode `split` prepares input for `split-story-checklist`; it does not invent a fourth work track. Detail: [domains/core.md](domains/core.md) § Composable skills · [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types).
 
 Prefer story folders when present; see [guides/README.md](guides/README.md).
 
@@ -115,7 +128,8 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 | `ef-add-migration` | EF Core migration discovery |
 | `scaffold-message-handler` | Message consumer scaffold |
 | `refactor` | Safe incremental refactoring |
-| `api-integrate` | Typed API clients from OpenAPI |
+| `api-integrate` | Typed API clients / DTOs from OpenAPI |
+| `api-standards` | Agnostic HTTP/API design standards (REST, versioning, errors, naming, security hygiene) — packing only; no company contracts |
 | `performance-profile` | Profiling and optimization |
 | `containerize` | Dockerfiles and compose |
 | `i18n-manager` | Extract strings to localization files |
@@ -135,9 +149,12 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 | `code-review` | Choose single vs multi-angle (no silent default) |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per session |
+| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time |
+| `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
+| `api-standards` vs `api-integrate` | Standards / design review → `api-standards`; OpenAPI → typed clients → `api-integrate` |
 | `document-plan` | Asks doc language before writing |
 | Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |
-| Lazy-load | `SKILL.md` + section refs only; see [SKILL-REFERENCE-RETRIEVAL.md](../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) |
+| Lazy-load / phased split | `SKILL.md` + one section per step; monolith `reference.md` >150 lines must split — [SKILL-REFERENCE-RETRIEVAL.md](../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) |
 
 Installed static notes: `_shared/skills-catalog/OPERATOR.md` via `help-skills`.
 

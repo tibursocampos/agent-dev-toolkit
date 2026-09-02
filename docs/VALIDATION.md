@@ -37,7 +37,22 @@ Smoke harness alone (fixture `InstallRoot` under the repo):
 pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 ```
 
-`validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
+`validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert) plus maturity asserts for memory-bank inventory, PLAN-LEDGER, TRACE archive/harvest, TRACE emitter fail-open, and **product artifact quality** (`Assert-ProductArtifactQuality.ps1` — FEATURE depth, task-shaped titles, AC budget, cap, honest Evidence omit). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
+
+## Operator scripts (pointers)
+
+Run against a **consumer** feature / bank when closing a wave or before O3 — not required for visitor CI green. Contracts live under `core/skills/_shared/sdd-artifacts/`; do not duplicate schemas here.
+
+| Script | When | Domain detail |
+|--------|------|---------------|
+| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Refresh `memory-bank/.inventory/` (`ready` \| `not-ready`) | [cli-scripts](domains/cli-scripts.md#memory-bank-inventory) |
+| `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Before O3 — PRD/PLAN/CHANGE consistency | [cli-scripts](domains/cli-scripts.md#prd--plan--change-preflight) |
+| `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |
+| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | O3 parallel step claim / release | [core PLAN-LEDGER](domains/core.md#plan-ledger-atomic-step-claim) |
+| `scripts/validation/validate-trace.ps1` | Structural TRACE check; `-RequireArchiveComplete` at archive | [core TRACE](domains/core.md#trace-archive-living-loop) |
+| `scripts/validation/Assert-ProductArtifactQuality.ps1` | Fixture CTs for FEATURE/STORY quality bar (via `validate-core`) | [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types) |
+
+Suggested order: **inventory → preflight → develop → TRACE harvest**. Emitter honesty (which hosts actually wire TRACE): [adapters.md](domains/adapters.md#trace-emitter-honesty).
 
 `Assert-HermesSpawnIsolation.ps1` (check name `hermes-spawn-isolation`) keeps Hermes `delegate_task` out of core policy/router/skills (SPAWN host-map allowlist only) and proves the Hermes AGENTS spawn bridge does not leak into other adapters’ published `AGENTS.md` / rules.
 
