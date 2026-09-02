@@ -138,8 +138,10 @@ function Get-ClaudeSmokeManagedHookScriptNames {
         $script:ClaudeSettingsJsonConstant.HookScriptPreCompact,
         $script:ClaudeSettingsJsonConstant.HookScriptPostToolUse,
         $script:ClaudeSettingsJsonConstant.HookScriptPreToolUse,
+        $script:ClaudeSettingsJsonConstant.HookScriptTraceEmit,
         '_hook-common.ps1',
-        $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
+        $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName,
+        $script:ClaudeSettingsJsonConstant.SharedTraceEmitCommonFileName
     )
 }
 
@@ -218,7 +220,8 @@ function Test-ClaudeSmokeSettingsMergeComplete {
         $script:ClaudeSettingsJsonConstant.HookEventUserPromptSubmit,
         $script:ClaudeSettingsJsonConstant.HookEventPreCompact,
         $script:ClaudeSettingsJsonConstant.HookEventPostToolUse,
-        $script:ClaudeSettingsJsonConstant.HookEventPreToolUse
+        $script:ClaudeSettingsJsonConstant.HookEventPreToolUse,
+        $script:ClaudeSettingsJsonConstant.HookEventSubagentStop
     )
 
     if ($null -eq $settings.$hooksProp) {

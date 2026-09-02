@@ -44,10 +44,12 @@ $script:CursorAdapterConstant = @{
     ManagedHookScriptNames         = @(
         '_hook-common.ps1',
         'GuardCommon.ps1',
+        'TraceEmitCommon.ps1',
         'context-before-prompt.ps1',
         'context-pre-compact.ps1',
         'guard-pre-tool.ps1',
-        'plan-after-edit.ps1'
+        'plan-after-edit.ps1',
+        'emit-trace.ps1'
     )
     SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
