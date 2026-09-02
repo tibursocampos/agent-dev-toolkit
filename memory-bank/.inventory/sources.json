@@ -1,16 +1,20 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "repo": "agent-dev-toolkit",
-  "repo_path": "E:\\Source\\Repos\\agent-dev-toolkit",
-  "bank_path": "E:\\Source\\Repos\\agent-dev-toolkit\\memory-bank",
-  "generated_at": "2026-08-31T12:32:20.5786348Z",
+  "repo_path": "E:\\Nextcloud\\Repos\\agent-dev-toolkit",
+  "bank_path": "E:\\Nextcloud\\Repos\\agent-dev-toolkit\\memory-bank",
+  "generated_at": "2026-09-02T19:04:30.7293607Z",
   "stale_days": 90,
+  "status": "ready",
+  "status_reason": "sources indexed with hash and summary",
+  "inventory_hash": "0938399ba37775495072d21ea7b0c3a3e5be34246a1742e4a9cace80075dd23c",
+  "inventory_summary": "115 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
-  "skill_count": 38,
-  "assert_script_count": 59,
+  "skill_count": 40,
+  "assert_script_count": 79,
   "sources": [
     {
       "path": ".github/workflows/docs.yml",
@@ -35,9 +39,9 @@
     },
     {
       "path": ".gitignore",
-      "last_write_utc": "2026-08-21T15:43:22.2545241Z",
-      "length": 5490,
-      "hash": "b31652a3b847ecc8679f0b2ff6e5a68e61eab84083969536ce2e2a509154a6f2",
+      "last_write_utc": "2026-08-31T17:45:23.3172188Z",
+      "length": 5674,
+      "hash": "688036a9190804b832a84e59e93758a5e0950de1f85ad4d19bd922b5275471d3",
       "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
     },
     {
@@ -49,10 +53,17 @@
     },
     {
       "path": "adapters/antigravity/AntigravityAdapter.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1446209Z",
-      "length": 44036,
-      "hash": "5a3b6d41433da1b4d36402726c589c03f55eddc852099d0e9df83a1db3fe7a95",
+      "last_write_utc": "2026-08-31T17:45:23.3202202Z",
+      "length": 41860,
+      "hash": "a0a4d4b64fdb42c9bb6d4002ba58dcb7bd4dae3179e8e55a014de1f4ce0a7e2b",
       "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/antigravity/Publish-AntigravityHooks.ps1",
+      "last_write_utc": "2026-08-31T17:45:23.3212198Z",
+      "length": 8080,
+      "hash": "d20a7364411dc74b97fbf9c32166f4c84fd92801d8b20e5c2aa87816cd2612f9",
+      "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/antigravity/Publish-AntigravityPolicy.ps1",
@@ -70,10 +81,10 @@
     },
     {
       "path": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1494602Z",
-      "length": 10850,
-      "hash": "0c76518637c2eca3f6ca728a77852bb5a2ef335528600ebf12a579407e4874b8",
-      "summary": "Explicitly never touch legacy bridge or hooks tree."
+      "last_write_utc": "2026-08-31T17:45:23.3222201Z",
+      "length": 11422,
+      "hash": "0592e5f767346691e8d50e0ac2facf378c1db4a38cbfd115bf383373f8e01610",
+      "summary": "Explicitly never touch legacy bridge."
     },
     {
       "path": "adapters/claude/ClaudeAdapter.ps1",
@@ -84,17 +95,17 @@
     },
     {
       "path": "adapters/claude/Publish-ClaudeAgents.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1466196Z",
-      "length": 3341,
-      "hash": "44453c32e1c2d4c4b943659243f61f39d9c727eda0f6c4ff1d2ef5a338dac485",
+      "last_write_utc": "2026-09-02T18:03:57.8298935Z",
+      "length": 3918,
+      "hash": "b14a2c69d69ea48a0006650a0fa20cbc591dd1742e4c72dd65c4ec1da3d93f9d",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/claude/Publish-ClaudeHooks.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1524634Z",
-      "length": 6024,
-      "hash": "8d3602422353daf438231494ae7e3fb68f9ad1cdb7b49b5aed725f6c7e3b7c34",
-      "summary": "#Requires -Version 5.1"
+      "last_write_utc": "2026-08-31T17:45:23.3242195Z",
+      "length": 6761,
+      "hash": "0dec693a0cf3b34c8c4b9747668e5e1a8570c99dcd31753519af71773309f6b1",
+      "summary": "Shared path/secret helpers beside published hooks."
     },
     {
       "path": "adapters/claude/Publish-ClaudePolicy.ps1",
@@ -119,9 +130,9 @@
     },
     {
       "path": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1487174Z",
-      "length": 15557,
-      "hash": "6374d3b6ad814c5d7205ac1f018beffd35d1ee34832de46f414743b672390394",
+      "last_write_utc": "2026-09-02T17:56:25.0143532Z",
+      "length": 15201,
+      "hash": "dbd513c7ab8aedc497592ae8931830ad4065214072a4d89257c00f184661d514",
       "summary": "Script-scope load so Remove-* helpers can call Assert-PathUnderInstallRootForDelete"
     },
     {
@@ -133,17 +144,17 @@
     },
     {
       "path": "adapters/codex/Publish-CodexAgents.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1507200Z",
-      "length": 3492,
-      "hash": "fd3616fe2dd670a56c5bfe6759b99fa99765bbeef2eec80059c155ecc950cee9",
-      "summary": "#Requires -Version 5.1"
+      "last_write_utc": "2026-09-02T18:03:15.2604089Z",
+      "length": 8135,
+      "hash": "6a0622b15e2d98d23697f3c8b073851174c516ce9192d2e1b81096d976a8afe0",
+      "summary": "Load SPAWN knobs at script scope (dotsource inside a function stays local-only)."
     },
     {
       "path": "adapters/codex/Publish-CodexHooks.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1624665Z",
-      "length": 6655,
-      "hash": "c9772a8f2cedcf5c86cf7fa8afa9ff1fcb9f23cc8f3bb022bbb3fb506133ce37",
-      "summary": "#Requires -Version 5.1"
+      "last_write_utc": "2026-08-31T17:45:23.3272201Z",
+      "length": 8761,
+      "hash": "2cbfb8bcf20fdcadae4702f1b10e1b224c6476afede13b8ae03190874025a8c4",
+      "summary": "Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets)."
     },
     {
       "path": "adapters/codex/Publish-CodexPolicy.ps1",
@@ -168,9 +179,9 @@
     },
     {
       "path": "adapters/codex/Uninstall-CodexToolkit.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1517183Z",
-      "length": 15585,
-      "hash": "fa82c7aa9c35223c443ff1e8d8eb61e716d838fa0df32b4d8eede4c828c6ade3",
+      "last_write_utc": "2026-08-31T17:45:23.3272201Z",
+      "length": 16297,
+      "hash": "3544f949f2d106b33b99f943f3acdaf255be0c0a63ff08ab70ff32ce4530542b",
       "summary": "Unknown / corrupt catalog authored outside toolkit - leave untouched (RN07)."
     },
     {
@@ -189,9 +200,9 @@
     },
     {
       "path": "adapters/copilot/Publish-CopilotHooks.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1654659Z",
-      "length": 6775,
-      "hash": "107ac3de8e89faab2d18d5eba4dc059b4384ccbd67771053779c3785755dfd76",
+      "last_write_utc": "2026-08-31T17:45:23.3292199Z",
+      "length": 7338,
+      "hash": "84ab38e113a9e7a97e03d13ae441dddd2aac120f3697a86b8b5b5244d0988fe2",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -224,16 +235,16 @@
     },
     {
       "path": "adapters/cursor/Publish-CursorAgents.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1608825Z",
-      "length": 3198,
-      "hash": "1ad1b1bb7d4efe576a0b6e2ca97a2ded19ced7a4229bb3338ca250b75028e503",
+      "last_write_utc": "2026-09-02T18:03:34.9916249Z",
+      "length": 3775,
+      "hash": "8826f66ac0cdbd7d7d991b0f1fd5f8ba038b496b9ea2e50cf2abba76c5fd207c",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/cursor/Publish-CursorHooks.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1694660Z",
-      "length": 19053,
-      "hash": "ab2c950f36ee51e20c6bd42e2f581991c99c45334cd224cd48b225236a9ca0ba",
+      "last_write_utc": "2026-08-31T17:45:23.3312198Z",
+      "length": 20272,
+      "hash": "9213a4a613d82d43e3b0ca4f433928b3e60d3f4e249f2f52430ee6f4d38bd9b7",
       "summary": "Script-scope load so path-gate asserts are available to Copy-/Write- helpers."
     },
     {
@@ -266,16 +277,23 @@
     },
     {
       "path": "adapters/grok/GrokAdapter.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1628846Z",
-      "length": 13834,
-      "hash": "f587dbedcbaebc6c308b61e6a6fb742c0ef734d15c581f8456e159e027364a17",
+      "last_write_utc": "2026-08-31T17:45:23.3332196Z",
+      "length": 13626,
+      "hash": "4710250425f0a01d661d66b7dc85b510f2aa8008fb5cb1957a5a4d7b1309aad6",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokAgents.ps1",
+      "last_write_utc": "2026-08-31T17:45:23.3342196Z",
+      "length": 3143,
+      "hash": "f6a34760f66a30927ec6e40a7adf75b06bcd4b9c6040e8e6d6c1ad8ba4e14be2",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/grok/Publish-GrokHooks.ps1",
-      "last_write_utc": "2026-08-06T17:32:04.8366582Z",
-      "length": 6643,
-      "hash": "0ad317baa182337eb56c5d222180b77cc8aede43af2f74d235fc11798794db66",
+      "last_write_utc": "2026-08-31T17:45:23.3342196Z",
+      "length": 10272,
+      "hash": "f87b9de3d9a39df148a56d262914286226a943a85d62db11968f2c4ed2794d5e",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -294,31 +312,31 @@
     },
     {
       "path": "adapters/grok/Publish-GrokSkills.ps1",
-      "last_write_utc": "2026-08-06T17:32:04.8376585Z",
-      "length": 9806,
-      "hash": "2744bd9c7fb20b378dfcbc4c29f10711abd25ee268c89360898e49d9fff2e7a2",
+      "last_write_utc": "2026-08-31T17:45:23.3352195Z",
+      "length": 9927,
+      "hash": "7da3e6c05beee0c7ea77c96f0d2607e588d0047b5c1e373ab1b6380b43f985a9",
       "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
     },
     {
       "path": "adapters/grok/Uninstall-GrokToolkit.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1777889Z",
-      "length": 8723,
-      "hash": "440d085eff3bafc207ff42ce8f66c141fce84708aba0466f243bde1d37d87658",
+      "last_write_utc": "2026-08-31T17:45:23.3362201Z",
+      "length": 9641,
+      "hash": "89e8fb270d4b6a7812d189ab0816b5d1f592cca1d9ac9dadba27fd7b2cacdf1e",
       "summary": "Script-scope load so Assert-PathUnderInstallRootForDelete is available"
     },
     {
       "path": "adapters/hermes/HermesAdapter.ps1",
-      "last_write_utc": "2026-08-22T00:10:58.3134845Z",
-      "length": 12995,
-      "hash": "7c667ebfeee7ed5beec028aab908c43f95546f72afa30eb758d494d296aaf52f",
+      "last_write_utc": "2026-08-31T17:45:23.3372200Z",
+      "length": 13494,
+      "hash": "a18db029c482083ce106e777840f0ffc4df1c0a1a45a44dc9985bb3ad7caea6d",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/hermes/Publish-HermesHooks.ps1",
-      "last_write_utc": "2026-08-21T15:43:22.2908744Z",
-      "length": 1479,
-      "hash": "1efb1af9c6d15509fa18d66b419f23c47faf3960dc8d80fa8b575eda79ad007d",
-      "summary": "#Requires -Version 5.1"
+      "last_write_utc": "2026-08-31T17:45:23.3382198Z",
+      "length": 15472,
+      "hash": "317b27bd923285872fea340fd0e110636322a1f21781a27474a1e8930e9dbeaa",
+      "summary": "Remove list items whose command references toolkit guard-pre-tool (multi-line YAML maps)."
     },
     {
       "path": "adapters/hermes/Publish-HermesPolicy.ps1",
@@ -336,23 +354,30 @@
     },
     {
       "path": "adapters/hermes/Publish-HermesSkills.ps1",
-      "last_write_utc": "2026-08-22T00:10:58.3144847Z",
-      "length": 16352,
-      "hash": "a264d44d7aa1fcd365d4ed57c392d7a813a1efc0332e46ac60493616f565ee57",
+      "last_write_utc": "2026-08-31T17:45:23.3382198Z",
+      "length": 16827,
+      "hash": "85ec4ff32744655709b1f64980e469efc4f84a16efb55ec2896509292d3e2255",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/hermes/Uninstall-HermesToolkit.ps1",
-      "last_write_utc": "2026-08-21T15:43:22.3038709Z",
-      "length": 7266,
-      "hash": "0169c6ffe3eb47efe3289196c608affa93a6cbf9db8fc3afde48efc38b1a0f11",
+      "last_write_utc": "2026-08-31T17:45:23.3392203Z",
+      "length": 9703,
+      "hash": "d080546227e15171797ec65f838fe9df6679112c5f996637b6c726ed763bb0ca",
       "summary": "WhatIf: include AGENTS.md in would-remove set via separate flag below"
     },
     {
       "path": "adapters/opencode/OpenCodeAdapter.ps1",
-      "last_write_utc": "2026-08-14T12:42:13.1648837Z",
-      "length": 18390,
-      "hash": "8b6a66fa98ad293ba0d39793e8ba292c355a648b5cb61e0b73d2f092aae3ea24",
+      "last_write_utc": "2026-08-31T17:45:23.3412198Z",
+      "length": 18567,
+      "hash": "c0a5deb1987c6213ef1bcde805b90df6fa0c2428fdc3aaa3725d37fe72db26c6",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/opencode/Publish-OpenCodeAgents.ps1",
+      "last_write_utc": "2026-08-31T17:45:23.3422203Z",
+      "length": 4046,
+      "hash": "6aa6ba296768bffda1f294fbed99b50302d7e5b263ca72c902f724d6e7d684f5",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -378,9 +403,9 @@
     },
     {
       "path": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1817891Z",
-      "length": 7340,
-      "hash": "cc1efa250dd4aa90c1b6dad9e973628ec7c0d04dc6e26913dd7ce27c0c5ba15c",
+      "last_write_utc": "2026-08-31T17:45:23.3432240Z",
+      "length": 8108,
+      "hash": "c224e27d89f699af04ec4cc5912b5f2cdf6a067f08336ce069ad784fd8da54fb",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -399,9 +424,9 @@
     },
     {
       "path": "adapters/openhands/Publish-OpenHandsHooks.ps1",
-      "last_write_utc": "2026-08-21T15:43:22.3161497Z",
-      "length": 7747,
-      "hash": "239a03db2d2e03712940d6d1e304a1fee6d1f4f93888c63852c572821654a3c8",
+      "last_write_utc": "2026-08-31T17:45:23.3442239Z",
+      "length": 10784,
+      "hash": "061e41b1ae7cd76da06b82d86910b6c0277d29cde131653d83f5bc52a8f73a26",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -427,16 +452,16 @@
     },
     {
       "path": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-      "last_write_utc": "2026-08-21T15:43:22.3261546Z",
-      "length": 7991,
-      "hash": "78350a2c515509fd8c144b77e5171611bca04fd04264b577284145adb49eeb51",
+      "last_write_utc": "2026-08-31T17:45:23.3452253Z",
+      "length": 8472,
+      "hash": "f3c5eb150de2eebcdaff5335a2d22466cf95e3e56d441194b36a2c5624844a4f",
       "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/registry.json",
-      "last_write_utc": "2026-08-21T15:43:22.3301543Z",
-      "length": 4209,
-      "hash": "fdca38337a30c2583e7234334717edc0b6d297f6bf6cdbcca1d5f9642ff07026",
+      "last_write_utc": "2026-08-31T17:45:23.3462243Z",
+      "length": 4204,
+      "hash": "83af9de6e09114ed21d0495a5666d9e502ed2b5479b87635705e023a815b81a0",
       "summary": "{"
     },
     {
@@ -448,9 +473,9 @@
     },
     {
       "path": "adapters/zcode/Publish-ZCodeHooks.ps1",
-      "last_write_utc": "2026-08-01T19:41:10.1832935Z",
-      "length": 12601,
-      "hash": "05c7ea8894887f71d2c5427e3def764c83c0a5cdc5db676dfae347f91b0ddacf",
+      "last_write_utc": "2026-08-31T17:45:23.3472240Z",
+      "length": 14468,
+      "hash": "7413a648f51ef669c4c344154078e84ed1ed2767cbd742dbbfe212d870482c7c",
       "summary": "Scalar / type mismatch: keep destination (user) value."
     },
     {
@@ -490,37 +515,37 @@
     },
     {
       "path": "core/router/AGENTS.md",
-      "last_write_utc": "2026-08-31T12:19:20.7386962Z",
-      "length": 9777,
-      "hash": "59ed0ba4fe88b42fa6841057395cfcad24d898743287e7ddc813416618e372d2",
+      "last_write_utc": "2026-09-02T18:08:39.4135385Z",
+      "length": 10088,
+      "hash": "5ac875320ba19da4e7445f6e31fca096a20ae0d39d4142c4d202bf60b508dd06",
       "summary": "Agent router (L0 index) - agent-dev-toolkit"
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-08-31T12:19:20.7126769Z",
-      "length": 10340,
-      "hash": "3be512e5e6143e6a81a0481ce8ce7956675deb05566a5f6a87ac000964f95bb5",
+      "last_write_utc": "2026-09-02T17:37:25.4164966Z",
+      "length": 10875,
+      "hash": "ff9e9f43ffc36c2bf16d8c182df07f61d3d91453b3e7c894a593d2bbadc93f5a",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
       "path": "docs/ADAPTERS.md",
-      "last_write_utc": "2026-08-22T00:10:58.3154848Z",
-      "length": 54855,
-      "hash": "4219631504f358a2141dffa236735a4c7995b7204a9ca027566b3498e4ba35c5",
+      "last_write_utc": "2026-08-31T17:45:23.4304756Z",
+      "length": 57689,
+      "hash": "adb6b766157f54bb634a0c5b0ad77d60ed02692002d579839e0d428c0c4bc990",
       "summary": "Adapters"
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "last_write_utc": "2026-08-31T12:14:37.2761035Z",
-      "length": 13716,
-      "hash": "04aaafa7790ffbbe6b2d0326556d8d65df9014a1f747f1a0d1c6170169857caf",
+      "last_write_utc": "2026-09-02T17:33:45.0436683Z",
+      "length": 14399,
+      "hash": "459e9c089f32afd0d9632e904bb720e88c1c11ad12be6b90735f3271829f91f4",
       "summary": "Architecture"
     },
     {
       "path": "docs/CREDITS.md",
-      "last_write_utc": "2026-08-31T12:14:37.2771050Z",
-      "length": 2887,
-      "hash": "14339313524f86e4ca5b5cd514f334128782cae5b6bd4f5e6c1f65044e1a7cdd",
+      "last_write_utc": "2026-09-02T18:30:55.9913207Z",
+      "length": 4111,
+      "hash": "375875aeff9056a8b7a843ae1ecec1c585ad488765146dbe47e2e7ec285df2f8",
       "summary": "Credits and acknowledgments"
     },
     {
@@ -532,7 +557,7 @@
     },
     {
       "path": "docs/documentation-plan/plan.md",
-      "last_write_utc": "2026-08-31T12:17:47.3354914Z",
+      "last_write_utc": "2026-09-01T21:25:32.6074807Z",
       "length": 3953,
       "hash": "b0e9c2d38bce424917e90c741faf4d2b5f3ee81196c155515843119345afccde",
       "summary": "Documentation plan: agent-dev-toolkit"
@@ -546,9 +571,9 @@
     },
     {
       "path": "docs/domains/adapters.md",
-      "last_write_utc": "2026-08-25T18:00:17.8164275Z",
-      "length": 5411,
-      "hash": "f10b0ff4abb89ef57867812700fff3718665e4fd37731d0b73dc43a9349cdf4e",
+      "last_write_utc": "2026-08-31T17:45:23.4324766Z",
+      "length": 5705,
+      "hash": "43361df2e6952459350259e1215e826bbd9f5d78376089b2c129ccda81524613",
       "summary": "Domain: Adapters"
     },
     {
@@ -560,9 +585,9 @@
     },
     {
       "path": "docs/domains/core.md",
-      "last_write_utc": "2026-08-31T12:16:46.3078378Z",
-      "length": 8417,
-      "hash": "b0488c08d73edaede72aacdae7879e2b5347f356c54778aac5cdd1ca4d6348db",
+      "last_write_utc": "2026-09-02T17:33:43.7219948Z",
+      "length": 9483,
+      "hash": "666936ac2a6302965ff547c8f1cfe3565cd00d8aa132c91f2608a855280f6fd6",
       "summary": "Domain: Core"
     },
     {
@@ -581,37 +606,37 @@
     },
     {
       "path": "docs/guides/01-getting-started.md",
-      "last_write_utc": "2026-08-31T12:19:57.8230545Z",
-      "length": 4883,
-      "hash": "07d3d3401514056bc69730a3dc3041a1df014f65385472b6afda5fff603d60ea",
+      "last_write_utc": "2026-08-31T17:45:23.4334763Z",
+      "length": 4888,
+      "hash": "862586cb66a532483cfb163283b1b4cf4d3753a0167f2b5a7f18eb107d64dedf",
       "summary": "Getting started"
     },
     {
       "path": "docs/guides/02-using-skills.md",
-      "last_write_utc": "2026-08-31T12:14:37.3072392Z",
-      "length": 10303,
-      "hash": "685fb13854dea3353a105d33048668bc7e51c4fea842a044bb4006739676a57f",
+      "last_write_utc": "2026-09-02T17:33:42.7030064Z",
+      "length": 10759,
+      "hash": "dc51b14b4a6fb2fb8a73d13f0c8094e6109d7c9a337614c6e1c1589078af73ce",
       "summary": "Using skills"
     },
     {
       "path": "docs/guides/07-caveman-mode.md",
-      "last_write_utc": "2026-08-31T12:20:57.0047604Z",
-      "length": 3051,
-      "hash": "4069d8187b4b2275cf158d9c247ac8eddb94e627f1d18d3712d7dbea6ba2f508",
+      "last_write_utc": "2026-09-02T18:30:50.2041800Z",
+      "length": 3177,
+      "hash": "96eebd6c9e41a48d21ead7005d95d0c1b126e3b1532810f41771beef9905599c",
       "summary": "07 — Caveman Mode"
     },
     {
       "path": "docs/guides/08-orchestrator-mode.md",
-      "last_write_utc": "2026-08-31T12:19:55.4188430Z",
+      "last_write_utc": "2026-08-31T17:45:23.4354754Z",
       "length": 2723,
       "hash": "6e03e1eeccecd0b002432223ad89c2bf01a105261283fe722658f161b6e584b6",
       "summary": "08 — Orchestrator mode"
     },
     {
       "path": "docs/guides/README.md",
-      "last_write_utc": "2026-08-31T12:19:59.8701800Z",
-      "length": 6793,
-      "hash": "c4b9ee8752972de339b0129ef19c7912d0b1f30a71e4d0b3b50bd089408bc13e",
+      "last_write_utc": "2026-08-31T17:45:23.4354754Z",
+      "length": 6736,
+      "hash": "4c941386a73d9f73602541cfbbc5748c6f7abeddaffe14606deb4cb757902945",
       "summary": "User guides"
     },
     {
@@ -623,16 +648,16 @@
     },
     {
       "path": "docs/overview.md",
-      "last_write_utc": "2026-08-25T18:00:17.8184275Z",
-      "length": 6628,
-      "hash": "886cde37310ac6b4cb57b1c7a9fe2b939825bfe44651d438de6d1846badd6985",
+      "last_write_utc": "2026-09-02T17:33:41.9215619Z",
+      "length": 6894,
+      "hash": "86ca611e8fff67ee1d522ffe5b5c4e4aa6b8fcab9364598b39ae5c53f04a305a",
       "summary": "Overview"
     },
     {
       "path": "docs/README.md",
-      "last_write_utc": "2026-08-25T18:00:17.8154276Z",
-      "length": 3346,
-      "hash": "840544b647b18b7dc1a2cb21765c108504c69f99eb34c078104f3223b4db783d",
+      "last_write_utc": "2026-09-02T17:33:45.0436683Z",
+      "length": 3481,
+      "hash": "d1f09fdefa5f8ae2f057c0637eb7d57cb5fa386056e7e5b709f807b4c4487e89",
       "summary": "Documentation index"
     },
     {
@@ -644,16 +669,16 @@
     },
     {
       "path": "docs/SKILLS.md",
-      "last_write_utc": "2026-08-31T12:16:46.3168412Z",
-      "length": 7406,
-      "hash": "772a4cdfb5ff1d020f2e9976eb58043a9961d70492e0a38dc006c2af943a47cc",
+      "last_write_utc": "2026-09-02T18:08:40.0492923Z",
+      "length": 9029,
+      "hash": "5cf14f345848c740948a1e6095579316f433f31eb914157e6750797fb3ef45db",
       "summary": "Skills catalog"
     },
     {
       "path": "docs/SPAWN.md",
-      "last_write_utc": "2026-08-25T18:00:17.8164275Z",
-      "length": 7872,
-      "hash": "bfc3fb7ef741ee9d3eeb0fffcc7b36de3085a56b679178911224395bca9cb71b",
+      "last_write_utc": "2026-09-02T18:33:32.9401863Z",
+      "length": 8331,
+      "hash": "30c6f8335a51cf9526c135ddafbdab5788dfbda896ee346f9f85d6d4a624dc2f",
       "summary": "Spawn / subagents"
     },
     {
@@ -672,9 +697,9 @@
     },
     {
       "path": "README.md",
-      "last_write_utc": "2026-08-31T12:14:37.3727196Z",
-      "length": 7768,
-      "hash": "5f1a4fb835c4f615b94b0b190e62bae2e5c35b169134f6223bf018968e80b29f",
+      "last_write_utc": "2026-08-31T17:45:23.3182201Z",
+      "length": 8509,
+      "hash": "f9bcfa8cdc8dd8bd113d17e246dd1c6216421f423a0016cd1ce30ca31d7d157a",
       "summary": "Agent Dev Toolkit"
     },
     {
@@ -700,7 +725,7 @@
     },
     {
       "path": "scripts/_lib/Initialize-SddPreferences.ps1",
-      "last_write_utc": "2026-08-31T12:31:31.8074297Z",
+      "last_write_utc": "2026-08-31T17:45:23.4404759Z",
       "length": 4178,
       "hash": "54e3609560eab3d1ac084cec0612ba44601dc12f947a5fdd37ebae8cb388dc8c",
       "summary": "#Requires -Version 5.1"
@@ -749,9 +774,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-08-31T12:30:39.8962769Z",
-      "length": 45907,
-      "hash": "8b34d45bc9a78d0ac0798a4717598668355d1884357f87a9643cab3eb68187bc",
+      "last_write_utc": "2026-09-02T18:51:29.5569601Z",
+      "length": 58548,
+      "hash": "ee1397a06c1cdc29b6d45aa4ebf257cdc978973bdd46bb63b89ecce62c145bc2",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {
@@ -770,7 +795,7 @@
     },
     {
       "path": "scripts/toolkit.ps1",
-      "last_write_utc": "2026-08-31T12:20:39.7871476Z",
+      "last_write_utc": "2026-08-31T17:45:23.4424757Z",
       "length": 40437,
       "hash": "64a5ef351fecb91c210e1f82d39ff528590e144af80843402334b1838056cbea",
       "summary": "--- Entry ---"
@@ -784,9 +809,9 @@
     },
     {
       "path": "scripts/validation/validate-core.ps1",
-      "last_write_utc": "2026-08-31T12:30:55.4227674Z",
-      "length": 12420,
-      "hash": "c368b443495c8da8c6c3b03bfbe1d4a1de5fcf814082f35fb5cf97982f9bb02a",
+      "last_write_utc": "2026-09-02T18:23:32.2038255Z",
+      "length": 16659,
+      "hash": "dd98297099bc87a4cdad4396b47bdf410967fbb44c2b6ff5a4e9650f01f066c2",
       "summary": "Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe."
     },
     {

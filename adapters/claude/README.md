@@ -24,11 +24,14 @@ Canonical form is the skill **id**; `/` is the Claude host prefix.
 | Registry / `Get-Capabilities` | `native` |
 | Host mechanism | Claude Code **Agent** / Task-equivalent spawn |
 | Toolkit contract | Prefer Task/Agent naming in skills when `subagents=native`; SPAWN in-parent fallback otherwise |
-| Published files | `Publish-Agents` copies `core/agents/` → `InstallRoot/agents/` (live `~/.claude/agents/`). Small roster only (not every `*-developer` skill). |
+| Published files | `Publish-Agents` copies `core/agents/` â†’ `InstallRoot/agents/` (live `~/.claude/agents/`). Small roster only (not every `*-developer` skill). |
+| Model inherit (REQ-008) | `model: inherit` required on published agents; Publish asserts after copy. |
+| Depth / threads | SPAWN caps ≤2 / ≤4 enforced in skills contract; not rewritten into Claude host settings. |
+| Matrix | [`adapters/_shared/spawn-publish-honesty.md`](../_shared/spawn-publish-honesty.md) |
 
 Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/agents/SPAWN.md`.
 
-## Policy → rules mapping
+## Policy â†’ rules mapping
 
 | Source | Destination |
 |--------|-------------|
@@ -38,7 +41,7 @@ Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/age
 - Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve relative to InstallRoot.
 - Re-sync overwrites managed rule files; alien files under `rules/` are left alone.
 
-## Router → CLAUDE.md mapping
+## Router â†’ CLAUDE.md mapping
 
 | Source | Destination |
 |--------|-------------|
@@ -56,10 +59,10 @@ Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/age
 
 - Publishes **scripts** then merges `<InstallRoot>/settings.json`.
 - Merge: hooks **keyed upsert** (`UserPromptSubmit` / `PreCompact` / `PostToolUse`) by managed handler identity; `permissions.allow` **additive** with **narrow** entries only (one `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook); unrelated keys preserved; UTF-8 without BOM; backup `settings.json.bak` before overwrite.
-- Invalid JSON → abort, no overwrite. Backup failure → abort, no write.
+- Invalid JSON â†’ abort, no overwrite. Backup failure â†’ abort, no write.
 - Re-sync does not duplicate toolkit allow entries. Re-sync **strips** legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions` is passed to `Invoke-ClaudeMergeSettings`.
 - Alien files under `hooks/` are left alone.
-- **Smoke validates filesystem presence only** — Claude Code hook **trust UI** is out of scope.
+- **Smoke validates filesystem presence only** â€” Claude Code hook **trust UI** is out of scope.
 - **Security note:** default allow is scoped to the three managed hook command templates (not a standing `pwsh *` / `powershell *` grant). Opt into broad shell allows only via `-AllowBroadShellPermissions` on merge (documented for operators who need it). Review `settings.json` after sync.
 
 ## In-repo merge fixture
@@ -78,18 +81,18 @@ Pass `-InstallRoot <repo>/scripts/validation/fixtures/claude`. Do not use `%USER
 | `Publish-Skills` | Implemented |
 | `Publish-Policy` | Implemented |
 | `Publish-Router` | Implemented |
-| `Publish-Agents` | Implemented (`core/agents/` → `InstallRoot/agents/`) |
+| `Publish-Agents` | Implemented (`core/agents/` â†’ `InstallRoot/agents/`) |
 | `Publish-Hooks` (scripts + settings merge) | Implemented |
 | `Invoke-ClaudeMergeSettings` | Implemented |
-| `Invoke-SmokeValidate` | Implemented — filesystem only; lists missing relative paths on failure |
+| `Invoke-SmokeValidate` | Implemented â€” filesystem only; lists missing relative paths on failure |
 | `validate-agent -Agent claude` | Core + smoke against fixture |
-| `sync-agent -Agent claude` | Publish-Skills → Policy → Router → Agents → Hooks |
+| `sync-agent -Agent claude` | Publish-Skills â†’ Policy â†’ Router â†’ Agents â†’ Hooks |
 | `toolkit.ps1 -Action ListAgents` | Lists registry entry `claude` |
 | `Uninstall-Toolkit` | Keyed removal + settings reverse-merge; WhatIf supported |
 
 ### Uninstall scope (safe)
 
-Removes only toolkit-managed paths (core skill ids, core policy → rules files, `CLAUDE.md`, asset hook scripts) and reverse-merges `settings.json`: drops **toolkit-managed hook handlers** (same identity as merge) and managed / legacy-broad `permissions.allow` entries. Empty hook events are removed; **alien co-located handlers** on the same event are kept. Preserves alien files and unrelated settings keys. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe InstallRoot or wholesale-replace settings.
+Removes only toolkit-managed paths (core skill ids, core policy â†’ rules files, `CLAUDE.md`, asset hook scripts) and reverse-merges `settings.json`: drops **toolkit-managed hook handlers** (same identity as merge) and managed / legacy-broad `permissions.allow` entries. Empty hook events are removed; **alien co-located handlers** on the same event are kept. Preserves alien files and unrelated settings keys. Preserves `sdd/sessions` and `sdd/manifest.json`. Does **not** wipe InstallRoot or wholesale-replace settings.
 
 ### Managed vs preserved inventory
 
@@ -103,7 +106,7 @@ Removes only toolkit-managed paths (core skill ids, core policy → rules files,
 | `settings.json` allow | Narrow `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook (additive); legacy `Bash(pwsh *)` / `Bash(powershell *)` stripped on re-sync unless `-AllowBroadShellPermissions` | User allows / deny / env / custom keys |
 | Encoding / backup | UTF-8 without BOM; `settings.json.bak` before write | Original intact on invalid JSON abort |
 
-**Uninstall note:** reverse-merge removes only toolkit-managed handlers and allow entries — co-located alien handlers on the same event name survive; the event key is removed only when no handlers remain.
+**Uninstall note:** reverse-merge removes only toolkit-managed handlers and allow entries â€” co-located alien handlers on the same event name survive; the event key is removed only when no handlers remain.
 
 Example:
 
@@ -121,10 +124,10 @@ Live home:
 
 ## Docs + CI
 
-- [ADAPTERS.md](../../docs/ADAPTERS.md) — Claude layout, merge rules, fixture
-- [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) — InstallRoot tree
-- [INSTALL.md](../../docs/INSTALL.md) — operator sync
-- [VALIDATION.md](../../docs/VALIDATION.md) — `Invoke-ClaudeCiSmoke.ps1`
+- [ADAPTERS.md](../../docs/ADAPTERS.md) â€” Claude layout, merge rules, fixture
+- [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) â€” InstallRoot tree
+- [INSTALL.md](../../docs/INSTALL.md) â€” operator sync
+- [VALIDATION.md](../../docs/VALIDATION.md) â€” `Invoke-ClaudeCiSmoke.ps1`
 
 ## Official docs (Anthropic)
 
@@ -139,4 +142,11 @@ Live home:
 pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
 ```
 
-Workflow step: `.github/workflows/validate-toolkit.yml` → **Run Claude CI smoke** (no secrets; no home sync).
+Workflow step: `.github/workflows/validate-toolkit.yml` â†’ **Run Claude CI smoke** (no secrets; no home sync).
+## TRACE emitters (honesty)
+
+| Field | Value |
+|-------|-------|
+| Events | `PostToolUse` (co-located with plan-after-edit) + `SubagentStop` → `emit-trace.ps1` |
+| Contract | Fail-open; allowlist; never echo tool bodies |
+| Matrix | `adapters/_shared/trace-emitter-honesty.md` |

@@ -94,6 +94,16 @@ Caps, host table, and child payload rules live in SPAWN.md — use the **Read** 
 
 ---
 
+## Invocation axes (A ≠ B ≠ C)
+
+Do **not** conflate axes. Marker: `A≠B≠C`.
+
+| Axis | Owns | Rule |
+|------|------|------|
+| **A** | `SPAWN.md` | Spawn vs in-parent; thin-trivial in-parent preserved (RN01). |
+| **B** | `SUBAGENT-MODEL.md` | Omit `model` → inherit parent session model (RN02). |
+| **C** | `SUBAGENT-MODEL.md` | No alternate-slug escape without gate + explicit approval. |
+
 ## Model on spawn
 
-Default: **omit `model`** — child uses the **same model as this parent session**. Different slug only when extremely necessary, and only after explicit user approval per `SUBAGENT-MODEL.md`. Silence ≠ approval for an alternate model.
+Default: **omit `model`** — child uses the **same model as this parent session** (Axis B). Different slug only when extremely necessary, and only after explicit user approval per `SUBAGENT-MODEL.md` (Axis C). Silence ≠ approval for an alternate model. Never remove Axis A spawn choice.

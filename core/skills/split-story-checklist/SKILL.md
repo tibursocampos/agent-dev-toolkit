@@ -45,6 +45,8 @@ Prerequisite: content includes structured **Steps** (or Bug **Suggested fix**). 
 
 In the **target workspace**, a grouped checklist (backend / frontend / tests) with **dependency-aware order** (dependency-aware task checklist style).
 
+**Output altitude (RN01 / REQ-005):** emit **SMART engineering tasks** only — never one US/TS per file, class, or script (`anti-task-shatter.md`). Keep task-shaped titles as checklist rows under the parent story; do **not** invent new `USnn`/`TSnn` folders from file names.
+
 **Persistence (prefer in order):**
 
 1. `features/NNN-slug/USnn/REFINE/tasks.md` - **default** when story folder exists
@@ -62,13 +64,15 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Anti-task-shatter / SMART tasks (RN01) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| Splitting / merge policy (when grouping unclear) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/splitting.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/<section>.md` |
 | Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `references/plan-resolution.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload all `references/*.md`. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload all `references/*.md` or all backlog-item-types. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load `anti-task-shatter.md` before Write when titles look verb+file/class/script.
 
 ## Reference routing
 
@@ -130,6 +134,8 @@ Write preferred path under the story folder (or shortcut) using `references/outp
 - **Execution order** with critical path + parallel waves
 - Optional **Before PR** neutral checklist (user may omit)
 
+Each row is a **SMART task** under the existing story — not a new US/TS. If a step title is verb+file/class/script, keep it as a task row; do **not** promote it to a story folder (`anti-task-shatter.md` / RN01).
+
 Do **not** inject fixed corporate tasks (AI tags, manual sign-off checklist, Sonar boilerplate as mandatory rows).
 
 ### 4. Summarize in chat
@@ -154,6 +160,8 @@ Also enforce `references/exclusions.md`. Handoff boundary: `references/sdd-hando
 - Add fixed "workflow" tasks (manual sign-off checklist, Datadog, SDD/DevAI tags) unless the user explicitly requests a custom section
 - Assume toolkit repo paths during consumer runs
 - Write the file before the language question
+- Emit one US/TS per file, class, or script (RN01) — output stays SMART tasks under the parent story (`anti-task-shatter.md`)
+- Create new `USnn`/`TSnn` folders from checklist breakdown
 
 ## Handoff examples
 

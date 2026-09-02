@@ -73,9 +73,17 @@ O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / actio
 
 **Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. OpenCode / Antigravity / Grok / Hermes skip file publish (`agents=false`; native Task / `invoke_subagent` / `spawn_subagent` / `delegate_task` only). OpenHands writes `.agents/agents/*.md` as an SDK/plugin **roster** — that is not Canvas Profile and not native spawn (`subagents=none`; SPAWN fallback in-parent).
 
-## Task `model`
+## Task `model` (Eixo B/C — A≠B≠C)
 
-Default: **omit** `model` on Task → child inherits the parent session model. Premium / alternate slug only when the gate in `SUBAGENT-MODEL.md` fires **and** the user answers **sim** (silence ≠ approval). Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
+Marker: **A≠B≠C**. Model policy does **not** decide spawn vs in-parent (**Eixo A** stays in `SPAWN.md` / thin-trivial exception — never remove spawn choice).
+
+| Axis | Owns | Rule |
+|------|------|------|
+| **A** | This page + canonical `SPAWN.md` | Spawn vs in-parent |
+| **B** | `SUBAGENT-MODEL.md` | Default: **omit** `model` → child inherits the parent session model |
+| **C** | `SUBAGENT-MODEL.md` | Premium / alternate slug only when that gate fires **and** the user answers **sim** (silence ≠ approval) |
+
+Do **not** pin child≠parent by default. Do **not** conflate Memory Bank policy `auto` with Cursor Auto model. Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
 
 ## Orchestrate parents
 

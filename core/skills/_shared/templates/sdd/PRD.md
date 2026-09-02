@@ -33,7 +33,15 @@
 
 [Resultado desejado após a implementação — mensurável, sem jargão vago.]
 
-### 1.3 Blast radius (quando aplicável)
+### 1.3 Métricas de sucesso
+
+| Métrica | Baseline | Alvo | Como medir |
+|---------|----------|------|------------|
+| [Nome] | [Valor ou `omitted — none yet`] | [Valor alvo] | [Sinal observável] |
+
+Mandatory clarify depth for PRD (ARCH / REQ-002). Prefer real signals; **omit > fabricate** — never invent baselines (`skills/_shared/backlog-item-types/product-evidence-lite.md`).
+
+### 1.4 Blast radius (quando aplicável)
 
 [Áreas/módulos impactados; o que **não** muda; risco de regressão.]
 
@@ -89,12 +97,23 @@ IDs estáveis `REQ-NNN` (três dígitos). Todo REQ mapeia para ≥1 CA. Não ren
 |----|-----------|
 | **RNF-001** | [Performance, segurança, observabilidade, etc.] |
 
-### 4.3 Regras de negócio
+### 4.3 MoSCoW
+
+| Prioridade | Itens (REQ-IDs ou capacidades) |
+|------------|--------------------------------|
+| **Must** | [REQ-… / capacidade obrigatória] |
+| **Should** | [Importante, não bloqueante] |
+| **Could** | [Desejável se couber] |
+| **Won't** (agora) | [Explicitamente adiado] |
+
+Mandatory PRD clarify field (ARCH / REQ-002). Align Must with in-scope CA; Won't must not contradict §5 OOS without rationale.
+
+### 4.4 Regras de negócio
 
 - **RN01**: [Regra]
 - **RN02**: [Regra]
 
-### 4.4 EARS (híbrido — opcional, não universal)
+### 4.5 EARS (híbrido — opcional, não universal)
 
 Usar EARS (**While** / **When** / **If** / **The system shall**) só quando requisitos event-driven ou condicionais ganharem clareza. Não forçar EARS em todo REQ. Se omitido, deixar esta subseção fora do documento.
 
@@ -103,6 +122,14 @@ Usar EARS (**While** / **When** / **If** / **The system shall**) só quando requ
 | Item | Motivo |
 |------|--------|
 | [Item] | [Por que fica de fora] |
+
+## 5.1 Perguntas em aberto
+
+| Pergunta | Severity | Owner | Notas |
+|----------|----------|-------|-------|
+| [Pergunta afiada] | blocker \| high \| medium \| low | [papel] | [opções / impacto] |
+
+Mandatory when unknowns remain (`clarify-depth.md`). Every listed question **must** carry **Severity**. Omit the subsection only when zero open questions.
 
 ## 6. Migrações de banco (se aplicável)
 

@@ -159,13 +159,27 @@ function Get-ClaudeManagedHooksObject {
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreCompact
     )
 
-    $hooks[$c.HookEventPostToolUse] = New-ClaudeManagedHookEventEntries -Command (
-        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPostToolUse
-    ) -Matcher $c.HookMatcherPostToolUse
+    # PostToolUse: plan checkpoint + fail-open TRACE emit (co-located managed handlers).
+    $postToolEntries = New-Object System.Collections.Generic.List[object]
+    foreach ($entry in @(New-ClaudeManagedHookEventEntries -Command (
+                Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPostToolUse
+            ) -Matcher $c.HookMatcherPostToolUse)) {
+        $postToolEntries.Add($entry) | Out-Null
+    }
+    foreach ($entry in @(New-ClaudeManagedHookEventEntries -Command (
+                Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptTraceEmit
+            ) -Matcher $c.HookMatcherTracePostToolUse)) {
+        $postToolEntries.Add($entry) | Out-Null
+    }
+    $hooks[$c.HookEventPostToolUse] = @($postToolEntries.ToArray())
 
     $hooks[$c.HookEventPreToolUse] = New-ClaudeManagedHookEventEntries -Command (
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreToolUse
     ) -Matcher $c.HookMatcherPreToolUse
+
+    $hooks[$c.HookEventSubagentStop] = New-ClaudeManagedHookEventEntries -Command (
+        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptTraceEmit
+    )
 
     return $hooks
 }
@@ -180,11 +194,13 @@ function Get-ClaudeManagedHookScriptFileNameMap {
     param()
 
     $c = $script:ClaudeSettingsJsonConstant
+    # Primary identity per event for keyed merge strip; PostToolUse also strips emit-trace via multi-pass below.
     return [ordered]@{
         $c.HookEventUserPromptSubmit = $c.HookScriptUserPromptSubmit
         $c.HookEventPreCompact       = $c.HookScriptPreCompact
         $c.HookEventPostToolUse      = $c.HookScriptPostToolUse
         $c.HookEventPreToolUse       = $c.HookScriptPreToolUse
+        $c.HookEventSubagentStop     = $c.HookScriptTraceEmit
     }
 }
 
@@ -255,7 +271,8 @@ function Get-ClaudeManagedPermissionsAllowEntries {
             $c.HookScriptUserPromptSubmit,
             $c.HookScriptPreCompact,
             $c.HookScriptPostToolUse,
-            $c.HookScriptPreToolUse
+            $c.HookScriptPreToolUse,
+            $c.HookScriptTraceEmit
         )) {
         $command = Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $scriptFileName
         $entries.Add(($format -f $command)) | Out-Null
@@ -454,6 +471,7 @@ function Merge-ClaudeHooksKeyed {
 
     $hooks = $Settings[$hooksKey]
     $scriptFileNameByEvent = Get-ClaudeManagedHookScriptFileNameMap
+    $c = $script:ClaudeSettingsJsonConstant
 
     foreach ($eventName in $ManagedHooks.Keys) {
         $existingEntries = @()
@@ -461,7 +479,28 @@ function Merge-ClaudeHooksKeyed {
             $existingEntries = @($hooks[$eventName])
         }
 
-        $hooks[$eventName] = Merge-ClaudeHookEventEntries -ExistingEntries $existingEntries -ManagedEntries @($ManagedHooks[$eventName]) -ManagedScriptFileName $scriptFileNameByEvent[$eventName]
+        $managedEntries = @($ManagedHooks[$eventName])
+        $primaryScript = [string]$scriptFileNameByEvent[$eventName]
+
+        # PostToolUse co-hosts plan-after-edit + emit-trace: strip both, prepend managed once.
+        if ($eventName -eq $c.HookEventPostToolUse) {
+            $stripped = $existingEntries
+            foreach ($scriptName in @($primaryScript, $c.HookScriptTraceEmit)) {
+                $stripResult = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $stripped -ManagedScriptFileName $scriptName
+                $stripped = @($stripResult.RemainingEntries)
+            }
+            $mergedList = New-Object System.Collections.Generic.List[object]
+            foreach ($managedEntry in $managedEntries) {
+                $mergedList.Add($managedEntry) | Out-Null
+            }
+            foreach ($kept in $stripped) {
+                $mergedList.Add($kept) | Out-Null
+            }
+            $hooks[$eventName] = @($mergedList.ToArray())
+        }
+        else {
+            $hooks[$eventName] = Merge-ClaudeHookEventEntries -ExistingEntries $existingEntries -ManagedEntries $managedEntries -ManagedScriptFileName $primaryScript
+        }
     }
 }
 
@@ -566,14 +605,23 @@ function Remove-ClaudeManagedHooksKeyed {
 
         $result = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $existingEntries -ManagedScriptFileName $scriptFileNameByEvent[$eventName]
         $remaining = @($result.RemainingEntries)
+        $removedAny = [bool]$result.RemovedAny
+
+        if ($eventName -eq $script:ClaudeSettingsJsonConstant.HookEventPostToolUse) {
+            $resultEmit = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $remaining -ManagedScriptFileName $script:ClaudeSettingsJsonConstant.HookScriptTraceEmit
+            $remaining = @($resultEmit.RemainingEntries)
+            if ($resultEmit.RemovedAny) {
+                $removedAny = $true
+            }
+        }
 
         if ($remaining.Count -eq 0) {
-            if ($existingEntries.Count -gt 0 -or $result.RemovedAny) {
+            if ($existingEntries.Count -gt 0 -or $removedAny) {
                 $hooks.Remove($eventName)
                 $changed = $true
             }
         }
-        elseif ($result.RemovedAny) {
+        elseif ($removedAny) {
             $hooks[$eventName] = $remaining
             $changed = $true
         }

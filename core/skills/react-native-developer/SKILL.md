@@ -23,6 +23,8 @@ Gate check:
 
 ---
 
+# Skill: react-native-developer
+
 ## Trigger
 
 Invoke when the user asks for: `/react-native-developer`, `react-native`, `expo`, or **small** isolated React Native / Expo work that does not need a full PRD/PLAN cycle.
@@ -30,25 +32,6 @@ Invoke when the user asks for: `/react-native-developer`, `react-native`, `expo`
 ## Outcome
 
 Working React Native components and tests in the target workspace, validated with tests/build, on a valid feature branch, with optional `/commit` handoff. Does not replace SDD for multi-step or cross-repo features.
-
-## When to prefer SDD instead
-
-Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
-
-| Signal | Indicator |
-|--------|-----------|
-| Layers | 3+ layers (screens, navigation, services, native modules) across many packages |
-| API contracts | New or altered HTTP/API contracts shared across apps |
-| Repos | Mobile app and another repo or service |
-| Integrations | New native modules, push, deep links, or external SDKs |
-| Size | 10+ files or estimated 4+ hours |
-| PLAN exists | User already has an approved PLAN - use `sdd-develop` |
-
-## DESIGN-BRIEF acceptance
-
-If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as the acceptance source. Map sections to React Native / TSX; do **not** reinterpret visual decisions. Implement **one session scope** from section 10 only.
-
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
 
 ## Lazy-load (only when needed)
 
@@ -75,12 +58,24 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/react-native-developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/react-native-developer/references/<section>.md` |
 
 **Primary mobile pack:** `react-native-guidelines/`. Do **not** depend only on `react-guidelines/` for navigation, StyleSheet, platform, or RNTL. Do **not** load `blip-guidelines/` (Blip plugins are web React). Do not preload unrelated guideline trees.
 
-**Never by default:** do not preload other stack guideline packs. Load only rows needed for the current task.
+**Never by default:** do not preload all `references/*.md`. do not preload other stack guideline packs. Load only rows needed for the current task. Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Scope / SDD escalation / design brief | `references/scope.md` |
+| Implement flow | `references/execute-flow.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -89,56 +84,15 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
-### Subagent-first (before implement)
+### 0. Scope
+Follow `references/scope.md` (SDD escalation, design brief / host detection when present).
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm React Native / Expo project (`package.json` with `react-native` and/or `expo`; often `app.json` / `app.config.*`). Follow `step-0-context.md`. Summarize acceptance.
-
-### 1. Guidelines (step 0.5)
-
-Follow `step-0.5-review-guidelines.md`: load `react-native-guidelines/` files needed for this task first (`structure-and-navigation.md`, `testing.md`, `checklist.md`, plus styling/lists/a11y/expo-config as relevant). Optionally load shared `react-guidelines/` for hooks/composition only.
-
-### 2. Branch (step 3)
-
-Baseline from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>` — never commit on `main` / `master` / `develop`.
-
-### 3. Plan micro-steps
-
-List 3-7 concrete tasks; checkpoint per `context-management.mdc` (>= 40% -> pause, offer `/commit`).
-
-### 4. Implement
-
-Functional components, hooks, clean React Native architecture. Match existing patterns (Expo Router / React Navigation, StyleSheet, platform splits). Apply `react-native-guidelines/` while writing — do not paste full bodies into chat.
-
-### 5. Tests
-
-Jest + React Native Testing Library (or project equivalents) for changed behavior. Prefer `testing.md` guidance.
-
-### 6. Build and test
-
-```bash
-npm test
-```
-
-(or project-equivalent scripts such as `yarn test`, `expo` lint/typecheck, or CI scripts from `package.json`)
-
-### 7. Pre-commit (step 3.5) and handoff
-
-Run `step-3.5-precommit-validation.md` when appropriate. Offer `/commit` — do not commit automatically. Before push/PR, run `step-7-checklist.md` and `react-native-guidelines/checklist.md`.
+### 1. Execute
+Follow `references/execute-flow.md` (subagent-first, workspace → guidelines → branch → implement → tests → handoff).
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- Rely only on `react-guidelines/` for mobile navigation / StyleSheet / platform / RNTL
-- Auto-commit or auto-PR
-- Leave AI traces in code or identifiers
-- Load Blip / web-only plugin guidelines
-- Use obsolete corporate pipeline docs
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
 
 ## Handoff
 

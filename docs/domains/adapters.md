@@ -72,6 +72,34 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
 | Sync prepare | Every sync runs `Get-SddRoot -Prepare` |
 
+## Publish knobs honesty (depth / threads / inherit)
+
+Contract: [`adapters/_shared/spawn-publish-honesty.md`](../../adapters/_shared/spawn-publish-honesty.md) + helper `SpawnPublishKnobs.ps1` (REQ-008 / CA8). Caps match [`SPAWN.md`](../SPAWN.md): developer **≤2**, orchestrate **≤4**.
+
+Publish may emit **only** depth, threads, and model **inherit** honesty. Forbidden: pinning an alternate child model slug at publish time (e.g. child≠parent).
+
+| Host | Agents surface | Model inherit | Depth / threads |
+|------|----------------|---------------|-----------------|
+| Cursor / Claude | `agents/*.md` frontmatter | `model: inherit` required | SPAWN caps in skills; not host YAML knobs |
+| Codex | `agents/*.toml` | Honesty comments + **omit** `model` key | Comments `developer_threads=2`, `orchestrate_threads=4` |
+| ZCode / OpenHands / Grok / Copilot (repo) | markdown when `agents=true` | `model: inherit` when published | SPAWN caps; host config not rewritten |
+| Hermes / OpenCode / Antigravity | `agents=false` or no-op | — | Do **not** emit `delegation.max_spawn_depth` / host config knobs |
+
+## TRACE emitter honesty
+
+Contract: [`adapters/_shared/trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Shared helper `TraceEmitCommon.ps1` (allowlist + fail-open + path policy). Core schema: [TRACE archive](core.md#trace-archive-living-loop).
+
+| Host | Wired TRACE emitter? | Notes |
+|------|----------------------|-------|
+| **Cursor** | Yes — `assets/hooks/emit-trace.ps1` via `hooks.json` (`postToolUse`, `subagentStop`) | Prefer inherit; Explore Task may diverge |
+| **Claude** | Yes — `emit-trace.ps1` (+ `plan-after-edit` on PostToolUse) | Merge/settings keyed upsert |
+| **Codex** | Asset present; **Publish-Hooks still PreToolUse guard only** | Do **not** claim live PostToolUse TRACE wire yet |
+| **OpenHands** | No | Shell `pre_tool_use` only; spawn `none` → in-parent |
+| **OpenCode** | No | Plugin JS hooks (`HooksSemantics=plugin-only`) — not PS1 parity |
+| Hermes / Grok / Copilot / Antigravity / ZCode | No | Guard PreToolUse (or equivalent) where present; TRACE emit not claimed this wave |
+
+Fail-open: emitter exit **0** always; never append `tool_input` / bodies / secrets. CI probe: `TOOLKIT_TRACE_FORCE_FAIL=1` skips append, still exit 0. Assert: `Assert-TraceEmitterFailOpen.ps1`. Trusted-CI-only: `TOOLKIT_TRACE_FEATURE_ROOT` → in-repo fixture `features/NNN-slug` — never live `USERPROFILE`.
+
 ## Module READMEs
 
 - [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; keyed uninstall (preserves SDD)

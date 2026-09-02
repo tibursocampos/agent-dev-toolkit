@@ -130,7 +130,7 @@ Resume caveman after the clear part is done.
 
 **Always protected (never compressed under any mode):**
 - Confirmation gates: `(sim / ajustar / cancelar)` blocks
-- Artifact drafts shown in chat (FEATURE, STORY, PRD, PLAN, CONTINUITY, commit suggestions)
+- **Product drafts** and other artifact drafts shown in chat (FEATURE, STORY, PRD, PLAN, CONTINUITY, commit suggestions) — never compress product prose (ARCH / REQ-008)
 - Technical identifiers: file paths, function/type names, CLI commands, error messages
 - Security guardrails and Git blocking notices
 

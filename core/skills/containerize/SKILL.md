@@ -45,16 +45,30 @@ A set of production-ready container configurations:
 2. **.dockerignore:** Clean file excluding local packages, builds, git, and sensitive secrets.
 3. **docker-compose.yml:** Orchestrated configuration for local testing, binding the application port and spinning up required database/caching services.
 
-## Lazy-load
+## Lazy-load (only when needed)
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | DevOps context | `{{TOOLKIT_ROOT}}/skills/_shared/devops-guidelines/deployment-process.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/containerize/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/containerize/references/<section>.md` |
 
-**Never by default:** do not preload unrelated developer guidelines or full Docker docs. Load only rows needed for the current containerize task.
+**Never by default:** do not preload all `references/*.md`, unrelated developer guidelines, or full Docker docs. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Workspace inspect | `references/workspace-inspect.md` |
+| Workflow decision | `references/workflow-decision.md` |
+| Generate files | `references/generate-files.md` |
+| Validate / handoff | `references/validate-handoff.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -65,80 +79,17 @@ A set of production-ready container configurations:
 
 ### -1. Re-check guardrails and session
 
-Confirm `guardrails.mdc` and `SESSION.md` are loaded.
-If missing, ask user (pt-BR):
+Confirm `guardrails.mdc` and `SESSION.md` are loaded. If missing, ask (pt-BR) before continuing.
 
-```text
-Antes de containerizar, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
+### 0–1. Inspect and decide workflow
+Follow `references/workspace-inspect.md`, then `references/workflow-decision.md`. Wait for explicit choice.
 
-Posso seguir? (sim / ajustar / cancelar)
-```
+### 2–4. Generate files
+Follow `references/generate-files.md`.
 
-
-### 0. Workspace Inspection
-
-* Identify the programming language/platform (C#, Node.js, Python, static frontend).
-* Scan for configuration files (`appsettings.json`, `.env`, `package.json`, `requirements.txt`) to determine:
-  * Excluded files and build outputs.
-  * Internal network ports.
-  * Dependent services (e.g., PostgreSQL, MS SQL, Redis, RabbitMQ).
-
-### 1. Draft the Configuration & Workflow Decision
-
-* Explain the proposed container strategy:
-  * Base images to use (e.g. `mcr.microsoft.com/dotnet/aspnet:8.0-alpine` or `node:20-alpine`).
-  * Port maps and network parameters.
-  * Required local services in compose.
-* Stop and ask the user to choose the workflow execution path to build and verify these configurations:
-  * **Option A - Direct Developer Skill (`/developer`):** For straightforward local creation of Dockerfiles/Compose.
-  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For complex environment containerization requiring formal specifications (PRD) and a detailed plan (PLAN) in Portuguese.
-  * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
-* **Wait for explicit user choice** before writing code or initializing another workflow.
-
-### 2. Generate Dockerfile
-
-* Write `Dockerfile` using multi-stage build patterns:
-  * **Build stage:** Copy package manifests (`.csproj`, `package.json`, `requirements.txt`) and restore first to leverage layer caching. Then copy code and compile.
-  * **Runtime stage:** Copy only build artifacts from the build stage.
-  * Enforce security: create and switch to a non-root system user inside the runtime image.
-  * Define `EXPOSE` and a stable `ENTRYPOINT` or `CMD`.
-
-### 3. Generate .dockerignore
-
-* Write `.dockerignore`. Standard exclusions:
-  * Dotnet: `**/bin`, `**/obj`, `**/.vs`, `**/.git`, `*.user`.
-  * Node: `node_modules`, `npm-debug.log`, `dist`, `build`.
-  * Python: `__pycache__`, `*.pyc`, `*.pyo`, `*.pyd`, `.venv`, `.env`.
-
-### 4. Generate docker-compose.yml
-
-* Write `docker-compose.yml` for local development:
-  * Declare the application service built from the local `Dockerfile`.
-  * Declare secondary database or cache services identified in step 0.
-  * Configure persistent volumes for database data.
-  * Setup environment variables to link the application with the companion services.
-
-### 5. Local Syntax Validation
-
-* Validate file formats (ensure correct YAML spacing in compose).
-* Recommend the user run a local test build:
-
-```bash
-docker compose build
-docker compose up -d
-```
-
-### 6. Handoff
-
-* Offer committing the configurations:
-
-```
-/commit
-```
+### 5–6. Validate and handoff
+Follow `references/validate-handoff.md`.
 
 ## Must not
 
-* Use heavy, development-only base images for runtimes.
-* Expose sensitive environment variables, tokens, or credentials inside checked-in files. Use env templates or volumes.
+Enforce the full list in `references/must-not.md`. Critical: no unretracted secrets in checked-in files; prefer alpine/distroless runtimes.

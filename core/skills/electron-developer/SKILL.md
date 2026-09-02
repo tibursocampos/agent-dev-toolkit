@@ -3,7 +3,6 @@ name: electron-developer
 description: Implement or fix small-to-medium Electron apps (main, preload, renderer, IPC, packaging). Use for isolated Electron work or when invoking /electron-developer.
 ---
 
-
 ## STOP - Read before ANY tool call
 
 1. Read `{{GUARDRAILS_PATH}}`
@@ -24,6 +23,8 @@ Gate check:
 
 ---
 
+# Skill: electron-developer
+
 ## Trigger
 
 Use when user asks for `/electron-developer`, `electron fix`, or a small isolated Electron implementation.
@@ -31,28 +32,6 @@ Use when user asks for `/electron-developer`, `electron fix`, or a small isolate
 ## Outcome
 
 Working main/preload/renderer changes, validated with build and documented smoke (app launch), with optional handoff to `/commit`.
-
-## Renderer stack (orchestration)
-
-Detect renderer framework from `package.json`:
-
-| Dependency | Lazy-load guidelines |
-|------------|---------------------|
-| `react` | `react-guidelines/` |
-| `vue` | `vue-guidelines/` |
-| Neither | `javascript-guidelines/`, `html-css-guidelines/` |
-
-**Stay in `electron-developer` identity** - load stack guidelines for UI patterns only; do not switch to `react-developer` / `vue-developer`.
-
-## When to escalate to SDD
-
-Recommend `sdd-spec` -> `sdd-plan` -> `sdd-develop` if two or more apply: main+renderer+packaging overhaul, auto-update pipeline, cross-repo impact, 10+ files, or existing approved PLAN.
-
-## DESIGN-BRIEF acceptance
-
-If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as the acceptance source. Map sections to renderer UI; do **not** reinterpret visual decisions. Implement **one session scope** from section 10 only.
-
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
 
 ## Lazy-load (only when needed)
 
@@ -75,12 +54,24 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 | Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/electron-developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/electron-developer/references/<section>.md` |
 
-**Never by default:** do not preload the full `electron-guidelines/` pack plus all renderer stacks. Load security first when IPC/CSP changes; fan-out to main/preload/IPC/packaging only for that surface.
+**Never by default:** do not preload all `references/*.md`. do not preload the full `electron-guidelines/` pack plus all renderer stacks. Load security first when IPC/CSP changes; fan-out to main/preload/IPC/packaging only for that surface. Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 **Progressive load:** DESIGN-BRIEF / workspace context first; then the Electron row for the active concern; open one renderer pack file only when editing renderer UI.
 
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Scope / SDD escalation / design brief | `references/scope.md` |
+| Implement flow | `references/execute-flow.md` |
+| Must not (full) | `references/must-not.md` |
+
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -89,55 +80,15 @@ If the task is net-new UI without a brief, recommend `/impeccable shape` in a **
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
-### Subagent-first (before implement)
+### 0. Scope
+Follow `references/scope.md` (SDD escalation, design brief / host detection when present).
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm Electron project (`electron`, `electron-builder`, or `electron-vite` in `package.json`). Identify main/preload/renderer entry points.
-
-### 1. Guidelines
-
-Load Electron + renderer guidelines for this task. Review security defaults before IPC changes.
-
-### 2. Branch
-
-Use `feature/<slug>` or `feat/<id>`. Never commit on `main`/`master`/`develop`.
-
-### 3. Micro-plan
-
-Define 3-7 concrete tasks; checkpoint context at >= 40%.
-
-### 4. Implement
-
-Main/preload/renderer separation, typed IPC, contextIsolation. Match existing electron-vite or electron-builder layout.
-
-### 5. Tests
-
-Unit tests for pure modules; manual smoke: app launches, changed flow works.
-
-### 6. Validate
-
-```bash
-npm run build
-```
-
-Document smoke steps in chat (launch app, exercise changed feature).
-
-### 7. Handoff
-
-Offer `/commit`. Do not commit automatically.
+### 1. Execute
+Follow `references/execute-flow.md` (subagent-first, workspace → guidelines → branch → implement → tests → handoff).
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- Enable `nodeIntegration: true` in renderer without explicit user approval
-- Expose raw `ipcRenderer` on `window` without contextBridge
-- Auto-commit or auto-PR
-- Leave AI traces in code or identifiers
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
 
 ## Handoff
 

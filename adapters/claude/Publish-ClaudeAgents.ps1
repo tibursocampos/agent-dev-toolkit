@@ -4,6 +4,16 @@
   Helpers for Claude Publish-Agents (copy core/agents -> InstallRoot/agents).
 #>
 
+$script:ClaudeAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:ClaudeAgentsModuleDirectory)) {
+    $script:ClaudeAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_claudeSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:ClaudeAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_claudeSpawnKnobsPath
+Remove-Variable -Name _claudeSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-ClaudePublishAgents {
     <#
     .SYNOPSIS
@@ -64,6 +74,8 @@ function Invoke-ClaudePublishAgents {
         -TextFileExtensionPattern $script:ClaudePathConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-ClaudeUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ClaudePublishMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'claude-agents'
 
     return [PSCustomObject]@{
         Success          = $true

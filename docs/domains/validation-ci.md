@@ -46,6 +46,22 @@ CI harnesses often copy a fixture to an **ephemeral** work root so the versioned
 
 Operator guide: [VALIDATION.md](../VALIDATION.md).
 
+## Operator / maturity asserts (wired in validate-core)
+
+These prove contracts and scripts exist — they are **not** a substitute for running inventory/preflight/harvest on a consumer feature. Full operator entry points: [cli-scripts.md](cli-scripts.md).
+
+| Assert / script | Role |
+|-----------------|------|
+| `Assert-MemoryBankInventory.ps1` | Inventory script + `ready`/`not-ready` contract smoke |
+| `Assert-PlanLedgerContract.ps1` | PLAN-LEDGER present + double-claim race |
+| `Assert-TraceArchiveContract.ps1` | TRACE living-loop contract smoke |
+| `Assert-TraceHarvest.ps1` | Harvest scope / exit behavior |
+| `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
+| `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
+| `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
+
+Domain narrative: [TRACE](core.md#trace-archive-living-loop) · [PLAN-LEDGER](core.md#plan-ledger-atomic-step-claim) · [emitter honesty](adapters.md#trace-emitter-honesty).
+
 ## GitHub Actions
 
 Workflow: [`.github/workflows/validate-toolkit.yml`](../../.github/workflows/validate-toolkit.yml)

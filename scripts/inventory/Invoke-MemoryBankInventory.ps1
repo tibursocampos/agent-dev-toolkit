@@ -1,11 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Read-only consumer-repo scan; writes memory-bank/.inventory/ evidence index.
+  Read-only consumer-repo scan; writes memory-bank/.inventory/ evidence index with governance status.
 
 .DESCRIPTION
   Scans -RepoPath (consumer workspace) and updates -BankPath/.inventory/sources.json
   with path, last_write_utc, length, sha256 hash, and a 1-2 line summary heuristic.
+  Emits inventory-level inventory_hash, inventory_summary, and status ready|not-ready + status_reason.
+  Exit 0 = ready; exit 2 = not-ready (TE01). Path escape / no sources / incomplete hash => not-ready.
   Optionally refreshes gaps.md stubs (preserves BLOCKING lines) and appends refresh-history.jsonl.
 
   Writes ONLY under <bank_root>/.inventory/ — never modifies application source files.
@@ -45,6 +47,36 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
 $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $libDir 'ToolkitConstants.ps1')
+if (-not (Get-Command -Name Test-IsPathUnderOrEqual -ErrorAction SilentlyContinue)) {
+    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+}
+
+# Local governance constants (PASSO 1 / REQ-001) — keep out of shared ToolkitConstants during parallel waves.
+$script:InventorySchemaVersion = 3
+$script:InventoryStatusReady = 'ready'
+$script:InventoryStatusNotReady = 'not-ready'
+$script:InventoryExitReady = 0
+$script:InventoryExitNotReady = 2
+$script:InventoryReasonReady = 'sources indexed with hash and summary'
+$script:InventoryReasonNoSources = 'no_sources: no readable sources under repo root'
+$script:InventoryReasonPathEscape = 'path_escape: source path escapes repo root'
+$script:InventoryReasonIncompleteHash = 'incomplete_hash: one or more sources missing sha256'
+$script:InventoryReasonInvalidRoot = 'invalid_root: repo or bank root is missing or not a directory'
+$script:Sha256HexPattern = '^[a-f0-9]{64}$'
+$script:InventorySummaryRedacted = '[redacted: secret-named source]'
+# Leaf / relative-path patterns — skip first-line heuristic so secrets never land in sources.json summary.
+$script:InventorySecretFileNamePatterns = @(
+    '(?i)^\.env$',
+    '(?i)^\.env\..+$',
+    '(?i)^credentials\.json$',
+    '(?i)^secrets\.json$',
+    '(?i)^.*secret.*$',
+    '(?i)^id_rsa$',
+    '(?i)^id_dsa$',
+    '(?i)^id_ed25519$',
+    '(?i)^.*\.pem$',
+    '(?i)^.*\.key$'
+)
 
 function Get-Utf8NoBomEncoding {
     return (New-Object System.Text.UTF8Encoding $false)
@@ -56,12 +88,12 @@ function Convert-ToInventoryRelativePath {
         [Parameter(Mandatory = $true)][string] $RootPath
     )
 
-    $root = (Resolve-Path -LiteralPath $RootPath).Path.TrimEnd('\', '/')
-    $full = (Resolve-Path -LiteralPath $FullPath).Path
-    if (-not $full.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+    if (-not (Test-IsPathUnderOrEqual -ChildPath $FullPath -ParentPath $RootPath)) {
         throw ("Path escapes repo root: {0}" -f $FullPath)
     }
 
+    $root = (Get-NormalizedFullPath -Path $RootPath).TrimEnd('\', '/')
+    $full = Get-NormalizedFullPath -Path $FullPath
     $relative = $full.Substring($root.Length).TrimStart('\', '/')
     return ($relative -replace '\\', '/')
 }
@@ -72,9 +104,7 @@ function Test-PathUnderOrEqual {
         [Parameter(Mandatory = $true)][string] $RootPath
     )
 
-    $candidate = (Resolve-Path -LiteralPath $CandidatePath).Path.TrimEnd('\', '/')
-    $root = (Resolve-Path -LiteralPath $RootPath).Path.TrimEnd('\', '/')
-    return ($candidate.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase))
+    return (Test-IsPathUnderOrEqual -ChildPath $CandidatePath -ParentPath $RootPath)
 }
 
 function Get-FileSha256Hex {
@@ -84,8 +114,43 @@ function Get-FileSha256Hex {
     return $hash.Hash.ToLowerInvariant()
 }
 
+function Test-IsSecretNamedInventorySource {
+    param(
+        [Parameter(Mandatory = $true)][string] $LiteralPath,
+        [string] $RelativePath = ''
+    )
+
+    $leaf = [System.IO.Path]::GetFileName($LiteralPath)
+    foreach ($pattern in $script:InventorySecretFileNamePatterns) {
+        if ($leaf -match $pattern) {
+            return $true
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RelativePath)) {
+        $normalized = ($RelativePath -replace '\\', '/').TrimStart('/')
+        $segments = @($normalized.Split('/') | Where-Object { $_ -ne '' })
+        foreach ($segment in $segments) {
+            foreach ($pattern in $script:InventorySecretFileNamePatterns) {
+                if ($segment -match $pattern) {
+                    return $true
+                }
+            }
+        }
+    }
+
+    return $false
+}
+
 function Get-FileSummaryHeuristic {
-    param([Parameter(Mandatory = $true)][string] $LiteralPath)
+    param(
+        [Parameter(Mandatory = $true)][string] $LiteralPath,
+        [string] $RelativePath = ''
+    )
+
+    if (Test-IsSecretNamedInventorySource -LiteralPath $LiteralPath -RelativePath $RelativePath) {
+        return $script:InventorySummaryRedacted
+    }
 
     $maxChars = 240
     try {
@@ -131,7 +196,8 @@ function Add-InventoryRelativePath {
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
         [System.Collections.Generic.HashSet[string]] $Set,
-        [AllowEmptyString()][string] $RelativePath
+        [AllowEmptyString()][string] $RelativePath,
+        [System.Collections.Generic.List[string]] $PathEscapeHits = $null
     )
 
     if ([string]::IsNullOrWhiteSpace($RelativePath)) {
@@ -140,6 +206,9 @@ function Add-InventoryRelativePath {
 
     $normalized = ($RelativePath -replace '\\', '/').TrimStart('/')
     if ($normalized -match '(^|/)\.\.(/|$)') {
+        if ($null -ne $PathEscapeHits) {
+            [void]$PathEscapeHits.Add($normalized)
+        }
         return
     }
 
@@ -152,18 +221,20 @@ function Add-InventoryPathIfExists {
         [AllowEmptyCollection()]
         [System.Collections.Generic.HashSet[string]] $Set,
         [Parameter(Mandatory = $true)][string] $RepoRoot,
-        [Parameter(Mandatory = $true)][string] $RelativePath
+        [Parameter(Mandatory = $true)][string] $RelativePath,
+        [System.Collections.Generic.List[string]] $PathEscapeHits = $null
     )
 
     $full = Join-Path $RepoRoot ($RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $full -PathType Leaf) {
-        Add-InventoryRelativePath -Set $Set -RelativePath $RelativePath
+        Add-InventoryRelativePath -Set $Set -RelativePath $RelativePath -PathEscapeHits $PathEscapeHits
     }
 }
 
 function Get-PathsFromExistingInventory {
     param(
-        [Parameter(Mandatory = $true)][object] $InventoryObject
+        [Parameter(Mandatory = $true)][object] $InventoryObject,
+        [System.Collections.Generic.List[string]] $PathEscapeHits = $null
     )
 
     $paths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
@@ -171,7 +242,7 @@ function Get-PathsFromExistingInventory {
     if ($null -ne $InventoryObject.sources) {
         foreach ($entry in @($InventoryObject.sources)) {
             if ($null -ne $entry.path) {
-                Add-InventoryRelativePath -Set $paths -RelativePath ([string]$entry.path)
+                Add-InventoryRelativePath -Set $paths -RelativePath ([string]$entry.path) -PathEscapeHits $PathEscapeHits
             }
         }
     }
@@ -188,10 +259,10 @@ function Get-PathsFromExistingInventory {
 
         foreach ($entry in @($bucket)) {
             if ($entry -is [string]) {
-                Add-InventoryRelativePath -Set $paths -RelativePath $entry
+                Add-InventoryRelativePath -Set $paths -RelativePath $entry -PathEscapeHits $PathEscapeHits
             }
             elseif ($null -ne $entry.path) {
-                Add-InventoryRelativePath -Set $paths -RelativePath ([string]$entry.path)
+                Add-InventoryRelativePath -Set $paths -RelativePath ([string]$entry.path) -PathEscapeHits $PathEscapeHits
             }
         }
     }
@@ -200,7 +271,10 @@ function Get-PathsFromExistingInventory {
 }
 
 function Get-DefaultInventoryRelativePaths {
-    param([Parameter(Mandatory = $true)][string] $RepoRoot)
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [System.Collections.Generic.List[string]] $PathEscapeHits = $null
+    )
 
     $paths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
@@ -208,7 +282,7 @@ function Get-DefaultInventoryRelativePaths {
         'README.md', 'SECURITY.md', 'CONTRIBUTING.md', 'LICENSE', '.gitignore', 'AGENTS.md', 'CLAUDE.md'
     )
     foreach ($name in $rootNames) {
-        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name
+        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name -PathEscapeHits $PathEscapeHits
     }
 
     $lockfileNames = @(
@@ -217,28 +291,28 @@ function Get-DefaultInventoryRelativePaths {
         'uv.lock', 'go.sum', 'Gemfile.lock', 'composer.lock'
     )
     foreach ($name in $lockfileNames) {
-        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name
+        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name -PathEscapeHits $PathEscapeHits
     }
 
     $manifestNames = @(
         'package.json', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'Gemfile', 'composer.json'
     )
     foreach ($name in $manifestNames) {
-        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name
+        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $name -PathEscapeHits $PathEscapeHits
     }
 
-    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'adapters/registry.json'
+    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'adapters/registry.json' -PathEscapeHits $PathEscapeHits
     foreach ($scriptRel in @(
             'scripts/toolkit.ps1',
             'scripts/sync-agent.ps1',
             'scripts/validate-agent.ps1',
             'scripts/validation/validate-core.ps1'
         )) {
-        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $scriptRel
+        Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath $scriptRel -PathEscapeHits $PathEscapeHits
     }
 
-    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'core/skills/_shared/agents/SPAWN.md'
-    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'core/router/AGENTS.md'
+    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'core/skills/_shared/agents/SPAWN.md' -PathEscapeHits $PathEscapeHits
+    Add-InventoryPathIfExists -Set $paths -RepoRoot $RepoRoot -RelativePath 'core/router/AGENTS.md' -PathEscapeHits $PathEscapeHits
 
     $globRoots = @(
         @{ Root = $RepoRoot; Pattern = '*.sln' },
@@ -257,20 +331,114 @@ function Get-DefaultInventoryRelativePaths {
 
         $matches = @(Get-ChildItem -LiteralPath $spec.Root -Filter $spec.Pattern -File -Recurse -ErrorAction SilentlyContinue)
         foreach ($item in $matches) {
-            Add-InventoryRelativePath -Set $paths -RelativePath (Convert-ToInventoryRelativePath -FullPath $item.FullName -RootPath $RepoRoot)
+            try {
+                $relative = Convert-ToInventoryRelativePath -FullPath $item.FullName -RootPath $RepoRoot
+                Add-InventoryRelativePath -Set $paths -RelativePath $relative -PathEscapeHits $PathEscapeHits
+            }
+            catch {
+                if ($null -ne $PathEscapeHits) {
+                    [void]$PathEscapeHits.Add(($item.FullName -replace '\\', '/'))
+                }
+            }
         }
     }
 
     return @($paths | Sort-Object)
 }
 
+function Get-InventoryAggregateHash {
+    param(
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [object[]] $SourceEntries = @()
+    )
+
+    $entries = @()
+    if ($null -ne $SourceEntries) {
+        $entries = @($SourceEntries)
+    }
+
+    $lines = [System.Collections.Generic.List[string]]::new()
+    foreach ($entry in $entries) {
+        if ($null -eq $entry) {
+            continue
+        }
+        $path = [string]$entry.path
+        $hash = [string]$entry.hash
+        if ([string]::IsNullOrWhiteSpace($path) -or [string]::IsNullOrWhiteSpace($hash)) {
+            continue
+        }
+        [void]$lines.Add(('{0}:{1}' -f $path, $hash.ToLowerInvariant()))
+    }
+
+    $sorted = @($lines | Sort-Object)
+    $material = [string]::Join("`n", $sorted)
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($material)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hashBytes = $sha.ComputeHash($bytes)
+    }
+    finally {
+        $sha.Dispose()
+    }
+
+    return -join ($hashBytes | ForEach-Object { $_.ToString('x2') })
+}
+
+function Get-InventoryAggregateSummary {
+    param(
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [object[]] $SourceEntries = @(),
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [string[]] $StackHints = @()
+    )
+
+    $entries = @()
+    if ($null -ne $SourceEntries) {
+        $entries = @($SourceEntries)
+    }
+
+    $hints = @()
+    if ($null -ne $StackHints) {
+        $hints = @($StackHints | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    }
+
+    $count = $entries.Length
+    $stackText = if ($hints.Length -gt 0) { ($hints -join ', ') } else { 'unknown' }
+    return ('{0} source(s); stack: {1}' -f $count, $stackText)
+}
+
+function Test-SourcePathUnderRepo {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $RelativePath
+    )
+
+    $full = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot ($RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+    return (Test-IsPathUnderOrEqual -ChildPath $full -ParentPath $RepoRoot)
+}
+
+function Write-InventoryGovernancePayload {
+    param(
+        [Parameter(Mandatory = $true)][string] $SourcesPath,
+        [Parameter(Mandatory = $true)]$Payload
+    )
+
+    $json = ($Payload | ConvertTo-Json -Depth 6)
+    [System.IO.File]::WriteAllText($SourcesPath, $json, (Get-Utf8NoBomEncoding))
+}
+
 function Get-StackHintsFromPaths {
     param(
-        [Parameter(Mandatory = $true)][string[]] $RelativePaths
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $RelativePaths
     )
 
     $hints = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    foreach ($path in $RelativePaths) {
+    foreach ($path in @($RelativePaths)) {
         $lower = $path.ToLowerInvariant()
         if ($lower -match '\.ps1$') { [void]$hints.Add('powershell') }
         if ($lower -match '\.md$') { [void]$hints.Add('markdown') }
@@ -288,7 +456,9 @@ function Get-StackHintsFromPaths {
 function Test-OpenApiSignal {
     param(
         [Parameter(Mandatory = $true)][string] $RepoRoot,
-        [Parameter(Mandatory = $true)][string[]] $RelativePaths
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $RelativePaths
     )
 
     foreach ($path in $RelativePaths) {
@@ -385,14 +555,21 @@ function Update-GapsMarkdownStubs {
         [Parameter(Mandatory = $true)][bool] $OpenApiDetected,
         [Parameter(Mandatory = $true)][bool] $DatabaseDetected,
         [Parameter(Mandatory = $true)][bool] $UiKitDetected,
-        [Parameter(Mandatory = $true)][string[]] $StackHints,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $StackHints,
+        [AllowEmptyCollection()]
         [string[]] $PreservedBlockingLines = @()
     )
 
+    $hintList = @()
+    if ($null -ne $StackHints) {
+        $hintList = @($StackHints)
+    }
     $openapiHint = if ($OpenApiDetected) { 'yes' } else { 'no' }
     $dbHint = if ($DatabaseDetected) { 'yes' } else { 'no' }
     $uiHint = if ($UiKitDetected) { 'yes' } else { 'no' }
-    $stackText = if ($StackHints.Count -gt 0) { ($StackHints -join ', ') } else { 'unknown' }
+    $stackText = if ($hintList.Length -gt 0) { ($hintList -join ', ') } else { 'unknown' }
 
     $blockingSection = if ($PreservedBlockingLines.Count -gt 0) {
         ($PreservedBlockingLines -join "`n")
@@ -441,14 +618,21 @@ function Add-RefreshHistoryEntry {
         [Parameter(Mandatory = $true)][string] $HistoryPath,
         [Parameter(Mandatory = $true)][string] $RepoName,
         [Parameter(Mandatory = $true)][string] $HistoryAction,
-        [Parameter(Mandatory = $true)][string[]] $Hints
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $Hints
     )
+
+    $hintList = @()
+    if ($null -ne $Hints) {
+        $hintList = @($Hints)
+    }
 
     $entry = [ordered]@{
         at     = (Get-Date).ToUniversalTime().ToString('o')
         action = $HistoryAction
         repo   = $RepoName
-        hints  = @($Hints)
+        hints  = @($hintList)
     } | ConvertTo-Json -Compress
 
     Add-Content -LiteralPath $HistoryPath -Value $entry -Encoding UTF8
@@ -458,8 +642,13 @@ if ([string]::IsNullOrWhiteSpace($RepoPath)) {
     $RepoPath = Get-ToolkitRepoRoot -FromPath $scriptDir
 }
 
-if (-not (Test-Path -LiteralPath $RepoPath)) {
-    throw ("RepoPath not found: {0}" -f $RepoPath)
+$pathEscapeHits = [System.Collections.Generic.List[string]]::new()
+$governanceStatus = $script:InventoryStatusReady
+$governanceReason = $script:InventoryReasonReady
+$exitCode = $script:InventoryExitReady
+
+if ([string]::IsNullOrWhiteSpace($RepoPath) -or -not (Test-Path -LiteralPath $RepoPath -PathType Container)) {
+    throw ("{0} (RepoPath={1})" -f $script:InventoryReasonInvalidRoot, $RepoPath)
 }
 
 $repoRoot = (Resolve-Path -LiteralPath $RepoPath).Path
@@ -477,11 +666,21 @@ if (-not (Test-Path -LiteralPath $BankPath)) {
     New-Item -ItemType Directory -Path $BankPath -Force | Out-Null
 }
 
+if (-not (Test-Path -LiteralPath $BankPath -PathType Container)) {
+    throw ("{0} (BankPath={1})" -f $script:InventoryReasonInvalidRoot, $BankPath)
+}
+
 $bankRoot = (Resolve-Path -LiteralPath $BankPath).Path
 $inventoryDir = Join-Path $bankRoot '.inventory'
 $sourcesPath = Join-Path $inventoryDir 'sources.json'
 $gapsPath = Join-Path $inventoryDir 'gaps.md'
 $historyPath = Join-Path $inventoryDir 'refresh-history.jsonl'
+
+# Contracted writes: only under bank_root/.inventory (never app sources).
+$inventoryDirFull = [System.IO.Path]::GetFullPath($inventoryDir)
+if (-not (Test-IsPathUnderOrEqual -ChildPath $inventoryDirFull -ParentPath $bankRoot)) {
+    throw ("Inventory directory escapes bank root: {0}" -f $inventoryDir)
+}
 
 if (-not (Test-Path -LiteralPath $inventoryDir)) {
     if (-not $AllowCreateInventory) {
@@ -503,34 +702,78 @@ if (Test-Path -LiteralPath $sourcesPath) {
 
 $relativePaths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 if ($null -ne $existingInventory) {
-    foreach ($path in @(Get-PathsFromExistingInventory -InventoryObject $existingInventory)) {
+    foreach ($path in @(Get-PathsFromExistingInventory -InventoryObject $existingInventory -PathEscapeHits $pathEscapeHits)) {
         [void]$relativePaths.Add($path)
     }
 }
 
-foreach ($path in @(Get-DefaultInventoryRelativePaths -RepoRoot $repoRoot)) {
+foreach ($path in @(Get-DefaultInventoryRelativePaths -RepoRoot $repoRoot -PathEscapeHits $pathEscapeHits)) {
     [void]$relativePaths.Add($path)
 }
 
 $sourceEntries = [System.Collections.Generic.List[object]]::new()
+$incompleteHash = $false
 foreach ($relativePath in @($relativePaths | Sort-Object)) {
+    if (-not (Test-SourcePathUnderRepo -RepoRoot $repoRoot -RelativePath $relativePath)) {
+        [void]$pathEscapeHits.Add(($relativePath -replace '\\', '/'))
+        continue
+    }
+
     $fullPath = Join-Path $repoRoot ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
         continue
     }
 
     $item = Get-Item -LiteralPath $fullPath
+    $hash = $null
+    try {
+        $hash = Get-FileSha256Hex -LiteralPath $fullPath
+    }
+    catch {
+        $incompleteHash = $true
+        continue
+    }
+
+    if ([string]::IsNullOrWhiteSpace($hash) -or ($hash -notmatch $script:Sha256HexPattern)) {
+        $incompleteHash = $true
+        continue
+    }
+
     $sourceEntries.Add([ordered]@{
             path           = ($relativePath -replace '\\', '/')
             last_write_utc = $item.LastWriteTimeUtc.ToString('o')
             length         = $item.Length
-            hash           = (Get-FileSha256Hex -LiteralPath $fullPath)
-            summary        = (Get-FileSummaryHeuristic -LiteralPath $fullPath)
+            hash           = $hash
+            summary        = (Get-FileSummaryHeuristic -LiteralPath $fullPath -RelativePath $relativePath)
         })
 }
 
 $sortedPaths = @($sourceEntries | ForEach-Object { $_.path })
-$stackHints = Get-StackHintsFromPaths -RelativePaths $sortedPaths
+if ($null -eq $sortedPaths) {
+    $sortedPaths = @()
+}
+$stackHints = @(Get-StackHintsFromPaths -RelativePaths $sortedPaths)
+if ($null -eq $stackHints) {
+    $stackHints = @()
+}
+$inventoryHash = Get-InventoryAggregateHash -SourceEntries @($sourceEntries.ToArray())
+$inventorySummary = Get-InventoryAggregateSummary -SourceEntries @($sourceEntries.ToArray()) -StackHints $stackHints
+
+if ($pathEscapeHits.Count -gt 0) {
+    $governanceStatus = $script:InventoryStatusNotReady
+    $governanceReason = $script:InventoryReasonPathEscape
+    $exitCode = $script:InventoryExitNotReady
+}
+elseif ($incompleteHash) {
+    $governanceStatus = $script:InventoryStatusNotReady
+    $governanceReason = $script:InventoryReasonIncompleteHash
+    $exitCode = $script:InventoryExitNotReady
+}
+elseif ($sourceEntries.Count -lt 1) {
+    $governanceStatus = $script:InventoryStatusNotReady
+    $governanceReason = $script:InventoryReasonNoSources
+    $exitCode = $script:InventoryExitNotReady
+}
 
 $skillsRoot = Join-Path $repoRoot 'core/skills'
 $skillCount = 0
@@ -551,21 +794,25 @@ if ($null -ne $existingInventory -and ($existingInventory.PSObject.Properties.Na
 }
 
 $payload = [ordered]@{
-    schema_version      = 2
+    schema_version      = $script:InventorySchemaVersion
     repo                = $repoName
     repo_path           = $repoRoot
     bank_path           = $bankRoot
     generated_at        = (Get-Date).ToUniversalTime().ToString('o')
     stale_days          = $staleDays
+    status              = $governanceStatus
+    status_reason       = $governanceReason
+    inventory_hash      = $inventoryHash
+    inventory_summary   = $inventorySummary
     stack_hints         = @($stackHints)
     skill_count         = $skillCount
     assert_script_count = $assertScriptCount
     sources             = @($sourceEntries)
 }
 
-$json = ($payload | ConvertTo-Json -Depth 6)
-[System.IO.File]::WriteAllText($sourcesPath, $json, (Get-Utf8NoBomEncoding))
+Write-InventoryGovernancePayload -SourcesPath $sourcesPath -Payload $payload
 
+# gaps/history only when we successfully stayed inside bank_root/.inventory
 $openApiDetected = Test-OpenApiSignal -RepoRoot $repoRoot -RelativePaths $sortedPaths
 $dbDetected = Test-DatabaseMigrationSignal -RepoRoot $repoRoot
 $uiDetected = Test-UiKitSignal -RepoRoot $repoRoot
@@ -581,5 +828,6 @@ Update-GapsMarkdownStubs `
 
 Add-RefreshHistoryEntry -HistoryPath $historyPath -RepoName $repoName -HistoryAction $Action -Hints $stackHints
 
-Write-Host ("Invoke-MemoryBankInventory: wrote {0} source(s) -> {1}" -f $sourceEntries.Count, $sourcesPath)
-exit 0
+Write-Host ("Invoke-MemoryBankInventory: status={0}; reason={1}; hash={2}; summary={3}; sources={4} -> {5}" -f `
+        $governanceStatus, $governanceReason, $inventoryHash, $inventorySummary, $sourceEntries.Count, $sourcesPath)
+exit $exitCode

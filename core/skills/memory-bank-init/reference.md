@@ -6,6 +6,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 
 | Section | Path |
 |---------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Template map | `references/template-map.md` |
 | Generated region markers | `references/generated-markers.md` |
 | tech-stack.json fill | `references/tech-stack.md` |

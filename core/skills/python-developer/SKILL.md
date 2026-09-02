@@ -24,6 +24,8 @@ Gate check:
 
 ---
 
+# Skill: python-developer
+
 ## Trigger
 
 Invoke when the user asks for: `/python-developer`, `python fix`, `implement FastAPI/Flask feature`, or for **small** Python work that does not need a full PRD/PLAN cycle.
@@ -31,19 +33,6 @@ Invoke when the user asks for: `/python-developer`, `python fix`, `implement Fas
 ## Outcome
 
 Working **Python** code and tests in the open workspace: pytest (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Supports **FastAPI** and **Flask** — not a FastAPI-only skill. Does not replace SDD for multi-step or cross-repo features.
-
-## When to prefer SDD instead
-
-Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
-
-| Signal | Indicator |
-|--------|-----------|
-| Layers | 3+ packages/layers (API, services, persistence, workers) across many modules |
-| Database | New or altered schema / Alembic (or equivalent) migrations |
-| Repos | Backend and another repo or service |
-| Integrations | New messaging, external APIs, or consumers |
-| Size | 10+ files or estimated 4+ hours |
-| PLAN exists | User already has an approved PLAN - use `sdd-develop` |
 
 ## Lazy-load (only when needed)
 
@@ -68,12 +57,24 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
+| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/python-developer/reference.md` |
+| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/python-developer/references/<section>.md` |
 
 Do **not** preload other stack guideline packs or corporate pipeline docs. Load only the `python-guidelines` rows needed for the current task (FastAPI **and/or** Flask **and** pytest as applicable). **MUST NOT** glob `architecture/**` — load hub + **one** principles style from ARCH/CONTINUITY (brownfield: discover-first if style omitted).
 
-**Never by default:** do not preload other stack guideline packs. Load only Python rows needed for the current task.
+**Never by default:** do not preload all `references/*.md`. do not preload other stack guideline packs. Load only Python rows needed for the current task. Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+
+## Reference routing
+
+| Situation | Path |
+|-----------|------|
+| Scope / SDD escalation / design brief | `references/scope.md` |
+| Implement flow | `references/execute-flow.md` |
+| Must not (full) | `references/must-not.md` |
 
 ## Process
+
+Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -82,79 +83,15 @@ Do **not** preload other stack guideline packs or corporate pipeline docs. Load 
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
-### Subagent-first (before implement)
+### 0. Scope
+Follow `references/scope.md` (SDD escalation, design brief / host detection when present).
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
-
-### 0. Workspace
-
-Confirm Python project (`pyproject.toml`, `requirements.txt`, `Pipfile`, `setup.py`, or `.py` layout). Read `AGENTS.md` / `README.md`. Detect FastAPI vs Flask from dependencies — keep **both** in scope; do not force FastAPI onto Flask apps. Summarize the user request and acceptance.
-
-### 1. Guidelines (step 0.5)
-
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `python-guidelines` files needed for this task. Confirm test stack: **pytest** (`pytest.md`). Load `fastapi.md` and/or `flask.md` when those frameworks apply; keep `principles.md` / `google-style.md` for style when useful.
-
-### 2. Branch (step 3)
-
-Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>` - never commit on `main` / `master` / `develop`.
-
-### 3. Plan micro-steps
-
-List 3-7 concrete tasks (files to touch, tests to add). Stay within one session when possible; checkpoint per `context-management.mdc` (>= 40% -> pause, offer `/commit`).
-
-### 4. Implement
-
-Match existing project patterns (Glob/Read similar modules first). Use a virtual environment (`venv` or `uv`).
-
-| Layer | Typical work |
-|-------|----------------|
-| API | FastAPI routers / Flask Blueprints, schemas, validation |
-| Service | Application services, domain rules |
-| Persistence | Repositories, ORM models, migrations |
-| Integration | Clients, workers, messaging |
-
-Apply the matching `python-guidelines` docs while writing - do not paste full bodies into chat.
-
-### 5. Tests
-
-Add or update tests for changed behavior. Prefer integration-style API tests when the project already uses them; unit tests for isolated logic. Default runner: **pytest**.
-
-### 6. Build and test
-
-```bash
-pytest
-```
-
-Add lint/type steps if configured (`ruff`, `mypy`, etc.). Fix failures within scope. Ask before running the full suite if the repo is very large.
-
-### 7. Pre-commit (step 3.5) and handoff
-
-Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/commit` - do not commit automatically.
-
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and confirm FastAPI/Flask/pytest guidance used as needed.
-
-### 8. SDD escalation
-
-If scope grows during work, stop and recommend:
-
-```
-/sdd-spec - [feature description]
-# then
-/sdd-plan - PRD/...
-# then
-/sdd-develop - PLAN/... - Step 1
-```
+### 1. Execute
+Follow `references/execute-flow.md` (subagent-first, workspace → guidelines → branch → implement → tests → handoff).
 
 ## Must not
 
-- Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
-- Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
-- Treat the skill as FastAPI-only (Flask remains in scope)
-- Nested `feature/base/...` branches; commit on default integration branches
-- Speculative features outside stated acceptance (YAGNI)
-- Auto-commit or auto-PR without user request
-- Deprecated SDD skill aliases in handoff text - use `sdd-spec`, `sdd-plan`, `sdd-develop`, `commit` only
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
 
 ## Handoff
 

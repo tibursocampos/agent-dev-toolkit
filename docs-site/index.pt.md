@@ -14,7 +14,8 @@ hide:
 <p class="home-lead">Sincronize skills compartilhadas via adaptadores — escolha o agente, copie o comando interativo do toolkit e execute.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
-  <img src="assets/core-adapters-diagram.pt.svg" width="960" height="368" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
+  <!-- PT pages live under /pt/; assets stay at site root — use ../assets. -->
+  <img src="../assets/core-adapters-diagram.pt.svg" width="960" height="368" alt="Skills do núcleo fluem pelos adaptadores até a pasta de instalação de cada agente" />
 </figure>
 
 <div

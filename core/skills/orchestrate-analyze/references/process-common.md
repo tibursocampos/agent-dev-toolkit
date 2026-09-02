@@ -25,7 +25,7 @@ Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` (includes `/f
 
 ## Process — Backlog approval + O2 handoff
 
-Before asking: required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only). Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
+Before asking: **product artifact quality gates** must pass (`references/story-synthesis.md` § Product artifact quality gates — FEATURE depth TE01, promotion TE02, cap ≤4 / RN03). Required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only). Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
 
 Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask (pt-BR) — copy in `references/arch-confirm.md` § Approval gate copy.
 

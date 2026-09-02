@@ -4,6 +4,16 @@
   Helpers for Cursor Publish-Agents (copy core/agents -> InstallRoot/agents).
 #>
 
+$script:CursorAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:CursorAgentsModuleDirectory)) {
+    $script:CursorAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_cursorSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:CursorAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_cursorSpawnKnobsPath
+Remove-Variable -Name _cursorSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-CursorPublishAgents {
     <#
     .SYNOPSIS
@@ -61,6 +71,8 @@ function Invoke-CursorPublishAgents {
         -TextFileExtensionPattern $script:CursorAdapterConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-CursorSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:CursorAdapterMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'cursor-agents'
 
     return [PSCustomObject]@{
         Success          = $true

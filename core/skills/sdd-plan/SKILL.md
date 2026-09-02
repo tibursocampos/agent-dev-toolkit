@@ -40,21 +40,27 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 
 | When | Path |
 |------|------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/command.md` |
 | Pipeline guards, missing PRD dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
+| Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| PLAN-LEDGER atomic claim (`REQ-002` / CA2) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (+ `references/plan-ledger.md`) |
 | PLAN document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PLAN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | SDD language, context, .NET | `sdd-artifact-language-pt-br.mdc`, `context-management.mdc`, `dotnet-guidelines/*.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/<section>.md` |
+| Anti file-named steps / sizing (Steps 2–4) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`, `anti-task-shatter.md` |
+| Cite ARCH/ANALYSIS (when present) | story `ARCH/`, `ANALYSIS/` (portable paths only — PLAN magro) |
 
-**Never by default:** do not preload all `references/*.md`, full sdd-spec/develop packs, or all templates. Contract first (`PIPELINE` + `STORAGE`); load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full sdd-spec/develop packs, all templates, or all `backlog-item-types/*`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load `story-sizing.md` / `anti-task-shatter.md` only when sizing or rewriting step titles.
 
 ## Process
 
-Read `references/<section>.md` for authoring tables and checklists — **not** full `reference.md`.
+After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for authoring tables — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
@@ -66,6 +72,8 @@ Read `references/<section>.md` for authoring tables and checklists — **not** f
 ### -1. Pipeline and mode
 
 Load `STORAGE.md` and `PIPELINE.md`. Use `STORAGE.md` schema v2 and run the dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
+Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless parent handoff marks `orchestrated`. Apply the matching observable table.
+Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`) when mapping PRD → steps: treat unlabeled REQs as `agreed`; do not promote `invented` assumptions into Aceite as locked criteria.
 Phase A/B as for `sdd-spec`. No PRD authoring; no production/test code.
 
 ### 0. Workspace
@@ -88,7 +96,7 @@ Summarize PRD (**cite portable path** — **must not** paste the full PRD body i
 
 ### 2-4. Explore, technical questions (<=10), baby steps
 
-Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`; `references/selective-retrieval.md`). Steps ~20-45 min each (`references/baby-step-sizing.md`). Map every PRD **REQ-NNN** into **Mapa REQ → passo** (complete coverage — no orphan REQs). Each step **Aceite** must cite at least one **REQ-NNN** and/or CA with verifiable outcomes. Challenge vague Aceite ("as expected", "funciona") — `references/challenge-vagueness.md`.
+Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`; `references/selective-retrieval.md`). When story `ARCH/` / `ANALYSIS/` exist, **cite** those portable paths in step notes / Decisões (PLAN magro — do not paste bodies). Steps ~20-45 min each (`references/baby-step-sizing.md`). Map every PRD **REQ-NNN** into **Mapa REQ → passo** (complete coverage — no orphan REQs). Each step **Aceite** must cite at least one **REQ-NNN** and/or CA with **non-vague** verifiable outcomes. Challenge vague Aceite ("as expected", "funciona") and **anti file-named steps** (title ≠ only file/class/script) — `references/challenge-vagueness.md`; lazy-load `story-sizing.md` / `anti-task-shatter.md` when titles look task-shaped.
 
 ### 5. Context checkpoint
 
@@ -135,7 +143,11 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 - Skip confirm-before-write; claim PLAN saved without `Write`
 - `NNN` mismatch vs PRD; new writes outside `features/.../PLAN/`
 - Do not dump entire `memory-bank/` or paste full PRD into PLAN/prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
+- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
+- Do not ignore `CP-AGREED-VS-INVENTED` — do not re-label `invented` PRD assumptions as agreed Aceite (`CONTRACT-PROVENANCE.md`)
 - Do not omit REQ→step coverage or ship vague Aceite without challenge
+- Do not ship steps whose titles are only a file/class/script/path name (`anti-task-shatter.md` / `story-sizing.md`)
+- Do not paste ARCH/ANALYSIS bodies into the PLAN when portable paths exist (cite paths only)
 - Do not hand off to `sdd-develop` when `validate-plan` (or `validate-prd` on the source) exits ≠ 0
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 

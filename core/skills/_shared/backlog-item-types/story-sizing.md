@@ -105,3 +105,20 @@ Handoff when item is too large for single refine:
 ```
 /orchestrate-analyze
 ```
+
+---
+
+## Related product-quality norms (pointers only)
+
+Do **not** duplicate these norms here — lazy-load the file you need. Folder index: `README.md` in this directory.
+
+| Ref (portable under `core/skills/_shared/backlog-item-types/`) | Use when |
+|---------------------------------------------------------------|----------|
+| `invest-and-story-quality.md` | INVEST / Valuable checks |
+| `splitting.md` | Split vs merge beyond this file’s heuristics |
+| `anti-task-shatter.md` | Promotion gate: verb+file / layer-only |
+| `gherkin-budget.md` | Minimum happy + rule + failure AC |
+| `ost-lite.md` | Outcome → story → task altitude |
+| `feature-altitude.md` | FEATURE vs US/TS vs step |
+| `product-evidence-lite.md` | Evidence: omit > fabricate |
+| `clarify-depth.md` | Depth of open questions / challenge |

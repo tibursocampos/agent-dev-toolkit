@@ -50,7 +50,8 @@ Temporarily drop compression for: security warnings, irreversible confirmations 
 
 ## Never compressed
 
-- Confirmation gates and artifact drafts shown in chat  
+- Confirmation gates and **product drafts** shown in chat (FEATURE / STORY / PRD — never compress product prose)  
+- Other artifact drafts (PLAN, CONTINUITY, commit suggestions)  
 - Paths, identifiers, CLI commands, error messages  
 - Security / Git blocking notices  
 - Code, commit messages, PR bodies (always normal English per toolkit policy)

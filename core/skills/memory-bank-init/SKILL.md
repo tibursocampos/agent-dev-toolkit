@@ -69,8 +69,10 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 
 | When | Path |
 |------|------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Narrative compact (optional) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/COMPACT.md` — CONTINUITY / known-risks only; requires user **sim** |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Gate policies, stale, versioning, Step N | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
@@ -80,11 +82,11 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Process
 
-Read `references/<section>.md` for procedural tables and checklists — **not** full `reference.md`.
+After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for procedural tables — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -96,6 +98,7 @@ Read `references/<section>.md` for procedural tables and checklists — **not** 
 ### 1. Gate check
 
 Report Step -1 checklist. Load `MEMORY-BANK.md` and `STORAGE.md`. **STOP** if unchecked.
+Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless Step 0 / Step N parent marks `orchestrated`. Apply the matching observable table.
 
 ### 2. Resolve target
 
@@ -137,9 +140,18 @@ Prefer script (always scan `$Cwd`; write inventory under `bank_root`):
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh-light
 ```
 
-Output per source: `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic). Re-runs preserve paths from existing `sources.json` plus default discovery.
+Output in `<bank_root>/.inventory/sources.json`:
 
-If script path unavailable, run equivalent Glob/Grep from `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/`.
+| Field | Meaning |
+|-------|---------|
+| Per source | `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
+| Governance | `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash`, `inventory_summary` |
+
+Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason (TE01).
+
+**Observable wire (required):** after the script (or fallback) runs, read `status`, `status_reason`, `inventory_hash`, and `inventory_summary` from `sources.json` and include them in the Step 7 report. Do **not** treat `not-ready` as silent success — surface the reason before create/refresh file fills. Re-runs preserve paths from existing `sources.json` plus default discovery.
+
+If script path unavailable, run equivalent Glob/Grep from `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same governance fields).
 
 ### 6. Scaffold or refresh files
 
@@ -159,7 +171,7 @@ Rules:
 
 ### 7. Report + handoff
 
-Report paths written, stack hints, blocking gaps (if any), storage mode.
+Report paths written, stack hints, blocking gaps (if any), storage mode, and **inventory governance**: `status` / `status_reason` / `inventory_hash` / `inventory_summary` (from Step 5). If `status` is `not-ready`, say so explicitly with the reason before handoff.
 
 Handoff examples:
 
@@ -176,6 +188,7 @@ Handoff examples:
 - Require external CLI tooling (uv, specify, Spec Kit installers)
 - Skip confirm-before-write
 - Dump entire bank into orchestrator parent context
+- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Auto-commit
 - Edit consumer `.gitignore` when `storage_mode` is **global**
 - Add or require `/memory-bank/` in `.gitignore`

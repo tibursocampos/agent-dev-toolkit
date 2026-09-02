@@ -54,8 +54,10 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 1 triage — intent classification (before Step 0 when not full O1) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/intent-classification.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
@@ -72,16 +74,19 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Scorecard template (optional shape) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-template.md` |
 | Story sizing (synthesis / merge policy) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
 | Persona / Product intent (US only) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
+| Promotion / anti-task-shatter gate (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| Cap / altitude rationale (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
-**Never by default:** do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent.
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
 
-**Progressive load:** contracts first (`PIPELINE.md` + `STORAGE.md`); fan-out only on trigger (`MEMORY-BANK.md` at Step 0, `ROSTER.md` when setting `needs_*`, `SPAWN.md` before Task, **one** prompt per spawn, **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Progressive load:** contracts first (`PIPELINE.md` + `STORAGE.md`); after gates load `references/command.md` for step discovery; fan-out only on trigger (`MEMORY-BANK.md` at Step 0, `ROSTER.md` when setting `needs_*`, `SPAWN.md` before Task, **one** prompt per spawn, **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
 | Situation | Path |
 |-----------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Gate / Orchestrated Delivery / promote | `PIPELINE.md` |
 | Feature root / bank root / portable paths | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
@@ -94,23 +99,28 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Triage / collect / trivial / NuGet | `references/triage.md` |
 | Spawn / specialist map | `references/spawn-map.md` |
 | ARCH confirm gate | `references/arch-confirm.md` |
-| Scaffold / synthesize / CONTINUITY | `references/story-synthesis.md` |
+| Scaffold / synthesize / CONTINUITY / product artifact gates | `references/story-synthesis.md` |
 | Boundaries / handoff strings | `references/boundaries-handoff.md` |
 | Caveman / storage / approval / context | `references/process-common.md` |
 | Must not (full) | `references/must-not.md` |
 | Scorecard /100 → STORY | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
 | Story sizing / merge policy | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
 | Product intent (US Who/Job/Outcome) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
+| Promotion anti-task-shatter | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| Cap / feature altitude | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
 
 ## Process
 
-Read `references/<section>.md` for procedural tables, prompts, and checklists under each step — **not** full `reference.md`. Do not skip gates.
+After gates: **Read `references/command.md`** for ordered step discovery (do not dump this Process section into child prompts). Then load `references/<section>.md` for the current step only — **not** full `reference.md`. Do not skip gates.
 
 ### Step -1b - Caveman Mode (Lite cap)
 Apply Lite caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
 Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
+
+### 1b. Resolve invocation context
+Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into child handoffs (path cite only — do not dump the contract body).
 
 ### 2. Resolve storage
 Load `STORAGE.md` (`$Workflow = classic`); resolve feature + bank roots; path sanitize; gitignore per STORAGE. Read `references/process-common.md` § Process — Resolve storage.
@@ -136,11 +146,11 @@ SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4;
 ### 8b. Architecture confirm gate (greenfield / `needs_domain`)
 ARCH draft → operator **sim** / ajustar / cancelar → approved + point-promote. Brownfield: skip style re-pick only; still write mirror ARCH. Read `references/arch-confirm.md`.
 
-### 9. Synthesize artifacts
-Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). Read `references/story-synthesis.md`.
+### 9. Synthesize artifacts + product artifact quality gates
+Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). Merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03). Any fail → keep `draft`; list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
 
 ### 10. Human backlog approval (RN01)
-Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
+Product artifact quality gates must have passed. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
 
 ### 11. Approve -> CONTINUITY + O2 handoff
 On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.
@@ -150,7 +160,7 @@ Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `referen
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no app code; no PRD/PLAN; no skip Step 0 / backlog **sim** / ARCH confirm; no missing `ANALYSIS|ARCH|SEC` when flags require them; no hard-fail when Task unavailable (fallback in-parent write); portable paths only.
+Enforce the full list in `references/must-not.md`. Critical always-on: no app code; no PRD/PLAN; no skip Step 0 / backlog **sim** / ARCH confirm; no missing `ANALYSIS|ARCH|SEC` when flags require them; no hard-fail when Task unavailable (fallback in-parent write); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`); do not present human backlog approval when FEATURE depth / promotion / cap gates fail; do not promote task-shaped or layer-only titles to US/TS.
 
 ## Handoff
 

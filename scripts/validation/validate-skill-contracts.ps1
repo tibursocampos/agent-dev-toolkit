@@ -60,6 +60,58 @@ if ($doc.PSObject.Properties.Name -contains 'mustExistPaths' -and $doc.mustExist
 }
 
 foreach ($c in $doc.contracts) {
+    # match: each-file (default) = every listed file must hold all markers;
+    # any-file = packing-aware union — each mustContain needle in at least one file
+    # (SKILL router + references/ after composable split).
+    $matchMode = 'each-file'
+    if ($c.PSObject.Properties.Name -contains 'match' -and -not [string]::IsNullOrWhiteSpace([string]$c.match)) {
+        $matchMode = [string]$c.match
+    }
+
+    if ($matchMode -eq 'any-file') {
+        $combined = New-Object System.Text.StringBuilder
+        $resolvedLabels = New-Object System.Collections.Generic.List[string]
+        foreach ($fileName in $c.files) {
+            $path = Join-Path (Join-Path $skillsRoot $c.skill) $fileName
+            if (-not (Test-Path -LiteralPath $path)) {
+                $failures.Add("$($c.id): missing file $path")
+                continue
+            }
+            $text = Get-Content -LiteralPath $path -Raw
+            [void]$combined.AppendLine($text)
+            $resolvedLabels.Add("$($c.skill)/$fileName")
+            if ($c.PSObject.Properties.Name -contains 'mustNotContain' -and $c.mustNotContain) {
+                foreach ($needle in $c.mustNotContain) {
+                    if ($text.Contains($needle)) {
+                        $failures.Add("$($c.id): $($c.skill)/$fileName contains forbidden '$needle'")
+                    }
+                }
+            }
+        }
+        if ($resolvedLabels.Count -eq 0) {
+            continue
+        }
+        $allText = $combined.ToString()
+        $label = ($resolvedLabels -join ' | ')
+        if ($c.PSObject.Properties.Name -contains 'mustContain' -and $c.mustContain) {
+            foreach ($needle in $c.mustContain) {
+                if ($allText -notmatch [regex]::Escape($needle)) {
+                    $failures.Add("$($c.id): $label missing required marker '$needle'")
+                }
+            }
+        }
+        if ($c.PSObject.Properties.Name -contains 'mustContainAny' -and $c.mustContainAny) {
+            $anyHit = $false
+            foreach ($needle in $c.mustContainAny) {
+                if ($allText -match [regex]::Escape($needle)) { $anyHit = $true; break }
+            }
+            if (-not $anyHit) {
+                $failures.Add("$($c.id): $label missing any of: $($c.mustContainAny -join ' | ')")
+            }
+        }
+        continue
+    }
+
     foreach ($fileName in $c.files) {
         $path = Join-Path (Join-Path $skillsRoot $c.skill) $fileName
         if (-not (Test-Path -LiteralPath $path)) {
