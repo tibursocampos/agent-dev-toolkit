@@ -8,27 +8,78 @@
 | **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (global) |
 | **Status** | draft \| approved \| in-progress \| done |
 
+## Objective
+
+{{OBJECTIVE}}
+
+One verifiable outcome. Title and Objective must be outcome-shaped — not verb+file/class/script (`anti-task-shatter.md`).
+
+## Who / Job / Outcome (US)
+
+Required when **Tipo** = `US`. For pure TS/Bug, set each field to `n/a`.
+
+| Campo | Valor |
+|-------|--------|
+| **Who** | {{WHO}} |
+| **Job** | {{JOB}} |
+| **Outcome** | {{OUTCOME}} |
+
+See `skills/_shared/backlog-item-types/persona-context.md`. Optional Evidence under persona follows **omit > fabricate** (`product-evidence-lite.md`).
+
 ## Descrição
 
 {{DESCRIPTION}}
 
-## Critérios de aceite (BDD)
+Supporting narrative; does not replace Objective or Who/Job/Outcome.
+
+## Fora de escopo (OOS)
+
+| Item | Motivo |
+|------|--------|
+| {{OOS_ITEM}} | {{OOS_REASON}} |
+
+Explicit exclusions for this story. Use `N/A` / empty table only when truly none known — prefer naming known non-goals.
+
+## Critérios de aceite (AC budget)
+
+Minimum budget (`gherkin-budget.md`): **happy** + **rule/edge** + **failure**, each with an **observable Then**. One stub alone is not enough.
+
+### Happy
 
 ```gherkin
-Dado {{GIVEN}}
-Quando {{WHEN}}
-Então {{THEN}}
+Dado {{HAPPY_GIVEN}}
+Quando {{HAPPY_WHEN}}
+Então {{HAPPY_THEN_OBSERVABLE}}
+```
+
+### Rule / edge
+
+```gherkin
+Dado {{RULE_GIVEN}}
+Quando {{RULE_WHEN}}
+Então {{RULE_THEN_OBSERVABLE}}
+```
+
+### Failure
+
+```gherkin
+Dado {{FAILURE_GIVEN}}
+Quando {{FAILURE_WHEN}}
+Então {{FAILURE_THEN_OBSERVABLE}}
 ```
 
 ## Scorecard (resumo)
 
-Rubric detail: `refine-story/references/scorecard-rubric.md` (scores **/100**). Map to this table as **1-5** (approx. `/20`, round nearest; floor 1 if score > 0).
+Rubric detail: `refine-story/references/scorecard-rubric.md` (scores **/100**; Product depth criterion max **10**). Map **Product depth** from that criterion (/10 → 1–5 per rubric). Map other rows from overall bands when needed (80+ = 5, 60–79 = 4, 40–59 = 3, else ≤2).
 
 | Critério | Nota (1-5) | Nota |
 |----------|------------|------|
 | Clareza | | |
 | Testabilidade | | |
 | Dependências | | |
+| Product depth | | |
+
+**Product depth** reflects Valuable + AC budget (happy/rule/failure) + Who/Job/Outcome when US. Honest Evidence omission is not by itself a Product-depth failure.
 
 ## Dependências
 

@@ -30,6 +30,19 @@ The Orchestrated Delivery `memory-bank/` layout and gate policies are a **toolki
 
 Ideas for durable workspace / structured agent memory are **inspired in part by practices around** [github/spec-kit](https://github.com/github/spec-kit). We **do not** apply Spec Kit, `uv`, or `specify` directly — those paths were removed from this toolkit’s MVP in favor of Classic SDD / Backlog Refine / Orchestrated Delivery. Contracts and scripts under `MEMORY-BANK.md` / `memory-bank-init` are original to agent-dev-toolkit. Internal SDD contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the existing skill call flow — not a second OpenSpec/Spec Kit product.
 
+## Product backlog quality (PM themes)
+
+Norms under `core/skills/_shared/backlog-item-types/` **paraphrase** public PM ideas (INVEST, vertical split, Gherkin budget, outcome altitude). We do **not** vendor third-party corpora or ship Anthropic PM slash skills as Core. Curated links only (cap 2–5 for themes actually used — no dump):
+
+| Theme used in toolkit norms | Curated link |
+|-----------------------------|--------------|
+| INVEST story quality | [xp123 — INVEST in Good Stories](https://xp123.com/articles/invest-in-good-stories-and-smart-tasks/) |
+| Vertical / thin-slice splitting | [Mountain Goat — story splitting](https://www.mountaingoatsoftware.com/agile/user-stories/story-splitting) |
+| Gherkin / observable Then | [Cucumber — Gherkin reference](https://cucumber.io/docs/gherkin/reference/) |
+| Outcome vs story vs task altitude | [Jeff Patton — User Story Mapping](https://www.jpattonassociates.com/user-story-mapping/) |
+
+Evidence fields follow **omit > fabricate** (`product-evidence-lite.md`); scorecards must not force inventing Evidence. Caveman Mode **never compresses** product drafts (FEATURE / STORY / PRD) shown in chat — see `core/skills/_shared/caveman/CAVEMAN.md`.
+
 ## License
 
 Toolkit license: [LICENSE](../LICENSE) (MIT © Raphael Campos). Respect the licenses of any third-party tools you install separately (e.g. Impeccable CLI, Spec Kit).
