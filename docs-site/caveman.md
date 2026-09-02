@@ -26,6 +26,10 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) �
 
 Skills may cap intensity (planning often Lite; develop Full). **NEVER** compress for `help-skills`, `commit`, `push`, `open-github-pr`.
 
+## Never compressed
+
+Product drafts (FEATURE / STORY / PRD) and confirmation gates stay full prose — Caveman never compresses them. Paths, errors, and security notices stay intact too.
+
 ## Auto-Clarity
 
 Drop compression for security warnings, irreversible confirms, ambiguous multi-step order, or when the user asks to clarify — then resume.

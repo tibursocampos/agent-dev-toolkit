@@ -62,6 +62,31 @@ Full matrix, safety rules, and CI workflows:
 - [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml) — required **validate** check
 - [docs.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/docs.yml) — MkDocs build / Pages deploy
 
+## Operator scripts (inventory → preflight → harvest)
+
+Same skill call flow; these scripts add deterministic gates — not a second toolkit CLI. Suggested order on a consumer feature:
+
+| Order | Script | Role |
+|-------|--------|------|
+| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` under `memory-bank/.inventory/` |
+| 2 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Block O3 when PRD/PLAN/CHANGE inconsistent |
+| 3 | Develop (`sdd-develop` / O3; optional PLAN-LEDGER claim) | Session gates + optional ledger hold |
+| 4 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize **only** `features/NNN-slug/TRACE.jsonl` |
+
+```powershell
+pwsh -NoProfile -File .\scripts\inventory\Invoke-MemoryBankInventory.ps1 `
+  -RepoPath . -BankPath .\memory-bank -AllowCreateInventory
+
+pwsh -NoProfile -File .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
+  -FeatureRoot features\<NNN-slug> `
+  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md
+
+pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
+  -FeatureRoot features\<NNN-slug>
+```
+
+PLAN-LEDGER CLI: `scripts/ledger/Invoke-PlanLedgerClaim.ps1`. Pointers only (no schema paste): [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). TRACE emitter claims: [Adapters](../adapters/).
+
 ## Maintainer Git flow
 
 Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Prefer `/open-github-pr` after `/commit` / `/push` (feature → `develop`; release mode `develop` → `master`/`main`). Release PRs use the template at `.github/PULL_REQUEST_TEMPLATE/release.md`. Required CI check: **validate**. See [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) in CONTRIBUTING.md.

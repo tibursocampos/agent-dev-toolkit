@@ -153,6 +153,8 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step 1
 ```
 
+Normalização opcional de handoff (mesma trilha — não é um quarto estágio): `read-sdd-artifact` → `source_context` tipado. Invocation (`direct` / `orchestrated`) e provenance (`agreed` / `invented`) ficam dentro desses skill ids — veja [Usando skills](../using-skills/) e [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md).
+
 Mudança pequena sem SDD completo: `developer` ou uma skill de stack como `dotnet-developer`. Escolher trilha **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**: [Usando skills](../using-skills/).
 
 Depois de `commit` e `push`, abra um PR com `open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).

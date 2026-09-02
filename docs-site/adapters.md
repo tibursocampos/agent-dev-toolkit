@@ -37,6 +37,22 @@ Live InstallRoot is `$HERMES_HOME` (typical `~/.hermes`). Skills and `AGENTS.md`
 
 Shared rules: [`adapters/_shared/guard-rules.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/guard-rules.md) + `GuardCommon.ps1`. Outside-workspace and pathless writes are deny. Full host matrix: [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md).
 
+## Publish knobs honesty (depth / threads / inherit)
+
+Publish may emit **only** SPAWN-aligned depth/threads honesty and model **inherit** (or omit model). Caps: `*-developer` **≤2**, `orchestrate-*` **≤4**. Never pin a child≠parent model slug at publish time. Hosts with `agents=false` / no-op (Hermes, OpenCode, Antigravity): do **not** emit host `delegation.max_spawn_depth` knobs. Contract: [`spawn-publish-honesty.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/spawn-publish-honesty.md) · [domains/adapters.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/adapters.md#publish-knobs-honesty-depth--threads--inherit).
+
+## TRACE emitter honesty
+
+Core trail SoT remains `features/NNN-slug/TRACE.jsonl` only. Emitters are fail-open (exit 0; never append secrets / `tool_input`). Claim only what is wired:
+
+| Claim | Hosts |
+|-------|--------|
+| **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (PostToolUse / SubagentStop) |
+| **Asset only** — not live PostToolUse wire | Codex (`Publish-Hooks` still PreToolUse guard) |
+| **Not claimed** | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
+
+Contract: [`trace-emitter-honesty.md`](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/adapters/_shared/trace-emitter-honesty.md) · assert `Assert-TraceEmitterFailOpen.ps1`.
+
 ## How sync works
 
 1. Prefer interactive `scripts/toolkit.ps1` (Smart Manager).

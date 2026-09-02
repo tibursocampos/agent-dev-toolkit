@@ -73,8 +73,23 @@ At runtime, skills prefer host-aware **`effective_SDD_ROOT`** (`<InstallRoot>/sd
 
 Per-agent install trees (Cursor, Claude, Codex, …) live in the full architecture and adapters docs — not duplicated here. See [Adapters](../adapters/).
 
+## Maturity contracts (same call flow)
+
+Feature **006** surfaces live under `core/skills/_shared/sdd-artifacts/` and related packs. Same Classic SDD / Backlog Refine / Orchestrated Delivery skill ids — more gates and artifacts, not a second toolkit.
+
+| Surface | What it does | Deep dive |
+|---------|--------------|-----------|
+| **Invocation** | `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#invocation-contexts-direct-vs-orchestrated) |
+| **Provenance** | `agreed` vs `invented` (`CONTRACT-PROVENANCE.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#contract-provenance-agreed-vs-invented) |
+| **`read-sdd-artifact`** | Normalize FEATURE/STORY/PRD/PLAN → `source_context` | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#skill-read-sdd-artifact-source_context) |
+| **PLAN-LEDGER** | Atomic O3 step claim (`PLAN-LEDGER-CONTRACT.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#plan-ledger-atomic-step-claim) |
+| **TRACE archive** | Living loop SoT: `features/NNN-slug/TRACE.jsonl` only | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#trace-archive-living-loop) |
+
+Do **not** invent alternate TRACE roots (`.agent-trace/`, OpenSpec / `.specs/` / `.specify/`, SQLite/FTS as SoT). Host emitters are claimed only where wired — [Adapters](../adapters/).
+
 ## Full docs on GitHub
 
 - [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — layers, placeholders, entry points, per-agent install layouts, CI
 - [docs/overview.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/overview.md) — problem statement, operator workflow, design constraints
 - [docs/ADAPTERS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ADAPTERS.md) — registry, publish surfaces, InstallRoot tables
+- [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md) — SDD contracts, invocation, TRACE, PLAN-LEDGER
