@@ -6,11 +6,13 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 
 | Section | Path |
 |---------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
 | Anti-bypass checklist (CA5) | `references/anti-bypass.md` |
 | Step queue / build queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism rules + process | `references/parallelism.md` |
+| Execution modes (REQ-003 / CA3; queue/claim/parallelism) | `references/execution-modes.md` |
 | CONTINUITY / handoff / stop conditions / Step N process | `references/continuity-handoff.md` |
 | Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
 | Caveman / resolve feature / PLAN set | `references/process-common.md` |

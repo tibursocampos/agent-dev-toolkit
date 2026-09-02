@@ -6,12 +6,13 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 
 | Section | Path |
 |---------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Step 1 intent classification (triage entry) | `references/intent-classification.md` |
 | Step 0 Memory Bank Gate | `references/memory-bank-gate.md` |
 | Triage / collect / trivial shortcut / NuGet example | `references/triage.md` |
 | Flag → specialist mapping / spawn Task | `references/spawn-map.md` |
 | Architecture confirm gate / approval copy | `references/arch-confirm.md` |
-| Feature tree / CONTINUITY / scaffold / synthesize / story sizing merge | `references/story-synthesis.md` |
+| Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |
 | Boundaries / canonical handoff strings | `references/boundaries-handoff.md` |
 | Caveman / resolve storage / backlog approval / context pressure | `references/process-common.md` |
 | Must not / exclusions | `references/must-not.md` |

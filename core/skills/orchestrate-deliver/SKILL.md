@@ -53,8 +53,10 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
@@ -62,20 +64,22 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Spec contract | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` as needed) |
 | Plan contract | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` as needed) |
 | CHANGE brownfield / current | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
+| Preflight PRD→PLAN→CHANGE (`REQ-004` / CA4) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/preflight-prd-plan-change.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
-**Never by default:** do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
 
-**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; fan-out to `MEMORY-BANK.md` at Step 0, then `sdd-spec` → `sdd-plan` per story, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; after gates load `references/command.md` for step discovery; fan-out to `MEMORY-BANK.md` at Step 0, then `sdd-spec` → `sdd-plan` per story, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
 | Situation | Path |
 |-----------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | Gate / Orchestrated Delivery / siblings STOP | `PIPELINE.md` |
 | Feature / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
@@ -87,18 +91,22 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Per-story contracts / Task child skeleton | `references/per-story-contracts.md` |
 | Approval gates / answers | `references/approval-gates.md` |
 | CONTINUITY / handoff / cross-artifact | `references/continuity-handoff.md` |
+| Preflight PRD→PLAN→CHANGE before O3 | `references/preflight-prd-plan-change.md` |
 | Caveman / resolve / context pressure | `references/process-common.md` |
 | Boundaries / Must not | `references/boundaries-must-not.md` |
 
 ## Process
 
-Read `references/<section>.md` for procedural tables, prompts, and checklists under each step — **not** full `reference.md`. Do not skip gates.
+After gates: **Read `references/command.md`** for ordered step discovery (do not dump this Process section into child prompts). Then load `references/<section>.md` for the current step only — **not** full `reference.md`. Do not skip gates.
 
 ### Step -1b - Caveman Mode (Lite cap)
 Apply Lite caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
 Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
+
+### 1b. Resolve invocation context
+Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into per-story `sdd-spec` / `sdd-plan` runs and Task drafts (path cite only).
 
 ### 2. Resolve feature and storage
 Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEATURE/CONTINUITY missing. Read `references/process-common.md` § Process — Resolve feature and storage.
@@ -119,14 +127,14 @@ Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-on
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
-Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); emit manual `sdd-develop` + O3 handoff paths. Read `references/continuity-handoff.md`.
+Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Read `references/continuity-handoff.md`.
 
 ### 9. Context pressure (TE02 / RNF02)
 Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `references/process-common.md` § Process — Context pressure.
 
 ## Must not
 
-Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only.
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

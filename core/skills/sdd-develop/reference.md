@@ -6,6 +6,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Evidence-or-zero
 
 | Section | Path |
 |---------|------|
+| Command playbook (step discovery) | `references/command.md` |
 | PLAN update protocol | `references/plan-update.md` |
 | Git preparation checklist | `references/git-checklist.md` |
 | Pre-implementation code analysis | `references/code-analysis.md` |
