@@ -2,6 +2,8 @@
 
 `features/NNN-slug/USnn/REFINE/tasks.md`:
 
+Rows are **SMART tasks** under this story only — never promote a file/class/script step into a new US/TS (`anti-task-shatter.md` / RN01).
+
 ```markdown
 # Implementation tasks: [title]
 
@@ -11,6 +13,7 @@
 | **Doc language** | pt-BR \| English |
 | **Repository** | [name] |
 | **Progress** | 0/N groups |
+| **Altitude** | SMART tasks (not US-per-file) |
 
 ## Summary
 
@@ -77,6 +80,7 @@ or
 ```
 
 This file does **not** replace `features/.../PLAN/PLAN_*.md`.
+This file does **not** create new US/TS items.
 ```
 
 Shortcut path `docs/implementation-tasks/<slug>.md` (or legacy `docs/sdd-developation-tasks/`) uses the same body.

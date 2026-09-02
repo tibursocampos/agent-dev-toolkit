@@ -5,9 +5,12 @@
 - [ ] No empty or placeholder sections
 - [ ] No vague phrases: "works correctly", "as expected", "properly"
 - [ ] BDD uses **Given / When / Then / And**
+- [ ] AC budget: at least **happy + rule/edge + failure**, each with observable Then (`gherkin-budget.md`)
+- [ ] Scorecard includes **Product depth**; Evidence omit is OK (`product-evidence-lite.md`)
 - [ ] No unit-test scenarios in acceptance criteria
 - [ ] No "verify environment variable X" as acceptance criteria
 - [ ] Section icons/headings match the type template when saving chat form
+- [ ] Titles/objectives outcome-shaped — not verb+file/class/script (`anti-task-shatter.md`)
 
 **Technical Story / User Story:**
 

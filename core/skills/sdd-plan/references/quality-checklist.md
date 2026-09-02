@@ -4,7 +4,9 @@
 - [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
 - [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
 - [ ] Every PRD REQ and acceptance criterion appears in some step
-- [ ] Vague Aceite challenged and rewritten
+- [ ] Vague Aceite challenged and rewritten (observable checks only)
+- [ ] No file-named / task-shaped step titles (file/class/script only) — `story-sizing.md` / `anti-task-shatter.md`
+- [ ] When present, story `ARCH/` / `ANALYSIS/` cited by portable path (not pasted)
 - [ ] `validate-prd` and `validate-plan` exit 0 on the written paths
 - [ ] Step prose in pt-BR (unless English override)
 - [ ] No full implementation code blocks in the PLAN
