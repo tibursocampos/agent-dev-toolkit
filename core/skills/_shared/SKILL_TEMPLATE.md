@@ -123,3 +123,26 @@ Gold-bar reference: `dotnet-developer/SKILL.md` (gate, SDD table, developer-comm
 - Ask user (pt-BR): "Passo concluído. Inicie nova conversa para o próximo passo."
 - DO NOT proceed to next step
 ```
+
+### Pipeline skills — `references/command.md` packing (REQ-006 / CA3)
+
+Pipeline skills (`orchestrate-*`, `sdd-spec`, `sdd-plan`, `sdd-develop`, `refine-story`, `memory-bank-init`) **must** ship:
+
+```text
+skill-id/
+  SKILL.md                 # router: gates + Lazy-load + Outcome + Must not/Handoff
+  reference.md             # index only (≤50 lines soft)
+  references/
+    command.md             # ordered step playbook (discovery without dumping SKILL Process)
+    {section}.md           # one concern per file
+```
+
+**Lazy-load row (required for pipeline):**
+
+```
+| Command playbook (step discovery after gates) | {{TOOLKIT_ROOT}}/skills/<skill-id>/references/command.md |
+```
+
+**Process intro (required):** After gates, **Read `references/command.md`** for ordered step discovery; load **one** `references/<section>.md` per step. Do **not** preload `command.md` before Step -1 gates. Full composable thin-router split of remaining Process bodies is US02 — this packing is discovery + wire only.
+
+Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Enforcement: `scripts/validation/Assert-SkillLazyLoad.ps1`.
