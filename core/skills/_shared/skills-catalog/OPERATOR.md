@@ -17,7 +17,7 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
 | Orchestrator mode | Default **`always`**. Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). See `docs/guides/08-orchestrator-mode.md` + `orchestrator-session` policy. |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
-| Caveman **NEVER** | `help-skills`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
+| Caveman **NEVER** | `help-skills`, `read-sdd-artifact`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
 
 ### Invoke matrix (host prefixes)
 
@@ -58,6 +58,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 |-------|----------------|
 | `sdd-spec` / `sdd-plan` | Classic SDD. Caveman cap **Lite** when mode ON. |
 | `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
+| `read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
 | `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
 | `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
 | `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
@@ -97,6 +98,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 | `scaffold-message-handler` | Collects requirements first; MassTransit / bus when detected. |
 | `refactor` | Incremental safe plan + tests. |
 | `api-integrate` | OpenAPI → typed clients/DTOs. |
+| `api-standards` | Agnostic HTTP/API standards (REST, versioning, errors). No company contracts; hand off clients to `api-integrate`. |
 | `performance-profile` | Hot paths / micro-benchmarks. |
 | `containerize` | Multi-stage Docker + compose for local. |
 | `i18n-manager` | Extract strings to localization files. |

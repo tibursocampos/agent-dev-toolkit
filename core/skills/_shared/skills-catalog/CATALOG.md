@@ -6,13 +6,13 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **38** kebab skills.
+Total: **40** kebab skills.
 
 ## Tracks
 
 | Track | Skills | When |
 |-------|--------|------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop` | One clear feature |
+| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
@@ -24,6 +24,7 @@ Total: **38** kebab skills.
 | `sdd-spec` | `sdd-spec` | Create a PRD for a new feature or change |
 | `sdd-plan` | `sdd-plan` | Baby-step PLAN from an existing PRD |
 | `sdd-develop` | `sdd-develop` | Execute **one** PLAN step per session |
+| `read-sdd-artifact` | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
 
 ## Backlog Refine — backlog prep
 
@@ -79,6 +80,7 @@ Total: **38** kebab skills.
 | `scaffold-message-handler` | `scaffold-message-handler` | Message consumer scaffold |
 | `refactor` | `refactor` | Safe incremental refactoring |
 | `api-integrate` | `api-integrate` | Typed API clients from OpenAPI |
+| `api-standards` | `api-standards`, `api standards`, `REST conventions` | Agnostic HTTP/API design standards (no company contracts; packing only) |
 | `performance-profile` | `performance-profile` | Profiling and optimization |
 | `containerize` | `containerize` | Dockerfiles and compose |
 | `i18n-manager` | `i18n-manager` | Extract strings to localization files |
