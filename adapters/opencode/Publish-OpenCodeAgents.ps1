@@ -22,7 +22,7 @@ function Invoke-OpenCodePublishAgents {
     $repoRoot = Get-OpenCodeAdapterRepoRoot
     Initialize-OpenCodeInstallRootResolver
     if (-not (Get-Command -Name Invoke-ToolkitManagedAgentsPublish -ErrorAction SilentlyContinue)) {
-        $libDir = Join-Path $repoRoot 'scripts\_lib'
+        $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
         . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     }
 

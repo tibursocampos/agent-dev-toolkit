@@ -159,7 +159,7 @@ function Write-OpenHandsPublishedAgentsMarkdown {
         }
     }
 
-    $libDir = Join-Path (Get-OpenHandsAdapterRepoRoot) 'scripts\_lib'
+    $libDir = Join-Path (Get-OpenHandsAdapterRepoRoot) (Join-Path 'scripts' '_lib')
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     }

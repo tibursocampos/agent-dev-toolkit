@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Hooks (adapter assets -> InstallRoot/hooks).
@@ -75,7 +75,7 @@ function Copy-CopilotHookFilesTree {
     }
 
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot $script:CopilotPathConstant.SharedGuardCommonRelativePath
+        $sharedSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
             Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
@@ -127,7 +127,7 @@ function Invoke-CopilotPublishHooks {
     }
 
     $repoRoot = Get-CopilotPublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

@@ -63,6 +63,8 @@ $requiredWorkflowMarkers = @(
     'pwsh',
     'permissions:',
     'contents: read',
+    'ubuntu-latest',
+    'validate-ubuntu',
     $allowUserHomeForwardAssertName
 )
 

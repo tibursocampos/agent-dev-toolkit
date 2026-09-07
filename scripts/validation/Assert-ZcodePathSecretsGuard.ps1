@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -66,17 +66,17 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$hooksDir = Join-Path $repoRoot 'adapters\zcode\hooks'
+$hooksDir = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'hooks'
 $guardScript = Join-Path $hooksDir 'guard-pre-tool.ps1'
 $hooksJsonPath = Join-Path $hooksDir 'hooks.json'
-$cliConfigPath = Join-Path $repoRoot 'adapters\zcode\cli\config.json'
+$cliConfigPath = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'cli') 'config.json'
 
 if (-not (Test-Path -LiteralPath $guardScript)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason 'missing ZCode guard-pre-tool.ps1'
 }
 Write-Pass -TestName 'Should_Pass_When_GuardHookPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'zcode-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }

@@ -84,7 +84,7 @@ hide:
   <p class="home-cta__script">
     Script (opcional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
   </p>
-  <p class="home-cta__note">O <code>toolkit.ps1</code> interativo é a entrada de instalação. O sync não interativo usa uma fixture (pasta de teste no repo) por padrão—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__note">Exige <strong>pwsh 7+</strong> no Linux/macOS; no Windows: PowerShell 5.1+ ou pwsh 7+. Veja os pré-requisitos em <a href="get-started/">Começar</a>. O <code>toolkit.ps1</code> interativo é a entrada de instalação. O sync não interativo usa uma fixture (pasta de teste no repo) por padrão—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -93,7 +93,7 @@ hide:
 
 Funciona com JavaScript desativado.
 
-1. **Clone** o repositório e entre nele com `cd`.
+1. **Clone** o repositório e entre nele com `cd`. Exige **pwsh 7+** no Linux/macOS (Windows: 5.1+ ou pwsh 7+) — veja [Começar](get-started/).
 2. **Abra o menu interativo do toolkit (Smart Manager)** (assistentes de agente/destino):
 
    ```powershell

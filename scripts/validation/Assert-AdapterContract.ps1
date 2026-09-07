@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ListRegistryAgents_When_RegistryLoaded
 #   Should_ExposeRequiredAdapterCommands_When_ContractDotSourced
@@ -12,8 +12,8 @@
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
-$repoRootScript = Join-Path (Split-Path -Parent $scriptDir) '_lib\Get-ToolkitRepoRoot.ps1'
-$toolkitConstantsScript = Join-Path (Split-Path -Parent $scriptDir) '_lib\ToolkitConstants.ps1'
+$repoRootScript = Join-Path (Join-Path (Split-Path -Parent $scriptDir) '_lib') 'Get-ToolkitRepoRoot.ps1'
+$toolkitConstantsScript = Join-Path (Join-Path (Split-Path -Parent $scriptDir) '_lib') 'ToolkitConstants.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -42,8 +42,8 @@ if (-not (Test-Path -LiteralPath $toolkitConstantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$registryPath = Join-Path $repoRoot 'adapters\registry.json'
-$contractPath = Join-Path $repoRoot 'adapters\_contract\AdapterContract.ps1'
+$registryPath = Join-Path (Join-Path $repoRoot 'adapters') 'registry.json'
+$contractPath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_contract') 'AdapterContract.ps1'
 $adaptersDocPath = Join-Path $repoRoot 'docs\ADAPTERS.md'
 
 $expectedRegistryAgentIds = @(
@@ -468,12 +468,12 @@ if ($null -eq $caps.Capabilities -or [string]$caps.Capabilities.subagents -ne $s
     Write-Fail -TestName $commandsName -Reason ("Get-Capabilities stub must default {0} to '{1}' (never mint native)" -f $subagentsCapabilityName, $subagentsNoneValue)
 }
 
-$publishResult = Publish-Skills -InstallRoot (Join-Path $repoRoot 'scripts\validation\fixtures\install-root')
+$publishResult = Publish-Skills -InstallRoot (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'install-root')
 if ($null -eq $publishResult -or $publishResult.Implemented -ne $false -or $publishResult.Success -ne $false) {
     Write-Fail -TestName $commandsName -Reason 'Publish-Skills stub must return not-implemented without writing'
 }
 
-$smokeResult = Invoke-SmokeValidate -InstallRoot (Join-Path $repoRoot 'scripts\validation\fixtures\install-root')
+$smokeResult = Invoke-SmokeValidate -InstallRoot (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'install-root')
 if ($null -eq $smokeResult -or $smokeResult.Implemented -ne $false -or $smokeResult.Success -ne $false) {
     Write-Fail -TestName $commandsName -Reason 'Invoke-SmokeValidate stub must return not-implemented without home publish'
 }

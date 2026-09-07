@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Filesystem-only smoke checks for the Copilot adapter.
@@ -135,7 +135,7 @@ function Invoke-CopilotSmokeValidateCore {
     $normalizedMode = Get-CopilotSmokeNormalizedMode -Mode $Mode
 
     $repoRoot = Split-Path -Parent (Split-Path -Parent $script:CopilotSmokeHelperDirectory)
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for OpenCode Publish-Skills (copy core/skills + resolve placeholders).
@@ -19,7 +19,7 @@ if ([string]::IsNullOrWhiteSpace($script:OpenCodeAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_opencodeToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:OpenCodeAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_opencodeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _opencodeToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -70,7 +70,7 @@ function Initialize-OpenCodeToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-OpenCodePublishAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-OpenCodePublishAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("OpenCode Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }
@@ -158,7 +158,7 @@ function Invoke-OpenCodePublishSkills {
     }
 
     $repoRoot = Get-OpenCodePublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

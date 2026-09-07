@@ -1,9 +1,17 @@
-﻿# Shared helpers for agent-dev-toolkit Cursor hooks (Windows PowerShell 5.1+).
+﻿# Shared helpers for agent-dev-toolkit Cursor hooks (pwsh 7+ / Windows PowerShell 5.1+).
 # Dot-sourced by hook scripts; not invoked directly by hooks.json.
 
 Set-StrictMode -Version Latest
 
-$script:ToolkitHooksStateDir = Join-Path $env:USERPROFILE '.cursor\hooks-state'
+$_hooksUserHome = $env:USERPROFILE
+if ([string]::IsNullOrWhiteSpace($_hooksUserHome)) {
+    $_hooksUserHome = $env:HOME
+}
+if ([string]::IsNullOrWhiteSpace($_hooksUserHome)) {
+    $_hooksUserHome = [Environment]::GetFolderPath('UserProfile')
+}
+$script:ToolkitHooksStateDir = Join-Path (Join-Path $_hooksUserHome '.cursor') 'hooks-state'
+Remove-Variable -Name _hooksUserHome -ErrorAction SilentlyContinue
 
 function Ensure-HooksStateDir {
     if (-not (Test-Path $script:ToolkitHooksStateDir)) {

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Path and plugin-manifest constants for the Codex adapter.
@@ -57,7 +57,7 @@ $script:CodexPathConstant = @{
     HooksFileName                  = 'hooks.json'
     HooksSessionStartScriptName    = 'session_start.ps1'
     HooksGuardScriptName           = 'guard-pre-tool.ps1'
-    HooksGuardAssetsRelativePath   = 'assets\hooks\guard-pre-tool.ps1'
+    HooksGuardAssetsRelativePath   = 'assets/hooks/guard-pre-tool.ps1'
     HooksDefaultRelativePath       = './hooks/hooks.json'
     HooksSessionStartEventName     = 'SessionStart'
     HooksPreToolUseEventName       = 'PreToolUse'
@@ -70,7 +70,7 @@ $script:CodexPathConstant = @{
     HooksPreToolUsePatchMatcher    = 'apply_patch|Edit|Write'
     HooksDescription               = 'Codex plugin PreToolUse path/secrets guards for agent-dev-toolkit (files only; trust via /hooks is manual).'
     HooksTrustComment              = 'RN03: smoke asserts hooks files only - never invoke or require Codex /hooks trust UI.'
-    SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
+    SharedGuardCommonRelativePath  = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
     CustomAgentTomlExtension       = '.toml'
     ExpectedCustomAgentTomlFileNames = @(

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).
@@ -44,7 +44,7 @@ function Get-ZCodeRouterPublishContent {
     }
 
     $repoRoot = Get-ZCodeRouterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
@@ -142,7 +142,7 @@ function Invoke-ZCodePublishRouter {
     }
 
     $repoRoot = Get-ZCodeRouterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

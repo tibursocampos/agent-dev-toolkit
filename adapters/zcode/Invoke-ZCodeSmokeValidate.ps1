@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Filesystem smoke checks for a ZCode ADE InstallRoot.
@@ -152,7 +152,7 @@ function Invoke-ZCodeSmokeValidate {
     }
 
     $repoRoot = Get-ZCodeSmokeRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

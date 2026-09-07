@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_UseFixtureInstallRoot_When_SmokeHarnessRuns
 #   Should_NotWriteUserCursorProfile_When_SmokeHarnessRuns
@@ -11,6 +11,7 @@ $libDir = Join-Path $scriptsRoot '_lib'
 $harnessScript = Join-Path $scriptDir 'Invoke-SmokeHarness.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
+$resolveInstallRootScript = Join-Path $libDir 'Resolve-InstallRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -32,7 +33,8 @@ function Invoke-ScriptCapture {
         [Parameter()][string[]] $ArgumentList = @()
     )
 
-    $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @ArgumentList 2>&1 | Out-String
+    $runner = (Get-Process -Id $PID).Path
+    $output = & $runner -NoProfile -File $ScriptPath @ArgumentList 2>&1 | Out-String
     $code = $LASTEXITCODE
     if ($null -eq $code) {
         $code = 0
@@ -76,7 +78,7 @@ function Get-DirectorySnapshotFingerprint {
     return ($items -join "`n")
 }
 
-foreach ($required in @($harnessScript, $constantsScript, $repoRootScript)) {
+foreach ($required in @($harnessScript, $constantsScript, $repoRootScript, $resolveInstallRootScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -84,6 +86,7 @@ foreach ($required in @($harnessScript, $constantsScript, $repoRootScript)) {
 
 . $constantsScript
 . $repoRootScript
+. $resolveInstallRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $fixtureInstallRoot = Join-Path $repoRoot ($script:ToolkitConstant.DefaultFixtureInstallRootRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $fixtureReadme = Join-Path $fixtureInstallRoot 'README.md'
@@ -92,9 +95,15 @@ if (-not (Test-Path -LiteralPath $fixtureReadme)) {
     Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason ("fixture seed missing: {0}" -f $fixtureReadme)
 }
 
-$userProfile = [Environment]::GetEnvironmentVariable($script:ToolkitConstant.UserProfileEnvironmentName)
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason 'USERPROFILE is not set'
+    $userProfile = [Environment]::GetEnvironmentVariable($script:ToolkitConstant.UserProfileEnvironmentName)
+}
+if ([string]::IsNullOrWhiteSpace($userProfile)) {
+    $userProfile = [Environment]::GetEnvironmentVariable($script:ToolkitConstant.HomeEnvironmentName)
+}
+if ([string]::IsNullOrWhiteSpace($userProfile)) {
+    Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 $cursorProfilePath = Join-Path $userProfile $script:ToolkitConstant.UserCursorProfileRelativePath
@@ -145,7 +154,7 @@ if ($failHome.ExitCode -eq 0) {
     Write-Fail -TestName $failHomeName -Reason 'expected non-zero exit for USERPROFILE InstallRoot without -AllowUserHome'
 }
 
-if ($failHome.Output -notmatch 'AllowUserHome' -or $failHome.Output -notmatch 'USERPROFILE') {
+if ($failHome.Output -notmatch 'AllowUserHome' -or $failHome.Output -notmatch '(?i)user home|USERPROFILE') {
     Write-Fail -TestName $failHomeName -Reason ("expected AllowUserHome/USERPROFILE guard message, got: {0}" -f $failHome.Output.Trim())
 }
 

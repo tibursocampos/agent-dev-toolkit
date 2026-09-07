@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   OpenCode adapter module for agent-dev-toolkit.
@@ -35,7 +35,7 @@ if ([string]::IsNullOrWhiteSpace($script:OpenCodeAdapterDirectory)) {
     $script:OpenCodeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:OpenCodeAdapterLibDir = Join-Path $script:OpenCodeAdapterDirectory '..\..\scripts\_lib'
+$script:OpenCodeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:OpenCodeAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:OpenCodeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:OpenCodeAdapterDirectory 'OpenCodePathConstants.ps1')

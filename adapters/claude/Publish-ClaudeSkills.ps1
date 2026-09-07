@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Claude Publish-Skills (copy core/skills + resolve placeholders).
@@ -13,7 +13,7 @@ if ([string]::IsNullOrWhiteSpace($script:ClaudeAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_claudeToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:ClaudeAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_claudeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _claudeToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -33,7 +33,7 @@ function Initialize-ClaudeToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-ClaudeAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-ClaudeAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("Claude Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }
@@ -153,7 +153,7 @@ function Invoke-ClaudePublishSkills {
     }
 
     $repoRoot = Get-ClaudeAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     Initialize-ClaudeToolkitManagedTreeLib
 

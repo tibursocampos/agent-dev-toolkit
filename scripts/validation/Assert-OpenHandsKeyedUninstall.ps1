@@ -8,8 +8,8 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
-$ephemeralSmokeScript = Join-Path $scriptsRoot '_lib\Invoke-EphemeralFixtureSmoke.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
+$ephemeralSmokeScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Invoke-EphemeralFixtureSmoke.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -35,9 +35,9 @@ foreach ($required in @($repoRootScript, $ephemeralSmokeScript)) {
 . $ephemeralSmokeScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$openHandsModulePath = Join-Path $repoRoot 'adapters\openhands\OpenHandsAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\openhands'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\openhands-keyed-uninstall-work'
+$openHandsModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'openhands') 'OpenHandsAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'openhands'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'openhands-keyed-uninstall-work'
 $gitkeepName = '.gitkeep'
 $configTomlName = 'config.toml'
 $alienSkillId = 'alien-user-skill'

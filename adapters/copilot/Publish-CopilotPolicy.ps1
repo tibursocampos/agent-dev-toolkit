@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Policy (core policy/router -> Copilot instructions).
@@ -154,7 +154,7 @@ function Invoke-CopilotPublishPolicy {
     $normalizedMode = Get-CopilotPublishNormalizedMode -Mode $Mode
 
     $repoRoot = Get-CopilotPublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

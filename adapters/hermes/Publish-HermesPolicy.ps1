@@ -227,7 +227,7 @@ function Write-HermesManagedAgentsMd {
     Write-HermesUtf8NoBomFile -Path $destinationAgentsMd -Content $updated
 
     $repoRoot = Get-HermesAdapterRepoRoot
-    . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'ToolkitManagedPublishInventory.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     $null = Set-ToolkitManagedPublishInventoryEntryFromContent `
         -InstallRoot $ResolvedInstallRoot `
         -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName `

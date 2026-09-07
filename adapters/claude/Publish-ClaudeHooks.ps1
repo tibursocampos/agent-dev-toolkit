@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Claude Publish-Hooks (scripts + settings.json merge).
@@ -60,7 +60,7 @@ function Copy-ClaudeHookScriptsTree {
 
     # Shared path/secret helpers beside published hooks.
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath
+        $sharedSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
             Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
@@ -89,7 +89,7 @@ function Invoke-ClaudePublishHooks {
     }
 
     $repoRoot = Get-ClaudeAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

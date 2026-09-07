@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Claude Code adapter toolkit artifacts.
@@ -31,7 +31,7 @@ if ([string]::IsNullOrWhiteSpace($script:ClaudeUninstallModuleDirectory)) {
 # (dotsource inside Invoke-* only defines commands in that function's local scope).
 $_claudeUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:ClaudeUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_claudeUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -285,7 +285,7 @@ function Invoke-ClaudeUninstallToolkit {
     }
 
     $repoRoot = Get-ClaudeUninstallRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')

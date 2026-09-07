@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -32,9 +32,9 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$hermesModulePath = Join-Path $repoRoot 'adapters\hermes\HermesAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\hermes'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\hermes-keyed-uninstall-work'
+$hermesModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'hermes') 'HermesAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'hermes'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'hermes-keyed-uninstall-work'
 $configYamlName = 'config.yaml'
 $memoryFileName = 'MEMORY.md'
 $soulFileName = 'SOUL.md'

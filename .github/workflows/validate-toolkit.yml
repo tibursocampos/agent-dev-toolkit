@@ -126,3 +126,45 @@ jobs:
         run: |
           ./scripts/validation/Invoke-OpenHandsCiSmoke.ps1 -Quiet
         working-directory: ${{ github.workspace }}
+
+  validate-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run InstallRoot safety assert
+        shell: pwsh
+        run: |
+          ./scripts/validation/Assert-InstallRootSafety.ps1
+        working-directory: ${{ github.workspace }}
+
+      - name: Run validate-core
+        shell: pwsh
+        run: |
+          ./scripts/validation/validate-core.ps1 -Quiet
+        working-directory: ${{ github.workspace }}
+
+      - name: Sync and validate all registry agents (fixtures)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $smokes = @(
+            'Invoke-CursorCiSmoke.ps1',
+            'Invoke-AntigravityCiSmoke.ps1',
+            'Invoke-ClaudeCiSmoke.ps1',
+            'Invoke-CodexCiSmoke.ps1',
+            'Invoke-CopilotCiSmokeSuite.ps1',
+            'Invoke-OpenCodeCiSmoke.ps1',
+            'Invoke-GrokCiSmoke.ps1',
+            'Invoke-ZCodeCiSmoke.ps1',
+            'Invoke-HermesCiSmoke.ps1',
+            'Invoke-OpenHandsCiSmoke.ps1'
+          )
+          foreach ($script in $smokes) {
+            $path = Join-Path './scripts/validation' $script
+            Write-Host "Running: $script"
+            & $path -Quiet
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+        working-directory: ${{ github.workspace }}

@@ -35,16 +35,16 @@ foreach ($required in @($resolveScript, $constantsScript)) {
 
 $probeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("adt-uninstall-path-safety-" + [Guid]::NewGuid().ToString('N'))
 $installRoot = Join-Path $probeRoot 'install-root'
-$safeChild = Join-Path $installRoot 'skills\commit'
+$safeChild = Join-Path (Join-Path $installRoot 'skills') 'commit'
 $outsideCanaryDir = Join-Path $probeRoot 'outside-canary'
 $outsideCanaryFile = Join-Path $outsideCanaryDir 'keep-me.txt'
-$poisonCandidate = Join-Path $installRoot '..\outside-canary'
-$junctionLink = Join-Path $installRoot 'skills\poison-junction'
+$poisonCandidate = Join-Path $installRoot (Join-Path '..' 'outside-canary')
+$junctionLink = Join-Path (Join-Path $installRoot 'skills') 'poison-junction'
 
 function Remove-ProbeRoot {
     # Best-effort only: Windows PowerShell 5.1 Remove-Item on junctions can throw
     # NullReferenceException even with -ErrorAction SilentlyContinue under Stop.
-    # Delete the junction link first (rmdir / Directory.Delete does not follow the target),
+    # Delete the junction/symlink link first (does not follow the target),
     # then remove the temp tree. Never let cleanup fail the assert after PASS.
     try {
         if (-not [string]::IsNullOrWhiteSpace($junctionLink) -and (Test-Path -LiteralPath $junctionLink)) {
@@ -52,7 +52,12 @@ function Remove-ProbeRoot {
                 [System.IO.Directory]::Delete($junctionLink)
             }
             catch {
-                & cmd.exe /c "rmdir `"$junctionLink`"" 2>$null | Out-Null
+                if (Test-ToolkitIsWindowsPlatform) {
+                    & cmd.exe /c "rmdir `"$junctionLink`"" 2>$null | Out-Null
+                }
+                else {
+                    Remove-Item -LiteralPath $junctionLink -Force -ErrorAction SilentlyContinue
+                }
             }
         }
     }
@@ -130,11 +135,21 @@ try {
 
     # --- Should_ThrowAndNotDelete_When_JunctionPointsOutsideInstallRoot ---
     $junctionName = 'Should_ThrowAndNotDelete_When_JunctionPointsOutsideInstallRoot'
-    $skillsDir = Join-Path $installRoot 'skills'
-    if (-not (Test-Path -LiteralPath $skillsDir)) {
-        $null = New-Item -ItemType Directory -Path $skillsDir -Force
+    if (-not (Test-ToolkitIsWindowsPlatform)) {
+        # Unix: SymbolicLink escape (same fail-closed final-path policy as Windows junction).
+        $skillsDir = Join-Path $installRoot 'skills'
+        if (-not (Test-Path -LiteralPath $skillsDir)) {
+            $null = New-Item -ItemType Directory -Path $skillsDir -Force
+        }
+        $null = New-Item -ItemType SymbolicLink -Path $junctionLink -Target $outsideCanaryDir
     }
-    $null = New-Item -ItemType Junction -Path $junctionLink -Target $outsideCanaryDir
+    else {
+        $skillsDir = Join-Path $installRoot 'skills'
+        if (-not (Test-Path -LiteralPath $skillsDir)) {
+            $null = New-Item -ItemType Directory -Path $skillsDir -Force
+        }
+        $null = New-Item -ItemType Junction -Path $junctionLink -Target $outsideCanaryDir
+    }
 
     $junctionThrew = $false
     $junctionMessage = $null
@@ -147,16 +162,16 @@ try {
     }
 
     if (-not $junctionThrew) {
-        Write-Fail -TestName $junctionName -Reason 'expected throw when junction final path escapes InstallRoot'
+        Write-Fail -TestName $junctionName -Reason 'expected throw when junction/symlink final path escapes InstallRoot'
     }
     if ($junctionMessage -notmatch 'outside InstallRoot' -and $junctionMessage -notmatch 'Refuse delete') {
         Write-Fail -TestName $junctionName -Reason ("unexpected message: {0}" -f $junctionMessage)
     }
     if (-not (Test-Path -LiteralPath $outsideCanaryFile)) {
-        Write-Fail -TestName $junctionName -Reason 'escaping junction must not delete outside canary'
+        Write-Fail -TestName $junctionName -Reason 'escaping junction/symlink must not delete outside canary'
     }
     if (-not (Test-Path -LiteralPath $junctionLink)) {
-        Write-Fail -TestName $junctionName -Reason 'assert must not remove the junction link itself'
+        Write-Fail -TestName $junctionName -Reason 'assert must not remove the junction/symlink link itself'
     }
     Write-Pass -TestName $junctionName
 }

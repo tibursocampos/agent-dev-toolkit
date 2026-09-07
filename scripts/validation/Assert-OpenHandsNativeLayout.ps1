@@ -6,8 +6,8 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
-$resolveInstallRootScript = Join-Path $scriptsRoot '_lib\Resolve-InstallRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -34,11 +34,11 @@ foreach ($required in @($repoRootScript, $resolveInstallRootScript)) {
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $openHandsAgentId = 'openhands'
-$openHandsModulePath = Join-Path $repoRoot 'adapters\openhands\OpenHandsAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\openhands'
-$userProfile = $env:USERPROFILE
+$openHandsModulePath = Join-Path $repoRoot (Join-Path 'adapters' (Join-Path 'openhands' 'OpenHandsAdapter.ps1'))
+$fixtureInstallRoot = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'openhands')))
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-OpenHandsNativeLayoutPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-OpenHandsNativeLayoutPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 if (-not (Test-Path -LiteralPath $openHandsModulePath)) {
@@ -155,7 +155,7 @@ try {
 catch {
     $rejectedViaResolve = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if ($message -notmatch 'AllowUserHome' -or $message -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $failName -Reason ("Resolve-InstallRoot unexpected message: {0}" -f $message)
     }
 }
@@ -170,7 +170,7 @@ try {
 catch {
     $rejectedViaAdapter = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if ($message -notmatch 'AllowUserHome' -or $message -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $failName -Reason ("Get-InstallRoots unexpected message: {0}" -f $message)
     }
 }

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -59,17 +59,17 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$guardScript = Join-Path $repoRoot 'adapters\grok\assets\hooks\guard-pre-tool.ps1'
-$publishHooks = Join-Path $repoRoot 'adapters\grok\Publish-GrokHooks.ps1'
-$grokAdapter = Join-Path $repoRoot 'adapters\grok\GrokAdapter.ps1'
-$registryPath = Join-Path $repoRoot 'adapters\registry.json'
+$guardScript = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'assets') 'hooks') 'guard-pre-tool.ps1'
+$publishHooks = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'Publish-GrokHooks.ps1'
+$grokAdapter = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'GrokAdapter.ps1'
+$registryPath = Join-Path (Join-Path $repoRoot 'adapters') 'registry.json'
 
 if (-not (Test-Path -LiteralPath $guardScript)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason 'missing Grok guard-pre-tool.ps1'
 }
 Write-Pass -TestName 'Should_Pass_When_GuardHookPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'grok-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }
@@ -102,7 +102,7 @@ Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
 
-. (Join-Path $repoRoot 'adapters\grok\GrokPathConstants.ps1')
+. (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'GrokPathConstants.ps1')
 . $publishHooks
 $session = 'C:/tmp/session_start.ps1'
 $guard = 'C:/tmp/guard-pre-tool.ps1'
@@ -129,7 +129,7 @@ $grokEntry = @($registry.agents | Where-Object { $_.id -eq 'grok' })[0]
 if (-not $grokEntry.capabilities.agents) {
     Write-Fail -TestName 'Should_Pass_When_AgentsCapabilityTrue' -Reason 'registry.json grok.agents must be true'
 }
-if (-not (Test-Path -LiteralPath (Join-Path $repoRoot 'adapters\grok\Publish-GrokAgents.ps1'))) {
+if (-not (Test-Path -LiteralPath (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'Publish-GrokAgents.ps1'))) {
     Write-Fail -TestName 'Should_Pass_When_AgentsCapabilityTrue' -Reason 'missing Publish-GrokAgents.ps1'
 }
 Write-Pass -TestName 'Should_Pass_When_AgentsCapabilityTrue'

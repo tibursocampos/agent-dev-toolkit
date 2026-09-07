@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ExposePluginHooksCapability_When_DecisionA
 #   Should_NotRequireShellHooks_When_SmokeOpenCode
@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -29,11 +29,11 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$opencodeModulePath = Join-Path $repoRoot 'adapters\opencode\OpenCodeAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode'
+$opencodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'OpenCodeAdapter.ps1'
+$fixtureInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'opencode'
 $pluginMarkerFileName = 'agent-dev-toolkit-marker.js'
 $pluginsDirName = 'plugins'
-$assetsPluginPath = Join-Path $repoRoot 'adapters\opencode\assets\plugins\agent-dev-toolkit-marker.js'
+$assetsPluginPath = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'assets') 'plugins') 'agent-dev-toolkit-marker.js'
 $hooksSemanticsExpected = 'plugin-only'
 $mvpDecisionExpected = 'A'
 $siblingMarkerName = '.opencode-hooks-sibling-marker'

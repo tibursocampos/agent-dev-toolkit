@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Cursor adapter toolkit artifacts.
@@ -26,7 +26,7 @@ if ([string]::IsNullOrWhiteSpace($script:CursorUninstallModuleDirectory)) {
 
 $_cursorUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CursorUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_cursorUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -268,7 +268,7 @@ function Invoke-CursorUninstallToolkit {
     }
 
     $repoRoot = Get-CursorUninstallRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')

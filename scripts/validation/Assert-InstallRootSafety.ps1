@@ -41,10 +41,15 @@ foreach ($required in @($resolveScript, $constantsScript, $repoRootScript)) {
 . $resolveScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\install-root'
-$userProfile = $env:USERPROFILE
+$fixtureInstallRoot = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'install-root')))
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-InstallRootSafetyPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-InstallRootSafetyPreconditions' -Reason 'user home is not set (USERPROFILE / HOME / UserProfile folder)'
+}
+
+function Test-InstallRootBlockedMessage {
+    param([Parameter(Mandatory = $true)][string] $Message)
+    return ($Message -match 'AllowUserHome' -and $Message -match '(?i)user home|USERPROFILE')
 }
 
 $userProfileInstallRoot = Join-Path $userProfile '.agent-dev-toolkit-step7-test-install'
@@ -58,7 +63,7 @@ try {
 catch {
     $rejected = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if (-not (Test-InstallRootBlockedMessage -Message $message)) {
         Write-Fail -TestName $rejectName -Reason ("unexpected message: {0}" -f $message)
     }
 }
@@ -89,10 +94,13 @@ if (-not (Test-IsPathUnderOrEqual -ChildPath $accepted -ParentPath $repoRoot)) {
 
 Write-Pass -TestName $acceptName
 
+$isWindowsHost = Test-ToolkitIsWindowsPlatform
+
+if ($isWindowsHost) {
 # --- Junction-escape tests: an in-repo junction pointing at USERPROFILE must
 # --- be caught on its resolved *final* target, not on the junction's own
 # --- (in-repo) lexical path. See Resolve-ReparsePointTarget in Resolve-InstallRoot.ps1.
-$junctionLinkPath = Join-Path $repoRoot 'scripts\validation\fixtures\install-root-junction'
+$junctionLinkPath = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'install-root-junction')))
 $junctionTargetPath = Join-Path $userProfile '.agent-dev-toolkit-junction-target-test'
 
 function Remove-JunctionTestFixtures {
@@ -120,7 +128,7 @@ try {
     catch {
         $junctionRejected = $true
         $message = $_.Exception.Message
-        if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+        if (-not (Test-InstallRootBlockedMessage -Message $message)) {
             Write-Fail -TestName $junctionRejectName -Reason ("unexpected message: {0}" -f $message)
         }
     }
@@ -144,12 +152,22 @@ try {
 finally {
     Remove-JunctionTestFixtures
 }
+}
+else {
+    Write-Pass -TestName 'Should_RejectRepoJunctionToUserProfile_When_AllowUserHomeMissing_SkippedOnUnix'
+    Write-Pass -TestName 'Should_AcceptRepoJunctionToUserProfile_When_AllowUserHomeSet_SkippedOnUnix'
+}
 
 # --- Should_Throw_When_ReparseResolveFails_ForExistingPath ---
 # Simulate GetFinalPathNameByHandle failure via a mock resolver type. An existing
 # in-repo path must throw (fail-closed), never silently accept the lexical path.
+# Windows-only: Unix uses ResolveLinkTarget, not ToolkitReparsePointResolver.
 $reparseFailName = 'Should_Throw_When_ReparseResolveFails_ForExistingPath'
-$reparseFailFixture = Join-Path $repoRoot 'scripts\validation\fixtures\install-root-reparse-fail'
+if (-not (Test-ToolkitIsWindowsPlatform)) {
+    Write-Pass -TestName ("{0}_SkippedOnUnix" -f $reparseFailName)
+}
+else {
+$reparseFailFixture = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'install-root-reparse-fail')))
 $failResolverTypeName = 'ToolkitReparsePointResolverFailClosedTest'
 $previousResolverTypeName = $script:ToolkitConstant.ReparsePointResolverTypeName
 
@@ -206,7 +224,9 @@ finally {
     $script:ToolkitConstant.ReparsePointResolverTypeName = $previousResolverTypeName
     Remove-ReparseFailFixture
 }
+}
 
+if ($isWindowsHost) {
 # --- Should_RejectExtendedLengthUserProfileInstallRoot_When_AllowUserHomeMissing ---
 # Missing \\?\C:\Users\... must not bypass -AllowUserHome via prefix mismatch.
 $extendedRejectName = 'Should_RejectExtendedLengthUserProfileInstallRoot_When_AllowUserHomeMissing'
@@ -224,7 +244,7 @@ try {
 catch {
     $extendedRejected = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if (-not (Test-InstallRootBlockedMessage -Message $message)) {
         Write-Fail -TestName $extendedRejectName -Reason ("unexpected message: {0}" -f $message)
     }
 }
@@ -260,7 +280,7 @@ try {
 catch {
     $deviceRejected = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if (-not (Test-InstallRootBlockedMessage -Message $message)) {
         Write-Fail -TestName $deviceRejectName -Reason ("unexpected message: {0}" -f $message)
     }
 }
@@ -283,7 +303,7 @@ Write-Pass -TestName $deviceRejectName
 # Missing child under an in-repo junction is accepted lexically by Resolve; after New-Item
 # the path lands under USERPROFILE and Confirm must refuse without -AllowUserHome.
 $missingChildName = 'Should_RejectMissingChildUnderRepoJunction_When_ConfirmAfterCreate_WithoutAllowUserHome'
-$junctionParentPath = Join-Path $repoRoot 'scripts\validation\fixtures\install-root-junction-parent'
+$junctionParentPath = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'install-root-junction-parent')))
 $junctionChildMissing = Join-Path $junctionParentPath 'missing-child-publish'
 $junctionParentTarget = Join-Path $userProfile '.agent-dev-toolkit-junction-parent-target-test'
 
@@ -328,7 +348,7 @@ try {
     catch {
         $confirmRejected = $true
         $message = $_.Exception.Message
-        if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+        if (-not (Test-InstallRootBlockedMessage -Message $message)) {
             Write-Fail -TestName $missingChildName -Reason ("unexpected Confirm message: {0}" -f $message)
         }
     }
@@ -343,6 +363,12 @@ try {
 finally {
     Remove-MissingChildJunctionFixtures
 }
+}
+else {
+    Write-Pass -TestName 'Should_RejectExtendedLengthUserProfileInstallRoot_When_AllowUserHomeMissing_SkippedOnUnix'
+    Write-Pass -TestName 'Should_RejectDevicePathUserProfileInstallRoot_When_AllowUserHomeMissing_SkippedOnUnix'
+    Write-Pass -TestName 'Should_RejectMissingChildUnderRepoJunction_When_ConfirmAfterCreate_WithoutAllowUserHome_SkippedOnUnix'
+}
 
 # --- Should_RejectInitializeForWrite_When_UserProfileWithoutAllowUserHome ---
 # Shared Publish helper must refuse USERPROFILE InstallRoot without -AllowUserHome
@@ -355,7 +381,7 @@ try {
 catch {
     $initWriteRejected = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if (-not (Test-InstallRootBlockedMessage -Message $message)) {
         Write-Fail -TestName $initWriteName -Reason ("unexpected message: {0}" -f $message)
     }
 }
@@ -371,6 +397,7 @@ if (Test-Path -LiteralPath $userProfileInstallRoot) {
 
 Write-Pass -TestName $initWriteName
 
+if ($isWindowsHost) {
 # --- Should_RejectInitializeForWrite_When_DevicePathUserProfileWithoutAllowUserHome_LeavesNoOrphan ---
 # \\.\ USERPROFILE without Allow must throw and must not leave a directory created mid-call.
 $initDeviceName = 'Should_RejectInitializeForWrite_When_DevicePathUserProfileWithoutAllowUserHome_LeavesNoOrphan'
@@ -387,7 +414,7 @@ try {
 catch {
     $initDeviceRejected = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if (-not (Test-InstallRootBlockedMessage -Message $message)) {
         Write-Fail -TestName $initDeviceName -Reason ("unexpected message: {0}" -f $message)
     }
 }
@@ -401,6 +428,106 @@ if (Test-Path -LiteralPath $userProfileInstallRoot) {
 }
 
 Write-Pass -TestName $initDeviceName
+}
+else {
+    Write-Pass -TestName 'Should_RejectInitializeForWrite_When_DevicePathUserProfileWithoutAllowUserHome_LeavesNoOrphan_SkippedOnUnix'
+}
+
+# --- Should_AcceptExistingFixture_WithoutKernel32_OnAnyPlatform ---
+$unixAcceptName = 'Should_AcceptExistingFixture_WithoutKernel32_OnAnyPlatform'
+$unixAccepted = Resolve-InstallRoot -InstallRoot $fixtureInstallRoot
+$unixExpected = [System.IO.Path]::GetFullPath($fixtureInstallRoot)
+if (-not [string]::Equals($unixAccepted, $unixExpected, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Write-Fail -TestName $unixAcceptName -Reason ("fixture resolve mismatch: {0}" -f $unixAccepted)
+}
+Write-Pass -TestName $unixAcceptName
+
+# --- Should_ResolveUserHome_FromHomeEnv_When_UserProfileUnset ---
+$homeFallbackName = 'Should_ResolveUserHome_FromHomeEnv_When_UserProfileUnset'
+$savedUserProfile = [Environment]::GetEnvironmentVariable('USERPROFILE', 'Process')
+$savedHome = [Environment]::GetEnvironmentVariable('HOME', 'Process')
+try {
+    [Environment]::SetEnvironmentVariable('USERPROFILE', $null, 'Process')
+    if ([string]::IsNullOrWhiteSpace($savedHome)) {
+        [Environment]::SetEnvironmentVariable('HOME', $userProfile, 'Process')
+    }
+
+    $resolvedHome = Get-ToolkitUserHome
+    if ([string]::IsNullOrWhiteSpace($resolvedHome)) {
+        Write-Fail -TestName $homeFallbackName -Reason 'Get-ToolkitUserHome returned empty after USERPROFILE cleared'
+    }
+
+    $probeUnderHome = Join-Path $resolvedHome '.agent-dev-toolkit-home-fallback-probe'
+    $homeBlocked = $false
+    try {
+        $null = Resolve-InstallRoot -InstallRoot $probeUnderHome
+    }
+    catch {
+        $homeBlocked = $true
+        if (-not (Test-InstallRootBlockedMessage -Message $_.Exception.Message)) {
+            Write-Fail -TestName $homeFallbackName -Reason ("unexpected message: {0}" -f $_.Exception.Message)
+        }
+    }
+
+    if (-not $homeBlocked) {
+        Write-Fail -TestName $homeFallbackName -Reason 'expected block under HOME-resolved user profile without -AllowUserHome'
+    }
+
+    Write-Pass -TestName $homeFallbackName
+}
+finally {
+    [Environment]::SetEnvironmentVariable('USERPROFILE', $savedUserProfile, 'Process')
+    [Environment]::SetEnvironmentVariable('HOME', $savedHome, 'Process')
+}
+
+if (-not $isWindowsHost) {
+    # --- Should_FollowSymlink_FailClosed_When_TargetUnderUserHome_OnUnix ---
+    $symlinkName = 'Should_FollowSymlink_FailClosed_When_TargetUnderUserHome_OnUnix'
+    $symlinkLink = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'install-root-symlink')))
+    $symlinkTarget = Join-Path $userProfile '.agent-dev-toolkit-symlink-target-test'
+    try {
+        if (Test-Path -LiteralPath $symlinkLink) {
+            Remove-Item -LiteralPath $symlinkLink -Force -Recurse -ErrorAction SilentlyContinue
+        }
+        if (Test-Path -LiteralPath $symlinkTarget) {
+            Remove-Item -LiteralPath $symlinkTarget -Force -Recurse -ErrorAction SilentlyContinue
+        }
+
+        $null = New-Item -ItemType Directory -Path $symlinkTarget -Force
+        $null = New-Item -ItemType SymbolicLink -Path $symlinkLink -Target $symlinkTarget
+
+        $symlinkBlocked = $false
+        try {
+            $null = Resolve-InstallRoot -InstallRoot $symlinkLink
+        }
+        catch {
+            $symlinkBlocked = $true
+            if (-not (Test-InstallRootBlockedMessage -Message $_.Exception.Message)) {
+                Write-Fail -TestName $symlinkName -Reason ("unexpected message: {0}" -f $_.Exception.Message)
+            }
+        }
+
+        if (-not $symlinkBlocked) {
+            Write-Fail -TestName $symlinkName -Reason 'expected throw for in-repo symlink resolving under user home without -AllowUserHome'
+        }
+
+        $symlinkAllowed = Resolve-InstallRoot -InstallRoot $symlinkLink -AllowUserHome
+        $expectedSymlinkTarget = Get-NormalizedFullPath -Path $symlinkTarget
+        if (-not [string]::Equals($symlinkAllowed, $expectedSymlinkTarget, [System.StringComparison]::OrdinalIgnoreCase)) {
+            Write-Fail -TestName $symlinkName -Reason ("expected symlink final target {0}, got {1}" -f $expectedSymlinkTarget, $symlinkAllowed)
+        }
+
+        Write-Pass -TestName $symlinkName
+    }
+    finally {
+        if (Test-Path -LiteralPath $symlinkLink) {
+            Remove-Item -LiteralPath $symlinkLink -Force -Recurse -ErrorAction SilentlyContinue
+        }
+        if (Test-Path -LiteralPath $symlinkTarget) {
+            Remove-Item -LiteralPath $symlinkTarget -Force -Recurse -ErrorAction SilentlyContinue
+        }
+    }
+}
 
 Write-Host 'Assert-InstallRootSafety: ALL PASS'
 exit 0

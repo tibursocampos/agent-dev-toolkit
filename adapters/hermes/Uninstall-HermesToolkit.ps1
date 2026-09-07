@@ -22,7 +22,7 @@ if ([string]::IsNullOrWhiteSpace($script:HermesUninstallModuleDirectory)) {
 
 $_hermesUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:HermesUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_hermesUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -133,8 +133,8 @@ function Invoke-HermesUninstallToolkit {
     }
 
     . $resolveScript
-    . (Join-Path $repoRoot 'scripts\_lib\Copy-ToolkitManagedTree.ps1')
-    . (Join-Path $repoRoot 'scripts\_lib\ToolkitManagedPublishInventory.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-HermesKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)

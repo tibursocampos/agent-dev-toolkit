@@ -83,7 +83,7 @@ hide:
   <p class="home-cta__script">
     Scripting (optional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
   </p>
-  <p class="home-cta__note">Interactive <code>toolkit.ps1</code> is the install entry. Non-interactive sync defaults to an in-repo fixture (test folder)—omit <code>-InstallRoot</code>. A live install needs <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__note">Requires <strong>pwsh 7+</strong> on Linux/macOS; Windows: PowerShell 5.1+ or pwsh 7+. See <a href="get-started/">Get started</a> prerequisites. Interactive <code>toolkit.ps1</code> is the install entry. Non-interactive sync defaults to an in-repo fixture (test folder)—omit <code>-InstallRoot</code>. A live install needs <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -92,7 +92,7 @@ hide:
 
 Works with JavaScript disabled.
 
-1. **Clone** the repo and `cd` into it.
+1. **Clone** the repo and `cd` into it. Requires **pwsh 7+** on Linux/macOS (Windows: 5.1+ or pwsh 7+) — see [Get started](get-started/).
 2. **Open the interactive toolkit menu (Smart Manager)** (agent/target wizards):
 
    ```powershell

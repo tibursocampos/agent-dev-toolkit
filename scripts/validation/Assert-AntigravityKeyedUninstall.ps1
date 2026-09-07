@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_PassValidateAgent_When_AntigravityFixtureUsed
 #   Should_NotWriteUserGeminiProfile_When_CiSmokeRuns
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -38,11 +38,16 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-AntigravityKeyedUninstallPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$modulePath = Join-Path $repoRoot 'adapters\antigravity\AntigravityAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\antigravity-install-root'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\antigravity-keyed-uninstall'
+$modulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'AntigravityAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-install-root'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-keyed-uninstall'
 $agentId = 'antigravity'
 $fixtureRelativeToken = 'fixtures/antigravity-install-root'
 $userGeminiSentinelRel = '.agent-dev-toolkit--antigravity-e2e-sentinel'
@@ -50,7 +55,7 @@ $userProbeRelative = '.agent-dev-toolkit--antigravity-e2e-home-test'
 $alienSkillFolderName = 'operator-alien-skill'
 $seedAgentsMarker = '# Seed AGENTS'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 $sep = [System.IO.Path]::DirectorySeparatorChar
 
 if (-not (Test-Path -LiteralPath $modulePath)) {
@@ -60,7 +65,7 @@ if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
     Write-Fail -TestName 'Assert-AntigravityKeyedUninstallPreconditions' -Reason ("missing Antigravity seed fixture: {0}" -f $seedFixtureRoot)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-AntigravityKeyedUninstallPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-AntigravityKeyedUninstallPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $modulePath
@@ -72,21 +77,22 @@ function Initialize-AntigravityE2EWorkRoot {
 
     New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
 
+    $configRoot = Join-Path $workInstallRoot 'config'
     $configDirs = @(
-        (Join-Path $workInstallRoot 'config\skills'),
-        (Join-Path $workInstallRoot 'config\plugins'),
-        (Join-Path $workInstallRoot 'config\hooks')
+        (Join-Path $configRoot 'skills'),
+        (Join-Path $configRoot 'plugins'),
+        (Join-Path $configRoot 'hooks')
     )
     foreach ($dir in $configDirs) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
 
     $utf8 = Get-Utf8NoBomEncoding
-    [System.IO.File]::WriteAllText((Join-Path $workInstallRoot 'config\skills.json'), '{}', $utf8)
-    [System.IO.File]::WriteAllText((Join-Path $workInstallRoot 'config\AGENTS.md'), ($seedAgentsMarker + "`n"), $utf8)
-    [System.IO.File]::WriteAllText((Join-Path $workInstallRoot 'config\GEMINI.md'), "# Seed GEMINI`n", $utf8)
+    [System.IO.File]::WriteAllText((Join-Path $configRoot 'skills.json'), '{}', $utf8)
+    [System.IO.File]::WriteAllText((Join-Path $configRoot 'AGENTS.md'), ($seedAgentsMarker + "`n"), $utf8)
+    [System.IO.File]::WriteAllText((Join-Path $configRoot 'GEMINI.md'), "# Seed GEMINI`n", $utf8)
 
-    $alienSkillDir = Join-Path (Join-Path $workInstallRoot 'config\skills') $alienSkillFolderName
+    $alienSkillDir = Join-Path (Join-Path $configRoot 'skills') $alienSkillFolderName
     New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
     [System.IO.File]::WriteAllText((Join-Path $alienSkillDir 'SKILL.md'), "# Alien skill`n", $utf8)
 }
@@ -234,7 +240,7 @@ $syncBlockedText = ($syncBlockedOut | Out-String)
 if ($syncBlockedExit -eq 0) {
     Write-Fail -TestName $failSyncName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
 }
-if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)USERPROFILE') {
+if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)user home|USERPROFILE') {
     Write-Fail -TestName $failSyncName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $syncBlockedText.Trim())
 }
 if (Test-Path -LiteralPath $userProbeRoot) {

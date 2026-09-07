@@ -11,7 +11,7 @@ if ([string]::IsNullOrWhiteSpace($script:HermesAdapterModuleDirectory)) {
 
 $_hermesToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:HermesAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_hermesToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _hermesToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -204,7 +204,7 @@ function Initialize-HermesToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-HermesAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-HermesAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ($script:HermesAdapterMessage.ManagedTreeLibMissing -f $libPath)
     }
 }

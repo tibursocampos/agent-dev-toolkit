@@ -37,12 +37,13 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
 $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
+. (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 . (Join-Path $libDir 'Invoke-EphemeralFixtureSmoke.ps1')
 
 $suiteTitle = 'agent-dev-toolkit ZCode CI smoke'
 $agentId = 'zcode'
-$seedFixtureRel = 'scripts\validation\fixtures\zcode-install-root'
-$workFixtureRel = 'scripts\validation\fixtures\zcode-ci-smoke'
+$seedFixtureRel = 'scripts/validation/fixtures/zcode-install-root'
+$workFixtureRel = 'scripts/validation/fixtures/zcode-ci-smoke'
 $userZcodeRelative = '.zcode'
 $suitePassMarker = 'Invoke-ZCodeCiSmoke: PASS'
 
@@ -75,9 +76,9 @@ $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 Write-SuiteBanner $suiteTitle
 
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Host 'FAIL preconditions: USERPROFILE is not set' -ForegroundColor Red
+    Write-Host 'FAIL preconditions: user home is not set (USERPROFILE / HOME)' -ForegroundColor Red
     exit 1
 }
 

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Copilot adapter toolkit artifacts under InstallRoot.
@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($script:CopilotUninstallHelperDirectory)) {
 
 $_copilotUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CopilotUninstallHelperDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_copilotUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -163,7 +163,7 @@ function Invoke-CopilotUninstallToolkit {
     $normalizedMode = Get-CopilotUninstallNormalizedMode -Mode $Mode
 
     $repoRoot = Get-CopilotUninstallAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
 

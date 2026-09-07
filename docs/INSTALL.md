@@ -8,9 +8,11 @@ Deploy **agent-dev-toolkit** core content into one or more coding agents via ada
 
 ## Prerequisites
 
+Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **macOS**.
+
 | Requirement | Notes |
 |-------------|--------|
-| **PowerShell** | Windows: **5.1+** or **pwsh 7+**. macOS/Linux: **pwsh 7+** ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
+| **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** — Windows PowerShell 5.1 does not exist on those OS. ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
 | **Git** | Clone / update this repo |
 | **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands |
 

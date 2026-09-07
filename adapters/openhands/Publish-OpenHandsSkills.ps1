@@ -11,7 +11,7 @@ if ([string]::IsNullOrWhiteSpace($script:OpenHandsAdapterModuleDirectory)) {
 
 $_openHandsToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:OpenHandsAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_openHandsToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _openHandsToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -152,7 +152,7 @@ function Initialize-OpenHandsToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-OpenHandsAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-OpenHandsAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ($script:OpenHandsAdapterMessage.ManagedTreeLibMissing -f $libPath)
     }
 }

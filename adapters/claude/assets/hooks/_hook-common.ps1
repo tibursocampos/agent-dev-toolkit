@@ -1,15 +1,23 @@
-﻿# Shared helpers for agent-dev-toolkit Claude hooks (Windows PowerShell 5.1+).
+﻿# Shared helpers for agent-dev-toolkit Claude hooks (pwsh 7+ / Windows PowerShell 5.1+).
 # Dot-sourced by hook scripts; not invoked directly by settings.json.
 # Path/secret guards: adapters/_shared/GuardCommon.ps1 (see guard-rules.md).
 
 Set-StrictMode -Version Latest
 
-$script:ToolkitHooksStateDir = Join-Path $env:USERPROFILE '.claude\hooks-state'
+$_hooksUserHome = $env:USERPROFILE
+if ([string]::IsNullOrWhiteSpace($_hooksUserHome)) {
+    $_hooksUserHome = $env:HOME
+}
+if ([string]::IsNullOrWhiteSpace($_hooksUserHome)) {
+    $_hooksUserHome = [Environment]::GetFolderPath('UserProfile')
+}
+$script:ToolkitHooksStateDir = Join-Path (Join-Path $_hooksUserHome '.claude') 'hooks-state'
+Remove-Variable -Name _hooksUserHome -ErrorAction SilentlyContinue
 
 # Load shared path/secret helpers (sibling after publish, or adapters/_shared in-repo).
 $_guardCommonCandidates = @(
     (Join-Path $PSScriptRoot 'GuardCommon.ps1'),
-    (Join-Path $PSScriptRoot '..\..\..\_shared\GuardCommon.ps1')
+    (Join-Path (Join-Path (Join-Path (Join-Path $PSScriptRoot '..') '..') '..') (Join-Path '_shared' 'GuardCommon.ps1'))
 )
 $_guardCommonLoaded = $false
 foreach ($_guardCandidate in $_guardCommonCandidates) {

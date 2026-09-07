@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_RemoveToolkitArtifacts_When_UninstallCodexFixture
 #   Should_KeepUnrelatedFiles_When_UninstallCodexFixture
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -34,9 +34,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$codexModulePath = Join-Path $repoRoot 'adapters\codex\CodexAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex-keyed-uninstall-work'
+$codexModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'CodexAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex-keyed-uninstall-work'
 $fixtureInstallRoot = $workInstallRoot
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $pluginSkillsRoot = Join-Path $pluginRoot 'skills'

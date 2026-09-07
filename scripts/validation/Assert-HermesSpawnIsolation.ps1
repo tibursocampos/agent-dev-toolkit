@@ -41,12 +41,12 @@ $spawnMdRel = $script:ToolkitConstant.SpawnMdRelativePath
 $spawnBridgeHeading = $script:ToolkitConstant.HermesSpawnBridgeSectionHeading
 $useOwnRowHeading = $script:ToolkitConstant.SpawnUseOwnHostRowHeading
 
-$hermesModulePath = Join-Path $repoRoot 'adapters\hermes\HermesAdapter.ps1'
-$grokModulePath = Join-Path $repoRoot 'adapters\grok\GrokAdapter.ps1'
-$hermesSeedFixture = Join-Path $repoRoot 'scripts\validation\fixtures\hermes'
-$grokSeedFixture = Join-Path $repoRoot 'scripts\validation\fixtures\grok'
-$hermesWorkRoot = Join-Path $repoRoot 'scripts\validation\fixtures\hermes-spawn-isolation-work'
-$grokWorkRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok-spawn-isolation-work'
+$hermesModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'hermes') 'HermesAdapter.ps1'
+$grokModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'GrokAdapter.ps1'
+$hermesSeedFixture = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'hermes'
+$grokSeedFixture = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'grok'
+$hermesWorkRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'hermes-spawn-isolation-work'
+$grokWorkRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'grok-spawn-isolation-work'
 
 if (-not (Test-Path -LiteralPath $hermesModulePath)) {
     Write-Fail -TestName 'Assert-HermesSpawnIsolationPreconditions' -Reason ("missing Hermes module: {0}" -f $hermesModulePath)

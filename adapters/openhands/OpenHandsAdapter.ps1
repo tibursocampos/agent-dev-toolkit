@@ -22,7 +22,7 @@ if ([string]::IsNullOrWhiteSpace($script:OpenHandsAdapterDirectory)) {
     $script:OpenHandsAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:OpenHandsAdapterLibDir = Join-Path $script:OpenHandsAdapterDirectory '..\..\scripts\_lib'
+$script:OpenHandsAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:OpenHandsAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:OpenHandsAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:OpenHandsAdapterDirectory 'OpenHandsPathConstants.ps1')
