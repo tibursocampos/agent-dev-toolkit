@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Grok Publish-Skills (copy core/skills + resolve placeholders).
@@ -13,7 +13,7 @@ if ([string]::IsNullOrWhiteSpace($script:GrokAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_grokToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:GrokAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_grokToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _grokToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -119,7 +119,7 @@ function Initialize-GrokToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-GrokAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-GrokAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("Grok Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Codex adapter module for agent-dev-toolkit.
@@ -28,7 +28,7 @@ if ([string]::IsNullOrWhiteSpace($script:CodexAdapterDirectory)) {
     $script:CodexAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:CodexAdapterLibDir = Join-Path $script:CodexAdapterDirectory '..\..\scripts\_lib'
+$script:CodexAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:CodexAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:CodexAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:CodexAdapterDirectory 'CodexPathConstants.ps1')

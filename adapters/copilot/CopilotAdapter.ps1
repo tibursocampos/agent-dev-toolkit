@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   GitHub Copilot adapter module for agent-dev-toolkit.
@@ -21,7 +21,7 @@ if ([string]::IsNullOrWhiteSpace($script:CopilotAdapterDirectory)) {
     $script:CopilotAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:CopilotAdapterLibDir = Join-Path $script:CopilotAdapterDirectory '..\..\scripts\_lib'
+$script:CopilotAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:CopilotAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:CopilotAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:CopilotAdapterDirectory 'CopilotPathConstants.ps1')

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Claude Code adapter module for agent-dev-toolkit.
@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($script:ClaudeAdapterDirectory)) {
     $script:ClaudeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:ClaudeAdapterLibDir = Join-Path $script:ClaudeAdapterDirectory '..\..\scripts\_lib'
+$script:ClaudeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:ClaudeAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:ClaudeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:ClaudeAdapterDirectory 'ClaudePathConstants.ps1')

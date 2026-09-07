@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($script:OpenHandsUninstallModuleDirectory)) {
 
 $_openHandsUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:OpenHandsUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_openHandsUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -110,8 +110,8 @@ function Invoke-OpenHandsUninstallToolkit {
 
     $repoRoot = Get-OpenHandsAdapterRepoRoot
     Initialize-OpenHandsInstallRootResolver
-    . (Join-Path $repoRoot 'scripts\_lib\Copy-ToolkitManagedTree.ps1')
-    . (Join-Path $repoRoot 'scripts\_lib\ToolkitManagedPublishInventory.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-OpenHandsMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-OpenHandsKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)

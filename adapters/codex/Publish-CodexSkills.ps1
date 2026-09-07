@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Skills (plugin.json + copy core/skills + placeholders).
@@ -13,7 +13,7 @@ if ([string]::IsNullOrWhiteSpace($script:CodexAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_codexToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CodexAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_codexToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _codexToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -164,7 +164,7 @@ function Initialize-CodexToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-CodexPublishAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-CodexPublishAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("Codex Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }
@@ -411,7 +411,7 @@ function Invoke-CodexPublishSkills {
     }
 
     $repoRoot = Get-CodexPublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

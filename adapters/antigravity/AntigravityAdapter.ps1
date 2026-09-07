@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Antigravity adapter module for agent-dev-toolkit.
@@ -39,7 +39,7 @@ if ([string]::IsNullOrWhiteSpace($script:AntigravityAdapterDirectory)) {
 # would define commands only in that function's local scope).
 $_antigravityToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:AntigravityAdapterDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_antigravityToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 . (Join-Path $_antigravityToolkitLibDirectory 'Initialize-SddRootLayout.ps1')
 Remove-Variable -Name _antigravityToolkitLibDirectory -ErrorAction SilentlyContinue
@@ -487,7 +487,7 @@ function Initialize-AntigravityToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-AntigravityAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-AntigravityAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("Antigravity Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }

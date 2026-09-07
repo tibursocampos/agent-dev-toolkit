@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Antigravity adapter toolkit artifacts.
@@ -23,7 +23,7 @@ if ([string]::IsNullOrWhiteSpace($script:AntigravityUninstallModuleDirectory)) {
 
 $_antigravityUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:AntigravityUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_antigravityUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -213,7 +213,7 @@ function Invoke-AntigravityUninstallToolkit {
     }
 
     $repoRoot = Get-AntigravityUninstallRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     $resolvedInstallRoot = Resolve-AntigravityInstallRootPath -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome
     $mapped = Get-AntigravityMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
