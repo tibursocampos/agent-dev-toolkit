@@ -168,3 +168,12 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
         working-directory: ${{ github.workspace }}
+
+  # Single required gate: both Windows and Ubuntu jobs must succeed.
+  # Branch protection should require this check name (ci-ok), not only validate.
+  ci-ok:
+    needs: [validate, validate-ubuntu]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All validate jobs green
+        run: echo "validate and validate-ubuntu succeeded"
