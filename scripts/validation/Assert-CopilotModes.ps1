@@ -51,6 +51,11 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $repoRootScript
 . $constantsScript
+$resolveInstallRootScript = Join-Path $libDir 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $suiteScriptName = 'Invoke-CopilotCiSmokeSuite.ps1'
@@ -62,7 +67,7 @@ $fixtureRepoRoot = Join-Path $repoRoot ($script:ToolkitConstant.CopilotFixtureRe
 $agentId = $script:ToolkitConstant.CopilotAgentId
 $modeUser = $script:ToolkitConstant.CopilotModeUser
 $modeRepo = $script:ToolkitConstant.CopilotModeRepo
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 $homeCopilotRelative = '.copilot'
 $homeProbeRelative = '.agent-dev-toolkit-copilot-home-guard-test'
 $suitePassMarker = 'Copilot CI smoke suite PASSED'
@@ -76,7 +81,7 @@ foreach ($required in @($suiteScriptPath, $syncAgentPath, $workflowPath, $fixtur
 }
 
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 # --- Should_RunBothModes_When_CiSmokeSuiteExecutes ---

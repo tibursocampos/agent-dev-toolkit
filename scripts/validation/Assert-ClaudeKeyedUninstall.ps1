@@ -39,6 +39,11 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript,
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-ClaudeKeyedUninstallPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $claudeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'ClaudeAdapter.ps1'
@@ -67,7 +72,7 @@ $legacyBroadAllowPowershell = 'Bash(powershell *)'
 $staleUserPromptMarker = 'stale-user-prompt'
 $userProbeRelative = '.agent-dev-toolkit--claude-uninstall-test'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 
 if (-not (Test-Path -LiteralPath $claudeModulePath)) {
     Write-Fail -TestName 'Assert-ClaudeKeyedUninstallPreconditions' -Reason ("missing Claude module: {0}" -f $claudeModulePath)
@@ -79,7 +84,7 @@ if (-not (Test-Path -LiteralPath $seedSettingsPath)) {
     Write-Fail -TestName 'Assert-ClaudeKeyedUninstallPreconditions' -Reason ("missing Claude seed settings: {0}" -f $seedSettingsPath)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-ClaudeKeyedUninstallPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-ClaudeKeyedUninstallPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $claudeModulePath

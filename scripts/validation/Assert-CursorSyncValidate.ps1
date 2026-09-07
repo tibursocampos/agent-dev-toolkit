@@ -38,6 +38,11 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
@@ -56,7 +61,7 @@ $sessionsDirName = 'sessions'
 $manifestFileName = 'manifest.json'
 $cursorAgentId = 'cursor'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 
 if (-not (Test-Path -LiteralPath $cursorModulePath)) {
     Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing Cursor module: {0}" -f $cursorModulePath)
@@ -74,7 +79,7 @@ if (-not (Test-Path -LiteralPath $coreRouterAgents)) {
     Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing core router: {0}" -f $coreRouterAgents)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $cursorModulePath

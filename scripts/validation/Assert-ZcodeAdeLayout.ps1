@@ -50,6 +50,11 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $zcodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'ZCodeAdapter.ps1'
@@ -63,7 +68,7 @@ $hooksDirName = 'hooks'
 $cursorRulesDirName = 'rules'
 $zcodeAgentId = 'zcode'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 
 if (-not (Test-Path -LiteralPath $zcodeModulePath)) {
     Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing ZCode module: {0}" -f $zcodeModulePath)
@@ -78,7 +83,7 @@ if (-not (Test-Path -LiteralPath $coreRouterAgents)) {
     Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing core router: {0}" -f $coreRouterAgents)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $zcodeModulePath

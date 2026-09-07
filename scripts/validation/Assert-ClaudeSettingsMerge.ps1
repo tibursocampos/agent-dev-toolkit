@@ -107,9 +107,9 @@ $fixtureSettingsPath = Join-Path $fixtureInstallRoot 'settings.json'
 $fixtureReadmePath = Join-Path $fixtureInstallRoot 'README.md'
 $documentedRelativePath = 'scripts/validation/fixtures/claude'
 $staleManagedHookCommand = 'stale-user-prompt'
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-ClaudeSettingsMergePreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-ClaudeSettingsMergePreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 if (-not (Test-Path -LiteralPath $fixtureInstallRoot)) {
     Write-Fail -TestName 'Assert-ClaudeSettingsMergePreconditions' -Reason ("missing Claude fixture: {0}" -f $fixtureInstallRoot)
@@ -535,7 +535,7 @@ if (-not (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $repoRoot)) {
 
 $normalizedUserProfile = [System.IO.Path]::GetFullPath($userProfile)
 if (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $normalizedUserProfile) {
-    Write-Fail -TestName $testName -Reason 'Claude merge fixture must not resolve under USERPROFILE'
+    Write-Fail -TestName $testName -Reason 'Claude merge fixture must not resolve under user home'
 }
 
 $readmeText = Get-Content -LiteralPath $fixtureReadmePath -Raw
