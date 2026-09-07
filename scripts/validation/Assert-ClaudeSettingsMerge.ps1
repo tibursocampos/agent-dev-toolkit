@@ -529,13 +529,15 @@ if (-not [string]::Equals([System.IO.Path]::GetFullPath($resolved), $expectedRes
     Write-Fail -TestName $testName -Reason ("Resolve-InstallRoot mismatch: {0}" -f $resolved)
 }
 
-if (-not (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $repoRoot)) {
+$normalizedRepoRoot = [System.IO.Path]::GetFullPath($repoRoot)
+if (-not (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $normalizedRepoRoot)) {
     Write-Fail -TestName $testName -Reason 'fixture InstallRoot must resolve under toolkit repo'
 }
 
-$normalizedUserProfile = [System.IO.Path]::GetFullPath($userProfile)
-if (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $normalizedUserProfile) {
-    Write-Fail -TestName $testName -Reason 'Claude merge fixture must not resolve under user home'
+# Linux/macOS CI checkouts often live under $HOME; reject only the live Claude agent home.
+$liveClaudeHome = [System.IO.Path]::GetFullPath((Join-Path $userProfile '.claude'))
+if (Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $liveClaudeHome) {
+    Write-Fail -TestName $testName -Reason 'Claude merge fixture must not resolve under ~/.claude (live user home)'
 }
 
 $readmeText = Get-Content -LiteralPath $fixtureReadmePath -Raw
