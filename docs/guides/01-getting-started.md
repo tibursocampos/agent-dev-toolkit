@@ -2,6 +2,15 @@
 
 End-to-end path from clone to first skill invoke.
 
+## Prerequisites
+
+Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **macOS**.
+
+| Requirement | Notes |
+|-------------|--------|
+| **PowerShell** | **Windows:** 5.1+ or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only**. Details: [INSTALL.md § Prerequisites](../INSTALL.md#prerequisites) |
+| **Git** | Clone / update this repo |
+
 ## 1. Clone the toolkit
 
 ```powershell

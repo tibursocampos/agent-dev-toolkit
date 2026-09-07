@@ -4,6 +4,18 @@ Unified multi-agent skills **core** with per-agent **adapters**. Sync the same S
 
 **Public** — clone and fork freely; **no upstream contributions**; GitHub Issues are **bugs only** (see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/REPO_GOVERNANCE.md](docs/REPO_GOVERNANCE.md)). Security: [SECURITY.md](SECURITY.md).
 
+## Prerequisites
+
+Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **macOS**.
+
+| Requirement | Notes |
+|-------------|--------|
+| **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** (Windows PowerShell 5.1 is not available on those OS). [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
+| **Git** | Clone / update this repo |
+| **Target agent** | At least one supported agent (see table below) |
+
+Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)**.
+
 ## What this is
 
 | Layer | Role |

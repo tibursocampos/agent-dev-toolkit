@@ -4,9 +4,11 @@ Clone o toolkit, valide o repositório, sincronize um agente e invoque uma skill
 
 ## Pré-requisitos
 
+Sistemas suportados: **Windows**, **Linux** (Ubuntu, Debian e derivados) e **macOS**.
+
 | Requisito | Notas |
 |-----------|--------|
-| **PowerShell** | Windows: 5.1+ ou pwsh 7+. macOS/Linux: pwsh 7+ |
+| **PowerShell** | **Windows:** 5.1+ ou **pwsh 7+** (recomendado). **Linux / macOS:** **somente pwsh 7+** — Windows PowerShell 5.1 não existe nesses OS. ([guia de instalação](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
 | **Git** | Clonar / atualizar este repositório |
 | **Agente alvo** | Pelo menos um de: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode (ADE), Hermes, OpenHands |
 
