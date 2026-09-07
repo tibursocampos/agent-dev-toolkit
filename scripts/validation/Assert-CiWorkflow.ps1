@@ -65,6 +65,7 @@ $requiredWorkflowMarkers = @(
     'contents: read',
     'ubuntu-latest',
     'validate-ubuntu',
+    'ci-ok',
     $allowUserHomeForwardAssertName
 )
 
@@ -72,6 +73,11 @@ foreach ($marker in $requiredWorkflowMarkers) {
     if ($workflowText -notlike ("*{0}*" -f $marker)) {
         Write-Fail -TestName $ciName -Reason ("workflow missing marker '{0}'" -f $marker)
     }
+}
+
+# -like treats [] as wildcards; use -match for the needs gate line.
+if ($workflowText -notmatch '(?m)^\s*needs:\s*\[validate,\s*validate-ubuntu\]') {
+    Write-Fail -TestName $ciName -Reason "workflow missing ci-ok needs gate 'needs: [validate, validate-ubuntu]'"
 }
 
 foreach ($keyedAssert in $keyedUninstallCiAsserts) {

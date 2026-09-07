@@ -69,8 +69,9 @@ foreach ($ch in [char[]]$knobsText) {
 }
 Write-Pass -TestName 'Should_Pass_When_SpawnPublishKnobsPresent'
 
-# When running under pwsh, also force-parse under Windows PowerShell 5.1 so CI that only
-# invokes pwsh still catches UTF-8 non-ASCII parse failures.
+# When running under pwsh on Windows, also force-parse under Windows PowerShell 5.1 so CI
+# that only invokes pwsh still catches UTF-8 non-ASCII parse failures.
+# On Unix, Windows PowerShell 5.1 (powershell.exe) does not exist — skip (not fail).
 $ps51ProbeName = 'Should_Pass_When_SpawnPublishKnobsParsesOnWindowsPowerShell'
 $isWindowsPowerShell = $PSVersionTable.PSEdition -eq 'Desktop' -or ($null -eq $PSVersionTable.PSEdition -and $PSVersionTable.PSVersion.Major -le 5)
 if ($isWindowsPowerShell) {
@@ -79,25 +80,27 @@ if ($isWindowsPowerShell) {
 else {
     $powershellExe = Get-Command -Name 'powershell.exe' -ErrorAction SilentlyContinue
     if (-not $powershellExe) {
-        Write-Fail -TestName $ps51ProbeName -Reason 'powershell.exe not found; cannot verify Windows PowerShell 5.1 parse'
+        Write-Pass -TestName ("{0}_SkippedOnUnix" -f $ps51ProbeName)
     }
-    $env:SPAWN_PUBLISH_KNOBS_PATH = $knobsPath
-    try {
-        $probeScript = {
-            $ErrorActionPreference = 'Stop'
-            . $env:SPAWN_PUBLISH_KNOBS_PATH
-            $caps = Get-SpawnPublishCaps
-            if ($caps.DeveloperConcurrentCap -ne 2) { throw 'caps' }
-        }.ToString()
-        $probeOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $probeScript 2>&1 | Out-String
-        if ($LASTEXITCODE -ne 0) {
-            Write-Fail -TestName $ps51ProbeName -Reason ("powershell.exe parse/dot-source failed: {0}" -f $probeOut.Trim())
+    else {
+        $env:SPAWN_PUBLISH_KNOBS_PATH = $knobsPath
+        try {
+            $probeScript = {
+                $ErrorActionPreference = 'Stop'
+                . $env:SPAWN_PUBLISH_KNOBS_PATH
+                $caps = Get-SpawnPublishCaps
+                if ($caps.DeveloperConcurrentCap -ne 2) { throw 'caps' }
+            }.ToString()
+            $probeOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $probeScript 2>&1 | Out-String
+            if ($LASTEXITCODE -ne 0) {
+                Write-Fail -TestName $ps51ProbeName -Reason ("powershell.exe parse/dot-source failed: {0}" -f $probeOut.Trim())
+            }
         }
+        finally {
+            Remove-Item -LiteralPath Env:SPAWN_PUBLISH_KNOBS_PATH -ErrorAction SilentlyContinue
+        }
+        Write-Pass -TestName $ps51ProbeName
     }
-    finally {
-        Remove-Item -LiteralPath Env:SPAWN_PUBLISH_KNOBS_PATH -ErrorAction SilentlyContinue
-    }
-    Write-Pass -TestName $ps51ProbeName
 }
 
 if (-not (Test-Path -LiteralPath $honestyPath)) {

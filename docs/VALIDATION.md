@@ -120,7 +120,17 @@ Other fixture roots: `fixtures/codex`, `fixtures/opencode`, `fixtures/grok`, `fi
 
 ## What CI runs
 
-Workflow: `.github/workflows/validate-toolkit.yml` on `windows-latest` (checkout only; no secrets; no home sync for green):
+Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml) (checkout only; no secrets; no home sync for green).
+
+**Jobs (all must be green before merge):**
+
+| Job | Runner | Role |
+|-----|--------|------|
+| `validate` | `windows-latest` | Full Windows matrix below |
+| `validate-ubuntu` | `ubuntu-latest` | InstallRoot safety + `validate-core` + all 10 agent fixture smokes (`pwsh 7+`) |
+| `ci-ok` | `ubuntu-latest` | Gate job (`needs: [validate, validate-ubuntu]`) — **require this check** in branch protection |
+
+### Job `validate` (Windows)
 
 1. `validate-core.ps1 -Quiet`
 2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`, `Assert-CursorKeyedUninstall.ps1`, `Assert-ZcodeKeyedUninstall.ps1`, `Assert-HermesKeyedUninstall.ps1`, `Assert-OpenHandsKeyedUninstall.ps1`
@@ -135,6 +145,8 @@ Workflow: `.github/workflows/validate-toolkit.yml` on `windows-latest` (checkout
 11. `Invoke-ZCodeCiSmoke.ps1 -Quiet`
 12. `Invoke-HermesCiSmoke.ps1 -Quiet`
 13. `Invoke-OpenHandsCiSmoke.ps1 -Quiet`
+
+Do **not** merge with `validate-ubuntu` red. Auto-merge must wait for `ci-ok`.
 
 ## Safety rules
 
