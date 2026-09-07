@@ -307,7 +307,7 @@ $script:ExpectedSummaryRedacted = '[redacted: secret-named source]'
 try {
     New-Item -ItemType Directory -Path $secretInventoryDir -Force | Out-Null
     'fixture' | Set-Content -LiteralPath (Join-Path $secretRoot 'README.md') -Encoding UTF8
-    $secretPayload | Set-Content -LiteralPath (Join-Path $secretRoot '.env') -Encoding UTF8
+    [System.IO.File]::WriteAllText((Join-Path $secretRoot '.env'), $secretPayload, (Get-Utf8NoBomEncoding))
 
     $seed = [ordered]@{
         schema_version = 3
