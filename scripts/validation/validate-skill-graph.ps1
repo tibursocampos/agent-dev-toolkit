@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Validates skill graph edges, forbid rules, and optional catalog parity.
@@ -18,7 +18,7 @@ $skillFileName = 'SKILL.md'
 $catalogProps = @('readme', 'skillsMd', 'guidesReadme')
 
 if (-not $RepoRoot) {
-    . (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib\Get-ToolkitRepoRoot.ps1')
+    . (Join-Path (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib') 'Get-ToolkitRepoRoot.ps1')
     $RepoRoot = Get-ToolkitRepoRoot -FromPath $PSScriptRoot
 }
 

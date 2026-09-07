@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateZcode_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserZcodeProfile_When_ZcodeSuiteRuns
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -52,8 +52,8 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$zcodeModulePath = Join-Path $repoRoot 'adapters\zcode\ZCodeAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
+$zcodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'ZCodeAdapter.ps1'
+$fixtureInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'zcode-install-root'
 $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
 $coreRouterAgents = Join-Path (Join-Path (Join-Path $repoRoot 'core') 'router') 'AGENTS.md'
 $skillsDirName = 'skills'

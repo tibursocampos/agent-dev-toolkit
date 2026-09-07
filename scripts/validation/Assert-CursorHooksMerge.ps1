@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ReplaceStaleToolkitHookAndPreserveAlien_When_CursorHooksMerged
 #   Should_NotDuplicateToolkitHook_When_CursorHooksMergedTwice
@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -33,8 +33,8 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$toolkitHooksPath = Join-Path $repoRoot 'adapters\cursor\assets\hooks\hooks.json'
+$cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
+$toolkitHooksPath = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'assets') 'hooks') 'hooks.json'
 
 if (-not (Test-Path -LiteralPath $cursorModulePath)) {
     Write-Fail -TestName 'Assert-CursorHooksMergePreconditions' -Reason ("missing Cursor module: {0}" -f $cursorModulePath)
@@ -47,7 +47,7 @@ if (-not (Test-Path -LiteralPath $toolkitHooksPath)) {
 
 $alienHookMarker = "powershell -NoProfile -Command Write-Output 'cursor-alien-hook-marker'"
 $staleBeforeSubmit = 'powershell -NoProfile -File ./hooks/context-before-prompt.ps1 -StaleToolkitFlag'
-$hooksMergeHarness = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-hooks-merge-harness'
+$hooksMergeHarness = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-hooks-merge-harness'
 
 function Reset-HooksMergeHarness {
     if (Test-Path -LiteralPath $hooksMergeHarness) {

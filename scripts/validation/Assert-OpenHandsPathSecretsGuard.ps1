@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -58,17 +58,17 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$hooksAssets = Join-Path $repoRoot 'adapters\openhands\assets\hooks'
+$hooksAssets = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'openhands') 'assets') 'hooks'
 $guardPs1 = Join-Path $hooksAssets 'guard_pre_tool.ps1'
 $guardSh = Join-Path $hooksAssets 'guard_pre_tool.sh'
-$publishHooks = Join-Path $repoRoot 'adapters\openhands\Publish-OpenHandsHooks.ps1'
+$publishHooks = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'openhands') 'Publish-OpenHandsHooks.ps1'
 
 if (-not (Test-Path -LiteralPath $guardPs1) -or -not (Test-Path -LiteralPath $guardSh)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason 'missing guard_pre_tool.ps1 or guard_pre_tool.sh'
 }
 Write-Pass -TestName 'Should_Pass_When_GuardHookPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\openhands-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'openhands-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }
@@ -137,7 +137,7 @@ if ($shText -notmatch 'fail-closed') {
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
 
-. (Join-Path $repoRoot 'adapters\openhands\OpenHandsPathConstants.ps1')
+. (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'openhands') 'OpenHandsPathConstants.ps1')
 . $publishHooks
 $hooksObj = New-OpenHandsMinimalHooksObject
 $hooksText = ($hooksObj | ConvertTo-Json -Depth 8)

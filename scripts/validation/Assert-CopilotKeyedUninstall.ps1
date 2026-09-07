@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_RemoveToolkitArtifacts_When_UninstallCopilotUserFixture
 #   Should_RemoveToolkitArtifacts_When_UninstallCopilotRepoFixture
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -30,12 +30,12 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$copilotModulePath = Join-Path $repoRoot 'adapters\copilot\CopilotAdapter.ps1'
-$uninstallHelperPath = Join-Path $repoRoot 'adapters\copilot\Uninstall-CopilotToolkit.ps1'
+$copilotModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'copilot') 'CopilotAdapter.ps1'
+$uninstallHelperPath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'copilot') 'Uninstall-CopilotToolkit.ps1'
 $syncAgentPath = Join-Path $repoRoot 'scripts\sync-agent.ps1'
 $validateAgentPath = Join-Path $repoRoot 'scripts\validate-agent.ps1'
-$fixtureUserRoot = Join-Path $repoRoot 'scripts\validation\fixtures\copilot\user'
-$fixtureRepoRoot = Join-Path $repoRoot 'scripts\validation\fixtures\copilot\repo'
+$fixtureUserRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\user'
+$fixtureRepoRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\repo'
 $modeUser = 'user'
 $modeRepo = 'repo'
 $skillsDirName = 'skills'

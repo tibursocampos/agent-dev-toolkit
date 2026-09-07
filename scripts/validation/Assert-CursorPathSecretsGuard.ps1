@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Pass_When_AllowedPathsAccepted
@@ -129,7 +129,7 @@ if ($secretFindings.Count -lt 1) {
 }
 Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }

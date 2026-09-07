@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_SyncViaOrchestrator_When_AgentClaudeAndInstallRootSet
 #   Should_RemoveManagedArtifacts_When_UninstallClaudeOnFixture
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 $toolkitScript = Join-Path $scriptsRoot 'toolkit.ps1'
@@ -41,11 +41,11 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript,
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$claudeModulePath = Join-Path $repoRoot 'adapters\claude\ClaudeAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude'
+$claudeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'ClaudeAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude'
 $seedSettingsPath = Join-Path $seedFixtureRoot 'settings.json'
 # Ephemeral work root (gitignored) — do not wipe tracked fixtures/claude-sync-uninstall seeds.
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude-sync-uninstall-work'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude-sync-uninstall-work'
 $skillsDirName = 'skills'
 $rulesDirName = 'rules'
 $hooksDirName = 'hooks'

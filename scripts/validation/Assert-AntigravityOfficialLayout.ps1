@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ListOfficialRoots_When_GetInstallRootsCalled
 #   Should_DocumentLegacyBridge_When_AdaptersDocRead
@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -34,7 +34,7 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$modulePath = Join-Path $repoRoot 'adapters\antigravity\AntigravityAdapter.ps1'
+$modulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'AntigravityAdapter.ps1'
 $adaptersDocPath = Join-Path $repoRoot 'docs\ADAPTERS.md'
 $antigravityAgentId = 'antigravity'
 

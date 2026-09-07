@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_FailSync_When_AgentMissing
 #   Should_FailSync_When_AgentUnknown
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 

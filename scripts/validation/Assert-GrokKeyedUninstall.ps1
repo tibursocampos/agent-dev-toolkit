@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_RemoveToolkitArtifacts_When_UninstallGrokFixture
 #   Should_KeepUnrelatedFiles_When_UninstallGrokFixture
@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -35,9 +35,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$grokModulePath = Join-Path $repoRoot 'adapters\grok\GrokAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok-keyed-uninstall-work'
+$grokModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'grok') 'GrokAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'grok'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'grok-keyed-uninstall-work'
 $fixtureInstallRoot = $workInstallRoot
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $rulesRoot = Join-Path $fixtureInstallRoot 'rules'

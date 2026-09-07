@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardPluginAndHooksPresent
 #   Should_Deny_When_ForbiddenSddPath_ShellHook
@@ -58,13 +58,13 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$pluginRoot = Join-Path $repoRoot 'adapters\hermes\assets\plugins\agent-dev-toolkit-guard'
+$pluginRoot = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'hermes') 'assets') 'plugins') 'agent-dev-toolkit-guard'
 $pluginYaml = Join-Path $pluginRoot 'plugin.yaml'
 $pluginInit = Join-Path $pluginRoot '__init__.py'
-$agentHooksRoot = Join-Path $repoRoot 'adapters\hermes\assets\agent-hooks'
+$agentHooksRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'hermes') 'assets') 'agent-hooks'
 $guardPs1 = Join-Path $agentHooksRoot 'guard-pre-tool.ps1'
 $guardSh = Join-Path $agentHooksRoot 'guard-pre-tool.sh'
-$publishHooks = Join-Path $repoRoot 'adapters\hermes\Publish-HermesHooks.ps1'
+$publishHooks = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'hermes') 'Publish-HermesHooks.ps1'
 
 foreach ($path in @($pluginYaml, $pluginInit, $guardPs1, $guardSh, $publishHooks)) {
     if (-not (Test-Path -LiteralPath $path)) {
@@ -81,7 +81,7 @@ if ($initText -notmatch 'pre_tool_call' -or $initText -notmatch 'action.+block')
 }
 Write-Pass -TestName 'Should_Pass_When_GuardPluginAndHooksPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\hermes-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'hermes-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }

@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -37,8 +37,8 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\sdd-prepare-idempotent-work'
+$cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'sdd-prepare-idempotent-work'
 $sddRoot = Join-Path $workInstallRoot 'sdd'
 $sessionsPath = Join-Path $sddRoot 'sessions'
 $manifestPath = Join-Path $sddRoot 'manifest.json'

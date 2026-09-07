@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ListRegistryAgents_When_ToolkitStartsAction
 #   Should_RequireAgentChoice_When_SyncOrValidateSelected
@@ -10,10 +10,10 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $toolkitScript = Join-Path $scriptsRoot 'toolkit.ps1'
-$constantsScript = Join-Path $scriptsRoot '_lib\ToolkitConstants.ps1'
-$cliUiScript = Join-Path $scriptsRoot '_lib\ToolkitCliUi.ps1'
+$constantsScript = Join-Path (Join-Path $scriptsRoot '_lib') 'ToolkitConstants.ps1'
+$cliUiScript = Join-Path (Join-Path $scriptsRoot '_lib') 'ToolkitCliUi.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -35,7 +35,8 @@ function Invoke-ScriptCapture {
         [Parameter()][string[]] $ArgumentList = @()
     )
 
-    $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @ArgumentList 2>&1 | Out-String
+    $runner = (Get-Process -Id $PID).Path
+    $output = & $runner -NoProfile -File $ScriptPath @ArgumentList 2>&1 | Out-String
     $code = $LASTEXITCODE
     if ($null -eq $code) {
         $code = 0

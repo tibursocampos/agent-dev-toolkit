@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_WriteMarketplaceEntry_When_SyncCodex
 #   Should_ResolvePluginPathFromMarketplace_When_EntryPresent
@@ -9,8 +9,8 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
-$resolveInstallRootScript = Join-Path $scriptsRoot '_lib\Resolve-InstallRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -64,8 +64,8 @@ foreach ($required in @($repoRootScript, $resolveInstallRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$codexModulePath = Join-Path $repoRoot 'adapters\codex\CodexAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex'
+$codexModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'CodexAdapter.ps1'
+$fixtureInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex'
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $manifestPath = Join-Path $pluginRoot '.codex-plugin\plugin.json'
 $publishedSkillsRoot = Join-Path $pluginRoot 'skills'

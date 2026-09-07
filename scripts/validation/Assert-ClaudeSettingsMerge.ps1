@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_PreserveUnrelatedKeys_When_ClaudeSettingsMerged
 #   Should_MergeHooksByKey_When_ClaudeSettingsMerged
@@ -15,7 +15,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -62,7 +62,7 @@ function New-MergeHarnessRoot {
         [Parameter(Mandatory = $true)][string] $RepoRoot,
         [Parameter(Mandatory = $true)][string] $Name
     )
-    $root = Join-Path $RepoRoot ("scripts\validation\fixtures\claude-merge-harness\{0}" -f $Name)
+    $root = Join-Path $RepoRoot (("scripts/validation/fixtures/claude-merge-harness/{0}" -f $Name) -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $root) {
         Remove-Item -LiteralPath $root -Recurse -Force
     }
@@ -77,7 +77,7 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$claudeModulePath = Join-Path $repoRoot 'adapters\claude\ClaudeAdapter.ps1'
+$claudeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'ClaudeAdapter.ps1'
 
 if (-not (Test-Path -LiteralPath $claudeModulePath)) {
     Write-Fail -TestName 'Assert-ClaudeSettingsMergePreconditions' -Reason ("missing Claude module: {0}" -f $claudeModulePath)
@@ -96,13 +96,13 @@ $managedHookEvents = @('UserPromptSubmit', 'PreCompact', 'PostToolUse', 'PreTool
 $invalidJsonMarker = '{ this is not valid json'
 
 
-$resolveInstallRootScript = Join-Path $scriptsRoot '_lib\Resolve-InstallRoot.ps1'
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
 if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
     Write-Fail -TestName 'Assert-ClaudeSettingsMergePreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
 }
 . $resolveInstallRootScript
 
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude'
+$fixtureInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude'
 $fixtureSettingsPath = Join-Path $fixtureInstallRoot 'settings.json'
 $fixtureReadmePath = Join-Path $fixtureInstallRoot 'README.md'
 $documentedRelativePath = 'scripts/validation/fixtures/claude'
@@ -604,7 +604,7 @@ Write-Pass -TestName $testName
 
 # Cleanup ephemeral harness trees (best-effort; a just-written timestamped
 # backup can transiently lock on Windows, matching cleanup elsewhere in this suite).
-$harnessRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude-merge-harness'
+$harnessRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude-merge-harness'
 if (Test-Path -LiteralPath $harnessRoot) {
     Remove-Item -LiteralPath $harnessRoot -Recurse -Force -ErrorAction SilentlyContinue
 }

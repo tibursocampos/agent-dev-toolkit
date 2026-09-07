@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_PassValidateAgent_When_AntigravityFixtureUsed
 #   Should_NotWriteUserGeminiProfile_When_CiSmokeRuns
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -40,9 +40,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$modulePath = Join-Path $repoRoot 'adapters\antigravity\AntigravityAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\antigravity-install-root'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\antigravity-keyed-uninstall'
+$modulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'AntigravityAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-install-root'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-keyed-uninstall'
 $agentId = 'antigravity'
 $fixtureRelativeToken = 'fixtures/antigravity-install-root'
 $userGeminiSentinelRel = '.agent-dev-toolkit--antigravity-e2e-sentinel'

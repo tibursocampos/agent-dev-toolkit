@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Pass_When_AllowedPathsAccepted
@@ -78,11 +78,11 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$hooksRoot = Join-Path $repoRoot 'adapters\claude\assets\hooks'
+$hooksRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'assets') 'hooks'
 $commonScript = Join-Path $hooksRoot '_hook-common.ps1'
 $guardScript = Join-Path $hooksRoot 'guard-pre-tool.ps1'
-$claudeConstants = Join-Path $repoRoot 'adapters\claude\ClaudePathConstants.ps1'
-$claudeAdapter = Join-Path $repoRoot 'adapters\claude\ClaudeAdapter.ps1'
+$claudeConstants = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'ClaudePathConstants.ps1'
+$claudeAdapter = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'claude') 'ClaudeAdapter.ps1'
 
 if (-not (Test-Path -LiteralPath $guardScript)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason ("missing guard hook {0}" -f $guardScript)
@@ -140,7 +140,7 @@ if ($secretFindings.Count -lt 1) {
 }
 Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\claude-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }
@@ -209,7 +209,7 @@ if (Test-Path -LiteralPath $fixtureRoot) {
 }
 
 . $claudeAdapter
-$managedHooks = Get-ClaudeManagedHooksObject -InstallRoot (Join-Path $repoRoot 'scripts\validation\fixtures\claude')
+$managedHooks = Get-ClaudeManagedHooksObject -InstallRoot (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'claude')
 if (-not $managedHooks.Contains('PreToolUse')) {
     Write-Fail -TestName 'Should_Pass_When_SettingsWirePreToolUse' -Reason 'Get-ClaudeManagedHooksObject missing PreToolUse'
 }

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -65,12 +65,12 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$hooksAssets = Join-Path $repoRoot 'adapters\codex\assets\hooks'
+$hooksAssets = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'assets') 'hooks'
 $guardScript = Join-Path $hooksAssets 'guard-pre-tool.ps1'
 $commonScript = Join-Path $hooksAssets '_hook-common.ps1'
-$publishHooks = Join-Path $repoRoot 'adapters\codex\Publish-CodexHooks.ps1'
-$publishAgents = Join-Path $repoRoot 'adapters\codex\Publish-CodexAgents.ps1'
-$codexAdapter = Join-Path $repoRoot 'adapters\codex\CodexAdapter.ps1'
+$publishHooks = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'Publish-CodexHooks.ps1'
+$publishAgents = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'Publish-CodexAgents.ps1'
+$codexAdapter = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'CodexAdapter.ps1'
 
 if (-not (Test-Path -LiteralPath $guardScript) -or -not (Test-Path -LiteralPath $commonScript)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason 'missing Codex guard-pre-tool or _hook-common under assets/hooks'
@@ -83,7 +83,7 @@ foreach ($cmdName in @('Get-ToolkitPathSecretsGuardVerdict', 'Write-CodexPreTool
 }
 Write-Pass -TestName 'Should_Pass_When_GuardHookPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\codex-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }

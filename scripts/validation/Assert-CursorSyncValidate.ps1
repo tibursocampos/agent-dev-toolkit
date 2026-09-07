@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateCursor_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserCursorProfile_When_CursorSuiteRuns
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -40,10 +40,10 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-install-root'
+$cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-install-root'
 $seedHooksJsonPath = Join-Path $seedFixtureRoot 'hooks.json'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-sync-validate'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-sync-validate'
 $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
 $coreRouterAgents = Join-Path (Join-Path (Join-Path $repoRoot 'core') 'router') 'AGENTS.md'
 $skillsDirName = 'skills'

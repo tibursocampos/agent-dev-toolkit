@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -38,9 +38,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$zcodeModulePath = Join-Path $repoRoot 'adapters\zcode\ZCodeAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-keyed-uninstall-work'
+$zcodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'ZCodeAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'zcode-install-root'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'zcode-keyed-uninstall-work'
 $fixtureInstallRoot = $workInstallRoot
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $agentsPath = Join-Path $fixtureInstallRoot 'AGENTS.md'
