@@ -107,7 +107,7 @@ if (-not (Test-Path -LiteralPath $fixturePlanPath)) {
     Write-Fail -TestName 'Should_Fail_When_SerialModeRejectsParallelSpawn' -Reason ("missing fixture PLAN {0}" -f $fixturePlanRel)
 }
 
-$workRoot = Join-Path $env:TEMP ('adt-execution-modes-{0}' -f [Guid]::NewGuid().ToString('N'))
+$workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-execution-modes-{0}' -f [Guid]::NewGuid().ToString('N'))
 $sessionsRoot = Join-Path $workRoot 'sessions'
 New-Item -ItemType Directory -Path $sessionsRoot -Force | Out-Null
 

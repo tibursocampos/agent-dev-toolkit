@@ -122,7 +122,7 @@ function Clear-CursorPublishedTreeContents {
     }
 
     if (-not $cleared -and (Test-Path -LiteralPath $DirectoryPath)) {
-        $emptyDir = Join-Path $env:TEMP ('adt-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
+        $emptyDir = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $emptyDir -Force | Out-Null
         & robocopy.exe $emptyDir $DirectoryPath /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
         Remove-Item -LiteralPath $emptyDir -Recurse -Force -ErrorAction SilentlyContinue

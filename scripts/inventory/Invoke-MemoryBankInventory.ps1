@@ -107,6 +107,17 @@ function Test-PathUnderOrEqual {
     return (Test-IsPathUnderOrEqual -ChildPath $CandidatePath -ParentPath $RootPath)
 }
 
+function Resolve-InventorySourceFullPath {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $RelativePath
+    )
+
+    $normRel = ($RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar).TrimStart([char[]]@('\', '/'))
+    # Path.Combine avoids Join-Path Unix quirk that turns ".env" into ".env."
+    return [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($RepoRoot, $normRel))
+}
+
 function Get-FileSha256Hex {
     param([Parameter(Mandatory = $true)][string] $LiteralPath)
 
@@ -719,12 +730,18 @@ foreach ($relativePath in @($relativePaths | Sort-Object)) {
         continue
     }
 
-    $fullPath = Join-Path $repoRoot ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $fullPath = Resolve-InventorySourceFullPath -RepoRoot $repoRoot -RelativePath $relativePath
     if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
         continue
     }
 
-    $item = Get-Item -LiteralPath $fullPath
+    try {
+        $item = Get-Item -LiteralPath $fullPath -ErrorAction Stop
+    }
+    catch {
+        $incompleteHash = $true
+        continue
+    }
     $hash = $null
     try {
         $hash = Get-FileSha256Hex -LiteralPath $fullPath
