@@ -188,7 +188,7 @@ if ($bashDecision -ne 'deny') {
 }
 Write-Pass -TestName 'Should_Deny_When_BashForbiddenPath'
 
-$absOutside = Join-Path $env:TEMP 'agent-dev-toolkit-guard-abs-outside.cs'
+$absOutside = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) 'agent-dev-toolkit-guard-abs-outside.cs'
 $absPayload = @{
     tool_name  = 'Write'
     tool_input = @{

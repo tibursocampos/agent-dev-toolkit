@@ -115,7 +115,7 @@ if (-not $secretDenied) {
 }
 Write-Pass -TestName 'Should_Deny_When_SecretPattern_PluginEvaluate'
 
-$absOutside = Join-Path $env:TEMP 'agent-dev-toolkit-guard-abs-outside.cs'
+$absOutside = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) 'agent-dev-toolkit-guard-abs-outside.cs'
 $abs = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     tool_name  = 'write_file'
     tool_input = @{

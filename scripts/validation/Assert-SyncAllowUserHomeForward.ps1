@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ForwardAllowUserHomeIntoPublishArgs_When_SourceInspected
 #   Should_BlockPublishUnderUserProfile_When_AllowUserHomeAbsent
@@ -149,7 +149,7 @@ function Assert-AdapterUninstallAllowUserHomeForward {
     catch {
         $uninstallBlockedThrew = $true
         $blockedMessage = $_.Exception.Message
-        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)USERPROFILE') {
+        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)user home|USERPROFILE') {
             Write-Fail -TestName $TestName -Reason ("blocked Uninstall-Toolkit ({0}) must mention AllowUserHome/USERPROFILE; got: {1}" -f $AgentId, $blockedMessage)
         }
     }
@@ -293,7 +293,7 @@ try {
     if ($blockedExit -eq 0) {
         Write-Fail -TestName $blockName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
     }
-    if ($blockedText -notmatch '(?i)AllowUserHome' -or $blockedText -notmatch '(?i)USERPROFILE') {
+    if ($blockedText -notmatch '(?i)AllowUserHome' -or $blockedText -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $blockName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $blockedText.Trim())
     }
     if (Test-Path -LiteralPath $probeInstallRoot) {
@@ -332,7 +332,7 @@ try {
     catch {
         $uninstallBlockedThrew = $true
         $blockedMessage = $_.Exception.Message
-        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)USERPROFILE') {
+        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)user home|USERPROFILE') {
             Write-Fail -TestName $uninstallForwardName -Reason ("blocked Uninstall-Toolkit must mention AllowUserHome/USERPROFILE; got: {0}" -f $blockedMessage)
         }
     }

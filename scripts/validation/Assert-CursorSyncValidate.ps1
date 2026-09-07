@@ -258,7 +258,7 @@ $syncBlockedText = ($syncBlockedOut | Out-String)
 if ($syncBlockedExit -eq 0) {
     Write-Fail -TestName $homeGuardName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
 }
-if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)USERPROFILE') {
+if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)user home|USERPROFILE') {
     Write-Fail -TestName $homeGuardName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $syncBlockedText.Trim())
 }
 if (Test-Path -LiteralPath $userProbeRoot) {
