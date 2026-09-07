@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
@@ -72,10 +72,10 @@ function Write-CodexGuardPreToolScript {
         New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
     }
 
-    $sourceGuard = Join-Path $script:CodexHooksModuleDirectory $script:CodexPathConstant.HooksGuardAssetsRelativePath
+    $sourceGuard = Join-Path $script:CodexHooksModuleDirectory ($script:CodexPathConstant.HooksGuardAssetsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (-not (Test-Path -LiteralPath $sourceGuard)) {
         # Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets).
-        $sourceGuard = Join-Path (Join-Path $script:CodexHooksModuleDirectory 'assets\hooks') $script:CodexPathConstant.HooksGuardScriptName
+        $sourceGuard = Join-Path (Join-Path (Join-Path $script:CodexHooksModuleDirectory 'assets') 'hooks') $script:CodexPathConstant.HooksGuardScriptName
     }
     $destGuard = Join-Path $HooksDirectory $script:CodexPathConstant.HooksGuardScriptName
     if (Test-Path -LiteralPath $sourceGuard) {
@@ -85,7 +85,7 @@ function Write-CodexGuardPreToolScript {
         throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceGuard)
     }
 
-    $sharedSource = Join-Path $RepoRoot $script:CodexPathConstant.SharedGuardCommonRelativePath
+    $sharedSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
         Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
@@ -138,7 +138,7 @@ function Invoke-CodexPublishHooks {
     }
 
     $repoRoot = Get-CodexHooksAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

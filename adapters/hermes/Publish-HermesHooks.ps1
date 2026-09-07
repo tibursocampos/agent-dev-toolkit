@@ -65,6 +65,16 @@ function Copy-HermesDirectoryTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
         Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
+        if ($file.Extension -eq '.sh' -and -not (Test-HermesIsWindowsPlatform)) {
+            try {
+                if (Get-Command -Name chmod -ErrorAction SilentlyContinue) {
+                    & chmod +x -- $destinationPath 2>$null
+                }
+            }
+            catch {
+                # Best-effort executable bit; host may still invoke via sh/bash.
+            }
+        }
         $filesCopied++
     }
     return $filesCopied
@@ -383,7 +393,7 @@ function Invoke-HermesPublishHooks {
     $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourcePluginsRoot -DestinationRoot $destPluginRoot
     $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourceAgentHooksRoot -DestinationRoot $destAgentHooksRoot
 
-    $sharedSource = Join-Path $repoRoot $script:HermesAdapterConstant.SharedGuardCommonRelativePath
+    $sharedSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
         Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force

@@ -89,6 +89,26 @@ function Copy-OpenHandsHookScriptAsset {
         -RequireStrictChild
 
     Copy-Item -LiteralPath $sourceScript -Destination $destinationPath -Force
+    if ($SourceFileName -like '*.sh') {
+        $isWindowsHost = $false
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            $isWindowsHost = [bool]$IsWindows
+        }
+        else {
+            $isWindowsHost = ($env:OS -like '*Windows*')
+        }
+
+        if (-not $isWindowsHost) {
+            try {
+                if (Get-Command -Name chmod -ErrorAction SilentlyContinue) {
+                    & chmod +x -- $destinationPath 2>$null
+                }
+            }
+            catch {
+                # Best-effort executable bit; host may still invoke via sh.
+            }
+        }
+    }
     return $destinationPath
 }
 

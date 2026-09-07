@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Hooks (cli/config.json + hooks/hooks.json merge).
@@ -201,7 +201,7 @@ function Write-ZCodeJsonFile {
 
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         $repoRoot = Get-ZCodeHooksRepoRoot
-        . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+        . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     }
 
     $directory = Split-Path -Parent $Path
@@ -239,7 +239,7 @@ function Merge-ZCodeJsonFile {
 
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         $repoRoot = Get-ZCodeHooksRepoRoot
-        . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+        . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     }
 
     Assert-ToolkitManagedPathContained `
@@ -284,7 +284,7 @@ function Invoke-ZCodePublishHooks {
     }
 
     $repoRoot = Get-ZCodeHooksRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
