@@ -43,7 +43,7 @@ function Invoke-CopilotPublishAgents {
     }
 
     $repoRoot = Get-CopilotPublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     Initialize-CopilotToolkitManagedTreeLib
 

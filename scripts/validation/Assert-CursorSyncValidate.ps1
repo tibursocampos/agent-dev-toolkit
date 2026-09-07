@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateCursor_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserCursorProfile_When_CursorSuiteRuns
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -38,12 +38,17 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-install-root'
+$cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-install-root'
 $seedHooksJsonPath = Join-Path $seedFixtureRoot 'hooks.json'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-sync-validate'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-sync-validate'
 $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
 $coreRouterAgents = Join-Path (Join-Path (Join-Path $repoRoot 'core') 'router') 'AGENTS.md'
 $skillsDirName = 'skills'
@@ -56,7 +61,7 @@ $sessionsDirName = 'sessions'
 $manifestFileName = 'manifest.json'
 $cursorAgentId = 'cursor'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 
 if (-not (Test-Path -LiteralPath $cursorModulePath)) {
     Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing Cursor module: {0}" -f $cursorModulePath)
@@ -74,7 +79,7 @@ if (-not (Test-Path -LiteralPath $coreRouterAgents)) {
     Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason ("missing core router: {0}" -f $coreRouterAgents)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-CursorSyncValidatePreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $cursorModulePath
@@ -253,7 +258,7 @@ $syncBlockedText = ($syncBlockedOut | Out-String)
 if ($syncBlockedExit -eq 0) {
     Write-Fail -TestName $homeGuardName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
 }
-if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)USERPROFILE') {
+if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)user home|USERPROFILE') {
     Write-Fail -TestName $homeGuardName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $syncBlockedText.Trim())
 }
 if (Test-Path -LiteralPath $userProbeRoot) {

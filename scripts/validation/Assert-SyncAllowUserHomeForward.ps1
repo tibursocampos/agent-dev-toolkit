@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_ForwardAllowUserHomeIntoPublishArgs_When_SourceInspected
 #   Should_BlockPublishUnderUserProfile_When_AllowUserHomeAbsent
@@ -26,7 +26,12 @@ $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
-$claudeModuleRelativePath = 'adapters\claude\ClaudeAdapter.ps1'
+$claudeModuleRelativePath = 'adapters/claude/ClaudeAdapter.ps1'
+
+function ConvertTo-OsRelativePath {
+    param([Parameter(Mandatory = $true)][string] $RelativePath)
+    return ($RelativePath -replace '[\\/]', [System.IO.Path]::DirectorySeparatorChar)
+}
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -144,7 +149,7 @@ function Assert-AdapterUninstallAllowUserHomeForward {
     catch {
         $uninstallBlockedThrew = $true
         $blockedMessage = $_.Exception.Message
-        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)USERPROFILE') {
+        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)user home|USERPROFILE') {
             Write-Fail -TestName $TestName -Reason ("blocked Uninstall-Toolkit ({0}) must mention AllowUserHome/USERPROFILE; got: {1}" -f $AgentId, $blockedMessage)
         }
     }
@@ -201,15 +206,20 @@ if (-not (Test-Path -LiteralPath $managedTreeLib)) {
     Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason ("missing {0}" -f $managedTreeLib)
 }
 . $managedTreeLib
+$resolveInstallRootLib = Join-Path $libDir 'Resolve-InstallRoot.ps1'
+if (Test-Path -LiteralPath $resolveInstallRootLib) {
+    . $resolveInstallRootLib
+}
 
-$claudeModulePath = Join-Path $repoRoot $claudeModuleRelativePath
+$claudeModulePath = Join-Path $repoRoot (ConvertTo-OsRelativePath -RelativePath $claudeModuleRelativePath)
 if (-not (Test-Path -LiteralPath $claudeModulePath)) {
     Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason ("missing Claude module: {0}" -f $claudeModulePath)
 }
 
-$userProfile = $env:USERPROFILE
+$userProfile = if (Get-Command -Name Get-ToolkitUserHome -ErrorAction SilentlyContinue) { Get-ToolkitUserHome } else { $env:USERPROFILE }
+if ([string]::IsNullOrWhiteSpace($userProfile)) { $userProfile = $env:HOME }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 $probeNamePrefix = $script:ToolkitConstant.AllowUserHomeProbeNamePrefix
@@ -228,34 +238,34 @@ $agentsMdFileName = 'AGENTS.md'
 $sampleUninstallAdapters = @(
     @{
         AgentId            = 'codex'
-        ModuleRelativePath = 'adapters\codex\CodexAdapter.ps1'
+        ModuleRelativePath = 'adapters/codex/CodexAdapter.ps1'
         MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'antigravity'
-        ModuleRelativePath = 'adapters\antigravity\AntigravityAdapter.ps1'
+        ModuleRelativePath = 'adapters/antigravity/AntigravityAdapter.ps1'
         MarkerRelativePath = (Join-Path (Join-Path 'config' 'plugins') (Join-Path 'agent-dev-toolkit' 'GUARDRAILS.md'))
     },
     @{
         AgentId            = 'grok'
-        ModuleRelativePath = 'adapters\grok\GrokAdapter.ps1'
+        ModuleRelativePath = 'adapters/grok/GrokAdapter.ps1'
         MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'opencode'
-        ModuleRelativePath = 'adapters\opencode\OpenCodeAdapter.ps1'
+        ModuleRelativePath = 'adapters/opencode/OpenCodeAdapter.ps1'
         MarkerRelativePath = $agentsMdFileName
     },
     @{
         AgentId            = 'copilot'
-        ModuleRelativePath = 'adapters\copilot\CopilotAdapter.ps1'
+        ModuleRelativePath = 'adapters/copilot/CopilotAdapter.ps1'
         MarkerRelativePath = 'copilot-instructions.md'
         Mode               = 'user'
     }
 )
 
 foreach ($sample in $sampleUninstallAdapters) {
-    $modulePath = Join-Path $repoRoot $sample.ModuleRelativePath
+    $modulePath = Join-Path $repoRoot (ConvertTo-OsRelativePath -RelativePath $sample.ModuleRelativePath)
     if (-not (Test-Path -LiteralPath $modulePath)) {
         Write-Fail -TestName 'Assert-SyncAllowUserHomeForwardPreconditions' -Reason ("missing adapter module: {0}" -f $modulePath)
     }
@@ -283,7 +293,7 @@ try {
     if ($blockedExit -eq 0) {
         Write-Fail -TestName $blockName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
     }
-    if ($blockedText -notmatch '(?i)AllowUserHome' -or $blockedText -notmatch '(?i)USERPROFILE') {
+    if ($blockedText -notmatch '(?i)AllowUserHome' -or $blockedText -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $blockName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $blockedText.Trim())
     }
     if (Test-Path -LiteralPath $probeInstallRoot) {
@@ -322,7 +332,7 @@ try {
     catch {
         $uninstallBlockedThrew = $true
         $blockedMessage = $_.Exception.Message
-        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)USERPROFILE') {
+        if ($blockedMessage -notmatch '(?i)AllowUserHome' -or $blockedMessage -notmatch '(?i)user home|USERPROFILE') {
             Write-Fail -TestName $uninstallForwardName -Reason ("blocked Uninstall-Toolkit must mention AllowUserHome/USERPROFILE; got: {0}" -f $blockedMessage)
         }
     }
@@ -358,7 +368,7 @@ try {
             Assert-AdapterUninstallAllowUserHomeForward `
                 -TestName $sampleUninstallName `
                 -AgentId $sample.AgentId `
-                -ModulePath (Join-Path $repoRoot $sample.ModuleRelativePath) `
+                -ModulePath (Join-Path $repoRoot (ConvertTo-OsRelativePath -RelativePath $sample.ModuleRelativePath)) `
                 -ProbeInstallRoot $sampleProbe `
                 -MarkerRelativePath $sample.MarkerRelativePath `
                 -SyncAgentPath $syncAgentScript `

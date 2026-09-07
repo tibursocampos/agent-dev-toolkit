@@ -20,7 +20,7 @@ function Invoke-ZCodePublishAgents {
     }
 
     $repoRoot = Get-ZCodeAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
     Initialize-ZCodeToolkitManagedTreeLib
 

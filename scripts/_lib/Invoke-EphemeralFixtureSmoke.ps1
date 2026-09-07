@@ -107,13 +107,27 @@ function Invoke-EphemeralFixtureSmoke {
         [Parameter()][switch] $KeepWorkRoot
     )
 
-    $seedFixtureRoot = Join-Path $RepoRoot $SeedFixtureRel
-    $workInstallRoot = Join-Path $RepoRoot $WorkFixtureRel
-    $syncAgentPath = Join-Path $RepoRoot $SyncAgentRel
-    $validateAgentPath = Join-Path $RepoRoot $ValidateAgentRel
+    $normalizeRel = {
+        param([string] $Relative)
+        return ($Relative -replace '[\\/]', [System.IO.Path]::DirectorySeparatorChar)
+    }
+
+    $seedFixtureRoot = Join-Path $RepoRoot (& $normalizeRel $SeedFixtureRel)
+    $workInstallRoot = Join-Path $RepoRoot (& $normalizeRel $WorkFixtureRel)
+    $syncAgentPath = Join-Path $RepoRoot (& $normalizeRel $SyncAgentRel)
+    $validateAgentPath = Join-Path $RepoRoot (& $normalizeRel $ValidateAgentRel)
     $agentLabel = if ([string]::IsNullOrWhiteSpace($Mode)) { $AgentId } else { '{0} Mode={1}' -f $AgentId, $Mode }
 
-    $requiredPaths = @($seedFixtureRoot, $syncAgentPath, $validateAgentPath) + $AdditionalRequiredPaths
+    $requiredPaths = @($seedFixtureRoot, $syncAgentPath, $validateAgentPath)
+    foreach ($extra in @($AdditionalRequiredPaths)) {
+        if ([string]::IsNullOrWhiteSpace($extra)) { continue }
+        if ([System.IO.Path]::IsPathRooted($extra)) {
+            $requiredPaths += $extra
+        }
+        else {
+            $requiredPaths += (Join-Path $RepoRoot (& $normalizeRel $extra))
+        }
+    }
     foreach ($required in $requiredPaths) {
         if (-not (Test-Path -LiteralPath $required)) {
             Write-Host ($script:ToolkitMessage.EphemeralSmokePreconditionMissing -f $required) -ForegroundColor Red

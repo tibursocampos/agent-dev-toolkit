@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Pass_When_AllowedPathsAccepted
@@ -129,7 +129,7 @@ if ($secretFindings.Count -lt 1) {
 }
 Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }
@@ -137,7 +137,7 @@ $null = New-Item -ItemType Directory -Path $fixtureRoot -Force
 $denyPayload = @{
     tool_name  = 'Write'
     tool_input = @{
-        path    = (Join-Path $fixtureRoot 'PRD\blocked.md')
+        path    = (Join-Path (Join-Path $fixtureRoot 'PRD') 'blocked.md')
         content = '# blocked'
     }
     cwd = $fixtureRoot
@@ -150,7 +150,7 @@ if ($null -eq $denyResult.Payload -or $denyResult.Payload.permission -ne 'deny')
 $secretPayload = @{
     tool_name  = 'Write'
     tool_input = @{
-        path    = (Join-Path $fixtureRoot 'src\ok.cs')
+        path    = (Join-Path (Join-Path $fixtureRoot 'src') 'ok.cs')
         content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";'
     }
     cwd = $fixtureRoot
@@ -197,12 +197,16 @@ if ($hooksJsonText -notmatch '(?i)search_replace') {
 }
 Write-Pass -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse'
 
+$tempRoot = [System.IO.Path]::GetTempPath().TrimEnd('\', '/')
+$prdBlockedOutside = Join-Path (Join-Path $tempRoot 'PRD') 'blocked.md'
+$prdViaNamedOutside = Join-Path (Join-Path $tempRoot 'PRD') 'via-named-path.md'
+
 $deletePayload = @{
     tool_name  = 'Delete'
     tool_input = @{
-        path = (Join-Path $env:TEMP 'PRD\blocked.md')
+        path = $prdBlockedOutside
     }
-    cwd = $env:TEMP
+    cwd = $tempRoot
 }
 # Path check does not require the file to exist.
 $deleteDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $deletePayload
@@ -216,7 +220,7 @@ $shellPayload = @{
     tool_input = @{
         command = 'echo secret > PRD/legacy.md'
     }
-    cwd = $env:TEMP
+    cwd = $tempRoot
 }
 $shellDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $shellPayload
 if ($null -eq $shellDeny.Payload -or $shellDeny.Payload.permission -ne 'deny') {
@@ -226,7 +230,7 @@ Write-Pass -TestName 'Should_Deny_When_ShellForbiddenPath'
 
 $beforeShellPayload = @{
     command = 'Remove-Item -Recurse node_modules/pkg'
-    cwd     = $env:TEMP
+    cwd     = $tempRoot
 }
 $beforeShellDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $beforeShellPayload
 if ($null -eq $beforeShellDeny.Payload -or $beforeShellDeny.Payload.permission -ne 'deny') {
@@ -234,7 +238,7 @@ if ($null -eq $beforeShellDeny.Payload -or $beforeShellDeny.Payload.permission -
 }
 Write-Pass -TestName 'Should_Deny_When_BeforeShellForbiddenPath'
 
-$absOutside = Join-Path $env:TEMP 'agent-dev-toolkit-guard-abs-outside.cs'
+$absOutside = Join-Path $tempRoot 'agent-dev-toolkit-guard-abs-outside.cs'
 $absPayload = @{
     tool_name  = 'Write'
     tool_input = @{
@@ -268,7 +272,7 @@ Write-Pass -TestName 'Should_Deny_When_WriteMissingPath'
 $namedPathShell = @{
     tool_name  = 'Shell'
     tool_input = @{
-        command = ("Set-Content -Path '{0}' -Value 'x'" -f (Join-Path $env:TEMP 'PRD\via-named-path.md'))
+        command = ("Set-Content -Path '{0}' -Value 'x'" -f $prdViaNamedOutside)
     }
     cwd = $repoRoot
 }

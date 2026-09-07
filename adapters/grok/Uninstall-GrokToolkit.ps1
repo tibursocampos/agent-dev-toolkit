@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Keyed uninstall for Grok Build adapter toolkit artifacts.
@@ -20,7 +20,7 @@ if ([string]::IsNullOrWhiteSpace($script:GrokUninstallModuleDirectory)) {
 # (dotsource inside Invoke-* only defines commands in that function's local scope).
 $_grokUninstallLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:GrokUninstallModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-PathUnderInstallRootForDelete -ErrorAction SilentlyContinue)) {
     . (Join-Path $_grokUninstallLibDir 'Resolve-InstallRoot.ps1')
 }
@@ -126,8 +126,8 @@ function Invoke-GrokUninstallToolkit {
     }
 
     . $resolveScript
-    . (Join-Path $repoRoot 'scripts\_lib\Copy-ToolkitManagedTree.ps1')
-    . (Join-Path $repoRoot 'scripts\_lib\ToolkitManagedPublishInventory.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-GrokKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)

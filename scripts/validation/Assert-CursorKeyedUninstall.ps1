@@ -12,7 +12,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -39,9 +39,9 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$cursorModulePath = Join-Path $repoRoot 'adapters\cursor\CursorAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-install-root'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\cursor-keyed-uninstall-work'
+$cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-install-root'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-keyed-uninstall-work'
 $fixtureInstallRoot = $workInstallRoot
 $skillsRoot = Join-Path $fixtureInstallRoot 'skills'
 $rulesRoot = Join-Path $fixtureInstallRoot 'rules'
@@ -122,7 +122,7 @@ function Clear-CursorPublishedTreeContents {
     }
 
     if (-not $cleared -and (Test-Path -LiteralPath $DirectoryPath)) {
-        $emptyDir = Join-Path $env:TEMP ('adt-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
+        $emptyDir = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $emptyDir -Force | Out-Null
         & robocopy.exe $emptyDir $DirectoryPath /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
         Remove-Item -LiteralPath $emptyDir -Recurse -Force -ErrorAction SilentlyContinue

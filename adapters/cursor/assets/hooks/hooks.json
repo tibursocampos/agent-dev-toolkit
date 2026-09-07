@@ -3,14 +3,14 @@
   "hooks": {
     "preToolUse": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
         "matcher": "Write|StrReplace|Edit|MultiEdit|search_replace|Delete|Shell",
         "failClosed": true
       }
     ],
     "beforeShellExecution": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
         "failClosed": true
       }
     ],
@@ -26,17 +26,17 @@
     ],
     "beforeSubmitPrompt": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-before-prompt.ps1"
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-before-prompt.ps1"
       }
     ],
     "afterFileEdit": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/plan-after-edit.ps1"
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/plan-after-edit.ps1"
       }
     ],
     "preCompact": [
       {
-        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-pre-compact.ps1"
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-pre-compact.ps1"
       }
     ]
   }

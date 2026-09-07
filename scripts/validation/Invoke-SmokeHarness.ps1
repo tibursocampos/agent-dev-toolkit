@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   In-repo InstallRoot smoke harness (no USERPROFILE deploy).
@@ -120,7 +120,7 @@ try {
 
     if (-not $SkipAdapterSmoke.IsPresent) {
         if ([string]::IsNullOrWhiteSpace($AgentModulePath)) {
-            $AgentModulePath = Join-Path $repoRoot 'adapters\_contract\AdapterContract.ps1'
+            $AgentModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_contract') 'AdapterContract.ps1'
         }
 
         if (-not (Test-Path -LiteralPath $AgentModulePath)) {

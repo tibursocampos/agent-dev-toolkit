@@ -108,7 +108,7 @@ if (Test-Path -LiteralPath $committedInventory) {
 }
 
 # --- CT1 ready ---
-$workRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-ready-{0}' -f [Guid]::NewGuid().ToString('N'))
+$workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-ready-{0}' -f [Guid]::NewGuid().ToString('N'))
 $workBank = Join-Path $workRoot 'memory-bank'
 $workSources = Join-Path $workBank '.inventory\sources.json'
 
@@ -183,7 +183,7 @@ finally {
 }
 
 # --- CT2 not-ready (no sources) ---
-$emptyRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
+$emptyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
 $emptyBank = Join-Path $emptyRoot 'memory-bank'
 $emptySources = Join-Path $emptyBank '.inventory\sources.json'
 
@@ -231,7 +231,7 @@ finally {
 }
 
 # --- RNF-004 path escape → not-ready ---
-$escapeRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-escape-{0}' -f [Guid]::NewGuid().ToString('N'))
+$escapeRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-escape-{0}' -f [Guid]::NewGuid().ToString('N'))
 $escapeBank = Join-Path $escapeRoot 'memory-bank'
 $escapeInventoryDir = Join-Path $escapeBank '.inventory'
 $escapeSources = Join-Path $escapeInventoryDir 'sources.json'
@@ -297,23 +297,26 @@ finally {
 }
 
 # --- Secret-named source: summary must not echo file contents ---
-$secretRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-secret-{0}' -f [Guid]::NewGuid().ToString('N'))
+# Use credentials.json (not .env): Join-Path on Linux can turn ".env" into ".env.".
+$secretRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-secret-{0}' -f [Guid]::NewGuid().ToString('N'))
 $secretBank = Join-Path $secretRoot 'memory-bank'
 $secretInventoryDir = Join-Path $secretBank '.inventory'
 $secretSources = Join-Path $secretInventoryDir 'sources.json'
+$secretFileName = 'credentials.json'
+$secretFilePath = [System.IO.Path]::Combine($secretRoot, $secretFileName)
 $secretPayload = 'API_KEY=supersecret-must-not-land-in-summary'
 $script:ExpectedSummaryRedacted = '[redacted: secret-named source]'
 
 try {
     New-Item -ItemType Directory -Path $secretInventoryDir -Force | Out-Null
     'fixture' | Set-Content -LiteralPath (Join-Path $secretRoot 'README.md') -Encoding UTF8
-    $secretPayload | Set-Content -LiteralPath (Join-Path $secretRoot '.env') -Encoding UTF8
+    [System.IO.File]::WriteAllText($secretFilePath, $secretPayload, (Get-Utf8NoBomEncoding))
 
     $seed = [ordered]@{
         schema_version = 3
         sources        = @(
             [ordered]@{ path = 'README.md' },
-            [ordered]@{ path = '.env' }
+            [ordered]@{ path = $secretFileName }
         )
     }
     [System.IO.File]::WriteAllText($secretSources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
@@ -329,21 +332,21 @@ try {
     }
 
     $secretInventory = Get-Content -LiteralPath $secretSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    $envEntry = @($secretInventory.sources | Where-Object { $_.path -eq '.env' } | Select-Object -First 1)
-    if ($null -eq $envEntry) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason '.env must remain indexed (hash ok; summary redacted)'
+    $secretEntry = @($secretInventory.sources | Where-Object { $_.path -eq $secretFileName } | Select-Object -First 1)
+    if ($null -eq $secretEntry) {
+        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("{0} must remain indexed (hash ok; summary redacted)" -f $secretFileName)
     }
 
-    if ([string]$envEntry.summary -ne $script:ExpectedSummaryRedacted) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("expected redacted summary, got '{0}'" -f $envEntry.summary)
+    if ([string]$secretEntry.summary -ne $script:ExpectedSummaryRedacted) {
+        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("expected redacted summary, got '{0}'" -f $secretEntry.summary)
     }
 
-    if ([string]$envEntry.summary -match 'supersecret' -or [string]$envEntry.summary -match 'API_KEY') {
+    if ([string]$secretEntry.summary -match 'supersecret' -or [string]$secretEntry.summary -match 'API_KEY') {
         Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason 'summary leaked secret payload'
     }
 
-    $envAfter = Get-Content -LiteralPath (Join-Path $secretRoot '.env') -Raw -Encoding UTF8
-    if ($envAfter.Trim() -ne $secretPayload) {
+    $secretAfter = Get-Content -LiteralPath $secretFilePath -Raw -Encoding UTF8
+    if ($secretAfter.Trim() -ne $secretPayload) {
         Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason 'inventory must not modify secret-named source file'
     }
 
@@ -361,7 +364,7 @@ if ($inventorySource -notmatch 'Test-IsPathUnderOrEqual') {
     Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason 'inventory must reuse Test-IsPathUnderOrEqual for path boundaries'
 }
 
-$siblingParent = Join-Path $env:TEMP ('adt-memory-bank-inventory-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
+$siblingParent = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
 $siblingRepo = Join-Path $siblingParent 'repo'
 $siblingEvil = Join-Path $siblingParent 'repo-evil'
 $siblingBank = Join-Path $siblingRepo 'memory-bank'

@@ -17,11 +17,6 @@ if command -v pwsh >/dev/null 2>&1 && [[ -f "${PS1_GUARD}" ]]; then
   exit $?
 fi
 
-if command -v powershell >/dev/null 2>&1 && [[ -f "${PS1_GUARD}" ]]; then
-  printf '%s' "${payload}" | powershell -NoProfile -File "${PS1_GUARD}"
-  exit $?
-fi
-
-# Fail-closed: cannot evaluate GuardCommon without PowerShell.
+# Fail-closed: cannot evaluate GuardCommon without pwsh.
 printf '{"action":"block","message":"pwsh unavailable; Hermes agent-hooks guard fail-closed"}\n'
 exit 2

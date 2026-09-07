@@ -19,9 +19,11 @@
   policy compares, so a missing \\?\C:\Users\... or \\.\C:\Users\... path
   cannot bypass -AllowUserHome.
 
-  When the path exists, reparse resolution is fail-closed: GetFinalPathNameByHandle
-  failure throws (never returns the lexical path). Call Confirm-InstallRootAllowsWrite
-  immediately before mutation after creating directories (TOCTOU).
+  When the path exists, reparse resolution is fail-closed: on Windows,
+  GetFinalPathNameByHandle failure throws; on Unix (Linux/macOS), symlink
+  ResolveLinkTarget failure throws (never returns the lexical path). Call
+  Confirm-InstallRootAllowsWrite immediately before mutation after creating
+  directories (TOCTOU).
 
   Assert-PathUnderInstallRootForDelete gates uninstall/prune Remove-Item targets:
   the final reparse-resolved path must be a strict child of InstallRoot (fail-closed
@@ -31,6 +33,120 @@
 $toolkitLibDir = $PSScriptRoot
 . (Join-Path $toolkitLibDir 'ToolkitConstants.ps1')
 . (Join-Path $toolkitLibDir 'Get-ToolkitRepoRoot.ps1')
+
+function Test-ToolkitIsWindowsPlatform {
+    [CmdletBinding()]
+    param()
+
+    if ($PSVersionTable.PSObject.Properties.Name -contains 'Platform') {
+        if ($PSVersionTable.Platform -eq 'Win32NT') {
+            return $true
+        }
+
+        if ($PSVersionTable.Platform -eq 'Unix') {
+            return $false
+        }
+    }
+
+    if ($PSVersionTable.PSObject.Properties.Name -contains 'PSVersion' -and $PSVersionTable.PSVersion.Major -ge 6) {
+        return [bool]$IsWindows
+    }
+
+    return ($env:OS -like '*Windows*')
+}
+
+function Get-ToolkitUserHome {
+    [CmdletBinding()]
+    param()
+
+    $userProfileEnv = $script:ToolkitConstant.UserProfileEnvironmentName
+    $fromUserProfile = [Environment]::GetEnvironmentVariable($userProfileEnv, 'Process')
+    if ([string]::IsNullOrWhiteSpace($fromUserProfile)) {
+        $fromUserProfile = [Environment]::GetEnvironmentVariable($userProfileEnv)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($fromUserProfile)) {
+        return $fromUserProfile.Trim()
+    }
+
+    $homeEnv = $script:ToolkitConstant.HomeEnvironmentName
+    $fromHome = [Environment]::GetEnvironmentVariable($homeEnv, 'Process')
+    if ([string]::IsNullOrWhiteSpace($fromHome)) {
+        $fromHome = [Environment]::GetEnvironmentVariable($homeEnv)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($fromHome)) {
+        return $fromHome.Trim()
+    }
+
+    $folder = [Environment]::GetFolderPath('UserProfile')
+    if (-not [string]::IsNullOrWhiteSpace($folder)) {
+        return $folder.Trim()
+    }
+
+    return $null
+}
+
+function Resolve-UnixSymlinkFinalPath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Path
+    )
+
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+    $resolveMethod = $item.GetType().GetMethod('ResolveLinkTarget', [type[]]@([bool]))
+    if ($null -ne $resolveMethod) {
+        $target = $resolveMethod.Invoke($item, @($true))
+        if ($null -ne $target) {
+            $fullName = [string]$target.FullName
+            if ([string]::IsNullOrWhiteSpace($fullName)) {
+                throw $script:ToolkitMessage.InstallRootUnixSymlinkResolveFailed
+            }
+
+            return $fullName
+        }
+
+        return [string]$item.FullName
+    }
+
+    $current = [string]$item.FullName
+    $guard = 0
+    while ($guard -lt 64) {
+        $guard++
+        $node = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+        $linkTarget = $null
+        if ($node.PSObject.Properties.Name -contains 'LinkTarget' -and -not [string]::IsNullOrWhiteSpace([string]$node.LinkTarget)) {
+            $linkTarget = [string]$node.LinkTarget
+        }
+        elseif ($node.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+            if ($node.PSObject.Properties.Name -contains 'Target') {
+                $rawTarget = $node.Target
+                if ($rawTarget -is [System.Array] -and $rawTarget.Count -gt 0) {
+                    $linkTarget = [string]$rawTarget[0]
+                }
+                elseif (-not [string]::IsNullOrWhiteSpace([string]$rawTarget)) {
+                    $linkTarget = [string]$rawTarget
+                }
+            }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($linkTarget)) {
+            return $current
+        }
+
+        if (-not [System.IO.Path]::IsPathRooted($linkTarget)) {
+            $linkTarget = Join-Path ([System.IO.Path]::GetDirectoryName($current)) $linkTarget
+        }
+
+        $current = [System.IO.Path]::GetFullPath($linkTarget)
+        if (-not (Test-Path -LiteralPath $current)) {
+            throw $script:ToolkitMessage.InstallRootUnixSymlinkResolveFailed
+        }
+    }
+
+    throw $script:ToolkitMessage.InstallRootUnixSymlinkResolveFailed
+}
 
 $script:ToolkitReparsePointResolverSource = @'
 using System;
@@ -144,8 +260,13 @@ function Resolve-ReparsePointTarget {
     }
 
     try {
-        Register-ToolkitReparsePointResolverType
-        $finalPath = ([type]$script:ToolkitConstant.ReparsePointResolverTypeName)::GetFinalPath($Path).Trim()
+        if (Test-ToolkitIsWindowsPlatform) {
+            Register-ToolkitReparsePointResolverType
+            $finalPath = ([type]$script:ToolkitConstant.ReparsePointResolverTypeName)::GetFinalPath($Path).Trim()
+        }
+        else {
+            $finalPath = (Resolve-UnixSymlinkFinalPath -Path $Path).Trim()
+        }
     }
     catch {
         $detail = $_.Exception.Message
@@ -220,13 +341,17 @@ function Resolve-InstallRoot {
 
         [switch] $AllowUserHome,
 
-        [string] $UserProfilePath = $env:USERPROFILE,
+        [string] $UserProfilePath,
 
         [string] $RepoRoot
     )
 
     if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
         throw ($script:ToolkitMessage.InstallRootRequired)
+    }
+
+    if ([string]::IsNullOrWhiteSpace($UserProfilePath)) {
+        $UserProfilePath = Get-ToolkitUserHome
     }
 
     $resolved = Get-NormalizedFullPath -Path $InstallRoot
@@ -282,10 +407,14 @@ function Confirm-InstallRootAllowsWrite {
 
         [switch] $AllowUserHome,
 
-        [string] $UserProfilePath = $env:USERPROFILE,
+        [string] $UserProfilePath,
 
         [string] $RepoRoot
     )
+
+    if ([string]::IsNullOrWhiteSpace($UserProfilePath)) {
+        $UserProfilePath = Get-ToolkitUserHome
+    }
 
     return Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -UserProfilePath $UserProfilePath -RepoRoot $RepoRoot
 }
@@ -308,10 +437,14 @@ function Initialize-InstallRootForWrite {
 
         [switch] $AllowUserHome,
 
-        [string] $UserProfilePath = $env:USERPROFILE,
+        [string] $UserProfilePath,
 
         [string] $RepoRoot
     )
+
+    if ([string]::IsNullOrWhiteSpace($UserProfilePath)) {
+        $UserProfilePath = Get-ToolkitUserHome
+    }
 
     $resolved = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -UserProfilePath $UserProfilePath -RepoRoot $RepoRoot
 

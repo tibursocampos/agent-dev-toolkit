@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_MapGrokRootsUnderFixture_When_InstallRootProvided
 #   Should_Fail_When_InstallRootUnderUserProfileWithoutAllowUserHome
@@ -6,9 +6,9 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
-$resolveRegistryScript = Join-Path $scriptsRoot '_lib\Resolve-RegistryAgent.ps1'
-$resolveInstallRootScript = Join-Path $scriptsRoot '_lib\Resolve-InstallRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
+$resolveRegistryScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-RegistryAgent.ps1'
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -36,10 +36,10 @@ foreach ($required in @($repoRootScript, $resolveRegistryScript, $resolveInstall
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $grokAgentId = 'grok'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\grok'
-$userProfile = $env:USERPROFILE
+$fixtureInstallRoot = Join-Path $repoRoot (Join-Path 'scripts' (Join-Path 'validation' (Join-Path 'fixtures' 'grok')))
+$userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-GrokNativeLayoutPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-GrokNativeLayoutPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 # Fixture InstallRoot models ~/.grok — skills/rules/hooks are direct children.
@@ -137,7 +137,7 @@ try {
 catch {
     $rejectedViaResolve = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if ($message -notmatch 'AllowUserHome' -or $message -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $failName -Reason ("Resolve-InstallRoot unexpected message: {0}" -f $message)
     }
 }
@@ -152,7 +152,7 @@ try {
 catch {
     $rejectedViaAdapter = $true
     $message = $_.Exception.Message
-    if ($message -notmatch 'AllowUserHome' -or $message -notmatch 'USERPROFILE') {
+    if ($message -notmatch 'AllowUserHome' -or $message -notmatch '(?i)user home|USERPROFILE') {
         Write-Fail -TestName $failName -Reason ("Get-InstallRoots unexpected message: {0}" -f $message)
     }
 }

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Validates skill contract markers declared in skill-contracts.json.
@@ -16,7 +16,7 @@ $contractsRelativeDir = 'contracts'
 $fileExtensionsPattern = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
 
 if (-not $RepoRoot) {
-    . (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib\Get-ToolkitRepoRoot.ps1')
+    . (Join-Path (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib') 'Get-ToolkitRepoRoot.ps1')
     $RepoRoot = Get-ToolkitRepoRoot -FromPath $PSScriptRoot
 }
 

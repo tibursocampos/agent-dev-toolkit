@@ -15,11 +15,6 @@ if command -v pwsh >/dev/null 2>&1 && [ -f "$PS1_HELPER" ]; then
   exit $?
 fi
 
-if command -v powershell >/dev/null 2>&1 && [ -f "$PS1_HELPER" ]; then
-  printf '%s' "$INPUT" | powershell -NoProfile -File "$PS1_HELPER"
-  exit $?
-fi
-
-# Fail-closed when PowerShell is unavailable (cannot evaluate GuardCommon).
+# Fail-closed when pwsh is unavailable (cannot evaluate GuardCommon).
 printf '%s\n' '{"decision":"deny","reason":"pwsh unavailable; OpenHands guard fail-closed"}'
 exit 2

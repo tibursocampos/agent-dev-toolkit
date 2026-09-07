@@ -1,12 +1,23 @@
 {
-  "description": "agent-dev-toolkit minimal native Grok hooks (docs.x.ai/build/features/hooks). Trust via /hooks-trust or --trust is manual; smoke never writes trusted_folders.toml.",
+  "description": "agent-dev-toolkit Grok SessionStart + PreToolUse path/secrets guards (docs.x.ai/build/features/hooks). Trust via /hooks-trust or --trust is manual; smoke never writes trusted_folders.toml.",
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/grok/hooks/session_start.ps1\""
+            "command": "pwsh -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/grok/hooks/session_start.ps1\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/grok/hooks/guard-pre-tool.ps1\""
           }
         ]
       }

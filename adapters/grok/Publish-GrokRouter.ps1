@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Grok Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).
@@ -202,7 +202,7 @@ function Invoke-GrokPublishRouter {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($destinationAgentsMd, $updated, $utf8NoBom)
 
-    . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'ToolkitManagedPublishInventory.ps1')
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     Set-ToolkitManagedPublishInventoryEntryFromContent `
         -InstallRoot $resolvedInstallRoot `
         -RelativePath $script:GrokAdapterConstant.OfficialAgentsFileName `

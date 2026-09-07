@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Grok Publish-Hooks (native JSON under InstallRoot/hooks).
@@ -94,7 +94,7 @@ function Copy-GrokGuardHookAssets {
 
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         $repoRoot = Get-GrokAdapterRepoRoot
-        . (Join-Path (Join-Path $repoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+        . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     }
 
     Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $HooksDirectory -InstallRoot $InstallRoot

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -58,11 +58,11 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$hooksRoot = Join-Path $repoRoot 'adapters\antigravity\assets\hooks'
+$hooksRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'assets') 'hooks'
 $guardScript = Join-Path $hooksRoot 'guard-pre-tool.ps1'
 $hooksJsonPath = Join-Path $hooksRoot 'hooks.json'
 $commonScript = Join-Path $hooksRoot '_hook-common.ps1'
-$publishHooks = Join-Path $repoRoot 'adapters\antigravity\Publish-AntigravityHooks.ps1'
+$publishHooks = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'Publish-AntigravityHooks.ps1'
 
 if (-not (Test-Path -LiteralPath $guardScript) -or -not (Test-Path -LiteralPath $commonScript)) {
     Write-Fail -TestName 'Should_Pass_When_GuardHookPresent' -Reason 'missing Antigravity guard-pre-tool or _hook-common under assets/hooks'
@@ -76,7 +76,7 @@ if (-not (Get-Command -Name Get-ToolkitPathSecretsGuardVerdict -ErrorAction Sile
 }
 Write-Pass -TestName 'Should_Pass_When_GuardHookPresent'
 
-$fixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\antigravity-path-guard-work'
+$fixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-path-guard-work'
 if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }

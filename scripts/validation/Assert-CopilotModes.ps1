@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_RunBothModes_When_CiSmokeSuiteExecutes
 #   Should_BlockUserProfileInstallRoot_When_AllowUserHomeAbsent
@@ -51,6 +51,11 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $repoRootScript
 . $constantsScript
+$resolveInstallRootScript = Join-Path $libDir 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $suiteScriptName = 'Invoke-CopilotCiSmokeSuite.ps1'
@@ -62,7 +67,7 @@ $fixtureRepoRoot = Join-Path $repoRoot ($script:ToolkitConstant.CopilotFixtureRe
 $agentId = $script:ToolkitConstant.CopilotAgentId
 $modeUser = $script:ToolkitConstant.CopilotModeUser
 $modeRepo = $script:ToolkitConstant.CopilotModeRepo
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 $homeCopilotRelative = '.copilot'
 $homeProbeRelative = '.agent-dev-toolkit-copilot-home-guard-test'
 $suitePassMarker = 'Copilot CI smoke suite PASSED'
@@ -76,7 +81,7 @@ foreach ($required in @($suiteScriptPath, $syncAgentPath, $workflowPath, $fixtur
 }
 
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 # --- Should_RunBothModes_When_CiSmokeSuiteExecutes ---
@@ -157,7 +162,7 @@ $syncBlockedText = ($syncBlockedOut | Out-String)
 if ($syncBlockedExit -eq 0) {
     Write-Fail -TestName $homeGuardName -Reason 'sync-agent against USERPROFILE without -AllowUserHome must exit non-zero'
 }
-if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)USERPROFILE') {
+if ($syncBlockedText -notmatch '(?i)AllowUserHome' -or $syncBlockedText -notmatch '(?i)user home|USERPROFILE') {
     Write-Fail -TestName $homeGuardName -Reason ("blocked sync must mention AllowUserHome/USERPROFILE; got: {0}" -f $syncBlockedText.Trim())
 }
 if (Test-Path -LiteralPath $userProbeRoot) {

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_PluginGuardPresent
 #   Should_Deny_When_ForbiddenSddPath
@@ -38,10 +38,10 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$pluginPath = Join-Path $repoRoot 'adapters\opencode\assets\plugins\agent-dev-toolkit-marker.js'
-$opencodeAdapter = Join-Path $repoRoot 'adapters\opencode\OpenCodeAdapter.ps1'
-$publishAgents = Join-Path $repoRoot 'adapters\opencode\Publish-OpenCodeAgents.ps1'
-$registryPath = Join-Path $repoRoot 'adapters\registry.json'
+$pluginPath = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'assets') 'plugins') 'agent-dev-toolkit-marker.js'
+$opencodeAdapter = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'OpenCodeAdapter.ps1'
+$publishAgents = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'Publish-OpenCodeAgents.ps1'
+$registryPath = Join-Path (Join-Path $repoRoot 'adapters') 'registry.json'
 
 if (-not (Test-Path -LiteralPath $pluginPath)) {
     Write-Fail -TestName 'Should_Pass_When_PluginGuardPresent' -Reason 'missing agent-dev-toolkit-marker.js'

@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).
@@ -91,7 +91,7 @@ function Invoke-CursorPublishRouter {
     Assert-CursorPlaceholdersResolvedInFile -FilePath $destAgentsPath -Text $resolved
     Write-CursorUtf8NoBom -Path $destAgentsPath -Content $resolved -InstallRoot $resolvedInstallRoot
 
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
     Set-ToolkitManagedPublishInventoryEntryFromContent `
         -InstallRoot $resolvedInstallRoot `

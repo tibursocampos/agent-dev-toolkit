@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Skills (copy core/skills + resolve placeholders).
@@ -13,7 +13,7 @@ if ([string]::IsNullOrWhiteSpace($script:CursorAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_cursorToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CursorAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_cursorToolkitLibDirectory 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $_cursorToolkitLibDirectory 'Resolve-InstallRoot.ps1')
 . (Join-Path $_cursorToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')

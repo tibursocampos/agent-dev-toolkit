@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Cursor adapter module for agent-dev-toolkit.
@@ -17,7 +17,7 @@ if ([string]::IsNullOrWhiteSpace($script:CursorAdapterDirectory)) {
     $script:CursorAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:CursorAdapterLibDir = Join-Path $script:CursorAdapterDirectory '..\..\scripts\_lib'
+$script:CursorAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:CursorAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:CursorAdapterLibDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $script:CursorAdapterLibDir 'Resolve-InstallRoot.ps1')
 . (Join-Path $script:CursorAdapterLibDir 'Copy-ToolkitManagedTree.ps1')

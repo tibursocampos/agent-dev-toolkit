@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Hooks (scripts + hooks.json keyed merge).
@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($script:CursorHooksHelperDirectory)) {
 # Script-scope load so path-gate asserts are available to Copy-/Write- helpers.
 $_cursorHooksLibDir = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
     . (Join-Path $_cursorHooksLibDir 'Copy-ToolkitManagedTree.ps1')
 }
@@ -65,7 +65,7 @@ function Write-CursorUtf8NoBom {
 
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         $hooksRepoRoot = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
-        . (Join-Path (Join-Path $hooksRepoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+        . (Join-Path (Join-Path (Join-Path $hooksRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     }
 
     Assert-ToolkitManagedPathContained `
@@ -361,7 +361,7 @@ function Copy-CursorHookScripts {
 
     if (-not (Get-Command -Name Assert-ToolkitManagedPathContained -ErrorAction SilentlyContinue)) {
         $hooksRepoRoot = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
-        . (Join-Path (Join-Path $hooksRepoRoot 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1')
+        . (Join-Path (Join-Path (Join-Path $hooksRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     }
 
     $sourceRootFull = [System.IO.Path]::GetFullPath($SourceRoot)
@@ -405,7 +405,7 @@ function Copy-CursorHookScripts {
 
     # Shared path/secret helpers (adapters/_shared) published beside host hooks.
     $repoRootForShared = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
-    $sharedGuardSource = Join-Path $repoRootForShared $script:CursorAdapterConstant.SharedGuardCommonRelativePath
+    $sharedGuardSource = Join-Path $repoRootForShared ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedGuardSource) {
         $sharedDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedGuardCommonFileName
         Assert-ToolkitManagedPathContained `
@@ -446,7 +446,7 @@ function Invoke-CursorPublishHooks {
     $repoRoot = Get-CursorAdapterRepoRoot
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
 
-    $sourceHooksRoot = Join-Path $script:CursorHooksHelperDirectory $script:CursorAdapterConstant.HooksAssetsRelativePath
+    $sourceHooksRoot = Join-Path $script:CursorHooksHelperDirectory ($script:CursorAdapterConstant.HooksAssetsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     $sourceHooksJson = Join-Path $sourceHooksRoot $script:CursorAdapterConstant.HooksJsonFileName
     if (-not (Test-Path -LiteralPath $sourceHooksRoot) -or -not (Test-Path -LiteralPath $sourceHooksJson)) {
         throw ($script:CursorAdapterMessage.HooksSourceMissing -f $sourceHooksRoot)
@@ -456,7 +456,7 @@ function Invoke-CursorPublishHooks {
     $destHooksJson = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksJsonFileName
     $scriptCount = @(Get-ChildItem -LiteralPath $sourceHooksRoot -File -ErrorAction Stop |
             Where-Object { $_.Name -ne $script:CursorAdapterConstant.HooksJsonFileName }).Count
-    $sharedGuardForCount = Join-Path $repoRoot $script:CursorAdapterConstant.SharedGuardCommonRelativePath
+    $sharedGuardForCount = Join-Path $repoRoot ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedGuardForCount) {
         $scriptCount++
     }

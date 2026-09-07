@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_SyncAndValidateZcode_When_FixtureInstallRootUsed
 #   Should_NotCopyToUserZcodeProfile_When_ZcodeSuiteRuns
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -50,10 +50,15 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 }
 
 . $repoRootScript
+$resolveInstallRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Resolve-InstallRoot.ps1'
+if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
+    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing {0}" -f $resolveInstallRootScript)
+}
+. $resolveInstallRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$zcodeModulePath = Join-Path $repoRoot 'adapters\zcode\ZCodeAdapter.ps1'
-$fixtureInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\zcode-install-root'
+$zcodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'ZCodeAdapter.ps1'
+$fixtureInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'zcode-install-root'
 $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
 $coreRouterAgents = Join-Path (Join-Path (Join-Path $repoRoot 'core') 'router') 'AGENTS.md'
 $skillsDirName = 'skills'
@@ -63,7 +68,7 @@ $hooksDirName = 'hooks'
 $cursorRulesDirName = 'rules'
 $zcodeAgentId = 'zcode'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
-$userProfile = $env:USERPROFILE
+$userProfile = Get-ToolkitUserHome
 
 if (-not (Test-Path -LiteralPath $zcodeModulePath)) {
     Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing ZCode module: {0}" -f $zcodeModulePath)
@@ -78,7 +83,7 @@ if (-not (Test-Path -LiteralPath $coreRouterAgents)) {
     Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason ("missing core router: {0}" -f $coreRouterAgents)
 }
 if ([string]::IsNullOrWhiteSpace($userProfile)) {
-    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason 'USERPROFILE is not set'
+    Write-Fail -TestName 'Assert-ZcodeAdeLayoutPreconditions' -Reason 'user home is not set (USERPROFILE / HOME)'
 }
 
 . $zcodeModulePath

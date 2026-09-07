@@ -72,7 +72,7 @@ function Copy-AntigravityHookFilesTree {
     }
 
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot $script:AntigravityPathConstant.SharedGuardCommonRelativePath
+        $sharedSource = Join-Path $RepoRoot ($script:AntigravityPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedGuardCommonFileName
             Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force

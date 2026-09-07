@@ -63,9 +63,9 @@ $script:ClaudeSettingsJsonConstant = @{
     HookMatcherPostToolUse         = 'Write|Edit'
     HookMatcherPreToolUse          = 'Write|Edit|Bash|PowerShell'
     HookMatcherTracePostToolUse    = 'Write|Edit|Bash|PowerShell'
-    SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
+    SharedGuardCommonRelativePath  = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
-    SharedTraceEmitCommonRelativePath = 'adapters\_shared\TraceEmitCommon.ps1'
+    SharedTraceEmitCommonRelativePath = 'adapters/_shared/TraceEmitCommon.ps1'
     SharedTraceEmitCommonFileName  = 'TraceEmitCommon.ps1'
 }
 

@@ -265,8 +265,9 @@ function Get-ToolkitLiveHomePath {
     $relProp = $script:ToolkitConstant.OfficialUserRootRelativeProperty
     if ($null -ne $roots -and $roots.PSObject.Properties.Name -contains $relProp) {
         $rel = [string]$roots.$relProp
-        if (-not [string]::IsNullOrWhiteSpace($rel) -and -not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
-            return (Join-Path $env:USERPROFILE ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar))
+        $userHome = Get-ToolkitUserHome
+        if (-not [string]::IsNullOrWhiteSpace($rel) -and -not [string]::IsNullOrWhiteSpace($userHome)) {
+            return (Join-Path $userHome ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar))
         }
     }
 
@@ -299,13 +300,14 @@ function Test-ToolkitPathUnderUserProfile {
         [string] $Path
     )
 
-    if ([string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
+    $userHome = Get-ToolkitUserHome
+    if ([string]::IsNullOrWhiteSpace($userHome)) {
         return $false
     }
 
     try {
         $full = [System.IO.Path]::GetFullPath($Path)
-        $profileFull = [System.IO.Path]::GetFullPath($env:USERPROFILE)
+        $profileFull = [System.IO.Path]::GetFullPath($userHome)
         return $full.StartsWith($profileFull, [System.StringComparison]::OrdinalIgnoreCase)
     }
     catch {

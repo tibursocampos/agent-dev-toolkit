@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Skills (copy core/skills + resolve placeholders).
@@ -19,7 +19,7 @@ if ([string]::IsNullOrWhiteSpace($script:CopilotPublishModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_copilotToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:CopilotPublishModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_copilotToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _copilotToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -93,7 +93,7 @@ function Initialize-CopilotToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-CopilotPublishAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-CopilotPublishAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("Copilot Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }
@@ -186,7 +186,7 @@ function Invoke-CopilotPublishSkills {
     $normalizedMode = Get-CopilotPublishNormalizedMode -Mode $Mode
 
     $repoRoot = Get-CopilotPublishAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot

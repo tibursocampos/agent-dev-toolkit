@@ -24,7 +24,7 @@ if ([string]::IsNullOrWhiteSpace($script:HermesAdapterDirectory)) {
     $script:HermesAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:HermesAdapterLibDir = Join-Path $script:HermesAdapterDirectory '..\..\scripts\_lib'
+$script:HermesAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:HermesAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:HermesAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:HermesAdapterDirectory 'HermesPathConstants.ps1')

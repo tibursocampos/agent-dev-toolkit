@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Grok Build adapter module for agent-dev-toolkit.
@@ -34,7 +34,7 @@ if ([string]::IsNullOrWhiteSpace($script:GrokAdapterDirectory)) {
     $script:GrokAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:GrokAdapterLibDir = Join-Path $script:GrokAdapterDirectory '..\..\scripts\_lib'
+$script:GrokAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:GrokAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:GrokAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:GrokAdapterDirectory 'GrokPathConstants.ps1')

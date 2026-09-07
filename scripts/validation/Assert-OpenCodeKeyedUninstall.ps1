@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_RemoveToolkitArtifacts_When_UninstallOpenCodeFixture
 #   Should_KeepUnrelatedFiles_When_UninstallOpenCodeFixture
@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
-$repoRootScript = Join-Path $scriptsRoot '_lib\Get-ToolkitRepoRoot.ps1'
+$repoRootScript = Join-Path (Join-Path $scriptsRoot '_lib') 'Get-ToolkitRepoRoot.ps1'
 $syncAgentScript = Join-Path $scriptsRoot 'sync-agent.ps1'
 $validateAgentScript = Join-Path $scriptsRoot 'validate-agent.ps1'
 
@@ -38,9 +38,9 @@ if (-not (Test-Path -LiteralPath $validateAgentScript)) {
 . $repoRootScript
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$opencodeModulePath = Join-Path $repoRoot 'adapters\opencode\OpenCodeAdapter.ps1'
-$seedFixtureRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode'
-$workInstallRoot = Join-Path $repoRoot 'scripts\validation\fixtures\opencode-keyed-uninstall-work'
+$opencodeModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'opencode') 'OpenCodeAdapter.ps1'
+$seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'opencode'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'opencode-keyed-uninstall-work'
 $fixtureInstallRoot = $workInstallRoot
 $skillsDirName = 'skills'
 $agentsFileName = 'AGENTS.md'

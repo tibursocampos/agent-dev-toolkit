@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Path, layout, and message constants for the Cursor adapter.
@@ -25,7 +25,7 @@ $script:CursorAdapterConstant = @{
     CustomAgentsDirectoryName      = 'agents'
     HooksDirectoryName             = 'hooks'
     HooksJsonFileName              = 'hooks.json'
-    HooksAssetsRelativePath        = 'assets\hooks'
+    HooksAssetsRelativePath        = 'assets/hooks'
     HooksJsonVersionDefault        = 1
     CursorFixtureInstallRootRel    = 'scripts/validation/fixtures/cursor-install-root'
     FixtureRelativePath            = 'scripts/validation/fixtures/cursor-install-root'
@@ -51,7 +51,7 @@ $script:CursorAdapterConstant = @{
         'plan-after-edit.ps1',
         'emit-trace.ps1'
     )
-    SharedGuardCommonRelativePath  = 'adapters\_shared\GuardCommon.ps1'
+    SharedGuardCommonRelativePath  = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
     AtomicWriteTempSuffix          = '.tmp'
     AtomicWriteMaxAttempts         = 3

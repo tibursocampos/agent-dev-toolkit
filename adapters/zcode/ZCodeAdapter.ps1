@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   ZCode (Z.ai ADE) adapter module for agent-dev-toolkit.
@@ -28,7 +28,7 @@ if ([string]::IsNullOrWhiteSpace($script:ZCodeAdapterDirectory)) {
     $script:ZCodeAdapterDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$script:ZCodeAdapterLibDir = Join-Path $script:ZCodeAdapterDirectory '..\..\scripts\_lib'
+$script:ZCodeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:ZCodeAdapterDirectory '..') '..') 'scripts') '_lib'
 . (Join-Path $script:ZCodeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:ZCodeAdapterDirectory 'ZCodePathConstants.ps1')

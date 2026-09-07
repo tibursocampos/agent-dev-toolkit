@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Skills (idempotent copy of core/skills kebab folders).
@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($script:ZCodeAdapterModuleDirectory)) {
 # would define commands only in that function's local scope).
 $_zcodeToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:ZCodeAdapterModuleDirectory)
-) 'scripts\_lib'
+) (Join-Path 'scripts' '_lib')
 . (Join-Path $_zcodeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _zcodeToolkitLibDirectory -ErrorAction SilentlyContinue
 
@@ -80,7 +80,7 @@ function Initialize-ZCodeToolkitManagedTreeLib {
     param()
 
     if (-not (Get-Command -Name Invoke-ToolkitManagedSkillsPublish -ErrorAction SilentlyContinue)) {
-        $libPath = Join-Path (Join-Path (Get-ZCodeAdapterRepoRoot) 'scripts\_lib') 'Copy-ToolkitManagedTree.ps1'
+        $libPath = Join-Path (Join-Path (Get-ZCodeAdapterRepoRoot) (Join-Path 'scripts' '_lib')) 'Copy-ToolkitManagedTree.ps1'
         throw ("ZCode Publish-Skills: managed tree lib missing after script-scope load: {0}" -f $libPath)
     }
 }
@@ -194,7 +194,7 @@ function Invoke-ZCodePublishSkills {
     }
 
     $repoRoot = Get-ZCodeAdapterRepoRoot
-    $libDir = Join-Path $repoRoot 'scripts\_lib'
+    $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
