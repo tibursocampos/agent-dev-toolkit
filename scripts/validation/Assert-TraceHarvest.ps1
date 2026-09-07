@@ -102,7 +102,7 @@ if (-not (Test-Path -LiteralPath $validTracePath)) {
 }
 
 # --- CT6: harvest includes tokens/duration/spawn when present ---
-$workRoot = Join-Path $env:TEMP ('adt-trace-harvest-metrics-{0}' -f [Guid]::NewGuid().ToString('N'))
+$workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-trace-harvest-metrics-{0}' -f [Guid]::NewGuid().ToString('N'))
 $featureRel = ('features/{0}' -f $script:HarvestFixtureFeatureSlug)
 $workFeature = Join-Path $workRoot ($featureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 
@@ -165,7 +165,7 @@ finally {
 }
 
 # --- TE05: feature root out of scope ---
-$outsideRoot = Join-Path $env:TEMP ('adt-trace-harvest-outside-{0}' -f [Guid]::NewGuid().ToString('N'))
+$outsideRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-trace-harvest-outside-{0}' -f [Guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $outsideRoot -Force | Out-Null
     $captureOutside = Invoke-HarvestCapture -ScriptPath $harvestScriptPath -Arguments @{
@@ -196,7 +196,8 @@ finally {
 }
 
 # --- SEC: reject sdd/sessions path ---
-$sessionsProbe = Join-Path $env:TEMP ('adt-trace-harvest-sessions-{0}\sdd\sessions\fake' -f [Guid]::NewGuid().ToString('N'))
+$sessionsBase = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-trace-harvest-sessions-{0}' -f [Guid]::NewGuid().ToString('N'))
+$sessionsProbe = Join-Path (Join-Path (Join-Path $sessionsBase 'sdd') 'sessions') 'fake'
 try {
     New-Item -ItemType Directory -Path $sessionsProbe -Force | Out-Null
     $captureSessions = Invoke-HarvestCapture -ScriptPath $harvestScriptPath -Arguments @{
@@ -223,7 +224,7 @@ finally {
 }
 
 # --- RNF-004 sibling-prefix: repo-evil must not count as under repo ---
-$siblingParent = Join-Path $env:TEMP ('adt-trace-harvest-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
+$siblingParent = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-trace-harvest-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
 $siblingRepo = Join-Path $siblingParent 'repo'
 $siblingEvil = Join-Path $siblingParent 'repo-evil'
 $siblingEvilFeature = Join-Path $siblingEvil ('features/{0}' -f $script:HarvestFixtureFeatureSlug).Replace('/', [System.IO.Path]::DirectorySeparatorChar)

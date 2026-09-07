@@ -167,7 +167,7 @@ if ($changeResult.Output -notmatch [regex]::Escape($reasonChange)) {
 Write-Pass -TestName 'Should_Block_When_BrownfieldChangeInvalidPreflight'
 
 # --- OS-absolute / parent-segment PRD from PLAN header ---
-$absWork = Join-Path $env:TEMP ('adt-preflight-absolute-prd-{0}' -f [Guid]::NewGuid().ToString('N'))
+$absWork = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-preflight-absolute-prd-{0}' -f [Guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $absWork -Force | Out-Null
     Copy-Item -LiteralPath $validRoot -Destination (Join-Path $absWork 'feature') -Recurse -Force

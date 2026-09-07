@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_TraceArchiveContractPresent
 #   Should_Pass_When_ValidTraceFixture
@@ -159,7 +159,7 @@ if ($invalidOrchestrationResult.ExitCode -eq 0) {
 }
 Write-Pass -TestName 'Should_Fail_When_InvalidOrchestrationEvents'
 
-$metricsWorkRoot = Join-Path $env:TEMP ('adt-trace-metrics-{0}' -f [Guid]::NewGuid().ToString('N'))
+$metricsWorkRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-trace-metrics-{0}' -f [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $metricsWorkRoot | Out-Null
 try {
     $badMetricsLines = @(

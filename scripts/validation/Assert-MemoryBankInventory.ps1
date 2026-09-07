@@ -108,7 +108,7 @@ if (Test-Path -LiteralPath $committedInventory) {
 }
 
 # --- CT1 ready ---
-$workRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-ready-{0}' -f [Guid]::NewGuid().ToString('N'))
+$workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-ready-{0}' -f [Guid]::NewGuid().ToString('N'))
 $workBank = Join-Path $workRoot 'memory-bank'
 $workSources = Join-Path $workBank '.inventory\sources.json'
 
@@ -183,7 +183,7 @@ finally {
 }
 
 # --- CT2 not-ready (no sources) ---
-$emptyRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
+$emptyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
 $emptyBank = Join-Path $emptyRoot 'memory-bank'
 $emptySources = Join-Path $emptyBank '.inventory\sources.json'
 
@@ -231,7 +231,7 @@ finally {
 }
 
 # --- RNF-004 path escape → not-ready ---
-$escapeRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-escape-{0}' -f [Guid]::NewGuid().ToString('N'))
+$escapeRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-escape-{0}' -f [Guid]::NewGuid().ToString('N'))
 $escapeBank = Join-Path $escapeRoot 'memory-bank'
 $escapeInventoryDir = Join-Path $escapeBank '.inventory'
 $escapeSources = Join-Path $escapeInventoryDir 'sources.json'
@@ -297,7 +297,7 @@ finally {
 }
 
 # --- Secret-named source: summary must not echo file contents ---
-$secretRoot = Join-Path $env:TEMP ('adt-memory-bank-inventory-secret-{0}' -f [Guid]::NewGuid().ToString('N'))
+$secretRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-secret-{0}' -f [Guid]::NewGuid().ToString('N'))
 $secretBank = Join-Path $secretRoot 'memory-bank'
 $secretInventoryDir = Join-Path $secretBank '.inventory'
 $secretSources = Join-Path $secretInventoryDir 'sources.json'
@@ -361,7 +361,7 @@ if ($inventorySource -notmatch 'Test-IsPathUnderOrEqual') {
     Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason 'inventory must reuse Test-IsPathUnderOrEqual for path boundaries'
 }
 
-$siblingParent = Join-Path $env:TEMP ('adt-memory-bank-inventory-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
+$siblingParent = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
 $siblingRepo = Join-Path $siblingParent 'repo'
 $siblingEvil = Join-Path $siblingParent 'repo-evil'
 $siblingBank = Join-Path $siblingRepo 'memory-bank'
