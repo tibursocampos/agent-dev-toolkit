@@ -1,11 +1,10 @@
 ﻿# SDD artifacts (local agent workflow - agent-dev-toolkit)
-/features/
-/docs/features/
 /PRD/
 /PLAN/
 /docs/PRD/
 /docs/PLAN/
-/docs/documentation-plan/
+/docs/documentation-plan/*
+!/docs/documentation-plan/plan.md
 
 # GitHub Pages / MkDocs (build output + local caches — never commit)
 /site/

@@ -66,23 +66,27 @@ features/NNN-slug/
 
 Run **before** the first `Write` under any SDD folder or `memory-bank/` in the workspace (`sdd-spec`, `sdd-plan`, `orchestrate-*`, `memory-bank-init` in **repository** mode only).
 
-1. Read `.gitignore` at workspace root. If missing, create it with the SDD block below.
-2. **Always** require these patterns in repository mode:
+1. Read `features_versioned` from `manifest.json` (`repositories[$Cwd].classic.features_versioned`, default `false`). Read `.gitignore` at workspace root. If missing, create it with the SDD block for the active mode.
+2. **Always** require these patterns in repository mode (safety-net + documentation-plan exception):
 
    | Pattern | When used |
    |---------|-----------|
-   | `/features/` | Canonical Classic SDD / Orchestrated Delivery artifacts (repo root only) |
-   | `/docs/features/` | Reserved alternate under docs |
+   | `/features/` | Ignore when `features_versioned` is `false`; **omit** when `true` |
+   | `/docs/features/` | Same as `/features/` |
    | `/PRD/` | Safety net - ignore accidental root PRD (not a write destination) |
    | `/PLAN/` | Safety net - ignore accidental root PLAN (not a write destination) |
    | `/docs/PRD/` | Safety net |
    | `/docs/PLAN/` | Safety net |
+   | `/docs/documentation-plan/*` | Ignore scratch under documentation-plan |
+   | `!/docs/documentation-plan/plan.md` | **Always** version `plan.md` (never ignore) |
 
    **Do not** add or require `/memory-bank/` in the SDD ignore block. Commit bank when product knowledge; never commit secrets.
 
    Use leading `/` so `skills/sdd-plan/`, `skills/_shared/templates/features/`, `skills/_shared/templates/memory-bank/`, and other non-root paths are **not** ignored.
 
-3. If **any** pattern is missing, append the **full** block:
+3. If **any** required pattern for the active `features_versioned` mode is missing, append or migrate the **full** block below. **Remove** legacy `/docs/documentation-plan/` (whole folder) if present — replace with `/*` + `!plan.md`. When `features_versioned` is `true`, **never** re-add `/features/` or `/docs/features/` even if absent from `.gitignore`.
+
+   `features_versioned: false` (default):
 
    ```gitignore
    # SDD artifacts (local agent workflow - agent-dev-toolkit)
@@ -92,9 +96,25 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
    /PLAN/
    /docs/PRD/
    /docs/PLAN/
+   /docs/documentation-plan/*
+   !/docs/documentation-plan/plan.md
    ```
 
-4. Report: patterns added, or all already present. If `/memory-bank/` is already present from an older policy, do **not** re-add it; the human may remove it so the bank can be versioned.
+   `features_versioned: true`:
+
+   ```gitignore
+   # SDD artifacts (local agent workflow - agent-dev-toolkit)
+   /PRD/
+   /PLAN/
+   /docs/PRD/
+   /docs/PLAN/
+   /docs/documentation-plan/*
+   !/docs/documentation-plan/plan.md
+   ```
+
+4. Report: patterns added, migrated, or all already present. If `/memory-bank/` is already present from an older policy, do **not** re-add it; the human may remove it so the bank can be versioned. If the human removed `/features/` manually and manifest has no `features_versioned` yet, ask once and persist the choice.
+
+**CI note:** `Assert-NoFeaturesDocLinks.ps1` assumes `features/` is gitignored by default. When `features_versioned` is `true`, links from published `docs/` to `features/**` are valid.
 
 **Global mode:** do **not** modify project `.gitignore`. Do **not** add or require `/features/`, `/PRD/`, `/PLAN/`, or related patterns - those artifacts live under `<classic.path>/` outside the consumer git tree. Skills must not suggest appending the SDD block when `storage_mode` is `global`.
 
@@ -241,7 +261,8 @@ Core source keeps placeholders `{{SDD_ROOT}}`; publish may still bake absolutes.
     "D:/Source/Repos/MyApp": {
       "classic": {
         "storage_mode": "global",
-        "path": "{{SDD_ROOT}}/MyApp"
+        "path": "{{SDD_ROOT}}/MyApp",
+        "features_versioned": false
       }
     }
   }
@@ -308,8 +329,8 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
    a. Ask user (pt-BR) storage for classic SDD (local vs global).
    b. Write classic section only (under effective_SDD_ROOT).
    c. Set session gate storage_confirmed = true after user sim.
-5. If found: read repositories[$Cwd].classic.storage_mode and .path
-   (ignore any legacy speckit key).
+5. If found: read repositories[$Cwd].classic.storage_mode, .path, and
+   .features_versioned (default false if absent; ignore any legacy speckit key).
 6. Derive classic feature root and memory-bank root:
    - repository -> feature_root = $Cwd/features/
                     bank_root   = $Cwd/memory-bank/
@@ -339,7 +360,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 | Feature root | `$Cwd/features/NNN-slug/` | `<effective_SDD_ROOT>/<repo-id>/features/NNN-slug/` (or manifest path under effective root) |
 | Memory-bank root | `$Cwd/memory-bank/` | `<classic.path>/memory-bank/` |
 | PRD/PLAN | Under story `PRD/` / `PLAN/` only | Same under global feature root |
-| `.gitignore` SDD block | Required (incl. `/features/`, safety-net `/PRD/` `/PLAN/`; **not** `/memory-bank/`) | Do **not** edit project `.gitignore` |
+| `.gitignore` SDD block | Per `features_versioned` (see § Repository mode); always `!/docs/documentation-plan/plan.md`; **not** `/memory-bank/` | Do **not** edit project `.gitignore` |
 | Root / flat `PRD/`/`PLAN/` | Not used (ignored if present) | Not used |
 | Leading `/` on ignore patterns | Must not ignore `skills/sdd-plan/` or templates | N/A |
 
@@ -350,9 +371,21 @@ Ask before the first write of Classic artifacts in the session (unless manifest 
 ```text
 Onde gravar artefatos SDD (features/ + memory-bank/) deste projeto?
 
-1) Repositório - na raiz do projeto (features/, memory-bank/; /features/, /docs/features/, e safety-net /PRD/, /PLAN/ no .gitignore se faltarem — não ignore /memory-bank/; commit bank when product knowledge; never commit secrets)
+1) Repositório - na raiz do projeto (features/, memory-bank/)
 2) Global - {{SDD_ROOT}}/<RepositoryName>/ (features/ + memory-bank/ fora do git do projeto; sem alterar .gitignore)
 ```
+
+If **repository** (step 1), ask next:
+
+```text
+Versionar artefatos SDD em features/ e docs/features/ no git deste repositório?
+
+1) Não (padrão) — /features/ e /docs/features/ no .gitignore
+2) Sim — features/ e docs/features/ versionadas; safety-net para PRD/PLAN soltos na raiz
+(docs/documentation-plan/plan.md sempre versionado em ambos os casos)
+```
+
+Persist `features_versioned: true|false` in manifest `classic` section. Apply `.gitignore` block per § Repository mode.
 
 ## Integration
 

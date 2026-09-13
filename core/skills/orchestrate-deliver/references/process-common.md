@@ -19,7 +19,7 @@ Accept feature path from invoke (preferred) or Glob under feature root:
 
 **Path sanitize (required):** normalize the invoke path (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under `$Cwd/features/` (repository) or `<classic.path>/features/` (global). Ask again in pt-BR for a canonical path - do not Read/Write outside the feature root.
 
-Repository mode: ensure SDD `.gitignore` per `STORAGE.md` (`/features/` + safety-net; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets) before writes under feature or bank roots. **Global:** do not edit `.gitignore`.
+Repository mode: ensure SDD `.gitignore` per `STORAGE.md` and `features_versioned` in manifest before writes under feature or bank roots (**do not** add `/memory-bank/`; always `!/docs/documentation-plan/plan.md`). **Global:** do not edit `.gitignore`.
 
 `Read` `FEATURE.md` + `CONTINUITY.md`. If missing: **STOP** - ask for O1 first:
 

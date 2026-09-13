@@ -81,7 +81,9 @@ Do **not** read, write, or continue Classic SDD from:
 
 Applies when the user cites any `.md` **outside** `features/` — including Cursor plans (`.cursor/plans/` scratch or any host plans directory), `docs/*.md`, repo-root `*.md`, and root/flat `PRD/` / `PLAN/`.
 
-#### Mandatory promote (O1 / O2)
+#### Mandatory promote (`orchestrated` — O1 / O2 only)
+
+Applies when `invocation_context` is `orchestrated`. Do **not** apply these O1 gates to Classic SDD `direct` slash.
 
 1. **Read** the cited file (allowed). Do **not** treat `.cursor/plans/` as O3 input — O3 reads only `features/` + memory-bank.
 2. Copy **rich content** (DDL, SQL, JSON, mermaid, tables, OpenAPI, config examples) into canonical destinations as relevant:
@@ -90,7 +92,9 @@ Applies when the user cites any `.md` **outside** `features/` — including Curs
 3. Pointer-only / bibliography-only (links or titles without copied bodies) = **fail O1**. Do **not** mark the backlog approved.
 4. **PLAN magro:** do not paste SQL/DDL/OpenAPI into PLAN. Bodies live in bank phase 2 and/or ARCH/ANALYSIS. PLAN **cites the canonical path**. If that path does not exist, O1/O2 must create the canonical file first — do not omit the body from PLAN without a canonical destination (`sdd-plan` Outcome + Must not).
 
-#### Classic PRD / PLAN promote (Classic SDD / missing canonical)
+#### Classic PRD / PLAN promote (`direct` — Classic SDD / missing canonical)
+
+**Primary path** when the operator invokes `/sdd-spec` or `/sdd-plan` with a cited non-feature `.md` (including `.cursor/plans/`). No `orchestrate-analyze` prerequisite.
 
 1. `Read` the file the user cited.
 2. Build PRD (or PLAN) content per `spec/reference.md` or `plan/reference.md`.
@@ -159,9 +163,12 @@ When the working path is under `features/NNN-slug/` (or the user names that feat
 2. `Read` sibling story files under the same feature: `STORY.md`; `REFINE/` when present (**optional / on demand**); `ANALYSIS/`, `ARCH/`, `SEC/` when FEATURE `needs_*` or brownfield requires them (**not** optional in that case); and existing `PRD/` / `PLAN/` for that story.
 3. Prefer sibling content and promoted bank files over re-asking; still max **3** gap questions.
 4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies; do not dump entire `memory-bank/` or full PRD bodies.
-5. If FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing: O2 / `sdd-spec` **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate. Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
+5. **Required siblings** (`INVOCATION-CONTEXTS.md`):
+   - **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. Max-3 gap questions do **not** replace this gate.
+   - **`direct` (Classic SDD):** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask: (1) create inline in this session, (2) proceed without siblings (operator risk), (3) optional `/orchestrate-analyze`. Do **not** hard-block.
+   - Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
 
-If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` - ask the user to create via `sdd-spec` / Orchestrated Delivery.
+If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` — use Classic promote (§ above) or `/sdd-spec` to create under `features/...`.
 
 ## Missing canonical artifact - ask before handoff
 

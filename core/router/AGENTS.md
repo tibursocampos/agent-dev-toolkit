@@ -56,6 +56,10 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 | **Backlog Refine** | Informal item before SDD | `refine-story` → `split-story-checklist` → Classic SDD or Orchestrated Delivery |
 | **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
 
+### Operator track choice
+
+Tracks are **recommendations**, never prerequisites between each other. The operator may start **Classic SDD** directly (`/sdd-spec`, `/sdd-plan`) from chat, Plan mode, `.cursor/plans/`, or manual analysis — **without** running `orchestrate-analyze` first. Do **not** tell the user they "must" run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it.
+
 **Checkpoint:** one `sdd-develop` session = one PLAN step. Orchestrated Delivery Step 0 = Memory Bank Gate (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged.
 
 **Enforcement:** `{{GUARDRAILS_PATH}}`, `sdd-pipeline-guards.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`.

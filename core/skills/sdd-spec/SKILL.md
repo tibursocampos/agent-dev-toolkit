@@ -88,11 +88,13 @@ Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.m
 
 **Prior context** (chat, code-review, backlog, **feature siblings**, **promoted bank**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings). Apply **selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste a full PRD into prompts/handoffs — paths + short summaries only.
 
-**Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including `.cursor/plans/`), follow `PIPELINE.md` § Promote: **Read** and copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS` before synthesizing the PRD. Prefer **promoted siblings and memory-bank** over re-asking. Pointer-only citations are not Prior context.
+**Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including `.cursor/plans/`), follow `PIPELINE.md` § **Classic PRD/PLAN promote** (`invocation_context=direct`): **Read** → synthesize PRD → confirm → `Write` under `features/.../PRD/`. Do **not** require `orchestrate-analyze` first. Prefer **promoted siblings and memory-bank** over re-asking.
 
-When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true (those folders are **required**, not optional). Prefer sibling/bank content over re-asking; still max **3** gap questions. Bank reads = named files only (never recurse-load the whole tree into context).
+When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true. Prefer sibling/bank content over re-asking; still max **3** gap questions. Bank reads = named files only (never recurse-load the whole tree into context).
 
-**Required siblings STOP:** If FEATURE `needs_*` is true (or brownfield) and the story lacks the matching `ANALYSIS/` / `ARCH/` / `SEC/` folder/files: **STOP**. Do **not** Write PRD. Return to O1 (`/orchestrate-analyze`) or create those folders first. Max-3 gap questions do **not** replace this gate.
+**Required siblings (`IC-DIRECT-ORCHESTRATED`):** Resolve `invocation_context` at skill start (`INVOCATION-CONTEXTS.md`).
+- **`direct`:** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask (create inline / proceed at operator risk / optional `/orchestrate-analyze`); do **not** hard-block.
+- **`orchestrated`:** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` missing → **STOP**; return to O1. Max-3 gap questions do **not** replace this gate.
 
 **Otherwise** ask (pt-BR):
 
@@ -132,7 +134,7 @@ Record `artifact_language` from `preferences.json`, manifest, or user override (
 ### 7. Write PRD (Agent + sim only)
 
 1. Validate path per `PIPELINE.md` section Path validation - abort if non-canonical (**writes** only under `features/.../PRD/`).
-2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
+2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
 3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `templates/sdd/PRD.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`); include **## Execution policy**.
 4. **Brownfield CHANGE (REQ-004):** If FEATURE `Nature` is `brownfield` (or sibling FEATURE under `features/NNN-slug/` says brownfield), also Write `features/NNN-slug/CHANGE.md` from `templates/features/CHANGE.md` with **ADDED \| MODIFIED \| REMOVED** vs **current** (`memory-bank/` living docs — never `openspec/` / `.specs/` / `.specify/`). **Greenfield** must **not** force an empty CHANGE stub. Details: `CHANGE-CONTRACT.md` + `references/validate-change.md`.
 5. Product `docs/` in scope: ask doc language first (`references/product-docs-language.md`).
@@ -165,7 +167,7 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 
 - Hard-code PRD body to pt-BR when user chat is another language; implementation code in PRD
 - `Write` outside canonical feature PRD folders (never root/flat `PRD/`); skip confirm-before-write
-- Write PRD when flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing for true FEATURE `needs_*` / brownfield — **STOP**; max-3 gap questions do not replace this gate
+- Hard-block PRD in `orchestrated` context when flag-gated siblings are missing; in `direct` context, ask instead of blocking (`INVOCATION-CONTEXTS.md`)
 - `Edit`/`Write` production or test code; create PLAN in this session
 - Claim "PRD saved" without successful `Write`
 - External trackers; do not paste full guideline bodies into PRD
