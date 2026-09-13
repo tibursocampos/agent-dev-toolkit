@@ -115,7 +115,7 @@ Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRAT
 
 ### 3. Gitignore (repository only)
 
-If `storage_mode` is **repository**: ensure SDD `.gitignore` block per `STORAGE.md` (**`/features/`** and safety-net patterns only — **do not** add or require `/memory-bank/`) **before** the first bank Write. Commit bank when product knowledge; never commit secrets.
+If `storage_mode` is **repository**: ensure SDD `.gitignore` block per `STORAGE.md` and `features_versioned` in manifest (safety-net + `!/docs/documentation-plan/plan.md`; **do not** add or require `/memory-bank/`) **before** the first bank Write. Commit bank when product knowledge; never commit secrets.
 
 If **global**: do **not** edit or suggest SDD patterns in the consumer `.gitignore`.
 

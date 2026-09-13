@@ -113,9 +113,9 @@ Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank
 ### 6. Write PLAN (Agent + sim only)
 
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
-2. Repository mode: `.gitignore` per `STORAGE.md` (include `/features/`; keep `/PRD/` `/PLAN/` as safety net only; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets). Global mode: do **not** edit `.gitignore`.
+2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
 3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA.
-4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing, **STOP** — O1/O2 creates that file first; PLAN cites the path only (`references/plan-magro.md`).
+4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing: **`orchestrated`** → STOP (O1/O2 creates first); **`direct`** → create inline or ask operator; PLAN cites the path only (`references/plan-magro.md`, `INVOCATION-CONTEXTS.md`).
 5. Warn if overwriting PLAN with completed steps.
 
 ### 6.5 Structural validate before advance
@@ -136,7 +136,7 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 ## Must not
 
 - Write PLAN in a language other than user chat / `artifact_language` without override; embed implementation code
-- Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists (bank phase 2 or `ARCH/` / `ANALYSIS/`) — O1/O2 must create that file first; PLAN then cites the path
+- Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists — in `orchestrated` context O1/O2 creates first; in `direct` context create inline or ask; PLAN then cites the path (`INVOCATION-CONTEXTS.md`)
 - Paste SQL/DDL/JSON/OpenAPI into PLAN when a canonical path already exists (cite the path only — PLAN magro)
 - Create or overwrite PRD; sdd-develop or commit here
 - Write PLAN without canonical PRD (except explicit user choice **2** with specs)

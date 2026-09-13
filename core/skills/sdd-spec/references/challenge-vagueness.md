@@ -16,6 +16,6 @@ Before drafting the PRD, challenge Prior context and operator answers for **dept
 
 **What / not how:** depth challenges ask for observable outcomes, beneficiaries, and success signals — **never** implementation code, class design, or step-by-step how. Identifiers (types, APIs, paths) stay English when cited.
 
-If FEATURE/STORY siblings are thin: ask ≤3 gap questions targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield, **STOP** per SKILL (do not Write PRD).
+If FEATURE/STORY siblings are thin: ask ≤3 gap questions targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield: **`orchestrated`** → STOP per SKILL; **`direct`** → ask (create inline / proceed / optional orchestrate) — do not hard-block.
 
 Anti-task-shatter titles (verb+file/class/script) in Prior context → keep as PLAN/refine altitude; do not promote into Valuable US framing without outcome rewrite (`anti-task-shatter.md` — load only when titles look task-shaped).

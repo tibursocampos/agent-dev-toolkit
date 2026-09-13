@@ -54,9 +54,11 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 ## Classic SDD / Backlog Refine / Orchestrated Delivery
 
+**Track choice:** Classic SDD is standalone — `/sdd-spec` and `/sdd-plan` do **not** require `orchestrate-analyze` first. Offer Orchestrated Delivery as an option for multi-story / brownfield; never as a hard gate.
+
 | Skill | Operator notes |
 |-------|----------------|
-| `sdd-spec` / `sdd-plan` | Classic SDD. Caveman cap **Lite** when mode ON. |
+| `sdd-spec` / `sdd-plan` | Classic SDD — direct slash OK (chat, Plan mode, `.cursor/plans/`). Caveman cap **Lite** when mode ON. |
 | `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
 | `read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
 | `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |

@@ -2,7 +2,8 @@ site_name: agent-dev-toolkit
 site_url: https://tibursocampos.github.io/agent-dev-toolkit/
 repo_url: https://github.com/tibursocampos/agent-dev-toolkit
 repo_name: tibursocampos/agent-dev-toolkit
-docs_dir: docs-site
+docs_dir: .
+site_dir: ../site
 copyright: Copyright &copy; 2026 Raphael Campos — MIT License
 
 theme:
