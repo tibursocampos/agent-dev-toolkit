@@ -1,6 +1,6 @@
 ## Inventory script resolution (prefer before fallback)
 
-Resolve `Invoke-MemoryBankInventory.ps1` in this order — **do not** Glob only under `~/.cursor` / agent home (sync does **not** publish `scripts/`):
+Resolve `Invoke-MemoryBankInventory.ps1` in this order — **do not** Glob only under the host skills install root / agent home (sync does **not** publish `scripts/`):
 
 1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
 2. Relative from toolkit repo when `$Cwd` **is** the toolkit: `./scripts/inventory/Invoke-MemoryBankInventory.ps1`

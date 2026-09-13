@@ -4,7 +4,7 @@ Single source of truth for the **workspace-scoped** `memory-bank/` contract and 
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` to `~/.cursor`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` into the host skills install root. Storage resolution: `STORAGE.md` (same manifest as `features/`).
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
@@ -192,7 +192,7 @@ Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already
 
 ## Inventory (script or agent fallback)
 
-**Script resolution order** (do **not** Glob only under `~/.cursor`):
+**Script resolution order** (do **not** Glob only under the host skills install root):
 
 1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
 2. Relative from toolkit repo when `$Cwd` is the toolkit

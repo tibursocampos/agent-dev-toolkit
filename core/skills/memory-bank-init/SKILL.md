@@ -76,7 +76,7 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Gate policies, stale, versioning, Step N | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
-| Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under `~/.cursor`) |
+| Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
@@ -129,7 +129,7 @@ Write only after **sim**.
 
 ### 5. Inventory (read-only scan of consumer)
 
-**Script resolution order** (do **not** Glob only under `~/.cursor` — sync does not publish `scripts/`):
+**Script resolution order** (do **not** Glob only under the host skills install root — sync does not publish `scripts/`):
 
 1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
 2. Relative from toolkit repo when `$Cwd` is the toolkit: `./scripts/inventory/Invoke-MemoryBankInventory.ps1`
