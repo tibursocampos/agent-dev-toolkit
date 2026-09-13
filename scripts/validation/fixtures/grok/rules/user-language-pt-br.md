@@ -13,12 +13,12 @@ Always write **user-facing** replies in **Brazilian Portuguese (pt-BR)**, includ
 - Questions and confirmations directed at the user
 - Error messages and remediation steps shown in chat
 
-## Exceptions (stay in English)
+## Exceptions (code / commits stay English for identifiers)
 
 | Context | Language |
 |---------|----------|
-| Source code, identifiers, comments, XML docs | English |
-| Commit messages, PR titles/bodies (unless user asks otherwise) | English |
+| Identifiers (types, members, params, files), commit messages, PR titles/bodies (unless user asks otherwise) | English |
+| Comments / XML docs / narrative docs in source | **Mirror** touched area (pt-BR↔pt-BR, EN↔EN); **ask** on greenfield — `structure-and-quality.md` §2 (user override wins) |
 | SDD agent artifacts (PRD, PLAN `.md`) | pt-BR - see `sdd-artifact-language-pt-br.mdc` |
 | Skill names, paths, and command examples (`/sdd-develop`) | English |
 

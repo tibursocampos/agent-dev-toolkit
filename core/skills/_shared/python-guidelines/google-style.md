@@ -12,7 +12,7 @@ Style conventions adapted from Google's Python Style Guide. Light companion to `
 - Use naming: modules/packages `snake_case`; classes `PascalCase`; functions/vars `snake_case`; constants `UPPER_SNAKE_CASE`; non-public with leading `_`.
 - Prefer type annotations on public signatures (see `typing.md`); run the project type checker when configured.
 - Use Google-style docstrings (`"""` with Args / Returns / Raises) for public modules, classes, and functions when the project already documents that way — match neighbor density.
-- Keep identifiers and docstrings in **English**.
+- Identifiers **English**; docstrings/comments **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 

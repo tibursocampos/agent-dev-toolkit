@@ -1,13 +1,16 @@
 {
-  "schema_version": 1,
-  "generated_at": "{{GENERATED_AT}}",
+  "schema_version": 3,
+  "repo": "{{REPO_NAME}}",
   "repo_path": "{{REPO_PATH}}",
   "bank_path": "{{BANK_PATH}}",
+  "generated_at": "{{GENERATED_AT}}",
   "stale_days": 90,
-  "lockfiles": [],
-  "manifests": [],
-  "docs": [],
-  "entry_points": [],
+  "status": "not-ready",
+  "status_reason": "no_sources: scaffold template; run inventory",
+  "inventory_hash": "",
+  "inventory_summary": "0 source(s); stack: unknown",
   "stack_hints": [],
-  "notes": []
+  "skill_count": 0,
+  "assert_script_count": 0,
+  "sources": []
 }

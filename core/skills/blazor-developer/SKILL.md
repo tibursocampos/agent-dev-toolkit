@@ -38,6 +38,7 @@ Working Razor components and tests in the target workspace, validated with `dotn
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Branch / commit | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
 | Blazor components / lifecycle | `{{TOOLKIT_ROOT}}/skills/_shared/blazor-guidelines/blazor-components.md` |
 | Blazor state / forms | `{{TOOLKIT_ROOT}}/skills/_shared/blazor-guidelines/blazor-state.md` |

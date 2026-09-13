@@ -12,7 +12,7 @@
 - Map known domain errors to stable HTTP status codes and response bodies; log unexpected errors with correlation ids when the project uses them.
 - Fail **fast** on configuration: validate required env/config at startup and exit non-zero if invalid — do not serve traffic half-configured.
 - Propagate errors from `async` handlers (`next(err)`, Fastify throw, or wrappers the project already uses).
-- Keep error messages for clients safe (no stacks in production); keep identifiers and logs in **English**.
+- Keep error messages for clients safe (no stacks in production); identifiers **English**; logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 

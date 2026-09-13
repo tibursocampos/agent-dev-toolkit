@@ -12,7 +12,9 @@ Apply when the project uses TypeScript. Match `tsconfig.json` strictness; do not
 - Narrow `unknown` with type guards before property access; type `fetch`/HTTP parse results before use.
 - Return `Promise<T>` from async functions with a concrete `T` — not `Promise<any>`.
 - Prefer `??` and `?.` for nullish handling; make `| null` vs optional `?` intentional.
-- Keep type names and comments in **English**.
+- Keep the **public export surface minimal**; export only the stable API consumers need.
+- Prefer `namespace` **only** for interop (ambient/legacy); ban new `namespace` in app/feature modules.
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 
@@ -23,6 +25,7 @@ Apply when the project uses TypeScript. Match `tsconfig.json` strictness; do not
 - Use non-null assertions (`!`) as a default escape — narrow or redesign instead.
 - Export wide `any`-typed public APIs from feature modules.
 - Create circular barrel re-exports that break builds or hide dependency direction.
+- Add `namespace` / `module` blocks for new feature code (interop exceptions only).
 - Mix unchecked JSDoc `@type` hacks with strict TS in new code when `.ts` is available.
 
 ---

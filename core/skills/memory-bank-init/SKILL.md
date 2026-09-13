@@ -76,7 +76,7 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Gate policies, stale, versioning, Step N | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
-| Inventory script | toolkit `scripts/inventory/Invoke-MemoryBankInventory.ps1` (or synced copy if present) |
+| Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
@@ -129,6 +129,13 @@ Write only after **sim**.
 
 ### 5. Inventory (read-only scan of consumer)
 
+**Script resolution order** (do **not** Glob only under the host skills install root — sync does not publish `scripts/`):
+
+1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
+2. Relative from toolkit repo when `$Cwd` is the toolkit: `./scripts/inventory/Invoke-MemoryBankInventory.ps1`
+3. Optional synced copy under install root **if present**
+4. Only then `references/inventory-fallback.md` (curated allowlist; never full-repo recurse; schema_version **3** + `sources` — `files` is invalid)
+
 Prefer script (always scan `$Cwd`; write inventory under `bank_root`):
 
 ```powershell
@@ -140,18 +147,18 @@ Prefer script (always scan `$Cwd`; write inventory under `bank_root`):
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh-light
 ```
 
-Output in `<bank_root>/.inventory/sources.json`:
+Output in `<bank_root>/.inventory/sources.json` (schema_version **3**):
 
 | Field | Meaning |
 |-------|---------|
-| Per source | `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
+| Per source (`sources[]`) | `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
 | Governance | `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash`, `inventory_summary` |
 
-Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason (TE01).
+Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason (TE01). Bloated existing index (> ~200 paths) → reset to curated discovery + note in `status_reason`.
 
-**Observable wire (required):** after the script (or fallback) runs, read `status`, `status_reason`, `inventory_hash`, and `inventory_summary` from `sources.json` and include them in the Step 7 report. Do **not** treat `not-ready` as silent success — surface the reason before create/refresh file fills. Re-runs preserve paths from existing `sources.json` plus default discovery.
+**Observable wire (required):** after the script (or fallback) runs, read `status`, `status_reason`, `inventory_hash`, and `inventory_summary` from `sources.json` and include them in the Step 7 report. Do **not** treat `not-ready` as silent success — surface the reason before create/refresh file fills. Re-runs merge existing `sources` (cap) plus curated discovery; legacy `files` migrates to `sources` once.
 
-If script path unavailable, run equivalent Glob/Grep from `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same governance fields).
+If script path unavailable after the resolution order above, run `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same v3 governance fields).
 
 ### 6. Scaffold or refresh files
 

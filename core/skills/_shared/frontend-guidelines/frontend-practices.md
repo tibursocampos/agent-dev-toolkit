@@ -2,6 +2,8 @@
 
 Engineering standards for web frontends. **Visual decisions** (palette, typography, layout, motion) come from `docs/DESIGN-BRIEF.md` and `/impeccable` - not from this file.
 
+Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` — identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield.
+
 ## Visual decisions vs engineering
 
 | Source | Covers |
@@ -13,9 +15,9 @@ For **net-new UI** without a brief, recommend `/impeccable shape` in a new sessi
 
 ## Technology stack
 
-1. **Match the project stack** - use the framework, bundler, and styling approach already in the repo.
+1. **Mirror the project stack** - use the framework, bundler, and styling approach already in the repo (architecture/layout — not a license to copy style gaps).
 2. **Core**: HTML for structure; JavaScript/TypeScript for logic.
-3. **Styling**: Follow project conventions (vanilla CSS, SCSS, CSS modules, or framework-specific styling). Do not introduce a new styling system unless the task requires it.
+3. **Styling**: Mirror existing styling approach (vanilla CSS, SCSS, CSS modules, or framework-specific). Do not introduce a new styling system unless the task requires it.
 4. **Color without a design system**: Prefer OKLCH custom properties; verify contrast (4.5:1 body text, 3:1 large text).
 
 ## CSS specificity and cascade
@@ -49,6 +51,7 @@ See `html-css-guidelines/semantic-html.md` for markup detail.
 
 | Task type | Guideline path |
 |-----------|----------------|
+| Structure / quality (when coding) | `code-guidelines/principles/structure-and-quality.md` |
 | Markup / structure | `html-css-guidelines/semantic-html.md` |
 | CSS / layout | `html-css-guidelines/css-foundations.md` |
 | SCSS projects | `html-css-guidelines/scss-guidelines.md` |

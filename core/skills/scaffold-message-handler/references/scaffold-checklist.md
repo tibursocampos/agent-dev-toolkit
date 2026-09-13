@@ -11,6 +11,7 @@ Use after user confirms the plan. Check off in session notes; not all rows apply
 | **Errors** | Retry policy matches checklist; poison path documented |
 | **Idempotency** | Dedup or idempotent handler per checklist |
 | **Logging** | Structured log on start, success, failure (correlation id if repo uses it) |
+| **Structure / quality** | Touched code matches `structure-and-quality.md` (+ `csharp-patterns.md`) |
 | **Tests** | Meaningful behavior test per `csharp-patterns.md`; integration if repo already has harness |
 | **Build** | `dotnet build` + filtered `dotnet test` pass |
 

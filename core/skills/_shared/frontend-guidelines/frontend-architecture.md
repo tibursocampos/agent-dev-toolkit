@@ -33,7 +33,8 @@ Names may be `src/features`, `modules`, `pages` + `components` — **mirror the 
 - Put reusable presentational pieces and pure helpers in `shared/` (or the repo’s `shared` / `ui` / `components` equivalent) — not a dumping ground for unfinished features.
 - When ARCH / CONTINUITY asks for FE structure, **load this hub** from the active UI pack; do not invent a second architecture essay inside React/Vue/Angular/RN/Blazor files.
 - Map framework terms to the same idea: React routes/pages, Vue/Nuxt pages + composables, Angular feature folders, Expo Router `app/` routes, Blazor `Pages` / feature components.
-- Keep identifiers, comments, and logs in **English**.
+- Identifiers always **English**; comments/docs/logs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins).
+- Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style — mirror folders/flows; apply toolkit style bar on touched code).
 
 | Concern | Lives in |
 |---------|----------|
@@ -117,6 +118,7 @@ Framework packs keep stack HOW (hooks, Signals, SFCs, bUnit). **Structure policy
 ## Related guidelines
 
 - Practices / testing hubs: `frontend-practices.md`, `frontend-testing.md`
+- Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md`
 - Selection A: `../code-guidelines/principles/architecture-selection.md`
 - Backend concentric B (API only): `../code-guidelines/principles/architecture/concentric-dependency.md`
 - RN navigation HOW: `../react-native-guidelines/structure-and-navigation.md`

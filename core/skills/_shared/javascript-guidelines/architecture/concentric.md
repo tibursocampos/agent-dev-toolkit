@@ -20,7 +20,7 @@ Map concentric dependency (domain inward; adapters outward) onto Nest modules/po
 - Inject dependencies the way neighbors do (Nest DI, factory wiring, or explicit constructors) — no ad-hoc `new` of adapters inside domain.
 - Validate and map DTOs at the HTTP adapter; do not leak transport shapes into domain entities.
 - Fail closed at security boundaries before domain work runs (`node-security.md`).
-- Keep identifiers, comments, and logs in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../../code-guidelines/principles/structure-and-quality.md) §2.
 
 | Ring | Nest (when matching) | Express / Fastify (when matching) |
 |------|----------------------|-----------------------------------|

@@ -14,6 +14,8 @@ Behavior-focused tests for Angular components, services, and routes. Prefer the 
 - Cover new or changed behavior with at least one focused test; prefer shallow component tests plus service unit tests over one giant E2E for every branch.
 - Use stable queries: roles/labels/text; `data-testid` only when accessibility queries are insufficient.
 - Name tests in English matching repo style (`should … when …` or equivalent).
+- Prefer **component harnesses** (`@angular/cdk/testing` / Material harnesses) when the project or library already provides them for the control under test.
+- On **zoneless** (or when neighbors await stability): `await fixture.whenStable()` after async UI work before asserting DOM — do not rely on Zone auto-flush alone.
 
 ```typescript
 it('should emit saved when form is valid', () => {
@@ -51,8 +53,10 @@ it('should emit saved when form is valid', () => {
 | Jasmine + Karma | `describe` / `it` / `spyOn`; match `angular.json` test target |
 | Jest / Vitest builder | Match existing `*.spec.ts` patterns and jest-preset-angular (or equivalent) |
 | Spectator / Testing Library | Use project wrappers instead of inventing a parallel harness |
+| CDK / Material harnesses | Prefer harness APIs for BDS-adjacent or Material controls when available |
 | Cypress / Playwright e2e | Reserve for critical flows; keep unit/integration cheaper |
 | Signals components | Read signals via public API / fixture detectChanges; avoid brittle internal effect timing |
+| Zoneless tests | `await fixture.whenStable()` (and project async helpers) before DOM asserts |
 | Router testing | `RouterTestingModule` / `provideRouter` with test routes already used nearby |
 
 ### What to test where

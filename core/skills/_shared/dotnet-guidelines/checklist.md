@@ -29,7 +29,7 @@ Use before opening a pull request.
 - [ ] No validation outside FluentValidation
 - [ ] Guard clauses used (no deep nested `if`)
 - [ ] Single responsibility respected
-- [ ] Identifiers and comments in **English**
+- [ ] Identifiers always **English**; comments/XML docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
 - [ ] Changes follow `dotnet-guidelines` (clean architecture + C# patterns)
 - [ ] New types prefer modern C# (primary constructors, collection expressions, `required`) when no conflicting repo style; otherwise match the project
 
@@ -37,10 +37,12 @@ Use before opening a pull request.
 
 ## Code structure and formatting (`csharp-patterns.md`)
 
-- [ ] **One top-level type per file** (no second `class` / `record` in the same file)
+- [ ] **One top-level type per file** (default); match project colocation escape when that feature already colocates
 - [ ] **Signatures and invocations:** inline only when ≤ 5 parameters and full line ≤ 150 characters; otherwise one parameter per line
-- [ ] **Follow existing project patterns** (Glob/Read similar types; no parallel validation/flow)
-- [ ] **Named constants** in production code - no magic strings/numbers; `const` names in **PascalCase**; shared Constants files only for reusable values; prefer `partial` / regions when shared files grow
+- [ ] **Architecture vs style:** mirror folders/DI/flows; apply toolkit style bar on touched code (do not copy neighbor style violations)
+- [ ] **Named constants** in production code - no magic strings/numbers; no mix of inline log strings + `const` in the same type; `const` names in **PascalCase**; shared Constants files only for reusable values; prefer `partial` / regions when shared files grow
+- [ ] **Blank lines:** no blank-spam between every statement; blanks only between logical member groups
+- [ ] **Readable construction:** named locals when multi-arg `new` harms readability; builders only when reuse justifies
 - [ ] **Method ordering:** all public methods (alphabetical), then all private methods (alphabetical)
 
 ---

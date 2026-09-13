@@ -12,6 +12,7 @@ Standalone APIs and modern control flow for Angular 17+. Absorbs prior stub guid
 - Always provide a **`track`** expression on `@for` (stable entity id; never omit).
 - Prefer `@empty` blocks for empty lists instead of a separate sibling `*ngIf`.
 - Keep templates declarative: move non-trivial expressions into `computed()` / methods / pipes already used by the project.
+- Prefer **`[class]` / `[style]`** (and class/style bindings) over `ngClass` / `ngStyle` in modern templates unless neighbors already standardize on the directives.
 - Use semantic host elements and accessible labels; defer shared a11y essays to `frontend-guidelines/` and `html-css-guidelines/`.
 
 ```typescript
@@ -48,6 +49,7 @@ export class OrderListComponent {
 - Use `@for` without `track`.
 - Put business orchestration or HTTP calls in the template.
 - Wrap every leaf in unnecessary `NgIf`/`@if` when CSS/`@empty` already handles the empty state.
+- Add new `ngClass` / `ngStyle` when `[class.…]` / `[style.…]` / `[class]` / `[style]` express the same binding cleanly.
 
 ---
 

@@ -12,7 +12,10 @@ Core clean-code practices for JavaScript, adapted from clean-code-javascript the
 - Limit positional arity; use destructured parameter objects when neighbors do (or when args exceed ~2–3).
 - Prefer `async/await` over long `.then()` chains; handle failures with `try/catch` or central handlers.
 - Throw real `Error` instances (or project error types), not raw strings.
-- Keep identifiers and comments in **English**.
+- Use runtime-safe collection/spread patterns — never spread non-iterables / non-objects; guard before `...` / `Object.assign`.
+- Avoid callback signature traps (e.g. `array.map(parseInt)` — arity/index mismatch); wrap (`(s) => parseInt(s, 10)`).
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
+- Named constants: [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §4.
 
 ---
 

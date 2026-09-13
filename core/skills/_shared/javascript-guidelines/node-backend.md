@@ -13,8 +13,8 @@
 - Validate input at the edge (Zod, Joi, celebrate, Fastify JSON Schema / TypeBox, Nest pipes — match the repo).
 - Load config from env / a typed config module; fail fast on missing required keys at startup.
 - Propagate async errors to central error middleware / Fastify `setErrorHandler` / Nest filters — no unhandled promise rejections.
-- Use named constants for status codes, route prefixes, and message keys when the project already does.
-- Keep identifiers, comments, and logs in **English**.
+- Use named constants for status codes, route prefixes, and message keys — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §4 (match project Constants style when present).
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 - Cover changed routes and error paths with the project’s test stack (supertest / Fastify `inject`, Nest testing, Jest/Vitest/Mocha/`node:test`).
 - When ARCH declares an architecture style, load **exactly one** overlay under `architecture/<style>.md` (see Architecture overlays below) — never glob `architecture/**`.
 

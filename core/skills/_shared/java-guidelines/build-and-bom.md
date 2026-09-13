@@ -60,6 +60,14 @@ On Windows PowerShell the same wrappers apply (`.\mvnw.cmd`, `.\gradlew.bat`) wh
 | Wrapper | Commit and use `mvnw` / `gradlew` |
 | New plugin | Ask before adding |
 | BOM conflict | Resolve via Boot-managed set first |
+| Supply-chain / license | When CI already runs OWASP Dependency-Check, Snyk, FOSSA, License Maven Plugin, etc. — fix or triage findings on **touched** dependency graphs; do not add scanners casually |
+
+### Supply-chain hygiene (when pipeline already scans)
+
+- Prefer existing CI/dependency-check jobs over new local plugins.
+- On new or upgraded coordinates: check advisories the repo already surfaces; do not ignore high/critical without a tracked waiver.
+- License allow-lists: follow org/repo policy when a license gate is already configured — do not introduce copyleft surprises into a permissive-only product without ask.
+- SBOM publish/consume: only when the pipeline already produces or requires one.
 
 ### Adding a dependency (procedure)
 

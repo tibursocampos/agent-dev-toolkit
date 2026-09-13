@@ -8,6 +8,8 @@
 
 - Use `async def` only when the function awaits I/O or the project standardizes on async call graphs end-to-end.
 - `await` every coroutine; never fire-and-forget without an explicit task strategy the project already uses.
+- Supervise `asyncio.create_task` — track, await, or hand to the project’s task group/supervisor; never orphan tasks.
+- Bound `asyncio.gather` / fan-out concurrency for external I/O (semaphore or project limit); do not unbounded-gather remote calls.
 - Propagate cancellation and timeouts with `asyncio.timeout` / project helpers; do not hang forever on external calls.
 - Use **async-native** clients in async code (e.g. `httpx.AsyncClient`, async DB drivers) — do not call blocking I/O on the event loop.
 - Offload unavoidable blocking work with `asyncio.to_thread()` (or the project’s executor pattern), not by nesting sync calls in hot async paths.

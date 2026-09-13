@@ -10,8 +10,10 @@ Formatting and naming adapted from Google TypeScript Style / gts themes. **Defer
 - Prefer **kebab-case** file names when the project already uses them (`order-processor.ts`); otherwise match neighbor files.
 - Prefer explicit named imports; avoid `import *` unless the project pattern requires it.
 - Prefer named exports when neighbors do (searchable, explicit symbols).
+- Keep the **public export surface minimal** — export only what consumers need; avoid barrel dumps of internals.
+- Prefer `namespace` **only** for interop (ambient/legacy); ban new `namespace` in app/feature modules.
 - Keep statements consistent with the project semicolon/quote rules (gts defaults: semicolons on; single quotes unless template literals).
-- Keep identifiers and comments in **English**.
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 
@@ -20,6 +22,7 @@ Formatting and naming adapted from Google TypeScript Style / gts themes. **Defer
 - Fight Prettier/ESLint/gts on indentation, quotes, or line width — run the project formatter.
 - Invent a new naming scheme beside an established one in the same folder.
 - Use default exports in packages that standardize on named exports (or the reverse) without matching neighbors.
+- Introduce `namespace` / `module` blocks for new feature code (interop exceptions only — see MUST).
 - Use deep relative imports (`../../../../`) when path aliases are configured in `tsconfig`.
 - Introduce spaces/tabs mix; follow the project indent (gts often **2 spaces** when no Prettier override).
 

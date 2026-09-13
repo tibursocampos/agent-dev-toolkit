@@ -14,6 +14,8 @@ Rules of Hooks, derived state, and Effect discipline. Pair with `components-and-
 - Reset state with a **`key`** on the component when the identity of the edited entity changes, instead of Effects that clear fields on `id` change when that fits the UX.
 - Declare complete Effect dependency arrays; fix missing deps by restructuring (derived values, event handlers, or extracting child components), not by casually disabling the lint rule.
 - Clean up subscriptions, timers, and listeners in the Effect cleanup function.
+- **Dedupe global listeners** (`window`/`document`/`matchMedia`): one shared subscription (module helper / context) when many mounts need the same event — do not attach N identical listeners.
+- Prefer `{ passive: true }` for scroll/touch listeners when the handler never calls `preventDefault`.
 - Keep Effects for **synchronizing with an external system** (DOM APIs not managed by React, network when no query library, third-party widgets) — not for chaining React state updates.
 - Prefer adjusting state during render only for the rare “store previous + adjust” patterns documented by React — default to derivation and events first.
 
@@ -49,6 +51,8 @@ async function handleSubmit() {
 - Suppress `react-hooks/exhaustive-deps` without a documented reason and a safer structure nearby.
 - Fetch in Effects by default when the project already uses RSC, route loaders, TanStack Query, or SWR — follow `data-fetching.md`.
 - Put non-idempotent work in render (network, random writes); use events or Effects with proper guards.
+- Register the same global listener in every mounted instance without a shared owner/refcount.
+- Mark scroll/touch listeners non-passive when `preventDefault` is never used (hurts scroll jank).
 - Chain Effects that only transform state A → state B → state C; collapse into derivation or a reducer.
 
 ---

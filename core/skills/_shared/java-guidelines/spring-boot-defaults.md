@@ -16,7 +16,7 @@
 - Validate at the edge with Bean Validation (`@Valid` / `@Validated` + constraints) on request bodies and params.
 - Place the `@SpringBootApplication` main class in the **root package** of the app so component scanning covers subpackages.
 - Externalize config via `application.yml` / `application.properties` (+ profile files); prefer `@ConfigurationProperties` for new typed config groups.
-- Keep identifiers, comments, and log messages in **English**.
+- Identifiers and log message *keys/templates*: **English**. Comments/Javadoc: mirror touched area or ask on greenfield (`structure-and-quality.md` §2).
 - Prefer synchronous MVC (`spring-boot-starter-web`) unless the module is already reactive.
 
 | Choice | Rule |
@@ -52,6 +52,8 @@
 - MapStruct / manual mappers: follow the neighbor feature’s mapping style.
 - Transaction boundaries: use `@Transactional` where the project already applies it on services.
 - Exception handling: extend existing `@ControllerAdvice` / problem-details types.
+- **ProblemDetail / RFC 7807 envelope:** use only on **Boot 3+** (or Spring Framework 6+) **and** when the repo already returns `ProblemDetail` / `application/problem+json` (or a project subtype). Otherwise keep the existing error DTO/`@ControllerAdvice` shape — do not invent a parallel envelope.
+- Graceful shutdown: when adding long-running request/messaging work, respect Boot’s graceful shutdown / in-flight drain if the module already enables it (`server.shutdown=graceful` or equivalent); do not leave unbounded work that ignores stop signals.
 - OpenAPI: only when `springdoc` (or equivalent) is already a dependency.
 
 ---

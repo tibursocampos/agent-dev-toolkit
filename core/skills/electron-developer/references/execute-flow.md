@@ -24,6 +24,8 @@ Define 3-7 concrete tasks; checkpoint context at >= 40%.
 
 ### 4. Implement
 
+Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+
 Main/preload/renderer separation, typed IPC, contextIsolation. Match existing electron-vite or electron-builder layout.
 
 ### 5. Tests

@@ -14,6 +14,7 @@ Local and shared reactivity with Signals, signal inputs/outputs, and RxJS bridge
 - Bridge HTTP/Observables with **`toSignal()`** (or `async` pipe) rather than manual subscribe + push into a field, when the template only needs the latest value.
 - Keep **UI state** (panels, selection) separate from **server/async state** (entities from APIs); do not duplicate query results into writable signals “for convenience.”
 - Use `effect()` sparingly — for synchronization with imperative APIs, not as a substitute for `computed()`.
+- **`httpResource` / `resource`** (version-gated): use only when the installed Angular version and neighbors already adopt them; abort/cancel on destroy; gate reads with `hasValue()` (or equivalent); perform **mutations via `HttpClient`** (or existing mutation services) — not by overloading the read resource.
 
 ```typescript
 readonly userId = input.required<string>();
@@ -37,6 +38,8 @@ private readonly routeOrders = toSignal(this.store.load$(), { initialValue: [] a
 - Mix uncontrolled `@Input()` and `input()` on the same component without a migration plan.
 - Call `toSignal()` repeatedly inside methods that re-run every change detection cycle — create the bridge once at field init.
 - Put remote cache invalidation logic only in components; prefer services/stores matching the repo.
+- Call `resource`/`httpResource` APIs on Angular versions that do not ship them, or without abort/`hasValue` guards.
+- Mutate remote state by writing into a read `resource` instead of an explicit HttpClient/mutation path.
 
 ---
 
@@ -48,7 +51,7 @@ private readonly routeOrders = toSignal(this.store.load$(), { initialValue: [] a
 | `providedIn: 'root'` stores | Keep singleton stores; feature `providers` when already scoped that way |
 | RxJS-heavy services | Keep Observables at the boundary; convert at the component with `toSignal` / async pipe |
 | Zoneless / experimental flags | Follow `angular.json` / bootstrap flags; do not toggle zoneless in a small fix |
-| `linkedSignal` / resource APIs | Use only when the installed Angular version and repo already adopt them |
+| `linkedSignal` / resource APIs | Use only when the installed Angular version and repo already adopt them; abort + `hasValue`; mutations via HttpClient |
 | Shared state across routes | Route data + services; URL for shareable state |
 
 ### State placement

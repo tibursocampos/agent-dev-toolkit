@@ -55,7 +55,7 @@ const { isSaving, save } = useOrderSave(() => props.title, emit);
 2. `<template>`
 3. `<style scoped>` (or project equivalent)
 
-Match neighbors if they differ.
+Mirror existing SFC section order when the repo differs (architecture/layout).
 
 ### Composable extraction triggers
 

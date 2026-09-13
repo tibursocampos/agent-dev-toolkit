@@ -13,6 +13,7 @@ Identify opportunities to group related data and behavior.
 - **Severity:** Suggestion
 - **Do not flag:** unrelated parameter types, DI constructors with many services (normal in layered apps)
 - See below for grouping examples.
+- **Readable call-site construction** (named locals before multi-arg `new`; builders only when reuse justifies): [structure-and-quality.md](./structure-and-quality.md) §7 — not duplicated here.
 
 ---
 

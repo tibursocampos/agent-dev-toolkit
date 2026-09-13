@@ -45,16 +45,16 @@ Priority rules from the official Vue style guide. Cross-cutting a11y lives in `a
 | Signal | Prefer |
 |--------|--------|
 | ESLint `vue/essential` / `vue/recommended` | Fix lint violations rather than disabling rules |
-| Priority B/C style guide items | Apply when neighbors already follow them (attribute order, self-closing, etc.) |
+| Priority B/C style guide items | Apply on **touched** code (attribute order, self-closing, etc.) — do not copy neighbor style gaps |
 | Single-file vs class components | SFC Composition API default |
-| Scoped vs module CSS | Match existing |
+| Scoped vs module CSS | Mirror existing styling approach / layout |
 
 ### Priority B highlights (when matching repo)
 
 - Element attribute order roughly: `is` → `v-for` → `v-if`/`v-else-if`/`v-else` → `v-show` → `v-cloak` → `v-pre` → `v-once` → `id` → `ref` → `key` → others… (follow eslint-plugin-vue if configured).
 - Prefer detailed prop definitions and sensible defaults over loosely typed props.
 - Prefer self-closing components (`<MyComp />`) when the project’s eslint rule requires it.
-- Keep `v-bind` object syntax consistent with neighbors (`v-bind="attrs"` vs explicit props).
+- Keep `v-bind` object syntax consistent on **touched** code (`v-bind="attrs"` vs explicit props); prefer project eslint when configured.
 
 ### List key decision
 

@@ -11,9 +11,9 @@ Razor component structure, parameters, binding, and lifecycle for WASM, Server, 
 - Prefer `@bind` / `@bind-Value` for two-way binding; use `@bind-Value:after` (.NET 8+) when a post-bind side effect is required.
 - Implement lifecycle correctly: one-time work in `OnInitialized(Async)`; react to parameter changes in `OnParametersSet(Async)`; DOM / JS work in `OnAfterRender(Async)` with a `firstRender` guard when needed.
 - Dispose subscriptions, timers, and cancellation tokens via `IDisposable` / `IAsyncDisposable` when the component owns them.
-- Keep Razor markup thin: extract growing logic to partial class code-behind, scoped services, or existing project patterns — match what neighbors already do.
+- Keep Razor markup thin: extract growing logic to partial class code-behind, scoped services, or existing project **architecture/layout** patterns.
 - Use CSS isolation (`Component.razor.css`) when the project already scopes styles that way.
-- Keep identifiers, comments, and source in English; user-facing copy follows repo i18n.
+- Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins). User-facing copy follows repo i18n.
 
 ```razor
 @code {

@@ -1,6 +1,6 @@
 # Agent router (L0 index) - agent-dev-toolkit
 
-Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
+Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/`. **Pointers only** â€” do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ â€” do **not** assume `/` is universal:
 
 | Host family | Explicit form | Example |
 |-------------|---------------|---------|
@@ -15,7 +15,7 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## ORCHESTRATOR CHARTER
 
-1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that.
+1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis â€” specialists do that.
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
 3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
 
@@ -23,26 +23,27 @@ Mode and in-session commands: `core/policy/orchestrator-session.md` + `E:/Source
 
 ## Parallel specialists (default)
 
-**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
+**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds â€” specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
+Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file â€” do not open a `rules/` path).
 
-- **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
+- **Read** `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native â†’ spawn; `none` / Task unavailable â†’ fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
-- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt â†’ spawn.
 - User-facing chat and persisted artifacts match the **user chat language**; spawn / child prompts / agent receipts stay **en-US** (`LANGUAGE.md`).
 
 ## Language
 
-Two surfaces (host-agnostic — `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md`):
+Two surfaces (host-agnostic â€” `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/LANGUAGE.md`):
 
 | Context | Rule |
 |---------|------|
 | User chat + persisted artifacts (FEATURE/STORY/PRD/PLAN/ANALYSIS/ARCH/SEC, product `docs/` / README) | **Same as user chat** in this session |
 | Internal thinking, spawn / Task child prompts, specialist contexts, receipts for agents | **Always en-US** |
-| Source code, tests, commits, identifiers | English always |
+| Identifiers, tests naming, commits | English always |
+| Comments / XML docs / narrative docs in source | Mirror touched area or ask on greenfield (`structure-and-quality.md` §2) |
 
-Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published rules `sdd-artifact-language-pt-br.mdc` / `user-language-pt-br.mdc` are Cursor defaults; honor `LANGUAGE.md` when chat is not pt-BR.
+Do not dump a full user-language PLAN/PRD into a child prompt â€” **paths + excerpt**. Published rules `sdd-artifact-language-pt-br.mdc` / `user-language-pt-br.mdc` are Cursor defaults; honor `LANGUAGE.md` when chat is not pt-BR.
 
 ## Tracks (workflows)
 
@@ -50,9 +51,9 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 
 | Track | When | Pipeline |
 |-------|------|----------|
-| **Classic SDD** | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **Backlog Refine** | Informal item before SDD | `refine-story` → `split-story-checklist` → Classic SDD or Orchestrated Delivery |
-| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
+| **Classic SDD** | One feature, clear path | `sdd-spec` â†’ `sdd-plan` â†’ `sdd-develop` |
+| **Backlog Refine** | Informal item before SDD | `refine-story` â†’ `split-story-checklist` â†’ Classic SDD or Orchestrated Delivery |
+| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` â†’ `orchestrate-deliver` â†’ (`orchestrate-develop` \| `sdd-develop`) |
 
 **Checkpoint:** one `sdd-develop` session = one PLAN step. Orchestrated Delivery Step 0 = Memory Bank Gate (`E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged.
 
@@ -66,15 +67,15 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 | Stack router / ad-hoc | `developer` |
 | Explicit .NET | `dotnet-developer` |
 | Explicit Java | `java-developer` |
-| Frontend UI design | `impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
-| Blip React plugin | `blip-plugin-developer` → `react-developer` |
+| Frontend UI design | `impeccable` â†’ `DESIGN-BRIEF.md` â†’ stack `*-developer` |
+| Blip React plugin | `blip-plugin-developer` â†’ `react-developer` |
 
 ### Optional flows (index)
 
 | Flow | Entry skills |
 |------|----------------|
-| Repo documentation (RAG) | `document-plan` → `document-implement` |
-| Build / test | `repair-dotnet-build` → optional `commit` / `push` |
+| Repo documentation (RAG) | `document-plan` â†’ `document-implement` |
+| Build / test | `repair-dotnet-build` â†’ optional `commit` / `push` |
 | EF migration | `ef-add-migration` |
 | Message consumer | `scaffold-message-handler` |
 
@@ -89,7 +90,7 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 
 ## Agents / spawn (lazy)
 
-Default preference: this session stays parent/orchestrator; specialists for heavy work — see **Parallel specialists (default)** above. Details:
+Default preference: this session stays parent/orchestrator; specialists for heavy work â€” see **Parallel specialists (default)** above. Details:
 
 | Topic | Path |
 |-------|------|
@@ -99,11 +100,11 @@ Default preference: this session stays parent/orchestrator; specialists for heav
 | Roster / `needs_*` | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/RECEIPT.md` |
 | Task `model` param | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/SUBAGENT-MODEL.md` |
-| Stack → `*-developer` | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/ROUTING.md` |
+| Stack â†’ `*-developer` | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/agents/ROUTING.md` |
 
 ## Rules (always-on)
 
-Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/` after sync-agent (source policy under `core/policy/` where applicable). Cursor-oriented `.mdc` names below; other hosts rewrite the extension or skip this table when `rules=false` (OpenCode/ZCode: honor Parallel specialists — no rules file).
+Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/rules/` after sync-agent (source policy under `core/policy/` where applicable). Cursor-oriented `.mdc` names below; other hosts rewrite the extension or skip this table when `rules=false` (OpenCode/ZCode: honor Parallel specialists â€” no rules file).
 
 | Rule | Path |
 |------|------|
@@ -119,7 +120,7 @@ Published under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/c
 
 ## Skills catalog
 
-Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (operator nuances). Invoke skill `help-skills` to present those static files — do not re-analyze every skill body.
+Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/cursor-install-root/skills/_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (operator nuances). Invoke skill `help-skills` to present those static files â€” do not re-analyze every skill body.
 
 | Group | Examples |
 |-------|----------|

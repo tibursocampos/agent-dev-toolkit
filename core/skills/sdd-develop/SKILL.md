@@ -1,6 +1,6 @@
 ---
 name: sdd-develop
-description: Execute one PLAN baby step (code in English; PLAN in file language per LANGUAGE.md). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
+description: Execute one PLAN baby step (identifiers English; comments/docs mirror or ask; PLAN in file language per LANGUAGE.md). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -32,7 +32,7 @@ Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **code and tests in English**; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
+One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
@@ -40,7 +40,9 @@ One **PLAN step** done: **code and tests in English**; PLAN updated in place. Ho
 
 | Deliverable | Language |
 |-------------|----------|
-| Code, tests, comments, XML docs | **English** |
+| Identifiers (types, members, params, files) | **English** |
+| Comments / XML docs / narrative docs | **Mirror** touched area (pt-BR↔pt-BR, EN↔EN); **ask** on greenfield / no clear mirror (user override wins) — `structure-and-quality.md` §2 |
+| Tests (identifiers + assertions naming) | Identifiers **English**; narrative comments mirror/ask as above |
 | PLAN progress / notes | **Same as PLAN file** |
 | Product `docs/` / README | Ask pt-BR vs English first |
 
@@ -69,6 +71,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
 | Branch / commits | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
 | Developer-common (on trigger) | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | .NET guidelines (on trigger) | **one** file under `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
