@@ -16,6 +16,7 @@ Total: **40** kebab skills.
 | **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
+**Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
 
 ## Classic SDD
 

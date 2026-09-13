@@ -19,7 +19,7 @@ Load `STORAGE.md`. Run resolution with `$Workflow = classic`. Resolve feature ro
 
 If first run for this repo: ask storage (pt-BR) per `STORAGE.md` and persist manifest. Confirm target workspace. Do **not** invent a feature path outside the resolved root.
 
-Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` (includes `/features/`; **do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets) when writing under `features/` or `memory-bank/` (do not weaken toolkit patterns; never ignore `skills/`). **Global mode:** do not edit project `.gitignore`.
+Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` and `features_versioned` in manifest when writing under `features/` or `memory-bank/` (**do not** add `/memory-bank/`; always `!/docs/documentation-plan/plan.md`; do not weaken toolkit patterns; never ignore `skills/`). **Global mode:** do not edit project `.gitignore`.
 
 ---
 

@@ -62,6 +62,18 @@ Full matrix, safety rules, and CI workflows:
 - [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml) — required **validate** check
 - [docs.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/docs.yml) — MkDocs build / Pages deploy
 
+## Docs site (local)
+
+Config and theme overrides live under `docs-site/` (`mkdocs.yml`, `overrides/`, `requirements-docs.txt`).
+
+```powershell
+pip install -r docs-site/requirements-docs.txt
+mkdocs serve -f docs-site/mkdocs.yml
+mkdocs build --strict -f docs-site/mkdocs.yml
+```
+
+Build output: `/site/` at repo root (via `site_dir: ../site`).
+
 ## Operator scripts (inventory → preflight → harvest)
 
 Same skill call flow; these scripts add deterministic gates — not a second toolkit CLI. Suggested order on a consumer feature:

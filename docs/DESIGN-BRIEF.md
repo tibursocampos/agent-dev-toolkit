@@ -54,7 +54,7 @@ Home (landing)                 [en + pt]
 
 **Chrome:** Material top nav + search + language switcher; footer with license + repo link.
 
-**Out of site build:** `docs/documentation-plan/` (gitignored local plan).
+**Out of site build:** `docs/documentation-plan/` (internal; `plan.md` versioned, not published via MkDocs).
 
 ## 4. Design tokens
 
@@ -135,7 +135,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 
 | Area | Note |
 |------|------|
-| Content root | `docs-site/` via `mkdocs.yml` `docs_dir`; do **not** publish `documentation-plan/` |
+| Content root | `docs-site/` (`docs-site/mkdocs.yml`, `docs_dir: .`); do **not** publish `documentation-plan/` |
 | Class contract | Markup **must** use the CSS API: `.home-cta__primary` (or map Material classes explicitly in CSS — pick one system, no orphans). Prefer: `.agent-switcher__hint` **styled** (alias or rename `__note` → `__hint`). Style `.home-cta__status` and `.agent-switcher__label`. |
 | Switcher JS | Keep `agent-switcher.js`; primary copy = interactive `toolkit.ps1`. Hint + optional scripting `-Action Sync -Agent` update on chip change. Copy recovery on clipboard deny. |
 | Diagram | Align stroke/label color to tokens (`currentColor` / CSS vars); name parity with chips (“Grok Build”, “GitHub Copilot”, “Hermes”, “OpenHands”). Prefer display/body fonts in SVG text when practical. |
@@ -169,7 +169,7 @@ Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), Gi
 - [ ] Filled primary CTA meets WCAG AA for text-on-accent
 - [ ] PT home: no raw `!!! warning`; reveal parity with EN
 - [ ] Clipboard deny offers a recoverable next step
-- [ ] `mkdocs build` green; Pages reflects changes; no secrets / no `documentation-plan`
+- [ ] `mkdocs build --strict -f docs-site/mkdocs.yml` green; Pages reflects changes; no secrets / no `documentation-plan`
 
 **Handoff:** new conversation → `/javascript-developer` (switcher + copy) and/or `/developer` for MkDocs/CSS/i18n. Use `/i18n-manager` when extracting new UI strings (recovery copy, safe-default note).
 )

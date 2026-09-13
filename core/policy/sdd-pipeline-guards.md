@@ -7,6 +7,10 @@ alwaysApply: true
 
 Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load when running `sdd-spec`, `sdd-plan`, or `sdd-develop`).
 
+## Operator track choice
+
+Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is valid without `orchestrate-analyze`. The operator may invoke `/sdd-spec` or `/sdd-plan` directly from chat, Plan mode, `.cursor/plans/`, or prior manual analysis. Do **not** block or redirect to Orchestrated Delivery unless the operator chooses it or `invocation_context` is `orchestrated` and O2 gates apply.
+
 ## Order
 
 - **Classic SDD**: `sdd-spec` -> `sdd-plan` -> `sdd-develop`. Do not create a PLAN without a canonical PRD (unless "PLAN direto"). Do not implement without a canonical PLAN.
@@ -23,9 +27,15 @@ Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load w
 
 Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Backlog Refine stories (`STORY.md`); `docs/backlog/` is a shortcut only.
 
-Cited `.md` outside `features/` (including `.cursor/plans/`) must be **promoted** (Read + copy rich content into memory-bank phase 2 and/or story `ARCH|SEC|ANALYSIS`) before backlog **sim**. Pointer-only = fail O1.
+**Promote (scope by `invocation_context` — `INVOCATION-CONTEXTS.md`):**
 
-O2 refuses empty required siblings: if FEATURE `needs_*` (or brownfield) and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/`, **STOP** — do not Write PRD/PLAN; return to O1. Max-3 gap questions do not replace this gate.
+- **`direct`** (`sdd-spec` / `sdd-plan` slash): cited `.md` outside `features/` (including `.cursor/plans/`) → `PIPELINE.md` § Classic PRD/PLAN promote: `Read` → synthesize → confirm → `Write` under `features/...`. Do **not** require `orchestrate-analyze` first.
+- **`orchestrated`** (O1/O2): mandatory promote before backlog **sim**; pointer-only = fail O1.
+
+**Required siblings (scope by context):**
+
+- **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. Max-3 gap questions do not replace this gate.
+- **`direct` (Classic SDD):** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask (create inline / proceed at operator risk / optional `/orchestrate-analyze`); do **not** hard-block.
 
 PLAN magro requires a canonical path: do not omit SQL/DDL/OpenAPI from PLAN unless bank phase 2 or ARCH/ANALYSIS already holds the body; create that file first, then cite the path.
 
