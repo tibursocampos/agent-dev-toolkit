@@ -42,6 +42,7 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 |------|----------------------------------------|
 | Integration overview | `docs/blip-plugin-integration.md` (in target or toolkit repo) |
 | Architecture | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/plugin-architecture.md` |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Design system | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/design-system.md` |
 | Iframe messages | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/blip-iframe-messages.md` |
 | Auth (Full profile) | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/auth-and-permissions.md` |

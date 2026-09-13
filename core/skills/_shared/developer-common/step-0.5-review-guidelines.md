@@ -4,17 +4,18 @@
 
 Load **only** what the task needs. Paths assume install via `scripts/sync-agent.ps1` (host adapter sync); shared packs land under `{{TOOLKIT_ROOT}}/skills/_shared/`.
 
-**Progressive load (index-then-fanout):** treat this file as the **index**. Read principles cheatsheet (and architecture-selection when style is unset) first; fan-out to **one** stack overlay / guideline file only when that surface is in scope. Do not preload all `developer-common/step-*.md` here — parent skills load those steps when the process reaches them.
+**Progressive load (index-then-fanout):** treat this file as the **index**. Read principles cheatsheet + `structure-and-quality.md` (and architecture-selection when style is unset) first; fan-out to **one** stack overlay / guideline file only when that surface is in scope. Do not preload all `developer-common/step-*.md` here — parent skills load those steps when the process reaches them.
 
 ---
 
-## 1. Principles (always - one file)
+## 1. Principles (always - index then structure)
 
-Read a single principles file when available:
+Always load (when available), in order:
 
-- `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md`
+1. `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md`
+2. `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` — **always** after the cheatsheet (index-then-fanout)
 
-If missing (before ETAPA 11), skip and rely on project `docs/` and stack guidelines below.
+If either is missing (before ETAPA 11), skip that file and rely on project `docs/` and stack guidelines below.
 
 Do **not** glob all of `code-guidelines/`.
 
@@ -39,7 +40,7 @@ Do **not** glob all of `code-guidelines/`.
 | Tactical DDD (ARCH = ddd) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/ddd-tactical.md` |
 | Event-driven (ARCH = EDA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/event-driven.md` |
 | Tests (xUnit, Moq, Shouldly, `Should_<R>_When_<C>`) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
-| **Structure and formatting** (one type per file, signatures/150 chars, constants, method order) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` - normative §§ File structure, Method signatures, Follow existing patterns, Named constants, Method ordering |
+| **Structure and formatting** (architecture vs style, language, one type/file, signatures/150 chars, constants, blank lines, readable construction, method order) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` - normative §§ File structure, Source language, Method signatures, Architecture vs style, Named constants, Blank lines, Readable construction, Method ordering |
 | Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 
 Quick checks (always apply):
@@ -94,7 +95,7 @@ Scan staged changes for secret patterns before commit (see step 3.5). Placeholde
 ```markdown
 **Guidelines reviewed**
 
-- Principles: [cheatsheet | skipped - not installed]
+- Principles: [cheatsheet + structure-and-quality | skipped - not installed]
 - Architecture: [selection | one approved style path | discover-first / omitted] — never architecture/**
 - Stack: [.NET | Angular | other] - [files loaded]
 - Security: no hardcoded secrets in planned changes

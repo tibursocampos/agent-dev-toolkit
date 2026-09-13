@@ -8,19 +8,20 @@
 
 ### File structure (required - blocking in review)
 
-**One top-level type per `.cs` file** (PRD CA1, RN01). Applies to every new or moved type: `class`, `record`, `sealed class`, `static class`, `struct`, `enum`, and equivalent top-level declarations.
+**Default: one top-level type per `.cs` file** (PRD CA1, RN01). Applies to every new or moved type: `class`, `record`, `sealed class`, `static class`, `struct`, `enum`, and equivalent top-level declarations.
 
 | Rule | Detail |
 |------|--------|
-| **One file, one top-level type** | Each type lives in its own file |
+| **One file, one top-level type** | Each type lives in its own file (default) |
 | **File name** | Match the primary type name (e.g. `OrderService.cs` -> `OrderService`) |
-| **Forbidden** | Two or more top-level types in the same file |
-| **Review** | **Blocking** - reject the PR until types are split into separate files (CT4) |
+| **Forbidden** | Two or more top-level types in the same file **unless** project escape applies |
+| **Project escape** | If the feature folder already colocates related types in one file, match that local colocation — do not invent a new escape |
+| **Review** | **Blocking** - reject until types are split (or escape is documented by existing pattern) (CT4) |
 
 **Allowed exception:** `private` nested types inside the owning top-level type when they are implementation details of that type only (not shared across files). Do not use nested types to avoid creating a dedicated file for a reusable type.
 
 ```csharp
-// Wrong - two top-level types in OrderHandlers.cs
+// Wrong - two top-level types in OrderHandlers.cs (when project uses one type/file)
 public sealed class RegisterOrderHandler { /* ... */ }
 public sealed class CancelOrderHandler { /* ... */ }
 
@@ -40,6 +41,18 @@ public sealed class OrderPricingService
     }
 }
 ```
+
+### Source language (comments / docs) (required - blocking in review)
+
+| Situation | Rule |
+|-----------|------|
+| Touched area already pt-BR | Keep comments/XML docs in **pt-BR** |
+| Touched area already EN | Keep comments/XML docs in **EN** |
+| Greenfield / no clear mirror | **Ask** the user before writing narrative comments/docs |
+| User override | User choice wins for that task |
+| Identifiers | Always **English** (types, members, params, files) |
+
+Cross-stack profile: `code-guidelines/principles/structure-and-quality.md` §2.
 
 ### Method signatures and invocations (required - blocking in review)
 
@@ -99,19 +112,20 @@ public async Task<Order?> GetByIdAsync(
 await _integrationClient.PostOrderExportAsync(orderId, customerId, warehouseId, routeId, shipmentId, cancellationToken);
 ```
 
-### Follow existing project patterns (required - blocking in review)
+### Architecture vs style (required - blocking in review)
 
-Before adding types, handlers, validators, or helpers, **discover how the repository already solves the same problem** (PRD CA4, RF04, RN03). Use **Glob** and **Read** on similar files (same layer, feature folder, naming suffix). Match folder layout, namespaces, DI registration, and class flow.
+Before adding types, handlers, validators, or helpers, **discover how the repository already solves the same problem** (PRD CA4, RF04, RN03). Use **Glob** and **Read** on similar files (same layer, feature folder, naming suffix).
 
-| Rule | Detail |
-|------|--------|
-| **Discover first** | Find existing `*Handler`, `*Validator`, `*Repository`, controllers, and feature folders before inventing a new shape |
-| **Reuse consolidated patterns** | If the project uses FluentValidation, CQRS handlers, repository interfaces, etc., extend that pattern - do not add a parallel manual path |
-| **Forbidden** | Parallel flows when a consolidated approach already exists (e.g. inline `if` validation in a handler when commands use `AbstractValidator`) |
+| Concern | Rule |
+|---------|------|
+| **Architecture (mirror)** | Match folder layout, namespaces, DI registration, and class/handler flows — discover first; no parallel path |
+| **Style (toolkit bar)** | On **touched** code, apply toolkit style defaults (constants, blank lines, signatures, one-type/file) — do **not** copy style violations from neighbors |
+| **Reuse consolidated patterns** | If the project uses FluentValidation, CQRS handlers, repository interfaces, etc., extend that pattern |
+| **Forbidden** | Parallel flows when a consolidated approach already exists (e.g. inline `if` validation when commands use `AbstractValidator`) |
 | **Class flow** | Reuse existing `private` methods in the same class before duplicating logic in a new helper or type |
-| **Review** | **Blocking** - reject PRs that introduce a second way to do what the codebase already standardizes |
+| **Review** | **Blocking** - reject PRs that introduce a second architectural path, or that leave touched code below the style bar |
 
-**Cross-reference:** Layer rules, mandatory Command/Handler/Validator flow, and FluentValidation-only validation are in `clean-architecture.md` (§ Mandatory implementation flow, § Validation). This section adds the **discovery and no-parallel-flow** obligation at the C# style level.
+**Cross-reference:** Layer rules, mandatory Command/Handler/Validator flow, and FluentValidation-only validation are in `clean-architecture.md` (§ Mandatory implementation flow, § Validation). Cross-stack: `structure-and-quality.md` §1.
 
 ```csharp
 // Wrong - manual validation in handler when project uses FluentValidation
@@ -152,6 +166,7 @@ Every **string and number** in **production code** must be a **named constant** 
 | Rule | Detail |
 |------|--------|
 | **No magic literals** | No raw `"..."` or numeric literals with semantic meaning in production paths |
+| **Consistency in a type** | Do **not** mix inline log/error strings with `const` in the same type — extract all semantic strings in that type |
 | **Naming** | **PascalCase** for all `const` identifiers (production and tests). **Forbidden:** `UPPER_SNAKE_CASE` (CT8) |
 | **Reuse first** | Grep/search project `Constants`, message types, and domain files before adding a new constant |
 | **Location (local)** | `private const` in the owning class when the value is used in **one** type only (internal service message, local prop/route name, one-off template) - **do not** create a dedicated constants file for non-reusable values |
@@ -201,6 +216,10 @@ if (order.Lines.Count > 100)
 private const int MaxOrderLines = 100;
 if (order.Lines.Count > MaxOrderLines)
 
+// Wrong - mix inline log string with const in the same type
+private const string OrderNotFoundMessage = "Order not found";
+_logger.LogWarning("Order {Id} not found", orderId); // extract this too
+
 // Wrong - UPPER_SNAKE_CASE
 public const string DEFAULT_ORDER_NUMBER = "ORD-001";
 
@@ -210,6 +229,37 @@ public const string DefaultOrderNumber = "ORD-001";
 // Wrong - one-off service message forced into a shared Constants file with no reuse
 // Correct - keep private const on that service class until a second consumer appears
 ```
+
+### Blank lines / anti-IA layout (required - blocking in review)
+
+| Forbidden | Allowed |
+|-----------|---------|
+| Blank line between every statement | Blank lines **only** between logical member groups (fields / ctors / methods) |
+| Unnecessary double-blank lines | Single blank between groups when needed |
+
+Do not leave IA-style blank-spam in touched methods. Cross-stack: `structure-and-quality.md` §5.
+
+### Readable construction (required when multi-arg harms readability)
+
+| Prefer | Avoid |
+|--------|-------|
+| Named local before a multi-arg `new`/object initializer when inline harms readability | Mandatory builders for one-off construction |
+| Builders only when reuse justifies (KISS) | Over-abstracted construction for a single call site |
+
+```csharp
+// Prefer when multi-arg new is hard to read
+var request = new ImageStorageUploadRequest
+{
+    FileName = fileName,
+    ContentType = contentType,
+    Payload = payload
+};
+await _uploader.UploadAsync(request, cancellationToken);
+
+// Wrong - invent a builder for a single call site with no reuse
+```
+
+Cross-stack: `structure-and-quality.md` §7.
 
 ### Method ordering within classes (required - blocking in review)
 
@@ -255,7 +305,7 @@ public sealed class OrderService
 }
 ```
 
-**Normative sections in this file (pre-PR and code review):** File structure · Method signatures and invocations · Follow existing project patterns · Named constants · Method ordering (this section).
+**Normative sections in this file (pre-PR and code review):** File structure · Source language · Method signatures and invocations · Architecture vs style · Named constants · Blank lines · Readable construction · Method ordering (this section).
 
 ### Async/await
 

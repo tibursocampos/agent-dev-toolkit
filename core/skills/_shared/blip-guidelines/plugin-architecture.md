@@ -24,6 +24,8 @@ CI files (`.github/workflows/`, `azure-pipelines.yml`, etc.) appear when present
 
 Do not create parallel trees (e.g. `src/component/` and `src/components/`). Follow the scaffold layout.
 
+Cross-stack structure/quality (constants, one primary export/file, architecture vs style): `../code-guidelines/principles/structure-and-quality.md` — apply when touching plugin source; do not invent a second folder scheme.
+
 ## Global setup (`src/lib/setup/`)
 
 Keep `index.js` thin. Import setup modules in order:
@@ -96,7 +98,7 @@ Do not mix both patterns in the same service module.
 
 Use `lib/utils/isDev.js` to branch behavior:
 
-- **Dev:** mock resources in `localStorage`, stub token/user
+- **Dev:** mock resources in `localStorage`, stub token/user — **no real PII or live tokens** in committed mocks (see `auth-and-permissions.md`)
 - **Prod:** iframe messages only
 
 Never ship dev mocks behind a loose env check in production builds.

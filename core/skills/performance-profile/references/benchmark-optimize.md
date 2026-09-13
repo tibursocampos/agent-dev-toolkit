@@ -17,6 +17,7 @@
 ### Implement and verify optimization
 
 * Write the optimized implementation in a separate branch or method variant (e.g. `CalculateOptimized`).
+* Keep optimizations within `structure-and-quality.md` (and stack overlay) — do not trade structure/quality for speed.
 * Run the benchmark again to compare:
   * Verify that optimization achieves measurable improvements (e.g. 20% speedup or lower GC allocation) without regression.
 * Present a comparison table:

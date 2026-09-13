@@ -13,7 +13,10 @@ Server/async data for React web apps. Complements `components-and-state.md` (UI 
 - Parallelize independent requests; avoid sequential waterfalls when data has no dependency.
 - Abort or ignore stale responses (AbortController, query cancellation, `ignore` flags) when fetching from Effects is unavoidable.
 - Keep secrets and privileged tokens off the client; call authenticated backends through existing BFF/route handlers when that is the architecture.
+- Treat **Server Actions** like API routes for auth: verify session/roles inside the action; never trust client-only checks.
+- Do **not** stash per-request user/session in module-level mutable state (singletons, module caches) — request-scoped only.
 - Prefer mutations that update cache optimistically only when the project already does — otherwise invalidate/refetch consistently.
+- When using `localStorage` for client cache: **version** the key/schema and parse with fail-safe defaults (corrupt/missing → empty, never throw).
 
 ```tsx
 // Prefer query library over Effect + useState mirror
@@ -45,6 +48,8 @@ useEffect(() => {
 - Fetch in `useEffect` on every mount when the project already standardizes on Query/SWR/RSC/loaders.
 - Introduce a second data library (e.g. add SWR beside existing React Query) in a small feature.
 - Put API keys or long-lived secrets in client bundles or public env (`NEXT_PUBLIC_*` only for truly public config).
+- Skip Server Action auth because “the UI is behind a private route.”
+- Store request user/session on a module-scoped variable shared across renders/requests.
 - Block the whole page on independent sections when Suspense/streaming or partial render is already in use.
 - Fire duplicate fetches from parent and child for the same resource without shared cache.
 

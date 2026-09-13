@@ -32,7 +32,8 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 - [ ] Routes lazy-load when neighboring features already do
 - [ ] Forms: Reactive + typed when the project is strict
 - [ ] a11y basics (labels, keyboard) for touched UI — see hub frontend / html-css packs
-- [ ] Identifiers and comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 - [ ] Changes follow `angular-guidelines` (load files needed for the task)
 
 ---
@@ -41,6 +42,8 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 
 - [ ] Kebab-case `*.component.ts` naming; one public type per file
 - [ ] Feature / core / shared layout matched
+- [ ] Template-only members `protected` when neighbors allow
+- [ ] Prefer `[class]`/`[style]` over new `ngClass`/`ngStyle` on modern templates
 - [ ] No reliance on retired johnpapa classic as primary style source — use angular.dev
 
 ---
@@ -50,6 +53,8 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 - [ ] Arrange / Act / Assert
 - [ ] Behavior assertions (DOM / outputs / HTTP mocks)
 - [ ] Http testing module / provider used for HTTP
+- [ ] Harnesses when available for the control under test
+- [ ] `await fixture.whenStable()` on zoneless / async UI asserts
 - [ ] No flaky async left hanging
 - [ ] Names match repo style
 
@@ -74,6 +79,7 @@ ng build
 | Signal | Action |
 |--------|--------|
 | ARCH / CONTINUITY needs FE structure | Prefer load `../frontend-guidelines/frontend-architecture.md` |
+| Cross-stack structure/quality | Load `../code-guidelines/principles/structure-and-quality.md` |
 
 ---
 
@@ -81,6 +87,7 @@ ng build
 
 - [ ] Diff limited to stated acceptance (YAGNI)
 - [ ] No new NgModules or state libraries without need
+- [ ] No secrets in `environment.*`
 - [ ] Conventional commit message ready (via `/commit` when requested)
 - [ ] Guideline paths touched: `style-and-structure`, `standalone-and-templates`, `signals-and-state`, `di-routing-forms`, `rxjs-lifecycle`, `testing` as applicable
 
@@ -92,3 +99,4 @@ ng build
 - [Angular best practices](https://angular.dev/best-practices)
 - [Angular — Testing](https://angular.dev/guide/testing)
 - [Angular — Signals](https://angular.dev/guide/signals)
+- Cross-stack: `../code-guidelines/principles/structure-and-quality.md`

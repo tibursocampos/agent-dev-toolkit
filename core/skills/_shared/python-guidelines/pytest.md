@@ -12,7 +12,9 @@
 - Name tests to describe behavior: `test_<result>_when_<condition>` or `Should_<Result>_When_<Condition>` matching repo style.
 - Prefer **integration tests** for real request/DB flows when the project already supports them; unit-test pure logic at boundaries.
 - One behavior per test; avoid loops or branching that hide which assertion failed.
-- Keep test identifiers and comments in **English**.
+- Mock with `autospec=True` / `spec=` (or `create_autospec`) so missing attributes fail loudly.
+- Default fixtures to **function** scope; for `class` / `module` / `session` scope, always pair setup with teardown/`yield` cleanup.
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 - Run targeted pytest for changed modules before handoff.
 
 | Prefer | Avoid |
@@ -30,6 +32,8 @@
 - Hide domain arrange builders as private helpers inside every test class — centralize fakes/fixtures.
 - Assert only that “lines ran” without checking observable behavior.
 - Depend on test order, shared mutable module state, or wall-clock `time.sleep` without project justification.
+- Use bare `MagicMock()` / `Mock()` without `spec`/`autospec` on production collaborators.
+- Leave wider-scope fixtures without cleanup (leaked DB rows, open sockets, patched globals).
 - Commit secrets or real credentials into fixtures; use env overrides / factories.
 - Skip failing tests without a tracked reason (`pytest.mark.skip` abuse).
 

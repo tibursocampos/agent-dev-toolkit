@@ -2,11 +2,14 @@
 
 Actionable language and logging rules for Java / Spring Boot work. Prefer repo Checkstyle/Spotless/EditorConfig when present.
 
+Cross-stack language/layout: [`../code-guidelines/principles/structure-and-quality.md`](../code-guidelines/principles/structure-and-quality.md) §2 (source language), §5 (blank lines).
+
 ---
 
 ## MUST
 
-- Use **English** for type names, methods, variables, comments, and log messages.
+- Use **English** for type names, methods, variables, and identifiers.
+- Comments and narrative docs: **mirror** the touched area (pt-BR↔pt-BR, EN↔EN); on greenfield / no clear mirror, **ask** before writing comments/docs (user override wins) — same rule as `structure-and-quality.md` §2.
 - Name types clearly: `OrderService`, `CreateOrderRequest`, `OrderEntity` / `Order` per project convention — avoid `Helper`, `Utils`, `Manager`, `GenericService` without a precise meaning.
 - Prefer `final` fields for injected dependencies; assign only in the constructor.
 - Use `Optional<T>` as a **return type** for “may be absent” from dedicated lookup methods; unwrap at the boundary with explicit empty handling.
@@ -27,6 +30,18 @@ Actionable language and logging rules for Java / Spring Boot work. Prefer repo C
 | Package | reverse-DNS, lowercase |
 | Test method | `should_when` or `shouldResultWhen` matching repo |
 
+### Google-style enforceables (when no local Checkstyle/Spotless)
+
+If the module has **no** Checkstyle, Spotless, or equivalent formatter config, apply these Google Java Style–aligned rules on **touched** code:
+
+| Rule | Enforce |
+|------|---------|
+| Braces | Always use `{ }` for `if` / `else` / `for` / `while` / `do` — no one-line bare statements |
+| Imports | No wildcard imports (`import pkg.*`) |
+| `@Override` | Annotate every method that overrides a super type / interface method |
+
+When Checkstyle/Spotless/EditorConfig **is** present, run and match that config — do not invent a parallel style gate.
+
 ---
 
 ## MUST NOT
@@ -37,8 +52,9 @@ Actionable language and logging rules for Java / Spring Boot work. Prefer repo C
 - Log secrets, tokens, passwords, full auth headers, or PII beyond what the project’s logging policy allows (see `security-basics.md`).
 - Use `System.out` / `System.err` for application logging.
 - Swallow exceptions with empty `catch` or log-and-ignore without a documented reason.
-- Add wildcard imports when the project forbids them (follow Checkstyle/Spotless).
+- Add wildcard imports (forbidden under Google-style fallback; also when Checkstyle/Spotless forbids them).
 - Use raw types (`List` without `<T>`) in new code.
+- Omit `@Override` on real overrides when using the Google-style fallback above.
 
 ---
 
@@ -84,3 +100,4 @@ void process(Optional<String> maybeCode) { } // do not
 - [SLF4J — Manual](https://www.slf4j.org/manual.html)
 - [Oracle — Optional](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html)
 - [Spring Boot — Logging](https://docs.spring.io/spring-boot/reference/features/logging.html)
+- Cross-stack: [`structure-and-quality.md`](../code-guidelines/principles/structure-and-quality.md)

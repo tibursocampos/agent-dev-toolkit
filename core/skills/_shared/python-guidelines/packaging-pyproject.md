@@ -10,6 +10,7 @@
 - Pin or bound dependency versions consistently with the project’s existing style (exact pins in lockfiles; compatible ranges in libraries).
 - Keep runtime deps in `[project].dependencies` and optional extras in `[project.optional-dependencies]`; put dev/test tools in the group the project already uses (`dependency-groups`, `optional-dependencies.dev`, Poetry/PDM groups, etc.).
 - Configure pytest, ruff/black/isort, mypy/pyright under `[tool.*]` in the same `pyproject.toml` when those tools are adopted.
+- **Greenfield** (no existing linter/type config): add a **Ruff** baseline under `[tool.ruff]` and enable the project’s type checker in **strict** mode (mypy `strict = true`, pyright `typeCheckingMode = "strict"`, or `ty` equivalent) — match whichever checker the toolchain already implies; do not add a second checker.
 - Prefer a lockfile already in the repo (`uv.lock`, `poetry.lock`, `pdm.lock`, `requirements.txt` generated from pyproject) — update it when changing deps.
 - Keep package import names stable; match `[project].name` / package directory conventions already present.
 - Document the install/run commands the project already uses (`uv sync`, `pip install -e .`, `poetry install`).
@@ -41,6 +42,7 @@
 - Entry points: use `[project.scripts]` for CLIs when the project already exposes consolescripts.
 - Python version: set `requires-python` to match CI and README; do not raise/lower silently.
 - Ruff/Black: one formatter/linter config under `[tool.ruff]` / `[tool.black]` — avoid fighting dual formatters.
+- Type checker: keep or raise strictness on touched packages; never weaken global strict flags for one feature (see `typing.md`).
 - Editable installs: `pip install -e ".[dev]"` or `uv sync --all-extras` per project docs.
 
 ### Minimal shape (illustrative)

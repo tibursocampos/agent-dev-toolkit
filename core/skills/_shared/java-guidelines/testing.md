@@ -52,6 +52,17 @@ Prefer behavior-focused tests. Greenfield stack: **JUnit 5**, **Mockito**, **Ass
 - WebTestClient vs MockMvc: match the stack (`web` vs `webflux`).
 - Central `TestInfrastructure` / `Fixtures` / `*Fake` packages when the repo has them.
 - Security tests: `@WithMockUser` / jwt post-processors as already used in the module.
+- **Contract tests** (Pact, Spring Cloud Contract, OpenAPI-driven): only when the change crosses a published API boundary **and** risk of silent client break justifies the cost — match existing contract suites; do not add a new contract stack casually.
+- **Property-based tests** (jqwik / RapidCheck-style): only for parsers, invariants, or high-fan-in pure logic where examples alone miss the space.
+- **Load / performance tests**: only for known hot paths or capacity-sensitive changes; reuse the repo’s Gatling/JMeter/k6 (or CI) harness when present — do not invent a load suite for routine CRUD.
+
+### Risk gate (extra test kinds)
+
+| Kind | Add when | Skip when |
+|------|----------|-----------|
+| Contract | Shared/public API + existing harness or clear consumer break risk | Internal-only DTO tweak with slice/unit coverage |
+| PBT | Rich input space / invariants | Trivial CRUD with few branches |
+| Load | Latency/throughput SLO or prior incident | Low-traffic admin path |
 
 ### Example shapes (illustrative)
 

@@ -2,6 +2,8 @@
 
 Process roles, BrowserWindow lifecycle, and entry wiring. Detailed preload: `electron-preload.md`. IPC channels: `electron-ipc.md`. Security defaults: `electron-security.md`.
 
+Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` — identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield.
+
 ---
 
 ## MUST

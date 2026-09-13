@@ -1,4 +1,4 @@
-﻿# Agent router (L0 index) - agent-dev-toolkit
+# Agent router (L0 index) - agent-dev-toolkit
 
 Lean **L0** router for agents after install under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
 
@@ -29,7 +29,8 @@ Always-on policy source: `core/policy/orchestrator-session.md`. After publish, h
 | Context | Rule |
 |---------|------|
 | SDD agent artifacts (`features/**` — FEATURE/STORY/PRD/PLAN/CONTINUITY) | Brazilian Portuguese (pt-BR) — `sdd-artifact-language-pt-br.mdc` |
-| Source code, tests, commits, identifiers | English always |
+| Identifiers, tests naming, commits | English always |
+| Comments / XML docs / narrative docs in source | Mirror touched area or ask on greenfield (`structure-and-quality.md` §2) |
 | Project docs (repo documentation folder, README deliverables) | Ask pt-BR or English in skill before writing |
 | User-facing chat replies | Brazilian Portuguese (pt-BR) — `user-language-pt-br.mdc` |
 

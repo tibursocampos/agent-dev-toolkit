@@ -53,6 +53,7 @@ In the **target workspace** (not this toolkit repo unless it is the .NET repo un
 | Process step detail (lazy) | `skills/scaffold-message-handler/references/<section>.md` |
 | Generating or reviewing .NET code | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
 | C# / test naming | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Small follow-up without SDD | `/dotnet-developer` |
 
 **Never by default:** do not preload all `references/*.md`, full messaging docs, or unrelated guideline packs. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).

@@ -123,3 +123,4 @@ See `external-api-integration.md` for header format and error handling.
 - Never log full tokens
 - Fail closed: unauthorized users see an explicit message, not empty data
 - Do not bypass `AuthProvider` with ad-hoc token reads in leaf components
+- Dev `localStorage` / iframe mocks: **no real PII, production emails, or live tokens** — use obvious fake fixtures only

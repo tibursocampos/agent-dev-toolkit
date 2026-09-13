@@ -12,7 +12,7 @@
 - Prefer `Protocol` for structural dependencies (DIP) when the project already uses Protocols or when a small interface avoids a heavy ABC.
 - Run the project’s type checker (`mypy`, `pyright`, `ty`) with the existing config; fix errors in changed files rather than silencing globally.
 - Type async functions as returning `Coroutine`/`Awaitable` via `async def` → inferred `Coroutine`; annotate returned payloads explicitly (`async def f() -> UserDto`).
-- Keep annotations and stub comments in **English**.
+- Identifiers **English**; stub/narrative comments **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 

@@ -40,6 +40,7 @@ Working **Java** (Spring Boot by default) code and tests in the open workspace: 
 |------|----------------------------------------|
 | Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
 | Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
 | Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
 | Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
@@ -57,6 +58,7 @@ Working **Java** (Spring Boot by default) code and tests in the open workspace: 
 | Configuration | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/configuration.md` |
 | Testing | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/testing.md` |
 | Security basics | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/security-basics.md` |
+| Resilience (outbound timeouts / retry when touched) | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/resilience.md` |
 | Final checklist | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/checklist.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |

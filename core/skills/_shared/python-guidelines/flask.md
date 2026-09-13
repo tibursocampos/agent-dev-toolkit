@@ -15,7 +15,7 @@
 - Centralize config via Flask config object / env loaders; fail clearly when required keys are missing.
 - Register error handlers consistent with neighbors; return stable JSON (or HTML) shapes and correct status codes.
 - Keep side effects (DB commits, external HTTP) out of pure helpers; keep them in services or explicit use-case functions.
-- Keep identifiers, comments, and log messages in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 - Cover changed routes and error paths with the Flask test client + pytest (`pytest.md`).
 - When ARCH declares a style, follow `architecture.md` (one-style load) before inventing package trees.
 

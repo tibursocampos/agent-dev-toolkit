@@ -8,6 +8,7 @@
 - [ ] Verifier ran sequentially in this session — **Verifier ≠ O3** (do not spawn Task/O3 parallel children as the evidence gate)
 - [ ] Living loop (when closing wave): `TRACE.jsonl` has converge → sync_current → archive; `validate-trace -RequireArchiveComplete` exit 0 (`TRACE-ARCHIVE-CONTRACT.md`)
 - [ ] No forbidden patterns from `csharp-patterns.md` (if .NET)
+- [ ] Identifiers **English**; comments/docs **mirror** or **ask** on greenfield (`structure-and-quality.md` §2)
 - [ ] Branch valid per `branch-validation.mdc`
 - [ ] PLAN progress and next step updated
 - [ ] Context checkpoint executed

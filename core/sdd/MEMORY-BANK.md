@@ -4,7 +4,7 @@ Single source of truth for the **workspace-scoped** `memory-bank/` contract and 
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Optional inventory script (or synced copy if present): `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` to `~/.cursor`. Storage resolution: `STORAGE.md` (same manifest as `features/`).
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
@@ -192,17 +192,24 @@ Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already
 
 ## Inventory (script or agent fallback)
 
-Prefer toolkit script when present:
+**Script resolution order** (do **not** Glob only under `~/.cursor`):
+
+1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
+2. Relative from toolkit repo when `$Cwd` is the toolkit
+3. Optional synced copy under install root **if present**
+4. Only then agent fallback (`memory-bank-init/references/inventory-fallback.md`) — curated allowlist only; never full-repo recurse; wire is schema_version **3** + `sources` (`files` invalid)
+
+Prefer toolkit script when resolved:
 
 ```powershell
 .\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
-If the script is absent, agents run equivalent Glob/Grep per `memory-bank-init/reference.md`.
+Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths) resets to curated discovery.
 
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
-- Output: `sources.json`, updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
+- Output: `sources.json` (v3 + `sources[]`), updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
 
 ---
 

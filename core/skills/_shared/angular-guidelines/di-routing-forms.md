@@ -14,6 +14,9 @@ Dependency injection with `inject()`, route composition, and form patterns. Keep
 - Prefer **Reactive Forms** (`FormGroup` / `FormControl`) for non-trivial validation; use template-driven only for trivial cases matching repo style.
 - Prefer **typed** forms (`FormControl<T>`, `NonNullableFormBuilder`) when `strict` templates/forms are enabled.
 - Put validators and async validators on controls; keep submit handlers free of duplicated rule copies.
+- Never put secrets (API keys, client secrets, connection strings) in `environment*.ts` committed source — use build-time injection or runtime config endpoints the project already uses.
+- Distinguish **build-time** config (`fileReplacements` / define) from **runtime** config (loaded at bootstrap); do not bake per-env secrets into the client bundle.
+- Prefer `provideHttpClient()` + **functional** interceptors; enable XSRF when cookie auth is in play; use `HttpContextToken` for per-request opt-outs/flags; **validate** response shapes at the service boundary before trusting them.
 
 ```typescript
 export class OrderEditComponent {
@@ -44,6 +47,9 @@ export class OrderEditComponent {
 - Put HTTP calls or auth token parsing inside route components’ constructors without a service.
 - Disable form controls by manipulating the DOM; use Reactive Forms APIs.
 - Invent a second forms library (Formly, etc.) when the repo standardizes on Angular forms.
+- Commit secrets inside `environment.ts` / `environment.prod.ts` (or equivalent).
+- Treat build-time env files as a safe place for runtime tenant secrets.
+- Skip response validation and pass raw `HttpClient` payloads straight into templates/stores.
 
 ---
 
@@ -57,6 +63,8 @@ export class OrderEditComponent {
 | Existing `FormBuilder` usage | Continue; adopt `NonNullableFormBuilder` when neighbors do |
 | Route `data` / resolvers | Reuse for breadcrumb/title patterns already present |
 | HTTP interceptors | Extend existing interceptor chain for auth/errors |
+| `provideHttpClient` + functional interceptors | Match `withInterceptors` / XSRF / `HttpContextToken` already in bootstrap |
+| Runtime config JSON | Load once at app init; do not re-fetch secrets into `environment.*` |
 
 ### DI tokens
 

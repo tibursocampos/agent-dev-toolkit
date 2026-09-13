@@ -95,7 +95,7 @@ Use `./dotnet-ef` instead of `dotnet ef` when a repo-local tool is documented in
 
 ### 5. Verify and summarize
 
-Confirm new `*.cs` + `*.Designer.cs` and updated `*ModelSnapshot.cs` under the migrations folder (`references/artifacts.md`). Optionally note how to apply locally (`database update` - details in `references/commands.md`). SDD handoff: `references/sdd-cross-cut.md`.
+Confirm new `*.cs` + `*.Designer.cs` and updated `*ModelSnapshot.cs` under the migrations folder (`references/artifacts.md`). Do not hand-edit generated migration code in ways that violate `structure-and-quality.md` / `csharp-patterns.md`. Optionally note how to apply locally (`database update` - details in `references/commands.md`). SDD handoff: `references/sdd-cross-cut.md`.
 
 ## Must not
 

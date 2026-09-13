@@ -19,7 +19,7 @@ Map feature-first organization onto Nest feature modules (CQRS when matching) or
 - Mirror the **existing** slice shape (folder names, Nest module per feature, CQRS folders) before inventing a parallel tree.
 - Keep transport mapping at the slice edge; do not push `req`/`res` into shared domain helpers.
 - Cover the changed slice with the project’s test stack (unit for handlers; integration for the HTTP path).
-- Keep identifiers, comments, and logs in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../../code-guidelines/principles/structure-and-quality.md) §2.
 
 | Concern | Nest (when matching) | Express / Fastify (when matching) |
 |---------|----------------------|-----------------------------------|

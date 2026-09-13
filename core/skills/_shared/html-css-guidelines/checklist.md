@@ -2,6 +2,8 @@
 
 Use before opening a pull request for markup/CSS work (including when a framework skill delegates styling here).
 
+Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
+
 ---
 
 ## Preparation
@@ -53,6 +55,7 @@ Use before opening a pull request for markup/CSS work (including when a framewor
 ## Before PR
 
 - [ ] Diff limited to stated acceptance (YAGNI)
+- [ ] Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield ([structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2)
 - [ ] No new CSS framework without ask
 - [ ] Conventional commit message ready (via `/commit` when requested)
 - [ ] Guideline paths touched: `semantic-html`, `accessibility-basics`, `css-foundations`, `modern-css`, `scss-guidelines`, `inclusive-components` as applicable

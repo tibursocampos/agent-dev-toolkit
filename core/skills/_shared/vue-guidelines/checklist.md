@@ -31,7 +31,8 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 - [ ] Routes named + lazy-loaded when neighbors already split code
 - [ ] Derived state via `computed`; watchers cleaned up
 - [ ] a11y: semantics, labels, keyboard for touched UI
-- [ ] Identifiers and comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 - [ ] Changes follow `vue-guidelines` (load files needed for the task)
 
 ---
@@ -64,6 +65,7 @@ vue-tsc --noEmit
 
 | Signal | Action |
 |--------|--------|
+| Cross-stack structure/quality | Load `../code-guidelines/principles/structure-and-quality.md` |
 | ARCH / CONTINUITY needs FE structure | Prefer load `../frontend-guidelines/frontend-architecture.md` |
 
 ---

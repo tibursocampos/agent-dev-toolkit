@@ -60,7 +60,8 @@ dotnet test
 
 - [ ] Failures in scope fixed before handoff
 - [ ] No secrets in WASM bundles or client config
-- [ ] Identifiers/comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 - [ ] `/commit` offered — do not auto-commit
 
 ---
@@ -69,6 +70,7 @@ dotnet test
 
 | Signal | Action |
 |--------|--------|
+| Cross-stack structure/quality | Load `../code-guidelines/principles/structure-and-quality.md` |
 | ARCH / CONTINUITY needs FE structure | Prefer load `../frontend-guidelines/frontend-architecture.md` |
 | API + Blazor under concentric .NET | Prefer load `../dotnet-guidelines/clean-architecture.md` + FE hub above |
 | DESIGN-BRIEF present | Treat as acceptance; do not reinterpret visuals |
@@ -80,6 +82,7 @@ dotnet test
 
 | Concern | File |
 |---------|------|
+| Cross-stack structure/quality | `../code-guidelines/principles/structure-and-quality.md` |
 | Components / lifecycle | `blazor-components.md` |
 | State / forms | `blazor-state.md` |
 | Render modes | `blazor-render-modes.md` |

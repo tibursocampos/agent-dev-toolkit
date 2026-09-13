@@ -14,7 +14,9 @@ Deny-by-default habits for Spring Boot APIs and MVC apps. Match the project’s 
 - Store passwords with the project’s password encoder (e.g. DelegatingPasswordEncoder / BCrypt); never plain text.
 - Keep secrets out of git and out of logs (see `configuration.md`).
 - Use HTTPS expectations in non-local profiles when the deployment already terminates TLS (forward headers / secure cookies as configured in-repo).
+- Never trust client-supplied `X-Forwarded-*` / `Forwarded` headers for scheme, host, or client IP unless the app is behind a **trusted proxy** and Boot/`server.forward-headers-strategy` (or equivalent filter) is configured for that topology.
 - Apply the same security rules to new controllers that neighbors in the same area already use (roles, scopes, path matchers).
+- Rate limiting: when adding or tuning limits, key on a **server-verified** identity (authenticated principal, API key, trusted gateway header) — not spoofable client IPs alone when proxies are untrusted.
 
 ### CSRF / CORS / auth quick rules
 
@@ -24,6 +26,8 @@ Deny-by-default habits for Spring Boot APIs and MVC apps. Match the project’s 
 | CORS | Explicit origin allow-list; no credentialed wildcard |
 | Authz | `requestMatchers` / `authorizeHttpRequests` deny-by-default |
 | Tokens | Bearer/JWT handling only via existing filters/resource server config |
+| Forwarded headers | Trust only with configured trusted proxy; never raw client `X-Forwarded-*` |
+| Rate limit key | Prefer authenticated identity; IP alone is weak behind open proxies |
 
 ---
 
@@ -37,6 +41,8 @@ Deny-by-default habits for Spring Boot APIs and MVC apps. Match the project’s 
 - Build SQL/JPQL with string concatenation from user input — use parameters / Criteria / Spring Data bindings.
 - Expose Actuator sensitive endpoints without auth when Actuator is present.
 - Return stack traces or internal exception messages to clients in production profiles.
+- Trust `X-Forwarded-For` / `X-Forwarded-Proto` from the public internet without a trusted-proxy boundary.
+- Key rate limits solely on client-reported IP when the deployment path allows header spoofing.
 
 ---
 

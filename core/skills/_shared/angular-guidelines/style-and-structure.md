@@ -12,8 +12,10 @@ Naming, file layout, and feature organization for Angular apps. Canonical source
 - Use a consistent custom element prefix on component selectors (kebab-case); attribute selectors stay camelCase with the same prefix.
 - Split template and styles into `.component.html` / `.component.css` (or `.scss`) when either exceeds ~3 lines or the project already externalizes them.
 - Group by **feature / domain folder** when the repo already does; place singletons (interceptors, app-wide guards) under the project’s `core/` (or equivalent); shared presentational pieces under `shared/`.
-- Keep identifiers, comments, and source English; user-facing copy follows repo i18n.
 - Prefer feature-scoped folders over dumping everything by technical role when both patterns exist in the tree.
+- Mark members used **only from the template** as `protected` (not `public`) unless neighbors already expose them publicly for tests/harnesses.
+- Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins). User-facing copy follows repo i18n.
+- Apply cross-stack structure bar: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style, constants, blank-spam, one type/file).
 
 ```
 src/app/
@@ -36,6 +38,7 @@ src/app/
 - Use generic selectors without a project prefix (`selector: 'button'`, `selector: 'card'`).
 - Inline huge templates/styles in `@Component` when the project standard is external files.
 - Duplicate hub `frontend-guidelines/` essays into Angular files; load the hub instead.
+- Expose template-only fields/methods as `public` when `protected` matches project Angular version and neighbors.
 
 ---
 
@@ -49,6 +52,7 @@ src/app/
 | Standalone-first apps | No new NgModules for features (see `standalone-and-templates.md`) |
 | Legacy NgModule apps | Extend existing modules; migrate only when asked |
 | Strict templates / typed forms | Keep `strictTemplates` and typed forms consistent with `tsconfig` |
+| Template-only members | `protected` when Angular version + neighbors allow |
 
 ### SOLID habits (Angular-shaped)
 
@@ -79,3 +83,4 @@ Keep the custom selector prefix stable across the app (`app-`, `ag-`, design-sys
 - [Angular best practices](https://angular.dev/best-practices)
 - [Angular — Project structure](https://angular.dev/reference/configs/file-structure)
 - [Angular — Building dynamic forms (structure cues)](https://angular.dev/guide/forms)
+- Cross-stack: `../code-guidelines/principles/structure-and-quality.md`

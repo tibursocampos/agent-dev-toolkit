@@ -67,4 +67,5 @@ These steps ensure that any C# code committed to the repository is formatted by 
 - **Indentation:** four spaces (no tabs) - CSharpier default.
 - **Braces:** CSharpier output (typically opening brace on the same line) - do not enforce Allman style against the formatter.
 - **One statement per line** and blank lines between members as CSharpier produces.
+- **Anti blank-spam:** do not insert a blank line between every statement or leave unnecessary double-blanks in touched code — blanks only between logical member groups (`csharp-patterns.md` § Blank lines; cross-stack `structure-and-quality.md` §5).
 - Prefer parentheses that make boolean/arithmetic clauses clear when writing by hand; let CSharpier normalize whitespace.

@@ -16,7 +16,9 @@ Structural and state rules for React (web). Absorbs clean-architecture and philo
 - Prefer composition (`children`, slots, render props already used in the repo) over mega-config prop bags.
 - Depend on interfaces/models at the component boundary; inject clients via existing providers/hooks — do not new up axios/fetch inside JSX files.
 - Use **stable list keys** (entity IDs). Never use array index as `key` for lists that filter, sort, insert, or reorder.
-- Identifiers, comments, and source remain English; user-facing copy follows repo i18n.
+- Do **not** define components inline inside another component’s render (new type identity every render → remount + broken memo).
+- For memoized children: **hoist** non-primitive default props (`const EMPTY = []` / shared option objects) — never pass fresh `[]` / `{}` / inline lambdas as defaults each render unless intentional.
+- Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins). User-facing copy follows repo i18n.
 
 ```tsx
 // Prefer - UI + controller hook
@@ -43,6 +45,8 @@ src/features/authentication/
 - Introduce a second global store (or parallel Context tree) when the project already standardizes on one.
 - Colocate unrelated features in a single “god” component or shared catch-all folder when feature folders exist.
 - Use index-as-key for mutable lists; do not “fix” remount bugs with random keys every render.
+- Declare nested `function Child()` / `const Child = () => …` inside a parent render body.
+- Pass new object/array/function literals as props to `memo` children when a hoisted constant or stable callback works.
 - Duplicate the same paragraph from `frontend-guidelines/` into feature code comments; load the hub file instead.
 - Pass sprawling option objects that encode entire feature trees when composition/`children` already exists in the design system.
 

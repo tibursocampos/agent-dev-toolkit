@@ -88,6 +88,26 @@ const { response } = await IframeMessageProxy.sendMessage({
 
 See `lib/services/resource.js` and `lib/services/command.js` in production plugins.
 
+### LIME failure contract
+
+Treat command failures as first-class — never swallow into empty data:
+
+| Field | Rule |
+|-------|------|
+| `status` | Expect `failure` on errors |
+| `reason.code` / `reason.description` | Surface to Toast / error UI (i18n when possible) |
+| Missing resource | Distinguish not-found vs transport failure; do not return `[]` silently |
+| Command `id` | Correlate request ↔ response when the portal/proxy provides an id |
+
+### Command constants
+
+Centralize LIME plumbing in `lib/constants` (or existing constants module):
+
+- Methods (`get` / `set` / `merge` / `delete` / …)
+- Destinations (`lime://…`, `postmaster@…`)
+- MIME types when the command carries a typed resource
+- URI builders (`/resources/${key}`, `/buckets/${key}`) — no inline URI strings in components
+
 ## getToken
 
 Retrieve JWT for authenticated plugins (Full profile):

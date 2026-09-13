@@ -1,5 +1,5 @@
 ---
-description: SDD agent artifacts (PRD, PLAN) in Brazilian Portuguese by default; code always English
+description: SDD agent artifacts (PRD, PLAN) in Brazilian Portuguese by default; identifiers English; comments/docs mirror or ask
 alwaysApply: true
 ---
 
@@ -26,11 +26,14 @@ Write **section titles**, **metadata labels**, **prose**, **acceptance criteria*
 
 **No implementation code** in PRD/PLAN bodies (existing skill boundaries). If a minimal illustrative snippet is unavoidable, syntax and identifiers remain **English**.
 
-## Code - always English
+## Code - identifiers English; comments/docs mirror or ask
 
-Any code generated or edited in the repository: **English** identifiers, comments, XML docs, commit messages, and test names `Should_<Result>_When_<Condition>`.
+Any code generated or edited in the repository:
 
-This rule does not grant an exception for “artifact in English” on code.
+- **Identifiers** (types, members, params, files), commit messages, and test names `Should_<Result>_When_<Condition>`: always **English**
+- **Comments / XML docs / narrative docs:** **mirror** the touched area (pt-BR↔pt-BR, EN↔EN); **ask** on greenfield / no clear mirror (user override wins) — `structure-and-quality.md` §2
+
+This rule does not grant an exception for “artifact in English” on identifiers or commit messages.
 
 ## Project documentation - ask
 

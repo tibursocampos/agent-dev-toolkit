@@ -42,7 +42,8 @@ Two surfaces (host-agnostic — `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE
 |---------|------|
 | User chat + persisted artifacts (FEATURE/STORY/PRD/PLAN/ANALYSIS/ARCH/SEC, product `docs/` / README) | **Same as user chat** in this session |
 | Internal thinking, spawn / Task child prompts, specialist contexts, receipts for agents | **Always en-US** |
-| Source code, tests, commits, identifiers | English always |
+| Identifiers, tests naming, commits | English always |
+| Comments / XML docs / narrative docs in source | Mirror touched area or ask on greenfield (`structure-and-quality.md` §2) |
 
 Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published rules `sdd-artifact-language-pt-br.mdc` / `user-language-pt-br.mdc` are Cursor defaults; honor `LANGUAGE.md` when chat is not pt-BR.
 

@@ -13,7 +13,7 @@ For vanilla HTML/CSS/JS work and progressive enhancement. Pair with `html-css-gu
 - Keep keyboard support: `keydown` shortcuts respect focus context; interactive elements remain reachable via Tab.
 - Sync ARIA state with UI (`aria-expanded`, `aria-hidden`, `aria-selected`) when toggling widgets.
 - Separate DOM binding from business logic (small modules/functions); avoid accidental globals.
-- Keep identifiers and comments in **English**.
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 ---
 

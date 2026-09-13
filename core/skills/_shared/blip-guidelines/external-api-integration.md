@@ -129,6 +129,8 @@ Normalize API error shapes in one place:
 | Operation | Retry guidance |
 |-----------|----------------|
 | Idempotent GET | Optional exponential backoff (e.g. 2–3 attempts) on network/5xx |
+| **429 / rate limit** | Honor `Retry-After` when present; otherwise exponential backoff with jitter; cap attempts; do not hammer the API from UI loops |
+| Throughput | Serialize or throttle bursty client calls when the backend/portal rate-limits; share one client, not N parallel unthrottled callers |
 | POST/PUT/PATCH/DELETE | Retry only when the API marks the operation safe to replay |
 | 401/403/4xx business errors | Do **not** retry blindly |
 

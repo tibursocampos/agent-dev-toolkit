@@ -38,7 +38,8 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 - [ ] Platform splits only where behavior differs; safe area / keyboard considered
 - [ ] Long data via FlatList/FlashList + stable `keyExtractor` (`lists-and-performance.md`)
 - [ ] No secrets in `app.config` / committed env (`expo-config-and-env.md`)
-- [ ] Identifiers and comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 
 ---
 
@@ -70,6 +71,7 @@ npm test
 
 | Signal | Action |
 |--------|--------|
+| Cross-stack structure/quality | Load `../code-guidelines/principles/structure-and-quality.md` |
 | ARCH / CONTINUITY needs FE structure | Prefer load `../frontend-guidelines/frontend-architecture.md` |
 | DESIGN-BRIEF present | Treat as acceptance; do not reinterpret visuals |
 | EAS CI scripts | Prefer package.json / eas scripts over inventing new commands |
@@ -80,6 +82,7 @@ npm test
 
 | Concern | File |
 |---------|------|
+| Cross-stack structure/quality | `../code-guidelines/principles/structure-and-quality.md` |
 | Structure / nav | `structure-and-navigation.md` |
 | Style / platform | `styling-and-platform.md` |
 | Lists / perf | `lists-and-performance.md` |
