@@ -16,7 +16,7 @@
 - Use typed settings (`pydantic-settings` or the project equivalent); fail fast on missing required config at startup.
 - Register exception handlers / raise `HTTPException` consistently with neighbor routes; return stable error shapes.
 - Prefer **Pydantic v2** APIs when the project already uses v2; do not mix v1/v2 patterns in new code.
-- Keep identifiers, comments, and log messages in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 - Cover changed routes and error paths with FastAPI `TestClient` or `httpx.ASGITransport` + pytest (`pytest.md`).
 - When ARCH declares a style, follow `architecture.md` (one-style load) before inventing package trees.
 

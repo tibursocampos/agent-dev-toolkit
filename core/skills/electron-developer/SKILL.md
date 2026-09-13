@@ -38,6 +38,7 @@ Working main/preload/renderer changes, validated with build and documented smoke
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Branch / commit | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
 | Electron security / CSP | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/electron-security.md` |
 | Electron main / renderer | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/electron-main-renderer.md` |

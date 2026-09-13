@@ -19,7 +19,7 @@ Map domain/integration events onto Node’s `EventEmitter`, Nest events, or the 
 - Use the project’s existing event surface (`EventEmitter`, Nest `EventEmitter2` / `@OnEvent`, queue client, outbox table) — do not invent a parallel bus for one feature.
 - Serialize payloads with stable contracts (versioned fields when neighbors version events).
 - Log correlation / causation ids when the project already propagates them.
-- Keep identifiers, comments, and logs in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../../code-guidelines/principles/structure-and-quality.md) §2.
 
 | Concern | Nest (when matching) | Express / Fastify / plain Node (when matching) |
 |---------|----------------------|------------------------------------------------|

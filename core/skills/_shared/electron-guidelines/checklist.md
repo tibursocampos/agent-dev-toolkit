@@ -57,7 +57,8 @@ npm run build
 (and `npm test` / project-equivalent when present)
 
 - [ ] Manual smoke: app launches; changed IPC/feature works; clean quit
-- [ ] Identifiers/comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 - [ ] `/commit` offered — do not auto-commit
 
 ---
@@ -66,6 +67,7 @@ npm run build
 
 | Signal | Action |
 |--------|--------|
+| Cross-stack structure/quality | Load `../code-guidelines/principles/structure-and-quality.md` |
 | React / Vue in renderer | Load stack guidelines for UI only; stay on `electron-developer` |
 | electron-vite | Confirm three artifacts (main/preload/renderer) before dist |
 | DESIGN-BRIEF present | Treat as acceptance; do not reinterpret visuals |
@@ -74,6 +76,7 @@ npm run build
 
 | Concern | File |
 |---------|------|
+| Cross-stack structure/quality | `../code-guidelines/principles/structure-and-quality.md` |
 | Security / CSP / navigation | `electron-security.md` |
 | Main / renderer roles | `electron-main-renderer.md` |
 | Preload / contextBridge | `electron-preload.md` |

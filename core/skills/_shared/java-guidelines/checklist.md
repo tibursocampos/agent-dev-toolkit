@@ -2,6 +2,8 @@
 
 Use before opening a pull request. Prefer **JUnit 5**, **Mockito**, and **AssertJ** on greenfield; otherwise match the project's test stack.
 
+Cross-stack profile (always): [`../code-guidelines/principles/structure-and-quality.md`](../code-guidelines/principles/structure-and-quality.md) — architecture vs style, source language, constants, layout.
+
 ---
 
 ## Preparation
@@ -10,6 +12,7 @@ Use before opening a pull request. Prefer **JUnit 5**, **Mockito**, and **Assert
 - [ ] PLAN step (if applicable) understood
 - [ ] Acceptance criteria clear
 - [ ] Framework default confirmed: **Spring Boot** (not Quarkus/Micronaut unless already in-repo)
+- [ ] `structure-and-quality.md` loaded (index after principles cheatsheet)
 
 ---
 
@@ -33,14 +36,16 @@ Use before opening a pull request. Prefer **JUnit 5**, **Mockito**, and **Assert
 - [ ] Layered packages by default; hexagonal/Modulith only if already in-repo
 - [ ] Config via `application*.yml` / `@ConfigurationProperties` as appropriate
 - [ ] No secrets committed; no tokens in logs
-- [ ] Identifiers and comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins) — `structure-and-quality.md` §2
 - [ ] Changes follow `java-guidelines` (load files needed for the task)
+- [ ] API contract / cache / query boundaries checked when touched (`architecture-boundaries.md`)
+- [ ] Outbound timeouts / retry / isolation match project stack when touched (`resilience.md`)
 
 ---
 
 ## Style and build
 
-- [ ] Naming / `Optional` / logging per `java-style.md`
+- [ ] Naming / `Optional` / logging / Google-style enforceables per `java-style.md`
 - [ ] Parent/BOM-aligned dependencies; **no version ranges**
 - [ ] Wrapper used when present (`./mvnw` / `./gradlew`)
 - [ ] CSRF/CORS/deny-by-default reviewed for touched security config (`security-basics.md`)
@@ -58,10 +63,11 @@ Use before opening a pull request. Prefer **JUnit 5**, **Mockito**, and **Assert
 - [ ] `@SpringBootTest` (or project IT base) for real multi-layer flows when needed
 - [ ] Shared fixtures under a test-support package — do not duplicate arrange blocks
 - [ ] Arrange / Act / Assert structure with clear comments when the repo uses them
+- [ ] Contract / property-based / load tests only when risk justifies (`testing.md`)
 
 ---
 
-## Build
+## Build and CI gate
 
 Maven:
 
@@ -77,6 +83,8 @@ Gradle:
 
 - [ ] Targeted module tests green for changed code
 - [ ] Full multi-module suite only when required or after asking on large repos
+- [ ] **Portable CI gate:** run whatever SAST, coverage, OWASP dependency, and secrets scans the **repo already configures** (Maven/Gradle plugins, CI workflows, quality profiles) — do **not** add new plugins or scanners casually
+- [ ] Supply-chain / license hygiene when the pipeline already scans (`build-and-bom.md`)
 
 ---
 
@@ -86,7 +94,7 @@ Gradle:
 - [ ] Public API / migrations documented if behavior changed
 - [ ] No Quarkus/Micronaut defaults introduced by mistake
 - [ ] Conventional commit message ready (via `/commit` when requested)
-- [ ] Guideline paths touched: `spring-boot-defaults`, `layered-structure`, `architecture-boundaries`, `java-style`, `build-and-bom`, `configuration`, `testing`, `security-basics` as applicable
+- [ ] Guideline paths touched: `spring-boot-defaults`, `layered-structure`, `architecture-boundaries`, `resilience`, `java-style`, `build-and-bom`, `configuration`, `testing`, `security-basics` as applicable
 
 ---
 
@@ -95,3 +103,4 @@ Gradle:
 - [Spring Boot — Testing](https://docs.spring.io/spring-boot/reference/testing/index.html)
 - [Spring Boot — Structuring Your Code](https://docs.spring.io/spring-boot/reference/using/structuring-your-code.html)
 - [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+- Cross-stack: [`structure-and-quality.md`](../code-guidelines/principles/structure-and-quality.md)

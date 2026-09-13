@@ -11,8 +11,11 @@ Core clean-code principles for Python. Complements `google-style.md`; does not r
 - Keep functions focused (one responsibility); extract nested unrelated logic.
 - Prefer small argument lists; use dataclasses / typed configs / parameter objects when arity grows.
 - Catch **specific** exceptions; use exception chaining (`raise X from err`) to preserve context.
+- Validate all **trust boundaries** (HTTP, CLI, env, files, queues, external APIs) before use — never trust raw input.
 - Manage resources with `with` / `async with` context managers.
 - Separate business rules from I/O and framework entrypoints (views/handlers stay thin).
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
+- Named constants: [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §4 (no magic in production paths).
 
 ---
 
@@ -21,6 +24,7 @@ Core clean-code principles for Python. Complements `google-style.md`; does not r
 - Use single-letter names except trivial loop indices in short scopes.
 - Mutate global state or caller-owned arguments unless that is the documented contract.
 - Catch bare `Exception` (or `BaseException`) except at a process/HTTP boundary that logs and translates errors.
+- Suppress exceptions silently (`except: pass`, bare `except Exception: pass`, empty handlers) — log, translate, or re-raise.
 - Write complex multi-filter list comprehensions that obscure control flow — use a plain loop or helper.
 - Duplicate magic strings/numbers — use named constants matching project style.
 - Introduce new architectural layers without an explicit ask — extend what exists.

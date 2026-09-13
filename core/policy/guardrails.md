@@ -79,7 +79,8 @@ Before marking a develop step or task complete:
 | Chat replies to user | **pt-BR** |
 | `SKILL.md`, guidelines, rules | **English** |
 | PRD, PLAN (default) | **pt-BR** |
-| Production code, tests, identifiers | **English** |
+| Identifiers, tests naming, commits | **English** |
+| Comments / XML docs / narrative docs | **Mirror** touched area or **ask** on greenfield (`structure-and-quality.md` §2) |
 
 If the user corrects language, fix the **artifact/code** - do not flip chat to English unless asked.
 

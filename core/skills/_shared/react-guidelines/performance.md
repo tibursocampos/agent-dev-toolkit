@@ -16,6 +16,8 @@ Pragmatic performance for React and Next.js. Absorbs retired `react-performance.
 - Parallelize independent fetches; avoid request waterfalls. Use Suspense/streaming when the project already does.
 - Virtualize long DOM lists (`react-window`, `@tanstack/react-virtual`, or project equivalent) when node count hurts scroll/interaction.
 - Lazy-load heavy client-only modules (charts, editors) with dynamic `import()` / `next/dynamic` as appropriate.
+- Prefer **statically analyzable** dynamic imports (`import('./HeavyChart')`, `next/dynamic(() => import(...))`) — avoid runtime-built import paths.
+- Avoid heavy **barrel** imports that pull large trees (`import { X } from '@/components'`) when a deep/direct import keeps the bundle smaller.
 - Use the project image pipeline (`next/image` or equivalent) with dimensions to limit layout shift; lazy-load below-the-fold media.
 - Prefer structural composition (splitting children so parents re-render less) before wrapping leaves in `memo`.
 
@@ -41,6 +43,8 @@ Add `memo` only after Profiler shows `ExpensiveResults` re-rendering for unrelat
 - Sprinkle `'use client'` across the tree when App Router + RSC are available and the file has no client-only needs.
 - Optimize for Pages Router patterns inside an App Router app (or vice versa) without an explicit migration task.
 - Add large dependencies without checking bundle impact (`@next/bundle-analyzer` or project equivalent).
+- Use dynamic `import(variablePath)` or template-string module paths that bundlers cannot statically resolve.
+- Re-export entire feature trees from barrels when leaf imports are available and the barrel bloats the client chunk.
 - Prematurely micro-optimize renders when the cost is network or oversized assets.
 - Use unstable keys (`Math.random()`, index on mutable lists) to “force refresh” — fix data identity instead.
 

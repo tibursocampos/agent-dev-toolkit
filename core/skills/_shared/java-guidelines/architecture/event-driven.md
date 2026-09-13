@@ -16,6 +16,8 @@ Stack HOW for messaging and async collaboration on Java/Spring. Load when ARCH d
 - Map inbound messages to application use cases; do not bury rich domain rules only in the transport listener.
 - Ensure idempotency matches neighbor consumers (dedup store, natural key, framework interceptor).
 - Keep broker credentials in Spring config / secrets providers — never hard-code.
+- After deploy of new consumers/producers: ensure **DLQ (or dead-letter topic) monitoring** and alerts match the existing ops stack — a silent DLQ is a production defect.
+- On **retry exhaustion**, route to DLQ/parking lot per project topology; log a correlatable failure and do not drop the message without an operator-visible sink.
 
 ---
 
@@ -55,7 +57,8 @@ Stack HOW for messaging and async collaboration on Java/Spring. Load when ARCH d
 1. Detect binder/framework (Modulith, SCS, Axon, Kafka/JMS) from packages and existing listeners.
 2. Confirm topic/queue, content type, concurrency, DLQ, and idempotency with the operator when greenfield.
 3. Implement listener + registration + payload type matching neighbors.
-4. Cover publication and consumption with the suite style already used in that module.
+4. Confirm DLQ/retry-exhaustion path is observable (metric, log, or existing alert) — do not leave poison messages unmonitored.
+5. Cover publication and consumption with the suite style already used in that module.
 
 ### Anti-patterns (block)
 
@@ -78,6 +81,7 @@ Stack HOW for messaging and async collaboration on Java/Spring. Load when ARCH d
 - Security of internal endpoints / jobs: `../security-basics.md`
 - Config profiles / secrets: `../configuration.md`
 - General testing defaults: `../testing.md`
+- Timeouts / retry / circuit: `../resilience.md`
 
 ---
 

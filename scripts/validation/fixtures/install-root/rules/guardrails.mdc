@@ -17,7 +17,7 @@ Before **any** tool call (`Read`, `Write`, `Shell`, etc.):
 
 1. Read this rule (`E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/rules/guardrails.mdc`).
 2. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`.
-3. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/AGENTS.md` § Git and language when mutating git or writing code.
+3. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/AGENTS.md` Â§ Git and language when mutating git or writing code.
 
 If the user has **not** said **sim** to the current action, do **NOT** execute mutating git or file writes.
 
@@ -36,7 +36,7 @@ Mutating git commands require explicit **sim** in the user's **immediately previ
 
 Use `/commit` / `/push` after confirmation.
 
-**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` §5.1 and `conventional-commits.mdc`.
+**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` Â§5.1 and `conventional-commits.mdc`.
 
 ---
 
@@ -79,7 +79,8 @@ Before marking a develop step or task complete:
 | Chat replies to user | **pt-BR** |
 | `SKILL.md`, guidelines, rules | **English** |
 | PRD, PLAN (default) | **pt-BR** |
-| Production code, tests, identifiers | **English** |
+| Identifiers, tests naming, commits | **English** |
+| Comments / XML docs / narrative docs | **Mirror** touched area or **ask** on greenfield (`structure-and-quality.md` §2) |
 
 If the user corrects language, fix the **artifact/code** - do not flip chat to English unless asked.
 
@@ -87,7 +88,7 @@ If the user corrects language, fix the **artifact/code** - do not flip chat to E
 
 ## 6. Context management
 
-See `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/rules/context-management.mdc`. At ≥40% context: pause and recommend new session.
+See `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/rules/context-management.mdc`. At â‰¥40% context: pause and recommend new session.
 
 ---
 

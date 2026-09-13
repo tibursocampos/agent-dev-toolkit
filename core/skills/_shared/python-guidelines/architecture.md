@@ -19,7 +19,7 @@ Bridge stack-agnostic principles (CA / VSA / DDD / EDA) to Python package trees 
 - Treat Pydantic / Marshmallow / WTForms models at the edge as transport contracts — not as the only domain model when the project separates them.
 - Inject shared resources (DB session, settings, auth) via the project’s DI pattern (`Depends()`, Flask extensions, factories) — do not open connections ad hoc in every handler.
 - Load **one** principles B style file named by ARCH; then apply the matching layout row below.
-- Keep identifiers, comments, and logs in **English**.
+- Identifiers **English**; comments/docs/logs narrative **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2.
 
 | Style (ARCH) | Principles B | FastAPI / Flask layout habit |
 |--------------|--------------|------------------------------|

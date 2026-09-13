@@ -42,6 +42,7 @@ _shared/code-guidelines/
     ├── KISS.md
     ├── YAGNI.md
     ├── encapsulation.md
+    ├── structure-and-quality.md  # Cross-stack structure / quality profile
     ├── principles-cheatsheet.md
     ├── architecture-selection.md   # Layer A — WHEN
     └── architecture/               # Layer B — WHAT (one style at a time)
@@ -89,13 +90,14 @@ Read only what the task needs - typical minimum:
 
 ```
 principles/principles-cheatsheet.md   # quick rules
+principles/structure-and-quality.md   # always after cheatsheet (structure / quality)
 principles/DRY.md                     # if duplication risk
 principles/KISS.md                    # if complexity risk
 principles/YAGNI.md                   # if new types/methods added
 principles/encapsulation.md           # if many parameters
 ```
 
-**Cheatsheet first** (~1 min); open full files when a violation type is likely.
+**Cheatsheet + structure-and-quality first** (~1–2 min); open full files when a violation type is likely.
 
 ### Architecture work
 

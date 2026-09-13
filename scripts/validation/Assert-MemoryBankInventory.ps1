@@ -6,6 +6,8 @@
 #   Should_Pass_When_PathEscapeYieldsNotReady
 #   Should_Pass_When_SecretNamedSourceSummaryRedacted
 #   Should_Fail_When_SiblingPrefixPathRejected
+#   Should_Pass_When_LegacyFilesMigratedToSourcesV3
+#   Should_Pass_When_BloatedSourcesResetOnRefreshLight
 #
 # Frente C2 + TS01 PASSO 1: inventory emits hash+summary governance status ready|not-ready.
 # Runs against temp copies of fixtures so machine-absolute paths never land in the committed tree.
@@ -24,6 +26,8 @@ $script:ExitReady = 0
 $script:ExitNotReady = 2
 $script:ReasonNoSourcesPrefix = 'no_sources:'
 $script:ReasonPathEscapePrefix = 'path_escape:'
+$script:ReasonBloatedResetToken = 'bloated_reset:'
+$script:SchemaVersionExpected = 3
 $script:Sha256HexPattern = '^[a-f0-9]{64}$'
 
 function Write-Pass {
@@ -131,6 +135,14 @@ try {
     }
 
     $inventory = Get-Content -LiteralPath $workSources -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ([int]$inventory.schema_version -ne $script:SchemaVersionExpected) {
+        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("expected schema_version {0}, got {1}" -f $script:SchemaVersionExpected, $inventory.schema_version)
+    }
+
+    if ($inventory.PSObject.Properties.Name -contains 'files') {
+        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'legacy files key must not be written'
+    }
+
     if ($null -eq $inventory.sources -or @($inventory.sources).Count -lt 1) {
         Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'temp sources.json must contain at least one source entry'
     }
@@ -408,6 +420,114 @@ try {
 finally {
     if (Test-Path -LiteralPath $siblingParent) {
         Remove-Item -LiteralPath $siblingParent -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# --- Legacy v1 `files` → v3 `sources` ---
+$legacyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-legacy-{0}' -f [Guid]::NewGuid().ToString('N'))
+$legacyBank = Join-Path $legacyRoot 'memory-bank'
+$legacyInventoryDir = Join-Path $legacyBank '.inventory'
+$legacySources = Join-Path $legacyInventoryDir 'sources.json'
+
+try {
+    New-Item -ItemType Directory -Path $legacyInventoryDir -Force | Out-Null
+    'legacy fixture' | Set-Content -LiteralPath (Join-Path $legacyRoot 'README.md') -Encoding UTF8
+
+    $seed = [ordered]@{
+        schema_version = 1
+        files          = @(
+            [ordered]@{ path = 'README.md' }
+        )
+    }
+    [System.IO.File]::WriteAllText($legacySources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
+
+    & $inventoryScriptPath -RepoPath $legacyRoot -BankPath $legacyBank -AllowCreateInventory -Action refresh-light
+    $legacyExit = $LASTEXITCODE
+    if ($null -eq $legacyExit) {
+        $legacyExit = 0
+    }
+
+    if ($legacyExit -ne $script:ExitReady) {
+        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $legacyExit)
+    }
+
+    $legacyInventory = Get-Content -LiteralPath $legacySources -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ([int]$legacyInventory.schema_version -ne $script:SchemaVersionExpected) {
+        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason ("expected schema_version {0}" -f $script:SchemaVersionExpected)
+    }
+
+    if ($legacyInventory.PSObject.Properties.Name -contains 'files') {
+        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason 'files key must be dropped after rewrite'
+    }
+
+    $readmeEntry = @($legacyInventory.sources | Where-Object { $_.path -eq 'README.md' } | Select-Object -First 1)
+    if ($null -eq $readmeEntry) {
+        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason 'README.md from legacy files must appear under sources'
+    }
+
+    Write-Pass -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3'
+}
+finally {
+    if (Test-Path -LiteralPath $legacyRoot) {
+        Remove-Item -LiteralPath $legacyRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# --- Bloated index (>200) → curated reset on refresh-light ---
+$bloatedRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-bloated-{0}' -f [Guid]::NewGuid().ToString('N'))
+$bloatedBank = Join-Path $bloatedRoot 'memory-bank'
+$bloatedInventoryDir = Join-Path $bloatedBank '.inventory'
+$bloatedSources = Join-Path $bloatedInventoryDir 'sources.json'
+$bulkDir = Join-Path $bloatedRoot 'bulk'
+
+try {
+    New-Item -ItemType Directory -Path $bloatedInventoryDir, $bulkDir -Force | Out-Null
+    'fixture' | Set-Content -LiteralPath (Join-Path $bloatedRoot 'README.md') -Encoding UTF8
+
+    $seedEntries = [System.Collections.Generic.List[object]]::new()
+    $seedEntries.Add([ordered]@{ path = 'README.md' })
+    for ($i = 1; $i -le 201; $i++) {
+        $rel = ('bulk/{0}.txt' -f $i)
+        $full = Join-Path $bulkDir ('{0}.txt' -f $i)
+        'x' | Set-Content -LiteralPath $full -Encoding UTF8
+        $seedEntries.Add([ordered]@{ path = $rel })
+    }
+
+    $seed = [ordered]@{
+        schema_version = 3
+        sources        = @($seedEntries)
+    }
+    [System.IO.File]::WriteAllText($bloatedSources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
+
+    & $inventoryScriptPath -RepoPath $bloatedRoot -BankPath $bloatedBank -AllowCreateInventory -Action refresh-light
+    $bloatedExit = $LASTEXITCODE
+    if ($null -eq $bloatedExit) {
+        $bloatedExit = 0
+    }
+
+    if ($bloatedExit -ne $script:ExitReady) {
+        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $bloatedExit)
+    }
+
+    $bloatedInventory = Get-Content -LiteralPath $bloatedSources -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ([string]$bloatedInventory.status_reason -notlike ('*{0}*' -f $script:ReasonBloatedResetToken)) {
+        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("expected bloated_reset in status_reason, got {0}" -f $bloatedInventory.status_reason)
+    }
+
+    $bulkIndexed = @($bloatedInventory.sources | Where-Object { [string]$_.path -like 'bulk/*' })
+    if ($bulkIndexed.Count -gt 0) {
+        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("bulk paths must be pruned; kept {0}" -f $bulkIndexed.Count)
+    }
+
+    if (@($bloatedInventory.sources).Count -gt 50) {
+        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason 'curated reset must stay well under bloated count'
+    }
+
+    Write-Pass -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight'
+}
+finally {
+    if (Test-Path -LiteralPath $bloatedRoot) {
+        Remove-Item -LiteralPath $bloatedRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 

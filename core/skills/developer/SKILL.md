@@ -43,6 +43,7 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 
 | When | Path (after `scripts/sync-cursor.ps1`) |
 |------|----------------------------------------|
+| Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Git / language policy | `{{TOOLKIT_ROOT}}/AGENTS.md`, `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |

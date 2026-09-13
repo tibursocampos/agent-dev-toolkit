@@ -20,6 +20,10 @@ Rules for what may cross layer and module boundaries. Complements `layered-struc
 - Preserve existing module APIs in multi-module builds: public types in `api` modules stay stable; implementation details stay internal.
 - Map API status codes and error bodies in the web layer; services throw or return domain results, not raw `ResponseEntity` (unless the project already returns it from services).
 - Lazy-load **only** the architecture overlay named in ARCH — never glob `architecture/**`.
+- Treat public HTTP/API contracts as versioned surfaces: additive changes preferred; breaking field/status/path changes need a version bump or coordinated migration.
+- When deprecating an endpoint or field, document the replacement and (when the stack already uses it) emit `Deprecation` / `Sunset` response headers or equivalent ops signal — do not silently remove clients’ contracts mid-feature.
+- Cache only data the project already treats as cache-safe: define TTL/key scope (tenant, user, locale); never cache auth principals or mutable entities as API responses without an established pattern.
+- Prefer fetch joins / explicit queries / DTO projections over lazy association walks at the web boundary; select only columns needed for the use case.
 
 ### Boundary checklist (per change)
 
@@ -29,6 +33,18 @@ Rules for what may cross layer and module boundaries. Complements `layered-struc
 | Service | Commands/queries, domain rules | Servlet API, JSON annotations as core model |
 | Persistence | Entities, repositories | Controllers, web DTOs |
 | Messaging / jobs | Payload contracts, idempotency keys | Direct UI/controller calls |
+| Cache | Explicit keys, TTL, invalidation | Unscoped keys, entity graphs as cache value |
+| DB read | Needed columns / projections | Select-all + serialize lazy graphs |
+
+### DB / cache quick checks (touched path)
+
+| Check | Block if |
+|-------|----------|
+| N+1 | New loop that hits the DB/ORM per item without batch/join already used nearby |
+| Columns | New query loads full entity graph when a projection/DTO query fits |
+| Cache stampede / stale auth | New shared cache of security or tenant context without project support |
+
+Resilience (timeouts, retries, circuit breaker): `resilience.md` — do not expand this file with library essays.
 
 ---
 
@@ -54,9 +70,10 @@ Rules for what may cross layer and module boundaries. Complements `layered-struc
 - **DDD tactical**: `architecture/ddd-tactical.md`.
 - **Event-driven**: `architecture/event-driven.md`.
 - MapStruct vs manual mappers: match the neighbor feature.
-- Exception → HTTP: use existing `@ControllerAdvice` / problem-details types; do not invent a parallel error envelope.
+- Exception → HTTP: use existing `@ControllerAdvice` / problem-details types; do not invent a parallel error envelope (see `spring-boot-defaults.md`).
 - Async boundaries: use the project’s `@Async`, messaging, or virtual-thread patterns as already configured — do not add a new async stack casually.
 - API versioning (`/api/v1`): follow existing URL and DTO versioning; do not invent `v2` mid-feature.
+- Caching: Redis/Caffeine/etc. only when already in-module; match neighbor key prefixes and serializers.
 
 ---
 
@@ -74,8 +91,10 @@ Rules for what may cross layer and module boundaries. Complements `layered-struc
 
 - Packages and default layers: `layered-structure.md`
 - Boot DI / DTO / validation defaults: `spring-boot-defaults.md`
+- Timeouts / retry / bulkhead: `resilience.md`
 - CSRF / CORS / deny-by-default: `security-basics.md`
 - Config secrets / profiles: `configuration.md`
+- Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md`
 
 When in doubt, copy the boundary shape of the nearest similar feature in the same module before inventing a new crossing pattern.
 

@@ -17,6 +17,7 @@ Condensed reference for fundamental principles.
 | **YAGNI** | Speculative feature | Field/method without current requirement | Blocking | - |
 | **Encapsulation** | Related parameters | 4+ parameters (e.g. address fields) | Suggestion | Unrelated types |
 | **Encapsulation** | Over-broad variable scope | Loop variable used only inside loop | Suggestion | - |
+| **Structure/Quality** | Touched code vs toolkit defaults | Architecture mirror + style bar; magic literals; blank-spam; wrap-for-style; one type/file | Blocking | Documented project escape |
 
 ---
 
@@ -46,11 +47,12 @@ Condensed reference for fundamental principles.
 | [KISS.md](./KISS.md) | Complexity: abstractions, long methods, over-engineering |
 | [YAGNI.md](./YAGNI.md) | Dead code: types, variables, unused parameters |
 | [encapsulation.md](./encapsulation.md) | Grouping: parameters, scope, object behavior |
+| [structure-and-quality.md](./structure-and-quality.md) | Cross-stack structure: architecture vs style, language, files, constants, layout, construction |
 | [SOLID.md](./SOLID.md) | Overview: SRP, OCP, LSP, ISP, DIP + links |
 | [architecture-selection.md](./architecture-selection.md) | Layer A: style decision table + confirm gate |
 | [architecture/README.md](./architecture/README.md) | Layer B index + one-style token rule |
 
 ---
 
-**Version:** 1.1 (agent-dev-toolkit)  
+**Version:** 1.2 (agent-dev-toolkit)  
 **Used by:** `developer-common/step-0.5`, `developer`, `code-review`

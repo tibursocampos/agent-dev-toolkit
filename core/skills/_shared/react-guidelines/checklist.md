@@ -66,7 +66,8 @@ npm run build
 
 - [ ] Failures in scope fixed before handoff
 - [ ] No secrets in client env or source
-- [ ] Identifiers/comments in **English**
+- [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
+- [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style, constants, blank-spam, one primary export/file)
 - [ ] `/commit` offered — do not auto-commit
 
 ---
@@ -85,6 +86,7 @@ npm run build
 
 | Concern | File |
 |---------|------|
+| Cross-stack structure/quality | `../code-guidelines/principles/structure-and-quality.md` |
 | Structure / state | `components-and-state.md` |
 | Hooks / Effects | `hooks-and-effects.md` |
 | Fetch / cache | `data-fetching.md` |

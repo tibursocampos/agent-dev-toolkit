@@ -51,6 +51,7 @@ Structured diagnosis, proposed fixes with rationale, fixes applied only after us
 | Reference index (routing only) | `skills/repair-dotnet-build/reference.md` or `{{TOOLKIT_ROOT}}/skills/repair-dotnet-build/reference.md` after sync |
 | Process step detail (lazy) | `skills/repair-dotnet-build/references/<section>.md` |
 | C# patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Structure / quality (after edits) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Commit | `/commit` |
 
@@ -116,7 +117,7 @@ List each change: file, problem, cause, proposed fix (`references/fix-proposal.m
 
 ### 5. Apply and validate
 
-After approval, apply minimal diffs. Re-run:
+After approval, apply minimal diffs. After edits, self-check touched code against `structure-and-quality.md` (+ `csharp-patterns.md` when editing C#). Re-run:
 
 ```bash
 dotnet build

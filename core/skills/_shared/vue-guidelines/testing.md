@@ -13,7 +13,7 @@ Vitest + Vue Test Utils unless the project uses Jest. Absorbs prior `vue-testing
 - Create a **fresh Pinia** per test (`createPinia()` + `setActivePinia`) when stores are involved.
 - Stub or mock HTTP at the composable/service boundary — no real network in unit tests.
 - `await` flushes (`flushPromises`, `$nextTick`) after state changes that update the DOM.
-- Name tests in English matching repo style.
+- Name tests with **English** identifiers; narrative comments **mirror** touched area or **ask** on greenfield.
 
 ```typescript
 import { mount } from '@vue/test-utils';

@@ -62,6 +62,8 @@ $script:InventoryReasonNoSources = 'no_sources: no readable sources under repo r
 $script:InventoryReasonPathEscape = 'path_escape: source path escapes repo root'
 $script:InventoryReasonIncompleteHash = 'incomplete_hash: one or more sources missing sha256'
 $script:InventoryReasonInvalidRoot = 'invalid_root: repo or bank root is missing or not a directory'
+$script:InventoryReasonBloatedReset = 'bloated_reset: existing source count exceeded {0}; reset to curated discovery'
+$script:InventoryMaxMergedSources = 200
 $script:Sha256HexPattern = '^[a-f0-9]{64}$'
 $script:InventorySummaryRedacted = '[redacted: secret-named source]'
 # Leaf / relative-path patterns — skip first-line heuristic so secrets never land in sources.json summary.
@@ -250,9 +252,22 @@ function Get-PathsFromExistingInventory {
 
     $paths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
-    if ($null -ne $InventoryObject.sources) {
-        foreach ($entry in @($InventoryObject.sources)) {
-            if ($null -ne $entry.path) {
+    # Official wire: sources[]. Legacy v1 `files` treated as sources once (rewritten to v3 on write).
+    foreach ($bucketName in @('sources', 'files')) {
+        if (-not ($InventoryObject.PSObject.Properties.Name -contains $bucketName)) {
+            continue
+        }
+
+        $bucket = $InventoryObject.$bucketName
+        if ($null -eq $bucket) {
+            continue
+        }
+
+        foreach ($entry in @($bucket)) {
+            if ($entry -is [string]) {
+                Add-InventoryRelativePath -Set $paths -RelativePath $entry -PathEscapeHits $PathEscapeHits
+            }
+            elseif ($null -ne $entry.path) {
                 Add-InventoryRelativePath -Set $paths -RelativePath ([string]$entry.path) -PathEscapeHits $PathEscapeHits
             }
         }
@@ -712,9 +727,17 @@ if (Test-Path -LiteralPath $sourcesPath) {
 }
 
 $relativePaths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$bloatedReset = $false
 if ($null -ne $existingInventory) {
-    foreach ($path in @(Get-PathsFromExistingInventory -InventoryObject $existingInventory -PathEscapeHits $pathEscapeHits)) {
-        [void]$relativePaths.Add($path)
+    $existingPaths = @(Get-PathsFromExistingInventory -InventoryObject $existingInventory -PathEscapeHits $pathEscapeHits)
+    # Never re-merge a full-tree dump (refresh-light / refresh / create). Prefer curated discovery.
+    if ($existingPaths.Count -gt $script:InventoryMaxMergedSources) {
+        $bloatedReset = $true
+    }
+    else {
+        foreach ($path in $existingPaths) {
+            [void]$relativePaths.Add($path)
+        }
     }
 }
 
@@ -790,6 +813,9 @@ elseif ($sourceEntries.Count -lt 1) {
     $governanceStatus = $script:InventoryStatusNotReady
     $governanceReason = $script:InventoryReasonNoSources
     $exitCode = $script:InventoryExitNotReady
+}
+elseif ($bloatedReset) {
+    $governanceReason = ('{0}; {1}' -f $script:InventoryReasonReady, ($script:InventoryReasonBloatedReset -f $script:InventoryMaxMergedSources))
 }
 
 $skillsRoot = Join-Path $repoRoot 'core/skills'

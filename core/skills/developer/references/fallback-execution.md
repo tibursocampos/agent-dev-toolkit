@@ -14,6 +14,8 @@ Define 2-5 concrete tasks. Checkpoint context usage after each major change per 
 
 ### 2. Implement
 
+Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus any stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+
 Write clean, maintainable code following universal best practices for the target language (e.g., HTML, Bash, Python script).
 
 ### 3. Tests / Validation

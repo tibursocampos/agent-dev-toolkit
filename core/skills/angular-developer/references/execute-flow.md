@@ -24,6 +24,8 @@ List 3-7 concrete tasks; checkpoint per `context-management.mdc` (>= 40% -> paus
 
 ### 4. Implement
 
+Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+
 Components, services, RxJS patterns. Match existing module structure. Apply `angular-guidelines/` while writing — do not paste full bodies into chat.
 
 ### 5. Tests

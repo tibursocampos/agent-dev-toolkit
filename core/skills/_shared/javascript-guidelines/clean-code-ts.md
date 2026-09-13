@@ -11,8 +11,9 @@ Guidelines for type-safe, maintainable TypeScript, adapted from clean-code-types
 - Use `interface` for extensible object shapes / class contracts; use `type` for unions, intersections, tuples, and mapped compositions — match neighbor style when the repo standardizes on one.
 - Declare class member visibility explicitly (`public` / `private` / `protected`) when using classes.
 - Prefer `readonly` for constructor-injected dependencies and immutable fields.
+- Class member hygiene: one concern per member; no public mutable fields for internal state; initialize in constructor/field initializers; avoid unused members.
 - Implement type predicates (`value is T`) for reusable narrowing.
-- Keep identifiers and comments in **English**; no `I`-prefix on interfaces unless the repo already uses that legacy style.
+- Identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield — [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md) §2; no `I`-prefix on interfaces unless the repo already uses that legacy style.
 
 ---
 
