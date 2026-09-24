@@ -47,6 +47,8 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
+**Opção 0 (sem clone completo quando os entrypoints existirem):** bootstrap de Release — zip HTTPS → SHA256 → extract → `sync-agent`. Ver [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--sync) (`scripts/bootstrap/*`). Nomes de assets: confirmar vs CI — não inventar nomes de zip de Release.
+
 ## 2. Abrir o Smart Manager
 
 A opção 0 abre isto após o extract. A partir de um clone:
