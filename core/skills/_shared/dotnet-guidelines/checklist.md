@@ -38,7 +38,7 @@ Use before opening a pull request.
 ## Code structure and formatting (`csharp-patterns.md`)
 
 - [ ] **One top-level type per file** (default); match project colocation escape when that feature already colocates
-- [ ] **Signatures and invocations:** inline only when ≤ 5 parameters and full line ≤ 150 characters; otherwise one parameter per line
+- [ ] **Signatures and invocations:** inline only when ≤ 6 parameters and full line ≤ 160 characters; otherwise one parameter per line
 - [ ] **Architecture vs style:** mirror folders/DI/flows; apply toolkit style bar on touched code (do not copy neighbor style violations)
 - [ ] **Named constants** in production code - no magic strings/numbers; no mix of inline log strings + `const` in the same type; `const` names in **PascalCase**; shared Constants files only for reusable values; prefer `partial` / regions when shared files grow
 - [ ] **Blank lines:** no blank-spam between every statement; blanks only between logical member groups

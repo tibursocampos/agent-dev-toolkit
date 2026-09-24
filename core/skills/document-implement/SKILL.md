@@ -36,6 +36,8 @@ Requires `docs/documentation-plan/plan.md` in the **target workspace**. If missi
 
 One **documentation plan step** completed in the target repo: new/updated markdown under `docs/`, plan progress advanced, next step identified for a future session.
 
+**Cadence:** prefer **new file = one step**; **updates to existing docs = one coalesced step**. Use spawn only for large greenfield or large refactor steps (`SPAWN.md`).
+
 ## Lazy-load
 
 | When | Path |
@@ -46,6 +48,7 @@ One **documentation plan step** completed in the target repo: new/updated markdo
 | Process step detail (lazy) | `skills/document-implement/references/<section>.md` |
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Session gates (PLAN-scoped) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
+| Spawn vs in-parent (large new/refactor steps) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
@@ -87,6 +90,8 @@ Follow the step's **Tasks** in the plan (`references/writing-guidelines.md`):
 - Use **doc language** from plan; keep file paths and type names in English
 - No secrets, tokens, or internal-only URLs in markdown
 
+**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Task `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Task unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
+
 ### 3. Update plan
 
 Before marking the step done: set `tests_run=true` on the scoped develop session after reporting what was written (doc verification - no app test suite required).
@@ -117,7 +122,8 @@ Files written, step completed, progress `N/M`, suggested handoff. Manual validat
 - Use flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when the doc plan path is known - always PLAN-scoped develop session
 - Assume MES/Athena or fixed stack versions
 - Write product `docs/` before doc language is known
-- Complete multiple plan steps in one session when context is high - prefer one step per session
+- Complete multiple **Kind: new** plan steps in one session when context is high - prefer one new-doc step per session
+- Hard-fail when Task/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
 - Require external wiki or work-item APIs
 
 ## Handoff

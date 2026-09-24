@@ -45,11 +45,11 @@ See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS
 
 | Domain | Doc | What you learn |
 |--------|-----|----------------|
-| Core | [domains/core.md](domains/core.md) | Skills tree, policy, router, SDD contracts (tracks, REQ/validate/CHANGE/EVD/STATE/TRACE, invocation contexts, contract provenance, PLAN-LEDGER, `read-sdd-artifact`, repository vs global storage); shared guidelines + architecture selection (A/B/C) |
-| Git ops | [domains/git-ops.md](domains/git-ops.md) | `/commit` → `/push` → `/open-github-pr`; branch rules; feature vs release templates |
-| Adapters | [domains/adapters.md](domains/adapters.md) | Registry, publish surfaces (incl. Codex dual-root, Hermes, OpenHands), Publish knobs honesty, TRACE emitter matrix |
-| CLI | [domains/cli-scripts.md](domains/cli-scripts.md) | toolkit / sync / validate parameters; inventory, preflight, TRACE harvest entry points |
-| Validation & CI | [domains/validation-ci.md](domains/validation-ci.md) | Fixtures, smokes, workflow |
+| Core | [domains/core.md](domains/core.md) | Skills tree, policy, router, SDD contracts (tracks, REQ/validate/CHANGE/EVD/STATE/TRACE, navigation `## Related`, readiness B/I, invocation/provenance, PLAN-LEDGER + session gate, `read-sdd-artifact`, repository vs global storage); shared guidelines + architecture selection (A/B/C) |
+| Git ops | [domains/git-ops.md](domains/git-ops.md) | `/commit` (living-artifacts) → `/push` → `/open-github-pr`; code-review recommended loop; branch rules |
+| Adapters | [domains/adapters.md](domains/adapters.md) | Registry, publish surfaces (incl. Codex dual-root, Hermes, OpenHands), Publish knobs honesty, TRACE emitter matrix, Shell allowlist tip |
+| CLI | [domains/cli-scripts.md](domains/cli-scripts.md) | toolkit / sync / validate; inventory (portable paths), session gate, readiness, preflight, TRACE harvest |
+| Validation & CI | [domains/validation-ci.md](domains/validation-ci.md) | Fixtures, smokes, WS1/3/7/10 asserts, workflow |
 
 Related deep docs: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md), [guides/02-using-skills.md](guides/02-using-skills.md).
 
@@ -61,11 +61,16 @@ Same skill call flow as before — additional contracts and ops scripts, not a s
 |---------|------------------------------------------------------|---------------|
 | **Invocation / provenance / language** | `INVOCATION-CONTEXTS.md` (`direct` vs `orchestrated`); `CONTRACT-PROVENANCE.md` (`agreed` vs `invented`); `LANGUAGE.md` + spawn model lock | [Invocation](domains/core.md#invocation-contexts-direct-vs-orchestrated) · [Provenance](domains/core.md#contract-provenance-agreed-vs-invented) · [Language / spawn](domains/core.md#language-surfaces-and-spawn-lock) |
 | **Normalized artifact read** | Skill `read-sdd-artifact` → `source_context` envelope for FEATURE/STORY/PRD/PLAN under `features/` | [`read-sdd-artifact`](domains/core.md#skill-read-sdd-artifact-source_context) |
-| **PLAN-LEDGER** | Atomic step claim contract + `sdd-plan` / `orchestrate-develop` refs | [PLAN-LEDGER](domains/core.md#plan-ledger-atomic-step-claim) |
-| **Operator TRACE / inventory / preflight** | `TRACE-ARCHIVE-CONTRACT.md`; harvest script; memory-bank inventory (`ready`\|`not-ready`); PRD/PLAN/CHANGE preflight | [TRACE](domains/core.md#trace-archive-living-loop) · [cli-scripts](domains/cli-scripts.md#operator-workflow-inventory--preflight--develop--harvest) · [VALIDATION](VALIDATION.md#operator-scripts-pointers) |
+| **PLAN-LEDGER** | Atomic step claim contract + `sdd-plan` / `orchestrate-develop` refs | [PLAN-LEDGER](domains/core.md#plan-ledger--develop-session-gate) |
+| **Operator TRACE / inventory / preflight** | `TRACE-ARCHIVE-CONTRACT.md`; harvest script; memory-bank inventory (`ready`\|`not-ready`, portable paths); PRD/PLAN/CHANGE preflight | [TRACE](domains/core.md#trace-archive-living-loop) · [cli-scripts](domains/cli-scripts.md#operator-workflow-inventory--preflight--develop--harvest) · [VALIDATION](VALIDATION.md#operator-scripts-pointers) |
+| **Develop session + ledger** | `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` (MUST `-File`; opt-in Shell allowlist) | [Session gate](domains/core.md#plan-ledger--develop-session-gate) · [allowlist](domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013) |
+| **Clarification readiness** | `readiness-severity.md` B/I/MINOR → READY \| NEEDS_CLARIFICATION; SiblingReadinessGate | [Readiness](domains/core.md#clarification-readiness-b--i--minor) |
+| **Navigation `## Related`** | Portable sibling links; `Assert-NavigationBlock.ps1` | [Navigation](domains/core.md#navigation-block-related) |
+| **Invocation axes / Publish honesty** | Axis B omit/inherit (`SUBAGENT-MODEL`); PublishSpawnKnobs; `Assert-InvocationAxes.ps1` | [SPAWN](SPAWN.md) · [Publish knobs](domains/adapters.md#publish-knobs-honesty-depth--threads--inherit) |
 | **Composable skills** | Phased splits; `refine-story` modes (`feature` / `tech` / `split`); agnostic `api-standards` | [Composable skills](domains/core.md#composable-skills-lazy-refs-mode-playbooks) · [SKILLS Backlog Refine](SKILLS.md#backlog-refine) · [Using skills](guides/02-using-skills.md#backlog-refine--modes--checklist) |
 | **Product artifact quality** | `_shared/backlog-item-types/` (INVEST, anti-task-shatter, Gherkin budget) wired into analyze / refine / split / spec | [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types) |
 | **Publish honesty** | Adapter Publish knobs (inherit/depth/threads); TRACE emitters claimed only where wired | [Publish knobs](domains/adapters.md#publish-knobs-honesty-depth--threads--inherit) · [TRACE emitters](domains/adapters.md#trace-emitter-honesty) |
+| **Post-delivery handoffs** | `/commit` living-artifacts ask; `/code-review` recommended loop; `document-plan` Kind new vs update | [git-ops](domains/git-ops.md) · [SKILLS](SKILLS.md) |
 
 ## Design constraints
 

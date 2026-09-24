@@ -21,6 +21,6 @@ Pause message includes: `docs/documentation-plan/plan.md` path, steps completed,
 |-------|-----|
 | `plan` / `sdd-develop` | Feature delivery PRD/PLAN - `PRD/`, `PLAN/`, or `{{SDD_ROOT}}/<repo-id>/` per `STORAGE.md` |
 | `document-plan` | Cross-cutting documentation strategy - output `docs/documentation-plan/plan.md` only |
-| `document-implement` | Executes one step of `docs/documentation-plan/plan.md` |
+| `document-implement` | Executes one step of `docs/documentation-plan/plan.md` (new file ≈ one step; update ≈ coalesced; spawn on large new/refactor) |
 
 Do **not** read or write SDD `PLAN/PLAN_*.md` when executing `document-plan` / `document-implement`. Do **not** read `docs/documentation-plan/plan.md` when executing SDD `sdd-plan` / `sdd-develop`.

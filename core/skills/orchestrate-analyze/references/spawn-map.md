@@ -16,7 +16,7 @@ Spawn Task **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`).
 
 Spawn a Task subagent **only** when `subagents=native` **and** `ROSTER.md` canonical `needs_*` / brownfield rules say so. Load prompt from `skills/_shared/agents/prompts/`. When multiple specialists apply, spawn **in parallel** within the SPAWN ≤4 cap; if more flags apply, batch in waves of ≤4 or ask (pt-BR) to run série.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default (inherit parent / Auto). Ask about a premium slug **only** for very hard work per that contract; on **não** / silence, spawn without `model`. Never pick a costlier model alone.
+**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default — child uses the **same model as the parent session**. Do **not** conflate with Cursor Auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard work per that contract; on **não** / silence, spawn without `model`. Never pick a costlier model alone.
 
 | Signal (see ROSTER) | Specialist | Prompt |
 |---------------------|------------|--------|

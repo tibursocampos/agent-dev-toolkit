@@ -68,6 +68,7 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (path/secrets dual); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |
 | OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
 | Path/secrets guard | Shared `adapters/_shared/guard-rules.md` + `GuardCommon.ps1` — outside workspace deny; write without path deny; host wiring in [ADAPTERS.md](../ADAPTERS.md) |
+| Shell allowlist (WS10) | Cursor operator tip: opt-in allowlist for `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` only — no silent Shell auto-approve; guards unchanged ([cursor README](../../adapters/cursor/README.md) § Shell allowlist; [cli-scripts](cli-scripts.md)) |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
 | Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
 | Sync prepare | Every sync runs `Get-SddRoot -Prepare` |
@@ -102,7 +103,7 @@ Fail-open: emitter exit **0** always; never append `tool_input` / bodies / secre
 
 ## Module READMEs
 
-- [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; keyed uninstall (preserves SDD)
+- [adapters/cursor/README.md](../../adapters/cursor/README.md) — hooks merge; Shell allowlist tip (REQ-013); keyed uninstall (preserves SDD)
 - [adapters/antigravity/README.md](../../adapters/antigravity/README.md) — official `config/*`; spawn probe
 - [adapters/claude/README.md](../../adapters/claude/README.md) — settings merge, narrow permissions, keyed uninstall
 - [adapters/codex/README.md](../../adapters/codex/README.md) — dual-root plugin/rules; UserScope; keyed uninstall

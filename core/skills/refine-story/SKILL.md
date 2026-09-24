@@ -76,6 +76,8 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Product depth / AC budget (scorecard Step 4) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/gherkin-budget.md` + `invest-and-story-quality.md` |
 | Evidence omit > fabricate (scorecard) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/product-evidence-lite.md` |
 | Anti-task-shatter (outcome-shaped titles) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| Clarify depth + severity B/I/MINOR | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |
+| Readiness READY / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refine-story/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/<section>.md` |
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
@@ -161,6 +163,7 @@ Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Pro
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Invent architecture that belongs to O1 specialists
 - Do not ship vague BDD without challenge
+- Do not hand off to `sdd-spec` / claim ready-for-PRD while open clarification **B** or **I** remain — emit `NEEDS_CLARIFICATION` (`readiness-severity.md` / REQ-005); presence ≠ READY (**RN02**)
 
 ## Handoff examples
 

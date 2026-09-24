@@ -131,12 +131,20 @@ $memoryBankInventoryScriptName = $script:ToolkitConstant.AssertMemoryBankInvento
 $memoryBankInventoryCheckName = $script:ToolkitConstant.MemoryBankInventoryCheckName
 $planLedgerContractScriptName = $script:ToolkitConstant.AssertPlanLedgerContractScriptName
 $planLedgerContractCheckName = $script:ToolkitConstant.PlanLedgerContractCheckName
+$developSessionGateScriptName = $script:ToolkitConstant.AssertDevelopSessionGateScriptName
+$developSessionGateCheckName = $script:ToolkitConstant.DevelopSessionGateCheckName
 $traceEmitterFailOpenScriptName = $script:ToolkitConstant.AssertTraceEmitterFailOpenScriptName
 $traceEmitterFailOpenCheckName = $script:ToolkitConstant.TraceEmitterFailOpenCheckName
 $executionModesScriptName = $script:ToolkitConstant.AssertExecutionModesScriptName
 $executionModesCheckName = $script:ToolkitConstant.ExecutionModesCheckName
 $publishSpawnKnobsScriptName = $script:ToolkitConstant.AssertPublishSpawnKnobsScriptName
 $publishSpawnKnobsCheckName = $script:ToolkitConstant.PublishSpawnKnobsCheckName
+$invocationAxesScriptName = $script:ToolkitConstant.AssertInvocationAxesScriptName
+$invocationAxesCheckName = $script:ToolkitConstant.InvocationAxesCheckName
+$siblingReadinessGateScriptName = $script:ToolkitConstant.AssertSiblingReadinessGateScriptName
+$siblingReadinessGateCheckName = $script:ToolkitConstant.SiblingReadinessGateCheckName
+$navigationBlockScriptName = $script:ToolkitConstant.AssertNavigationBlockScriptName
+$navigationBlockCheckName = $script:ToolkitConstant.NavigationBlockCheckName
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -222,9 +230,13 @@ $coreChecks = @(
     @{ Name = $skillLazyLoadCheckName; Script = $skillLazyLoadScriptName },
     @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName },
     @{ Name = $planLedgerContractCheckName; Script = $planLedgerContractScriptName },
+    @{ Name = $developSessionGateCheckName; Script = $developSessionGateScriptName },
     @{ Name = $executionModesCheckName; Script = $executionModesScriptName },
     @{ Name = $traceEmitterFailOpenCheckName; Script = $traceEmitterFailOpenScriptName },
-    @{ Name = $publishSpawnKnobsCheckName; Script = $publishSpawnKnobsScriptName }
+    @{ Name = $publishSpawnKnobsCheckName; Script = $publishSpawnKnobsScriptName },
+    @{ Name = $invocationAxesCheckName; Script = $invocationAxesScriptName },
+    @{ Name = $siblingReadinessGateCheckName; Script = $siblingReadinessGateScriptName },
+    @{ Name = $navigationBlockCheckName; Script = $navigationBlockScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

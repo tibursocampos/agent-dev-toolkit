@@ -17,6 +17,7 @@ Update `CONTINUITY.md` when:
 | **Decisões** | Append mode + approval scope |
 | **Pendências** | Stories still missing PRD/PLAN or approval |
 | **Handoff tipado** | Full `/…` lines with **portable paths** (`STORAGE.md` § Portable path) |
+| **Related** | Refresh `## Related` on CONTINUITY (and FEATURE/STORY when touched) for on-disk PRD/PLAN siblings — omit-if-absent; paths only (`STORAGE.md` § Navigation block / REQ-009) |
 | **What not to write** | Full PRD/PLAN bodies, guideline dumps, app code, memory-bank body |
 
 ---
@@ -53,7 +54,7 @@ Global storage: same pattern with InstallRoot-relative portable paths (`sdd/<rep
 
 On approval:
 
-1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path).
+1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path); refresh `## Related` for landed PRD/PLAN (+ STORY/FEATURE when on-disk) — omit-if-absent (REQ-009).
 2. Optionally update `FEATURE.md` / story statuses to reflect deliver done.
 3. Run **cross-artifact analyze** (§ Cross-artifact analyze) — brownfield must have `CHANGE.md`; greenfield must not force an empty CHANGE stub.
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.

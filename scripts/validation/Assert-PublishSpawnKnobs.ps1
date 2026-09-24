@@ -3,6 +3,7 @@
 #   Should_Pass_When_SpawnPublishKnobsPresent
 #   Should_Pass_When_SpawnPublishKnobsParsesOnWindowsPowerShell
 #   Should_Pass_When_HonestyMatrixDocumentsHosts
+#   Should_Pass_When_HonestyMatrixMatchesRegistrySubagents
 #   Should_Pass_When_CoreAgentsUseModelInherit
 #   Should_Pass_When_CapsMatchSpawn
 #   Should_Pass_When_CodexTomlEmitsInheritHonesty
@@ -14,7 +15,8 @@
 #   powershell.exe -NoProfile -File scripts/validation/Assert-PublishSpawnKnobs.ps1
 #   pwsh -NoProfile -File scripts/validation/Assert-PublishSpawnKnobs.ps1
 #
-# REQ-008 / CA8 / RNF-002: Publish depth/threads/inherit aligned to SPAWN.
+# REQ-003 / REQ-008 / CA8 / RNF-002: Publish depth/threads/inherit aligned to SPAWN;
+# honesty matrix parity with registry.json subagents=native|none.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -108,12 +110,53 @@ if (-not (Test-Path -LiteralPath $honestyPath)) {
 }
 $honestyText = Get-Content -LiteralPath $honestyPath -Raw -Encoding UTF8
 $le = [string][char]0x2264
-foreach ($marker in @('Cursor', 'Claude', 'Codex', 'Hermes', 'REQ-008', 'inherit', ($le + '2'), ($le + '4'), 'Honesty')) {
+foreach ($marker in @('Cursor', 'Claude', 'Codex', 'Hermes', 'OpenCode', 'OpenHands', 'Antigravity', 'Grok', 'ZCode', 'Copilot', 'REQ-008', 'REQ-003', 'inherit', ($le + '2'), ($le + '4'), 'Honesty')) {
     if ($honestyText -notmatch [regex]::Escape($marker)) {
         Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason ("honesty missing {0}" -f $marker)
     }
 }
 Write-Pass -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts'
+
+$registryRel = Join-Path $script:ToolkitConstant.AdaptersDirectoryName $script:ToolkitConstant.RegistryFileName
+$registryPath = Join-Path $repoRoot ($registryRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$registryParityName = 'Should_Pass_When_HonestyMatrixMatchesRegistrySubagents'
+if (-not (Test-Path -LiteralPath $registryPath)) {
+    Write-Fail -TestName $registryParityName -Reason ("missing {0}" -f $registryRel)
+}
+$registry = Get-Content -LiteralPath $registryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+if ($null -eq $registry.agents) {
+    Write-Fail -TestName $registryParityName -Reason 'registry.agents missing'
+}
+$subagentsNative = [string]$script:ToolkitConstant.SubagentsNativeValue
+$subagentsNone = [string]$script:ToolkitConstant.SubagentsNoneValue
+foreach ($agent in @($registry.agents)) {
+    $id = [string]$agent.id
+    $display = [string]$agent.displayName
+    $sub = [string]$agent.capabilities.subagents
+    $hostNeedle = if ($honestyText -match [regex]::Escape($display)) { $display } else { $id }
+    if ($honestyText -notmatch [regex]::Escape($hostNeedle) -and $honestyText -notmatch [regex]::Escape($id)) {
+        Write-Fail -TestName $registryParityName -Reason ("honesty missing registry host {0} ({1})" -f $id, $display)
+    }
+    if ($sub -eq $subagentsNative) {
+        # Native hosts must not be documented only under the OpenHands none row.
+        continue
+    }
+    if ($sub -eq $subagentsNone) {
+        if ($id -ne [string]$script:ToolkitConstant.OpenHandsAgentId) {
+            Write-Fail -TestName $registryParityName -Reason ("unexpected subagents=none host {0}; honesty expects OpenHands only" -f $id)
+        }
+        foreach ($noneMarker in @('none', 'Honesty-only', 'no spawn pin', 'subagents=none')) {
+            if ($honestyText -notmatch [regex]::Escape($noneMarker)) {
+                Write-Fail -TestName $registryParityName -Reason ("OpenHands honesty missing marker '{0}'" -f $noneMarker)
+            }
+        }
+        # OpenHands row must document none, not claim registry subagents=native.
+        if ($honestyText -match '(?m)^\|\s*\*\*OpenHands\*\*\s*\|\s*\*\*native\*\*') {
+            Write-Fail -TestName $registryParityName -Reason 'OpenHands matrix row must not list subagents=native'
+        }
+    }
+}
+Write-Pass -TestName $registryParityName
 
 $coreAgentsRel = $script:ToolkitConstant.SpawnPublishCoreAgentsRelativeDir
 $coreAgentsRoot = Join-Path $repoRoot ($coreAgentsRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)

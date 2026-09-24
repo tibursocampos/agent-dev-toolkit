@@ -4,6 +4,8 @@ Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here o
 
 **Mandatory:** read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
+**Task `model` (Axis B):** when spawning, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` — **omit** the Task `model` parameter by default so the child uses the **same model as the parent session**. Do **not** conflate with Cursor Auto model or Memory Bank policy `auto`. Premium / alternate slug only after that contract’s gate + explicit user **sim**.
+
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`
 
 ---
@@ -53,6 +55,7 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | Marker | Role |
 |--------|------|
 | `SPAWN.md` | Mandatory contract pointer |
+| `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C gate |
 | `subagents` | Capability name |
 | `in-parent` | Trivial path + fallback path |
 | `fallback` | Degrade when none / no Task |
@@ -60,7 +63,7 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | `paths` | Scoped child payload |
 | `LANGUAGE.md` | Two surfaces; en-US spawn |
 
-Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` — this file does not replace it. Language surfaces: `LANGUAGE.md`.
+Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` — this file does not replace it. Model param: `SUBAGENT-MODEL.md`. Language surfaces: `LANGUAGE.md`.
 
 ---
 

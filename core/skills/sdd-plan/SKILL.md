@@ -115,8 +115,9 @@ Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
 3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA.
-4. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing: **`orchestrated`** → STOP (O1/O2 creates first); **`direct`** → create inline or ask operator; PLAN cites the path only (`references/plan-magro.md`, `INVOCATION-CONTEXTS.md`).
-5. Warn if overwriting PLAN with completed steps.
+4. **Navigation `## Related` (REQ-009 / CA3):** Emit `## Related` per `STORAGE.md` § Navigation block. Classic **PRD ↔ PLAN** mutual cite when both exist: PLAN Related **MUST** include the source PRD portable path; after PLAN Write, **refresh PRD** Related so it cites this PLAN (omit other siblings if absent — never stub). Cite STORY if on-disk. Details: `references/template-usage.md`.
+5. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing: **`orchestrated`** → STOP (O1/O2 creates first); **`direct`** → create inline or ask operator; PLAN cites the path only (`references/plan-magro.md`, `INVOCATION-CONTEXTS.md`).
+6. Warn if overwriting PLAN with completed steps.
 
 ### 6.5 Structural validate before advance
 
@@ -150,6 +151,7 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 - Do not paste ARCH/ANALYSIS bodies into the PLAN when portable paths exist (cite paths only)
 - Do not hand off to `sdd-develop` when `validate-plan` (or `validate-prd` on the source) exits ≠ 0
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+- Omit `## Related` on PLAN Write, skip PRD↔PLAN mutual cite when both exist, use `## See also`, stub absent siblings only for links, or embed non-portable paths in Related (`STORAGE.md` § Navigation block / REQ-009)
 
 ## Handoff
 

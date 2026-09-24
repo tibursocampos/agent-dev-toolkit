@@ -160,6 +160,44 @@ OK to show OS absolute in chat confirm UI / SESSION hashing / sync logs — **no
 
 Runtime: resolve `InstallRoot` + portable path → absolute **only** at Read/Write time.
 
+## Navigation block (Related)
+
+**Rule IDs:** `NAV-RELATED` · `NAV-OMIT-ABSENT` · `NAV-PORTABLE` (REQ-007 / REQ-008 / RN05 / CA3)
+
+Canonical cross-artifact navigation for FEATURE / CONTINUITY / STORY / PRD / PLAN (and on-disk ANALYSIS / ARCH / SEC pointers). Companion pipeline summary: `PIPELINE.md` § Navigation block.
+
+| Rule | Contract |
+|------|----------|
+| **Section title** | Exactly `## Related` — **never** `## See also` (RN05) |
+| **Paths** | Portable paths only (§ Portable path) — no OS absolute / InstallRoot embeds |
+| **Omit-if-absent** | Include a row/bullet **only** when the sibling exists on disk (or is known for the Write in flight). **Do not** create empty stubs solely to satisfy a link |
+| **No monolith** | Do **not** invent `feature-refinement.md` as a navigation SoT |
+
+### Modes
+
+| Mode | Edges |
+|------|-------|
+| **Classic** (`sdd-spec` / `sdd-plan` / `sdd-develop`) | **PRD ↔ PLAN** when either side is written/updated; **STORY** if on-disk; FEATURE / CONTINUITY / ARCH… only if present |
+| **Orchestrated O1+** | Bidirectional among siblings that exist: `FEATURE ↔ CONTINUITY ↔ STORY ↔ ANALYSIS\|ARCH\|SEC` (flag-gated / on-disk) `↔ PRD ↔ PLAN` |
+
+### Block shape (templates)
+
+One English-id heading `## Related`, then a table (or bullets) of portable paths. Example (repository mode):
+
+```markdown
+## Related
+
+| Relação | Path portátil |
+|---------|---------------|
+| PRD | `features/003-feature/US01/PRD/003_feature.md` |
+| PLAN | `features/003-feature/US01/PLAN/PLAN_003_feature.md` |
+| STORY | `features/003-feature/US01/STORY.md` |
+```
+
+Omit any row whose target is absent. Slash handoff lines also use portable paths (§ Handoff paths).
+
+**Write obligations** (which skills MUST emit/refresh the block) live in skill SKILL/refs — this section defines the normative block shape and omit rules only. Navigation carries **paths**; readiness/READY severity stays in the WS3 contract (`readiness-severity.md`).
+
 ## Handoff paths
 
 Always pass the **portable path** (1A) — never OS absolute / user-home InstallRoot embeds inside artifacts:

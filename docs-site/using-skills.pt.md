@@ -235,13 +235,13 @@ ou `dotnet-developer`, `react-developer`, `python-developer`, …
 ### Depois da implementação
 
 ```text
-code-review
-commit
+code-review          # opcional; após correções perguntar re-review / bank / docs (sim/pular)
+commit               # pergunta living-artifacts se bank/docs existirem
 push
-open-github-pr
+open-github-pr       # opcional
 ```
 
-PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `develop` → `master`/`main`. Prefira `open-github-pr` à UI web quando `gh` estiver disponível.
+PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `develop` → `master`/`main`. Prefira `open-github-pr` à UI web quando `gh` estiver disponível. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
 
 ## Catálogo de skills (resumo)
 
@@ -261,14 +261,14 @@ Pastas canônicas em `core/skills/` (**40 skills** + `_shared`). SoT do agente: 
 
 | Área | O que será pedido / opções |
 |------|----------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Confirmar mensagem de commit; confirmar push; modo PR feature vs release; confirmar título/corpo; **sempre** perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
-| `code-review` | Escolher single vs multi-angle (sem default silencioso) |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain` |
-| `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso) |
+| Git (`commit` / `push` / `open-github-pr`) | Pergunta living-artifacts (bank / docs) antes do commit quando existirem; confirmar mensagem; confirmar push; modo PR; título/corpo; **sempre** perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| `code-review` | Escolher single vs multi-angle (sem default silencioso); após Changes required, loop recomendado pergunta re-review / bank / docs |
+| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain`; O2 clarify **READY** (sem B/I abertos) antes do Write |
+| `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso); B/I abertos → `NEEDS_CLARIFICATION` |
 | `api-standards` vs `api-integrate` | Design/padrões → `api-standards`; OpenAPI → clientes → `api-integrate` |
-| `sdd-develop` | Um passo do PLAN por sessão |
-| `read-sdd-artifact` | Normalização opcional → `source_context` (só paths sob `features/`) |
-| `document-plan` | Pergunta o idioma da doc antes de escrever |
+| `sdd-develop` | Um passo do PLAN por sessão; MUST `-File` session gate + claim do ledger quando exigido |
+| `read-sdd-artifact` | Normalização opcional → `source_context` (só paths portáteis sob `features/`) |
+| `document-plan` / `document-implement` | Pergunta idioma da doc; Kind **new** ≈ um arquivo/passo; Kind **update** coalesces paths existentes |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Modo Caveman](../caveman/) |
 | Orchestrator | Padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
 

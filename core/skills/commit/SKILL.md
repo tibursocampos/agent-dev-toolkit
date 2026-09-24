@@ -64,6 +64,17 @@ Read `references/<section>.md` for procedural detail — **not** full `reference
 ### 0–1. Workspace and validate branch
 Follow `references/validate-branch.md` (Caveman **NEVER**; branch blocker before any `git add`/`commit`/`push`).
 
+### 1.5 Living artifacts (ask before inspect/commit)
+
+**Before** `git add` / drafting the message, follow `references/inspect-changes.md` § Living artifacts ask:
+
+| When present | Ask (pt-BR) and **wait** | On **sim** |
+|--------------|--------------------------|------------|
+| `memory-bank/` (or bank_root via `STORAGE.md`) | `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular)` | Run `/memory-bank-init` `refresh-light` (or hand off that skill) before continuing commit |
+| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | `Posso atualizar a documentação do projeto? (sim / pular)` | Pending plan → `/document-implement`; no plan → `/document-plan` then implement as needed |
+
+Do **not** treat silence as **pular**. If the user already answered these asks in the same turn (e.g. from `sdd-develop` / O3 handoff), do not re-ask — proceed.
+
 ### 2–3. Inspect changes and pre-commit
 Follow `references/inspect-changes.md`.
 

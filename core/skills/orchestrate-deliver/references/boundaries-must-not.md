@@ -12,6 +12,8 @@ Escalate **to Classic SDD alone** when only one story and user skips O2 batching
 
 Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
 
+Escalate **to `refine-story` / O1** when clarification status is `NEEDS_CLARIFICATION` (open **B**/**I**) — do **not** Write PRD/PLAN (`readiness-severity.md` / REQ-005).
+
 Do **not** claim `sdd-develop` one-step contract changed.
 
 ---
@@ -28,6 +30,9 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Advance develop handoff when brownfield lacks `features/NNN-slug/CHANGE.md`, or when greenfield was forced an empty CHANGE stub
 - Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without operator **sim** deferral
 - Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; max-3 gap questions do not replace this gate
+- Write PRD/PLAN when open clarification **B** or **I** remain — **STOP**; emit `NEEDS_CLARIFICATION` + portable paths (`readiness-severity.md` / REQ-005 / TE01); sibling folder presence ≠ READY (**RN02**)
+- Treat readiness READY as SESSION `step_confirmed` / PLAN step Complete (dual plane — readiness ≠ implementation)
+- Omit `## Related` on PRD/PLAN (or upward FEATURE/CONTINUITY/STORY) Writes, skip PRD↔PLAN mutual cite when both exist, use `## See also`, stub absent siblings only for links (`STORAGE.md` § Navigation block / REQ-009)
 - Treat waive-deps as a waiver for missing `SEC/` / `ARCH/` / `ANALYSIS` (waive-deps is **story order** only)
 - Exit O2 with Memory-bank status `fresh` if style changed or ARCH was approved this feature (set `refreshed`; point-promote `architecture.md` if not already)
 - Write PRD/PLAN at repo root or outside the story folder

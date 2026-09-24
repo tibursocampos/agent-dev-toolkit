@@ -62,11 +62,15 @@ Suggest **exactly one** alternate slug. Keep the reason to 1–2 sentences.
 | Answer | Action |
 |--------|--------|
 | **1** / **sim** (approve alternate) | Pass `model` **only** for that approved slug on this Task |
-| **2** / keep parent / “auto” / “pai” | Spawn **without** `model` (same as parent session) |
+| **2** / keep parent / “pai” / “omitir” | Spawn **without** `model` (same as parent session). User saying Cursor **Auto** (product model picker) is **not** an alternate-slug choice — still omit `model`. |
 | **3** / **cancelar** | Do not spawn |
 | **silence** | Spawn **without** `model` — silence ≠ approval for an alternate model |
 
 User may also name a different allowed slug; only then use that slug (still requires an explicit choice, not silence).
+
+## Host UI limit (RNF-003)
+
+Toolkit enforces Axis B/C in **skills**, **publish honesty**, and **CI**. If the **host UI** rewrites the child Task model after spawn, that rewrite is **outside** toolkit control — document the limit; do **not** claim a hard runtime guarantee against UI override.
 
 ## Must not
 
@@ -74,8 +78,9 @@ User may also name a different allowed slug; only then use that slug (still requ
 - Ask the model question on every spawn
 - Ask for more than one premium/alternate suggestion at once without a single recommended default
 - Treat silence as approval to use an alternate / premium model
-- Confuse Memory Bank policy `auto` with Cursor Auto model
+- Confuse Memory Bank policy `auto` with Cursor Auto model, or use ambiguous inherit-parent + Auto spawn wording
 - Rely on hooks to enforce model choice (hooks never select models)
+- Overclaim that CI/skills prevent host-UI model rewrite after spawn
 
 ## Parallel batches
 

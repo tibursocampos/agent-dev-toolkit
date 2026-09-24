@@ -151,7 +151,8 @@ Output in `<bank_root>/.inventory/sources.json` (schema_version **3**):
 
 | Field | Meaning |
 |-------|---------|
-| Per source (`sources[]`) | `path`, `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
+| Per source (`sources[]`) | `path` (repo-relative, forward slashes), `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
+| Roots (portable) | `repo_path` MUST be `.`; `bank_path` MUST be repo-relative forward-slash (usually `memory-bank`) — **never** OS absolute / drive-letter / user-home |
 | Governance | `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash`, `inventory_summary` |
 
 Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason (TE01). Bloated existing index (> ~200 paths) → reset to curated discovery + note in `status_reason`.

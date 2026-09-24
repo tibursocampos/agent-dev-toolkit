@@ -117,7 +117,16 @@ Legacy repo files may still contain unused `step_confirmed` / `tests_run` keys. 
 
 1. Resolve the correct session file(s) for the gate in play.
 2. If required gate is `false`: **STOP** - ask user **(pt-BR)** - do not proceed.
-3. After user **sim**: set gate `true`, update `updated_at`, write **that** session file only.
+3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON:
+
+```powershell
+.\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <plan> -RepoPath <repo> -SddRoot <sdd-root> [-Step N] [-CurrentStep N]
+```
+
+- Creates the PLAN-scoped develop session schema when missing; sets `gates.step_confirmed = true`.
+- **Idempotent (REQ-011 / CT5):** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
+- **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
+4. Repo gates (`storage_confirmed` / `write_confirmed`) remain on the flat `{repo-hash}.json` (helper above is develop-scope only).
 
 ## After develop step completes (mandatory)
 
@@ -140,21 +149,29 @@ Also require disjoint file scopes in the working tree (see `orchestrate-develop`
 ## Validation script
 
 ```powershell
-.\scripts\validation\validate-session-gates.ps1 -RepoPath "D:\Source\Repos\MyApp" -RequiredGate write_confirmed
-.\scripts\validation\validate-session-gates.ps1 -RepoPath "D:\Source\Repos\MyApp" -PlanPath "D:\...\PLAN_004_x.md" -RequiredGate step_confirmed
-.\scripts\validation\validate-session-gates.ps1 -RepoPath "D:\Source\Repos\MyApp" -PlanPath "D:\...\PLAN_004_x.md" -Step 2 -RequiredGate tests_run
-.\scripts\validation\validate-session-gates.ps1 -RepoPath "D:\Source\Repos\MyApp" -PlanPath "D:\...\docs\documentation-plan\plan.md" -RequiredGate step_confirmed
+.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -SddRoot <sdd-root> -RequiredGate write_confirmed
+.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <plan> -SddRoot <sdd-root> -RequiredGate step_confirmed
+.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <plan> -Step 2 -SddRoot <sdd-root> -RequiredGate tests_run
+.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <repo>/docs/documentation-plan/plan.md -SddRoot <sdd-root> -RequiredGate step_confirmed
 ```
 
-`-PlanPath` must exist and resolve under `-RepoPath` or under `{{SDD_ROOT}}/` (global classic).
+`-PlanPath` must exist and resolve under `-RepoPath` or under the classic global features root (`STORAGE.md`). Pass `-SessionsRoot` (tests) or `-SddRoot` so sessions resolve to `<SddRoot>/sessions` (same rule as ledger claim).
 
 Exit 0 = gate approved; exit 1 = blocked.
+
+Canonical scripts (REQ-014):
+
+| Script | Role |
+|--------|------|
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent set of develop `step_confirmed` |
+| `scripts/validation/validate-session-gates.ps1` | Read/check gate true vs blocked |
+| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT (unchanged; not reimplemented by session helper) |
 
 ## Integration
 
 | Consumer | Use |
 |----------|-----|
 | All skills | Step -1 gate check before Write/Shell |
-| `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step) |
+| `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step); **MUST** call `Invoke-DevelopSessionGate.ps1` after **sim** (REQ-012); claim still required when absent (CT6) |
 | `rules/guardrails.mdc` | References this file |
 | `rules/context-management.mdc` | Complements session gates |

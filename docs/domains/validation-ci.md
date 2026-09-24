@@ -52,15 +52,20 @@ These prove contracts and scripts exist — they are **not** a substitute for ru
 
 | Assert / script | Role |
 |-----------------|------|
-| `Assert-MemoryBankInventory.ps1` | Inventory script + `ready`/`not-ready` contract smoke |
+| `Assert-MemoryBankInventory.ps1` | Inventory script + `ready`/`not-ready` contract smoke (portable paths in `sources.json`) |
 | `Assert-PlanLedgerContract.ps1` | PLAN-LEDGER present + double-claim race |
+| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Idempotent develop `step_confirmed` helper + skill MUST `-File` (WS10) |
+| `Assert-InvocationAxes.ps1` | Spawn Axis B omit/inherit prose + harness wiring (WS1) |
+| `Assert-PublishSpawnKnobs.ps1` | Publish honesty depth/threads/inherit (no child≠parent pin) |
+| `Assert-SiblingReadinessGate.ps1` | Clarification READY / NEEDS_CLARIFICATION + B/I fixtures (WS3) |
+| `Assert-NavigationBlock.ps1` | `## Related` PRD↔PLAN reciprocity fixture (WS7) |
 | `Assert-TraceArchiveContract.ps1` | TRACE living-loop contract smoke |
 | `Assert-TraceHarvest.ps1` | Harvest scope / exit behavior |
 | `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
 | `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
 | `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
 
-Domain narrative: [TRACE](core.md#trace-archive-living-loop) · [PLAN-LEDGER](core.md#plan-ledger-atomic-step-claim) · [emitter honesty](adapters.md#trace-emitter-honesty).
+Domain narrative: [TRACE](core.md#trace-archive-living-loop) · [PLAN-LEDGER + session gate](core.md#plan-ledger--develop-session-gate) · [Navigation](core.md#navigation-block-related) · [Readiness](core.md#clarification-readiness-b--i--minor) · [emitter honesty](adapters.md#trace-emitter-honesty).
 
 ## GitHub Actions
 

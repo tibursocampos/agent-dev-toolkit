@@ -136,8 +136,9 @@ Record `artifact_language` from `preferences.json`, manifest, or user override (
 1. Validate path per `PIPELINE.md` section Path validation - abort if non-canonical (**writes** only under `features/.../PRD/`).
 2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
 3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `templates/sdd/PRD.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`); include **## Execution policy**.
-4. **Brownfield CHANGE (REQ-004):** If FEATURE `Nature` is `brownfield` (or sibling FEATURE under `features/NNN-slug/` says brownfield), also Write `features/NNN-slug/CHANGE.md` from `templates/features/CHANGE.md` with **ADDED \| MODIFIED \| REMOVED** vs **current** (`memory-bank/` living docs — never `openspec/` / `.specs/` / `.specify/`). **Greenfield** must **not** force an empty CHANGE stub. Details: `CHANGE-CONTRACT.md` + `references/validate-change.md`.
-5. Product `docs/` in scope: ask doc language first (`references/product-docs-language.md`).
+4. **Navigation `## Related` (REQ-009 / CA3):** Emit `## Related` per `STORAGE.md` § Navigation block (`NAV-RELATED` / `NAV-OMIT-ABSENT`). Classic: cite **PLAN** when the canonical PLAN path is known/on-disk (omit if absent — never stub PLAN only for a link); cite **STORY** / FEATURE / CONTINUITY / ARCH… only when on-disk. Paths portable only. Details: `references/template-usage.md`.
+5. **Brownfield CHANGE (REQ-004):** If FEATURE `Nature` is `brownfield` (or sibling FEATURE under `features/NNN-slug/` says brownfield), also Write `features/NNN-slug/CHANGE.md` from `templates/features/CHANGE.md` with **ADDED \| MODIFIED \| REMOVED** vs **current** (`memory-bank/` living docs — never `openspec/` / `.specs/` / `.specify/`). **Greenfield** must **not** force an empty CHANGE stub. Details: `CHANGE-CONTRACT.md` + `references/validate-change.md`.
+6. Product `docs/` in scope: ask doc language first (`references/product-docs-language.md`).
 
 ### 7.5 Structural validate before advance
 
@@ -180,6 +181,7 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 - Do not hand off to `sdd-plan` when `validate-prd` exits ≠ 0
 - Do not hand off when brownfield lacks `features/NNN-slug/CHANGE.md` or `validate-change` exits ≠ 0; do not invent empty CHANGE for greenfield
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
+- Omit `## Related` on PRD Write, use `## See also`, stub absent siblings only for links, or embed non-portable paths in Related (`STORAGE.md` § Navigation block / REQ-009)
 
 ## Handoff
 

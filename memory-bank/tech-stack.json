@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-09-02T19:04:30Z",
+  "generated_at": "2026-09-24T14:11:27Z",
   "languages": ["PowerShell", "Markdown"],
   "frameworks": [],
   "package_managers": [],
@@ -60,7 +60,7 @@
     "notes": [
       "Adapters: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands",
       "40 kebab skills under core/skills/ (+ _shared)",
-      "79 Assert-*.ps1 validation scripts",
+      "82 Assert-*.ps1 validation scripts",
       "Cursor + Grok adapters split Claude-style (thin entry + Publish-* / Uninstall-* siblings)",
       "InstallRoot fail-closed: strip extended (\\\\?\\) and device (\\\\.\\) path prefixes; Initialize-InstallRootForWrite + Confirm; orphan cleanup",
       "Managed skills prune/copy name containment; uninstall Assert-PathUnderInstallRootForDelete",

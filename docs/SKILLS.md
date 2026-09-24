@@ -138,21 +138,21 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 
 | Skill | Purpose |
 |-------|---------|
-| `document-plan` | Baby-step documentation plan under `docs/documentation-plan/` |
-| `document-implement` | Execute one documentation plan step |
+| `document-plan` | Documentation plan under `docs/documentation-plan/` — Kind **new** / **update** / **refactor**; prefer fewer larger steps |
+| `document-implement` | Execute one documentation plan step (update may coalesce existing paths; spawn ≤2 only for large new/refactor) |
 
 ## Operator expectations (mirror of OPERATOR.md)
 
 | Area | What you will be asked / options |
 |------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
-| `code-review` | Choose single vs multi-angle (no silent default) |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` inherit unless gated + **sim**; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
-| `sdd-develop` | One PLAN step per session |
-| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time |
+| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
+| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs (**sim**/**pular**) |
+| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + **sim**; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
+| `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
+| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
 | `api-standards` vs `api-integrate` | Standards / design review → `api-standards`; OpenAPI → typed clients → `api-integrate` |
-| `document-plan` | Asks doc language before writing |
+| `document-plan` / `document-implement` | Asks doc language before writing; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths; not 5–12 tiny baby-steps by default |
 | Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |
 | Lazy-load / phased split | `SKILL.md` + one section per step; monolith `reference.md` >150 lines must split — [SKILL-REFERENCE-RETRIEVAL.md](../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) |
 

@@ -80,9 +80,9 @@ Same skill call flow; these scripts add deterministic gates — not a second too
 
 | Order | Script | Role |
 |-------|--------|------|
-| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` under `memory-bank/.inventory/` |
+| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` under `memory-bank/.inventory/` (**portable** paths in `sources.json`) |
 | 2 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Block O3 when PRD/PLAN/CHANGE inconsistent |
-| 3 | Develop (`sdd-develop` / O3; optional PLAN-LEDGER claim) | Session gates + optional ledger hold |
+| 3 | `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` | Idempotent `step_confirmed` + ledger claim (MUST `-File`; opt-in Shell allowlist) |
 | 4 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize **only** `features/NNN-slug/TRACE.jsonl` |
 
 ```powershell
@@ -93,11 +93,18 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
   -FeatureRoot features\<NNN-slug> `
   -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md
 
+pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
+  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
+
+pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 `
+  -Action claim -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -Step N -Holder <id> `
+  -RepoPath . -SessionsRoot <sessions-root>
+
 pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
   -FeatureRoot features\<NNN-slug>
 ```
 
-PLAN-LEDGER CLI: `scripts/ledger/Invoke-PlanLedgerClaim.ps1`. Pointers only (no schema paste): [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). TRACE emitter claims: [Adapters](../adapters/).
+**Shell allowlist tip (Cursor):** opt-in allowlist for the two develop scripts only — do not auto-approve all Shell. Selective clarify gate: `Invoke-SiblingReadinessGate.ps1` (`-FeatureRoot`). Core suite also asserts InvocationAxes, NavigationBlock (`## Related`), SiblingReadiness, PublishSpawnKnobs. Pointers: [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). TRACE emitter claims: [Adapters](../adapters/).
 
 ## Maintainer Git flow
 
