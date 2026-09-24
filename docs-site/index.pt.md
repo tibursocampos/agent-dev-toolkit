@@ -11,7 +11,7 @@ hide:
 
 <h1 class="home-headline">Um núcleo compartilhado de skills. Adaptadores em cada pasta de agente (10 agentes).</h1>
 
-<p class="home-lead">Sincronize skills compartilhadas via adaptadores — escolha o agente, copie o comando interativo do toolkit e execute.</p>
+<p class="home-lead">Baixe o bootstrap da Release, execute e sincronize no ambiente do agente — sem clone.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
   <!-- PT pages live under /pt/; assets stay at site root — use ../assets. -->
@@ -74,17 +74,17 @@ hide:
 
 <div class="home-cta">
   <div class="home-cta__copy">
-    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1</code>
+    <code id="sync-command" data-sync-command>curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat</code>
     <button type="button" class="home-cta__primary" id="copy-sync-command" data-copy-target="#sync-command" aria-describedby="copy-sync-status">
-      Copiar comando do toolkit
+      Copiar download do bootstrap
     </button>
     <span id="copy-sync-status" class="home-cta__status" role="status" aria-live="polite" data-copy-status></span>
   </div>
   <a class="home-cta__secondary md-button" href="get-started/">Começar</a>
   <p class="home-cta__script">
-    Script (opcional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+    Depois execute <code>bootstrap.bat</code> (abre o Smart Manager). Script após extract: <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\bootstrap.ps1 -DirectSync -Agent cursor</code>
   </p>
-  <p class="home-cta__note">Exige <strong>pwsh 7+</strong> no Linux/macOS; no Windows: PowerShell 5.1+ ou pwsh 7+. Veja os pré-requisitos em <a href="get-started/">Começar</a>. O <code>toolkit.ps1</code> interativo é a entrada de instalação. O sync não interativo usa uma fixture (pasta de teste no repo) por padrão—omitir <code>-InstallRoot</code>. Uma instalação real exige <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__note">Recomendado: bootstrap de Release (zip HTTPS → SHA256 → extract → <code>toolkit.ps1</code>). Sem Git / <code>gh</code> / Node / <code>.exe</code>. Exige <strong>pwsh 7+</strong> no Linux/macOS; no Windows: PowerShell 5.1+ ou pwsh 7+. Linux/macOS: baixe <code>bootstrap.ps1</code> ou <code>bootstrap.sh</code> da mesma Release. Clone é opcional — veja <a href="get-started/">Começar</a>. Sync live exige <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -93,14 +93,27 @@ hide:
 
 Funciona com JavaScript desativado.
 
-1. **Clone** o repositório e entre nele com `cd`. Exige **pwsh 7+** no Linux/macOS (Windows: 5.1+ ou pwsh 7+) — veja [Começar](get-started/).
-2. **Abra o menu interativo do toolkit (Smart Manager)** (assistentes de agente/destino):
+1. **Baixe e execute o bootstrap de Release** (sem clone). Exige **pwsh 7+** no Linux/macOS (Windows: 5.1+ ou pwsh 7+) — veja [Começar](get-started/).
+
+   ```bat
+   curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+   bootstrap.bat
+   ```
 
    ```powershell
+   curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+   pwsh -NoProfile -File .\bootstrap.ps1
+   ```
+
+2. **Alternativa — clone** o repositório e abra o Smart Manager:
+
+   ```powershell
+   git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
+   cd agent-dev-toolkit
    pwsh -NoProfile -File .\scripts\toolkit.ps1
    ```
 
-3. **Opcional — sync sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação real). Avançado: `scripts/sync-agent.ps1`.
+3. **Opcional — sync sem interação** (fixture primeiro; adicione `-InstallRoot` e `-AllowUserHome` para uma pasta de instalação real). Avançado: `scripts/sync-agent.ps1`, ou bootstrap `-DirectSync`.
 
    ```powershell
    pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor

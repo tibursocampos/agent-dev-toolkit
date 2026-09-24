@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
-# Thin Linux/macOS wrapper for toolkit Release bootstrap (HTTPS + SHA256 → sync).
+# Thin Linux/macOS wrapper for toolkit Release bootstrap (HTTPS + SHA256 → extract → toolkit.ps1).
 # Forwards all args to bootstrap.ps1 via pwsh. Requires PowerShell 7+ (pwsh) on PATH.
 # Must path without this wrapper: pwsh -NoProfile -File ./scripts/bootstrap/bootstrap.ps1 …
+# Default after extract: interactive scripts/toolkit.ps1. Optional -DirectSync → sync-agent.ps1.
 # No gh CLI, Node, or compiled .exe bootstrap artifact required.
 set -eu
 

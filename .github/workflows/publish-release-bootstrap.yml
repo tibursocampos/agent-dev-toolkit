@@ -1,0 +1,92 @@
+# Publish Release assets for Option 0 bootstrap (HTTPS zip + SHA256 + entrypoints).
+# Fixed names are SoT for scripts/bootstrap and public docs — do not invent alternates.
+name: Publish release bootstrap
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to upload assets to (e.g. v1.2.3). Empty = create draft from current SHA.
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+env:
+  ZIP_ASSET: agent-dev-toolkit.zip
+  CHECKSUM_ASSET: agent-dev-toolkit.zip.sha256
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Pack toolkit zip + checksum + bootstrap entrypoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          STAGE="${RUNNER_TEMP}/adt-stage"
+          OUT="${RUNNER_TEMP}/adt-out"
+          rm -rf "$STAGE" "$OUT"
+          mkdir -p "$STAGE" "$OUT"
+
+          # Zip root = repo content (no nested folder) so extract exposes scripts/toolkit.ps1
+          rsync -a \
+            --exclude '.git/' \
+            --exclude '.github/workflows/publish-release-bootstrap.yml' \
+            --exclude 'dist/' \
+            --exclude 'node_modules/' \
+            --exclude '.inventory/' \
+            ./ "$STAGE/"
+
+          (
+            cd "$STAGE"
+            zip -r -q "${OUT}/${ZIP_ASSET}" .
+          )
+
+          (
+            cd "$OUT"
+            sha256sum "${ZIP_ASSET}" | tee "${CHECKSUM_ASSET}"
+          )
+
+          cp scripts/bootstrap/bootstrap.ps1 scripts/bootstrap/bootstrap.bat scripts/bootstrap/bootstrap.sh "$OUT/"
+          ls -la "$OUT"
+
+      - name: Upload assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="${RUNNER_TEMP}/adt-out"
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [[ -n "${INPUT_TAG}" ]]; then
+            TAG="${INPUT_TAG}"
+          else
+            TAG="bootstrap-smoke-$(git rev-parse --short HEAD)"
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release $TAG already exists"
+            else
+              gh release create "$TAG" --title "$TAG" --notes "Bootstrap assets (workflow_dispatch)." --draft
+            fi
+          fi
+
+          gh release upload "$TAG" \
+            "${OUT}/${ZIP_ASSET}" \
+            "${OUT}/${CHECKSUM_ASSET}" \
+            "${OUT}/bootstrap.ps1" \
+            "${OUT}/bootstrap.bat" \
+            "${OUT}/bootstrap.sh" \
+            --clobber
+
+          echo "Uploaded to release tag: $TAG"
+          echo "Assets: ${ZIP_ASSET}, ${CHECKSUM_ASSET}, bootstrap.ps1, bootstrap.bat, bootstrap.sh"

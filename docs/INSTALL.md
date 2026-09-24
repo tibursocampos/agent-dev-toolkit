@@ -4,9 +4,9 @@ Deploy **agent-dev-toolkit** core content into one or more coding agents via ada
 
 | Path | When to use |
 |------|-------------|
-| **Option 0 — Release bootstrap** | HTTPS zip from GitHub Releases → SHA256 verify → extract → `sync-agent` (no full clone required once entrypoints are available). See [§ 0](#0-release-bootstrap-https--checksum--sync). |
-| **Option 1 (recommended after clone)** | Interactive Smart Manager — `pwsh -NoProfile -File .\scripts\toolkit.ps1` |
-| **Option 2+** | `-Action Sync` / `sync-agent.ps1` for scripting and CI |
+| **Option 0 — Release bootstrap (recommended)** | Download bootstrap from GitHub Releases → HTTPS zip → SHA256 → extract → interactive `toolkit.ps1` (no full clone). See [§ 0](#0-release-bootstrap-https--checksum--toolkit). |
+| **Option 1 (after clone)** | Interactive Smart Manager — `pwsh -NoProfile -File .\scripts\toolkit.ps1` |
+| **Option 2+** | `-Action Sync` / `sync-agent.ps1` (or bootstrap `-DirectSync`) for scripting and CI |
 
 > **Repository policy:** public — clone and fork freely. **No upstream contributions.** See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
@@ -17,100 +17,97 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 | Requirement | Notes |
 |-------------|--------|
 | **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** — Windows PowerShell 5.1 does not exist on those OS. ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
-| **Git** | Clone / update this repo (**option 1 / 2+**). Option 0 needs Git only if you obtain bootstrap scripts via clone until CI publishes them as Release assets. |
+| **Git** | Needed for **option 1 / 2+** (clone). Option 0 does **not** require Git. |
 | **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands |
 | **Network (option 0)** | HTTPS to GitHub Releases (`…/releases/latest/download/…`). Uses `curl` (preferred) or `Invoke-WebRequest` — **not** `gh` CLI, Node, or a compiled bootstrap `.exe`. |
 
-## 0. Release bootstrap (HTTPS → checksum → sync)
+## 0. Release bootstrap (HTTPS → checksum → toolkit)
 
-**Flow:** obtain bootstrap entrypoints → download Release zip **only over HTTPS** → verify **SHA256** → extract to a local cache → invoke portable `scripts/sync-agent.ps1` (same handoff as option 2+; does **not** replace Smart Manager).
+**Flow:** download a bootstrap entrypoint from the latest Release → it downloads the toolkit zip **only over HTTPS** → verifies **SHA256** → extracts to a local cache → opens interactive `scripts/toolkit.ps1` (Smart Manager). Optional `-DirectSync` calls `scripts/sync-agent.ps1` instead (scripting / non-interactive).
 
-Invalid checksum aborts with exit ≠ 0: **no** extract and **no** sync.
+Invalid checksum aborts with exit ≠ 0: **no** extract and **no** handoff.
 
-### Where to get bootstrap scripts + Release assets
+### Fixed Release asset names (CI SoT)
 
-| Artifact | Source | Status |
-|----------|--------|--------|
-| Entrypoints `scripts/bootstrap/bootstrap.ps1`, `bootstrap.bat`, `bootstrap.sh` | Prefer **Release assets** when CI publishes them; until then use the same paths from a **clone** of this repo | Publication owner: **CI / maintainer** (see decision below) |
-| Toolkit zip + checksum sidecar on `…/releases/latest/download/…` | GitHub Releases for `tibursocampos/agent-dev-toolkit` (override owner/repo via `-Owner`/`-Repo` or `TOOLKIT_RELEASE_OWNER` / `TOOLKIT_RELEASE_REPO`) | Zip and checksum **file names = confirm vs CI** — do **not** treat any invented name as permanent SoT |
+Published by `.github/workflows/publish-release-bootstrap.yml` onto `…/releases/latest/download/…`:
 
-**Publication decision (owner: CI / maintainer):** prefer publishing bootstrap entrypoints as **public Release assets** when the pipeline ships them. Until that evidence exists, INSTALL points operators to the scripts under `scripts/bootstrap/` in a clone (and/or a docs link to this section). Raw GitHub blob links for entrypoints are acceptable as a temporary pointer; they are **not** a substitute for checksum-verified Release zip content.
+| Artifact | Name |
+|----------|------|
+| Toolkit zip | `agent-dev-toolkit.zip` |
+| SHA256 sidecar | `agent-dev-toolkit.zip.sha256` |
+| Entrypoints | `bootstrap.ps1`, `bootstrap.bat`, `bootstrap.sh` |
 
-**Asset / checksum names:** pass `-ZipAssetName` / `-ChecksumAssetName`, or set `TOOLKIT_RELEASE_ZIP_ASSET` / `TOOLKIT_RELEASE_CHECKSUM_ASSET`. **Confirm vs CI** before hard-coding names in docs or automation. Scripts refuse network download without an explicit zip asset name.
+Override owner/repo with `-Owner`/`-Repo` or `TOOLKIT_RELEASE_OWNER` / `TOOLKIT_RELEASE_REPO`. Override asset names with `-ZipAssetName` / `-ChecksumAssetName` or `TOOLKIT_RELEASE_ZIP_ASSET` / `TOOLKIT_RELEASE_CHECKSUM_ASSET` when needed.
 
 ### Prerequisites for the bootstrap path
 
 - **Required:** PowerShell (`pwsh` 7+ on Linux/macOS; Windows PowerShell 5.1+ or `pwsh` on Windows).
-- **Not required:** `gh` CLI, Node.js runtime, or any compiled bootstrap `.exe`.
+- **Not required:** Git, `gh` CLI, Node.js, or any compiled bootstrap `.exe`.
 
 ### Commands by OS
 
-Set the Release zip name from CI (placeholder below is intentional):
-
-```powershell
-# confirm vs CI — replace with the published zip asset name when pipeline evidence exists
-$env:TOOLKIT_RELEASE_ZIP_ASSET = '<confirm-vs-CI>.zip'
-# optional sidecar checksum asset on the same latest/download URL (also confirm vs CI):
-# $env:TOOLKIT_RELEASE_CHECKSUM_ASSET = '<confirm-vs-CI>.sha256'
-```
-
 #### Windows
 
-From a clone (or after downloading the bootstrap scripts):
+Download the entrypoint, then run (defaults download zip + checksum, extract, open Smart Manager):
 
 ```bat
-scripts\bootstrap\bootstrap.bat -Extract -Agent cursor -SyncWhatIf
+curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+bootstrap.bat
 ```
 
-Equivalent (pwsh):
+Or PowerShell only:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\bootstrap\bootstrap.ps1 -Extract -Agent cursor -SyncWhatIf
+curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File .\bootstrap.ps1
 ```
 
-`bootstrap.bat` prefers `pwsh`, then Windows PowerShell; exit code is the `.ps1` `%ERRORLEVEL%`.
+`bootstrap.bat` prefers `pwsh`, then Windows PowerShell. If `bootstrap.ps1` is missing beside the `.bat`, it downloads that script from the same Release URL (HTTPS) before invoking it.
 
-#### Linux / macOS (Must)
+#### Linux / macOS
 
 ```bash
-pwsh -NoProfile -File ./scripts/bootstrap/bootstrap.ps1 -Extract -Agent cursor -SyncWhatIf
+curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File ./bootstrap.ps1
 ```
 
-#### Linux / macOS (Should — thin wrapper)
+Thin wrapper (optional):
 
 ```bash
-chmod +x ./scripts/bootstrap/bootstrap.sh   # once, if needed
-./scripts/bootstrap/bootstrap.sh -Extract -Agent cursor -SyncWhatIf
+curl -fsSL -o bootstrap.sh https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh
+chmod +x ./bootstrap.sh
+./bootstrap.sh
 ```
-
-`bootstrap.sh` requires `pwsh` on `PATH` and forwards all args to `bootstrap.ps1`.
 
 ### Useful flags (match `bootstrap.ps1`)
 
 | Flag / env | Purpose |
 |------------|---------|
-| `-Extract` | After SHA256 OK, extract into the cache `extracted/` folder, then sync (unless `-SkipSync`) |
-| `-SkipSync` | Stop after successful extract (no `sync-agent`) |
-| `-SyncWhatIf` | Forward `-WhatIf` to `sync-agent.ps1` (observable handoff; safe smoke) |
-| `-Agent` / `TOOLKIT_SYNC_AGENT` | Registry agent id (default `cursor`) |
-| `-InstallRoot` / `-AllowUserHome` / `-Mode` / `-UserScope` | Forwarded to `sync-agent.ps1` when sync runs (same live-home rules as § 3) |
-| `-ZipAssetName` / `TOOLKIT_RELEASE_ZIP_ASSET` | Release zip asset name — **confirm vs CI** |
-| `-ChecksumAssetName` / `TOOLKIT_RELEASE_CHECKSUM_ASSET` | Optional checksum asset — **confirm vs CI** |
+| *(default)* | After SHA256 OK, extract, then open interactive `toolkit.ps1` |
+| `-NoExtract` | Verify checksum only; no extract / no handoff |
+| `-SkipSync` | Stop after successful extract (no toolkit / sync handoff) |
+| `-DirectSync` | After extract, call `sync-agent.ps1` instead of `toolkit.ps1` |
+| `-SyncWhatIf` | With `-DirectSync`: forward `-WhatIf` to `sync-agent.ps1` (safe smoke) |
+| `-Agent` / `TOOLKIT_SYNC_AGENT` | Registry agent id when `-DirectSync` (default `cursor`) |
+| `-InstallRoot` / `-AllowUserHome` / `-Mode` / `-UserScope` | Forwarded to `sync-agent.ps1` when `-DirectSync` runs (same live-home rules as § 3) |
+| `-ZipAssetName` / `TOOLKIT_RELEASE_ZIP_ASSET` | Override zip asset (default `agent-dev-toolkit.zip`) |
+| `-ChecksumAssetName` / `TOOLKIT_RELEASE_CHECKSUM_ASSET` | Override checksum asset (default `agent-dev-toolkit.zip.sha256`) |
 | `-ExpectedSha256` | Hex SHA256 override (skips checksum download; useful for smoke) |
 | `-LocalZipPath` + `-SkipDownload` | Offline / TE01 smoke without network |
+| `-Extract` | Legacy no-op alias (extract is ON unless `-NoExtract`) |
 
-After a successful extract+sync (without `-SyncWhatIf`), continue with [§ 5 Verify](#5-verify) and [§ 6 Use skills](#6-use-skills). For day-to-day updates after a full clone, prefer option 1 / 2+.
+After Smart Manager sync (or `-DirectSync` without `-SyncWhatIf`), continue with [§ 5 Verify](#5-verify) and [§ 6 Use skills](#6-use-skills). For day-to-day work from a full clone, use option 1 / 2+.
 
-## 1. Clone
+## 1. Clone (alternative)
 
 ```powershell
 git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
 cd agent-dev-toolkit
 ```
 
-## 2. Toolkit CLI (option 1 — recommended)
+## 2. Toolkit CLI (option 1 — after clone)
 
-**Primary entry** — interactive Smart Manager (clear screen, agent/target wizards, Help):
+Interactive Smart Manager (clear screen, agent/target wizards, Help). Option 0 opens this after extract; from a clone:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1

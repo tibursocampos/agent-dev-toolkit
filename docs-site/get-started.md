@@ -1,6 +1,6 @@
 ﻿# Get started
 
-Clone the toolkit, validate the repo, sync an agent, then invoke a skill in an **application project** (the project you are building).
+Download the Release bootstrap (or clone), validate the repo, sync an agent, then invoke a skill in an **application project** (the project you are building).
 
 ## Prerequisites
 
@@ -9,21 +9,47 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 | Requirement | Notes |
 |-------------|--------|
 | **PowerShell** | **Windows:** 5.1+ or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** — Windows PowerShell 5.1 is not available there. ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
-| **Git** | Clone / update this repo |
+| **Git** | Optional — only if you prefer cloning instead of Option 0 |
 | **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands (agent filesystem host) |
 
-## 1. Clone
+## 0. Release bootstrap (recommended)
+
+No clone. Fixed assets: `agent-dev-toolkit.zip` + `agent-dev-toolkit.zip.sha256`. Flow: HTTPS download → SHA256 → extract → interactive `toolkit.ps1` (Smart Manager). No `gh` / Node / `.exe`. See [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--toolkit).
+
+**Windows:**
+
+```bat
+curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+bootstrap.bat
+```
+
+(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
+
+```powershell
+curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File .\bootstrap.ps1
+```
+
+**Linux / macOS:**
+
+```bash
+curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File ./bootstrap.ps1
+# or bootstrap.sh from the same Release URL
+```
+
+Optional non-interactive sync instead of Smart Manager: `-DirectSync -Agent cursor` (add `-SyncWhatIf` for a safe smoke). Tests: `-SkipSync` / `-NoExtract`.
+
+## 1. Clone (alternative)
 
 ```powershell
 git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
 cd agent-dev-toolkit
 ```
 
-**Option 0 (no full clone once entrypoints exist):** Release bootstrap — HTTPS zip → SHA256 → extract → `sync-agent`. See [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--sync) (`scripts/bootstrap/*`). Asset names: confirm vs CI — do not invent Release zip names.
-
 ## 2. Open the interactive toolkit menu (Smart Manager)
 
-Primary entry — agent/target wizards and Help:
+Option 0 opens this after extract. From a clone:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1
