@@ -2,6 +2,8 @@
 # Tests:
 #   Should_Pass_When_InventoryScriptExists
 #   Should_Pass_When_InventoryStatusReady
+#   Should_Pass_When_InventoryRootsArePortable
+#   Should_Pass_When_TemplateInventoryRootsArePortable
 #   Should_Pass_When_InventoryStatusNotReady_NoSources
 #   Should_Pass_When_PathEscapeYieldsNotReady
 #   Should_Pass_When_SecretNamedSourceSummaryRedacted
@@ -46,6 +48,60 @@ function Write-Fail {
 
 function Get-Utf8NoBomEncoding {
     return (New-Object System.Text.UTF8Encoding $false)
+}
+
+function Test-IsMachineLocalInventoryPath {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $PathValue)
+
+    if ([string]::IsNullOrWhiteSpace($PathValue)) {
+        return $true
+    }
+
+    $normalized = ($PathValue -replace '\\', '/').Trim()
+    if ($normalized -match '^[A-Za-z]:/') {
+        return $true
+    }
+
+    if ($normalized.StartsWith('//')) {
+        return $true
+    }
+
+    if ($normalized.StartsWith('/')) {
+        return $true
+    }
+
+    if ($normalized -match '^~(/|$)') {
+        return $true
+    }
+
+    return $false
+}
+
+function Assert-PortableInventoryRoots {
+    param(
+        [Parameter(Mandatory = $true)][string] $TestName,
+        [Parameter(Mandatory = $true)] $InventoryObject,
+        [Parameter(Mandatory = $false)][string] $ExpectedBankPath = ''
+    )
+
+    $repoPath = [string]$InventoryObject.repo_path
+    $bankPath = [string]$InventoryObject.bank_path
+
+    if ($repoPath -ne '.') {
+        Write-Fail -TestName $TestName -Reason ("repo_path must be '.' (portable), got '{0}'" -f $repoPath)
+    }
+
+    if (Test-IsMachineLocalInventoryPath -PathValue $bankPath) {
+        Write-Fail -TestName $TestName -Reason ("bank_path must be repo-relative portable, got '{0}'" -f $bankPath)
+    }
+
+    if ($bankPath -match '\\') {
+        Write-Fail -TestName $TestName -Reason ("bank_path must use forward slashes, got '{0}'" -f $bankPath)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedBankPath) -and $bankPath -ne $ExpectedBankPath) {
+        Write-Fail -TestName $TestName -Reason ("bank_path expected '{0}', got '{1}'" -f $ExpectedBankPath, $bankPath)
+    }
 }
 
 function Assert-NoWritesOutsideInventory {
@@ -185,6 +241,9 @@ try {
         Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'README summary heuristic did not capture fixture heading'
     }
 
+    Assert-PortableInventoryRoots -TestName 'Should_Pass_When_InventoryRootsArePortable' -InventoryObject $inventory -ExpectedBankPath 'memory-bank'
+    Write-Pass -TestName 'Should_Pass_When_InventoryRootsArePortable'
+
     Assert-NoWritesOutsideInventory -TestName 'Should_Pass_When_InventoryStatusReady' -WorkRoot $workRoot -WorkBank $workBank
     Write-Pass -TestName 'Should_Pass_When_InventoryStatusReady'
 }
@@ -193,6 +252,17 @@ finally {
         Remove-Item -LiteralPath $workRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
+
+# --- Template seed portable roots ---
+$templateSourcesRel = 'core/skills/_shared/templates/memory-bank/.inventory/sources.json'
+$templateSourcesPath = Join-Path $repoRoot ($templateSourcesRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $templateSourcesPath)) {
+    Write-Fail -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable' -Reason ("missing template {0}" -f $templateSourcesRel)
+}
+
+$templateInventory = Get-Content -LiteralPath $templateSourcesPath -Raw -Encoding UTF8 | ConvertFrom-Json
+Assert-PortableInventoryRoots -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable' -InventoryObject $templateInventory -ExpectedBankPath 'memory-bank'
+Write-Pass -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable'
 
 # --- CT2 not-ready (no sources) ---
 $emptyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
@@ -217,6 +287,7 @@ try {
     }
 
     $emptyInventory = Get-Content -LiteralPath $emptySources -Raw -Encoding UTF8 | ConvertFrom-Json
+    Assert-PortableInventoryRoots -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -InventoryObject $emptyInventory -ExpectedBankPath 'memory-bank'
     if ([string]$emptyInventory.status -ne $script:StatusNotReady) {
         Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason ("expected not-ready, got {0}" -f $emptyInventory.status)
     }

@@ -210,6 +210,7 @@ Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths)
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
 - Output: `sources.json` (v3 + `sources[]`), updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
+- **Portable roots (required):** `sources.json` top-level `repo_path` MUST be `.` and `bank_path` MUST be a repo-relative forward-slash path (usually `memory-bank`). **Never** write OS absolute / drive-letter / user-home machine paths — the file is versioned under `memory-bank/`. `refresh-history.jsonl` `repo` field uses the repo leaf name or `.`, never an absolute path.
 
 ---
 
