@@ -6,7 +6,7 @@
 - [ ] Namespaces and folder layout consistent
 - [ ] Single responsibility; focused methods
 - [ ] Cross-stack bar: `structure-and-quality.md` (architecture vs style; identifiers **English**; comments/XML docs **mirror** touched area or **ask** on greenfield)
-- [ ] **C# structure/formatting** per `csharp-patterns.md` (blocking when violated): one type per file; signatures/invocations (5 params / 150 chars); follow existing patterns; named constants (no magic literals, PascalCase; shared files only when reusable); public methods before private, alphabetical within blocks
+- [ ] **C# structure/formatting** per `csharp-patterns.md` (blocking when violated): one type per file; signatures/invocations (6 params / 160 chars); follow existing patterns; named constants (no magic literals, PascalCase; shared files only when reusable); public methods before private, alphabetical within blocks
 
 **C#**
 
