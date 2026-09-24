@@ -1,4 +1,16 @@
-# Publish spawn knobs honesty (REQ-003 / REQ-008 / CA8 / RNF-002)
+# Publish spawn knobs honesty (006 REQ-003 / REQ-008 / 007 REQ-002 / CA1 / RNF-002)
+
+Host-agnostic honesty for **depth / threads / inherit** on `Publish-*`. Caps
+match `core/skills/_shared/agents/SPAWN.md` (developer **≤2**, orchestrate
+**≤4**). Axis B/C: emit **inherit** (or omit model) — never pin child≠parent
+(e.g. luna≠terra). Do **not** rewrite SPAWN Eixo A (spawn vs in-parent).
+
+Shared helper: [`SpawnPublishKnobs.ps1`](SpawnPublishKnobs.ps1).
+
+**Audit SoT:** rows below must stay parity with `adapters/registry.json`
+`capabilities.subagents` (`native` | `none`) and `capabilities.agents`.
+
+**REQ map (do not conflate feature numbers):** 006 REQ-003 = Publish inherit/omit honesty; marker **REQ-008** retained for Assert-PublishSpawnKnobs + Related-template supply-chain pairing from contracts wave; 007 REQ-002 = Axis B densified agents stay inherit.
 
 Host-agnostic honesty for **depth / threads / inherit** on `Publish-*`. Caps
 match `core/skills/_shared/agents/SPAWN.md` (developer **≤2**, orchestrate
@@ -30,3 +42,10 @@ Shared helper: [`SpawnPublishKnobs.ps1`](SpawnPublishKnobs.ps1).
 Publish may emit **only** depth, threads, and inherit honesty. Forbidden: pinning
 an external/alternate child model slug at publish time. OpenHands must not gain a
 spawn pin just because agents files are copied.
+
+## Enriched roster honesty (Axis B)
+
+Canonical `core/agents/*.md` keep frontmatter `model: inherit` (Markdown hosts) or
+**omit** the `model` key (Codex TOML inherit-when-unset). Do **not** rewrite SPAWN
+Eixo A. Task spawn policy remains omit-`model` by default — see
+`core/skills/_shared/agents/SUBAGENT-MODEL.md` (A≠B≠C).

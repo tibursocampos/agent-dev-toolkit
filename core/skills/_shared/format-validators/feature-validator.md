@@ -2,13 +2,13 @@
 
 Validates PRD markdown against the **spec** skill template (`skills/sdd-spec/reference.md`).
 
-**Default language:** pt-BR section titles and metadata labels. If manifest or invocation sets `artifact_language: en`, use the **English override** checklist below instead.
+**Content-language:** Resolve via `agents/LANGUAGE.md` (invocation → preferences → manifest → else chat; `null` ≠ pt-BR). When content-language is **pt-BR**, use the pt-BR section titles checklist below. When `artifact_language: en` / English override, use the **English override** checklist.
 
 **Output paths:** `features/**/PRD/` or `{{SDD_ROOT}}/<repo-id>/features/**/PRD/` only (see `sdd-artifacts/STORAGE.md`). Root/flat `PRD/` and `docs/PRD/` are not valid Classic SDD paths.
 
 ## Validation levels
 
-### Level 1: Structure - pt-BR (default)
+### Level 1: Structure - pt-BR (when content-language is pt-BR)
 
 **Required sections (in order, after title/metadata table):**
 
@@ -68,7 +68,7 @@ When `artifact_language` is `en` or user requested English in invocation:
 
 **Flow:**
 
-1. Detect language from invocation override or manifest `artifact_language`.
+1. Detect content-language from `LANGUAGE.md` resolution (invocation → preferences → manifest → else chat).
 2. Validate at `level: content` with matching section list.
 3. On errors: log section + expected + actual; offer regenerate or save with warning.
 4. `canAutoFix = false` for structural issues.
@@ -87,4 +87,4 @@ PRD saved with warnings - review manually.
 
 ---
 
-**Version:** 1.1.0 (agent-dev-toolkit - pt-BR default artifacts)
+**Version:** 1.2.0 (agent-dev-toolkit — content-language via `LANGUAGE.md`; no hard-coded artifact locale)

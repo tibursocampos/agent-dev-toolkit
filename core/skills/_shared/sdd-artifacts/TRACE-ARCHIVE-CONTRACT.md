@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md`
 
-**Language:** This guideline is **English**. Agent artifact prose in TRACE summaries may be **pt-BR** (default) or English if overridden. Identifiers, event names, and paths stay **English**.
+**Language:** This guideline is **English**. Agent artifact prose in TRACE summaries follows **content-language** (`LANGUAGE.md`; no hard-coded locale). Identifiers, event names, and paths stay **English**.
 
 Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `EVD-STATE-CONTRACT.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`.
 

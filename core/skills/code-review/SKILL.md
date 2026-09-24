@@ -68,6 +68,7 @@ Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain a
 | Pre-PR gate (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | .NET coverage report | `{{TOOLKIT_ROOT}}/skills/test-coverage/reference.md` (when PRD/user/PLAN requires coverage) |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |
+| Policy / N+1 / contracts (WS16a) | `{{TOOLKIT_ROOT}}/skills/code-review/references/policy.md`, `n-plus-one.md`, `contracts.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Final Git hygiene | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
@@ -85,6 +86,9 @@ Prefer project `docs/standards/` or repo `AGENTS.md` over generic guidelines whe
 | SDD artifact resolution (0.5) | `references/sdd-resolution.md` |
 | Report template | `references/report-template.md` |
 | Verification / approval / coverage | `references/verification.md` |
+| Policy family (skills/rules/git gates) | `references/policy.md` |
+| N+1 / hot-path performance | `references/n-plus-one.md` |
+| Contracts (SDD / CHANGE / API / plan markers) | `references/contracts.md` |
 | .NET checklist | `references/dotnet-checklist.md` |
 | Frontend checklist | `references/frontend-checklist.md` |
 | Code smells | `references/code-smells.md` |
@@ -140,9 +144,13 @@ Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is other
 1. Project `docs/standards/` or equivalent
 2. `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` for .NET (layers, tests: xUnit, Moq, Shouldly, `Should_<Result>_When_<Condition>`)
 3. Principles cheatsheet when installed
+4. **WS16a families (actionable refs — load when surface matches; pointers only):**
+   - Policy → `references/policy.md`
+   - N+1 / hot-path → `references/n-plus-one.md`
+   - Contracts → `references/contracts.md`
 
 ### 4. Code analysis
-Review changed files using focus areas + checklists in `references/verification.md`, `references/dotnet-checklist.md`, `references/frontend-checklist.md`, and `references/code-smells.md` - do not paste full guideline bodies into the report.
+Review changed files using focus areas + checklists in `references/verification.md`, `references/dotnet-checklist.md`, `references/frontend-checklist.md`, `references/code-smells.md`, and the matching WS16a family refs (`policy` / `n-plus-one` / `contracts`) - do not paste full guideline or policy bodies into the report.
 
 ### 5. Run verification (when feasible)
 Follow `references/verification.md`. For .NET with a coverage target: run `test-coverage` before final decision; paste the summary into the report section Testes. If `test-coverage` reports **Fail** (< threshold), treat as **Changes required** unless the user documents an accepted exception. Record pass/fail in the report. Missing local run -> note as limitation.
@@ -174,6 +182,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 - Force multi-angle as a pipeline gate, or create separate mandatory blind-reviewer skills
 - Hard-fail multi-angle when `subagents` is `none` or Task is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
 - Paste guideline packs into Task child prompts
+- Create `framework-upgrade` or any new product skill folder from this skill (WS16b OOS — needs a separate approved feature)
 - **AI co-author trailers** - in any form. Under NO circumstances should you include `Co-authored-by: Cursor <cursoragent@cursor.com>`, `Co-authored-by: Antigravity`, or any other AI agent attribution in commit messages or PR descriptions.
 
 ## Handoff

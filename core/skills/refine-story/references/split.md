@@ -1,14 +1,16 @@
 # Mode playbook: split
 
-**Load only when refine mode = `split`.** Do not load `feature.md` or `tech.md` in the same session step.
+**Load only when refine mode = `split`.** Do not load `feature.md` or `tech.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — prepare dependency-aware steps for local checklist split (not Azure WI decomposition).
+Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — prepare dependency-aware steps for local checklist split (not Azure WI decomposition). **Do not** create a parallel clarify skill (REQ-007).
 
 ## Scope
 
 Produce or reshape a refined item so **implementation steps** are ready for `/split-story-checklist`: one responsibility per step, explicit deps, parallel-safe notes, outcome-shaped titles.
 
 May start from: pasted draft, existing `STORY.md` / `docs/backlog/` path, or a short description. Item type may be Bug, User Story, or Technical Story — load **one** matching type file only.
+
+**Envelope:** `mode: split` — see `references/interaction-envelope.md`. Chat prefix: `[Refine · split]`. Default `handoff_candidate`: `split-story-checklist`. Include a short steps-readiness note in the envelope.
 
 ## Steps
 
@@ -26,9 +28,11 @@ Tipo: Bug | User Story | Technical Story
 
 Load **one** type template from `_shared/backlog-item-types/`. For User Story persona only when Who/Job/Outcome helps (`references/product-persona.md`). Do **not** run the full `feature` or `tech` playbooks — stay on split-focused shaping.
 
+Open/refresh skeleton envelope (`mode: split`, `item_type`, `status: NEEDS_CLARIFICATION` until READY).
+
 ### 2. Collect or read existing body
 
-If path given: Read that file. If thin: ask targeted questions for missing Objective, AC, or steps — do not invent full product context beyond what split needs.
+If path given: Read that file (portable path only). If thin: ask targeted questions for missing Objective, AC, or steps — do not invent full product context beyond what split needs. Append clarifications to Q&A history (`references/qa-history.md`).
 
 ### 3. Generate / reshape documentation
 
@@ -50,20 +54,22 @@ This mode does **not** call `split-story-checklist` internals — it prepares in
 
 Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms. Emphasize **Implementation steps** and **Story scope** notes for checklist readiness. Product depth wiring preserved (US03).
 
+Refresh envelope `status` from open B/I; set `handoff_candidate: split-story-checklist` when steps are checklist-ready.
+
 ### 5. Validation (chat-only)
 
 Check `references/guardrails.md` — especially deps and outcome-shaped step titles.
 
 ### 6. Optional persistence
 
-Follow `references/persistence.md`. File-based only — never Azure WI / external tracker (`references/exclusions.md`).
+Follow `references/persistence.md`. Persist Q&A history when saving. File-based only — never Azure WI / external tracker (`references/exclusions.md`).
 
 ### 7. Handoff (required offer)
 
-Always offer:
+Always offer (portable path):
 
 ```
-/split-story-checklist - <story-or-backlog-path>
+/split-story-checklist - <portable-story-or-backlog-path>
 ```
 
-Detail: `references/split-handoff.md`. Other paths: O1 / `sdd-spec` / stack developer per `references/boundary.md`.
+Detail: `references/split-handoff.md`. Other paths: O1 / `sdd-spec` / stack developer per `references/boundary.md` — only when envelope `status` is **READY** for that target (no open B/I for PRD handoff).

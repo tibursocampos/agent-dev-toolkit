@@ -68,7 +68,10 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | CONTINUITY template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/CONTINUITY.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/<section>.md` |
-| Execution modes (`REQ-003` / CA3; queue/claim/parallelism) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/execution-modes.md` |
+| Execution modes (serial/parallel/manual; queue/claim) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/execution-modes.md` |
+| plan-acquisition (REQ-008 / CA3) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/develop-modes.md` |
+| plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
@@ -94,6 +97,9 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism | `references/parallelism.md` |
 | Execution modes (serial/parallel/manual + ledger) | `references/execution-modes.md` |
+| plan-acquisition (canonical PLAN) | `references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` | `references/develop-modes.md` |
+| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
 | CONTINUITY / handoff / stop conditions | `references/continuity-handoff.md` |
 | Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
 | Caveman / resolve feature / PLAN set | `references/process-common.md` |
@@ -113,17 +119,17 @@ Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Deli
 ### 1b. Resolve invocation context
 Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; every develop child handoff must include `invocation_context: orchestrated` (path cite only — no contract body dump).
 
-### 2. Resolve feature / PLAN set
-Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; build PLAN queue or **STOP** if missing. Read `references/process-common.md` § Process — Resolve feature / PLAN set.
+### 2. Resolve feature / PLAN set (plan-acquisition)
+Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Read `references/plan-acquisition.md` and `references/process-common.md` § Process — Resolve feature / PLAN set.
 
 ### 3. Step 0 - Memory Bank Gate
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Build step queue (deps)
-Parse pending steps; respect Deps; resolve **execution mode** (`serial` default); present queue; wait for **sim**. Read `references/execution-modes.md` and `references/step-queue-spawn.md`.
+Parse pending steps; respect Deps; resolve **execution mode** (`serial` default) and **develop pacing** (`step_by_step` default \| `continuous`); present queue; wait for **sim**. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/plan-contract.md`, and `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-SPAWN first; honor execution mode + PLAN-LEDGER claim (`Invoke-ExecutionModeGate` / `Invoke-PlanLedgerClaim`); one Task = one PLAN step = full `sdd-develop` contract; omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/execution-modes.md`, `references/step-queue-spawn.md`, and `references/anti-bypass.md`.
+SPAWN first; honor execution mode + develop pacing + PLAN-LEDGER claim (`Invoke-ExecutionModeGate` / `Invoke-PlanLedgerClaim`); one Task = one PLAN step = full `sdd-develop` contract (child re-runs `plan-acquisition`); omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/step-queue-spawn.md`, and `references/anti-bypass.md`.
 
 ### 5.5 Post-implement verifier (opt-in)
 When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.

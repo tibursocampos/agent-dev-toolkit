@@ -1,12 +1,14 @@
 # Mode playbook: tech
 
-**Load only when refine mode = `tech`.** Do not load `feature.md` or `split.md` in the same session step.
+**Load only when refine mode = `tech`.** Do not load `feature.md` or `split.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine for technical work.
+Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine for technical work. **Do not** create a parallel clarify skill (REQ-007).
 
 ## Scope
 
 **Technical Story** only (`TSnn`). Problem → solution → scope; repositories/areas; technical specificity (types, endpoints, events when relevant).
+
+**Envelope:** `mode: tech` — see `references/interaction-envelope.md`. Chat prefix: `[Refine · tech]`.
 
 ## Steps
 
@@ -18,9 +20,13 @@ Do **not** load `user-story.md`, `bug.md`, or `persona-context.md` in this mode 
 
 Map persistence to `features/NNN-slug/TSnn/STORY.md` when saving under features.
 
+Open/refresh skeleton envelope (`item_type: Technical Story`, `status: NEEDS_CLARIFICATION` until READY).
+
 ### 2. Collect description
 
 Ask for technical problem, proposed direction, affected areas, constraints, and known dependencies. Use collection questions from `technical-story.md` when thin — no placeholder `[...]` sections.
+
+When clarifying: append Q&A history (`references/qa-history.md`); severity **B** \| **I** \| **MINOR**.
 
 ### 3. Generate documentation
 
@@ -36,19 +42,24 @@ Follow `technical-story.md` **Output template** and **Writing guidelines**.
 
 Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms at score time. For Technical Story, Who/Job/Outcome is **`n/a`** — still score Product depth via Valuable + AC budget (`invest-and-story-quality.md`). Evidence omit OK (`product-evidence-lite.md`).
 
+Refresh envelope `status` from open B/I (`interaction-envelope.md` + `readiness-severity.md`).
+
 ### 5. Validation (chat-only)
 
 Check `references/guardrails.md` (Technical Story rows).
 
 ### 6. Optional persistence
 
-Follow `references/persistence.md`. Prefer `features/.../TSnn/STORY.md`. File-based only — never Azure WI / external tracker (`references/exclusions.md`).
+Follow `references/persistence.md`. Prefer `features/.../TSnn/STORY.md`. Persist Q&A history when saving. File-based only — never Azure WI / external tracker (`references/exclusions.md`).
 
 ### 7. Handoff
 
 | Situation | Next |
 |-----------|------|
-| Dependency-aware checklist | Offer mode `split` or `/split-story-checklist` |
-| Multi-story / needs specialists | `/orchestrate-analyze` |
-| Ready for PRD | `/sdd-spec` |
+| Dependency-aware checklist | Offer mode `split` or `/split-story-checklist - <portable-story-path>` |
+| Multi-story / needs specialists | `/orchestrate-analyze - <portable-feature-path>` |
+| READY for PRD (no open B/I) | `/sdd-spec - <portable-story-path>` |
+| NEEDS_CLARIFICATION | Answer B/I; cite `qa_history` — do **not** claim ready-for-PRD |
 | Isolated implementation | stack `*-developer` / `/developer` |
+
+Portable paths only (REQ-006 / RNF-002).

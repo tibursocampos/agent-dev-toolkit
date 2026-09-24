@@ -16,7 +16,7 @@ format-validators
 ## spec
 
 **Validator:** `feature-validator.md`  
-**When:** After PRD draft, before `Write` to resolved feature PRD folder (`features/**/PRD/` or `{{SDD_ROOT}}/<repo-id>/features/**/PRD/`). Storage: `sdd-artifacts/STORAGE.md`. Language: pt-BR default (`sdd-artifact-language-pt-br.mdc`); validate EN variant if user overrides.
+**When:** After PRD draft, before `Write` to resolved feature PRD folder (`features/**/PRD/` or `{{SDD_ROOT}}/<repo-id>/features/**/PRD/`). Storage: `sdd-artifacts/STORAGE.md`. Language: content-language per `agents/LANGUAGE.md` (no hard-coded pt-BR); validate the checklist matching the resolved locale.
 
 | Context | Level | Behavior |
 |---------|-------|----------|

@@ -17,7 +17,7 @@ Before **any** tool call (`Read`, `Write`, `Shell`, etc.):
 
 1. Read this rule (`E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/guardrails.md`).
 2. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`.
-3. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/AGENTS.md` Â§ Git and language when mutating git or writing code.
+3. Read `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/AGENTS.md` § Git and language when mutating git or writing code.
 
 If the user has **not** said **sim** to the current action, do **NOT** execute mutating git or file writes.
 
@@ -36,7 +36,7 @@ Mutating git commands require explicit **sim** in the user's **immediately previ
 
 Use `/commit` / `/push` after confirmation.
 
-**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` Â§5.1 and `conventional-commits.mdc`.
+**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` §5.1 and `conventional-commits.mdc`.
 
 ---
 
@@ -56,10 +56,11 @@ Before editing production code or tests: confirm scope unless the user explicitl
 
 ## 3. One step per session (SDD develop)
 
-- `sdd-develop`: exactly **one** PLAN step per session.
+- `sdd-develop`: exactly **one** PLAN step per develop session scope (PLAN-scoped session file — see `SESSION.md`).
 - `document-implement`: exactly **one** documentation plan step per session.
 
 After completing the step: **STOP**. Do not start step N+1 in the same conversation.
+Cite the next handoff with a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Do **not** weaken this gate for batch convenience unless the operator explicitly authorized a multi-step amend in the current session.
 
 ---
 
@@ -88,7 +89,7 @@ If the user corrects language, fix the **artifact/code** - do not flip chat to E
 
 ## 6. Context management
 
-See `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/rules/context-management.mdc`. At â‰¥40% context: pause and recommend new session.
+See SoT `core/policy/context-management.md` (published host rules surface). At ≥40% context: pause with the Warning template and recommend a new session; at ≥80%: Critical stop (no override).
 
 ---
 

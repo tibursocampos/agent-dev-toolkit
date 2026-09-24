@@ -24,6 +24,7 @@ Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`s
 - PLAN: `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` or global equivalent. PLAN `NNN` matches PRD.
 - Numbering (`NNN`): from `features/*/` only (workspace + global feature root).
 - Root/flat `PRD/` / `PLAN/` / `docs/PRD/` / `docs/PLAN/`: **not** valid Classic SDD paths - do not read, write, or update-in-place for execution. Keep those patterns in `.gitignore` **only as a safety net** (`STORAGE.md`).
+- **Portable path cites:** versioned SDD Writes and embedded links use portable paths only (`STORAGE.md` § Portable path). Chat confirmations may show OS absolute paths for the operator; never bake `^[A-Za-z]:/` or InstallRoot home embeds into artifact bodies.
 
 Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for canonical SDD. Prefer feature tree for Backlog Refine stories (`STORY.md`); `docs/backlog/` is a shortcut only.
 
@@ -57,5 +58,5 @@ When Phase A is done but persistence is pending, tell the user to switch to **Ag
 ## Boundaries
 
 - `sdd-spec` / `sdd-plan`: no production or test code changes.
-- `sdd-develop`: **one PLAN step per develop session** (unchanged contract). Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `{{SDD_ROOT}}/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
+- `sdd-develop`: **one PLAN step per develop session** (unchanged contract — do not weaken). Handoff to the next step cites the portable PLAN path + step id only. Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `{{SDD_ROOT}}/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
 - `code-review`: does not write PRD/PLAN; hand off findings with `/sdd-spec`.

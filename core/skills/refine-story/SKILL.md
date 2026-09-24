@@ -68,6 +68,9 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Mode playbook **feature** (only when mode=feature) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature.md` |
 | Mode playbook **tech** (only when mode=tech) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/tech.md` |
 | Mode playbook **split** (only when mode=split) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/split.md` |
+| Mode isolation matrix (REQ-004) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/mode-isolation.md` |
+| Interaction envelope (REQ-005) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/interaction-envelope.md` |
+| Q&A history (REQ-005) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/qa-history.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
@@ -95,6 +98,9 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Mode: feature | `references/feature.md` |
 | Mode: tech | `references/tech.md` |
 | Mode: split | `references/split.md` |
+| Mode isolation | `references/mode-isolation.md` |
+| Interaction envelope | `references/interaction-envelope.md` |
+| Q&A history | `references/qa-history.md` |
 | Boundary vs O1 / sdd-spec | `references/boundary.md` |
 | Scorecard rubric | `references/scorecard-rubric.md` |
 | Scorecard template | `references/scorecard-template.md` |
@@ -106,7 +112,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 
 ## Process
 
-After gates: **Read `references/command.md`** for ordered step discovery. Resolve **refine mode** (`feature` | `tech` | `split`) from invoke or Trigger prompt — then **Read only** `references/<mode>.md`. Do **not** Read the other mode playbooks. Load `references/<section>.md` for shared procedural detail — **not** full `reference.md`.
+After gates: **Read `references/command.md`** for ordered step discovery. Resolve **refine mode** (`feature` | `tech` | `split`) from invoke or Trigger prompt — then **Read only** `references/<mode>.md` plus `references/mode-isolation.md` (matrix). Do **not** Read the other mode playbooks. Emit/refresh the **interaction envelope** and **Q&A history** per `interaction-envelope.md` / `qa-history.md`. Load `references/<section>.md` for shared procedural detail — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -134,7 +140,7 @@ Resolve mode from the invocation **or** from the user's answer to the Trigger pr
 
 If still unset or value outside `{feature,tech,split}`: **STOP** — ask the Trigger prompt **(pt-BR)** — do not load any mode playbook until answered.
 
-Then follow **only** that playbook for collect → generate → mode-specific checks. Shared scorecard / validation / persistence / handoff sections stay lazy per playbook pointers.
+Then follow **only** that playbook for collect → generate → mode-specific checks. Apply `references/mode-isolation.md` (no cross-mode leak). Open a skeleton **interaction envelope** (`mode` + `invocation_context` + `status: NEEDS_CLARIFICATION` until READY). Shared scorecard / validation / persistence / handoff sections stay lazy per playbook pointers.
 
 ### 1–7. Mode playbook + shared sections
 
@@ -143,9 +149,10 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 | Step | Section |
 |------|---------|
 | Quality scorecard (Product depth + AC budget) | `references/scorecard-rubric.md` + `references/scorecard-template.md`; lazy `gherkin-budget.md`, `invest-and-story-quality.md`, `product-evidence-lite.md` |
+| Envelope + Q&A + READY | `references/interaction-envelope.md`; `references/qa-history.md`; consume `readiness-severity.md` (dual-plane; do not rewrite taxonomy) |
 | Validation | `references/guardrails.md` |
-| Optional persistence | `references/persistence.md` |
-| Handoff | `references/split-handoff.md`; `references/boundary.md`; `references/exclusions.md` |
+| Optional persistence | `references/persistence.md` (+ Q&A history path) |
+| Handoff | `references/split-handoff.md`; `references/boundary.md`; `references/exclusions.md` — **portable paths only** |
 
 **Selective retrieval:** do **not** dump entire `memory-bank/` or paste a full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Paths + short summaries only.
 
@@ -156,14 +163,17 @@ Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Pro
 - Call tracker REST APIs, MCP work-item integrations, or PAT scripts for external trackers
 - Create or update Azure DevOps Work Items (or any remote board) — file-based persistence only
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards
-- Preload unused mode playbooks (`feature` / `tech` / `split` other than the chosen one)
+- Preload unused mode playbooks (`feature` / `tech` / `split` other than the chosen one) — REQ-004
+- Create a new clarify / `feature-refinement` skill folder or clone Supply clarify as a parallel skill — REQ-007; enrich **this** skill only
+- Write OS absolute paths or InstallRoot embeds into envelopes, Q&A history, or handoffs — portable only (REQ-006 / RNF-002)
 - Write `docs/backlog/` before the language question when choosing shortcut
 - Duplicate full PRD/PLAN templates - hand off to `sdd-spec` / `sdd-plan` or O1
 - Do not dump entire `memory-bank/` or paste full PRD into prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`)
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Invent architecture that belongs to O1 specialists
 - Do not ship vague BDD without challenge
-- Do not hand off to `sdd-spec` / claim ready-for-PRD while open clarification **B** or **I** remain — emit `NEEDS_CLARIFICATION` (`readiness-severity.md` / REQ-005); presence ≠ READY (**RN02**)
+- Do not hand off to `sdd-spec` / claim ready-for-PRD while open clarification **B** or **I** remain — emit `NEEDS_CLARIFICATION` (`readiness-severity.md`); presence ≠ READY (**RN02**); READY ≠ `step_confirmed` (dual-plane / REQ-006)
+- Equate envelope `status: READY` with implementation Complete or PLAN step Completed
 
 ## Handoff examples
 
@@ -172,9 +182,11 @@ Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Pro
 ```
 
 ```
-/orchestrate-analyze
+/orchestrate-analyze - features/004-export
 ```
 
 ```
-/sdd-spec
+/sdd-spec - features/004-export/US01/STORY.md
 ```
+
+Cite `REFINE/qa-history.md` in the typed handoff when present — do not paste the full history into the slash line.

@@ -1,12 +1,14 @@
 # Mode playbook: feature
 
-**Load only when refine mode = `feature`.** Do not load `tech.md` or `split.md` in the same session step.
+**Load only when refine mode = `feature`.** Do not load `tech.md` or `split.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine.
+Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine. **Do not** create a parallel clarify skill (REQ-007).
 
 ## Scope
 
 Product-facing backlog: **User Story** or **Bug**. Prefer User Story when value/outcome is primary; Bug when defect reproduction is primary.
+
+**Envelope:** `mode: feature` — see `references/interaction-envelope.md`. Chat prefix: `[Refine · feature]`.
 
 ## Steps
 
@@ -23,9 +25,13 @@ Load **one** matching file from `_shared/backlog-item-types/` (`user-story.md` o
 
 For User Story when who/job/outcome helps: load `references/product-persona.md` (points at `persona-context.md`). Do **not** load `technical-story.md` in this mode unless the user explicitly switches to `tech`.
 
+Open/refresh skeleton envelope (`item_type`, `status: NEEDS_CLARIFICATION` until READY).
+
 ### 2. Collect description
 
 Ask for free-form description (problem, goal, context, constraints). Wait for enough detail; if thin, use collection questions from the type file — do not ship placeholder `[...]` sections.
+
+When asking clarification questions: append to Q&A history (`references/qa-history.md`) before waiting; tag **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`).
 
 ### 3. Generate documentation
 
@@ -41,21 +47,24 @@ Follow the type file **Output template** and **Writing guidelines**. Combine use
 
 Immediately after the markdown, score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load `gherkin-budget.md` + `invest-and-story-quality.md` (and `product-evidence-lite.md` when Evidence is discussed). Score **Product depth** and verify AC budget (**happy + rule/edge + failure**, observable Then). Show total / 100, strengths, and specific improvements. Map Product depth → STORY 1–5 per rubric.
 
+Refresh envelope `status` from open B/I (`interaction-envelope.md` + `readiness-severity.md`).
+
 ### 5. Validation (chat-only)
 
 Before presenting as final, check `references/guardrails.md`.
 
 ### 6. Optional persistence
 
-Follow `references/persistence.md`. File-based only — never Azure WI / external tracker (`references/exclusions.md`).
+Follow `references/persistence.md`. Persist Q&A history when saving (`qa-history.md`). File-based only — never Azure WI / external tracker (`references/exclusions.md`).
 
 ### 7. Handoff
 
 | Situation | Next |
 |-----------|------|
-| Break into implementation checklist | Offer mode `split` or `/split-story-checklist` |
-| Multi-story / complex | `/orchestrate-analyze` |
-| Ready for PRD | `/sdd-spec` |
+| Break into implementation checklist | Offer mode `split` or `/split-story-checklist - <portable-story-path>` |
+| Multi-story / complex | `/orchestrate-analyze - <portable-feature-path>` |
+| READY for PRD (no open B/I) | `/sdd-spec - <portable-story-path>` |
+| NEEDS_CLARIFICATION | Answer B/I; cite `qa_history` portable path — do **not** claim ready-for-PRD |
 | Small isolated change | `/developer` / stack `*-developer` |
 
-Boundary detail: `references/boundary.md`.
+Boundary detail: `references/boundary.md`. Portable paths only (REQ-006 / RNF-002).

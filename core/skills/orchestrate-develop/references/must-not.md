@@ -4,7 +4,9 @@
 - Create `memory-bank/` under `features/` or dump bank into CONTINUITY / child prompts
 - Parent writes application/production code or tests
 - Merge N PLAN steps into one Task / one session context
-- Bypass or weaken `sdd-develop` one-step-per-session contract
+- Bypass or weaken `sdd-develop` one-step-per-session contract (including under develop mode `continuous`)
+- Skip child/parent `plan-acquisition` or accept Complete without **delivery-baseline** (`references/plan-contract.md`)
+- Add duration/effort estimates as queue or Complete gates (REQ-010 / RN04)
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
 - Skip `Invoke-PlanLedgerClaim.ps1` when claim is required/absent because session gate already true (CT6)
 - Auto-commit / auto-push
@@ -12,7 +14,7 @@
 - Force multi-angle code-review
 - Introduce git worktrees for multi-US parallelism (MVP)
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
-- Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
+- Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / 006 REQ-009)
 - Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)

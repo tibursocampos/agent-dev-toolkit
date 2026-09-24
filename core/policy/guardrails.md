@@ -56,10 +56,11 @@ Before editing production code or tests: confirm scope unless the user explicitl
 
 ## 3. One step per session (SDD develop)
 
-- `sdd-develop`: exactly **one** PLAN step per session.
+- `sdd-develop`: exactly **one** PLAN step per develop session scope (PLAN-scoped session file — see `SESSION.md`).
 - `document-implement`: exactly **one** documentation plan step per session.
 
 After completing the step: **STOP**. Do not start step N+1 in the same conversation.
+Cite the next handoff with a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Do **not** weaken this gate for batch convenience unless the operator explicitly authorized a multi-step amend in the current session.
 
 ---
 
@@ -88,7 +89,7 @@ If the user corrects language, fix the **artifact/code** - do not flip chat to E
 
 ## 6. Context management
 
-See `{{TOOLKIT_ROOT}}/rules/context-management.mdc`. At ≥40% context: pause and recommend new session.
+See SoT `core/policy/context-management.md` (published host rules surface). At ≥40% context: pause with the Warning template and recommend a new session; at ≥80%: Critical stop (no override).
 
 ---
 

@@ -14,6 +14,8 @@ Declare how O3 schedules PLAN steps and **honor** that declaration. A declared m
 
 This is **operator governance** for Orchestrated Delivery O3. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`) and does **not** pin child Task `model` ≠ parent (Eixo B/C).
 
+**Not develop pacing:** mode ids here are `serial` \| `parallel` \| `manual`. Pacing modes `continuous` \| `step_by_step` live in `references/develop-modes.md` (007 REQ-009) and compose with this table — they never waive one-step-per-child.
+
 ## Declared modes
 
 | Mode id | Default? | Queue | Ledger claim | Parallelism |
