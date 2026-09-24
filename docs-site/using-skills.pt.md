@@ -241,7 +241,7 @@ push
 open-github-pr       # opcional
 ```
 
-PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `develop` → `master`/`main`. Prefira `open-github-pr` à UI web quando `gh` estiver disponível. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
+PRs de feature: `feature/*` (ou `feat/*`) atual → `develop` (**`--squash`** no merge). Modo release: `develop` → `master`/`main` (**`--rebase`**). Prefira `open-github-pr` à UI web quando `gh` estiver disponível; sempre perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
 
 ## Catálogo de skills (resumo)
 
@@ -261,7 +261,7 @@ Pastas canônicas em `core/skills/` (**41 skills** + `_shared`). SoT do agente: 
 
 | Área | O que será pedido / opções |
 |------|----------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Pergunta living-artifacts (bank / docs) antes do commit quando existirem; confirmar mensagem; confirmar push; modo PR; título/corpo; **sempre** perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| Git (`commit` / `push` / `open-github-pr`) | Pergunta living-artifacts (bank / docs) antes do commit quando existirem; confirmar mensagem; confirmar push; modo PR; título/corpo; **sempre** perguntar auto-merge; feature **`--squash`** / release **`--rebase`**. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
 | `code-review` | Escolher single vs multi-angle (sem default silencioso); após Changes required, loop recomendado pergunta re-review / bank / docs |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain`; O2 clarify **READY** (sem B/I abertos) antes do Write |
 | `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso); B/I abertos → `NEEDS_CLARIFICATION` |

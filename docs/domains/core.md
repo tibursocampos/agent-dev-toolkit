@@ -32,7 +32,7 @@ Top-level folders:
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer`, `impeccable` |
-| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md) |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
 | Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 

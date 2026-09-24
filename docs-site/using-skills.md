@@ -241,7 +241,7 @@ push
 open-github-pr       # optional
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` over the web UI when `gh` is available. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
+Feature PRs: current `feature/*` (or `feat/*`) → `develop` (**`--squash`** on merge). Release mode: `develop` → `master`/`main` (**`--rebase`**). Prefer `open-github-pr` over the web UI when `gh` is available; always ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
 
 ## Skills catalog (summary)
 
@@ -261,7 +261,7 @@ Canonical folders under `core/skills/` (**41 skills** + `_shared`). Agent SoT: s
 
 | Area | What you will be asked / options |
 |------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm message; confirm push; PR mode; title/body; **always** ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm message; confirm push; PR mode; title/body; **always** ask auto-merge; feature **`--squash`** / release **`--rebase`**. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O2 clarify **READY** (no open B/I) before Write |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); open B/I → `NEEDS_CLARIFICATION` |

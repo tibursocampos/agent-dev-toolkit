@@ -19,6 +19,8 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
+**Option 0 (no full clone once entrypoints exist):** Release bootstrap — HTTPS zip → SHA256 → extract → `sync-agent`. See [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--sync) (`scripts/bootstrap/*`). Asset names: confirm vs CI — do not invent Release zip names.
+
 ## 2. Open the interactive toolkit menu (Smart Manager)
 
 Primary entry — agent/target wizards and Help:
@@ -159,7 +161,7 @@ Optional handoff normalize (same track — not a fourth stage): `read-sdd-artifa
 
 Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a work track (**Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**): [Using skills](../using-skills/).
 
-After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop`; release mode `develop` → `master`/`main`). Details: [Using skills](../using-skills/).
+After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop` = **squash**; release `develop` → `master`/`main` = **rebase**; always ask auto-merge). Details: [Using skills](../using-skills/).
 
 ## 8. After `git pull`
 

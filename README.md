@@ -14,7 +14,7 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 | **Git** | Clone / update this repo |
 | **Target agent** | At least one supported agent (see table below) |
 
-Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)**.
+Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0 — Release bootstrap**: HTTPS zip → SHA256 → extract → `sync-agent`).
 
 ## What this is
 
@@ -78,7 +78,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (40)
+## Skills preview (41)
 
 | Group | Examples |
 |-------|----------|
@@ -87,7 +87,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `ada
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Docs RAG | `document-plan`, `document-implement` |
-| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, … |
 
 Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`.
 

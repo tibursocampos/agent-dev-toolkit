@@ -8,12 +8,14 @@ Operator entry points under `scripts/`.
 |--------|------|
 | `scripts/toolkit.ps1` | Interactive Smart Manager (wizards + Help) or `-Action` / `-Agent` orchestrator |
 | `scripts/sync-agent.ps1` | Load registry module; run `Publish-*`, then always `Get-SddRoot -Prepare` |
+| `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) | Option 0 Release bootstrap: HTTPS zip → SHA256 → extract → `sync-agent` (asset names confirm vs CI — [INSTALL § 0](../INSTALL.md#0-release-bootstrap-https--checksum--sync)) |
 | `scripts/validate-agent.ps1` | Always `validate-core`, then adapter `Invoke-SmokeValidate` |
 | `scripts/validation/validate-core.ps1` | Core contract suite (alias `validate-all.ps1`) |
 | `scripts/validation/Invoke-*CiSmoke.ps1` | CI-parity smoke harnesses |
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Read-only bank inventory (`ready` \| `not-ready`) |
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | PRD → PLAN → CHANGE preflight before O3 |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
+| `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship git-notes (default off; never TRACE SoT) — [guide 09](../guides/09-authorship-git-notes.md) |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | PLAN-LEDGER claim / status / release |
 | `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` (WS10) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |

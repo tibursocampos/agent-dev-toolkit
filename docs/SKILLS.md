@@ -124,7 +124,7 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 | `test-coverage` | .NET Coverlet coverage report |
 | `commit` | Conventional commit on a valid feature branch |
 | `push` | Safe git push after confirmation |
-| `open-github-pr` | Create GitHub PR via `gh` (feature or release mode) |
+| `open-github-pr` | Create GitHub PR via `gh` (feature or release mode); auto-merge ask; feature **`--squash`**, release **`--rebase`** |
 | `ef-add-migration` | EF Core migration discovery |
 | `scaffold-message-handler` | Message consumer scaffold |
 | `refactor` | Safe incremental refactoring |
@@ -146,7 +146,8 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 
 | Area | What you will be asked / options |
 |------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
+| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge; merge method = feature **`--squash`** / release **`--rebase`**. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
+| `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs **`sim`** (silence ≠ approval); skill id must not pin a major |
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs (**sim**/**pular**) |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + **sim**; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |

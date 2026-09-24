@@ -19,6 +19,8 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
+**Opção 0 (sem clone completo quando os entrypoints existirem):** bootstrap de Release — zip HTTPS → SHA256 → extract → `sync-agent`. Ver [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--sync) (`scripts/bootstrap/*`). Nomes de assets: confirmar vs CI — não inventar nomes de zip de Release.
+
 ## 2. Abrir o Smart Manager
 
 Entrada principal — menu interativo (wizards de agente/alvo, Help):
@@ -159,7 +161,7 @@ Normalização opcional de handoff (mesma trilha — não é um quarto estágio)
 
 Mudança pequena sem SDD completo: `developer` ou uma skill de stack como `dotnet-developer`. Escolher trilha **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**: [Usando skills](../using-skills/).
 
-Depois de `commit` e `push`, abra um PR com `open-github-pr` (feature → `develop`; modo release `develop` → `master`/`main`). Detalhes: [Usando skills](../using-skills/).
+Depois de `commit` e `push`, abra um PR com `open-github-pr` (feature → `develop` = **squash**; release `develop` → `master`/`main` = **rebase**; sempre perguntar auto-merge). Detalhes: [Usando skills](../using-skills/).
 
 ## 8. Depois de `git pull`
 
