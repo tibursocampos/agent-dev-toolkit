@@ -10,6 +10,9 @@ Load detail from the linked docs — do not paste bodies into the review report.
 | Duplication | Same logic in 2+ places | stack checklist |
 | Feature envy | Method mostly uses another type’s data | principles cheatsheet |
 | Primitive obsession | Many primitives where a value object fits | principles / stack patterns |
+| N+1 / hot-path | Per-item query/HTTP in loops; unbounded lists | `references/n-plus-one.md` |
+| Policy / gates | Weakened guardrails, silent PRD writes | `references/policy.md` |
+| Contracts / SoT | Absolute paths, second SoT, CHANGE shape | `references/contracts.md` |
 | .NET | Signatures, constants, blank lines, construction | `dotnet-guidelines/csharp-patterns.md` + `dotnet-guidelines/checklist.md` |
 | JS/TS | Strict TS, clean-code, Node structure | `javascript-guidelines/checklist.md` |
 | Python | Style, typing, FastAPI/Flask | `python-guidelines/checklist.md` |

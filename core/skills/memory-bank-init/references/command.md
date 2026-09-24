@@ -10,7 +10,8 @@
 | 3 | Gitignore (repository mode only) | `STORAGE.md` |
 | 4 | Confirm before write (**sim**) | — |
 | 5 | Inventory (read-only scan); capture `status`/`status_reason`/`inventory_hash`/`inventory_summary` | `references/inventory-fallback.md`; inventory script |
-| 6 | Scaffold or refresh files | `references/template-map.md`, `references/generated-markers.md`, `references/tech-stack.md` |
-| 7 | Report + handoff incl. inventory governance (STOP; no O1/O2/O3 in this skill) | `references/secrets.md`, `references/dry-run.md` |
+| 5b | **inventory → specialist synthesis** (signal map → roster / thin in-skill; Skip D; `SR-NO-FULL-DUMP`) | `references/inventory-specialist-synthesis.md`; `SELECTIVE-RETRIEVAL.md` |
+| 6 | Scaffold or refresh files (merge synthesis receipts) | `references/template-map.md`, `references/generated-markers.md`, `references/tech-stack.md` |
+| 7 | Report + handoff incl. inventory governance + synthesis roles (STOP; no O1/O2/O3 in this skill) | `references/secrets.md`, `references/dry-run.md` |
 
-Never place bank under `features/`. Never write app code. Secrets checklist: `references/secrets.md`.
+Never place bank under `features/`. Never write app code. Secrets checklist: `references/secrets.md`. Skip D: no ADO mutate, Reversa, SpecKit constitution (`inventory-specialist-synthesis.md`).

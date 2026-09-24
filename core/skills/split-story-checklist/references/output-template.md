@@ -4,6 +4,8 @@
 
 Rows are **SMART tasks** under this story only — never promote a file/class/script step into a new US/TS (`anti-task-shatter.md` / RN01).
 
+**REQ-012:** Do **not** put `item_type`, **Tipo**, or type exact-set enums in this file. Classification lives only on `STORY.md` (`references/type-classification.md`). **Source** may cite the portable STORY path.
+
 ```markdown
 # Implementation tasks: [title]
 

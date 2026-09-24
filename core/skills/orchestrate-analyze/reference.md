@@ -14,6 +14,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 | Architecture confirm gate / approval copy | `references/arch-confirm.md` |
 | Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |
 | Boundaries / canonical handoff strings | `references/boundaries-handoff.md` |
+| Refine envelopes / READY (pointer only) | `skills/refine-story/references/interaction-envelope.md` + `readiness-severity.md` (via boundaries-handoff) |
 | Caveman / resolve storage / backlog approval / context pressure | `references/process-common.md` |
 | Must not / exclusions | `references/must-not.md` |
 

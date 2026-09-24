@@ -24,7 +24,7 @@
 
 **EF / data**
 
-- [ ] No obvious N+1; `AsNoTracking` for read-only queries when appropriate
+- [ ] No obvious N+1; `AsNoTracking` for read-only queries when appropriate — detail: `references/n-plus-one.md`
 - [ ] Migrations safe (up/down, indexes, no unintended data loss)
 
 ---

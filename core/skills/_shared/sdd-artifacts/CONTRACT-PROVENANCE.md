@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md`
 
-**Language:** This guideline is **English**. Operator chat stays **pt-BR** per toolkit policy (`LANGUAGE.md`). Artifact body language follows `preferences.json` / manifest `artifact_language`.
+**Language:** This guideline is **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`). Artifact body language follows content-language resolution (`LANGUAGE.md`: invocation → preferences → manifest → else chat; `null` ≠ pt-BR).
 
 Companion: `PIPELINE.md`, `INVOCATION-CONTEXTS.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `CHANGE-CONTRACT.md`, `STORAGE.md` § Portable path.
 

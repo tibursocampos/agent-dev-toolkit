@@ -7,6 +7,9 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Evidence-or-zero
 | Section | Path |
 |---------|------|
 | Command playbook (step discovery) | `references/command.md` |
+| plan-acquisition (REQ-008 / CA3) | `references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |
+| plan-contract markers + delivery-baseline (REQ-010) | `references/plan-contract.md` |
 | PLAN update protocol | `references/plan-update.md` |
 | Git preparation checklist | `references/git-checklist.md` |
 | Pre-implementation code analysis | `references/code-analysis.md` |

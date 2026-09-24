@@ -9,3 +9,6 @@
 | NUnit-only bans in new tests | `dotnet-guidelines`, xUnit/Moq |
 | Auto sync-commit with work item IDs | Optional `/commit` |
 | Auto PR analyzer + work-item links | User opens PR in GitHub UI / review skill |
+| Skip `plan-acquisition` / invent flat PLAN path | `references/plan-acquisition.md` |
+| Multi-step develop under `continuous` | Still one step per session (`references/develop-modes.md`) |
+| Duration/effort/story-point Complete gates | `delivery-baseline` in `references/plan-contract.md` |

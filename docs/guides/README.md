@@ -10,7 +10,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Deploy once with option 1 — `pwsh -NoProfile -File .\scripts\toolkit.ps1` — then open any **consumer** project and invoke skills. **Option 0** Release bootstrap: [INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--sync). Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
 
 **Same call flow:** skill ids and slash/`$id` handoffs stay; internal contracts add gates and artifacts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) — not a second toolkit or SQLite/FTS deliverable.
 
@@ -103,6 +103,7 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
 | [07-caveman-mode.md](07-caveman-mode.md) | Caveman default OFF, commands, levels, Auto-Clarity |
 | [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands, PRD/PLAN execution policy |
+| [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
 
 Related:
 
@@ -119,7 +120,7 @@ Related:
 
 1. `/code-review` (choose angles if prompted)
 2. Optional `/test-coverage` (.NET)
-3. `/commit` then `/push` (with confirmation); optional `/open-github-pr` when opening a PR
+3. `/commit` then `/push` (with confirmation); optional `/open-github-pr` when opening a PR (feature **squash** → `develop`; release **rebase** → `main`/`master`)
 
 ---
 

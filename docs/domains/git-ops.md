@@ -17,7 +17,7 @@ Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: installed `OPERATOR.m
 |-------|-------|-----|
 | `commit` | `/commit` | Draft Conventional Commits message; commit only after approval; strip AI co-author trailers |
 | `push` | `/push` | `git push -u origin HEAD` on a valid feature branch |
-| `open-github-pr` | `/open-github-pr` | Create PR with `gh pr create` (feature or release mode), template resolution, optional auto-merge |
+| `open-github-pr` | `/open-github-pr` | Create PR with `gh pr create` (feature or release mode), template resolution, mandatory auto-merge ask; mode-required merge method (see below) |
 
 Do not invent force-pushes to `main` / `master` / `develop`.  
 
@@ -72,6 +72,17 @@ User **sim** (or explicit approve) is required for mutating Git and for PR creat
 
 Release PRs into `master`/`main` must come from `develop` (CI: [`.github/workflows/enforce-release-source.yml`](../../.github/workflows/enforce-release-source.yml)). Required check for this repo: **validate** ([`validate-toolkit.yml`](../../.github/workflows/validate-toolkit.yml)).
 
+### Merge methods (mandatory with auto-merge)
+
+When auto-merge is approved and the repo allows it, `open-github-pr` enables merge with a **mode-required** method (never default `--merge`):
+
+| Mode | Head → base | Merge method | Why |
+|------|-------------|--------------|-----|
+| **Feature** | `feature/*` \| `feat/*` → `develop` | **`--squash`** | One general commit on `develop` (PR title/body as squash message) |
+| **Release** | `develop` → `main`/`master` | **`--rebase`** | Linear / FF-compatible history; do **not** squash already-organized develop commits |
+
+Do not silently fall back to another method if the required one is disabled in repo settings — report and stop. Skill SoT: `core/skills/open-github-pr/` (`references/confirm-and-create.md`, `must-not.md`).
+
 ## `/open-github-pr` flow (summary)
 
 1. Resolve mode (`feature` / `release`).
@@ -80,8 +91,8 @@ Release PRs into `master`/`main` must come from `develop` (CI: [`.github/workflo
 4. Ensure head is pushed (`/push` handoff if no upstream or local commits missing on `origin`).
 5. Resolve body template (repo first, then skill fallbacks).
 6. Draft title/body; for release, fill Included PRs table and commits (`origin/<base>..origin/develop`).
-7. Confirm with user; detect `allow_auto_merge` via GitHub API.
-8. `gh pr create --base … --head … --title … --body-file …`; optional `gh pr merge … --auto --merge` when approved and allowed.
+7. Confirm with user (title/body **and** auto-merge ask every time); detect `allow_auto_merge` via GitHub API.
+8. `gh pr create --base … --head … --title … --body-file …`; optional `gh pr merge … --auto --squash` (feature) or `--auto --rebase` (release) when approved and allowed.
 
 ### Template resolution
 

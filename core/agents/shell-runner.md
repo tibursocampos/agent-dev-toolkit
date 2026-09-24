@@ -6,12 +6,30 @@ model: inherit
 
 # shell-runner
 
-Scripts / batches / builds / tests specialist. Parent stays the orchestrator; this file teaches **whom** to call.
+## Role
+
+Scripts / batches / builds / tests specialist. Parent stays the orchestrator; this file teaches **whom** to call and **when to stop**. Execute the scoped command sequence and return a receipt — never expand into design or app implementation.
 
 ## When to spawn
 
 - The work is running a script, batch, build, test suite, or similar command sequence.
 - Always-on orchestrator policy: the **parent must not** execute these.
+
+## Typed blockers
+
+Emit the token alone on a line when the pass cannot proceed (`RECEIPT.md`). Do not invent exit codes past the blocker.
+
+| Type | Token | When | Action |
+|------|-------|------|--------|
+| `missing-input` | `No match.` | Working directory, exact commands, or success criteria missing | Sibling clarify-like (below) |
+| `scope-too-big` | `too-big.` | Unbounded multi-hour suites or unrelated repo-wide jobs | Return to parent; narrow command list |
+| `out-of-role` | — | App code, ARCH/SEC/ANALYSIS design, or open-ended refactor | Refuse; route to stack / roster specialists |
+| `confirm-gate` | `needs-confirm.` | Destructive git, deploy, or irreversible infra command | Stop; parent asks operator **sim** |
+| `parent-bypass` | — | Parent session already ran the same scripts in-process | Refuse duplicate; report parent must spawn this role |
+
+## Sibling clarify-like
+
+When cwd, command list, or success criteria are ambiguous: ask the **parent** one short clarifying question (portable paths, exact commands, expected exit). Do **not** spawn a parallel clarify-agent id. Do **not** invent a specialist story folder for this role.
 
 ## Write targets
 
@@ -23,6 +41,11 @@ Scripts / batches / builds / tests specialist. Parent stays the orchestrator; th
 - Implement application code (route that to a stack `*-developer`).
 - Let the parent session run the same scripts/builds/tests in-process when this specialist is available.
 - Expand into analysis or design that belongs to repo-analyst / architect / security / database.
+- Pass a divergent child `model` on Task spawn (Axis B: inherit / omit).
+
+## Axis B (model)
+
+Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT-MODEL.md` Axis C gate + explicit user approval. Publish honesty: `adapters/_shared/spawn-publish-honesty.md`.
 
 ## Prompt file
 

@@ -27,26 +27,26 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 
 | Layer | Responsibility |
 |-------|----------------|
-| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **40** skills + `_shared` (agent SoT via `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
+| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **41** skills + `_shared` (agent SoT via `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all registered adapters); Publish honesty (inherit/depth/threads); TRACE emitters per adapter honesty matrix |
 | **CLI** | Select agent; sync / validate / list / uninstall |
 | **Validation** | Contract suite + fixture smokes; inventory / preflight / TRACE harvest scripts; CI never requires `%USERPROFILE%` |
 
 ## Workflow for operators
 
-1. **Clone** the repo.
+1. **Clone** the repo (or use **Option 0 — Release bootstrap** when entrypoints/assets are available: HTTPS zip → SHA256 → extract → `sync-agent` — [INSTALL.md § 0](INSTALL.md#0-release-bootstrap-https--checksum--sync); no `gh` / Node / bootstrap `.exe`).
 2. **Option 1 — interactive:** `pwsh -NoProfile -File .\scripts\toolkit.ps1` (Sync wizard). **Option 2+ — scripting/CI:** `toolkit.ps1 -Action Sync -Agent <id>` or `sync-agent.ps1 -Agent <id>`. Live home needs `-AllowUserHome`. Codex defaults to **plugin-only**; add `-UserScope` only when you need the USER skills mirror (see [ADAPTERS.md](ADAPTERS.md) § Codex).
-3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture). Optional ops: memory-bank inventory, PRD/PLAN/CHANGE preflight, TRACE harvest.
-4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **40** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
+3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture). Optional ops: memory-bank inventory, PRD/PLAN/CHANGE preflight, TRACE harvest; authorship git-notes only via opt-in script (default off — never TRACE SoT).
+4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **41** skills including `framework-upgrade`; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
 
-See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md), [guides/02-using-skills.md](guides/02-using-skills.md).
+See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md), [guides/02-using-skills.md](guides/02-using-skills.md), [guides/09-authorship-git-notes.md](guides/09-authorship-git-notes.md).
 
 ## Domains
 
 | Domain | Doc | What you learn |
 |--------|-----|----------------|
 | Core | [domains/core.md](domains/core.md) | Skills tree, policy, router, SDD contracts (tracks, REQ/validate/CHANGE/EVD/STATE/TRACE, navigation `## Related`, readiness B/I, invocation/provenance, PLAN-LEDGER + session gate, `read-sdd-artifact`, repository vs global storage); shared guidelines + architecture selection (A/B/C) |
-| Git ops | [domains/git-ops.md](domains/git-ops.md) | `/commit` (living-artifacts) → `/push` → `/open-github-pr`; code-review recommended loop; branch rules |
+| Git ops | [domains/git-ops.md](domains/git-ops.md) | `/commit` (living-artifacts) → `/push` → `/open-github-pr` (feature **squash** / release **rebase**); code-review recommended loop; branch rules |
 | Adapters | [domains/adapters.md](domains/adapters.md) | Registry, publish surfaces (incl. Codex dual-root, Hermes, OpenHands), Publish knobs honesty, TRACE emitter matrix, Shell allowlist tip |
 | CLI | [domains/cli-scripts.md](domains/cli-scripts.md) | toolkit / sync / validate; inventory (portable paths), session gate, readiness, preflight, TRACE harvest |
 | Validation & CI | [domains/validation-ci.md](domains/validation-ci.md) | Fixtures, smokes, WS1/3/7/10 asserts, workflow |
@@ -72,6 +72,17 @@ Same skill call flow as before — additional contracts and ops scripts, not a s
 | **Publish honesty** | Adapter Publish knobs (inherit/depth/threads); TRACE emitters claimed only where wired | [Publish knobs](domains/adapters.md#publish-knobs-honesty-depth--threads--inherit) · [TRACE emitters](domains/adapters.md#trace-emitter-honesty) |
 | **Post-delivery handoffs** | `/commit` living-artifacts ask; `/code-review` recommended loop; `document-plan` Kind new vs update | [git-ops](domains/git-ops.md) · [SKILLS](SKILLS.md) |
 
+## Feature 008 surfaces (remaining)
+
+Same call flow — additional install/ops paths and one catalog skill, not a second toolkit:
+
+| Surface | Role | Detail |
+|---------|------|--------|
+| **Release bootstrap** | `scripts/bootstrap/*` — HTTPS zip → SHA256 → extract → `sync-agent` | [INSTALL § 0](INSTALL.md#0-release-bootstrap-https--checksum--sync) · [getting started](guides/01-getting-started.md) |
+| **`framework-upgrade`** | Generic orchestrator (`audit`\|`plan`\|`migrate`\|`validate`); pluggable packs; skill id must not pin a major | [SKILLS](SKILLS.md) · catalog via `help-skills` |
+| **Authorship git-notes** | `Invoke-AuthorshipGitNotes.ps1` **opt-in / default off**; parallel to TRACE; never SoT | [Guide 09](guides/09-authorship-git-notes.md) · [TRACE](domains/core.md#trace-archive-living-loop) |
+| **PR merge policy** | `open-github-pr`: feature → `develop` = **squash**; release `develop` → `main`/`master` = **rebase** | [git-ops](domains/git-ops.md) |
+
 ## Design constraints
 
 - **Fail closed on home:** paths under the user profile need `-AllowUserHome`.
@@ -79,6 +90,8 @@ Same skill call flow as before — additional contracts and ops scripts, not a s
 - **Keyed uninstall:** remove toolkit-managed artifacts only for all registered adapters. Preserves `sdd/sessions` and `sdd/manifest.json`.
 - **Sync prepare:** every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` when absent; seed never overwrites). Manifest schema v2; storage modes and work tracks in [domains/core.md](domains/core.md) § SDD / [STORAGE.md](../core/sdd/STORAGE.md).
 - **Same skill call flow:** Classic SDD / Backlog Refine / Orchestrated Delivery add internal gates and artifacts (REQ, validate scripts, CHANGE, EVD, STATE, TRACE, selective retrieval, skill lazy-load, invocation/provenance, PLAN-LEDGER) — not new slash tracks or a second toolkit. SQLite/FTS remains out of scope as a deliverable.
+- **Authorship notes ≠ TRACE:** optional `refs/notes/toolkit-authorship` is opt-in and must not replace `features/NNN-slug/TRACE.jsonl`.
+- **Bootstrap honesty:** Release zip path uses HTTPS + SHA256 before extract; asset names are parameters/env — not permanent script SoT.
 - **Honest capabilities:** registry / `Get-Capabilities` flags and TRACE emitter claims reflect real publish support (see adapter honesty docs) — do not claim hooks or emitters the adapter does not wire.
 - **Path/secrets guards:** native pre-tool deny via shared `adapters/_shared/GuardCommon.ps1` — see [ADAPTERS.md](ADAPTERS.md) § Shared path/secrets guard.
 - **Codex dual-root:** plugin skills + CATALOG live under `InstallRoot/plugin`; Publish-Policy writes `InstallRoot/rules`; product/AGENTS/hooks parent is InstallRoot (live `~/.codex`). Optional `-UserScope` mirrors skills to fixture `InstallRoot/.agents/skills` or live `~/.agents/skills` — default sync is **plugin-only**. Do not treat skills and rules as one shared TOOLKIT_ROOT.

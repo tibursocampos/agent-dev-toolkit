@@ -2,7 +2,7 @@
 
 Single source of truth for where Classic SDD and Orchestrated Delivery artifacts are written. Load on demand from skills - do not paste this file into PRD/PLAN bodies.
 
-**Language:** This guideline file is **English**. Default **agent artifact** prose (FEATURE, STORY, PRD, PLAN, CONTINUITY) is **pt-BR** (`sdd-artifact-language-pt-br.mdc`). **Chat** replies and the storage prompt below are **pt-BR** unless the user overrides in the skill invocation.
+**Language:** This guideline file is **English**. SDD artifact prose (FEATURE, STORY, PRD, PLAN, CONTINUITY, …) follows **content-language** per `agents/LANGUAGE.md` (invocation → `preferences.artifact_language` → manifest → else chat language; `null` ≠ pt-BR). **Chat** replies and the storage prompt below mirror the **user chat language**. Identifiers / paths stay English.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`
 
@@ -274,7 +274,7 @@ Resolve **before** reading `manifest.json` or any global classic path. Does **no
 
 3. `effective_SDD_ROOT` = `<InstallRoot>/sdd`
 
-4. If a baked absolute `{{SDD_ROOT}}` in the loaded SKILL points under a **different** agent home than `effective_SDD_ROOT`, **ignore the baked path** and use `effective_SDD_ROOT`. Optionally warn once in chat (pt-BR): `Skills de outro agente detectadas; usando SDD do host atual.`
+4. If a baked absolute `{{SDD_ROOT}}` in the loaded SKILL points under a **different** agent home than `effective_SDD_ROOT`, **ignore the baked path** and use `effective_SDD_ROOT`. Optionally warn once in chat (user chat language), e.g. pt-BR: `Skills de outro agente detectadas; usando SDD do host atual.`
 
 5. Read/write `manifest.json`, `preferences.json`, sessions, and global classic.path **only** under `effective_SDD_ROOT`.
 
@@ -364,7 +364,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
    (migrate v1 if needed).
 3. Look up repositories[$Cwd].
 4. If NOT found (first run):
-   a. Ask user (pt-BR) storage for classic SDD (local vs global).
+   a. Ask user (user chat language) storage for classic SDD (local vs global).
    b. Write classic section only (under effective_SDD_ROOT).
    c. Set session gate storage_confirmed = true after user sim.
 5. If found: read repositories[$Cwd].classic.storage_mode, .path, and
@@ -402,7 +402,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 | Root / flat `PRD/`/`PLAN/` | Not used (ignored if present) | Not used |
 | Leading `/` on ignore patterns | Must not ignore `skills/sdd-plan/` or templates | N/A |
 
-### User storage prompt (chat only - pt-BR)
+### User storage prompt (chat only — mirror user language; pt-BR example below)
 
 Ask before the first write of Classic artifacts in the session (unless manifest applies):
 

@@ -18,12 +18,13 @@ Example:
 ```markdown
 ### ✅ STEP 1: Add domain property
 
-**Status:** Completed | **Completed:** 2026-05-21 | **Deps:** none | **Token budget:** ~20k | **Time:** 30 min
+**Status:** Completed | **Completed:** 2026-05-21 | **Deps:** none
 
 **Implementation notes:**
 - Added nullable property and setter validation on Entity
 - 3 unit tests: `Should_*_When_*` pattern
 - `dotnet build` and filtered `dotnet test` passed
+- (delivery-baseline — no duration/effort estimates; see `plan-contract.md`)
 ```
 
 ### 2. Deliverables and acceptance
@@ -54,7 +55,7 @@ Under **Execution order** or equivalent:
 **Next step:** STEP 2 - [short title from PLAN]
 ```
 
-### 5. Navigation `## Related` (REQ-009)
+### 5. Navigation `## Related` (006 REQ-009 — not 007 develop pacing)
 
 When editing the PLAN (and PRD only if this step touches it):
 

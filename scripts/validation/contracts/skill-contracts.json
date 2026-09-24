@@ -105,7 +105,8 @@
     {
       "id": "open-github-pr-gh-and-modes",
       "skill": "open-github-pr",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/confirm-and-create.md"],
+      "match": "any-file",
       "mustContain": [
         "gh pr create",
         "feature",
@@ -114,7 +115,10 @@
         "Must not",
         "Habilitar auto-merge após criar?",
         "Agent routing (mandatory)",
-        "fluxo completo"
+        "fluxo completo",
+        "--squash",
+        "--rebase",
+        "Merge method by mode"
       ]
     },
     {

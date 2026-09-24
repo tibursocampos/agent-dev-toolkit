@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md`
 
-**Language:** This guideline is **English**. Agent artifact prose for `CHANGE.md` may be **pt-BR** (default) or English if overridden. Identifiers and paths stay **English**.
+**Language:** This guideline is **English**. Agent artifact prose for `CHANGE.md` follows **content-language** (`LANGUAGE.md`; no hard-coded locale). Identifiers and paths stay **English**.
 
 Companion: `STORAGE.md` (canonical paths), `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`.
 

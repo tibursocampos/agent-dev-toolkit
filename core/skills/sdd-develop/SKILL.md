@@ -83,6 +83,9 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/<section>.md` |
+| plan-acquisition (REQ-008 / CA3) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/develop-modes.md` |
+| plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/plan-contract.md` |
 | EVD / STATE / evidence-or-zero (`EVD-STATE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
 | TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
 | Branch / commits | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
@@ -99,6 +102,9 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Situation | Path |
 |-----------|------|
 | Command playbook (step discovery) | `references/command.md` |
+| plan-acquisition (canonical PLAN) | `references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` | `references/develop-modes.md` |
+| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
 | PLAN update protocol | `references/plan-update.md` |
 | Git preparation | `references/git-checklist.md` |
 | Pre-implementation analysis | `references/code-analysis.md` |
@@ -127,9 +133,9 @@ Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRAT
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cited REQs as `agreed`; new mid-step gaps stay `invented` until operator confirm — do not silently encode them as requirements.
 **Agent mode** is required for code changes and PLAN updates. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
 
-### 0. Workspace
+### 0. Workspace (plan-acquisition)
 
-Target repo. Resolve PLAN:
+Target repo. Run **`plan-acquisition`** (`references/plan-acquisition.md`) before any code mutation:
 
 | Situation | Action |
 |-----------|--------|
@@ -139,13 +145,13 @@ Target repo. Resolve PLAN:
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
-Detect stack from PLAN step.
+Resolve develop pacing mode `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Detect stack from PLAN step.
 
-After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` ┬º Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
+After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
 
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from step **Aceite**; ask to proceed.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from step **Aceite** (markers in `references/plan-contract.md`); ask to proceed.
 
 ### 2. Git
 
@@ -194,7 +200,7 @@ Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the use
 
 ### 6. Update PLAN + checkpoint
 
-`references/plan-update.md`: mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. Save before context pause (>=40%). **Navigation (REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block).
+`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
 
 ### 7. Report
 
@@ -205,7 +211,8 @@ Use `references/session-report.md`. Files, tests, `N/M` (pt-BR). Handoff: new ch
 Also enforce `references/forbidden.md`. Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
 
 - Break C# method signatures/invocations for style when ≤6 parameters and the full line is ≤160 characters (`csharp-patterns.md`) — multiline only when **more than 6** parameters **or** line **> 160**; do not let CSharpier leave a style-only wrap that still fits the inline MUST
-- Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged)
+- Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged — including when develop mode is `continuous`)
+- Skip `plan-acquisition` or mark Complete without **delivery-baseline** (`references/plan-contract.md`); add duration/effort estimates to checkpoints (REQ-010)
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Do not ignore `CP-AGREED-VS-INVENTED` — do not encode mid-step invented gaps as agreed requirements (`CONTRACT-PROVENANCE.md`)
 - Create PRD/PLAN; skip PLAN save; modify `.gitignore`
@@ -219,7 +226,7 @@ Also enforce `references/forbidden.md`. Before marking Completed: `references/qu
 - Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
 - Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
 - Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
-- Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / REQ-009)
+- Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / 006 REQ-009)
 
 ## Handoff
 

@@ -165,7 +165,7 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
-| `LANGUAGE.md` | Two language surfaces; en-US spawn; no full PLAN dump |
+| `LANGUAGE.md` | Normative language matrix; en-US spawn; content-language resolution; no hard-coded artifact locale |
 | `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |
 
 ## Acceptance mapping

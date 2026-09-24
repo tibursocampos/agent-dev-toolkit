@@ -15,7 +15,7 @@ Update when:
 | **Memory-bank** | Path + status from Step 0 |
 | **Estado atual** | ≤10 lines |
 | **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
-| **Related** | Keep/refresh `## Related` with portable paths to on-disk siblings only — **omit-if-absent**. CONTINUITY carries **handoff paths**, not a second navigation SoT (REQ-009 / `STORAGE.md` § Navigation block) |
+| **Related** | Keep/refresh `## Related` with portable paths to on-disk siblings only — **omit-if-absent**. CONTINUITY carries **handoff paths**, not a second navigation SoT (006 REQ-009 / `STORAGE.md` § Navigation block) |
 | **What not to write** | Full code diffs, guideline dumps, memory-bank body |
 
 ---
@@ -101,7 +101,7 @@ On each meaningful milestone (before/after child, pause, story done):
 | **Estado atual** | Short per CONTINUITY template: active PLAN, last step done, next step |
 | **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
 
-Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it. Do **not** invent a parallel navigation index — Related is path edges only (`STORAGE.md` § Navigation block / REQ-009).
+Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it. Do **not** invent a parallel navigation index — Related is path edges only (`STORAGE.md` § Navigation block / 006 REQ-009).
 
 See also § CONTINUITY checklist.
 

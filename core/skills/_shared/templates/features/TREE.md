@@ -38,4 +38,4 @@ features/NNN-slug/
 | `story/STORY.md` | Per-story template (place as `USnn/STORY.md` or `TSnn/STORY.md`) |
 | `story/.gitkeep-subfolders` | Lists expected subfolders (`REFINE/` on demand; `ANALYSIS|ARCH|SEC` flag-gated) |
 
-Agent artifact prose default: **pt-BR**. Identifiers and paths: **English**.
+Agent artifact prose: **content-language** per `LANGUAGE.md` (no hard-coded locale). Identifiers and paths: **English**.

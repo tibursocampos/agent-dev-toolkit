@@ -32,7 +32,13 @@
 
 If guardrails fail, ask for missing detail - do not publish incomplete docs.
 
-**Clarification readiness (REQ-004 / REQ-005):** open questions carry **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`). Any open **B**/**I** → status `NEEDS_CLARIFICATION`; do not hand off as ready-for-PRD. Presence ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`.
+**Clarification readiness (REQ-004–006):** open questions carry **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`). Any open **B**/**I** → status `NEEDS_CLARIFICATION`; do not hand off as ready-for-PRD. Presence ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed` / PLAN Complete (REQ-006).
+
+**Mode isolation (REQ-004):** only the active mode playbook loaded; envelope `mode` matches (`mode-isolation.md`).
+
+**Envelope + Q&A (REQ-005):** interaction envelope refreshed; Q&A history path portable and consultable when persisted (`interaction-envelope.md`, `qa-history.md`).
+
+**Handoffs:** portable paths only — no OS absolute / InstallRoot embeds (RNF-002).
 
 **Selective retrieval:** do not dump entire `memory-bank/` or paste full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
 

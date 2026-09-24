@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md`
 
-**Language:** This guideline is **English**. Operator chat stays **pt-BR** per toolkit policy (`LANGUAGE.md`).
+**Language:** This guideline is **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`). Child prompts / receipts stay **en-US**.
 
 Companion: `PIPELINE.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `SESSION.md`, `SPAWN.md`, `STORAGE.md` § Portable path.
 
@@ -75,7 +75,7 @@ Record the resolved id in the session report / child receipt when one is produce
 | Child scope | One PLAN step / one story stage / one bank mode per child — never multi-step in one child |
 | Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
 | No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration, re-approve the feature backlog, or rewrite parent CONTINUITY beyond the child's allowed receipt fields |
-| Chat vs receipt | Operator-facing prompts may be pt-BR; child receipts / Task summaries stay en-US identifiers (`LANGUAGE.md`) |
+| Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Task summaries stay **en-US** (`LANGUAGE.md`) |
 | Spawn (Eixo A) | Parent decides spawn vs in-parent per `SPAWN.md`; children do not flip that policy |
 
 ## Examples (no secrets)

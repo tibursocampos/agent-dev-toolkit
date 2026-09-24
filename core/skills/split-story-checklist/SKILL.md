@@ -59,6 +59,10 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
+**type_classification (REQ-012 / CA4):** Resolve Bug \| User Story \| Technical Story once; persist the **exact-set** (**Tipo** / `item_type`) **only** on `STORY.md`. Do **not** fork that set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, PRD, or trackers. Details: `references/type-classification.md`.
+
+**Skip D (REQ-013):** no Azure Boards / ADO mutate, no Reversa, no SpecKit constitution. Skill id and slash `/split-story-checklist` stay stable (RN03).
+
 ## Lazy-load
 
 | When | Path |
@@ -66,19 +70,21 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Anti-task-shatter / SMART tasks (RN01) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Splitting / merge policy (when grouping unclear) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/splitting.md` |
+| type_classification + exact-set→STORY (REQ-012 / CA4) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/type-classification.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/<section>.md` |
 | Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `references/plan-resolution.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload all `references/*.md` or all backlog-item-types. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load `anti-task-shatter.md` before Write when titles look verb+file/class/script.
+**Never by default:** do not preload all `references/*.md` or all backlog-item-types. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load `anti-task-shatter.md` before Write when titles look verb+file/class/script. Load `type-classification.md` after Step 0 parse and before checklist Write.
 
 ## Reference routing
 
 | Situation | Path |
 |-----------|------|
 | Parsing steps | `references/parsing.md` |
+| type_classification + exact-set→STORY | `references/type-classification.md` |
 | Topology / grouping | `references/topology-grouping.md` |
 | Output template | `references/output-template.md` |
 | SDD / O2 handoff boundary | `references/sdd-handoff.md` |
@@ -106,6 +112,16 @@ If no steps found, stop and suggest `/refine-story`.
 If Complexity is `trivial` (small): **STOP Write** of TASKS — tell the operator (pt-BR) that TASKS is not required for trivial/small; offer optional checklist only if they insist.
 
 If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
+
+### 0.5. type_classification + exact-set → STORY (REQ-012)
+
+Load `references/type-classification.md`:
+
+1. Resolve **item_type**: Bug \| User Story \| Technical Story (ask once if ambiguous).
+2. When under `features/NNN-slug/USnn/`, Write the **exact-set** only to that story’s `STORY.md` (**Tipo** / type fields). Map US↔User Story, TS↔Technical Story.
+3. Do **not** embed the exact-set in the checklist file, FEATURE, CONTINUITY, PLAN, PRD, or any tracker.
+4. **Skip D:** never create/update Azure Boards work items from this step.
+5. If type stays unresolved → **STOP** (`type_unresolved`); do not Write checklist.
 
 ### 1. Documentation language (blocker before Write)
 
@@ -136,6 +152,8 @@ Write preferred path under the story folder (or shortcut) using `references/outp
 
 Each row is a **SMART task** under the existing story — not a new US/TS. If a step title is verb+file/class/script, keep it as a task row; do **not** promote it to a story folder (`anti-task-shatter.md` / RN01).
 
+Checklist body may cite the portable STORY path as **Source** only — it must **not** restate or fork the type exact-set (REQ-012).
+
 Do **not** inject fixed corporate tasks (AI tags, manual sign-off checklist, Sonar boilerplate as mandatory rows).
 
 ### 4. Summarize in chat
@@ -156,7 +174,10 @@ Show group names, dependency waves, output path, and suggested next skills.
 
 Also enforce `references/exclusions.md`. Handoff boundary: `references/sdd-handoff.md`. PLAN path: `references/plan-resolution.md`.
 
-- Create or update external tracker cards via external work-item APIs
+- Create or update external tracker cards via external work-item APIs (**Skip D / REQ-013:** no ADO / Azure Boards mutate)
+- Introduce Reversa trees or SpecKit constitution / uv / specify (Skip D / REQ-013)
+- Scatter type_classification exact-set outside `STORY.md` (REQ-012) — not into tasks.md, FEATURE, CONTINUITY, PLAN, or PRD
+- Rename skill id or slash away from `split-story-checklist` / `/split-story-checklist` (RN03)
 - Add fixed "workflow" tasks (manual sign-off checklist, Datadog, SDD/DevAI tags) unless the user explicitly requests a custom section
 - Assume toolkit repo paths during consumer runs
 - Write the file before the language question

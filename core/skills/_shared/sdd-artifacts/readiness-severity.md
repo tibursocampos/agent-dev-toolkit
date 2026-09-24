@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md`
 
-**Language:** This guideline is **English**. Operator chat stays **pt-BR** per toolkit policy (`LANGUAGE.md`). Artifact body language follows `preferences.json` / manifest `artifact_language`.
+**Language:** This guideline is **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`). Artifact body language follows content-language resolution (`LANGUAGE.md`; `null` ≠ pt-BR).
 
 Companion: `clarify-depth.md`, `PIPELINE.md` § Feature / story siblings, `INVOCATION-CONTEXTS.md`, `SESSION.md`, `STORAGE.md` § Portable path, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`).
 
@@ -63,7 +63,7 @@ At an O2 Write boundary (PRD/PLAN) or refine equivalent (fake-forward “approve
 
 Presence STOP (missing `ANALYSIS/` / `ARCH/` / `SEC/` when `needs_*` / brownfield) remains orthogonal and still applies. WS3 **adds** quality/severity on top of presence — presence alone never yields READY (**RN02**).
 
-### Operator handoff shape (pt-BR chat; English tokens)
+### Operator handoff shape (user chat language; English tokens)
 
 ```text
 Status: NEEDS_CLARIFICATION

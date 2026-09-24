@@ -2,15 +2,27 @@
 
 | Aspect | `refine-story` (Backlog Refine) | `orchestrate-analyze` (O1) | `sdd-spec` (Classic SDD) | `orchestrate-deliver` (O2) |
 |--------|--------------------------------|---------------------------|----------------------------|
-| Purpose | One informal item + scorecard | Multi-agent triage + US/TS backlog | Full PRD one story | PRD+PLAN per approved story |
-| Output | STORY or `docs/backlog/` | FEATURE + CONTINUITY + STORY×N | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
+| Purpose | One informal item + scorecard + mode envelope/Q&A | Multi-agent triage + US/TS backlog | Full PRD one story | PRD+PLAN per approved story |
+| Output | STORY or `docs/backlog/` + envelope / `REFINE/qa-history.md` | FEATURE + CONTINUITY + STORY×N | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
 | Specialists | None | Conditional Task (`needs_*`) | None | sdd contracts per story |
 | App code | No | No | No | No |
 | When | Informal single item | Complex / multi-story / brownfield | Ready for one PRD | After O1 **sim** |
 
 Escalate **to O1** from refine when: multiple stories, unclear `needs_*`, brownfield needs parallel specialists.
 
-Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching.
+Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching **and** clarification status is **READY** (no open **B**/**I**).
+
+### Refine envelopes / READY (O1 light — WS11 / REQ-005–006)
+
+When receiving a refine handoff or routing early to `/refine-story`, consume — do **not** duplicate taxonomy:
+
+| Topic | Pointer |
+|-------|---------|
+| Mode isolation (`feature` \| `tech` \| `split`) | `skills/refine-story/references/mode-isolation.md` |
+| Interaction envelope + Q&A history | `skills/refine-story/references/interaction-envelope.md`, `qa-history.md` |
+| READY / NEEDS_CLARIFICATION dual-plane | `skills/_shared/sdd-artifacts/readiness-severity.md` (006 SoT; do not rewrite Assert PS1) |
+
+Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Do **not** create a parallel clarify skill.
 
 Do **not** write PRD/PLAN inside O1. Do **not** claim `sdd-develop` one-step contract changed.
 
@@ -33,11 +45,17 @@ Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals
 ```
 
 ```text
+/refine-story
+```
+
+(Prefer explicit mode + portable story path when known; refine owns mode prompt if omitted.)
+
+```text
 /developer
 ```
 
 ```text
-/sdd-spec
+/sdd-spec - <portable-story-path>
 ```
 
 O2 **series vs parallel** is chosen inside `orchestrate-deliver` - document the choice to the user; do not implement O2 in this skill.

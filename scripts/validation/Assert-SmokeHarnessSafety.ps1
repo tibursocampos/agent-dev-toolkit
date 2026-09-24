@@ -3,6 +3,7 @@
 #   Should_UseFixtureInstallRoot_When_SmokeHarnessRuns
 #   Should_NotWriteUserCursorProfile_When_SmokeHarnessRuns
 #   Should_Fail_When_InstallRootIsUserProfileWithoutAllow
+#   Should_Fail_When_BootstrapChecksumMismatch_Te01
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -163,6 +164,48 @@ if (Test-Path -LiteralPath $userProfileInstallRoot) {
 }
 
 Write-Pass -TestName $failHomeName
+
+# Bootstrap TE01: SHA256 mismatch aborts with no extract / no sync handoff.
+$te01Name = 'Should_Fail_When_BootstrapChecksumMismatch_Te01'
+$bootstrapRel = 'scripts/bootstrap/bootstrap.ps1'
+$bootstrapPath = Join-Path $repoRoot ($bootstrapRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $bootstrapPath)) {
+    Write-Fail -TestName $te01Name -Reason ("missing {0}" -f $bootstrapRel)
+}
+
+$te01Dir = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-bootstrap-te01-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $te01Dir -Force | Out-Null
+try {
+    $zipPath = Join-Path $te01Dir 'sample.zip'
+    $payloadPath = Join-Path $te01Dir 'payload.txt'
+    Set-Content -LiteralPath $payloadPath -Value 'bootstrap-te01-fixture' -Encoding ASCII
+    Compress-Archive -LiteralPath $payloadPath -DestinationPath $zipPath -Force
+    $extractDir = Join-Path $te01Dir 'extracted'
+    $badHash = '00' * 32
+    $te01 = Invoke-ScriptCapture -ScriptPath $bootstrapPath -ArgumentList @(
+        '-LocalZipPath', $zipPath,
+        '-ExpectedSha256', $badHash,
+        '-SkipDownload',
+        '-Extract',
+        '-SkipSync',
+        '-CacheDir', $te01Dir
+    )
+    if ($te01.ExitCode -eq 0) {
+        Write-Fail -TestName $te01Name -Reason 'expected non-zero exit on SHA256 mismatch (TE01)'
+    }
+    if ($te01.Output -notmatch 'SHA256 mismatch \(TE01\)') {
+        Write-Fail -TestName $te01Name -Reason ("expected TE01 mismatch message, got: {0}" -f $te01.Output.Trim())
+    }
+    if (Test-Path -LiteralPath $extractDir) {
+        Write-Fail -TestName $te01Name -Reason 'TE01 must not extract on checksum mismatch'
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $te01Dir) {
+        Remove-Item -LiteralPath $te01Dir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+Write-Pass -TestName $te01Name
 
 Write-Host 'Assert-SmokeHarnessSafety: ALL PASS'
 exit 0
