@@ -34,7 +34,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 
 ## Workflow for operators
 
-1. **Clone** the repo (or use **Option 0 — Release bootstrap** when entrypoints/assets are available: HTTPS zip → SHA256 → extract → `sync-agent` — [INSTALL.md § 0](INSTALL.md#0-release-bootstrap-https--checksum--sync); no `gh` / Node / bootstrap `.exe`).
+1. **Release bootstrap** (recommended): HTTPS zip → SHA256 → extract → `toolkit.ps1` — [INSTALL.md § 0](INSTALL.md#0-release-bootstrap-https--checksum--toolkit); no `gh` / Node / bootstrap `.exe`. Or **clone** the repo for option 1 / 2+.
 2. **Option 1 — interactive:** `pwsh -NoProfile -File .\scripts\toolkit.ps1` (Sync wizard). **Option 2+ — scripting/CI:** `toolkit.ps1 -Action Sync -Agent <id>` or `sync-agent.ps1 -Agent <id>`. Live home needs `-AllowUserHome`. Codex defaults to **plugin-only**; add `-UserScope` only when you need the USER skills mirror (see [ADAPTERS.md](ADAPTERS.md) § Codex).
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture). Optional ops: memory-bank inventory, PRD/PLAN/CHANGE preflight, TRACE harvest; authorship git-notes only via opt-in script (default off — never TRACE SoT).
 4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **41** skills including `framework-upgrade`; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
@@ -78,7 +78,7 @@ Same call flow — additional install/ops paths and one catalog skill, not a sec
 
 | Surface | Role | Detail |
 |---------|------|--------|
-| **Release bootstrap** | `scripts/bootstrap/*` — HTTPS zip → SHA256 → extract → `sync-agent` | [INSTALL § 0](INSTALL.md#0-release-bootstrap-https--checksum--sync) · [getting started](guides/01-getting-started.md) |
+| **Release bootstrap** | `scripts/bootstrap/*` — HTTPS zip → SHA256 → extract → `toolkit.ps1` | [INSTALL § 0](INSTALL.md#0-release-bootstrap-https--checksum--toolkit) · [getting started](guides/01-getting-started.md) |
 | **`framework-upgrade`** | Generic orchestrator (`audit`\|`plan`\|`migrate`\|`validate`); pluggable packs; skill id must not pin a major | [SKILLS](SKILLS.md) · catalog via `help-skills` |
 | **Authorship git-notes** | `Invoke-AuthorshipGitNotes.ps1` **opt-in / default off**; parallel to TRACE; never SoT | [Guide 09](guides/09-authorship-git-notes.md) · [TRACE](domains/core.md#trace-archive-living-loop) |
 | **PR merge policy** | `open-github-pr`: feature → `develop` = **squash**; release `develop` → `main`/`master` = **rebase** | [git-ops](domains/git-ops.md) |

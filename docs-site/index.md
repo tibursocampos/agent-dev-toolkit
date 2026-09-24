@@ -11,7 +11,7 @@ hide:
 
 <h1 class="home-headline">One shared skills core. Adapters into each agent home (10 agents).</h1>
 
-<p class="home-lead">Sync shared skills through adapters—pick your agent, copy the interactive toolkit command, then run it.</p>
+<p class="home-lead">Download the Release bootstrap, run it, then sync into your agent home—no clone required.</p>
 
 <figure class="home-diagram reveal reveal--diagram">
   <img src="assets/core-adapters-diagram.svg" width="960" height="368" alt="Core skills flow through adapters into each agent's install root" />
@@ -73,17 +73,17 @@ hide:
 
 <div class="home-cta">
   <div class="home-cta__copy">
-    <code id="sync-command" data-sync-command>pwsh -NoProfile -File .\scripts\toolkit.ps1</code>
+    <code id="sync-command" data-sync-command>curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat</code>
     <button type="button" class="home-cta__primary" id="copy-sync-command" data-copy-target="#sync-command" aria-describedby="copy-sync-status">
-      Copy toolkit command
+      Copy bootstrap download
     </button>
     <span id="copy-sync-status" class="home-cta__status" role="status" aria-live="polite" data-copy-status></span>
   </div>
   <a class="home-cta__secondary md-button" href="get-started/">Get started</a>
   <p class="home-cta__script">
-    Scripting (optional): <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor</code>
+    Then run <code>bootstrap.bat</code> (opens Smart Manager). Scripting after extract: <code id="sync-script-command" data-sync-script-command>pwsh -NoProfile -File .\bootstrap.ps1 -DirectSync -Agent cursor</code>
   </p>
-  <p class="home-cta__note">Requires <strong>pwsh 7+</strong> on Linux/macOS; Windows: PowerShell 5.1+ or pwsh 7+. See <a href="get-started/">Get started</a> prerequisites. Interactive <code>toolkit.ps1</code> is the install entry. Non-interactive sync defaults to an in-repo fixture (test folder)—omit <code>-InstallRoot</code>. A live install needs <code>-AllowUserHome</code>.</p>
+  <p class="home-cta__note">Recommended: Release bootstrap (HTTPS zip → SHA256 → extract → <code>toolkit.ps1</code>). No Git / <code>gh</code> / Node / <code>.exe</code>. Requires <strong>pwsh 7+</strong> on Linux/macOS; Windows: PowerShell 5.1+ or pwsh 7+. Linux/macOS: download <code>bootstrap.ps1</code> or <code>bootstrap.sh</code> from the same Release. Clone is optional — see <a href="get-started/">Get started</a>. Live sync needs <code>-AllowUserHome</code>.</p>
 </div>
 
 </div>
@@ -92,14 +92,27 @@ hide:
 
 Works with JavaScript disabled.
 
-1. **Clone** the repo and `cd` into it. Requires **pwsh 7+** on Linux/macOS (Windows: 5.1+ or pwsh 7+) — see [Get started](get-started/).
-2. **Open the interactive toolkit menu (Smart Manager)** (agent/target wizards):
+1. **Download and run Release bootstrap** (no clone). Requires **pwsh 7+** on Linux/macOS (Windows: 5.1+ or pwsh 7+) — see [Get started](get-started/).
+
+   ```bat
+   curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+   bootstrap.bat
+   ```
 
    ```powershell
+   curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+   pwsh -NoProfile -File .\bootstrap.ps1
+   ```
+
+2. **Alternative — clone** the repo and open Smart Manager:
+
+   ```powershell
+   git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
+   cd agent-dev-toolkit
    pwsh -NoProfile -File .\scripts\toolkit.ps1
    ```
 
-3. **Optional — non-interactive sync** (fixture first; add `-InstallRoot` and `-AllowUserHome` for a live install path). Advanced: `scripts/sync-agent.ps1`.
+3. **Optional — non-interactive sync** (fixture first; add `-InstallRoot` and `-AllowUserHome` for a live install path). Advanced: `scripts/sync-agent.ps1`, or bootstrap `-DirectSync`.
 
    ```powershell
    pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor

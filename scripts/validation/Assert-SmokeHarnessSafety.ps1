@@ -186,7 +186,7 @@ try {
         '-LocalZipPath', $zipPath,
         '-ExpectedSha256', $badHash,
         '-SkipDownload',
-        '-Extract',
+        '-NoExtract',
         '-SkipSync',
         '-CacheDir', $te01Dir
     )

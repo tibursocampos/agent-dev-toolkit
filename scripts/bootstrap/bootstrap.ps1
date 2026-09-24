@@ -1,21 +1,21 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Download toolkit Release zip via HTTPS, verify SHA256 (TE01), extract, then hand off to sync-agent.
+  Download toolkit Release zip via HTTPS, verify SHA256 (TE01), extract, then open Smart Manager.
 
 .DESCRIPTION
   Happy path uses only HTTPS URLs under .../releases/latest/download/...
   (curl.exe or Invoke-WebRequest). Checksum mismatch exits non-zero with no extract
-  and no sync-agent/toolkit handoff (TE01).
+  and no toolkit/sync handoff (TE01).
 
-  After a successful -Extract into the local cache, invokes portable
-  scripts/sync-agent.ps1 (Release entrypoint → sync only; does not replace Smart Manager).
-  Use -SyncWhatIf for observable smoke without live Publish writes.
-  Use -SkipSync to stop after extract (tests / extract-only).
+  Default after a successful extract: launch interactive scripts/toolkit.ps1 (Smart Manager)
+  from the extracted tree — no git clone required for the operator path.
+  Use -DirectSync to call scripts/sync-agent.ps1 instead (non-interactive / scripting).
+  Use -SyncWhatIf with -DirectSync for observable sync smoke without live Publish writes.
+  Use -SkipSync / -NoExtract for tests (TE01 / verify-only).
 
-  Release zip / checksum asset names are NOT permanent SoT here — pass
-  -ZipAssetName / -ChecksumAssetName or env TOOLKIT_RELEASE_ZIP_ASSET /
-  TOOLKIT_RELEASE_CHECKSUM_ASSET. Confirm vs CI before treating names as final.
+  Default Release asset names (CI SoT): agent-dev-toolkit.zip + agent-dev-toolkit.zip.sha256.
+  Override with -ZipAssetName / -ChecksumAssetName or TOOLKIT_RELEASE_* env vars when needed.
 
 .PARAMETER Owner
   GitHub owner. Default: env TOOLKIT_RELEASE_OWNER or tibursocampos.
@@ -24,12 +24,12 @@
   GitHub repo. Default: env TOOLKIT_RELEASE_REPO or agent-dev-toolkit.
 
 .PARAMETER ZipAssetName
-  Release asset file name for the zip. Required for network download unless
-  -LocalZipPath is set. Confirm vs CI — not hard-coded as permanent SoT.
+  Release zip asset file name. Default: agent-dev-toolkit.zip (or env TOOLKIT_RELEASE_ZIP_ASSET).
 
 .PARAMETER ChecksumAssetName
-  Optional sidecar checksum asset on the same latest/download URL.
-  Confirm vs CI. Ignored when -ExpectedSha256 is provided.
+  Sidecar checksum asset on the same latest/download URL.
+  Default: agent-dev-toolkit.zip.sha256 (or env TOOLKIT_RELEASE_CHECKSUM_ASSET).
+  Ignored when -ExpectedSha256 is provided.
 
 .PARAMETER ExpectedSha256
   Hex SHA256 expected for the zip (test / override). When set, checksum download
@@ -46,42 +46,51 @@
   Directory for downloaded assets (default: under TEMP).
 
 .PARAMETER Extract
-  When set and checksum matches, extract zip into CacheDir\extracted, then
-  invoke sync-agent unless -SkipSync.
+  Legacy alias: extract is ON by default. Prefer omitting this switch.
+
+.PARAMETER NoExtract
+  Verify checksum only; do not extract or hand off (docs / partial smoke).
 
 .PARAMETER SkipDownload
   With -LocalZipPath: skip network entirely (explicit smoke / TE01 mode).
 
 .PARAMETER Agent
-  Registry agent id forwarded to sync-agent.ps1. Default: env TOOLKIT_SYNC_AGENT
-  or cursor (INSTALL examples).
+  Registry agent id forwarded when -DirectSync is set. Default: env TOOLKIT_SYNC_AGENT
+  or cursor.
 
 .PARAMETER SkipSync
-  After successful extract, do not invoke sync-agent (extract-only / TE01 pairing).
+  After successful extract, do not invoke toolkit.ps1 or sync-agent (extract-only / TE01).
+
+.PARAMETER DirectSync
+  After extract, call sync-agent.ps1 instead of interactive toolkit.ps1.
 
 .PARAMETER SyncWhatIf
-  Forward -WhatIf to sync-agent.ps1 (observable handoff; safe smoke).
+  With -DirectSync: forward -WhatIf to sync-agent.ps1 (observable; safe smoke).
 
 .PARAMETER InstallRoot
-  Forwarded to sync-agent.ps1 when sync runs.
+  Forwarded to sync-agent.ps1 when -DirectSync runs.
 
 .PARAMETER AllowUserHome
-  Forwarded to sync-agent.ps1 when sync runs.
+  Forwarded to sync-agent.ps1 when -DirectSync runs.
 
 .PARAMETER Mode
-  Forwarded to sync-agent.ps1 (required for -Agent copilot).
+  Forwarded to sync-agent.ps1 (required for -Agent copilot) when -DirectSync runs.
 
 .PARAMETER UserScope
-  Forwarded to sync-agent.ps1 when sync runs.
+  Forwarded to sync-agent.ps1 when -DirectSync runs.
 
 .EXAMPLE
-  $env:TOOLKIT_RELEASE_ZIP_ASSET = '<confirm-vs-CI>.zip'
-  pwsh -NoProfile -File .\scripts\bootstrap\bootstrap.ps1 -Extract -Agent cursor -SyncWhatIf
+  # Operator path (after downloading bootstrap.bat/.ps1 from the Release):
+  pwsh -NoProfile -File .\bootstrap.ps1
 
 .EXAMPLE
-  # TE01 smoke without network — mismatch must not call sync
+  # Optional non-interactive sync after extract (instead of Smart Manager):
+  pwsh -NoProfile -File .\bootstrap.ps1 -DirectSync -Agent cursor -SyncWhatIf
+
+.EXAMPLE
+  # TE01 smoke without network — mismatch must not extract or hand off
   pwsh -NoProfile -File .\scripts\bootstrap\bootstrap.ps1 `
-    -LocalZipPath .\sample.zip -ExpectedSha256 '00'*32 -SkipDownload -Extract
+    -LocalZipPath .\sample.zip -ExpectedSha256 ('00' * 32) -SkipDownload -NoExtract
 #>
 [CmdletBinding()]
 param(
@@ -113,6 +122,9 @@ param(
     [switch] $Extract,
 
     [Parameter()]
+    [switch] $NoExtract,
+
+    [Parameter()]
     [switch] $SkipDownload,
 
     [Parameter()]
@@ -120,6 +132,9 @@ param(
 
     [Parameter()]
     [switch] $SkipSync,
+
+    [Parameter()]
+    [switch] $DirectSync,
 
     [Parameter()]
     [switch] $SyncWhatIf,
@@ -148,6 +163,8 @@ $script:BootstrapConstant = @{
     ReleasesLatestDownloadSegment  = 'releases/latest/download'
     DefaultOwner                   = 'tibursocampos'
     DefaultRepo                    = 'agent-dev-toolkit'
+    DefaultZipAssetName            = 'agent-dev-toolkit.zip'
+    DefaultChecksumAssetName       = 'agent-dev-toolkit.zip.sha256'
     DefaultSyncAgent               = 'cursor'
     EnvOwner                       = 'TOOLKIT_RELEASE_OWNER'
     EnvRepo                        = 'TOOLKIT_RELEASE_REPO'
@@ -158,30 +175,35 @@ $script:BootstrapConstant = @{
     ExtractedFolderName            = 'extracted'
     SyncAgentRelativePath          = 'scripts/sync-agent.ps1'
     SyncAgentFileName              = 'sync-agent.ps1'
+    ToolkitRelativePath            = 'scripts/toolkit.ps1'
+    ToolkitFileName                = 'toolkit.ps1'
     ScriptsFolderName              = 'scripts'
     Sha256Algorithm                = 'SHA256'
     HexHashPattern                 = '^[0-9a-fA-F]{64}$'
-    IwrMaximumRedirectionCount     = 0
-    # confirm vs CI — placeholders only; never treat as permanent Release SoT
-    ConfirmVsCiNote                = 'confirm vs CI'
+    IwrMaximumRedirectionCount     = 5
 }
 
 $script:BootstrapMessage = @{
     HttpUrlRejected                = 'Bootstrap happy path allows HTTPS only. Rejected URL: {0}'
-    ZipAssetRequired               = 'ZipAssetName (or env {0}) is required for network download. Asset name = {1} — do not invent a permanent SoT name.'
+    ZipAssetRequired               = 'ZipAssetName (or env {0}) resolved empty; expected default {1}.'
     ExpectedHashRequired           = 'ExpectedSha256 or ChecksumAssetName/ChecksumFile is required to verify the zip.'
-    ChecksumMismatch               = 'SHA256 mismatch (TE01). Expected={0} Actual={1}. Aborting without extract or sync.'
+    ChecksumMismatch               = 'SHA256 mismatch (TE01). Expected={0} Actual={1}. Aborting without extract or handoff.'
     ChecksumOk                     = 'SHA256 verified for {0}'
     DownloadStart                  = 'Downloading {0}'
-    ExtractSkipped                 = 'Checksum OK; extract not requested (-Extract omitted). Sync handoff not invoked.'
+    ExtractSkipped                 = 'Checksum OK; extract skipped (-NoExtract). Handoff not invoked.'
     ExtractDone                    = 'Extracted to {0}.'
-    SyncSkippedExplicit            = 'Extract OK; sync skipped (-SkipSync).'
-    SyncSkippedNoExtract           = 'Sync handoff requires successful -Extract. Not invoked.'
+    HandoffSkippedExplicit         = 'Extract OK; handoff skipped (-SkipSync).'
+    HandoffSkippedNoExtract        = 'Handoff requires successful extract. Not invoked (-NoExtract or extract failed).'
     SyncInvokeStart                = 'Invoking sync handoff: {0} -Agent {1}{2}'
     SyncInvokeDone                 = 'Sync handoff completed (exit {0}).'
     SyncInvokeFailed               = 'Sync handoff failed (exit {0}).'
     SyncScriptMissing              = 'sync-agent.ps1 not found. Looked under extract ({0}) and repo ({1}).'
     SyncHostMissing                = 'Neither pwsh nor powershell found to invoke sync-agent.ps1.'
+    ToolkitInvokeStart             = 'Invoking toolkit Smart Manager: {0} (working directory {1})'
+    ToolkitInvokeDone              = 'Toolkit handoff completed (exit {0}).'
+    ToolkitInvokeFailed            = 'Toolkit handoff failed (exit {0}).'
+    ToolkitScriptMissing           = 'toolkit.ps1 not found. Looked under extract ({0}) and repo ({1}).'
+    ToolkitHostMissing             = 'Neither pwsh nor powershell found to invoke toolkit.ps1.'
     LocalZipMissing                = 'LocalZipPath not found: {0}'
     InvalidHashFormat              = 'Expected SHA256 must be 64 hex chars. Got: {0}'
     CurlFailed                     = 'curl.exe failed for {0} (exit {1})'
@@ -247,17 +269,26 @@ function Save-BootstrapRemoteFile {
         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
     }
 
-    $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
-    if ($null -ne $curl) {
-        & curl.exe -fsSL --proto '=https' -o $DestinationPath $Url
+    $curlCmd = Get-Command curl.exe -ErrorAction SilentlyContinue
+    if ($null -eq $curlCmd) {
+        foreach ($candidate in @(Get-Command curl -All -ErrorAction SilentlyContinue)) {
+            $src = [string]$candidate.Source
+            if ($src -match '(?i)[\\/]curl(\.exe)?$' -or $src -match '(?i)^/usr/.*/curl$') {
+                $curlCmd = $candidate
+                break
+            }
+        }
+    }
+
+    if ($null -ne $curlCmd) {
+        & $curlCmd.Source -fsSL --proto '=https' -o $DestinationPath $Url
         if ($LASTEXITCODE -ne 0) {
             throw ($script:BootstrapMessage.CurlFailed -f $Url, $LASTEXITCODE)
         }
         return
     }
 
-    # Match curl --proto =https: never follow redirects to http:// (MaximumRedirection 0),
-    # then re-validate AbsoluteUri with Assert-BootstrapHttpsUrl before accepting the file.
+    # Fallback: allow limited HTTPS redirects (GitHub latest/download uses 302), then re-assert final URI is HTTPS.
     try {
         $maxRedirect = [int]$script:BootstrapConstant.IwrMaximumRedirectionCount
         $response = Invoke-WebRequest -Uri $Url -OutFile $DestinationPath -UseBasicParsing -MaximumRedirection $maxRedirect
@@ -269,7 +300,6 @@ function Save-BootstrapRemoteFile {
     }
     catch {
         $msg = $_.Exception.Message
-        # PowerShell often surfaces redirect-as-error when MaximumRedirection is 0.
         if ($msg -match '(?i)redirect|maximum redirection') {
             throw ($script:BootstrapMessage.IwrRedirectRejected -f $Url)
         }
@@ -344,34 +374,43 @@ function Expand-BootstrapZipIfRequested {
     return $true
 }
 
+function Find-BootstrapScriptUnderExtract {
+    param(
+        [string] $ExtractDir,
+        [Parameter(Mandatory = $true)][string] $FileName
+    )
+    if ([string]::IsNullOrWhiteSpace($ExtractDir)) {
+        return $null
+    }
+
+    $scriptsFolder = $script:BootstrapConstant.ScriptsFolderName
+    $candidate = Join-Path $ExtractDir (Join-Path $scriptsFolder $FileName)
+    if (Test-Path -LiteralPath $candidate) {
+        return (Resolve-Path -LiteralPath $candidate).Path
+    }
+
+    # Release zip may nest one folder (repo-name-tag/); probe one level.
+    $nested = Get-ChildItem -LiteralPath $ExtractDir -Directory -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            Join-Path $_.FullName (Join-Path $scriptsFolder $FileName)
+        } |
+        Where-Object { Test-Path -LiteralPath $_ } |
+        Select-Object -First 1
+    if (-not [string]::IsNullOrWhiteSpace($nested)) {
+        return (Resolve-Path -LiteralPath $nested).Path
+    }
+    return $null
+}
+
 function Resolve-BootstrapSyncScriptPath {
     param(
         [string] $ExtractDir,
         [Parameter(Mandatory = $true)][string] $BootstrapScriptDir
     )
-    $scriptsFolder = $script:BootstrapConstant.ScriptsFolderName
     $syncFile = $script:BootstrapConstant.SyncAgentFileName
     $relativePortable = $script:BootstrapConstant.SyncAgentRelativePath
 
-    $fromExtract = $null
-    if (-not [string]::IsNullOrWhiteSpace($ExtractDir)) {
-        $candidate = Join-Path $ExtractDir (Join-Path $scriptsFolder $syncFile)
-        if (Test-Path -LiteralPath $candidate) {
-            $fromExtract = (Resolve-Path -LiteralPath $candidate).Path
-        }
-        else {
-            # Release zip may nest one folder (repo-name-tag/); probe one level.
-            $nested = Get-ChildItem -LiteralPath $ExtractDir -Directory -ErrorAction SilentlyContinue |
-                ForEach-Object {
-                    Join-Path $_.FullName (Join-Path $scriptsFolder $syncFile)
-                } |
-                Where-Object { Test-Path -LiteralPath $_ } |
-                Select-Object -First 1
-            if (-not [string]::IsNullOrWhiteSpace($nested)) {
-                $fromExtract = (Resolve-Path -LiteralPath $nested).Path
-            }
-        }
-    }
+    $fromExtract = Find-BootstrapScriptUnderExtract -ExtractDir $ExtractDir -FileName $syncFile
 
     # bootstrap lives at scripts/bootstrap/ → sibling sync-agent is scripts/sync-agent.ps1
     $scriptsDir = Split-Path -Parent $BootstrapScriptDir
@@ -385,6 +424,41 @@ function Resolve-BootstrapSyncScriptPath {
     }
 
     throw ($script:BootstrapMessage.SyncScriptMissing -f $relativePortable, $fromRepo)
+}
+
+function Resolve-BootstrapToolkitScriptPath {
+    param(
+        [string] $ExtractDir,
+        [Parameter(Mandatory = $true)][string] $BootstrapScriptDir
+    )
+    $toolkitFile = $script:BootstrapConstant.ToolkitFileName
+    $relativePortable = $script:BootstrapConstant.ToolkitRelativePath
+
+    $fromExtract = Find-BootstrapScriptUnderExtract -ExtractDir $ExtractDir -FileName $toolkitFile
+
+    $scriptsDir = Split-Path -Parent $BootstrapScriptDir
+    $fromRepo = Join-Path $scriptsDir $toolkitFile
+
+    if (-not [string]::IsNullOrWhiteSpace($fromExtract)) {
+        return $fromExtract
+    }
+    if (Test-Path -LiteralPath $fromRepo) {
+        return (Resolve-Path -LiteralPath $fromRepo).Path
+    }
+
+    throw ($script:BootstrapMessage.ToolkitScriptMissing -f $relativePortable, $fromRepo)
+}
+
+function Get-BootstrapChildPowerShellHost {
+    param([Parameter(Mandatory = $true)][string] $MissingMessage)
+    $runner = Get-Command pwsh -ErrorAction SilentlyContinue
+    if ($null -eq $runner) {
+        $runner = Get-Command powershell -ErrorAction SilentlyContinue
+    }
+    if ($null -eq $runner) {
+        throw $MissingMessage
+    }
+    return $runner
 }
 
 function Invoke-BootstrapSyncHandoff {
@@ -403,13 +477,7 @@ function Invoke-BootstrapSyncHandoff {
     Write-Host ($script:BootstrapMessage.SyncInvokeStart -f $script:BootstrapConstant.SyncAgentRelativePath, $AgentId, $whatIfNote)
 
     # Child host so sync-agent `exit` does not tear down bootstrap mid-handoff.
-    $runner = Get-Command pwsh -ErrorAction SilentlyContinue
-    if ($null -eq $runner) {
-        $runner = Get-Command powershell -ErrorAction SilentlyContinue
-    }
-    if ($null -eq $runner) {
-        throw $script:BootstrapMessage.SyncHostMissing
-    }
+    $runner = Get-BootstrapChildPowerShellHost -MissingMessage $script:BootstrapMessage.SyncHostMissing
 
     $argList = New-Object System.Collections.Generic.List[string]
     [void]$argList.Add('-NoProfile')
@@ -447,11 +515,54 @@ function Invoke-BootstrapSyncHandoff {
     Write-Host ($script:BootstrapMessage.SyncInvokeDone -f $exitCode)
 }
 
+function Invoke-BootstrapToolkitHandoff {
+    param(
+        [Parameter(Mandatory = $true)][string] $ExtractDir,
+        [Parameter(Mandatory = $true)][string] $BootstrapScriptDir
+    )
+    $toolkitPath = Resolve-BootstrapToolkitScriptPath -ExtractDir $ExtractDir -BootstrapScriptDir $BootstrapScriptDir
+    $scriptsDir = Split-Path -Parent $toolkitPath
+    $toolkitRepoRoot = Split-Path -Parent $scriptsDir
+
+    Write-Host ($script:BootstrapMessage.ToolkitInvokeStart -f $script:BootstrapConstant.ToolkitRelativePath, $toolkitRepoRoot)
+
+    # Child host so toolkit `exit` does not tear down bootstrap mid-handoff.
+    $runner = Get-BootstrapChildPowerShellHost -MissingMessage $script:BootstrapMessage.ToolkitHostMissing
+
+    $argList = @(
+        '-NoProfile',
+        '-File',
+        $toolkitPath
+    )
+
+    # Working directory = toolkit repo root (parent of scripts/). Portable for Windows PowerShell 5.1 + pwsh.
+    $previousLocation = Get-Location
+    try {
+        Set-Location -LiteralPath $toolkitRepoRoot
+        & $runner.Source @argList
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        Set-Location -LiteralPath $previousLocation.Path
+    }
+
+    if ($null -eq $exitCode) {
+        $exitCode = 0
+    }
+    if ($exitCode -ne 0) {
+        throw ($script:BootstrapMessage.ToolkitInvokeFailed -f $exitCode)
+    }
+    Write-Host ($script:BootstrapMessage.ToolkitInvokeDone -f $exitCode)
+}
+
 # --- resolve inputs ---
+# -Extract is a legacy no-op alias; extract defaults ON unless -NoExtract.
+$doExtract = -not [bool]$NoExtract
+
 $resolvedOwner = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvOwner -ParamValue $Owner -DefaultValue $script:BootstrapConstant.DefaultOwner
 $resolvedRepo = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvRepo -ParamValue $Repo -DefaultValue $script:BootstrapConstant.DefaultRepo
-$resolvedZipAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvZipAsset -ParamValue $ZipAssetName -DefaultValue ''
-$resolvedChecksumAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvChecksumAsset -ParamValue $ChecksumAssetName -DefaultValue ''
+$resolvedZipAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvZipAsset -ParamValue $ZipAssetName -DefaultValue $script:BootstrapConstant.DefaultZipAssetName
+$resolvedChecksumAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvChecksumAsset -ParamValue $ChecksumAssetName -DefaultValue $script:BootstrapConstant.DefaultChecksumAssetName
 $resolvedAgent = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvSyncAgent -ParamValue $Agent -DefaultValue $script:BootstrapConstant.DefaultSyncAgent
 
 if ([string]::IsNullOrWhiteSpace($CacheDir)) {
@@ -477,7 +588,7 @@ try {
     }
     else {
         if ([string]::IsNullOrWhiteSpace($resolvedZipAsset)) {
-            throw ($script:BootstrapMessage.ZipAssetRequired -f $script:BootstrapConstant.EnvZipAsset, $script:BootstrapConstant.ConfirmVsCiNote)
+            throw ($script:BootstrapMessage.ZipAssetRequired -f $script:BootstrapConstant.EnvZipAsset, $script:BootstrapConstant.DefaultZipAssetName)
         }
         if ($SkipDownload) {
             throw ($script:BootstrapMessage.LocalZipMissing -f '(SkipDownload requires -LocalZipPath)')
@@ -500,28 +611,35 @@ try {
     Test-BootstrapChecksumOrThrow -ZipPath $zipPath -ExpectedHex $expected
 
     $extractDir = Join-Path $CacheDir $script:BootstrapConstant.ExtractedFolderName
-    $didExtract = Expand-BootstrapZipIfRequested -ZipPath $zipPath -DestinationDir $extractDir -DoExtract:([bool]$Extract)
+    $didExtract = Expand-BootstrapZipIfRequested -ZipPath $zipPath -DestinationDir $extractDir -DoExtract:$doExtract
 
-    # REQ-005: sync only after successful extract; TE01 keeps failure path out of catch below
+    # REQ-005: handoff only after successful extract; TE01 keeps failure path out of catch below
     if (-not $didExtract) {
-        Write-Host $script:BootstrapMessage.SyncSkippedNoExtract
+        Write-Host $script:BootstrapMessage.HandoffSkippedNoExtract
         exit 0
     }
 
     if ($SkipSync) {
-        Write-Host $script:BootstrapMessage.SyncSkippedExplicit
+        Write-Host $script:BootstrapMessage.HandoffSkippedExplicit
         exit 0
     }
 
-    Invoke-BootstrapSyncHandoff `
-        -ExtractDir $extractDir `
-        -BootstrapScriptDir $bootstrapScriptDir `
-        -AgentId $resolvedAgent `
-        -DoWhatIf:([bool]$SyncWhatIf) `
-        -SyncInstallRoot $InstallRoot `
-        -DoAllowUserHome:([bool]$AllowUserHome) `
-        -SyncMode $Mode `
-        -DoUserScope:([bool]$UserScope)
+    if ($DirectSync) {
+        Invoke-BootstrapSyncHandoff `
+            -ExtractDir $extractDir `
+            -BootstrapScriptDir $bootstrapScriptDir `
+            -AgentId $resolvedAgent `
+            -DoWhatIf:([bool]$SyncWhatIf) `
+            -SyncInstallRoot $InstallRoot `
+            -DoAllowUserHome:([bool]$AllowUserHome) `
+            -SyncMode $Mode `
+            -DoUserScope:([bool]$UserScope)
+    }
+    else {
+        Invoke-BootstrapToolkitHandoff `
+            -ExtractDir $extractDir `
+            -BootstrapScriptDir $bootstrapScriptDir
+    }
 
     exit 0
 }
