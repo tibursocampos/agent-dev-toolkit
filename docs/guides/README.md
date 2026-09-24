@@ -103,6 +103,7 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
 | [07-caveman-mode.md](07-caveman-mode.md) | Caveman default OFF, commands, levels, Auto-Clarity |
 | [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands, PRD/PLAN execution policy |
+| [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
 
 Related:
 
