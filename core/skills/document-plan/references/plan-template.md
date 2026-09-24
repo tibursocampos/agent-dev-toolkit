@@ -38,9 +38,9 @@ docs/
 
 ## Implementation steps
 
-### ⏳ STEP 1: [Domain or area title]
+### ⏳ STEP 1: [New domain doc title]
 
-**Status:** Pending | **Completed:** - | **Deps:** none | **Est.:** 30-45 min
+**Status:** Pending | **Completed:** - | **Deps:** none | **Kind:** new | **Est.:** 30-45 min
 
 **Deliverables:**
 - [ ] `docs/domains/<slug>.md` - purpose, main types, flows, extension points
@@ -55,9 +55,26 @@ docs/
 
 ---
 
-### ⏳ STEP 2: [Integrations]
+### ⏳ STEP 2: [Update existing docs after change]
 
-**Status:** Pending | **Completed:** - | **Deps:** 1 | **Est.:** 30 min
+**Status:** Pending | **Completed:** - | **Deps:** none | **Kind:** update | **Est.:** 20-40 min
+
+**Deliverables:**
+- [ ] Refresh listed existing paths only (example: `docs/overview.md`, `docs/domains/<slug>.md`)
+
+**Tasks:**
+1. Diff feature/CONTRACT changes vs current docs
+2. Update only stale sections; keep RAG structure
+3. Do not split into one step per file unless each file is net-new
+
+**Acceptance:**
+- [ ] Touched docs match current code evidence; no orphan baby-steps for trivial edits
+
+---
+
+### ⏳ STEP 3: [Integrations — new file only if missing]
+
+**Status:** Pending | **Completed:** - | **Deps:** 1 | **Kind:** new | **Est.:** 30 min
 
 **Deliverables:**
 - [ ] Section in `docs/domains/<slug>.md` or `docs/integrations.md`
@@ -68,9 +85,9 @@ docs/
 
 ---
 
-### ⏳ STEP 3: [Architecture patterns]
+### ⏳ STEP 4: [Architecture patterns — new file only if missing]
 
-**Status:** Pending | **Completed:** - | **Deps:** 1 | **Est.:** 25 min
+**Status:** Pending | **Completed:** - | **Deps:** 1 | **Kind:** new | **Est.:** 25 min
 
 **Deliverables:**
 - [ ] `docs/architecture/patterns.md` or section in overview
@@ -92,6 +109,6 @@ docs/
 After each completed step, `document-implement` updates this file: status, progress bar, **Next step** line, and checked deliverables.
 ```
 
-Add steps until domains and integrations from exploration are covered. Prefer 5-12 baby steps for medium repos.
+Add steps until **new** domain/integration files from exploration are covered, plus **at most one** coalesced **update** step when refreshing existing docs. Prefer **few larger steps** (one step ≈ one new file, or one update bucket) — **not** 5–12 tiny baby steps for medium repos.
 
 ---

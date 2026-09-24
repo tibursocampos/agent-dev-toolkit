@@ -183,6 +183,21 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 | After O3 (`orchestrate-develop`) completes | `/code-review` - skill asks single vs multi if not specified; never required as pipeline gate |
 | New feature / PRD from review findings | `/sdd-spec` - paste or summarize review items; do **not** write PRD in this skill |
 | Coverage below threshold | `/test-coverage` -> then `/dotnet-developer` or `/sdd-develop` |
-| Fixes needed | User or `/sdd-develop` / `/dotnet-developer` |
-| Commit fixes | `/commit` |
+| Fixes needed | `/developer` / `/sdd-develop` / stack `*-developer` (user chooses) |
+| After fixes (recommended) | Ask re-review / bank / docs — see § Recommended post-review loop |
+| Commit (after living-artifact asks) | `/commit` |
 | All SDD steps done + approved | User opens PR in GitHub UI or merges per repo policy |
+
+### Recommended post-review loop (not mandatory)
+
+When the decision is **Changes required** (or the user fixed findings), **ask each** and wait (**sim** / **pular**) — never force:
+
+```text
+Fluxo recomendado após o review:
+1) Corrigir com /developer ou /sdd-develop (ou *-developer) — já feito / fazer agora?
+2) Rodar /code-review de novo para validar as correções? (sim / pular)
+3) Atualizar memory-bank (refresh-light)? (sim / pular)   [só se bank existir]
+4) Atualizar documentação do projeto? (sim / pular)       [só se docs/plan existirem]
+```
+
+On **sim** for (2) → new `/code-review` session. On **sim** for (3) → `/memory-bank-init` `refresh-light`. On **sim** for (4) → `/document-implement` if plan has pending work, else `/document-plan` as needed. Then offer `/commit` (commit skill also asks bank/docs if still pending).

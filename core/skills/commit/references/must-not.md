@@ -7,6 +7,7 @@
 - `git add -A` / `git add .` without review (unless user explicitly requests)
 - Deprecated commit skill aliases in user-facing handoff - use `commit` only
 - Auto-commit without message approval
+- Skip the living-artifacts **sim/pular** asks when `memory-bank/` and/or project docs exist (unless the user already answered in this turn)
 - **AI co-author trailers (absolute)** - never write, suggest, or leave in place:
   - `Co-authored-by: Cursor` / `cursoragent@cursor.com`
   - `Co-authored-by: Antigravity` or any AI agent
