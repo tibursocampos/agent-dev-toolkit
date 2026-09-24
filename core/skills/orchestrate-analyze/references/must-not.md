@@ -29,6 +29,7 @@
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
 - Dump integral `memory-bank/` or full PRD into CONTINUITY, child prompts, or FEATURE/STORY (`SR-NO-FULL-DUMP`)
+- Omit `## Related` on FEATURE / CONTINUITY / STORY Writes, use `## See also`, stub absent siblings (incl. PRD/PLAN) only for links, or invent `feature-refinement.md` as navigation SoT (`STORAGE.md` § Navigation block / REQ-009)
 
 ---
 

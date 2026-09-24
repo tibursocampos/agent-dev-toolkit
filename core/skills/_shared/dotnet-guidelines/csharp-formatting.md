@@ -9,14 +9,15 @@ Previously we used the built-in `dotnet format` tool for whitespace, but it ofte
 - **Version:** Install CSharpier as a .NET tool (locally or globally) and run it with `csharpier` or via IDE integration.
 - **Usage:** Integrate CSharpier into build or CI to fail on unformatted code, for example `csharpier check .`.
 - **Editor Integration:** Configure the editor (VS Code, Rider, Visual Studio) to use CSharpier as the default C# formatter so save applies the official style.
-- **Optional:** teams may set `printWidth` (for example `150`) in `.csharpierrc` to align visual wrapping with the signature/invocation character threshold in `csharp-patterns.md`. Default CSharpier print width is ~100; that is fine when the agent/review MUST of **5 parameters / 150 characters** still applies.
+- **Optional:** teams may set `printWidth` (for example `160`) in `.csharpierrc` to align visual wrapping with the signature/invocation character threshold in `csharp-patterns.md`. Default CSharpier print width is ~100; that is fine when the agent/review MUST of **6 parameters / 160 characters** still applies — **re-inline** any wrap that still satisfies the MUST.
 
 ## Method signatures and invocations
 
-Parameter count and the **150-character** inline threshold are **not** owned by CSharpier. Follow **`csharp-patterns.md`** (§ Method signatures and invocations):
+Parameter count and the **160-character** inline threshold are **not** owned by CSharpier. Follow **`csharp-patterns.md`** (§ Method signatures and invocations):
 
-- Inline: up to **5** parameters **and** full line **≤ 150** characters.
+- Inline: up to **6** parameters **and** full line **≤ 160** characters.
 - Otherwise: one parameter per line.
+- On Write (not only review): apply the MUST. CSharpier must not leave a style-only wrap that still fits the inline rule.
 
 ## Git Pre-Commit Hook (Husky)
 

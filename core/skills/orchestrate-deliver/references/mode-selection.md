@@ -25,6 +25,6 @@ Ask (pt-BR) - never assume. Only after the required-siblings STOP has passed —
 
 Document the choice in `CONTINUITY.md` (decisões). Before any paralelo Task wave: load `SPAWN.md` and consult capability `subagents`.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default. Premium slug only after the rare hard-task gate + user **sim**; **não** / silence → omit `model`.
+**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default — child uses the **same model as the parent session**. Do **not** conflate with Cursor Auto model or Memory Bank policy `auto`. Premium slug only after the rare hard-task gate + user **sim**; **não** / silence → omit `model`.
 
 See also § Mode comparison (RF03).

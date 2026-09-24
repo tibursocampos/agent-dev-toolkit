@@ -9,10 +9,12 @@ Before any PRD/PLAN write:
 - [ ] Backlog human-approved (FEATURE/stories `approved`, or explicit **sim** in this session recorded)
 - [ ] Story list from `US*/STORY.md` + `TS*/STORY.md`
 - [ ] Flag-gated required siblings present (`ANALYSIS/` / `ARCH/` / `SEC/` when FEATURE `needs_*` or brownfield) — else **STOP** / return to O1; do **not** Write PRD/PLAN; max-3 gap questions do not replace this gate
+- [ ] Clarification readiness **READY** (no open **B**/**I** on FEATURE/STORY/REFINE/Prior open questions) — else **STOP** Write; emit `NEEDS_CLARIFICATION` (`readiness-severity.md` / REQ-005 / TE01). Presence of sibling folders ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`
 - [ ] Mode chosen: **série** or **paralelo** (user asked; not assumed)
 
 If backlog not approved -> hand off to O1; do not invent approval (RN01).
 If required siblings missing -> **STOP** / return to O1; do not Write PRD/PLAN.
+If open **B**/**I** -> **STOP** Write; typed `NEEDS_CLARIFICATION` handoff (portable paths); do not proceed to PRD/PLAN.
 
 ---
 
@@ -67,3 +69,34 @@ O2 não grava PRD/PLAN sem ANALYSIS|ARCH|SEC quando a flag correspondente é tru
 ```
 
 See also § Preconditions checklist.
+
+---
+
+## Clarification readiness STOP (REQ-004 / REQ-005 / RN02 / TE01)
+
+After presence siblings pass, evaluate open questions on FEATURE / STORY / REFINE / Prior notes using `_shared/sdd-artifacts/readiness-severity.md` (+ `clarify-depth.md`):
+
+| Outcome | Action |
+|---------|--------|
+| **READY** (no open **B**/**I**; **MINOR** ok) | Continue toward mode selection / per-story Write |
+| **NEEDS_CLARIFICATION** (any open **B** or **I**) | **STOP** Write PRD/PLAN; emit typed handoff; route to `refine-story` and/or O1 |
+
+**RN02:** `ANALYSIS/` / `ARCH/` / `SEC/` on disk does **not** imply READY.
+
+**Dual plane:** do not treat SESSION `step_confirmed` / PLAN step Complete as clarification READY.
+
+```text
+Status: NEEDS_CLARIFICATION
+
+Paths (portable):
+- features/NNN-slug/…
+- features/NNN-slug/USnn/STORY.md
+
+Open B/I:
+- [B|I] <sharp question>
+
+1) Responder B/I (refine-story / O1) e reavaliar READY
+2) cancelar
+
+O2 não grava PRD/PLAN com B/I abertos. Presence de pasta ≠ READY.
+```

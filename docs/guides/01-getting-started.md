@@ -109,11 +109,11 @@ Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
 **First Classic SDD / Orchestrated Delivery write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
 
 | Choice | PRD / PLAN / feature tree | Memory bank |
-|--------|-------------|
+|--------|-------------|-------------|
 | Repository | `$Cwd/features/NNN-slug/...` | `$Cwd/memory-bank/` |
 | Global | Under `classic.path` on the SDD root (outside the consumer git tree) | Same `<path>/memory-bank/` |
 
-There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/sdd/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
+Use **portable paths** in artifacts and slash handoffs (e.g. `features/NNN-slug/US01/PRD/...`), not OS absolute paths. In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (default); choose versioned features when you want those trees in git. There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/sdd/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
 
 Then plan and implement one step:
 

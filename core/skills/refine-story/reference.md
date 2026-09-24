@@ -15,6 +15,7 @@ Scorecard includes **Story scope**, **Product depth**, and AC budget happy/rule/
 | Mode: tech (Technical Story) | `references/tech.md` |
 | Mode: split (checklist-ready steps) | `references/split.md` |
 | Boundary vs O1 / sdd-spec | `references/boundary.md` |
+| Clarification READY / NEEDS_CLARIFICATION | `readiness-severity.md` + `clarify-depth.md` + `references/boundary.md` § Clarification STOP |
 | Scorecard rubric | `references/scorecard-rubric.md` |
 | Scorecard template | `references/scorecard-template.md` |
 | Guardrails | `references/guardrails.md` |

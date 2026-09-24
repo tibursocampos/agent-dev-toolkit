@@ -4,9 +4,11 @@
   SPAWN-aligned Publish knobs (depth/threads/inherit) for adapter Publish-Agents.
 
 .DESCRIPTION
-  REQ-008 / CA8 / RNF-002: supply-chain knobs are only depth, threads, and model
+  REQ-003 / REQ-008 / CA8 / RNF-002: supply-chain knobs are only depth, threads, and model
   inherit. Caps match SPAWN.md (developer <=2, orchestrate <=4). Do not pin a
   child Task model slug different from the parent session (Axis B/C).
+  Native hosts (registry subagents=native) emit inherit or omit-key; OpenHands
+  (subagents=none) stays honesty-only without a native spawn pin.
 #>
 
 $script:SpawnPublishKnob = @{

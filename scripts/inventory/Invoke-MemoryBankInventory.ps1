@@ -836,11 +836,21 @@ if ($null -ne $existingInventory -and ($existingInventory.PSObject.Properties.Na
     $staleDays = [int]$existingInventory.stale_days
 }
 
+# Portable paths only in sources.json (versioned under memory-bank/) — never OS absolute / machine-local roots.
+$portableRepoPath = '.'
+$portableBankPath = 'memory-bank'
+if (Test-IsPathUnderOrEqual -ChildPath $bankRoot -ParentPath $repoRoot) {
+    $bankRelative = Convert-ToInventoryRelativePath -FullPath $bankRoot -RootPath $repoRoot
+    if (-not [string]::IsNullOrWhiteSpace($bankRelative)) {
+        $portableBankPath = $bankRelative
+    }
+}
+
 $payload = [ordered]@{
     schema_version      = $script:InventorySchemaVersion
     repo                = $repoName
-    repo_path           = $repoRoot
-    bank_path           = $bankRoot
+    repo_path           = $portableRepoPath
+    bank_path           = $portableBankPath
     generated_at        = (Get-Date).ToUniversalTime().ToString('o')
     stale_days          = $staleDays
     status              = $governanceStatus

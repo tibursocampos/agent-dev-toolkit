@@ -1,4 +1,6 @@
 ﻿# SDD artifacts (local agent workflow - agent-dev-toolkit)
+/features/
+/docs/features/
 /PRD/
 /PLAN/
 /docs/PRD/

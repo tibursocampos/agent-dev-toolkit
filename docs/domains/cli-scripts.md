@@ -15,8 +15,19 @@ Operator entry points under `scripts/`.
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | PRD → PLAN → CHANGE preflight before O3 |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | PLAN-LEDGER claim / status / release |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` (WS10) |
+| `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
+
+## Shell allowlist tip (WS10 / REQ-013)
+
+For O3 / Classic develop, skills **MUST** invoke the canonical scripts with `-File` (not inline session JSON). Prefer host **opt-in** allowlist of these two portable paths (cwd = repo root) so one Shell approve can chain both calls:
+
+1. `scripts/session/Invoke-DevelopSessionGate.ps1`
+2. `scripts/ledger/Invoke-PlanLedgerClaim.ps1`
+
+Sessions root: `~/.cursor/sdd/sessions` (or `$SDD_ROOT/sessions`). **RNF-004:** do not auto-approve all Shell; do not mutate hooks policy silently; path/secrets guards stay intact. Cursor detail: [adapters/cursor/README.md](../../adapters/cursor/README.md) § Shell allowlist.
 
 ## Operator workflow (inventory → preflight → develop → harvest)
 
@@ -26,10 +37,10 @@ Same skill call flow; these scripts add deterministic gates/evidence — not a s
 |-------|--------|---------------|
 | 1. Inventory | `Invoke-MemoryBankInventory.ps1` | `0` = `ready`; `2` = `not-ready` (writes only under `memory-bank/.inventory/`) |
 | 2. Preflight | `Invoke-PrdPlanChangePreflight.ps1` | `0` allow; `1` usage; `2` block (read-only; runs validate-prd/plan/change) |
-| 3. Develop | Classic SDD / O3 (`sdd-develop`, optional PLAN-LEDGER claim) | SESSION gates + optional ledger hold |
+| 3. Develop | Classic SDD / O3 (`Invoke-DevelopSessionGate` + `Invoke-PlanLedgerClaim`) | SESSION gates + ledger hold (allowlist tip above) |
 | 4. TRACE harvest | `Invoke-TraceHarvest.ps1` | `0` ok; `2` fail (reads **only** `features/NNN-slug/TRACE.jsonl`) |
 
-Contracts (do not paste full schema here): [TRACE archive](core.md#trace-archive-living-loop), [PLAN-LEDGER](core.md#plan-ledger-atomic-step-claim), [VALIDATION.md](../VALIDATION.md).
+Contracts (do not paste full schema here): [TRACE archive](core.md#trace-archive-living-loop), [PLAN-LEDGER](core.md#plan-ledger--develop-session-gate), [VALIDATION.md](../VALIDATION.md).
 
 ### Memory-bank inventory
 
@@ -40,8 +51,18 @@ pwsh -NoProfile -File .\scripts\inventory\Invoke-MemoryBankInventory.ps1 `
 
 - Scans the consumer repo; updates `memory-bank/.inventory/sources.json` (path, `last_write_utc`, length, sha256, short summary).
 - Emits inventory-level `inventory_hash`, `inventory_summary`, and `status` `ready` \| `not-ready` (+ `status_reason`).
+- **Portable paths only** in `sources.json` (`repo_path`, `bank_path`, and each source `path`) — never OS absolute / machine-local roots.
 - Never modifies application source. Secret-named leaves get a redacted summary heuristic.
 - Assert smoke: `scripts/validation/Assert-MemoryBankInventory.ps1` (wired in `validate-core`).
+
+### Sibling readiness (selective)
+
+```powershell
+pwsh -NoProfile -File .\scripts\validation\Invoke-SiblingReadinessGate.ps1 `
+  -FeatureRoot features\<NNN-slug>\<story>
+```
+
+Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Assert: `Assert-SiblingReadinessGate.ps1`. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
 
 ### PRD / PLAN / CHANGE preflight
 
@@ -70,7 +91,14 @@ pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 `
   -RepoPath . -SessionsRoot <sessions-root>
 ```
 
-See [core.md PLAN-LEDGER](core.md#plan-ledger-atomic-step-claim).
+See [core.md PLAN-LEDGER + session gate](core.md#plan-ledger--develop-session-gate).
+
+```powershell
+pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
+  -PlanPath features\<...>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
+```
+
+Assert: `Assert-DevelopSessionGate.ps1` (also checks allowlist docs cite both scripts).
 
 ## toolkit.ps1
 

@@ -122,8 +122,8 @@ Todo sync prepara `<InstallRoot>/sdd/` (`sessions/` + seed de `manifest.json` sc
 
 **Armazenamento SDD (primeira gravação Classic):** as skills perguntam **repositório** vs **global** quando o projeto ainda não está no manifesto.
 
-- **Repositório** — `features/` + `memory-bank/` na raiz do projeto da aplicação
-- **Global** — a mesma árvore sob `{{SDD_ROOT}}/<repo-id>/` (fora do git do projeto)
+- **Repositório** — `features/` + `memory-bank/` na raiz do projeto da aplicação (cites portáteis como `features/NNN-slug/...`; `.gitignore` padrão pode incluir `/features/` salvo `features_versioned` true)
+- **Global** — a mesma árvore sob `{{SDD_ROOT}}/<repo-id>/` (fora do git do projeto; sem editar `.gitignore` do projeto)
 
 Install/sync: [docs/INSTALL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md). Layout do core: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md). Contrato de storage: [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
 

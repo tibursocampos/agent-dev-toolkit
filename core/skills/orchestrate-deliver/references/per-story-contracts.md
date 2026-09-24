@@ -37,7 +37,7 @@ Artifact prose default **pt-BR**; identifiers and skill names **English**.
 | Spec | `skills/sdd-spec/SKILL.md` | Canonical PRD under story `PRD/` |
 | Plan | `skills/sdd-plan/SKILL.md` | Canonical PLAN under story `PLAN/` |
 
-Prior context for each story: `STORY.md` + `REFINE/` when present (optional / on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them (**not** optional in that case) + feature `FEATURE.md` / `CONTINUITY.md`. Prefer promoted siblings/bank over re-asking. Max **3** gap questions if Prior context incomplete (`PIPELINE.md`). Max-3 gap questions do **not** replace the required-siblings STOP: missing `ANALYSIS/` / `ARCH/` / `SEC/` when flags require them → **STOP** / return to O1; do **not** Write PRD/PLAN.
+Prior context for each story: `STORY.md` + `REFINE/` when present (optional / on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them (**not** optional in that case) + feature `FEATURE.md` / `CONTINUITY.md`. Prefer promoted siblings/bank over re-asking. Max **3** gap questions if Prior context incomplete (`PIPELINE.md`). Max-3 gap questions do **not** replace the required-siblings STOP: missing `ANALYSIS/` / `ARCH/` / `SEC/` when flags require them → **STOP** / return to O1; do **not** Write PRD/PLAN. Open **B**/**I** on Prior/STORY/REFINE → **STOP** Write; `NEEDS_CLARIFICATION` (`readiness-severity.md`); presence ≠ READY (**RN02**).
 
 Parent must **not** invent a shorter “PRD lite” process that skips confirm-before-write or acceptance sections required by those skills.
 
@@ -58,10 +58,14 @@ features/NNN-slug/{USnn|TSnn}/PLAN/PLAN_NNN_*.md
 
 **Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate.
 
+**Per-story readiness STOP (REQ-005 / TE01):** if open questions carry severity **B** or **I** (see `readiness-severity.md` / `clarify-depth.md`): **STOP** that story — do **not** Write PRD/PLAN; emit typed `NEEDS_CLARIFICATION` handoff with portable paths; route to `refine-story` / O1. **MINOR** alone does not block. Folder presence ≠ READY (**RN02**).
+
 | Stage | Contract | Must follow |
 |-------|----------|-------------|
-| Spec | `sdd-spec` | Confirm-before-write; pt-BR PRD; no PLAN; no app code |
-| Plan | `sdd-plan` | Requires PRD on disk; baby-step PLAN; no app code |
+| Spec | `sdd-spec` | Confirm-before-write; pt-BR PRD; no PLAN; no app code; `## Related` (REQ-009) |
+| Plan | `sdd-plan` | Requires PRD on disk; baby-step PLAN; no app code; PRD↔PLAN mutual Related |
+
+**Navigation (REQ-009 / CA3):** Parent Writes of PRD/PLAN **MUST** honor `sdd-spec` / `sdd-plan` Related obligations (`STORAGE.md` § Navigation block). Classic minimum: **PRD ↔ PLAN** mutual portable-path cite when both exist; cite **STORY** if on-disk; upward FEATURE / CONTINUITY only when present. **Omit-if-absent** — never stub siblings solely for links. After each story lands, refresh CONTINUITY / FEATURE / STORY Related edges for new PRD/PLAN paths (still paths-only — not a second navigation SoT).
 
 **Série:** for story S: load `sdd-spec` -> write PRD after **sim** -> load `sdd-plan` -> write PLAN after **sim** -> optional per-story approval -> next story.
 

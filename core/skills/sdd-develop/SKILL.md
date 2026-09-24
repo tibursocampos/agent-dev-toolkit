@@ -22,6 +22,22 @@ Gate check:
 -> If any unchecked: STOP
 ```
 
+### Canonical scripts after sim (REQ-012 / CA4 / CT6)
+
+After the user says **sim** for this step, **MUST** persist develop `step_confirmed` via `-File` (cwd = repo root) — **MUST NOT** paste inline PowerShell that mutates session JSON under `sessions/`:
+
+```powershell
+pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
+```
+
+When a PLAN ledger claim is required (O3 / declared execution mode / parent handoff), **MUST** also call:
+
+```powershell
+pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
+```
+
+Prefer **one** Shell approve that chains both `-File` invocations when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still run the claim when the claim file is absent — session skip does **not** waive claim.
+
 ---
 
 # Skill: sdd-develop
@@ -174,11 +190,11 @@ Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, 
 
 ### 5. Commit (optional)
 
-Offer `/commit`; do not auto-commit.
+Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`) — wait for answers; never skip the ask on silence.
 
 ### 6. Update PLAN + checkpoint
 
-`references/plan-update.md`: mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. Save before context pause (>=40%).
+`references/plan-update.md`: mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. Save before context pause (>=40%). **Navigation (REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block).
 
 ### 7. Report
 
@@ -188,6 +204,7 @@ Use `references/session-report.md`. Files, tests, `N/M` (pt-BR). Handoff: new ch
 
 Also enforce `references/forbidden.md`. Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
 
+- Break C# method signatures/invocations for style when ≤6 parameters and the full line is ≤160 characters (`csharp-patterns.md`) — multiline only when **more than 6** parameters **or** line **> 160**; do not let CSharpier leave a style-only wrap that still fits the inline MUST
 - Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged)
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Do not ignore `CP-AGREED-VS-INVENTED` — do not encode mid-step invented gaps as agreed requirements (`CONTRACT-PROVENANCE.md`)
@@ -195,19 +212,23 @@ Also enforce `references/forbidden.md`. Before marking Completed: `references/qu
 - Implement in Plan/Ask without Agent
 - Bypass one-step via orchestrator parent implementing code
 - Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
+- Inline-mutate develop session JSON (`ConvertFrom-Json` / `ConvertTo-Json` / `Set-Content` gate blobs) instead of `scripts/session/Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
+- Skip `scripts/ledger/Invoke-PlanLedgerClaim.ps1` when claim is required and absent because session helper already exited 0 (CT6)
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
 - Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
 - Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
 - Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
+- Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / REQ-009)
 
 ## Handoff
 
 | Situation | Next |
 |-----------|------|
-| Commit | `/commit` |
 | Next step | New session -> `/sdd-develop - <portable-plan-path> - Step N+1` |
-| All steps done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
+| All steps done | Ask **code-review** vs **commit** (`references/optional-flows.md`); before commit → bank + docs **sim/pular** when present |
+| Commit (after living-artifact asks) | `/commit` |
+| Review | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
 
 Example portable path (Classic SDD, repository):
 

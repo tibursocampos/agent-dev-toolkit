@@ -47,8 +47,8 @@ Registry: each adapter declares `subagents: native` or `none` (OpenHands is `non
 `HooksSemantics=plugin-only` (JS plugins under `plugins/`). CI smoke is filesystem sync+validate only — not product runtime.
 
 <!-- BEGIN GENERATED: inventory-summary -->
-- Inventory at: 2026-09-02T19:04:30Z (refresh-light)
-- Stack: PowerShell + Markdown; 40 kebab skills; 79 Assert-*.ps1 scripts; 115 indexed sources
+- Inventory at: 2026-09-24T14:11:27Z (refresh-light)
+- Stack: PowerShell + Markdown; 40 kebab skills; 82 Assert-*.ps1 scripts; 115 indexed sources
 - Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + per-agent modules (10 adapters), `docs/SPAWN.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
 - Adapter layout: thin `*Adapter.ps1` + `Publish-*` / `Uninstall-*` for Claude, Cursor, Grok (Codex/Copilot/OpenCode/ZCode/Antigravity already modular or thin); OpenHands `subagents: none`
 - Local SDD `features/` may be gitignored or versioned (`features_versioned` in manifest) — not public doc source; use `docs/` + `core/skills/_shared/agents/`

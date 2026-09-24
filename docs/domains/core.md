@@ -33,7 +33,7 @@ Top-level folders:
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer`, `impeccable` |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md) |
-| Docs | `document-plan`, `document-implement` |
+| Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 
 Public catalog: [SKILLS.md](../SKILLS.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`).
@@ -94,6 +94,38 @@ Manifest keys: `classic.storage_mode` (`repository` \| `global`) and `classic.pa
 
 No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `features/NNN-slug/...`.
 
+**Portable paths:** artifact bodies, handoffs, CONTINUITY, and inventory cites use workspace-relative (or InstallRoot-relative for global) paths — never OS absolute / user-home InstallRoot embeds. Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Portable path.
+
+**Repository `.gitignore`:** when `classic.features_versioned` is `false` (default), skills add `/features/` and `/docs/features/` (plus safety-net `/PRD/`, `/PLAN/`, …). When `true`, those `/features/` lines are omitted so SDD artifacts can be versioned. Always keep `!/docs/documentation-plan/plan.md`. Do **not** add `/memory-bank/`. Global mode does not edit project `.gitignore`. Detail: [STORAGE.md](../../core/sdd/STORAGE.md) § Repository mode - `.gitignore`.
+
+### Navigation block (Related)
+
+Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Navigation block (WS7 / REQ-007). Canonical English heading **`## Related`**, then a table (or bullets) of **portable** sibling paths. Omit a row when the sibling is absent — do not create stubs only for linking.
+
+| Track | Minimum reciprocity |
+|-------|---------------------|
+| Classic | **PRD ↔ PLAN** when either side is written/updated; **STORY** if on-disk |
+| Orchestrated O1+ | Bidirectional among on-disk siblings (FEATURE / CONTINUITY / STORY / ANALYSIS\|ARCH\|SEC ↔ PRD ↔ PLAN) |
+
+Assert: `scripts/validation/Assert-NavigationBlock.ps1` (wired in `validate-core`; fixture under `scripts/validation/fixtures/sdd-artifacts/navigation/`).
+
+### Clarification readiness (B / I / MINOR)
+
+Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/readiness-severity.md) (WS3 / REQ-004–006).
+
+| Severity | Blocks READY? |
+|----------|---------------|
+| **B** (Blocker) | Yes |
+| **I** (Important) | Yes |
+| **MINOR** | No (may remain with a recorded assumption) |
+
+| Status | Meaning |
+|--------|---------|
+| **READY** | No open **B** or **I** |
+| **NEEDS_CLARIFICATION** | Open **B** or **I** at a handoff boundary → **STOP** Write; typed handoff |
+
+**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). Selective PS1: `Assert-SiblingReadinessGate.ps1` / `Invoke-SiblingReadinessGate.ps1` (fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`).
+
 ### Work tracks and internal contracts
 
 | Track | Call flow |
@@ -116,6 +148,9 @@ Inside those skills, contracts add gates/artifacts:
 | PLAN-LEDGER | `PLAN-LEDGER-CONTRACT.md` | Atomic O3 step claim (see below) |
 | Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
 | Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
+| Navigation | STORAGE § Navigation / `Assert-NavigationBlock.ps1` | `## Related` + portable paths (see above) |
+| Clarification readiness | `readiness-severity.md` / SiblingReadinessGate | B/I/MINOR → READY \| NEEDS_CLARIFICATION (see above) |
+| Develop session gate | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Idempotent `step_confirmed` (see PLAN-LEDGER + session) |
 | Invocation contexts | `INVOCATION-CONTEXTS.md` | `direct` vs `orchestrated` (see below) |
 | Contract provenance | `CONTRACT-PROVENANCE.md` | `agreed` vs `invented` (see below) |
 
@@ -282,9 +317,9 @@ Archive-complete order is strict: at least one of each living-loop event, non-de
 
 Host emitters (fail-open append) are adapter-owned — honesty matrix in [adapters.md](adapters.md#trace-emitter-honesty) / [`trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Do **not** claim emitters the host does not wire.
 
-### PLAN-LEDGER (atomic step claim)
+### PLAN-LEDGER + develop session gate
 
-Contract: [`PLAN-LEDGER-CONTRACT.md`](../../core/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md) — REQ-002 / CA2.
+**PLAN-LEDGER** contract: [`PLAN-LEDGER-CONTRACT.md`](../../core/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md) — REQ-002 / CA2.
 
 **Purpose:** at most one active holder per PLAN step for O3 / parallel `sdd-develop` children. Does **not** replace SESSION gates (`step_confirmed` / `tests_run`).
 
@@ -301,12 +336,16 @@ Ledger files under the SDD sessions root (same hash rules as `SESSION.md`):
 | `status` | Free / held + holder (exit 0 even when held) |
 | `release` | Current holder only |
 
+**Develop session gate (WS10):** `scripts/session/Invoke-DevelopSessionGate.ps1` sets develop `step_confirmed` (creates scoped session schema if absent) and **skips rewrite** when already `true` (exit 0). Skills **MUST** call the two canonical scripts via `-File` (not inline session JSON mutation). Idempotent gate skip does **not** waive ledger claim when the claim is still missing.
+
 ```powershell
+.\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <portable-or-abs> -RepoPath <cwd> -SddRoot <sdd-root> [-Step N]
 .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -RepoPath <cwd> -SessionsRoot <sessions>
 .\scripts\validation\Assert-PlanLedgerContract.ps1
+.\scripts\validation\Assert-DevelopSessionGate.ps1
 ```
 
-Wire cites: `sdd-plan` → `references/plan-ledger.md`; O3 children may claim before implement when the parent requires a ledger hold. PLAN bodies stay thin — cite the contract path; do not embed claim JSON.
+Operator allowlist tip (opt-in; no silent Shell auto-approve): [cli-scripts.md](cli-scripts.md#shell-allowlist-tip-ws10--req-013). Wire cites: `SESSION.md`; `sdd-plan` → `references/plan-ledger.md`; O3 / `sdd-develop` MUST `-File` both scripts.
 
 ## Code guidelines and architecture selection
 
@@ -330,6 +369,10 @@ Styles under B (load **one** primary file): `concentric-dependency`, `vertical-s
 ### Token discipline
 
 After A resolves a style, load **exactly one** B file (plus optional DDD tactical or EDA only when selected). **Never** glob `architecture/**` or preload the whole principles tree. Implementers (`sdd-develop`, `*-developer`) then load the matching C overlay for the active stack.
+
+### .NET signature MUST (when docs mention C#)
+
+Under `dotnet-guidelines/` (`csharp-patterns.md` / `csharp-formatting.md`): keep method signatures **inline** when ≤ **6** parameters **and** the full line is ≤ **160** characters; otherwise one parameter per line. Do not document the older 5 / 150 rule.
 
 Details: [ARCHITECTURE.md](../ARCHITECTURE.md) § Application architecture selection.
 

@@ -4,6 +4,16 @@
   Helpers for Grok Publish-Agents (copy core/agents -> InstallRoot/agents).
 #>
 
+$script:GrokAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:GrokAgentsModuleDirectory)) {
+    $script:GrokAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_grokSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:GrokAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_grokSpawnKnobsPath
+Remove-Variable -Name _grokSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-GrokPublishAgents {
     [CmdletBinding()]
     param(
@@ -59,6 +69,8 @@ function Invoke-GrokPublishAgents {
         -TextFileExtensionPattern $script:GrokAdapterConstant.TextFileExtensionPattern `
         -UnresolvedTokens @(Get-GrokSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:GrokAdapterMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'grok-agents'
 
     return [PSCustomObject]@{
         Success          = $true

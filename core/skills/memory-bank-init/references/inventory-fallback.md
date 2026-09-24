@@ -40,7 +40,8 @@ Do **not** invent additional trees (`src/**`, `node_modules/**`, etc.).
 Write `sources.json` as:
 
 - Top-level: `schema_version: 3`, `repo`, `repo_path`, `bank_path`, `generated_at`, `stale_days`, `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash` (SHA256 over sorted `path:hash` lines), `inventory_summary` (`N source(s); stack: …`), `stack_hints`, `sources` (array)
-- Each `sources[]` entry: `path`, `last_write_utc`, `length`, `hash` (SHA256 hex), `summary` (first heading or first non-empty line; redact secret-named files)
+- **`repo_path` / `bank_path` MUST be portable** — `repo_path` = `.`; `bank_path` = repo-relative forward-slash path (usually `memory-bank`). **Never** OS absolute / drive-letter / user-home machine paths (file is versioned under `memory-bank/`).
+- Each `sources[]` entry: `path` (repo-relative, forward slashes), `last_write_utc`, `length`, `hash` (SHA256 hex), `summary` (first heading or first non-empty line; redact secret-named files)
 - **`files` key is INVALID** — never write it. If an existing file has `files` and no usable `sources`, migrate those paths into `sources` once, then rewrite v3 without `files`.
 
 ### Cap / bloated reset

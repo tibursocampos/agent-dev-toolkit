@@ -104,10 +104,19 @@ Glob/Grep/Read: solution layout, main entry points, bounded contexts, external i
 
 Create or update `docs/documentation-plan/plan.md` using `references/plan-template.md` (checklist: `references/planning-checklist.md`):
 
-- Baby steps per business/technical domain
-- Steps for integrations, architecture patterns, and folder conventions
+**Sizing (required):**
+
+| Kind | How to plan |
+|------|-------------|
+| **New** domain/overview/integration doc (file does not exist yet) | **One plan step per new deliverable file** (e.g. one step → `docs/domains/billing.md`) |
+| **Update** existing docs after a feature/change | Prefer **one single update step** covering all touched existing paths (not one baby-step per file) |
+| Large greenfield pack or large doc refactor | Keep coherent steps; `document-implement` may **spawn** specialists for heavy steps (`SPAWN.md`) |
+
+Do **not** default to 5–12 tiny baby steps. Prefer fewer, larger steps aligned with new files + one update bucket when refreshing.
+
 - Progress `0/N`, status per step (**Pending** / **Completed**)
-- Each step sized for one `document-implement` session where possible
+- Mark **Kind:** `new` \| `update` \| `refactor` on each step when useful for implement routing
+- Each **new**-doc step sized for one `document-implement` session; **update** steps may list multiple existing paths in one session
 
 ### 5. Context checkpoint
 

@@ -32,6 +32,8 @@
 
 If guardrails fail, ask for missing detail - do not publish incomplete docs.
 
+**Clarification readiness (REQ-004 / REQ-005):** open questions carry **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`). Any open **B**/**I** → status `NEEDS_CLARIFICATION`; do not hand off as ready-for-PRD. Presence ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`.
+
 **Selective retrieval:** do not dump entire `memory-bank/` or paste full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
 
 ---

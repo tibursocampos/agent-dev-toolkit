@@ -174,7 +174,9 @@ When analyze sets greenfield or `needs_domain` and no established ARCH style exi
 
 Before backlog **sim**, O1 synthesis runs **product artifact quality** gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale) — see [Product artifact quality](../domains/core.md#product-artifact-quality-backlog-item-types). Classic `sdd-spec` Step 5.5 challenges the same depth on FEATURE/STORY/PRD siblings.
 
-Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree.
+**O2 clarify readiness:** open questions use severity **B** \| **I** \| **MINOR**. Any open **B**/**I** → status `NEEDS_CLARIFICATION` — **STOP** PRD/PLAN Write (presence of ANALYSIS/ARCH folders ≠ READY). Dual plane: readiness ≠ SESSION `step_confirmed`. Detail: [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+
+Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree. Develop MUST set gates via `Invoke-DevelopSessionGate.ps1` + ledger claim (`-File`) — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
 
 ### Small stack change
 
@@ -187,13 +189,22 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review
-commit
+code-review          # optional; after fixes ask re-review / bank / docs (sim/pular)
+commit               # living-artifacts ask when bank/docs exist
 push
-open-github-pr   # optional, when opening a PR
+open-github-pr       # optional, when opening a PR
 ```
 
 Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
+
+### Documentation (RAG)
+
+```text
+document-plan        # Kind new | update | refactor; fewer larger steps
+document-implement   # one plan step; update may coalesce existing docs
+```
+
+Prefer **Kind: update** as one coalesced step when refreshing existing docs after a feature — not one baby-step per file.
 
 ## Catalog and decision tree
 

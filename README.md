@@ -57,7 +57,7 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 | Orchestrated Delivery | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
 | Greenfield ARCH | Via Orchestrated Delivery analyze: architect draft → **sim** confirm (not a slash skill) |
 
-Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
+Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness B/I, develop session gate) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
 
 Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
 
@@ -78,14 +78,15 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (38)
+## Skills preview (40)
 
 | Group | Examples |
 |-------|----------|
-| Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
+| Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
 | Backlog Refine | `refine-story`, `split-story-checklist` |
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
+| Docs RAG | `document-plan`, `document-implement` |
 | Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `test-coverage`, `repair-dotnet-build`, … |
 
 Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`.

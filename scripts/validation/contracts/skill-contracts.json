@@ -42,6 +42,31 @@
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
+      "id": "commit-living-artifacts-ask",
+      "skill": "commit",
+      "files": ["SKILL.md"],
+      "mustContain": ["Living artifacts", "sim / pular", "memory-bank", "document"]
+    },
+    {
+      "id": "code-review-post-review-loop",
+      "skill": "code-review",
+      "files": ["SKILL.md"],
+      "mustContain": ["Recommended post-review loop", "sim / pular"]
+    },
+    {
+      "id": "sdd-develop-bank-docs-handoff-ask",
+      "skill": "sdd-develop",
+      "files": ["references/optional-flows.md"],
+      "mustContain": ["memory-bank", "sim / pular", "document"]
+    },
+    {
+      "id": "document-implement-cadence-spawn",
+      "skill": "document-implement",
+      "files": ["SKILL.md", "references/step-selection.md"],
+      "match": "any-file",
+      "mustContain": ["Kind: update", "coalesced", "SPAWN"]
+    },
+    {
       "id": "push-no-gh",
       "skill": "push",
       "files": ["SKILL.md", "references/handoff-pr.md"],
@@ -121,6 +146,235 @@
       "skill": "orchestrate-develop",
       "files": ["SKILL.md"],
       "mustContain": ["SPAWN.md", "fallback", "Task"]
+    },
+    {
+      "id": "axis-b-omit-model-orchestrate-develop",
+      "skill": "orchestrate-develop",
+      "files": ["references/step-queue-spawn.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustNotContain": ["inherit parent / Auto"]
+    },
+    {
+      "id": "axis-b-omit-model-orchestrate-analyze",
+      "skill": "orchestrate-analyze",
+      "files": ["references/spawn-map.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustNotContain": ["inherit parent / Auto"]
+    },
+    {
+      "id": "axis-b-omit-model-orchestrate-deliver",
+      "skill": "orchestrate-deliver",
+      "files": ["references/mode-selection.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustNotContain": ["inherit parent / Auto"]
+    },
+    {
+      "id": "axis-b-omit-model-developer-common",
+      "skill": "_shared/developer-common",
+      "files": ["subagent-first.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit", "same model as the parent session"],
+      "mustNotContain": ["inherit parent / Auto"]
+    },
+    {
+      "id": "axis-b-subagent-model-host-ui-limit",
+      "skill": "_shared/agents",
+      "files": ["SUBAGENT-MODEL.md"],
+      "mustContain": ["omit `model`", "Host UI limit", "outside"],
+      "mustNotContain": ["inherit parent / Auto"]
+    },
+    {
+      "id": "req-012-canonical-scripts-step-queue-spawn",
+      "skill": "orchestrate-develop",
+      "files": ["references/step-queue-spawn.md"],
+      "mustContain": [
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "-File",
+        "CT6",
+        "MUST NOT"
+      ]
+    },
+    {
+      "id": "req-012-canonical-scripts-execution-modes",
+      "skill": "orchestrate-develop",
+      "files": ["references/execution-modes.md"],
+      "mustContain": [
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "-File",
+        "CT6"
+      ]
+    },
+    {
+      "id": "req-012-canonical-scripts-sdd-develop",
+      "skill": "sdd-develop",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "-File",
+        "CT6",
+        "MUST NOT"
+      ]
+    },
+    {
+      "id": "req-013-allowlist-tip-step-queue-spawn",
+      "skill": "orchestrate-develop",
+      "files": ["references/step-queue-spawn.md"],
+      "mustContain": [
+        "Shell allowlist tip",
+        "REQ-013",
+        "RNF-004",
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "auto-approve all Shell"
+      ]
+    },
+    {
+      "id": "req-013-allowlist-tip-execution-modes",
+      "skill": "orchestrate-develop",
+      "files": ["references/execution-modes.md"],
+      "mustContain": [
+        "REQ-013",
+        "Invoke-DevelopSessionGate.ps1",
+        "Invoke-PlanLedgerClaim.ps1",
+        "allowlist"
+      ]
+    },
+    {
+      "id": "req-004-readiness-severity-contract",
+      "skill": "_shared/sdd-artifacts",
+      "files": ["readiness-severity.md"],
+      "mustContain": [
+        "READY",
+        "NEEDS_CLARIFICATION",
+        "MINOR",
+        "dual plane",
+        "step_confirmed",
+        "RN02",
+        "REQ-004"
+      ]
+    },
+    {
+      "id": "req-004-clarify-depth-severity",
+      "skill": "_shared/backlog-item-types",
+      "files": ["clarify-depth.md"],
+      "mustContain": [
+        "readiness-severity.md",
+        "READY",
+        "NEEDS_CLARIFICATION",
+        "RN02",
+        "step_confirmed"
+      ]
+    },
+    {
+      "id": "req-005-o2-stop-bi-preconditions",
+      "skill": "orchestrate-deliver",
+      "files": ["references/preconditions.md"],
+      "mustContain": [
+        "NEEDS_CLARIFICATION",
+        "READY",
+        "REQ-005",
+        "RN02",
+        "readiness-severity.md",
+        "STOP"
+      ]
+    },
+    {
+      "id": "req-005-o2-stop-bi-boundaries",
+      "skill": "orchestrate-deliver",
+      "files": ["references/boundaries-must-not.md"],
+      "mustContain": [
+        "NEEDS_CLARIFICATION",
+        "REQ-005",
+        "RN02",
+        "readiness-severity.md"
+      ]
+    },
+    {
+      "id": "req-005-refine-stop-bi-boundary",
+      "skill": "refine-story",
+      "files": ["references/boundary.md"],
+      "mustContain": [
+        "NEEDS_CLARIFICATION",
+        "READY",
+        "REQ-005",
+        "RN02",
+        "readiness-severity.md",
+        "STOP"
+      ]
+    },
+    {
+      "id": "req-009-sdd-spec-related-write",
+      "skill": "sdd-spec",
+      "files": ["SKILL.md", "references/template-usage.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "omit-if-absent",
+        "Navigation block"
+      ]
+    },
+    {
+      "id": "req-009-sdd-plan-related-write",
+      "skill": "sdd-plan",
+      "files": ["SKILL.md", "references/template-usage.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "PRD ↔ PLAN",
+        "omit-if-absent"
+      ]
+    },
+    {
+      "id": "req-009-sdd-develop-related-preserve",
+      "skill": "sdd-develop",
+      "files": ["SKILL.md", "references/plan-update.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "omit-if-absent",
+        "Navigation block"
+      ]
+    },
+    {
+      "id": "req-009-o1-related-write",
+      "skill": "orchestrate-analyze",
+      "files": ["references/story-synthesis.md", "references/must-not.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "omit-if-absent",
+        "Navigation block"
+      ]
+    },
+    {
+      "id": "req-009-o2-related-write",
+      "skill": "orchestrate-deliver",
+      "files": ["references/per-story-contracts.md", "references/boundaries-must-not.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "PRD ↔ PLAN",
+        "omit-if-absent"
+      ]
+    },
+    {
+      "id": "req-009-o3-continuity-no-second-sot",
+      "skill": "orchestrate-develop",
+      "files": ["references/continuity-handoff.md", "references/must-not.md"],
+      "match": "any-file",
+      "mustContain": [
+        "REQ-009",
+        "## Related",
+        "second navigation SoT",
+        "omit-if-absent"
+      ]
     },
     {
       "id": "forma-a-spec-no-memory-bank-required",
@@ -484,6 +738,10 @@
     {
       "id": "Should_FindLanguageSurfacesPack_When_AgentsSharedPresent",
       "path": "core/skills/_shared/agents/LANGUAGE.md"
+    },
+    {
+      "id": "Should_FindReadinessSeverity_When_Ws3ContractPresent",
+      "path": "core/skills/_shared/sdd-artifacts/readiness-severity.md"
     }
   ]
 }

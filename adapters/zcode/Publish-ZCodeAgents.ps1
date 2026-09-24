@@ -4,6 +4,16 @@
   Helpers for ZCode Publish-Agents (copy core/agents -> InstallRoot/agents).
 #>
 
+$script:ZCodeAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:ZCodeAgentsModuleDirectory)) {
+    $script:ZCodeAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_zcodeSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:ZCodeAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_zcodeSpawnKnobsPath
+Remove-Variable -Name _zcodeSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-ZCodePublishAgents {
     [CmdletBinding()]
     param(
@@ -60,6 +70,8 @@ function Invoke-ZCodePublishAgents {
         -TextFileExtensionPattern $script:ZCodePathConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-ZCodeSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ZCodePublishMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'zcode-agents'
 
     return [PSCustomObject]@{
         Success          = $true

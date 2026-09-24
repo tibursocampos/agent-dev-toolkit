@@ -138,7 +138,7 @@ Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not d
 | `orchestrate-*` parallel Tasks | **≤ 4** concurrent (existing skill caps; wave if more) |
 | `qa_checklist` | **No** Task — CONTINUITY/STORY only (`ROSTER.md`) |
 
-Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**).
+Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**; not Cursor Auto / not Memory Bank `auto`). Publish-layer `model: inherit` / omit-key is adapter honesty — orthogonal to this Task omit rule.
 
 ## Receipt and synthesis
 

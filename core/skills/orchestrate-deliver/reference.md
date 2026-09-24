@@ -8,6 +8,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 |---------|------|
 | Command playbook (step discovery) | `references/command.md` |
 | Preconditions / Step 0 / backlog siblings STOP | `references/preconditions.md` |
+| Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` § Clarification readiness STOP |
 | Mode comparison / choose série vs paralelo | `references/mode-selection.md` |
 | Per-story paths / contracts / Task child skeleton | `references/per-story-contracts.md` |
 | Approval gates / approval answers | `references/approval-gates.md` |

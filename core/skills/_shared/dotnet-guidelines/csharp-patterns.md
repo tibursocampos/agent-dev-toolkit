@@ -60,32 +60,38 @@ Cross-stack profile: `code-guidelines/principles/structure-and-quality.md` §2.
 
 | Condition | Format |
 |-----------|--------|
-| **Inline (single line)** | Up to **5** parameters **and** the full declaration or invocation line is **≤ 150 characters** |
-| **Multiline (required)** | **6 or more** parameters **or** the full line **exceeds 150 characters** -> **one parameter per line** |
+| **Inline (single line)** | Up to **6** parameters **and** the full declaration or invocation line is **≤ 160 characters** |
+| **Multiline (required)** | **More than 6** parameters **or** the full line **exceeds 160 characters** -> **one parameter per line** |
 | **Review** | **Blocking** - request reformat before merge (CT1, CT2, CT3) |
 
 **Character count:** Count the **entire physical line** of the signature or invocation (from the start of the return type / access modifier through the closing `)` and `;` or `{`). Include generic type arguments, parameter types, names, default values, and `CancellationToken cancellationToken = default`.
 
 **Do not** break signatures across multiple lines for style only when the inline rule still applies.
 
-**Alignment with `KISS.md`:** Cross-stack KISS lists **> 5 parameters** as a *suggestion*. For **C# in this toolkit**, the 5-parameter / 150-character / 6+-parameter rules here are **normative** and override generic KISS guidance on formatting.
+**Override:** only when the consumer `AGENTS.md` (or a versioned guideline in that repo) redefines the thresholds explicitly.
 
-**Formatter:** Layout (braces, indent, general wrapping) is owned by **CSharpier** - see `csharp-formatting.md`. This section is the human/agent MUST for parameter count and the 150-character signature/invocation threshold.
+**Alignment with `KISS.md`:** Cross-stack KISS lists **> 5 parameters** as a *suggestion*. For **C# in this toolkit**, the 6-parameter / 160-character / >6-parameter rules here are **normative** and override generic KISS guidance on formatting.
+
+**Formatter:** Layout (braces, indent, general wrapping) is owned by **CSharpier** - see `csharp-formatting.md`. This section is the human/agent MUST for parameter count and the 160-character signature/invocation threshold. **CSharpier must not “win” over this MUST** — if the formatter wraps a line that still satisfies ≤6 parameters and ≤160 characters, re-inline before merge.
 
 ```csharp
-// Correct - inline (≤ 5 parameters, line ≤ 150)
+// Correct - inline (≤ 6 parameters, line ≤ 160)
 public async Task<ImageStorageUploadResult> UploadGeneratedImageAsync(ImageStorageUploadRequest request, CancellationToken cancellationToken = default)
 
 // Correct - inline invocation
 var order = await _orderRepository.GetByIdAsync(id, cancellationToken);
 
-// Required - multiline (6+ parameters)
+// Correct - inline (6 parameters, line ≤ 160)
+public void ApplyWindow(int startInclusive, int endExclusive, bool inclusiveBounds, string label, int priority, bool dryRun)
+
+// Required - multiline (more than 6 parameters)
 public async Task<OrderSummary> BuildOrderSummaryAsync(
     int orderId,
     string customerCode,
     DateTime fromDate,
     DateTime toDate,
     bool includeCancelled,
+    string warehouseCode,
     CancellationToken cancellationToken = default)
 
 // Required - multiline invocation (same rule)
@@ -95,9 +101,10 @@ await _notificationService.SendOrderStatusChangedAsync(
     previousStatus,
     order.Status,
     correlationId,
+    warehouseCode,
     cancellationToken);
 
-// Required - multiline (line > 150 even with ≤ 5 parameters)
+// Required - multiline (line > 160 even with ≤ 6 parameters)
 public Task<IReadOnlyList<OrderLineProjection>> GetOrderLinesWithExtendedFiltersAsync(
     int orderId,
     IReadOnlyCollection<string> statusCodes,
@@ -108,8 +115,8 @@ public async Task<Order?> GetByIdAsync(
     int id,
     CancellationToken cancellationToken = default)
 
-// Wrong - long line should break (6+ parameters or > 150 chars)
-await _integrationClient.PostOrderExportAsync(orderId, customerId, warehouseId, routeId, shipmentId, cancellationToken);
+// Wrong - more than 6 parameters must multiline even when the line is ≤ 160
+await _integrationClient.PostOrderExportAsync(orderId, customerId, warehouseId, routeId, shipmentId, carrierId, cancellationToken);
 ```
 
 ### Architecture vs style (required - blocking in review)

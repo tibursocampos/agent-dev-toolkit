@@ -11,6 +11,18 @@
 | **Memory-bank** | `{{BANK_PATH}}` — examples: repository `memory-bank/`; global `sdd/<repo-id>/memory-bank/` (never under this feature; see `STORAGE.md` § Portable path) |
 | **Memory-bank status** | fresh \| refreshed \| created |
 
+## Related
+
+| Relação | Path portátil |
+|---------|---------------|
+| FEATURE | `features/{{NNN}}-{{slug}}/FEATURE.md` |
+| STORY | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/STORY.md` (omit if absent) |
+| PRD | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PRD/…` (omit if absent) |
+| PLAN | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PLAN/…` (omit if absent) |
+| ANALYSIS / ARCH / SEC | story subfolders when on-disk (omit if absent) |
+
+Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portable paths only. Omit-if-absent — do not stub siblings only for links. READY / `blocks_o2` pointers stay short; severity engine is WS3, not this block.
+
 ## Estado atual
 
 {{CURRENT_STATE}}

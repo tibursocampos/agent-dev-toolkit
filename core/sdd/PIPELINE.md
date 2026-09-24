@@ -4,9 +4,23 @@ Execution order, Cursor mode behavior, canonical paths, confirmation gates, and 
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
-Companion: `STORAGE.md` (folders, manifest, `.gitignore`, **portable path** for artifact cross-refs).
+Companion: `STORAGE.md` (folders, manifest, `.gitignore`, **portable path** for artifact cross-refs, **Navigation block** / `## Related`).
 
 **Artifact cross-refs:** FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites and typed handoffs use **portable paths** (`STORAGE.md` § Portable path) — never OS absolute / user-home InstallRoot embeds in written artifacts. Confirm UI may show absolute; Writes use portable paths.
+
+## Navigation block
+
+Normative SoT: `STORAGE.md` § Navigation block (Related). Summary for pipeline / Write skills:
+
+| Rule | Value |
+|------|-------|
+| Title | `## Related` only (RN05 — **not** `## See also`) |
+| Paths | Portable (`STORAGE.md` § Portable path) |
+| Omit | Skip sibling if absent — never stub a file only for a link |
+| Classic | PRD ↔ PLAN on Write; STORY if on-disk |
+| O1+ | Bidirectional among on-disk siblings (FEATURE / CONTINUITY / STORY / ANALYSIS\|ARCH\|SEC / PRD / PLAN) |
+
+Templates under `skills/_shared/templates/` include the block. Skill Write MUST details belong in `sdd-*` / `orchestrate-*` (not here). Do **not** create `feature-refinement.md`.
 
 ## Work tracks
 
