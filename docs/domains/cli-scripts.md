@@ -8,7 +8,7 @@ Operator entry points under `scripts/`.
 |--------|------|
 | `scripts/toolkit.ps1` | Interactive Smart Manager (wizards + Help) or `-Action` / `-Agent` orchestrator |
 | `scripts/sync-agent.ps1` | Load registry module; run `Publish-*`, then always `Get-SddRoot -Prepare` |
-| `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) | Option 0 Release bootstrap: HTTPS zip → SHA256 → extract → `sync-agent` (asset names confirm vs CI — [INSTALL § 0](../INSTALL.md#0-release-bootstrap-https--checksum--sync)) |
+| `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) | Option 0 Release bootstrap: HTTPS zip → SHA256 → extract → `toolkit.ps1` (fixed assets `agent-dev-toolkit.zip` / `.sha256` — [INSTALL § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)) |
 | `scripts/validate-agent.ps1` | Always `validate-core`, then adapter `Invoke-SmokeValidate` |
 | `scripts/validation/validate-core.ps1` | Core contract suite (alias `validate-all.ps1`) |
 | `scripts/validation/Invoke-*CiSmoke.ps1` | CI-parity smoke harnesses |

@@ -11,10 +11,10 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 | Requirement | Notes |
 |-------------|--------|
 | **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** (Windows PowerShell 5.1 is not available on those OS). [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
-| **Git** | Clone / update this repo |
+| **Git** | Optional — only if you prefer cloning instead of Option 0 bootstrap |
 | **Target agent** | At least one supported agent (see table below) |
 
-Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0 — Release bootstrap**: HTTPS zip → SHA256 → extract → `sync-agent`).
+Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0 — Release bootstrap**: HTTPS zip → SHA256 → extract → `toolkit.ps1`).
 
 ## What this is
 
@@ -27,11 +27,32 @@ Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0
 
 ## Quick start
 
+**Option 0 — Release bootstrap** (recommended; no clone):
+
+Windows:
+
+```bat
+curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+bootstrap.bat
+```
+
+(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
+
+Linux / macOS:
+
+```bash
+curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File ./bootstrap.ps1
+# or bootstrap.sh from the same Release URL
+```
+
+That downloads `agent-dev-toolkit.zip`, verifies SHA256, extracts, and opens interactive Smart Manager (`toolkit.ps1`).
+
+**Alternative — clone**, then run the same menu from the repo:
+
 ```powershell
 git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
 cd agent-dev-toolkit
-
-# Primary entry — interactive Smart Manager
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
@@ -97,7 +118,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 |-----|---------|
 | [docs/README.md](docs/README.md) | Documentation index / TOC |
 | [docs/overview.md](docs/overview.md) | Architecture overview (RAG-friendly) |
-| [docs/INSTALL.md](docs/INSTALL.md) | Clone, sync, live home, uninstall |
+| [docs/INSTALL.md](docs/INSTALL.md) | Release bootstrap (option 0), clone, sync, live home, uninstall |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
 | [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |

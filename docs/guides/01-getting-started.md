@@ -1,6 +1,6 @@
 ﻿# Getting started
 
-End-to-end path from clone to first skill invoke.
+End-to-end path from Release bootstrap (or clone) to first skill invoke.
 
 ## Prerequisites
 
@@ -9,22 +9,45 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 | Requirement | Notes |
 |-------------|--------|
 | **PowerShell** | **Windows:** 5.1+ or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only**. Details: [INSTALL.md § Prerequisites](../INSTALL.md#prerequisites) |
-| **Git** | Clone / update this repo |
+| **Git** | Optional — only for the clone alternative |
 
-## 1. Clone the toolkit
+## 0. Release bootstrap (recommended)
+
+Download an entrypoint from the latest Release, then run it. Fixed assets: `agent-dev-toolkit.zip` + `agent-dev-toolkit.zip.sha256`. After extract, interactive `toolkit.ps1` opens (Smart Manager). No Git / `gh` / Node / `.exe`. Details: [INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit).
+
+Windows:
+
+```bat
+curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
+bootstrap.bat
+```
+
+(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
+
+Linux / macOS:
+
+```bash
+curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
+pwsh -NoProfile -File ./bootstrap.ps1
+# or bootstrap.sh from the same Release URL
+```
+
+Optional non-interactive sync instead of Smart Manager: add `-DirectSync -Agent cursor` (and `-SyncWhatIf` for a safe smoke). Tests: `-SkipSync` / `-NoExtract`.
+
+## 1. Clone the toolkit (alternative)
 
 ```powershell
 git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
 cd agent-dev-toolkit
 ```
 
-## 2. Open the Smart Manager (option 1)
+## 2. Open the Smart Manager (after bootstrap or clone)
 
 ```powershell
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
-This is the **recommended** entry point (option 1). The menu clears the screen, walks you through agent + target selection, and includes **Help and docs**. **Option 2+** (`-Action Sync` / `sync-agent.ps1`) is for scripting and CI. **Option 0** (Release bootstrap: HTTPS zip → SHA256 → sync, no `gh` / Node / `.exe`) — see [INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--sync).
+Option 0 opens this automatically after extract. From a clone, run the command above. Interactive menu with agent/target wizards and **Help and docs**. **Option 2+** (`-Action Sync` / `sync-agent.ps1`, or bootstrap `-DirectSync`) is for scripting and CI.
 Quick path to learn safely:
 
 1. **Validate core only** — confirms the repo is healthy (no home write).
