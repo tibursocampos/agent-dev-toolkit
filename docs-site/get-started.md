@@ -122,8 +122,8 @@ Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + seed `manifest.json` sch
 
 **SDD storage (first Classic write):** skills ask **repository** vs **global** when the project is not yet in the manifest.
 
-- **Repository** — `features/` + `memory-bank/` under the application project cwd
-- **Global** — same tree under `{{SDD_ROOT}}/<repo-id>/` (outside the project git tree)
+- **Repository** — `features/` + `memory-bank/` under the application project cwd (portable cites like `features/NNN-slug/...`; default gitignore may include `/features/` unless `features_versioned` is true)
+- **Global** — same tree under `{{SDD_ROOT}}/<repo-id>/` (outside the project git tree; no project `.gitignore` edit)
 
 Install/sync deep dive: [docs/INSTALL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md). Core layout: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md). Storage contract: [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
 

@@ -82,7 +82,7 @@ Superfícies da feature **006** em `core/skills/_shared/sdd-artifacts/` e packs 
 | **Invocation** | `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#invocation-contexts-direct-vs-orchestrated) |
 | **Provenance** | `agreed` vs `invented` (`CONTRACT-PROVENANCE.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#contract-provenance-agreed-vs-invented) |
 | **`read-sdd-artifact`** | Normaliza FEATURE/STORY/PRD/PLAN → `source_context` | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#skill-read-sdd-artifact-source_context) |
-| **PLAN-LEDGER** | Claim atômico de passo O3 (`PLAN-LEDGER-CONTRACT.md`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#plan-ledger-atomic-step-claim) |
+| **PLAN-LEDGER** | Claim atômico de passo O3 + session gate (`Invoke-DevelopSessionGate.ps1`) | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#plan-ledger--develop-session-gate) |
 | **TRACE archive** | SoT do living loop: só `features/NNN-slug/TRACE.jsonl` | [domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#trace-archive-living-loop) |
 
 Não invente raízes TRACE alternativas (`.agent-trace/`, OpenSpec / `.specs/` / `.specify/`, SQLite/FTS como SoT). Emissores por host só onde há wire — [Adaptadores](../adapters/).

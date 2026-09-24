@@ -68,9 +68,9 @@ Mesmo fluxo de skills; esses scripts acrescentam gates determinísticos — não
 
 | Ordem | Script | Papel |
 |-------|--------|-------|
-| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` sob `memory-bank/.inventory/` |
+| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` sob `memory-bank/.inventory/` (paths **portáteis** em `sources.json`) |
 | 2 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Bloqueia O3 se PRD/PLAN/CHANGE inconsistentes |
-| 3 | Develop (`sdd-develop` / O3; claim PLAN-LEDGER opcional) | Gates de sessão + hold opcional no ledger |
+| 3 | `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` | `step_confirmed` idempotente + claim no ledger (MUST `-File`; allowlist Shell opcional) |
 | 4 | `scripts/trace/Invoke-TraceHarvest.ps1` | Resume **somente** `features/NNN-slug/TRACE.jsonl` |
 
 ```powershell
@@ -81,11 +81,18 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
   -FeatureRoot features\<NNN-slug> `
   -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md
 
+pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
+  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
+
+pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 `
+  -Action claim -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -Step N -Holder <id> `
+  -RepoPath . -SessionsRoot <sessions-root>
+
 pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
   -FeatureRoot features\<NNN-slug>
 ```
 
-CLI PLAN-LEDGER: `scripts/ledger/Invoke-PlanLedgerClaim.ps1`. Só ponteiros (sem colar schema): [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). Claims de emissor TRACE: [Adaptadores](../adapters/).
+**Dica de allowlist Shell (Cursor):** allowlist opt-in só dos dois scripts de develop — não auto-aprove todo Shell. Gate seletivo de clarificação: `Invoke-SiblingReadinessGate.ps1` (`-FeatureRoot`). A suite core também asserta InvocationAxes, NavigationBlock (`## Related`), SiblingReadiness, PublishSpawnKnobs. Ponteiros: [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). Claims de emissor TRACE: [Adaptadores](../adapters/).
 
 ## Fluxo Git dos mantenedores
 

@@ -235,13 +235,13 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review
-commit
+code-review          # optional; after fixes ask re-review / bank / docs (sim/pular)
+commit               # living-artifacts ask when bank/docs exist
 push
-open-github-pr
+open-github-pr       # optional
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` over the web UI when `gh` is available.
+Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` over the web UI when `gh` is available. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
 
 ## Skills catalog (summary)
 
@@ -261,14 +261,14 @@ Canonical folders under `core/skills/` (**40 skills** + `_shared`). Agent SoT: s
 
 | Area | What you will be asked / options |
 |------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Confirm commit message; confirm push; PR mode feature vs release; confirm title/body; **always** ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
-| `code-review` | Choose single vs multi-angle (no silent default) |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain` |
-| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default) |
+| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm message; confirm push; PR mode; title/body; **always** ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
+| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs |
+| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O2 clarify **READY** (no open B/I) before Write |
+| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); open B/I → `NEEDS_CLARIFICATION` |
 | `api-standards` vs `api-integrate` | Design/standards → `api-standards`; OpenAPI → clients → `api-integrate` |
-| `sdd-develop` | One PLAN step per session |
-| `read-sdd-artifact` | Optional normalize → `source_context` (paths under `features/` only) |
-| `document-plan` | Asks doc language before writing |
+| `sdd-develop` | One PLAN step per session; MUST `-File` session gate + ledger claim when required |
+| `read-sdd-artifact` | Optional normalize → `source_context` (portable paths under `features/` only) |
+| `document-plan` / `document-implement` | Asks doc language; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths |
 | Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Caveman mode](../caveman/) |
 | Orchestrator | Default `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
 
