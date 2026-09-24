@@ -30,13 +30,32 @@ Write the approved body to a temp file, then:
 gh pr create --base <base> --head <head> --title "<approved title>" --body-file <path-to-approved-body.md>
 ```
 
-If the user approved auto-merge **and** `allow_auto_merge` is true:
+If the user approved auto-merge **and** `allow_auto_merge` is true, enable auto-merge with the **mode-required** merge method below (do **not** default to `--merge`).
+
+### Merge method by mode (mandatory)
+
+| Mode | Base ← Head | `gh pr merge` method | Why |
+|------|-------------|----------------------|-----|
+| `feature` | `develop` ← `feature/*` \| `feat/*` | **`--squash`** | One general commit on `develop`; use PR title as squash subject (and PR body as squash body when useful) |
+| `release` | `main`/`master` ← `develop` | **`--rebase`** (FF-compatible / linear) | Feature squashes on `develop` are already organized; replay them linearly onto release without a second squash or noisy merge commit |
+
+**Feature (squash) — preferred flags:**
 
 ```bash
-gh pr merge <number-or-url> --auto --merge
+gh pr merge <number-or-url> --auto --squash --subject "<approved PR title>"
 ```
 
-(Use `--squash` / `--rebase` only if the user or repo convention explicitly requires it.)
+Optional: add `--body-file <approved-body.md>` (or `--body`) so the squash commit message carries the PR summary. Never use `--merge` or `--rebase` for feature → `develop`.
+
+**Release (linear / fast-forward compatible) — preferred flags:**
+
+```bash
+gh pr merge <number-or-url> --auto --rebase
+```
+
+Never use `--squash` for release (`develop` → `main`/`master`) — that would collapse already-organized develop history. Prefer `--rebase` over `--merge` so history stays linear (GitHub “rebase and merge”; equivalent intent to fast-forward when `develop` is strictly ahead).
+
+If the repo disables the required method (API/settings), **STOP**, report which method is blocked, and ask the operator — do not silently fall back to another method.
 
 Report the PR URL.
 
@@ -45,5 +64,5 @@ Report the PR URL.
 - Mode (`feature` / `release`)
 - Base and head
 - PR URL and number
-- Auto-merge status (enabled / skipped / unavailable)
+- Merge method used (`squash` / `rebase`) and auto-merge status (enabled / skipped / unavailable)
 - Template source path used

@@ -19,10 +19,10 @@ Posso seguir? (sim / ajustar / cancelar)
 
 Modes:
 
-| Mode | Meaning | Default base | Head |
-|------|---------|--------------|------|
-| `feature` | Feature/fix PR into integration | `develop` (or user override) | current `feature/*` or `feat/*` |
-| `release` | Promote develop to release | `master` or `main` | `develop` |
+| Mode | Meaning | Default base | Head | Merge method (auto-merge / merge) |
+|------|---------|--------------|------|-----------------------------------|
+| `feature` | Feature/fix PR into integration | `develop` (or user override) | current `feature/*` or `feat/*` | **squash** — one general commit message on `develop` |
+| `release` | Promote develop to release | `master` or `main` | `develop` | **rebase** (FF-compatible / linear) — keep organized develop commits |
 
 Detect from args (`feature` / `release`, aliases `feat`, `release-pr`). If omitted, ask once (pt-BR) and wait — default is **feature** only when the user accepts the default or says nothing after you present it:
 
