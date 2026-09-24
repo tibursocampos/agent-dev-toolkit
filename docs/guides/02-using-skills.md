@@ -195,7 +195,7 @@ push
 open-github-pr       # optional, when opening a PR
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `develop` → `master`/`main`. Prefer `open-github-pr` when `gh` is available. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
+Feature PRs: current `feature/*` (or `feat/*`) → `develop` (**`--squash`** on merge). Release mode: `develop` → `master`/`main` (**`--rebase`**). Prefer `open-github-pr` when `gh` is available; always ask auto-merge. Deep dive: [domains/git-ops.md](../domains/git-ops.md).
 
 ### Documentation (RAG)
 
@@ -208,7 +208,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**40** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**41** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Caveman: [07-caveman-mode.md](07-caveman-mode.md)
 - Credits: [CREDITS.md](../CREDITS.md)

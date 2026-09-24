@@ -24,8 +24,7 @@ cd agent-dev-toolkit
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
-This is the **recommended** entry point (option 1). The menu clears the screen, walks you through agent + target selection, and includes **Help and docs**. **Option 2+** (`-Action Sync` / `sync-agent.ps1`) is for scripting and CI — see [INSTALL.md](../INSTALL.md).
-
+This is the **recommended** entry point (option 1). The menu clears the screen, walks you through agent + target selection, and includes **Help and docs**. **Option 2+** (`-Action Sync` / `sync-agent.ps1`) is for scripting and CI. **Option 0** (Release bootstrap: HTTPS zip → SHA256 → sync, no `gh` / Node / `.exe`) — see [INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--sync).
 Quick path to learn safely:
 
 1. **Validate core only** — confirms the repo is healthy (no home write).

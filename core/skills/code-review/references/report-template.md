@@ -124,11 +124,21 @@ Problemas: [Nenhum | listados]
 
 ## Performance
 
-- [ ] Sem N+1 óbvio no código alterado
+- [ ] Sem N+1 óbvio no código alterado (ref: `references/n-plus-one.md`)
 - [ ] Async em trabalho I/O-bound
 - [ ] Sem loops/alocações ilimitados em hot paths
 
 Problemas: [Nenhum | listados]
+
+---
+
+## Policy / contracts (quando a superfície aplicar)
+
+- [ ] Policy / gates: `references/policy.md` (skills, rules, git flow)
+- [ ] Contracts / SDD / CHANGE / paths: `references/contracts.md`
+- [ ] Sem pasta/skill `framework-upgrade` introduzida sem feature aprovada (WS16b OOS)
+
+Problemas: [N/A | Nenhum | listados]
 
 ---
 

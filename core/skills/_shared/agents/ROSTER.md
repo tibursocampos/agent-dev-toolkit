@@ -20,6 +20,22 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 | `database` | `needs_database` or brownfield with persistence | `ARCH/` DB slice (**folder on disk**) | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
 | `qa_checklist` | Before handoff / review | Checklist bullets in CONTINUITY or STORY only | Write production tests silently; **no** Task spawn; **no** `prompts/qa*.md` file |
 
+## qa_checklist (HIGH — in-parent only)
+
+`qa_checklist` is a **role**, not a Task specialist. Parent (or refine/O1 handoff) writes checklist bullets into CONTINUITY or STORY. Do **not** create `prompts/qa*.md`. Do **not** emit Jarvis lifecycle-tags / `JARVIS_*`.
+
+Minimum HIGH checklist before handoff / review (adapt to story; keep portable paths):
+
+| Area | Bullet intent |
+|------|---------------|
+| AC coverage | Each CA / AC has an observable Then or explicit deferred note |
+| Gates | SESSION / confirm-before-write / architecture confirm respected when applicable |
+| Language | Artifacts = content-language; identifiers English; no hard-coded locale (`LANGUAGE.md`) |
+| Provenance | Invented gaps labeled; secrets redacted (`CONTRACT-PROVENANCE.md`) |
+| Selective retrieval | No full bank/PRD dump in handoff notes |
+| OOS | Explicit exclusions still honored; no silent scope creep |
+| Tests | Test plan or evidence pointer present when complexity ≥ medium |
+
 Stacks (`react`, `dotnet`, …) are **not** duplicated here - route via existing `*-developer` skills (`ROUTING.md`).
 
 ## Flags (`needs_*`) - canonical spawn map (O1 source of truth)

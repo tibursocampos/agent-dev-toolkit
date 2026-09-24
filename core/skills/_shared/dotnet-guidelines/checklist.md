@@ -50,11 +50,24 @@ Use before opening a pull request.
 ## .NET patterns
 
 - [ ] Async methods use `Async` suffix
-- [ ] `await` used (no `.Result` / `.Wait()` / `ConfigureAwait` in app code)
+- [ ] `await` used (no `.Result` / `.Wait()` / sync-over-async / `ConfigureAwait` in app code)
 - [ ] `CancellationToken` propagated on async APIs
+- [ ] DI lifetimes correct (no captive scoped dependency in a singleton) — mirror repo registration
 - [ ] `IDisposable` / `IAsyncDisposable` handled with `using` / `await using`
 - [ ] `IOptions<T>` for configuration
 - [ ] `IHttpClientFactory` for `HttpClient` (resilience via `Microsoft.Extensions.Http.Resilience` when adding HTTP clients)
+- [ ] Hot-path alloc / pooling / high-volume logging reviewed when touching hosting or HTTP — see `performance-aspnet.md`
+
+---
+
+## Official sources (normative — RN08)
+
+Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win auxiliary blogs/gists.
+
+- [ ] ASP.NET Core best practices: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/best-practices?view=aspnetcore-10.0 ([pt-BR](https://learn.microsoft.com/pt-br/aspnet/core/fundamentals/best-practices?view=aspnetcore-10.0))
+- [ ] Memory / performance: https://learn.microsoft.com/en-us/aspnet/core/performance/memory?view=aspnetcore-10.0
+- [ ] .NET 10 perf (official blog, when targeting major 10): https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-10/
+- [ ] Local overlay: `performance-aspnet.md` · catalog: `skills/framework-upgrade/references/sources-catalog.md`
 
 ---
 

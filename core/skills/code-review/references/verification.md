@@ -6,8 +6,12 @@
 | Architecture | Layer boundaries, DI, no domain -> infrastructure leaks |
 | Tests | Behavior covered; meaningful assertions; no trivial tests |
 | Security | Secrets, injection, authz, sensitive logs |
-| Performance | N+1, unbounded work, missing async where I/O |
+| Performance | N+1, unbounded work, missing async where I/O — load `references/n-plus-one.md` |
+| Policy | Guardrails / pipeline / git gates when skills/rules change — load `references/policy.md` |
+| Contracts | SDD / CHANGE / plan markers / API naming — load `references/contracts.md` |
 | Maintainability | Naming, method size, duplication; magic values - see `csharp-patterns.md` |
+
+**WS16a:** the three families (`policy`, `N+1`, `contracts`) are mandatory surfaces of this skill — use the checklists in those refs when the diff matches; skip only when the surface clearly does not apply.
 
 ## Verification commands
 

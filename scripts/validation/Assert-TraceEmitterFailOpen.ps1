@@ -9,8 +9,10 @@
 #   Should_Not_Echo_SensitiveToolBody
 #   Should_Pass_When_CursorHooksWireEmitters
 #   Should_Pass_When_EmitterAssetsPresentWithoutLiveHome
+#   Should_Skip_When_AuthorshipGitNotesDefaultOff
 #
 # REQ-006 / CA6 / RNF-001 / RNF-002 / RNF-004: fail-open TRACE emitters.
+# REQ-016 / CT5: authorship git-notes default off (orthogonal to TRACE).
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -90,7 +92,7 @@ if (-not (Test-Path -LiteralPath $honestyPath)) {
     Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason ("missing {0}" -f $honestyRel)
 }
 $honestyText = Get-Content -LiteralPath $honestyPath -Raw -Encoding UTF8
-foreach ($marker in @('Cursor', 'Claude', 'Codex', 'OpenHands', 'fail-open', 'REQ-006', 'Honesty', 'trusted-CI-only', 'TOOLKIT_TRACE_FEATURE_ROOT')) {
+foreach ($marker in @('Cursor', 'Claude', 'Codex', 'OpenHands', 'fail-open', 'REQ-006', 'Honesty', 'trusted-CI-only', 'TOOLKIT_TRACE_FEATURE_ROOT', 'default off', 'toolkit-authorship', 'opt-in')) {
     if ($honestyText -notmatch [regex]::Escape($marker)) {
         Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason ("honesty missing {0}" -f $marker)
     }
@@ -275,6 +277,43 @@ foreach ($rel in $assetRels) {
     }
 }
 Write-Pass -TestName 'Should_Pass_When_EmitterAssetsPresentWithoutLiveHome'
+
+# Authorship git-notes: default OFF without -Enable (REQ-016 / CT5); never TRACE SoT.
+# Helper requires portable FeatureRoot under features/NNN-slug (repo root), not fixture-nested paths.
+$authorshipRel = $script:ToolkitConstant.InvokeAuthorshipGitNotesScriptRelativePath
+$authorshipPath = Join-Path $repoRoot ($authorshipRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$skippedStatus = $script:ToolkitConstant.AuthorshipGitNotesStatusSkipped
+$authorshipExitOk = [int]$script:ToolkitConstant.AuthorshipGitNotesExitOk
+$authorshipFeatureRel = 'features/000-authorship-default-off-smoke'
+$authorshipFeaturePath = Join-Path $repoRoot ($authorshipFeatureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $authorshipPath)) {
+    Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("missing {0}" -f $authorshipRel)
+}
+$authorshipShell = Resolve-TraceEmitterHostShell
+if ([string]::IsNullOrWhiteSpace($authorshipShell)) {
+    Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason 'no powershell/pwsh host for authorship smoke'
+}
+if (Test-Path -LiteralPath $authorshipFeaturePath) {
+    Remove-Item -LiteralPath $authorshipFeaturePath -Recurse -Force
+}
+New-Item -ItemType Directory -Path $authorshipFeaturePath -Force | Out-Null
+try {
+    $authorshipOutput = & $authorshipShell -NoProfile -ExecutionPolicy Bypass -File $authorshipPath -FeatureRoot $authorshipFeatureRel 2>&1 | Out-String
+    $authorshipCode = $LASTEXITCODE
+    if ($null -eq $authorshipCode) { $authorshipCode = 0 }
+    if ($authorshipCode -ne $authorshipExitOk) {
+        Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("exit {0} (expected {1}): {2}" -f $authorshipCode, $authorshipExitOk, $authorshipOutput.Trim())
+    }
+    if ($authorshipOutput -notmatch [regex]::Escape($skippedStatus)) {
+        Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("expected status {0}; got: {1}" -f $skippedStatus, $authorshipOutput.Trim())
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $authorshipFeaturePath) {
+        Remove-Item -LiteralPath $authorshipFeaturePath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+Write-Pass -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff'
 
 Remove-Item Env:TOOLKIT_TRACE_FEATURE_ROOT -ErrorAction SilentlyContinue
 if (Test-Path -LiteralPath $fixtureRoot) {

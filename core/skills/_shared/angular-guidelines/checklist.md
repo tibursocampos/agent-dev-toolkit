@@ -44,7 +44,22 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 - [ ] Feature / core / shared layout matched
 - [ ] Template-only members `protected` when neighbors allow
 - [ ] Prefer `[class]`/`[style]` over new `ngClass`/`ngStyle` on modern templates
+- [ ] Prefer `inject()` over constructor DI for new code when neighbors allow
+- [ ] OnPush (or zoneless-aligned) presentational components when the feature already uses them
+- [ ] Signals: prefer `computed()` over `effect()` for derived state
 - [ ] No reliance on retired johnpapa classic as primary style source — use angular.dev
+
+---
+
+## Official sources (normative — RN08)
+
+Pointers only — do not paste style-guide / gist bodies. **angular.dev wins** auxiliary gists/Medium.
+
+- [ ] Style guide: https://angular.dev/style-guide
+- [ ] Best practices: https://angular.dev/best-practices
+- [ ] Signals: https://angular.dev/guide/signals
+- [ ] Testing: https://angular.dev/guide/testing
+- [ ] Catalog: `skills/framework-upgrade/references/sources-catalog.md`
 
 ---
 
@@ -100,3 +115,4 @@ ng build
 - [Angular — Testing](https://angular.dev/guide/testing)
 - [Angular — Signals](https://angular.dev/guide/signals)
 - Cross-stack: `../code-guidelines/principles/structure-and-quality.md`
+- Upgrade sources catalog (normative vs auxiliary): `skills/framework-upgrade/references/sources-catalog.md`

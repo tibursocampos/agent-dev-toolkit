@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md`
 
-**Language:** This guideline is **English**. Chat prompts to the operator stay **pt-BR** per toolkit policy.
+**Language:** This guideline is **English**. Chat prompts to the operator mirror the **user chat language** (`LANGUAGE.md`).
 
 Companion: `PIPELINE.md` § Prior context, `MEMORY-BANK.md` § Selective read, `context-management.mdc`.
 

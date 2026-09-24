@@ -8,6 +8,8 @@
 | **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (global) |
 | **Status** | draft \| approved \| in-progress \| done |
 
+**type_classification (REQ-012):** exact-set of item type (**Tipo** / Bug\|US\|TS) lives **only** on this STORY. `/split-story-checklist` must not scatter the set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, or trackers (`skills/split-story-checklist/references/type-classification.md`).
+
 ## Related
 
 | Relação | Path portátil |

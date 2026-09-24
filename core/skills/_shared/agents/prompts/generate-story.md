@@ -8,8 +8,9 @@ Draft one deep `STORY.md` (US or TS) for the feature tree. **Not** a single Gher
 
 ## Language
 
-- Artifact prose default **pt-BR**
-- Identifiers, paths, skill/ref names **English**
+- Artifact prose: **content-language** per `_shared/agents/LANGUAGE.md` (inferred from chat; invocation/prefs/manifest overrides; `null` ≠ pt-BR). Do **not** hard-code a locale.
+- Prompt body / receipt fields: **en-US** (this file is an internal prompt).
+- Identifiers, paths, skill/ref names: **English**
 
 ## Template
 
@@ -60,6 +61,21 @@ One Given/When/Then stub alone is **not** enough.
 - Do not invent multiple stories unless the parent asked for a set.
 - Do not invent Evidence, metrics, or PII — omit > fabricate.
 - Prefer paths + short summaries from parent; never paste entire bank or PRD body into the draft.
+
+## HIGH density (feature / story draft)
+
+Before returning the draft, ensure:
+
+| Check | Rule |
+|-------|------|
+| Outcome-shaped title + Objective | Fail anti-task-shatter; no verb+path titles |
+| AC budget | Happy + rule/edge + failure; observable Then each |
+| OOS | At least one exclusion or honest `N/A` + reason |
+| Provenance | Do not invent Evidence / metrics / PII (`omit > fabricate`); mark agent fill-ins if parent asked |
+| Selective retrieval | Paths + short excerpts only — no full PRD / `memory-bank/` dump |
+| No Jarvis tags | Do **not** emit lifecycle-tags / `JARVIS_*` / org-only tracker markup |
+
+Parent synthesizes chat in user language; this child stays **en-US** for receipts.
 
 ## Output
 

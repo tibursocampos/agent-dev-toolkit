@@ -54,7 +54,7 @@ Invoke when **any** of these apply (slash, English, or pt-BR — including bundl
 
 ## Outcome
 
-One GitHub pull request created via `gh pr create` (feature → `develop`, or release `develop` → `master`/`main`), using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved. No PR without content confirmation **and** an explicit auto-merge answer.
+One GitHub pull request created via `gh pr create` (feature → `develop`, or release `develop` → `master`/`main`), using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved, with **mode-required** merge method: **feature → develop = `--squash`** (general commit message from PR title/body); **release develop → main/master = `--rebase`** (linear / FF-compatible; do not squash). No PR without content confirmation **and** an explicit auto-merge answer.
 
 ## Lazy-load (only when needed)
 

@@ -7,10 +7,10 @@
 | -1b | Caveman Full when active | `references/process-common.md` § Caveman |
 | 1 | Gate check; **sim** before first spawn | `PIPELINE.md`, `SESSION.md` |
 | 1b | Resolve `invocation_context` (default `orchestrated`); pass into children | `INVOCATION-CONTEXTS.md` |
-| 2 | Resolve feature / PLAN set; path sanitize | `references/process-common.md` § Resolve feature / PLAN |
+| 2 | Resolve feature / PLAN set; **plan-acquisition**; path sanitize | `references/plan-acquisition.md`; `references/process-common.md` § Resolve feature / PLAN |
 | 3 | Step 0 Memory Bank Gate; pass `bank_path` read-only | `references/preconditions.md` § Step 0 |
-| 4 | Build step queue (deps); resolve execution mode; present; wait **sim** | `references/execution-modes.md`; `references/step-queue-spawn.md` |
-| 5 | Spawn exactly one step child (mode gate + ledger claim; `sdd-develop`; omit model) | `references/execution-modes.md`; `references/step-queue-spawn.md`; `references/anti-bypass.md` |
+| 4 | Build step queue; execution mode + develop pacing (`continuous`\|`step_by_step`); present; wait **sim** | `references/execution-modes.md`; `references/develop-modes.md`; `references/plan-contract.md`; `references/step-queue-spawn.md` |
+| 5 | Spawn exactly one step child (mode gate + ledger claim; child `plan-acquisition`; omit model) | `references/execution-modes.md`; `references/develop-modes.md`; `references/plan-acquisition.md`; `references/step-queue-spawn.md`; `references/anti-bypass.md` |
 | 5.5 | Post-implement verifier when `verify_mode: true` | `references/step-verifier.md` |
 | 6 | Safe parallelism (only when mode=`parallel`; distinct SESSION files) | `references/execution-modes.md`; `references/parallelism.md` |
 | 7 | Stop conditions | `references/continuity-handoff.md` § Stop |

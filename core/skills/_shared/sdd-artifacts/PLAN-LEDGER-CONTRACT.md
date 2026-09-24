@@ -2,7 +2,7 @@
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md`
 
-**Language:** This guideline is **English**. Identifiers, paths, field names, and event reasons stay **English**. Operator chat may be **pt-BR**.
+**Language:** This guideline is **English**. Identifiers, paths, field names, and event reasons stay **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`).
 
 Companion: `SESSION.md` (repo vs develop gates), `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`. Skill wire: `skills/sdd-plan/references/plan-ledger.md`.
 

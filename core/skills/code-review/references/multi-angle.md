@@ -20,13 +20,15 @@ Bare `/code-review` -> ask mode (1 single / 2 multi-ângulo). Subset allowed, e.
 - [ ] Correctness / edge cases / error handling in the diff
 - [ ] Architecture and layer boundaries
 - [ ] Meaningful tests for changed behavior
-- [ ] Performance smells (N+1, unbounded work, missing async)
+- [ ] Performance smells (N+1, unbounded work, missing async) — `references/n-plus-one.md`
+- [ ] Policy / gate regressions when skills/rules change — `references/policy.md`
 - [ ] Maintainability (naming, method size, duplication, magic values)
 
 **Acceptance (aceite)**
 
 - [ ] PRD acceptance criteria mapped to evidence in the diff
 - [ ] PLAN completed steps match deliverables; no silent drift
+- [ ] Contracts / CHANGE / portable paths when those files change — `references/contracts.md`
 - [ ] Business rules from PRD present where in scope
 - [ ] Gaps flagged as important or critical per severity (not a separate gate)
 

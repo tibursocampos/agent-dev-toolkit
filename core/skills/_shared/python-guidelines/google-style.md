@@ -70,5 +70,6 @@ def calculate_discount(price: float, discount_rate: float) -> float:
 ## References
 
 - [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
-- [PEP 8 — Style Guide for Python Code](https://peps.python.org/pep-0008/)
+- [PEP 8 — Style Guide for Python Code](https://peps.python.org/pep-0008/) (normative — RN08: wins auxiliary gists/blogs)
 - [Ruff — The Ruff Formatter](https://docs.astral.sh/ruff/formatter/)
+- Upgrade sources catalog: `skills/framework-upgrade/references/sources-catalog.md`

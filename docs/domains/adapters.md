@@ -88,7 +88,7 @@ Publish may emit **only** depth, threads, and model **inherit** honesty. Forbidd
 
 ## TRACE emitter honesty
 
-Contract: [`adapters/_shared/trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Shared helper `TraceEmitCommon.ps1` (allowlist + fail-open + path policy). Core schema: [TRACE archive](core.md#trace-archive-living-loop).
+Contract: [`adapters/_shared/trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Shared helper `TraceEmitCommon.ps1` (allowlist + fail-open + path policy). Core schema: [TRACE archive](core.md#trace-archive-living-loop). Authorship git-notes (REQ-016…018) are **opt-in / default off** and **never** TRACE SoT — honesty section + [guide](../guides/09-authorship-git-notes.md).
 
 | Host | Wired TRACE emitter? | Notes |
 |------|----------------------|-------|

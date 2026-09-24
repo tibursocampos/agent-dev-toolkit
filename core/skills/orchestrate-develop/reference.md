@@ -12,7 +12,10 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 | Step queue / build queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism rules + process | `references/parallelism.md` |
-| Execution modes (REQ-003 / CA3; queue/claim/parallelism) | `references/execution-modes.md` |
+| Execution modes (serial/parallel/manual; queue/claim) | `references/execution-modes.md` |
+| plan-acquisition (REQ-008 / CA3) | `references/plan-acquisition.md` |
+| Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |
+| plan-contract markers + delivery-baseline (REQ-010) | `references/plan-contract.md` |
 | CONTINUITY / handoff / stop conditions / Step N process | `references/continuity-handoff.md` |
 | Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
 | Caveman / resolve feature / PLAN set | `references/process-common.md` |

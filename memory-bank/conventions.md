@@ -6,7 +6,10 @@
 - Internal spawn / Task child prompts / agent receipts: **always en-US** (`core/skills/_shared/agents/LANGUAGE.md`)
 - Feature artifact paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`
 - Skill folder names: **kebab-case** only (no Antigravity underscore map)
+- Skill map: only ids in `skills-catalog/CATALOG.md` (**41**); never invent skills; never major-pin `framework-upgrade` id
 - SDD state file name: `manifest.json` (do not brand as “v2” in docs)
+- TRACE SoT is `features/NNN-slug/TRACE.jsonl` only — authorship git-notes are opt-in / parallel / default off
+- Release bootstrap: HTTPS + SHA256 before extract; zip/checksum asset names are parameters/env, not permanent SoT in script
 - Smoke tests must use fixture/`InstallRoot` override — never require live user-profile sync to pass CI
 - Do not edit sibling repos `cursor-dev-toolkit` / `antigravity-dev-toolkit` from this project’s delivery
 - Magic strings in production scripts: named constants (project Constants / private const)

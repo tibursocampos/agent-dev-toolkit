@@ -77,12 +77,14 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
 | Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
+| inventory → specialist synthesis (REQ-011 / CA4) | `skills/memory-bank-init/references/inventory-specialist-synthesis.md` |
+| Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts (`SR-NO-FULL-DUMP`).
 
 ## Process
 
@@ -161,13 +163,20 @@ Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under 
 
 If script path unavailable after the resolution order above, run `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same v3 governance fields).
 
+### 5b. Inventory → specialist synthesis (REQ-011)
+
+Load `references/inventory-specialist-synthesis.md`. Map inventory signals → roster specialists (or thin in-skill fill); merge receipts into bank targets **before** / as the first pass of Step 6.
+
+- **Selective retrieval:** pass portable `bank_root` + named paths + `inventory_summary` / capped source summaries — **never** dump integral `memory-bank/` into specialist or parent prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
+- **Skip D (REQ-013):** no ADO mutate, no Reversa, no SpecKit constitution / uv / specify (Credits may mention Spec Kit inspiration; this skill does **not** adopt it).
+
 ### 6. Scaffold or refresh files
 
 | Mode | Action |
 |------|--------|
-| create | Copy templates from `templates/memory-bank/`; fill GENERATED regions + obvious fields from inventory/README/AGENTS (`references/template-map.md`, `references/tech-stack.md`) |
-| refresh | Re-run inventory; update GENERATED regions and `tech-stack.json`; preserve human prose outside markers |
-| refresh-light | Re-run inventory; update GENERATED regions and `tech-stack.json` only; do not rewrite human prose sections; append history with `action: refresh-light`. If `caveman_mode` ON and narrative files are large, **offer** (do not auto-run) compact via `COMPACT.md` for `known-risks.md` / feature `CONTINUITY.md` after inventory. |
+| create | Copy templates from `templates/memory-bank/`; fill GENERATED regions + obvious fields from inventory/README/AGENTS **and** Step 5b synthesis receipts (`references/template-map.md`, `references/tech-stack.md`, `references/inventory-specialist-synthesis.md`) |
+| refresh | Re-run inventory + Step 5b when signals warrant; update GENERATED regions and `tech-stack.json`; preserve human prose outside markers |
+| refresh-light | Re-run inventory; update GENERATED regions and `tech-stack.json` only; Step 5b only for thin stack hints (no full prose rewrite); append history with `action: refresh-light`. If `caveman_mode` ON and narrative files are large, **offer** (do not auto-run) compact via `COMPACT.md` for `known-risks.md` / feature `CONTINUITY.md` after inventory. |
 
 Rules:
 
@@ -179,7 +188,7 @@ Rules:
 
 ### 7. Report + handoff
 
-Report paths written, stack hints, blocking gaps (if any), storage mode, and **inventory governance**: `status` / `status_reason` / `inventory_hash` / `inventory_summary` (from Step 5). If `status` is `not-ready`, say so explicitly with the reason before handoff.
+Report paths written, stack hints, blocking gaps (if any), storage mode, **inventory governance**: `status` / `status_reason` / `inventory_hash` / `inventory_summary` (from Step 5), and **synthesis roles** used in Step 5b (or `in-skill`). If `status` is `not-ready`, say so explicitly with the reason before handoff.
 
 Handoff examples:
 
@@ -193,9 +202,11 @@ Handoff examples:
 
 - Write application / test source
 - Create bank under `features/NNN-slug/`
-- Require external CLI tooling (uv, specify, Spec Kit installers)
+- Require external CLI tooling (uv, specify, Spec Kit installers) or adopt **SpecKit constitution** (Skip D / REQ-013)
+- Introduce **ADO mutate** / Azure Boards WI side effects, or **Reversa** trees (Skip D / REQ-013)
 - Skip confirm-before-write
-- Dump entire bank into orchestrator parent context
+- Dump entire bank into orchestrator parent / specialist prompts (`SR-NO-FULL-DUMP` / `SELECTIVE-RETRIEVAL.md`)
+- Skip Step 5b when inventory signals domain / schema / auth ambiguity (thin-trivial stack-only may stay in-skill)
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Auto-commit
 - Edit consumer `.gitignore` when `storage_mode` is **global**

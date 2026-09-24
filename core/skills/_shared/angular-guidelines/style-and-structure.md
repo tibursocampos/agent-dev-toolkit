@@ -79,8 +79,9 @@ Keep the custom selector prefix stable across the app (`app-`, `ag-`, design-sys
 
 ## References
 
-- [Angular style guide](https://angular.dev/style-guide)
+- [Angular style guide](https://angular.dev/style-guide) (normative — RN08: wins auxiliary gists/Medium)
 - [Angular best practices](https://angular.dev/best-practices)
 - [Angular — Project structure](https://angular.dev/reference/configs/file-structure)
 - [Angular — Building dynamic forms (structure cues)](https://angular.dev/guide/forms)
 - Cross-stack: `../code-guidelines/principles/structure-and-quality.md`
+- Upgrade sources catalog: `skills/framework-upgrade/references/sources-catalog.md`

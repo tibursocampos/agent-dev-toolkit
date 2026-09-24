@@ -9,6 +9,10 @@
 | Fixture root | Diretório temp/repo usado pelos smokes no lugar do home do usuário |
 | Supported agents | Cursor, Antigravity, Claude, Codex, Copilot, OpenCode, Grok, ZCode, Hermes, OpenHands |
 | Agent Skills | Padrão aberto `dir/SKILL.md` com frontmatter `name`/`description` |
+| Skills catalog | Agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**41** ids; não inventar skills) |
+| `framework-upgrade` | Orquestrador genérico de upgrade (`audit\|plan\|migrate\|validate`) com packs plugáveis; id sem pin de major |
+| Release bootstrap | `scripts/bootstrap/*`: zip HTTPS → SHA256 (TE01) → extract → `sync-agent`; sem `gh`/Node/`.exe` |
+| Authorship git-notes | Opt-in (`-Enable`); ref `toolkit-authorship`; **não** substitui `TRACE.jsonl` (REQ-016…018) |
 
 ## Work tracks (process)
 
@@ -37,4 +41,5 @@ Markdown in git remains SoT. SQLite/FTS is **not** a deliverable (OOS / possible
 
 - Plano Cursor: unified agent toolkit (pesquisa docs oficiais Jul 2026)
 - Feature 005 P-DOC: tracks + contracts in public docs / docs-site / README
+- Feature 008 (remaining): CATALOG/docs **41**; `framework-upgrade` skill + packs; `docs/INSTALL.md` § 0 bootstrap; `docs/guides/09-authorship-git-notes.md` + `Invoke-AuthorshipGitNotes.ps1`
 - Twins vivos (não modificar): `../cursor-dev-toolkit`, `../antigravity-dev-toolkit`

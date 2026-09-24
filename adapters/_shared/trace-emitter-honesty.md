@@ -7,6 +7,19 @@ emitters only — never invent a second trail (`.agent-trace/`, git-notes SoT).
 Shared helper: [`TraceEmitCommon.ps1`](TraceEmitCommon.ps1) (allowlist + fail-open + path policy).
 Adapter hook copies under `assets/hooks/TraceEmitCommon.ps1` must stay byte-identical to the shared file (`Assert-TraceEmitterFailOpen` enforces SHA256 parity).
 
+## Authorship git-notes ↔ TRACE (REQ-016…018 / WS15 / RN03)
+
+| Concern | Rule |
+|---------|------|
+| **TRACE SoT** | `features/NNN-slug/TRACE.jsonl` only (append-only living-loop trail) |
+| **Git-notes** | Optional **opt-in** authorship metadata (`refs/notes/toolkit-authorship`); **default off** |
+| **Substitution** | Notes **never** replace TRACE (TE06). Reject any flow that treats notes as SoT |
+| **Harvest / validate** | `Invoke-TraceHarvest.ps1` + `validate-trace.ps1` stay **TRACE-based** — they do not read notes |
+| **Emitters** | Fail-open TRACE append unchanged; notes helper is orthogonal and does not mute emitters |
+
+Opt-in helper + short guide: `scripts/trace/Invoke-AuthorshipGitNotes.ps1`, `docs/guides/09-authorship-git-notes.md`.
+Without `-Enable`, the helper writes **no** notes (CT5).
+
 ## Matrix
 
 | Host | Hook surface for TRACE | Wired emitter | Notes |
