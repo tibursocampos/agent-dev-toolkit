@@ -78,7 +78,8 @@ Do not mix decorator `@Input()` with `input()` on the same new public API surfac
 
 ## References
 
-- [Angular — Signals](https://angular.dev/guide/signals)
+- [Angular — Signals](https://angular.dev/guide/signals) (normative — RN08)
 - [Angular — Signal inputs](https://angular.dev/guide/components/inputs)
 - [Angular — RxJS interop](https://angular.dev/guide/signals/rxjs-interop)
 - [Angular best practices](https://angular.dev/best-practices)
+- Upgrade sources catalog: `skills/framework-upgrade/references/sources-catalog.md`
