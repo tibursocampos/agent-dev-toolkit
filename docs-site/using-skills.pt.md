@@ -245,7 +245,7 @@ PRs de feature: `feature/*` (ou `feat/*`) atual → `develop`. Modo release: `de
 
 ## Catálogo de skills (resumo)
 
-Pastas canônicas em `core/skills/` (**40 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+Pastas canônicas em `core/skills/` (**41 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
 
 | Grupo | Skills |
 |-------|--------|
@@ -255,7 +255,7 @@ Pastas canônicas em `core/skills/` (**40 skills** + `_shared`). SoT do agente: 
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
-| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `framework-upgrade`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ### Expectativas do operador (visão geral)
 
@@ -266,6 +266,7 @@ Pastas canônicas em `core/skills/` (**40 skills** + `_shared`). SoT do agente: 
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain`; O2 clarify **READY** (sem B/I abertos) antes do Write |
 | `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso); B/I abertos → `NEEDS_CLARIFICATION` |
 | `api-standards` vs `api-integrate` | Design/padrões → `api-standards`; OpenAPI → clientes → `api-integrate` |
+| `framework-upgrade` | Orquestrador genérico de upgrades de framework (`audit`\|`plan`\|`migrate`\|`validate`); packs plugáveis — não um major pinado; migrate precisa de **`sim`** |
 | `sdd-develop` | Um passo do PLAN por sessão; MUST `-File` session gate + claim do ledger quando exigido |
 | `read-sdd-artifact` | Normalização opcional → `source_context` (só paths portáteis sob `features/`) |
 | `document-plan` / `document-implement` | Pergunta idioma da doc; Kind **new** ≈ um arquivo/passo; Kind **update** coalesces paths existentes |

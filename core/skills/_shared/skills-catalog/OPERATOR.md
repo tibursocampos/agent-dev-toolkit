@@ -101,6 +101,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 | `refactor` | Incremental safe plan + tests. |
 | `api-integrate` | OpenAPI → typed clients/DTOs. |
 | `api-standards` | Agnostic HTTP/API standards (REST, versioning, errors). No company contracts; hand off clients to `api-integrate`. |
+| `framework-upgrade` | Generic orchestrator (not a pinned pack). Modes: `audit` \| `plan` \| `migrate` \| `validate`; migrate needs **`sim`**. Packs under `packs/` resolve framework+version; point to `_shared/*-guidelines` + official sources (Learn / angular.dev / PEP 8). Skill id stays `framework-upgrade`; do **not** rename `angular-developer` / `dotnet-developer` / `python-developer`. |
 | `performance-profile` | Hot paths / micro-benchmarks. |
 | `containerize` | Multi-stage Docker + compose for local. |
 | `i18n-manager` | Extract strings to localization files. |

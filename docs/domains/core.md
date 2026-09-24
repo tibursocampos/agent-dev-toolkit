@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 40 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 41 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -201,7 +201,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **40**).
+Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **41**).
 
 | Concern | Behavior |
 |---------|----------|
@@ -299,7 +299,7 @@ Human mirror: [guides/02-using-skills.md](../guides/02-using-skills.md) · [SKIL
 
 Contract: [`TRACE-ARCHIVE-CONTRACT.md`](../../core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md) — REQ-005 / CA5.
 
-**SoT trail:** append-only JSON Lines at `features/NNN-slug/TRACE.jsonl`. Do **not** invent `.agent-trace/`, a second JSONL, OpenSpec / `.specs/` / `.specify/`, SQLite/FTS, or git-notes as TRACE SoT.
+**SoT trail:** append-only JSON Lines at `features/NNN-slug/TRACE.jsonl`. Do **not** invent `.agent-trace/`, a second JSONL, OpenSpec / `.specs/` / `.specify/`, SQLite/FTS, or git-notes as TRACE SoT. Optional authorship git-notes are **opt-in / default off** and stay parallel — see [09 - Authorship git-notes](../guides/09-authorship-git-notes.md) and [trace-emitter honesty](../../adapters/_shared/trace-emitter-honesty.md).
 
 | Phase | Event | Meaning |
 |-------|-------|---------|
@@ -313,7 +313,8 @@ Archive-complete order is strict: at least one of each living-loop event, non-de
 |--------|------|
 | `scripts/validation/validate-trace.ps1` | Default: missing TRACE → exit 0; present → JSON + required fields. `-RequireArchiveComplete` enforces the triad |
 | `scripts/validation/Assert-TraceArchiveContract.ps1` | Structural smoke for the contract |
-| `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped harvest summary (operator ops — [cli-scripts](cli-scripts.md)) |
+| `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped harvest summary (operator ops — [cli-scripts](cli-scripts.md)); TRACE-only — ignores git-notes |
+| `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship notes (default off); never TRACE SoT |
 
 Host emitters (fail-open append) are adapter-owned — honesty matrix in [adapters.md](adapters.md#trace-emitter-honesty) / [`trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Do **not** claim emitters the host does not wire.
 

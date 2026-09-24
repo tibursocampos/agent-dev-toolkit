@@ -27,7 +27,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 
 | Layer | Responsibility |
 |-------|----------------|
-| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **40** skills + `_shared` (agent SoT via `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
+| **Core** | Agent-neutral content; no hardcoded IDE home paths (use `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}`); shared `code-guidelines` + architecture selection (A/B/C, one-style load); **41** skills + `_shared` (agent SoT via `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | **Adapters** | Map core → agent layout; merge hooks/settings safely; keyed uninstall (all registered adapters); Publish honesty (inherit/depth/threads); TRACE emitters per adapter honesty matrix |
 | **CLI** | Select agent; sync / validate / list / uninstall |
 | **Validation** | Contract suite + fixture smokes; inventory / preflight / TRACE harvest scripts; CI never requires `%USERPROFILE%` |
@@ -37,7 +37,7 @@ Teams use different coding agents (Cursor, Claude Code, Codex, Copilot, and othe
 1. **Clone** the repo.
 2. **Option 1 — interactive:** `pwsh -NoProfile -File .\scripts\toolkit.ps1` (Sync wizard). **Option 2+ — scripting/CI:** `toolkit.ps1 -Action Sync -Agent <id>` or `sync-agent.ps1 -Agent <id>`. Live home needs `-AllowUserHome`. Codex defaults to **plugin-only**; add `-UserScope` only when you need the USER skills mirror (see [ADAPTERS.md](ADAPTERS.md) § Codex).
 3. **Validate** with `validate-core.ps1` and/or `Invoke-*CiSmoke.ps1` (e.g. `validate-agent.ps1 -Agent codex` against the fixture). Optional ops: memory-bank inventory, PRD/PLAN/CHANGE preflight, TRACE harvest.
-4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **40** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
+4. **Use skills** in the agent (e.g. `help-skills` → `CATALOG.md` + `OPERATOR.md` for the installed map of **41** skills; parallel specialists are the **router default** after sync — see [SPAWN.md](SPAWN.md); language surfaces: `core/skills/_shared/agents/LANGUAGE.md`; `sdd-spec` after sync; ops: `commit` → `push` → `open-github-pr`).
 
 See [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [SKILLS.md](SKILLS.md), [guides/02-using-skills.md](guides/02-using-skills.md).
 

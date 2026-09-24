@@ -245,7 +245,7 @@ Feature PRs: current `feature/*` (or `feat/*`) → `develop`. Release mode: `dev
 
 ## Skills catalog (summary)
 
-Canonical folders under `core/skills/` (**40 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — the architect path is spawned from `orchestrate-analyze`.
+Canonical folders under `core/skills/` (**41 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — the architect path is spawned from `orchestrate-analyze`.
 
 | Group | Skills |
 |-------|--------|
@@ -255,7 +255,7 @@ Canonical folders under `core/skills/` (**40 skills** + `_shared`). Agent SoT: s
 | **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
 | **Design / Blip** | `impeccable`, `blip-plugin-developer` |
 | **Docs RAG** | `document-plan`, `document-implement` |
-| **Operational** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` |
+| **Operational** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `framework-upgrade`, `performance-profile`, `containerize`, `i18n-manager` |
 
 ### Operator expectations (high level)
 
@@ -266,6 +266,7 @@ Canonical folders under `core/skills/` (**40 skills** + `_shared`). Agent SoT: s
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O2 clarify **READY** (no open B/I) before Write |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); open B/I → `NEEDS_CLARIFICATION` |
 | `api-standards` vs `api-integrate` | Design/standards → `api-standards`; OpenAPI → clients → `api-integrate` |
+| `framework-upgrade` | Generic orchestrator for framework upgrades (`audit`\|`plan`\|`migrate`\|`validate`); pluggable packs — not a pinned major; migrate needs **`sim`** |
 | `sdd-develop` | One PLAN step per session; MUST `-File` session gate + ledger claim when required |
 | `read-sdd-artifact` | Optional normalize → `source_context` (portable paths under `features/` only) |
 | `document-plan` / `document-implement` | Asks doc language; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths |

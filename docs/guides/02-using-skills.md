@@ -208,7 +208,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**40** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**41** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Caveman: [07-caveman-mode.md](07-caveman-mode.md)
 - Credits: [CREDITS.md](../CREDITS.md)

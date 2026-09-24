@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **40** kebab skills.
+Total: **41** kebab skills.
 
 ## Tracks
 
@@ -82,6 +82,7 @@ Total: **40** kebab skills.
 | `refactor` | `refactor` | Safe incremental refactoring |
 | `api-integrate` | `api-integrate` | Typed API clients from OpenAPI |
 | `api-standards` | `api-standards`, `api standards`, `REST conventions` | Agnostic HTTP/API design standards (no company contracts; packing only) |
+| `framework-upgrade` | `framework-upgrade` | Generic framework upgrade orchestrator (audit\|plan\|migrate\|validate; pluggable packs — not a pinned pack) |
 | `performance-profile` | `performance-profile` | Profiling and optimization |
 | `containerize` | `containerize` | Dockerfiles and compose |
 | `i18n-manager` | `i18n-manager` | Extract strings to localization files |

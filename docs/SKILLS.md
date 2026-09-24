@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**40 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**41 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**40** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**41** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -130,6 +130,7 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 | `refactor` | Safe incremental refactoring |
 | `api-integrate` | Typed API clients / DTOs from OpenAPI |
 | `api-standards` | Agnostic HTTP/API design standards (REST, versioning, errors, naming, security hygiene) — packing only; no company contracts |
+| `framework-upgrade` | Generic framework upgrade orchestrator (audit\|plan\|migrate\|validate; pluggable packs — not a pinned pack); packs cite `_shared/*-guidelines` + official sources |
 | `performance-profile` | Profiling and optimization |
 | `containerize` | Dockerfiles and compose |
 | `i18n-manager` | Extract strings to localization files |
