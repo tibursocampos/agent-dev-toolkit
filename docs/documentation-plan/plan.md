@@ -90,7 +90,7 @@ README.md                # repo landing
 **Status:** Completed | **Completed:** 2026-09-24 | **Deps:** 2 | **Est.:** 60–90 min | **Kind:** update
 
 **Deliverables:**
-- [x] ANALYSIS `features/006-toolkit-evolution-contracts/US01/ANALYSIS/NOTES_DOC_SYNC.md`
+- [x] Local ANALYSIS notes for doc drift (gitignored `features/` tree — not linked from published docs)
 - [x] `docs/domains/core.md` — Navigation, readiness B/I, session gate, portable/gitignore, Kind, C# 6/160
 - [x] `docs/domains/validation-ci.md` + `VALIDATION.md` + `cli-scripts.md` — WS1/3/7/10 asserts + allowlist MUST `-File`
 - [x] `docs/domains/git-ops.md` + `SKILLS.md` + guides — living-artifacts + recommended loop + Kind
