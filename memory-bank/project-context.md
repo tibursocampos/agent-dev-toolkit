@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|--------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-07-31T23:38:19Z (refresh) |
-| **Primary stack signals** | PowerShell, Markdown Agent Skills |
+| **Inventory at** | 2026-09-24T20:52:26Z (refresh) |
+| **Primary stack signals** | PowerShell, Markdown Agent Skills (41 kebab) |
 
 ## Purpose
 
@@ -14,13 +14,14 @@ Toolkit unificado: um **core** portável de skills/rules/router (catálogo; trac
 
 ## Actors / users
 
-- Operador que roda `scripts/toolkit.ps1` para sync/validate/uninstall por agent
-- Agentes de coding que consomem skills/rules/hooks após o publish
+- Operador que roda `scripts/toolkit.ps1` (clone / Smart Manager) ou `scripts/bootstrap/*` (Release HTTPS + SHA256 → sync)
+- Operador opt-in de authorship git-notes via `Invoke-AuthorshipGitNotes.ps1` (default off)
+- Agentes de coding que consomem skills/rules/hooks após o publish (`help-skills` → CATALOG **41**)
 
 ## Boundaries
 
-- In scope: core kebab + registry adapters + smoke **in-repo** (fixtures, sem exigir install no perfil do usuário para CI)
-- Out of scope: produtos que não estão em `adapters/registry.json`
+- In scope: core kebab + registry adapters + smoke **in-repo** (fixtures, sem exigir install no perfil do usuário para CI); Release bootstrap entrypoints; opt-in authorship notes parallel to TRACE
+- Out of scope: produtos que não estão em `adapters/registry.json`; git-notes como SoT de TRACE; skill ids com major pin (`dotnet10-upgrade`, etc.)
 
 ## Links
 

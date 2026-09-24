@@ -15,3 +15,7 @@
 | Uninstall `Remove-Item` following junction outside InstallRoot | `Assert-PathUnderInstallRootForDelete` immediately before each delete |
 | Docs linking story `features/**` paths | Public docs use `docs/SPAWN.md` / `core/skills/_shared/agents/SPAWN.md` only; Assert-NoFeaturesDocLinks |
 | Scope creep: second CLI / OpenSpec / SQLite as SoT | Feature 005 OOS; P-DOC states same skill flow + markdown SoT; no `openspec/` / `.specs/` / `.specify/` |
+| Bootstrap treating unverified zip / mismatch as success | TE01: SHA256 must match before extract; mismatch exits non-zero with no extract/sync handoff |
+| Bootstrap asset names hard-coded as permanent SoT | Pass `-ZipAssetName` / env; confirm vs CI — INSTALL notes publication ownership |
+| Authorship git-notes mistaken for TRACE SoT | Default off; `-Enable` only; harvest/validate-trace read TRACE only; honesty matrix + guide 09 |
+| Inventing skill ids / major-pinned upgrade skills | CATALOG Total **41**; `framework-upgrade` id stable; version is pack parameter |

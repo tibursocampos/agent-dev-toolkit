@@ -3,10 +3,10 @@
 ## Target shape
 
 ```text
-core/          # skills (kebab, 37 + _shared), policy, router, sdd contracts
+core/          # skills (kebab, 41 + _shared), policy, router, sdd contracts
 adapters/      # registry.json + _contract + per-agent thin *Adapter.ps1 + Publish-* siblings
-scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
-docs/          # public docs (incl. SPAWN.md, ADAPTERS, VALIDATION)
+scripts/       # toolkit.ps1, sync-agent, validate-agent, bootstrap/, trace/, _lib, validation
+docs/          # public docs (incl. SPAWN.md, INSTALL, ADAPTERS, VALIDATION, guides/09-authorship)
 memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
 .github/workflows/  # validate-toolkit.yml (+ enforce-release-source.yml)
 ```
@@ -23,11 +23,18 @@ memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
 
 ## Entry points
 
-- `scripts/toolkit.ps1` — interactive menu + `-Agent`
+- `scripts/toolkit.ps1` — interactive menu + `-Agent` (Smart Manager; recommended clone path)
+- `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) — Release path: HTTPS zip → SHA256 → extract → `sync-agent` (INSTALL § 0)
 - `scripts/sync-agent.ps1` — orchestrates adapter publish
 - `scripts/validate-agent.ps1` — core contracts + adapter `Invoke-SmokeValidate`
 - `scripts/validation/validate-core.ps1` — in-repo suite (no live home)
+- `scripts/trace/Invoke-AuthorshipGitNotes.ps1` — opt-in authorship notes (default off; not TRACE SoT)
 - `.github/workflows/validate-toolkit.yml` — full CI matrix
+
+## Notable skills (evidence)
+
+- Catalog SoT: `core/skills/_shared/skills-catalog/CATALOG.md` (**41** kebab skills via `help-skills`)
+- `framework-upgrade` — generic upgrade orchestrator (`audit|plan|migrate|validate`); pluggable packs under `packs/`; skill id must not pin major version
 
 ## Uninstall honesty
 
@@ -47,10 +54,11 @@ Registry: each adapter declares `subagents: native` or `none` (OpenHands is `non
 `HooksSemantics=plugin-only` (JS plugins under `plugins/`). CI smoke is filesystem sync+validate only — not product runtime.
 
 <!-- BEGIN GENERATED: inventory-summary -->
-- Inventory at: 2026-09-24T14:11:27Z (refresh-light)
-- Stack: PowerShell + Markdown; 40 kebab skills; 82 Assert-*.ps1 scripts; 115 indexed sources
-- Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + per-agent modules (10 adapters), `docs/SPAWN.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
+- Inventory at: 2026-09-24T20:52:26Z (refresh)
+- Stack: PowerShell + Markdown; 41 kebab skills; 82 Assert-*.ps1 scripts; 116 indexed sources; status=ready
+- Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + per-agent modules (10 adapters), `docs/SPAWN.md`, `docs/INSTALL.md`, `docs/guides/09-authorship-git-notes.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
 - Adapter layout: thin `*Adapter.ps1` + `Publish-*` / `Uninstall-*` for Claude, Cursor, Grok (Codex/Copilot/OpenCode/ZCode/Antigravity already modular or thin); OpenHands `subagents: none`
+- Agent-verified outside curated index: `scripts/bootstrap/*`, `core/skills/framework-upgrade/`, `scripts/trace/Invoke-AuthorshipGitNotes.ps1` (see gaps.md)
 - Local SDD `features/` may be gitignored or versioned (`features_versioned` in manifest) — not public doc source; use `docs/` + `core/skills/_shared/agents/`
 <!-- END GENERATED: inventory-summary -->
 
