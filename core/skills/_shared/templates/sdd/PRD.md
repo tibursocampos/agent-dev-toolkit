@@ -23,6 +23,17 @@
 | **Handoff** | Scoped paths + receipt per `SPAWN.md` — no full PRD dump into child prompts |
 | **Artifact language** | Same as user chat (`LANGUAGE.md`); override via `preferences.json` `artifact_language` or manifest |
 
+## Related
+
+| Relação | Path portátil |
+|---------|---------------|
+| PLAN | `features/NNN-slug/USnn/PLAN/PLAN_NNN_….md` (omit row if PLAN absent) |
+| STORY | `features/NNN-slug/USnn/STORY.md` (omit if absent) |
+| FEATURE | `features/NNN-slug/FEATURE.md` (omit if absent) |
+| CONTINUITY | `features/NNN-slug/CONTINUITY.md` (omit if absent) |
+
+Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Paths portable only. Omit-if-absent — do not stub siblings only for links.
+
 ## 1. Visão geral
 
 ### 1.1 Contexto

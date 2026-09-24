@@ -24,6 +24,19 @@
 [⚪⚪⚪⚪⚪⚪⚪⚪] 0% (0/N)
 ```
 
+## Related
+
+| Relação | Path portátil |
+|---------|---------------|
+| PRD | `features/NNN-slug/USnn/PRD/NNN_….md` |
+| STORY | `features/NNN-slug/USnn/STORY.md` (omit if absent) |
+| FEATURE | `features/NNN-slug/FEATURE.md` (omit if absent) |
+| CONTINUITY | `features/NNN-slug/CONTINUITY.md` (omit if absent) |
+| ANALYSIS index | `features/NNN-slug/USnn/ANALYSIS/…` (omit if absent) |
+| ARCH | `features/NNN-slug/USnn/ARCH/…` (omit if absent) |
+
+Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Keep in sync with header **PRD** path. Omit-if-absent — do not stub siblings only for links.
+
 ## Objetivos
 
 - [ ] O1: [Resultado mensurável ligado a REQ/CA do PRD]

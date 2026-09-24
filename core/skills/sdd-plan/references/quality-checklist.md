@@ -3,6 +3,7 @@
 - [ ] User confirmed **sim** on canonical PLAN path (`PIPELINE.md` § Confirm before write)
 - [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
 - [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
+- [ ] `## Related` present; PRD↔PLAN mutual cite when both exist; omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
 - [ ] Every PRD REQ and acceptance criterion appears in some step
 - [ ] Vague Aceite challenged and rewritten (observable checks only)
 - [ ] No file-named / task-shaped step titles (file/class/script only) — `story-sizing.md` / `anti-task-shatter.md`

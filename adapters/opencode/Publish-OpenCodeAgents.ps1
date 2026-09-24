@@ -4,6 +4,16 @@
   Helpers for OpenCode Publish-Agents (copy core/agents -> InstallRoot/agents).
 #>
 
+$script:OpenCodeAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:OpenCodeAgentsModuleDirectory)) {
+    $script:OpenCodeAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_opencodeSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:OpenCodeAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_opencodeSpawnKnobsPath
+Remove-Variable -Name _opencodeSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-OpenCodePublishAgents {
     [CmdletBinding()]
     param(
@@ -75,6 +85,8 @@ function Invoke-OpenCodePublishAgents {
             $script:OpenCodePathConstant.PlaceholderGuardrailsPath
         ) `
         -UnresolvedMessageFormat $script:OpenCodePublishMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'opencode-agents'
 
     return [PSCustomObject]@{
         Success          = $true

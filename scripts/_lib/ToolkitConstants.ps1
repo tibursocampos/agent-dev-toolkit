@@ -324,6 +324,29 @@ $script:ToolkitConstant = @{
     InvokePlanLedgerClaimScriptRelativePath      = 'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
     AssertPlanLedgerContractScriptName           = 'Assert-PlanLedgerContract.ps1'
     PlanLedgerContractCheckName                  = 'plan-ledger-contract'
+    InvokeDevelopSessionGateScriptRelativePath   = 'scripts/session/Invoke-DevelopSessionGate.ps1'
+    ValidateSessionGatesScriptRelativePath       = 'scripts/validation/validate-session-gates.ps1'
+    AssertDevelopSessionGateScriptName           = 'Assert-DevelopSessionGate.ps1'
+    DevelopSessionGateCheckName                  = 'develop-session-gate'
+    DevelopSessionGateSessionContractRelativePath = 'core/skills/_shared/sdd-artifacts/SESSION.md'
+    DevelopSessionGateSessionMirrorRelativePath  = 'core/sdd/SESSION.md'
+    DevelopSessionGateAllowlistCursorReadmeRelativePath = 'adapters/cursor/README.md'
+    DevelopSessionGateAllowlistCliScriptsRelativePath   = 'docs/domains/cli-scripts.md'
+    DevelopSessionGateExitOk                     = 0
+    DevelopSessionGateExitUsage                  = 1
+    DevelopSessionGateExitBlocked                = 2
+    DevelopSessionGateNameStepConfirmed          = 'step_confirmed'
+    DevelopSessionGatePhaseDevelop               = 'develop'
+    DevelopSessionGateSkipAlreadyTrue            = 'step_confirmed_already_true'
+    DevelopSessionGateStepRequiredWhenParallelExists = 'Step is required: plan-{hash}-step-*.json already exists for this PLAN (SESSION.md parallel scoping).'
+    DevelopSessionGateUnknownAction              = 'Unknown develop session gate action.'
+    SessionGateValidateExitOk                    = 0
+    SessionGateValidateExitBlocked               = 1
+    SessionGateValidateExitUsage                 = 2
+    SessionGateValidateOkFormat                  = 'session-gate OK: {0}=true'
+    SessionGateValidateBlockedFormat             = 'session-gate BLOCKED: {0} ({1})'
+    SessionGateValidatePlanPathRequired          = 'PlanPath is required for develop gates (step_confirmed / tests_run).'
+    SessionGateValidateUnknownGateFormat         = 'Unknown RequiredGate: {0}'
     TraceEmitCommonRelativePath                  = 'adapters/_shared/TraceEmitCommon.ps1'
     TraceEmitCommonAssetRelativePaths            = @(
         'adapters/cursor/assets/hooks/TraceEmitCommon.ps1'
@@ -363,6 +386,52 @@ $script:ToolkitConstant = @{
     SpawnPublishCoreAgentsRelativeDir            = 'core/agents'
     AssertPublishSpawnKnobsScriptName            = 'Assert-PublishSpawnKnobs.ps1'
     PublishSpawnKnobsCheckName                   = 'publish-spawn-knobs'
+    AssertInvocationAxesScriptName               = 'Assert-InvocationAxes.ps1'
+    InvocationAxesCheckName                      = 'invocation-axes'
+    InvokeSiblingReadinessGateScriptRelativePath = 'scripts/validation/Invoke-SiblingReadinessGate.ps1'
+    AssertSiblingReadinessGateScriptName         = 'Assert-SiblingReadinessGate.ps1'
+    SiblingReadinessGateCheckName                = 'sibling-readiness-gate'
+    AssertNavigationBlockScriptName              = 'Assert-NavigationBlock.ps1'
+    NavigationBlockCheckName                     = 'navigation-block'
+    NavigationBlockFixtureValidRelativeDir       = 'navigation/valid'
+    NavigationBlockFixtureNoMutualRelativeDir    = 'navigation/no-mutual'
+    NavigationBlockRelatedHeading                = '## Related'
+    NavigationBlockRelatedSectionPattern         = '(?ms)^## Related\s*\r?\n(?<body>.*?)(?=^## |\z)'
+    NavigationBlockPrdDirSegment                 = 'PRD'
+    NavigationBlockPlanDirSegment                = 'PLAN'
+    NavigationBlockPlanFilePrefix                = 'PLAN_'
+    NavigationBlockExitOk                        = 0
+    NavigationBlockExitFail                      = 1
+    NavigationBlockExitUsage                     = 2
+    NavigationBlockContractRelativePaths         = @(
+        'core/skills/_shared/sdd-artifacts/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/PIPELINE.md'
+    )
+    NavigationBlockTemplateRelativePaths         = @(
+        'core/skills/_shared/templates/sdd/PRD.md',
+        'core/skills/_shared/templates/sdd/PLAN.md',
+        'core/skills/_shared/templates/features/CONTINUITY.md',
+        'core/skills/_shared/templates/features/story/STORY.md',
+        'core/skills/_shared/templates/features/FEATURE.md'
+    )
+    NavigationBlockForbiddenRefinementRelativePath = 'core/skills/_shared/sdd-artifacts/feature-refinement.md'
+    SiblingReadinessContractRelativePath         = 'core/skills/_shared/sdd-artifacts/readiness-severity.md'
+    SiblingReadinessFixtureReadyRelativeDir      = 'readiness/ready'
+    SiblingReadinessFixtureOpenBiRelativeDir     = 'readiness/open-bi'
+    SiblingReadinessExitReady                    = 0
+    SiblingReadinessExitUsage                    = 1
+    SiblingReadinessExitNeeds                    = 2
+    SiblingReadinessStatusReady                  = 'READY'
+    SiblingReadinessStatusNeeds                  = 'NEEDS_CLARIFICATION'
+    SiblingReadinessStatusLinePattern            = '(?im)^\s*Status:\s*(?<status>READY|NEEDS_CLARIFICATION)\s*$'
+    SiblingReadinessListSeverityPattern          = '(?im)^\s*[-*]\s*\[(?<sev>B|I|MINOR)\]\s+(?<q>.+?)\s*$'
+    SiblingReadinessTableRowPattern              = '^\|'
+    SiblingReadinessTableSeparatorPattern        = '^\|\s*:?-{3,}'
+    SiblingReadinessTableHeaderSkipPattern       = '(?i)\|\s*(Question|Pergunta|Severity)\s*\|'
+    SiblingReadinessBlockingCanonicalSeverities  = @('B', 'I')
+    SiblingReadinessBlockingLegacySeverities     = @('blocker', 'high')
+    SiblingReadinessMinorCanonicalSeverities     = @('MINOR')
+    SiblingReadinessMinorLegacySeverities        = @('medium', 'low')
     PlanLedgerClaimSchemaId                      = 'plan-ledger-claim/v1'
     PlanLedgerStatusClaimed                      = 'claimed'
     PlanLedgerStatusReleased                     = 'released'

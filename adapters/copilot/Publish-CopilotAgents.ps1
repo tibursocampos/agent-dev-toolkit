@@ -8,6 +8,16 @@
   Mode user: documented no-op (no Copilot user-home agents directory).
 #>
 
+$script:CopilotAgentsModuleDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($script:CopilotAgentsModuleDirectory)) {
+    $script:CopilotAgentsModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$_copilotSpawnKnobsPath = Join-Path (
+    Split-Path -Parent (Split-Path -Parent $script:CopilotAgentsModuleDirectory)
+) 'adapters\_shared\SpawnPublishKnobs.ps1'
+. $_copilotSpawnKnobsPath
+Remove-Variable -Name _copilotSpawnKnobsPath -ErrorAction SilentlyContinue
+
 function Invoke-CopilotPublishAgents {
     [CmdletBinding()]
     param(
@@ -88,6 +98,8 @@ function Invoke-CopilotPublishAgents {
             $script:CopilotPathConstant.PlaceholderGuardrailsPath
         ) `
         -UnresolvedMessageFormat $script:CopilotPublishMessage.PlaceholderUnresolved
+
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
 
     return [PSCustomObject]@{
         Success          = $true

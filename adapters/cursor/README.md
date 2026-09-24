@@ -87,6 +87,23 @@ When this toolkit is installed **per agent** via sync (separate Cursor and Claud
 3. **Publish model:** The toolkit already publishes separately to `~/.cursor` and `~/.claude` (and other InstallRoots). Rely on those syncs â€” not on Cursor importing third-party agent homes.
 4. **Storage mode** (repository vs global / live home) remains a **user choice**. This note does not require forcing repository-scoped install.
 
+## Shell allowlist (WS10 / REQ-013)
+
+Operator tip for O3 / `sdd-develop` Shell friction. Prefer **allowlisting** the two canonical `-File` scripts (cwd = repo root) so one approve covers the session gate + ledger claim chain. Sessions root defaults to `~/.cursor/sdd/sessions` (or `$SDD_ROOT/sessions`).
+
+| Script (portable) | Role |
+|-------------------|------|
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` |
+| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Atomic PLAN-LEDGER claim SoT |
+
+**Opt-in only (RNF-004):**
+
+- Operator must explicitly allowlist these paths in the host Shell approve UI.
+- **Do not** ship or enable a hooks “auto-approve all Shell” / silent policy mutation.
+- Path/secrets `preToolUse` + `beforeShellExecution` guards (`guard-rules.md` / `GuardCommon.ps1`) stay **unchanged** — allowlisting these scripts does **not** weaken workspace binding, path deny, or secret scan.
+
+O3 skill pointer: `core/skills/orchestrate-develop/references/step-queue-spawn.md` § Canonical Shell boundary. CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md).
+
 ## Official docs (Cursor)
 
 - [Rules + AGENTS.md](https://cursor.com/docs/rules)

@@ -156,7 +156,7 @@ Enforce the full list in `references/must-not.md`. Critical always-on: no parent
 | Situation | Next |
 |-----------|------|
 | Next PLAN step | New chat -> `orchestrate-develop` **or** `sdd-develop - <plan> - Step N` |
-| Story/feature done | `/code-review` (pass `- single` / `- multi-angle`, or let skill ask) |
+| Story/feature done | Ask **code-review** vs **commit** (`references/continuity-handoff.md`); Step N bank ask when app changed; docs **sim/pular** before commit when present |
 | Missing PLAN | `orchestrate-deliver` / `sdd-plan` |
 | Prefer no orchestrator | Manual `sdd-develop` only |
 

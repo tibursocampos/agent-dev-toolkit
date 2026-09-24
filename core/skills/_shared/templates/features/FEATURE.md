@@ -78,9 +78,15 @@ Few sharp questions only (`clarify-depth.md`). Omit section when none.
 | needs_security | false |
 | needs_devops | false |
 
-## Links
+## Related
 
-- CONTINUITY: `./CONTINUITY.md`
-- CHANGE (brownfield vs current): `./CHANGE.md` — required when **Nature** = `brownfield`; greenfield must not force an empty stub (`CHANGE-CONTRACT.md`)
-- Stories: `./US01/STORY.md` (ajustar ids)
-- Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`
+| Relação | Path portátil |
+|---------|---------------|
+| CONTINUITY | `features/{{NNN}}-{{slug}}/CONTINUITY.md` (omit if absent) |
+| CHANGE | `features/{{NNN}}-{{slug}}/CHANGE.md` — required when **Nature** = `brownfield`; greenfield must not force an empty stub (`CHANGE-CONTRACT.md`) |
+| STORY | `features/{{NNN}}-{{slug}}/US01/STORY.md` (ajustar ids; omit if absent) |
+| PRD / PLAN | story `PRD/` / `PLAN/` when on-disk (omit if absent) |
+
+Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portable paths only. Omit-if-absent — do not stub siblings only for links.
+
+Norms: `skills/_shared/backlog-item-types/feature-altitude.md`, `product-evidence-lite.md`.

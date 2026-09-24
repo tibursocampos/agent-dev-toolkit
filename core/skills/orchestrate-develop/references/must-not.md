@@ -5,11 +5,14 @@
 - Parent writes application/production code or tests
 - Merge N PLAN steps into one Task / one session context
 - Bypass or weaken `sdd-develop` one-step-per-session contract
+- Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
+- Skip `Invoke-PlanLedgerClaim.ps1` when claim is required/absent because session gate already true (CT6)
 - Auto-commit / auto-push
 - Create external work-item tracker or org-only compliance content
 - Force multi-angle code-review
 - Introduce git worktrees for multi-US parallelism (MVP)
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
+- Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
 - Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
 - Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)

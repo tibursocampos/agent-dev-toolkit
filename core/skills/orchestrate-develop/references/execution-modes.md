@@ -49,9 +49,13 @@ Cite `PLAN-LEDGER-CONTRACT` — do **not** invent a second claim SoT.
 
 | Mode | Rule |
 |------|------|
-| `serial` / `parallel` | Parent (or child before implement) **must** obtain an atomic claim for the step via `scripts/ledger/Invoke-PlanLedgerClaim.ps1` |
+| `serial` / `parallel` | Parent (or child before implement) **MUST** obtain an atomic claim for the step via `scripts/ledger/Invoke-PlanLedgerClaim.ps1` (`-File`) |
+| Session gate | **MUST** set develop `step_confirmed` via `scripts/session/Invoke-DevelopSessionGate.ps1` (`-File`) after operator **sim** — **MUST NOT** inline-mutate session JSON |
+| One Shell / step | Prefer one Shell approve that chains both `-File` calls when the host allows (`step-queue-spawn.md` § Canonical Shell boundary) |
+| Allowlist (REQ-013) | Opt-in host allowlist of the two `-File` scripts only — **no** silent Shell auto-approve; path/secrets guards unchanged (`adapters/cursor/README.md` § Shell allowlist) |
+| CT6 | Idempotent session skip (`step_confirmed` already true) **MUST NOT** waive a missing claim — still run `Invoke-PlanLedgerClaim` |
 | Double-claim | Ledger reject is audible (`step_already_claimed`) — mode layer does not overwrite |
-| `manual` | Claim optional; if used, same ledger contract applies |
+| `manual` | Claim optional; if used, same ledger contract + session helper rules apply |
 
 ## Parallelism rules
 
@@ -74,7 +78,7 @@ Modes **must not** pin child Task `model` to a slug different from the parent se
 1. Resolve declared mode (or default `serial`).
 2. Classify intended action: `serial-spawn` | `parallel-spawn` | `manual-handoff`.
 3. If invalid pairing → **do not spawn**. Append one audit line; exit non-zero with human-readable reason.
-4. If valid Task spawn → require ledger claim success for each step before/at spawn boundary.
+4. If valid Task spawn → require session helper (`Invoke-DevelopSessionGate.ps1`) + ledger claim success for each step before/at spawn boundary (CT6: gate already true does not skip claim).
 5. Never “best-effort ignore” a mode mismatch.
 
 ### Audit line (JSONL)

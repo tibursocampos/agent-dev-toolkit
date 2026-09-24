@@ -54,18 +54,27 @@ Under **Execution order** or equivalent:
 **Next step:** STEP 2 - [short title from PLAN]
 ```
 
-### 5. Objectives (optional)
+### 5. Navigation `## Related` (REQ-009)
+
+When editing the PLAN (and PRD only if this step touches it):
+
+- Preserve section title `## Related` (never `## See also`).
+- If both PRD and PLAN exist on disk: keep/refresh **mutual** portable-path cites under Related.
+- Cite STORY / FEATURE / CONTINUITY / ARCH… only when on-disk (**omit-if-absent** — never stub).
+- Normative shape: `STORAGE.md` § Navigation block.
+
+### 6. Objectives (optional)
 
 If an objective (O1, O2, …) is fully satisfied by this step alone, mark its checkbox `[x]`.
 
-### 6. When not to mark Completed
+### 7. When not to mark Completed
 
 - Build or targeted tests still failing
 - User chose not to commit and step acceptance requires pushed commit (rare - note in PLAN)
 - Dependency steps incomplete
 - Session ended at context ≥ 40% **before** PLAN write - still write PLAN with **In progress** or leave Pending and note partial work in notes
 
-### 7. Recovery
+### 8. Recovery
 
 If a session crashed mid-step: set **Status:** `In progress`, list files touched in notes, resume in a new chat with the same step number.
 

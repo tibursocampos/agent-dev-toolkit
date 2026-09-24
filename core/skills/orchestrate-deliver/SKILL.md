@@ -64,6 +64,8 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Spec contract | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` as needed) |
 | Plan contract | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` as needed) |
 | CHANGE brownfield / current | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
+| Clarification READY / B/I / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
+| Clarify depth (open-question severity) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |
 | Preflight PRD→PLAN→CHANGE (`REQ-004` / CA4) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/preflight-prd-plan-change.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
@@ -87,6 +89,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Write PRD (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` |
 | Write PLAN (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` |
 | Preconditions / Step 0 / siblings STOP | `references/preconditions.md` |
+| Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` |
 | Mode série vs paralelo | `references/mode-selection.md` |
 | Per-story contracts / Task child skeleton | `references/per-story-contracts.md` |
 | Approval gates / answers | `references/approval-gates.md` |
@@ -115,13 +118,13 @@ Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEAT
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Update CONTINUITY Memory-bank fields; pass `bank_path` into parallel draft Tasks read-only. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Preconditions (approved backlog)
-Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing. Read `references/preconditions.md`.
+Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; **STOP** Write if open clarification **B**/**I** (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
 Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
-Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-only children + parent Write after **sim**). Per-story STOP if required siblings missing. Read `references/per-story-contracts.md`.
+Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-only children + parent Write after **sim**). Per-story STOP if required siblings missing or open **B**/**I**. Read `references/per-story-contracts.md`.
 
 ### 7. Approval - per story or batch (RN01)
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
@@ -134,7 +137,7 @@ Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `referen
 
 ## Must not
 
-Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN with open clarification **B**/**I** (`NEEDS_CLARIFICATION`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 
@@ -144,6 +147,7 @@ Enforce the full list in `references/boundaries-must-not.md`. Critical always-on
 | Context pause mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
+| `NEEDS_CLARIFICATION` (open B/I) | `/refine-story` and/or `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN; `readiness-severity.md`) |
 | Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD) |
 
 ### Canonical develop handoffs

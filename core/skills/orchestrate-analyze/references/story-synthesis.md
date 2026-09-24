@@ -82,6 +82,7 @@ Update `CONTINUITY.md` when:
 2. Propose `NNN-slug` (kebab-case) and **portable path** (`STORAGE.md` § Portable path; confirm chat may show OS absolute).
 3. Confirm before first Write (pt-BR): **“Posso gravar a árvore em `{path}`? (sim / ajustar / cancelar)”** - silence ≠ approval.
 4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0), story folders `USnn`/`TSnn` as needed. Under the story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true — **required on disk**, not on demand. `REFINE/` remains **optional / on demand**. Do **not** create `PRD/` / `PLAN/` yet (O2). Do **not** create `memory-bank/` under the feature path.
+5. **Navigation `## Related` (REQ-009):** On each FEATURE / CONTINUITY / STORY Write, emit/refresh `## Related` per `STORAGE.md` § Navigation block — bidirectional among siblings **that exist** (FEATURE ↔ CONTINUITY ↔ STORY ↔ ANALYSIS|ARCH|SEC when on-disk). **Omit-if-absent** — never stub PRD/PLAN or empty siblings solely for links. Title exactly `## Related`; portable paths only.
 
 See also § Feature tree layout.
 
@@ -202,11 +203,11 @@ Template: `skills/_shared/templates/features/story/STORY.md`. Use `generate-stor
 2. Apply **Story sizing merge policy** (§ above) before writing final FEATURE story index.
 3. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
 
-**FEATURE.md** — Problem, Goals, Non-goals, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`).
+**FEATURE.md** — Problem, Goals, Non-goals, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
 
-**CONTINUITY.md** — phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`).
+**CONTINUITY.md** — phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
 
-**STORY.md** per **promoted** US/TS only — deep template structure; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful.
+**STORY.md** per **promoted** US/TS only — deep template structure; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
 4. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
 5. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).

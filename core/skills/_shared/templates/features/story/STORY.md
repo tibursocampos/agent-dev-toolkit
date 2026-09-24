@@ -8,6 +8,18 @@
 | **Path** | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (repository) or `sdd/<repo-id>/features/{{NNN}}-{{slug}}/{{STORY_ID}}/` (global) |
 | **Status** | draft \| approved \| in-progress \| done |
 
+## Related
+
+| Relação | Path portátil |
+|---------|---------------|
+| FEATURE | `features/{{NNN}}-{{slug}}/FEATURE.md` |
+| CONTINUITY | `features/{{NNN}}-{{slug}}/CONTINUITY.md` (omit if absent) |
+| PRD | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PRD/…` (omit if absent) |
+| PLAN | `features/{{NNN}}-{{slug}}/{{STORY_ID}}/PLAN/…` (omit if absent) |
+| ANALYSIS / ARCH / SEC | `./ANALYSIS/`, `./ARCH/`, `./SEC/` when on-disk (omit if absent) |
+
+Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portable paths only. Omit-if-absent — do not stub siblings only for links.
+
 ## Objective
 
 {{OBJECTIVE}}

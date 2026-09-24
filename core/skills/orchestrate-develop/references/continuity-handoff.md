@@ -14,7 +14,8 @@ Update when:
 | **Last agent** | `orchestrate-develop` |
 | **Memory-bank** | Path + status from Step 0 |
 | **Estado atual** | ≤10 lines |
-| **Handoff tipado** | Portable path `/…` (`STORAGE.md` § Portable path) |
+| **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
+| **Related** | Keep/refresh `## Related` with portable paths to on-disk siblings only — **omit-if-absent**. CONTINUITY carries **handoff paths**, not a second navigation SoT (REQ-009 / `STORAGE.md` § Navigation block) |
 | **What not to write** | Full code diffs, guideline dumps, memory-bank body |
 
 ---
@@ -44,11 +45,11 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 ## Handoff copy (pt-BR / strings)
 
 ```text
-## Handoff O3 -> review
+## Handoff O3 -> review ou commit
 
-/code-review
-/code-review - single
-/code-review - multi-angle
+US/feature concluído. Próximo?
+1) /code-review (single ou multi-ângulo)
+2) /commit
 
 ## Continuar develop manual (alternativa a O3)
 /sdd-develop - <portable-plan-path> - Step {N}
@@ -57,7 +58,17 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 /orchestrate-develop - <portable-feature-path>
 ```
 
-Handoff `/code-review` (user may pass `- single` / `- multi-angle`; if omitted, skill asks). Never required; does not auto-block pipeline.
+Ask **code-review vs commit**; never assume. Never required as pipeline gate.
+
+### Before `/commit` from O3
+
+Step N already asked memory-bank **refresh-light** when app code changed. Still ask project docs when present (**sim** / **pular**), then `/commit`:
+
+```text
+Posso atualizar a documentação do projeto? (sim / pular)
+```
+
+On **sim**: pending `docs/documentation-plan/plan.md` → `/document-implement`; else → `/document-plan` as needed. On **pular**: continue to `/commit`. If Step N was skipped (no app changes) but `memory-bank/` exists, also ask bank **sim/pular** before commit (same wording as Step N).
 
 ---
 
@@ -90,7 +101,7 @@ On each meaningful milestone (before/after child, pause, story done):
 | **Estado atual** | Short per CONTINUITY template: active PLAN, last step done, next step |
 | **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
 
-Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it.
+Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it. Do **not** invent a parallel navigation index — Related is path edges only (`STORAGE.md` § Navigation block / REQ-009).
 
 See also § CONTINUITY checklist.
 
