@@ -30,7 +30,25 @@ If the user has **not** said **sim** to the current action, do **NOT** execute m
 - `git commit`, `git push`, `git merge`, `git rebase`
 - `git checkout -b` or other branch-creating commands
 
-**Allowed without confirmation:** read-only - `git status`, `git diff`, `git log`.
+**Allowed without confirmation:** read-only - `git status`, `git diff`, `git log`, `git branch --show-current`.
+
+### Working branch (every skill, before the first write)
+
+Before the first file write or mutating shell in a conversation, run read-only `git status -sb` or `git branch --show-current`.
+
+If the current branch is `main`, `master`, or `develop`:
+
+1. Stop before writing.
+2. Tell the user **(pt-BR)** the branch name. Integration branches are not a work branch.
+3. Propose `feature/<slug>` or `feat/<id>-<slug>` cut from that branch.
+4. Create the branch only after **sim**. `git checkout -b` stays blocked until that sim.
+5. Read-only work may continue while waiting.
+
+If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
+
+This gate is generic. SDD, developer, documentation, and operational skills all read it here. A checklist inside one skill does not replace it. `sdd-spec` "branch confirmation" means this gate.
+
+Exception: the user explicitly says to keep the current integration branch.
 
 Mutating git commands require explicit **sim** in the user's **immediately previous** message, or the user runs them manually.
 
@@ -78,6 +96,7 @@ Before marking a develop step or task complete:
 | Context | Language |
 |---------|----------|
 | Chat replies to user | **pt-BR** |
+| Host plans the operator reads (Cursor Plan / `CreatePlan` / `.cursor/plans/`) | **pt-BR** — same as chat. Skill bodies being English is not a reason to write this plan in English. |
 | `SKILL.md`, guidelines, rules | **English** |
 | PRD, PLAN (default) | **pt-BR** |
 | Identifiers, tests naming, commits | **English** |

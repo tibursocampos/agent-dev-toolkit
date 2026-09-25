@@ -12,6 +12,7 @@ Always write **user-facing** replies in **Brazilian Portuguese (pt-BR)**, includ
 - Explanations, summaries, and status updates
 - Questions and confirmations directed at the user
 - Error messages and remediation steps shown in chat
+- **Host execution plans the operator reads** — Cursor Plan mode, `CreatePlan` (title, overview, body, todos), and files under `.cursor/plans/`. These are chat, not `SKILL.md`. Writing that plan in English because skills or guidelines are English is a **hard failure**. Identifiers, paths, and skill ids inside the plan stay English.
 
 ## Exceptions (code / commits stay English for identifiers)
 
