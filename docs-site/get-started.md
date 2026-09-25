@@ -1,6 +1,18 @@
-﻿# Get started
+﻿---
+title: Get started
+---
 
-Download the Release bootstrap (or clone), validate the repo, sync an agent, then invoke a skill in an **application project** (the project you are building).
+# Get started
+
+Deploy **agent-dev-toolkit** into one or more coding agents, then open the project you want to change.
+
+| Path | When |
+|------|------|
+| **Option 0 — Release bootstrap (recommended)** | Download a bootstrap entrypoint from GitHub Releases. It fetches the zip over HTTPS, checks SHA256, extracts, and opens `toolkit.ps1`. No full clone. |
+| **Option 1 (after clone)** | Interactive Smart Manager: `pwsh -NoProfile -File .\scripts\toolkit.ps1` |
+| **Option 2+** | Non-interactive sync and checks on [CLI](cli.md) |
+
+The repository is public. Clone and fork freely. Upstream contributions are not accepted. See [Maintainers](maintainers.md).
 
 ## Prerequisites
 
@@ -8,37 +20,51 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 
 | Requirement | Notes |
 |-------------|--------|
-| **PowerShell** | **Windows:** 5.1+ or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** — Windows PowerShell 5.1 is not available there. ([install guide](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)) |
-| **Git** | Optional — only if you prefer cloning instead of Option 0 |
-| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands (agent filesystem host) |
+| **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only**. |
+| **Git** | Needed for option 1 / 2+ (clone). Option 0 does not require Git. |
+| **Target agent** | At least one of: Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, OpenHands |
+| **Network (option 0)** | HTTPS to GitHub Releases. Uses `curl` (preferred) or `Invoke-WebRequest`. The bootstrap does not use the `gh` CLI, Node, or a compiled `.exe`. |
 
-## 0. Release bootstrap (recommended)
+## 0. Release bootstrap
 
-No clone. Fixed assets: `agent-dev-toolkit.zip` + `agent-dev-toolkit.zip.sha256`. Flow: HTTPS download → SHA256 → extract → interactive `toolkit.ps1` (Smart Manager). No `gh` / Node / `.exe`. See [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--toolkit).
+The entrypoint downloads the zip, checks the SHA256, and opens the CLI.
 
-**Windows:**
+| Operating system | File | Download |
+| --- | --- | --- |
+| Windows | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
+| Windows, Linux, and macOS | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
+| Linux and macOS | `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
 
-```bat
-curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
-bootstrap.bat
-```
+On Windows, run `bootstrap.bat`. It clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`, then prefers `pwsh` and falls back to Windows PowerShell. A double-click that fails stays open until you press a key. If `bootstrap.ps1` is missing beside the `.bat`, the `.bat` downloads that script from the same Release URL before running it. On Linux and macOS, place `bootstrap.sh` next to `bootstrap.ps1` and mark the shell file executable before you run it.
 
-(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
+A bad checksum exits non-zero. There is no extract and no handoff.
 
-```powershell
-curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
-pwsh -NoProfile -File .\bootstrap.ps1
-```
+Published by `.github/workflows/publish-release-bootstrap.yml`:
 
-**Linux / macOS:**
+| Artifact | Name |
+|----------|------|
+| Toolkit zip | `agent-dev-toolkit.zip` |
+| SHA256 sidecar | `agent-dev-toolkit.zip.sha256` |
+| Entrypoints | `bootstrap.ps1`, `bootstrap.bat`, `bootstrap.sh` |
 
-```bash
-curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
-pwsh -NoProfile -File ./bootstrap.ps1
-# or bootstrap.sh from the same Release URL
-```
+Override owner/repo with `-Owner` / `-Repo` or `TOOLKIT_RELEASE_OWNER` / `TOOLKIT_RELEASE_REPO`. Override asset names with `-ZipAssetName` / `-ChecksumAssetName` or `TOOLKIT_RELEASE_ZIP_ASSET` / `TOOLKIT_RELEASE_CHECKSUM_ASSET`.
 
-Optional non-interactive sync instead of Smart Manager: `-DirectSync -Agent cursor` (add `-SyncWhatIf` for a safe smoke). Tests: `-SkipSync` / `-NoExtract`.
+### Bootstrap flags
+
+| Flag / env | Purpose |
+|------------|---------|
+| *(default)* | After SHA256 OK, extract, then open interactive `toolkit.ps1` |
+| `-NoExtract` | Verify checksum only |
+| `-SkipSync` | Stop after a successful extract |
+| `-DirectSync` | After extract, call `sync-agent.ps1` |
+| `-SyncWhatIf` | With `-DirectSync`, forward `-WhatIf` to `sync-agent.ps1` |
+| `-Agent` / `TOOLKIT_SYNC_AGENT` | Registry agent id when `-DirectSync` (default `cursor`) |
+| `-InstallRoot` / `-AllowUserHome` / `-Mode` / `-UserScope` | Forwarded to `sync-agent.ps1` when `-DirectSync` runs |
+| `-ZipAssetName` / `TOOLKIT_RELEASE_ZIP_ASSET` | Override zip asset (default `agent-dev-toolkit.zip`) |
+| `-ChecksumAssetName` / `TOOLKIT_RELEASE_CHECKSUM_ASSET` | Override checksum asset (default `agent-dev-toolkit.zip.sha256`) |
+| `-ExpectedSha256` | Hex SHA256 override (skips the checksum download) |
+| `-LocalZipPath` + `-SkipDownload` | Offline smoke without network |
+| `-Extract` | Legacy no-op alias (extract is on unless `-NoExtract`) |
 
 ## 1. Clone (alternative)
 
@@ -47,169 +73,19 @@ git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolk
 cd agent-dev-toolkit
 ```
 
-**Option 0 (no full clone once entrypoints exist):** Release bootstrap — HTTPS zip → SHA256 → extract → `sync-agent`. See [INSTALL.md § 0](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md#0-release-bootstrap-https--checksum--sync) (`scripts/bootstrap/*`). Asset names: confirm vs CI — do not invent Release zip names.
+## After the download
 
-## 2. Open the interactive toolkit menu (Smart Manager)
+The menu, every `-Action`, sync, validate, and uninstall live on [CLI](cli.md).
 
-Option 0 opens this after extract. From a clone:
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1
-```
-
-| Menu | Result |
-|------|--------|
-| **Validate core only** | Repo contracts only — **no** install-root write |
-| **Sync agent** | Publish skills/policy/hooks to a chosen target |
-| **Validate agent** | `validate-core` + adapter smoke test for one agent |
-| **Sync then validate** | Sync, then smoke-test the same target |
-| **Uninstall agent** | Remove **toolkit-managed** (**keyed**) files (not a full install wipe) |
-
-## 3. Validate the repo (safe)
-
-Confirms the toolkit is healthy without writing an agent install root:
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
-```
-
-## 4. Sync an agent
-
-### Safe default — in-repo fixture
-
-Non-interactive sync **omits** `-InstallRoot` and writes the adapter fixture under `scripts/validation/fixtures/`. Use this for learning and CI-safe checks; it does **not** change your live install.
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Validate -Agent cursor -Quiet
-```
-
-In the interactive menu, pick **In-repo fixture** when you want the same safe path.
-
-### Live install — explicit opt-in
-
-Paths under `%USERPROFILE%` / `$HOME` are refused unless you pass `-AllowUserHome` (or confirm in the wizard). Interactive Sync defaults the target menu to **Live agent home** (the live install path) — confirm before write.
-
-#### Cursor → `~/.cursor`
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor `
-  -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
-```
-
-#### Claude Code → `~/.claude`
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude `
-  -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
-```
-
-#### GitHub Copilot — Mode required
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent copilot -Mode user `
-  -InstallRoot "$env:USERPROFILE\.copilot" -AllowUserHome
-
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent copilot -Mode repo `
-  -InstallRoot "D:\Source\MyApp\.github"
-```
-
-Mode `repo` InstallRoot is usually the application project's `.github` folder, so `-AllowUserHome` is often unnecessary.
-
-#### Other live install paths
-
-| Agent | Typical InstallRoot |
-|-------|---------------------|
-| `antigravity` | `$env:USERPROFILE\.gemini` |
-| `codex` | `~/.codex` (product/AGENTS/rules); optional USER skills `~/.agents/skills` via `-UserScope` + `-AllowUserHome` — see [Adapters](../adapters/) / [Using skills](../using-skills/) |
-| `opencode` | `$env:USERPROFILE\.config\opencode` |
-| `grok` | `$env:USERPROFILE\.grok` |
-| `zcode` | `$env:USERPROFILE\.zcode` |
-| `hermes` | `$env:USERPROFILE\.hermes` |
-| `openhands` | Project repo root (skills at `.agents/skills`); live user `$env:USERPROFILE\.agents` (skills at `skills/`) |
-
-Always add `-AllowUserHome` when InstallRoot resolves under the user profile. Layout details: [Adapters](../adapters/).
-
-### Dry run
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
-```
-
-## 5. What gets published
-
-Every sync prepares `<InstallRoot>/sdd/` (`sessions/` + seed `manifest.json` schema v2 when absent). Typical artifacts:
-
-| Agent | Under InstallRoot |
-|-------|-------------------|
-| Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/` |
-| Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, hooks + merged `settings.json` |
-| Copilot | `skills/`, `instructions/`, `copilot-instructions.md` |
-| Codex | `plugin/` (+ marketplace), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` (dual-root — not one shared TOOLKIT_ROOT for skills+rules) |
-| Hermes | `skills/`, `AGENTS.md` (no `rules/`); plugin `agent-dev-toolkit-guard` + `agent-hooks` path/secrets; keyed `config.yaml` only |
-| OpenHands | Project: `.agents/skills/`, `.agents/agents/`, `AGENTS.md`, `.openhands/hooks` (`guard_pre_tool.sh` path/secrets), `.plugin/plugin.json`. Live user skills: `~/.agents/skills` |
-| Others | See [Adapters](../adapters/) and [Architecture](../architecture/) |
-
-**SDD storage (first Classic write):** skills ask **repository** vs **global** when the project is not yet in the manifest.
-
-- **Repository** — `features/` + `memory-bank/` under the application project cwd (portable cites like `features/NNN-slug/...`; default gitignore may include `/features/` unless `features_versioned` is true)
-- **Global** — same tree under `{{SDD_ROOT}}/<repo-id>/` (outside the project git tree; no project `.gitignore` edit)
-
-Install/sync deep dive: [docs/INSTALL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/INSTALL.md). Core layout: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md). Storage contract: [core/sdd/STORAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/sdd/STORAGE.md).
-
-## 6. Open an application project
-
-Open the **application** repo you want to change (not only this toolkit). After a live sync, confirm router + a sample skill under that agent’s install root (examples):
-
-```text
-%USERPROFILE%\.claude\CLAUDE.md
-%USERPROFILE%\.claude\skills\sdd-spec\SKILL.md
-%USERPROFILE%\.claude\skills\help-skills\SKILL.md
-```
-
-Or for Cursor: `%USERPROFILE%\.cursor\AGENTS.md` and `skills\…`. Restart or reload the agent if skills do not appear. Trust hooks in the agent UI if prompted.
-
-## 7. First skill
-
-Prefer skill ids; slash form when your host supports it:
-
-```text
-help-skills
-```
-
-Then classic SDD:
-
-```text
-sdd-spec
-sdd-plan - <prd-path>
-sdd-develop - <plan-path> - Step 1
-```
-
-Optional handoff normalize (same track — not a fourth stage): `read-sdd-artifact` → typed `source_context`. Invocation (`direct` / `orchestrated`) and provenance (`agreed` / `invented`) stay inside those skill ids — see [Using skills](../using-skills/) and [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md).
-
-Small change without full SDD: `developer` or a stack skill such as `dotnet-developer`. Choosing a work track (**Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**): [Using skills](../using-skills/).
-
-After `commit` and `push`, open a PR with `open-github-pr` (feature → `develop` = **squash**; release `develop` → `master`/`main` = **rebase**; always ask auto-merge). Details: [Using skills](../using-skills/).
-
-## 8. After `git pull`
-
-Re-run sync for each agent you use. Sync is **update-in-place**: overwrites managed files and prunes managed skills removed from `core/skills/`. It preserves `sdd/sessions/` and `sdd/manifest.json`.
-
-## 9. Uninstall (toolkit-managed)
-
-Removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent install. Preserves `sdd/sessions/` and `sdd/manifest.json`.
-
-```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
-```
+Open the application repo in the agent, then [First use](first-use.md). A feature path is [Orchestrated Delivery](orchestrated-delivery.md).
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---------|-----|
-| Sync refuses InstallRoot | Add `-AllowUserHome` or confirm in the wizard |
-| Copilot TE02 | Missing/invalid `-Mode` — pass `-Mode user` or `-Mode repo` |
-| Skills missing in IDE | Sync **live install**; restart/trust hooks if required |
-| Expected an install-root write in CI-like run | Use fixtures / omit live InstallRoot |
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Sync refuses InstallRoot | Path under the user profile without the opt-in | Add `-AllowUserHome`, or confirm in the wizard |
+| Copilot TE02 | Missing or invalid `-Mode` | Pass `-Mode user` or `-Mode repo` |
+| Skills missing in the IDE | Synced a fixture only, or the agent needs a restart | Sync the **live home**. Trust hooks in the agent UI if it asks |
+| A local run fails the way CI would | The command expected a home write | Use fixtures or Validation lab smokes |
 
-Next: [Using skills](../using-skills/) · [Caveman](../caveman/) · [Adapters](../adapters/) · [Credits](../credits/) · [Maintainers](../maintainers/)
+Next: [First use](first-use.md).

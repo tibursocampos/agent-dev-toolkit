@@ -10,6 +10,8 @@ adapters/      # per-agent modules + registry.json + _contract
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public documentation
 .github/workflows/validate-toolkit.yml
+.github/workflows/publish-release-bootstrap.yml
+.github/workflows/enforce-release-source.yml
 ```
 
 ## Layers
@@ -19,7 +21,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
-| CI | `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent smokes on push/PR (Copilot is a suite) — no live-home sync for green |
+| CI | `validate-toolkit.yml` on `pull_request` to `master`, `main`, `develop`: jobs `validate` (windows), `validate-ubuntu`, gate `ci-ok`. Windows `validate` runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, and 10 agent smokes (Copilot is a suite) — no live-home sync for green |
 
 ## Application architecture selection
 
@@ -80,6 +82,8 @@ Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contai
 - `scripts/validation/Invoke-HermesCiSmoke.ps1`
 - `scripts/validation/Invoke-OpenHandsCiSmoke.ps1`
 - `.github/workflows/validate-toolkit.yml`
+- `.github/workflows/publish-release-bootstrap.yml`
+- `.github/workflows/enforce-release-source.yml`
 
 ## Cursor install layout
 
@@ -233,13 +237,19 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 ## CI
 
-Workflow `.github/workflows/validate-toolkit.yml` on `windows-latest` (no USERPROFILE deploy for green):
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Jobs are `validate` (`windows-latest`), `validate-ubuntu` (`ubuntu-latest`), and gate `ci-ok` (`needs` both). The Windows `validate` job does not deploy to USERPROFILE for a green run:
 
 1. `validate-core.ps1 -Quiet`
 2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes, OpenHands) — separate step; not inside validate-core
 3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
 4. Ten agent CI smokes (Copilot is a suite): Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode, Hermes, OpenHands
 
-OpenCode and peer smokes assert published files on fixtures only — they do **not** launch product runtimes. Details: [VALIDATION.md](VALIDATION.md), [domains/validation-ci.md](domains/validation-ci.md).
+`validate-ubuntu` runs `Assert-InstallRootSafety.ps1`, `validate-core.ps1 -Quiet`, and the same ten fixture smokes. `ci-ok` is the required gate once both jobs succeed.
+
+`publish-release-bootstrap.yml` uploads bootstrap release assets (zip, SHA256, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
+
+`.github/workflows/docs.yml` exists and is not part of this guide.
+
+OpenCode and peer smokes assert published files on fixtures only — they do **not** launch product runtimes. CI detail: [docs/VALIDATION.md](VALIDATION.md).
 
 See also [ADAPTERS.md](ADAPTERS.md), [overview.md](overview.md), and [domains/core.md](domains/core.md) § Code guidelines and architecture selection.

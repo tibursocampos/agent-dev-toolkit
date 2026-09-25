@@ -1,67 +1,51 @@
 ﻿# Architecture
 
-## Target shape
+<!-- BEGIN GENERATED: inventory-summary -->
+_Entry points and layout hints from inventory (2026-09-25T14:11:35.6866622Z; hash `c77bee05c991485a5392f3cdda52e220ae04ca390656cca797a1a05fdd34446d`)._
 
-```text
-core/          # skills (kebab, 41 + _shared), policy, router, sdd contracts
-adapters/      # registry.json + _contract + per-agent thin *Adapter.ps1 + Publish-* siblings
-scripts/       # toolkit.ps1, sync-agent, validate-agent, bootstrap/, trace/, _lib, validation
-docs/          # public docs (incl. SPAWN.md, INSTALL, ADAPTERS, VALIDATION, guides/09-authorship)
-memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
-.github/workflows/  # validate-toolkit.yml (+ enforce-release-source.yml)
-```
+| Signal | Path |
+|--------|------|
+| CLI menu | `scripts/toolkit.ps1` |
+| Sync orchestrator | `scripts/sync-agent.ps1` |
+| Validate orchestrator | `scripts/validate-agent.ps1` |
+| Core contract suite | `scripts/validation/validate-core.ps1` |
+| Agent registry | `adapters/registry.json` |
+| Skills | `core/skills/*/SKILL.md` |
+| Policy | `core/policy/` |
+| Router index | `core/router/AGENTS.md` |
+| SDD storage contract | `core/sdd/STORAGE.md` |
+<!-- END GENERATED: inventory-summary -->
 
-## Layers
+## Overview
 
-| Layer | Role |
-|-------|------|
-| Core | Agent Skills `SKILL.md` + `_shared` + policy markdown + neutral router |
-| Adapter | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture root. Claude/Cursor/Grok: thin entry + `Publish-*` / `Uninstall-*` modules |
-| CLI | `toolkit.ps1` chooses agent for sync/validate/uninstall |
-| Lib | `Resolve-InstallRoot` (AllowUserHome, reparse, `\\?\` / `\\.\` strip, Initialize-for-write); `Copy-ToolkitManagedTree` (managed prune/copy containment) |
-| CI | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
+One agent-neutral core is published by per-agent adapters into each host install layout. The CLI (`scripts/toolkit.ps1`) is the operator entry for sync, validate, and uninstall. Default `InstallRoot` is an in-repo fixture. A live user-home write is opt-in via `-AllowUserHome`.
+
+## Layers / modules
+
+| Layer | Responsibility | Path hints |
+|-------|----------------|------------|
+| Core | Skills, policy, router, SDD contracts | `core/skills/`, `core/policy/`, `core/router/`, `core/sdd/` |
+| Adapters | Map core into one agent install layout; registry capabilities | `adapters/<id>/`, `adapters/registry.json` |
+| CLI | Menu and `-Action` flags: Sync, Validate, SyncAndValidate, ValidateCore, ListAgents, Uninstall, Backup | `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1` |
+| Validation | In-repo contract asserts and fixture smokes | `scripts/validation/` |
 
 ## Entry points
 
-- `scripts/toolkit.ps1` — interactive menu + `-Agent` (Smart Manager; recommended clone path)
-- `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) — Release path: HTTPS zip → SHA256 → extract → `sync-agent` (INSTALL § 0)
-- `scripts/sync-agent.ps1` — orchestrates adapter publish
-- `scripts/validate-agent.ps1` — core contracts + adapter `Invoke-SmokeValidate`
-- `scripts/validation/validate-core.ps1` — in-repo suite (no live home)
-- `scripts/trace/Invoke-AuthorshipGitNotes.ps1` — opt-in authorship notes (default off; not TRACE SoT)
-- `.github/workflows/validate-toolkit.yml` — full CI matrix
+- `scripts/toolkit.ps1` — Smart Manager and scripted `-Action`.
+- `scripts/sync-agent.ps1` — publish core for one registry agent.
+- `scripts/validate-agent.ps1` — fixture smoke when `InstallRoot` is available.
+- `scripts/validation/validate-core.ps1` — core suite with no user-home sync.
 
-## Notable skills (evidence)
+## Integration points
 
-- Catalog SoT: `core/skills/_shared/skills-catalog/CATALOG.md` (**41** kebab skills via `help-skills`)
-- `framework-upgrade` — generic upgrade orchestrator (`audit|plan|migrate|validate`); pluggable packs under `packs/`; skill id must not pin major version
-
-## Uninstall honesty
-
-Keyed `Uninstall-Toolkit` implemented for all registry adapters (including Cursor, ZCode, Hermes, OpenHands).  
-Preserves `sdd/sessions` and `sdd/manifest.json` (operator runtime state).
-
-## Sync prepare (SDD state root)
-
-Every sync runs `Get-SddRoot -Prepare` (`sdd/sessions/` + seed `manifest.json` when absent).
-
-## Subagents
-
-Registry: each adapter declares `subagents: native` or `none` (OpenHands is `none`). Antigravity effective capability fail-closed via `Get-Capabilities` probe. Contract: `core/skills/_shared/agents/SPAWN.md` + `docs/SPAWN.md`. Language surfaces: `core/skills/_shared/agents/LANGUAGE.md`.
-
-## OpenCode hooks
-
-`HooksSemantics=plugin-only` (JS plugins under `plugins/`). CI smoke is filesystem sync+validate only — not product runtime.
-
-<!-- BEGIN GENERATED: inventory-summary -->
-- Inventory at: 2026-09-24T20:52:26Z (refresh)
-- Stack: PowerShell + Markdown; 41 kebab skills; 82 Assert-*.ps1 scripts; 116 indexed sources; status=ready
-- Present: `core/skills|policy|router|sdd`, `adapters/registry.json` + `_contract` + per-agent modules (10 adapters), `docs/SPAWN.md`, `docs/INSTALL.md`, `docs/guides/09-authorship-git-notes.md`, `Resolve-InstallRoot` + `Copy-ToolkitManagedTree`, validate-core suite (install-root / managed-skills / uninstall-path / no-features-doc-links / cursor-hooks-merge / …), CI `validate-toolkit.yml` + `enforce-release-source.yml`
-- Adapter layout: thin `*Adapter.ps1` + `Publish-*` / `Uninstall-*` for Claude, Cursor, Grok (Codex/Copilot/OpenCode/ZCode/Antigravity already modular or thin); OpenHands `subagents: none`
-- Agent-verified outside curated index: `scripts/bootstrap/*`, `core/skills/framework-upgrade/`, `scripts/trace/Invoke-AuthorshipGitNotes.ps1` (see gaps.md)
-- Local SDD `features/` may be gitignored or versioned (`features_versioned` in manifest) — not public doc source; use `docs/` + `core/skills/_shared/agents/`
-<!-- END GENERATED: inventory-summary -->
+- Host install roots resolved per adapter. Live profile paths require `-AllowUserHome`.
+- Copilot publish takes `-Mode user` or `-Mode repo`.
+- Codex publish accepts optional `-UserScope` (mirrors skills under the user skills root; off by default).
+- Release bootstrap reads env names only: `TOOLKIT_RELEASE_OWNER`, `TOOLKIT_RELEASE_REPO`, `TOOLKIT_RELEASE_ZIP_ASSET`, `TOOLKIT_RELEASE_CHECKSUM_ASSET`, `TOOLKIT_SYNC_AGENT`.
+- Hermes home override name: `HERMES_HOME`.
+- Antigravity subagent probe names: `ADT_ANTIGRAVITY_SUBAGENTS`, `ADT_ANTIGRAVITY_PRODUCT_VERSION`.
 
 ## Notes
 
-Fonte de conteúdo inicial: cópia de `cursor-dev-toolkit` (skills/rules) + deltas de `antigravity-dev-toolkit`. Sem submodule nos twins.
+Evidence-based only. Mark unknowns in `.inventory/gaps.md`.
+**No secrets.**

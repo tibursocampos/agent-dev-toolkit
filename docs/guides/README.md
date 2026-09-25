@@ -10,7 +10,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack: work tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery** for Spec-Driven Development, stack `*-developer` shortcuts, Git flow (`commit` / `push` / optional `open-github-pr`), optional Caveman compression (via policy), and in-repo validation. Prefer **Option 0** Release bootstrap ([INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)), or after clone run `pwsh -NoProfile -File .\scripts\toolkit.ps1`. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+A **multi-agent** skills and policy pack. The complete feature path is **Orchestrated Delivery** (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver and develop run the Classic SDD contracts (`sdd-spec`, `sdd-plan`, `sdd-develop`). A one-file change uses `developer` or a stack skill. Git flow is `commit` / `push` / optional `open-github-pr`. Chat language, the parent orchestrator, and optional response compression are in [session-behavior.md](session-behavior.md). Prefer **Option 0** Release bootstrap ([INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)), or after clone run `pwsh -NoProfile -File .\scripts\toolkit.ps1`. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
 
 **Same call flow:** skill ids and slash/`$id` handoffs stay; internal contracts add gates and artifacts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) — not a second toolkit or SQLite/FTS deliverable.
 
@@ -30,66 +30,51 @@ Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published ski
 
 ```mermaid
 flowchart TD
-  Start([New task]) --> Q1{Multi-story / brownfield / need specialists?}
-  Q1 -->|Yes| FC[Orchestrated Delivery]
-  Q1 -->|No| Q2{Medium or high complexity single feature?}
-  Q2 -->|Yes| SDD[Classic SDD]
-  Q2 -->|Rough backlog item only| FB[Backlog Refine]
-  Q2 -->|No| Q3{Small fix one area?}
-  Q3 -->|Yes .NET| NET[dotnet-developer]
-  Q3 -->|Yes other stack| STACK[stack skill or developer]
-  Q3 -->|Unsure| DEV[developer router]
-  FC --> S0["/memory-bank-init Step 0"]
-  S0 --> O1["/orchestrate-analyze"]
-  O1 --> ArchGate{"Greenfield / needs_domain?"}
-  ArchGate -->|Yes| Confirm["architect draft → sim → ARCH"]
-  ArchGate -->|Brownfield mirror| O2
-  Confirm --> O2["/orchestrate-deliver"]
-  O2 --> O3["/orchestrate-develop or /sdd-develop"]
-  FB --> Refine["/refine-story"]
-  Refine --> AorC[Then Classic SDD or Orchestrated Delivery]
-  SDD --> Spec["/sdd-spec"]
-  Spec --> Plan["/sdd-plan"]
-  Plan --> Impl["/sdd-develop one step"]
-  NET --> DoneNet[Code change]
-  STACK --> DoneNet
-  DEV --> STACK
-  Impl --> DoneSdd[Code change]
-  O3 --> DoneSdd
-  AorC --> SDD
-  AorC --> FC
-  DoneNet --> Post
-  DoneSdd --> Post
+  Start([New feature work]) --> O1["/orchestrate-analyze"]
+  O1 --> Decide{What analyze decided}
+  Decide -->|Approved feature| O2["/orchestrate-deliver"]
+  O2 --> O3["/orchestrate-develop"]
+  Decide -->|One story already clear| Direct["/sdd-spec then /sdd-plan then /sdd-develop"]
+  Decide -->|One product item only| Shape["/refine-story"]
+  Decide -->|Trivial file and operator chooses shortcut| Small["/developer or stack skill"]
+  O3 --> Post
+  Direct --> Post
+  Small --> Post
   Post[After code] --> CR["/code-review"]
-  CR --> TC["/test-coverage optional .NET"]
-  TC --> Commit["/commit"]
-  Commit --> Push["/push"]
-  Push --> PR["/open-github-pr optional"]
+  CR --> Commit["/commit then /push"]
+  Commit --> PR["/open-github-pr optional"]
 ```
 
 **ASCII summary:**
 
 ```
-New task
-  ├─ Multi-story / brownfield?     -> Orchestrated Delivery: memory-bank-init -> O1 -> O2 -> O3|sdd-develop
-  ├─ Greenfield / needs domain?    -> Orchestrated Delivery: O1 (+ architect confirm) before develop loads one style
-  ├─ Single medium/high feature?   -> Classic SDD: sdd-spec -> sdd-plan -> sdd-develop
-  ├─ Rough backlog item?           -> Backlog Refine: refine-story -> checklist? -> Classic or Orchestrated
-  ├─ Small stack change?           -> *-developer or /developer
-  └─ After code                    -> code-review -> test-coverage? -> commit -> push -> open-github-pr?
+Feature
+  └─ orchestrate-analyze
+        ├─ classifies, asks, sets needs_*, specialists, story gates, sim
+        ├─ trivial one-file → /developer (only if the operator picks that shortcut)
+        ├─ one already-clear story → sdd-spec (direct contract)
+        └─ approved backlog → orchestrate-deliver
+              └─ sdd-spec then sdd-plan per story → orchestrate-develop
+                    └─ one sdd-develop step per child → code-review or commit
 ```
 
-**Greenfield domain:** use Orchestrated Delivery — `/orchestrate-analyze` spawns the roster **architect** when needed; confirm ARCH (**sim**) before implementers load one Layer B style + stack overlay C. Brownfield: discover-first (mirror existing ARCH). Details: [domains/core.md](../domains/core.md) § Code guidelines; [02-using-skills.md](02-using-skills.md).
+Full mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).
+
+**Greenfield domain:** `/orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until **sim**. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
 
 ---
 
-## Work tracks
+## How the paths relate
 
-| Track | When | Pipeline | Notes |
-|-------|------|----------|-------|
-| **Classic SDD** | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **Backlog Refine** | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Prepares structured markdown |
-| **Orchestrated Delivery** | Multi-story / brownfield / greenfield domain | Step 0 → O1 → O2 → O3 \| `sdd-develop` | O1 may run architect confirm; O2/O3 reuse Classic SDD |
+Orchestrated Delivery is the complete path. O2 loads `sdd-spec` then `sdd-plan`. O3 loads `sdd-develop` for one PLAN step. O1 applies the refine scorecard itself.
+
+A direct `/sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/refine-story` remains valid for a single product item, or when O2 stops on open clarification B/I. Those are exits from the complete path, not a second equal product.
+
+| Path | When | Page |
+|------|------|------|
+| Orchestrated Delivery | Feature, specialists, several stories | [sessions/01](../sessions/01-orchestrated-delivery.md) |
+| Classic SDD contracts | One clear story, or the contracts O2/O3 run | [sessions/02](../sessions/02-classic-sdd.md) |
+| Backlog shape | Product-only item, or blocking questions | [sessions/03](../sessions/03-backlog-shape.md) |
 
 Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
@@ -101,8 +86,8 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 |-------|---------|
 | [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first skill |
 | [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
-| [07-caveman-mode.md](07-caveman-mode.md) | Caveman default OFF, commands, levels, Auto-Clarity |
-| [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands, PRD/PLAN execution policy |
+| [session-behavior.md](session-behavior.md) | Chat language, parent orchestrator, optional compression |
+| [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands |
 | [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
 
 Related:
@@ -111,7 +96,8 @@ Related:
 |-----|---------|
 | [../INSTALL.md](../INSTALL.md) | Sync flags, live home, uninstall |
 | [../VALIDATION.md](../VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite) |
-| [../SKILLS.md](../SKILLS.md) | Full skill list |
+| [../sessions/README.md](../sessions/README.md) | How skills relate, session by session |
+| [../SKILLS.md](../SKILLS.md) | Skill list (points at the session pages) |
 | [../ADAPTERS.md](../ADAPTERS.md) | Per-agent publish layouts |
 
 ---
@@ -124,9 +110,9 @@ Related:
 
 ---
 
-## Caveman Mode
+## Session behavior
 
-Optional response compression. **Default OFF.** Commands: `caveman on` / `off` / `status` / `lite` / `full` / `ultra` (aliases: `stop caveman`, `normal mode`). Full guide: [07-caveman-mode.md](07-caveman-mode.md). Does not change sync or validation scripts.
+Chat language, parent orchestrator, and optional response compression (`caveman` default off) are one page: [session-behavior.md](session-behavior.md). Compression does not change skill steps.
 
 ## Orchestrator mode
 

@@ -15,7 +15,8 @@ Spawn/handoff: `core/skills/_shared/agents/SPAWN.md`
   "caveman_mode": false,
   "caveman_level": "full",
   "orchestrator_mode": "always",
-  "artifact_language": null
+  "artifact_language": null,
+  "verify_mode": false
 }
 ```
 
@@ -63,6 +64,6 @@ Templates include **## Execution policy** (`templates/sdd/PRD.md`, `templates/sd
 ## Related
 
 - [01-getting-started.md](01-getting-started.md)  
-- [07-caveman-mode.md](07-caveman-mode.md)  
+- [session-behavior.md](session-behavior.md)  
 - Installed `OPERATOR.md`  
 - [STORAGE.md](../../core/sdd/STORAGE.md) § Preferences

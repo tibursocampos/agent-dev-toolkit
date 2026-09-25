@@ -178,6 +178,8 @@ $script:BootstrapConstant = @{
     ToolkitRelativePath            = 'scripts/toolkit.ps1'
     ToolkitFileName                = 'toolkit.ps1'
     ScriptsFolderName              = 'scripts'
+    ExecutionPolicyArgument        = '-ExecutionPolicy'
+    ExecutionPolicyBypass          = 'Bypass'
     Sha256Algorithm                = 'SHA256'
     HexHashPattern                 = '^[0-9a-fA-F]{64}$'
     IwrMaximumRedirectionCount     = 5
@@ -210,6 +212,8 @@ $script:BootstrapMessage = @{
     IwrFailed                      = 'Invoke-WebRequest failed for {0}: {1}'
     IwrRedirectRejected            = 'Invoke-WebRequest redirected away from HTTPS (or AbsoluteUri missing). Rejected final URI: {0}'
     WhatIfSuffix                   = ' -WhatIf'
+    ExtractDirBusy                 = 'Previous extract folder is in use ({0}). Extracting to {1}.'
+    PressEnterToClose              = 'Press Enter to close.'
 }
 
 function Get-BootstrapEnvOrDefault {
@@ -363,15 +367,30 @@ function Expand-BootstrapZipIfRequested {
     )
     if (-not $DoExtract) {
         Write-Host $script:BootstrapMessage.ExtractSkipped
-        return $false
+        return $null
     }
-    if (Test-Path -LiteralPath $DestinationDir) {
-        Remove-Item -LiteralPath $DestinationDir -Recurse -Force
+    Unblock-File -LiteralPath $ZipPath -ErrorAction SilentlyContinue
+    $targetDir = $DestinationDir
+    if (Test-Path -LiteralPath $targetDir) {
+        $removed = $false
+        try {
+            Remove-Item -LiteralPath $targetDir -Recurse -Force -ErrorAction Stop
+            $removed = $true
+        }
+        catch {
+            $removed = $false
+        }
+        if (-not $removed) {
+            $parent = Split-Path -Parent $targetDir
+            $leaf = Split-Path -Leaf $targetDir
+            $targetDir = Join-Path $parent ($leaf + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
+            Write-Host ($script:BootstrapMessage.ExtractDirBusy -f $DestinationDir, $targetDir)
+        }
     }
-    New-Item -ItemType Directory -Path $DestinationDir -Force | Out-Null
-    Expand-Archive -LiteralPath $ZipPath -DestinationPath $DestinationDir -Force
-    Write-Host ($script:BootstrapMessage.ExtractDone -f $DestinationDir)
-    return $true
+    New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+    Expand-Archive -LiteralPath $ZipPath -DestinationPath $targetDir -Force
+    Write-Host ($script:BootstrapMessage.ExtractDone -f $targetDir)
+    return $targetDir
 }
 
 function Find-BootstrapScriptUnderExtract {
@@ -479,8 +498,11 @@ function Invoke-BootstrapSyncHandoff {
     # Child host so sync-agent `exit` does not tear down bootstrap mid-handoff.
     $runner = Get-BootstrapChildPowerShellHost -MissingMessage $script:BootstrapMessage.SyncHostMissing
 
+    Unblock-File -LiteralPath $syncPath -ErrorAction SilentlyContinue
     $argList = New-Object System.Collections.Generic.List[string]
     [void]$argList.Add('-NoProfile')
+    [void]$argList.Add($script:BootstrapConstant.ExecutionPolicyArgument)
+    [void]$argList.Add($script:BootstrapConstant.ExecutionPolicyBypass)
     [void]$argList.Add('-File')
     [void]$argList.Add($syncPath)
     [void]$argList.Add('-Agent')
@@ -529,8 +551,11 @@ function Invoke-BootstrapToolkitHandoff {
     # Child host so toolkit `exit` does not tear down bootstrap mid-handoff.
     $runner = Get-BootstrapChildPowerShellHost -MissingMessage $script:BootstrapMessage.ToolkitHostMissing
 
+    Unblock-File -LiteralPath $toolkitPath -ErrorAction SilentlyContinue
     $argList = @(
         '-NoProfile',
+        $script:BootstrapConstant.ExecutionPolicyArgument,
+        $script:BootstrapConstant.ExecutionPolicyBypass,
         '-File',
         $toolkitPath
     )
@@ -611,10 +636,10 @@ try {
     Test-BootstrapChecksumOrThrow -ZipPath $zipPath -ExpectedHex $expected
 
     $extractDir = Join-Path $CacheDir $script:BootstrapConstant.ExtractedFolderName
-    $didExtract = Expand-BootstrapZipIfRequested -ZipPath $zipPath -DestinationDir $extractDir -DoExtract:$doExtract
+    $extractDir = Expand-BootstrapZipIfRequested -ZipPath $zipPath -DestinationDir $extractDir -DoExtract:$doExtract
 
     # REQ-005: handoff only after successful extract; TE01 keeps failure path out of catch below
-    if (-not $didExtract) {
+    if ([string]::IsNullOrWhiteSpace($extractDir)) {
         Write-Host $script:BootstrapMessage.HandoffSkippedNoExtract
         exit 0
     }
@@ -646,5 +671,15 @@ try {
 catch {
     $errText = $_.Exception.Message
     [Console]::Error.WriteLine($errText)
+    try {
+        if (-not [Console]::IsInputRedirected -and -not [Console]::IsOutputRedirected) {
+            Write-Host ''
+            Write-Host $script:BootstrapMessage.PressEnterToClose
+            $null = Read-Host
+        }
+    }
+    catch {
+        # A non-console host has nothing to keep open.
+    }
     exit 1
 }

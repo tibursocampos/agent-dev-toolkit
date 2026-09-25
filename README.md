@@ -27,26 +27,21 @@ Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0
 
 ## Quick start
 
-**Option 0 — Release bootstrap** (recommended; no clone):
+Pick the commands for **your** operating system. Downloading the file does not install the toolkit; you run `bootstrap.bat` or `bootstrap.ps1` on your computer. The first line only downloads that launcher. The second line runs it. The zip is the same on every OS. Extracting it is the launcher's job, not the site's. The launcher checks SHA256 and opens the Smart Manager (`toolkit.ps1`). On Windows, `bootstrap.bat` clears the browser download mark and starts PowerShell with `-ExecutionPolicy Bypass`. No clone.
 
-Windows:
+**Windows only** (`.bat` does not run on Linux or macOS):
 
 ```bat
 curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
 bootstrap.bat
 ```
 
-(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
-
-Linux / macOS:
+**Linux and macOS only** (needs [pwsh 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)):
 
 ```bash
 curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
 pwsh -NoProfile -File ./bootstrap.ps1
-# or bootstrap.sh from the same Release URL
 ```
-
-That downloads `agent-dev-toolkit.zip`, verifies SHA256, extracts, and opens interactive Smart Manager (`toolkit.ps1`).
 
 **Alternative — clone**, then run the same menu from the repo:
 
@@ -71,16 +66,16 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 
 | Workflow | Invoke |
 |----------|--------|
-| Catalog (all adapters) | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
-| Classic SDD | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| Backlog Refine | `refine-story` → `split-story-checklist` |
-| Stack shortcut | `developer` or `dotnet-developer` / `react-developer` / … |
-| Orchestrated Delivery | `memory-bank-init` → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop` |
-| Greenfield ARCH | Via Orchestrated Delivery analyze: architect draft → **sim** confirm (not a slash skill) |
+| Complete feature path | `orchestrate-analyze` → `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story) → `orchestrate-develop` (one `sdd-develop` step per child) |
+| One story already clear | `sdd-spec` → `sdd-plan` → `sdd-develop` (same contracts, without the orchestrator) |
+| One backlog item only | `refine-story` (mode required). Feature analysis applies that scorecard itself |
+| Catalog | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
+| Small stack change | `developer` or `dotnet-developer` / `react-developer` / … |
+| Review | `code-review` (asks single vs multi-angle) |
 
 Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness B/I, develop session gate) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
 
-Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily decision tree: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
+Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). How the skills call each other: **[docs/sessions/README.md](docs/sessions/README.md)**. Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily entry: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
 
 ## Supported agents
 
@@ -161,7 +156,7 @@ agent-dev-toolkit/
 - Live agent home requires **`-AllowUserHome`**.
 - Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-CI runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, plus all ten agent CI smokes on push/PR to `develop` / `master` / `main` (see `.github/workflows/validate-toolkit.yml`). Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
+CI runs on `pull_request` to `develop`, `master`, and `main` (not `push`). Jobs `validate` and `validate-ubuntu` feed the required check `ci-ok` (see `.github/workflows/validate-toolkit.yml`). `validate` runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, and all ten agent CI smokes. `validate-ubuntu` runs `Assert-InstallRootSafety`, `validate-core`, and the same ten fixture smokes. Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
 
 ## License
 

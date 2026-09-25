@@ -29,14 +29,15 @@ Top-level folders:
 | Group | Folders |
 |-------|---------|
 | SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
+| Backlog shape | `refine-story`, `split-story-checklist` |
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer`, `impeccable` |
-| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager`, `refine-story`, `split-story-checklist` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
 | Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 
-Public catalog: [SKILLS.md](../SKILLS.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`).
+Public catalog: [SKILLS.md](../SKILLS.md). Operator path: [sessions/README.md](../sessions/README.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`). The folder names above match the on-disk groups. The feature path is Orchestrated Delivery; `sdd-*` are the contracts it runs; `refine-story` is the standalone shape skill, and O1 uses its scorecard without invoking it.
 
 ### Placeholders
 
@@ -128,13 +129,13 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 
 ### Work tracks and internal contracts
 
-| Track | Call flow |
-|-------|-----------|
-| **Classic SDD** | `sdd-spec` → `sdd-plan` → `sdd-develop` (+ optional `read-sdd-artifact`) |
-| **Backlog Refine** | `refine-story` → `split-story-checklist` |
-| **Orchestrated Delivery** | Step 0 → O1 → O2 → O3 \| `sdd-develop` |
+| Role | Call flow |
+|------|-----------|
+| **Orchestrated Delivery** | Step 0 → O1 → O2 (`sdd-spec` then `sdd-plan` per story) → O3 (one `sdd-develop` child per PLAN step) |
+| **Classic SDD** | The same three contracts, invoked directly for one clear story |
+| **Backlog shape** | Rubric and sizing inside O1; `/refine-story` → `/split-story-checklist` for a single product item |
 
-Track names only — no Forma aliases. Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md).
+Operator narrative: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md). Chat language, spawn English, and optional compression: [guides/session-behavior.md](../guides/session-behavior.md).
 
 Inside those skills, contracts add gates/artifacts:
 
@@ -190,10 +191,19 @@ Label **per claim** (REQ, CA, assumption, OOS). Ambiguous → `invented`. Never 
 
 Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CONTENT-LANGUAGE`) with spawn rules in [`SPAWN.md`](../../core/skills/_shared/agents/SPAWN.md).
 
+**Surface source of truth:** `core/skills/_shared/agents/LANGUAGE.md`. Chat follows the user: chat output mirrors the session user language. Spawn prompts, specialist contexts, and agent receipts stay **en-US**.
+
+**Shipped pt-BR install defaults.** These policy files stay in the repo. They are not a deletion backlog. They apply as install defaults when the operator session is pt-BR. They do not replace `LANGUAGE.md` when chat, an invocation override, `preferences.json` `artifact_language`, or manifest `artifact_language` says otherwise. `null` on those fields means no override, not an implicit pt-BR.
+
+| Policy file | Shipped role |
+|-------------|--------------|
+| `core/policy/user-language-pt-br.md` | Install default for user-facing replies in Brazilian Portuguese (pt-BR), including host execution plans the operator reads. Cursor `Publish-Policy` (`adapters/cursor/Publish-CursorPolicy.ps1`, via `scripts/sync-agent.ps1`) writes `core/policy/*.md` to `InstallRoot/rules` as `.mdc`, including `user-language-pt-br.mdc`. |
+| `core/policy/sdd-artifact-language-pt-br.md` | Install default for SDD agent artifact prose (PRD, PLAN, and the paths listed in that file) in Brazilian Portuguese (pt-BR). The same Cursor `Publish-Policy` writes `sdd-artifact-language-pt-br.mdc` under `InstallRoot/rules`. It does not default project `docs/`, README, or ADRs to pt-BR. |
+
 | Surface | Language |
 |---------|----------|
-| Operator chat | Session user-chat language (no hard-coded locale) |
-| SDD / story artifact prose | **Content-language** — resolve: invocation override → `preferences.json` `artifact_language` → manifest `artifact_language` → else match chat. `null` ≠ “default pt-BR” |
+| Operator chat | Session user-chat language (no hard-coded locale). Follows the user. |
+| SDD / story artifact prose | **Content-language** — resolve: invocation override → `preferences.json` `artifact_language` → manifest `artifact_language` → else match chat. `null` ≠ “default pt-BR”. The pt-BR policy file above is the shipped install default for a pt-BR session, not a hard-coded locale for every session. |
 | Spawn / Task prompts, specialist contexts, agent receipts | **Always en-US** — scoped portable paths + short excerpt; never dump full PLAN/PRD/`memory-bank/` |
 | Source, tests, commits, identifiers | Always English |
 
@@ -217,7 +227,7 @@ Do **not** invent product or company names in docs or envelopes — only paths a
 
 ### Composable skills (lazy refs, mode playbooks)
 
-Same skill ids and work tracks — maturity adds **composition inside** skills (section files + optional modes), not new tracks or a second toolkit. Contract: [`SKILL-REFERENCE-RETRIEVAL.md`](../../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) (`SR-LAZY-REFERENCE`; `Assert-SkillLazyLoad.ps1`).
+Same skill ids — maturity adds **composition inside** skills (section files + optional modes), not a second toolkit. The feature path is Orchestrated Delivery ([sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md)). Contract: [`SKILL-REFERENCE-RETRIEVAL.md`](../../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) (`SR-LAZY-REFERENCE`; `Assert-SkillLazyLoad.ps1`).
 
 #### Phased monolith split
 
@@ -233,7 +243,7 @@ When procedural detail outgrows a thin skill body:
 
 #### `refine-story` modes (`feature` / `tech` / `split`)
 
-Folder: `core/skills/refine-story/`. Still the **Backlog Refine** track skill — modes are mandatory playbooks, not slash aliases.
+Folder: `core/skills/refine-story/`. Modes are mandatory playbooks for a **standalone** invoke (one product item, or open clarification B/I). O1 applies the scorecard rubric without asking for a mode. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
 | Mode | Scope | Load only |
 |------|-------|-----------|
@@ -241,7 +251,7 @@ Folder: `core/skills/refine-story/`. Still the **Backlog Refine** track skill �
 | `tech` | Technical Story (`TSnn`) | `references/tech.md` + `technical-story.md` |
 | `split` | Any type — steps ready for checklist | `references/split.md` + one type file; hand off to `split-story-checklist` |
 
-No silent default: if the invoke omits a mode, ask once (pt-BR) before loading any playbook. Do **not** preload the other two mode files. Persistence stays file-based (`features/.../STORY.md` or `docs/backlog/`) — no remote tracker. Human mirror: [SKILLS.md](../SKILLS.md) § Backlog Refine · [guides/02-using-skills.md](../guides/02-using-skills.md).
+No silent default: if the invoke omits a mode, ask once before loading any playbook. Do **not** preload the other two mode files. Persistence stays file-based (`features/.../STORY.md` or `docs/backlog/`) — no remote tracker. Human mirror: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) · [SKILLS.md](../SKILLS.md) § Backlog shape.
 
 #### `api-standards` vs `api-integrate`
 
@@ -293,7 +303,7 @@ Item templates (one at a time): `user-story.md`, `technical-story.md`, `bug.md`;
 
 `scripts/validation/Assert-ProductArtifactQuality.ps1` (check `product-artifact-quality` in `validate-core`) — fixture CTs under `scripts/validation/fixtures/product-artifact-quality/` (CT1 incomplete FEATURE, CT2 task-shaped title, CT3 AC budget OK, CT4 cap without rationale, CT6 honest Evidence omit). Complements O1 gate docs in `story-synthesis.md`; does not invent product names.
 
-Human mirror: [guides/02-using-skills.md](../guides/02-using-skills.md) · [SKILLS.md](../SKILLS.md) § Backlog Refine · [VALIDATION.md](../VALIDATION.md).
+Human mirror: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) · [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) · [VALIDATION.md](../VALIDATION.md).
 
 ### TRACE archive (living loop)
 

@@ -1,21 +1,28 @@
-﻿# Known risks
+# Known risks
 
-| Risk | Mitigation |
-|------|------------|
-| Antigravity twin paths ≠ official `~/.gemini/config` | Adapter prefers official paths; legacy bridge only if IDE smoke requires |
-| Replacing Claude/Codex settings.json wholesale | Keyed merge + backup; never wipe runtime dirs; Claude `permissions.allow` narrow (per-hook Bash), strip legacy broad wildcards unless opt-in |
-| Codex hooks trust gate | Document `/hooks` trust; smoke asserts files, not live trust UI |
-| OpenCode hooks are JS plugins, not PS1 | Capability `hooks` + `HooksSemantics=plugin-only`; do not fake shell-hook parity; CI = filesystem smoke only |
-| Uninstall wiping SDD operator state | Keyed uninstall must preserve `sdd/sessions` and `sdd/manifest.json`; CI asserts (incl. Cursor/ZCode) verify survival |
-| Subagents registry vs effective (Antigravity) | Registry may be `native`; prefer `Get-Capabilities` probe (pré-2.0 → `none`) |
-| Drift vs intact twins | Accepted; changelog only in this repo |
-| Accidental publish to real user home in tests | Fixture roots + fail if InstallRoot resolves under USERPROFILE without `-AllowUserHome`; CI uses Assert-SyncAllowUserHomeForward probe only |
-| Extended/device path prefixes (`\\?\`, `\\.\`) bypassing USERPROFILE compare | Strip both prefixes before policy; Assert-InstallRootSafety; Initialize orphan cleanup on Confirm fail |
-| Managed-skills prune / copy path escape via `..` names | Sanitize names + under-root asserts; Assert-ManagedSkillsPathSafety |
-| Uninstall `Remove-Item` following junction outside InstallRoot | `Assert-PathUnderInstallRootForDelete` immediately before each delete |
-| Docs linking story `features/**` paths | Public docs use `docs/SPAWN.md` / `core/skills/_shared/agents/SPAWN.md` only; Assert-NoFeaturesDocLinks |
-| Scope creep: second CLI / OpenSpec / SQLite as SoT | Feature 005 OOS; P-DOC states same skill flow + markdown SoT; no `openspec/` / `.specs/` / `.specify/` |
-| Bootstrap treating unverified zip / mismatch as success | TE01: SHA256 must match before extract; mismatch exits non-zero with no extract/sync handoff |
-| Bootstrap asset names hard-coded as permanent SoT | Pass `-ZipAssetName` / env; confirm vs CI — INSTALL notes publication ownership |
-| Authorship git-notes mistaken for TRACE SoT | Default off; `-Enable` only; harvest/validate-trace read TRACE only; honesty matrix + guide 09 |
-| Inventing skill ids / major-pinned upgrade skills | CATALOG Total **41**; `framework-upgrade` id stable; version is pack parameter |
+| Risk | Area | Mitigation / note |
+|------|------|-------------------|
+| Live home writes are opt-in | Install | Default destination is an in-repo fixture. Profile writes require `-AllowUserHome`. |
+| `subagents=none` cannot spawn children | Spawn | Fallback is in-parent. OpenHands registry value is `none`. Antigravity effective value is the runtime probe (`ADT_ANTIGRAVITY_SUBAGENTS` / product version), not the registry string alone. |
+| Develop session scope | SDD | `sdd-develop` executes one PLAN step per session, including `continuous` mode. |
+| Language source of truth is split | Policy | Surface resolution is `core/skills/_shared/agents/LANGUAGE.md`. `core/policy/user-language-pt-br.md` and `core/policy/sdd-artifact-language-pt-br.md` are pt-BR install defaults and do not override that matrix when chat or preferences differ. |
+| CI does not prove a live agent home | Validation | `.github/workflows/validate-toolkit.yml` runs validate-core plus fixture smokes and keyed-uninstall asserts. It does not sync `USERPROFILE`. |
+| Backup is a stub | CLI | `-Action Backup` is fail-closed unless a test passes `-ForceStub`. It does not snapshot an install. |
+| Uninstall is keyed | Adapters | Toolkit-owned files are removed. Alien operator files and `sdd/sessions` stay. Re-sync is update-in-place, not uninstall-then-install. |
+
+## Fragile areas
+
+- `adapters/registry.json` capability `subagents` versus Antigravity `Get-Capabilities` effective value.
+- `core/skills/_shared/agents/LANGUAGE.md` versus `core/policy/*language-pt-br.md`.
+- `InstallRoot` resolution (`-AllowUserHome`, Copilot `-Mode user|repo`, Codex optional `-UserScope`).
+
+## Operational gotchas
+
+- Missing or unknown `subagents` is treated as `none`.
+- `verify_mode` defaults to false. A read-only post-implement verifier runs only when preferences set it true.
+- Manifest `storage_mode` is `repository` or `global`. A global bank lives outside this repo tree.
+
+## Notes
+
+Facts from registry, spawn, language, CLI, and CI sources. Update when incidents or reviews find new footguns.
+**No secrets** - describe classes of risk, not credentials.

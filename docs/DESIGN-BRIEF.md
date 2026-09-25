@@ -1,175 +1,113 @@
-# DESIGN-BRIEF — Public docs site (GitHub Pages)
+# DESIGN-BRIEF — Public docs site reading pass
 
-Generated from `/impeccable` shape (2026-08-01) + **critique deltas confirmed** (2026-08-02).  
-Critique baseline: **26/40** (Acceptable) — dual-agent home + agent switcher.  
-Visual direction probes: **skipped** (no native image-generation step in this harness).
+Confirmed in chat on 2026-09-25. Replaces the earlier home brief that put a copy-command CTA and a ten-agent switcher in the first viewport.
 
-**Confirmed decisions (critique Ask the User):**
+**Register:** brand. **PRODUCT.md:** [../PRODUCT.md](../PRODUCT.md). **DESIGN.md:** not present. Upstream Impeccable `DESIGN.md` is their example product, not this site.
 
-| # | Decision |
-|---|----------|
-| Priority | All feasible issues from the critique (P1 + P2) |
-| Switcher | **Flat 10 equal chips** in one radiogroup (no progressive disclosure) |
-| Scope | Full remediation of home + switcher findings |
-
-## 1. Register and product context
-
-- **Register:** `brand`
-- **PRODUCT.md:** [../PRODUCT.md](../PRODUCT.md)
-- **DESIGN.md:** not yet (optional later via `/impeccable document`)
+**Locales:** English (`index.md` and unsuffixed pages) is the default. Brazilian Portuguese is the `*.pt.md` translation of the same pages. Same facts, commands, ids, and flags.
 
 ## 2. Feature summary
 
-Public documentation and marketing site for **agent-dev-toolkit**, deployed with MkDocs Material + custom overrides to GitHub Pages. Serves explorers and operators equally: first viewport sells the toolkit and a **correct** sync CTA after agent intent is clear; secondary navigation reaches skills, adapters, and architecture. **i18n:** English (default) + Brazilian Portuguese for priority pages; workflow via `/developer` + `/i18n-manager` (Option A).
+The public MkDocs site explains agent-dev-toolkit and gets a visitor to install. This pass puts the architecture figure back on the home, puts a simple bootstrap download on Get started, and tightens chrome so the site reads as documentation. It does not reorganize the page map.
 
-## 3. Component tree / information architecture
+Explorers need to see what the toolkit is, then where it goes, then how to install. Operators need the same install control without a wall of `curl`.
 
-```text
-Home (landing)                 [en + pt]
- ├─ Get started                [en + pt]
- ├─ Using skills               [en + pt]
- ├─ Caveman                    [en + pt]
- ├─ Adapters                   [en + pt]
- ├─ Architecture               [en + pt]
- ├─ Credits                    [en + pt]
- └─ Maintainers                [en + pt]
-```
+## 3. Information architecture (this pass)
 
-**Home regions (one composition, not a dashboard) — revised order:**
+Home, both locales:
 
-1. Brand mark / name (hero-level) — `.home-brand`
-2. One headline + one supporting sentence — `.home-headline` / `.home-lead`
-3. Dominant visual: core → adapters → agents diagram (SVG) — `.home-diagram`
-4. Agent switcher — **technical default for copy/no-JS** (not a product endorsement); all 10 agents as equal chips in one radiogroup → live-root hint
-5. CTA group — **Copy interactive `toolkit.ps1` primary**; Get started secondary (text/outline)
-6. Optional one-line safe-default note (fixture-first / live home + `-AllowUserHome` is explicit) near copy
-7. Secondary link row into Skills / Adapters (below first viewport)
+1. The two sentences that already define the toolkit.
+2. The architecture figure: `docs-site/assets/core-adapters-diagram.svg` and `docs-site/assets/core-adapters-diagram.pt.svg`.
+3. Install stays a short point to Get started. Do not explain each publish script on the home.
 
-**Agent switcher UX (confirmed):**
+Get started, both locales:
 
-- Default selection for switcher UX only: `cursor` (or last explicit choice in-session if already chosen). **No “Recommended” badge** — toolkit is agent-agnostic.
-- First paint: all 10 agents visible as equal chips in a single radiogroup (flex-wrap for narrow viewports).
-- On change: keep primary copy as interactive `pwsh -NoProfile -File .\scripts\toolkit.ps1`; update `#agent-install-hint` (live region) and optional scripting line `… -Action Sync -Agent <id>`.
-- No-JS fallback: primary copy target is interactive `toolkit.ps1`. Optional scripting line may include `-Agent` for the default agent.
+- One plain table: operating system, file, download.
+- Files: `bootstrap.bat`, `bootstrap.ps1`, `bootstrap.sh`.
+- The control is the download. Do not print the long `curl` next to it, and do not add a copy button beside a command that is already on screen. One sentence says what the entrypoint does: it downloads the zip, checks SHA256, and opens the CLI.
 
-**Chrome:** Material top nav + search + language switcher; footer with license + repo link.
-
-**Out of site build:** `docs/documentation-plan/` (internal; `plan.md` versioned, not published via MkDocs).
+Out of this pass: nav rewrite, a site index page, a dedicated CLI page, moving "Ten agents" off the home, moving language off the home, Mermaid for ASCII trees, Credits layout. The architecture image is not replaced by Mermaid.
 
 ## 4. Design tokens
 
-**Color strategy:** Committed (dark).  
-**Scene sentence:** An operator at a quiet night desk, dark UI, cool ambient light, calm confidence — terminal nearby, not a neon cyberpunk stage.
+**Color strategy:** Committed. Keep the existing dark teal. Scene: a night desk, a manual, not a neon stage.
 
-| Role | OKLCH (target) | Notes |
-|------|----------------|--------|
-| `--bg` | `oklch(0.16 0.02 250)` | Page background |
-| `--surface` | `oklch(0.22 0.025 250)` | Panels / code wells |
-| `--text` | `oklch(0.93 0.01 250)` | Body |
-| `--muted` | `oklch(0.70 0.02 250)` | Secondary |
-| `--accent` | `oklch(0.78 0.14 195)` | Teal commit — links, switcher active, outline CTA |
-| `--accent-dim` | `oklch(0.45 0.08 195)` | Borders / focus rings |
-| `--on-accent` | **new** — dark ink on filled primary (AA ≥4.5:1 vs `--accent`) | Primary button text/icon — fix detector `low-contrast` on filled CTA |
-| `--danger` | `oklch(0.65 0.18 25)` | Rare warnings only |
+| Role | OKLCH |
+|------|--------|
+| `--bg` | `oklch(0.16 0.02 250)` |
+| `--surface` | `oklch(0.22 0.025 250)` |
+| `--text` | `oklch(0.93 0.01 250)` |
+| `--muted` | `oklch(0.70 0.02 250)` |
+| `--accent` | `oklch(0.78 0.14 195)` |
+| `--accent-dim` | `oklch(0.45 0.08 195)` |
+| `--on-accent` | `oklch(0.18 0.035 250)` |
+| `--danger` | `oklch(0.65 0.18 25)` |
 
-**Typography**
+**Type.** Material's 125% root (20px) goes away. Set `html` to 100% so `1rem` is 16px.
 
-| Role | Family | Notes |
-|------|--------|--------|
-| Display | **Sora** | Brand + home headline; prefer in SVG labels when feasible |
-| Body | **Atkinson Hyperlegible** | Docs readability / a11y |
-| Code | **JetBrains Mono** | Fenced blocks / commands / install hint |
+| Role | Family | Size | Weight |
+|------|--------|------|--------|
+| Body | Atkinson Hyperlegible | 15px | 400 |
+| Code, `pre`, `kbd` | JetBrains Mono | 12.5px | 400 |
+| Left nav and right TOC | Atkinson Hyperlegible | 13px, both the same | 400; the active item is accent and 600 |
+| Headings | Sora | keep the current steps, under the new root | 600 |
 
-Modular scale ~1.25; fluid display via `clamp()`; display letter-spacing ≥ `-0.04em`. Body measure ≤65–75ch.
+Nav and TOC use a line-height around 1.35 and less padding than the article. OpenCode Go's docs are 14px IBM Plex Mono on a 16px root ([opencode.ai/docs/go](https://opencode.ai/docs/go/)). This site takes that size relationship, not the mono body. Mono stays on code.
 
-**Spacing:** generous section gaps on home; tighter rhythm inside doc articles (Material content width).
+Tables follow a plain Bootstrap table: readable, no card chrome, horizontal scroll on a narrow viewport that does not clip the cell.
 
-**Motion:** 2–3 intentional load reveals (brand, diagram, switcher); ease-out-quart/expo; **no** bounce/elastic; all gated by `prefers-reduced-motion`. **EN/PT parity:** same `.reveal` / `.reveal--*` classes on both homes.
+## 4b. Signature motif
+
+The architecture diagram (core, adapters, agent homes). Spend the visual weight there. Do not add a second hero, a metric strip, or a cluster of large buttons.
+
+## 4c. UX voice
+
+Controls name the file they download. One sentence of outcome next to the table. No copy-paste control beside a visible command.
 
 ## 5. State map
 
 | Control | States |
 |---------|--------|
-| Primary CTA (Copy) | default, hover, focus, active, disabled, success (“Copied”), error (“Clipboard denied” + recovery hint) |
-| Secondary CTA (Get started) | default, hover, focus, active, disabled |
-| Agent option chips | default, hover, focus, active (selected) |
-| Language switcher | default, hover, focus, active (current locale) |
-| Nav / search | Material defaults; ensure visible focus |
-| Decision tree (skills) | default, hover, focus; empty N/A |
+| Download | default, hover, focus, active |
+| Nav item | default, active |
+| Code block | the Material copy button may stay on fenced examples that are not a download |
 
 ## 6. Accessibility checklist
 
-- [x] Skip link to main content (verify still present after chrome tweaks)
-- [ ] Focus order: skip → lang → nav → main → **diagram → switcher → copy CTA → Get started** → secondary links
-- [ ] Contrast AA: body 4.5:1; large 3:1; **filled primary uses `--on-accent` on `--accent`** (no light-on-teal fail)
-- [ ] Agent switcher remains a radiogroup with accessible name; all 10 options visible without disclosure
-- [ ] Copy success/error announced via live region; error offers select-all / manual copy path
-- [ ] `prefers-reduced-motion: reduce` disables entrance motion (EN + PT)
-- [ ] Language switcher: clear current language; `hreflang` / alternate links where plugin supports
-- [x] PT draft notices removed after copy parity (no raw `!!! warning` / “Rascunho” on published PT pages)
+- [ ] Skip link still reaches main content (one skip link, not two).
+- [ ] Download controls are keyboard reachable, named, and at least 44px on touch if they are the primary control.
+- [ ] Contrast stays WCAG 2.2 AA: 4.5:1 body, 3:1 large text. Filled accent uses `--on-accent`.
+- [ ] The architecture image has alt text that states core, adapters, and agent homes, in the page language.
+- [ ] `prefers-reduced-motion: reduce` keeps the existing reveal gate.
 
 ## 7. Anti-patterns explicitly avoided
 
-- Material default purple/pink palette without override
-- Glassmorphism, gradient text, glow stacks as default
-- Hero metric / identical card grids / eyebrow-on-every-section
-- Numbered 01/02/03 section scaffolding
-- Cream/sand body backgrounds; light “AI SaaS” cliché
-- Inter / Space Grotesk / IBM Plex / Fraunces / etc. (Impeccable reflex-reject)
-- Cards as lazy containers on the home hero
-- Per-agent “SDD runtime” footnotes or phantom capability flags in copy
-- Shipping incomplete PT pages with “Rascunho / EN canônica” banners instead of real parity
-- **Progressive disclosure for agent list** (all 10 chips visible in first paint)
-- **CSS/markup class contract drift** (`.home-cta__primary` unused; `__hint` vs `__note`)
-- Peer-weight dual CTAs that compete before agent intent is clear
-- SVG hardcoded hex / system-ui labels that ignore brand tokens when avoidable
-- Raw MkDocs admonition syntax leaking to the published PT home (draft banners retired)
+- Default Material purple.
+- Large poorly grouped download buttons from the previous home.
+- A copy button next to a command that is already visible.
+- IBM Plex Mono (or any mono) on body and nav.
+- Glass, gradient text, metric cards, eyebrows on every section.
+- Restoring a Caveman page or treating Orchestrated Delivery, Classic SDD, and refine-story as three equal products.
 
 ## 8. Target stack
 
-`html-css` (MkDocs Material + custom overrides; light JS for switcher/copy if needed)
-
-Also: Python/`mkdocs` build, Material i18n plugin (`docs_structure: suffix`), GitHub Actions → Pages.
+`html-css` (MkDocs Material, `docs-site/`, i18n `docs_structure: suffix`).
 
 ## 9. Implementation notes
 
-| Area | Note |
-|------|------|
-| Content root | `docs-site/` (`docs-site/mkdocs.yml`, `docs_dir: .`); do **not** publish `documentation-plan/` |
-| Class contract | Markup **must** use the CSS API: `.home-cta__primary` (or map Material classes explicitly in CSS — pick one system, no orphans). Prefer: `.agent-switcher__hint` **styled** (alias or rename `__note` → `__hint`). Style `.home-cta__status` and `.agent-switcher__label`. |
-| Switcher JS | Keep `agent-switcher.js`; primary copy = interactive `toolkit.ps1`. Hint + optional scripting `-Action Sync -Agent` update on chip change. Copy recovery on clipboard deny. |
-| Diagram | Align stroke/label color to tokens (`currentColor` / CSS vars); name parity with chips (“Grok Build”, “GitHub Copilot”, “Hermes”, “OpenHands”). Prefer display/body fonts in SVG text when practical. |
-| i18n (Option A) | EN + PT parity for all six nav pages; match reveal classes; glossary: install root / ambiente do agente (not “homes”/“lares”) |
-| Locale codes | `en`, `pt` (pt-BR copy) |
-| CI | `.github/workflows/docs.yml` |
-| Live URL | https://tibursocampos.github.io/agent-dev-toolkit/ |
-| Critique archive | Skill `critique-storage.mjs` / `detect.mjs` not bundled in this harness; re-run `/impeccable critique` after polish |
+Edit `docs-site/stylesheets/extra.css`, `docs-site/overrides/`, `docs-site/javascripts/agent-switcher.js` only if the download or figure needs it, and the minimum of `index.md`, `index.pt.md`, `get-started.md`, and `get-started.pt.md` so the figure and the download return.
 
-**Named anchors:** Linear documentation clarity; Fly.io docs energy; night ops desk mood (not Liquid Death / not Stripe purple).
+Do not edit `core/`, `adapters/`, `scripts/`, or `memory-bank/` for this pass. Do not reorganize `mkdocs.yml` nav here.
 
 ## 10. Implementation scope (one session)
 
-**Next session deliverable — home + switcher polish (critique remediation):**
+Next session is `/javascript-developer` on the HTML/CSS fallback. Load only `frontend-practices.md`, `semantic-html.md`, `css-foundations.md`, `modern-css.md`, `accessibility-basics.md`, and `checklist.md`.
 
-1. **Align class contract** — wire markup ↔ `extra.css` (primary/copy/hint/status/label); stop styling wrappers as buttons accidentally.
-2. **Reorder home** — diagram → switcher → CTA; Copy primary, Get started secondary.
-3. **Switcher: flat 10 chips** — all registered agents visible in one radiogroup; primary CTA = interactive `toolkit.ps1`; hint + optional scripting line; no-JS primary is still `toolkit.ps1`.
-4. **Contrast + SVG** — introduce `--on-accent`; fix filled CTA; token-align diagram; name parity.
-5. **PT parity** — real admonition (or styled notice), reveal classes, same IA/order as EN.
-6. **Copy error recovery** — live region + select/manual hint; optional fixture-first one-liner near CTA.
-7. **Re-critique optional** — `/impeccable critique` on home after ship to lift score from 26/40.
+Acceptance:
 
-**Acceptance**
+- [ ] Home shows the architecture SVG in both locales.
+- [ ] Get started offers one download control per bootstrap file, in both locales, without the long `curl` and without a copy button beside it.
+- [ ] Body is 15px Atkinson. Code, pre, and kbd are 12.5px JetBrains Mono. Left nav and TOC are both 13px Atkinson.
+- [ ] Checked in the browser, desktop and phone width, English and Portuguese: home, get started, one page with a table, one page with a code block. Local server `http://127.0.0.1:8000/agent-dev-toolkit/`.
 
-- [ ] First paint shows all 10 equal agent chips in one radiogroup (no disclosure)
-- [ ] Focus/visual order: brand → copy path after agent intent; Copy interactive `toolkit.ps1` is the primary home action
-- [ ] Static HTML default primary command is interactive `.\scripts\toolkit.ps1`
-- [ ] Selecting any agent updates install hint (EN + PT); optional scripting line may include `-Agent`
-- [ ] `.home-cta__*` / `.agent-switcher__hint` (or single renamed API) apply as designed; no dead classes for live controls
-- [ ] Filled primary CTA meets WCAG AA for text-on-accent
-- [ ] PT home: no raw `!!! warning`; reveal parity with EN
-- [ ] Clipboard deny offers a recoverable next step
-- [ ] `mkdocs build --strict -f docs-site/mkdocs.yml` green; Pages reflects changes; no secrets / no `documentation-plan`
-
-**Handoff:** new conversation → `/javascript-developer` (switcher + copy) and/or `/developer` for MkDocs/CSS/i18n. Use `/i18n-manager` when extracting new UI strings (recovery copy, safe-default note).
-)
+**Handoff:** new conversation with `/javascript-developer`. Do not implement the CSS in the session that only writes this brief.

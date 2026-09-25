@@ -76,20 +76,20 @@ Flags on each registry entry and on `Get-Capabilities` output:
 | `agents` | Can publish roster custom subagent markdown from `core/agents/` into the host `agents/` directory |
 | `subagents` | String enum `native` \| `none` — host Task/equivalent for SPAWN (`core/skills/_shared/agents/SPAWN.md`). **Not** boolean. Stub/`Get-Capabilities` defaults must never mint `native`. Per-adapter evidence and host spawn mechanism: each `adapters/<id>/README.md` (**Spawn / subagents**). Matrix: [SPAWN.md](SPAWN.md). |
 
-Honesty matrix (**registry** publish surfaces — do not claim unsupported ones):
+Honesty matrix (**registry** publish surfaces — do not claim unsupported ones). Column `subagents` is the declared string in `adapters/registry.json` (`native` | `none`), not the Antigravity effective probe:
 
-| Agent | skills | rules | hooks | router | plugin | agents | Notes |
-|-------|--------|-------|-------|--------|--------|--------|-------|
-| `cursor` | true | true | true | true | false | true | `Publish-Agents` → `InstallRoot/agents/` |
-| `antigravity` | true | true | true | true | true | false | PreToolUse path/secrets under `config/hooks`; `Publish-Agents` no-op; Sidecars/Automations OOS |
-| `claude` | true | true | true | true | false | true | Hooks smoke = files only; trust UI out of scope; PreToolUse path/secrets deny wired |
-| `codex` | true | true | true | true | true | true | Dual-root; PreToolUse path/secrets; `Publish-Agents` → `agents/*.toml`; `/hooks` trust manual |
-| `copilot` | true | true | true | false | false | true | `Publish-Router` no-op; hooks `version:1` + `preToolUse` guard; Mode repo agents |
-| `opencode` | true | false | true | true | true | true | `HooksSemantics=plugin-only` (JS `tool.execute.before` path/secrets throw); `Publish-Agents` → `InstallRoot/agents/` |
-| `grok` | true | true | true | true | false | true | Native under `~/.grok`; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
-| `zcode` | true | false | true | true | false | true | `Publish-Policy` no-op; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
-| `hermes` | true | true | true | true | true | false | Native under `$HERMES_HOME`; policy folded into `AGENTS.md` (no `rules/`); plugin + shell dual hooks; `Publish-Agents` no-op; `memories/MEMORY.md` seed-if-missing; never SOUL.md |
-| `openhands` | true | true | true | true | true | true | Project tree; policy folded into `AGENTS.md`; shell `pre_tool_use` path/secrets (`guard_pre_tool.sh`); `Publish-Agents` → `.agents/agents/` (roster, not native spawn); `subagents=none` |
+| Agent | skills | rules | hooks | router | plugin | agents | subagents | Notes |
+|-------|--------|-------|-------|--------|--------|--------|-----------|-------|
+| `cursor` | true | true | true | true | false | true | `native` | `Publish-Agents` → `InstallRoot/agents/` |
+| `antigravity` | true | true | true | true | true | false | `native` | Declared `native`. PreToolUse path/secrets under `config/hooks`; `Publish-Agents` no-op; Sidecars/Automations OOS. Effective value may be `none` (probe below) |
+| `claude` | true | true | true | true | false | true | `native` | Hooks smoke = files only; trust UI out of scope; PreToolUse path/secrets deny wired |
+| `codex` | true | true | true | true | true | true | `native` | Dual-root; PreToolUse path/secrets; `Publish-Agents` → `agents/*.toml`; `/hooks` trust manual |
+| `copilot` | true | true | true | false | false | true | `native` | `Publish-Router` no-op; hooks `version:1` + `preToolUse` guard; Mode repo agents |
+| `opencode` | true | false | true | true | true | true | `native` | `agents: true`. `HooksSemantics=plugin-only` (JS `tool.execute.before` path/secrets throw); `Publish-Agents` → `InstallRoot/agents/` |
+| `grok` | true | true | true | true | false | true | `native` | `agents: true`. Native under `~/.grok`; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
+| `zcode` | true | false | true | true | false | true | `native` | `Publish-Policy` no-op; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
+| `hermes` | true | true | true | true | true | false | `native` | `agents: false`. Native under `$HERMES_HOME`; policy folded into `AGENTS.md` (no `rules/`); plugin + shell dual hooks; `Publish-Agents` no-op; `memories/MEMORY.md` seed-if-missing; never SOUL.md |
+| `openhands` | true | true | true | true | true | true | `none` | Only declared `subagents=none`. Project tree; policy folded into `AGENTS.md`; shell `pre_tool_use` path/secrets (`guard_pre_tool.sh`); `Publish-Agents` → `.agents/agents/` (roster, not native spawn) |
 
 ### Shared path/secrets guard (native)
 
@@ -108,7 +108,7 @@ Rules: [`adapters/_shared/guard-rules.md`](../adapters/_shared/guard-rules.md) �
 | Antigravity | `hooks=true`; `config/hooks` PreToolUse |
 | Hermes | `hooks=true` + `plugin=true`; plugin `agent-dev-toolkit-guard` + `agent-hooks`; keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call`; **never** SOUL / tokens / gateway |
 
-Most adapters declare `subagents: native` (host product docs), including **Antigravity**. **OpenHands** declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` probe (`ADT_ANTIGRAVITY_SUBAGENTS` / `agy` / product version) — pré-2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
+Most adapters declare `subagents: native` (host product docs), including **Antigravity**. **OpenHands** is the only adapter that declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` (declared registry `native` vs effective on this machine). Probe order matches `core/skills/_shared/agents/SPAWN.md`: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0` when known → parseable `agy --version` `>= 1.0.0` as 2.0 harness proxy (CLI stays `1.x`; do not require CLI major ≥ 2) → else `none`. Before 2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
 
 ## Cursor (`cursor`) — publish + smoke
 
@@ -712,7 +712,7 @@ Spawn / subagents honesty: [SPAWN.md](SPAWN.md) + each README **Spawn / subagent
 
 Source: [`adapters/_shared/spawn-publish-honesty.md`](../adapters/_shared/spawn-publish-honesty.md) + `SpawnPublishKnobs.ps1`. RAG summary: [domains/adapters.md](domains/adapters.md#publish-knobs-honesty-depth--threads--inherit).
 
-Publish may emit **only** SPAWN-aligned depth/threads honesty and model **inherit** (or omit model). Caps: developer **≤2**, orchestrate **≤4**. Never pin child≠parent model slug at publish time. Hermes / OpenCode / Antigravity (`agents=false` or no-op): do **not** emit host `delegation.max_spawn_depth` / config.toml knobs.
+Publish may emit **only** SPAWN-aligned depth/threads honesty and model **inherit** (or omit model). Caps: developer **≤2**, orchestrate **≤4**. Never pin child≠parent model slug at publish time. Do **not** emit host `delegation.max_spawn_depth` / config.toml knobs for Hermes and Antigravity (`agents: false`, Publish-Agents no-op) or for OpenCode (`agents: true`; still no host knob emit). Grok is `agents: true` and publishes `InstallRoot/agents/`.
 
 ### TRACE emitter honesty
 
