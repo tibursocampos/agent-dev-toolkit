@@ -100,21 +100,40 @@
    2. Base typography + chrome
    ----------------------------------------------------------------------------- */
 html {
+  font-size: 100%;
   background-color: var(--bg);
   color: var(--text);
+}
+
+@media screen and (min-width: 100em) {
+  html {
+    font-size: 100%;
+  }
+}
+
+@media screen and (min-width: 125em) {
+  html {
+    font-size: 100%;
+  }
 }
 
 body {
   font-family: var(--font-body);
+  font-weight: 400;
   background-color: var(--bg);
   color: var(--text);
 }
 
+.md-grid {
+  max-width: 96rem;
+}
+
 .md-typeset {
   font-family: var(--font-body);
+  font-weight: 400;
   color: var(--text);
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 1.125rem;
+  line-height: 1.55;
 }
 
 .md-typeset h1,
@@ -127,14 +146,33 @@ body {
 }
 
 .md-typeset h1 {
-  letter-spacing: -0.04em;
-  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  letter-spacing: -0.03em;
+  font-size: 2.25rem;
+}
+
+.md-typeset h2 {
+  font-size: 1.6rem;
+}
+
+.md-typeset h3 {
+  font-size: 1.3rem;
 }
 
 .md-typeset code,
 .md-typeset pre,
+.md-typeset pre code,
+.md-typeset :not(pre) > code,
 .md-typeset kbd {
   font-family: var(--font-code);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.md-content__inner > p,
+.md-content__inner > ul,
+.md-content__inner > ol {
+  margin-block: 0.45em;
 }
 
 .md-typeset a {
@@ -153,7 +191,7 @@ body {
 
 /* Article measure guidance */
 .md-content__inner > :is(p, ul, ol, dl, blockquote, .admonition) {
-  max-width: var(--measure);
+  max-width: none;
 }
 
 .md-header,
@@ -179,10 +217,12 @@ body {
 
 .md-search__form {
   background-color: var(--surface);
+  height: 1.75rem;
 }
 
 .md-search__input {
   color: var(--text);
+  font-size: 0.8125rem;
 }
 
 .md-search__input::placeholder {
@@ -213,8 +253,11 @@ body {
 /* -----------------------------------------------------------------------------
    3. Skip link
    ----------------------------------------------------------------------------- */
-.adt-skip-link,
 .md-skip {
+  display: none;
+}
+
+.adt-skip-link {
   position: absolute;
   inset-inline-start: var(--space-4);
   top: var(--space-4);
@@ -231,9 +274,7 @@ body {
 }
 
 .adt-skip-link:focus,
-.adt-skip-link:focus-visible,
-.md-skip:focus,
-.md-skip:focus-visible {
+.adt-skip-link:focus-visible {
   transform: translateY(0);
   outline: none;
   box-shadow: var(--focus-ring);
@@ -288,7 +329,7 @@ body {
 .home-brand {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+  font-size: 1.35rem;
   letter-spacing: -0.04em;
   line-height: 1.1;
   color: var(--text);
@@ -298,7 +339,7 @@ body {
 .home-headline {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+  font-size: 1.125rem;
   letter-spacing: -0.04em;
   line-height: 1.25;
   color: var(--text);
@@ -308,7 +349,7 @@ body {
 
 .home-lead {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
@@ -334,12 +375,12 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 2.75rem;
-  padding: var(--space-3) var(--space-5);
+  min-height: 1.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-md);
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
@@ -450,9 +491,10 @@ body {
 .home-cta > code,
 .home-cta > [data-sync-command],
 .home-cta__copy > code,
-.home-cta__copy [data-sync-command] {
+.home-cta__copy [data-sync-command],
+.home-cta__copy [data-launcher-command] {
   font-family: var(--font-code);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text);
   background-color: var(--surface);
@@ -547,14 +589,16 @@ body {
   color: var(--danger);
 }
 
-.home-diagram {
+.md-typeset figure.home-diagram {
+  display: block;
   width: 100%;
-  max-width: 52rem;
+  max-width: 100%;
   margin-block: var(--space-4);
   color: var(--text);
 }
 
-.home-diagram svg {
+.md-typeset figure.home-diagram svg,
+.md-typeset figure.home-diagram img {
   display: block;
   width: 100%;
   height: auto;
@@ -692,6 +736,185 @@ body {
   outline: none;
   box-shadow: var(--focus-ring);
   border-radius: var(--radius-sm);
+}
+
+/* Compact install table: command in the cell, download and copy at the end of the row. */
+.cmd-table {
+  width: 100%;
+  font-size: 0.8125rem;
+}
+
+.cmd-table code {
+  white-space: pre-wrap;
+  font-size: 0.75rem;
+}
+
+.cmd-table__btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.cmd-table__btn:hover {
+  background: color-mix(in oklch, var(--accent) 88%, white);
+}
+
+.cmd-table__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.md-nav,
+.md-nav--primary .md-nav__item,
+.md-nav--primary .md-nav__title,
+.md-sidebar--primary .md-nav__link,
+.md-sidebar--secondary .md-nav__link,
+.md-nav__link,
+.md-nav__link code,
+.md-nav__title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.md-nav__link {
+  margin-top: 0.15rem;
+  padding-block: 0.05rem;
+}
+
+.md-nav__item .md-nav__link--active,
+.md-nav__item .md-nav__link--active code {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.md-typeset__scrollwrap {
+  margin-inline: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.md-typeset pre.mermaid,
+.md-typeset .mermaid {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.md-typeset__table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  overflow: visible;
+}
+
+html .md-typeset__table table,
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  table-layout: auto;
+  overflow: visible;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 1.125rem;
+  font-weight: 400;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  overflow: visible;
+  background-color: transparent;
+  border-bottom: 1px solid color-mix(in oklch, var(--muted) 35%, transparent);
+  padding: 0.55rem 0.85rem;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.md-typeset a.file-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background-color: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.md-typeset a.file-download:hover {
+  background-color: color-mix(in oklch, var(--accent) 88%, white);
+  border-color: color-mix(in oklch, var(--accent) 88%, white);
+  color: var(--on-accent);
+}
+
+.md-typeset a.file-download:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  color: var(--on-accent);
+}
+
+.md-typeset a.file-download:active {
+  background-color: color-mix(in oklch, var(--accent) 82%, black);
+  border-color: color-mix(in oklch, var(--accent) 82%, black);
+  color: var(--on-accent);
+}
+
+@media screen and (min-width: 60em) {
+  .md-search__form {
+    width: 11rem;
+  }
+}
+.os-launcher {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  margin-block: var(--space-2);
+}
+
+.os-launcher__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.os-launcher__note {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  max-width: var(--measure);
 }
 
 /* -----------------------------------------------------------------------------

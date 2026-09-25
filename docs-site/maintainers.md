@@ -1,111 +1,96 @@
+---
+title: Maintainers
+---
+
 # Maintainers
 
-Operator and collaborator notes for keeping **agent-dev-toolkit** green. Public clone/fork is welcome; upstream community PRs are out of scope.
+**agent-dev-toolkit** is a public, read-only toolkit. Anyone may clone or fork it and use it locally. Upstream contributions are not accepted. Do not open pull requests expecting review or merge into this repository.
 
-## Policy (short)
+License: MIT © 2026 Raphael Campos.
 
-| Rule | Detail |
-|------|--------|
-| Clone / fork | Anyone may clone or fork and customize locally |
-| Upstream PRs | Not accepted from the community |
-| Issues | Bugs only (no feature/RFC channel) |
-| Security | Report via `SECURITY.md`, not public Issues |
+## Who this is for
 
-Deep dives on GitHub:
+| Audience | Intent | Start |
+|----------|--------|-------|
+| **Visitor** | Understand the toolkit, clone or fork, read policy | [Home](index.md), [Get started](get-started.md), this page |
+| **Operator** | Sync skills to an agent home, run validation | [Get started](get-started.md), [Adapters](adapters.md), [Using skills](using-skills.md) |
+| **Maintainer** | Change this repository (write access) | The section below. Required check **`ci-ok`** on `pull_request` to `develop`, `master`, and `main` (`.github/workflows/validate-toolkit.yml`). Release source: `.github/workflows/enforce-release-source.yml` |
 
-- [CONTRIBUTING.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md)
-- [docs/REPO_GOVERNANCE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/REPO_GOVERNANCE.md)
-- [SECURITY.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/SECURITY.md)
-- [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — full layout; site overview: [Architecture](../architecture/)
-- [docs/CREDITS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/CREDITS.md) — third-party inspiration; site: [Credits](../credits/)
+| Topic | Where |
+|-------|--------|
+| Clone / fork allowed; no upstream PRs | This page |
+| Issues are bugs only | This page |
+| Vulnerability reporting | This page |
+| License | `LICENSE` (MIT) |
+| Install, sync, uninstall | [Get started](get-started.md) |
+| Validation and CI | [Architecture](architecture.md) |
 
-## Validation (local)
+## Issues (bugs only)
 
-None of these steps write to a live install path. Prefer fixture `InstallRoot` paths; never use `-AllowUserHome` to “make CI pass.”
+GitHub Issues are for defect reports: broken sync, validation failures, incorrect docs, runtime errors.
 
-**Core suite** (contracts, skill graph, fixtures — required before merge for maintainers):
+- Do not use Issues for feature requests, RFCs, or contribution proposals.
+- There is no community contribution flow via Issues or pull requests.
+- Security vulnerabilities follow the reporting section below. They do not go in public Issues.
+
+Keep local changes in your fork or private copy.
+
+## Clone and fork
+
+You may:
+
+- Clone or fork this repo for personal or team use
+- Sync skills to your agent homes (`~/.cursor`, `~/.claude`, `~/.copilot`, and the other roots) via `scripts/sync-agent.ps1`
+- Customize skills, policy, adapters, and docs in your fork
+
+You may not open pull requests expecting review or merge here, and you may not request write access for community contributions.
 
 ```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
-
-# Alias:
-pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
-
-# Quiet (CI-style):
-pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-**Per-agent validate** (`validate-core` + adapter smoke test against fixture):
+Live home (opt-in):
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode user
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-**CI smoke harnesses** (mirror Actions ephemeral-copy behavior):
+## Maintainers only
 
-```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CodexCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
-```
+Internal development uses Git on branches with write access.
 
-Full matrix, safety rules, and CI workflows:
+| Branch | Role |
+|--------|------|
+| `feature/<slug>` or `feat/<id>` | Work branches |
+| `develop` | Integration |
+| `master` / `main` | Stable release |
 
-- [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md)
-- [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml) — required **validate** check
-- [docs.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/docs.yml) — MkDocs build / Pages deploy
+Pull requests are collaborators only. Prefer `/open-github-pr` (after `/commit` / `/push`), or use `.github/PULL_REQUEST_TEMPLATE.md` in the web UI. Feature and fix work targets **`develop`**. Release PRs are **`develop` → `master` or `main`**, enforced by `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop`, `master`, and `main`. The required CI check is **`ci-ok`**. Jobs `validate` and `validate-ubuntu` feed that check. Branch protection must require `ci-ok`, not the job name `validate` alone.
 
-## Docs site (local)
+## Reporting a vulnerability
 
-Config and theme overrides live under `docs-site/` (`mkdocs.yml`, `overrides/`, `requirements-docs.txt`).
+Do not open a public GitHub Issue for security vulnerabilities.
 
-```powershell
-pip install -r docs-site/requirements-docs.txt
-mkdocs serve -f docs-site/mkdocs.yml
-mkdocs build --strict -f docs-site/mkdocs.yml
-```
+Use the first channel that is available on this repository:
 
-Build output: `/site/` at repo root (via `site_dir: ../site`).
+1. **GitHub private vulnerability reporting** — when enabled, use **Security → Advisories → Report a vulnerability**.
+2. **Contact repository owners via GitHub** — if private reporting is not enabled yet, contact an owner through their GitHub profile. Do not invent a security mailbox.
 
-## Operator scripts (inventory → preflight → harvest)
+No dedicated security email is published for this repository.
 
-Same skill call flow; these scripts add deterministic gates — not a second toolkit CLI. Suggested order on a consumer feature:
+Before treating channel 1 as available, maintainers:
 
-| Order | Script | Role |
-|-------|--------|------|
-| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` under `memory-bank/.inventory/` (**portable** paths in `sources.json`) |
-| 2 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Block O3 when PRD/PLAN/CHANGE inconsistent |
-| 3 | `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` | Idempotent `step_confirmed` + ledger claim (MUST `-File`; opt-in Shell allowlist) |
-| 4 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize **only** `features/NNN-slug/TRACE.jsonl` |
+1. Enable **Private vulnerability reporting** (**Settings → Code security and analysis → Private vulnerability reporting**).
+2. Confirm the Security tab shows **Report a vulnerability** for people who are not collaborators.
+3. Keep this file honest. Add a mailbox here only when a real address exists.
 
-```powershell
-pwsh -NoProfile -File .\scripts\inventory\Invoke-MemoryBankInventory.ps1 `
-  -RepoPath . -BankPath .\memory-bank -AllowCreateInventory
+Include:
 
-pwsh -NoProfile -File .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
-  -FeatureRoot features\<NNN-slug> `
-  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md
+- A description of the issue and the potential impact
+- Steps to reproduce (a proof of concept if it is safe to share privately)
+- Affected paths (skills, scripts, adapters, docs) when known
+- Your preferred contact for follow-up
 
-pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
-  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
-
-pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 `
-  -Action claim -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -Step N -Holder <id> `
-  -RepoPath . -SessionsRoot <sessions-root>
-
-pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
-  -FeatureRoot features\<NNN-slug>
-```
-
-**Shell allowlist tip (Cursor):** opt-in allowlist for the two develop scripts only — do not auto-approve all Shell. Selective clarify gate: `Invoke-SiblingReadinessGate.ps1` (`-FeatureRoot`). Core suite also asserts InvocationAxes, NavigationBlock (`## Related`), SiblingReadiness, PublishSpawnKnobs. Pointers: [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). TRACE emitter claims: [Adapters](../adapters/).
-
-## Maintainer Git flow
-
-Collaborators with write access use normal branches: `feature/<slug>` → `develop` → `master`/`main`. Prefer `/open-github-pr` after `/commit` / `/push` (feature → `develop` = **`--squash`**; release mode `develop` → `master`/`main` = **`--rebase`**; always ask auto-merge). Release PRs use the template at `.github/PULL_REQUEST_TEMPLATE/release.md`. Required CI check: **validate**. See [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) in CONTRIBUTING.md.
+Give maintainers reasonable time to assess a report before any public disclosure.

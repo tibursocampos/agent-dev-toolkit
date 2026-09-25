@@ -1,10 +1,11 @@
 /**
- * Home agent switcher + sync-command clipboard helper.
- * Defensive no-op on pages without the home CTA / switcher markup.
+ * Home agent switcher + per-command clipboard helper.
+ * Defensive no-op on pages without the home switcher markup.
+ * Copy buttons with data-copy-target still bind on pages that have no switcher.
  * Re-inits on MkDocs Material instant navigation via document$ when present.
  * Persists last agent id in sessionStorage.
  * Flat agent-chip radiogroup on home; optional details/button disclosure binding is a no-op when absent.
- * Primary copy target is always interactive toolkit.ps1. Switcher updates install hint + secondary scripting command.
+ * Each copy button copies only the text of its data-copy-target. Switcher updates install hint + optional scripting line.
  */
 (function () {
   "use strict";
@@ -31,8 +32,9 @@
   var CLASS_ERROR = "is-error";
   var ATTR_BOUND = "data-agent-switcher-bound";
   var ATTR_DETAILS_BOUND = "data-details-aria-bound";
+  var ATTR_COPY_BOUND = "data-launcher-copy-bound";
 
-  var resetTimerId = null;
+  var copyTimers = new WeakMap();
 
   function isPortugueseLocale() {
     var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
@@ -227,32 +229,111 @@
     return match;
   }
 
-  function clearCopyState(home) {
-    if (resetTimerId !== null) {
-      window.clearTimeout(resetTimerId);
-      resetTimerId = null;
+  function clearCopyState(target) {
+    var timerId = copyTimers.get(target.copyShell);
+    if (timerId) {
+      window.clearTimeout(timerId);
+      copyTimers.delete(target.copyShell);
     }
-    home.statusEl.textContent = "";
-    home.copyShell.classList.remove(CLASS_SUCCESS, CLASS_ERROR);
-    home.copyShell.removeAttribute("data-state");
-    home.copyBtn.classList.remove(CLASS_SUCCESS, CLASS_ERROR);
-    home.copyBtn.removeAttribute("data-state");
+    target.statusEl.textContent = "";
+    target.copyShell.classList.remove(CLASS_SUCCESS, CLASS_ERROR);
+    target.copyShell.removeAttribute("data-state");
+    target.copyBtn.classList.remove(CLASS_SUCCESS, CLASS_ERROR);
+    target.copyBtn.removeAttribute("data-state");
   }
 
-  function setCopyState(home, state, message, clearAfterMs) {
-    clearCopyState(home);
-    home.statusEl.textContent = message;
+  function setCopyState(target, state, message, clearAfterMs) {
+    clearCopyState(target);
+    target.statusEl.textContent = message;
     var className = state === STATE_SUCCESS ? CLASS_SUCCESS : CLASS_ERROR;
-    home.copyShell.classList.add(className);
-    home.copyShell.setAttribute("data-state", state);
-    home.copyBtn.classList.add(className);
-    home.copyBtn.setAttribute("data-state", state);
+    target.copyShell.classList.add(className);
+    target.copyShell.setAttribute("data-state", state);
+    target.copyBtn.classList.add(className);
+    target.copyBtn.setAttribute("data-state", state);
 
     if (typeof clearAfterMs === "number" && clearAfterMs > 0) {
-      resetTimerId = window.setTimeout(function () {
-        clearCopyState(home);
+      var timerId = window.setTimeout(function () {
+        clearCopyState(target);
       }, clearAfterMs);
+      copyTimers.set(target.copyShell, timerId);
     }
+  }
+
+  function statusForButton(button) {
+    var described = button.getAttribute("aria-describedby") || "";
+    var statusId = described.split(/\s+/)[0];
+    if (statusId) {
+      var byId = document.getElementById(statusId);
+      if (byId) {
+        return byId;
+      }
+    }
+    var shell = button.closest(".home-cta__copy");
+    if (!shell) {
+      return null;
+    }
+    return shell.querySelector("[data-copy-status], .home-cta__status");
+  }
+
+  function commandForButton(button) {
+    var selector = button.getAttribute("data-copy-target");
+    if (!selector) {
+      return null;
+    }
+    try {
+      return document.querySelector(selector);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function bindLauncherCopies(root) {
+    var buttons = root.querySelectorAll("[data-copy-target]");
+    Array.prototype.forEach.call(buttons, function (button) {
+      if (button.getAttribute(ATTR_COPY_BOUND) === "true") {
+        return;
+      }
+      var commandEl = commandForButton(button);
+      var statusEl = statusForButton(button);
+      if (!commandEl || !statusEl) {
+        return;
+      }
+      button.setAttribute(ATTR_COPY_BOUND, "true");
+      var target = {
+        commandEl: commandEl,
+        copyBtn: button,
+        statusEl: statusEl,
+        copyShell: button.closest(".home-cta__copy") || button,
+      };
+      button.addEventListener("click", function () {
+        var messages = copyMessages();
+        var text = (target.commandEl.textContent || "").trim();
+        if (!text) {
+          selectCommandText(target.commandEl);
+          setCopyState(
+            target,
+            STATE_ERROR,
+            messages.error + " — " + messages.recovery,
+            STATUS_ERROR_MS
+          );
+          return;
+        }
+        copyText(text).then(
+          function () {
+            setCopyState(target, STATE_SUCCESS, messages.success, STATUS_SUCCESS_MS);
+          },
+          function () {
+            selectCommandText(target.commandEl);
+            setCopyState(
+              target,
+              STATE_ERROR,
+              messages.error + " — " + messages.recovery,
+              STATUS_ERROR_MS
+            );
+          }
+        );
+      });
+    });
   }
 
   function selectCommandText(commandEl) {
@@ -375,39 +456,11 @@
       });
     });
 
-    home.copyBtn.addEventListener("click", function () {
-      var messages = copyMessages();
-      var text = (home.commandEl.textContent || "").trim();
-      if (!text) {
-        selectCommandText(home.commandEl);
-        setCopyState(
-          home,
-          STATE_ERROR,
-          messages.error + " — " + messages.recovery,
-          STATUS_ERROR_MS
-        );
-        return;
-      }
-      copyText(text).then(
-        function () {
-          setCopyState(home, STATE_SUCCESS, messages.success, STATUS_SUCCESS_MS);
-        },
-        function () {
-          selectCommandText(home.commandEl);
-          setCopyState(
-            home,
-            STATE_ERROR,
-            messages.error + " — " + messages.recovery,
-            STATUS_ERROR_MS
-          );
-        }
-      );
-    });
-
     applySelection(home, restoreStoredAgent(home) || selectedRadio(home.switcher));
   }
 
   function init() {
+    bindLauncherCopies(document);
     var home = queryHome();
     if (!home) {
       return;

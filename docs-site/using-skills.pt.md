@@ -1,228 +1,110 @@
-﻿# Usando skills
+﻿---
+title: Usando skills
+---
 
-Invoque as skills do toolkit após um sync bem-sucedido. Prefira **ids de skill** (kebab-case em `core/skills/`). O **id** é estável entre hosts; o prefixo é específico do host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands). Compat: `use skill <id>` ou linguagem natural alinhada à `description` da skill.
+# Usando skills
 
-Após qualquer sync, invoque a skill **`help-skills`** para o catálogo estático instalado (`CATALOG.md` + `OPERATOR.md`) — não carregue cada `SKILL.md`.
+Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-**Não é invoke de skill:** Codex `/hooks` e Grok `/hooks-trust` são UI de trust de hooks. Não existe flag de produto Codex `$skill --menu` — `$` / `/skills` é o picker nativo de skills.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **41** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
-## Matriz canônica de invoke
+`/hooks` do Codex e `/hooks-trust` do Grok são telas de confiança de hooks. Não são atalhos de skill. O Codex não tem a flag `$skill --menu`. O seletor `$` / `/skills` é o menu do produto.
 
-| Host | Path das skills (live, típico) | Forma explícita | Exemplo |
-|------|--------------------------------|-----------------|---------|
-| Cursor | `~/.cursor/skills` | `/id` | `/help-skills` |
-| Claude | `~/.claude/skills` | `/id` | `/sdd-spec` |
-| Codex | `~/.codex/skills` (+ opcional `~/.agents/skills`) | `$id` | `$help-skills` |
-| Copilot | `~/.copilot/skills` ou `<repo>/.github/skills` | `/id` (+ `/skills reload` após sync) | `/dotnet-developer` |
-| OpenCode | `~/.config/opencode/skills` | ferramenta `skill` | `skill({ name: "help-skills" })` |
-| Antigravity | `~/.gemini/config/skills` | `use skill id` ou `/id` | `use skill sdd-plan` |
-| Grok | `~/.grok/skills` | `/id` | `/help-skills` |
-| ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
-| Hermes | `~/.hermes/skills` | `/id` | `/help-skills` |
-| OpenHands | `.agents/skills` (projeto) / `~/.agents/skills` (usuário) | `name` da skill (o agente carrega quando for relevante) | `help-skills` |
-
-## Especialistas em paralelo (padrão)
-
-Após o sync, o router publicado pede aos agentes que prefiram **subagentes especialistas em paralelo** para planejamento, execução multi-facet, análise ou dúvidas não triviais, mantendo **esta sessão como pai**. Trabalho trivial / single-path fica no pai.
-
-- **`needs_*` → roster** — quais papéis spawnar: [ROSTER.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/ROSTER.md)
-- **`model` no Task** — omitir por padrão (o filho herda o modelo da sessão pai); ver [SUBAGENT-MODEL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/SUBAGENT-MODEL.md)
-- **Pai orquestrador** — esta sessão fica enxuta (metas, gates, paths, receipts); **sem código da aplicação** no pai quando há especialistas
-- **Caps** — filhos `*-developer` **≤ 2**; paralelo `orchestrate-*` **≤ 4** (em ondas se houver mais). Fallback com `subagents=none`: no pai, nunca hard-fail — [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md) · [Arquitetura](../architecture/)
-- **Superfícies de idioma** — chat do usuário + artefatos persistidos = idioma do chat; prompts de filhos e receipts para agentes = **en-US** ([LANGUAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/LANGUAGE.md))
+Instalação: [Começar](get-started.md). Um exemplo de cada skill: [Primeiro uso](first-use.md). O caminho da feature: [Entrega orquestrada](orchestrated-delivery.md). Comandos de sync, validação e desinstalação: [CLI](cli.md).
 
 ## Pré-requisitos
 
-1. Sync de pelo menos um agente — ver [Começar](../get-started/).
-2. **Projeto da aplicação** aberto nesse agente (não só este repositório do toolkit).
-3. Opcional: validação com `toolkit.ps1 -Action Validate -Agent <id>`.
+1. Sincronize pelo menos um agente ([Começar](get-started.md)).
+2. Abra um projeto **consumidor** nesse agente.
+3. Opcional: rode `validate-agent.ps1` contra um fixture ou um InstallRoot ao vivo.
 
-## Qual trilha / skill?
+## Onde a skill roda
 
-```mermaid
-flowchart TD
-  Start([Nova tarefa]) --> Q1{Várias stories / brownfield / precisa de especialistas?}
-  Q1 -->|Sim| FC[Orchestrated Delivery]
-  Q1 -->|Não| Q2{Feature única de complexidade média ou alta?}
-  Q2 -->|Sim| SDD[Classic SDD]
-  Q2 -->|Só item de backlog informal| FB[Backlog Refine]
-  Q2 -->|Não| Q3{Correção pequena em uma área?}
-  Q3 -->|Sim .NET| NET[dotnet-developer]
-  Q3 -->|Sim outra stack| STACK[skill de stack ou developer]
-  Q3 -->|Incerto| DEV[router developer]
-  FC --> S0["/memory-bank-init Step 0"]
-  S0 --> O1["/orchestrate-analyze"]
-  O1 --> ArchGate{"Projeto novo / needs_domain (modelagem de domínio)?"}
-  ArchGate -->|Sim| Confirm["papel architect: minuta → sim (confirmar) → ARCH"]
-  ArchGate -->|Espelho brownfield| O2
-  Confirm --> O2["/orchestrate-deliver"]
-  O2 --> O3["/orchestrate-develop ou /sdd-develop"]
-  FB --> Refine["/refine-story"]
-  Refine --> AorC[Depois Classic SDD ou Orchestrated Delivery]
-  SDD --> Spec["/sdd-spec"]
-  Spec --> Plan["/sdd-plan"]
-  Plan --> Impl["/sdd-develop um passo"]
-  NET --> DoneNet[Mudança de código]
-  STACK --> DoneNet
-  DEV --> STACK
-  Impl --> DoneSdd[Mudança de código]
-  O3 --> DoneSdd
-  AorC --> SDD
-  AorC --> FC
-  DoneNet --> Post
-  DoneSdd --> Post
-  Post[Depois do código] --> CR["/code-review"]
-  CR --> TC["/test-coverage opcional .NET"]
-  TC --> Commit["/commit"]
-  Commit --> Push["/push"]
-  Push --> PR["/open-github-pr"]
-```
+Raízes de instalação e layouts de publicação estão em [Adaptadores](adapters.md). Comandos de sync, validação e desinstalação estão em [CLI](cli.md).
 
-**Resumo ASCII:**
+O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Antigravity aceita `use skill <id>` ou `/id`. Depois de um sync do Copilot, rode `/skills reload`.
 
-```
-Nova tarefa
-  ├─ Várias stories / brownfield?        -> Orchestrated Delivery: memory-bank-init → analyze → deliver → develop
-  ├─ Projeto novo / precisa domínio?     -> Orchestrated Delivery: analyze (+ confirmação architect) antes de develop
-  ├─ Feature única média/alta?           -> Classic SDD: sdd-spec → sdd-plan → sdd-develop
-  ├─ Item de backlog informal?           -> Backlog Refine: refine-story → checklist? → Classic ou Orchestrated
-  ├─ Mudança pequena de stack?           -> *-developer ou developer
-  └─ Depois do código                    -> code-review → test-coverage? → commit → push → open-github-pr
-```
-
-### Trilhas de trabalho
-
-| Trilha | Quando | Pipeline | Notas |
-|--------|--------|----------|-------|
-| **Classic SDD** | Uma feature clara | `sdd-spec` → `sdd-plan` → `sdd-develop` | Sem memory-bank obrigatório |
-| **Backlog Refine** | Bug/story informal | `refine-story` → `split-story-checklist` opcional → Classic ou Orchestrated | Story sizing + persona/JTBD opcional (só User Stories); coluna Product intent no FEATURE |
-| **Orchestrated Delivery** | Várias stories / brownfield / domínio em projeto novo (greenfield) | `memory-bank-init` → analyze → deliver → develop | Analyze pode pedir confirmação do architect; deliver/develop reusam Classic SDD |
-
-Mesmo fluxo de chamada das skills; contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, invocation/provenance, PLAN-LEDGER) são gates/artefatos a mais — não um segundo toolkit. Skills invocáveis usam lazy-load (`SKILL.md` + `reference.md` / `references/*` opcional); contrato: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS não é entrega.
-
-**Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, e quando chamar `read-sdd-artifact` — [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md) (Invocation / provenance / `read-sdd-artifact`). Normas de qualidade de produto em `_shared/backlog-item-types/` (carregue **um** arquivo por vez).
-
-Modo orchestrator (pai enxuto; especialistas fazem o trabalho pesado): padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md).
-
-Trabalho de domínio em projeto novo (greenfield): prefira Orchestrated Delivery. Assim `orchestrate-analyze` pode acionar o papel **architect** do roster (não é skill id). Ele gera uma minuta ARCH; você responde **sim** (confirmar); o ARCH fica aprovado. Só então os implementadores carregam um estilo de arquitetura e a camada de stack correspondente. Em brownfield, use descoberta primeiro: espelhe o ARCH existente.
-
-## Invocar por agente
-
-A skill **`help-skills`** funciona em **todos** os adapters sincronizados (não só Codex). Use a forma do host na matriz acima.
-
-### Cursor
-
-Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router: `AGENTS.md`.
-
-| Ação | Exemplo |
-|------|---------|
-| Menu slash | `/sdd-spec` |
-| Com args | `/sdd-plan - path/to/PRD.md` |
-| Router de stack | `/developer` |
-| Catálogo | `/help-skills` |
-| Orchestrated Delivery Step 0 | `/memory-bank-init` |
-
-Também Customize → Skills. Aceite os hooks na UI do Cursor uma vez se solicitado (fora de CI).
-
-### Claude Code
-
-Skills em `~/.claude/skills/` (ou `.claude/` do projeto). Router: `CLAUDE.md`. Invoque com `/id` (ex.: `/sdd-spec`, `/help-skills`).
-
-### GitHub Copilot
-
-Sync com `-Mode user` ou `-Mode repo`:
-
-| Mode | Skills / instruções |
-|------|---------------------|
-| `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
-| `repo` | `<repo>/.github/skills`, … |
-
-Invoque com `/id`. Após o sync, rode **`/skills reload`**. Id do catálogo: `help-skills`.
-
-### Codex
-
-O Codex é **dual-root** para packaging vs rules. **O path do plugin sozinho não alimenta `$`.**
-
-| Superfície | Local |
-|------------|-------|
-| Skills do plugin + CATALOG + OPERATOR | Sob `InstallRoot/plugin` (packaging) |
-| **Discovery `$`** | Live `~/.codex/skills` (espelho em InstallRoot) |
-| Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
-| Produto / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
-| UserScope opcional (opt-in) | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
-
-Invoque com **`$id`** (ex.: `$help-skills`). O picker nativo `$` / `/skills` é o menu do produto — não uma flag `--menu`. Aceite hooks com Codex `/hooks` após install real (UI de trust, não invoke de skill).
-
-### OpenCode
-
-Skills: `~/.config/opencode/skills`. Invoque via a ferramenta **`skill`**: `skill({ name: "help-skills" })`. Plugins JS em `plugins/` (`tool.execute.before` path/secrets throw). Roster: `InstallRoot/agents/` (`agents=true`).
-
-### Grok
-
-Path live esperado: `~/.grok/skills`. Invoque com `/id` (ex.: `/help-skills`). Trust de hooks via `/hooks-trust` se necessário (não é invoke de skill). PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`.
-
-### ZCode
-
-Skills: `~/.zcode/skills`. Invoque com **`$id`** (ex.: `$help-skills`). Atualize em Settings → Skills se o produto exigir. PreToolUse path/secrets.
-
-### Antigravity
-
-Skills: `~/.gemini/config/skills`. Invoque com **`use skill <id>`** ou `/id` (ex.: `use skill sdd-plan`). PreToolUse path/secrets em `config/hooks`.
-
-### Hermes
-
-Skills: `~/.hermes/skills`. Invoque com **`/id`** (ex.: `/help-skills`). Oficial: cada skill instalada vira comando slash. Hooks: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (`config.yaml` só chaves gerenciadas). Subagentes: ferramenta `delegate_task` do host (`subagents=native`). Sem roster `agents/*.md` (`agents=false`). Nunca SOUL / tokens / gateway.
-
-### OpenHands
-
-Skills de projeto: `.agents/skills`. Skills do usuário live: `~/.agents/skills`. O agente carrega a skill pelo `name` / `description` quando for relevante (`triggers` opcionais no frontmatter). Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed). Canvas não é spawn de subagente — `subagents=none`; fallback SPAWN no pai. O roster publicado `.agents/agents/*.md` é SDK/plugin, não Canvas Profile.
-
-Layouts de publicação por agente: [Adaptadores](../adapters/). Todos publicam `help-skills` + o pack skills-catalog.
-
-## Fluxos comuns
-
-Exemplos de fluxo usam **ids de skill**. Prefixe com a forma do seu host (`/`, `$`, `use skill`, ferramenta `skill` do OpenCode ou `name` da skill no OpenHands).
-
-### Classic SDD
+## Qual skill
 
 ```text
-sdd-spec
-sdd-plan - <prd-path>
-sdd-develop - <plan-path> - Step N
-read-sdd-artifact - <portable-features-path>   # opcional: normaliza → source_context
+Feature
+  └─ orchestrate-analyze
+        ├─ classifica, pergunta, define needs_*, especialistas, gates de story, sim
+        ├─ um arquivo trivial → /developer (só se você escolher esse atalho)
+        ├─ uma story já clara → sdd-spec
+        └─ backlog aprovado → orchestrate-deliver
+              └─ sdd-spec e depois sdd-plan por story → orchestrate-develop
+                    └─ um passo sdd-develop por filho → code-review ou commit
 ```
-
-Uma sessão de develop = **um** passo do PLAN. Contratos internos (REQ, validate, CHANGE em brownfield, EVD/STATE, TRACE, invocation/provenance) rodam nos mesmos skill ids. Use `read-sdd-artifact` quando o handoff precisar de envelope tipado `source_context` (não é um quarto estágio de autoria). Detalhe: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md).
-
-### Backlog Refine — modos + checklist
-
-```text
-refine-story - feature    # User Story / Bug
-refine-story - tech       # Technical Story (TSnn)
-refine-story - split      # reformatar passos → pronto para checklist
-split-story-checklist - <story-or-backlog-path>
-```
-
-O modo é **obrigatório** (`feature` \| `tech` \| `split`). Omitir → a skill pergunta uma vez; não assuma `feature`. Modos são playbooks na mesma trilha Backlog Refine — não novas trilhas slash. Scorecard/checklist carregam **um** arquivo de `_shared/backlog-item-types/` por vez.
-
-### API standards vs clientes tipados
-
-```text
-api-standards                 # REST / versionamento / erros / naming / higiene de segurança (agnóstico)
-api-standards - versioning    # foco opcional: rest | versioning | errors | naming | security
-api-integrate - <openapi>     # OpenAPI → clientes tipados / DTOs
-```
-
-Use **`api-standards`** para revisão de design (só packing; sem contratos de empresa). Use **`api-integrate`** quando precisar de clientes gerados a partir de OpenAPI.
 
 ### Orchestrated Delivery
 
 ```text
-memory-bank-init
 orchestrate-analyze
+orchestrate-deliver - features/NNN-slug/
+orchestrate-develop - features/NNN-slug/
 ```
 
-Depois `orchestrate-deliver` e `orchestrate-develop` (ou `sdd-develop`). Orquestradores **reusam** contratos Classic SDD; não os substituem. Antes do backlog **sim**, O1 pode desafiar FEATURE/US/PRD rasos (qualidade de artefato de produto) — veja [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#product-artifact-quality-backlog-item-types).
+Analyze classifica, pergunta, define `needs_*`, chama especialistas quando as flags exigem e espera o **sim** do backlog. Deliver roda `sdd-spec` e `sdd-plan` por story aprovada (série no pai, ou rascunhos em paralelo). Develop roda um passo de `sdd-develop` por filho. Gates, pastas e confirmações: [Entrega orquestrada](orchestrated-delivery.md).
+
+Quando o analyze define greenfield ou `needs_domain` e não há estilo de ARCH, o papel de roster **architect** devolve um rascunho. Você responde **sim** antes de o estilo ser aprovado. Brownfield espelha o estilo existente. O pai permanece coordenador.
+
+Clarificação aberta **B** ou **I** impede a escrita de PRD e PLAN (`NEEDS_CLARIFICATION`). **MINOR** pode permanecer. Prontidão não é `step_confirmed`.
+
+### Classic SDD direto
+
+Use isto quando uma story já estiver clara. As mesmas três skills rodam dentro de deliver e develop. O contexto direto não exige memory bank. Uma pasta de especialista ausente é uma pergunta. Chamadas orquestradas voltam ao O1.
+
+| Ordem | Skill | Saída |
+|-------|--------|--------|
+| 1 | `sdd-spec` | `features/NNN-slug/USnn/PRD/NNN_slug.md` |
+| 2 | `sdd-plan` | `features/NNN-slug/USnn/PLAN/PLAN_NNN_slug.md` |
+| 3 | `sdd-develop` | Um passo do PLAN: código, testes, progresso do PLAN |
+| — | `read-sdd-artifact` | `source_context` somente leitura |
+
+A pasta de story padrão, quando não informada, é `US01` (`TSnn` para story técnica). Pastas `PRD/` ou `PLAN/` na raiz são inválidas.
+
+```text
+sdd-spec
+sdd-plan - features/NNN-slug/US01/PRD/NNN_slug.md
+sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
+read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
+```
+
+`sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera **sim** / **ajustar** / **cancelar**. Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão.
+
+`sdd-plan` exige um PRD canônico cujo status está pronto para planejamento. O número do PLAN bate com o do PRD e vive na mesma pasta da story. Cada passo é uma sessão posterior de `sdd-develop`. SQL, DDL, JSON e OpenAPI ficam em um arquivo canônico. O PLAN cita esse caminho. **sim** antes de escrever. `validate-plan` precisa passar antes de `/sdd-develop`.
+
+`sdd-develop` precisa do caminho canônico do PLAN e de um id de passo. Uma sessão completa um passo. Depois do **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` grava `step_confirmed`. Quando uma reivindicação é necessária, roda `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Use um branch de feature (`feature/<slug>` ou `feat/<id>`). Carregue um arquivo de guideline para o passo. Quando o passo alega cobertura de aceite, ou o nível de evidência é `cheap` ou mais alto, atualize `EVD/` e `STATE.md` e rode `validate-evidence.ps1`. Níveis: `off`, `cheap`, `standard`, `strict`. Quando o passo fecha a onda da feature, acrescente `TRACE.jsonl` e rode `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/` e SQLite não são a fonte da verdade do trace.
+
+`read-sdd-artifact` não tem gate de **sim**. Tipos permitidos: FEATURE, STORY, PRD, PLAN. Motivos de rejeição: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
+
+O preflight `Invoke-PrdPlanChangePreflight.ps1` é uma checagem do O2 sobre `validate-prd`, `validate-plan` e `validate-change`. Não é uma quarta skill.
+
+### Um item de produto
+
+O O1 já aplica o scorecard. Invoque `refine-story` ao formar um item único de backlog, ou quando o deliver parou em **B** / **I** aberto.
+
+O modo é obrigatório. Se você omitir, a skill pergunta uma vez.
+
+| Modo | Invocação | Item padrão |
+|------|-----------|-------------|
+| feature | `feature`, `1` | User story ou bug |
+| tech | `tech`, `technical`, `2` | Story técnica |
+| split | `split`, `3` | Qualquer tipo, depois handoff para o checklist |
+
+```text
+refine-story - feature
+refine-story - tech
+refine-story - split
+split-story-checklist - features/004-export/US01/STORY.md
+```
+
+Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
+
+Enquanto **B** ou **I** permanecerem, não faça handoff para `sdd-spec`. **MINOR** pode permanecer. Pronto para spec não é `step_confirmed`.
+
+`split-story-checklist` precisa de **Steps** estruturados já existentes. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Ela pergunta **pt-BR** ou **English** uma vez antes de escrever. Uma feature `trivial` não ganha arquivo de tarefas só para satisfazer um gate. `medium` e `complex` precisam do checklist antes do handoff.
 
 ### Mudança pequena de stack
 
@@ -230,73 +112,174 @@ Depois `orchestrate-deliver` e `orchestrate-develop` (ou `sdd-develop`). Orquest
 developer
 ```
 
-ou `dotnet-developer`, `react-developer`, `python-developer`, …
+`developer` confere um brief de UI e depois a tabela de stack. O primeiro acerto vence.
+
+| Sinal | Skill |
+|-------|--------|
+| Plugin Blip novo, sem projeto `blip-ds` existente | `blip-plugin-developer` |
+| `package.json` tem `blip-ds` e `iframe-message-proxy` | `react-developer` |
+| Marcadores Blazor | `blazor-developer` |
+| `electron`, `electron-builder` ou `electron-vite` | `electron-developer` |
+| `vue` (e não React nem Angular) | `vue-developer` |
+| `react-native` ou `expo` | `react-native-developer` |
+| `react` | `react-developer` |
+| `@angular/core` ou `angular` | `angular-developer` |
+| `package.json` sem nenhum dos anteriores | `javascript-developer` |
+| `.csproj` / `.sln` sem marcadores Blazor | `dotnet-developer` |
+| `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `java-developer` |
+| `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
+
+HTML isolado ou scripts de shell ficam em `/developer`. Um escopo grande faz handoff para `/sdd-spec`. O O3 não chama `*-developer` para um passo do PLAN.
+
+Cada skill de stack é trabalho pequeno ou médio. Confirme com **sim** antes de escrever. Um resultado, e para.
+
+| Skill | Escopo | Handoff quando o escopo cresce |
+|-------|--------|--------------------------------|
+| `dotnet-developer` | .NET | `/sdd-spec` |
+| `java-developer` | JVM. Spring Boot é o padrão que a skill nomeia | `/sdd-spec` |
+| `javascript-developer` | Node ou DOM. Não existe o id `node-developer` | `/sdd-spec` |
+| `python-developer` | FastAPI ou Flask, pytest | `/sdd-spec` |
+| `react-developer` | React web | `/react-native-developer` para mobile |
+| `react-native-developer` | React Native ou Expo | `/react-developer` para web |
+| `angular-developer` | Angular | Brief de UI para `impeccable` quando falta |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Brief de UI para `impeccable` quando falta |
+| `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` para a API |
+| `electron-developer` | Main, preload, renderer, IPC, empacotamento | Segurança e CSP carregam primeiro quando o IPC muda |
+| `blip-plugin-developer` | Andaime de um plugin Blip React novo | UI para `react-developer`. Ela não implementa o conjunto da feature |
+| `impeccable` | Comandos de design | Escreve `docs/DESIGN-BRIEF.md` depois da confirmação e para |
+
+Gatilhos de `impeccable`: `/impeccable`, `/impeccable <command>`, `/impeccable-shape`, `/impeccable-audit`. `teach` é um alias obsoleto de `init`. Se `PRODUCT.md` faltar, rode `init` primeiro. O register é `brand` ou `product`. Comandos que vêm no repositório incluem `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. Depois do **sim** em `shape` ou `craft`, o chat seguinte é a skill de stack nomeada por `target_stack`.
+
+Guidelines ficam em `core/skills/_shared/code-guidelines/`. Carregue um arquivo.
+
+| Camada | Pergunta | Arquivo |
+|--------|----------|---------|
+| A | Qual estilo | `principles/architecture-selection.md` |
+| B | O que o estilo exige | Um de `architecture/vertical-slice.md`, `concentric-dependency.md`, `ddd-tactical.md`, `event-driven.md` |
+| C | Como esta stack faz isso | O pack `*-guidelines` correspondente |
+
+Greenfield propõe um estilo e escreve o ARCH final só depois do **sim**. Brownfield espelha. Vertical slice é a proposta para greenfield pesado em CRUD. Clean Architecture, onion e hexagonal são a mesma regra concentric.
 
 ### Depois da implementação
 
 ```text
-code-review          # opcional; após correções perguntar re-review / bank / docs (sim/pular)
-commit               # pergunta living-artifacts se bank/docs existirem
+code-review
+test-coverage
+commit
 push
-open-github-pr       # opcional
+open-github-pr
 ```
 
-PRs de feature: `feature/*` (ou `feat/*`) atual → `develop` (**`--squash`** no merge). Modo release: `develop` → `master`/`main` (**`--rebase`**). Prefira `open-github-pr` à UI web quando `gh` estiver disponível; sempre perguntar auto-merge. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
+`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. O alvo padrão de cobertura é 80% de linhas em arquivos de produção alterados, quando há alvo. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. A revisão é recomendada depois do O3. Ela não bloqueia o pipeline sozinha.
 
-## Catálogo de skills (resumo)
+`test-coverage` é Coverlet para .NET. Limiar padrão **80**. Escreve `TestResults/CoverageReport/`. Não bloqueia merge sozinha. `code-review` aplica o limiar. Uma falha vai para `/dotnet-developer` ou `/sdd-develop`. Um build quebrado vai para `/repair-dotnet-build`.
 
-Pastas canônicas em `core/skills/` (**41 skills** + `_shared`). SoT do agente: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (mapa) + `OPERATOR.md` (confirmações, opções, nuances — não carregue cada `SKILL.md`). Packs em `_shared/` não são skills invocáveis. **Não** existe skill `architect` — o caminho architect é acionado a partir de `orchestrate-analyze`.
+`repair-dotnet-build` usa `dotnet build` / `dotnet test` local, ou um log colado. Não chama uma API de CI remota. Cada edição proposta espera confirmação.
 
-| Grupo | Skills |
-|-------|--------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| **Backlog Refine** | `refine-story`, `split-story-checklist` |
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
-| **Design / Blip** | `impeccable`, `blip-plugin-developer` |
-| **Docs RAG** | `document-plan`, `document-implement` |
-| **Operacional** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `framework-upgrade`, `performance-profile`, `containerize`, `i18n-manager` |
+`refactor` é um passo seguro com os testes ainda verdes. Não mistura features nem correções de bug. Sem auto-commit.
 
-### Expectativas do operador (visão geral)
+`performance-profile` audita primeiro, espera uma escolha de fluxo e então prova a mudança com um micro-benchmark.
 
-| Área | O que será pedido / opções |
-|------|----------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Pergunta living-artifacts (bank / docs) antes do commit quando existirem; confirmar mensagem; confirmar push; modo PR; título/corpo; **sempre** perguntar auto-merge; feature **`--squash`** / release **`--rebase`**. Detalhe: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
-| `code-review` | Escolher single vs multi-angle (sem default silencioso); após Changes required, loop recomendado pergunta re-review / bank / docs |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; rascunho ARCH do architect → **sim** em greenfield / `needs_domain`; O2 clarify **READY** (sem B/I abertos) antes do Write |
-| `refine-story` | Escolher modo `feature` \| `tech` \| `split` (sem default silencioso); B/I abertos → `NEEDS_CLARIFICATION` |
-| `api-standards` vs `api-integrate` | Design/padrões → `api-standards`; OpenAPI → clientes → `api-integrate` |
-| `framework-upgrade` | Orquestrador genérico de upgrades de framework (`audit`\|`plan`\|`migrate`\|`validate`); packs plugáveis — não um major pinado; migrate precisa de **`sim`** |
-| `sdd-develop` | Um passo do PLAN por sessão; MUST `-File` session gate + claim do ledger quando exigido |
-| `read-sdd-artifact` | Normalização opcional → `source_context` (só paths portáteis sob `features/`) |
-| `document-plan` / `document-implement` | Pergunta idioma da doc; Kind **new** ≈ um arquivo/passo; Kind **update** coalesces paths existentes |
-| Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Modo Caveman](../caveman/) |
-| Orchestrator | Padrão `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
+Modos de `framework-upgrade`: `audit`, `plan`, `migrate`, `validate`. Packs no disco: `angular`, `dotnet`. Se o modo for omitido, a skill pergunta uma vez. `migrate` precisa de **sim**. O id da skill nunca inclui um número de versão (`dotnet10-upgrade` e `framework-upgrade-vN` são proibidos). `targetVersion` precisa ser maior que `currentVersion`.
 
-Notas estáticas instaladas: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
+### Skills de plataforma
 
-## Re-sync quando as skills parecerem desatualizadas
+Elas ficam ao lado da entrega. Quando a mudança é um passo do PLAN, termine a skill e volte a `/sdd-develop` no próximo passo, em um chat novo.
 
-Fixture (seguro) — qualquer id de agente suportado:
+```text
+api-standards
+api-standards - versioning
+api-integrate - <openapi>
+i18n-manager
+containerize
+ef-add-migration
+scaffold-message-handler
+```
+
+`api-standards` cobre forma REST, versionamento, erros, nomes e higiene de segurança. Foco opcional: `rest`, `versioning`, `errors`, `naming`, `security`. Clientes tipados são `api-integrate` (OpenAPI ou Swagger). Sem segredos no código-fonte.
+
+`i18n-manager` extrai literais de UI para `.resx` ou `.json` e os troca por chaves. Espera uma escolha de fluxo antes de escrever. Não localiza logs nem configuração.
+
+`containerize` escreve um Dockerfile multi-stage, `.dockerignore` e compose para dependências locais. Espera uma escolha de fluxo. Arquivos que serão commitados não contêm segredos.
+
+`ef-add-migration` descobre o projeto de startup, o DbContext e a pasta de migrations, e então roda `dotnet ef migrations add`. Um nome inferido é confirmado antes. Use no repositório consumidor.
+
+`scaffold-message-handler` coleta fila, contrato, retry e idempotência antes de escrever um consumidor. Detecta MassTransit, RabbitMQ ou Azure Service Bus no repositório consumidor. Não entrega um template corporativo.
+
+### Git e documentação do repositório
+
+`commit`, `push` e `open-github-pr` permanecem em prosa completa. Heads permitidos: `feature/<slug>` ou `feat/<id>` (um segmento). Bloqueados: `main`, `master`, `develop`, `feature/a/b` aninhado. Nenhum deles faz force-push de `main`, `master` ou `develop`.
+
+```text
+commit
+push
+open-github-pr
+document-plan
+document-implement
+help-skills
+```
+
+`commit` redige um Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) e espera o texto exato. Assunto e corpo são em inglês. Se `memory-bank/` existir, pergunta refresh-light: **sim** / **pular**. Se docs do projeto existirem, pergunta se deve atualizá-los. **sim** no bank roda `memory-bank-init` refresh-light. Depois do commit, um trailer `Co-authored-by` é removido até sumir.
+
+`push` roda `git push -u origin HEAD` depois da checagem do branch. Se esta conversa já pediu um pull request, carrega `open-github-pr`. Caso contrário, pergunta.
+
+`open-github-pr` é dono de `gh pr create`. Feature (`feature/*` ou `feat/*` atual) aponta para `develop` com `--squash` quando o auto-merge está ligado. Release (`develop` para `master` ou `main`) usa `--rebase`. O **sim** / **ajustar** / **cancelar** do conteúdo é separado da pergunta de auto-merge (**sim** / **não**). Se o branch não estiver em `origin`, o handoff é `/push` primeiro.
+
+`document-plan` pergunta o idioma da documentação uma vez, e então escreve `docs/overview.md` e `docs/documentation-plan/plan.md`. Não escreve PLANs de feature. Para este toolkit o idioma é inglês. `document-implement` executa um passo pendente e para.
+
+`help-skills` imprime o catálogo estático. Não inventa ids. Não existe o id `open-pr`. O id é `open-github-pr`.
+
+Um exemplo de cada id está em [Primeiro uso](first-use.md).
+
+## Comportamento da sessão { #session-behavior }
+
+Essas regras valem em todo chat depois do sync. São preferências e política. Fonte: `core/skills/_shared/agents/LANGUAGE.md`, `core/policy/orchestrator-session.md`, `core/policy/caveman-mode.md`, `scripts/_lib/Initialize-SddPreferences.ps1`.
+
+### Idioma
+
+| Superfície | Idioma |
+|------------|--------|
+| O que você lê (chat, planos do host) | O idioma deste chat |
+| Artefatos de feature (prosa de FEATURE, STORY, PRD, PLAN, ARCH, SEC, CONTINUITY, CHANGE) | A mesma resolução abaixo |
+| Prompts de filhos, contexto de especialistas, recibos | Inglês (`en-US`) |
+| Identificadores, caminhos, ids de skill, commits, testes | Inglês |
+
+Idioma do artefato, uma vez por escrita: override da invocação, senão `artifact_language` do `preferences.json` quando não é null, senão `artifact_language` do manifesto quando não é null, senão o idioma do chat. `null` significa sem override.
+
+`core/policy/user-language-pt-br.md` e `core/policy/sdd-artifact-language-pt-br.md` seguem como padrão de instalação para uma sessão em português do Brasil. Quando o chat ou as preferências nomeiam outro idioma, `LANGUAGE.md` vence. Handoffs de filho levam um caminho e um trecho curto.
+
+### Orquestrador pai
+
+O padrão de `orchestrator_mode` é `always`. O pai guarda metas, gates, caminhos e recibos. Especialistas escrevem notas ou código. Comandos: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` e `parent`).
+
+`adaptive` pode manter no pai uma pergunta de um caminho só ou uma edição de um arquivo. Qualquer mudança mais larga é spawn. Se o host tem `subagents=none`, o mesmo trabalho fica no pai. A sessão não falha porque Task está ausente.
+
+O `model` da Task é omitido para o filho usar o modelo da sessão pai (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
+
+### Compressão opcional do chat
+
+`caveman_mode` começa **desligado**. Ele só encurta a prosa do chat. Não muda passos de skill, gates nem documentação.
+
+Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` e `normal mode` desligam.
+
+`help-skills`, `read-sdd-artifact`, `commit`, `push` e `open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e `(sim / ajustar / cancelar)` permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
+
+### Outras chaves de preferência
+
+| Chave | Padrão | Efeito |
+|-------|--------|--------|
+| `orchestrator_mode` | `always` | O pai permanece orquestrador |
+| `caveman_mode` | `false` | Compressão do chat desligada |
+| `caveman_level` | `full` | Intensidade se a compressão for ligada |
+| `artifact_language` | `null` | Sem override de locale |
+| `verify_mode` | `false` | O O3 não faz spawn de um verificador somente leitura depois de cada implementador |
+
+`verify_mode: true` é um segundo filho depois de um passo bem-sucedido de `sdd-develop`. Ele é separado do script de evidência (`validate-evidence`).
+
+## Sync de novo
 
 ```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
 ```
 
-Exemplo live (Claude):
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude `
-  -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
-```
-
-Live Cursor:
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
-  -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
-```
-
-Arquivos gerenciados são sobrescritos; arquivos não gerenciados (externos) no ambiente do agente são preservados.
-
-Próximo: [Começar](../get-started/) · [Adaptadores](../adapters/) · [Arquitetura](../architecture/) · [Caveman](../caveman/) · [Início](../)
+Arquivos geridos são sobrescritos. Arquivos alheios no home do agente permanecem.
