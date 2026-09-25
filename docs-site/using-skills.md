@@ -1,228 +1,110 @@
-﻿# Using skills
+﻿---
+title: Using skills
+---
 
-Invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case folder names under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands skill `name`). Compat: `use skill <id>` or natural language matching the skill `description`.
+# Using skills
 
-After any agent sync, invoke skill **`help-skills`** for the installed static catalog (`CATALOG.md` + `OPERATOR.md`) — do not load every `SKILL.md`.
+Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-**Not skill invoke:** Codex `/hooks` and Grok `/hooks-trust` are hooks trust UI. There is no Codex `$skill --menu` product flag — `$` / `/skills` is the native skills picker.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **41** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
-## Canonical invoke matrix
+Codex `/hooks` and Grok `/hooks-trust` are hooks-trust screens. They are not skill shortcuts. Codex has no `$skill --menu` flag. The `$` / `/skills` picker is the product menu.
 
-| Host | Skills path (live, typical) | Explicit form | Example |
-|------|-----------------------------|----------------|---------|
-| Cursor | `~/.cursor/skills` | `/id` | `/help-skills` |
-| Claude | `~/.claude/skills` | `/id` | `/sdd-spec` |
-| Codex | `~/.codex/skills` (+ optional `~/.agents/skills`) | `$id` | `$help-skills` |
-| Copilot | `~/.copilot/skills` or `<repo>/.github/skills` | `/id` (+ `/skills reload` after sync) | `/dotnet-developer` |
-| OpenCode | `~/.config/opencode/skills` | `skill` tool | `skill({ name: "help-skills" })` |
-| Antigravity | `~/.gemini/config/skills` | `use skill id` or `/id` | `use skill sdd-plan` |
-| Grok | `~/.grok/skills` | `/id` | `/help-skills` |
-| ZCode | `~/.zcode/skills` | `$id` | `$help-skills` |
-| Hermes | `~/.hermes/skills` | `/id` | `/help-skills` |
-| OpenHands | `.agents/skills` (project) / `~/.agents/skills` (user) | skill `name` (agent loads when relevant) | `help-skills` |
-
-## Parallel specialists (default)
-
-After sync, the published router asks agents to prefer **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. Trivial / single-path work stays in-parent.
-
-- **`needs_*` → roster** — which roles to spawn: [ROSTER.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/ROSTER.md)
-- **Task `model`** — omit by default (child inherits the parent session model); see [SUBAGENT-MODEL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/SUBAGENT-MODEL.md)
-- **Orchestrator parent** — this session stays lean (goals, gates, paths, receipts); **no application code** in the parent when specialists run
-- **Caps** — `*-developer` children **≤ 2**; `orchestrate-*` parallel **≤ 4** (wave if more). Fallback when `subagents=none`: in-parent, never hard-fail — [docs/SPAWN.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/SPAWN.md) · [Architecture](../architecture/)
-- **Language surfaces** — user chat + persisted artifacts match the chat language; child prompts and agent receipts stay **en-US** ([LANGUAGE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/agents/LANGUAGE.md))
+Install: [Get started](get-started.md). One example of each skill: [First use](first-use.md). The feature path: [Orchestrated Delivery](orchestrated-delivery.md). Commands for sync, validate, and uninstall: [CLI](cli.md).
 
 ## Prerequisites
 
-1. Synced at least one agent — see [Get started](../get-started/).
-2. Opened an **application project** (the project you are building) in that agent — not only this toolkit repo.
-3. Optional: validated with `toolkit.ps1 -Action Validate -Agent <id>`.
+1. Sync at least one agent ([Get started](get-started.md)).
+2. Open a **consumer** project in that agent.
+3. Optional: run `validate-agent.ps1` against a fixture or a live InstallRoot.
 
-## Which workflow (work track) / skill?
+## Where a skill runs
 
-```mermaid
-flowchart TD
-  Start([New task]) --> Q1{Multi-story / brownfield / need specialists?}
-  Q1 -->|Yes| FC[Orchestrated Delivery]
-  Q1 -->|No| Q2{Medium or high complexity single feature?}
-  Q2 -->|Yes| SDD[Classic SDD]
-  Q2 -->|Rough backlog item only| FB[Backlog Refine]
-  Q2 -->|No| Q3{Small fix one area?}
-  Q3 -->|Yes .NET| NET[dotnet-developer]
-  Q3 -->|Yes other stack| STACK[stack skill or developer]
-  Q3 -->|Unsure| DEV[developer router]
-  FC --> S0["/memory-bank-init Step 0"]
-  S0 --> O1["/orchestrate-analyze"]
-  O1 --> ArchGate{"Greenfield / needs_domain (domain modeling)?"}
-  ArchGate -->|Yes| Confirm["architect draft → sim (yes) → ARCH"]
-  ArchGate -->|Brownfield mirror| O2
-  Confirm --> O2["/orchestrate-deliver"]
-  O2 --> O3["/orchestrate-develop or /sdd-develop"]
-  FB --> Refine["/refine-story"]
-  Refine --> AorC[Then Classic SDD or Orchestrated Delivery]
-  SDD --> Spec["/sdd-spec"]
-  Spec --> Plan["/sdd-plan"]
-  Plan --> Impl["/sdd-develop one step"]
-  NET --> DoneNet[Code change]
-  STACK --> DoneNet
-  DEV --> STACK
-  Impl --> DoneSdd[Code change]
-  O3 --> DoneSdd
-  AorC --> SDD
-  AorC --> FC
-  DoneNet --> Post
-  DoneSdd --> Post
-  Post[After code] --> CR["/code-review"]
-  CR --> TC["/test-coverage optional .NET"]
-  TC --> Commit["/commit"]
-  Commit --> Push["/push"]
-  Push --> PR["/open-github-pr"]
-```
+Install roots and publish layouts are on [Adapters](adapters.md). Sync, validate, and uninstall commands are on [CLI](cli.md).
 
-**ASCII summary:**
+The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. Antigravity accepts `use skill <id>` or `/id`. After a Copilot sync, run `/skills reload`.
 
-```
-New task
-  ├─ Multi-story / brownfield?     -> Orchestrated Delivery: memory-bank-init → analyze → deliver → develop
-  ├─ Greenfield / needs_domain?    -> Orchestrated Delivery: analyze (+ architect confirm) before develop
-  ├─ Single medium/high feature?   -> Classic SDD: sdd-spec → sdd-plan → sdd-develop
-  ├─ Rough backlog item?           -> Backlog Refine: refine-story → checklist? → Classic or Orchestrated
-  ├─ Small stack change?           -> *-developer or developer
-  └─ After code                    -> code-review → test-coverage? → commit → push → open-github-pr
-```
-
-### Work tracks
-
-| Track | When | Pipeline | Notes |
-|-------|------|----------|-------|
-| **Classic SDD** | One clear feature | `sdd-spec` → `sdd-plan` → `sdd-develop` | No memory-bank required |
-| **Backlog Refine** | Informal bug/story | `refine-story` → optional `split-story-checklist` → Classic or Orchestrated | Story sizing + optional persona/JTBD (User Stories only); FEATURE Product intent |
-| **Orchestrated Delivery** | Multi-story / brownfield / greenfield domain | `memory-bank-init` → analyze → deliver → develop | Analyze may run architect confirm; deliver/develop reuse Classic SDD |
-
-Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, invocation/provenance, PLAN-LEDGER) add gates/artifacts only — not a second toolkit. Invocable skills use lazy-load (`SKILL.md` + optional `reference.md` / `references/*`); contract: [SKILL-REFERENCE-RETRIEVAL.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md). SQLite/FTS is not a deliverable.
-
-**Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, and when to call `read-sdd-artifact` — [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md) (Invocation / provenance / `read-sdd-artifact`). Product quality norms live under `_shared/backlog-item-types/` (load one file at a time).
-
-Orchestrator mode (parent lean; specialists do heavy work): default `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md).
-
-For greenfield domain work, prefer Orchestrated Delivery. `orchestrate-analyze` can start the roster **architect** specialist (not a skill id). That path drafts ARCH → you answer **sim** (yes / confirm) → ARCH is approved, then implementers run. For brownfield work, prefer discovery first (**discover-first**): mirror the existing ARCH instead of re-picking.
-
-## Invoke by agent
-
-Skill **`help-skills`** works on **every** synced adapter (not Codex-only). Use the host form from the matrix above.
-
-### Cursor
-
-Skills: `~/.cursor/skills/<id>/SKILL.md`. Rules: `~/.cursor/rules/*.mdc`. Router: `AGENTS.md`.
-
-| Action | Example |
-|--------|---------|
-| Slash menu | `/sdd-spec` |
-| With args | `/sdd-plan - path/to/PRD.md` |
-| Stack router | `/developer` |
-| Catalog | `/help-skills` |
-| Orchestrated Delivery Step 0 | `/memory-bank-init` |
-
-Also Customize → Skills. Trust hooks in Cursor’s UI once if prompted (outside CI).
-
-### Claude Code
-
-Skills under `~/.claude/skills/` (or project `.claude/`). Router: `CLAUDE.md`. Invoke with `/id` (e.g. `/sdd-spec`, `/help-skills`).
-
-### GitHub Copilot
-
-Sync with `-Mode user` or `-Mode repo`:
-
-| Mode | Skills / instructions |
-|------|------------------------|
-| `user` | `~/.copilot/skills`, `instructions/`, `copilot-instructions.md` |
-| `repo` | `<repo>/.github/skills`, … |
-
-Invoke with `/id`. After sync, run **`/skills reload`**. Catalog: `help-skills`.
-
-### Codex
-
-Codex is **dual-root** for packaging vs rules. **Plugin path alone does not feed `$`.**
-
-| Surface | Location |
-|---------|----------|
-| Plugin skills + CATALOG + OPERATOR | Under `InstallRoot/plugin` (packaging) |
-| **`$` discovery** | Live `~/.codex/skills` (InstallRoot skills mirror) |
-| Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
-| Product / AGENTS / hooks | `InstallRoot` (live `~/.codex`) |
-| Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `~/.agents/skills` |
-
-Invoke with **`$id`** (e.g. `$help-skills`). Native `$` / `/skills` picker is the product menu — not a `--menu` flag. Trust hooks with Codex `/hooks` after a real install (trust UI, not skill invoke).
-
-### OpenCode
-
-Skills: `~/.config/opencode/skills`. Invoke via the **`skill` tool**: `skill({ name: "help-skills" })`. JS plugins under `plugins/` (`tool.execute.before` path/secrets throw). Roster: `InstallRoot/agents/` (`agents=true`).
-
-### Grok
-
-Expected live path: `~/.grok/skills`. Invoke with `/id` (e.g. `/help-skills`). Hooks trust via `/hooks-trust` if needed (not skill invoke). PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`.
-
-### ZCode
-
-Skills: `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). Refresh in Settings → Skills if needed. PreToolUse path/secrets.
-
-### Antigravity
-
-Skills: `~/.gemini/config/skills`. Invoke with **`use skill <id>`** or `/id` (e.g. `use skill sdd-plan`). PreToolUse path/secrets under `config/hooks`.
-
-### Hermes
-
-Skills: `~/.hermes/skills`. Invoke with **`/id`** (e.g. `/help-skills`). Official: every installed skill is a slash command. Hooks: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (keyed `config.yaml` only). Subagents: host `delegate_task` (`subagents=native`). No `agents/*.md` roster (`agents=false`). Never SOUL / tokens / gateway.
-
-### OpenHands
-
-Project skills: `.agents/skills`. Live user skills: `~/.agents/skills`. The agent loads a skill by `name` / `description` when relevant (optional frontmatter `triggers`). Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed). Do not treat Canvas as subagents — `subagents=none`; SPAWN fallback is in-parent. Published `.agents/agents/*.md` is an SDK/plugin roster, not Canvas Profile.
-
-Per-agent publish layouts: [Adapters](../adapters/). All publish `help-skills` + the skills-catalog pack.
-
-## Common workflows
-
-Flow examples use **skill ids**. Prefix with your host form (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands skill `name`).
-
-### Classic SDD
+## Which skill
 
 ```text
-sdd-spec
-sdd-plan - <prd-path>
-sdd-develop - <plan-path> - Step N
-read-sdd-artifact - <portable-features-path>   # optional: normalize → source_context
+Feature
+  └─ orchestrate-analyze
+        ├─ classifies, asks, sets needs_*, specialists, story gates, sim
+        ├─ trivial one-file → /developer (only if you pick that shortcut)
+        ├─ one already-clear story → sdd-spec
+        └─ approved backlog → orchestrate-deliver
+              └─ sdd-spec then sdd-plan per story → orchestrate-develop
+                    └─ one sdd-develop step per child → code-review or commit
 ```
-
-One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE, invocation/provenance) run inside the same skill ids. Use `read-sdd-artifact` when a handoff needs a typed `source_context` envelope (not a fourth authoring stage). Detail: [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md).
-
-### Backlog Refine — modes + checklist
-
-```text
-refine-story - feature    # User Story / Bug
-refine-story - tech       # Technical Story (TSnn)
-refine-story - split      # reshape steps → ready for checklist
-split-story-checklist - <story-or-backlog-path>
-```
-
-Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it → skill asks once; do not assume `feature`. Modes are playbooks on the same Backlog Refine track — not new slash tracks. Scorecard/checklist load **one** file from `_shared/backlog-item-types/` at a time.
-
-### API standards vs typed clients
-
-```text
-api-standards                 # agnostic REST / versioning / errors / naming / security hygiene
-api-standards - versioning    # optional focus: rest | versioning | errors | naming | security
-api-integrate - <openapi>     # OpenAPI → typed clients / DTOs
-```
-
-Use **`api-standards`** for design review (packing only; no company contracts). Use **`api-integrate`** when you need generated clients from OpenAPI.
 
 ### Orchestrated Delivery
 
 ```text
-memory-bank-init
 orchestrate-analyze
+orchestrate-deliver - features/NNN-slug/
+orchestrate-develop - features/NNN-slug/
 ```
 
-Then `orchestrate-deliver` and `orchestrate-develop` (or `sdd-develop`). Orchestrators **reuse** classic SDD contracts; they do not replace them. Before backlog **sim**, O1 may challenge thin FEATURE/US/PRD (product artifact quality) — see [docs/domains/core.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/core.md#product-artifact-quality-backlog-item-types).
+Analyze classifies, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Deliver runs `sdd-spec` and `sdd-plan` per approved story (series in the parent, or parallel drafts). Develop runs one `sdd-develop` step per child. Gates, folders, and confirmations: [Orchestrated Delivery](orchestrated-delivery.md).
+
+When analyze sets greenfield or `needs_domain` and no ARCH style exists, the **architect** roster role returns a draft. You answer **sim** before the style is approved. Brownfield mirrors the existing style. The parent stays coordinator.
+
+Open clarification **B** or **I** stops PRD and PLAN writes (`NEEDS_CLARIFICATION`). **MINOR** may remain. Readiness is not `step_confirmed`.
+
+### Direct Classic SDD
+
+Use this when one story is already clear. The same three skills run inside deliver and develop. Direct context does not require a memory bank. A missing specialist folder is a question. Orchestrated calls return to O1 instead.
+
+| Order | Skill | Output |
+|-------|--------|--------|
+| 1 | `sdd-spec` | `features/NNN-slug/USnn/PRD/NNN_slug.md` |
+| 2 | `sdd-plan` | `features/NNN-slug/USnn/PLAN/PLAN_NNN_slug.md` |
+| 3 | `sdd-develop` | One PLAN step: code, tests, PLAN progress |
+| — | `read-sdd-artifact` | Read-only `source_context` |
+
+Default story folder when unspecified is `US01` (`TSnn` for a technical story). Root-level `PRD/` or `PLAN/` folders are invalid.
+
+```text
+sdd-spec
+sdd-plan - features/NNN-slug/US01/PRD/NNN_slug.md
+sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
+read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
+```
+
+`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session.
+
+`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one later `sdd-develop` session. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
+
+`sdd-develop` needs the canonical PLAN path and a step id. One session completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
+
+`read-sdd-artifact` has no **sim** gate. Kinds allowed: FEATURE, STORY, PRD, PLAN. Reject reasons: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
+
+Preflight `Invoke-PrdPlanChangePreflight.ps1` is an O2 check on top of `validate-prd`, `validate-plan`, and `validate-change`. It is not a fourth skill.
+
+### One product item
+
+O1 already applies the scorecard. Invoke `refine-story` when shaping a single backlog item, or when deliver stopped on open **B** / **I**.
+
+Mode is mandatory. If you omit it, the skill asks once.
+
+| Mode | Invoke | Default item |
+|------|--------|----------------|
+| feature | `feature`, `1` | User story or bug |
+| tech | `tech`, `technical`, `2` | Technical story |
+| split | `split`, `3` | Any type, then checklist handoff |
+
+```text
+refine-story - feature
+refine-story - tech
+refine-story - split
+split-story-checklist - features/NNN-slug/US01/STORY.md
+```
+
+Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
+
+While **B** or **I** remain, do not hand off to `sdd-spec`. **MINOR** may remain. Ready for a spec is not `step_confirmed`.
+
+`split-story-checklist` needs structured **Steps** already. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. It asks **pt-BR** or **English** once before write. A `trivial` feature does not get a tasks file only to satisfy a gate. `medium` and `complex` need the checklist before handoff.
 
 ### Small stack change
 
@@ -230,73 +112,174 @@ Then `orchestrate-deliver` and `orchestrate-develop` (or `sdd-develop`). Orchest
 developer
 ```
 
-or `dotnet-developer`, `react-developer`, `python-developer`, …
+`developer` checks a UI brief, then the stack table. The first hit wins.
+
+| Signal | Skill |
+|--------|--------|
+| New Blip plugin, no existing `blip-ds` project | `blip-plugin-developer` |
+| `package.json` has `blip-ds` and `iframe-message-proxy` | `react-developer` |
+| Blazor markers | `blazor-developer` |
+| `electron`, `electron-builder`, or `electron-vite` | `electron-developer` |
+| `vue` (and not React or Angular) | `vue-developer` |
+| `react-native` or `expo` | `react-native-developer` |
+| `react` | `react-developer` |
+| `@angular/core` or `angular` | `angular-developer` |
+| `package.json` with none of the above | `javascript-developer` |
+| `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
+| `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `java-developer` |
+| `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
+
+Isolated HTML or shell scripts stay in `/developer`. A large scope hands off to `/sdd-spec`. O3 does not call `*-developer` for a PLAN step.
+
+Each stack skill is small-to-medium work. Confirm with **sim** before writes. One outcome, then stop.
+
+| Skill | Scope | Hands off when scope grows |
+|-------|--------|----------------------------|
+| `dotnet-developer` | .NET | `/sdd-spec` |
+| `java-developer` | JVM. Spring Boot is the default the skill names | `/sdd-spec` |
+| `javascript-developer` | Node or DOM. There is no `node-developer` id | `/sdd-spec` |
+| `python-developer` | FastAPI or Flask, pytest | `/sdd-spec` |
+| `react-developer` | React web | `/react-native-developer` for mobile |
+| `react-native-developer` | React Native or Expo | `/react-developer` for web |
+| `angular-developer` | Angular | UI brief to `impeccable` when missing |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | UI brief to `impeccable` when missing |
+| `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` for the API |
+| `electron-developer` | Main, preload, renderer, IPC, packaging | Security and CSP load first when IPC changes |
+| `blip-plugin-developer` | Scaffolds a new Blip React plugin | UI to `react-developer`. It does not implement the feature set |
+| `impeccable` | Design commands | Writes `docs/DESIGN-BRIEF.md` after confirm and stops |
+
+`impeccable` triggers: `/impeccable`, `/impeccable <command>`, `/impeccable-shape`, `/impeccable-audit`. `teach` is a deprecated alias of `init`. If `PRODUCT.md` is missing, run `init` first. Register is `brand` or `product`. Commands that ship in-repo include `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. After **sim** on `shape` or `craft`, the next chat is the stack skill named by `target_stack`.
+
+Guidelines live in `core/skills/_shared/code-guidelines/`. Load one file.
+
+| Layer | Question | File |
+|-------|----------|------|
+| A | Which style | `principles/architecture-selection.md` |
+| B | What the style requires | One of `architecture/vertical-slice.md`, `concentric-dependency.md`, `ddd-tactical.md`, `event-driven.md` |
+| C | How this stack does it | The matching `*-guidelines` pack |
+
+Greenfield proposes a style and writes the final ARCH only after **sim**. Brownfield mirrors. Vertical slice is the proposal for CRUD-heavy greenfield. Clean Architecture, onion, and hexagonal are the same concentric rule.
 
 ### After implementation
 
 ```text
-code-review          # optional; after fixes ask re-review / bank / docs (sim/pular)
-commit               # living-artifacts ask when bank/docs exist
+code-review
+test-coverage
+commit
 push
-open-github-pr       # optional
+open-github-pr
 ```
 
-Feature PRs: current `feature/*` (or `feat/*`) → `develop` (**`--squash`** on merge). Release mode: `develop` → `master`/`main` (**`--rebase`**). Prefer `open-github-pr` over the web UI when `gh` is available; always ask auto-merge. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md).
+`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. Default coverage target is 80% line coverage on changed production files when a target applies. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. Review is recommended after O3. It does not block the pipeline by itself.
 
-## Skills catalog (summary)
+`test-coverage` is .NET Coverlet. Default threshold **80**. It writes `TestResults/CoverageReport/`. It does not block merge by itself. `code-review` applies the threshold. A fail hands to `/dotnet-developer` or `/sdd-develop`. A broken build hands to `/repair-dotnet-build`.
 
-Canonical folders under `core/skills/` (**41 skills** + `_shared`). Agent SoT: skill `help-skills` → `_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (confirmations, options, quirks — do not load every `SKILL.md`). Shared packs under `_shared/` are not invocable skills. There is **no** `architect` skill — the architect path is spawned from `orchestrate-analyze`.
+`repair-dotnet-build` uses a local `dotnet build` / `dotnet test`, or a pasted log. It does not call a remote CI API. Each proposed edit waits for confirmation.
 
-| Group | Skills |
-|-------|--------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| **Backlog Refine** | `refine-story`, `split-story-checklist` |
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| **Stack** | `developer` + `dotnet-`, `java-`, `react-`, `react-native-`, `angular-`, `vue-`, `blazor-`, `electron-`, `javascript-`, `python-developer` |
-| **Design / Blip** | `impeccable`, `blip-plugin-developer` |
-| **Docs RAG** | `document-plan`, `document-implement` |
-| **Operational** | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `refactor`, `repair-dotnet-build`, `test-coverage`, `ef-add-migration`, `scaffold-message-handler`, `api-integrate`, `api-standards`, `framework-upgrade`, `performance-profile`, `containerize`, `i18n-manager` |
+`refactor` is one safe step with tests still green. It does not mix in features or bugfixes. No auto-commit.
 
-### Operator expectations (high level)
+`performance-profile` audits first, waits for a workflow choice, then proves the change with a micro-benchmark.
 
-| Area | What you will be asked / options |
-|------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm message; confirm push; PR mode; title/body; **always** ask auto-merge; feature **`--squash`** / release **`--rebase`**. Deep dive: [git-ops.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/git-ops.md) |
-| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O2 clarify **READY** (no open B/I) before Write |
-| `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); open B/I → `NEEDS_CLARIFICATION` |
-| `api-standards` vs `api-integrate` | Design/standards → `api-standards`; OpenAPI → clients → `api-integrate` |
-| `framework-upgrade` | Generic orchestrator for framework upgrades (`audit`\|`plan`\|`migrate`\|`validate`); pluggable packs — not a pinned major; migrate needs **`sim`** |
-| `sdd-develop` | One PLAN step per session; MUST `-File` session gate + ledger claim when required |
-| `read-sdd-artifact` | Optional normalize → `source_context` (portable paths under `features/` only) |
-| `document-plan` / `document-implement` | Asks doc language; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths |
-| Caveman | Default OFF; `caveman on\|off\|status\|lite\|full\|ultra` — [Caveman mode](../caveman/) |
-| Orchestrator | Default `always` — [docs/guides/08-orchestrator-mode.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/08-orchestrator-mode.md) |
+`framework-upgrade` modes: `audit`, `plan`, `migrate`, `validate`. Packs on disk: `angular`, `dotnet`. If the mode is omitted, the skill asks once. `migrate` needs **sim**. The skill id never includes a version number (`dotnet10-upgrade` and `framework-upgrade-vN` are forbidden). `targetVersion` must be greater than `currentVersion`.
 
-Installed static notes: `_shared/skills-catalog/OPERATOR.md` (via `help-skills`).
+### Platform skills
 
-## Re-sync when skills feel stale
+These sit beside delivery. When the change is a PLAN step, finish the skill and return to `/sdd-develop` on the next step in a new chat.
 
-Fixture (safe) — any supported agent id:
+```text
+api-standards
+api-standards - versioning
+api-integrate - <openapi>
+i18n-manager
+containerize
+ef-add-migration
+scaffold-message-handler
+```
+
+`api-standards` covers REST shape, versioning, errors, naming, and security hygiene. Optional focus: `rest`, `versioning`, `errors`, `naming`, `security`. Typed clients are `api-integrate` (OpenAPI or Swagger). No secrets in source.
+
+`i18n-manager` extracts UI literals into `.resx` or `.json` and replaces them with keys. It waits for a workflow choice before writing. It does not localize logs or configuration.
+
+`containerize` writes a multi-stage Dockerfile, `.dockerignore`, and compose for local dependencies. It waits for a workflow choice. Files that will be committed do not contain secrets.
+
+`ef-add-migration` discovers the startup project, DbContext, and migrations folder, then runs `dotnet ef migrations add`. An inferred name is confirmed first. Use it on the consumer repo.
+
+`scaffold-message-handler` collects queue, contract, retry, and idempotency before writing a consumer. It detects MassTransit, RabbitMQ, or Azure Service Bus from the consumer repo. It does not ship a corporate template.
+
+### Git and repository docs
+
+`commit`, `push`, and `open-github-pr` stay in full prose. Allowed heads: `feature/<slug>` or `feat/<id>` (one segment). Blocked: `main`, `master`, `develop`, nested `feature/a/b`. None of them force-push `main`, `master`, or `develop`.
+
+```text
+commit
+push
+open-github-pr
+document-plan
+document-implement
+help-skills
+```
+
+`commit` drafts a Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) and waits for the exact text. Subject and body are English. If `memory-bank/` exists, it asks refresh-light: **sim** / **pular**. If project docs exist, it asks whether to update them. **sim** on the bank runs `memory-bank-init` refresh-light. After the commit, a `Co-authored-by` trailer is stripped until it is gone.
+
+`push` runs `git push -u origin HEAD` after the branch check. If this conversation already asked for a pull request, it loads `open-github-pr`. Otherwise it asks.
+
+`open-github-pr` owns `gh pr create`. Feature (current `feature/*` or `feat/*`) targets `develop` with `--squash` when auto-merge is enabled. Release (`develop` to `master` or `main`) uses `--rebase`. Content **sim** / **ajustar** / **cancelar** is separate from the auto-merge question (**sim** / **não**). If the branch is not on `origin`, hand off to `/push` first.
+
+`document-plan` asks documentation language once, then writes `docs/overview.md` and `docs/documentation-plan/plan.md`. It does not write feature PLANs. For this toolkit the language is English. `document-implement` executes one pending step, then stops.
+
+`help-skills` prints the static catalog. It does not invent ids. There is no `open-pr` id. The id is `open-github-pr`.
+
+One example of each id is on [First use](first-use.md).
+
+## Session behavior
+
+These rules apply in every chat after sync. They are preferences and policy. Source: `core/skills/_shared/agents/LANGUAGE.md`, `core/policy/orchestrator-session.md`, `core/policy/caveman-mode.md`, `scripts/_lib/Initialize-SddPreferences.ps1`.
+
+### Language
+
+| Surface | Language |
+|---------|----------|
+| What you read (chat, host plans) | The language of this chat |
+| Feature artifacts (FEATURE, STORY, PRD, PLAN, ARCH, SEC, CONTINUITY, CHANGE prose) | Same resolution as below |
+| Child prompts, specialist context, receipts | English (`en-US`) |
+| Identifiers, paths, skill ids, commits, tests | English |
+
+Artifact language, once per write: invocation override, else `preferences.json` `artifact_language` when it is not null, else manifest `artifact_language` when it is not null, else the chat language. `null` means no override.
+
+`core/policy/user-language-pt-br.md` and `core/policy/sdd-artifact-language-pt-br.md` ship as install defaults for a Brazilian Portuguese session. When the chat or preferences name another language, `LANGUAGE.md` wins. Child handoffs carry a path and a short excerpt.
+
+### Parent orchestrator
+
+Default `orchestrator_mode` is `always`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
+
+`adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
+
+Task `model` is omitted so the child uses the parent session model (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
+
+### Optional chat compression
+
+`caveman_mode` defaults to **off**. It only shortens chat prose. It does not change skill steps, gates, or documentation.
+
+Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
+
+`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and `(sim / ajustar / cancelar)` stay clear. Policy file: `core/policy/caveman-mode.md`. The idea is credited on [Credits](credits.md).
+
+### Other preference keys
+
+| Key | Default | Effect |
+|-----|---------|--------|
+| `orchestrator_mode` | `always` | Parent stays orchestrator |
+| `caveman_mode` | `false` | Chat compression off |
+| `caveman_level` | `full` | Intensity if compression is turned on |
+| `artifact_language` | `null` | No locale override |
+| `verify_mode` | `false` | O3 does not spawn a read-only verifier after each implementer |
+
+`verify_mode: true` is a second child after a successful `sdd-develop` step. It is separate from the evidence script (`validate-evidence`).
+
+## Re-sync
 
 ```powershell
-pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
 ```
 
-Live install example (Claude):
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude `
-  -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
-```
-
-Live Cursor:
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor `
-  -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
-```
-
-Managed files are overwritten; **non-toolkit** (alien) files in the agent install root are preserved.
-
-Next: [Get started](../get-started/) · [Adapters](../adapters/) · [Architecture](../architecture/) · [Caveman](../caveman/) · [Home](../)
+Managed files are overwritten. Alien files in the agent home stay.

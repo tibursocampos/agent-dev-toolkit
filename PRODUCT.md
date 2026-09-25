@@ -47,4 +47,4 @@ Voice: confident, concrete, command-oriented. Prefer “run this / get that” o
 - Target **WCAG 2.2 AA** for the docs site (contrast 4.5:1 body, 3:1 large text).
 - Full keyboard path for nav, language switcher, agent switcher, and copy buttons.
 - Honor `prefers-reduced-motion: reduce` for all entrance/interaction motion.
-- Language switcher must expose current locale and destination in accessible names (EN / Português).
+- Language switcher must expose current locale and destination in accessible names (EN / Portuguese).

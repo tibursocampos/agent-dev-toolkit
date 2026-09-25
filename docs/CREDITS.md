@@ -8,13 +8,13 @@ Response-compression behavior is **inspired by** [JuliusBrussee/caveman](https:/
 
 This toolkit ships a **portable preferences/contract integration** (`core/skills/_shared/caveman/`, policy `caveman-mode`, chat commands `caveman on|off|…`), not a full port of that repository. Optional continuity compaction (`COMPACT.md`) is **not** a port of upstream `caveman-compress`.
 
-User guide: [guides/07-caveman-mode.md](guides/07-caveman-mode.md).
+Operator note (compression is one session preference, default off): [guides/session-behavior.md](guides/session-behavior.md).
 
 ## Impeccable
 
 UI/UX command flow and design guidance draw from **[pbakaus/impeccable](https://github.com/pbakaus/impeccable)** / the Impeccable CLI (`npx impeccable`).
 
-The toolkit skill `impeccable` is a **partial, adapter-synced harness** (subset of references, `DESIGN-BRIEF.md` handoff, toolkit gates). Full upstream install/hooks are optional and require **explicit user consent**. Behavior is not identical to running Impeccable standalone.
+The toolkit skill `impeccable` is a **partial, adapter-synced harness** (`DESIGN-BRIEF.md` handoff, toolkit gates). Selected playbooks under `core/skills/impeccable/reference/` and `agents/` are adapted from that repository and stay under the Apache License 2.0 (Copyright 2025 Paul Bakaus). See `core/skills/impeccable/NOTICE.md`. The engine launcher, live browser bundle, font index, and their `docs/` site are not vendored. Full upstream install/hooks are optional and require **explicit user consent**. Behavior is not identical to running Impeccable standalone.
 
 ## Anthropic frontend-design (optional external)
 
@@ -28,7 +28,7 @@ Use the upstream skill only as an **optional external** reference for one-shot C
 
 The Orchestrated Delivery `memory-bank/` layout and gate policies are a **toolkit-specific durable workspace map** (PowerShell inventory, no Spec Kit toolchain).
 
-Ideas for durable workspace / structured agent memory are **inspired in part by practices around** [github/spec-kit](https://github.com/github/spec-kit). We **do not** apply Spec Kit, `uv`, or `specify` directly — those paths were removed from this toolkit’s MVP in favor of Classic SDD / Backlog Refine / Orchestrated Delivery. Contracts and scripts under `MEMORY-BANK.md` / `memory-bank-init` are original to agent-dev-toolkit. Internal SDD contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the existing skill call flow — not a second OpenSpec/Spec Kit product.
+Ideas for durable workspace / structured agent memory are **inspired in part by practices around** [github/spec-kit](https://github.com/github/spec-kit). We **do not** apply Spec Kit, `uv`, or `specify` directly — those paths were removed from this toolkit’s MVP in favor of Orchestrated Delivery and `memory-bank-init`. Classic SDD contracts run inside that path. Internal SDD contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the existing skill call flow — not a second OpenSpec/Spec Kit product.
 
 ## Product backlog quality (PM themes)
 

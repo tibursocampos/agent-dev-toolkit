@@ -129,9 +129,27 @@ Module: [adapters/antigravity/README.md](../../adapters/antigravity/README.md).
 
 ## Common workflows
 
-Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands product discovery).
+Flow examples below use **skill ids**. Prefix with your host form from the matrix (`/`, `$`, `use skill`, OpenCode `skill` tool, or OpenHands product discovery). Mechanics: [sessions/README.md](../sessions/README.md).
 
-### Classic SDD
+### Orchestrated Delivery
+
+```text
+orchestrate-analyze
+orchestrate-deliver - features/NNN-slug/
+orchestrate-develop - features/NNN-slug/
+```
+
+Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Deliver then runs `sdd-spec` and `sdd-plan` per approved story (series in the parent, or parallel drafts). Develop runs one `sdd-develop` step per child. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+
+When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You answer **sim** before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
+
+Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). Open clarification **B** or **I** stops PRD/PLAN writes (`NEEDS_CLARIFICATION`). **MINOR** may remain. Readiness is not `step_confirmed`. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+
+Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
+
+### Classic SDD contracts (direct)
+
+Use when one story is already clear. The same three skills run inside deliver and develop.
 
 ```text
 sdd-spec
@@ -140,9 +158,11 @@ sdd-develop - <plan-path> - Step N
 read-sdd-artifact - <portable-features-path>   # optional: normalize → source_context
 ```
 
-One develop session = **one** PLAN step. Internal contracts (REQ, validate, CHANGE when brownfield, EVD/STATE, TRACE, invocation/provenance) run inside the same skill ids. Use `read-sdd-artifact` when a handoff needs a typed `source_context` envelope (not a fourth authoring stage). Detail: [domains/core.md](../domains/core.md) § Invocation / provenance / `read-sdd-artifact`.
+One develop session = **one** PLAN step. Detail: [sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md).
 
-### Backlog Refine — modes + checklist
+### One product item (`refine-story`)
+
+Not the feature path. O1 already applies the scorecard. Invoke this when shaping a single backlog item, or when deliver stopped on open **B**/**I**.
 
 ```text
 refine-story - feature    # User Story / Bug
@@ -151,7 +171,7 @@ refine-story - split      # reshape steps → ready for checklist
 split-story-checklist - <story-or-backlog-path>
 ```
 
-Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it → skill asks once; do not assume `feature`. Same Backlog Refine track — modes are playbooks, not new slash tracks. After refine, optional `split-story-checklist` then Classic SDD or Orchestrated Delivery. Scorecard and checklist load **one** file from `_shared/backlog-item-types/` (INVEST, AC budget, anti-task-shatter) — never the whole folder. Detail: [domains/core.md](../domains/core.md) § Composable skills · [Product artifact quality](../domains/core.md#product-artifact-quality-backlog-item-types) · [SKILLS.md](../SKILLS.md) § Backlog Refine.
+Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it and the skill asks once. It does not assume `feature`. Detail: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
 ### API standards vs typed clients
 
@@ -162,21 +182,6 @@ api-integrate - <openapi>     # OpenAPI → typed clients / DTOs (out of scope f
 ```
 
 Use **`api-standards`** for design review and packing-only conventions (no company contracts). Use **`api-integrate`** when you already have (or will produce) OpenAPI and need generated clients. Handoff is the same call flow — not a second toolkit. Catalog: [SKILLS.md](../SKILLS.md) § Operational.
-
-### Orchestrated Delivery — architecture confirm (greenfield / `needs_domain`)
-
-```text
-memory-bank-init
-orchestrate-analyze
-```
-
-When analyze sets greenfield or `needs_domain` and no established ARCH style exists, it runs the **architect** specialist (roster prompt — not a skill id): ARCH **draft** → you answer **sim** → ARCH approved. Brownfield with an existing style is discover-first (mirror; no re-pick). Other O1 specialists follow `needs_*` in `ROSTER.md`. Parent stays coordinator (no app code); Task `model` omitted unless gated + **sim** ([SPAWN.md](../SPAWN.md)).
-
-Before backlog **sim**, O1 synthesis runs **product artifact quality** gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale) — see [Product artifact quality](../domains/core.md#product-artifact-quality-backlog-item-types). Classic `sdd-spec` Step 5.5 challenges the same depth on FEATURE/STORY/PRD siblings.
-
-**O2 clarify readiness:** open questions use severity **B** \| **I** \| **MINOR**. Any open **B**/**I** → status `NEEDS_CLARIFICATION` — **STOP** PRD/PLAN Write (presence of ANALYSIS/ARCH folders ≠ READY). Dual plane: readiness ≠ SESSION `step_confirmed`. Detail: [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
-
-Later `orchestrate-develop` or `sdd-develop` (and stack `*-developer` skills) load **one** architecture style file plus the matching stack overlay — never the whole `architecture/**` tree. Develop MUST set gates via `Invoke-DevelopSessionGate.ps1` + ledger claim (`-File`) — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
 
 ### Small stack change
 
@@ -210,9 +215,9 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 - Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**41** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
-- Caveman: [07-caveman-mode.md](07-caveman-mode.md)
+- Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)
-- Which work track: [guides/README.md](README.md)
+- Which skill: [guides/README.md](README.md) and [sessions/README.md](../sessions/README.md)
 - First-time path: [01-getting-started.md](01-getting-started.md)
 
 ## Re-sync when skills feel stale

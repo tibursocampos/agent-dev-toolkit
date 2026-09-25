@@ -18,6 +18,7 @@ Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `STORAGE.md
 | `SKILL.md`, references, agents bodies, internal prompts | **en-US always** |
 | Chat **input** | User-chosen language |
 | Chat **output** | Mirror session user language |
+| Host execution plans the operator reads (Cursor Plan mode, `CreatePlan` title/overview/body/todos, `.cursor/plans/*.md`) | **Same as chat output.** Never English by default because `SKILL.md` or this file is English. Paths, skill ids, and identifiers stay English. |
 | SDD artifact **Writes** (PRD, PLAN, ARCH, SEC, STORY, FEATURE, CONTINUITY, CHANGE prose, …) | User language **inferred from chat** — do **not** ask a dedicated language question just for locale; do **not** hard-code pt-BR (or any single locale) |
 | Project source code + product docs (`docs/`, README, ADRs) | Follow **project convention**; if no evidence → ask and **confirm during planning** (existing toolkit rule) |
 | Identifiers / paths / skill ids | **English always** |
@@ -78,6 +79,7 @@ When spawning (native path or documented equivalent):
 
 ## Must not
 
+- Write a host execution plan (Cursor Plan / `CreatePlan` / `.cursor/plans/`) in English when the operator chat is another language — **including** because skill bodies are English
 - Hard-code chat or story artifacts to a single locale (e.g. always pt-BR) when preferences/manifest/chat say otherwise
 - Treat `artifact_language: null` as an implicit hard-coded locale (including pt-BR)
 - Ask a dedicated language question **only** to choose SDD artifact locale when chat language is already known

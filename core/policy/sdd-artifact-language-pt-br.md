@@ -15,6 +15,8 @@ alwaysApply: true
 
 This rule does **not** change code language. It does **not** default project documentation to pt-BR.
 
+**Host plans** the operator reads (Cursor Plan mode, `CreatePlan`, `.cursor/plans/`) are **user-facing chat**, not this SDD PLAN path and not `SKILL.md`. They follow `user-language-pt-br.md` / `LANGUAGE.md` chat output. Do not write them in English because guidelines are English.
+
 ## SDD artifacts - default pt-BR
 
 Write **section titles**, **metadata labels**, **prose**, **acceptance criteria** (Dado/Quando/Então/E), **PLAN steps**, and **implementation notes** in **Brazilian Portuguese (pt-BR)**.

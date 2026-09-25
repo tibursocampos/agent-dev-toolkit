@@ -9,6 +9,7 @@ copyright: Copyright &copy; 2026 Raphael Campos — MIT License
 theme:
   name: material
   custom_dir: overrides
+  language: en
   palette:
     scheme: slate
     primary: teal
@@ -16,9 +17,10 @@ theme:
   features:
     - search.suggest
     - search.highlight
-    - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
+    - toc.follow
     - content.code.copy
 
 plugins:
@@ -34,10 +36,13 @@ plugins:
           nav_translations:
             Home: Home
             Get started: Get started
+            CLI: CLI
+            First use: First use
+            Orchestrated Delivery: Orchestrated Delivery
             Using skills: Using skills
-            Caveman: Caveman
-            Adapters: Adapters
             Architecture: Architecture
+            Adapters: Adapters
+            Reference: Reference
             Credits: Credits
             Maintainers: Maintainers
         - locale: pt
@@ -46,20 +51,26 @@ plugins:
           nav_translations:
             Home: Início
             Get started: Começar
+            CLI: CLI
+            First use: Primeiro uso
+            Orchestrated Delivery: Entrega orquestrada
             Using skills: Usando skills
-            Caveman: Caveman
-            Adapters: Adaptadores
             Architecture: Arquitetura
+            Adapters: Adaptadores
+            Reference: Referência
             Credits: Créditos
             Maintainers: Mantenedores
 
 nav:
   - Home: index.md
   - Get started: get-started.md
+  - CLI: cli.md
+  - First use: first-use.md
+  - Orchestrated Delivery: orchestrated-delivery.md
   - Using skills: using-skills.md
-  - Caveman: caveman.md
-  - Adapters: adapters.md
   - Architecture: architecture.md
+  - Adapters: adapters.md
+  - Reference: reference.md
   - Credits: credits.md
   - Maintainers: maintainers.md
 

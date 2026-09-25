@@ -38,7 +38,7 @@ Sources: official host product docs (primary), `adapters/registry.json`, SPAWN /
 
 ## Antigravity dual-layer (version gate)
 
-Pré-2.0: Agent Manager with parallel agents in separate conversations — **not** hierarchical in-session delegation. Since 2.0: `invoke_subagent` (async, nesting ≤10, worktrees).
+Before 2.0: Agent Manager with parallel agents in separate conversations — **not** hierarchical in-session delegation. Since 2.0: `invoke_subagent` (async, nesting ≤10, worktrees).
 
 | Layer | Value | Role |
 |-------|-------|------|
@@ -46,12 +46,12 @@ Pré-2.0: Agent Manager with parallel agents in separate conversations — **not
 | `Get-Capabilities` | probe → `native` \| `none` | Effective on this machine |
 | SPAWN / skills | Prefer native only if effective = `native` | Never hard-fail |
 
-Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
+Probe fail-closed (`Resolve-AntigravitySubagentsCapability`). Order matches `core/skills/_shared/agents/SPAWN.md`:
 
 1. Override `ADT_ANTIGRAVITY_SUBAGENTS` ∈ {`native`,`none`} wins.
-2. Prefer product/IDE `>= 2.0.0` when a stable version source exists (`ADT_ANTIGRAVITY_PRODUCT_VERSION` / PATH).
-3. Parseable CLI `agy --version` `>= 1.0.0` = proxy of harness 2.0 (**do not** gate on CLI major ≥ 2 — CLI is `1.x`).
-4. Missing binary / parse failure / unknown → `none`.
+2. Product version `>= 2.0.0` when known (`ADT_ANTIGRAVITY_PRODUCT_VERSION`).
+3. Parseable `agy --version` `>= 1.0.0` as 2.0 harness proxy (CLI stays `1.x`; do **not** require CLI major ≥ 2).
+4. Else `none` (missing binary, parse failure, or unknown).
 
 ## Behavior matrix
 
@@ -71,7 +71,7 @@ Probe fail-closed (`Resolve-AntigravitySubagentsCapability`):
 
 O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
 
-**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. OpenCode / Antigravity / Grok / Hermes skip file publish (`agents=false`; native Task / `invoke_subagent` / `spawn_subagent` / `delegate_task` only). OpenHands writes `.agents/agents/*.md` as an SDK/plugin **roster** — that is not Canvas Profile and not native spawn (`subagents=none`; SPAWN fallback in-parent).
+**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. **OpenCode** and **Grok** publish with `agents: true`: `Publish-Agents` → `InstallRoot/agents/` (native OpenCode Task and Grok `spawn_subagent` remain). **Antigravity** and **Hermes** stay `agents: false` (`Publish-Agents` no-op; native `invoke_subagent` / `delegate_task` only). **OpenHands** still has `subagents=none` and still writes roster files under `.agents/agents/` — that path is an SDK/plugin roster, not Canvas Profile and not native spawn (SPAWN fallback in-parent).
 
 ## Task `model` (Eixo B/C — A≠B≠C)
 

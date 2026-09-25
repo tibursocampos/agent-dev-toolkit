@@ -22,7 +22,7 @@ curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolk
 bootstrap.bat
 ```
 
-(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing.)
+(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing, clears the browser download mark, and starts PowerShell with `-ExecutionPolicy Bypass`.)
 
 Linux / macOS:
 
@@ -120,15 +120,17 @@ On first sync, if `preferences.json` is missing under the SDD root, the wizard a
 
 Canonical form is the **skill id**. Host prefixes differ (`/id`, `$id`, `use skill id`, OpenCode `skill` tool) — see [02-using-skills.md](02-using-skills.md).
 
-Classic SDD — create a PRD (Cursor/Claude example with `/`):
+Start a feature with Orchestrated Delivery (Cursor/Claude example with `/`):
 
 ```text
-/sdd-spec
+/orchestrate-analyze
 ```
 
-Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
+Codex / ZCode: `$orchestrate-analyze`. OpenCode: `skill({ name: "orchestrate-analyze" })`.
 
-**First Classic SDD / Orchestrated Delivery write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
+That skill classifies the request, asks, and either continues into `orchestrate-deliver` (which runs `sdd-spec` then `sdd-plan` per story) or exits early. A story that is already clear can go straight to `/sdd-spec`. A single product item with no feature delivery uses `/refine-story`. Mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+
+**First feature write:** the agent asks whether to store SDD artifacts **local (repository)** or **global**. That choice sets where `features/` and `memory-bank/` land for the project (same root for both; never bank under `features/NNN-slug/`).
 
 | Choice | PRD / PLAN / feature tree | Memory bank |
 |--------|-------------|-------------|
@@ -137,14 +139,9 @@ Codex / ZCode: `$sdd-spec`. OpenCode: `skill({ name: "sdd-spec" })`.
 
 Use **portable paths** in artifacts and slash handoffs (e.g. `features/NNN-slug/US01/PRD/...`), not OS absolute paths. In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (default); choose versioned features when you want those trees in git. There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/sdd/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
 
-Then plan and implement one step:
+After the backlog is approved, deliver writes the PRD and PLAN. Develop then runs one PLAN step per session (`orchestrate-develop`, or `sdd-develop` on a single plan path).
 
-```text
-sdd-plan - <prd-path>
-sdd-develop - <plan-path> - Step 1
-```
-
-Small change without full SDD:
+Small change, one file, when analyze offers the shortcut:
 
 ```text
 developer
@@ -156,10 +153,10 @@ or a stack skill such as `dotnet-developer` / `react-developer`.
 
 | Goal | Doc |
 |------|-----|
-| Which work track / skill | [guides/README.md](README.md) |
+| How the feature path works | [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
+| Every skill | [sessions/09-every-skill.md](../sessions/09-every-skill.md) |
+| Which skill | [guides/README.md](README.md) |
 | Invoke tips per agent | [02-using-skills.md](02-using-skills.md) |
-| Full catalog | [SKILLS.md](../SKILLS.md) |
+| Skill ids | [SKILLS.md](../SKILLS.md) |
 | Adapter layouts | [ADAPTERS.md](../ADAPTERS.md) |
-| App architecture A/B/C + confirm gate | [domains/core.md](../domains/core.md) § Code guidelines |
-
-Greenfield domain work: prefer Orchestrated Delivery (`orchestrate-analyze`) so the architect confirm gate can run before implementers load a style overlay — see [02-using-skills.md](02-using-skills.md).
+| Architecture layers A/B/C | [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md) |

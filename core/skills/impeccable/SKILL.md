@@ -102,18 +102,37 @@ Produce production-grade code and design choices. Match-and-refuse absolute bans
 | `init` | Build | `reference/init.md` |
 | `shape [feature]` | Build | `reference/shape.md` |
 | `craft [feature]` | Build | `reference/craft.md` |
-| `document` | Build | `reference/document.md` (not bundled - suggest `npx impeccable` or sync refs) |
-| `extract [target]` | Build | not bundled initially |
+| `document` | Build | `reference/document.md` — Impeccable `DESIGN.md` from UI code. Not `document-plan` / `document-implement`. |
+| `extract [target]` | Build | `reference/extract.md` |
 | `critique [target]` | Evaluate | `reference/critique.md` |
 | `audit [target]` | Evaluate | `reference/audit.md` |
 | `polish [target]` | Refine | `reference/polish.md` |
 | `harden [target]` | Refine | `reference/harden.md` |
 | `onboard [target]` | Refine | `reference/onboard.md` |
-| `animate`, `colorize`, `typeset`, `layout`, `bolder`, `quieter`, `distill`, `delight`, `overdrive`, `clarify`, `adapt`, `optimize` | Various | sync additional refs via `sync-impeccable-refs.ps1` |
-| `live` | Iterate | requires per-project install (see below) |
+| `animate` | Enhance | `reference/animate.md` |
+| `colorize` | Enhance | `reference/colorize.md` |
+| `typeset` | Enhance | `reference/typeset.md` |
+| `layout` | Enhance | `reference/layout.md` |
+| `bolder` | Refine | `reference/bolder.md` |
+| `quieter` | Refine | `reference/quieter.md` |
+| `distill` | Refine | `reference/distill.md` |
+| `delight` | Enhance | `reference/delight.md` |
+| `overdrive` | Enhance | `reference/overdrive.md` |
+| `clarify` | Fix | `reference/clarify.md` |
+| `adapt` | Fix | `reference/adapt.md` |
+| `optimize` | Fix | `reference/optimize.md` |
+| `live` | Iterate | requires per-project install (see below). Reference is not vendored. |
 | `hooks` | Manage | `reference/hooks.md` - requires per-project install |
 
-`teach` is deprecated alias for `init`.
+Also load, one file at a time, when that step is the task: `reference/craft-floor.md` (quality floor before UI edits), `reference/routing.md` (no-command menu), `reference/new-work.md` (new surface), `reference/operate.md` (app/docs reading). `teach` is a deprecated alias for `init`.
+
+**Harness wins over vendored text.** These playbooks are adapted from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0). They still mention `{{scripts_path}}/impeccable` and `impeccable context`. This toolkit does not ship that launcher, `skill/scripts/bin`, `font-index.json`, or `browser-bundle`. If a vendored line asks for the launcher:
+
+- `detect` → `npx impeccable detect --json` (no `npx impeccable install`)
+- concept-seed, surface-brief, build-phase, comp-spec, embed-prompt, generate-image → do not run; shape still ends in `docs/DESIGN-BRIEF.md`
+- live, hooks, install → stop and ask **sim** as in the install section below
+
+`agents/` holds four upstream finish helpers. They are not the SDD roster in `_shared/agents/`. Do not spawn them for spec, plan, or develop. Spawn only when the user asked for that impeccable step, and never past a missing **sim**.
 
 ## Routing rules
 
@@ -131,6 +150,7 @@ npx impeccable detect --json <paths>
 ```
 
 - No project install required; `npx` fetches the npm package transiently.
+- This harness does not ship `scripts/detect.mjs`, `scripts/critique-storage.mjs`, or `scripts/live-server.mjs`. Critique and polish use `npx impeccable detect` for the scan and skip local snapshot or overlay scripts.
 - Requires Node/npm and `write_confirmed` / shell gate approval.
 - Fold JSON hits into the audit report per `audit.md` scoring (5 dimensions, P0-P3).
 

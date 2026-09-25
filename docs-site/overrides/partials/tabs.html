@@ -1,0 +1,13 @@
+{% import "partials/tabs-item.html" as item with context %}
+{# Tabs repeat the four groups only. Home stays in nav so the logo still resolves, and is not a fifth group. #}
+<nav class="md-tabs" aria-label="{{ lang.t('tabs') }}" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      {% for nav_item in nav.items %}
+        {% if nav_item.children %}
+          {{ item.render(nav_item) }}
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</nav>

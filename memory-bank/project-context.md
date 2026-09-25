@@ -1,32 +1,35 @@
-﻿# Project context
+# Project context
 
+<!-- BEGIN GENERATED: inventory-summary -->
 | Field | Value |
 |-------|--------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-09-24T20:52:26Z (refresh) |
-| **Primary stack signals** | PowerShell, Markdown Agent Skills (41 kebab) |
+| **Inventory at** | 2026-09-25T14:11:35.6866622Z |
+| **Status** | ready |
+| **Inventory hash** | `c77bee05c991485a5392f3cdda52e220ae04ca390656cca797a1a05fdd34446d` |
+| **Primary stack signals** | markdown, powershell (116 sources) |
+<!-- END GENERATED: inventory-summary -->
 
 ## Purpose
 
-Toolkit unificado: um **core** portável de skills/rules/router (catálogo; tracks **Classic SDD** / **Backlog Refine** / **Orchestrated Delivery**, alias só nesta release) e **adapters** que publicam esse core nos perfis de agentes (Cursor, Antigravity, Claude Code, Codex, Copilot, OpenCode, Grok Build, ZCode, Hermes, OpenHands). Twins `cursor-dev-toolkit` e `antigravity-dev-toolkit` permanecem intactos.
-
-**Frase-guia SDD:** mesmo fluxo de chamada das skills; gates e artefatos a mais (REQ, validate, CHANGE, EVD, STATE, TRACE, retrieval seletivo) — sem segundo toolkit nem pastas `openspec/` / `.specs/` / `.specify/`. SQLite/FTS fora do escopo atual (OOS).
+**agent-dev-toolkit** ships one portable core (skills, policy, router, SDD contracts) plus per-agent adapters that publish that core into host install roots. `scripts/toolkit.ps1` syncs, validates, and uninstalls. The default write destination is an in-repo fixture. Live profile writes require `-AllowUserHome`.
 
 ## Actors / users
 
-- Operador que roda `scripts/toolkit.ps1` (clone / Smart Manager) ou `scripts/bootstrap/*` (Release HTTPS + SHA256 → sync)
-- Operador opt-in de authorship git-notes via `Invoke-AuthorshipGitNotes.ps1` (default off)
-- Agentes de coding que consomem skills/rules/hooks após o publish (`help-skills` → CATALOG **41**)
+- Operators who sync a supported agent and invoke skills by id.
+- Maintainers who run core validation and fixture smokes.
 
 ## Boundaries
 
-- In scope: core kebab + registry adapters + smoke **in-repo** (fixtures, sem exigir install no perfil do usuário para CI); Release bootstrap entrypoints; opt-in authorship notes parallel to TRACE
-- Out of scope: produtos que não estão em `adapters/registry.json`; git-notes como SoT de TRACE; skill ids com major pin (`dotnet10-upgrade`, etc.)
+- In scope: `core/` (skills, policy, router, SDD contracts), `adapters/` (registry publish surfaces), CLI under `scripts/` (`toolkit.ps1`, `sync-agent.ps1`, `validate-agent.ps1`), in-repo install fixtures, and CI that runs validate-core plus fixture smokes.
+- Out of scope: Spec Kit, uv, and specify as a runtime dependency; SQLite/FTS as a deliverable.
 
 ## Links
 
 - README: `README.md`
-- Public docs: `docs/` (index `docs/README.md`; spawn summary `docs/SPAWN.md`)
+- Router index: `core/router/AGENTS.md`
+- Agent registry: `adapters/registry.json`
+- Skills catalog: `core/skills/_shared/skills-catalog/CATALOG.md`
 
 ## Notes
 

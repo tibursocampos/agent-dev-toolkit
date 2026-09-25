@@ -9,13 +9,14 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [INSTALL.md](INSTALL.md) | Everyone | Prerequisites, clone, sync, live home, uninstall |
-| [guides/README.md](guides/README.md) | Daily usage | Decision tree — which skill / **work track** to use |
+| [sessions/README.md](sessions/README.md) | Everyone | How the 41 skills relate; start at Orchestrated Delivery |
+| [guides/README.md](guides/README.md) | Daily usage | Entry decision |
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite; visitors: read only) |
-| [SKILLS.md](SKILLS.md) | Everyone | Canonical skill catalog (41 skills; agent SoT via `help-skills` → CATALOG + OPERATOR) |
+| [SKILLS.md](SKILLS.md) | Everyone | Skill ids; behavior is in `sessions/` |
+| [guides/session-behavior.md](guides/session-behavior.md) | Everyone | Language, orchestrator, optional chat compression |
 | [CREDITS.md](CREDITS.md) | Everyone | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
-| [guides/07-caveman-mode.md](guides/07-caveman-mode.md) | Everyone | Caveman default OFF, commands, levels |
 | [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md) | Everyone | Orchestrator charter, `orchestrator_mode`, commands |
 
 ## Overview and architecture
@@ -35,7 +36,6 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [domains/core.md](domains/core.md) | `core/skills`, policy, router, SDD contracts; [§ Code guidelines and architecture selection](domains/core.md#code-guidelines-and-architecture-selection) (A/B/C, confirm gate, token discipline) |
 | [domains/adapters.md](domains/adapters.md) | Registry + implemented adapters (summary → ADAPTERS.md) |
 | [domains/cli-scripts.md](domains/cli-scripts.md) | toolkit / sync-agent / validate-agent |
-| [domains/validation-ci.md](domains/validation-ci.md) | Fixtures, smoke harnesses, GitHub Actions |
 
 ## Policy
 

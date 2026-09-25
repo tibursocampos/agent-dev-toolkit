@@ -8,7 +8,7 @@ How to run the in-repo test suite and agent smokes. **None of these steps requir
 |----------|----------------------|-------------|
 | **Visitor** | Understanding that tests exist; **not** expected to run the suite | None — clone/fork and read [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md) / [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | **Operator** | Syncing skills to an agent home and checking a fixture install | Optional: [Core suite](#core-suite) (`validate-core`); [Per-agent validate](#per-agent-validate) against a fixture `InstallRoot` — **never** `-AllowUserHome` to “make CI pass” |
-| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`). **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](domains/validation-ci.md#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full matrix = `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent CI smokes (Copilot is a suite) |
+| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`). **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full matrix = `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent CI smokes (Copilot is a suite) |
 
 **Maintainers vs visitors:** Visitors do not need PowerShell validation. Maintainers own the green bar — run **validate-core** on every change that touches contracts, skills, router, or validation scripts; run the relevant **CI smoke** when an adapter or publish path changes. Operators may run the same scripts against fixtures; that does not grant upstream PR rights ([CONTRIBUTING.md](../CONTRIBUTING.md)).
 
@@ -38,6 +38,23 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 ```
 
 `validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert) plus maturity asserts for memory-bank inventory, PLAN-LEDGER, **develop session gate** (`Assert-DevelopSessionGate.ps1`), **InvocationAxes** (WS1), **SiblingReadinessGate** (WS3), **NavigationBlock** (WS7), PublishSpawnKnobs, TRACE archive/harvest, TRACE emitter fail-open, and **product artifact quality** (`Assert-ProductArtifactQuality.ps1` — FEATURE depth, task-shaped titles, AC budget, cap, honest Evidence omit). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
+
+These prove contracts and scripts exist. They are not a substitute for running inventory, preflight, or harvest on a consumer feature. Operator entry points stay in the table below.
+
+| Assert / script | Role |
+|-----------------|------|
+| `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |
+| `Assert-PlanLedgerContract.ps1` | PLAN-LEDGER present + double-claim race |
+| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Idempotent develop `step_confirmed` helper + skill MUST `-File` (WS10) |
+| `Assert-InvocationAxes.ps1` | Spawn Axis B omit/inherit prose + harness wiring (WS1) |
+| `Assert-PublishSpawnKnobs.ps1` | Publish honesty depth/threads/inherit (no child≠parent pin) |
+| `Assert-SiblingReadinessGate.ps1` | Clarification READY / NEEDS_CLARIFICATION + B/I fixtures (WS3) |
+| `Assert-NavigationBlock.ps1` | `## Related` PRD↔PLAN reciprocity fixture (WS7) |
+| `Assert-TraceArchiveContract.ps1` | TRACE living-loop contract smoke |
+| `Assert-TraceHarvest.ps1` | Harvest scope / exit behavior |
+| `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
+| `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
+| `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
 
 ## Operator scripts (pointers)
 
@@ -118,18 +135,20 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode repo -Instal
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode repo -InstallRoot $copilotRepo
 ```
 
-Other fixture roots: `fixtures/codex`, `fixtures/opencode`, `fixtures/grok`, `fixtures/zcode-install-root`, `fixtures/antigravity-install-root`, `fixtures/hermes`, `fixtures/openhands`.
+Other fixture roots: `fixtures/codex` (Codex plugin layout), `fixtures/opencode` (OpenCode config root), `fixtures/grok` (Grok Build), `fixtures/zcode-install-root` (ZCode ADE), `fixtures/antigravity-install-root`, `fixtures/hermes` (`~/.hermes` model), `fixtures/openhands` (OpenHands project tree), `fixtures/install-root` (generic smoke harness). `fixtures/claude` includes the merge seed `settings.json`.
+
+CI harnesses often copy a fixture to an ephemeral work root so the versioned seed stays intact. Local sync residue under fixture InstallRoots (published skill trees, SDD sessions, merge `.bak` files) is listed in the root `.gitignore`. Keep that residue locally for faster re-tests. Do not commit it.
 
 ## What CI runs
 
-Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml) (checkout only; no secrets; no home sync for green).
+Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `master`, `main`, and `develop` (no `push`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green.
 
 **Jobs (all must be green before merge):**
 
 | Job | Runner | Role |
 |-----|--------|------|
 | `validate` | `windows-latest` | Full Windows matrix below |
-| `validate-ubuntu` | `ubuntu-latest` | InstallRoot safety + `validate-core` + all 10 agent fixture smokes (`pwsh 7+`) |
+| `validate-ubuntu` | `ubuntu-latest` | `Assert-InstallRootSafety.ps1` + `validate-core` + all 10 agent fixture smokes (`pwsh 7+`) |
 | `ci-ok` | `ubuntu-latest` | Gate job (`needs: [validate, validate-ubuntu]`) — **require this check** in branch protection |
 
 ### Job `validate` (Windows)
@@ -150,6 +169,44 @@ Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/valida
 
 Do **not** merge with `validate-ubuntu` red. Auto-merge must wait for `ci-ok`.
 
+### Other workflows
+
+`publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
+
+`.github/workflows/docs.yml` exists and this page does not document the site.
+
+### Local parity
+
+Mirrors the Windows `validate` job order: `validate-core` → keyed uninstall asserts → `Assert-SyncAllowUserHomeForward` → 10 agent smokes (Copilot is a suite). The Ubuntu job also runs `Assert-InstallRootSafety.ps1` before `validate-core` and the same ten smokes. It does not repeat the keyed uninstall asserts.
+
+```powershell
+pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
+
+pwsh -NoProfile -File .\scripts\validation\Assert-ClaudeKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-CopilotKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-CodexKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-OpenCodeKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-AntigravityKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-GrokKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-CursorKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-ZcodeKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-HermesKeyedUninstall.ps1
+pwsh -NoProfile -File .\scripts\validation\Assert-OpenHandsKeyedUninstall.ps1
+
+pwsh -NoProfile -File .\scripts\validation\Assert-SyncAllowUserHomeForward.ps1
+
+pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-CodexCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1 -Quiet
+```
+
 ## Safety rules
 
 | Rule | Detail |
@@ -157,9 +214,14 @@ Do **not** merge with `validate-ubuntu` red. Auto-merge must wait for `ci-ok`.
 | No live home for green | Do not use `-AllowUserHome` to “make CI pass” |
 | Trust UIs out of scope | Cursor / Claude / Codex / Grok hook trust dialogs are never required for smoke green |
 | JetBrains / Eclipse Copilot | Out of scope — Mode user/repo official surfaces only |
+| GLM Coding Plan | Endpoint-only; not ZCode ADE |
+| Hermes gateway | `SOUL.md` and `config.yaml` secrets are out of smoke scope |
+| OpenHands product runtime | Automation Server, sandbox YAML, and legacy microagents are out of smoke scope |
+
+Live homes such as `~/.cursor`, `~/.claude`, `~/.copilot`, `~/.hermes`, and `~/.agents` are out of smoke scope.
 
 ## Related
 
-- Domain deep dive: [domains/validation-ci.md](domains/validation-ci.md)
 - Adapter publish details: [ADAPTERS.md](ADAPTERS.md)
 - Install / live home: [INSTALL.md](INSTALL.md)
+- CLI scripts: [domains/cli-scripts.md](domains/cli-scripts.md)

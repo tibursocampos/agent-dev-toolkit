@@ -1,99 +1,96 @@
+---
+title: Mantenedores
+---
+
 # Mantenedores
 
-Notas para operadores e colaboradores que mantêm o **agent-dev-toolkit** saudável. Clone e fork públicos são bem-vindos para uso e customização local; o fluxo de contribuição via PR da comunidade no repositório upstream não é o canal previsto hoje.
+O **agent-dev-toolkit** é um toolkit público e somente leitura. Qualquer pessoa pode clonar ou fazer fork e usá-lo localmente. Contribuições upstream não são aceitas. Não abra pull requests esperando revisão ou merge neste repositório.
 
-## Política (resumo)
+Licença: MIT © 2026 Raphael Campos.
 
-| Regra | Detalhe |
-|------|--------|
-| Clone / fork | Qualquer pessoa pode clonar ou fazer fork e adaptar localmente |
-| PRs no upstream | Não fazem parte do fluxo atual de contribuição da comunidade; priorize customizações no seu fork |
-| Issues | Apenas bugs (sem canal de feature/RFC) |
-| Segurança | Reporte via `SECURITY.md`, não em Issues públicas |
+## Para quem é
 
-Leituras aprofundadas no GitHub:
+| Público | Intenção | Começo |
+|---------|----------|--------|
+| **Visitante** | Entender o toolkit, clonar ou fazer fork, ler a política | [Início](index.md), [Começar](get-started.md), esta página |
+| **Operador** | Sincronizar skills no home de um agente, rodar validação | [Começar](get-started.md), [Adaptadores](adapters.md), [Usando skills](using-skills.md) |
+| **Mantenedor** | Mudar este repositório (acesso de escrita) | A seção abaixo. Check obrigatório **`ci-ok`** em `pull_request` para `develop`, `master` e `main` (`.github/workflows/validate-toolkit.yml`). Origem de release: `.github/workflows/enforce-release-source.yml` |
 
-- [CONTRIBUTING.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md)
-- [docs/REPO_GOVERNANCE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/REPO_GOVERNANCE.md)
-- [SECURITY.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/SECURITY.md)
-- [docs/ARCHITECTURE.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/ARCHITECTURE.md) — layout completo; visão no site: [Arquitetura](../architecture/)
-- [docs/CREDITS.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/CREDITS.md) — inspiração de terceiros; site: [Créditos](../credits/)
+| Tema | Onde |
+|------|------|
+| Clone / fork permitidos; sem PRs upstream | Esta página |
+| Issues são só bugs | Esta página |
+| Reporte de vulnerabilidade | Esta página |
+| Licença | `LICENSE` (MIT) |
+| Instalar, sync, desinstalar | [Começar](get-started.md) |
+| Validação e CI | [Arquitetura](architecture.md) |
 
-## Validação (local)
+## Issues (só bugs)
 
-Nenhum destes passos escreve no ambiente real de um agente. Prefira caminhos de fixture em `InstallRoot`; nunca use `-AllowUserHome` para “fazer o CI passar”.
+GitHub Issues são para relatos de defeito: sync quebrado, falhas de validação, docs incorretos, erros de runtime.
 
-**Suíte core** (contratos, grafo de skills, fixtures — obrigatória antes do merge para mantenedores):
+- Não use Issues para pedidos de feature, RFCs ou propostas de contribuição.
+- Não há fluxo de contribuição da comunidade via Issues ou pull requests.
+- Vulnerabilidades de segurança seguem a seção de reporte abaixo. Elas não vão em Issues públicas.
+
+Mantenha mudanças locais no seu fork ou numa cópia privada.
+
+## Clone e fork
+
+Você pode:
+
+- Clonar ou fazer fork deste repo para uso pessoal ou de equipe
+- Sincronizar skills nos homes dos seus agentes (`~/.cursor`, `~/.claude`, `~/.copilot` e as outras raízes) via `scripts/sync-agent.ps1`
+- Customizar skills, política, adaptadores e docs no seu fork
+
+Você não abre pull requests esperando revisão ou merge aqui, e não pede acesso de escrita para contribuições da comunidade.
 
 ```powershell
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
-
-# Alias:
-pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
-
-# Quiet (estilo CI):
-pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-**Validação por agente** (`validate-core` + teste smoke do adaptador contra fixture):
+Home ao vivo (opt-in):
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode user
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 ```
 
-**Harnesses de teste smoke de CI** (espelham o comportamento de cópia efêmera do Actions):
+## Só mantenedores
 
-```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CodexCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
-```
+O desenvolvimento interno usa Git em branches com acesso de escrita.
 
-Matriz completa, regras de segurança e workflows de CI:
+| Branch | Papel |
+|--------|--------|
+| `feature/<slug>` ou `feat/<id>` | Branches de trabalho |
+| `develop` | Integração |
+| `master` / `main` | Release estável |
 
-- [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md)
-- [validate-toolkit.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/validate-toolkit.yml) — check obrigatório **validate**
-- [docs.yml](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/.github/workflows/docs.yml) — build MkDocs / deploy Pages
+Pull requests são só de colaboradores. Prefira `/open-github-pr` (depois de `/commit` / `/push`), ou use `.github/PULL_REQUEST_TEMPLATE.md` na UI web. Trabalho de feature e correção aponta para **`develop`**. PRs de release são **`develop` → `master` ou `main`**, impostos por `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`, `master` e `main`. O check de CI obrigatório é **`ci-ok`**. Os jobs `validate` e `validate-ubuntu` alimentam esse check. A proteção de branch precisa exigir `ci-ok`, e não só o nome de job `validate`.
 
-## Scripts de operador (inventory → preflight → harvest)
+## Reportar uma vulnerabilidade
 
-Mesmo fluxo de skills; esses scripts acrescentam gates determinísticos — não um segundo CLI do toolkit. Ordem sugerida numa feature consumidora:
+Não abra uma GitHub Issue pública para vulnerabilidades de segurança.
 
-| Ordem | Script | Papel |
-|-------|--------|-------|
-| 1 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `ready` \| `not-ready` sob `memory-bank/.inventory/` (paths **portáteis** em `sources.json`) |
-| 2 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Bloqueia O3 se PRD/PLAN/CHANGE inconsistentes |
-| 3 | `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` | `step_confirmed` idempotente + claim no ledger (MUST `-File`; allowlist Shell opcional) |
-| 4 | `scripts/trace/Invoke-TraceHarvest.ps1` | Resume **somente** `features/NNN-slug/TRACE.jsonl` |
+Use o primeiro canal disponível neste repositório:
 
-```powershell
-pwsh -NoProfile -File .\scripts\inventory\Invoke-MemoryBankInventory.ps1 `
-  -RepoPath . -BankPath .\memory-bank -AllowCreateInventory
+1. **Reporte privado de vulnerabilidade no GitHub** — quando estiver ligado, use **Security → Advisories → Report a vulnerability**.
+2. **Contato com os donos do repositório via GitHub** — se o reporte privado ainda não estiver ligado, fale com um dono pelo perfil no GitHub. Não invente uma caixa de e-mail de segurança.
 
-pwsh -NoProfile -File .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
-  -FeatureRoot features\<NNN-slug> `
-  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md
+Nenhum e-mail de segurança dedicado é publicado para este repositório.
 
-pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
-  -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
+Antes de tratar o canal 1 como disponível, os mantenedores:
 
-pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 `
-  -Action claim -PlanPath features\<NNN-slug>\<story>\PLAN\PLAN_....md -Step N -Holder <id> `
-  -RepoPath . -SessionsRoot <sessions-root>
+1. Ligam **Private vulnerability reporting** (**Settings → Code security and analysis → Private vulnerability reporting**).
+2. Confirmam que a aba Security mostra **Report a vulnerability** para quem não é colaborador.
+3. Mantêm este arquivo honesto. Acrescentam uma caixa postal aqui só quando um endereço real existir.
 
-pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
-  -FeatureRoot features\<NNN-slug>
-```
+Inclua:
 
-**Dica de allowlist Shell (Cursor):** allowlist opt-in só dos dois scripts de develop — não auto-aprove todo Shell. Gate seletivo de clarificação: `Invoke-SiblingReadinessGate.ps1` (`-FeatureRoot`). A suite core também asserta InvocationAxes, NavigationBlock (`## Related`), SiblingReadiness, PublishSpawnKnobs. Ponteiros: [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) · [docs/domains/cli-scripts.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/domains/cli-scripts.md). Claims de emissor TRACE: [Adaptadores](../adapters/).
+- Uma descrição do problema e do impacto potencial
+- Passos para reproduzir (uma prova de conceito se for seguro compartilhar em privado)
+- Caminhos afetados (skills, scripts, adaptadores, docs) quando souber
+- Seu contato preferido para retorno
 
-## Fluxo Git dos mantenedores
-
-Colaboradores com permissão de escrita usam branches normais: `feature/<slug>` → `develop` → `master`/`main`. Prefira `/open-github-pr` após `/commit` / `/push` (feature → `develop` = **`--squash`**; modo release `develop` → `master`/`main` = **`--rebase`**; sempre perguntar auto-merge). PRs de release usam o template em `.github/PULL_REQUEST_TEMPLATE/release.md`. Check de CI obrigatório: **validate**. Ver a seção [Maintainers only (repository owner)](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/CONTRIBUTING.md#maintainers-only-repository-owner) em CONTRIBUTING.md (título em inglês no documento fonte).
+Dê aos mantenedores um tempo razoável para avaliar um relato antes de qualquer divulgação pública.
