@@ -3,11 +3,11 @@
     "repo":  "agent-dev-toolkit",
     "repo_path":  ".",
     "bank_path":  "memory-bank",
-    "generated_at":  "2026-09-24T20:52:26.7426811Z",
+    "generated_at":  "2026-09-25T14:11:35.6866622Z",
     "stale_days":  90,
     "status":  "ready",
     "status_reason":  "sources indexed with hash and summary",
-    "inventory_hash":  "9cad0c8e17b10baafbb4616e0b3fde4651a141550d3b32fda76bc4de6004fdf3",
+    "inventory_hash":  "c77bee05c991485a5392f3cdda52e220ae04ca390656cca797a1a05fdd34446d",
     "inventory_summary":  "116 source(s); stack: markdown, powershell",
     "stack_hints":  [
                         "markdown",
@@ -31,6 +31,13 @@
                         "summary":  "name: Enforce release source"
                     },
                     {
+                        "path":  ".github/workflows/publish-release-bootstrap.yml",
+                        "last_write_utc":  "2026-09-24T22:10:07.5633721Z",
+                        "length":  2980,
+                        "hash":  "9e51e708f9bea6e9f1dfc5601b66c8c8de48b6173aeecc3d0fb508dd3820dfaa",
+                        "summary":  "Publish Release assets for Option 0 bootstrap (HTTPS zip + SHA256 + entrypoints)."
+                    },
+                    {
                         "path":  ".github/workflows/validate-toolkit.yml",
                         "last_write_utc":  "2026-09-22T11:14:20.4411577Z",
                         "length":  6828,
@@ -39,17 +46,10 @@
                     },
                     {
                         "path":  ".gitignore",
-                        "last_write_utc":  "2026-09-23T23:17:51.2305570Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9197326Z",
                         "length":  5710,
                         "hash":  "327d7bbb69c0da821d4b4e7fbc9a80eabd097b0d5596b732e4ebc2903d993121",
                         "summary":  "SDD artifacts (local agent workflow - agent-dev-toolkit)"
-                    },
-                    {
-                        "path":  "adapters/_contract/AdapterContract.ps1",
-                        "last_write_utc":  "2026-08-14T12:42:13.1436184Z",
-                        "length":  7472,
-                        "hash":  "8085f4d822134a8cf3c6644e394d5f5a2958168b8ba4d44bcd9d6aef2220b5be",
-                        "summary":  "String enum for spawn capability (not boolean) — honesty matrix: native | none."
                     },
                     {
                         "path":  "adapters/antigravity/AntigravityAdapter.ps1",
@@ -193,7 +193,7 @@
                     },
                     {
                         "path":  "adapters/copilot/Publish-CopilotAgents.ps1",
-                        "last_write_utc":  "2026-09-24T12:31:10.0676426Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9227305Z",
                         "length":  4916,
                         "hash":  "97bf432072bf1cebaa6c8b7add07fcc185609cfb662de6dae0b38c8baf5577e2",
                         "summary":  "#Requires -Version 5.1"
@@ -284,7 +284,7 @@
                     },
                     {
                         "path":  "adapters/grok/Publish-GrokAgents.ps1",
-                        "last_write_utc":  "2026-09-24T12:30:43.9171019Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9227305Z",
                         "length":  3704,
                         "hash":  "2d7b878ff9d8142fbfaf855f5fd34a89a599e25f562268c28ae19949802523d3",
                         "summary":  "#Requires -Version 5.1"
@@ -375,7 +375,7 @@
                     },
                     {
                         "path":  "adapters/opencode/Publish-OpenCodeAgents.ps1",
-                        "last_write_utc":  "2026-09-24T12:31:00.3335529Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9237299Z",
                         "length":  4653,
                         "hash":  "e1166e40cf0296ac46c6a725c704898964ef2d2e241a736132fa87f117b49018",
                         "summary":  "#Requires -Version 5.1"
@@ -466,7 +466,7 @@
                     },
                     {
                         "path":  "adapters/zcode/Publish-ZCodeAgents.ps1",
-                        "last_write_utc":  "2026-09-24T12:30:51.5903775Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9237299Z",
                         "length":  3793,
                         "hash":  "bbe4579b367f4b1d3c6bff8c8540b7713ab9e55c4e685e16192804e1c42c5e13",
                         "summary":  "#Requires -Version 5.1"
@@ -522,44 +522,44 @@
                     },
                     {
                         "path":  "core/skills/_shared/agents/SPAWN.md",
-                        "last_write_utc":  "2026-09-24T15:41:39.3295611Z",
+                        "last_write_utc":  "2026-09-24T21:10:40.9297287Z",
                         "length":  11062,
                         "hash":  "69ed8aeca670397437d5082a2a0ec04a6c82439db32e5a954bae79d0b0489011",
                         "summary":  "Portable spawn contract (Orchestrated Delivery + developers)"
                     },
                     {
                         "path":  "docs/ADAPTERS.md",
-                        "last_write_utc":  "2026-09-07T12:21:47.9331180Z",
-                        "length":  59017,
-                        "hash":  "dfa5913ee16d42480a0eef7f69dccc6fbb5a9df870086d6437f5fcac3ca2c140",
+                        "last_write_utc":  "2026-09-25T13:42:22.7563643Z",
+                        "length":  59019,
+                        "hash":  "5c8a2559b8b1c9ddc16c81142081ac6d17ff376de49eda53046670d55439456f",
                         "summary":  "Adapters"
                     },
                     {
                         "path":  "docs/ARCHITECTURE.md",
-                        "last_write_utc":  "2026-09-24T20:29:45.9025681Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3506867Z",
                         "length":  14399,
                         "hash":  "80aa17f0b2694084407013f5cb40eacc328e909c379d6ac6c26529c2ae82c776",
                         "summary":  "Architecture"
                     },
                     {
                         "path":  "docs/CREDITS.md",
-                        "last_write_utc":  "2026-09-07T12:21:47.9351253Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3516861Z",
                         "length":  4111,
                         "hash":  "375875aeff9056a8b7a843ae1ecec1c585ad488765146dbe47e2e7ec285df2f8",
                         "summary":  "Credits and acknowledgments"
                     },
                     {
                         "path":  "docs/DESIGN-BRIEF.md",
-                        "last_write_utc":  "2026-09-14T23:46:19.9651092Z",
-                        "length":  11074,
-                        "hash":  "c73021fe378030e649603db4d47ba241fc355a0bc520b621e344279cd4401f34",
+                        "last_write_utc":  "2026-09-25T13:42:53.3504704Z",
+                        "length":  11096,
+                        "hash":  "d913d6e465d9d39e9f8e605867fa9acca3604f94da3067fdff3c3b28f59515b8",
                         "summary":  "DESIGN-BRIEF — Public docs site (GitHub Pages)"
                     },
                     {
                         "path":  "docs/documentation-plan/plan.md",
-                        "last_write_utc":  "2026-09-24T14:28:59.7557172Z",
-                        "length":  5330,
-                        "hash":  "5c535966e725c1473d8aa7472c3e120f983e2039a499561d41519cffc1057b85",
+                        "last_write_utc":  "2026-09-25T13:42:21.5005399Z",
+                        "length":  8758,
+                        "hash":  "79ef7a5eac4807eb9f53c5c47d6bbac93621f4a819f6ad42e61551836d914439",
                         "summary":  "Documentation plan: agent-dev-toolkit"
                     },
                     {
@@ -571,126 +571,126 @@
                     },
                     {
                         "path":  "docs/domains/adapters.md",
-                        "last_write_utc":  "2026-09-24T19:42:52.2232484Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3576839Z",
                         "length":  8677,
                         "hash":  "fa406faf7adbfeb5e489ba4ec7a6ac7459fd7f6e73c5811e3528e99ad6cb0296",
                         "summary":  "Domain: Adapters"
                     },
                     {
                         "path":  "docs/domains/cli-scripts.md",
-                        "last_write_utc":  "2026-09-24T14:18:10.8702779Z",
-                        "length":  8212,
-                        "hash":  "91d107557147d20460e3ddafa498de658b12ff6362b698c19bfc08249a73c6a0",
+                        "last_write_utc":  "2026-09-25T13:41:44.3576839Z",
+                        "length":  8646,
+                        "hash":  "b22cde41c5dff87cabf4dbbf13c7e97552b903ad75a0a4823139cc9c7e6a9275",
                         "summary":  "Domain: CLI scripts"
                     },
                     {
                         "path":  "docs/domains/core.md",
-                        "last_write_utc":  "2026-09-24T20:29:52.8901927Z",
-                        "length":  27530,
-                        "hash":  "ab349f9a22954f0e9b9687089f83cee47ca0cc0f563497d92306922a303ec1af",
+                        "last_write_utc":  "2026-09-25T13:41:44.3586847Z",
+                        "length":  27600,
+                        "hash":  "4c0c5134490bcc291d5496883ef4cb7f591e65580c0fa2fb10f40c004ea1d132",
                         "summary":  "Domain: Core"
                     },
                     {
                         "path":  "docs/domains/git-ops.md",
-                        "last_write_utc":  "2026-09-24T14:14:32.2096088Z",
-                        "length":  7583,
-                        "hash":  "dbcdc84a842186c76ef518f970f3a2e2cc98aa00050ae94b1baa3c4a4ea03be0",
+                        "last_write_utc":  "2026-09-25T13:41:44.3586847Z",
+                        "length":  8510,
+                        "hash":  "7cc631c111fffd6324aab014d16d8ccffc62d9f8e7a5f119ccdb05beab777a4b",
                         "summary":  "Domain: Git ops"
                     },
                     {
                         "path":  "docs/domains/validation-ci.md",
-                        "last_write_utc":  "2026-09-24T14:18:10.8772849Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3596895Z",
                         "length":  6724,
                         "hash":  "04629be6102e8056696a436b69d38099fd1e996ea5c71acf937e4704b8916fb7",
                         "summary":  "Domain: Validation and CI"
                     },
                     {
                         "path":  "docs/guides/01-getting-started.md",
-                        "last_write_utc":  "2026-09-24T19:12:10.2764453Z",
-                        "length":  5710,
-                        "hash":  "617d118fa621e5b8bb1e54ebf1ca612ece078e078e7e6021c4840c474e20689b",
+                        "last_write_utc":  "2026-09-25T13:41:44.3596895Z",
+                        "length":  6621,
+                        "hash":  "4cdf4d4b051c6704e4dc9860a8557f55b591c21c69e8cf25036b102c00053946",
                         "summary":  "Getting started"
                     },
                     {
                         "path":  "docs/guides/02-using-skills.md",
-                        "last_write_utc":  "2026-09-24T20:29:48.3255547Z",
-                        "length":  13930,
-                        "hash":  "dba4d7ce968bd998d2707ebde11c9e6867a9b7ee35c66b39dfb3b634c505cd93",
+                        "last_write_utc":  "2026-09-25T13:41:44.3606885Z",
+                        "length":  13996,
+                        "hash":  "b4bd30fced8910eb2d28813992ee3c399b621511231508f5dea02059c5fc01c4",
                         "summary":  "Using skills"
                     },
                     {
                         "path":  "docs/guides/07-caveman-mode.md",
-                        "last_write_utc":  "2026-09-07T12:21:47.9402522Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3606885Z",
                         "length":  3177,
                         "hash":  "96eebd6c9e41a48d21ead7005d95d0c1b126e3b1532810f41771beef9905599c",
                         "summary":  "07 — Caveman Mode"
                     },
                     {
                         "path":  "docs/guides/08-orchestrator-mode.md",
-                        "last_write_utc":  "2026-08-31T17:45:23.4354754Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3616898Z",
                         "length":  2723,
                         "hash":  "6e03e1eeccecd0b002432223ad89c2bf01a105261283fe722658f161b6e584b6",
                         "summary":  "08 — Orchestrator mode"
                     },
                     {
                         "path":  "docs/guides/09-authorship-git-notes.md",
-                        "last_write_utc":  "2026-09-24T19:42:42.0490978Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3626914Z",
                         "length":  2054,
                         "hash":  "d3d1df6005005141eee0e05a1b35ea9abf2d7f6a099ba6ff3d7bd7c0c68a1aaa",
                         "summary":  "Authorship git-notes (opt-in, beside TRACE)"
                     },
                     {
                         "path":  "docs/guides/README.md",
-                        "last_write_utc":  "2026-09-24T19:43:15.3199191Z",
-                        "length":  6861,
-                        "hash":  "af133a66184ba434d7184acab35b6824d3f490810756cb18443e2d234ecede3c",
+                        "last_write_utc":  "2026-09-25T13:41:44.3626914Z",
+                        "length":  6987,
+                        "hash":  "7693e75caadd84a6e21219a431ae73c47bf01e8f19f3a7cc7b3f51c725ab8f9b",
                         "summary":  "User guides"
                     },
                     {
                         "path":  "docs/INSTALL.md",
-                        "last_write_utc":  "2026-09-24T19:11:58.9146801Z",
-                        "length":  16945,
-                        "hash":  "9a2f433e15f86705db596efdad071aee300a5f68029e9b281bc5c0827b9d0345",
+                        "last_write_utc":  "2026-09-25T13:41:44.3536842Z",
+                        "length":  16284,
+                        "hash":  "8923b58ae1bd322724a0db1a5f62b4c14cf14bf00ced4e42fb4792ab892a5968",
                         "summary":  "Install and sync"
                     },
                     {
                         "path":  "docs/overview.md",
-                        "last_write_utc":  "2026-09-24T20:29:46.8848797Z",
-                        "length":  10718,
-                        "hash":  "9dc894ce2ee2843a8bbc5482eb790b22ce08e483a389a674be73eb6aa87128da",
+                        "last_write_utc":  "2026-09-25T13:41:44.3636894Z",
+                        "length":  12448,
+                        "hash":  "fbaf5bd2ecd938ed1681b6339546454bcf68ef3318e77e1b1197df1f96fb4738",
                         "summary":  "Overview"
                     },
                     {
                         "path":  "docs/README.md",
-                        "last_write_utc":  "2026-09-24T20:29:46.9633809Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3536842Z",
                         "length":  3535,
                         "hash":  "7b2a84e1faf598c3c5fe43e6c432f5c01af8e7360adb9afbd840bb5fc8acd32b",
                         "summary":  "Documentation index"
                     },
                     {
                         "path":  "docs/REPO_GOVERNANCE.md",
-                        "last_write_utc":  "2026-08-01T19:41:10.2824290Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3546855Z",
                         "length":  2427,
                         "hash":  "b617615fe6067fbc7c1b78b9560fe08fe96e5a93a4feb1ed26202ce818560008",
                         "summary":  "Repository governance"
                     },
                     {
                         "path":  "docs/SKILLS.md",
-                        "last_write_utc":  "2026-09-24T20:24:25.5121836Z",
-                        "length":  11842,
-                        "hash":  "1fa8256efce8e43ffc6f9974e7c5a77741b5686308d964123056192bd0640665",
+                        "last_write_utc":  "2026-09-25T13:41:44.3546855Z",
+                        "length":  12143,
+                        "hash":  "79adf7338eaed9bf18866381cfc155ac18df3d14af1bfea56f71b9cf24262b7e",
                         "summary":  "Skills catalog"
                     },
                     {
                         "path":  "docs/SPAWN.md",
-                        "last_write_utc":  "2026-09-07T12:21:47.9362527Z",
-                        "length":  8331,
-                        "hash":  "30c6f8335a51cf9526c135ddafbdab5788dfbda896ee346f9f85d6d4a624dc2f",
+                        "last_write_utc":  "2026-09-25T13:42:21.7403842Z",
+                        "length":  8333,
+                        "hash":  "d6648ca15c7f1279f00ad101a92ad470c75e0f435ef85dd1cbf5b818b00dda32",
                         "summary":  "Spawn / subagents"
                     },
                     {
                         "path":  "docs/VALIDATION.md",
-                        "last_write_utc":  "2026-09-24T14:14:01.9139561Z",
+                        "last_write_utc":  "2026-09-25T13:41:44.3566844Z",
                         "length":  11229,
                         "hash":  "358d09afe0db6c047f42124b943fcb4877dc3aed6f65bb3e4afea60691da53ed",
                         "summary":  "Validation and local CI"
@@ -704,9 +704,9 @@
                     },
                     {
                         "path":  "README.md",
-                        "last_write_utc":  "2026-09-24T14:15:59.5774151Z",
-                        "length":  9274,
-                        "hash":  "cf511a1a887902b16e903f89203073e4b6e03a902e001a4cf28463d7900e0caa",
+                        "last_write_utc":  "2026-09-25T12:05:43.9926539Z",
+                        "length":  10405,
+                        "hash":  "a57102921e2e05b20ff91b683e513665b11c9af660b63a7ab03b1e24a901665a",
                         "summary":  "Agent Dev Toolkit"
                     },
                     {
@@ -781,7 +781,7 @@
                     },
                     {
                         "path":  "scripts/_lib/ToolkitConstants.ps1",
-                        "last_write_utc":  "2026-09-24T19:42:21.2615268Z",
+                        "last_write_utc":  "2026-09-24T21:10:41.0067298Z",
                         "length":  65375,
                         "hash":  "0af9fdec257538143b5ac251f1aaa849a1a2e5cadf2b8f161ae111ff5d27a51f",
                         "summary":  "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
@@ -816,7 +816,7 @@
                     },
                     {
                         "path":  "scripts/validation/validate-core.ps1",
-                        "last_write_utc":  "2026-09-24T13:38:37.3540688Z",
+                        "last_write_utc":  "2026-09-24T21:10:41.0207289Z",
                         "length":  17950,
                         "hash":  "62776e6dbfc4168e84679bd596fb986c262c2cbf4233604b7d640b2c736da03d",
                         "summary":  "Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe."
