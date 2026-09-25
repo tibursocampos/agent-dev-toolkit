@@ -8,10 +8,10 @@ Resolve one stable target, run two independent assessments, synthesize a design 
 - Assessment A and B MUST run as two isolated sub-agents whenever a sub-agent/Task tool is exposed. Running them inline in this context is "possible" but is NOT permitted; it is a degraded run. Inline is allowed ONLY when no sub-agent tool exists (or the user declined, on harnesses that ask).
 - If you degrade for any reason, the report's first line MUST be a banner: `⚠️ DEGRADED: single-context (<reason>)`. A silent degraded critique is a failed critique.
 - Assessment A must finish before detector findings enter the parent synthesis context. Detector output is deterministic, but it still anchors judgment.
-- A skipped detector is a failed critique run unless `detect.mjs` is missing or crashes after a real attempt.
+- A skipped detector is a failed critique run unless `npx impeccable detect` is missing or crashes after a real attempt. This harness does not ship `scripts/detect.mjs`, `scripts/critique-storage.mjs`, or `scripts/live-server.mjs`. Do not search the repo for them. Their absence is the harness contract, not a failed run.
 - Viewable targets require browser inspection when available.
 - Any local server started only for critique visualization must run in the background, have a recorded stop method, and be stopped before final reporting unless the user asks to keep it.
-- Do not claim a user-visible overlay exists unless script injection succeeded and the detector ran in the page.
+- Do not claim a user-visible overlay. This harness does not inject `detect.js`.
 
 ### Setup
 
@@ -19,11 +19,7 @@ Resolve one stable target, run two independent assessments, synthesize a design 
    - "the homepage" -> `site/pages/index.astro` or `index.html`
    - "the settings modal" -> the primary component file
    - "this page" -> the current URL or source file
-2. **Compute the slug**:
-   ```bash
-   node .cursor/skills/impeccable/scripts/critique-storage.mjs slug "<resolved-path-or-url>"
-   ```
-   Keep it. If the command exits non-zero, skip persistence and trend for this run, but continue the critique.
+2. **Snapshot storage is not bundled.** Skip the slug, the snapshot write, and the trend. Say so in one line of the report. Continue the critique. Do not run `node .cursor/skills/impeccable/scripts/critique-storage.mjs`.
 3. **Read `.impeccable/critique/ignore.md`** if it exists. Drop matching findings silently; it is the only prior-run input critique consumes.
 
 ### Assessment Orchestration
@@ -57,26 +53,25 @@ Run the bundled detector and browser visualization evidence. Assessment B is man
 
 CLI scan:
 ```bash
-node .cursor/skills/impeccable/scripts/detect.mjs --json [target]
+npx impeccable detect --json [target]
 ```
 
+- Same command as the parent skill Detector bridge. `npx` fetches the package for that run. Do not run `npx impeccable install`, `live`, or `hooks`.
 - Pass markup files/directories as `[target]`; do not pass CSS-only files.
 - For URLs, skip CLI scan and use browser visualization.
 - For very large trees (500+ scannable files), narrow scope or ask.
 - Exit code 0 = clean; 2 = findings.
-- If the detector entrypoint is missing or fails to load, report deterministic scan unavailable and continue with browser/manual review.
+- If `npx` cannot start or the command fails before JSON, report deterministic scan unavailable and continue with browser/manual review. That is a real attempt, not a failed critique.
 
-Browser visualization is required for a viewable target when browser automation is available. Use a localhost dev/static URL for local files; avoid `file://` unless the available browser explicitly supports this workflow. Overlay flow:
+Browser visualization is required for a viewable target when browser automation is available. Use a localhost dev/static URL for local files; avoid `file://` unless the available browser explicitly supports this workflow. There is no overlay in this harness.
 
 1. Create a fresh tab and navigate. Prefer the harness's native/browser-canvas screenshot path before hand-rolling a Playwright/Puppeteer script; only fall back to a custom script when no native browser tool is exposed.
-2. Preflight mutable injection by setting `document.title` and appending a `<script>` tag. Read-only evaluate APIs do not count.
-3. If mutation is unavailable, skip live server, browser presentation, and injection; report fallback signal.
-4. If mutation is available, start `node .cursor/skills/impeccable/scripts/live-server.mjs --background`, present the browser if supported, label `[Human]`, scroll top, inject `http://localhost:PORT/detect.js`, wait 2-3 seconds, read `impeccable` console messages, then stop the live server.
-5. For multi-view targets, inject on 3-5 representative pages.
+2. Inspect the page with snapshot, screenshot, and computed style. For multi-view targets, repeat on 3-5 representative pages.
+3. This harness has no `live-server.mjs` and no local `detect.js`. Do not start a second server. Do not inject `detect.js`. Do not claim a user-visible overlay.
 
 Return: CLI findings JSON/counts, browser console findings if applicable, false positives, and skipped/failed browser steps with concrete reasons.
 
-After Assessment B returns usable CLI findings, reuse them. Do not rerun `detect.mjs` in the parent unless Assessment B failed, was truncated, or omitted count, rule names, or file locations.
+After Assessment B returns usable CLI findings, reuse them. Do not rerun `npx impeccable detect` in the parent unless Assessment B failed, was truncated, or omitted count, rule names, or file locations.
 
 ### Generate Combined Critique Report
 
@@ -121,7 +116,7 @@ Be honest with scores. A 4 means genuinely excellent. Most real interfaces score
 
 **Deterministic scan**: Summarize what the automated detector found, with counts and file locations. Note any additional issues the detector caught that you missed, and flag any false positives.
 
-**Visual overlays** (if injection succeeded): Tell the user that overlays are now visible in the **[Human]** tab in their browser, highlighting the detected issues. Summarize what the console output reported. If browser visualization was attempted but injection failed, say that no reliable user-visible overlay is available and report the fallback signal instead.
+**Visual overlays:** This harness has none. Say that in one line. Do not describe a [Human] overlay.
 
 #### Overall Impression
 A brief gut reaction: what works, what doesn't, and the single biggest opportunity.
@@ -172,33 +167,11 @@ Provocative questions that might unlock better solutions:
 
 Once the report above is finalized, write it to `.impeccable/critique/` so the user can refer back, and so `/impeccable polish` can pick up the priority issues without a copy-paste.
 
-Skip this step if the Setup slug was null (vague or root-level target).
+This harness does not bundle `critique-storage.mjs`. Skip the snapshot file, the temp body, and the trend. Append one line after the report:
 
-1. **Write the body to a temp file** so you can pipe it to the helper. Use the full critique report (heuristic table, anti-patterns verdict, priority issues, persona red flags, minor observations, and questions), but stop before the "Ask the User" / "Recommended Actions" sections that come later.
+> Snapshot skipped. This harness does not bundle critique storage.
 
-2. **Pass the structured metadata** through `IMPECCABLE_CRITIQUE_META` (JSON), then run the write command:
-   ```bash
-   IMPECCABLE_CRITIQUE_META='{"target":"<user phrasing>","total_score":<n>,"p0_count":<n>,"p1_count":<n>}' \
-     node .cursor/skills/impeccable/scripts/critique-storage.mjs write <slug> <body-file>
-   ```
-   The helper prints the absolute path it wrote.
-
-3. **Delete the temp body file** after the write attempt completes, whether the write succeeded or failed. If deletion fails, mention `temp-file cleanup failed: <reason>` briefly in the final output, but do not block the critique.
-
-4. **Read the trend** for context:
-   ```bash
-   node .cursor/skills/impeccable/scripts/critique-storage.mjs trend <slug> 5
-   ```
-   This returns a JSON array of the last 5 frontmatter entries (including the one you just wrote).
-
-5. **Append a single line to the user-visible output**, after the report and before the questions:
-
-   > **Trend for `<slug>` (last 5 runs): 24 -> 28 -> 32 -> 29 -> 32**
-   > Wrote `.impeccable/critique/<filename>`.
-
-   If this is the first run for the slug, the trend is just one score; say so: "First run for this target, no trend yet."
-
-This is fire-and-forget. Do not show the user the helper's JSON output; only the human-readable trend line and the written path. Failures here should not block the rest of the flow; print the error and move on.
+Do not write `.impeccable/critique/`. Do not treat the skip as a failed critique.
 
 ### Ask the User
 
