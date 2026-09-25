@@ -97,7 +97,7 @@ Mode is mandatory. If you omit it, the skill asks once.
 refine-story - feature
 refine-story - tech
 refine-story - split
-split-story-checklist - features/004-export/US01/STORY.md
+split-story-checklist - features/NNN-slug/US01/STORY.md
 ```
 
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.

@@ -52,9 +52,9 @@ Process: confirm the repo (and look for PRDs under `features/**/PRD/`, not a roo
 While **B** or **I** remain, do not hand off to `sdd-spec`.
 
 ```text
-/split-story-checklist - features/004-export/US01/STORY.md
-/orchestrate-analyze - features/004-export
-/sdd-spec - features/004-export/US01/STORY.md
+/split-story-checklist - features/NNN-slug/US01/STORY.md
+/orchestrate-analyze - features/NNN-slug
+/sdd-spec - features/NNN-slug/US01/STORY.md
 ```
 
 ## `split-story-checklist`

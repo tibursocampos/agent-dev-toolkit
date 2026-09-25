@@ -97,7 +97,7 @@ O modo é obrigatório. Se você omitir, a skill pergunta uma vez.
 refine-story - feature
 refine-story - tech
 refine-story - split
-split-story-checklist - features/004-export/US01/STORY.md
+split-story-checklist - features/NNN-slug/US01/STORY.md
 ```
 
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
