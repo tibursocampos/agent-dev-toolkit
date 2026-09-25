@@ -7,9 +7,9 @@ Operator entry points under `scripts/`.
 | Script | Role |
 |--------|------|
 | `scripts/toolkit.ps1` | Interactive Smart Manager (wizards + Help) or `-Action` / `-Agent` orchestrator |
-| `scripts/sync-agent.ps1` | Load registry module; run `Publish-*`, then always `Get-SddRoot -Prepare` |
+| `scripts/sync-agent.ps1` | Load registry module; run `Publish-Skills`, `Publish-Policy`, `Publish-Router`, `Publish-Agents`, `Publish-Hooks`, then always `Get-SddRoot -Prepare` |
 | `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) | Option 0 Release bootstrap: HTTPS zip → SHA256 → extract → `toolkit.ps1` (fixed assets `agent-dev-toolkit.zip` / `.sha256` — [INSTALL § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)) |
-| `scripts/validate-agent.ps1` | Always `validate-core`, then adapter `Invoke-SmokeValidate` |
+| `scripts/validate-agent.ps1` | Runs `validate-core` by default, then adapter `Invoke-SmokeValidate`; skips core only with `-SkipCore` |
 | `scripts/validation/validate-core.ps1` | Core contract suite (alias `validate-all.ps1`) |
 | `scripts/validation/Invoke-*CiSmoke.ps1` | CI-parity smoke harnesses |
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Read-only bank inventory (`ready` \| `not-ready`) |
@@ -110,34 +110,54 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ListAgents
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Validate -Agent cursor
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent cursor -WhatIf
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude -WhatIf
+pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent codex -UserScope -AllowUserHome -InstallRoot "$env:USERPROFILE\.codex"
 ```
 
-Interactive menu: Sync / Validate / Sync+Validate / Validate core / Validation lab / Uninstall / Help. Sync / Validate / Uninstall **require** an agent id (wizard or `-Agent`). Backup is non-interactive stub only (`-Action Backup`). `-WhatIf` forwards to `sync-agent.ps1` for Sync / SyncAndValidate, and to adapter `Uninstall-Toolkit` when that command declares `-WhatIf`.
+Interactive menu: Sync / Validate / Sync+Validate / Validate core / Validation lab / Uninstall / Help. Sync / Validate / Uninstall require an explicit agent id (wizard or `-Agent`; no silent home default).
+
+`-Mode` is forwarded to sync, validate, and uninstall. For `-Agent copilot` it is required and must be `user` or `repo`. `-AllowUserHome` is forwarded the same way and is the opt-in when `InstallRoot` resolves under the user profile. Optional `-UserScope` is forwarded to `sync-agent.ps1` for adapters that declare `Publish-Skills -UserScope` (Codex). It is opt-in only.
+
+`-WhatIf` forwards to `sync-agent.ps1` for Sync / SyncAndValidate, and to adapter `Uninstall-Toolkit` when that command declares `-WhatIf`.
+
+Uninstall stays keyed. `toolkit.ps1` loads the selected adapter and calls `Uninstall-Toolkit`, which removes known toolkit artifacts only. It does not wipe `InstallRoot`.
+
+Backup stays a non-interactive fail-closed stub (`-Action Backup` only; it is not on the interactive menu). `Invoke-ToolkitStubAction` does not call an adapter. It reports that Backup is not implemented and refuses a success exit. `-ForceStub` is the only success path, and only for tooling tests that acknowledge the stub. It is not a real backup.
 
 ## sync-agent.ps1
 
 ```powershell
-pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome] [-WhatIf]
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome] [-UserScope] [-WhatIf]
 ```
 
 | Parameter | Behavior |
 |-----------|----------|
 | `-Agent` | Required registry id |
-| `-InstallRoot` | Target root; interactive wizard defaults to **live home**; non-interactive / CI default = in-repo fixture |
-| `-Mode` | Required for `copilot` (`user` \| `repo`) |
-| `-AllowUserHome` | Opt-in for USERPROFILE paths |
-| `-WhatIf` | Forwarded to Publish-* |
+| `-InstallRoot` | Target root for `Publish-*`. `toolkit.ps1` interactive target wizard defaults to live home. `sync-agent.ps1` with no `-InstallRoot` defaults to the in-repo fixture (Copilot fixture follows `-Mode`) |
+| `-Mode` | Required for `-Agent copilot`: `user` \| `repo` (TE02 when missing or invalid). Ignored for other agents |
+| `-AllowUserHome` | Opt-in when `InstallRoot` resolves under the user profile |
+| `-UserScope` | Optional. Forwarded to `Publish-Skills` when the adapter declares `-UserScope` (Codex). Opt-in mirror to `~/.agents/skills`. Leave it off by default: Codex already discovers `InstallRoot/skills` (`~/.codex/skills`); dual mirrors duplicate `$` picks |
+| `-WhatIf` | Forwarded to `Publish-*` when those commands declare `-WhatIf` |
 
-Order (typical): Publish-Skills → Policy → Router → Hooks; then SDD prepare when capable.
+Publish order: `Publish-Skills` → `Publish-Policy` → `Publish-Router` → `Publish-Agents` → `Publish-Hooks`, then always `Get-SddRoot -Prepare` (sessions directory, and seed `manifest.json` only when missing; never overwrites an existing manifest or clears sessions). A stub module that returns `Implemented = false` makes sync exit non-zero without writing under the user profile.
 
 ## validate-agent.ps1
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome]
+pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent <id> [-InstallRoot <path>] [-Mode user|repo] [-AllowUserHome] [-SkipCore] [-SkipSmoke]
 ```
 
-1. Runs core validation.
-2. Runs adapter smoke against InstallRoot (documented no-op only when smoke is not applicable — missing `-Agent` still fails).
+| Parameter | Behavior |
+|-----------|----------|
+| `-Agent` | Required registry id. Missing `-Agent` fails |
+| `-InstallRoot` | Fixture root for smoke. Defaults to the in-repo fixture (Copilot fixture follows `-Mode`) |
+| `-Mode` | Required for `-Agent copilot`: `user` \| `repo` (TE02 when missing or invalid). Ignored for other agents |
+| `-AllowUserHome` | Opt-in when `InstallRoot` resolves under the user profile |
+| `-SkipCore` | Skip `scripts/validation/validate-core.ps1`. Local default still runs core. Use this only when the caller already ran core (CI ephemeral smoke) |
+| `-SkipSmoke` | Skip `Invoke-SmokeValidate` even when the adapter module is loaded |
+| `-FailFast` / `-Quiet` | Forwarded to `validate-core` when core runs |
+
+1. Runs `scripts/validation/validate-core.ps1` by default. Skips that script only with `-SkipCore`. A non-zero core exit is the script exit.
+2. After core passes (or is skipped), loads the adapter and calls `Invoke-SmokeValidate` when `InstallRoot` is available. Stub adapters (`Implemented = false`) are a documented no-op; when core ran, the core result still drives the exit code.
 
 ## Examples
 
@@ -149,16 +169,20 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor
 # Live Cursor
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot "$env:USERPROFILE\.cursor" -AllowUserHome
 
-# Copilot both modes (fixtures)
+# Copilot both modes (fixtures). -Mode user|repo is required for copilot.
 $u = Join-Path $PWD 'scripts\validation\fixtures\copilot\user'
 $r = Join-Path $PWD 'scripts\validation\fixtures\copilot\repo'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode user -InstallRoot $u
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode repo -InstallRoot $r
+
+# Codex live home. -AllowUserHome is required under the user profile.
+# -UserScope is optional and mirrors skills to ~/.agents/skills.
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot "$env:USERPROFILE\.codex" -AllowUserHome
+pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot "$env:USERPROFILE\.codex" -AllowUserHome -UserScope
 ```
 
 ## Related
 
 - [INSTALL.md](../INSTALL.md)
 - [VALIDATION.md](../VALIDATION.md)
-- [domains/validation-ci.md](validation-ci.md)
 - [ADAPTERS.md](../ADAPTERS.md)

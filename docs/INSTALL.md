@@ -62,7 +62,7 @@ curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolk
 pwsh -NoProfile -File .\bootstrap.ps1
 ```
 
-`bootstrap.bat` prefers `pwsh`, then Windows PowerShell. If `bootstrap.ps1` is missing beside the `.bat`, it downloads that script from the same Release URL (HTTPS) before invoking it.
+`bootstrap.bat` clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`. It prefers `pwsh`, then Windows PowerShell. A failed double-click stays open until you press a key. If `bootstrap.ps1` is missing beside the `.bat`, it downloads that script from the same Release URL (HTTPS) before invoking it.
 
 #### Linux / macOS
 
@@ -278,13 +278,13 @@ After a live Cursor sync, confirm files such as:
 
 Open a **consumer project** in the agent (not only this toolkit repo). Canonical form is the **skill id**; host prefixes differ (`/`, `$`, `use skill`, OpenCode `skill` tool). Matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
-Cursor / Claude example:
+Cursor / Claude example — start a feature with analyze (it runs spec and plan underneath on the next phase):
 
 ```text
-/sdd-spec
+/orchestrate-analyze
 ```
 
-Codex / ZCode: `$sdd-spec`. After Copilot sync: `/skills reload`.
+Codex / ZCode: `$orchestrate-analyze`. After Copilot sync: `/skills reload`. One story that is already clear can use `/sdd-spec` instead. Full path: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
 See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-using-skills.md](guides/02-using-skills.md).
 

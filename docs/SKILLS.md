@@ -30,11 +30,15 @@ Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enfo
 
 ## Work tracks
 
-| Track | Skills | When |
-|-------|--------|------|
-| **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
-| **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+The complete path is **Orchestrated Delivery**. `orchestrate-deliver` runs `sdd-spec` then `sdd-plan` per story. `orchestrate-develop` runs `sdd-develop` once per PLAN step. `orchestrate-analyze` applies the refine scorecard and story gates without invoking `/refine-story`.
+
+| Role | Skills | When |
+|------|--------|------|
+| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
+| **Classic SDD contracts** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | Loaded by O2/O3. Also a direct start when one story is already clear. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md) |
+| **Backlog shape** | `refine-story`, `split-story-checklist` | Inside O1 as rules and rubric. Standalone when a product person shapes one item, or when O2 hits open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
+
+Every skill, with the session that expands it: [sessions/09-every-skill.md](sessions/09-every-skill.md). Catalog on disk (`CATALOG.md`) still lists the three names as recommendations so an agent may start at `/sdd-spec` for one clear story. That direct start does not replace the orchestrated path for multi-story or specialist work.
 
 Use these track names only (no legacy Forma aliases). Same call flow; extra gates and artifacts inside — not new skills or tracks as products.
 
@@ -44,7 +48,22 @@ Use these track names only (no legacy Forma aliases). Same call flow; extra gate
 
 Decision tree: [guides/README.md](guides/README.md).
 
-## Classic SDD
+## Orchestrated Delivery
+
+Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
+
+| Skill | Purpose |
+|-------|---------|
+| `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0, and refresh-light after code) |
+| `orchestrate-analyze` | Classify, ask, set `needs_*`, specialists, story gates, backlog **sim** |
+| `orchestrate-deliver` | PRD + PLAN per story by running `sdd-spec` then `sdd-plan` |
+| `orchestrate-develop` | One PLAN step per child by running `sdd-develop` |
+
+Internal contracts (REQ, CHANGE, EVD/STATE, TRACE, validate-*) run inside those invocations. The parent does not write application code.
+
+## Classic SDD contracts
+
+Loaded by deliver and develop. Also a direct start when one story is already clear. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md).
 
 | Skill | Purpose |
 |-------|---------|
@@ -53,7 +72,7 @@ Decision tree: [guides/README.md](guides/README.md).
 | `sdd-develop` | Execute **one** PLAN step per session |
 | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN under `features/` into `source_context` (reject traversal / outside features) |
 
-Example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
+Direct example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
 
 ```text
 sdd-spec
@@ -61,7 +80,9 @@ sdd-plan - <prd-path>
 sdd-develop - <plan-path> - Step N
 ```
 
-## Backlog Refine
+## Backlog shape
+
+O1 applies the scorecard and story gates without this invoke. Standalone when a product person shapes one item, or when deliver stops on open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md).
 
 | Skill | Purpose |
 |-------|---------|
@@ -76,20 +97,7 @@ sdd-develop - <plan-path> - Step N
 | **tech** | Technical problem → solution | Technical Story (`TSnn`) | `…/references/tech.md` |
 | **split** | Steps ready for checklist | Any type — shape deps / parallel-safe | `…/references/split.md` |
 
-If the invoke omits a mode, the skill asks once (pt-BR) and loads **only** the chosen playbook — never all three. Mode `split` prepares input for `split-story-checklist`; it does not invent a fourth work track. Detail: [domains/core.md](domains/core.md) § Composable skills · [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types).
-
-Prefer story folders when present; see [guides/README.md](guides/README.md).
-
-## Orchestrated Delivery
-
-| Skill | Purpose |
-|-------|---------|
-| `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0 for Orchestrated Delivery) |
-| `orchestrate-analyze` | Triage, specialists, backlog structure |
-| `orchestrate-deliver` | PRD + PLAN per story via `sdd-spec` / `sdd-plan` contracts |
-| `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` contract |
-
-Orchestrators **reuse** Classic SDD contracts; they do not replace them. Internal contracts (REQ, CHANGE, EVD/STATE, TRACE, validate-*) run inside the same invocations.
+If the invoke omits a mode, the skill asks once and loads **only** the chosen playbook. Mode `split` prepares input for `split-story-checklist`. It does not create a separate delivery path.
 
 ## Developer routing and stack
 
@@ -155,7 +163,7 @@ Orchestrators **reuse** Classic SDD contracts; they do not replace them. Interna
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
 | `api-standards` vs `api-integrate` | Standards / design review → `api-standards`; OpenAPI → typed clients → `api-integrate` |
 | `document-plan` / `document-implement` | Asks doc language before writing; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths; not 5–12 tiny baby-steps by default |
-| Caveman | Default OFF; [guides/07-caveman-mode.md](guides/07-caveman-mode.md) |
+| Chat language and optional compression | [guides/session-behavior.md](guides/session-behavior.md) |
 | Lazy-load / phased split | `SKILL.md` + one section per step; monolith `reference.md` >150 lines must split — [SKILL-REFERENCE-RETRIEVAL.md](../core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md) |
 
 Installed static notes: `_shared/skills-catalog/OPERATOR.md` via `help-skills`.
