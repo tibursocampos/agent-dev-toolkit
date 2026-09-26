@@ -11,8 +11,9 @@
 | 2–5 | Confirm repo, explore, clarify ≤5, technical analysis | — |
 | 5.5 | Challenge vagueness + **product depth** + REQ (`agreed` vs `invented`); no how/code | `references/challenge-vagueness.md`, `references/req-tracking.md`; lazy `feature-altitude.md`, `invest-and-story-quality.md`, `gherkin-budget.md`, `clarify-depth.md`, `product-evidence-lite.md`; `anti-task-shatter.md` only if titles task-shaped; `CONTRACT-PROVENANCE.md` |
 | 6 | Context checkpoint | `context-management.mdc` |
-| 6.75 | Confirm before write (**sim**) | `PIPELINE.md` |
-| 7 | Write PRD (Agent + sim only); portable paths | `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md` |
+| 6.75 | Confirm before write (**sim**). **sim** does not close `open_question` | `PIPELINE.md` |
+| 6.9 | Open-question gate on story siblings (STORY, required ANALYSIS / ARCH / SEC). Ask every open question. The cap of 3 gap questions does not apply | `readiness-severity.md` § Open-question gate |
+| 7 | Write PRD only when step 6.9 is clear (Agent + sim); portable paths | `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md` |
 | 7.5 | Structural validate (`validate-prd`; CHANGE when brownfield) | `references/validate-prd.md`, `references/validate-change.md` |
 
 Quality: `references/quality-checklist.md`. Language: `references/product-docs-language.md`, `references/english-override.md`.

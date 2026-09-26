@@ -134,3 +134,4 @@ Automated Assert may be added later; missing wire → do not mark REQ-001 / CA1 
 - Put real API tokens, passwords, or private keys in examples
 - Use invocation context to remove Eixo A spawn vs in-parent choice
 - Treat Plan/Ask vs Agent as `direct` / `orchestrated`
+- Treat the parent's approval as authorization for the child to write. The child still needs its own write gate.
