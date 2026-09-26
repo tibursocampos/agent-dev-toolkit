@@ -92,3 +92,7 @@ Set on `FEATURE.md` during O1 triage. Spawn a Task specialist **only** when the 
 - Port org-only tracker/IdP agents
 - Create one file per aspirational design-md agent
 - Let orchestrator parent implement application code
+
+## Depth
+
+Depth is 1. The parent spawns the specialist and receives the result. The specialist does not spawn another specialist.

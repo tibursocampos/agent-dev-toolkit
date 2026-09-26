@@ -33,7 +33,8 @@ When scope, nature, or entry modules are ambiguous: ask the **parent** one short
 
 ## Write targets
 
-- Story `ANALYSIS/` notes (**folder on disk**).
+- Before `orchestrate-analyze` step 9, return notes to the parent. Do not create the story folder in that pass.
+- After step 9, or when the story folder already exists: story `ANALYSIS/` notes (**folder on disk**).
 - Do not substitute a CONTINUITY handoff note for this flag.
 
 ## Must not
@@ -46,6 +47,10 @@ When scope, nature, or entry modules are ambiguous: ask the **parent** one short
 ## Axis B (model)
 
 Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT-MODEL.md` Axis C gate + explicit user approval. Publish honesty: `adapters/_shared/spawn-publish-honesty.md`.
+
+## Return — findings
+
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return **zero or more** finding blocks: id, severity `B` | `I` | `MINOR`, finding type, section, portable evidence path or `no-evidence`, recommendation. A summary is not the only product. Without evidence, do not mark the finding resolved. Do not write application code.
 
 ## Full prompt
 
