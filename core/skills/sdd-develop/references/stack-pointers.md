@@ -34,4 +34,6 @@ Follow the step and project docs. Typical checks:
 
 Keep PLAN updates identical regardless of stack.
 
+Before creating a UI component, search for an existing one.
+
 ---

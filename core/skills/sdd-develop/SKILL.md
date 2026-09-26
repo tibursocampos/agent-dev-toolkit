@@ -85,6 +85,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/<section>.md` |
 | plan-acquisition (REQ-008 / CA3) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/plan-acquisition.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/develop-modes.md` |
+| Execution display (before edit and at the report) | `references/execution-display.md` |
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/plan-contract.md` |
 | EVD / STATE / evidence-or-zero (`EVD-STATE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
 | TRACE / archive / sync current (`TRACE-ARCHIVE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
@@ -135,7 +136,7 @@ Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cit
 
 ### 0. Workspace (plan-acquisition)
 
-Target repo. Run **`plan-acquisition`** (`references/plan-acquisition.md`) before any code mutation:
+Load `references/execution-display.md` before any code edit and show its checkpoint. Target repo. Run **`plan-acquisition`** (`references/plan-acquisition.md`) before any code mutation:
 
 | Situation | Action |
 |-----------|--------|
@@ -199,12 +200,12 @@ Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, 
 Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`) — wait for answers; never skip the ask on silence.
 
 ### 6. Update PLAN + checkpoint
+Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
 
 `references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
 
 ### 7. Report
-
-Use `references/session-report.md`. Files, tests, `N/M` (pt-BR). Handoff: new chat -> `/sdd-develop - <portable-plan-path> - Step N+1`.
+Load `references/execution-display.md` and `references/session-report.md`. Emit `STEP_COMPLETED` or `STEP_BLOCKED`. Phrases follow the user chat language.
 
 ## Must not
 

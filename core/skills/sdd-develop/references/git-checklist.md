@@ -9,4 +9,6 @@
 
 **Valid examples:** `feature/add-user-export`, `feat/42`.
 
+An unknown base branch is a question, not an assumption of `develop`. A foreign local change in the same file stops the step. Code goes in one commit. The PLAN that points at those commits goes in a following commit. Do not record that second commit id inside the commit. The commit skill already blocks secrets. Do not add a second identical block.
+
 ---

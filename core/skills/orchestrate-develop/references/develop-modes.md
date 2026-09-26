@@ -13,7 +13,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 | Pacing mode | Parent behavior | Child behavior |
 |-------------|-----------------|----------------|
 | `step_by_step` (default) | **sim** before **each** Task spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **sim**, may spawn next ready step when prior receipt OK without full queue re-ask; still run mode gate + ledger claim + SESSION helper **per** step | One PLAN step only; STOP — **never** multi-step child |
+| `continuous` | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
 
 ## Compose with execution-modes
 
