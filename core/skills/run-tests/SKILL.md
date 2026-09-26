@@ -56,6 +56,8 @@ One report per detected stack, then an overall result. Tokens `PASS`, `FAIL`, an
 
 Do not load every developer guideline pack.
 
+**Never by default:** do not preload every stack guideline or every `references/*.md`. Load one section for the detected stack.
+
 ## Process
 
 1. Detect stacks with `references/stack-detect.md`. None: stop `stack_not_detected` and ask. Do not run a generic test.
