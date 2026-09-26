@@ -1,5 +1,7 @@
 ## PLAN-LEDGER (REQ-002 / CA2)
 
+The session ledger (`claimed`, `released`) is not the step status. Do not merge the two. Step status stays `PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, or `SKIPPED` (`status-legend.md`).
+
 Canonical contract: `skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (`PLAN-LEDGER-CONTRACT`).
 
 When authoring or updating a PLAN that will run under parallel O3 / multi-child develop:

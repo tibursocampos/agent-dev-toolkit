@@ -9,7 +9,8 @@
 | **Total de passos** | N |
 | **Progresso** | 0/N |
 | **Track** | Classic SDD / … |
-| **Status** | draft / approved |
+| **Status** | draft \| approved |
+| **Implementation status** | `NOT_STARTED` |
 
 ## Execution policy
 
@@ -59,44 +60,95 @@ Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Keep in
 
 | REQ | Passo |
 |-----|-------|
-| REQ-001 | PASSO … |
-| REQ-002 | PASSO … |
+| REQ-001 | {{STEP_ID}} |
 
-Todo REQ do PRD deve aparecer. Aceite de cada passo cita REQ e/ou CA.
+Every PRD REQ appears. A step's acceptance cites the REQ. Prose in this file follows the chat language (`LANGUAGE.md`). Status tokens stay the English tokens in `status-legend.md`.
 
----
+## Acceptance traceability
+
+| Criterion | Step | Test | Evidence status |
+|-----------|------|------|-----------------|
+| {{CRITERION_ID}} | {{STEP_ID}} | {{TEST_ID}} | {{PASS_OR_BLOCKED}} |
+
+One row per PRD criterion. If the cell has no evidence, the evidence status is `BLOCKED`. Do not invent the behavior. If any row stays `BLOCKED`, do not write this PLAN.
+
+## Current implementation evidence
+
+Only paths that were read. Portable paths. Do not invent a file.
+
+## Impact map
+
+| Area | Current behavior | Planned impact |
+|------|------------------|----------------|
+| {{AREA}} | {{READ_BEHAVIOR}} | {{PLANNED_IMPACT}} |
+
+An area that does not change still needs the justification that was read in the repo.
+
+## Artifacts and symbols
+
+| Path | Action | Label |
+|------|--------|-------|
+| {{PATH}} | `CREATE` \| `MODIFY` \| `REMOVE` \| `NO_CHANGE` | existing path was read, or `proposed` |
+
+An existing path must have been read. A new path is labeled `proposed`. A validation command appears only when the repo already shows that command. Do not claim the command already ran.
+
+## Dependency and execution graph
+
+One Mermaid `flowchart`. Each node is a step id from `REFINE/tasks.md`, once. No time estimate.
+
+```mermaid
+flowchart TD
+  S1["{{STEP_ID}}"]
+```
 
 ## Passos de implementação
 
-### ⏳ PASSO 1: [Título curto]
+One block per step id from `REFINE/tasks.md`. Copy the id, title, dependencies, and wave. Do not invent a step here.
 
-**Status:** Pendente | **Concluído:** - | **Deps:** nenhuma
+### {{STEP_ID}}: {{TITLE}}
 
-**Entregáveis:**
+**Status:** `PENDING` | **Deps:** {{COMPLETED_IDS_OR_NONE}} | **Wave:** {{WAVE}} | **Parallel-safe:** {{YES_OR_NO}}
 
-- [ ] [Artefato concreto 1]
-- [ ] [Artefato concreto 2]
+**Goal:** {{GOAL}}
 
-**Arquivos (áreas):**
+**Artifacts:** {{CREATE_MODIFY_REMOVE_NO_CHANGE}}
 
-- `path/to/File` (novo ou alterar)
+**Tests:** positive, negative, and boundary when the criterion requires them.
 
-**Aceite:**
+**Aceite:** {{ACCEPTANCE_TIED_TO_REQ}}
 
-- [ ] [REQ-NNN / CA from PRD — verifiable; cite REQ id explicitly]
-- [ ] Build e testes direcionados passam (quando houver código)
+**Validation command:** {{COMMAND_ALREADY_IN_REPO_OR_OMIT}}
 
-**Notas:** [Riscos; aviso se passo denso]
+**Step risk:** {{RISK}}
 
----
+No duration. No production code in this block.
 
-### ⏳ PASSO 2: [Título curto]
+## Test strategy
 
-**Status:** Pendente | **Concluído:** - | **Deps:** 1
+| Layer | Precondition | Action | Assertion | Required |
+|-------|--------------|--------|-----------|----------|
+| unit \| integration \| contract \| end-to-end \| manual | {{PRE}} | {{ACTION}} | {{ASSERTION}} | required \| conditional |
 
-[Repetir estrutura do bloco PASSO.]
+## Risks
 
----
+| Risk | Impact | Evidence | Mitigation |
+|------|--------|----------|------------|
+| {{RISK}} | {{IMPACT}} | {{PORTABLE_PATH}} | {{MITIGATION}} |
+
+## Open decisions
+
+Leave this section empty in the saved file. A filled line prevents the write.
+
+## Execution checkpoint
+
+| Field | Value |
+|-------|--------|
+| last mode | `NOT_STARTED` |
+| active step | |
+| next eligible | |
+| portability | `NOT_STARTED` |
+
+Portability tokens: `NOT_STARTED`, `LOCAL_ONLY`, `SHARED`. No tracker tag.
 
 ## Ordem de execução
 

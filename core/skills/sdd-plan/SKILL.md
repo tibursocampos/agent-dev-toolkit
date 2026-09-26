@@ -94,9 +94,17 @@ Glob canonical PRDs under `features/**/PRD/` only (workspace + global feature ro
 
 Summarize PRD (**cite portable path** — **must not** paste the full PRD body into chat dumps, PLAN, or child prompts; `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Ask to proceed.
 
-### 2-4. Explore, technical questions (<=10), baby steps
+### 2-4. Explore, copy steps from the split, review twice
 
-Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`; `references/selective-retrieval.md`). When story `ARCH/` / `ANALYSIS/` exist, **cite** those portable paths in step notes / Decisões (PLAN magro — do not paste bodies). Steps ~20-45 min each (`references/baby-step-sizing.md`). Map every PRD **REQ-NNN** into **Mapa REQ → passo** (complete coverage — no orphan REQs). Each step **Aceite** must cite at least one **REQ-NNN** and/or CA with **non-vague** verifiable outcomes. Challenge vague Aceite ("as expected", "funciona") and **anti file-named steps** (title ≠ only file/class/script) — `references/challenge-vagueness.md`; lazy-load `story-sizing.md` / `anti-task-shatter.md` when titles look task-shaped.
+Do not invent steps. Do not assign a duration.
+
+1. Call `split-story-checklist` with `source=prd`. The source is the closed STORY and PRD. Read `REFINE/tasks.md`. Copy step id, title, dependencies, and wave into the PLAN.
+2. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. Challenge vague acceptance — `references/challenge-vagueness.md`. Acceptance stays the challenge surface. It is not a reason to invent a step.
+3. Show `LIVE-STAGE-TABLE.md` § sdd-plan while drafting. Do not save that table in the PLAN.
+4. Run `references/self-review.md`. Fix. Run it again. If the second pass fails, stop without writing.
+5. Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`). Current repo evidence outranks the bank. When story `ARCH/` / `ANALYSIS/` exist, **cite** those portable paths (do not paste bodies).
+
+**sim** at step 5.75 is allowed only after both review passes succeed.
 
 ### 5. Context checkpoint
 
@@ -114,7 +122,7 @@ Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank
 
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
-3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); steps **Pendente**; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA.
+3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`, `references/self-review.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); overall implementation status `NOT_STARTED`; steps `PENDING`; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA. Prose follows the chat language.
 4. **Navigation `## Related` (REQ-009 / CA3):** Emit `## Related` per `STORAGE.md` § Navigation block. Classic **PRD ↔ PLAN** mutual cite when both exist: PLAN Related **MUST** include the source PRD portable path; after PLAN Write, **refresh PRD** Related so it cites this PLAN (omit other siblings if absent — never stub). Cite STORY if on-disk. Details: `references/template-usage.md`.
 5. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing: **`orchestrated`** → STOP (O1/O2 creates first); **`direct`** → create inline or ask operator; PLAN cites the path only (`references/plan-magro.md`, `INVOCATION-CONTEXTS.md`).
 6. Warn if overwriting PLAN with completed steps.
@@ -162,3 +170,7 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 (Global: prefix with `sdd/<repo-id>/` — portable path relative to InstallRoot.)
 
 One session = one PLAN step.
+
+## Rewrite rules
+
+When writing a PLAN again, a step with the same id and the same title keeps its status and its evidence. A step that is not `PENDING` leaves only with an explicit map or an approved reset. `AGENTS.md` and the code decide the symbol. A user answer does not grow the story scope. The plan cites the build, test, and lint commands. It does not run them. Do not cap the open questions at five.

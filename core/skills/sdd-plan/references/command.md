@@ -8,7 +8,7 @@
 | -1 | Pipeline + STORAGE; `invocation_context` | `PIPELINE.md`, `STORAGE.md`, `INVOCATION-CONTEXTS.md` |
 | 0 | Workspace; stack; classic feature root | `STORAGE.md` |
 | 1 | Resolve PRD (canonical path only) | `references/filename-numbering.md` |
-| 2–4 | Explore, ≤10 technical questions, baby steps; **Aceite não-vago**; cite ARCH/ANALYSIS; anti file-named steps | `references/baby-step-sizing.md`, `references/challenge-vagueness.md`, `references/plan-magro.md`; lazy `story-sizing.md`, `anti-task-shatter.md` when titles task-shaped |
+| 2–4 | Explore the repo; call `split-story-checklist` with `source=prd`; copy step ids from `REFINE/tasks.md`; two self-reviews before preview | `references/baby-step-sizing.md`, `references/self-review.md`, `references/challenge-vagueness.md`, `references/plan-magro.md`; `LIVE-STAGE-TABLE.md` § sdd-plan |
 | 5 | Context checkpoint | `context-management.mdc` |
 | 5.5 | PLAN storage path | `references/storage-gitignore.md` |
 | 5.75 | Confirm before write (**sim**) | `PIPELINE.md` |

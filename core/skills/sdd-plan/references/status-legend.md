@@ -1,14 +1,17 @@
-## Status legend
+# Status legend
 
-| Marker | Meaning |
-|--------|---------|
-| ⏳ PASSO N | Pending |
-| 🔄 PASSO N | In progress (active implement session) |
-| ✅ PASSO N | Completed |
-| ❌ PASSO N | Blocked |
+Step status tokens, English only:
 
-Use **Pendente** / **Concluído** / **Bloqueado** (or English equivalents) on the `**Status:**` line in pt-BR PLANs; emoji in the heading is optional.
+| Token | Meaning |
+|-------|---------|
+| `PENDING` | Not started |
+| `IN_PROGRESS` | The active implement session |
+| `BLOCKED` | Stopped with a recorded cause |
+| `COMPLETED` | Acceptance and the step test passed |
+| `SKIPPED` | Explicitly skipped |
 
-**Implement skill:** step headings may use `STEP` or `PASSO`; match the PLAN file when updating.
+Overall implementation status for a new PLAN: `NOT_STARTED`.
 
----
+Progress line: `0/N`. Prose around the token follows the chat language (`LANGUAGE.md`). Do not write the status word in another language. Do not use a duration.
+
+**Implement skill:** step headings may use `STEP` or `PASSO`. The status token stays one of the five above.
