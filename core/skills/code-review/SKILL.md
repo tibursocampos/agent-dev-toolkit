@@ -210,3 +210,7 @@ Fluxo recomendado após o review:
 ```
 
 On **sim** for (2) → new `/code-review` session. On **sim** for (3) → `/memory-bank-init` `refresh-light`. On **sim** for (4) → `/document-implement` if plan has pending work, else `/document-plan` as needed. Then offer `/commit` (commit skill also asks bank/docs if still pending).
+
+## Finding shape
+
+Review only the sections the diff touches. Each finding names a file and a line, with severity `critical`, `important`, or `advisory`. Do not add a praise section. A `critical` finding stops blocking only after a fix and a new review, at most three rounds. Do not downgrade it to proceed. Render the questions above in the user chat language.

@@ -19,7 +19,7 @@ Pipeline skills must apply **observable** behavior for two invocation contexts:
 | `direct` | Consumer invokes the skill via slash / skill name in the operator session (Classic SDD or standalone). |
 | `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as a Task/spawn child with a scoped handoff. |
 
-Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` Cursor mode.
+Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` host session mode.
 
 ## In-scope pipeline skills
 
@@ -134,3 +134,4 @@ Automated Assert may be added later; missing wire → do not mark REQ-001 / CA1 
 - Put real API tokens, passwords, or private keys in examples
 - Use invocation context to remove Eixo A spawn vs in-parent choice
 - Treat Plan/Ask vs Agent as `direct` / `orchestrated`
+- Treat the parent's approval as authorization for the child to write. The child still needs its own write gate.

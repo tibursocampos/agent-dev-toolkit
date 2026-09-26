@@ -54,7 +54,7 @@ When a UI or API surface exists, add a concise **consumption map** (who calls wh
 
 ## Output (shared)
 
-Notes under story `ARCH/` (or return markdown for the parent to save):
+When the parent is `orchestrate-analyze` before step 9, return the ARCH draft to the parent. Do not create a story folder in that pass. Write story `ARCH/` only at step 9, after the open-question gate. When the story folder already exists, write the note there:
 
 1. Proposed boundaries (layers/modules)
 2. Recommendation (style + key types/APIs — names only, English identifiers)
@@ -71,3 +71,11 @@ Greenfield drafts before **sim** are **proposals** only; brownfield notes are **
 - Never force stack libraries in principles (camada B). Never silent VSA (or any style) default.
 - Keep under ~80–150 lines unless parent asks for depth.
 - Open questions stay in `ARCH/` / `ANALYSIS/` (max 5). CONTINUITY may pointer only — do not dump the list there.
+
+## Return — findings
+
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. A summary is not the only product. Boundaries, the recommendation, and the open-question list do not replace those blocks.
+
+Each block has an id, severity `B` | `I` | `MINOR`, one finding type, a section, a portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation.
+
+Without a portable evidence path, do not mark the finding resolved. Do not write application code.

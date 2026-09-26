@@ -14,8 +14,8 @@ When reading or updating a PLAN step, agents **must** recognize and honor these 
 
 | Marker | Role |
 |--------|------|
-| Step heading `### ⏳` / `### ✅` (or equivalent Status line) | Pending vs Completed |
-| `**Status:**` `Pendente` \| `In progress` \| `Completed` (or EN equivalents) | Lifecycle |
+| Step heading | Lifecycle marker only; status token is authoritative |
+| `**Status:**` `PENDING` \| `IN_PROGRESS` \| `BLOCKED` \| `COMPLETED` \| `SKIPPED` | Lifecycle (`status-legend.md`) |
 | `**Deps:**` / dependency Completed gate | Ordering |
 | `**Entregáveis:**` / Deliverables checkboxes | Scope of the step |
 | `**Aceite:**` lines citing `REQ-NNN` / `CA` / `CT` | Acceptance binding |
@@ -26,14 +26,16 @@ Do **not** require or invent time/effort fields (`Time:`, `duration`, `effort`, 
 
 ## delivery-baseline (observável)
 
-A step may be marked **Completed** only when **all** hold:
+A step may be marked **`COMPLETED`** only when **all** hold:
 
 1. **plan-acquisition** succeeded for the canonical PLAN + step.
-2. Deliverables for **this** step checked `[x]` (not later steps).
-3. Aceite items for cited **REQ-NNN** / CA of **this** step verifiably met.
-4. Targeted build/tests for the step’s stack ran when the step claims code/test work; failures block Complete.
+2. The step was marked `IN_PROGRESS` and the PLAN file was re-read before the edit.
+3. Acceptance and the tests for **this** step passed. A failure sets the step to `BLOCKED` with the cause in the PLAN. Dependents stay `PENDING`. Resume a `BLOCKED` step only when the recorded block is gone from the file.
+4. Targeted build/tests for the step’s stack ran when the step claims code/test work.
 5. Develop SESSION / ledger rules intact (one-step; no second SoT).
-6. PLAN progress `N/M` and next-step line updated per `plan-update.md`.
+6. PLAN progress and the execution checkpoint updated per `plan-update.md`.
+
+No duration.
 
 **Out of baseline (forbidden as Complete gates):** elapsed minutes, ideal hours, story points, “quick win”, or any duration/effort estimate (`REQ-010` / RN04 / CA7).
 

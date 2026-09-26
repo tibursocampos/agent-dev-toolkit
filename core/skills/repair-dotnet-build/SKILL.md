@@ -138,6 +138,7 @@ Do not auto-commit. Do not push unless the user asks via commit skill or explici
 - Mandatory external CI API - local reproduction is enough
 - Auto-commit or auto-push
 - Corporate agent pool names or private feed assumptions without repo evidence
+- One error at a time. Make the smallest change. Run `dotnet build` and `dotnet test` again until the status is explicit. Do not extend this skill to Node or Python.
 
 ## Handoff
 

@@ -54,7 +54,7 @@ Does not modify code unless the user asks for test additions in a follow-up.
 |------|------|
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/test-coverage/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/test-coverage/references/<section>.md` |
-| Cursor mode (Agent for shell) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` section Cursor mode |
+| Host session mode (Agent for shell) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` section Host session mode |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Add tests for gaps | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | Commit | `/commit` |

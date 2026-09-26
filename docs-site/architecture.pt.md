@@ -4,7 +4,7 @@ title: Arquitetura
 
 # Arquitetura
 
-O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**41** skills), `adapters/registry.json` (**10** agentes).
+O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**42** skills), `adapters/registry.json` (**10** agentes).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo d
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 41 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 42 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.

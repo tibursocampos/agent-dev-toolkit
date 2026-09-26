@@ -40,8 +40,8 @@ Essas três skills rodam com contexto de invocação `orchestrated`. Um `/sdd-sp
 flowchart TD
   step0["memory-bank-init<br/>Passo 0, política auto"]
   o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, sim"]
-  o2["orchestrate-deliver<br/>sdd-spec e depois sdd-plan por story, sim, preflight"]
-  o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN,<br/>depois code-review ou commit"]
+  o2["orchestrate-deliver<br/>arquivos da story, sdd-spec, contestação do PRD,<br/>sdd-plan, sim, preflight"]
+  o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN,<br/>depois code-review, run-tests, security"]
   step0 --> o1 --> o2 --> o3
 ```
 
@@ -147,7 +147,7 @@ flowchart TD
 
 ### Especialistas
 
-Há spawn quando `subagents=native` e o roster manda. Caso contrário as mesmas notas são escritas no pai. As pastas obrigatórias precisam existir antes da aprovação do backlog. Uma nota em `CONTINUITY.md` não as substitui. Teto: quatro filhos simultâneos. O parâmetro de modelo é omitido (o filho usa o modelo do pai). Skills de stack `*-developer` não são chamadas no O1.
+Há spawn quando `subagents=native` e o roster manda. Caso contrário as mesmas notas ficam com o pai. Pastas de story, e `ANALYSIS/` / `ARCH/` / `SEC/` sob elas, são escritas só depois que a feature não tem pergunta aberta. Essas pastas precisam existir antes da aprovação do backlog. Uma nota em `CONTINUITY.md` não as substitui. Teto: quatro filhos simultâneos. O parâmetro de modelo é omitido (o filho usa o modelo do pai). Skills de stack `*-developer` não são chamadas no O1.
 
 | Sinal | Quem | Onde as notas vão |
 |-------|------|-------------------|
@@ -167,7 +167,7 @@ Notas de estágio opcionais: `impact`, `risk`, `generate-story`. Elas não acres
 
 ### Como as stories são formadas
 
-O O1 carrega as regras compartilhadas de backlog e a rubrica do scorecard de refine, e então escreve `STORY.md`. Ele não invoca `/refine-story` e não pergunta o modo feature, tech ou split.
+O O1 carrega as regras compartilhadas de backlog e a rubrica do scorecard de refine, e então escreve `STORY.md`. Ele não invoca `/refine-story` e não pergunta o modo feature, tech ou split. Pastas de story esperam até `FEATURE.md` não ter pergunta aberta, inclusive **MINOR**.
 
 Depois que as notas dos especialistas se juntam:
 
@@ -176,7 +176,7 @@ Depois que as notas dos especialistas se juntam:
 3. **Teto.** No máximo quatro stories, salvo se `FEATURE.md` explicar por que mais são necessárias.
 4. **Intenção de produto.** User stories ganham Who / Job / Outcome. Stories técnicas e bugs podem ser `n/a`.
 5. **Profundidade da FEATURE.** Problema (prosa), pelo menos uma meta, pelo menos um não-objetivo e evidência (caminho, trecho redigido ou uma omissão explícita). Campos vazios mantêm o status `draft`. O prompt de aprovação humana espera esses campos preenchidos.
-6. **Arquivo da story.** Objetivo, fora de escopo, aceite em três faixas (caminho feliz, regra ou borda, falha) com um Then observável, dependências e um scorecard mapeado da rubrica de refine (/100 até 1–5, incluindo profundidade de produto).
+6. **Arquivo da story.** Tipo, objetivo, quais critérios de aceite da feature esta story cobre, fora de escopo, aceite em três faixas (caminho feliz, regra ou borda, falha) com um Then observável, dependências e um scorecard mapeado da rubrica de refine (/100 até 1–5, incluindo profundidade de produto).
 
 O gate humano (**sim** / **ajustar** / **cancelar**) só roda depois que esses gates passam e as pastas obrigatórias existem. No **sim**, `CONTINUITY.md` registra:
 
@@ -194,7 +194,7 @@ O Passo 0 roda de novo, e então:
 
 - Descobre `US*/STORY.md` e `TS*/STORY.md`. Pula uma story que já tem PRD e PLAN, salvo se você pedir refresh.
 - Para de escrever se uma pasta obrigatória `ANALYSIS`, `ARCH` ou `SEC` faltar. Volta ao O1.
-- Para de escrever se restar alguma clarificação aberta de severidade **B** (bloqueante) ou **I** (importante) na feature, na story, nas notas de refine ou em notas anteriores. **MINOR** pode ficar. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`.
+- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. Fora desses gates, **MINOR** pode ficar. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
 
 B/I aberto é `NEEDS_CLARIFICATION`. O handoff é `/refine-story` e/ou `/orchestrate-analyze` no caminho da feature. Você responde a pergunta e volta ao O2. O refine avulso volta aqui para uma pergunta bloqueante. Não é assim que uma feature começa no caso comum.
 
@@ -204,8 +204,8 @@ A skill pergunta.
 
 | Escolha | O que acontece |
 |---------|----------------|
-| Série | O pai roda `sdd-spec` e depois `sdd-plan` neste chat. Escrita em disco só depois de cada **sim** |
-| Paralelo | Um filho por story, só rascunho, quando `subagents=native`. Teto quatro. O pai é o único escritor, depois do **sim** |
+| Série | Por story: arquivos da story, depois `sdd-spec`, depois a contestação desse PRD, depois `sdd-plan`. Escrita em disco só depois que esse gate está limpo e há **sim** |
+| Paralelo | Um filho por story, só rascunho, um gate por onda, quando `subagents=native`. Teto quatro. O PLAN não é rascunhado enquanto esse PRD ainda tiver pergunta aberta. O pai é o único que escreve, depois do **sim** |
 | Parar | Sem escritas |
 
 Se Task não estiver disponível, o paralelo cai para série. Termine primeiro as stories das quais outras dependem, salvo se você dispensar **story order**. `ANALYSIS` / `ARCH` / `SEC` ausentes não podem ser dispensados.
@@ -248,7 +248,7 @@ O Passo 0 roda antes da fila. Cada filho recebe `bank_path` somente leitura e `i
 
 `serial` impede uma onda paralela. `parallel` precisa de um **sim** explícito, passos independentes e um arquivo de sessão distinto por filho, teto quatro. `manual` não faz spawn; só imprime linhas `/sdd-develop`.
 
-`step_by_step` pede **sim** antes de cada spawn. `continuous` pode pegar o próximo passo pronto depois do primeiro **sim** da fila, ainda reivindica o ledger e ainda roda um passo por filho.
+`step_by_step` pede **sim** antes de cada spawn. `continuous` pode pegar o próximo passo pronto depois do primeiro **sim** da fila, ainda reivindica o ledger e ainda roda um passo por filho. O pai ainda mostra o resumo de cada passo. Não fica em silêncio entre passos.
 
 ### Um filho, um passo do PLAN
 
@@ -263,13 +263,13 @@ O filho segue `sdd-develop`: branch, código, testes direcionados, evidência op
 
 `verify_mode: true` nas preferências acrescenta um filho verificador somente leitura depois de um implementador bem-sucedido e antes de `CONTINUITY` ser atualizado. O padrão é false.
 
-O pai atualiza `CONTINUITY.md` só depois que o filho volta. Falha deixa o passo pendente. O próximo passo é um chat novo, ou outro **sim**. O pai não marca passos que o filho não terminou e não chama `*-developer` para implementar um passo do PLAN. Se Task faltar, o handoff é `/sdd-develop` manual para aquele passo.
+O pai atualiza `CONTINUITY.md` só depois que o filho volta. Falha deixa o passo `PENDING` ou `BLOCKED`, com a causa no PLAN. O próximo passo é um chat novo, ou outro **sim**. O pai não marca passos que o filho não terminou e não chama `*-developer` para implementar um passo do PLAN. Se Task faltar, o handoff é `/sdd-develop` manual para aquele passo.
 
 ### Depois que o código existe
 
 Quando um filho alterou arquivos de aplicação, o O3 pergunta e então roda `memory-bank-init` **refresh-light**.
 
-Quando a story ou a feature termina, a skill pergunta **code-review** versus **commit**. A revisão é recomendada. Ela não bloqueia o pipeline sozinha. Antes do commit, se houver bank ou docs do projeto, você é perguntado **sim** / **pular** para o refresh e para os docs.
+Quando a story ou a feature termina, a ordem de fechamento é `code-review`, depois `run-tests`, depois a passagem de security, depois `/commit` e então `/push`. `test-coverage` continua sendo o relatório Coverlet .NET. `run-tests` não o substitui.
 
 Uma mudança pequena, um arquivo, quando o analyze oferece o atalho:
 
@@ -284,13 +284,14 @@ ou uma skill de stack como `dotnet-developer` ou `react-developer`.
 | Outra skill | Como a Orchestrated Delivery a usa |
 |-------------|-------------------------------------|
 | `sdd-spec` | O2, por story, depois do **sim** |
-| `sdd-plan` | O2, depois que o PRD dessa story está no disco |
+| `sdd-plan` | O2, depois que o PRD dessa story não tem pergunta aberta. Copia os ids de passo de `split-story-checklist` |
 | `sdd-develop` | Filho do O3, um passo do PLAN; ou a linha manual quando Task está desligado |
 | Arquivo da rubrica de `refine-story` | Scorecard do O1 em `STORY.md`. A pergunta de modo da skill refine não é feita |
-| Invocação de `refine-story` | Perguntas bloqueantes abertas (B/I), ou uma pessoa de produto formando um item fora de uma feature |
-| Limites de `split-story-checklist` | O1 pode checar o teto de cinco grupos. A skill de checklist não é invocada |
+| Invocação de `refine-story` | Uma pergunta aberta nesses gates, ou uma pessoa de produto formando um item fora de uma feature |
+| `split-story-checklist` | Chamada por `sdd-plan` para gravar `REFINE/tasks.md`. O O1 ainda pode checar o teto de cinco grupos |
 | `memory-bank-init` | Passo 0 e Passo N do O3 |
-| `code-review` | Handoff quando a implementação de uma story ou feature termina |
+| `code-review` | Primeiro handoff quando a implementação de uma story ou feature termina |
+| `run-tests` | Depois de `code-review`, antes da passagem de security. Não substitui `test-coverage` |
 | `developer` / `*-developer` | Só o atalho da triagem trivial. Não é o implementador do O3 |
 | `read-sdd-artifact` | Normaliza um caminho FEATURE, STORY, PRD ou PLAN em `source_context` para um filho |
 

@@ -11,7 +11,9 @@
 - [ ] Brownfield: `CHANGE.md` present + `validate-change` exit 0; greenfield: no empty CHANGE forced
 - [ ] No implementation code in the PRD; no production/test code edited in `spec` session
 - [ ] No full memory-bank / PRD dump prescribed in this skill session
-- [ ] Body in pt-BR unless English override
+- [ ] Body follows the chat language (`LANGUAGE.md`); do not hard-code a locale
+- [ ] On the story PRD: API, event, database, and domain are each present or marked not applicable in one sentence
+- [ ] A sibling surface is included only when the text says why the others do not serve
 - [ ] Type/method/API names in English where cited
 - [ ] Status **Pronto para planejamento** (or **Ready for planning** if EN override)
 - [ ] Handoff: `/sdd-plan - <portable-prd-path>`

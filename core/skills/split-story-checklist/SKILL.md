@@ -107,9 +107,13 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 3. Extract steps from Steps / Suggested fix (`references/parsing.md`).
 4. Read sibling `FEATURE.md` **Complexity** when under `features/NNN-slug/` (`CHANGE-CONTRACT.md` TASKS policy).
 
-If no steps found, stop and suggest `/refine-story`.
+If no steps found and `source` is not `prd`, stop and suggest `/refine-story`.
 
-If Complexity is `trivial` (small): **STOP Write** of TASKS — tell the operator (pt-BR) that TASKS is not required for trivial/small; offer optional checklist only if they insist.
+If `source=prd` and the STORY has no step list, do not suggest `/refine-story`. Build groups from the closed PRD `REQ` rows (`references/parsing.md`).
+
+If Complexity is `trivial` (small) and the caller is not `sdd-plan`: **STOP Write** of TASKS — tell the operator, in the user chat language, that TASKS is not required for trivial/small; offer an optional checklist only if they insist.
+
+If the caller is `sdd-plan`, a trivial story still returns a one-step breakdown. Do not refuse the write.
 
 If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
 
@@ -125,11 +129,11 @@ Load `references/type-classification.md`:
 
 ### 1. Documentation language (blocker before Write)
 
-Ask once:
+On a **direct** invocation, ask once, in the user chat language, which language to write the tasks file in. Record that choice.
 
-> Language for the tasks file - **pt-BR** or **English**?
+When `invocation_context=orchestrated`, do not ask. Use the chat language (`LANGUAGE.md`).
 
-Record in the output file header. Paths stay English.
+Paths and step ids stay English.
 
 ### 2. Group steps (deps + topology)
 

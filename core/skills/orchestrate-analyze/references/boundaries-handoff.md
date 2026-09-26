@@ -3,14 +3,14 @@
 | Aspect | `refine-story` (Backlog Refine) | `orchestrate-analyze` (O1) | `sdd-spec` (Classic SDD) | `orchestrate-deliver` (O2) |
 |--------|--------------------------------|---------------------------|----------------------------|
 | Purpose | One informal item + scorecard + mode envelope/Q&A | Multi-agent triage + US/TS backlog | Full PRD one story | PRD+PLAN per approved story |
-| Output | STORY or `docs/backlog/` + envelope / `REFINE/qa-history.md` | FEATURE + CONTINUITY + STORY×N | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
+| Output | STORY or `docs/backlog/` + envelope / `REFINE/qa-history.md` | FEATURE + CONTINUITY + STORY×N after the open-question gate | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
 | Specialists | None | Conditional Task (`needs_*`) | None | sdd contracts per story |
 | App code | No | No | No | No |
-| When | Informal single item | Complex / multi-story / brownfield | Ready for one PRD | After O1 **sim** |
+| When | Informal single item | Complex / multi-story / brownfield | Ready for one PRD and no open question | After O1 **sim**, with a closed FEATURE and story folders already created |
 
 Escalate **to O1** from refine when: multiple stories, unclear `needs_*`, brownfield needs parallel specialists.
 
-Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching **and** clarification status is **READY** (no open **B**/**I**).
+Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching **and** no question is open, including `MINOR` (`open_question`).
 
 ### Refine envelopes / READY (O1 light — WS11 / REQ-005–006)
 
@@ -30,7 +30,9 @@ Scorecard: reuse `skills/refine-story/references/scorecard-rubric.md` (universal
 
 Story sizing: `skills/_shared/backlog-item-types/story-sizing.md` — load at synthesis; merge/split before human gate; FEATURE table **Rationale** column required.
 
-Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until gates pass and backlog **sim**.
+Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until those gates pass, the FEATURE has **no** open question (`open_question`, including `MINOR`), story folders already exist, and backlog **sim**.
+
+O2 handoff requires a closed FEATURE and stories already created. A feature that stopped at step 8c is not an O2 handoff.
 
 ---
 
@@ -48,7 +50,7 @@ Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals
 /refine-story
 ```
 
-(Prefer explicit mode + portable story path when known; refine owns mode prompt if omitted.)
+(Prefer explicit mode + portable story path when known. When the handoff is orchestrated, pass `mode=feature` or `mode=tech`. Do not leave the mode for `refine-story` to ask.)
 
 ```text
 /developer

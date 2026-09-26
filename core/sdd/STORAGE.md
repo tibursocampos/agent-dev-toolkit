@@ -152,7 +152,7 @@ Do **not** scan repo-root `PRD/` / `PLAN/` or global-flat `PRD/` / `PLAN/` for n
 | **global** | Relative to agent **InstallRoot** | `sdd/blip-api-eventos/features/002-eventos-image-and-gifts/TS01/PRD/002_ts01_loki_forcontext.md` |
 | **repository** | Relative to repo root (`$Cwd`) | `features/002-eventos-image-and-gifts/TS01/PRD/002_ts01_loki_forcontext.md` |
 | **Same-story siblings** | Relative to current file (allowed) | `../PRD/...`, `./ARCH/...` |
-| **Forbidden in artifacts** | OS absolute / user-home InstallRoot | `C:/Users/...`, `<userHome>/.cursor/sdd/...`, `<userHome>/.claude/sdd/...` |
+| **Forbidden in artifacts** | OS absolute / user-home InstallRoot | `C:/Users/...`, `<userHome>/<install>/sdd/...` |
 
 **"Full path" in handoffs** means the **portable path** (this section), **not** an OS absolute.
 
@@ -250,37 +250,17 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 
 > **Used by:** all `sdd-*`, `refine-story`, `split-story-checklist`, and Orchestrated Delivery `orchestrate-*` skills.
 
-### Effective SDD_ROOT (host-aware)
+### Effective SDD_ROOT
 
-Resolve **before** reading `manifest.json` or any global classic path. Does **not** force repository vs global — user choice stays. Does **not** migrate existing trees.
+Resolve **before** reading `manifest.json` or any global classic path. Does **not** force repository vs global. Does **not** migrate existing trees. This contract does not name a host.
 
-1. Detect **current host InstallRoot** for this chat session (not "whichever skill pack happened to load"):
+1. Use the InstallRoot of the current session. Do not follow a skill pack that loaded from a different install.
+2. `effective_SDD_ROOT` = `<InstallRoot>/sdd`
+3. If a baked absolute `{{SDD_ROOT}}` points at a different install than `effective_SDD_ROOT`, ignore the baked path. Warn once, in the user chat language, that skills from another install were detected and the current install SDD root is in use.
+4. Read and write `manifest.json`, `preferences.json`, sessions, and the global classic path only under `effective_SDD_ROOT`.
+5. Do not invent a second shared SDD root. One install, one `sdd` folder.
 
-   | Host | InstallRoot |
-   |------|-------------|
-   | Cursor | `<userHome>/.cursor` |
-   | Claude Code | `<userHome>/.claude` |
-   | Codex | `<userHome>/.codex` |
-   | Copilot | `<userHome>/.copilot` (or documented adapter InstallRoot) |
-   | Grok | `<userHome>/.grok` |
-   | Antigravity / Gemini | `<userHome>/.gemini` (or adapter InstallRoot) |
-   | OpenCode | `~/.config/opencode` (adapter root) |
-   | ZCode | `<userHome>/.zcode` |
-
-2. Host detection signals (in order):
-   - IDE / product identity in the session
-   - Path of **this chat's** primary rules / `AGENTS.md` under an agent home
-   - If a loaded skill path is under agent home A but the session is clearly host B, **prefer B**
-
-3. `effective_SDD_ROOT` = `<InstallRoot>/sdd`
-
-4. If a baked absolute `{{SDD_ROOT}}` in the loaded SKILL points under a **different** agent home than `effective_SDD_ROOT`, **ignore the baked path** and use `effective_SDD_ROOT`. Optionally warn once in chat (user chat language), e.g. pt-BR: `Skills de outro agente detectadas; usando SDD do host atual.`
-
-5. Read/write `manifest.json`, `preferences.json`, sessions, and global classic.path **only** under `effective_SDD_ROOT`.
-
-6. Do **not** invent a third shared `~/.agents/sdd` unless already documented — stick to per-agent `InstallRoot/sdd`.
-
-Core source keeps placeholders `{{SDD_ROOT}}`; publish may still bake absolutes. Runtime **must** apply this override when the baked path's agent home ≠ the current host agent home.
+Core source keeps the placeholder `{{SDD_ROOT}}`. Publish may bake an absolute. Runtime must apply this override when that absolute is not the current install.
 
 ### Manifest location
 
@@ -307,7 +287,7 @@ Core source keeps placeholders `{{SDD_ROOT}}`; publish may still bake absolutes.
 }
 ```
 
-Use placeholder / portable paths in docs and **artifact bodies**; never hardcode `C:/Users/<name>/...` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) inside FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites.
+Use placeholder / portable paths in docs and **artifact bodies**; never hardcode `C:/Users/<name>/...` or a user-home install path inside FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites.
 
 **Legacy:** older manifests may still contain a `speckit` section. Ignore it; do not require or rewrite it automatically (optional cleanup documented at end of feature 004).
 

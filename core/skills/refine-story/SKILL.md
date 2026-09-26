@@ -7,9 +7,9 @@ description: Refine a Bug, User Story, or Technical Story into structured markdo
 
 1. Read `{{GUARDRAILS_PATH}}`
 2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
+3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
+5. This skill body is **English**; user-facing prompts follow the **user chat language** (`LANGUAGE.md`)
 
 ### Step -1 - Gate check (report in chat before continuing)
 
@@ -40,14 +40,18 @@ Optional: path to existing notes, pasted description, or explicit mode (`feature
 | **tech** | `tech`, `technical`, `modo tech`, `2` | Technical Story |
 | **split** | `split`, `modo split`, `3` | Any type — split-ready steps + checklist handoff |
 
-If the invocation does **not** name a mode: **STOP** after gate check (-1) / before deep refine — ask once **(pt-BR)** and wait. Do **not** assume `feature`. Do **not** load any mode playbook until answered.
+If the invocation does **not** name a mode: **STOP** after gate check (-1) / before deep refine and ask once, in the **user chat language**, then wait. Do **not** assume `feature`. Do **not** load any mode playbook until answered.
+
+That question applies only to **direct** invocation. When `invocation_context=orchestrated`, the parent passes `mode=feature` or `mode=tech`. Do not ask the mode. Load that playbook. For `mode=feature`, also load `references/feature-research.md` (`references/feature.md`).
 
 ```text
-Modo de refine-story?
-1) feature - User Story / Bug (produto)
+refine-story mode?
+1) feature - User Story / Bug
 2) tech - Technical Story
-3) split - passos prontos para /split-story-checklist
+3) split - steps ready for /split-story-checklist
 ```
+
+Render the three options in the user chat language. Keep the mode ids `feature`, `tech`, and `split` in English.
 
 ## Outcome
 
@@ -66,6 +70,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 |------|------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/command.md` |
 | Mode playbook **feature** (only when mode=feature) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature.md` |
+| Feature research (orchestrated + mode=feature) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
 | Mode playbook **tech** (only when mode=tech) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/tech.md` |
 | Mode playbook **split** (only when mode=split) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/split.md` |
 | Mode isolation matrix (REQ-004) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/mode-isolation.md` |
@@ -81,6 +86,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Anti-task-shatter (outcome-shaped titles) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Clarify depth + severity B/I/MINOR | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |
 | Readiness READY / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
+| Finding format (id, severity, type, evidence, recommendation) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refine-story/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/<section>.md` |
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
@@ -109,6 +115,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Split-story handoff | `references/split-handoff.md` |
 | Product persona / JTBD | `references/product-persona.md` → `persona-context.md` |
 | Exclusions | `references/exclusions.md` |
+| Finding format | `references/finding-format.md` |
 
 ## Process
 
@@ -138,9 +145,9 @@ Resolve mode from the invocation **or** from the user's answer to the Trigger pr
 | `tech` / `technical` / `2` / Technical Story framing | tech | `references/tech.md` |
 | `split` / `3` / checklist / topological steps | split | `references/split.md` |
 
-If still unset or value outside `{feature,tech,split}`: **STOP** — ask the Trigger prompt **(pt-BR)** — do not load any mode playbook until answered.
+If still unset or value outside `{feature,tech,split}`: on **direct** invocation, **STOP** and ask the Trigger prompt in the user chat language. On **orchestrated** invocation, do not ask; require `mode=feature` or `mode=tech` from the parent. Do not load any mode playbook until the mode is set.
 
-Then follow **only** that playbook for collect → generate → mode-specific checks. Apply `references/mode-isolation.md` (no cross-mode leak). Open a skeleton **interaction envelope** (`mode` + `invocation_context` + `status: NEEDS_CLARIFICATION` until READY). Shared scorecard / validation / persistence / handoff sections stay lazy per playbook pointers.
+Then follow **only** that playbook for collect → generate → mode-specific checks. When `invocation_context=orchestrated` and `mode=feature`, also read `references/feature-research.md`. Apply `references/mode-isolation.md` (no cross-mode leak). Open a skeleton **interaction envelope** (`mode` + `invocation_context` + `status: NEEDS_CLARIFICATION` until READY). Shared scorecard / validation / persistence / handoff sections stay lazy per playbook pointers.
 
 ### 1–7. Mode playbook + shared sections
 

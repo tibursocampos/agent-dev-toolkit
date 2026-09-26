@@ -1,6 +1,6 @@
 # 05 — Review and quality
 
-These skills run **after** code exists, or on a branch the operator names. `orchestrate-develop` and `sdd-develop` suggest `/code-review` when a story or PLAN is done. That suggestion does not block the pipeline. The review skill must not turn multi-angle into a mandatory gate.
+These skills run **after** code exists, or on a branch the operator names. When a story or feature is done, `orchestrate-develop` runs `/code-review`, then `/run-tests`, then the `security` agent, then asks `/commit` and `/push`. The review skill must not turn multi-angle into a mandatory gate.
 
 ## `code-review`
 
@@ -76,11 +76,19 @@ This skill does not block merge by itself. `code-review` applies the threshold. 
 
 Excluded from the new-code denominator: migrations, `*.g.cs`, `*.Designer.cs`, test projects.
 
+## `run-tests`
+
+Trigger: `/run-tests`, or the close of a story in `orchestrate-develop`, after `code-review` and before the security pass.
+
+It detects the stack in the same order as `developer` and runs that stack’s existing test command. Several stacks mean one run each. The report is one row per stack: command, exit code, `PASS` or `FAIL`. A check the repo does not have is `SKIPPED`. Overall `PASS` only when every stack passed.
+
+It does not edit code and does not mark a PLAN step `COMPLETED`. .NET coverage is `test-coverage`, and only when the PLAN asks for it. No detected stack stops and asks. Plan or Ask mode does not run the shell.
+
 ## `repair-dotnet-build`
 
 Trigger: `/repair-dotnet-build`, local `dotnet build` / `dotnet test`, or a **pasted** CI log. It does not fetch a remote build by API.
 
-Diagnosis groups compile, restore, test assertion, configuration, and pipeline YAML when the log was pasted. Each proposed edit waits for confirmation. After the fix, build and targeted tests run again. Offer `/commit`. New EF migration goes to `/ef-add-migration`. Large scope goes to `/sdd-spec`.
+Diagnosis groups compile, restore, test assertion, configuration, and pipeline YAML when the log was pasted. One error at a time, the smallest change, and only .NET. Each proposed edit waits for confirmation. After the fix, build and targeted tests run again until the status is explicit. Offer `/commit`. New EF migration goes to `/ef-add-migration`. Large scope goes to `/sdd-spec`.
 
 ## `refactor`
 

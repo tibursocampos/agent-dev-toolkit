@@ -1,6 +1,6 @@
 # 09 — Every skill
 
-Forty-one invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
+Forty-two invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
 
 The long form of a skill is the session linked on its heading. This page is the index that still says what the skill does, what it writes, and which skill it calls next.
 
@@ -12,15 +12,15 @@ Creates or refreshes `memory-bank/` at the repository root or the global classic
 
 ### `orchestrate-analyze`
 
-O1. Classifies intent, asks a few high-cost questions, sets nature and `needs_*`, spawns specialists only when flags require them, drafts architecture for greenfield and waits for **sim**, merges stories with scorecard and promotion gates, and waits for backlog **sim**. Writes `FEATURE.md`, `CONTINUITY.md`, and `STORY.md`. Does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
+O1. Classifies intent, asks a few high-cost questions, sets nature and `needs_*`, spawns specialists only when flags require them, and holds their notes until the feature has no open question. Then it creates story folders, drafts architecture for greenfield and waits for **sim**, merges stories with scorecard and promotion gates, and waits for backlog **sim**. Writes `FEATURE.md`, `CONTINUITY.md`, and `STORY.md`. Does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
 
 ### `orchestrate-deliver`
 
-O2. Requires an approved backlog. For each story, runs the `sdd-spec` contract then the `sdd-plan` contract. Series writes in the parent after **sim**. Parallel children return drafts; the parent is the only writer. Stops on missing specialist folders or open clarification B/I. Brownfield also writes `CHANGE.md`. Preflight must pass before O3. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
+O2. Requires an approved backlog and a feature with no open question. For each story, checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. An open question, including **MINOR**, stops that story. Series writes in the parent after **sim**. Parallel children return drafts one gate at a time; the parent is the only writer. Stops on missing specialist folders. Brownfield also writes `CHANGE.md`. Preflight must pass before O3. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
 
 ### `orchestrate-develop`
 
-O3. Builds a queue of pending PLAN steps. Spawns one `sdd-develop` child per step. Parent writes no application code. Execution mode `serial` (default), `parallel`, or `manual`. Pacing `step_by_step` (default) or `continuous`. After code changes, offers memory-bank refresh-light. When the feature is done, offers `code-review` or `commit`. Detail: [01](01-orchestrated-delivery.md).
+O3. Builds a queue of `PENDING` PLAN steps. Before each step, calls `repo-analyst` and `architect`, and `database` when the plan cites persistence. Contract drift stops with `plan_stale` and returns to `sdd-plan`. Spawns one `sdd-develop` child per step. Parent writes no application code. Execution mode `serial` (default), `parallel`, or `manual`. Pacing `step_by_step` (default) or `continuous`. After code changes, offers memory-bank refresh-light. When the feature is done, the order is `code-review`, `run-tests`, `security`, then `/commit` and `/push`. Detail: [01](01-orchestrated-delivery.md).
 
 ### `sdd-spec`
 
@@ -28,7 +28,7 @@ Writes one PRD under `features/NNN-slug/.../PRD/`. What and why, stable `REQ-NNN
 
 ### `sdd-plan`
 
-Writes one PLAN beside that PRD. Every REQ maps to a step. Bodies of SQL and OpenAPI stay in canonical files; the PLAN cites them. Confirm before write. `validate-plan` must pass. Does not implement. Detail: [02](02-classic-sdd.md).
+Writes one PLAN beside that PRD. Copies step ids from `split-story-checklist`. Every REQ maps to one of those steps. Two reviews before **sim**. Bodies of SQL and OpenAPI stay in canonical files; the PLAN cites them. `validate-plan` must pass. Does not implement and does not record duration. Detail: [02](02-classic-sdd.md).
 
 ### `sdd-develop`
 
@@ -40,11 +40,11 @@ Read-only. Turns one FEATURE, STORY, PRD, or PLAN path under `features/` into `s
 
 ### `refine-story`
 
-Standalone shaping of one bug, user story, or technical story. Mode `feature`, `tech`, or `split` is mandatory. Writes chat markdown, a scorecard, and optionally `STORY.md` or `docs/backlog/<slug>.md`. O1 uses the scorecard rubric file without calling this skill. O2 calls this skill when clarification B or I is still open. Detail: [03](03-backlog-shape.md).
+Standalone shaping of one bug, user story, or technical story. On a direct invoke, mode `feature`, `tech`, or `split` is asked in the chat language. An orchestrated call receives `mode=feature` or `mode=tech` and does not ask. Writes chat markdown, a scorecard, and optionally `STORY.md` or `docs/backlog/<slug>.md`. O1 uses the scorecard rubric file without calling this skill. O2 calls this skill when a question is still open. Detail: [03](03-backlog-shape.md).
 
 ### `split-story-checklist`
 
-Turns an existing story’s steps into a dependency checklist (`REFINE/tasks.md`). Does not create new story folders. At most five groups. Asks documentation language before write. Trivial features do not get a tasks file only to satisfy a gate. Detail: [03](03-backlog-shape.md).
+Turns a story into a dependency checklist (`REFINE/tasks.md`). When `sdd-plan` calls it with `source=prd`, groups come from the PRD even if no steps exist yet, and a trivial story still returns one step. A direct invoke with no steps returns to `/refine-story`. Does not create new story folders. At most five groups. Asks documentation language only on a direct invoke. Detail: [03](03-backlog-shape.md).
 
 ## Implementation
 
@@ -104,15 +104,19 @@ Design commands (`init`, `shape`, `craft`, `critique`, `audit`, `harden`, and ot
 
 ### `code-review`
 
-Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. Suggested after O3; not a blocking gate. Detail: [05](05-review-and-quality.md).
+Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `advisory`. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
 
 ### `test-coverage`
 
-.NET Coverlet report. Default 80% line coverage on changed production files. Writes `TestResults/CoverageReport/`. Does not block merge by itself; `code-review` applies the threshold. Detail: [05](05-review-and-quality.md).
+.NET Coverlet report. Default 80% line coverage on changed production files. Writes `TestResults/CoverageReport/`. Does not block merge by itself; `code-review` applies the threshold. Called from `run-tests` only when the PLAN asks for coverage. Detail: [05](05-review-and-quality.md).
+
+### `run-tests`
+
+Runs the test command of each detected stack and returns `PASS` or `FAIL`. Does not edit code and does not replace `test-coverage`. Used at the end of an O3 scope, after `code-review`. Detail: [05](05-review-and-quality.md).
 
 ### `repair-dotnet-build`
 
-Local `dotnet build` / `dotnet test`, or a pasted log. Proposes each fix and waits. Does not call a remote CI API. Detail: [05](05-review-and-quality.md).
+Local `dotnet build` / `dotnet test`, or a pasted log. One error at a time. Proposes each fix and waits. Does not call a remote CI API and does not cover Node or Python. Detail: [05](05-review-and-quality.md).
 
 ### `refactor`
 
@@ -180,4 +184,4 @@ Executes one pending step of that documentation plan, then stops. Detail: [08](0
 
 ## Count
 
-`CATALOG.md` groups the same 41 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 11, Blip and design 2, operational 16, documentation 2.
+`CATALOG.md` groups the same 42 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 11, Blip and design 2, operational 17, documentation 2.

@@ -41,7 +41,8 @@ flowchart TD
   Direct --> Post
   Small --> Post
   Post[After code] --> CR["/code-review"]
-  CR --> Commit["/commit then /push"]
+  CR --> Tests["/run-tests"]
+  Tests --> Commit["/commit then /push"]
   Commit --> PR["/open-github-pr optional"]
 ```
 
@@ -54,8 +55,8 @@ Feature
         ├─ trivial one-file → /developer (only if the operator picks that shortcut)
         ├─ one already-clear story → sdd-spec (direct contract)
         └─ approved backlog → orchestrate-deliver
-              └─ sdd-spec then sdd-plan per story → orchestrate-develop
-                    └─ one sdd-develop step per child → code-review or commit
+              └─ story files, sdd-spec, contest the PRD, sdd-plan → orchestrate-develop
+                    └─ one sdd-develop step per child → code-review, run-tests, security
 ```
 
 Full mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).

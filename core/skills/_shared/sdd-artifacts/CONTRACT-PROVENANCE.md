@@ -126,3 +126,7 @@ Automated Assert may be added later; missing `sdd-spec` wire → do not mark REQ
 - Put real API tokens, passwords, or private keys in examples
 - Dump this contract body into child Task prompts (cite portable path + rule id only)
 - Use provenance labels to skip confirm-before-write gates
+
+## Change class
+
+Classify a contract change as compatible, operational drift, material change, or incompatible. A hash is a receipt that a write happened. It is not proof that the meaning changed.

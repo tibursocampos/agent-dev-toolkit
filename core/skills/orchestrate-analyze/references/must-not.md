@@ -16,6 +16,8 @@
 - Create `USnn`/`TSnn` for a title that is verb+file/class/script or layer-only (keep as PLAN/refine step; record anti-task-shatter rationale)
 - Treat pointer-only cited `.md` as promoted; treat `.cursor/plans/` as O3 input
 - Write PRD/PLAN (O2 owns that via `sdd-spec` / `sdd-plan` contracts)
+- Create a story folder (`USnn`, `TSnn`, or Bug) while `FEATURE.md` still has an open question (`open_question`)
+- Write `PRD/` or `PLAN/` during O1
 - Create external work-item tracker or org-only compliance content
 - Create ~40 agent files or expand the roster beyond `ROSTER.md`
 - Modify toolkit `.gitignore` as part of porting this skill into the toolkit repo; at runtime follow `STORAGE.md` only for consumer repo SDD patterns
@@ -23,7 +25,7 @@
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine spawns
-- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` per `SPAWN.md`; never skip required folders)
+- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** in-parent notes per `SPAWN.md`; until step 9, keep those notes in the parent — do not create `USnn`, `TSnn`, Bug, `ANALYSIS/`, `ARCH/`, or `SEC/` before the open-question gate; never skip the notes)
 - Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
 - Paste guideline packs into Task child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path

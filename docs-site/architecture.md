@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**41** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**42** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ After confirm (or a brownfield mirror): load **one** Layer B file under `princip
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 41 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 42 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.

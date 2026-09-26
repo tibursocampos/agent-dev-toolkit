@@ -223,3 +223,7 @@ Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths)
 /memory-bank-init - refresh-light
 /orchestrate-analyze
 ```
+
+## sdd-plan read
+
+In `sdd-plan`, an existing bank is read-only. An old or incomplete bank does not block. A missing bank asks permission once. Current code wins when it disagrees with the bank.

@@ -12,6 +12,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 | Triage / collect / trivial shortcut / NuGet example | `references/triage.md` |
 | Flag → specialist mapping / spawn Task | `references/spawn-map.md` |
 | Architecture confirm gate / approval copy | `references/arch-confirm.md` |
+| Step 8c feature research (before story folders) | `refine-story/references/feature-research.md`; table: `../_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |
 | Boundaries / canonical handoff strings | `references/boundaries-handoff.md` |
 | Refine envelopes / READY (pointer only) | `skills/refine-story/references/interaction-envelope.md` + `readiness-severity.md` (via boundaries-handoff) |

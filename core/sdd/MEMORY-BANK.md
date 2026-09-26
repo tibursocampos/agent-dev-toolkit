@@ -8,7 +8,7 @@ Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
-**Language:** This guideline is **English**. Consumer bank prose may be pt-BR or English (ask once on create if ambiguous). Paths and identifiers stay English.
+**Language:** This guideline is **English**. Consumer bank prose follows project convention / content-language (`LANGUAGE.md`); ask once on create only when no evidence of project doc language. Paths and identifiers stay English.
 
 ---
 
@@ -114,7 +114,7 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 
 ## Create / refresh rules
 
-1. **Confirm before write** (pt-BR): show path + create|refresh|refresh-light; wait for **sim** / **ajustar** / **cancelar**. Healthy read-only path needs no confirm.
+1. **Confirm before write** (user chat language): show path + create|refresh|refresh-light; wait for **sim** / **ajustar** / **cancelar** (or session-equivalent). Healthy read-only path needs no confirm.
 2. **No application code** - never create/edit `*.cs`, `*.ts`, app sources, migrations, etc. Bank + `.inventory/` only.
 3. **No Spec Kit / uv / specify** - inventory is PowerShell (or agent Glob/Grep); no Python toolchain required on the consumer.
 4. **Secrets** - never write API keys, tokens, connection strings, passwords, PII. Use env var **names** or `***`.
@@ -127,15 +127,16 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt.
+6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt. Normative rule for SDD/refine skills: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke `Assert-SelectiveRetrieval.ps1`.
+7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md` (REQ-011). Skip D: no ADO mutate, Reversa, SpecKit constitution (REQ-013).
 
 ### Modes (`memory-bank-init`)
 
 | Mode | When | Action |
 |------|------|--------|
-| `create` | Bank missing / incomplete scaffold | Templates + inventory + fill GENERATED |
-| `refresh` | Stale / user asked full refresh | Inventory + update GENERATED + `tech-stack.json`; preserve human prose |
-| `refresh-light` | O3 Step N after code changed; optional manual | Inventory + update GENERATED + `tech-stack.json` only; no full prose rewrite; append `refresh-history.jsonl` with `action: refresh-light` |
+| `create` | Bank missing / incomplete scaffold | Templates + inventory + **specialist synthesis** + fill GENERATED |
+| `refresh` | Stale / user asked full refresh | Inventory + synthesis when signals warrant + update GENERATED + `tech-stack.json`; preserve human prose |
+| `refresh-light` | O3 Step N after code changed; optional manual | Inventory + update GENERATED + `tech-stack.json` only; thin stack synthesis; no full prose rewrite; append `refresh-history.jsonl` with `action: refresh-light` |
 
 ---
 
@@ -175,7 +176,7 @@ After O3 has changed application code (at least one develop child succeeded with
 
 ```
 1. Resolve bank_root (same as Step 0)
-2. Confirm (pt-BR) refresh-light at bank_root
+2. Confirm (user chat language) refresh-light at bank_root
 3. Run memory-bank-init mode refresh-light (inventory + GENERATED + tech-stack.json)
 4. Record CONTINUITY Memory-bank status refreshed (or note skipped if cancelar)
 ```
@@ -222,3 +223,7 @@ Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths)
 /memory-bank-init - refresh-light
 /orchestrate-analyze
 ```
+
+## sdd-plan read
+
+In `sdd-plan`, an existing bank is read-only. An old or incomplete bank does not block. A missing bank asks permission once. Current code wins when it disagrees with the bank.
