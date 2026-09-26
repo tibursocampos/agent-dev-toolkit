@@ -46,14 +46,14 @@ Ask structured options in **pt-BR** before a dry handoff (`PIPELINE.md` § Missi
 
 ## Confirm before write
 
-For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask **"Posso gravar em `{path}`? (sim / ajustar / cancelar)"**. `Write` only after **sim**.
+For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask in the user chat language whether to write at `{path}` (**sim** / **ajustar** / **cancelar**). `Write` only after **sim**.
 
-## Cursor mode
+## Host session mode
 
-- **Plan / Ask:** Phase A - questions and draft in chat only. Do **not** claim files were saved without a successful `Write`.
-- **Agent:** Phase B - persist after confirmation; run `sdd-develop` and `test-coverage`.
+- **Plan / Ask:** Phase A. Questions and draft in chat only. Do not claim files were saved without a successful `Write`.
+- **Agent:** Phase B. Persist after confirmation. Run `sdd-develop`, `run-tests`, and `test-coverage` when that skill applies.
 
-When Phase A is done but persistence is pending, tell the user to switch to **Agent** and resend `/<name> - gravar`.
+When Phase A is done and persistence is still pending, tell the user, in the user chat language, to switch to the mode that can persist and resend the write command.
 
 ## Boundaries
 

@@ -106,6 +106,8 @@ Legacy repo files may still contain unused `step_confirmed` / `tests_run` keys. 
 
 ## Gate rules
 
+Operator-facing STOP / confirm prompts use the **user chat language** (`LANGUAGE.md`). Gate field names and scripts stay English.
+
 | Gate | File | Set `true` when | Required for |
 |------|------|-----------------|--------------|
 | `storage_confirmed` | Repo | User chose local/global storage (first SDD run) | First PRD/sdd-spec write |
@@ -113,10 +115,12 @@ Legacy repo files may still contain unused `step_confirmed` / `tests_run` keys. 
 | `step_confirmed` | Develop (PLAN or PLAN+step) | User said **sim** to implement current step/task | `sdd-develop`, `document-implement` (hash `docs/documentation-plan/plan.md`) |
 | `tests_run` | Develop (PLAN or PLAN+step) | Tests executed and reported | Before marking step/task done (`document-implement`: doc write verified / reported - no `dotnet test` required) |
 
+**HIGH companions (WS14):** language surfaces → `agents/LANGUAGE.md`; agreed vs invented → `CONTRACT-PROVENANCE.md`. Do not hard-code artifact locale in gate prompts.
+
 ## Before Write or mutating Shell
 
 1. Resolve the correct session file(s) for the gate in play.
-2. If required gate is `false`: **STOP** - ask user **(pt-BR)** - do not proceed.
+2. If required gate is `false`: **STOP** - ask user in the **user chat language** (`LANGUAGE.md`) - do not proceed.
 3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON:
 
 ```powershell
