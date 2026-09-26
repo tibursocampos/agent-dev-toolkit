@@ -7,9 +7,9 @@ description: Orchestrated Delivery O1: triage a feature, spawn conditional Task 
 
 1. Read `{{GUARDRAILS_PATH}}`
 2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
+3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
+5. This skill body is **English**; user-facing prompts follow the **user chat language** (`LANGUAGE.md`)
 
 ### Step -1 - Gate check (report in chat before continuing)
 
@@ -38,13 +38,13 @@ Under the resolved classic feature root (`STORAGE.md`, `$Workflow = classic`):
 
 1. `features/NNN-slug/FEATURE.md` - triage, scope, nature, complexity, `needs_*`
 2. `features/NNN-slug/CONTINUITY.md` - phase, decisions, typed handoff, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote)
-3. `features/NNN-slug/USnn/STORY.md` and/or `TSnn/STORY.md` - BDD + scorecard summary + deps
+3. `features/NNN-slug/USnn/STORY.md` and/or `TSnn/STORY.md` - BDD + scorecard summary + deps. Create these only at step 9, and only when FEATURE has no open question.
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** triage. Resolve `bank_root` via `STORAGE.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **never** under `features/NNN-slug/`.
 
 **Human gate:** backlog must be explicitly approved (`sim` / `ajustar` / `cancelar`) before O2. **Silence is not approval** (RN01). Do **not** mark approved if required specialist folders are missing or cited non-feature `.md` was not promoted (pointer-only = fail O1). When greenfield / `needs_domain` without an established style, an **architecture confirm gate** (ARCH draft → **sim** → ARCH approved) runs after the architect pass and before treating style as selected (`references/arch-confirm.md`). Brownfield skips **style re-pick** only — still write mirror ARCH.
 
-Orchestrator **does not** implement application code. When a `needs_*` flag (or brownfield) is true, specialists **must** write notes under story `ANALYSIS/` / `ARCH/` / `SEC/` (folder on disk required). `REFINE/` remains on demand. Do **not** route those notes to CONTINUITY as a substitute.
+Orchestrator **does not** implement application code. At steps 8 and 8b, hold specialist notes in the parent. Create story folders and `ANALYSIS/` / `ARCH/` / `SEC/` only at step 9, and only when FEATURE has no open question. `REFINE/` remains on demand. Do **not** route those notes to CONTINUITY as a substitute.
 
 Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). Does **not** call trackers.
 
@@ -76,6 +76,8 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Persona / Product intent (US only) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
 | Promotion / anti-task-shatter gate (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Cap / altitude rationale (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
+| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
+| Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
@@ -99,6 +101,8 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Triage / collect / trivial / NuGet | `references/triage.md` |
 | Spawn / specialist map | `references/spawn-map.md` |
 | ARCH confirm gate | `references/arch-confirm.md` |
+| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
+| Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Scaffold / synthesize / CONTINUITY / product artifact gates | `references/story-synthesis.md` |
 | Boundaries / handoff strings | `references/boundaries-handoff.md` |
 | Caveman / storage / approval / context | `references/process-common.md` |
@@ -138,7 +142,7 @@ Ask/reuse Prior context; promote cited non-feature `.md` per `PIPELINE.md`. Set 
 If `trivial`: offer shortcut (read `references/triage.md` § Process — Trivial shortcut). Continue O1 only if user chooses **2**.
 
 ### 7. Allocate NNN-slug and scaffold tree
-Glob next NNN; confirm portable path; scaffold templates + flag-gated `ANALYSIS/` / `ARCH/` / `SEC/`. Read `references/story-synthesis.md`.
+Glob next NNN; confirm portable path; scaffold `FEATURE.md` and `CONTINUITY.md` only. Do not create story folders. Read `references/story-synthesis.md`.
 
 ### 8. Spawn Task specialists (conditional, parallel)
 SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4; omit Task `model` by default. Read `references/spawn-map.md`.
@@ -146,8 +150,11 @@ SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4;
 ### 8b. Architecture confirm gate (greenfield / `needs_domain`)
 ARCH draft → operator **sim** / ajustar / cancelar → approved + point-promote. Brownfield: skip style re-pick only; still write mirror ARCH. Read `references/arch-confirm.md`.
 
+### 8c. Feature research before story folders
+Load `refine-story/references/feature-research.md`. Update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md`. If any open question remains, stop with `open_question`. Do not run step 9.
+
 ### 9. Synthesize artifacts + product artifact quality gates
-Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). Merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03). Any fail → keep `draft`; list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
+Run only when FEATURE has no open question. Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). Create story folders and merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). Each new STORY carries type, objective, and the FEATURE acceptance ids it covers. `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03). Any fail → keep `draft`; list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
 
 ### 10. Human backlog approval (RN01)
 Product artifact quality gates must have passed. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
