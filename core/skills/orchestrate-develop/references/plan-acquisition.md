@@ -28,3 +28,7 @@ Reuse child codes: `plan_path_non_canonical`, `plan_path_outside_features`, `pla
 - Second SESSION/ledger SoT
 - Skip acquisition because “queue already listed the step”
 - Duration/effort estimates in acquisition chatter (`plan-contract.md`)
+
+## Missing PLAN
+
+When no PLAN is ready, call `sdd-plan` in the same pass, with preview and **sim**, then re-read the file. At most one cycle. A request to ignore an old plan uses only the plan whose criteria come from this story's PRD.

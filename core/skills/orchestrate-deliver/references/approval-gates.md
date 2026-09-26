@@ -32,6 +32,8 @@ Parallel Task cap: **≤4** concurrent story drafts per `SPAWN.md`; wave or pref
 
 Silence / emoji / “ok” without **sim** is **not** approval.
 
+**sim** does not close an open question and does not replace stop code `open_question`. Render these prompts in the user chat language (`LANGUAGE.md`).
+
 ---
 
 ## Process — Approval answers (RN01)

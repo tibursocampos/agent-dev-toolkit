@@ -9,12 +9,13 @@ Before any PRD/PLAN write:
 - [ ] Backlog human-approved (FEATURE/stories `approved`, or explicit **sim** in this session recorded)
 - [ ] Story list from `US*/STORY.md` + `TS*/STORY.md`
 - [ ] Flag-gated required siblings present (`ANALYSIS/` / `ARCH/` / `SEC/` when FEATURE `needs_*` or brownfield) — else **STOP** / return to O1; do **not** Write PRD/PLAN; max-3 gap questions do not replace this gate
-- [ ] Clarification readiness **READY** (no open **B**/**I** on FEATURE/STORY/REFINE/Prior open questions) — else **STOP** Write; emit `NEEDS_CLARIFICATION` (`readiness-severity.md` / REQ-005 / TE01). Presence of sibling folders ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`
+- [ ] The parent FEATURE has no open question (`open_question`). A story whose feature is still open does not enter O2.
+- [ ] Clarification readiness: no unanswered question on the required story files, including `MINOR`, at the O2 story-files gate — else **STOP** that story with `open_question` (`readiness-severity.md` § Open-question gate). Presence of sibling folders ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`
 - [ ] Mode chosen: **série** or **paralelo** (user asked; not assumed)
 
 If backlog not approved -> hand off to O1; do not invent approval (RN01).
 If required siblings missing -> **STOP** / return to O1; do not Write PRD/PLAN.
-If open **B**/**I** -> **STOP** Write; typed `NEEDS_CLARIFICATION` handoff (portable paths); do not proceed to PRD/PLAN.
+If open **B**/**I** or any other unanswered question at the O2 gates -> **STOP** Write; stop code `open_question`; do not proceed to PRD/PLAN. A story whose FEATURE still has an open question does not enter O2.
 
 ---
 
@@ -78,8 +79,8 @@ After presence siblings pass, evaluate open questions on FEATURE / STORY / REFIN
 
 | Outcome | Action |
 |---------|--------|
-| **READY** (no open **B**/**I**; **MINOR** ok) | Continue toward mode selection / per-story Write |
-| **NEEDS_CLARIFICATION** (any open **B** or **I**) | **STOP** Write PRD/PLAN; emit typed handoff; route to `refine-story` and/or O1 |
+| **READY** (no unanswered question at the O2 gates, including `MINOR`) | Continue toward mode selection / per-story Write |
+| **`open_question`** (any unanswered question, including `MINOR`) | **STOP** this story. Do not write PRD or PLAN |
 
 **RN02:** `ANALYSIS/` / `ARCH/` / `SEC/` on disk does **not** imply READY.
 

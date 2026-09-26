@@ -18,13 +18,14 @@ features/NNN-slug/
 
 | O1 writes | O1 does **not** write |
 |-----------|------------------------|
-| `FEATURE.md`, `CONTINUITY.md`, `STORY.md` | `PRD/`, `PLAN/` (O2) |
-| Flag-gated `ANALYSIS/` / `ARCH/` / `SEC/` under story; `REFINE/` on demand | App/test source files |
+| `FEATURE.md`, `CONTINUITY.md` at scaffold | `USnn` / `TSnn` / Bug folders before step 9 |
+| `STORY.md` and the story index at step 9, only with no open question on FEATURE | `PRD/`, `PLAN/` (O2) |
+| Flag-gated `ANALYSIS/` / `ARCH/` / `SEC/` under the story at step 9; `REFINE/` on demand | App/test source files |
 | | Repo-root `REFINE|ANALYSIS|ARCH|SEC|PRD|PLAN` |
 
 Templates: `skills/_shared/templates/features/`.
 
-Artifact prose default **pt-BR**; identifiers and skill names **English**.
+Artifact prose follows the user chat language (`LANGUAGE.md`). Identifiers and skill names stay English. `null` is not a locale.
 
 ---
 
@@ -80,9 +81,15 @@ Update `CONTINUITY.md` when:
 
 1. Glob existing `NNN` under `features/*/` only (workspace + global feature root) per `STORAGE.md`. Next = max + 1. Do **not** number from root/flat `PRD/` or `PLAN/`.
 2. Propose `NNN-slug` (kebab-case) and **portable path** (`STORAGE.md` § Portable path; confirm chat may show OS absolute).
-3. Confirm before first Write (pt-BR): **“Posso gravar a árvore em `{path}`? (sim / ajustar / cancelar)”** - silence ≠ approval.
-4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0), story folders `USnn`/`TSnn` as needed. Under the story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true — **required on disk**, not on demand. `REFINE/` remains **optional / on demand**. Do **not** create `PRD/` / `PLAN/` yet (O2). Do **not** create `memory-bank/` under the feature path.
-5. **Navigation `## Related` (REQ-009):** On each FEATURE / CONTINUITY / STORY Write, emit/refresh `## Related` per `STORAGE.md` § Navigation block — bidirectional among siblings **that exist** (FEATURE ↔ CONTINUITY ↔ STORY ↔ ANALYSIS|ARCH|SEC when on-disk). **Omit-if-absent** — never stub PRD/PLAN or empty siblings solely for links. Title exactly `## Related`; portable paths only.
+3. Confirm before first Write, in the user chat language (`LANGUAGE.md`): ask whether to write the tree at `{path}` (`sim` / `ajustar` / `cancelar`). Silence ≠ approval.
+4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0). Do **not** create `USnn`, `TSnn`, or Bug folders here. Do **not** create `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at scaffold. Specialist notes from step 8 stay in the parent until step 9. Do **not** create `memory-bank/` under the feature path.
+5. **Navigation `## Related` (REQ-009):** On each FEATURE / CONTINUITY Write, emit/refresh `## Related` per `STORAGE.md` § Navigation block — bidirectional among siblings **that exist**. **Omit-if-absent** — never stub story folders, PRD/PLAN, or empty siblings solely for links. Title exactly `## Related`; portable paths only.
+
+## Open-question gate (before step 9)
+
+Step 9 is the only step that creates story folders. Refuse to run it while `FEATURE.md` has any unanswered question, including `MINOR`. Stop code: `open_question` (`readiness-severity.md` § Open-question gate). Load `refine-story/references/feature-research.md` at step 8c and update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md` § orchestrate-analyze step 8c. Do not call step 9 when the stop code applies.
+
+A blocked feature does not leave partial `USnn` / `TSnn` / Bug folders behind.
 
 See also § Feature tree layout.
 
@@ -110,7 +117,7 @@ Present backlog only after merge/split pass **and** product artifact quality gat
 
 ## Product artifact quality gates (before human backlog gate)
 
-**Hard gates** (REQ-004 / CA1 / CA2 / CA4). Run after merge policy, after draft FEATURE/STORY writes are ready for review, and **before** Step 10 human backlog approval. Any fail → status stays `draft`; **do not** present RN01 approval. No secrets/PII in gate messages (paths + field names only).
+**Hard gates** (REQ-004 / CA1 / CA2 / CA4). Run after merge policy, after draft FEATURE/STORY writes are ready for review, and **before** Step 10 human backlog approval. Any fail → status stays `draft`; **do not** present RN01 approval. No secrets/PII in gate messages (paths + field names only). Render gate messages in the user chat language (`LANGUAGE.md`). The samples below state the meaning.
 
 Order: **FEATURE depth (TE01)** → **Promotion (TE02)** → **Cap (RN03)** → field completeness (STORY/Evidence).
 
@@ -199,19 +206,26 @@ Template: `skills/_shared/templates/features/story/STORY.md`. Use `generate-stor
 
 ## Process — Synthesize artifacts
 
+Refuse this process while `FEATURE.md` still has an open question (`open_question`). Do not create story folders in that case.
+
 1. Lazy-load per § Lazy-load table (start with `story-sizing.md` + templates; load `anti-task-shatter.md` before promotion).
 2. Apply **Story sizing merge policy** (§ above) before writing final FEATURE story index.
-3. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
+3. Create N story folders (`USnn`, `TSnn`, or Bug) and the FEATURE **Histórias** table. Cap ≤4 and the rationale rule in `feature-altitude.md` still apply. Under each new story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true. `REFINE/` stays optional. Do **not** create `PRD/` / `PLAN/`.
+4. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
 
-**FEATURE.md** — Problem, Goals, Non-goals, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
+**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
 
 **CONTINUITY.md** — phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
 
-**STORY.md** per **promoted** US/TS only — deep template structure; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
+**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
-4. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
-5. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
+5. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
+6. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
 
 PLAN magro (O2): bodies stay in bank/ARCH/ANALYSIS; PLAN cites the canonical path — if that path is missing, create the canonical file first.
+
+## Story shape
+
+Do not classify the whole feature as a User Story by default. Each story needs an actor, a value, and a result, or an explicit technical reason when it is a Technical Story or a Bug. Keep a matrix from each feature requirement to the story that covers it. Do not attach an 80/100 score.
 
 See also § CONTINUITY update checklist and § Story sizing merge policy.

@@ -33,8 +33,9 @@ When entities, migration need, or vendor options are ambiguous: ask the **parent
 
 ## Write targets
 
-- Story `ANALYSIS/` and/or `ARCH/` DB slice (**folder on disk**).
-- Open decisions (options, owner, do not close) belong in `ANALYSIS/` — do **not** pick a vendor alone.
+- Before `orchestrate-analyze` step 9, return the DB note to the parent. Do not create the story folder in that pass.
+- After step 9, or when the story folder already exists: story `ANALYSIS/` and/or `ARCH/` DB slice (**folder on disk**).
+- Open decisions (options, owner, do not close) belong in `ANALYSIS/` once that folder exists — do **not** pick a vendor alone.
 
 ## Must not
 
@@ -47,6 +48,10 @@ When entities, migration need, or vendor options are ambiguous: ask the **parent
 ## Axis B (model)
 
 Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT-MODEL.md` Axis C gate + explicit user approval. Publish honesty: `adapters/_shared/spawn-publish-honesty.md`.
+
+## Return — findings
+
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return **zero or more** finding blocks: id, severity `B` | `I` | `MINOR`, finding type, section, portable evidence path or `no-evidence`, recommendation. A summary is not the only product. Without evidence, do not mark the finding resolved. Do not write application code.
 
 ## Full prompt
 

@@ -34,7 +34,8 @@ When auth boundary, threat actor, or in-scope paths are ambiguous: ask the **par
 
 ## Write targets
 
-- Story `SEC/` notes (**folder on disk**).
+- Before `orchestrate-analyze` step 9, return the `SEC/` note to the parent. Do not create the story folder in that pass.
+- After step 9, or when the story folder already exists: story `SEC/` notes (**folder on disk**).
 - CONTINUITY may point at `SEC/` only; it is not a substitute.
 
 ## Must not
@@ -48,6 +49,10 @@ When auth boundary, threat actor, or in-scope paths are ambiguous: ask the **par
 ## Axis B (model)
 
 Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT-MODEL.md` Axis C gate + explicit user approval. Publish honesty: `adapters/_shared/spawn-publish-honesty.md`.
+
+## Return — findings
+
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return **zero or more** finding blocks: id, severity `B` | `I` | `MINOR`, finding type, section, portable evidence path or `no-evidence`, recommendation. A summary is not the only product. Without evidence, do not mark the finding resolved. Do not write application code.
 
 ## Full prompt
 

@@ -26,7 +26,7 @@ features/NNN-slug/
 
 `NNN` in PRD/PLAN filenames **matches** feature `NNN`. Prefer short English slug per story.
 
-Artifact prose default **pt-BR**; identifiers and skill names **English**.
+Artifact prose follows the user chat language (`LANGUAGE.md`). Identifiers and skill names stay English. Do not hard-code a locale.
 
 ---
 
@@ -58,18 +58,27 @@ features/NNN-slug/{USnn|TSnn}/PLAN/PLAN_NNN_*.md
 
 **Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate.
 
-**Per-story readiness STOP (REQ-005 / TE01):** if open questions carry severity **B** or **I** (see `readiness-severity.md` / `clarify-depth.md`): **STOP** that story — do **not** Write PRD/PLAN; emit typed `NEEDS_CLARIFICATION` handoff with portable paths; route to `refine-story` / O1. **MINOR** alone does not block. Folder presence ≠ READY (**RN02**).
+**Per-story readiness STOP:** any unanswered question on the required story files, including `MINOR`, stops that story with `open_question`. Do not write the PRD. Folder presence ≠ READY (**RN02**). The max-3 gap-question cap does not apply to this gate.
+
+Order per story. Do not jump from spec to plan.
+
+1. Check `STORY.md` and the `ANALYSIS/`, `ARCH/`, and `SEC/` folders required by `needs_*`. Run the same research as `refine-story/references/feature-research.md`. An open question in any of those files stops **this** story with `open_question`. Do not write the PRD. A stuck story does not erase the others and does not re-slice the feature.
+2. `sdd-spec` writes the PRD under `features/NNN-slug/{USnn|TSnn}/PRD/`. Then run the contestation in `refine-story/references/tech.md` § Story PRD contestation on that PRD. An open question means the PRD is not accepted. Do not call the plan.
+3. Only then `sdd-plan`.
+
+The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask every open question.
 
 | Stage | Contract | Must follow |
 |-------|----------|-------------|
-| Spec | `sdd-spec` | Confirm-before-write; pt-BR PRD; no PLAN; no app code; `## Related` (REQ-009) |
-| Plan | `sdd-plan` | Requires PRD on disk; baby-step PLAN; no app code; PRD↔PLAN mutual Related |
+| Story files | `feature-research.md` | Required siblings; any open question, including `MINOR`, stops this story |
+| Spec | `sdd-spec` | PRD in the chat language; no PLAN in this stage; no app code; `## Related` (REQ-009); contestation before the PRD is accepted |
+| Plan | `sdd-plan` | Only after the PRD has no open question; two self-reviews and the preview before write; the parent does not accept a PLAN that skipped them; the parent does not rewrite the plan sections |
 
 **Navigation (REQ-009 / CA3):** Parent Writes of PRD/PLAN **MUST** honor `sdd-spec` / `sdd-plan` Related obligations (`STORAGE.md` § Navigation block). Classic minimum: **PRD ↔ PLAN** mutual portable-path cite when both exist; cite **STORY** if on-disk; upward FEATURE / CONTINUITY only when present. **Omit-if-absent** — never stub siblings solely for links. After each story lands, refresh CONTINUITY / FEATURE / STORY Related edges for new PRD/PLAN paths (still paths-only — not a second navigation SoT).
 
-**Série:** for story S: load `sdd-spec` -> write PRD after **sim** -> load `sdd-plan` -> write PLAN after **sim** -> optional per-story approval -> next story.
+**Série:** for story S, run the three steps above. **sim** does not skip an open question. Then optional per-story approval, then the next story.
 
-**Paralelo (native only):** when `subagents=native`, spawn Task with prompt that: (1) reads story siblings + **memory-bank path** (read-only, selective), (2) drafts PRD then PLAN content for **that story only** (in the Task return - markdown bodies or structured sections), (3) returns **intended** paths + 5-bullet summary + draft text, (4) **must not** `Write` PRD/PLAN to disk. Parent aggregates drafts -> presents for approval -> on **sim**, parent runs `sdd-spec` / `sdd-plan` contracts and performs the only disk writes. Else (**fallback**): run série **in-parent** — do not hard-fail for missing Task.
+**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Task is unavailable, run série in-parent. Do not hard-fail.
 
 Respect story **deps**: do not parallelize a story before its dependency stories have PRD+PLAN (or user explicitly waives). Waive-deps is for **story order** only — not for missing `SEC/` / `ARCH/` / `ANALYSIS`.
 
@@ -82,7 +91,7 @@ See also § Contract reuse + § Task child prompt skeleton + § Per-story path l
 Give each child:
 
 1. Full story path + feature path
-2. Instruction: draft PRD then PLAN content for **this story only** using `sdd-spec` / `sdd-plan` structure - **do not** `Write` files to disk
+2. Instruction: draft only the artifact the current gate allows for **this story**. Do not draft a PLAN while the PRD still has an open question. **Do not** `Write` files to disk.
 3. Prior-context files to Read (list paths; do not paste bodies)
 4. Intended canonical paths for PRD and PLAN (for the return payload)
 5. Return format: `{ storyId, prdPath, planPath, prdDraft, planDraft, bullets[≤5], blockedReason? }`

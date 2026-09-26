@@ -74,6 +74,7 @@ Total: **41** kebab skills.
 | `code-review` | `code-review` | Structured review (quality / acceptance / security) |
 | `repair-dotnet-build` | `repair-dotnet-build` | Diagnose/fix .NET build and tests |
 | `test-coverage` | `test-coverage` | .NET Coverlet coverage report |
+| `run-tests` | `run-tests` | Run detected-stack tests; .NET coverage only when the PLAN asks |
 | `commit` | `commit`, `commit changes` | Conventional commit on a valid feature branch |
 | `push` | `push`, `push changes` | Safe git push after confirmation |
 | `open-github-pr` | `open-github-pr` | Create GitHub PR via `gh` |

@@ -139,11 +139,11 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Deliver then runs `sdd-spec` and `sdd-plan` per approved story (series in the parent, or parallel drafts). Develop runs one `sdd-develop` step per child. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You answer **sim** before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
 
-Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). Open clarification **B** or **I** stops PRD/PLAN writes (`NEEDS_CLARIFICATION`). **MINOR** may remain. Readiness is not `step_confirmed`. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). Outside those gates, open **B** or **I** stops PRD/PLAN writes (`NEEDS_CLARIFICATION`) and **MINOR** may remain. Readiness is not `step_confirmed`. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
 
 Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
 
@@ -213,7 +213,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**41** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**42** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

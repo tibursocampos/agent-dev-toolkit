@@ -6,7 +6,7 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **41** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **42** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
 `/hooks` do Codex e `/hooks-trust` do Grok são telas de confiança de hooks. Não são atalhos de skill. O Codex não tem a flag `$skill --menu`. O seletor `$` / `/skills` é o menu do produto.
 
@@ -33,8 +33,8 @@ Feature
         ├─ um arquivo trivial → /developer (só se você escolher esse atalho)
         ├─ uma story já clara → sdd-spec
         └─ backlog aprovado → orchestrate-deliver
-              └─ sdd-spec e depois sdd-plan por story → orchestrate-develop
-                    └─ um passo sdd-develop por filho → code-review ou commit
+              └─ arquivos da story, sdd-spec, contestação do PRD, sdd-plan → orchestrate-develop
+                    └─ um passo sdd-develop por filho → code-review, run-tests, security
 ```
 
 ### Orchestrated Delivery
@@ -45,11 +45,11 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifica, pergunta, define `needs_*`, chama especialistas quando as flags exigem e espera o **sim** do backlog. Deliver roda `sdd-spec` e `sdd-plan` por story aprovada (série no pai, ou rascunhos em paralelo). Develop roda um passo de `sdd-develop` por filho. Gates, pastas e confirmações: [Entrega orquestrada](orchestrated-delivery.md).
+Analyze classifica, pergunta, define `needs_*`, chama especialistas quando as flags exigem e espera o **sim** do backlog. As pastas de story esperam a feature sem pergunta aberta. Deliver confere os arquivos de cada story, roda `sdd-spec`, contesta esse PRD e roda `sdd-plan`. Develop roda um passo de `sdd-develop` por filho. Gates, pastas e confirmações: [Entrega orquestrada](orchestrated-delivery.md).
 
 Quando o analyze define greenfield ou `needs_domain` e não há estilo de ARCH, o papel de roster **architect** devolve um rascunho. Você responde **sim** antes de o estilo ser aprovado. Brownfield espelha o estilo existente. O pai permanece coordenador.
 
-Clarificação aberta **B** ou **I** impede a escrita de PRD e PLAN (`NEEDS_CLARIFICATION`). **MINOR** pode permanecer. Prontidão não é `step_confirmed`.
+Nos quatro gates de pergunta aberta, qualquer pergunta sem resposta, inclusive **MINOR**, impede o próximo artefato (`open_question`). Fora desses gates, clarificação aberta **B** ou **I** impede a escrita de PRD e PLAN (`NEEDS_CLARIFICATION`) e **MINOR** pode permanecer. Prontidão não é `step_confirmed`.
 
 ### Classic SDD direto
 
@@ -102,9 +102,9 @@ split-story-checklist - features/NNN-slug/US01/STORY.md
 
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
 
-Enquanto **B** ou **I** permanecerem, não faça handoff para `sdd-spec`. **MINOR** pode permanecer. Pronto para spec não é `step_confirmed`.
+Enquanto houver pergunta aberta no gate da feature, dos arquivos da story, do PRD ou do PLAN, inclusive **MINOR**, não faça handoff para `sdd-spec`. Fora desses gates, **MINOR** pode permanecer. Pronto para spec não é `step_confirmed`.
 
-`split-story-checklist` precisa de **Steps** estruturados já existentes. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Ela pergunta **pt-BR** ou **English** uma vez antes de escrever. Uma feature `trivial` não ganha arquivo de tarefas só para satisfazer um gate. `medium` e `complex` precisam do checklist antes do handoff.
+`split-story-checklist` precisa de **Steps** estruturados já existentes, salvo quando `sdd-plan` a chama com `source=prd`. Aí ela monta grupos a partir do PRD. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Uma invocação direta pergunta o idioma da documentação uma vez, no idioma do chat, antes de escrever. Uma chamada orquestrada não pergunta. Uma feature `trivial` não ganha arquivo de tarefas só para satisfazer um gate, salvo quando quem chama é `sdd-plan`, que ainda recebe um passo. `medium` e `complex` precisam do checklist antes do handoff.
 
 ### Mudança pequena de stack
 
@@ -164,17 +164,20 @@ Greenfield propõe um estilo e escreve o ARCH final só depois do **sim**. Brown
 
 ```text
 code-review
+run-tests
 test-coverage
 commit
 push
 open-github-pr
 ```
 
-`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. O alvo padrão de cobertura é 80% de linhas em arquivos de produção alterados, quando há alvo. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. A revisão é recomendada depois do O3. Ela não bloqueia o pipeline sozinha.
+`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. Quando um escopo do O3 fecha, `run-tests` roda em seguida, depois a passagem de security, depois `/commit` e `/push`.
 
-`test-coverage` é Coverlet para .NET. Limiar padrão **80**. Escreve `TestResults/CoverageReport/`. Não bloqueia merge sozinha. `code-review` aplica o limiar. Uma falha vai para `/dotnet-developer` ou `/sdd-develop`. Um build quebrado vai para `/repair-dotnet-build`.
+`run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
 
-`repair-dotnet-build` usa `dotnet build` / `dotnet test` local, ou um log colado. Não chama uma API de CI remota. Cada edição proposta espera confirmação.
+`test-coverage` é Coverlet para .NET. Limiar padrão **80**. Escreve `TestResults/CoverageReport/`. Não bloqueia merge sozinha. `code-review` aplica o limiar. Uma falha vai para `/dotnet-developer` ou `/sdd-develop`. Um build quebrado vai para `/repair-dotnet-build`. `run-tests` chama essa skill só quando o PLAN pede cobertura.
+
+`repair-dotnet-build` usa `dotnet build` / `dotnet test` local, ou um log colado. Não chama uma API de CI remota. Um erro por vez, só .NET. Cada edição proposta espera confirmação.
 
 `refactor` é um passo seguro com os testes ainda verdes. Não mistura features nem correções de bug. Sem auto-commit.
 

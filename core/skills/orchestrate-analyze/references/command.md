@@ -12,10 +12,11 @@
 | 4 | Step 0 Memory Bank Gate (`auto`) | `references/memory-bank-gate.md`; `MEMORY-BANK.md` |
 | 5 | Collect description and triage (`needs_*`) | `references/triage.md`; `ROSTER.md` |
 | 6 | Trivial shortcut (optional exit) | `references/triage.md` § Trivial |
-| 7 | Allocate NNN-slug; scaffold feature tree | `references/story-synthesis.md` |
-| 8 | Spawn Task specialists (SPAWN; omit model) | `references/spawn-map.md`; `SPAWN.md` |
-| 8b | Architecture confirm gate | `references/arch-confirm.md` |
-| 9 | Synthesize FEATURE / CONTINUITY / STORY; run product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4) | `references/story-synthesis.md`; lazy `anti-task-shatter.md` / `feature-altitude.md` |
+| 7 | Allocate NNN-slug; scaffold `FEATURE.md` and `CONTINUITY.md` only (no story folders) | `references/story-synthesis.md` |
+| 8 | Spawn Task specialists (SPAWN; omit model). Return notes to the parent. Do not create story folders until step 9 | `references/spawn-map.md`; `SPAWN.md` |
+| 8b | Architecture confirm gate. Return the ARCH draft to the parent until step 9 | `references/arch-confirm.md` |
+| 8c | Feature research on `FEATURE.md` only. Show `LIVE-STAGE-TABLE.md`. If `open_question`, stop. Do not run step 9 | `refine-story/references/feature-research.md`; `readiness-severity.md` § Open-question gate; `LIVE-STAGE-TABLE.md` |
+| 9 | Synthesize story folders only when FEATURE has no open question. Then FEATURE / CONTINUITY / STORY and product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4) | `references/story-synthesis.md`; lazy `anti-task-shatter.md` / `feature-altitude.md` |
 | 10 | Human backlog approval (**sim**) — only if gates passed | `references/process-common.md` § Backlog approval |
 | 11 | Approve → CONTINUITY + O2 handoff | `references/boundaries-handoff.md` |
 | 12 | Context pressure / resume | `references/process-common.md` § Context pressure |

@@ -15,4 +15,14 @@ Summarize **impact** for the parent orchestrator (O1).
 | Data | Persistence impact yes/no |
 | Compat | Breaking change risk |
 
-Max 15 lines. Paths only - no guideline paste.
+No line cap. No application code. Do not write a step plan.
+
+End with three lines:
+
+```text
+Scope: <modules touched>
+DB changes: <yes or no, with the schema evidence>
+Risk: <breaking change or none>
+```
+
+Cover blast radius, schema, dependency, and breaking change.

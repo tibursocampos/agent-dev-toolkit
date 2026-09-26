@@ -42,14 +42,17 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 
 ---
 
-## Handoff copy (pt-BR / strings)
+## Handoff copy
 
 ```text
-## Handoff O3 -> review ou commit
+## Handoff O3
 
-US/feature concluído. Próximo?
-1) /code-review (single ou multi-ângulo)
-2) /commit
+Scope closed. Next, in order:
+1) /code-review
+2) /run-tests
+3) security review on the diff
+4) /commit
+5) /push
 
 ## Continuar develop manual (alternativa a O3)
 /sdd-develop - <portable-plan-path> - Step {N}
@@ -58,7 +61,7 @@ US/feature concluído. Próximo?
 /orchestrate-develop - <portable-feature-path>
 ```
 
-Ask **code-review vs commit**; never assume. Never required as pipeline gate.
+At scope close the order is required: `code-review`, then `run-tests`, then the `security` agent, then ask `/commit`, then ask `/push` separately. Do not offer code-review versus commit in the middle of the steps. Render the prompt in the user chat language.
 
 ### Before `/commit` from O3
 

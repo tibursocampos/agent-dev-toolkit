@@ -72,3 +72,5 @@ Score immediately after generating the markdown. Maximum **100** points. Portabl
 | 0 | 0 / blank |
 
 Minimum AC budget (happy + rule/edge + failure with observable Then) must hold before Product depth can score above **6**.
+
+Do not invent a baseline, a target, or a date when the source did not bring one.

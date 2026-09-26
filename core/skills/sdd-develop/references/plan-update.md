@@ -1,5 +1,7 @@
 ## PLAN update protocol
 
+Mark `IN_PROGRESS` and re-read the PLAN before editing code. On failure, set `BLOCKED` with the evidence and leave dependents `PENDING`. Resume `BLOCKED` only when that evidence is no longer in the file. `COMPLETED` only with this step's acceptance and tests. No duration.
+
 After the step’s code and targeted tests pass, edit the PLAN file in place (repo or global path).
 
 ### 1. Step block
@@ -9,7 +11,7 @@ Update the completed step section:
 | Field | Value |
 |-------|--------|
 | Heading marker | Change `⏳` to `✅` in the step heading (optional) |
-| **Status:** | `Completed` |
+| **Status:** | `COMPLETED` |
 | **Completed:** | `YYYY-MM-DD` |
 | Notes | Short bullet list: what was done, test count, caveats |
 
@@ -18,7 +20,7 @@ Example:
 ```markdown
 ### ✅ STEP 1: Add domain property
 
-**Status:** Completed | **Completed:** 2026-05-21 | **Deps:** none
+**Status:** COMPLETED | **Deps:** none
 
 **Implementation notes:**
 - Added nullable property and setter validation on Entity
@@ -73,10 +75,14 @@ If an objective (O1, O2, …) is fully satisfied by this step alone, mark its ch
 - Build or targeted tests still failing
 - User chose not to commit and step acceptance requires pushed commit (rare - note in PLAN)
 - Dependency steps incomplete
-- Session ended at context ≥ 40% **before** PLAN write - still write PLAN with **In progress** or leave Pending and note partial work in notes
+- Session ended at context ≥ 40% **before** PLAN write - still write the PLAN with **Status:** `IN_PROGRESS` or leave `PENDING` and note the partial work
 
 ### 8. Recovery
 
-If a session crashed mid-step: set **Status:** `In progress`, list files touched in notes, resume in a new chat with the same step number.
+If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched in notes, resume in a new chat with the same step number.
+
+### 9. Single edit
+
+One edit covers the ledger, the counters, and the checkpoint. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
 
 ---

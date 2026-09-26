@@ -38,19 +38,17 @@ Set complexity / nature / scope and `needs_*` per **Triage decision table** abov
 
 ## Process — Trivial shortcut
 
-If `trivial`: recommend skipping full O1 write:
+If `trivial`: recommend skipping full O1 write. Render the prompt in the user chat language. Keep the option ids.
 
 ```text
-Escopo trivial. Prefere atalho?
+Trivial scope. Prefer the shortcut?
 
-1) /developer  (ou *-developer do stack)
-2) Continuar O1 mesmo assim (gravar feature tree)
-3) cancelar
+1) /developer  (or the stack *-developer)
+2) Continue O1 anyway (write the feature tree)
+3) cancel
 ```
 
-Only continue to allocate/scaffold if the user explicitly chooses **2**.
-
----
+Only continue to allocate/scaffold if the user explicitly chooses **2**. Choosing **1** does not create story folders and does not present a partial backlog. If the feature still has an open question, the shortcut must not pretend the backlog exists. Either step 8c closes the FEATURE, or this shortcut stays a developer handoff with no `USnn` / `TSnn` / Bug folders.
 
 ## Example: NuGet brownfield triage (short)
 

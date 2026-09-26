@@ -57,6 +57,8 @@ Readiness **READY** ≠ PLAN step Completed. Do **not** overload PLAN step statu
 
 At an O2 Write boundary (PRD/PLAN) or refine equivalent (fake-forward “approved for PRD” while B/I remain):
 
+The paragraph above is the **global** READY rule. It does **not** change the severity table. At the four gates in § Open-question gate, an unanswered question blocks the write, including `MINOR`. Stop code: `open_question`. The B/I-only handoff applies only outside those four gates.
+
 1. **STOP** Write of PRD/PLAN (and do not claim backlog/PRD readiness).
 2. Emit typed handoff: status **`NEEDS_CLARIFICATION`** + **portable** artifact paths (`STORAGE.md` § Portable path) + short severity list (few sharp questions — align `clarify-depth.md`).
 3. Route to `refine-story` and/or O1 light — **not** a new Supply `clarify` skill clone.
@@ -84,6 +86,23 @@ Next: answer B/I → re-check READY → then O2 Write / sdd-spec
 
 When **READY**: proceed with Write; list remaining MINOR as recorded assumptions if useful.
 
+## Open-question gate
+
+This section does **not** change the global severity table above. Outside the four gates below, **MINOR** still does not block READY and may remain as a recorded assumption.
+
+These four write gates use stop code **`open_question`**. At each of them, any unanswered question blocks the next artifact. That includes severity **MINOR**. On this chain, **MINOR** does not proceed on an assumption.
+
+| Gate | Moment | What stays blocked |
+|------|--------|--------------------|
+| O1 feature gate | `orchestrate-analyze`, before any story folder | Next artifact while FEATURE has an open question |
+| O2 story-files gate | Before the PRD of that story | PRD while required STORY, `ANALYSIS/`, `ARCH/`, or `SEC/` has an open question |
+| PRD gate | Before the PLAN of that story | PLAN while that story's PRD has an open question |
+| PLAN gate | Before persisting the PLAN | PLAN write while a question on that plan is still unanswered |
+
+Close a question only with cited evidence (a portable path, `STORAGE.md`) or an explicit user answer recorded against the question id. Silence does not close a question. "I do not know" leaves the question open. A specialist recommendation is not a close.
+
+Finding shape: `refine-story/references/finding-format.md`. A blocked story does not erase sibling stories and does not re-slice the feature.
+
 ## Consumers (skill-text this US)
 
 | Skill / ref | Obligation |
@@ -110,4 +129,5 @@ When **READY**: proceed with Write; list remaining MINOR as recorded assumptions
 - [ ] READY definition: zero open B/I; MINOR allowed
 - [ ] Dual plane: readiness ≠ `step_confirmed` / impl Complete
 - [ ] Open B/I at O2/refine boundary → STOP Write + `NEEDS_CLARIFICATION` + portable paths
+- [ ] At the four Open-question gates, any unanswered question (including `MINOR`) stops with `open_question`
 - [ ] Sibling folder present ≠ READY

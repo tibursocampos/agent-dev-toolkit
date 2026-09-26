@@ -4,11 +4,11 @@ This is the complete feature path. Three skills run in order. Each one refuses t
 
 | Phase | Skill | Writes | Does not write |
 |-------|--------|--------|----------------|
-| O1 explore | `orchestrate-analyze` | `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, specialist folders | PRD, PLAN, application code |
+| O1 explore | `orchestrate-analyze` | `FEATURE.md`, `CONTINUITY.md`, then story folders and `STORY.md` only after the feature has no open question | PRD, PLAN, application code |
 | O2 specify and plan | `orchestrate-deliver` | One PRD and one PLAN per approved story, plus brownfield `CHANGE.md` | Application code |
 | O3 apply | `orchestrate-develop` | Nothing in the parent. Each child implements **one** PLAN step | The parent’s own code edits |
 
-O2 does not invent a shorter spec. It loads `sdd-spec`, then `sdd-plan`, once per story. O3 does not invent an implementer. Each child loads `sdd-develop` for one step. Those three Classic SDD skills are documented in [02](02-classic-sdd.md). A single clear story can still enter them directly. A multi-story, brownfield, or unclear feature stays on this path so specialists, questions, and approval gates run before any PRD.
+O2 does not invent a shorter spec. For each story it closes the story files, loads `sdd-spec`, contests that PRD, then loads `sdd-plan`. A question that is still open, including **MINOR**, stops that story. O3 does not invent an implementer. Each child loads `sdd-develop` for one step. Those three Classic SDD skills are documented in [02](02-classic-sdd.md). A single clear story can still enter them directly. A multi-story, brownfield, or unclear feature stays on this path so specialists, questions, and approval gates run before any PRD.
 
 Contracts: `core/sdd/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Feature root: `features/NNN-slug/`. Memory bank: repository `memory-bank/` or the global classic path. Never under the feature folder.
 
@@ -19,15 +19,17 @@ memory-bank-init (Step 0, policy auto)
         │
         ▼
 orchestrate-analyze
-  intent → questions → needs_* → specialists → story gates → sim
+  intent → questions → needs_* → specialists → feature research
+  story folders only if no open question → sim
         │
         ▼
 orchestrate-deliver
-  sdd-spec then sdd-plan per story → sim → preflight
+  story files → sdd-spec → contest the PRD → sdd-plan → sim → preflight
         │
         ▼
 orchestrate-develop
-  one sdd-develop child per PLAN step → code-review or commit
+  one sdd-develop child per PLAN step
+  → code-review → run-tests → security → commit → push
 ```
 
 The parent never writes application code. Roster: `core/skills/_shared/agents/ROSTER.md`. Spawn: [SPAWN.md](../SPAWN.md).
@@ -140,6 +142,8 @@ Optional stage notes: `impact`, `risk`, `generate-story` prompts. They do not ad
 
 This is the refine work. O1 does **not** invoke `/refine-story` and does **not** ask for feature/tech/split mode. It loads the shared backlog rules and the refine **scorecard rubric**, then writes `STORY.md`.
 
+Story folders are created only after `FEATURE.md` has no open question, including **MINOR**. Until then the skill updates `FEATURE.md` and `CONTINUITY.md` only. Specialist notes stay with the parent and are placed under the story when those folders are created.
+
 After specialist notes are merged:
 
 1. **Sizing** (`story-sizing.md`). One story is one verifiable outcome. Merge fragments that differ only by file or layer in the same context. Split when a story would exceed about eight refine steps, has independent consumers, or mixes outcomes.
@@ -147,7 +151,7 @@ After specialist notes are merged:
 3. **Cap.** At most four stories unless `FEATURE.md` rationale explains why more are required.
 4. **Product intent.** User stories get Who / Job / Outcome. Technical stories and bugs may be `n/a`.
 5. **FEATURE depth.** Problem (prose, not a file list), at least one goal, at least one non-goal, and evidence (path, redacted snippet, or an explicit omit). Empty fields keep status `draft`. The human approval prompt is not shown.
-6. **Story file.** Objective, out of scope, acceptance in three bands (happy path, rule or edge, failure) with an observable Then, dependencies, and a scorecard mapped from the refine rubric (/100 down to 1–5, including product depth).
+6. **Story file.** Type, objective, which feature acceptance criteria this story covers, out of scope, acceptance in three bands (happy path, rule or edge, failure) with an observable Then, dependencies, and a scorecard mapped from the refine rubric (/100 down to 1–5, including product depth). Do not score the whole feature as one user story by default.
 
 The human gate (**sim** / **ajustar** / **cancelar**) runs only after those gates pass and required folders exist. On **sim**, `CONTINUITY.md` records:
 
@@ -165,7 +169,7 @@ Step 0 memory bank runs again, then preconditions:
 
 - Discover `US*/STORY.md` and `TS*/STORY.md`. Skip a story that already has both PRD and PLAN unless the operator asks to refresh.
 - **Stop writing** if a required `ANALYSIS`, `ARCH`, or `SEC` folder is missing. Return to O1. A few gap questions do not replace that stop.
-- **Stop writing** if any open clarification of severity **B** (blocking) or **I** (important) remains on the feature, story, refine notes, or prior notes. **MINOR** may stay. Folder presence is not “ready”. Readiness is not the same flag as `step_confirmed`.
+- **Stop that story** if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. Outside those gates, **MINOR** may stay as a recorded assumption. **sim** does not close a question. Folder presence is not “ready”. Readiness is not the same flag as `step_confirmed`. A stuck story does not erase the others.
 
 Open B/I is `NEEDS_CLARIFICATION`. The handoff is `/refine-story` and/or `/orchestrate-analyze` on the feature path. The operator answers the question and re-enters O2. That is the case where standalone refine is pulled back in: a blocking question, not the normal way to start a feature.
 
@@ -175,8 +179,8 @@ The skill asks. It does not assume.
 
 | Choice | What happens |
 |--------|----------------|
-| Series | Parent runs `sdd-spec` then `sdd-plan` in this chat. Disk write only after each **sim** |
-| Parallel | One child per story, **draft only**, when `subagents=native`. Cap four. Parent is the only writer, after **sim** |
+| Series | For each story: story files, then `sdd-spec`, then a contest of that PRD, then `sdd-plan`. Disk write only after that gate is clear and **sim** |
+| Parallel | One child per story, **draft only**, one gate per wave, when `subagents=native`. Cap four. A PLAN is not drafted while that PRD still has an open question. Parent is the only writer, after **sim** |
 | Stop | No writes |
 
 If Task is unavailable, parallel falls back to series. Dependencies: finish stories that others depend on first, unless the operator waives **story order**. Missing `ANALYSIS` / `ARCH` / `SEC` cannot be waived.
@@ -219,7 +223,7 @@ Step 0 memory bank runs before the queue. Every child receives `bank_path` read-
 
 `serial` forbids a parallel wave. `parallel` needs an explicit **sim**, independent steps, and a distinct session file per child, cap four. `manual` does not spawn; it prints `/sdd-develop` lines only.
 
-`step_by_step` asks **sim** before each spawn. `continuous` may take the next ready step after the first queue **sim** without repeating the whole queue, and still claims the ledger and still runs one step per child.
+`step_by_step` asks **sim** before each spawn. `continuous` may take the next ready step after the first queue **sim** without repeating the whole queue, and still claims the ledger and still runs one step per child. The parent still shows each step’s summary. It does not stay silent between steps.
 
 ### One child, one PLAN step
 
@@ -234,26 +238,27 @@ The child follows [sdd-develop](02-classic-sdd.md): branch, code, targeted tests
 
 `verify_mode: true` in preferences adds a **read-only** verifier child after a successful implementer and before `CONTINUITY` is updated. Default is false.
 
-The parent updates `CONTINUITY.md` only after the child returns. Failure leaves the step pending. The next step is a new chat, or another **sim**. The parent does not mark steps the child did not finish, and does not call `*-developer` to implement a PLAN step. If Task is missing, the handoff is manual `/sdd-develop` for that step.
+The parent updates `CONTINUITY.md` only after the child returns. Failure leaves the step `PENDING` or `BLOCKED` with the cause in the PLAN. The next step is a new chat, or another **sim**. The parent does not mark steps the child did not finish, and does not call `*-developer` to implement a PLAN step. If Task is missing, the handoff is manual `/sdd-develop` for that step.
 
 ### After code exists
 
 When a child changed application files, O3 asks, then runs `memory-bank-init` **refresh-light**.
 
-When the story or feature is done, the skill asks **code-review** versus **commit**. Review options are in [05](05-review-and-quality.md). Review is recommended. It is not a gate that blocks the pipeline by itself. Before commit, if a bank or project docs exist, the operator is asked **sim** / **pular** for refresh and for docs. Silence does not skip that ask.
+When the story or feature is done, the order is `/code-review`, then `/run-tests`, then the `security` agent, then `/commit`, then `/push` as a separate ask. Review options are in [05](05-review-and-quality.md). `run-tests` runs the detected stack’s test command. `test-coverage` stays the .NET Coverlet report. Before commit, if a bank or project docs exist, the operator is asked **sim** / **pular** for refresh and for docs. Silence does not skip that ask.
 
 ## What this path reuses from other skills
 
 | Other skill | How Orchestrated Delivery uses it |
 |-------------|-----------------------------------|
 | `sdd-spec` | O2, per story, after **sim** |
-| `sdd-plan` | O2, after that story’s PRD is on disk |
+| `sdd-plan` | O2, after that story’s PRD has no open question. It copies step ids from `split-story-checklist`. It does not invent steps |
 | `sdd-develop` | O3 child, one PLAN step; or the manual line when Task is off |
 | `refine-story` rubric file | O1 scorecard on `STORY.md`. The refine skill’s mode question is not asked |
-| `refine-story` invoke | Open blocking questions (B/I), or a product person shaping one item outside a feature |
-| `split-story-checklist` limits | O1 may check the five-group cap. The checklist skill is not invoked |
+| `refine-story` invoke | An open question at those gates, or a product person shaping one item outside a feature |
+| `split-story-checklist` | Called by `sdd-plan` (`source=prd`) to write `REFINE/tasks.md`. O1 may still check the five-group cap |
 | `memory-bank-init` | Step 0 and O3 Step N |
-| `code-review` | Handoff when implementation of a story or feature is done |
+| `code-review` | First handoff when implementation of a story or feature is done |
+| `run-tests` | After `code-review`, before the security pass. Does not replace `test-coverage` |
 | `developer` / `*-developer` | Trivial triage shortcut only. Not the O3 implementer |
 | `read-sdd-artifact` | Normalizes a FEATURE, STORY, PRD, or PLAN path into `source_context` for a child. Not a fourth phase |
 

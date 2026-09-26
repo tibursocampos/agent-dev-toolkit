@@ -11,4 +11,6 @@
 
 Record answers before coding: naming language, async rules, Result vs exceptions, nullable style.
 
+A migration waits for the `database` specialist. A contract divergence goes back to `sdd-plan`.
+
 ---

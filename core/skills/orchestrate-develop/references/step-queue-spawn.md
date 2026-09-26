@@ -18,7 +18,7 @@ Story preference: finish one story’s PLAN before starting another unless user 
 
 For each PLAN:
 
-1. Parse pending steps (`⏳` / Status Pendente / unchecked).
+1. Parse pending steps (`PENDING`). Do not look for a localized synonym of pending.
 2. Respect **Deps:** only enqueue a step when dependency steps are **Concluídos** / **Completed**.
 3. Default order: one story at a time (finish story A before story B) unless user asks otherwise **and** stories are independent.
 

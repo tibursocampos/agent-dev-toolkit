@@ -13,3 +13,7 @@ Build a short **risk register** for CONTINUITY / FEATURE.
 | ... | L/M/H | L/M/H | ... |
 
 Max 8 rows. No corporate compliance filler.
+
+Also score migration and blast radius as `LOW`, `MEDIUM`, or `HIGH`. That score is not a duration.
+
+Matrix to cover: API, schema, auth, dependency.

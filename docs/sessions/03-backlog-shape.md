@@ -24,7 +24,7 @@ O1 does not ask “feature, tech, or split?”. That question belongs only to a 
 | O1 intent classified the input as one informal item or an idea | Early handoff to `/refine-story`, then re-enter O1 only if the result is multi-story or needs specialists |
 | Normal feature through analyze → deliver → develop | Neither skill is required |
 
-Readiness: no open **B** or **I**. **MINOR** may remain. Ready for a spec is not the same as a PLAN step being complete, and it is not `step_confirmed`.
+Readiness outside the four open-question gates: no open **B** or **I**. **MINOR** may remain. On the feature before story folders, on the story files before a PRD, on the PRD before a PLAN, and on the PLAN before it is saved, any unanswered question blocks, including **MINOR**. Ready for a spec is not the same as a PLAN step being complete, and it is not `step_confirmed`.
 
 ## `refine-story`
 
@@ -61,13 +61,13 @@ While **B** or **I** remain, do not hand off to `sdd-spec`.
 
 Trigger: `/split-story-checklist`, or refine mode `split`.
 
-Input must already contain structured **Steps** (or a bug’s suggested fix). No steps: stop and return to `/refine-story`.
+Input must already contain structured **Steps** (or a bug’s suggested fix), unless the caller is `sdd-plan` with `source=prd`. In that case the source is the closed story and PRD. No steps yet: build groups from the PRD `REQ` rows. Do not send the caller back to `/refine-story`.
 
 The checklist is SMART tasks under the **existing** story. It does not create new `USnn` or `TSnn` folders. Type (Bug, User Story, Technical Story) is written only on `STORY.md`.
 
-If feature complexity is `trivial`, do not write a tasks file just to satisfy a gate. `medium` and `complex` need the checklist before handoff.
+If feature complexity is `trivial` and the caller is not `sdd-plan`, do not write a tasks file just to satisfy a gate. `sdd-plan` still gets a one-step breakdown. `medium` and `complex` need the checklist before handoff.
 
-Language for the tasks file is asked once (**pt-BR** or **English**) before write.
+On a direct invoke, documentation language is asked once, in the chat language, before write. An orchestrated call uses the chat language and does not ask.
 
 Persistence:
 

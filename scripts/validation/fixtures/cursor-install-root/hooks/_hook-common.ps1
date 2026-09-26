@@ -104,7 +104,7 @@ function Test-SddSkillPrompt([string] $Prompt) {
     if ([string]::IsNullOrWhiteSpace($Prompt)) {
         return $false
     }
-    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|split-story-checklist|repair-dotnet-build|test-coverage|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
+    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
 }
 
 function Write-PreToolJson([hashtable] $Payload) {

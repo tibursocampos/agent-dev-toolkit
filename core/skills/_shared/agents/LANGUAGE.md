@@ -100,3 +100,7 @@ When spawning (native path or documented equivalent):
 | `SESSION.md` | Gates; operator prompts use user chat language |
 | `CONTRACT-PROVENANCE.md` | Agreed vs invented (orthogonal to locale) |
 | `memory-bank/conventions.md` | Bank mirror of chat / artifact / spawn language split |
+
+## Ids versus the reply
+
+Enum values and ids stay English. Text the user reads follows the chat language. Do not return a localized sentence as an internal id, and do not return an internal id as the sentence the user asked for.

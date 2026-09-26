@@ -1,5 +1,7 @@
 # Mode playbook: feature
 
+When `invocation_context=orchestrated`, do not ask the mode and load `references/feature-research.md`.
+
 **Load only when refine mode = `feature`.** Do not load `tech.md` or `split.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
 Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine. **Do not** create a parallel clarify skill (REQ-007).
@@ -47,7 +49,7 @@ Follow the type file **Output template** and **Writing guidelines**. Combine use
 
 Immediately after the markdown, score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load `gherkin-budget.md` + `invest-and-story-quality.md` (and `product-evidence-lite.md` when Evidence is discussed). Score **Product depth** and verify AC budget (**happy + rule/edge + failure**, observable Then). Show total / 100, strengths, and specific improvements. Map Product depth → STORY 1–5 per rubric.
 
-Refresh envelope `status` from open B/I (`interaction-envelope.md` + `readiness-severity.md`).
+Refresh envelope `status` from open questions. Outside the four open-question gates, READY means no open **B**/**I**. At those four gates, READY for the next artifact also requires no unanswered `MINOR` (`open_question`).
 
 ### 5. Validation (chat-only)
 
@@ -63,8 +65,8 @@ Follow `references/persistence.md`. Persist Q&A history when saving (`qa-history
 |-----------|------|
 | Break into implementation checklist | Offer mode `split` or `/split-story-checklist - <portable-story-path>` |
 | Multi-story / complex | `/orchestrate-analyze - <portable-feature-path>` |
-| READY for PRD (no open B/I) | `/sdd-spec - <portable-story-path>` |
-| NEEDS_CLARIFICATION | Answer B/I; cite `qa_history` portable path — do **not** claim ready-for-PRD |
+| READY for PRD (no unanswered question, including `MINOR`, at the open-question gate) | `/sdd-spec - <portable-story-path>` |
+| NEEDS_CLARIFICATION / `open_question` | Answer every open question; cite `qa_history` portable path — do **not** claim ready-for-PRD |
 | Small isolated change | `/developer` / stack `*-developer` |
 
 Boundary detail: `references/boundary.md`. Portable paths only (REQ-006 / RNF-002).

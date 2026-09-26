@@ -70,6 +70,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/<section>.md` |
 | Execution modes (serial/parallel/manual; queue/claim) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/execution-modes.md` |
 | plan-acquisition (REQ-008 / CA3) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-acquisition.md` |
+| Execution display (before each spawn and after each receipt) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/execution-display.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/develop-modes.md` |
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
@@ -129,7 +130,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Parse pending steps; respect Deps; resolve **execution mode** (`serial` default) and **develop pacing** (`step_by_step` default \| `continuous`); present queue; wait for **sim**. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/plan-contract.md`, and `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-SPAWN first; honor execution mode + develop pacing + PLAN-LEDGER claim (`Invoke-ExecutionModeGate` / `Invoke-PlanLedgerClaim`); one Task = one PLAN step = full `sdd-develop` contract (child re-runs `plan-acquisition`); omit Task `model` by default; fallback to manual `/sdd-develop` when Task unavailable. Parent updates CONTINUITY only after child returns. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/step-queue-spawn.md`, and `references/anti-bypass.md`.
+Load `sdd-develop/references/execution-display.md` before the spawn and after the receipt. Before the spawn, call `repo-analyst` and `architect`, plus `database` when the step or PLAN cites persistence. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
 
 ### 5.5 Post-implement verifier (opt-in)
 When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.
@@ -146,8 +147,8 @@ Update phase / Memory-bank / estado / handoff at each milestone. Read `reference
 ### 9. Step N - Memory Bank refresh-light (after code changes)
 When a child changed app files: confirm → `refresh-light` → CONTINUITY `refreshed` (or skip). Read `references/continuity-handoff.md` § Process — Step N refresh-light and `references/preconditions.md` § Step N - refresh-light.
 
-### 10. Handoff - code-review + manual alternative
-Emit review + manual `/sdd-develop` + continue O3 strings. Read `references/continuity-handoff.md` § Handoff copy.
+### 10. Handoff
+At scope close, in order: `code-review`, `run-tests`, `security`, then ask `/commit`, then ask `/push` separately. Read `references/continuity-handoff.md` § Handoff copy.
 
 ## Anti-bypass checklist (must enforce)
 
@@ -162,7 +163,7 @@ Enforce the full list in `references/must-not.md`. Critical always-on: no parent
 | Situation | Next |
 |-----------|------|
 | Next PLAN step | New chat -> `orchestrate-develop` **or** `sdd-develop - <plan> - Step N` |
-| Story/feature done | Ask **code-review** vs **commit** (`references/continuity-handoff.md`); Step N bank ask when app changed; docs **sim/pular** before commit when present |
+| Story/feature done | `code-review`, then `run-tests`, then `security`, then `/commit`, then `/push` (`references/continuity-handoff.md`) |
 | Missing PLAN | `orchestrate-deliver` / `sdd-plan` |
 | Prefer no orchestrator | Manual `sdd-develop` only |
 

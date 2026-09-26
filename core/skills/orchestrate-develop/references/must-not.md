@@ -10,7 +10,7 @@
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
 - Skip `Invoke-PlanLedgerClaim.ps1` when claim is required/absent because session gate already true (CT6)
 - Auto-commit / auto-push
-- Create external work-item tracker or org-only compliance content
+- Create external work-item tracker or org-only compliance content. That ban does not block the `security` agent on the diff at scope close.
 - Force multi-angle code-review
 - Introduce git worktrees for multi-US parallelism (MVP)
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)

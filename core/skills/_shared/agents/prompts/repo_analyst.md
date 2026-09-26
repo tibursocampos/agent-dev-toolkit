@@ -18,7 +18,7 @@ Map current code touchpoints, dependencies, and blast radius for the feature/sto
 
 ## Output
 
-Write concise notes under the story `ANALYSIS/` folder (or return markdown for the parent to save):
+When the parent is `orchestrate-analyze` before step 9, return the notes to the parent. Do not create a story folder in that pass. The parent writes `ANALYSIS/` at step 9, after the open-question gate. When the story folder already exists, write the note there:
 
 1. Entry points and modules likely touched
 2. Dependencies (packages, services, events)
@@ -31,3 +31,11 @@ Write concise notes under the story `ANALYSIS/` folder (or return markdown for t
 - No application code changes.
 - No org-only tooling unless the repo already uses it.
 - Keep under ~80 lines unless parent asks for depth.
+
+## Return — findings
+
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. A prose summary is not the only product.
+
+Each block has an id, severity `B` | `I` | `MINOR`, one finding type, a section, a portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation.
+
+Without a portable evidence path, do not mark the finding resolved. Do not write application code.

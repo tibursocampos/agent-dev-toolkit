@@ -1,6 +1,6 @@
 ﻿---
 name: orchestrate-deliver
-description: Orchestrated Delivery O2: run sdd-spec then sdd-plan per approved US/TS; human-approve PRD/PLAN; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
+description: Orchestrated Delivery O2: per story, close story files, then PRD, then PLAN; human-approve; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
 ---
 
 ## STOP - Read before ANY tool call
@@ -124,7 +124,7 @@ Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALY
 Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
-Run `sdd-spec` then `sdd-plan` per story (série in-parent, or paralelo draft-only children + parent Write after **sim**). Per-story STOP if required siblings missing or open **B**/**I**. Read `references/per-story-contracts.md`.
+For each story: story-file gate, then `sdd-spec`, then PRD contestation, then `sdd-plan`. An open question stops that story with `open_question`. Do not write the next artifact. Read `references/per-story-contracts.md`.
 
 ### 7. Approval - per story or batch (RN01)
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
