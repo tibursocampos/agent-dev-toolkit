@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **41** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **42** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -22,8 +22,8 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 |-------|-----------|---------|
 | `memory-bank-init` | Cria ou atualiza `memory-bank/`. Para quando o bank está escrito | `/memory-bank-init` |
 | `orchestrate-analyze` | Classifica, pergunta, define `needs_*`, aloca especialistas, aprova o backlog | `/orchestrate-analyze` |
-| `orchestrate-deliver` | Um PRD e um PLAN por story aprovada | `/orchestrate-deliver - features/NNN-slug/` |
-| `orchestrate-develop` | Um filho `sdd-develop` por passo do PLAN | `/orchestrate-develop - features/NNN-slug/` |
+| `orchestrate-deliver` | Arquivos da story, depois um PRD e um PLAN por story aprovada | `/orchestrate-deliver - features/NNN-slug/` |
+| `orchestrate-develop` | Um filho `sdd-develop` por passo do PLAN, depois revisão, testes e security | `/orchestrate-develop - features/NNN-slug/` |
 | `sdd-spec` | Um PRD. Uso direto quando uma story já está clara | `/sdd-spec - features/NNN-slug/US01/STORY.md` |
 | `sdd-plan` | Um PLAN ao lado desse PRD | `/sdd-plan - features/NNN-slug/US01/PRD/PRD_001_slug.md` |
 | `sdd-develop` | Exatamente um passo do PLAN | `/sdd-develop - features/NNN-slug/US01/PLAN/PLAN_001_slug.md - Step 1` |
@@ -55,6 +55,7 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 |-------|-----------|---------|
 | `code-review` | Revisa um branch. Não edita código | `/code-review` |
 | `test-coverage` | Coverlet .NET. Padrão 80% | `/test-coverage` |
+| `run-tests` | Testes da stack detectada. Não edita código | `/run-tests` |
 | `repair-dotnet-build` | Build ou teste local, ou um log colado | `/repair-dotnet-build` |
 | `refactor` | Um passo seguro de refactor | `/refactor` |
 | `performance-profile` | Um caminho quente, depois um micro-benchmark | `/performance-profile` |
@@ -72,4 +73,4 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 10 + 13 + 18 = 41. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 10 + 13 + 19 = 42. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

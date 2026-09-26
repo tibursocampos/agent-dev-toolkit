@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 41 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 42 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -33,11 +33,11 @@ Top-level folders:
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer`, `impeccable` |
-| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
+| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `run-tests`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
 | Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 
-Public catalog: [SKILLS.md](../SKILLS.md). Operator path: [sessions/README.md](../sessions/README.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`). The folder names above match the on-disk groups. The feature path is Orchestrated Delivery; `sdd-*` are the contracts it runs; `refine-story` is the standalone shape skill, and O1 uses its scorecard without invoking it.
+Public catalog: [SKILLS.md](../SKILLS.md). Operator path: [sessions/README.md](../sessions/README.md). Agents: `help-skills` → installed CATALOG + OPERATOR (do not load every `SKILL.md`). The folder names above match the on-disk groups. The feature path is Orchestrated Delivery; `sdd-*` are the contracts it runs; `refine-story` is the standalone shape skill, and O1 uses its scorecard without invoking it. Scope close calls `run-tests`. `test-coverage` stays the .NET Coverlet report.
 
 ### Placeholders
 
@@ -125,13 +125,15 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 | **READY** | No open **B** or **I** |
 | **NEEDS_CLARIFICATION** | Open **B** or **I** at a handoff boundary → **STOP** Write; typed handoff |
 
-**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). Selective PS1: `Assert-SiblingReadinessGate.ps1` / `Invoke-SiblingReadinessGate.ps1` (fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`).
+**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). Selective PS1: `Assert-SiblingReadinessGate.ps1` / `Invoke-SiblingReadinessGate.ps1` (fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`). That script still treats open **B**/**I** as `NEEDS_CLARIFICATION`. It does not change the table above.
+
+Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. **sim** does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
 
 ### Work tracks and internal contracts
 
 | Role | Call flow |
 |------|-----------|
-| **Orchestrated Delivery** | Step 0 → O1 → O2 (`sdd-spec` then `sdd-plan` per story) → O3 (one `sdd-develop` child per PLAN step) |
+| **Orchestrated Delivery** | Step 0 → O1 (story folders only after no open question) → O2 (story files, `sdd-spec`, contest the PRD, `sdd-plan`) → O3 (one `sdd-develop` child per PLAN step, then `code-review`, `run-tests`, `security`) |
 | **Classic SDD** | The same three contracts, invoked directly for one clear story |
 | **Backlog shape** | Rubric and sizing inside O1; `/refine-story` → `/split-story-checklist` for a single product item |
 
@@ -211,7 +213,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **41**).
+Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **42**).
 
 | Concern | Behavior |
 |---------|----------|

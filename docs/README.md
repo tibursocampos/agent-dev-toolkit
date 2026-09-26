@@ -9,7 +9,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [INSTALL.md](INSTALL.md) | Everyone | Prerequisites, clone, sync, live home, uninstall |
-| [sessions/README.md](sessions/README.md) | Everyone | How the 41 skills relate; start at Orchestrated Delivery |
+| [sessions/README.md](sessions/README.md) | Everyone | How the 42 skills relate; start at Orchestrated Delivery |
 | [guides/README.md](guides/README.md) | Daily usage | Entry decision |
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |

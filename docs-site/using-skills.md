@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **41** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **42** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Codex `/hooks` and Grok `/hooks-trust` are hooks-trust screens. They are not skill shortcuts. Codex has no `$skill --menu` flag. The `$` / `/skills` picker is the product menu.
 
@@ -33,8 +33,8 @@ Feature
         ├─ trivial one-file → /developer (only if you pick that shortcut)
         ├─ one already-clear story → sdd-spec
         └─ approved backlog → orchestrate-deliver
-              └─ sdd-spec then sdd-plan per story → orchestrate-develop
-                    └─ one sdd-develop step per child → code-review or commit
+              └─ story files, sdd-spec, contest the PRD, sdd-plan → orchestrate-develop
+                    └─ one sdd-develop step per child → code-review, run-tests, security
 ```
 
 ### Orchestrated Delivery
@@ -45,11 +45,11 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifies, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Deliver runs `sdd-spec` and `sdd-plan` per approved story (series in the parent, or parallel drafts). Develop runs one `sdd-develop` step per child. Gates, folders, and confirmations: [Orchestrated Delivery](orchestrated-delivery.md).
+Analyze classifies, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Story folders wait until the feature has no open question. Deliver checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Gates, folders, and confirmations: [Orchestrated Delivery](orchestrated-delivery.md).
 
 When analyze sets greenfield or `needs_domain` and no ARCH style exists, the **architect** roster role returns a draft. You answer **sim** before the style is approved. Brownfield mirrors the existing style. The parent stays coordinator.
 
-Open clarification **B** or **I** stops PRD and PLAN writes (`NEEDS_CLARIFICATION`). **MINOR** may remain. Readiness is not `step_confirmed`.
+On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). Outside those gates, open clarification **B** or **I** stops PRD and PLAN writes (`NEEDS_CLARIFICATION`) and **MINOR** may remain. Readiness is not `step_confirmed`.
 
 ### Direct Classic SDD
 
@@ -102,9 +102,9 @@ split-story-checklist - features/NNN-slug/US01/STORY.md
 
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
 
-While **B** or **I** remain, do not hand off to `sdd-spec`. **MINOR** may remain. Ready for a spec is not `step_confirmed`.
+While an open question remains at the feature, story-file, PRD, or PLAN gate, including **MINOR**, do not hand off to `sdd-spec`. Outside those gates, **MINOR** may remain. Ready for a spec is not `step_confirmed`.
 
-`split-story-checklist` needs structured **Steps** already. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. It asks **pt-BR** or **English** once before write. A `trivial` feature does not get a tasks file only to satisfy a gate. `medium` and `complex` need the checklist before handoff.
+`split-story-checklist` needs structured **Steps** already, unless `sdd-plan` calls it with `source=prd`. Then it builds groups from the PRD. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. A direct invoke asks documentation language once, in the chat language, before write. An orchestrated call does not ask. A `trivial` feature does not get a tasks file only to satisfy a gate, except when the caller is `sdd-plan`, which still gets one step. `medium` and `complex` need the checklist before handoff.
 
 ### Small stack change
 
@@ -164,17 +164,20 @@ Greenfield proposes a style and writes the final ARCH only after **sim**. Brownf
 
 ```text
 code-review
+run-tests
 test-coverage
 commit
 push
 open-github-pr
 ```
 
-`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. Default coverage target is 80% line coverage on changed production files when a target applies. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. Review is recommended after O3. It does not block the pipeline by itself.
+`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. When an O3 scope closes, `run-tests` runs next, then the security pass, then `/commit` and `/push`.
 
-`test-coverage` is .NET Coverlet. Default threshold **80**. It writes `TestResults/CoverageReport/`. It does not block merge by itself. `code-review` applies the threshold. A fail hands to `/dotnet-developer` or `/sdd-develop`. A broken build hands to `/repair-dotnet-build`.
+`run-tests` runs the test command of each detected stack and returns `PASS` or `FAIL`. It does not edit code. A check the repo does not have is `SKIPPED`.
 
-`repair-dotnet-build` uses a local `dotnet build` / `dotnet test`, or a pasted log. It does not call a remote CI API. Each proposed edit waits for confirmation.
+`test-coverage` is .NET Coverlet. Default threshold **80**. It writes `TestResults/CoverageReport/`. It does not block merge by itself. `code-review` applies the threshold. A fail hands to `/dotnet-developer` or `/sdd-develop`. A broken build hands to `/repair-dotnet-build`. `run-tests` calls it only when the PLAN asks for coverage.
+
+`repair-dotnet-build` uses a local `dotnet build` / `dotnet test`, or a pasted log. It does not call a remote CI API. One error at a time, .NET only. Each proposed edit waits for confirmation.
 
 `refactor` is one safe step with tests still green. It does not mix in features or bugfixes. No auto-commit.
 
