@@ -125,13 +125,13 @@ Manifest folders must resolve per `STORAGE.md` schema v2 (`features/` root).
 | Phase | Modes | Actions |
 |-------|-------|---------|
 | **A - Collect & draft** | Plan, Ask, Agent | Questions, `Read`/Glob/Grep, PRD/PLAN draft in chat, content approval |
-| **B - Persist** | **Agent** only | `Write` PRD/PLAN after § Confirm; `sdd-develop` code; `test-coverage` runs |
+| **B - Persist** | **Agent** only | `Write` PRD/PLAN after § Confirm; `sdd-develop` code; `test-coverage` and `run-tests` runs |
 
-| Mode | `sdd-spec` / `sdd-plan` | `sdd-develop` | `test-coverage` |
-|------|-----------------|-------------|-----------------|
-| Agent | Write after confirm | Allowed | Allowed |
-| Plan | Phase A only; no `Write`; never claim “saved” | Draft/analysis only; no `Edit` on code | Explain tests need Agent |
-| Ask | Same as Plan | Block code changes | Block test execution |
+| Mode | `sdd-spec` / `sdd-plan` | `sdd-develop` | `test-coverage` | `run-tests` |
+|------|-----------------|-------------|-----------------|-------------|
+| Agent | Write after confirm | Allowed | Allowed | Allowed |
+| Plan | Phase A only; no `Write`; never claim “saved” | Draft/analysis only; no `Edit` on code | Explain tests need Agent | Explain tests need Agent |
+| Ask | Same as Plan | Block code changes | Block test execution | Block test execution |
 
 ### Phase A complete - prompt user (pt-BR)
 
@@ -254,3 +254,4 @@ If validation fails, do not write - fix path or promote.
 | `rules/sdd-pipeline-guards.mdc` | Short always-on reminder |
 | `code-review` | Handoff to `sdd-spec` for new PRD; read-only SDD discovery |
 | `test-coverage` | Phase B / Agent for shell; report paths in `reference.md` |
+| `run-tests` | Phase B / Agent for shell; does not replace `test-coverage` |

@@ -96,6 +96,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 |-------|----------------|
 | `repair-dotnet-build` | Diagnose/fix local (or pasted CI) build/test failures. |
 | `test-coverage` | Coverlet report; threshold evaluation. |
+| `run-tests` | Does not edit code. Asks when the stack is not recognized. Does not replace `test-coverage`. |
 | `ef-add-migration` | Discovers startup project / DbContext / migrations folder. |
 | `scaffold-message-handler` | Collects requirements first; MassTransit / bus when detected. |
 | `refactor` | Incremental safe plan + tests. |

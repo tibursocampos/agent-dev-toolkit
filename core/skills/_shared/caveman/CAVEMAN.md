@@ -120,7 +120,7 @@ Resume caveman after the clear part is done.
 | `orchestrate-analyze`, `orchestrate-deliver` | **LITE** |
 | `document-plan`, `refine-story`, `memory-bank-init` | **LITE** |
 | `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
-| `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage` | **FULL** |
+| `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage`, `run-tests` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
 | Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
 | Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
