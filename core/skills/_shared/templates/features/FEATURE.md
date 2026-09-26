@@ -29,6 +29,16 @@ Observable outcomes for the initiative. Empty Goals fail FEATURE quality gates.
 
 Explicit out-of-altitude items (what this FEATURE will **not** solve). Empty Non-goals fail FEATURE quality gates.
 
+## Macro acceptance criteria
+
+Filled prose in this file follows the chat language (`LANGUAGE.md`). Ids and severity tokens stay English.
+
+| Id | Observable result | Condition | Failure |
+|----|-------------------|-----------|---------|
+| AC-01 | {{OBSERVABLE_RESULT}} | {{CONDITION}} | {{FAILURE}} |
+
+Each row needs an observable result, the condition under which it holds, and the failure when it does not. Do not leave a criterion that cannot be checked. Do not put a file checklist here.
+
 ## Evidence
 
 | Campo | Valor |
@@ -51,13 +61,21 @@ Short narrative after Problem/Goals (not a substitute for those fields).
 
 Omit the table when unknown — do not fabricate numbers (`product-evidence-lite.md`).
 
-## Perguntas em aberto (leves)
+## Decisions
 
-| Pergunta | Severity |
-|----------|----------|
-| {{OPEN_QUESTION}} | blocker \| high \| medium \| low |
+| question_id | decision_id | Decision | Status |
+|-------------|-------------|----------|--------|
+| {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | resolved |
 
-Few sharp questions only (`clarify-depth.md`). Omit section when none.
+One row per closed question. `question_id` and `decision_id` stay stable. Do not delete a prior decision when the file is updated; append history. Status token: `resolved` only for an explicit user answer or a cited portable evidence path.
+
+## Open questions
+
+| Id | Severity | Impact | Owner | Question |
+|----|----------|--------|-------|----------|
+| Q-001 | B \| I \| MINOR | {{IMPACT}} | Product \| Engineering \| UX | {{QUESTION}} |
+
+Severity tokens: `B`, `I`, `MINOR` (`readiness-severity.md` § Open-question gate). Owner: `Product`, `Engineering`, or `UX`. Any non-empty unanswered row blocks story folders (`open_question`). Silence does not close a row. "I do not know" leaves the row open.
 
 ## Histórias
 
@@ -66,6 +84,8 @@ Few sharp questions only (`clarify-depth.md`). Omit section when none.
 | US01 | US | {{STORY_TITLE}} | {{WHY_THIS_STORY}} | {{WHO_JOB_OUTCOME_OR_N_A}} | draft |
 
 `Product intent` = Who / Job / Outcome (or `n/a` for pure TS/Bug). See `skills/_shared/backlog-item-types/persona-context.md`. `Rationale` = why this story is separate (sizing / anti-task-shatter). Cap ≤4 US/TS unless rationale is explicit (`feature-altitude.md`).
+
+The table may stay empty until the open-question gate passes. Do not add story rows while an open question remains on this FEATURE.
 
 ## Flags (`needs_*`)
 

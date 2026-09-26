@@ -12,6 +12,7 @@ Scorecard includes **Story scope**, **Product depth**, and AC budget happy/rule/
 |---------|------|
 | Command playbook (step discovery) | `references/command.md` |
 | Mode: feature (User Story / Bug) | `references/feature.md` |
+| Feature research (orchestrated + mode=feature) | `references/feature-research.md` |
 | Mode: tech (Technical Story) | `references/tech.md` |
 | Mode: split (checklist-ready steps) | `references/split.md` |
 | Mode isolation (REQ-004) | `references/mode-isolation.md` |
@@ -26,3 +27,4 @@ Scorecard includes **Story scope**, **Product depth**, and AC budget happy/rule/
 | Split-story handoff | `references/split-handoff.md` |
 | Product persona / JTBD → `persona-context.md` | `references/product-persona.md` |
 | Exclusions | `references/exclusions.md` |
+| Finding format (id, severity, evidence, recommendation) | `references/finding-format.md` |
