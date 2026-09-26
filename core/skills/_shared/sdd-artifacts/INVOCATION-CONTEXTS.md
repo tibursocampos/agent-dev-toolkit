@@ -19,7 +19,7 @@ Pipeline skills must apply **observable** behavior for two invocation contexts:
 | `direct` | Consumer invokes the skill via slash / skill name in the operator session (Classic SDD or standalone). |
 | `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as a Task/spawn child with a scoped handoff. |
 
-Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` Cursor mode.
+Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` host session mode.
 
 ## In-scope pipeline skills
 

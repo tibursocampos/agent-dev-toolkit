@@ -1,6 +1,6 @@
 ﻿# Core SDD contracts
 
-Portable SDD references for adapters and validation. Skills may keep install-time copies under `_shared/sdd-artifacts`; **this tree is the canonical core surface** adapters resolve via `Get-SddRoot`.
+Portable SDD references. Skills keep a published copy under `_shared/sdd-artifacts`. **This folder is the canonical set.** Publish resolves it with `Get-SddRoot`. These contracts do not name a host.
 
 ## Public constants
 
@@ -21,6 +21,6 @@ Portable SDD references for adapters and validation. Skills may keep install-tim
 | `SESSION.md` | Repo vs develop session files and gates |
 | `MEMORY-BANK.md` | Orchestrated Delivery Step 0 / Step N bank gate |
 
-## Adapter note (`Get-SddRoot`)
+## Publish (`Get-SddRoot`)
 
-Future adapters implement `Get-SddRoot` to return the **published** SDD contracts root for that agent. Source of truth for publish is this folder (`core/sdd/`). Do not hardcode a single IDE path (`{{TOOLKIT_ROOT}}/...`) in product content.
+`Get-SddRoot` returns the published SDD contracts root for the current install. Source of truth is this folder (`core/sdd/`). Do not hardcode an install path (`{{TOOLKIT_ROOT}}/...`) in product content. The contracts do not list hosts.

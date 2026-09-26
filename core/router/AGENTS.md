@@ -45,7 +45,7 @@ Two surfaces (host-agnostic — `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE
 | Identifiers, tests naming, commits | English always |
 | Comments / XML docs / narrative docs in source | Mirror touched area or ask on greenfield (`structure-and-quality.md` §2) |
 
-Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published rules `sdd-artifact-language-pt-br.mdc` / `user-language-pt-br.mdc` are Cursor defaults; honor `LANGUAGE.md` when chat is not pt-BR.
+Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published `sdd-artifact-language-pt-br*` / `user-language-pt-br*` files are install defaults. Honor `LANGUAGE.md` when the chat is not that locale.
 
 ## Tracks (workflows)
 
@@ -59,9 +59,9 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 
 ### Operator track choice
 
-Tracks are **recommendations**, never prerequisites between each other. The operator may start **Classic SDD** directly (`/sdd-spec`, `/sdd-plan`) from chat, Plan mode, `.cursor/plans/`, or manual analysis — **without** running `orchestrate-analyze` first. Do **not** tell the user they "must" run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it.
+Tracks are **recommendations**, never prerequisites between each other. The operator may start **Classic SDD** directly from chat, the host plan mode, a host plan scratch file, or manual analysis — **without** running `orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it.
 
-**Checkpoint:** one `sdd-develop` session = one PLAN step. Orchestrated Delivery Step 0 = Memory Bank Gate (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged.
+**Checkpoint:** one `sdd-develop` session = one PLAN step. An unanswered question, including **MINOR**, blocks the next artifact (`open_question`). O1 creates story folders only after the feature is closed. O2 contests the PRD before `sdd-plan`. Scope close is `code-review`, then `run-tests`, then the `security` agent. Step 0 = Memory Bank Gate (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged. Detail stays in `PIPELINE.md`.
 
 **Enforcement:** `{{GUARDRAILS_PATH}}`, `sdd-pipeline-guards.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`.
 
@@ -81,7 +81,7 @@ Tracks are **recommendations**, never prerequisites between each other. The oper
 | Flow | Entry skills |
 |------|----------------|
 | Repo documentation (RAG) | `document-plan` → `document-implement` |
-| Build / test | `repair-dotnet-build` → optional `commit` / `push` |
+| Build / test | `run-tests`; .NET repair `repair-dotnet-build`; coverage `test-coverage` when the PLAN asks |
 | EF migration | `ef-add-migration` |
 | Message consumer | `scaffold-message-handler` |
 
@@ -134,7 +134,7 @@ Agent SoT: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (map) + `
 | Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
-| Ops / quality | `code-review`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate`, `api-standards` |
+| Ops / quality | `code-review`, `run-tests`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate`, `api-standards` |
 | Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
 
 ## Post-sync validation
