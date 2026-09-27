@@ -156,13 +156,14 @@ When `CHANGE.md` was written (brownfield), also run:
 
 (Toolkit consumers: same script names under the synced InstallRoot validation folder when present.) Exit ≠ 0 → **STOP**; fix REQ-IDs / CA headings / CHANGE sections; re-run until exit 0. Do **not** advance to `/sdd-plan` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`, `Assert-ChangeContract.ps1`.
 
-Report path, storage, language, `.gitignore` changes. Handoff with **portable** feature path (`STORAGE.md` § Portable path):
+Report path, storage, language, `.gitignore` changes. After `validate-prd` (and `validate-change` when brownfield) exit 0, run `refine-story/references/tech.md` § Story PRD contestation on the written PRD. An open question stops with `open_question`. Do not hand off to plan or checklist. When contestation finds no open question, hand off with portable paths:
 
-```
+```text
+/split-story-checklist - features/NNN-slug/US01/STORY.md
 /sdd-plan - features/NNN-slug/US01/PRD/NNN_short_feature_slug.md
 ```
 
-(Global: `sdd/<repo-id>/features/...`.)
+Skip the checklist line when FEATURE complexity is `trivial`. Orchestrated O2 runs the same contestation and then the checklist before `sdd-plan` without leaving the feature. Global paths use `sdd/<repo-id>/features/...`.
 
 ## Must not
 
@@ -178,7 +179,7 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 - Do not ship vague CA/REQ without challenge; do not omit REQ-IDs or OOS from the PRD body
 - Do not ship a PRD missing metrics (§1.3), MoSCoW (§4.3), or Severity on remaining open questions (§5.1) without challenging depth first (`references/challenge-vagueness.md`)
 - Do not put implementation how/code into the PRD while challenging product depth
-- Do not hand off to `sdd-plan` when `validate-prd` exits ≠ 0
+- Do not hand off to `sdd-plan` or `split-story-checklist` while PRD contestation still has an open question, or when `validate-prd` exits ≠ 0
 - Do not hand off when brownfield lacks `features/NNN-slug/CHANGE.md` or `validate-change` exits ≠ 0; do not invent empty CHANGE for greenfield
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Omit `## Related` on PRD Write, use `## See also`, stub absent siblings only for links, or embed non-portable paths in Related (`STORAGE.md` § Navigation block / REQ-009)
@@ -188,3 +189,5 @@ Report path, storage, language, `.gitignore` changes. Handoff with **portable** 
 ```
 /sdd-plan - <portable-prd-path-under-features>
 ```
+
+Run Story PRD contestation before that handoff. An open question replaces the handoff with `open_question`. When the feature is medium or complex, hand `/split-story-checklist - <portable-story-path>` first.

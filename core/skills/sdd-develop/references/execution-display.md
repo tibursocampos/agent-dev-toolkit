@@ -2,9 +2,14 @@
 
 Chat-only. Load this file at `sdd-develop` step 0 before any code edit, and again at step 7. `orchestrate-develop` loads it before each spawn and after each receipt.
 
-Render in the user chat language (`LANGUAGE.md`). Weight tokens stay `Low`, `Medium`, `High`, or `Very high`. Never a duration. Do not save the table in the PLAN.
+Render in the user chat language (`LANGUAGE.md`). Weight tokens stay `Low`, `Medium`, `High`, or `Very high`. Never a duration.
 
-The table shape is `LIVE-STAGE-TABLE.md`. Redraw the whole table when a row closes. One heartbeat line during a long operation, and only that line:
+Two tables. Do not confuse them.
+
+1. **Stage table** — chat only. Shape: `LIVE-STAGE-TABLE.md`. Do not save it in the PLAN.
+2. **Step ledger** — the plan section `Implementation progress`, plus the `- [ ]` rows for the active `STEP n` in `REFINE/tasks.md`. Show both at the start of the step and again when the step closes. When the step is `COMPLETED`, set its glyph to `☑` and mark those boxes `- [x]`. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Update that section in the PLAN in the same edit that changes the step status. Analysis weight is qualitative. It is not effort and not a duration.
+
+The stage table shape is `LIVE-STAGE-TABLE.md`. Redraw the whole stage table when a row closes. Redraw the step ledger when a step status changes. One heartbeat line during a long operation, and only that line:
 
 ```text
 Develop: {table row} — {step id}

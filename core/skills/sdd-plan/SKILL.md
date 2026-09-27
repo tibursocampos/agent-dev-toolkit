@@ -98,7 +98,14 @@ Summarize PRD (**cite portable path** — **must not** paste the full PRD body i
 
 Do not invent steps. Do not assign a duration.
 
-1. Call `split-story-checklist` with `source=prd`. The source is the closed STORY and PRD. Read `REFINE/tasks.md`. Copy step id, title, dependencies, and wave into the PLAN.
+1. If FEATURE complexity is `medium` or `complex` and `REFINE/tasks.md` is missing, stop. Do not invent steps. Hand off, then resume this plan when the file exists:
+
+```text
+/split-story-checklist - <portable-story-path>
+/sdd-plan - <portable-prd-path>
+```
+
+`trivial` uses one step and does not get a tasks file. Never call `split-story-checklist` from inside this skill. The checklist is the only writer.
 2. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. Challenge vague acceptance — `references/challenge-vagueness.md`. Acceptance stays the challenge surface. It is not a reason to invent a step.
 3. Show `LIVE-STAGE-TABLE.md` § sdd-plan while drafting. Do not save that table in the PLAN.
 4. Run `references/self-review.md`. Fix. Run it again. If the second pass fails, stop without writing.
@@ -122,7 +129,7 @@ Do not invent steps. Do not assign a duration.
 
 1. Validate canonical PLAN path under same story as PRD (`features/.../PLAN/`); `NNN` **equals** PRD `NNN`. Do **not** write or update PLANs at repo-root `PLAN/`.
 2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
-3. Body from `templates/sdd/PLAN.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`, `references/status-legend.md`, `references/self-review.md`); include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); overall implementation status `NOT_STARTED`; steps `PENDING`; `0/N`; REQ→step map complete; every step **Aceite** lists REQ-NNN and/or CA. Prose follows the chat language.
+3. Body from `templates/sdd/PLAN.md`. On Write, translate section titles to content-language. Keep `## Execution policy` and status tokens in English. The saved step blocks use one field per line (not a single packed line). The dependency graph has one node per `REFINE/tasks.md` id and one `blocks` arrow per blocking dependency. `Implementation progress` lists every step with `Analysis weight` (`Low` | `Medium` | `High` | `Very high` only). `Open decisions` is one explicit empty sentence when nothing is open. Include **## Execution policy**; PRD header = **portable path** to PRD (`STORAGE.md` § Portable path); overall implementation status `NOT_STARTED`; steps `PENDING`; `0/N`; REQ→step map complete; every step **Acceptance** lists REQ-NNN and/or CA plus the PRD section. Prose follows the chat language.
 4. **Navigation `## Related` (REQ-009 / CA3):** Emit `## Related` per `STORAGE.md` § Navigation block. Classic **PRD ↔ PLAN** mutual cite when both exist: PLAN Related **MUST** include the source PRD portable path; after PLAN Write, **refresh PRD** Related so it cites this PLAN (omit other siblings if absent — never stub). Cite STORY if on-disk. Details: `references/template-usage.md`.
 5. **PLAN magro:** if the PLAN would omit SQL/DDL/JSON/OpenAPI, the canonical path (bank phase 2 or `ARCH/` / `ANALYSIS/`) **must already exist**; if missing: **`orchestrated`** → STOP (O1/O2 creates first); **`direct`** → create inline or ask operator; PLAN cites the path only (`references/plan-magro.md`, `INVOCATION-CONTEXTS.md`).
 6. Warn if overwriting PLAN with completed steps.
@@ -144,7 +151,10 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 
 ## Must not
 
-- Write PLAN in a language other than user chat / `artifact_language` without override; embed implementation code
+- Write PLAN in a language other than user chat / `artifact_language` without override. Template headings that are English in `templates/sdd/PLAN.md` are translated to content-language on Write. `## Execution policy` stays English. Status tokens stay English (`PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`, `NOT_STARTED`)
+- Create `REFINE/tasks.md` or renumber its step ids. That file belongs to `split-story-checklist`. If complexity is `medium` or `complex` and the file is missing, stop and hand off `/split-story-checklist`
+- Write a PLAN step that has no matching `- [ ]` row for that `STEP n` in `REFINE/tasks.md`
+- Paste a new method or type body into the PLAN. A contract signature and a short excerpt of code that already exists (path and line) are allowed anchors
 - Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists — in `orchestrated` context O1/O2 creates first; in `direct` context create inline or ask; PLAN then cites the path (`INVOCATION-CONTEXTS.md`)
 - Paste SQL/DDL/JSON/OpenAPI into PLAN when a canonical path already exists (cite the path only — PLAN magro)
 - Create or overwrite PRD; sdd-develop or commit here

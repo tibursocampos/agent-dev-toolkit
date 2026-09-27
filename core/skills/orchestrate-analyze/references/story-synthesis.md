@@ -219,6 +219,8 @@ Refuse this process while `FEATURE.md` still has an open question (`open_questio
 
 **STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
+**Language guard:** folder names stay `ANALYSIS`, `ARCH`, `SEC`. Prose inside those files, and the file name the parent chooses, follow content-language (`LANGUAGE.md`). Specialist receipts stay en-US. The parent translates before Write. Do not save an English specialist note when the chat language is Portuguese.
+
 5. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
 6. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
 

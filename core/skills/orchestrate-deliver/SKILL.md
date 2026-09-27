@@ -75,7 +75,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
 
-**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; after gates load `references/command.md` for step discovery; fan-out to `MEMORY-BANK.md` at Step 0, then `sdd-spec` → `sdd-plan` per story, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Progressive load:** `PIPELINE.md` + `STORAGE.md` first; after gates load `references/command.md` for step discovery; fan-out to `MEMORY-BANK.md` at Step 0, then per story `sdd-spec` → PRD contestation → `split-story-checklist` (medium/complex) → `sdd-plan`, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
@@ -124,7 +124,7 @@ Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALY
 Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
-For each story: story-file gate, then `sdd-spec`, then PRD contestation, then `sdd-plan`. An open question stops that story with `open_question`. Do not write the next artifact. Read `references/per-story-contracts.md`.
+For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine-story/references/tech.md` § Story PRD contestation). An open question stops that story with `open_question`. Do not write the next artifact. When the PRD is accepted, run `split-story-checklist` for `medium` or `complex` (it writes `REFINE/tasks.md`; `trivial` skips that file), then `sdd-plan` (it reads those ids and does not call the checklist again). Read `references/per-story-contracts.md`.
 
 ### 7. Approval - per story or batch (RN01)
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
@@ -148,7 +148,7 @@ Enforce the full list in `references/boundaries-must-not.md`. Critical always-on
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
 | `NEEDS_CLARIFICATION` (open B/I) | `/refine-story` and/or `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN; `readiness-severity.md`) |
-| Single story only (skip O2) | `/sdd-spec` then `sdd-plan` (Classic SDD) |
+| Single story only (skip O2) | `/sdd-spec`, then PRD contestation, then `/split-story-checklist` when the feature is medium or complex, then `/sdd-plan` |
 
 ### Canonical develop handoffs
 

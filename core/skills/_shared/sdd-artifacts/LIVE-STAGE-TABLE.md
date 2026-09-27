@@ -4,7 +4,9 @@ Chat-only progress table. Skill prose in this file is English. Render the table 
 
 Weight tokens stay English: `Low`, `Medium`, `High`, `Very high`, or `—`. Weight is qualitative. It is never elapsed time and never a duration promise.
 
-Do not write this table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md`.
+Do not write the **stage** table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md`.
+
+The **step ledger** is different. It lives in the PLAN under `Implementation progress` and is redrawn in chat on each `sdd-develop` / `orchestrate-develop` step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
 
 ## Columns
 
