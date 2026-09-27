@@ -83,6 +83,6 @@ If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched
 
 ### 9. Single edit
 
-One edit covers the ledger, the counters, and the checkpoint. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
+One edit covers the `Implementation progress` ledger (status and evidence; keep `Analysis weight`), the step glyph (`☑` when `COMPLETED`), the matching `- [x]` boxes in `REFINE/tasks.md`, the counters, and the checkpoint. Show that ledger and those boxes in chat when the step starts and when it closes (`execution-display.md`). Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
 
 ---

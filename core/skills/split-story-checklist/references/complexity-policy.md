@@ -2,9 +2,8 @@
 
 | FEATURE **Complexity** | Behavior |
 |------------------------|----------|
-| `trivial` (small), caller is not `sdd-plan` | **Do not** require TASKS / `REFINE/tasks.md` — skip Write unless operator insists |
-| `trivial` (small), caller is `sdd-plan` | Return a one-step breakdown. Do not refuse the write |
-| `medium` or `complex` | **Require** TASKS checklist before considering the breakdown done |
+| `trivial` (small) | Do not write `REFINE/tasks.md`. Report that the plan uses one step |
+| `medium` or `complex` | Write the checklist before `sdd-plan`. The caller is `orchestrate-deliver` after PRD contestation, or `/split-story-checklist` when `sdd-plan` stopped because the file was missing. `sdd-plan` does not write this file |
 
 Align with `CHANGE-CONTRACT.md`. Brownfield CHANGE is owned by O2 / `sdd-spec`, not this skill.
 

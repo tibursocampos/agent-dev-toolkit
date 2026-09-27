@@ -70,7 +70,7 @@ Operators may **opt-in** allowlist the two portable script paths above (cwd = re
 Child must:
 
 1. Load and follow `sdd-develop/SKILL.md` (gates, validate step, git branch, implement, tests, update PLAN, report)
-2. Receive **only** that PLAN path + step number + lean Prior context paths (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memory-bank/` path**) - not full guideline dumps or full bank body
+2. Receive **only** that PLAN path, step number, `REFINE/tasks.md` path, and lean Prior paths (the step block, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memory-bank/` path**). Do not load the rest of the PRD. Do not paste full guideline dumps or the full bank body.
 3. Use **PLAN-scoped SESSION** per `SESSION.md` (`plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` when this spawn is parallel on the same PLAN)
 4. Honor the canonical Shell boundary above after **sim** (session helper + ledger claim via `-File`)
 5. Return: `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`
@@ -99,10 +99,10 @@ See also § Task child prompt skeleton + § Anti-bypass checklist.
 
 Give each child:
 
-1. Exact PLAN path + step number/title
-2. Instruction: execute `/sdd-develop` contract for **this step only** - load `sdd-develop/SKILL.md`
+1. Exact PLAN path + step number/title + portable path of `REFINE/tasks.md` for that story
+2. Instruction: execute `/sdd-develop` contract for **this step only** — read that step block and its task boxes; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
-4. Prior-context paths only (PRD, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**) - do not paste bodies; selective bank read only
+4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
 5. Must stop after updating PLAN for this step; must run targeted tests before complete
 5a. After **sim**: **MUST** call `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` via `-File` (REQ-012 / CT6); **MUST NOT** inline session JSON mutators
 5b. When level ≥ `cheap`: update `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)

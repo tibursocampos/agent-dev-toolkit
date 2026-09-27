@@ -75,6 +75,8 @@ Follow `references/frontend-design-routing.md` when the task touches UI.
 ### 1. Stack routing
 Follow `references/stack-routing.md` (e.g. `pom.xml` / `build.gradle` → `java-developer`). On match, load that stack `SKILL.md` and stop this router.
 
+When the user names a story PLAN step (`features/.../PLAN/PLAN_*.md` plus a step number): load that step block and the matching `REFINE/tasks.md` boxes before any code. Do not load the rest of the PRD. After the step, set the plan glyph to `☑` and mark those boxes `- [x]`. Without a story path, stay on the ad-hoc fallback.
+
 ### 2. Fallback only
 If no stack match: follow `references/fallback-execution.md`.
 

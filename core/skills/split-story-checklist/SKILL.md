@@ -53,6 +53,8 @@ In the **target workspace**, a grouped checklist (backend / frontend / tests) wi
 2. `features/NNN-slug/USnn/TASKS.md` - only if user explicitly asks for flat beside `STORY.md` (do not invent both)
 3. Shortcut: `docs/implementation-tasks/<slug>.md` (legacy alias `docs/sdd-developation-tasks/` still accepted)
 
+`split-story-checklist` writes this file. `sdd-plan` only reads the ids. Orchestrated O2 calls this skill after the PRD is accepted and before the plan.
+
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
 **TASKS complexity gate (REQ-004):** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md` + `references/complexity-policy.md`.
@@ -169,7 +171,8 @@ Show group names, dependency waves, output path, and suggested next skills.
 | Situation | Next |
 |-----------|------|
 | Multi-story / needs O1 | `/orchestrate-analyze` |
-| Full SDD for the story | `/sdd-spec` -> `/sdd-plan` -> `/sdd-develop` |
+| Full SDD for the story | `/sdd-spec`, then PRD contestation, then this checklist when medium or complex, then `/sdd-plan`, then `/sdd-develop` |
+| Checklist done, plan not written | `/sdd-plan - <portable-prd-path>` |
 | PLAN already exists | Resolve under `features/**/PLAN/` only (workspace + global feature root); `/sdd-develop - <full-plan-path> - Step 1` |
 | Small code-only change | `/developer` / stack `*-developer` |
 | Commit checklist file | `/commit` |

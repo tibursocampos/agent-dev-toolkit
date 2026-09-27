@@ -50,7 +50,7 @@ Record the resolved value when skills persist manifests (`sdd-spec` / storage st
 
 | In scope | Out of scope (other rules) |
 |----------|----------------------------|
-| FEATURE / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC body prose | Path segments, REQ-IDs, skill ids, portable paths (English) |
+| FEATURE / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / memory-bank body prose | Folder names `ANALYSIS` / `ARCH` / `SEC` / `REFINE` (English). File names inside those folders follow content-language. Path segments, REQ-IDs, skill ids, status tokens (`PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`, `NOT_STARTED`, `approved`) stay English |
 | CONTINUITY / CHANGE narrative when written as feature prose | `SKILL.md` / shared guideline / agent / internal prompt bodies (**en-US**) |
 | EVD / STATE / TRACE **summary prose** when authored as SDD narrative | Source, tests, commit messages (always English) |
 | Operator-facing confirm drafts that will be persisted as artifacts | Spawn child prompts, specialist contexts, agent receipts (**always en-US**) |
@@ -64,7 +64,7 @@ Product `docs/` / README / ADRs follow **project convention**; if no mirror evid
 | Chat replies | Mirror session user language (may differ from content-language only when explaining an override) |
 | Artifact Write | Content-language from resolution above |
 | Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` (`SR-NO-FULL-DUMP` / CT6) |
-| Parent synthesis | Parent writes user-facing chat and artifacts; children stay en-US internally |
+| Parent synthesis | Parent writes user-facing chat and artifacts in content-language. A specialist receipt stays en-US. The parent translates that receipt before writing `ANALYSIS/`, `ARCH/`, or `SEC/`. Folder names stay English. |
 | Gate STOP / confirm-before-write prompts | User chat language (same as chat output) |
 
 Content-language **must not** flip child prompts to the operator language. Selective retrieval stays path/summary oriented regardless of artifact locale.
@@ -85,6 +85,8 @@ When spawning (native path or documented equivalent):
 - Ask a dedicated language question **only** to choose SDD artifact locale when chat language is already known
 - Paste a full PLAN / PRD / FEATURE / `memory-bank/` body into a spawn prompt
 - Write child prompts, specialist contexts, or agent receipts in the user chat / content-language when that language is not en-US
+- Write `ANALYSIS/`, `ARCH/`, `SEC/`, or `memory-bank/` prose in a language other than the resolved content-language. English receipts are not the artifact. The parent translates before Write
+- Leave English template headings in a saved PLAN/PRD when content-language is not English. Exception: `## Execution policy` and the status tokens listed above stay English so validators keep matching them
 - Duplicate this policy into every `*-developer` SKILL (they inherit `SPAWN.md` / `subagent-first.md`)
 
 ## Cross-refs (lazy-load)

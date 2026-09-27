@@ -18,7 +18,7 @@ Map current code touchpoints, dependencies, and blast radius for the feature/sto
 
 ## Output
 
-When the parent is `orchestrate-analyze` before step 9, return the notes to the parent. Do not create a story folder in that pass. The parent writes `ANALYSIS/` at step 9, after the open-question gate. When the story folder already exists, write the note there:
+When the parent is `orchestrate-analyze` before step 9, return the notes to the parent in en-US. Do not create a story folder in that pass. The parent writes `ANALYSIS/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this receipt. When the story folder already exists, write the note in content-language:
 
 1. Entry points and modules likely touched
 2. Dependencies (packages, services, events)
