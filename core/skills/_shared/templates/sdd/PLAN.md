@@ -56,7 +56,7 @@ Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Keep in
 - [ ] Retrieval seletivo: skills tocadas não prescritem dump integral de `memory-bank/` nem do PRD (CT5 / `SELECTIVE-RETRIEVAL.md`)
 - [ ] Build passa local / CI
 
-## REQ -> step map
+## REQ -> passo
 
 | REQ | Passo |
 |-----|-------|
