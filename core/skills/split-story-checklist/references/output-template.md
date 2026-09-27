@@ -27,28 +27,37 @@ Rows are **SMART tasks** under this story only — never promote a file/class/sc
 
 ---
 
+Each group is one PLAN step. Do not add a step id the plan will not copy. Do not restate the design. Each box is one atomic action of that step.
+
 ## Implementation
 
-### Group 1: [name]
+### STEP 1 — S1: [outcome title]
 
-**Steps covered:** 1-2 | **Wave:** 0 | **Parallel-safe with:** none
+☐ `PENDING` | **Wave:** 0 | **Parallel-safe with:** none
 
-- [ ] **Step 1 - [title]**
-  - Layer: [...]
+- [ ] **Action title**
+  - Path: `existing/or/Proposed.cs` (`existing` or `proposed`)
   - Depends on: none
-- [ ] **Step 2 - [title]**
-  - Layer: [...]
-  - Depends on: Step 1
+  - Test: assertion that closes this box
+- [ ] **Next action in the same step**
+  - Path: `...`
+  - Depends on: the box above
+  - Test: assertion or `none` when the step gate covers it
 
 ---
 
-## Tests
+### STEP 2 — S2: [next outcome]
 
-### Tests - Backend
+☐ `PENDING` | **Wave:** 1 | **Depends on:** S1
 
-**Steps covered:** 5 | **Wave:** 2
+- [ ] **Action title**
+  - Path: `...`
+  - Depends on: S1
+  - Test: assertion
 
-- [ ] **Step 5 - [title]**
+---
+
+When `sdd-develop` completes the step, mark that step's boxes `- [x]` and set the glyph to `☑`.
 
 ---
 
@@ -72,7 +81,7 @@ Rows are **SMART tasks** under this story only — never promote a file/class/sc
 ## SDD / Orchestrated Delivery handoff
 
 ```
-/sdd-spec -> /sdd-plan -> /sdd-develop
+/sdd-spec -> PRD contestation -> /split-story-checklist -> /sdd-plan -> /sdd-develop
 ```
 
 or

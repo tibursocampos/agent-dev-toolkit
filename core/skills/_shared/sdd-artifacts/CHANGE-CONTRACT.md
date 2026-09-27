@@ -49,9 +49,9 @@ Template: `skills/_shared/templates/features/CHANGE.md`.
 | FEATURE **Complexity** | TASKS artifact |
 |------------------------|----------------|
 | `trivial` (small) | **Not required** — do not create `TASKS.md` / `REFINE/tasks.md` only to satisfy a gate |
-| `medium` or `complex` | **Required** — prefer `features/NNN-slug/USnn/REFINE/tasks.md`; flat `USnn/TASKS.md` only if the user asks |
+| `medium` or `complex` | **Required** — `features/NNN-slug/{USnn\|TSnn}/REFINE/tasks.md`. Flat `TASKS.md` only if the user asks |
 
-`split-story-checklist` enforces this gate before Write.
+`split-story-checklist` is the **only** writer of that file. `sdd-plan` reads the stable step ids and must not create or rename them. Orchestrated O2 runs `split-story-checklist` after the PRD is accepted and before `sdd-plan`. If the file is missing, `sdd-plan` stops and hands off `/split-story-checklist`.
 
 ## Mental map (ids unchanged)
 

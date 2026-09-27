@@ -54,7 +54,7 @@ When a UI or API surface exists, add a concise **consumption map** (who calls wh
 
 ## Output (shared)
 
-When the parent is `orchestrate-analyze` before step 9, return the ARCH draft to the parent. Do not create a story folder in that pass. Write story `ARCH/` only at step 9, after the open-question gate. When the story folder already exists, write the note there:
+When the parent is `orchestrate-analyze` before step 9, return the ARCH draft to the parent in en-US. Do not create a story folder in that pass. Write story `ARCH/` only at step 9, in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this draft. When the story folder already exists, write the note in content-language:
 
 1. Proposed boundaries (layers/modules)
 2. Recommendation (style + key types/APIs — names only, English identifiers)

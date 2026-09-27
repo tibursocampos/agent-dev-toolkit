@@ -21,7 +21,7 @@ Steps {A} e {B} parecem independentes. Executar em paralelo?
 (sim / série / cancelar)
 ```
 
-Each child prompt must include `planPath`, `step`, Prior-context paths (`ARCH|SEC|ANALYSIS` when present), and instruction to use the matching scoped SESSION file.
+Each child prompt must include `planPath`, `step`, `REFINE/tasks.md` for that step, Prior-context paths (`ARCH|SEC|ANALYSIS` when present), and instruction to use the matching scoped SESSION file. Do not attach the full PRD.
 
 ---
 
@@ -46,7 +46,7 @@ Ask (pt-BR) before any parallel spawn — copy in § Safe parallelism rules.
 | Different PLANs | `sessions/{repoHash}/plan-{planHash}.json` each |
 | Same PLAN, parallel-safe steps | `sessions/{repoHash}/plan-{planHash}-step-{N}.json` each |
 
-Child prompt **must** include: `planPath`, `step`, `memoryBankPath` (read-only), Prior-context paths including `ARCH|SEC|ANALYSIS` when present, and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”.
+Child prompt **must** include: `planPath`, `step`, `tasksPath`, `memoryBankPath` (read-only), Prior-context paths including `ARCH|SEC|ANALYSIS` when present, and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”. Do not attach the full PRD.
 
 If unsure about file independence -> **série**. Concurrent parallel Task cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Task unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
 

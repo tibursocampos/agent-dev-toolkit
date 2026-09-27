@@ -121,9 +121,17 @@ If `storage_mode` is **repository**: ensure SDD `.gitignore` block per `STORAGE.
 
 If **global**: do **not** edit or suggest SDD patterns in the consumer `.gitignore`.
 
+### 3b. Bank language (blocker)
+
+Same gate as `document-plan` before the first bank write. Ask once, in the user chat language:
+
+> Memory-bank language — **pt-BR** or **English**?
+
+If the user already named the language in this request, record that answer and do not ask again. Record the choice on the repo session and as the first line of `memory-bank/project-context.md` (`Language: pt-BR` or `Language: English`). Refresh keeps that recorded language. Do not write bank prose in another language.
+
 ### 4. Confirm before write
 
-Show (pt-BR): mode, full `bank_root`, files to create/update. Ask:
+Show (user chat language): mode, full `bank_root`, language, files to create/update. Ask:
 
 `Posso gravar o memory-bank em '{path}'? (sim / ajustar / cancelar)`
 

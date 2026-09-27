@@ -64,7 +64,15 @@ Order per story. Do not jump from spec to plan.
 
 1. Check `STORY.md` and the `ANALYSIS/`, `ARCH/`, and `SEC/` folders required by `needs_*`. Run the same research as `refine-story/references/feature-research.md`. An open question in any of those files stops **this** story with `open_question`. Do not write the PRD. A stuck story does not erase the others and does not re-slice the feature.
 2. `sdd-spec` writes the PRD under `features/NNN-slug/{USnn|TSnn}/PRD/`. Then run the contestation in `refine-story/references/tech.md` § Story PRD contestation on that PRD. An open question means the PRD is not accepted. Do not call the plan.
-3. Only then `sdd-plan`.
+3. Only after that acceptance, the parent runs `split-story-checklist` when FEATURE complexity is `medium` or `complex`. That skill writes `REFINE/tasks.md`. `trivial` does not get the file. The parent does not ask `sdd-plan` to create it.
+4. Only then `sdd-plan`. It reads the checklist ids. If `medium` or `complex` and `REFINE/tasks.md` is missing, stop this story and hand off. After the checklist exists, resume the same plan:
+
+```text
+/split-story-checklist - features/NNN-slug/{USnn|TSnn}/STORY.md
+/sdd-plan - features/NNN-slug/{USnn|TSnn}/PRD/NNN_*.md
+```
+
+`trivial` features do not get a tasks file.
 
 The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask every open question.
 
@@ -72,13 +80,14 @@ The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask e
 |-------|----------|-------------|
 | Story files | `feature-research.md` | Required siblings; any open question, including `MINOR`, stops this story |
 | Spec | `sdd-spec` | PRD in the chat language; no PLAN in this stage; no app code; `## Related` (REQ-009); contestation before the PRD is accepted |
-| Plan | `sdd-plan` | Only after the PRD has no open question; two self-reviews and the preview before write; the parent does not accept a PLAN that skipped them; the parent does not rewrite the plan sections |
+| Checklist | `split-story-checklist` | After contestation accepts the PRD; medium/complex only; writes `REFINE/tasks.md` |
+| Plan | `sdd-plan` | After contestation and, when required, the checklist. Reads ids and does not call the checklist. Two self-reviews and the preview before write. The parent does not accept a PLAN that skipped them and does not rewrite the plan sections |
 
 **Navigation (REQ-009 / CA3):** Parent Writes of PRD/PLAN **MUST** honor `sdd-spec` / `sdd-plan` Related obligations (`STORAGE.md` § Navigation block). Classic minimum: **PRD ↔ PLAN** mutual portable-path cite when both exist; cite **STORY** if on-disk; upward FEATURE / CONTINUITY only when present. **Omit-if-absent** — never stub siblings solely for links. After each story lands, refresh CONTINUITY / FEATURE / STORY Related edges for new PRD/PLAN paths (still paths-only — not a second navigation SoT).
 
-**Série:** for story S, run the three steps above. **sim** does not skip an open question. Then optional per-story approval, then the next story.
+**Série:** for story S, run story gate, spec, contestation, checklist when required, then plan. **sim** does not skip an open question and does not skip contestation. Then optional per-story approval, then the next story.
 
-**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Task is unavailable, run série in-parent. Do not hard-fail.
+**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question or that has not passed contestation. Do not draft the plan before `REFINE/tasks.md` exists when the feature is medium or complex. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Task is unavailable, run série in-parent. Do not hard-fail.
 
 Respect story **deps**: do not parallelize a story before its dependency stories have PRD+PLAN (or user explicitly waives). Waive-deps is for **story order** only — not for missing `SEC/` / `ARCH/` / `ANALYSIS`.
 

@@ -140,7 +140,7 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 
 | Situation | Action |
 |-----------|--------|
-| Canonical PLAN path given (`features/.../PLAN/` or global `.../features/.../PLAN/`) | `Read` at exact path; update **that** file in place |
+| Canonical PLAN path given (`features/.../PLAN/` or global `.../features/.../PLAN/`) | `Read` the active step block only, then the `- [ ]` rows for that `STEP n` in the story `REFINE/tasks.md`. Do not load the rest of the PRD. Update that PLAN and those boxes in place |
 | Root/flat `PLAN/` or other non-canonical path | **STOP** - ask user to migrate under `features/.../PLAN/` via `sdd-plan`; do not execute |
 | No canonical PLAN path | Glob `features/**/PLAN/PLAN_*.md` only (workspace + global feature root); if not found, use `PIPELINE.md` section `sdd-develop` without PLAN (options 1-3) |
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
@@ -152,7 +152,7 @@ After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or cr
 
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from step **Aceite** (markers in `references/plan-contract.md`); ask to proceed.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed.
 
 ### 2. Git
 

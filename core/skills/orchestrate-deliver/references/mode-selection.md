@@ -20,7 +20,7 @@ Ask (pt-BR) - never assume. Only after the required-siblings STOP has passed —
 | Choice | Behavior |
 |--------|----------|
 | **1 série** | Parent runs contracts sequentially; lower context risk |
-| **2 paralelo** | Prefer Task when `subagents=native` (`SPAWN.md`): one Task per story for **drafts only**; parent aggregates, gates `sim`, then **parent** writes via `sdd-spec` / `sdd-plan`. Concurrent Task cap **≤4** per `SPAWN.md`; if N>4, wave ≤4 or prefer série. If `subagents=none` or Task unavailable → **fallback** to série **in-parent** (same contracts; never hard-fail) |
+| **2 paralelo** | Prefer Task when `subagents=native` (`SPAWN.md`): one Task per story for **drafts only**. A plan draft waits until contestation accepted the PRD and, when required, `REFINE/tasks.md` exists. Parent aggregates, gates `sim`, then **parent** writes via `sdd-spec` / `sdd-plan`. The parent runs `split-story-checklist` between them for medium/complex. Concurrent Task cap **≤4** per `SPAWN.md`; if N>4, wave ≤4 or prefer série. If `subagents=none` or Task unavailable → **fallback** to série **in-parent** (same contracts; never hard-fail) |
 | **3** | Stop; no writes |
 
 Document the choice in `CONTINUITY.md` (decisões). Before any paralelo Task wave: load `SPAWN.md` and consult capability `subagents`.

@@ -18,7 +18,7 @@ When reading or updating a PLAN step, agents **must** recognize and honor these 
 | `**Status:**` `PENDING` \| `IN_PROGRESS` \| `BLOCKED` \| `COMPLETED` \| `SKIPPED` | Lifecycle (`status-legend.md`) |
 | `**Deps:**` / dependency Completed gate | Ordering |
 | `**Entregáveis:**` / Deliverables checkboxes | Scope of the step |
-| `**Aceite:**` lines citing `REQ-NNN` / `CA` / `CT` | Acceptance binding |
+| `**Aceite:**` or `**Acceptance:**` lines citing `REQ-NNN` / `CA` / `CT` | Acceptance binding. Either label counts |
 | Header `**Progresso**` / `**Progress**` `N/M` + optional bar | Feature progress |
 | `**Próximo passo:**` / `**Next step:**` | Handoff pointer |
 

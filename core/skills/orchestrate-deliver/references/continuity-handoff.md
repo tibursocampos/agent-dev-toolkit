@@ -60,7 +60,7 @@ On approval:
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.
 5. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings. Include CHANGE path when present.
 
-Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Classic SDD (`sdd-spec` -> `sdd-plan` -> `sdd-develop`) does **not** require memory-bank (CA7). User picks one path per story/session.
+Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank (CA7). User picks one path per story/session.
 
 See also § CONTINUITY update checklist.
 

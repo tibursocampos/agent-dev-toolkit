@@ -38,19 +38,19 @@
 
 Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Keep in sync with header **PRD** path. Omit-if-absent — do not stub siblings only for links.
 
-## Objetivos
+## Objectives
 
 - [ ] O1: [Resultado mensurável ligado a REQ/CA do PRD]
 - [ ] O2: [Resultado mensurável]
 - [ ] O3: [Opcional]
 
-## Árvore alvo (entregáveis)
+## Target tree
 
 ```
 [caminhos principais — só paths, sem código]
 ```
 
-## Estratégia de validação
+## Validation strategy
 
 - [ ] [Como verificar — unitário, integração, script, checklist]
 - [ ] Retrieval seletivo: skills tocadas não prescritem dump integral de `memory-bank/` nem do PRD (CT5 / `SELECTIVE-RETRIEVAL.md`)
@@ -66,11 +66,11 @@ Every PRD REQ appears. A step's acceptance cites the REQ. Prose in this file fol
 
 ## Acceptance traceability
 
-| Criterion | Step | Test | Evidence status |
-|-----------|------|------|-----------------|
-| {{CRITERION_ID}} | {{STEP_ID}} | {{TEST_ID}} | {{PASS_OR_BLOCKED}} |
+| Criterion | Step | Test | Where | Evidence status |
+|-----------|------|------|-------|-----------------|
+| CA1 | S1 | CT1 | PRD §2 CA, §4 REQ, §10 CT | PASS |
 
-One row per PRD criterion. If the cell has no evidence, the evidence status is `BLOCKED`. Do not invent the behavior. If any row stays `BLOCKED`, do not write this PLAN.
+The `Where` cell is the portable PRD path plus the section. One row per PRD criterion. If the cell has no evidence, the evidence status is `BLOCKED`. Do not invent the behavior. If any row stays `BLOCKED`, do not write this PLAN.
 
 ## Current implementation evidence
 
@@ -94,34 +94,70 @@ An existing path must have been read. A new path is labeled `proposed`. A valida
 
 ## Dependency and execution graph
 
-One Mermaid `flowchart`. Each node is a step id from `REFINE/tasks.md`, once. No time estimate.
+One Mermaid `flowchart`. This graph is step order only. It is not a class or file diagram. Every step id from `REFINE/tasks.md` appears once. Every blocking dependency is an arrow whose label is `blocks`. A step with dependency `none` has no incoming arrow. A diagram that only lists nodes and has no arrows is invalid when any step depends on another.
 
 ```mermaid
 flowchart TD
-  S1["{{STEP_ID}}"]
+  S1["S1: outcome title"] -->|blocks| S2["S2: outcome title"]
 ```
+
+## Implementation progress
+
+Persisted ledger. `sdd-develop` updates status and evidence after each step. `Analysis weight` is qualitative (`Low`, `Medium`, `High`, `Very high`). It is not duration, effort, or story points.
+
+| Step ID | Step | Dependencies | Analysis weight | Status | Evidence |
+|---------|------|--------------|-----------------|--------|----------|
+| S1 | outcome title | none | Medium | `PENDING` | — |
 
 ## Passos de implementação
 
-One block per step id from `REFINE/tasks.md`. Copy the id, title, dependencies, and wave. Do not invent a step here.
+One block per step id from `REFINE/tasks.md`. Copy the id, title, and dependencies. Do not invent a step here. Do not write this file's step list if `REFINE/tasks.md` does not exist. Every step must have at least one `- [ ]` row in `tasks.md` with the same `STEP n`.
 
-### {{STEP_ID}}: {{TITLE}}
+Separate each step: a blank line, then the heading, then one field per line, then a `---` rule before the next step. Status glyphs match `LIVE-STAGE-TABLE.md`: `☐` pending, `◐` in progress, `☑` completed, `⊘` closed without success, `⚠` blocked. The status token stays English.
 
-**Status:** `PENDING` | **Deps:** {{COMPLETED_IDS_OR_NONE}} | **Wave:** {{WAVE}} | **Parallel-safe:** {{YES_OR_NO}}
+No duration. Do not paste a new method body. A contract signature and a short excerpt of code that already exists (path and line) are anchors, not the implementation.
 
-**Goal:** {{GOAL}}
+### STEP 1 — S1: outcome title
 
-**Artifacts:** {{CREATE_MODIFY_REMOVE_NO_CHANGE}}
+☐ `PENDING`
 
-**Tests:** positive, negative, and boundary when the criterion requires them.
+- **Depends on:** none
+- **Wave:** 1
+- **Parallel-safe:** no
+- **Goal:** observable outcome
+- **Symbols:** existing type read in the repo, or `ProposedName` (`proposed`)
+- **Artifacts:** `CREATE` or `MODIFY` path (`proposed` or existing)
+- **Change:** what this step changes, and what it must not touch
+- **Signature:** route, method, or DI registration when that is the boundary. Omit the new method body
+- **Anchor:** `path/File.cs:line` plus a short excerpt of current code, or `none`
+- **Tests:** positive, negative, and boundary when the criterion requires them
+- **Acceptance:** the REQ and CA text, not only the id. Where: `features/.../PRD/....md` §2 and §4
+- **Task boxes:** `S1` rows in `features/.../REFINE/tasks.md`
+- **Validation command:** command already present in the repo, or omit
+- **Step risk:** evidence path
 
-**Aceite:** {{ACCEPTANCE_TIED_TO_REQ}}
+---
 
-**Validation command:** {{COMMAND_ALREADY_IN_REPO_OR_OMIT}}
+### STEP 2 — S2: next outcome
 
-**Step risk:** {{RISK}}
+☐ `PENDING`
 
-No duration. No production code in this block.
+- **Depends on:** S1
+- **Wave:** 2
+- **Parallel-safe:** no
+- **Goal:** observable outcome
+- **Symbols:** existing type, or `ProposedName` (`proposed`)
+- **Artifacts:** `MODIFY` path (existing)
+- **Change:** what this step changes, and what it must not touch
+- **Signature:** omit when this step has no new contract boundary
+- **Anchor:** `path/File.cs:line`, or `none`
+- **Tests:** the case that proves this step
+- **Acceptance:** REQ and CA text. Where: PRD path and section
+- **Task boxes:** `S2` rows in `REFINE/tasks.md`
+- **Validation command:** omit or the repo command
+- **Step risk:** evidence path
+
+---
 
 ## Test strategy
 
@@ -137,7 +173,7 @@ No duration. No production code in this block.
 
 ## Open decisions
 
-Leave this section empty in the saved file. A filled line prevents the write.
+When none remain, write exactly one sentence in the content-language: `No open decision.` Translate that sentence on Write (`Nenhuma decisão em aberto.` when the chat language is Portuguese). That sentence is not an open decision. Do not leave this heading with an empty body.
 
 ## Execution checkpoint
 
@@ -150,30 +186,30 @@ Leave this section empty in the saved file. A filled line prevents the write.
 
 Portability tokens: `NOT_STARTED`, `LOCAL_ONLY`, `SHARED`. No tracker tag.
 
-## Ordem de execução
+## Execution order
 
 **Caminho crítico:** 1 -> 2 -> … -> N
 
 **Próximo passo:** PASSO 1 - [título]
 
-## Decisões técnicas
+## Technical decisions
 
 | Tópico | Decisão | Justificativa |
 |--------|---------|---------------|
 | [tópico] | [escolha] | [por quê] |
 
-## Riscos e mitigações
+## Delivery risks
 
 | Risco | Impacto | Mitigação |
 |-------|---------|-----------|
 | [Risco] | Baixo/Médio/Alto | [Ação] |
 
-## Referências
+## References
 
 - PRD: [caminho portátil]
 - Retrieval: `skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md`
 
-## Checklist final
+## Final checklist
 
 - [ ] Todos os REQ do PRD mapeados em passos
 - [ ] Cada passo cabe em uma sessão `sdd-develop`

@@ -27,7 +27,7 @@ List concrete security risks and mitigations relevant to the change.
 
 ## Output
 
-When the parent is `orchestrate-analyze` before step 9, return the `SEC/` note to the parent. Do not create the story folder in that pass. The parent writes `SEC/` at step 9, after the open-question gate. When the story folder already exists, write the note there.
+When the parent is `orchestrate-analyze` before step 9, return the `SEC/` note to the parent in en-US. Do not create the story folder in that pass. The parent writes `SEC/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this note. When the story folder already exists, write the note in content-language.
 
 The return includes **zero or more** finding blocks from `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. A checklist summary is not the only product. Severity on each block is `B`, `I`, or `MINOR`.
 
