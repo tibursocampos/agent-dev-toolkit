@@ -56,7 +56,7 @@ Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Keep in
 - [ ] Retrieval seletivo: skills tocadas não prescritem dump integral de `memory-bank/` nem do PRD (CT5 / `SELECTIVE-RETRIEVAL.md`)
 - [ ] Build passa local / CI
 
-## REQ -> passo
+## Mapa REQ → passo
 
 | REQ | Passo |
 |-----|-------|
@@ -109,7 +109,7 @@ Persisted ledger. `sdd-develop` updates status and evidence after each step. `An
 |---------|------|--------------|-----------------|--------|----------|
 | S1 | outcome title | none | Medium | `PENDING` | — |
 
-## Implementation steps
+## Passos de implementação
 
 One block per step id from `REFINE/tasks.md`. Copy the id, title, and dependencies. Do not invent a step here. Do not write this file's step list if `REFINE/tasks.md` does not exist. Every step must have at least one `- [ ]` row in `tasks.md` with the same `STEP n`.
 
