@@ -205,6 +205,7 @@ $script:BootstrapMessage = @{
     ToolkitInvokeDone              = 'Toolkit handoff completed (exit {0}).'
     ToolkitInvokeFailed            = 'Toolkit handoff failed (exit {0}).'
     ToolkitScriptMissing           = 'toolkit.ps1 not found. Looked under extract ({0}) and repo ({1}).'
+    ToolkitRepoRootMissing         = 'Could not resolve the extracted toolkit root from {0}.'
     ToolkitHostMissing             = 'Neither pwsh nor powershell found to invoke toolkit.ps1.'
     LocalZipMissing                = 'LocalZipPath not found: {0}'
     InvalidHashFormat              = 'Expected SHA256 must be 64 hex chars. Got: {0}'
@@ -393,6 +394,30 @@ function Expand-BootstrapZipIfRequested {
     return $targetDir
 }
 
+function Get-BootstrapParentDirectory {
+    param([string] $PathValue)
+    if ([string]::IsNullOrWhiteSpace($PathValue)) {
+        return $null
+    }
+    $full = [System.IO.Path]::GetFullPath($PathValue)
+    $parent = [System.IO.Path]::GetDirectoryName($full)
+    if ([string]::IsNullOrWhiteSpace($parent)) {
+        return $null
+    }
+    return $parent
+}
+
+function Join-BootstrapPathOrNull {
+    param(
+        [string] $ParentPath,
+        [Parameter(Mandatory = $true)][string] $ChildName
+    )
+    if ([string]::IsNullOrWhiteSpace($ParentPath) -or [string]::IsNullOrWhiteSpace($ChildName)) {
+        return $null
+    }
+    return Join-Path $ParentPath $ChildName
+}
+
 function Find-BootstrapScriptUnderExtract {
     param(
         [string] $ExtractDir,
@@ -432,13 +457,13 @@ function Resolve-BootstrapSyncScriptPath {
     $fromExtract = Find-BootstrapScriptUnderExtract -ExtractDir $ExtractDir -FileName $syncFile
 
     # bootstrap lives at scripts/bootstrap/ → sibling sync-agent is scripts/sync-agent.ps1
-    $scriptsDir = Split-Path -Parent $BootstrapScriptDir
-    $fromRepo = Join-Path $scriptsDir $syncFile
+    $scriptsDir = Get-BootstrapParentDirectory -PathValue $BootstrapScriptDir
+    $fromRepo = Join-BootstrapPathOrNull -ParentPath $scriptsDir -ChildName $syncFile
 
     if (-not [string]::IsNullOrWhiteSpace($fromExtract)) {
         return $fromExtract
     }
-    if (Test-Path -LiteralPath $fromRepo) {
+    if (-not [string]::IsNullOrWhiteSpace($fromRepo) -and (Test-Path -LiteralPath $fromRepo)) {
         return (Resolve-Path -LiteralPath $fromRepo).Path
     }
 
@@ -455,13 +480,13 @@ function Resolve-BootstrapToolkitScriptPath {
 
     $fromExtract = Find-BootstrapScriptUnderExtract -ExtractDir $ExtractDir -FileName $toolkitFile
 
-    $scriptsDir = Split-Path -Parent $BootstrapScriptDir
-    $fromRepo = Join-Path $scriptsDir $toolkitFile
+    $scriptsDir = Get-BootstrapParentDirectory -PathValue $BootstrapScriptDir
+    $fromRepo = Join-BootstrapPathOrNull -ParentPath $scriptsDir -ChildName $toolkitFile
 
     if (-not [string]::IsNullOrWhiteSpace($fromExtract)) {
         return $fromExtract
     }
-    if (Test-Path -LiteralPath $fromRepo) {
+    if (-not [string]::IsNullOrWhiteSpace($fromRepo) -and (Test-Path -LiteralPath $fromRepo)) {
         return (Resolve-Path -LiteralPath $fromRepo).Path
     }
 
@@ -543,8 +568,11 @@ function Invoke-BootstrapToolkitHandoff {
         [Parameter(Mandatory = $true)][string] $BootstrapScriptDir
     )
     $toolkitPath = Resolve-BootstrapToolkitScriptPath -ExtractDir $ExtractDir -BootstrapScriptDir $BootstrapScriptDir
-    $scriptsDir = Split-Path -Parent $toolkitPath
-    $toolkitRepoRoot = Split-Path -Parent $scriptsDir
+    $scriptsDir = Get-BootstrapParentDirectory -PathValue $toolkitPath
+    $toolkitRepoRoot = Get-BootstrapParentDirectory -PathValue $scriptsDir
+    if ([string]::IsNullOrWhiteSpace($toolkitRepoRoot) -or -not (Test-Path -LiteralPath $toolkitRepoRoot)) {
+        throw ($script:BootstrapMessage.ToolkitRepoRootMissing -f $toolkitPath)
+    }
 
     Write-Host ($script:BootstrapMessage.ToolkitInvokeStart -f $script:BootstrapConstant.ToolkitRelativePath, $toolkitRepoRoot)
 
@@ -560,15 +588,18 @@ function Invoke-BootstrapToolkitHandoff {
         $toolkitPath
     )
 
-    # Working directory = toolkit repo root (parent of scripts/). Portable for Windows PowerShell 5.1 + pwsh.
-    $previousLocation = Get-Location
+    # Working directory = toolkit repo root (parent of scripts/). Pop only if Push succeeded.
+    $pushedLocation = $false
     try {
-        Set-Location -LiteralPath $toolkitRepoRoot
+        Push-Location -LiteralPath $toolkitRepoRoot
+        $pushedLocation = $true
         & $runner.Source @argList
         $exitCode = $LASTEXITCODE
     }
     finally {
-        Set-Location -LiteralPath $previousLocation.Path
+        if ($pushedLocation) {
+            Pop-Location
+        }
     }
 
     if ($null -eq $exitCode) {
