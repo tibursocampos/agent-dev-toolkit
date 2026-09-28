@@ -10,13 +10,17 @@ set "SCRIPT_DIR=%~dp0"
 set "BOOTSTRAP_PS1=%SCRIPT_DIR%bootstrap.ps1"
 set "BOOTSTRAP_PS1_URL=https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1"
 
-if exist "%BOOTSTRAP_PS1%" goto unblock_and_invoke
+if exist "%BOOTSTRAP_PS1%" if "%BOOTSTRAP_KEEP_LOCAL%"=="1" goto unblock_and_invoke
 where curl.exe >nul 2>&1
+if errorlevel 1 if exist "%BOOTSTRAP_PS1%" goto unblock_and_invoke
 if errorlevel 1 goto no_bootstrap_ps1
-echo bootstrap.bat: bootstrap.ps1 missing; downloading from Release (HTTPS)...
-curl.exe -fsSL --proto "=https" -o "%BOOTSTRAP_PS1%" "%BOOTSTRAP_PS1_URL%"
+echo bootstrap.bat: downloading bootstrap.ps1 from Release (HTTPS)...
+curl.exe -fsSL --proto "=https" -o "%BOOTSTRAP_PS1%.download" "%BOOTSTRAP_PS1_URL%"
+if errorlevel 1 if exist "%BOOTSTRAP_PS1%" goto unblock_and_invoke
 if errorlevel 1 goto download_failed
-if not exist "%BOOTSTRAP_PS1%" goto download_failed
+if not exist "%BOOTSTRAP_PS1%.download" if exist "%BOOTSTRAP_PS1%" goto unblock_and_invoke
+if not exist "%BOOTSTRAP_PS1%.download" goto download_failed
+move /Y "%BOOTSTRAP_PS1%.download" "%BOOTSTRAP_PS1%" >nul
 
 :unblock_and_invoke
 call :unblock_downloaded_script
