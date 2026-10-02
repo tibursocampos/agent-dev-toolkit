@@ -20,6 +20,7 @@ $script:CopilotPathConstant = @{
     InstructionsFileExtension         = '.instructions.md'
     CopilotInstructionsFileName       = 'copilot-instructions.md'
     CustomAgentsDirectoryName         = 'agents'
+    CustomAgentProfileExtension       = '.agent.md'
     RouterSourceFileName              = 'AGENTS.md'
     GuardrailsBaseName                = 'guardrails'
     GuardrailsFileName                = 'guardrails.instructions.md'
@@ -36,7 +37,7 @@ $script:CopilotPathConstant = @{
     PlaceholderGuardrailsPath         = '{{GUARDRAILS_PATH}}'
     TextFileExtensionPattern          = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
     PathSeparatorForwardSlash         = '/'
-    SmokeFilesystemOnlyNote           = 'Smoke validates filesystem presence only; Copilot IDE extension / login is out of scope.'
+    SmokeFilesystemOnlyNote           = 'EvidenceType=static; smoke validates filesystem presence only. HostExecutionStatus=SKIPPED; no Copilot CLI, VS Code extension, SDK session, or GitHub login is invoked.'
     SmokeExpectedSkillFolders         = @('commit', 'sdd-develop')
     SmokeExpectedSharedSkillsFolder   = '_shared'
     SmokeExpectedInstructionBases     = @('guardrails', 'ai-stealth', 'sdd-pipeline-guards', 'orchestrator-session')
@@ -64,7 +65,6 @@ $script:CopilotPublishMessage = @{
     CoreAgentsMissing        = 'Copilot Publish-Agents: core agents source is missing: {0}'
     AgentsPublishedOk        = 'Copilot Publish-Agents: published {0} custom subagent file(s) from core/agents to {1} (Mode={2})'
     AgentsWhatIfOk           = 'Copilot Publish-Agents: WhatIf - would publish {0} custom subagent file(s) to {1} (Mode={2})'
-    AgentsUserModeNoOp       = 'Copilot Mode user has no documented agents directory; Publish-Agents is a no-op. Mode repo publishes InstallRoot/agents/ (.github/agents/).'
     InstallRootRequired      = 'InstallRoot is required.'
     ModeRequired             = 'Mode is required for Copilot publish. Use -Mode user or -Mode repo.'
     ModeInvalid              = 'Invalid Mode "{0}". Use -Mode user or -Mode repo.'
@@ -75,7 +75,7 @@ $script:CopilotSmokeMessage = @{
     ModeRequired             = 'TE02: Agent copilot requires -Mode user|repo for Invoke-SmokeValidate. Example: Invoke-SmokeValidate -InstallRoot <fixture> -Mode user'
     ModeInvalid              = 'TE02: Invalid Mode "{0}" for agent copilot. Valid modes: user, repo. Example: -Mode user'
     ArtifactMissing          = 'TE03: Agent copilot Mode={0}: expected artifact missing: {1}'
-    CustomAgentsMissing      = 'TE03: Agent copilot Mode=repo: custom subagent file missing: {0}'
+    CustomAgentsMissing      = 'TE03: Agent copilot Mode={0}: custom agent profile missing or invalid: {1}'
     HooksMissing             = 'TE04: Agent copilot Mode={0}: hooks capable but expected hook file missing: {1}'
     HooksJsonInvalid         = 'TE04: Agent copilot Mode={0}: hooks.json is missing or not valid JSON: {1}'
     SkillManifestEmpty       = 'TE03: Agent copilot Mode={0}: SKILL.md is empty: {1}'

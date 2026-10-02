@@ -102,12 +102,28 @@ foreach ($marker in $requiredWorkflowMarkers) {
     }
 }
 
-$forbiddenWorkflowMarkers = @(
-    'AllowUserHome',
-    'secrets.'
-)
+$workflowLines = @($workflowText -split "`r?`n")
+$copilotStepStart = -1
+for ($index = 0; $index -lt $workflowLines.Count; $index++) {
+    if ($workflowLines[$index] -match 'name:\s*Run Copilot CI smoke suite') {
+        $copilotStepStart = $index
+        break
+    }
+}
+if ($copilotStepStart -lt 0) {
+    Write-Fail -TestName $suiteName -Reason 'CI workflow is missing the Copilot CI smoke step'
+}
+$copilotStepEnd = $workflowLines.Count
+for ($index = $copilotStepStart + 1; $index -lt $workflowLines.Count; $index++) {
+    if ($workflowLines[$index] -match '^\s*- name:') {
+        $copilotStepEnd = $index
+        break
+    }
+}
+$copilotWorkflowBlock = $workflowLines[$copilotStepStart..($copilotStepEnd - 1)] -join "`n"
+$forbiddenWorkflowMarkers = @('AllowUserHome', 'secrets.')
 foreach ($marker in $forbiddenWorkflowMarkers) {
-    if ($workflowText -like ("*{0}*" -f $marker)) {
+    if ($copilotWorkflowBlock -like ("*{0}*" -f $marker)) {
         Write-Fail -TestName $suiteName -Reason ("CI workflow must not contain '{0}'" -f $marker)
     }
 }
@@ -115,6 +131,8 @@ foreach ($marker in $forbiddenWorkflowMarkers) {
 $userCopilotHome = Join-Path $userProfile $homeCopilotRelative
 $beforeHomeFingerprint = Get-DirectoryFingerprint -Path $userCopilotHome
 $homeExistedBefore = Test-Path -LiteralPath $userCopilotHome
+$beforeUserFixtureFingerprint = Get-DirectoryFingerprint -Path $fixtureUserRoot
+$beforeRepoFixtureFingerprint = Get-DirectoryFingerprint -Path $fixtureRepoRoot
 
 $suiteOut = & pwsh -NoProfile -File $suiteScriptPath -Quiet 2>&1
 $suiteExit = $LASTEXITCODE
@@ -126,14 +144,41 @@ if ($suiteExit -ne 0) {
 if ($suiteText -notmatch [regex]::Escape($suitePassMarker)) {
     Write-Fail -TestName $suiteName -Reason ("suite output must include '{0}'; got: {1}" -f $suitePassMarker, $suiteText.Trim())
 }
-
-$userSkillProbe = Join-Path (Join-Path $fixtureUserRoot $script:ToolkitConstant.SkillsDirectoryName) $skillsProbeName
-$repoSkillProbe = Join-Path (Join-Path $fixtureRepoRoot $script:ToolkitConstant.SkillsDirectoryName) $skillsProbeName
-if (-not (Test-Path -LiteralPath $userSkillProbe)) {
-    Write-Fail -TestName $suiteName -Reason ("Mode user fixture missing skill probe after suite: {0}" -f $userSkillProbe)
+foreach ($mode in @('user', 'repo')) {
+    $modePattern = 'Mode={0}: PASS; Evidence=static; SkillCopy=SOURCE_MATCH\(\d+\); HostExecution=SKIPPED; SeededFailure=DETECTED' -f $mode
+    if ($suiteText -notmatch $modePattern) {
+        Write-Fail -TestName $suiteName -Reason ("suite output missing source-fidelity/static/host/seeded-failure result for Mode={0}: {1}" -f $mode, $suiteText.Trim())
+    }
 }
-if (-not (Test-Path -LiteralPath $repoSkillProbe)) {
-    Write-Fail -TestName $suiteName -Reason ("Mode repo fixture missing skill probe after suite: {0}" -f $repoSkillProbe)
+
+$copilotAdapterPath = Join-Path (Join-Path $repoRoot 'adapters/copilot') 'CopilotAdapter.ps1'
+. $copilotAdapterPath
+$surfaceMatrix = @(Get-Capabilities -AgentId 'copilot').SurfaceMatrix
+$expectedSurfaces = @('Copilot CLI', 'GitHub Copilot in VS Code', 'GitHub Copilot SDK')
+$requiredSurfaceFields = @('Version', 'Modes', 'Instructions', 'SkillsAndAgents', 'ToolsAndPermissions', 'Hooks', 'Context', 'SessionState', 'Evidence')
+foreach ($surfaceName in $expectedSurfaces) {
+    $surface = @($surfaceMatrix | Where-Object { $_.Surface -eq $surfaceName }) | Select-Object -First 1
+    if ($null -eq $surface) {
+        Write-Fail -TestName $suiteName -Reason ("Get-Capabilities SurfaceMatrix missing {0}" -f $surfaceName)
+    }
+    foreach ($field in $requiredSurfaceFields) {
+        if ($surface.PSObject.Properties.Name -notcontains $field -or [string]::IsNullOrWhiteSpace([string]$surface.$field)) {
+            Write-Fail -TestName $suiteName -Reason ("Surface {0} missing comparable field {1}" -f $surfaceName, $field)
+        }
+    }
+}
+$readmeText = Get-Content -LiteralPath (Join-Path (Join-Path $repoRoot 'adapters/copilot') 'README.md') -Raw
+foreach ($marker in @('Documented', 'Observed (toolkit)', 'Hypothesis / unverified', 'Copilot CLI', 'Copilot in VS Code', 'Copilot SDK')) {
+    if ($readmeText -notlike ("*{0}*" -f $marker)) {
+        Write-Fail -TestName $suiteName -Reason ("Copilot README missing evidence matrix marker: {0}" -f $marker)
+    }
+}
+
+$afterUserFixtureFingerprint = Get-DirectoryFingerprint -Path $fixtureUserRoot
+$afterRepoFixtureFingerprint = Get-DirectoryFingerprint -Path $fixtureRepoRoot
+if (-not [string]::Equals($beforeUserFixtureFingerprint, $afterUserFixtureFingerprint, $comparison) -or
+    -not [string]::Equals($beforeRepoFixtureFingerprint, $afterRepoFixtureFingerprint, $comparison)) {
+    Write-Fail -TestName $suiteName -Reason 'CI suite must not mutate the versioned Copilot seed fixtures'
 }
 
 $afterHomeFingerprint = Get-DirectoryFingerprint -Path $userCopilotHome

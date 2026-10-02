@@ -41,6 +41,7 @@ $modeRepo = 'repo'
 $skillsDirName = 'skills'
 $instructionsDirName = 'instructions'
 $hooksDirName = 'hooks'
+$agentsDirName = 'agents'
 $copilotInstructionsName = 'copilot-instructions.md'
 $gitkeepName = '.gitkeep'
 $alienSkillFolderName = 'alien-user-skill'
@@ -70,7 +71,7 @@ foreach ($required in @(
 function Clear-CopilotFixturePublishedTree {
     param([Parameter(Mandatory = $true)][string] $FixtureRoot)
 
-    foreach ($dirName in @($skillsDirName, $instructionsDirName, $hooksDirName)) {
+    foreach ($dirName in @($skillsDirName, $instructionsDirName, $hooksDirName, $agentsDirName)) {
         $target = Join-Path $FixtureRoot $dirName
         if (-not (Test-Path -LiteralPath $target)) {
             New-Item -ItemType Directory -Path $target -Force | Out-Null
@@ -160,6 +161,11 @@ function Assert-ToolkitArtifactsAbsent {
     if (Test-Path -LiteralPath $hookProbe) {
         Write-Fail -TestName $TestName -Reason ("toolkit hook still present: {0}" -f $hookProbe)
     }
+
+    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) 'repo-analyst.agent.md'
+    if (Test-Path -LiteralPath $agentProbe) {
+        Write-Fail -TestName $TestName -Reason ("toolkit custom agent still present: {0}" -f $agentProbe)
+    }
 }
 
 function Assert-ToolkitArtifactsPresent {
@@ -186,6 +192,11 @@ function Assert-ToolkitArtifactsPresent {
     $hookProbe = Join-Path (Join-Path $FixtureRoot $hooksDirName) $expectedHookProbe
     if (-not (Test-Path -LiteralPath $hookProbe)) {
         Write-Fail -TestName $TestName -Reason ("precondition: toolkit hook missing after sync: {0}" -f $hookProbe)
+    }
+
+    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) 'repo-analyst.agent.md'
+    if (-not (Test-Path -LiteralPath $agentProbe)) {
+        Write-Fail -TestName $TestName -Reason ("precondition: toolkit custom agent missing after sync: {0}" -f $agentProbe)
     }
 }
 
