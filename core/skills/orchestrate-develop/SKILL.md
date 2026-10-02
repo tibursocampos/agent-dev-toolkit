@@ -1,4 +1,4 @@
-﻿---
+---
 name: orchestrate-develop
 description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
 ---
@@ -54,7 +54,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |

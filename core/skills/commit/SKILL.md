@@ -36,7 +36,7 @@ One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>`, with an
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit format | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |

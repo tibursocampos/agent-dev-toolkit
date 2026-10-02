@@ -129,6 +129,69 @@ function Write-SyncPublishOk {
     }
 }
 
+function Publish-RuntimeScripts {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string] $AdapterId,
+        [Parameter()][switch] $UserScope
+    )
+
+    $manifestPath = Join-Path $RepoRoot 'scripts/runtime/runtime-manifest.json'
+    if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+        throw ("Runtime script manifest is missing: {0}" -f $manifestPath)
+    }
+
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $toolkitRoots = New-Object System.Collections.Generic.List[string]
+    [void]$toolkitRoots.Add([System.IO.Path]::GetFullPath($InstallRoot))
+    foreach ($mapping in @($manifest.additionalToolkitRoots)) {
+        if (-not [string]::Equals([string]$mapping.adapter, $AdapterId, [System.StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+        $includeMapping = switch ([string]$mapping.when) {
+            'always' { $true; break }
+            'user-scope' { $UserScope.IsPresent; break }
+            'project' {
+                $installLeaf = Split-Path -Leaf ([System.IO.Path]::GetFullPath($InstallRoot).TrimEnd('\', '/'))
+                -not [string]::Equals($installLeaf, '.agents', [System.StringComparison]::OrdinalIgnoreCase)
+                break
+            }
+            default { throw ("Invalid runtime toolkit-root condition '{0}' for adapter '{1}'" -f $mapping.when, $mapping.adapter) }
+        }
+        if (-not $includeMapping) { continue }
+
+        $relativeRoot = [string]$mapping.path
+        if ([System.IO.Path]::IsPathRooted($relativeRoot) -or $relativeRoot -match '(^|[\\/])\.\.([\\/]|$)') {
+            throw ("Invalid additional toolkit root for adapter '{0}': {1}" -f $mapping.adapter, $relativeRoot)
+        }
+        [void]$toolkitRoots.Add([System.IO.Path]::GetFullPath((Join-Path $InstallRoot $relativeRoot)))
+    }
+
+    $uniqueRoots = @($toolkitRoots | Select-Object -Unique)
+    foreach ($toolkitRoot in $uniqueRoots) {
+        foreach ($entry in @($manifest.files)) {
+            if ($entry.class -notin @('runtime', 'support')) {
+                throw ("Invalid runtime manifest class '{0}' for {1}" -f $entry.class, $entry.source)
+            }
+            $source = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot ([string]$entry.source)))
+            $destinationRelative = Join-Path ([string]$manifest.destinationRoot) ([string]$entry.destination)
+            $destination = [System.IO.Path]::GetFullPath((Join-Path $toolkitRoot $destinationRelative))
+            $installPrefix = $toolkitRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+            if (-not $destination.StartsWith($installPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw ("Runtime destination escapes toolkit root '{0}': {1}" -f $toolkitRoot, $entry.destination)
+            }
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+                throw ("Runtime source missing for caller '{0}': {1}" -f $entry.caller, $entry.source)
+            }
+            $destinationDirectory = Split-Path -Parent $destination
+            New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+            Copy-Item -LiteralPath $source -Destination $destination -Force
+        }
+    }
+    Write-Host ("Publish-RuntimeScripts: OK ({0} allowlisted files across {1} toolkit root(s))" -f @($manifest.files).Count, $uniqueRoots.Count) -ForegroundColor Green
+}
+
 try {
     $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
     Assert-AgentParameterPresent -RepoRoot $repoRoot -AgentId $Agent
@@ -213,6 +276,10 @@ try {
         }
 
         Write-SyncPublishOk -CommandName $commandName -Result $result
+    }
+
+    if (-not $WhatIf.IsPresent) {
+        Publish-RuntimeScripts -RepoRoot $repoRoot -InstallRoot $resolvedInstallRoot -AdapterId $resolved.AgentId -UserScope:$UserScope
     }
 
     if (-not $WhatIf.IsPresent) {

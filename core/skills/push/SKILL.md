@@ -37,7 +37,7 @@ Current branch pushed to `origin` with upstream set when needed. No force-push o
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |

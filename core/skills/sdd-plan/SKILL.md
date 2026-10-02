@@ -139,8 +139,8 @@ Do not invent steps. Do not assign a duration.
 After a successful `Write`, run structural **`validate-plan`** (and prefer a prior **`validate-prd`** on the source PRD) before handoff (`references/validate-plan.md`):
 
 ```
-.\scripts\validation\validate-prd.ps1 -Path <source-prd-path>
-.\scripts\validation\validate-plan.ps1 -Path <written-plan-path> -PrdPath <source-prd-path>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-prd.ps1" -Path <source-prd-path>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-plan.ps1" -Path <written-plan-path> -PrdPath <source-prd-path>
 ```
 
 Exit ≠ 0 → **STOP**; fix REQ→step coverage (or PRD structure); re-run until exit 0. Do **not** advance to `/sdd-develop` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`.

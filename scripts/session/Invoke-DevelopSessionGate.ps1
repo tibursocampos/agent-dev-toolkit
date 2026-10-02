@@ -1,12 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Idempotent develop-session gate helper (set step_confirmed).
+  Idempotent develop-session gate helper (confirm, record tests, or reset).
 
 .DESCRIPTION
   Implements REQ-011 / CA4: resolve PLAN-scoped develop session per SESSION.md,
-  create schema defaults when missing, set gates.step_confirmed = true.
-  When step_confirmed is already true, exit 0 without rewriting the file (CT5).
+  create schema defaults when missing and set step_confirmed after operator approval.
+  Set tests_run only after tests execute and step_confirmed is true; reset both gates
+  after the step closes. Set operations skip rewriting when already in the target state.
   Does not claim or mutate PLAN-LEDGER (RN04) — use Invoke-PlanLedgerClaim.ps1.
 
 .PARAMETER PlanPath
@@ -31,7 +32,7 @@
   Optional value written to current_step when creating/updating (default: Step or null).
 
 .PARAMETER Action
-  ensure (default) | status
+  ensure (default) | tests-run | reset | status
 
 .EXAMPLE
   .\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath features\006-x\US01\PLAN\PLAN_006_x.md -RepoPath . -SessionsRoot $env:TEMP\adt-sessions
@@ -53,7 +54,7 @@ param(
     [ValidateRange(1, 9999)]
     [int] $CurrentStep = 0,
 
-    [ValidateSet('ensure', 'status')]
+    [ValidateSet('ensure', 'tests-run', 'reset', 'status')]
     [string] $Action = 'ensure'
 )
 
@@ -73,6 +74,7 @@ $exitOk = [int]$script:ToolkitConstant.DevelopSessionGateExitOk
 $exitUsage = [int]$script:ToolkitConstant.DevelopSessionGateExitUsage
 $sessionsFolderName = [string]$script:ToolkitConstant.PlanLedgerSessionsFolderName
 $gateStepConfirmed = [string]$script:ToolkitConstant.DevelopSessionGateNameStepConfirmed
+$gateTestsRun = 'tests_run'
 $phaseDevelop = [string]$script:ToolkitConstant.DevelopSessionGatePhaseDevelop
 
 function Get-Utf8NoBomEncoding {
@@ -201,6 +203,15 @@ function Test-StepConfirmedTrue {
     return ([string]$value).Equals('true', [System.StringComparison]::OrdinalIgnoreCase)
 }
 
+function Test-TestsRunTrue {
+    param([Parameter(Mandatory = $true)]$SessionObject)
+    if ($null -eq $SessionObject.gates) { return $false }
+    $property = $SessionObject.gates.PSObject.Properties[$gateTestsRun]
+    if ($null -eq $property -or $null -eq $property.Value) { return $false }
+    if ($property.Value -is [bool]) { return [bool]$property.Value }
+    return ([string]$property.Value).Equals('true', [System.StringComparison]::OrdinalIgnoreCase)
+}
+
 function Write-DevelopSessionFile {
     param(
         [Parameter(Mandatory = $true)][string] $Path,
@@ -289,6 +300,65 @@ switch ($Action) {
             session_path   = $sessionPathPortable
             step_confirmed = (Test-StepConfirmedTrue -SessionObject $existing)
             tests_run      = $testsRun
+        }
+        exit $exitOk
+    }
+
+    { $_ -in @('tests-run', 'reset') } {
+        if (-not (Test-Path -LiteralPath $sessionPath)) {
+            Write-Error 'Develop session must exist before recording tests or resetting gates.'
+            exit $exitUsage
+        }
+        $existing = Read-DevelopSessionObject -Path $sessionPath
+        if ($null -eq $existing.gates) {
+            $existing | Add-Member -NotePropertyName gates -NotePropertyValue ([pscustomobject]@{
+                    step_confirmed = $false
+                    tests_run = $false
+                }) -Force
+        }
+
+        if ($Action -eq 'tests-run') {
+            if (-not (Test-StepConfirmedTrue -SessionObject $existing)) {
+                Write-Error 'Cannot record tests_run before step_confirmed is true.'
+                exit $exitUsage
+            }
+            if (Test-TestsRunTrue -SessionObject $existing) {
+                Write-JsonResult -Object @{ ok = $true; skipped = $true; session_path = $sessionPathPortable; tests_run = $true }
+                exit $exitOk
+            }
+            if ($null -eq $existing.gates.PSObject.Properties['tests_run']) {
+                $existing.gates | Add-Member -NotePropertyName tests_run -NotePropertyValue $false
+            }
+            $existing.gates.tests_run = $true
+            $existing.phase = $phaseDevelop
+        }
+        else {
+            $phaseIdle = ([string]$existing.phase).Equals('idle', [System.StringComparison]::OrdinalIgnoreCase)
+            $currentStepMatches = ($CurrentStep -le 0) -or ([string]$existing.current_step -eq [string]$CurrentStep)
+            $alreadyReset = (-not (Test-StepConfirmedTrue -SessionObject $existing)) -and
+                (-not (Test-TestsRunTrue -SessionObject $existing)) -and $phaseIdle -and $currentStepMatches
+            if ($alreadyReset) {
+                Write-JsonResult -Object @{ ok = $true; skipped = $true; session_path = $sessionPathPortable; step_confirmed = $false; tests_run = $false }
+                exit $exitOk
+            }
+            $existing.gates.step_confirmed = $false
+            if ($null -eq $existing.gates.PSObject.Properties['tests_run']) {
+                $existing.gates | Add-Member -NotePropertyName tests_run -NotePropertyValue $false
+            }
+            $existing.gates.tests_run = $false
+            $existing.phase = 'idle'
+            if ($CurrentStep -gt 0) { $existing.current_step = $CurrentStep }
+        }
+
+        $existing.updated_at = (Get-Date).ToUniversalTime().ToString('o')
+        Write-DevelopSessionFile -Path $sessionPath -SessionObject $existing
+        Write-JsonResult -Object @{
+            ok = $true
+            skipped = $false
+            session_path = $sessionPathPortable
+            step_confirmed = (Test-StepConfirmedTrue -SessionObject $existing)
+            tests_run = (Test-TestsRunTrue -SessionObject $existing)
+            action = $Action
         }
         exit $exitOk
     }

@@ -2,6 +2,8 @@
 # Tests:
 #   Should_Pass_When_HelperCreatesSessionAndSetsGate
 #   Should_Pass_When_SecondRunIsIdempotent_CT5
+#   Should_Pass_When_TestsRunIsRecordedOnlyAfterExecution
+#   Should_Pass_When_ResetIsCanonicalAndIdempotent
 #   Should_Pass_When_ValidateSessionGatesSeesTrue
 #   Should_Fail_When_ValidateSessionGatesBlocked
 #   Should_Pass_When_HelperDoesNotTouchLedger_RN04
@@ -102,6 +104,9 @@ foreach ($contractPath in @($sessionContractPath, $sessionMirrorPath)) {
             'Invoke-DevelopSessionGate.ps1',
             'validate-session-gates.ps1',
             'step_confirmed',
+            '-Action tests-run',
+            '-Action reset',
+            'tests_run',
             'idempotent'
         )) {
         if ($text -notmatch [regex]::Escape($marker)) {
@@ -217,6 +222,64 @@ try {
         Write-Fail -TestName 'Should_Pass_When_ValidateSessionGatesSeesTrue' -Reason ("expected exit 0, got {0}: {1}" -f $validateOkCode, $validateOk)
     }
     Write-Pass -TestName 'Should_Pass_When_ValidateSessionGatesSeesTrue'
+
+    $testsOut = & $helperPath -Action tests-run -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $sessionsRoot 2>&1 | Out-String
+    $testsCode = $LASTEXITCODE
+    if ($null -eq $testsCode) { $testsCode = 0 }
+    if ($testsCode -ne 0 -or $testsOut -notmatch '"tests_run":\s*true') {
+        Write-Fail -TestName 'Should_Pass_When_TestsRunIsRecordedOnlyAfterExecution' -Reason ("tests-run action failed: exit {0}: {1}" -f $testsCode, $testsOut)
+    }
+    $validateTests = & $validatePath -RepoPath $repoRoot -PlanPath $fixturePlanPath -SessionsRoot $sessionsRoot -RequiredGate tests_run 2>&1 | Out-String
+    $validateTestsCode = $LASTEXITCODE
+    if ($null -eq $validateTestsCode) { $validateTestsCode = 0 }
+    if ($validateTestsCode -ne 0) {
+        Write-Fail -TestName 'Should_Pass_When_TestsRunIsRecordedOnlyAfterExecution' -Reason ("tests_run validator failed: exit {0}: {1}" -f $validateTestsCode, $validateTests)
+    }
+    Write-Pass -TestName 'Should_Pass_When_TestsRunIsRecordedOnlyAfterExecution'
+
+    $resetOut = & $helperPath -Action reset -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $sessionsRoot -CurrentStep 5 2>&1 | Out-String
+    $resetCode = $LASTEXITCODE
+    if ($null -eq $resetCode) { $resetCode = 0 }
+    if ($resetCode -ne 0 -or $resetOut -notmatch '"step_confirmed":\s*false' -or $resetOut -notmatch '"tests_run":\s*false') {
+        Write-Fail -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent' -Reason ("reset action failed: exit {0}: {1}" -f $resetCode, $resetOut)
+    }
+    $resetSessionObject = Get-Content -LiteralPath $sessionFile.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($resetSessionObject.phase -ne 'idle' -or $resetSessionObject.current_step -ne 5) {
+        Write-Fail -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent' -Reason 'reset must set phase idle and persist the requested next current_step'
+    }
+    $resetHash = Get-FileSha256Hex -Path $sessionFile.FullName
+    $resetMtime = (Get-Item -LiteralPath $sessionFile.FullName).LastWriteTimeUtc
+    Start-Sleep -Milliseconds 50
+    $resetAgain = & $helperPath -Action reset -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $sessionsRoot -CurrentStep 5 2>&1 | Out-String
+    $resetAgainCode = $LASTEXITCODE
+    if ($null -eq $resetAgainCode) { $resetAgainCode = 0 }
+    if ($resetAgainCode -ne 0 -or $resetAgain -notmatch '"skipped":\s*true' -or
+        $resetHash -ne (Get-FileSha256Hex -Path $sessionFile.FullName) -or
+        $resetMtime -ne (Get-Item -LiteralPath $sessionFile.FullName).LastWriteTimeUtc) {
+        Write-Fail -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent' -Reason ("repeated reset was not idempotent: exit {0}: {1}" -f $resetAgainCode, $resetAgain)
+    }
+    Write-Pass -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent'
+
+    $prerequisiteRoot = Join-Path $workRoot 'sessions-no-step-confirmation'
+    New-Item -ItemType Directory -Path $prerequisiteRoot -Force | Out-Null
+    $null = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $prerequisiteRoot 2>&1
+    $prerequisiteSession = Get-ChildItem -LiteralPath $prerequisiteRoot -Recurse -Filter 'plan-*.json' -File | Select-Object -First 1
+    $prerequisiteSessionObject = Get-Content -LiteralPath $prerequisiteSession.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+    $prerequisiteSessionObject.gates.step_confirmed = $false
+    $prerequisiteSessionObject | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $prerequisiteSession.FullName -Encoding UTF8
+    $prerequisiteStdout = Join-Path $workRoot 'prerequisite.stdout.txt'
+    $prerequisiteStderr = Join-Path $workRoot 'prerequisite.stderr.txt'
+    $prerequisiteProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $helperPath,
+        '-Action', 'tests-run', '-PlanPath', $fixturePlanPath,
+        '-RepoPath', $repoRoot, '-SessionsRoot', $prerequisiteRoot
+    ) -PassThru -Wait -NoNewWindow -RedirectStandardOutput $prerequisiteStdout -RedirectStandardError $prerequisiteStderr
+    $prerequisiteCode = $prerequisiteProcess.ExitCode
+    $prerequisiteOut = ((Get-Content -LiteralPath $prerequisiteStdout -Raw -ErrorAction SilentlyContinue) + (Get-Content -LiteralPath $prerequisiteStderr -Raw -ErrorAction SilentlyContinue))
+    if ($prerequisiteCode -eq 0) {
+        Write-Fail -TestName 'Should_Fail_When_TestsRunHasNoConfirmedStep' -Reason 'tests_run must be blocked before step_confirmed'
+    }
+    Write-Pass -TestName 'Should_Fail_When_TestsRunHasNoConfirmedStep'
 
     # Blocked path: fresh sessions root with gate false
     $blockedRoot = Join-Path $workRoot 'sessions-blocked'

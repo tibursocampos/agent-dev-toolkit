@@ -10,7 +10,7 @@ Resolve `Invoke-MemoryBankInventory.ps1` in this order — **do not** Glob only 
 When the script is found (create / refresh / refresh-light):
 
 ```powershell
-.\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh
 ```
 
 Use `-Action refresh-light` for O3 Step N; default `inventory` for create-only scans. Exit `0` = `ready`; exit `2` = `not-ready` (read reason from `sources.json`).

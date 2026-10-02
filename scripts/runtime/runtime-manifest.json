@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "destinationRoot": "scripts",
+  "additionalToolkitRoots": [
+    { "adapter": "codex", "path": "plugin", "when": "always", "reason": "Codex marketplace plugin skills resolve TOOLKIT_ROOT to InstallRoot/plugin." },
+    { "adapter": "codex", "path": ".agents", "when": "user-scope", "reason": "Codex optional USER-scope skills resolve TOOLKIT_ROOT to InstallRoot/.agents." },
+    { "adapter": "openhands", "path": ".agents", "when": "project", "reason": "OpenHands project skills resolve TOOLKIT_ROOT to InstallRoot/.agents." }
+  ],
+  "files": [
+    { "source": "scripts/inventory/Invoke-MemoryBankInventory.ps1", "destination": "inventory/Invoke-MemoryBankInventory.ps1", "class": "runtime", "caller": "memory-bank-init and shared memory-bank inventory contract" },
+    { "source": "scripts/session/Invoke-DevelopSessionGate.ps1", "destination": "session/Invoke-DevelopSessionGate.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
+    { "source": "scripts/ledger/Invoke-PlanLedgerClaim.ps1", "destination": "ledger/Invoke-PlanLedgerClaim.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
+    { "source": "scripts/ledger/Invoke-ExecutionModeGate.ps1", "destination": "ledger/Invoke-ExecutionModeGate.ps1", "class": "runtime", "caller": "orchestrate-develop" },
+    { "source": "scripts/validation/Invoke-SiblingReadinessGate.ps1", "destination": "validation/Invoke-SiblingReadinessGate.ps1", "class": "runtime", "caller": "shared readiness-severity contract" },
+    { "source": "scripts/validation/validate-session-gates.ps1", "destination": "validation/validate-session-gates.ps1", "class": "runtime", "caller": "shared SDD session contract" },
+    { "source": "scripts/validation/validate-evidence.ps1", "destination": "validation/validate-evidence.ps1", "class": "runtime", "caller": "sdd-develop evidence gate" },
+    { "source": "scripts/validation/validate-trace.ps1", "destination": "validation/validate-trace.ps1", "class": "runtime", "caller": "sdd-develop archive gate" },
+    { "source": "scripts/validation/validate-prd.ps1", "destination": "validation/validate-prd.ps1", "class": "runtime", "caller": "sdd-spec PRD structure gate" },
+    { "source": "scripts/validation/validate-plan.ps1", "destination": "validation/validate-plan.ps1", "class": "runtime", "caller": "sdd-plan PLAN structure gate" },
+    { "source": "scripts/validation/validate-change.ps1", "destination": "validation/validate-change.ps1", "class": "runtime", "caller": "sdd-spec and change artifact gate" },
+    { "source": "scripts/validation/Invoke-PrdPlanChangePreflight.ps1", "destination": "validation/Invoke-PrdPlanChangePreflight.ps1", "class": "runtime", "caller": "orchestrate-deliver preflight" },
+    { "source": "scripts/_lib/ToolkitConstants.ps1", "destination": "_lib/ToolkitConstants.ps1", "class": "support", "caller": "published runtime scripts above" },
+    { "source": "scripts/_lib/Get-ToolkitRepoRoot.ps1", "destination": "_lib/Get-ToolkitRepoRoot.ps1", "class": "support", "caller": "session, ledger, and preflight runtime scripts above" },
+    { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "preflight runtime script above" }
+  ]
+}

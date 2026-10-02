@@ -35,7 +35,7 @@ Working main/preload/renderer changes, validated with build and documented smoke
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
