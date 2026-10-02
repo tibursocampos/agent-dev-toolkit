@@ -39,6 +39,32 @@ function Assert-RuntimeRoot {
     if (Test-Path -LiteralPath (Join-Path $runtimeRoot 'sync-agent.ps1')) {
         throw "Internal toolkit maintenance script leaked to runtime root: $runtimeRoot"
     }
+
+    $publishedFiles = @(Get-ChildItem -LiteralPath $runtimeRoot -Recurse -File -ErrorAction Stop)
+    foreach ($publishedFile in $publishedFiles) {
+        $relative = $publishedFile.FullName.Substring($runtimeRoot.Length).TrimStart('\', '/')
+        if ($relative -match '(^|[\\/])(adapters|core)([\\/]|$)' -or $relative -match '(^|[\\/])sync-agent\.ps1$') {
+            throw "Internal checkout path leaked into runtime root '$runtimeRoot': $relative"
+        }
+    }
+}
+
+function Assert-AdapterCapabilityBoundary {
+    param(
+        [Parameter(Mandatory = $true)]$Adapter,
+        [Parameter(Mandatory = $true)][string]$InstallRoot
+    )
+
+    if ($Adapter.capabilities.skills -ne $true) {
+        throw "Adapter '$($Adapter.id)' was selected without declaring skills capability."
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$Adapter.capabilities.subagents)) {
+        throw "Adapter '$($Adapter.id)' has no declared subagents capability."
+    }
+
+    # Filesystem publication is static evidence only. A fixture cannot prove
+    # that a real host loaded the files or delivered a prompt/message.
+    Write-Host ("Adapter={0}; Surface=isolated-install; Evidence=static; HostExecution=SKIPPED; Reason=host/credentials not exercised" -f $Adapter.id)
 }
 
 function Invoke-FixtureSync {
@@ -65,24 +91,27 @@ try {
         $installRoot = Join-Path $fullTestRoot $agent.id
         $syncArgs = @{ Agent = $agent.id; InstallRoot = $installRoot }
         if ($agent.id -eq 'copilot') { $syncArgs['CopilotUserMode'] = $true }
-        if ($agent.id -eq 'codex') { $syncArgs['UserScope'] = $true }
+        # Keep Codex on the disposable InstallRoot fixture. Passing UserScope
+        # opts into the real profile and would invalidate isolated-install
+        # evidence (and may require host credentials).
         Invoke-FixtureSync @syncArgs
 
         $expectedRoots = New-Object System.Collections.Generic.List[string]
         [void]$expectedRoots.Add($installRoot)
         if ($agent.id -eq 'codex') {
             [void]$expectedRoots.Add((Join-Path $installRoot 'plugin'))
-            [void]$expectedRoots.Add((Join-Path $installRoot '.agents'))
         }
         elseif ($agent.id -eq 'openhands') {
             [void]$expectedRoots.Add((Join-Path $installRoot '.agents'))
         }
         foreach ($root in $expectedRoots) { Assert-RuntimeRoot -Root $root }
+        Assert-AdapterCapabilityBoundary -Adapter $agent -InstallRoot $installRoot
     }
 
     $openHandsUserRoot = Join-Path $fullTestRoot 'openhands-user/.agents'
     Invoke-FixtureSync -Agent 'openhands' -InstallRoot $openHandsUserRoot
     Assert-RuntimeRoot -Root $openHandsUserRoot
+    Assert-AdapterCapabilityBoundary -Adapter ($registry.agents | Where-Object id -eq 'openhands') -InstallRoot $openHandsUserRoot
     if (Test-Path -LiteralPath (Join-Path $openHandsUserRoot '.agents/scripts')) {
         throw 'OpenHands user install received an accidental nested .agents/scripts copy.'
     }
