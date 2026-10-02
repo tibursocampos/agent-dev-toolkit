@@ -73,6 +73,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Execution display (before each spawn and after each receipt) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/execution-display.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/develop-modes.md` |
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
+| O3 paired baseline and delta/risk review (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/step-queue-spawn.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |

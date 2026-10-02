@@ -3,6 +3,7 @@
 #   Should_Pass_When_StorySizingContractPresent
 #   Should_Pass_When_OrchestrateAnalyzeReferencesStorySizing
 #   Should_Pass_When_RefineStoryScorecardHasStoryScope
+#   Should_Pass_When_S5PlanningContractsCoverSeededCases
 #
 # Frente A: story-sizing contract exists and is wired into O1 synthesis + refine scorecard.
 $ErrorActionPreference = 'Stop'
@@ -113,6 +114,34 @@ if ($refineRefText -notmatch 'story-sizing\.md') {
     Write-Fail -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope' -Reason 'refine-story/reference.md must reference story-sizing.md'
 }
 Write-Pass -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope'
+
+# --- S5 deterministic contract assertions ---
+$prdTemplatePath = Join-Path $repoRoot 'core/skills/_shared/templates/sdd/PRD.md'
+$o3QueuePath = Join-Path $repoRoot 'core/skills/orchestrate-develop/references/step-queue-spawn.md'
+foreach ($path in @($prdTemplatePath, $o3QueuePath)) {
+    if (-not (Test-Path -LiteralPath $path)) {
+        Write-Fail -TestName 'Should_Pass_When_S5PlanningContractsCoverSeededCases' -Reason ("missing {0}" -f $path)
+    }
+}
+
+foreach ($marker in @('value', 'consumer', 'delivery independence', 'Endpoint count is never sufficient')) {
+    if ($contractText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_S5PlanningContractsCoverSeededCases' -Reason ("story-sizing.md missing '{0}'" -f $marker)
+    }
+}
+$prdTemplateText = Get-Content -LiteralPath $prdTemplatePath -Raw -Encoding UTF8
+foreach ($marker in @('7.3', 'POST /orders', 'Request', 'Response', 'blocker', 'Fonte can')) {
+    if ($prdTemplateText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_S5PlanningContractsCoverSeededCases' -Reason ("PRD template missing '{0}'" -f $marker)
+    }
+}
+$o3QueueText = Get-Content -LiteralPath $o3QueuePath -Raw -Encoding UTF8
+foreach ($marker in @('paired baseline', 'tokens', 'tool_calls', 'seeded contradictions', '100%', 'delta/risk review', 'baseline exists')) {
+    if ($o3QueueText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_S5PlanningContractsCoverSeededCases' -Reason ("O3 queue contract missing '{0}'" -f $marker)
+    }
+}
+Write-Pass -TestName 'Should_Pass_When_S5PlanningContractsCoverSeededCases'
 
 Write-Host 'Assert-StorySizingContract: ALL PASS'
 exit 0

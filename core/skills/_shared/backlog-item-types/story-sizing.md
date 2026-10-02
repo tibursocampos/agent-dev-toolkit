@@ -47,6 +47,15 @@ Apply in order during O1 synthesis and refine escalation:
 
 When in doubt, prefer **fewer, outcome-sized stories** over many file-scoped ones.
 
+## Required split / merge decision record
+
+Before O1 presents a story backlog, record a short rationale for each split or
+merge. The rationale must name the observable **value**, the **consumer**, and
+**delivery independence** (whether implementation, deployment, and rollback can
+happen independently). Endpoint count is never sufficient evidence for a split:
+multiple endpoints stay in one story when their consumer outcome and delivery
+boundary are inseparable.
+
 ---
 
 ## Merge policy (O1, before human gate)

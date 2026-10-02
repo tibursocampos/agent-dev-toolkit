@@ -14,6 +14,25 @@ Story preference: finish one story’s PLAN before starting another unless user 
 
 ---
 
+## O3 paired baseline and delta/risk review
+
+Before replacing a full O3 review with a delta/risk review, record a paired
+baseline using equivalent PLAN inputs, environment, and configuration. Record
+observed `tokens` and `tool_calls` for both runs; do not invent an absolute
+target before that baseline exists.
+
+The baseline fixture must include seeded contradictions. Both the initial full
+review and every eligible delta/risk review must detect **100%** of those seeded
+contradictions. A missed contradiction blocks the delta path and requires a full
+review or corrected contract.
+
+After the baseline, use delta/risk only when changed files and acceptance surface
+are known. Escalate to a full review for contract, dependency, or unresolved-risk
+changes. The receipt states `review_mode`, baseline reference, tokens, tool calls,
+detection count, and limitations; metrics are observations, never delivery targets.
+
+---
+
 ## Process — Build step queue
 
 For each PLAN:
