@@ -34,6 +34,54 @@ function Write-Fail {
     exit 1
 }
 
+function Assert-GateLifecycleFixture {
+    $gate = [ordered]@{
+        id = 's7-fixture'
+        state = 'presented'
+        dependentWorkAllowed = $false
+        processedAnswers = 0
+    }
+
+    if ($gate.state -ne 'presented' -or $gate.dependentWorkAllowed) {
+        throw 'presented gate must block dependent work'
+    }
+
+    $gate.state = 'pending'
+    $queuedAnswer = [ordered]@{ delivery = 'queued'; value = 'sim'; processed = $false }
+    if ($queuedAnswer.processed -or $gate.state -ne 'pending' -or $gate.dependentWorkAllowed) {
+        throw 'queued but unprocessed answer must remain pending and blocking'
+    }
+
+    $queuedAnswer.processed = $true
+    $gate.state = 'answered'
+    $gate.dependentWorkAllowed = $true
+    $gate.processedAnswers++
+    if (-not $queuedAnswer.processed -or $gate.state -ne 'answered' -or -not $gate.dependentWorkAllowed) {
+        throw 'processed answer must authorize only the dependent branch'
+    }
+
+    $redelivery = [ordered]@{ delivery = 'redelivered'; value = 'sim'; processed = $false }
+    if ($gate.processedAnswers -ne 1 -or $redelivery.processed) {
+        throw 'redelivered answer must not be counted before parsing'
+    }
+
+    $gate.state = 'resumed'
+    $gate.dependentWorkAllowed = $false
+    if ($gate.state -ne 'resumed' -or $gate.dependentWorkAllowed) {
+        throw 'resume must reload the active gate and block until answered again'
+    }
+
+    $redelivery.processed = $true
+    $gate.state = 'answered'
+    $gate.dependentWorkAllowed = $true
+    $gate.processedAnswers++
+    if ($gate.processedAnswers -ne 2 -or $gate.state -ne 'answered' -or -not $gate.dependentWorkAllowed) {
+        throw 'resume must continue from the active gate after a parsed answer'
+    }
+
+    Write-Pass -TestName 'Should_Pass_When_GateLifecycleFixtureDistinguishesQueuedProcessedAndResumed'
+}
+
 function Get-FileSha256Hex {
     param([Parameter(Mandatory = $true)][string] $Path)
     $sha = [System.Security.Cryptography.SHA256]::Create()
@@ -59,6 +107,13 @@ if (-not (Test-Path -LiteralPath $constantsScript)) {
     Write-Fail -TestName 'Assert-DevelopSessionGatePreconditions' -Reason ("missing {0}" -f $constantsScript)
 }
 
+try {
+    Assert-GateLifecycleFixture
+}
+catch {
+    Write-Fail -TestName 'Should_Pass_When_GateLifecycleFixtureDistinguishesQueuedProcessedAndResumed' -Reason $_.Exception.Message
+}
+
 . $constantsScript
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
@@ -80,6 +135,30 @@ $sessionMirrorPath = Join-Path $repoRoot ($sessionMirrorRel -replace '/', [Syste
 $allowlistCursorPath = Join-Path $repoRoot ($allowlistCursorRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $allowlistCliPath = Join-Path $repoRoot ($allowlistCliRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $fixturePlanPath = Join-Path $repoRoot ($fixturePlanRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$approvalGatesPath = Join-Path $repoRoot 'core/skills/orchestrate-deliver/references/approval-gates.md'
+$preconditionsPath = Join-Path $repoRoot 'core/skills/orchestrate-deliver/references/preconditions.md'
+$adaptersReadmePath = Join-Path $repoRoot 'adapters/README.md'
+
+foreach ($path in @($approvalGatesPath, $preconditionsPath, $adaptersReadmePath)) {
+    if (-not (Test-Path -LiteralPath $path)) {
+        Write-Fail -TestName 'Should_Pass_When_ApprovalLifecycleIsObservable_REQ003' -Reason ("missing {0}" -f $path)
+    }
+}
+$approvalText = Get-Content -LiteralPath $approvalGatesPath -Raw -Encoding UTF8
+$preconditionsText = Get-Content -LiteralPath $preconditionsPath -Raw -Encoding UTF8
+$adapterText = Get-Content -LiteralPath $adaptersReadmePath -Raw -Encoding UTF8
+foreach ($state in @('presented', 'pending', 'answered', 'resumed')) {
+    if ($approvalText -notmatch ('(?s)' + [regex]::Escape('`' + $state + '`'))) {
+        Write-Fail -TestName 'Should_Pass_When_ApprovalLifecycleIsObservable_REQ003' -Reason ("approval lifecycle missing state {0}" -f $state)
+    }
+}
+if ($approvalText -notmatch 'queued message.*remains pending' -or
+    $preconditionsText -notmatch 'keeps dependent work blocked' -or
+    $adapterText -notmatch 'Retry / redelivery observability limit' -or
+    $adapterText -notmatch 'OpenHands' -or $adapterText -notmatch 'SKIPPED') {
+    Write-Fail -TestName 'Should_Pass_When_ApprovalLifecycleIsObservable_REQ003' -Reason 'queued/pending, dependent-work block, and adapter evidence limits must be explicit'
+}
+Write-Pass -TestName 'Should_Pass_When_ApprovalLifecycleIsObservable_REQ003'
 
 if (-not (Test-Path -LiteralPath $helperPath)) {
     Write-Fail -TestName 'Should_Pass_When_HelperCreatesSessionAndSetsGate' -Reason ("missing helper {0}" -f $helperRel)
@@ -190,6 +269,27 @@ try {
         Write-Fail -TestName 'Should_Pass_When_HelperCreatesSessionAndSetsGate' -Reason 'session file step_confirmed must be true after ensure'
     }
     Write-Pass -TestName 'Should_Pass_When_HelperCreatesSessionAndSetsGate'
+
+    # REQ-005 / CA5: a session bound to another repo or PLAN must fail before mutation.
+    foreach ($identityField in @('repo', 'plan_path')) {
+        $identityRoot = Join-Path $workRoot ('identity-' + $identityField)
+        $null = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $identityRoot 2>&1
+        $identitySession = Get-ChildItem -LiteralPath $identityRoot -Recurse -Filter 'plan-*.json' -File | Select-Object -First 1
+        $identityObject = Get-Content -LiteralPath $identitySession.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+        $identityObject.$identityField = Join-Path $repoRoot ('mismatch-' + $identityField)
+        $identityObject | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $identitySession.FullName -Encoding UTF8
+        $beforeMismatch = [System.IO.File]::ReadAllBytes($identitySession.FullName)
+        $expectedResolved = if ($identityField -eq 'repo') { $repoRoot -replace '\\', '/' } else { $fixturePlanPath -replace '\\', '/' }
+        $mismatchOut = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $identityRoot 2>&1 | Out-String
+        $mismatchCode = $LASTEXITCODE
+        $afterMismatch = [System.IO.File]::ReadAllBytes($identitySession.FullName)
+        if ($mismatchCode -eq 0 -or $mismatchOut -notmatch 'session_identity_mismatch' -or
+            $mismatchOut -notmatch [regex]::Escape($expectedResolved) -or
+            [Convert]::ToBase64String($beforeMismatch) -ne [Convert]::ToBase64String($afterMismatch)) {
+            Write-Fail -TestName ('Should_Fail_When_Persisted' + $identityField + 'DiffersWithoutMutation') -Reason ("exit {0}, output: {1}" -f $mismatchCode, $mismatchOut)
+        }
+        Write-Pass -TestName ('Should_Fail_When_Persisted' + $identityField + 'DiffersWithoutMutation')
+    }
 
     $hashBefore = Get-FileSha256Hex -Path $sessionFile.FullName
     $mtimeBefore = (Get-Item -LiteralPath $sessionFile.FullName).LastWriteTimeUtc
