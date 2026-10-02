@@ -1,3 +1,24 @@
+## Local instructions and observable findings
+
+For each reviewed file, list the applicable `AGENTS.md` chain from root to the file.
+Use the closest applicable instruction for local rules. When it conflicts with a
+higher-authority system, host, or repository instruction, report the conflict and
+the controlling rule; never silently treat a sibling instruction as applicable.
+
+Report configured lint, dependency-audit, and analyzer results in this shape:
+
+| Tool | Scope | Status | Evidence | Severity | Comparison | Finding |
+|------|-------|--------|----------|----------|------------|---------|
+| `<tool>` | file/project/dependency graph | `PASS` / `FOUND` / `SKIPPED` | command output, advisory, or file:line | tool severity or `n/a` | `new` / `pre-existing` / `unavailable` | rule, package/advisory, or diagnostic |
+
+- `PASS`: the configured tool ran and found no relevant issue.
+- `FOUND`: the tool emitted a lint rule, vulnerability advisory, or diagnostic.
+- `SKIPPED`: the tool, host capability, or configured integration is unavailable; include the reason and intended scope. Never represent unavailable as `PASS`.
+
+Do not run a formatter, `--fix`, package update, diagnostic suppression, quick fix,
+or cleanup as part of a review. Reviews report evidence and recommend follow-up;
+they do not remediate automatically.
+
 ## Code analysis focus
 
 | Area | Focus |

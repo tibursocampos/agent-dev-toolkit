@@ -54,6 +54,16 @@ Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT
 
 Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return **zero or more** finding blocks: id, severity `B` | `I` | `MINOR`, finding type, section, portable evidence path or `no-evidence`, recommendation. A summary is not the only product. Without evidence, do not mark the finding resolved. Do not write application code.
 
+## Security evidence reporting
+
+For dependency-audit and configured security diagnostics, preserve a structured
+record with tool, scope, status (`PASS`, `FOUND`, or `SKIPPED`), evidence, severity,
+package/version/advisory when available, and comparison (`new`, `pre-existing`, or
+`unavailable`). A missing tool or host capability is `SKIPPED`, never `PASS`.
+The specialist reports and recommends only: never automatically fix, update,
+suppress, or clean up a finding. A preflight note is not a final security review of
+a later implementation diff; state that limitation explicitly.
+
 ## Full prompt
 
 Do not paste the full prompt here. Load:

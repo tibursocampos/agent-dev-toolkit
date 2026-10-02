@@ -2,9 +2,22 @@
 
 **Goal:** Validate staged work before `git commit`.
 
-**Guardrails:** Fail fast - report exact files and rules. Do not auto-fix without user consent. Detected secrets are **always** blocking.
+**Guardrails:** Fail fast - report exact files and rules. Do not auto-fix without user consent. Detected secrets are **always** blocking. This step only observes and reports: never run `--fix`, `format`, package update, suppression, or cleanup commands automatically.
 
 Flow: `Step 3 (branching) -> Step 3.5 -> Step 4 (commits)`.
+
+---
+
+## 3.5.0. Applicable local instructions
+
+Before selecting a validation command or interpreting its output, discover applicable
+`AGENTS.md` files from the repository root to each changed path. Apply the closest
+applicable instruction as the local rule. A higher-authority instruction (system,
+host, or repository root) remains controlling when it conflicts with a nested file;
+report that conflict instead of silently choosing a lower rule.
+
+Record the instruction paths used, the changed-path scope, and any conflict in the
+validation evidence. Do not infer that an instruction applies to sibling directories.
 
 ---
 
@@ -34,7 +47,10 @@ If found -> **block commit**; show file, line, pattern type.
 | Node (ESLint) | `npx eslint . --max-warnings 0` | `npx eslint . --fix` |
 | Node (Prettier) | `npx prettier --check .` | `npx prettier --write .` |
 
-Skip tools not present in the repo.
+When a configured tool is unavailable, record `SKIPPED` with the tool, intended
+scope, reproducible availability evidence, and reason. An unavailable tool is never
+`PASS`. The commands in the auto-fix column are consent-only examples and must not
+run as part of this validation.
 
 ---
 
@@ -66,7 +82,11 @@ Use reasonable timeouts; report slow suites to the user.
 | .NET | `dotnet list package --vulnerable --include-transitive` |
 | Node | `npm audit --audit-level=high` |
 
-Report high/critical issues; do not block unless user policy requires it.
+Report findings without changing dependencies. Each available advisory must include
+package, version, severity, advisory identifier/link when emitted, scope, evidence,
+and whether it is `new`, `pre-existing`, or `unavailable` for comparison. Do not
+block unless user policy requires it. If the audit command is unavailable, emit
+`SKIPPED`, never `PASS`.
 
 ---
 
@@ -80,16 +100,27 @@ Run in order; stop on first blocker:
 4. Quick tests  
 5. Dependency audit (warning)
 
+Every lint, audit, and configured analyzer entry uses this evidence shape:
+
+| Tool | Scope | Status | Evidence | Severity | Comparison | Notes |
+|------|-------|--------|----------|----------|------------|-------|
+| `<tool>` | changed paths/project | `PASS` / `FOUND` / `SKIPPED` | command output or file:line | severity or `n/a` | `new` / `pre-existing` / `unavailable` | reason for `SKIPPED` when applicable |
+
+- `PASS` means the configured tool ran and emitted no relevant finding.
+- `FOUND` means the tool emitted at least one finding; preserve each finding's rule/advisory/diagnostic, severity, scope, and evidence.
+- `SKIPPED` means the tool or required host capability was unavailable or not configured; it is not proof of a clean result.
+
 Example summary:
 
 ```markdown
-| Check              | Status  |
-|--------------------|---------|
-| Secrets            | Passed  |
-| Code style         | Passed  |
-| Build              | Passed  |
-| Quick tests        | Passed  |
-| Dependency audit   | 1 warn  |
+| Check              | Status | Scope | Evidence | Comparison |
+|--------------------|--------|-------|----------|------------|
+| Secrets            | PASS   | staged text | command output | unavailable |
+| Code style         | PASS / FOUND / SKIPPED | changed paths | command output | new / pre-existing / unavailable |
+| Diagnostics        | PASS / FOUND / SKIPPED | configured project | command output | new / pre-existing / unavailable |
+| Build              | PASS   | configured project | command output | unavailable |
+| Quick tests        | PASS   | configured project | command output | unavailable |
+| Dependency audit   | PASS / FOUND / SKIPPED | dependency graph | command output | new / pre-existing / unavailable |
 ```
 
 **Skip full suite when:** user passed `--skip-validation`, or only docs/config with no code (still run secrets scan).
