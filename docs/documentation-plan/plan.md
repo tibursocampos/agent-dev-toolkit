@@ -267,7 +267,7 @@ docs/
 - [x] Audit and update the matching public-site pages in both languages: `docs-site/architecture.md`, `docs-site/architecture.pt.md`, `docs-site/orchestrated-delivery.md`, `docs-site/orchestrated-delivery.pt.md`, `docs-site/reference.md`, and `docs-site/reference.pt.md`. Include only site-level facts that remain accurate for an external reader; preserve paired English/Portuguese navigation and front matter.
 
 **Tasks:**
-1. Use `features/010-toolkit-reliability-and-adapter-fidelity/{FEATURE,CHANGE,CONTINUITY,STATE}.md`, the final PLAN/EVD files, and the corresponding `core/`/`scripts/` contracts as evidence. Separate verified static/fixture behavior from a live host, dependency audit, Markdownlint, or analyzer run that did not occur.
+1. Use the completed reliability-delivery records, final planning/evidence records, and the corresponding `core/`/`scripts/` contracts as evidence. Separate verified static/fixture behavior from a live host, dependency audit, Markdownlint, or analyzer run that did not occur.
 2. Recount invocable skills from top-level `core/skills/*/SKILL.md`; repair the root README's stale count and links to removed `docs/guides/07-caveman-mode.md` and `docs/domains/validation-ci.md`.
 3. Keep product prose in **English**, mirroring the existing `docs/` convention. For every changed `docs-site/*.md`, mirror the meaning in its existing `.pt.md` counterpart; commands, ids, paths, and status tokens stay unchanged.
 4. Run focused Markdown/link checks and `git diff --check`; do not modify implementation, feature artifacts, `memory-bank/`, or site configuration.
