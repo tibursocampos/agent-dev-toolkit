@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Safe merge for Claude Code settings.json (hooks keyed + permissions.allow additive).
@@ -717,7 +720,7 @@ function Write-ClaudeSettingsUtf8NoBom {
 
     $json = $Settings | ConvertTo-Json -Depth $script:ClaudeSettingsJsonConstant.JsonConvertDepth
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($SettingsPath, $json, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $SettingsPath -Content $json -Encoding $utf8NoBom
 }
 
 function Backup-ClaudeSettingsFile {
@@ -739,9 +742,9 @@ function Backup-ClaudeSettingsFile {
     )
 
     try {
-        Copy-Item -LiteralPath $SettingsPath -Destination $BackupPath -Force -ErrorAction Stop
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $BackupPath
         if (-not [string]::IsNullOrWhiteSpace($TimestampedBackupPath)) {
-            Copy-Item -LiteralPath $SettingsPath -Destination $TimestampedBackupPath -Force -ErrorAction Stop
+            $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $TimestampedBackupPath
         }
     }
     catch {

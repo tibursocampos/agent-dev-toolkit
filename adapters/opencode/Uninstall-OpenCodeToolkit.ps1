@@ -126,23 +126,9 @@ function Invoke-OpenCodeUninstallToolkit {
     $routerNotes = New-Object System.Collections.Generic.List[string]
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.SkillsDirectoryName
-    $managedSkillIds = Get-OpenCodeManagedSkillIds -RepoRoot $repoRoot
-    foreach ($rawSkillId in $managedSkillIds) {
-        try {
-            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
-        }
-        catch {
-            continue
-        }
-        $skillPath = Join-Path $skillsRoot $skillId
-        $wouldRemove = Remove-OpenCodePathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
-        if ($wouldRemove) {
-            $wouldRemovePaths.Add($skillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($skillPath) | Out-Null
-            }
-        }
-    }
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
+    $managedSkillIds = @($skillAudit.SkillIds)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
 
     $agentsPath = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.AgentsFileName
     $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
@@ -196,6 +182,10 @@ function Invoke-OpenCodeUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
+    if ($preservedSkillPaths.Count -gt 0) {
+        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+    }
+    if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
         Success             = $true
@@ -205,6 +195,7 @@ function Invoke-OpenCodeUninstallToolkit {
         InstallRoot         = $resolvedInstallRoot
         RemovedCount        = $(if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count })
         RemovedPaths        = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        PreservedPaths      = @($preservedSkillPaths)
         ManagedSkillIds     = @($managedSkillIds)
         KeyedOnly           = $true
         WholesaleWipe       = $false

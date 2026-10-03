@@ -271,8 +271,11 @@ if ($uninstall.ExitCode -ne 0) {
     Write-Fail -TestName $removeTest -Reason ("expected ExitCode 0, got {0}" -f $uninstall.ExitCode)
 }
 
-if (Test-ZcodeToolkitSkillPresent) {
-    Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
+if (-not (Test-ZcodeToolkitSkillPresent)) {
+    Write-Fail -TestName $removeTest -Reason 'names-only skill manifest means toolkit skill paths must be preserved'
+}
+if (@($uninstall.PreservedPaths).Count -eq 0) {
+    Write-Fail -TestName $removeTest -Reason 'uninstall must report ambiguous preserved skill paths'
 }
 if (Test-Path -LiteralPath $agentsPath) {
     Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'

@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Hermes Publish-Hooks: plugin-first path/secrets guard + shell agent-hooks dual.
@@ -64,7 +67,7 @@ function Copy-HermesDirectoryTree {
         if (-not (Test-Path -LiteralPath $destinationDir)) {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         if ($file.Extension -eq '.sh' -and -not (Test-HermesIsWindowsPlatform)) {
             try {
                 if (Get-Command -Name chmod -ErrorAction SilentlyContinue) {
@@ -260,8 +263,7 @@ function Save-HermesConfigYamlKeyedMerge {
     }
 
     $utf8 = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($ConfigPath, $hooksResult.Text, $utf8)
-
+    $null = Write-ToolkitFileIfAbsent -Path $ConfigPath -Content $hooksResult.Text -Encoding $utf8
     return [PSCustomObject]@{
         ConfigPath      = $ConfigPath
         PluginsChanged  = [bool]$pluginsResult.Changed
@@ -396,7 +398,7 @@ function Invoke-HermesPublishHooks {
     $sharedSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
-        Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
         $filesCopied++
     }
 

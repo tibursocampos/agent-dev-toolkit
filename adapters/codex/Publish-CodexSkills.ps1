@@ -269,9 +269,8 @@ function Write-CodexPluginManifest {
     $existing = @(Get-ChildItem -LiteralPath $manifestDir -Force -ErrorAction SilentlyContinue | Where-Object {
         -not $_.PSIsContainer -and $_.Name -ne $script:CodexPathConstant.PluginManifestFileName
     })
-    foreach ($extra in $existing) {
-        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $extra.FullName -InstallRoot $InstallRoot
-        Remove-Item -LiteralPath $extra.FullName -Force
+    if ($existing.Count -gt 0) {
+        Write-Warning ('Preserved unowned plugin manifest file(s): {0}' -f (($existing | ForEach-Object { $_.Name }) -join ', '))
     }
 
     $manifestPath = Join-Path $manifestDir $script:CodexPathConstant.PluginManifestFileName
@@ -283,14 +282,13 @@ function Write-CodexPluginManifest {
     $manifest = New-CodexPluginManifestObject
     $json = ($manifest | ConvertTo-Json -Depth $script:CodexPathConstant.JsonConvertDepthShallow)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($manifestPath, $json, $utf8NoBom)
-
+    $null = Write-ToolkitFileIfAbsent -Path $manifestPath -Content $json -Encoding $utf8NoBom
     $remainingExtras = @(Get-ChildItem -LiteralPath $manifestDir -Force -File | Where-Object {
         $_.Name -ne $script:CodexPathConstant.PluginManifestFileName
     })
     if ($remainingExtras.Count -gt 0) {
         $names = ($remainingExtras | ForEach-Object { $_.Name }) -join ', '
-        throw ($script:CodexPublishMessage.ManifestExtraFiles -f $names)
+        Write-Warning ('Preserved unowned plugin manifest file(s): {0}' -f $names)
     }
 
     return $manifestPath
@@ -385,8 +383,7 @@ function Write-CodexMarketplaceCatalog {
     $catalog = New-CodexMarketplaceCatalogObject
     $json = ($catalog | ConvertTo-Json -Depth $script:CodexPathConstant.JsonConvertDepthDeep)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
-
+    $null = Write-ToolkitFileIfAbsent -Path $marketplacePath -Content $json -Encoding $utf8NoBom
     return $marketplacePath
 }
 

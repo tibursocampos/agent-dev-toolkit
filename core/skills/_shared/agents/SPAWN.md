@@ -106,6 +106,19 @@ When spawning (native path), pass **only**:
 
 Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 
+## Task ownership and lifecycle
+
+Treat each spawned child as a **single-invocation specialist**. Its initial handoff defines one bounded task, its ownership, and the expected receipt. A child invocation gets exactly one assignment and one return; it must not become a standing worker or be reused across separate parent requests.
+
+- Batch closely related questions or actions for the same specialist into one well-scoped assignment before spawning. Do not spawn for trivial lookups or split one coherent task into many tiny delegations; keep the thin-trivial in-parent rule above.
+- A running child may receive a concise clarification only to resolve ambiguity inside its original scope, before it returns. Do not add deliverables, widen paths, or assign another phase while it is running; split expanded work into a new assignment.
+- Once a child returns, its invocation is over. Never follow up, reopen, resume, wake, or reuse that child, even to correct, complete, or validate its prior result. If the result is incomplete, blocked, or needs correction/review, give the remaining work to a **fresh child invocation** with a concise receipt, relevant excerpt, scoped paths, and a clear bounded assignment. This applies even when the work is a continuation of the same feature or review.
+- Where the current host provides a documented close/kill/terminate control for completed child threads, use it after receipt and synthesis. Where only a user-facing control exists, describe the close action to the user only if useful; do not claim to have invoked it.
+- If the host exposes no close/terminate control to the agent, stop routing work to the completed child and let the host manage its idle thread. Do not claim a process was killed or that its context was erased. Host-managed threads, logs, and context retention remain outside this portable contract.
+- Never interrupt/kill a child that is still doing useful work merely to enforce one-shot semantics. For an abandoned assignment, use the host's supported cancellation control when available and record the cancellation in the parent summary.
+
+Host lifecycle differs. Some hosts can resume completed agents with their retained history; others create fresh instances per invocation; and some expose only indirect or user-facing close controls. These rules govern parent behavior, not host runtime guarantees. See `docs/SPAWN.md` and host product documentation for adapter-specific controls.
+
 ## Child payload (minimum)
 
 When spawning (native path):
@@ -152,6 +165,8 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 - Mint `native` in registry without host Task/equivalent
 - Paste `_shared/*-guidelines/`, rules, or pipeline bodies into child prompts
 - Exceed developer ≤2 or orchestrate ≤4 caps without user-approved wave/série
+- Follow up, reopen, resume, or reuse a child invocation after it has returned, including for a correction or continuation; claim a child process/context was terminated without a host-supported action
+- Create repeated tiny delegations when related work can be batched into one specialist assignment
 - Replace ROSTER / RECEIPT / SUBAGENT-MODEL — **load them** when needed
 - Edit twins (`cursor-dev-toolkit` / `antigravity-dev-toolkit`)
 

@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
@@ -79,7 +82,7 @@ function Write-CodexGuardPreToolScript {
     }
     $destGuard = Join-Path $HooksDirectory $script:CodexPathConstant.HooksGuardScriptName
     if (Test-Path -LiteralPath $sourceGuard) {
-        Copy-Item -LiteralPath $sourceGuard -Destination $destGuard -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
     }
     else {
         throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceGuard)
@@ -88,14 +91,14 @@ function Write-CodexGuardPreToolScript {
     $sharedSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
-        Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
     }
 
     # Thin _hook-common for Codex (loads GuardCommon + Read/Write helpers).
     $commonSource = Join-Path (Split-Path -Parent $sourceGuard) '_hook-common.ps1'
     $destCommon = Join-Path $HooksDirectory '_hook-common.ps1'
     if (Test-Path -LiteralPath $commonSource) {
-        Copy-Item -LiteralPath $commonSource -Destination $destCommon -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $commonSource -DestinationPath $destCommon
     }
 
     return $destGuard
@@ -116,7 +119,7 @@ function Write-CodexHooksJson {
     $payload = New-CodexPreToolUseHooksObject
     $json = ($payload | ConvertTo-Json -Depth 8)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($hooksPath, $json, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $hooksPath -Content $json -Encoding $utf8NoBom
     return $hooksPath
 }
 
@@ -197,10 +200,10 @@ function Invoke-CodexPublishHooks {
     $writtenHooks = Write-CodexHooksJson -HooksDirectory $hooksDirectory
     $guardPath = Write-CodexGuardPreToolScript -HooksDirectory $hooksDirectory -RepoRoot $repoRoot
 
-    # Remove legacy SessionStart-only script if present (replaced by PreToolUse guard).
+    # Preserve the legacy SessionStart-only script; no ownership marker proves it belongs to this toolkit.
     $legacySession = Join-Path $hooksDirectory $script:CodexPathConstant.HooksSessionStartScriptName
     if (Test-Path -LiteralPath $legacySession) {
-        Remove-Item -LiteralPath $legacySession -Force -ErrorAction SilentlyContinue
+        Write-Warning ("Preserved legacy hook file because ownership is not proven: {0}" -f $legacySession)
     }
 
     return [PSCustomObject]@{

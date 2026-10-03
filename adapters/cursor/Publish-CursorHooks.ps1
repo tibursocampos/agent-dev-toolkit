@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Hooks (scripts + hooks.json keyed merge).
@@ -74,6 +77,11 @@ function Write-CursorUtf8NoBom {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
+    if (Test-Path -LiteralPath $Path) {
+        Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $Path)
+        return
+    }
+
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     $tempPath = $Path + $script:CursorAdapterConstant.AtomicWriteTempSuffix
     $maxAttempts = [int]$script:CursorAdapterConstant.AtomicWriteMaxAttempts
@@ -87,8 +95,11 @@ function Write-CursorUtf8NoBom {
                 -RootPath $InstallRoot `
                 -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
                 -RequireStrictChild
-            [System.IO.File]::WriteAllText($tempPath, $Content, $utf8NoBom)
-            Move-Item -LiteralPath $tempPath -Destination $Path -Force
+            $tempWritten = Write-ToolkitFileIfAbsent -Path $tempPath -Content $Content -Encoding $utf8NoBom
+            if (-not $tempWritten) {
+                return
+            }
+            Move-Item -LiteralPath $tempPath -Destination $Path
             return
         }
         catch {
@@ -399,7 +410,7 @@ function Copy-CursorHookScripts {
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
 
-        Copy-Item -LiteralPath $_.FullName -Destination $destPath -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $_.FullName -DestinationPath $destPath
         $copied++
     }
 
@@ -417,7 +428,7 @@ function Copy-CursorHookScripts {
             -RootPath $InstallRoot `
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
-        Copy-Item -LiteralPath $sharedGuardSource -Destination $sharedDest -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
         $copied++
     }
 

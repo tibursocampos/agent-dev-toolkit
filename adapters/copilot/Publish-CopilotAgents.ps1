@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Agents.
@@ -114,8 +117,8 @@ function Invoke-CopilotPublishAgents {
             }
         }
 
-        [System.IO.File]::WriteAllText($profilePath, $profileText, (New-Object System.Text.UTF8Encoding $false))
-        Remove-Item -LiteralPath $legacyPath -Force
+        $null = Write-ToolkitFileIfAbsent -Path $profilePath -Content $profileText -Encoding (New-Object System.Text.UTF8Encoding $false)
+        Write-Warning ("Preserved legacy agent Markdown file because ownership is not proven: {0}" -f $legacyPath)
     }
 
     Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'

@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Grok Publish-Hooks (native JSON under InstallRoot/hooks).
@@ -78,7 +81,7 @@ function Write-GrokSessionStartHookScript {
         'exit 0'
     )
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($scriptPath, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $scriptPath -Content (($lines -join [Environment]::NewLine) + [Environment]::NewLine) -Encoding $utf8NoBom
     return $scriptPath
 }
 
@@ -114,8 +117,7 @@ function Copy-GrokGuardHookAssets {
         -RootPath $InstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-Item -LiteralPath $sourceGuard -Destination $destGuard -Force
-
+    Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
     $repoRoot = Get-GrokAdapterRepoRoot
     $sourceCommon = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:GrokAdapterConstant.SharedGuardCommonFileName
     if (-not (Test-Path -LiteralPath $sourceCommon)) {
@@ -127,8 +129,7 @@ function Copy-GrokGuardHookAssets {
         -RootPath $InstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-Item -LiteralPath $sourceCommon -Destination $destCommon -Force
-
+    Copy-ToolkitFileIfAbsent -SourcePath $sourceCommon -DestinationPath $destCommon
     return $destGuard
 }
 
@@ -151,7 +152,7 @@ function Write-GrokHooksJson {
     $payload = New-GrokMinimalHooksObject -SessionStartScriptPath $normalizedSession -GuardPreToolScriptPath $normalizedGuard
     $json = ($payload | ConvertTo-Json -Depth $script:GrokAdapterConstant.JsonConvertDepthDeep)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($hooksPath, $json, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $hooksPath -Content $json -Encoding $utf8NoBom
     return $hooksPath
 }
 

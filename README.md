@@ -27,7 +27,7 @@ Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0
 
 ## Quick start
 
-Pick the commands for **your** operating system. Downloading the file does not install the toolkit; you run `bootstrap.bat` or `bootstrap.ps1` on your computer. The first line only downloads that launcher. The second line runs it. The zip is the same on every OS. Extracting it is the launcher's job, not the site's. The launcher checks SHA256 and opens the Smart Manager (`toolkit.ps1`). On Windows, `bootstrap.bat` clears the browser download mark and starts PowerShell with `-ExecutionPolicy Bypass`. No clone.
+Pick the commands for **your** operating system. Downloading the file does not install the toolkit; you run the launcher from a terminal. The first line only downloads it. The second runs it. The zip is the same on every OS. The launcher checks SHA256 and opens the Smart Manager (`toolkit.ps1`). On Windows, use `bootstrap.bat`; it clears the browser download mark and starts PowerShell with `-ExecutionPolicy Bypass`. The PowerShell entrypoint also works from a PowerShell terminal, but should not be double-clicked. No clone.
 
 **Windows only** (`.bat` does not run on Linux or macOS):
 
@@ -42,6 +42,8 @@ bootstrap.bat
 curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
 pwsh -NoProfile -File ./bootstrap.ps1
 ```
+
+Windows PowerShell terminal users can use `curl.exe` to download `bootstrap.ps1` and run `pwsh -NoProfile -File .\bootstrap.ps1`. A browser-downloaded `.ps1` may be blocked by `RemoteSigned`; use the `.bat` launcher or review and unblock the script before running it.
 
 **Alternative — clone**, then run the same menu from the repo:
 

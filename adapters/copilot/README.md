@@ -75,6 +75,11 @@ For comparable runs, record host + exact version(s), mode, model, workspace, pro
 | Toolkit contract | Prefer `/fleet` (or host equivalent) when `subagents=native`; SPAWN in-parent fallback otherwise |
 | Published files | `Publish-Agents` writes `.agent.md` profiles from `core/agents/` into user (`~/.copilot/agents/`) and repo (`.github/agents/`) scopes. |
 
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+
 ### Official references
 
 - [Customization cheat sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)

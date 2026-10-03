@@ -199,8 +199,8 @@ if ($null -eq $uninstall -or $uninstall.Success -ne $true -or $uninstall.Impleme
 if (Test-Path -LiteralPath $guardrailsPath) {
     Write-Fail -TestName $passName -Reason 'Uninstall-Toolkit must remove managed plugin GUARDRAILS directory'
 }
-if (Test-Path -LiteralPath $devPersonaPath) {
-    Write-Fail -TestName $passName -Reason 'Uninstall-Toolkit must remove skills/dev_persona'
+if (-not (Test-Path -LiteralPath $devPersonaPath)) {
+    Write-Fail -TestName $passName -Reason 'ambiguous dev_persona skill path must be preserved'
 }
 $alienSkillPath = Join-Path $skillsRoot $alienSkillFolderName
 if (-not (Test-Path -LiteralPath $alienSkillPath -PathType Container)) {

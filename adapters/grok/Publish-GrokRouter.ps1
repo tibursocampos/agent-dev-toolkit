@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Grok Publish-Router (core/router/AGENTS.md -> InstallRoot/AGENTS.md).
@@ -200,8 +203,7 @@ function Invoke-GrokPublishRouter {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($destinationAgentsMd, $updated, $utf8NoBom)
-
+    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsMd -Content $updated -Encoding $utf8NoBom
     . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     Set-ToolkitManagedPublishInventoryEntryFromContent `
         -InstallRoot $resolvedInstallRoot `

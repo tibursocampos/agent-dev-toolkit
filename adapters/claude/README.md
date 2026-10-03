@@ -17,6 +17,12 @@ Publish surfaces for **Claude Code**. InstallRoot defaults to an in-repo fixture
 
 Canonical form is the skill **id**; `/` is the Claude host prefix.
 
+## Shell sandbox and network
+
+Claude Code's shell sandbox applies to Bash, PowerShell, and child processes on macOS, Linux, and WSL2; native Windows commands run unsandboxed. The sandbox and permission prompts are separate controls, and credentials available to the host do not make network hosts reachable from a sandboxed command. When a command fails, inspect its error and active runtime, then use the host's normal prompt or a narrow configured filesystem/domain exception. If policy blocks the exception, stop and report it. Do not disable isolation, use an unsandboxed retry, or alter Claude settings during toolkit setup without an explicit operator request.
+
+Official reference: [Claude Code sandboxing](https://code.claude.com/docs/en/sandboxing).
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |
@@ -30,6 +36,11 @@ Canonical form is the skill **id**; `/` is the Claude host prefix.
 | Matrix | [`adapters/_shared/spawn-publish-honesty.md`](../_shared/spawn-publish-honesty.md) |
 
 Matrix: [docs/SPAWN.md](../../docs/SPAWN.md). Contract: `core/skills/_shared/agents/SPAWN.md`.
+
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
 
 ## Policy â†’ rules mapping
 

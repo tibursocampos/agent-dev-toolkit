@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Hooks (adapter assets -> InstallRoot/hooks).
@@ -70,7 +73,7 @@ function Copy-CopilotHookFilesTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
+        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
     }
 
@@ -78,7 +81,7 @@ function Copy-CopilotHookFilesTree {
         $sharedSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
-            Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+            Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
             $filesCopied++
         }
     }

@@ -46,9 +46,7 @@ function Get-OpenHandsKnownToolkitArtifactPaths {
                 return
             }
             $candidate = Join-Path $MappedPaths.FixtureSkillsPath $safeName
-            if (Test-Path -LiteralPath $candidate) {
-                $paths.Add([System.IO.Path]::GetFullPath($candidate))
-            }
+            # Names-only manifests cannot authorize recursive deletion of skill contents.
         }
     }
 
@@ -115,6 +113,8 @@ function Invoke-OpenHandsUninstallToolkit {
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-OpenHandsMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-OpenHandsKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
     $routerNotes = New-Object System.Collections.Generic.List[string]
 
     $agentsPath = $mapped.FixtureProjectAgentsPath
@@ -151,6 +151,8 @@ function Invoke-OpenHandsUninstallToolkit {
         if ($routerNotes.Count -gt 0) {
             $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
         }
+        if ($preservedSkillPaths.Count -gt 0) { $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ') }
+        if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
         $whatIfPaths = @($knownPaths)
         if ($routerRemoveResult.WouldRemove) {
@@ -164,6 +166,7 @@ function Invoke-OpenHandsUninstallToolkit {
             WhatIf       = $true
             InstallRoot  = $resolvedInstallRoot
             RemovedPaths = @($whatIfPaths)
+            PreservedPaths = @($preservedSkillPaths)
             RemovedCount = $wouldRemoveCount
             Message      = $message
             ExitCode     = 0
@@ -194,6 +197,8 @@ function Invoke-OpenHandsUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
+    if ($preservedSkillPaths.Count -gt 0) { $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ') }
+    if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
         Success      = $true
@@ -202,6 +207,7 @@ function Invoke-OpenHandsUninstallToolkit {
         WhatIf       = $false
         InstallRoot  = $resolvedInstallRoot
         RemovedPaths = $removedArray
+        PreservedPaths = @($preservedSkillPaths)
         RemovedCount = $removedArray.Count
         Message      = $message
         ExitCode     = 0

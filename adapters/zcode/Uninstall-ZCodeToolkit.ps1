@@ -429,22 +429,8 @@ function Invoke-ZCodeUninstallToolkit {
     }
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ZCodePathConstant.SkillsDirectoryName
-    foreach ($rawSkillId in (Get-ZCodeManagedSkillIds -RepoRoot $repoRoot)) {
-        try {
-            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
-        }
-        catch {
-            continue
-        }
-        $skillPath = Join-Path $skillsRoot $skillId
-        $hit = Remove-ZCodeManagedPathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
-        if ($hit) {
-            $wouldRemovePaths.Add($skillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($skillPath) | Out-Null
-            }
-        }
-    }
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
 
     $agentsPath = Join-Path $resolvedInstallRoot $script:ZCodePathConstant.AgentsFileName
     $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
@@ -492,6 +478,10 @@ function Invoke-ZCodeUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $messageParts += @($routerNotes.ToArray())
     }
+    if ($preservedSkillPaths.Count -gt 0) {
+        $messageParts += @('Skill paths preserved because names-only manifests cannot prove per-file ownership: ' + ($preservedSkillPaths -join ', '))
+    }
+    if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
 
     return [PSCustomObject]@{
@@ -502,6 +492,7 @@ function Invoke-ZCodeUninstallToolkit {
         InstallRoot      = $resolvedInstallRoot
         RemovedCount     = $pathCount
         RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        PreservedPaths   = @($preservedSkillPaths)
         CliConfigTouched = [bool]$cliResult.Touched
         HooksJsonTouched = [bool]$hooksResult.Touched
         KeyedOnly        = $true

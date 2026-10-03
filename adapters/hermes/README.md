@@ -38,6 +38,12 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 | `agents` | false | No `agents/*.md` roster; `Publish-Agents` no-op |
 | `subagents` | `native` | Host `delegate_task`; see Spawn section |
 
+## Terminal execution and sandbox
+
+Hermes terminal commands may run locally, in Docker, over SSH, or in a configured cloud/container backend. A successful host login or installed CLI does not prove that the selected backend can see its credentials or reach the network. Diagnose the active backend and the actual error first; do not forward credentials, mount host directories, or change the backend as an automatic workaround. Those settings expand what the command environment can access and require an explicit operator decision. If the configured sandbox or policy blocks the task, stop and report the specific boundary.
+
+Official references: [Terminal backend configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration), [Docker setup](https://hermes-agent.nousresearch.com/docs/user-guide/docker), [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security). For Docker, credential forwarding and mounting the launch directory are explicit access grants; forward only named credentials the operator intends to expose.
+
 ## Hooks / plugin (path + secrets)
 
 Official refs: [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks), [Plugins](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins).
@@ -58,6 +64,11 @@ Official refs: [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/fea
 | Toolkit contract | Prefer `delegate_task` when `subagents=native`; honor `SPAWN.md`. Do **not** emit `delegation.*` YAML (`max_spawn_depth`, worktree isolation, etc.) — that is user config in `config.yaml` |
 | Published files | **Skip** roster. Hermes has no `agents/*.md`. `Publish-Agents` is a documented no-op (`agents=false`) |
 | Spawn bridge | `adapters/hermes/assets/spawn-bridge.md` is **appended** to managed `AGENTS.md` on Publish-Policy/Router (Hermes-only). Core skills/policy/router must **not** teach `delegate_task` outside the SPAWN host map |
+
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
 
 ### Official references (subagents / skills / context)
 

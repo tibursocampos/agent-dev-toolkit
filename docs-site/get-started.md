@@ -31,11 +31,11 @@ The entrypoint downloads the zip, checks the SHA256, and opens the CLI.
 
 | Operating system | File | Download |
 | --- | --- | --- |
-| Windows | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
-| Windows, Linux, and macOS | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
-| Linux and macOS | `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
+| Windows (recommended) | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
+| Windows (PowerShell terminal only) | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
+| Linux and macOS | `bootstrap.ps1` or `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> · <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
 
-On Windows, run `bootstrap.bat`. It clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`, then prefers `pwsh` and falls back to Windows PowerShell. A double-click that fails stays open until you press a key. If `bootstrap.ps1` is missing beside the `.bat`, the `.bat` downloads that script from the same Release URL before running it. On Linux and macOS, place `bootstrap.sh` next to `bootstrap.ps1` and mark the shell file executable before you run it.
+On Windows, use `bootstrap.bat` for the guided launcher. It clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`, preferring `pwsh` and falling back to Windows PowerShell. A `.ps1` is also supported on Windows when run from a PowerShell terminal with `pwsh -NoProfile -File .\bootstrap.ps1`; do not double-click it. Downloading the `.ps1` in a browser may mark it as coming from the Internet and `RemoteSigned` can block it; downloading with `curl.exe` avoids that mark, or use `Unblock-File` after reviewing the file. On Linux and macOS, run `bootstrap.ps1` through `pwsh -NoProfile -File`; the optional `bootstrap.sh` wrapper must be executable and placed beside `bootstrap.ps1`. Run either command from a terminal: it invokes the interactive Smart Manager there, which waits for your menu choices.
 
 A bad checksum exits non-zero. There is no extract and no handoff.
 

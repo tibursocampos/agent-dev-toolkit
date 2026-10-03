@@ -93,15 +93,6 @@ function Ensure-AlienArtifacts {
 function Assert-ToolkitArtifactsAbsent {
     param([Parameter(Mandatory = $true)][string] $TestName)
 
-    $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') $skillsDirName
-    $managedIds = @(Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force | Select-Object -ExpandProperty Name)
-    foreach ($id in $managedIds) {
-        $managedSkillPath = Join-Path $skillsPath $id
-        if (Test-Path -LiteralPath $managedSkillPath) {
-            Write-Fail -TestName $TestName -Reason ("managed skill still present after uninstall: {0}" -f $id)
-        }
-    }
-
     if (Test-Path -LiteralPath $agentsPath) {
         Write-Fail -TestName $TestName -Reason 'AGENTS.md must be removed by keyed uninstall'
     }

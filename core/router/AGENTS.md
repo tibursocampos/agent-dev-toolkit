@@ -31,6 +31,7 @@ Always-on policy source: `core/policy/orchestrator-session.md`. After publish, h
 
 - **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
 - Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
+- Batch related bounded work in the initial child assignment. A running child may receive same-scope clarification only; after it returns, never follow up, reopen, resume, or reuse it, including for a correction or continuation. Send remaining work to a fresh child with a concise receipt/excerpt and scoped handoff. Host UI retention does not change this parent rule; do not claim process/context termination without host support.
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
 - User-facing chat and persisted artifacts match the **user chat language**; spawn / child prompts / agent receipts stay **en-US** (`LANGUAGE.md`).
 

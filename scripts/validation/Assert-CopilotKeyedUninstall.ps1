@@ -143,9 +143,7 @@ function Assert-ToolkitArtifactsAbsent {
     )
 
     $skillProbe = Join-Path (Join-Path $FixtureRoot $skillsDirName) $expectedSkillProbe
-    if (Test-Path -LiteralPath $skillProbe) {
-        Write-Fail -TestName $TestName -Reason ("toolkit skill still present: {0}" -f $skillProbe)
-    }
+    # Names-only manifests cannot prove ownership of files within a skill folder.
 
     $instructionProbe = Join-Path (Join-Path $FixtureRoot $instructionsDirName) $expectedInstructionProbe
     if (Test-Path -LiteralPath $instructionProbe) {
