@@ -98,7 +98,7 @@ function Update-AntigravityManagedMarkdownFile {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $TargetPath -Content $newContent -Encoding $utf8NoBom
+    $null = Write-ToolkitFileIfAbsent -Path $TargetPath -Content $newContent -Encoding $utf8NoBom -AllowExistingMerge
     return [PSCustomObject]@{
         TargetPath       = $TargetPath
         ManagedBlockBegin = $begin

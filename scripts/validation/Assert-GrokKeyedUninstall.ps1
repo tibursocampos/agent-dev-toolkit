@@ -65,7 +65,9 @@ function Initialize-GrokKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Start with an empty generated destination. Seeded managed outputs cannot
+    # prove ownership for keyed uninstall assertions.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
 }
 
 function Clear-GrokPublishedTreeContents {

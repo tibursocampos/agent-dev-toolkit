@@ -266,7 +266,7 @@ function Invoke-AntigravityPublishPolicy {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $destinationGuardrailsPath -Content $content -Encoding $utf8NoBom
+    $null = Write-ToolkitFileIfAbsent -Path $destinationGuardrailsPath -Content $content -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $script:AntigravityPathConstant.OfficialGuardrailsRelativePath
     return [PSCustomObject]@{
         Success          = $true
         Implemented      = $true

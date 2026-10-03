@@ -224,14 +224,9 @@ function Write-HermesManagedAgentsMd {
         New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
     }
 
-    Write-HermesUtf8NoBomFile -Path $destinationAgentsMd -Content $updated
-
     $repoRoot = Get-HermesAdapterRepoRoot
-    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
-    $null = Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $ResolvedInstallRoot `
-        -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName `
-        -PublishedContent $updated
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsMd -Content $updated -Encoding (New-Object System.Text.UTF8Encoding $false) -InstallRoot $ResolvedInstallRoot -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName
 
     $null = Initialize-HermesMemoryFileIfMissing -ResolvedInstallRoot $ResolvedInstallRoot
 

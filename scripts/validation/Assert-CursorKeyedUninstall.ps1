@@ -78,7 +78,13 @@ function Initialize-CursorKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Preserve SDD user state, but generate adapter-owned files into a clean
+    # destination so keyed uninstall tests ownership created by this run.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
+    $seedSddRoot = Join-Path $seedFixtureRoot 'sdd'
+    if (Test-Path -LiteralPath $seedSddRoot -PathType Container) {
+        Copy-Item -LiteralPath $seedSddRoot -Destination $workInstallRoot -Recurse -Force
+    }
 }
 
 function Invoke-CursorKeyedUninstallSync {

@@ -203,12 +203,7 @@ function Invoke-GrokPublishRouter {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsMd -Content $updated -Encoding $utf8NoBom
-    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
-    Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:GrokAdapterConstant.OfficialAgentsFileName `
-        -PublishedContent $updated
+    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsMd -Content $updated -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $script:GrokAdapterConstant.OfficialAgentsFileName
 
     return [PSCustomObject]@{
         Success      = $true

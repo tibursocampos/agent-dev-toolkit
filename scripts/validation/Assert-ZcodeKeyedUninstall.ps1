@@ -76,7 +76,9 @@ function Initialize-ZcodeKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Begin with an empty generated destination; seeded outputs are not proof
+    # that this run owns the artifacts being removed.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
 }
 
 function Invoke-ZcodeKeyedUninstallSync {

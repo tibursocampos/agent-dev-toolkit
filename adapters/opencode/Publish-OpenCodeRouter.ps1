@@ -207,12 +207,7 @@ function Invoke-OpenCodePublishRouter {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsPath -Content $updated -Encoding $utf8NoBom
-    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
-    Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:OpenCodePathConstant.AgentsFileName `
-        -PublishedContent $updated
+    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsPath -Content $updated -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $script:OpenCodePathConstant.AgentsFileName
 
     return [PSCustomObject]@{
         Success            = $true

@@ -327,13 +327,7 @@ function Invoke-CodexPublishRouter {
     Assert-CodexRouterPlaceholdersResolved -Text $publishedContent -DestinationPath $destinationAgentsPath
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsPath -Content $publishedContent -Encoding $utf8NoBom
-    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
-    Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:CodexPathConstant.AgentsFileName `
-        -PublishedContent $publishedContent
-
+    $null = Write-ToolkitFileIfAbsent -Path $destinationAgentsPath -Content $publishedContent -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $script:CodexPathConstant.AgentsFileName
     return [PSCustomObject]@{
         Success     = $true
         Implemented = $true

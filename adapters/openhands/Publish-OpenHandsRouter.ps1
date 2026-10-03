@@ -170,13 +170,7 @@ function Write-OpenHandsPublishedAgentsMarkdown {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    Write-OpenHandsUtf8NoBomFile -Path $DestinationAgentsMd -Content $Content
-
-    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
-    $null = Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $ResolvedInstallRoot `
-        -RelativePath $script:OpenHandsAdapterConstant.OfficialAgentsFileName `
-        -PublishedContent $Content
+    $null = Write-ToolkitFileIfAbsent -Path $DestinationAgentsMd -Content $Content -Encoding (New-Object System.Text.UTF8Encoding $false) -InstallRoot $ResolvedInstallRoot -RelativePath $script:OpenHandsAdapterConstant.OfficialAgentsFileName
 }
 
 function Invoke-OpenHandsPublishRouter {
