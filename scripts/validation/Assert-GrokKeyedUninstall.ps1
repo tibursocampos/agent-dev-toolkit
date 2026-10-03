@@ -159,6 +159,8 @@ if ($validateExit -ne 0) {
 $alienSkillDir = Join-Path $skillsRoot $alienSkillId
 New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $alienSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
+$managedSkillUserFile = Join-Path (Join-Path $skillsRoot 'commit') 'user-notes.txt'
+Set-Content -LiteralPath $managedSkillUserFile -Value 'keep user data' -Encoding UTF8
 $alienRulePath = Join-Path $rulesRoot $alienRuleFileName
 Set-Content -LiteralPath $alienRulePath -Value ("# {0}`n" -f $alienRuleMarker) -Encoding UTF8
 $alienHookPath = Join-Path $hooksRoot $alienHookFileName
@@ -179,6 +181,9 @@ if ($uninstall.RemovedCount -lt 1) {
 
 if (Test-GrokToolkitSkillPresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
+}
+if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
+    Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
 }
 if (Test-GrokToolkitRulePresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit rules should be removed after uninstall'

@@ -114,7 +114,12 @@ function Invoke-OpenHandsUninstallToolkit {
     $mapped = Get-OpenHandsMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-OpenHandsKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($mapped.FixtureSkillsPath) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
     $routerNotes = New-Object System.Collections.Generic.List[string]
 
     $agentsPath = $mapped.FixtureProjectAgentsPath
@@ -138,7 +143,7 @@ function Invoke-OpenHandsUninstallToolkit {
     }
 
     if ($WhatIf.IsPresent) {
-        $wouldRemoveCount = $knownPaths.Count
+        $wouldRemoveCount = $knownPaths.Count + $managedSkillResult.RemovedPaths.Count
         if ($routerRemoveResult.WouldRemove) {
             $wouldRemoveCount += 1
         }
@@ -154,7 +159,7 @@ function Invoke-OpenHandsUninstallToolkit {
         if ($preservedSkillPaths.Count -gt 0) { $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ') }
         if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
-        $whatIfPaths = @($knownPaths)
+        $whatIfPaths = @($knownPaths) + @($managedSkillResult.RemovedPaths)
         if ($routerRemoveResult.WouldRemove) {
             $whatIfPaths += @([System.IO.Path]::GetFullPath($agentsPath))
         }
@@ -184,7 +189,7 @@ function Invoke-OpenHandsUninstallToolkit {
         $removed.Add($path)
     }
 
-    $removedArray = @($removed.ToArray())
+    $removedArray = @($removed.ToArray()) + @($managedSkillResult.RemovedPaths)
     if ($routerRemoveResult.Removed) {
         $removedArray += @([System.IO.Path]::GetFullPath($agentsPath))
     }

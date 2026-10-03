@@ -502,6 +502,95 @@ function Get-ToolkitManagedSkillsUninstallAudit {
     }
 }
 
+function Remove-ToolkitManagedSkillsByInventory {
+    <#
+    .SYNOPSIS
+      Remove unchanged toolkit-published skill files using per-file inventory hashes.
+
+    .DESCRIPTION
+      The names-only skills manifest identifies candidate skill folders; the
+      managed publish inventory proves ownership of individual files. Modified,
+      untracked, and alien files are preserved. Empty directories are removed
+      only beneath a manifest-listed skill folder.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string[]] $DestinationSkillsRoots,
+        [Parameter(Mandatory = $true)][string[]] $SkillIds,
+        [Parameter()][switch] $WhatIf
+    )
+
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
+    $inventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $installRootFull
+    $removed = New-Object System.Collections.Generic.List[string]
+    $preserved = New-Object System.Collections.Generic.List[string]
+    $inventoryChanged = $false
+    $rootPrefix = $installRootFull.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+
+    foreach ($skillsRoot in $DestinationSkillsRoots) {
+        if ([string]::IsNullOrWhiteSpace($skillsRoot) -or -not (Test-Path -LiteralPath $skillsRoot -PathType Container)) { continue }
+        $skillsRootFull = Get-NormalizedFullPath -Path $skillsRoot
+        Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $skillsRootFull -InstallRoot $installRootFull
+
+        foreach ($skillId in $SkillIds) {
+            $safeId = Assert-ToolkitManagedSkillName -SkillName $skillId
+            $skillPath = Join-Path $skillsRootFull $safeId
+            if (-not (Test-Path -LiteralPath $skillPath -PathType Container)) { continue }
+            $skillPathFull = Get-NormalizedFullPath -Path $skillPath
+            Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $skillPathFull -InstallRoot $installRootFull
+
+            foreach ($file in @(Get-ChildItem -LiteralPath $skillPathFull -Recurse -File -Force -ErrorAction Stop)) {
+                $fullPath = Get-NormalizedFullPath -Path $file.FullName
+                if (-not $fullPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+                    throw ($script:ToolkitMessage.ManagedCopyPathEscapesRoot -f $fullPath, $installRootFull)
+                }
+                $relativePath = $fullPath.Substring($rootPrefix.Length) -replace '\\', '/'
+                $owned = Test-ToolkitManagedPublishInventoryOwnsFile `
+                    -InstallRoot $installRootFull `
+                    -RelativePath $relativePath `
+                    -CurrentFilePath $fullPath `
+                    -InventoryEntries $inventoryEntries
+                if (-not $owned) {
+                    $preserved.Add($fullPath) | Out-Null
+                    continue
+                }
+
+                $removed.Add($fullPath) | Out-Null
+                if (-not $WhatIf.IsPresent) {
+                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
+                    Remove-Item -LiteralPath $fullPath -Force -ErrorAction Stop
+                    if ($inventoryEntries.Remove($relativePath)) { $inventoryChanged = $true }
+                }
+            }
+
+            if (-not $WhatIf.IsPresent) {
+                $directories = @(Get-ChildItem -LiteralPath $skillPathFull -Directory -Recurse -Force -ErrorAction Stop | Sort-Object { $_.FullName.Length } -Descending)
+                foreach ($directory in $directories) {
+                    if (@(Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop).Count -eq 0) {
+                        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $directory.FullName -InstallRoot $installRootFull
+                        Remove-Item -LiteralPath $directory.FullName -Force -ErrorAction Stop
+                    }
+                }
+                if (@(Get-ChildItem -LiteralPath $skillPathFull -Force -ErrorAction Stop).Count -eq 0) {
+                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $skillPathFull -InstallRoot $installRootFull
+                    Remove-Item -LiteralPath $skillPathFull -Force -ErrorAction Stop
+                }
+            }
+        }
+    }
+
+    if ($inventoryChanged) {
+        $null = Write-ToolkitManagedPublishInventory -InstallRoot $installRootFull -Entries $inventoryEntries
+    }
+
+    return [PSCustomObject]@{
+        RemovedPaths = @($removed.ToArray())
+        PreservedPaths = @($preserved.ToArray())
+    }
+}
+
 function Write-ToolkitManagedSkillsManifest {
     [CmdletBinding()]
     param(
