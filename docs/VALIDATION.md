@@ -41,6 +41,12 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 
 These prove contracts and scripts exist. They are not a substitute for running inventory, preflight, or harvest on a consumer feature. Operator entry points stay in the table below.
 
+## Reliability evidence boundaries
+
+The suite verifies published runtime-helper paths, repository and PLAN session identity protection, local-instruction discovery, and configured diagnostic evidence with static fixtures. Development and review evidence uses distinct `PASS`, `FOUND`, and `SKIPPED` states: `SKIPPED` records an unavailable or unrun check and is never approval. A configured command may be exercised by a fixture; that does not prove a live Copilot, IDE, host runtime, Markdownlint, dependency audit, or analyzer run. Record those unavailable surfaces as `SKIPPED` with their reason and scope.
+
+Planning checks also cover outcome-based story sizing and observable API-contract readiness before a PLAN is written. O3 may begin with a full contract review and use later delta/risk reviews when the relevant scope has not changed; unavailable token or tool telemetry remains `SKIPPED`, not an acceptance failure.
+
 | Assert / script | Role |
 |-----------------|------|
 | `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |

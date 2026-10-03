@@ -139,6 +139,12 @@ Four write gates use stop code `open_question`. At each of them, any unanswered 
 
 Operator narrative: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md). Chat language, spawn English, and optional compression: [guides/session-behavior.md](../guides/session-behavior.md).
 
+### Reliability evidence boundaries
+
+Published skills resolve only their declared runtime helpers from the installed toolkit tree. Session helpers reject a persisted repository or PLAN identity mismatch before changing state. Local instructions and configured diagnostic commands are discovered as applicable and reported as `PASS`, `FOUND`, or `SKIPPED`; the latter means unavailable or unrun, never approved. The fixture contracts cover that reporting and publication boundary, not a live host, IDE, Markdownlint, dependency-audit, or analyzer execution.
+
+Before planning, story sizing keeps one verifiable outcome per story and the applicable API-contract check must be observable. O3 uses a full initial review, then may use delta/risk-focused reviews until a relevant contract or scope changes. Token and tool telemetry is compared only when exposed; otherwise it is `SKIPPED` with a reason.
+
 Inside those skills, contracts add gates/artifacts:
 
 | Contract | Path / script | Role |

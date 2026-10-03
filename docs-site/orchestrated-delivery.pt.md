@@ -220,6 +220,7 @@ Por story ou em lote: **sim** / **ajustar** / **cancelar**. Depois:
 
 - A natureza precisa bater com CHANGE (brownfield tem CHANGE; greenfield não força um).
 - O preflight `Invoke-PrdPlanChangePreflight.ps1` em `scripts` precisa liberar o handoff.
+- Quando um contrato de API se aplica, seu gate de planejamento exige um contrato observável, não uma integração presumida.
 - Um bloqueio impede o O3. O chat seguinte fica no O2 ou volta ao O1.
 
 Quando o preflight libera:
@@ -260,6 +261,8 @@ Antes de implementar:
 Uma segunda reivindicação do mesmo passo falha e é auditada. Violações de modo são auditadas no ledger de sessões.
 
 O filho segue `sdd-develop`: branch, código, testes direcionados, evidência opcional (`EVD/` + `STATE.md` + `validate-evidence`) e arquivo TRACE só quando a onda da feature fecha. Evidência e TRACE são scripts dentro desse filho.
+
+O3 começa com uma revisão completa de contrato. Revisões posteriores podem focar no delta ou risco relevante até que uma mudança material de contrato ou escopo exija outra revisão completa. A evidência registra `PASS`, `FOUND` ou `SKIPPED`; telemetria indisponível de tokens ou ferramentas, observações de host ao vivo e ferramentas não executadas ficam `SKIPPED`, em vez de se tornarem um resultado aprovado.
 
 `verify_mode: true` nas preferências acrescenta um filho verificador somente leitura depois de um implementador bem-sucedido e antes de `CONTINUITY` ser atualizado. O padrão é false.
 

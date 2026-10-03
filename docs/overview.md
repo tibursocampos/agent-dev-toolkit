@@ -80,6 +80,10 @@ Non-interactive `-Action` values: `Sync`, `Validate`, `SyncAndValidate`, `Valida
 
 Sync, Validate, and Uninstall require an explicit `-Agent`. **Uninstall** is keyed: each adapter’s `Uninstall-Toolkit` removes toolkit-managed paths (provenance such as `.toolkit-managed-publish.json`) and leaves alien files, `sdd/sessions`, and an existing `sdd/manifest.json`. **Backup** is a fail-closed stub; it exits with failure unless `-ForceStub` (tooling tests only) and does not call an adapter.
 
+## Reliability safeguards
+
+Published skills resolve their required runtime helpers from the installed toolkit tree; adapter fixtures verify the publication contract separately from a live-host run. Session helpers reject persisted repository or PLAN identity mismatches before changing state. During development and review, applicable local instructions and configured diagnostic commands are recorded with evidence as `PASS`, `FOUND`, or `SKIPPED`; unavailable commands and host-only observations remain `SKIPPED`, never a passing result. Story sizing and observable API-contract checks run before planning, and O3 can compare a full review with a focused delta/risk review without treating unavailable token or tool telemetry as an acceptance failure.
+
 ## Validation and CI
 
 In-repo suite: `scripts/validation/validate-core.ps1` (`validate-all.ps1` is an alias). It does not deploy under the user profile.
