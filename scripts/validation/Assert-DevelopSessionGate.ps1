@@ -369,7 +369,8 @@ try {
     $prerequisiteSessionObject | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $prerequisiteSession.FullName -Encoding UTF8
     $prerequisiteStdout = Join-Path $workRoot 'prerequisite.stdout.txt'
     $prerequisiteStderr = Join-Path $workRoot 'prerequisite.stderr.txt'
-    $prerequisiteProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+    $powerShellExecutable = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $prerequisiteProcess = Start-Process -FilePath $powerShellExecutable -ArgumentList @(
         '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $helperPath,
         '-Action', 'tests-run', '-PlanPath', $fixturePlanPath,
         '-RepoPath', $repoRoot, '-SessionsRoot', $prerequisiteRoot
