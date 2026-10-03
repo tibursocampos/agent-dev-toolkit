@@ -163,7 +163,16 @@ function Invoke-ValidationCheck {
     )
 
     Write-Banner "Running: $Name"
-    & $ScriptPath
+    # Assertion scripts may emit success-stream objects through helper calls.
+    # Capture and render them here so they cannot be mistaken for this check's
+    # structured result by the caller's `$result = Invoke-ValidationCheck`.
+    $checkOutput = @(& $ScriptPath)
+    foreach ($outputItem in $checkOutput) {
+        $renderedOutput = ($outputItem | Out-String).TrimEnd()
+        if (-not [string]::IsNullOrWhiteSpace($renderedOutput)) {
+            Write-Host $renderedOutput
+        }
+    }
     $exitCode = $LASTEXITCODE
     if ($null -eq $exitCode) {
         $exitCode = 0
