@@ -267,14 +267,26 @@ function Assert-ToolkitManagedDestinationUnderInstallRoot {
 
 function Update-ToolkitManagedCopyInventory {
     [CmdletBinding()]
-    param([Parameter(Mandatory = $true)][string] $InstallRoot)
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter()][string[]] $Paths,
+        [Parameter()][hashtable] $InventoryEntries
+    )
 
     . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
     $inventoryRoot = (Get-NormalizedFullPath -Path $InstallRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
-    foreach ($managedPath in $script:ToolkitLastManagedCopyPaths) {
+    $pathsToRecord = if ($null -eq $Paths) { $script:ToolkitLastManagedCopyPaths } else { $Paths }
+    $updates = @{}
+    foreach ($managedPath in $pathsToRecord) {
         if (-not (Test-Path -LiteralPath $managedPath -PathType Leaf)) { continue }
         $relativeInventoryPath = $managedPath.Substring($inventoryRoot.Length)
-        $null = Set-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $relativeInventoryPath -Sha256 (Get-ToolkitFileContentSha256 -Path $managedPath) -Kind 'tree-file'
+        $entry = @{}
+        $entry[$script:ToolkitConstant.ManagedPublishInventoryKindProperty] = 'tree-file'
+        $entry[$script:ToolkitConstant.ManagedPublishInventorySha256Property] = Get-ToolkitFileContentSha256 -Path $managedPath
+        $updates[$relativeInventoryPath] = $entry
+    }
+    if ($updates.Count -gt 0) {
+        $null = Set-ToolkitManagedPublishInventoryEntries -InstallRoot $InstallRoot -Updates $updates -InventoryEntries $InventoryEntries
     }
 }
 
@@ -321,6 +333,11 @@ function Copy-ToolkitManagedTree {
     $script:ToolkitLastManagedCopyPaths = New-Object System.Collections.Generic.List[string]
     $script:ToolkitLastManagedCopyConflicts = New-Object System.Collections.Generic.List[string]
     $sourceFiles = Get-ChildItem -LiteralPath $sourceRootFull -Recurse -File -ErrorAction Stop
+    $inventoryEntries = if ($hasInstallRoot) {
+        Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    } else {
+        $null
+    }
     foreach ($file in $sourceFiles) {
         Assert-ToolkitManagedPathContained `
             -CandidatePath $file.FullName `
@@ -350,7 +367,7 @@ function Copy-ToolkitManagedTree {
             if ($hasInstallRoot) {
                 $inventoryRoot = (Get-NormalizedFullPath -Path $InstallRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
                 $relativeInventoryPath = $destinationPath.Substring($inventoryRoot.Length)
-                $owned = Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $relativeInventoryPath -CurrentFilePath $destinationPath
+                $owned = Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $relativeInventoryPath -CurrentFilePath $destinationPath -InventoryEntries $inventoryEntries
             }
             if (-not $owned) {
                 $script:ToolkitLastManagedCopyConflicts.Add($destinationPath) | Out-Null
@@ -373,7 +390,7 @@ function Copy-ToolkitManagedTree {
             $script:ToolkitLastManagedCopyConflicts.Count, ($script:ToolkitLastManagedCopyConflicts.ToArray() -join ', '))
     }
 
-    if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot }
+    if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries }
 
     return $filesCopied
 }
@@ -625,7 +642,7 @@ function Resolve-ToolkitPlaceholdersInTree {
     )
 
     if (-not (Test-Path -LiteralPath $RootPath)) {
-        return
+        return @()
     }
 
     $tokensToAssert = @()
@@ -636,9 +653,9 @@ function Resolve-ToolkitPlaceholdersInTree {
         $tokensToAssert = @($PlaceholderMap.Keys | ForEach-Object { [string]$_ })
     }
 
-    if ($null -eq $script:ToolkitLastManagedCopyPaths) { return }
+    if ($null -eq $script:ToolkitLastManagedCopyPaths) { return @() }
     $newManagedPaths = @($script:ToolkitLastManagedCopyPaths.ToArray())
-    if ($newManagedPaths.Count -eq 0) { return }
+    if ($newManagedPaths.Count -eq 0) { return @() }
     $newManagedSet = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     foreach ($path in $newManagedPaths) { [void]$newManagedSet.Add([System.IO.Path]::GetFullPath($path)) }
 
@@ -648,6 +665,7 @@ function Resolve-ToolkitPlaceholdersInTree {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $changedPaths = New-Object System.Collections.Generic.List[string]
     foreach ($file in $files) {
         $text = [System.IO.File]::ReadAllText($file.FullName)
         $updated = $text
@@ -666,8 +684,11 @@ function Resolve-ToolkitPlaceholdersInTree {
 
         if (-not [string]::Equals($updated, $text, [System.StringComparison]::Ordinal)) {
             [System.IO.File]::WriteAllText($file.FullName, $updated, $utf8NoBom)
+            $changedPaths.Add([System.IO.Path]::GetFullPath($file.FullName)) | Out-Null
         }
     }
+
+    return @($changedPaths.ToArray())
 }
 
 function Invoke-ToolkitManagedSkillsPublish {
@@ -720,14 +741,16 @@ function Invoke-ToolkitManagedSkillsPublish {
             throw $script:ToolkitMessage.PlaceholderMapRequired
         }
 
-        Resolve-ToolkitPlaceholdersInTree `
+        $changedPaths = @(Resolve-ToolkitPlaceholdersInTree `
             -RootPath $DestinationSkillsRoot `
             -PlaceholderMap $PlaceholderMap `
             -TextFileExtensionPattern $TextFileExtensionPattern `
             -UnresolvedTokens $UnresolvedTokens `
-            -UnresolvedMessageFormat $UnresolvedMessageFormat
+            -UnresolvedMessageFormat $UnresolvedMessageFormat)
 
-        Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and $changedPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -Paths $changedPaths
+        }
     }
 
     return [PSCustomObject]@{
@@ -832,14 +855,16 @@ function Invoke-ToolkitManagedAgentsPublish {
             throw $script:ToolkitMessage.PlaceholderMapRequired
         }
 
-        Resolve-ToolkitPlaceholdersInTree `
+        $changedPaths = @(Resolve-ToolkitPlaceholdersInTree `
             -RootPath $DestinationAgentsRoot `
             -PlaceholderMap $PlaceholderMap `
             -TextFileExtensionPattern $TextFileExtensionPattern `
             -UnresolvedTokens $UnresolvedTokens `
-            -UnresolvedMessageFormat $UnresolvedMessageFormat
+            -UnresolvedMessageFormat $UnresolvedMessageFormat)
 
-        Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and $changedPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -Paths $changedPaths
+        }
     }
 
     return [PSCustomObject]@{

@@ -304,6 +304,43 @@ function Set-ToolkitManagedPublishInventoryEntry {
     return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries)
 }
 
+function Set-ToolkitManagedPublishInventoryEntries {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][hashtable] $Updates,
+        [Parameter()][hashtable] $InventoryEntries
+    )
+
+    if ($null -eq $InventoryEntries) {
+        $InventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    }
+
+    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+    foreach ($key in $Updates.Keys) {
+        $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath ([string]$key)
+        $entry = $Updates[$key]
+        $kind = [string]$entry[$kindProperty]
+        $sha256 = [string]$entry[$sha256Property]
+        if ([string]::IsNullOrWhiteSpace($kind)) {
+            throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingKind -f $relativePath)
+        }
+        if ([string]::IsNullOrWhiteSpace($sha256)) {
+            throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingSha256 -f $relativePath)
+        }
+
+        $candidatePath = Join-Path (Assert-ToolkitManagedPublishInstallRoot -InstallRoot $InstallRoot) $relativePath
+        Assert-ToolkitManagedPublishPathUnderInstallRoot -CandidatePath $candidatePath -InstallRoot $InstallRoot
+        $InventoryEntries[$relativePath] = [ordered]@{
+            $kindProperty   = $kind
+            $sha256Property = $sha256.ToUpperInvariant()
+        }
+    }
+
+    return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $InventoryEntries)
+}
+
 function Test-ToolkitManagedPublishInventoryOwnsFile {
     [CmdletBinding()]
     [OutputType([bool])]
@@ -318,7 +355,10 @@ function Test-ToolkitManagedPublishInventoryOwnsFile {
         [string] $CurrentFilePath,
 
         [Parameter()]
-        [scriptblock] $ResolveExpectedPublishContent
+        [scriptblock] $ResolveExpectedPublishContent,
+
+        [Parameter()]
+        [hashtable] $InventoryEntries
     )
 
     $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath $RelativePath
@@ -327,7 +367,11 @@ function Test-ToolkitManagedPublishInventoryOwnsFile {
     }
 
     $currentHash = Get-ToolkitFileContentSha256 -Path $CurrentFilePath
-    $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    $entries = if ($null -eq $InventoryEntries) {
+        Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    } else {
+        $InventoryEntries
+    }
     $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
 
     if ($entries.ContainsKey($relativePath)) {
