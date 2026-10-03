@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Agents (core/agents/*.md -> InstallRoot/agents/*.toml).
@@ -159,13 +162,13 @@ function Invoke-CodexPublishAgents {
         $toml = Convert-CodexAgentMarkdownToToml -MarkdownText $raw -SourcePath $mdFile.FullName
         $destName = [System.IO.Path]::ChangeExtension($mdFile.Name, $script:CodexPathConstant.CustomAgentTomlExtension)
         $destPath = Join-Path $destAgentsRoot $destName
-        [System.IO.File]::WriteAllText($destPath, $toml, $utf8NoBom)
+        $null = Write-ToolkitFileIfAbsent -Path $destPath -Content $toml -Encoding $utf8NoBom
         $published++
 
-        # Drop stale .md copy if a prior publish left one.
+        # Preserve any stale .md copy; extension/name alone cannot prove toolkit ownership.
         $staleMd = Join-Path $destAgentsRoot $mdFile.Name
         if (Test-Path -LiteralPath $staleMd) {
-            Remove-Item -LiteralPath $staleMd -Force -ErrorAction SilentlyContinue
+            Write-Warning ("Preserved agent Markdown file because ownership is not proven: {0}" -f $staleMd)
         }
     }
 

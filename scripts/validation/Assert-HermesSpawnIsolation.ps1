@@ -181,6 +181,13 @@ Write-Pass -TestName $spawnAllowName
 
 # --- Hermes publish bridge ---
 Initialize-IsolationWorkRoot -SeedRoot $hermesSeedFixture -WorkRoot $hermesWorkRoot
+# The seed AGENTS.md is a tracked-in-repo placeholder, whose ownership hash can
+# differ after checkout line-ending conversion. Start this publish assertion
+# with no destination file so it validates generated output, not preservation.
+$hermesSeedAgentsPath = Join-Path $hermesWorkRoot 'AGENTS.md'
+if (Test-Path -LiteralPath $hermesSeedAgentsPath) {
+    Remove-Item -LiteralPath $hermesSeedAgentsPath -Force
+}
 . $hermesModulePath
 $null = Publish-Policy -InstallRoot $hermesWorkRoot
 $hermesAgentsPath = Join-Path $hermesWorkRoot 'AGENTS.md'

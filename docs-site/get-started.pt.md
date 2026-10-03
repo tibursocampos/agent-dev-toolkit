@@ -31,11 +31,11 @@ O entrypoint baixa o zip, confere o SHA256 e abre o CLI.
 
 | Sistema | Arquivo | Download |
 | --- | --- | --- |
-| Windows | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
-| Windows, Linux e macOS | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
-| Linux e macOS | `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
+| Windows (recomendado) | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
+| Windows (somente pelo terminal PowerShell) | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
+| Linux e macOS | `bootstrap.ps1` ou `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> · <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
 
-No Windows, execute `bootstrap.bat`. Ele remove a marca de download do navegador em `bootstrap.ps1` e abre o PowerShell com `-ExecutionPolicy Bypass`, preferindo `pwsh` e caindo para o Windows PowerShell. Um clique duplo que falha fica aberto até você pressionar uma tecla. Se `bootstrap.ps1` não estiver ao lado do `.bat`, o `.bat` baixa esse script da mesma URL de Release antes de executá-lo. No Linux e no macOS, coloque `bootstrap.sh` ao lado de `bootstrap.ps1` e marque o arquivo shell como executável antes de rodá-lo.
+No Windows, use `bootstrap.bat` como launcher guiado. Ele remove a marca de download do navegador em `bootstrap.ps1` e inicia o PowerShell com `-ExecutionPolicy Bypass`, preferindo `pwsh` e usando o Windows PowerShell como alternativa. Também é possível executar o `.ps1` no Windows por um terminal PowerShell com `pwsh -NoProfile -File .\bootstrap.ps1`; não dê clique duplo nele. Um download pelo navegador pode marcá-lo como arquivo da Internet e a política `RemoteSigned` pode bloqueá-lo; baixar com `curl.exe` evita essa marca, ou use `Unblock-File` depois de revisar o arquivo. No Linux e macOS, execute `bootstrap.ps1` com `pwsh -NoProfile -File`; o wrapper opcional `bootstrap.sh` precisa estar executável e ao lado do `bootstrap.ps1`. Execute por um terminal: o Smart Manager interativo é aberto ali e aguarda suas escolhas no menu.
 
 Checksum inválido sai com código diferente de zero. Não há extração nem handoff.
 

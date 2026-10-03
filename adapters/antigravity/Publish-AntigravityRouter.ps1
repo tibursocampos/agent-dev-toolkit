@@ -1,4 +1,7 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Antigravity Publish-Router (core/router -> skills/dev_persona + managed markdown).
@@ -95,8 +98,7 @@ function Update-AntigravityManagedMarkdownFile {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($TargetPath, $newContent, $utf8NoBom)
-
+    $null = Write-ToolkitFileIfAbsent -Path $TargetPath -Content $newContent -Encoding $utf8NoBom -AllowExistingMerge
     return [PSCustomObject]@{
         TargetPath       = $TargetPath
         ManagedBlockBegin = $begin
@@ -174,8 +176,7 @@ function Invoke-AntigravityPublishRouter {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($destinationSkillPath, $content, $utf8NoBom)
-
+    $null = Write-ToolkitFileIfAbsent -Path $destinationSkillPath -Content $content -Encoding $utf8NoBom
     $managedBlock = New-AntigravityManagedMarkdownBlock
     Assert-AntigravityForbiddenPhraseAbsent -Text $managedBlock -TargetPath $agentsMdPath
 

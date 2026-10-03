@@ -4,6 +4,10 @@ Human summary of the portable spawn contract. Agents **Read** the canonical skil
 
 Per-adapter honesty notes: each `adapters/<id>/README.md` → **Spawn / subagents**. Registry capability: `docs/ADAPTERS.md`.
 
+## Child assignment lifecycle (all `native` adapters)
+
+Batch related, bounded work before dispatch. A child gets one assignment; any returned result (complete, incomplete, blocked, or failed) ends that assignment. Never follow up, reopen, resume, or reuse a returned child handle. Send every new task, review, or correction—including lengthy corrections—to a fresh child handle. Clarifications are allowed only while the child is running and within its original scope. Use host close/stop controls when available, but do not promise process termination, retention behavior, or context erasure: the host controls those. OpenHands (`subagents=none`) uses the in-parent fallback and must not simulate or claim a native child lifecycle. The canonical operational rule is `core/skills/_shared/agents/SPAWN.md`.
+
 ## Capability `subagents`
 
 | Value | Meaning |

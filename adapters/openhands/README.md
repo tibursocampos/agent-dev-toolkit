@@ -42,6 +42,11 @@ This adapter does **not** emit Automation Server config, cron, GitHub webhooks, 
 | Toolkit contract | SPAWN fallback **in-parent**. Do not claim `native`. |
 | Published files | `Publish-Agents` writes `.agents/agents/*.md` as an SDK/plugin **roster**. That is not Canvas Profile and not native subagent spawn. |
 
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+
 ### Official references (spawn)
 
 - Skills / `AGENTS.md`: [Skills overview](https://docs.openhands.dev/overview/skills)

@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for ZCode Publish-Hooks (cli/config.json + hooks/hooks.json merge).
@@ -58,7 +61,9 @@ function ConvertTo-ZCodeOrderedHashtable {
         foreach ($item in $InputObject) {
             $list += ,(ConvertTo-ZCodeOrderedHashtable -InputObject $item)
         }
-        return $list
+        # Preserve JSON arrays with exactly one item. PowerShell otherwise
+        # enumerates the returned array and changes its shape into a scalar.
+        return ,$list
     }
 
     return $InputObject
@@ -218,7 +223,11 @@ function Write-ZCodeJsonFile {
         -RequireStrictChild
 
     $json = $Object | ConvertTo-Json -Depth 100
-    [System.IO.File]::WriteAllText($Path, $json + [Environment]::NewLine)
+    # Callers pass a fully merged/reverse-merged object that already preserves
+    # unrelated user keys. Permit replacing the existing JSON document here;
+    # Write-ToolkitFileIfAbsent's ownership gate is for whole-file copies and
+    # would silently block keyed JSON updates on user-owned config files.
+    $null = Write-ToolkitFileIfAbsent -Path $Path -Content ($json + [Environment]::NewLine) -AllowExistingMerge
 }
 
 function Merge-ZCodeJsonFile {
@@ -344,8 +353,7 @@ function Invoke-ZCodePublishHooks {
         -RootPath $resolvedInstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-Item -LiteralPath $sourceGuard -Destination $destinationGuard -Force
-
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destinationGuard
     $sharedGuardSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:ZCodePathConstant.SharedGuardCommonFileName
     $sharedGuardDest = Join-Path $hooksDir $script:ZCodePathConstant.SharedGuardCommonFileName
     if (-not (Test-Path -LiteralPath $sharedGuardSource)) {
@@ -356,8 +364,7 @@ function Invoke-ZCodePublishHooks {
         -RootPath $resolvedInstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-Item -LiteralPath $sharedGuardSource -Destination $sharedGuardDest -Force
-
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedGuardDest
     return [PSCustomObject]@{
         Success          = $true
         Implemented      = $true

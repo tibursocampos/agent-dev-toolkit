@@ -35,6 +35,10 @@ function Show-ToolkitHeader {
     if (-not [string]::IsNullOrWhiteSpace($Subtitle)) {
         Write-Host (" {0}" -f $Subtitle) -ForegroundColor DarkGray
     }
+    $releaseVersion = [Environment]::GetEnvironmentVariable('TOOLKIT_RELEASE_VERSION')
+    if (-not [string]::IsNullOrWhiteSpace($releaseVersion)) {
+        Write-Host (" Release: {0}" -f $releaseVersion) -ForegroundColor DarkGray
+    }
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
         Write-Host (" Repo: {0}" -f $RepoRoot) -ForegroundColor DarkGray
     }

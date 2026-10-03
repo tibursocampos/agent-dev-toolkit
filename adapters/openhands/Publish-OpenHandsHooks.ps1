@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for OpenHands Publish-Hooks (.openhands/hooks.json + .openhands/hooks/*.sh).
@@ -88,7 +91,7 @@ function Copy-OpenHandsHookScriptAsset {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    Copy-Item -LiteralPath $sourceScript -Destination $destinationPath -Force
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceScript -DestinationPath $destinationPath
     if ($SourceFileName -like '*.sh') {
         $isWindowsHost = $false
         if ($PSVersionTable.PSVersion.Major -ge 6) {
@@ -140,7 +143,7 @@ function Copy-OpenHandsSharedGuardCommon {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    Copy-Item -LiteralPath $source -Destination $destinationPath -Force
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $source -DestinationPath $destinationPath
     return $destinationPath
 }
 

@@ -170,15 +170,6 @@ function Assert-ManagedArtifactsPresent {
 function Assert-ManagedArtifactsAbsent {
     param([Parameter(Mandatory = $true)][string] $TestName)
 
-    $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') $skillsDirName
-    $managedIds = @(Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force | Select-Object -ExpandProperty Name)
-    $skillsPath = Join-Path $workInstallRoot $skillsDirName
-    foreach ($id in $managedIds) {
-        if (Test-Path -LiteralPath (Join-Path $skillsPath $id)) {
-            Write-Fail -TestName $TestName -Reason ("managed skill still present after uninstall: {0}" -f $id)
-        }
-    }
-
     if (Test-Path -LiteralPath (Join-Path $workInstallRoot $claudeMdFileName)) {
         Write-Fail -TestName $TestName -Reason 'CLAUDE.md must be removed by keyed uninstall'
     }

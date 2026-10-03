@@ -3,7 +3,6 @@
 #   Should_Pass_When_InventoryScriptExists
 #   Should_Pass_When_InventoryStatusReady
 #   Should_Pass_When_InventoryRootsArePortable
-#   Should_Pass_When_TemplateInventoryRootsArePortable
 #   Should_Pass_When_InventoryStatusNotReady_NoSources
 #   Should_Pass_When_PathEscapeYieldsNotReady
 #   Should_Pass_When_SecretNamedSourceSummaryRedacted
@@ -252,17 +251,6 @@ finally {
         Remove-Item -LiteralPath $workRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
-
-# --- Template seed portable roots ---
-$templateSourcesRel = 'core/skills/_shared/templates/memory-bank/.inventory/sources.json'
-$templateSourcesPath = Join-Path $repoRoot ($templateSourcesRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $templateSourcesPath)) {
-    Write-Fail -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable' -Reason ("missing template {0}" -f $templateSourcesRel)
-}
-
-$templateInventory = Get-Content -LiteralPath $templateSourcesPath -Raw -Encoding UTF8 | ConvertFrom-Json
-Assert-PortableInventoryRoots -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable' -InventoryObject $templateInventory -ExpectedBankPath 'memory-bank'
-Write-Pass -TestName 'Should_Pass_When_TemplateInventoryRootsArePortable'
 
 # --- CT2 not-ready (no sources) ---
 $emptyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))

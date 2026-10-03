@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Antigravity Publish-Hooks (config/hooks path+secrets guard).
@@ -67,7 +70,7 @@ function Copy-AntigravityHookFilesTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
     }
 
@@ -75,7 +78,7 @@ function Copy-AntigravityHookFilesTree {
         $sharedSource = Join-Path $RepoRoot ($script:AntigravityPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedGuardCommonFileName
-            Copy-Item -LiteralPath $sharedSource -Destination $sharedDest -Force
+            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
             $filesCopied++
         }
     }

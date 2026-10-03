@@ -76,7 +76,9 @@ function Initialize-ZcodeKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Begin with an empty generated destination; seeded outputs are not proof
+    # that this run owns the artifacts being removed.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
 }
 
 function Invoke-ZcodeKeyedUninstallSync {
@@ -263,6 +265,9 @@ if ([System.IO.File]::ReadAllText($cliConfigPath) -ne $cliBeforeWhatIf) {
     Write-Fail -TestName $whatIfTest -Reason 'WhatIf must not mutate cli/config.json'
 }
 
+$commitSkillPath = Join-Path (Join-Path $skillsRoot 'commit') 'SKILL.md'
+[System.IO.File]::AppendAllText($commitSkillPath, "`n# zcode-user-edit-preserve-marker`n")
+
 $uninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstall -or $uninstall.Implemented -ne $true -or $uninstall.Success -ne $true) {
     Write-Fail -TestName $removeTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstall) { 'null' } else { $uninstall.Message }))
@@ -271,8 +276,15 @@ if ($uninstall.ExitCode -ne 0) {
     Write-Fail -TestName $removeTest -Reason ("expected ExitCode 0, got {0}" -f $uninstall.ExitCode)
 }
 
-if (Test-ZcodeToolkitSkillPresent) {
-    Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
+if (-not (Test-ZcodeToolkitSkillPresent)) {
+    Write-Fail -TestName $removeTest -Reason 'modified toolkit skill must be preserved when its content no longer matches the ownership hash'
+}
+$modifiedCommitSkill = [System.IO.File]::ReadAllText((Join-Path (Join-Path $skillsRoot 'commit') 'SKILL.md'))
+if ($modifiedCommitSkill -notmatch 'zcode-user-edit-preserve-marker') {
+    Write-Fail -TestName $removeTest -Reason 'user modification to toolkit skill must survive uninstall'
+}
+if (Test-Path -LiteralPath (Join-Path (Join-Path $skillsRoot 'help-skills') 'SKILL.md')) {
+    Write-Fail -TestName $removeTest -Reason 'unchanged toolkit-owned skill must be removed on uninstall'
 }
 if (Test-Path -LiteralPath $agentsPath) {
     Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'

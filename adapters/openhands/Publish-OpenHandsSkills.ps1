@@ -173,7 +173,7 @@ function Write-OpenHandsUtf8NoBomFile {
         New-Item -ItemType Directory -Path $directory -Force | Out-Null
     }
 
-    [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $Path -Content $Content -Encoding $utf8NoBom
 }
 
 function New-OpenHandsPluginManifestObject {

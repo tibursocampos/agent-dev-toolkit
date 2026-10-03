@@ -277,7 +277,7 @@ function Write-HermesUtf8NoBomFile {
     )
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $Path -Content $Content -Encoding $utf8NoBom
 }
 
 function Test-HermesInstallRootIsOfficialUserHome {

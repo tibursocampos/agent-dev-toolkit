@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Claude Publish-Router (core/router -> InstallRoot/CLAUDE.md).
@@ -131,13 +134,7 @@ function Invoke-ClaudePublishRouter {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($destinationClaudeMd, $updated, $utf8NoBom)
-
-    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
-    Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:ClaudePathConstant.ClaudeMdFileName `
-        -PublishedContent $updated
+    $null = Write-ToolkitFileIfAbsent -Path $destinationClaudeMd -Content $updated -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $script:ClaudePathConstant.ClaudeMdFileName
 
     return [PSCustomObject]@{
         Success      = $true

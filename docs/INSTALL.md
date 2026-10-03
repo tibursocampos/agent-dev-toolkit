@@ -55,12 +55,14 @@ curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolk
 bootstrap.bat
 ```
 
-Or PowerShell only:
+PowerShell terminal alternative (do not double-click the `.ps1`):
 
 ```powershell
 curl.exe -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
 pwsh -NoProfile -File .\bootstrap.ps1
 ```
+
+This command-line path works on Windows. A `.ps1` downloaded through a browser may carry an Internet zone mark that `RemoteSigned` blocks; `curl.exe` downloads are not marked this way. If using a browser download, review the script and use `Unblock-File .\bootstrap.ps1`, or use the recommended `.bat` launcher.
 
 `bootstrap.bat` clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`. It prefers `pwsh`, then Windows PowerShell. A failed double-click stays open until you press a key. If `bootstrap.ps1` is missing beside the `.bat`, it downloads that script from the same Release URL (HTTPS) before invoking it.
 
@@ -74,10 +76,13 @@ pwsh -NoProfile -File ./bootstrap.ps1
 Thin wrapper (optional):
 
 ```bash
+curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
 curl -fsSL -o bootstrap.sh https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh
 chmod +x ./bootstrap.sh
 ./bootstrap.sh
 ```
+
+The shell wrapper needs `bootstrap.ps1` beside it and runs it with `pwsh` in the same terminal.
 
 ### Useful flags (match `bootstrap.ps1`)
 

@@ -55,11 +55,22 @@ $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 Write-SuiteBanner $suiteTitle
 
+# This fixture contains a previously generated AGENTS.md for documentation.
+# Hermes smoke must exercise fresh folded-policy generation, so copy only the
+# other seed state into the disposable InstallRoot.
+$copySeedForFreshPolicySmoke = {
+    param([string] $SourceRoot, [string] $DestinationRoot)
+    Get-ChildItem -LiteralPath $SourceRoot -Force |
+        Where-Object { $_.Name -ne 'AGENTS.md' } |
+        Copy-Item -Destination $DestinationRoot -Recurse -Force
+}
+
 $result = Invoke-EphemeralFixtureSmoke `
     -RepoRoot $repoRoot `
     -SeedFixtureRel $seedFixtureRel `
     -WorkFixtureRel $workFixtureRel `
     -AgentId $agentId `
+    -SeedCopyScriptBlock $copySeedForFreshPolicySmoke `
     -Quiet:$Quiet `
     -KeepWorkRoot:$KeepWorkRoot
 

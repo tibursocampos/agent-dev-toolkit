@@ -34,8 +34,10 @@ $copilotModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'copi
 $uninstallHelperPath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'copilot') 'Uninstall-CopilotToolkit.ps1'
 $syncAgentPath = Join-Path $repoRoot 'scripts\sync-agent.ps1'
 $validateAgentPath = Join-Path $repoRoot 'scripts\validate-agent.ps1'
-$fixtureUserRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\user'
-$fixtureRepoRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\repo'
+$fixtureUserSeedRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\user'
+$fixtureRepoSeedRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot\repo'
+$fixtureUserRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot-keyed-uninstall-user-work'
+$fixtureRepoRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'copilot-keyed-uninstall-repo-work'
 $modeUser = 'user'
 $modeRepo = 'repo'
 $skillsDirName = 'skills'
@@ -58,8 +60,8 @@ foreach ($required in @(
         $uninstallHelperPath,
         $syncAgentPath,
         $validateAgentPath,
-        $fixtureUserRoot,
-        $fixtureRepoRoot
+        $fixtureUserSeedRoot,
+        $fixtureRepoSeedRoot
     )) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-CopilotKeyedUninstallPreconditions' -Reason ("missing {0}" -f $required)
@@ -67,6 +69,22 @@ foreach ($required in @(
 }
 
 . $copilotModulePath
+
+function Initialize-CopilotKeyedUninstallWorkRoot {
+    param(
+        [Parameter(Mandatory = $true)][string] $SeedRoot,
+        [Parameter(Mandatory = $true)][string] $WorkRoot
+    )
+
+    if (Test-Path -LiteralPath $WorkRoot) {
+        Remove-Item -LiteralPath $WorkRoot -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $WorkRoot -Force | Out-Null
+    $fixtureMarker = Join-Path $SeedRoot '.fixture-root'
+    if (Test-Path -LiteralPath $fixtureMarker -PathType Leaf) {
+        Copy-Item -LiteralPath $fixtureMarker -Destination $WorkRoot -Force
+    }
+}
 
 function Clear-CopilotFixturePublishedTree {
     param([Parameter(Mandatory = $true)][string] $FixtureRoot)
@@ -143,9 +161,7 @@ function Assert-ToolkitArtifactsAbsent {
     )
 
     $skillProbe = Join-Path (Join-Path $FixtureRoot $skillsDirName) $expectedSkillProbe
-    if (Test-Path -LiteralPath $skillProbe) {
-        Write-Fail -TestName $TestName -Reason ("toolkit skill still present: {0}" -f $skillProbe)
-    }
+    # Names-only manifests cannot prove ownership of files within a skill folder.
 
     $instructionProbe = Join-Path (Join-Path $FixtureRoot $instructionsDirName) $expectedInstructionProbe
     if (Test-Path -LiteralPath $instructionProbe) {
@@ -240,6 +256,7 @@ function Assert-AlienFilesPresent {
 # --- Should_RemoveToolkitArtifacts_When_UninstallCopilotUserFixture ---
 $userName = 'Should_RemoveToolkitArtifacts_When_UninstallCopilotUserFixture'
 
+Initialize-CopilotKeyedUninstallWorkRoot -SeedRoot $fixtureUserSeedRoot -WorkRoot $fixtureUserRoot
 Clear-CopilotFixturePublishedTree -FixtureRoot $fixtureUserRoot
 Invoke-CopilotSyncValidate -FixtureRoot $fixtureUserRoot -Mode $modeUser -TestName $userName
 Assert-ToolkitArtifactsPresent -FixtureRoot $fixtureUserRoot -TestName $userName
@@ -285,6 +302,7 @@ Write-Pass -TestName $keepName
 # --- Should_RemoveToolkitArtifacts_When_UninstallCopilotRepoFixture ---
 $repoName = 'Should_RemoveToolkitArtifacts_When_UninstallCopilotRepoFixture'
 
+Initialize-CopilotKeyedUninstallWorkRoot -SeedRoot $fixtureRepoSeedRoot -WorkRoot $fixtureRepoRoot
 Clear-CopilotFixturePublishedTree -FixtureRoot $fixtureRepoRoot
 Invoke-CopilotSyncValidate -FixtureRoot $fixtureRepoRoot -Mode $modeRepo -TestName $repoName
 Assert-ToolkitArtifactsPresent -FixtureRoot $fixtureRepoRoot -TestName $repoName

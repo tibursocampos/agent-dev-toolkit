@@ -20,3 +20,7 @@ Hermes loads project `AGENTS.md` from the **session CWD** (git-root chain), not 
 Do **not** expect Publish to write `config.yaml`, gateway tokens, or `delegation.max_spawn_depth` / worktree settings. Configure those in the operator’s Hermes home if needed. Do **not** use `skills.external_dirs` when the toolkit publishes into the official home `skills/` tree.
 
 Official: [Subagent delegation](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation). Portable contract: `skills/_shared/agents/SPAWN.md`.
+
+### `delegate_task` lifecycle
+
+Batch related, bounded work before dispatch. Each `delegate_task` call is one child assignment: once it returns any result (complete, incomplete, blocked, or failed), treat that child handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh `delegate_task` call; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use Hermes' close/stop control when available; termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `skills/_shared/agents/SPAWN.md`.

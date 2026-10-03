@@ -4,6 +4,10 @@
 #   Should_Throw_When_WriteManagedSkillsManifestGetsBadName
 #   Should_Throw_When_CopyRelativeWouldEscapeViaParentSegment
 #   Should_NotPruneUnknownDirs_When_PreviousManifestEmptyOrMissing
+#   Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree
+#   Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets
+#   Should_PreserveExistingGeneratedConfigAndRouter_When_PublishingUnownedTargets
+#   Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -188,7 +192,99 @@ try {
         Write-Fail -TestName $emptyManifestTest -Reason 'empty skills[] manifest must not delete unknown kebab skill dirs'
     }
 
+    # --- Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree ---
+    $preserveTest = 'Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree'
+    $copySource = Join-Path $probeRoot 'copy-source'
+    $copyDestination = Join-Path $probeRoot 'copy-destination'
+    $sourceSkill = Join-Path $copySource 'same-name-skill'
+    $destinationSkill = Join-Path $copyDestination 'same-name-skill'
+    New-Item -ItemType Directory -Path $sourceSkill,$destinationSkill -Force | Out-Null
+    $sourceCollision = Join-Path $sourceSkill 'SKILL.md'
+    $destinationCollision = Join-Path $destinationSkill 'SKILL.md'
+    [System.IO.File]::WriteAllText($sourceCollision, 'Toolkit {{ROOT}}')
+    [System.IO.File]::WriteAllText($destinationCollision, 'Operator content {{ROOT}}')
+    $newSourceFile = Join-Path $sourceSkill 'new-reference.md'
+    [System.IO.File]::WriteAllText($newSourceFile, 'Toolkit path {{ROOT}}')
+    $staleId = 'retired-skill'
+    $staleDir = Join-Path $copyDestination $staleId
+    New-Item -ItemType Directory -Path $staleDir -Force | Out-Null
+    $staleFile = Join-Path $staleDir 'operator-data.txt'
+    [System.IO.File]::WriteAllText($staleFile, 'preserve this')
+    $null = Write-ToolkitManagedSkillsManifest -DestinationSkillsRoot $copyDestination -SkillNames @('same-name-skill', $staleId)
+
+    $null = Copy-ToolkitManagedTree -SourceRoot $copySource -DestinationRoot $copyDestination
+    Resolve-ToolkitPlaceholdersInTree -RootPath $copyDestination -PlaceholderMap @{ '{{ROOT}}' = 'resolved-root' }
+    $copiedStale = @(Sync-ToolkitManagedSkillFolders -DestinationSkillsRoot $copyDestination -CurrentSkillNames @('same-name-skill'))
+    $destinationCollisionText = [System.IO.File]::ReadAllText($destinationCollision)
+    $newFileText = [System.IO.File]::ReadAllText((Join-Path $destinationSkill 'new-reference.md'))
+    $updatedManifest = Read-ToolkitManagedSkillsManifest -DestinationSkillsRoot $copyDestination
+    if ($destinationCollisionText -ne 'Operator content {{ROOT}}') {
+        Write-Fail -TestName $preserveTest -Reason 'existing same-name user skill file or its placeholder token was changed'
+    }
+    if ($newFileText -ne 'Toolkit path resolved-root') {
+        Write-Fail -TestName $preserveTest -Reason ("new toolkit file must still receive placeholder resolution; got '{0}'; tracked='{1}'" -f $newFileText, (@($script:ToolkitLastManagedCopyPaths) -join '|'))
+    }
+    if (-not (Test-Path -LiteralPath $staleFile) -or $copiedStale.Count -ne 0 -or $updatedManifest -notcontains $staleId) {
+        Write-Fail -TestName $preserveTest -Reason 'non-empty stale skill directory and manifest key must be preserved'
+    }
+
     Write-Pass -TestName $emptyManifestTest
+    Write-Pass -TestName $preserveTest
+
+    # --- Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets ---
+    $hookRuleTest = 'Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets'
+    $publishSource = Join-Path $probeRoot 'publish-source'
+    $publishRoot = Join-Path $probeRoot 'publish-root'
+    $hookSource = Join-Path $publishSource 'hooks.json'
+    $hookTarget = Join-Path (Join-Path $publishRoot 'hooks') 'hooks.json'
+    $ruleSource = Join-Path $publishSource 'rtk.md'
+    $ruleTarget = Join-Path (Join-Path $publishRoot 'rules') 'rtk.md'
+    $configTarget = Join-Path (Join-Path $publishRoot 'config') 'settings.json'
+    $routerTarget = Join-Path $publishRoot 'AGENTS.md'
+    New-Item -ItemType Directory -Path $publishSource,(Split-Path -Parent $hookTarget),(Split-Path -Parent $ruleTarget),(Split-Path -Parent $configTarget),(Split-Path -Parent $routerTarget) -Force | Out-Null
+    [System.IO.File]::WriteAllText($hookSource, '{"hooks":{"RTK":"operator-hook"}}')
+    [System.IO.File]::WriteAllText($hookTarget, '{"hooks":{"RTK":"keep-this-hook"}}')
+    [System.IO.File]::WriteAllText($ruleSource, 'toolkit rule')
+    [System.IO.File]::WriteAllText($ruleTarget, 'operator RTK rule')
+    [System.IO.File]::WriteAllText($configTarget, '{"settings":{"RTK":"keep-this-setting"}}')
+    [System.IO.File]::WriteAllText($routerTarget, 'operator router content')
+
+    $hookCopied = Copy-ToolkitFileIfAbsent -SourcePath $hookSource -DestinationPath $hookTarget
+    $ruleCopied = Copy-ToolkitFileIfAbsent -SourcePath $ruleSource -DestinationPath $ruleTarget
+    if ($hookCopied -or $ruleCopied) {
+        Write-Fail -TestName $hookRuleTest -Reason 'unowned hook/rule destinations must be preserved'
+    }
+    if ([System.IO.File]::ReadAllText($hookTarget) -ne '{"hooks":{"RTK":"keep-this-hook"}}' -or
+        [System.IO.File]::ReadAllText($ruleTarget) -ne 'operator RTK rule') {
+        Write-Fail -TestName $hookRuleTest -Reason 'existing RTK-like hook or unrelated rule content changed'
+    }
+    Write-Pass -TestName $hookRuleTest
+
+    $generatedCollisionTest = 'Should_PreserveExistingGeneratedConfigAndRouter_When_PublishingUnownedTargets'
+    $configWritten = Write-ToolkitFileIfAbsent -Path $configTarget -Content '{"settings":{"toolkit":true}}'
+    $routerWritten = Write-ToolkitFileIfAbsent -Path $routerTarget -Content 'toolkit router content'
+    if ($configWritten -or $routerWritten -or
+        [System.IO.File]::ReadAllText($configTarget) -ne '{"settings":{"RTK":"keep-this-setting"}}' -or
+        [System.IO.File]::ReadAllText($routerTarget) -ne 'operator router content') {
+        Write-Fail -TestName $generatedCollisionTest -Reason 'existing generated settings or router content changed'
+    }
+    Write-Pass -TestName $generatedCollisionTest
+
+    $publisherDeleteTest = 'Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters'
+    $repoRoot = Split-Path -Parent $scriptsRoot
+    $cleanupChecks = @(
+        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexSkills.ps1'); Pattern = 'Remove-Item[^\r\n]*\$extra\.FullName' },
+        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexHooks.ps1'); Pattern = 'Remove-Item[^\r\n]*\$legacySession' },
+        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexAgents.ps1'); Pattern = 'Remove-Item[^\r\n]*\$staleMd' },
+        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/copilot/Publish-CopilotAgents.ps1'); Pattern = 'Remove-Item[^\r\n]*\$legacyPath' }
+    )
+    foreach ($check in $cleanupChecks) {
+        $publisherText = [System.IO.File]::ReadAllText($check.Path)
+        if ($publisherText -match $check.Pattern) {
+            Write-Fail -TestName $publisherDeleteTest -Reason ("ambiguous cleanup remains in {0}" -f $check.Path)
+        }
+    }
+    Write-Pass -TestName $publisherDeleteTest
 }
 finally {
     Remove-ProbeRoot

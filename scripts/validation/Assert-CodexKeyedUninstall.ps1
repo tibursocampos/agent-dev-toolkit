@@ -21,7 +21,10 @@ function Write-Fail {
         [Parameter(Mandatory = $true)][string] $TestName,
         [Parameter(Mandatory = $true)][string] $Reason
     )
-    Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
+        if (-not [string]::IsNullOrWhiteSpace([string]$script:CodexUninstallTestRoot) -and (Test-Path -LiteralPath $script:CodexUninstallTestRoot)) {
+            Remove-Item -LiteralPath $script:CodexUninstallTestRoot -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
     exit 1
 }
 
@@ -36,7 +39,8 @@ foreach ($required in @($repoRootScript, $syncAgentScript, $validateAgentScript)
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $codexModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'CodexAdapter.ps1'
 $seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex'
-$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'codex-keyed-uninstall-work'
+$workInstallRoot = Join-Path $repoRoot ('.adt-codex-keyed-uninstall-{0}' -f [Guid]::NewGuid().ToString('N'))
+$script:CodexUninstallTestRoot = $workInstallRoot
 $fixtureInstallRoot = $workInstallRoot
 $pluginRoot = Join-Path $fixtureInstallRoot 'plugin'
 $pluginSkillsRoot = Join-Path $pluginRoot 'skills'
@@ -135,23 +139,6 @@ function Assert-CodexToolkitArtifactsAbsent {
         Write-Fail -TestName $TestName -Reason 'plugin.json must be removed by keyed uninstall'
     }
 
-    foreach ($id in (Get-CodexCoreSkillIds)) {
-        $pluginSkill = Join-Path $pluginSkillsRoot $id
-        if (Test-Path -LiteralPath $pluginSkill) {
-            Write-Fail -TestName $TestName -Reason ("managed plugin skill still present: {0}" -f $id)
-        }
-
-        $homeSkill = Join-Path $homeSkillsRoot $id
-        if (Test-Path -LiteralPath $homeSkill) {
-            Write-Fail -TestName $TestName -Reason ("managed home skill ($ discovery) still present: {0}" -f $id)
-        }
-
-        $userSkill = Join-Path $userSkillsRoot $id
-        if (Test-Path -LiteralPath $userSkill) {
-            Write-Fail -TestName $TestName -Reason ("managed USER skill still present: {0}" -f $id)
-        }
-    }
-
     if (Test-CodexToolkitHooksPresent) {
         Write-Fail -TestName $TestName -Reason 'toolkit hooks files must be removed'
     }
@@ -240,6 +227,20 @@ $alienHomeSkillDir = Join-Path $homeSkillsRoot $alienSkillId
 New-Item -ItemType Directory -Path $alienHomeSkillDir -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
 
+# A name-only manifest cannot prove ownership of files within a managed-named
+# directory, and an old key has no source tree to compare. Preserve and report both.
+$coLocatedPath = Join-Path (Join-Path $pluginSkillsRoot 'commit') 'operator-note.txt'
+Set-Content -LiteralPath $coLocatedPath -Value 'keep co-located operator file' -Encoding UTF8
+$staleSkillId = 'retired-toolkit-skill'
+$staleSkillDir = Join-Path $pluginSkillsRoot $staleSkillId
+New-Item -ItemType Directory -Path $staleSkillDir -Force | Out-Null
+$staleSkillFile = Join-Path $staleSkillDir 'SKILL.md'
+Set-Content -LiteralPath $staleSkillFile -Value 'legacy managed skill content' -Encoding UTF8
+$pluginSkillManifest = Join-Path $pluginSkillsRoot '.toolkit-managed-skills.json'
+$manifestObject = Get-Content -LiteralPath $pluginSkillManifest -Raw | ConvertFrom-Json
+$manifestObject.skills = @($manifestObject.skills) + @($staleSkillId)
+Set-Content -LiteralPath $pluginSkillManifest -Value ($manifestObject | ConvertTo-Json -Depth 5) -Encoding UTF8
+
 $uninstall = Uninstall-Toolkit -InstallRoot $fixtureInstallRoot
 if ($null -eq $uninstall -or $uninstall.Implemented -ne $true -or $uninstall.Success -ne $true) {
     Write-Fail -TestName $removeTest -Reason ("expected Successful Uninstall-Toolkit, got: {0}" -f $(if ($null -eq $uninstall) { 'null' } else { $uninstall.Message }))
@@ -258,6 +259,15 @@ if ($null -eq $uninstall.WholesaleWipe -or $uninstall.WholesaleWipe -ne $false) 
 }
 
 Assert-CodexToolkitArtifactsAbsent -TestName $removeTest
+if (-not (Test-Path -LiteralPath $coLocatedPath -PathType Leaf)) {
+    Write-Fail -TestName $removeTest -Reason 'operator file inside managed-named skill directory must survive uninstall'
+}
+if (-not (Test-Path -LiteralPath $staleSkillFile -PathType Leaf)) {
+    Write-Fail -TestName $removeTest -Reason 'stale names-only skill key must not authorize recursive deletion'
+}
+if (@($uninstall.PreservedPaths) -notcontains $staleSkillDir -or @($uninstall.PreservedPaths) -notcontains (Join-Path $pluginSkillsRoot 'commit')) {
+    Write-Fail -TestName $removeTest -Reason 'uninstall result must report co-located and stale ambiguous skill paths'
+}
 
 # Skeleton dirs must remain (no wholesale plugin / skills / .agents wipe)
 foreach ($dir in @($pluginRoot, $pluginSkillsRoot, $homeSkillsRoot, $pluginHooksRoot, (Join-Path $fixtureInstallRoot '.agents'), $userSkillsRoot)) {

@@ -5,6 +5,7 @@
 #   Should_Pass_When_SpawnAndSubagentsPresent
 #   Should_Pass_When_LanguageMdAndEnUsSpawnPresent
 #   Should_Fail_When_RegistryMissingSubagents
+#   Should_Pass_When_AllRegisteredAdaptersDocumentSpawnLifecycle
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -70,6 +71,62 @@ function Get-AgentsMissingSubagents {
         }
     }
     return $missing.ToArray()
+}
+
+function Get-SpawnSection {
+    param([Parameter(Mandatory = $true)][string] $Text)
+
+    $match = [regex]::Match($Text, '(?ims)^##\s+Spawn\s*/\s*subagents[^\r\n]*\r?\n(.*?)(?=^##\s|\z)')
+    if (-not $match.Success) { return '' }
+    return $match.Groups[1].Value
+}
+
+function Test-RegisteredAdapterSpawnGuidance {
+    param(
+        [Parameter(Mandatory = $true)][object[]] $Agents,
+        [Parameter(Mandatory = $true)][string] $RepoRoot
+    )
+
+    $problems = [System.Collections.Generic.List[string]]::new()
+    foreach ($agent in $Agents) {
+        $id = [string]$agent.id
+        $readmePath = Join-Path (Join-Path $RepoRoot 'adapters') (Join-Path $id 'README.md')
+        if (-not (Test-Path -LiteralPath $readmePath)) {
+            $problems.Add("${id}: missing adapters/$id/README.md")
+            continue
+        }
+
+        $section = Get-SpawnSection -Text ([System.IO.File]::ReadAllText($readmePath))
+        if ([string]::IsNullOrWhiteSpace($section)) {
+            $problems.Add("${id}: missing 'Spawn / subagents' section")
+            continue
+        }
+        if ($section -notmatch '(?i)SPAWN\.md') {
+            $problems.Add("${id}: Spawn section must point to canonical SPAWN.md")
+        }
+
+        $capability = [string]$agent.capabilities.subagents
+        if ($capability -eq 'native') {
+            $hasFreshAssignment = $section -match '(?is)fresh\s+(?:child|subagent|agent|handle)' -and $section -match '(?is)new\s+(?:task|assignment|review|correction)'
+            $hasNoCompletedReuse = $section -match '(?is)(?:never|do\s+not|must\s+not).{0,240}reuse' -and $section -match '(?is)(?:child\s+returns|returned\s+(?:child|work|result)|completed\s+(?:child|subagent|agent)|after\s+(?:the\s+)?child\s+returns)'
+            $hasHostTeardownBoundary = $section -match '(?is)host.{0,120}(?:control|manage|provides?.{0,30}(?:close|kill|terminat|teardown)|close|kill|terminat|teardown).{0,80}(?:close|kill|terminat|teardown|lifecycle|control|manage)?|(?:close|kill|terminat|teardown).{0,80}host.{0,40}(?:control|manage)'
+            if (-not $hasFreshAssignment) { $problems.Add("${id}: native Spawn section must require a fresh child/handle for each new task") }
+            if (-not $hasNoCompletedReuse) { $problems.Add("${id}: native Spawn section must forbid reuse of a completed child") }
+            if (-not $hasHostTeardownBoundary) { $problems.Add("${id}: native Spawn section must describe host-managed teardown limits") }
+        }
+        elseif ($capability -eq 'none') {
+            if ($section -notmatch '(?i)subagents\s*=\s*none|subagents.{0,30}\bnone\b|Registry.{0,80}\bnone\b') {
+                $problems.Add("${id}: subagents=none must remain explicit in Spawn section")
+            }
+            if ($section -notmatch '(?is)fallback.{0,100}in-parent|in-parent.{0,100}fallback') {
+                $problems.Add("${id}: subagents=none must retain the in-parent fallback")
+            }
+        }
+        else {
+            $problems.Add("${id}: unsupported registry subagents value '$capability'")
+        }
+    }
+    return $problems.ToArray()
 }
 
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
@@ -159,6 +216,24 @@ if ($spawnText -notmatch [regex]::Escape('LANGUAGE.md') -or $spawnText -notmatch
 }
 
 Write-Pass -TestName $passLanguageName
+
+# --- Should_Pass_When_AllRegisteredAdaptersDocumentSpawnLifecycle ---
+$adapterLifecycleName = 'Should_Pass_When_AllRegisteredAdaptersDocumentSpawnLifecycle'
+$spawnLifecycleProblems = @(Test-RegisteredAdapterSpawnGuidance -Agents $agents -RepoRoot $repoRoot)
+if ($spawnLifecycleProblems.Count -gt 0) {
+    Write-Fail -TestName $adapterLifecycleName -Reason ($spawnLifecycleProblems -join '; ')
+}
+
+$spawnText = [System.IO.File]::ReadAllText($spawnMdPath)
+$canonicalHasLifecycle = $spawnText -match '(?is)fresh\s+(?:child|subagent|agent|handle)' -and
+    $spawnText -match '(?is)(?:never|do\s+not|must\s+not).{0,240}reuse' -and
+    $spawnText -match '(?is)(?:child\s+returns|returned\s+(?:child|work|result)|completed\s+(?:child|subagent|agent)|after\s+(?:the\s+)?child\s+returns)' -and
+    $spawnText -match '(?is)host.{0,160}(?:control|manage|provides?.{0,30}(?:close|kill|terminat|teardown)|close|kill|terminat|teardown)'
+if (-not $canonicalHasLifecycle) {
+    Write-Fail -TestName $adapterLifecycleName -Reason 'canonical SPAWN.md must define fresh assignment, no completed-child reuse, and host-managed teardown boundary'
+}
+
+Write-Pass -TestName $adapterLifecycleName
 
 Write-Host 'Assert-SpawnContract: ALL PASS'
 exit 0

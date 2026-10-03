@@ -171,6 +171,8 @@ $script:BootstrapConstant = @{
     EnvZipAsset                    = 'TOOLKIT_RELEASE_ZIP_ASSET'
     EnvChecksumAsset               = 'TOOLKIT_RELEASE_CHECKSUM_ASSET'
     EnvSyncAgent                   = 'TOOLKIT_SYNC_AGENT'
+    EnvReleaseVersion              = 'TOOLKIT_RELEASE_VERSION'
+    GitHubApiBaseUrl               = 'https://api.github.com/repos'
     CacheFolderName                = 'agent-dev-toolkit-bootstrap'
     ExtractedFolderName            = 'extracted'
     SyncAgentRelativePath          = 'scripts/sync-agent.ps1'
@@ -192,6 +194,8 @@ $script:BootstrapMessage = @{
     ChecksumMismatch               = 'SHA256 mismatch (TE01). Expected={0} Actual={1}. Aborting without extract or handoff.'
     ChecksumOk                     = 'SHA256 verified for {0}'
     DownloadStart                  = 'Downloading {0}'
+    ReleaseVersion                 = 'Release version: {0}'
+    ReleaseVersionUnknown          = 'Release version: unavailable (downloaded latest asset)'
     ExtractSkipped                 = 'Checksum OK; extract skipped (-NoExtract). Handoff not invoked.'
     ExtractDone                    = 'Extracted to {0}.'
     HandoffSkippedExplicit         = 'Extract OK; handoff skipped (-SkipSync).'
@@ -233,6 +237,25 @@ function Get-BootstrapEnvOrDefault {
     return $DefaultValue
 }
 
+function Get-BootstrapLatestReleaseVersion {
+    param(
+        [Parameter(Mandatory = $true)][string] $OwnerName,
+        [Parameter(Mandatory = $true)][string] $RepoName
+    )
+
+    $apiUrl = '{0}/{1}/{2}/releases/latest' -f $script:BootstrapConstant.GitHubApiBaseUrl, $OwnerName, $RepoName
+    try {
+        $response = Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{ 'User-Agent' = 'agent-dev-toolkit-bootstrap' }
+        if ($null -ne $response -and -not [string]::IsNullOrWhiteSpace([string]$response.tag_name)) {
+            return [string]$response.tag_name
+        }
+    }
+    catch {
+        # The release asset remains usable when the metadata API is unavailable.
+    }
+    return $null
+}
+
 function Assert-BootstrapHttpsUrl {
     param([Parameter(Mandatory = $true)][string] $Url)
     $trimmed = $Url.Trim()
@@ -251,11 +274,17 @@ function New-BootstrapLatestDownloadUrl {
     param(
         [Parameter(Mandatory = $true)][string] $OwnerName,
         [Parameter(Mandatory = $true)][string] $RepoName,
-        [Parameter(Mandatory = $true)][string] $AssetName
+        [Parameter(Mandatory = $true)][string] $AssetName,
+        [Parameter()][string] $ReleaseTag
     )
     $https = $script:BootstrapConstant.HttpsSchemePrefix
     $hostName = $script:BootstrapConstant.GitHubHost
-    $segment = $script:BootstrapConstant.ReleasesLatestDownloadSegment
+    $segment = if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
+        $script:BootstrapConstant.ReleasesLatestDownloadSegment
+    }
+    else {
+        'releases/download/{0}' -f [uri]::EscapeDataString($ReleaseTag)
+    }
     $url = '{0}{1}/{2}/{3}/{4}/{5}' -f $https, $hostName, $OwnerName, $RepoName, $segment, $AssetName
     Assert-BootstrapHttpsUrl -Url $url
     return $url
@@ -620,6 +649,7 @@ $resolvedRepo = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.Env
 $resolvedZipAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvZipAsset -ParamValue $ZipAssetName -DefaultValue $script:BootstrapConstant.DefaultZipAssetName
 $resolvedChecksumAsset = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvChecksumAsset -ParamValue $ChecksumAssetName -DefaultValue $script:BootstrapConstant.DefaultChecksumAssetName
 $resolvedAgent = Get-BootstrapEnvOrDefault -EnvName $script:BootstrapConstant.EnvSyncAgent -ParamValue $Agent -DefaultValue $script:BootstrapConstant.DefaultSyncAgent
+$resolvedReleaseVersion = $null
 
 if ([string]::IsNullOrWhiteSpace($CacheDir)) {
     $CacheDir = Join-Path ([System.IO.Path]::GetTempPath()) $script:BootstrapConstant.CacheFolderName
@@ -650,12 +680,20 @@ try {
             throw ($script:BootstrapMessage.LocalZipMissing -f '(SkipDownload requires -LocalZipPath)')
         }
 
-        $zipUrl = New-BootstrapLatestDownloadUrl -OwnerName $resolvedOwner -RepoName $resolvedRepo -AssetName $resolvedZipAsset
+        $resolvedReleaseVersion = Get-BootstrapLatestReleaseVersion -OwnerName $resolvedOwner -RepoName $resolvedRepo
+        if ([string]::IsNullOrWhiteSpace($resolvedReleaseVersion)) {
+            Write-Host $script:BootstrapMessage.ReleaseVersionUnknown
+        }
+        else {
+            Write-Host ($script:BootstrapMessage.ReleaseVersion -f $resolvedReleaseVersion)
+        }
+
+        $zipUrl = New-BootstrapLatestDownloadUrl -OwnerName $resolvedOwner -RepoName $resolvedRepo -AssetName $resolvedZipAsset -ReleaseTag $resolvedReleaseVersion
         $zipPath = Join-Path $CacheDir $resolvedZipAsset
         Save-BootstrapRemoteFile -Url $zipUrl -DestinationPath $zipPath
 
         if ([string]::IsNullOrWhiteSpace($ExpectedSha256) -and -not [string]::IsNullOrWhiteSpace($resolvedChecksumAsset) -and [string]::IsNullOrWhiteSpace($checksumPath)) {
-            $checksumUrl = New-BootstrapLatestDownloadUrl -OwnerName $resolvedOwner -RepoName $resolvedRepo -AssetName $resolvedChecksumAsset
+            $checksumUrl = New-BootstrapLatestDownloadUrl -OwnerName $resolvedOwner -RepoName $resolvedRepo -AssetName $resolvedChecksumAsset -ReleaseTag $resolvedReleaseVersion
             $checksumPath = Join-Path $CacheDir $resolvedChecksumAsset
             Save-BootstrapRemoteFile -Url $checksumUrl -DestinationPath $checksumPath
         }
@@ -692,9 +730,17 @@ try {
             -DoUserScope:([bool]$UserScope)
     }
     else {
-        Invoke-BootstrapToolkitHandoff `
-            -ExtractDir $extractDir `
-            -BootstrapScriptDir $bootstrapScriptDir
+        $previousReleaseVersion = [Environment]::GetEnvironmentVariable($script:BootstrapConstant.EnvReleaseVersion)
+        try {
+            $displayReleaseVersion = if ([string]::IsNullOrWhiteSpace($resolvedReleaseVersion)) { 'unavailable' } else { $resolvedReleaseVersion }
+            [Environment]::SetEnvironmentVariable($script:BootstrapConstant.EnvReleaseVersion, $displayReleaseVersion)
+            Invoke-BootstrapToolkitHandoff `
+                -ExtractDir $extractDir `
+                -BootstrapScriptDir $bootstrapScriptDir
+        }
+        finally {
+            [Environment]::SetEnvironmentVariable($script:BootstrapConstant.EnvReleaseVersion, $previousReleaseVersion)
+        }
     }
 
     exit 0

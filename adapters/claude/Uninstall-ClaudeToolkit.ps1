@@ -321,22 +321,8 @@ function Invoke-ClaudeUninstallToolkit {
     }
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.SkillsDirectoryName
-    foreach ($rawSkillId in (Get-ClaudeManagedSkillIds -RepoRoot $repoRoot)) {
-        try {
-            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
-        }
-        catch {
-            continue
-        }
-        $skillPath = Join-Path $skillsRoot $skillId
-        $hit = Remove-ClaudeManagedPathIfPresent -Path $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
-        if ($hit) {
-            $wouldRemovePaths.Add($skillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($skillPath) | Out-Null
-            }
-        }
-    }
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
 
     $rulesRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.RulesDirectoryName
     foreach ($ruleRelative in (Get-ClaudeManagedRuleRelativePaths -RepoRoot $repoRoot)) {
@@ -404,6 +390,10 @@ function Invoke-ClaudeUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $messageParts += @($routerNotes.ToArray())
     }
+    if ($preservedSkillPaths.Count -gt 0) {
+        $messageParts += @('Skill paths preserved because names-only manifests cannot prove per-file ownership: ' + ($preservedSkillPaths -join ', '))
+    }
+    if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
 
     return [PSCustomObject]@{
@@ -414,6 +404,7 @@ function Invoke-ClaudeUninstallToolkit {
         InstallRoot     = $resolvedInstallRoot
         RemovedCount    = $pathCount
         RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        PreservedPaths  = @($preservedSkillPaths)
         SettingsTouched = [bool]$settingsResult.SettingsTouched
         SettingsPath    = $settingsResult.SettingsPath
         KeyedOnly       = $true

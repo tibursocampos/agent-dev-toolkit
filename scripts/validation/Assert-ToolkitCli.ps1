@@ -90,9 +90,9 @@ if (-not $script:ToolkitConstant.ContainsKey('CiSmokeScripts') -or @($script:Too
 }
 $labMenuChoices = @($script:ToolkitConstant.ToolkitLabMenuChoices)
 foreach ($smoke in @($script:ToolkitConstant.CiSmokeScripts)) {
-    $smokeId = [string]$smoke.Id
+    $smokeId = ([int]$smoke.Id + 1).ToString()
     if ($labMenuChoices -notcontains $smokeId) {
-        Write-Fail -TestName $uiName -Reason ("expected ToolkitConstant.ToolkitLabMenuChoices to include smoke id '{0}'" -f $smokeId)
+        Write-Fail -TestName $uiName -Reason ("expected ToolkitConstant.ToolkitLabMenuChoices to include smoke menu option '{0}'" -f $smokeId)
     }
 }
 if (-not $script:ToolkitConstant.ContainsKey('ToolkitMainMenuChoices')) {

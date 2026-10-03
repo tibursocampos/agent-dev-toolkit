@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Copilot Publish-Policy (core policy/router -> Copilot instructions).
@@ -94,7 +97,7 @@ function Copy-CopilotCorePolicyAsInstructions {
         $raw = [System.IO.File]::ReadAllText($file.FullName)
         $converted = Convert-CopilotAlwaysApplyFrontmatterToApplyTo -Text $raw
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-        [System.IO.File]::WriteAllText($destinationPath, $converted, $utf8NoBom)
+        $null = Write-ToolkitFileIfAbsent -Path $destinationPath -Content $converted -Encoding $utf8NoBom
         $filesCopied++
     }
 
@@ -128,7 +131,7 @@ function Publish-CopilotRouterAsInstructionsFile {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($DestinationInstructionsFile, $updated, $utf8NoBom)
+    $null = Write-ToolkitFileIfAbsent -Path $DestinationInstructionsFile -Content $updated -Encoding $utf8NoBom
 }
 
 function Invoke-CopilotPublishPolicy {
