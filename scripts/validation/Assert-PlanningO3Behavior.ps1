@@ -1,5 +1,6 @@
 #Requires -Version 5.1
-# Exercises sizing, API contract blocking, and seeded O3 contradiction detection.
+# Exercises sizing and API contract blocking. O3 strategy execution is reported
+# as SKIPPED when this harness cannot invoke an observable host/model runner.
 $ErrorActionPreference = 'Stop'
 
 function Assert-True {
@@ -65,11 +66,27 @@ Assert-True ($o3Text -match '(?i)do not invent an absolute') 'O3 must not invent
 $fixture = Get-Content -LiteralPath $fixturePath -Raw -Encoding UTF8 | ConvertFrom-Json
 $seedIds = @($fixture.seededContradictions | ForEach-Object { [string]$_.id })
 Assert-True ($seedIds.Count -gt 0) 'O3 fixture must contain seeded contradictions.'
+$canonicalLines = @(
+    [string]$fixture.input.plan
+    [string]$fixture.input.environment
+    [string]$fixture.input.configuration
+)
+$canonicalLines += @($fixture.seededContradictions | ForEach-Object { '{0}|{1}|{2}' -f $_.id, $_.claimA, $_.claimB })
+$canonicalInput = $canonicalLines -join "`n"
+$sha = [System.Security.Cryptography.SHA256]::Create()
+try {
+    $actualHash = ([System.BitConverter]::ToString($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonicalInput)))).Replace('-', '').ToLowerInvariant()
+} finally {
+    $sha.Dispose()
+}
+Assert-True ($fixture.input.sha256 -eq $actualHash) 'O3 fixture input hash must match its plan, conditions, and seeded contradictions.'
+Assert-True ($fixture.reviews.full.inputSha256 -eq $fixture.reviews.deltaRisk.inputSha256) 'O3 strategies must use identical hashed inputs.'
+Assert-True ($fixture.reviews.full.inputSha256 -eq $fixture.input.sha256) 'Review input hashes must match the fixture input hash.'
 foreach ($mode in @('full', 'deltaRisk')) {
-    $detected = @($fixture.reviews.$mode.detected | ForEach-Object { [string]$_ })
-    $missed = @($seedIds | Where-Object { $detected -notcontains $_ })
-    Assert-True ($missed.Count -eq 0) "$mode review missed seeded contradictions: $($missed -join ', ')"
-    Assert-True ($detected.Count -eq $seedIds.Count) "$mode review must report the full detection denominator without extras."
+    Assert-True ($fixture.reviews.$mode.status -eq 'SKIPPED') "$mode detection must not be inferred from prerecorded results."
+    Assert-True (-not [string]::IsNullOrWhiteSpace([string]$fixture.reviews.$mode.reason)) "$mode skipped detection must state the missing observable runner."
+    Assert-True ($null -eq $fixture.reviews.$mode.detected) "$mode fixture must not contain prerecorded detection results."
+    Write-Host ("O3 {0} strategy execution: SKIPPED - {1}" -f $mode, $fixture.reviews.$mode.reason)
 }
 if ($fixture.telemetry.available) {
     foreach ($mode in @('full', 'deltaRisk')) {
@@ -80,6 +97,6 @@ if ($fixture.telemetry.available) {
     Assert-True (-not [string]::IsNullOrWhiteSpace([string]$fixture.telemetry.reason)) 'Skipped telemetry must state why.'
     Write-Host ("O3 paired measurement: SKIPPED - {0}" -f $fixture.telemetry.reason)
 }
-Write-Host ("O3 contradiction detection: PASS (full {0}/{1}; deltaRisk {2}/{3})" -f $fixture.reviews.full.detected.Count, $seedIds.Count, $fixture.reviews.deltaRisk.detected.Count, $seedIds.Count)
+Write-Host ("O3 paired input identity: PASS ({0}; {1} seeded contradictions; strategy outcomes SKIPPED)" -f $fixture.input.sha256, $seedIds.Count)
 Write-Host 'Assert-PlanningO3Behavior: ALL PASS'
 exit 0

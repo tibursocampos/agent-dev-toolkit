@@ -12,9 +12,33 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $syncPath = Join-Path $repoRoot 'scripts/sync-agent.ps1'
 $manifestPath = Join-Path $repoRoot 'scripts/runtime/runtime-manifest.json'
+$syncSource = Get-Content -LiteralPath $syncPath -Raw -Encoding UTF8
 $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $entries = @($manifest.files)
 if ($entries.Count -eq 0) { throw 'Runtime manifest contains no files.' }
+
+$runtimeFunctionStart = $syncSource.IndexOf('function Publish-RuntimeScripts {', [System.StringComparison]::Ordinal)
+$runtimeFunctionEnd = $syncSource.IndexOf("`ntry {", $runtimeFunctionStart + 1, [System.StringComparison]::Ordinal)
+if ($runtimeFunctionStart -lt 0 -or $runtimeFunctionEnd -lt 0) {
+    throw 'Could not locate Publish-RuntimeScripts function for pre-copy safety assertion.'
+}
+$runtimeFunction = $syncSource.Substring($runtimeFunctionStart, $runtimeFunctionEnd - $runtimeFunctionStart)
+$copyIndex = $runtimeFunction.IndexOf('Copy-Item -LiteralPath $source -Destination $confirmedDestination -Force', [System.StringComparison]::Ordinal)
+foreach ($requiredCheck in @(
+    'Confirm-InstallRootAllowsWrite -InstallRoot $InstallRoot',
+    'Confirm-InstallRootAllowsWrite -InstallRoot $toolkitRoot',
+    'Confirm-InstallRootAllowsWrite -InstallRoot $destinationDirectory'
+)) {
+    $checkIndex = $runtimeFunction.IndexOf($requiredCheck, [System.StringComparison]::Ordinal)
+    if ($checkIndex -lt 0 -or $copyIndex -lt 0 -or $checkIndex -ge $copyIndex) {
+        throw "Runtime publication must revalidate '$requiredCheck' before Copy-Item."
+    }
+}
+$confirmBeforeRuntimeCall = $syncSource.IndexOf('$resolvedInstallRoot = Confirm-InstallRootAllowsWrite -InstallRoot $resolvedInstallRoot', [System.StringComparison]::Ordinal)
+$runtimeCall = $syncSource.IndexOf('Publish-RuntimeScripts -RepoRoot $repoRoot', [System.StringComparison]::Ordinal)
+if ($confirmBeforeRuntimeCall -lt 0 -or $runtimeCall -lt 0 -or $confirmBeforeRuntimeCall -ge $runtimeCall) {
+    throw 'sync-agent must revalidate the resolved InstallRoot immediately before runtime publication.'
+}
 
 $runner = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($runner)) { throw 'Could not resolve the current PowerShell executable.' }

@@ -113,14 +113,76 @@ Assert-True (($seededFindings | Where-Object Tool -eq 'optional-analyzer').Statu
 # invocation, parsed diagnostics, comparison, and unavailable-tool reporting end to end.
 $runnerPath = Join-Path $PSScriptRoot 'Invoke-ConfiguredDiagnostics.ps1'
 $configPath = Join-Path $fixtureRoot '.agent-validation-tools.json'
-$runnerOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -BaselineRules @('BASE001') 2>&1)
-Assert-True ($LASTEXITCODE -eq 0) "Configured diagnostics runner failed: $($runnerOutput -join "`n")"
-$actualRecords = @((($runnerOutput -join "`n") | ConvertFrom-Json))
+$baselinePath = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-baseline-{0}.json" -f [guid]::NewGuid().ToString('N'))
+$invocationMarker = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-invoked-{0}.txt" -f [guid]::NewGuid().ToString('N'))
+$previousMarker = $env:FIXTURE_DIAGNOSTIC_MARKER
+$env:FIXTURE_DIAGNOSTIC_MARKER = $invocationMarker
+$baseline = @(
+    [pscustomobject]@{ Tool = 'fixture-analyzer'; Project = $fixtureRoot; File = 'other/Widget.cs'; Rule = 'DEMO001' },
+    [pscustomobject]@{ Tool = 'fixture-analyzer'; Project = ($fixtureRoot + '-other'); File = 'src/Widget.cs'; Rule = 'DEMO001' },
+    [pscustomobject]@{ Tool = 'different-analyzer'; Project = $fixtureRoot; File = 'src/Widget.cs'; Rule = 'DEMO001' }
+)
+try {
+    $baseline | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $baselinePath
+    Push-Location $env:TEMP
+    try {
+        $untrustedOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -BaselinePath $baselinePath -MaxOutputLength 512 2>&1)
+        Assert-True ($LASTEXITCODE -eq 0) "Untrusted configured diagnostics runner failed: $($untrustedOutput -join "`n")"
+        $untrustedRecords = @(($untrustedOutput -join "`n" | ConvertFrom-Json))
+        Assert-True (-not (Test-Path -LiteralPath $invocationMarker)) 'Unapproved configured commands must not be invoked.'
+        Assert-True ($untrustedRecords.Count -eq 3 -and @($untrustedRecords | Where-Object { $_.Status -ne 'SKIPPED' -or $_.Reason -ne 'configured command not trusted' }).Count -eq 0) 'Unapproved commands must all be SKIPPED with an explicit trust reason.'
+
+        $runnerOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -BaselinePath $baselinePath -MaxOutputLength 512 -TrustConfiguredCommands 2>&1)
+    }
+    finally { Pop-Location }
+    Assert-True ($LASTEXITCODE -eq 0) "Configured diagnostics runner failed: $($runnerOutput -join "`n")"
+        $actualRecords = @((($runnerOutput -join "`n") | ConvertFrom-Json))
+        $approvedInvoked = Test-Path -LiteralPath $invocationMarker
+}
+finally {
+    Remove-Item -LiteralPath $baselinePath -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $invocationMarker -Force -ErrorAction SilentlyContinue
+    if ($null -eq $previousMarker) { Remove-Item Env:\FIXTURE_DIAGNOSTIC_MARKER -ErrorAction SilentlyContinue }
+    else { $env:FIXTURE_DIAGNOSTIC_MARKER = $previousMarker }
+}
 $actualFinding = $actualRecords | Where-Object Tool -eq 'fixture-analyzer' | Select-Object -First 1
-Assert-True ($null -ne $actualFinding) 'Configured, installed tool should be discovered and invoked.'
+Assert-True $approvedInvoked 'Explicit trust approval should invoke the configured executable.'
+Assert-True ($null -ne $actualFinding) 'Configured, installed tool should be discovered and invoked after explicit trust approval.'
 Assert-True ($actualFinding.Status -eq 'FOUND' -and $actualFinding.Rule -eq 'DEMO001') 'Runner should parse the emitted rule and report FOUND.'
 Assert-True ($actualFinding.File -eq 'src/Widget.cs' -and $actualFinding.Project -eq $fixtureRoot) 'Finding should preserve file and project scope.'
-Assert-True ($actualFinding.Severity -eq 'warning' -and $actualFinding.Comparison -eq 'new') 'Finding should preserve severity and classify comparison.'
+Assert-True ($actualFinding.Severity -eq 'warning' -and $actualFinding.Comparison -eq 'new') 'Same rule in another project/file must remain a new finding.'
+Assert-True ($actualFinding.Command -notmatch 'fixture-secret-value' -and $actualFinding.Evidence -notmatch 'fixture-secret-value') 'Command arguments and captured output must not expose secret values.'
+Assert-True ($actualFinding.Evidence -match '\[REDACTED\]') 'Secret-like diagnostic output must be redacted.'
+$exactBaselinePath = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-baseline-{0}.json" -f [guid]::NewGuid().ToString('N'))
+try {
+    @([pscustomobject]@{ Tool = 'fixture-analyzer'; Project = $fixtureRoot; File = 'src/Widget.cs'; Rule = 'DEMO001' }) | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $exactBaselinePath
+    Push-Location $env:TEMP
+    try { $exactOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -BaselinePath $exactBaselinePath -TrustConfiguredCommands 2>&1) }
+    finally { Pop-Location }
+    Assert-True ($LASTEXITCODE -eq 0) "Configured diagnostics baseline comparison failed: $($exactOutput -join "`n")"
+    $exactRecords = @(($exactOutput -join "`n" | ConvertFrom-Json))
+    $exactFinding = $exactRecords | Where-Object Tool -eq 'fixture-analyzer' | Select-Object -First 1
+    Assert-True ($exactFinding.Comparison -eq 'pre-existing') 'Exact tool/project/file/rule identity should be pre-existing.'
+}
+finally { Remove-Item -LiteralPath $exactBaselinePath -Force -ErrorAction SilentlyContinue }
+$incompleteBaselinePath = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-baseline-{0}.json" -f [guid]::NewGuid().ToString('N'))
+try {
+    @([pscustomobject]@{ Tool = 'fixture-analyzer'; Project = $fixtureRoot; Rule = 'DEMO001' }) | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $incompleteBaselinePath
+    $incompleteOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -BaselinePath $incompleteBaselinePath -TrustConfiguredCommands 2>&1)
+    Assert-True ($LASTEXITCODE -eq 0) "Incomplete baseline handling failed: $($incompleteOutput -join "`n")"
+    $incompleteRecords = @(($incompleteOutput -join "`n" | ConvertFrom-Json))
+    $incompleteFinding = $incompleteRecords | Where-Object Tool -eq 'fixture-analyzer' | Select-Object -First 1
+    Assert-True ($incompleteFinding.Comparison -eq 'unavailable') 'Incomplete baseline identity must make comparison unavailable.'
+}
+finally { Remove-Item -LiteralPath $incompleteBaselinePath -Force -ErrorAction SilentlyContinue }
+$noBaselineOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath -ProjectRoot $fixtureRoot -ChangedPaths @('src/Widget.cs') -ConfigPath $configPath -TrustConfiguredCommands 2>&1)
+Assert-True ($LASTEXITCODE -eq 0) "Missing baseline handling failed: $($noBaselineOutput -join "`n")"
+$noBaselineRecords = @(($noBaselineOutput -join "`n" | ConvertFrom-Json))
+$noBaselineFinding = $noBaselineRecords | Where-Object Tool -eq 'fixture-analyzer' | Select-Object -First 1
+Assert-True ($noBaselineFinding.Comparison -eq 'unavailable') 'Without baseline data, comparison must be unavailable.'
+$longOutput = @($actualRecords | Where-Object Tool -eq 'fixture-long-output' | Select-Object -First 1)
+Assert-True ($longOutput.Count -eq 1 -and $longOutput[0].Evidence -match '\[TRUNCATED\]') 'Captured tool output must be bounded and indicate truncation.'
+Assert-True ($longOutput[0].Evidence.Length -le 530) 'Captured tool output exceeded the configured bound.'
 $missingRecord = $actualRecords | Where-Object Tool -eq 'missing-fixture-tool' | Select-Object -First 1
 Assert-True ($missingRecord.Status -eq 'SKIPPED' -and $missingRecord.Reason -eq 'configured tool unavailable') 'Uninstalled configured tooling must be SKIPPED with a reason.'
 Assert-True ($missingRecord.Comparison -eq 'unavailable' -and $missingRecord.Severity -eq 'n/a') 'Unavailable tool output must identify unavailable comparison and severity.'

@@ -15,11 +15,16 @@ Report configured lint, dependency-audit, and analyzer results in this shape:
 - `FOUND`: the tool emitted a lint rule, vulnerability advisory, or diagnostic.
 - `SKIPPED`: the tool, host capability, or configured integration is unavailable; include the reason and intended scope. Never represent unavailable as `PASS`.
 
-For repository-configured lint, audit, and analyzer commands, inspect
-`.agent-validation-tools.json` and run `scripts/validation/Invoke-ConfiguredDiagnostics.ps1`
-for the changed paths when the manifest exists. Include its parsed records and raw
-output in the review evidence. The runner invokes only commands that resolve; missing
-commands are `SKIPPED`. Do not install a tool or run remediation commands during review.
+For repository-configured lint, audit, and analyzer commands, treat
+`.agent-validation-tools.json` as untrusted executable configuration. By default,
+`scripts/validation/Invoke-ConfiguredDiagnostics.ps1` reports configured commands as
+`SKIPPED` and does not execute them. Inspect the manifest and obtain an explicit user
+trust decision, or use a constrained sandbox, before passing
+`-TrustConfiguredCommands`; that switch authorizes all manifest entries for the
+invocation. Do not infer trust from the repository or command availability. Include
+parsed records and only the runner's redacted, bounded output in review evidence.
+Once trusted, missing commands remain `SKIPPED`. Do not install tools or run
+remediation commands during review.
 
 Do not run a formatter, `--fix`, package update, diagnostic suppression, quick fix,
 or cleanup as part of a review. Reviews report evidence and recommend follow-up;

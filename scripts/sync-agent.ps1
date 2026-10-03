@@ -134,7 +134,8 @@ function Publish-RuntimeScripts {
         [Parameter(Mandatory = $true)][string] $RepoRoot,
         [Parameter(Mandatory = $true)][string] $InstallRoot,
         [Parameter(Mandatory = $true)][string] $AdapterId,
-        [Parameter()][switch] $UserScope
+        [Parameter()][switch] $UserScope,
+        [Parameter()][switch] $AllowUserHome
     )
 
     $manifestPath = Join-Path $RepoRoot 'scripts/runtime/runtime-manifest.json'
@@ -186,7 +187,30 @@ function Publish-RuntimeScripts {
             }
             $destinationDirectory = Split-Path -Parent $destination
             New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
-            Copy-Item -LiteralPath $source -Destination $destination -Force
+
+            # Re-resolve every path after directory creation and immediately before
+            # copying. This closes the gap where an adapter publish or a reparse
+            # point swap could redirect runtime files after the initial root check.
+            $confirmedInstallRoot = Confirm-InstallRootAllowsWrite -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $RepoRoot
+            $confirmedToolkitRoot = Confirm-InstallRootAllowsWrite -InstallRoot $toolkitRoot -AllowUserHome:$AllowUserHome -RepoRoot $RepoRoot
+            $confirmedDestinationDirectory = Confirm-InstallRootAllowsWrite -InstallRoot $destinationDirectory -AllowUserHome:$AllowUserHome -RepoRoot $RepoRoot
+
+            $comparison = [System.StringComparison]::Ordinal
+            if (Test-ToolkitIsWindowsPlatform) {
+                $comparison = [System.StringComparison]::OrdinalIgnoreCase
+            }
+            $installPrefix = $confirmedInstallRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+            if (-not [string]::Equals($confirmedToolkitRoot, $confirmedInstallRoot, $comparison) -and
+                -not $confirmedToolkitRoot.StartsWith($installPrefix, $comparison)) {
+                throw ("Runtime toolkit root resolves outside InstallRoot '{0}': {1}" -f $confirmedInstallRoot, $confirmedToolkitRoot)
+            }
+            $toolkitPrefix = $confirmedToolkitRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+            if (-not $confirmedDestinationDirectory.StartsWith($toolkitPrefix, $comparison)) {
+                throw ("Runtime destination resolves outside toolkit root '{0}': {1}" -f $confirmedToolkitRoot, $confirmedDestinationDirectory)
+            }
+
+            $confirmedDestination = Join-Path $confirmedDestinationDirectory (Split-Path -Leaf $destination)
+            Copy-Item -LiteralPath $source -Destination $confirmedDestination -Force
         }
     }
     Write-Host ("Publish-RuntimeScripts: OK ({0} allowlisted files across {1} toolkit root(s))" -f @($manifest.files).Count, $uniqueRoots.Count) -ForegroundColor Green
@@ -279,11 +303,8 @@ try {
     }
 
     if (-not $WhatIf.IsPresent) {
-        Publish-RuntimeScripts -RepoRoot $repoRoot -InstallRoot $resolvedInstallRoot -AdapterId $resolved.AgentId -UserScope:$UserScope
-    }
-
-    if (-not $WhatIf.IsPresent) {
         $resolvedInstallRoot = Confirm-InstallRootAllowsWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+        Publish-RuntimeScripts -RepoRoot $repoRoot -InstallRoot $resolvedInstallRoot -AdapterId $resolved.AgentId -UserScope:$UserScope -AllowUserHome:$AllowUserHome
     }
     $sddArgs = @{
         InstallRoot = $resolvedInstallRoot

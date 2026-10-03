@@ -333,6 +333,25 @@ function Test-IsPathUnderOrEqual {
     return $child.StartsWith($parentWithSep, $comparison)
 }
 
+function Test-IsLexicalPathUnderOrEqual {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $ChildPath,
+        [Parameter(Mandatory = $true)][string] $ParentPath
+    )
+
+    $child = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $ChildPath))
+    $parent = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $ParentPath))
+    $comparison = [System.StringComparison]::OrdinalIgnoreCase
+
+    if ([string]::Equals($child, $parent, $comparison)) {
+        return $true
+    }
+
+    $parentWithSep = $parent.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    return $child.StartsWith($parentWithSep, $comparison)
+}
+
 function Resolve-InstallRoot {
     [CmdletBinding()]
     param(
@@ -363,15 +382,24 @@ function Resolve-InstallRoot {
     $repoRootResolved = Get-NormalizedFullPath -Path $RepoRoot
     $underRepo = Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $repoRootResolved
 
-    if (-not $underRepo) {
+    if (-not $underRepo -and -not $AllowUserHome.IsPresent) {
         if ([string]::IsNullOrWhiteSpace($UserProfilePath)) {
             throw ($script:ToolkitMessage.UserProfileUnavailable)
+        }
+
+        # Reject a lexical USERPROFILE child before resolving USERPROFILE itself.
+        # This keeps the user-home safety gate effective when the host forbids a
+        # read handle on the profile directory, while reparse resolution above
+        # still fails closed for an existing InstallRoot.
+        if (Test-IsLexicalPathUnderOrEqual -ChildPath $resolved -ParentPath $UserProfilePath) {
+            $userProfileLexical = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $UserProfilePath))
+            throw ($script:ToolkitMessage.InstallRootUnderUserProfileBlocked -f $userProfileLexical, $resolved)
         }
 
         $userProfileResolved = Get-NormalizedFullPath -Path $UserProfilePath
         $underUserProfile = Test-IsPathUnderOrEqual -ChildPath $resolved -ParentPath $userProfileResolved
 
-        if ($underUserProfile -and -not $AllowUserHome.IsPresent) {
+        if ($underUserProfile) {
             throw ($script:ToolkitMessage.InstallRootUnderUserProfileBlocked -f $userProfileResolved, $resolved)
         }
     }

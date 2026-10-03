@@ -64,12 +64,15 @@ The specialist reports and recommends only: never automatically fix, update,
 suppress, or clean up a finding. A preflight note is not a final security review of
 a later implementation diff; state that limitation explicitly.
 
-When the scoped repository provides `.agent-validation-tools.json`, include its
-configured security/dependency diagnostics in the review: run
-`scripts/validation/Invoke-ConfiguredDiagnostics.ps1` for the scoped project and
-changed paths, then preserve each parsed record and raw output in the security
-evidence. The runner reports configured missing commands as `SKIPPED`; never install
-tools to make the check pass, and never run remediation commands.
+When the scoped repository provides `.agent-validation-tools.json`, treat it as
+untrusted executable configuration. The diagnostics runner reports configured
+commands as `SKIPPED` by default and executes none. Inspect the manifest and obtain an
+explicit user trust decision, or use a constrained sandbox, before passing
+`-TrustConfiguredCommands`; the switch authorizes every manifest entry for that
+invocation. Do not infer trust from repository ownership or command availability.
+Preserve parsed records and only redacted, bounded runner output in security evidence.
+Missing tools are `SKIPPED`. Never install tools to make a check pass or run
+remediation commands.
 
 ## Full prompt
 

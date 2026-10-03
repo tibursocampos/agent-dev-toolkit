@@ -52,13 +52,19 @@ scope, reproducible availability evidence, and reason. An unavailable tool is ne
 `PASS`. The commands in the auto-fix column are consent-only examples and must not
 run as part of this validation.
 
-For configured diagnostics, use the repository's `.agent-validation-tools.json`
-manifest with `scripts/validation/Invoke-ConfiguredDiagnostics.ps1`. The runner
-resolves each declared command locally or from `PATH`; it invokes only commands
-that resolve and records a missing command as `SKIPPED`. It does not install tools.
-Pass changed paths and baseline rule identifiers so parsed findings retain project,
-file, rule, severity, and `new` / `pre-existing` comparison. Keep raw command output
-as evidence. A manifest entry must name a read-only validation command; never use
+For configured diagnostics, treat `.agent-validation-tools.json` as untrusted
+repository-controlled executable configuration. By default,
+`scripts/validation/Invoke-ConfiguredDiagnostics.ps1` does not execute any configured
+command and reports `SKIPPED` with reason `configured command not trusted`. Inspect
+the manifest and obtain an explicit user trust decision for its commands, or run them
+inside a constrained sandbox, before supplying `-TrustConfiguredCommands`. The switch
+approves execution of every command in that manifest for this invocation; do not infer
+approval from repository ownership or from a command resolving locally or on `PATH`.
+After that gate, the runner resolves declared commands locally or from `PATH`, reports
+missing commands as `SKIPPED`, and does not install tools. Pass changed paths and
+baseline identifiers so parsed findings retain project, file, rule, severity, and
+`new` / `pre-existing` comparison. Preserve only the runner's redacted, bounded output
+as evidence. Every manifest entry must name a read-only validation command; never use
 this flow for formatter, fix, update, suppression, or cleanup commands.
 
 ---
