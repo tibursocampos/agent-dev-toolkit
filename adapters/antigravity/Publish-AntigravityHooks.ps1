@@ -70,7 +70,7 @@ function Copy-AntigravityHookFilesTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
     }
 
@@ -78,7 +78,7 @@ function Copy-AntigravityHookFilesTree {
         $sharedSource = Join-Path $RepoRoot ($script:AntigravityPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedGuardCommonFileName
-            Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
             $filesCopied++
         }
     }

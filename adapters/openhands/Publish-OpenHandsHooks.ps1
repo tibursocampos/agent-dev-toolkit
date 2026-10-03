@@ -91,7 +91,7 @@ function Copy-OpenHandsHookScriptAsset {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    Copy-ToolkitFileIfAbsent -SourcePath $sourceScript -DestinationPath $destinationPath
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceScript -DestinationPath $destinationPath
     if ($SourceFileName -like '*.sh') {
         $isWindowsHost = $false
         if ($PSVersionTable.PSVersion.Major -ge 6) {
@@ -143,7 +143,7 @@ function Copy-OpenHandsSharedGuardCommon {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    Copy-ToolkitFileIfAbsent -SourcePath $source -DestinationPath $destinationPath
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $source -DestinationPath $destinationPath
     return $destinationPath
 }
 

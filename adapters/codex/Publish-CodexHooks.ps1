@@ -82,7 +82,7 @@ function Write-CodexGuardPreToolScript {
     }
     $destGuard = Join-Path $HooksDirectory $script:CodexPathConstant.HooksGuardScriptName
     if (Test-Path -LiteralPath $sourceGuard) {
-        Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
     }
     else {
         throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceGuard)
@@ -91,14 +91,14 @@ function Write-CodexGuardPreToolScript {
     $sharedSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
-        Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
     }
 
     # Thin _hook-common for Codex (loads GuardCommon + Read/Write helpers).
     $commonSource = Join-Path (Split-Path -Parent $sourceGuard) '_hook-common.ps1'
     $destCommon = Join-Path $HooksDirectory '_hook-common.ps1'
     if (Test-Path -LiteralPath $commonSource) {
-        Copy-ToolkitFileIfAbsent -SourcePath $commonSource -DestinationPath $destCommon
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $commonSource -DestinationPath $destCommon
     }
 
     return $destGuard

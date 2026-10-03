@@ -347,7 +347,7 @@ function Invoke-ZCodePublishHooks {
         -RootPath $resolvedInstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destinationGuard
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destinationGuard
     $sharedGuardSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:ZCodePathConstant.SharedGuardCommonFileName
     $sharedGuardDest = Join-Path $hooksDir $script:ZCodePathConstant.SharedGuardCommonFileName
     if (-not (Test-Path -LiteralPath $sharedGuardSource)) {
@@ -358,7 +358,7 @@ function Invoke-ZCodePublishHooks {
         -RootPath $resolvedInstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedGuardDest
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedGuardDest
     return [PSCustomObject]@{
         Success          = $true
         Implemented      = $true

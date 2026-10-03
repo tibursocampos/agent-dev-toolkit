@@ -410,7 +410,7 @@ function Copy-CursorHookScripts {
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
 
-        Copy-ToolkitFileIfAbsent -SourcePath $_.FullName -DestinationPath $destPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $_.FullName -DestinationPath $destPath
         $copied++
     }
 
@@ -428,7 +428,7 @@ function Copy-CursorHookScripts {
             -RootPath $InstallRoot `
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
-        Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
         $copied++
     }
 

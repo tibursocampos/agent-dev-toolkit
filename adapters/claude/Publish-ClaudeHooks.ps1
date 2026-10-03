@@ -57,7 +57,7 @@ function Copy-ClaudeHookScriptsTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
     }
 
@@ -66,7 +66,7 @@ function Copy-ClaudeHookScriptsTree {
         $sharedSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
-            Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
             $filesCopied++
         }
     }

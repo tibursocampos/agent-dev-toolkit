@@ -35,7 +35,7 @@ function Copy-ClaudeCorePolicyTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
     }
 

@@ -117,7 +117,7 @@ function Copy-GrokGuardHookAssets {
         -RootPath $InstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
     $repoRoot = Get-GrokAdapterRepoRoot
     $sourceCommon = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:GrokAdapterConstant.SharedGuardCommonFileName
     if (-not (Test-Path -LiteralPath $sourceCommon)) {
@@ -129,7 +129,7 @@ function Copy-GrokGuardHookAssets {
         -RootPath $InstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
-    Copy-ToolkitFileIfAbsent -SourcePath $sourceCommon -DestinationPath $destCommon
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceCommon -DestinationPath $destCommon
     return $destGuard
 }
 

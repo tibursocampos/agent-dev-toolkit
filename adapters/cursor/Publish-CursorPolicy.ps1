@@ -33,7 +33,7 @@ function Publish-CursorPolicyAsMdcRules {
             -RootPath $InstallRoot `
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
-        Copy-ToolkitFileIfAbsent -SourcePath $sourceFile.FullName -DestinationPath $destPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceFile.FullName -DestinationPath $destPath
         $published++
     }
 

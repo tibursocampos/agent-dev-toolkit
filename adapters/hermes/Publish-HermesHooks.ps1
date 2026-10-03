@@ -67,7 +67,7 @@ function Copy-HermesDirectoryTree {
         if (-not (Test-Path -LiteralPath $destinationDir)) {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
-        Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         if ($file.Extension -eq '.sh' -and -not (Test-HermesIsWindowsPlatform)) {
             try {
                 if (Get-Command -Name chmod -ErrorAction SilentlyContinue) {
@@ -398,7 +398,7 @@ function Invoke-HermesPublishHooks {
     $sharedSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path -LiteralPath $sharedSource) {
         $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
-        Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
         $filesCopied++
     }
 
