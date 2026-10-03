@@ -125,7 +125,7 @@ Give each child:
 2. Instruction: execute `/sdd-develop` contract for **this step only** — read that step block and its task boxes; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
 4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
-5. Must run targeted tests, persist and validate `tests_run`, then update PLAN; reset gates through the canonical helper before stopping after this step
+5. Must run targeted tests, persist and validate `tests_run`, then update PLAN; reset gates through the canonical helper and stop after this step
 5a. After **sim**: **MUST** call `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` via `-File` (REQ-012 / CT6); **MUST NOT** inline session JSON mutators
 5b. When level ≥ `cheap`: update `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)
 5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)
