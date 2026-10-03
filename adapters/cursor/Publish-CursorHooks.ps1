@@ -77,13 +77,12 @@ function Write-CursorUtf8NoBom {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
 
-    if (Test-Path -LiteralPath $Path) {
-        Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $Path)
-        return
-    }
-
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $tempPath = $Path + $script:CursorAdapterConstant.AtomicWriteTempSuffix
+    # hooks.json is a user-owned configuration file. Callers pass the result of
+    # a keyed merge that preserves alien entries, so it must be replaceable even
+    # when the managed publish inventory does not claim ownership of the file.
+    # A unique sibling temp file prevents stale artifacts from blocking writes.
+    $tempPath = $Path + $script:CursorAdapterConstant.AtomicWriteTempSuffix + [Guid]::NewGuid().ToString('N')
     $maxAttempts = [int]$script:CursorAdapterConstant.AtomicWriteMaxAttempts
     $delayMs = [int]$script:CursorAdapterConstant.AtomicWriteRetryDelayMilliseconds
     $lastError = $null
@@ -95,11 +94,8 @@ function Write-CursorUtf8NoBom {
                 -RootPath $InstallRoot `
                 -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
                 -RequireStrictChild
-            $tempWritten = Write-ToolkitFileIfAbsent -Path $tempPath -Content $Content -Encoding $utf8NoBom
-            if (-not $tempWritten) {
-                return
-            }
-            Move-Item -LiteralPath $tempPath -Destination $Path
+            [System.IO.File]::WriteAllText($tempPath, $Content, $utf8NoBom)
+            Move-Item -LiteralPath $tempPath -Destination $Path -Force -ErrorAction Stop
             return
         }
         catch {

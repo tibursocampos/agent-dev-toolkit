@@ -146,6 +146,13 @@ try {
     if (-not (Test-Path -LiteralPath (Get-HermesWorkAgentsPath))) {
         Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after publish'
     }
+    $agentsAfterPublish = [System.IO.File]::ReadAllText((Get-HermesWorkAgentsPath))
+    if ($agentsAfterPublish -notmatch [regex]::Escape($script:HermesAdapterConstant.PolicyFoldSectionHeading)) {
+        Write-Fail -TestName $removeTest -Reason 'folded policy must be merged into existing AGENTS.md'
+    }
+    if ($agentsAfterPublish -notmatch 'Placeholder until Publish-Policy') {
+        Write-Fail -TestName $removeTest -Reason 'publish must preserve unrelated existing AGENTS.md content'
+    }
     $memoryPath = Join-Path $workInstallRoot $memoryFileName
     if (-not (Test-Path -LiteralPath $memoryPath)) {
         Write-Fail -TestName $removeTest -Reason 'expected MEMORY.md after publish'
@@ -197,8 +204,15 @@ try {
     if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
         Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
     }
-    if (Test-Path -LiteralPath (Get-HermesWorkAgentsPath)) {
-        Write-Fail -TestName $removeTest -Reason 'AGENTS.md should be removed after uninstall'
+    if (-not (Test-Path -LiteralPath (Get-HermesWorkAgentsPath))) {
+        Write-Fail -TestName $removeTest -Reason 'uninstall must preserve unrelated AGENTS.md content'
+    }
+    $agentsAfterUninstall = [System.IO.File]::ReadAllText((Get-HermesWorkAgentsPath))
+    if ($agentsAfterUninstall -match [regex]::Escape($script:HermesAdapterConstant.PolicyFoldSectionHeading)) {
+        Write-Fail -TestName $removeTest -Reason 'uninstall must remove the toolkit-managed Hermes guidance section'
+    }
+    if ($agentsAfterUninstall -notmatch 'Placeholder until Publish-Policy') {
+        Write-Fail -TestName $removeTest -Reason 'uninstall must preserve unrelated existing AGENTS.md content'
     }
     if (-not (Test-Path -LiteralPath $memoryPath)) {
         Write-Fail -TestName $removeTest -Reason 'MEMORY.md seed must survive keyed uninstall'
@@ -262,8 +276,15 @@ try {
     if (Test-HermesToolkitSkillPresent) {
         Write-Fail -TestName $keepTest -Reason 'toolkit skills should still be removed while aliens remain'
     }
-    if (Test-Path -LiteralPath (Get-HermesWorkAgentsPath)) {
-        Write-Fail -TestName $keepTest -Reason 'toolkit AGENTS.md should still be removed'
+    if (-not (Test-Path -LiteralPath (Get-HermesWorkAgentsPath))) {
+        Write-Fail -TestName $keepTest -Reason 'unrelated AGENTS.md content should survive keyed uninstall'
+    }
+    $agentsAfterUninstall = [System.IO.File]::ReadAllText((Get-HermesWorkAgentsPath))
+    if ($agentsAfterUninstall -match [regex]::Escape($script:HermesAdapterConstant.PolicyFoldSectionHeading)) {
+        Write-Fail -TestName $keepTest -Reason 'toolkit AGENTS.md section should still be removed'
+    }
+    if ($agentsAfterUninstall -notmatch 'Placeholder until Publish-Policy') {
+        Write-Fail -TestName $keepTest -Reason 'unrelated AGENTS.md content should survive keyed uninstall'
     }
 
     Write-Pass -TestName $keepTest

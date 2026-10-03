@@ -181,7 +181,10 @@ function Add-CursorFixtureHooksJsonAlienOverlay {
     $payload | Add-Member -NotePropertyName $alienHooksMetadataKey -NotePropertyValue ([ordered]@{ source = $alienHooksMetadataSource }) -Force
 
     $beforeSubmit = @($payload.hooks.beforeSubmitPrompt)
-    $beforeSubmit = ,@(@{ command = $broadPathHookCommand }) + $beforeSubmit
+    # Keep each hook as an individual array entry. The unary comma wraps the
+    # whole prepended array as one nested entry, which makes reverse-merge
+    # enumeration miss the owned handler that follows it.
+    $beforeSubmit = @(@{ command = $broadPathHookCommand }) + $beforeSubmit
     $payload.hooks.beforeSubmitPrompt = $beforeSubmit
 
     $json = $payload | ConvertTo-Json -Depth 10

@@ -221,7 +221,9 @@ function Remove-ZCodeToolkitOverlayFromObject {
             }
             $kept += ,(ConvertTo-ZCodeOrderedHashtable -InputObject $item)
         }
-        return $kept
+        # JSON arrays can legitimately have one surviving item. Preserve the
+        # array shape across PowerShell's pipeline enumeration semantics.
+        return ,$kept
     }
 
     # Scalar mismatch: keep destination (alien / operator value).
@@ -430,7 +432,12 @@ function Invoke-ZCodeUninstallToolkit {
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ZCodePathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($skillsRoot) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
 
     $agentsPath = Join-Path $resolvedInstallRoot $script:ZCodePathConstant.AgentsFileName
     $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
@@ -462,7 +469,12 @@ function Invoke-ZCodeUninstallToolkit {
         }
     }
 
-    $pathCount = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
+    $pathCount = if ($WhatIf.IsPresent) {
+        $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
+    else {
+        $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
     $jsonTouched = [bool]($cliResult.Touched -or $hooksResult.Touched)
     $baseMessage = if ($pathCount -eq 0 -and -not $jsonTouched) {
         ($script:ZCodeUninstallMessage.NothingFound -f $resolvedInstallRoot)
@@ -479,7 +491,7 @@ function Invoke-ZCodeUninstallToolkit {
         $messageParts += @($routerNotes.ToArray())
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $messageParts += @('Skill paths preserved because names-only manifests cannot prove per-file ownership: ' + ($preservedSkillPaths -join ', '))
+        $messageParts += @('Skill files preserved because per-file ownership could not be proven: ' + ($preservedSkillPaths -join ', '))
     }
     if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
@@ -491,7 +503,7 @@ function Invoke-ZCodeUninstallToolkit {
         WhatIf           = [bool]$WhatIf.IsPresent
         InstallRoot      = $resolvedInstallRoot
         RemovedCount     = $pathCount
-        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
         PreservedPaths   = @($preservedSkillPaths)
         CliConfigTouched = [bool]$cliResult.Touched
         HooksJsonTouched = [bool]$hooksResult.Touched
