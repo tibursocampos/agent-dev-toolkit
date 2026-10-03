@@ -44,7 +44,7 @@ Invoke when the user requests: `/i18n-manager`, `localize code`, or asks to inte
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/string-manipulation.md` |
 | React / Angular | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |

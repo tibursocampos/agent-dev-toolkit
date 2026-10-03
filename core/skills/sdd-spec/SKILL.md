@@ -145,13 +145,13 @@ Record `artifact_language` from `preferences.json`, manifest, or user override (
 After a successful `Write`, run structural **`validate-prd`** (no LLM) before handoff (`references/validate-prd.md`):
 
 ```
-.\scripts\validation\validate-prd.ps1 -Path <written-prd-path>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-prd.ps1" -Path <written-prd-path>
 ```
 
 When `CHANGE.md` was written (brownfield), also run:
 
 ```
-.\scripts\validation\validate-change.ps1 -Path <features/NNN-slug/CHANGE.md>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
 (Toolkit consumers: same script names under the synced InstallRoot validation folder when present.) Exit ≠ 0 → **STOP**; fix REQ-IDs / CA headings / CHANGE sections; re-run until exit 0. Do **not** advance to `/sdd-plan` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`, `Assert-ChangeContract.ps1`.

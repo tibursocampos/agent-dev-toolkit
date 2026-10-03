@@ -35,15 +35,24 @@ function Invoke-ScriptCapture {
     )
 
     $runner = (Get-Process -Id $PID).Path
-    $output = & $runner -NoProfile -File $ScriptPath @ArgumentList 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    if ($null -eq $code) {
-        $code = 0
-    }
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        # PowerShell 5.1 promotes a child's expected non-zero stderr to NativeCommandError
+        # when the caller uses $ErrorActionPreference=Stop. Keep that captured output non-terminating.
+        $ErrorActionPreference = 'Continue'
+        $output = & $runner -NoProfile -File $ScriptPath @ArgumentList 2>&1 | Out-String
+        $code = $LASTEXITCODE
+        if ($null -eq $code) {
+            $code = 0
+        }
 
-    return [PSCustomObject]@{
-        ExitCode = [int]$code
-        Output   = $output
+        return [PSCustomObject]@{
+            ExitCode = [int]$code
+            Output   = $output
+        }
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
     }
 }
 

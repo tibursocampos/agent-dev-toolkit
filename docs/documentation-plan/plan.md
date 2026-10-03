@@ -5,11 +5,11 @@
 | **Repository** | agent-dev-toolkit (`E:/Source/Repos/agent-dev-toolkit`) |
 | **Doc language** | English |
 | **Stack detected** | PowerShell 5.1 scripts (`scripts/toolkit.ps1`, adapters), Markdown Agent Skills (`core/skills`), JSON adapter registry. GitHub Actions: `validate-toolkit.yml`, `publish-release-bootstrap.yml`, `enforce-release-source.yml`. `.github/workflows/docs.yml` exists and is out of scope. |
-| **Overview** | docs/overview.md (refreshed in this planning session; no step rewrites it) |
-| **Progress** | 7/7 (fact fixes). Operator narrative is [sessions/README.md](../sessions/README.md). `guides/07-caveman-mode.md` was removed; compression is one section of [guides/session-behavior.md](../guides/session-behavior.md). |
+| **Overview** | docs/overview.md (refreshed for the Feature 010 reliability delta) |
+| **Progress** | 8/8 (fact fixes and Feature 010 reliability documentation complete). Operator narrative is [sessions/README.md](../sessions/README.md). `guides/07-caveman-mode.md` was removed; compression is one section of [guides/session-behavior.md](../guides/session-behavior.md). |
 
 ```
-[🟢🟢🟢🟢🟢🟢🟢] 100% (7/7)
+[🟢🟢🟢🟢🟢🟢🟢🟢] 100% (8/8)
 ```
 
 ## Goals
@@ -18,7 +18,7 @@
 - [x] G2: Reuse existing markdown: correct drifted facts, delete the stale CI duplicate, leave accurate files untouched
 - [x] G3: Facts evidenced from `core/`, `adapters/registry.json`, `scripts/`, and the workflows above
 
-**Out of scope for every step:** `docs-site/`, `site/`, `memory-bank/`, `core/`, `adapters/`, `scripts/`, and any MkDocs or `*.pt.md` work. Do not delete `core/policy/user-language-pt-br.md` or `core/policy/sdd-artifact-language-pt-br.md`.
+**Out of scope for every step unless a step names it:** `memory-bank/`, `core/`, `adapters/`, and `scripts/`. Do not delete `core/policy/user-language-pt-br.md` or `core/policy/sdd-artifact-language-pt-br.md`. Step 8 audits and, where evidence requires it, updates the root README and bilingual `docs-site/` pages.
 
 ## Target doc tree (consumer repo)
 
@@ -257,11 +257,39 @@ docs/
 
 ---
 
+### ✅ STEP 8: Feature 010 reliability documentation
+
+**Status:** Completed | **Completed:** 2026-10-02 | **Deps:** none | **Kind:** update | **Est.:** 45-60 min
+
+**Deliverables:**
+- [x] Update `docs/overview.md`, `docs/VALIDATION.md`, and `docs/domains/core.md` with the stable, user-facing Feature 010 contracts: published runtime helpers, session-identity protection, local-instruction discovery, configured diagnostic evidence, `PASS` / `FOUND` / `SKIPPED`, story sizing, API-contract planning gate, and O3 full-versus-delta-risk review. Keep host-specific limits and unavailable telemetry explicitly `SKIPPED`; do not claim live-host proof.
+- [x] Update `README.md`: correct the skill-count and removed-document links, then add only a concise pointer to the updated reliability and validation documentation. Do not turn the root README into a feature changelog.
+- [x] Audit and update the matching public-site pages in both languages: `docs-site/architecture.md`, `docs-site/architecture.pt.md`, `docs-site/orchestrated-delivery.md`, `docs-site/orchestrated-delivery.pt.md`, `docs-site/reference.md`, and `docs-site/reference.pt.md`. Include only site-level facts that remain accurate for an external reader; preserve paired English/Portuguese navigation and front matter.
+
+**Tasks:**
+1. Use the completed reliability-delivery records, final planning/evidence records, and the corresponding `core/`/`scripts/` contracts as evidence. Separate verified static/fixture behavior from a live host, dependency audit, Markdownlint, or analyzer run that did not occur.
+2. Recount invocable skills from top-level `core/skills/*/SKILL.md`; repair the root README's stale count and links to removed `docs/guides/07-caveman-mode.md` and `docs/domains/validation-ci.md`.
+3. Keep product prose in **English**, mirroring the existing `docs/` convention. For every changed `docs-site/*.md`, mirror the meaning in its existing `.pt.md` counterpart; commands, ids, paths, and status tokens stay unchanged.
+4. Run focused Markdown/link checks and `git diff --check`; do not modify implementation, feature artifacts, `memory-bank/`, or site configuration.
+
+**Acceptance:**
+- [x] `docs/`, root README, and `docs-site/` describe the same reliable-flow boundary without treating fixture evidence as live Copilot/IDE proof.
+- [x] Root README has no links to the removed Caveman guide or `validation-ci.md`, and its skill count equals the direct top-level skill count.
+- [x] Every changed site page has its corresponding English/Portuguese page updated, with valid front matter and unchanged site navigation.
+- [x] Markdown/link checks and `git diff --check` pass.
+
+**Implementation notes:**
+- Added user-facing reliability boundaries for published runtime helpers, session identity, instruction/diagnostic evidence, and `PASS` / `FOUND` / `SKIPPED`. Static and fixture evidence is explicitly separated from live-host, IDE, Markdownlint, dependency-audit, analyzer, and unavailable-telemetry claims.
+- Root README now counts 42 direct top-level skills, points to `guides/session-behavior.md` and `VALIDATION.md`, and links concisely to the reliability documentation.
+- Updated the paired English/Portuguese architecture, Orchestrated Delivery, and reference site pages with matching publication/session safeguards, API-contract planning, and O3 review/evidence boundaries.
+
+---
+
 ## Execution order
 
-**Critical path:** 1 → 5 → 7. Steps 2, 3, and 4 may run in any order relative to step 1. Step 6 after step 2. Step 5 after step 1. Step 7 after step 5.
+**Critical path:** complete. Steps 1-8 are complete.
 
-**Next step:** none (all steps complete). Handoff: `/code-review`
+**Next step:** none. Optional handoff: `/code-review` or `/commit`
 
 ## Update protocol (document-implement skill)
 

@@ -44,7 +44,7 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md`, `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-formatting.md` |
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md`, `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md` |

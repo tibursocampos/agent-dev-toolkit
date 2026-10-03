@@ -1,4 +1,4 @@
-﻿---
+---
 name: orchestrate-analyze
 description: Orchestrated Delivery O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
 ---
@@ -52,7 +52,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |

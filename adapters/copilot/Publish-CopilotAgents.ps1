@@ -4,8 +4,8 @@
   Helpers for Copilot Publish-Agents.
 
 .DESCRIPTION
-  Mode repo: copy core/agents -> InstallRoot/agents (.github/agents/).
-  Mode user: documented no-op (no Copilot user-home agents directory).
+  Publish core/agents as Copilot custom agent profiles in both supported scopes.
+  Copilot CLI accepts .agent.md profiles and VS Code requires that suffix.
 #>
 
 $script:CopilotAgentsModuleDirectory = $PSScriptRoot
@@ -36,21 +36,6 @@ function Invoke-CopilotPublishAgents {
     }
 
     $normalizedMode = Get-CopilotPublishNormalizedMode -Mode $Mode
-
-    if ($normalizedMode -eq $script:CopilotPathConstant.ModeUser) {
-        return [PSCustomObject]@{
-            Success     = $true
-            Implemented = $true
-            CommandName = 'Publish-Agents'
-            NoOp        = $true
-            WhatIf      = [bool]$WhatIf.IsPresent
-            Mode        = $normalizedMode
-            InstallRoot = $InstallRoot.Trim()
-            FilesCopied = 0
-            Message     = $script:CopilotPublishMessage.AgentsUserModeNoOp
-            ExitCode    = 0
-        }
-    }
 
     $repoRoot = Get-CopilotPublishAdapterRepoRoot
     $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
@@ -98,6 +83,40 @@ function Invoke-CopilotPublishAgents {
             $script:CopilotPathConstant.PlaceholderGuardrailsPath
         ) `
         -UnresolvedMessageFormat $script:CopilotPublishMessage.PlaceholderUnresolved
+
+    # Copilot CLI accepts both .md and .agent.md; VS Code discovers .agent.md.
+    # Publish one canonical profile per agent so both hosts resolve the same ID.
+    foreach ($sourceName in $publishResult.AgentFileNames) {
+        $legacyPath = Join-Path $destAgentsRoot $sourceName
+        $agentName = [System.IO.Path]::GetFileNameWithoutExtension($sourceName)
+        $profilePath = Join-Path $destAgentsRoot ($agentName + '.agent.md')
+        if (-not (Test-Path -LiteralPath $legacyPath -PathType Leaf)) {
+            throw ("Copilot Publish-Agents: expected copied profile missing: {0}" -f $legacyPath)
+        }
+
+        $profileText = [System.IO.File]::ReadAllText($legacyPath)
+        if ($agentName -in @('architect', 'database', 'repo-analyst', 'security') -and
+            $profileText -match '(?m)^---\s*$') {
+            $firstFence = [regex]::Match($profileText, '(?m)^---\s*$')
+            $secondFence = [regex]::Match($profileText, '(?m)^---\s*$', $firstFence.Index + $firstFence.Length)
+            if ($secondFence.Success) {
+                $frontmatter = $profileText.Substring($firstFence.Index, $secondFence.Index - $firstFence.Index)
+                if ($frontmatter -notmatch '(?m)^include-custom-instructions\s*:') {
+                    $frontmatterStart = $firstFence.Index + $firstFence.Length
+                    if ($profileText.Substring($frontmatterStart).StartsWith("`r`n", [System.StringComparison]::Ordinal)) {
+                        $frontmatterStart += 2
+                    }
+                    elseif ($profileText.Substring($frontmatterStart).StartsWith("`n", [System.StringComparison]::Ordinal)) {
+                        $frontmatterStart += 1
+                    }
+                    $profileText = $profileText.Insert($frontmatterStart, "include-custom-instructions: true`r`n")
+                }
+            }
+        }
+
+        [System.IO.File]::WriteAllText($profilePath, $profileText, (New-Object System.Text.UTF8Encoding $false))
+        Remove-Item -LiteralPath $legacyPath -Force
+    }
 
     Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
 

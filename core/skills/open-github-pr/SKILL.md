@@ -58,7 +58,7 @@ One GitHub pull request created via `gh pr create` (feature → `develop`, or re
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit / PR flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |

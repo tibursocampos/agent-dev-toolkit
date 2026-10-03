@@ -1,0 +1,42 @@
+[
+  {
+    "Tool": "markdownlint",
+    "Scope": "src/README.md",
+    "Available": true,
+    "Evidence": "src/README.md:12 MD060",
+    "Severity": "warning",
+    "Comparison": "new",
+    "Finding": "MD060",
+    "UnavailableReason": ""
+  },
+  {
+    "Tool": "dependency-audit",
+    "Scope": "Toolkit.csproj",
+    "Available": true,
+    "Evidence": "NU1903: Example.Package 1.2.3; GHSA-0000-0000-0000",
+    "Severity": "high",
+    "Comparison": "pre-existing",
+    "Finding": "Example.Package 1.2.3 GHSA-0000-0000-0000",
+    "UnavailableReason": ""
+  },
+  {
+    "Tool": "analyzer",
+    "Scope": "src/Widget.cs",
+    "Available": true,
+    "Evidence": "src/Widget.cs:21 IDE0005",
+    "Severity": "info",
+    "Comparison": "new",
+    "Finding": "IDE0005",
+    "UnavailableReason": ""
+  },
+  {
+    "Tool": "optional-analyzer",
+    "Scope": "src/",
+    "Available": false,
+    "Evidence": "",
+    "Severity": "",
+    "Comparison": "",
+    "Finding": "",
+    "UnavailableReason": "Analyzer CLI is not configured for this fixture."
+  }
+]

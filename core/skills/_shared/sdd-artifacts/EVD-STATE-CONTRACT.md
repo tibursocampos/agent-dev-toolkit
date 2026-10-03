@@ -65,7 +65,7 @@ O3 may still parallelize **implementation** of **disjoint PLAN steps** when the 
 ## Structural validate
 
 ```text
-.\scripts\validation\validate-evidence.ps1 -FeatureRoot <features/NNN-slug> [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot <features/NNN-slug> [-Level cheap]
 ```
 
 If `-Level` is omitted, the script reads **Evidence level** from `STATE.md` (default `cheap` when STATE is missing and a level is required).

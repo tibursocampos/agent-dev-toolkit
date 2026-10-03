@@ -63,7 +63,7 @@ Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgra
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (after gates) | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/command.md` |
 | Modes contract | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/modes.md` |

@@ -119,22 +119,32 @@ Operator-facing STOP / confirm prompts use the **user chat language** (`LANGUAGE
 
 ## Before Write or mutating Shell
 
+### Persisted identity is a precondition to mutation (REQ-005 / CA5)
+
+Before any existing PLAN-scoped develop session action (`ensure`, `tests-run`, or `reset`), the helper resolves the active repository and PLAN to absolute paths, normalizes separators and trailing separators, and compares them case-insensitively with persisted `repo` and `plan_path`. Both fields must match. A mismatch fails closed, reports the resolved expected and persisted identities, and leaves the session bytes unchanged. `status` also reports the mismatch instead of presenting a gate from another context. Do not repair, rewrite, or migrate a mismatched session automatically; investigate the path/context and use the correct session scope.
+
+For a missing session, the helper creates the schema with the already-resolved active identity. Session identity fields are not inferred from the session filename/hash alone: they are verified against the active context before an existing file can change.
+
 1. Resolve the correct session file(s) for the gate in play.
 2. If required gate is `false`: **STOP** - ask user in the **user chat language** (`LANGUAGE.md`) - do not proceed.
-3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON:
+3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON. After tests execute and are reported, use `-Action tests-run`; before closing the scope, use `-Action reset`:
 
 ```powershell
-.\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <plan> -RepoPath <repo> -SddRoot <sdd-root> [-Step N] [-CurrentStep N]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath <plan> -RepoPath <repo> -SddRoot <sdd-root> [-Step N] [-CurrentStep N]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -Action tests-run -PlanPath <plan> -RepoPath <repo> -SddRoot <sdd-root> [-Step N]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -Action reset -PlanPath <plan> -RepoPath <repo> -SddRoot <sdd-root> [-Step N] [-CurrentStep N]
 ```
 
 - Creates the PLAN-scoped develop session schema when missing; sets `gates.step_confirmed = true`.
 - **Idempotent (REQ-011 / CT5):** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
-- **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
+- `-Action tests-run` requires `step_confirmed = true`, records tests only after execution/reporting, and skips rewriting if already true.
+- `-Action reset` clears both develop gates and sets `phase = idle` after step close; it skips rewriting when both are already false.
+- **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
 4. Repo gates (`storage_confirmed` / `write_confirmed`) remain on the flat `{repo-hash}.json` (helper above is develop-scope only).
 
 ## After develop step completes (mandatory)
 
-1. On the **scoped develop** file: set `step_confirmed` and `tests_run` to `false`; set `phase` to `idle` or keep `develop` with `current_step` updated.
+1. On the **scoped develop** file, call the canonical helper with `-Action reset`; it sets both gates to `false` and `phase` to `idle` (optionally updating `current_step`).
 2. On the **repo** file: set `write_confirmed` to `false` if it was used; do **not** clear another PLAN's develop gates.
 3. Write only the files touched.
 4. **STOP** that develop scope - handoff to new conversation (or next O3 child with its own scoped file).
@@ -153,10 +163,10 @@ Also require disjoint file scopes in the working tree (see `orchestrate-develop`
 ## Validation script
 
 ```powershell
-.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -SddRoot <sdd-root> -RequiredGate write_confirmed
-.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <plan> -SddRoot <sdd-root> -RequiredGate step_confirmed
-.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <plan> -Step 2 -SddRoot <sdd-root> -RequiredGate tests_run
-.\scripts\validation\validate-session-gates.ps1 -RepoPath <repo> -PlanPath <repo>/docs/documentation-plan/plan.md -SddRoot <sdd-root> -RequiredGate step_confirmed
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1" -RepoPath <repo> -SddRoot <sdd-root> -RequiredGate write_confirmed
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1" -RepoPath <repo> -PlanPath <plan> -SddRoot <sdd-root> -RequiredGate step_confirmed
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1" -RepoPath <repo> -PlanPath <plan> -Step 2 -SddRoot <sdd-root> -RequiredGate tests_run
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1" -RepoPath <repo> -PlanPath <repo>/docs/documentation-plan/plan.md -SddRoot <sdd-root> -RequiredGate step_confirmed
 ```
 
 `-PlanPath` must exist and resolve under `-RepoPath` or under the classic global features root (`STORAGE.md`). Pass `-SessionsRoot` (tests) or `-SddRoot` so sessions resolve to `<SddRoot>/sessions` (same rule as ledger claim).
@@ -167,9 +177,9 @@ Canonical scripts (REQ-014):
 
 | Script | Role |
 |--------|------|
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent set of develop `step_confirmed` |
-| `scripts/validation/validate-session-gates.ps1` | Read/check gate true vs blocked |
-| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT (unchanged; not reimplemented by session helper) |
+| `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent set of develop `step_confirmed` |
+| `{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1` | Read/check gate true vs blocked |
+| `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT (unchanged; not reimplemented by session helper) |
 
 ## Integration
 

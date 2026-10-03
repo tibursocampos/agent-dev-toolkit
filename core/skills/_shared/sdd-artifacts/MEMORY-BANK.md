@@ -203,7 +203,7 @@ Do **not** full-refresh at every O1/O2 start “just in case” - Step 0 already
 Prefer toolkit script when resolved:
 
 ```powershell
-.\scripts\inventory\Invoke-MemoryBankInventory.ps1 -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
 Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths) resets to curated discovery.

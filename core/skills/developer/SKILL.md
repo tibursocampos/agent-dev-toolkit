@@ -41,7 +41,7 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Git / language policy | `{{TOOLKIT_ROOT}}/AGENTS.md`, `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |

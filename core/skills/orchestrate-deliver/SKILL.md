@@ -1,4 +1,4 @@
-﻿---
+---
 name: orchestrate-deliver
 description: Orchestrated Delivery O2: per story, close story files, then PRD, then PLAN; human-approve; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
 ---
@@ -51,7 +51,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |

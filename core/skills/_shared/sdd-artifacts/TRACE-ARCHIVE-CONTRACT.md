@@ -139,7 +139,7 @@ After `archive`:
 ## Structural validate
 
 ```text
-.\scripts\validation\validate-trace.ps1 -FeatureRoot <features/NNN-slug> [-RequireArchiveComplete]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot <features/NNN-slug> [-RequireArchiveComplete]
 ```
 
 | Mode | Behavior |

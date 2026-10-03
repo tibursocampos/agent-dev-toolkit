@@ -22,6 +22,29 @@ Operator entry points under `scripts/`.
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
 
+## Skill reference inventory and publication policy
+
+Every executable script path referenced from `core/skills/**/*.md` is classified below. Runtime entries are published by `scripts/sync-agent.ps1` from `scripts/runtime/runtime-manifest.json` under each resolved `TOOLKIT_ROOT/scripts/`. The primary root is `<InstallRoot>`; Codex also publishes to `<InstallRoot>/plugin` and, with `-UserScope`, `<InstallRoot>/.agents`; OpenHands project installs also publish to `<InstallRoot>/.agents` (a user install whose root is already `.agents` uses the primary root only). `support` files are copied only as transitive dependencies of the listed runtime entries. No folder-wide `scripts/` copy occurs.
+
+| Source | Caller / reference | Class | Installed destination |
+|--------|--------------------|-------|-----------------------|
+| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `memory-bank-init`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `sdd-develop`, `orchestrate-develop`, SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
+| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | `sdd-develop`, `orchestrate-develop`, SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/ledger/` path |
+| `scripts/ledger/Invoke-ExecutionModeGate.ps1` | `orchestrate-develop` execution-mode gate | runtime | matching `TOOLKIT_ROOT/scripts/ledger/` path |
+| `scripts/validation/Invoke-SiblingReadinessGate.ps1` | shared readiness-severity contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
+| `scripts/validation/validate-session-gates.ps1` | shared SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
+| `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
+| `scripts/validation/validate-prd.ps1`, `validate-plan.ps1`, `validate-change.ps1` | `sdd-spec`, `sdd-plan`, and change artifact structural gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
+| `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | `orchestrate-deliver` preflight | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
+| `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-InstallRoot.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (these three files only) |
+| `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, `scripts/validation/Invoke-*CiSmoke.ps1` | fixture, contract, and CI validation references in skills | internal | not published |
+| `scripts/validation/fixtures/**`, `scripts/validation/contracts/**` | validator fixtures and toolkit contract data | internal | not published |
+| `scripts/sync-agent.ps1`, `scripts/toolkit.ps1`, bootstrap, uninstall/publish scripts, remaining `scripts/_lib/**` | toolkit installation and maintenance instructions | internal | not published |
+| `node .cursor/skills/impeccable/scripts/*.mjs` | external project skill commands; files are not part of this toolkit source | external dependency | supplied by the separately installed Impeccable skill; not published by this adapter |
+
+Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references in skills. The inventory script requires `-RepoPath`; it does not search for or depend on an open toolkit checkout. Sync fails with the source path and calling skill when a manifest entry is missing.
+
 ## Shell allowlist tip (WS10 / REQ-013)
 
 For O3 / Classic develop, skills **MUST** invoke the canonical scripts with `-File` (not inline session JSON). Prefer host **opt-in** allowlist of these two portable paths (cwd = repo root) so one Shell approve can chain both calls:

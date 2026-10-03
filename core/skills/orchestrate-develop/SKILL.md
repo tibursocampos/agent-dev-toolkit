@@ -1,4 +1,4 @@
-﻿---
+---
 name: orchestrate-develop
 description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
 ---
@@ -54,7 +54,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
@@ -73,6 +73,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Execution display (before each spawn and after each receipt) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/execution-display.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/develop-modes.md` |
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
+| O3 paired baseline and delta/risk review (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/step-queue-spawn.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |

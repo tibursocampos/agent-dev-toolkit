@@ -84,6 +84,10 @@ function New-CopilotSmokeFailureResult {
         InstallRoot             = $InstallRoot
         Message                 = $Message
         ExitCode                = $ExitCode
+        EvidenceType            = 'static'
+        HostExecutionStatus     = 'SKIPPED'
+        HostSurface             = 'filesystem-fixture'
+        FailureCode             = 'static-check-failed'
         SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         Checks                  = [PSCustomObject]$Checks
     }
@@ -218,14 +222,18 @@ function Invoke-CopilotSmokeValidateCore {
         $completed.Add('hooks-json-schema')
     }
 
-    if ($normalizedMode -eq $script:CopilotPathConstant.ModeRepo) {
-        $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
-        foreach ($agentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
-            $agentPath = Join-Path $customAgentsRoot $agentFileName
-            if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
-                return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.CustomAgentsMissing -f $agentPath)
-            }
-            $completed.Add(('custom-agent:{0}' -f $agentFileName))
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
+    foreach ($sourceAgentFileName in @($script:ToolkitConstant.ExpectedCustomAgentFileNames)) {
+        $agentFileName = [System.IO.Path]::GetFileNameWithoutExtension($sourceAgentFileName) + $script:CopilotPathConstant.CustomAgentProfileExtension
+        $agentPath = Join-Path $customAgentsRoot $agentFileName
+        if (-not (Test-Path -LiteralPath $agentPath -PathType Leaf)) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.CustomAgentsMissing -f $normalizedMode, $agentPath)
+        }
+        $completed.Add(('custom-agent:{0}' -f $agentFileName))
+
+        $agentContent = [System.IO.File]::ReadAllText($agentPath)
+        if ($agentContent -notmatch '(?s)^---\r?\n.*?\r?\n---') {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.CustomAgentsMissing -f $normalizedMode, ($agentPath + ' (invalid frontmatter)'))
         }
     }
 
@@ -254,6 +262,10 @@ function Invoke-CopilotSmokeValidateCore {
         InstallRoot             = $resolvedInstallRoot
         Message                 = ($script:CopilotSmokeMessage.Passed -f $normalizedMode, $resolvedInstallRoot)
         ExitCode                = 0
+        EvidenceType            = 'static'
+        HostExecutionStatus     = 'SKIPPED'
+        HostSurface             = 'filesystem-fixture'
+        FailureCode             = $null
         SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         Checks                  = [PSCustomObject]$checks
         CompletedArtifacts      = @($completed)

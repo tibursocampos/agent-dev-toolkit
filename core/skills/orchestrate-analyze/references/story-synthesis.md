@@ -113,6 +113,14 @@ Contract: `skills/_shared/backlog-item-types/story-sizing.md`. Apply **after** s
 
 Present backlog only after merge/split pass **and** product artifact quality gates pass.
 
+### Required sizing evidence
+
+For every split or merge, `FEATURE.md` rationale must state observable value,
+consumer, and delivery independence (implementation, deployment, and rollback).
+Endpoint count alone is not a split criterion. Keep endpoints in one story when
+their value and delivery boundary are inseparable; split only for an
+independently deliverable consumer outcome.
+
 ---
 
 ## Product artifact quality gates (before human backlog gate)

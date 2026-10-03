@@ -45,7 +45,7 @@ Production-grade UI design artifacts and/or code per upstream Impeccable command
 
 ## Lazy-load (mandatory per command)
 
-| When | Path (after `sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|--------------------------------|
 | Any sub-command | `{{TOOLKIT_ROOT}}/skills/impeccable/reference/<command>.md` - **required before acting** |
 | Register | `reference/brand.md` or `reference/product.md` per routing rules below |

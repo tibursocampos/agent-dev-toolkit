@@ -12,10 +12,13 @@ Before any PRD/PLAN write:
 - [ ] The parent FEATURE has no open question (`open_question`). A story whose feature is still open does not enter O2.
 - [ ] Clarification readiness: no unanswered question on the required story files, including `MINOR`, at the O2 story-files gate — else **STOP** that story with `open_question` (`readiness-severity.md` § Open-question gate). Presence of sibling folders ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`
 - [ ] Mode chosen: **série** or **paralelo** (user asked; not assumed)
+- [ ] Any blocking approval/question is `answered` for its current scope; `presented`, `pending`, queued delivery, or resumed-but-unprocessed state keeps dependent work blocked (`approval-gates.md` § Observable question and answer lifecycle)
 
 If backlog not approved -> hand off to O1; do not invent approval (RN01).
 If required siblings missing -> **STOP** / return to O1; do not Write PRD/PLAN.
 If open **B**/**I** or any other unanswered question at the O2 gates -> **STOP** Write; stop code `open_question`; do not proceed to PRD/PLAN. A story whose FEATURE still has an open question does not enter O2.
+
+When a conversation resumes after interruption, reload the active gate and its scope before continuing. A received or redelivered message is not an answer until parsed against that gate. If the answer is missing, ambiguous, or for another scope, remain blocked and ask the active question again. Host UI delivery/queue behavior is outside toolkit control; use the explicit textual answer path when a native control is unavailable and report unobservable delivery/processing as `SKIPPED` evidence.
 
 ---
 

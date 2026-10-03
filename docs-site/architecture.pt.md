@@ -78,6 +78,8 @@ O conteúdo do core não grava um home de IDE fixo. Os adaptadores resolvem plac
 
 Em runtime, as skills resolvem o estado SDD via `effective_SDD_ROOT`, para um caminho gravado de outro agente não vencer. `effective_SDD_ROOT` guarda sessões, preferências e `manifest.json` (schema v2), mais `features/` e `memory-bank/` **globais** opcionais quando `classic.storage_mode` é `global`. O modo **repository** mantém essas árvores sob o `$Cwd` do consumidor.
 
+Skills publicadas resolvem seus helpers de runtime declarados a partir da árvore instalada do toolkit. Helpers de sessão recusam incompatibilidades persistidas de identidade de repositório ou PLAN antes de alterar estado. Checks de fixture e estáticos comprovam esses contratos de publicação e sessão; eles não comprovam uma execução em host, IDE ou hook ao vivo.
+
 Agulhas `mustNotContain`: `scripts/validation/contracts/must-not-contain-ide.json`. Suíte do core: `scripts/validation/validate-core.ps1` (alias `validate-all.ps1`). Nomes de marca podem aparecer em regras de coautor. Não são caminhos de home no filesystem.
 
 ## Pontos de entrada
