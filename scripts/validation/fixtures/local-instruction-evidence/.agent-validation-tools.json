@@ -1,0 +1,17 @@
+{
+  "tools": [
+    {
+      "name": "fixture-analyzer",
+      "command": "powershell.exe",
+      "arguments": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "{project}/.tools/emit-diagnostic.ps1", "{changed}"],
+      "scope": "src/Widget.cs",
+      "findingPattern": "(?<file>[^\\r\\n(]+)\\((?<line>\\d+)\\):\\s*(?<severity>warning|error|info)\\s+(?<rule>[A-Z]+\\d+)"
+    },
+    {
+      "name": "missing-fixture-tool",
+      "command": "agent-dev-toolkit-tool-that-does-not-exist",
+      "arguments": [],
+      "scope": "src/"
+    }
+  ]
+}

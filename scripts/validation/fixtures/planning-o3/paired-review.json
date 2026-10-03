@@ -1,0 +1,18 @@
+{
+  "fixture": "synthetic",
+  "planInput": "A checkout workflow with create and status endpoints for one consumer outcome.",
+  "environment": "local contract harness",
+  "configuration": "same seeded plan and contradiction set for both review modes",
+  "telemetry": {
+    "available": false,
+    "reason": "This local PowerShell harness has no model token or host tool-call telemetry."
+  },
+  "seededContradictions": [
+    { "id": "CONTRA-01", "claimA": "Retries are allowed", "claimB": "Retries are forbidden" },
+    { "id": "CONTRA-02", "claimA": "Status is public", "claimB": "Status requires authentication" }
+  ],
+  "reviews": {
+    "full": { "detected": ["CONTRA-01", "CONTRA-02"] },
+    "deltaRisk": { "detected": ["CONTRA-01", "CONTRA-02"] }
+  }
+}

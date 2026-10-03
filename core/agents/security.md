@@ -64,6 +64,13 @@ The specialist reports and recommends only: never automatically fix, update,
 suppress, or clean up a finding. A preflight note is not a final security review of
 a later implementation diff; state that limitation explicitly.
 
+When the scoped repository provides `.agent-validation-tools.json`, include its
+configured security/dependency diagnostics in the review: run
+`scripts/validation/Invoke-ConfiguredDiagnostics.ps1` for the scoped project and
+changed paths, then preserve each parsed record and raw output in the security
+evidence. The runner reports configured missing commands as `SKIPPED`; never install
+tools to make the check pass, and never run remediation commands.
+
 ## Full prompt
 
 Do not paste the full prompt here. Load:

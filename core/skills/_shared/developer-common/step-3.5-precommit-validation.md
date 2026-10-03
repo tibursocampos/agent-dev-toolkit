@@ -52,6 +52,15 @@ scope, reproducible availability evidence, and reason. An unavailable tool is ne
 `PASS`. The commands in the auto-fix column are consent-only examples and must not
 run as part of this validation.
 
+For configured diagnostics, use the repository's `.agent-validation-tools.json`
+manifest with `scripts/validation/Invoke-ConfiguredDiagnostics.ps1`. The runner
+resolves each declared command locally or from `PATH`; it invokes only commands
+that resolve and records a missing command as `SKIPPED`. It does not install tools.
+Pass changed paths and baseline rule identifiers so parsed findings retain project,
+file, rule, severity, and `new` / `pre-existing` comparison. Keep raw command output
+as evidence. A manifest entry must name a read-only validation command; never use
+this flow for formatter, fix, update, suppression, or cleanup commands.
+
 ---
 
 ## 3.5.3. Build (blocking)
