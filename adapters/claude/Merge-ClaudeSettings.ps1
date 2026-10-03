@@ -720,7 +720,7 @@ function Write-ClaudeSettingsUtf8NoBom {
 
     $json = $Settings | ConvertTo-Json -Depth $script:ClaudeSettingsJsonConstant.JsonConvertDepth
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $SettingsPath -Content $json -Encoding $utf8NoBom
+    [System.IO.File]::WriteAllText($SettingsPath, $json, $utf8NoBom)
 }
 
 function Backup-ClaudeSettingsFile {
