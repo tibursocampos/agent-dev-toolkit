@@ -44,11 +44,24 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
 
-$libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
-. (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
-. (Join-Path $libDir 'ToolkitConstants.ps1')
-if (-not (Get-Command -Name Test-IsPathUnderOrEqual -ErrorAction SilentlyContinue)) {
-    . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
+function Get-NormalizedFullPath {
+    param([Parameter(Mandatory = $true)][string] $Path)
+    $expanded = [Environment]::ExpandEnvironmentVariables($Path.Trim())
+    if (-not [System.IO.Path]::IsPathRooted($expanded)) {
+        $expanded = Join-Path (Get-Location).Path $expanded
+    }
+    return [System.IO.Path]::GetFullPath($expanded)
+}
+
+function Test-IsPathUnderOrEqual {
+    param(
+        [Parameter(Mandatory = $true)][string] $ChildPath,
+        [Parameter(Mandatory = $true)][string] $ParentPath
+    )
+    $child = Get-NormalizedFullPath -Path $ChildPath
+    $parent = Get-NormalizedFullPath -Path $ParentPath
+    if ([string]::Equals($child, $parent, [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+    return $child.StartsWith(($parent.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar), [System.StringComparison]::OrdinalIgnoreCase)
 }
 
 # Local governance constants (PASSO 1 / REQ-001) — keep out of shared ToolkitConstants during parallel waves.
@@ -665,7 +678,7 @@ function Add-RefreshHistoryEntry {
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoPath)) {
-    $RepoPath = Get-ToolkitRepoRoot -FromPath $scriptDir
+    throw 'RepoPath is required when the inventory script is run from an installed toolkit package.'
 }
 
 $pathEscapeHits = [System.Collections.Generic.List[string]]::new()

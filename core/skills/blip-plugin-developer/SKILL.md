@@ -38,7 +38,7 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Integration overview | `docs/blip-plugin-integration.md` (in target or toolkit repo) |
 | Architecture | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/plugin-architecture.md` |

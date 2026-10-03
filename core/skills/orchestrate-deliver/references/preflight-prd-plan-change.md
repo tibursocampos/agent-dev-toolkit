@@ -5,7 +5,7 @@ Before emitting O3 / `orchestrate-develop` handoff, run structural preflight so 
 Canonical script:
 
 ```text
-.\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 -FeatureRoot <features/NNN-slug> -PlanPath <portable-plan-path>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/Invoke-PrdPlanChangePreflight.ps1" -FeatureRoot <features/NNN-slug> -PlanPath <portable-plan-path>
 ```
 
 Exit codes: `0` allow · `2` block · `1` usage.

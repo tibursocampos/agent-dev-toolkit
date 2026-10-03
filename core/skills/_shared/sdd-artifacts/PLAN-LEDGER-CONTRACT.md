@@ -112,7 +112,7 @@ PLAN documents stay **magro**: cite this path; do not embed claim JSON in PLAN m
 ## Structural enforcement
 
 ```text
-.\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -SessionsRoot <temp-or-sdd-sessions> -RepoPath <cwd>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -SessionsRoot <temp-or-sdd-sessions> -RepoPath <cwd>
 .\scripts\validation\Assert-PlanLedgerContract.ps1
 ```
 

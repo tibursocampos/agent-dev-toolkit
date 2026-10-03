@@ -41,6 +41,7 @@ if (-not (Test-Path -LiteralPath $toolkitConstantsScript)) {
 
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
+$powerShellExecutable = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
 
 $registryPath = Join-Path (Join-Path $repoRoot 'adapters') 'registry.json'
 $contractPath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_contract') 'AdapterContract.ps1'
@@ -226,7 +227,7 @@ try {
             $childArgs += @('-OverrideEnvName', $antigravityOverrideEnvName, '-OverrideEnvValue', $subagentsNativeValue)
         }
 
-        $childOut = & pwsh @childArgs 2>&1
+        $childOut = & $powerShellExecutable @childArgs 2>&1
         $childExit = $LASTEXITCODE
         if ($null -eq $childExit) { $childExit = 0 }
         if ($childExit -ne 0) {
@@ -308,7 +309,7 @@ try {
             '-ExpectedCapabilitiesJson', $expectedCapabilitiesJson
         )
 
-        $childOut = & pwsh @childArgs 2>&1
+        $childOut = & $powerShellExecutable @childArgs 2>&1
         $childExit = $LASTEXITCODE
         if ($null -eq $childExit) { $childExit = 0 }
         if ($childExit -ne 0) {
@@ -428,7 +429,7 @@ try {
             '-RequiredParameterNamesCsv', ($requiredUninstallParameterNames -join ',')
         )
 
-        $childOut = & pwsh @childArgs 2>&1
+        $childOut = & $powerShellExecutable @childArgs 2>&1
         $childExit = $LASTEXITCODE
         if ($null -eq $childExit) { $childExit = 0 }
         if ($childExit -ne 0) {

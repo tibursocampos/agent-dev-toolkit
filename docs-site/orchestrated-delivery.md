@@ -220,6 +220,7 @@ Per story or as a batch: **sim** / **ajustar** / **cancelar**. Then:
 
 - Nature must match CHANGE (brownfield has CHANGE; greenfield does not force one).
 - `scripts` preflight `Invoke-PrdPlanChangePreflight.ps1` must allow the handoff.
+- When an API contract applies, its planning gate requires an observable contract rather than an assumed integration.
 - A block stops O3. The next chat stays on O2 or returns to O1.
 
 When preflight allows:
@@ -260,6 +261,8 @@ Before implement:
 A second claim of the same step fails and is audited. Mode violations are audited under the sessions ledger.
 
 The child follows `sdd-develop`: branch, code, targeted tests, optional evidence (`EVD/` + `STATE.md` + `validate-evidence`), and TRACE archive only when the feature wave is closing. Evidence and TRACE are scripts inside that child.
+
+O3 starts with a full contract review. Later reviews may focus on the relevant delta or risk until a material contract or scope change requires another full review. Evidence records `PASS`, `FOUND`, or `SKIPPED`; unavailable token or tool telemetry, live-host observations, and unrun tools stay `SKIPPED` rather than becoming a passing result.
 
 `verify_mode: true` in preferences adds a read-only verifier child after a successful implementer and before `CONTINUITY` is updated. The default is false.
 

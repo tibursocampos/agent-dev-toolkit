@@ -57,7 +57,7 @@ In the menu:
 2. **Validate core only** — `validate-core` repo contracts with no home write.
 3. **Help and docs** — what each action does and equivalent `-Action` flags.
 
-Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-CursorCiSmoke`, `Invoke-ClaudeCiSmoke`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**.  
+Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-CursorCiSmoke`, `Invoke-ClaudeCiSmoke`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.
 First use end-to-end: **[docs/guides/01-getting-started.md](docs/guides/01-getting-started.md)**.
 
 ### Use skills (after sync)
@@ -94,7 +94,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (41)
+## Skills preview (42)
 
 | Group | Examples |
 |-------|----------|
@@ -117,7 +117,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
 | [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
-| [docs/guides/07-caveman-mode.md](docs/guides/07-caveman-mode.md) | Caveman default OFF, commands, levels |
+| [docs/guides/session-behavior.md](docs/guides/session-behavior.md) | Session behavior, language surfaces, and Caveman controls |
 | [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers and install layouts |
@@ -133,7 +133,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/domains/core.md](docs/domains/core.md) | Skills, policy, router, SDD |
 | [docs/domains/adapters.md](docs/domains/adapters.md) | Registry + adapters |
 | [docs/domains/cli-scripts.md](docs/domains/cli-scripts.md) | toolkit / sync / validate |
-| [docs/domains/validation-ci.md](docs/domains/validation-ci.md) | Fixtures and CI workflow |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Fixtures, CI workflow, and validation evidence boundaries |
 
 ## Repository layout
 

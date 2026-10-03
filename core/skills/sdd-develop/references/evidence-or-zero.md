@@ -10,7 +10,7 @@ Canonical paths: `features/NNN-slug/EVD/`, `features/NNN-slug/STATE.md`.
 | `strict` | `standard` + every Result = `pass` |
 
 ```powershell
-.\scripts\validation\validate-evidence.ps1 -FeatureRoot features/NNN-slug [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot features/NNN-slug [-Level cheap]
 ```
 
 Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Smoke: `Assert-EvidenceContract.ps1`.

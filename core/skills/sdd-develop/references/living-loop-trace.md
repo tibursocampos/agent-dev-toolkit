@@ -9,7 +9,7 @@ Canonical path: `features/NNN-slug/TRACE.jsonl`.
 | archive | `archive` | Close wave; `status` = `archived` |
 
 ```powershell
-.\scripts\validation\validate-trace.ps1 -FeatureRoot features/NNN-slug [-RequireArchiveComplete]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot features/NNN-slug [-RequireArchiveComplete]
 ```
 
 Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`. Smoke: `Assert-TraceArchiveContract.ps1`.

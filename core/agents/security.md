@@ -54,6 +54,26 @@ Frontmatter **`model: inherit`** only. Task spawn omits `model` unless `SUBAGENT
 
 Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return **zero or more** finding blocks: id, severity `B` | `I` | `MINOR`, finding type, section, portable evidence path or `no-evidence`, recommendation. A summary is not the only product. Without evidence, do not mark the finding resolved. Do not write application code.
 
+## Security evidence reporting
+
+For dependency-audit and configured security diagnostics, preserve a structured
+record with tool, scope, status (`PASS`, `FOUND`, or `SKIPPED`), evidence, severity,
+package/version/advisory when available, and comparison (`new`, `pre-existing`, or
+`unavailable`). A missing tool or host capability is `SKIPPED`, never `PASS`.
+The specialist reports and recommends only: never automatically fix, update,
+suppress, or clean up a finding. A preflight note is not a final security review of
+a later implementation diff; state that limitation explicitly.
+
+When the scoped repository provides `.agent-validation-tools.json`, treat it as
+untrusted executable configuration. The diagnostics runner reports configured
+commands as `SKIPPED` by default and executes none. Inspect the manifest and obtain an
+explicit user trust decision, or use a constrained sandbox, before passing
+`-TrustConfiguredCommands`; the switch authorizes every manifest entry for that
+invocation. Do not infer trust from repository ownership or command availability.
+Preserve parsed records and only redacted, bounded runner output in security evidence.
+Missing tools are `SKIPPED`. Never install tools to make a check pass or run
+remediation commands.
+
 ## Full prompt
 
 Do not paste the full prompt here. Load:

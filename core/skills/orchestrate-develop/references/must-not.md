@@ -8,6 +8,7 @@
 - Skip child/parent `plan-acquisition` or accept Complete without **delivery-baseline** (`references/plan-contract.md`)
 - Add duration/effort estimates as queue or Complete gates (REQ-010 / RN04)
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
+- Mark a step complete before persisting and validating `tests_run`; reset develop gates by inline JSON mutation
 - Skip `Invoke-PlanLedgerClaim.ps1` when claim is required/absent because session gate already true (CT6)
 - Auto-commit / auto-push
 - Create external work-item tracker or org-only compliance content. That ban does not block the `security` agent on the diff at scope close.

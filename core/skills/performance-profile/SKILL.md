@@ -47,7 +47,7 @@ Documented performance improvements verified by local benchmarking:
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md`, `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/string-manipulation.md` |
 | JavaScript / TypeScript | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-js.md` |

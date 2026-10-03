@@ -222,14 +222,13 @@ function Invoke-CopilotUninstallToolkit {
         }
     }
 
-    if ($normalizedMode -eq $script:CopilotPathConstant.ModeRepo) {
-        $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
-        $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
-        foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
-            $agentFilePath = Join-Path $customAgentsRoot $agentFileName
-            if (Remove-CopilotManagedPath -TargetPath $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
-                $removedPaths.Add($agentFilePath) | Out-Null
-            }
+    $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
+    $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
+    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
+        $profileName = [System.IO.Path]::GetFileNameWithoutExtension($agentFileName) + $script:CopilotPathConstant.CustomAgentProfileExtension
+        $agentFilePath = Join-Path $customAgentsRoot $profileName
+        if (Remove-CopilotManagedPath -TargetPath $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
+            $removedPaths.Add($agentFilePath) | Out-Null
         }
     }
 

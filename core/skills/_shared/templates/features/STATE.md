@@ -25,7 +25,7 @@ Post-implementation **evidence-or-zero** ledger (REQ-005 / CA4). Maps acceptance
 - Level `strict`: every **Result** is `pass`
 
 ```text
-.\scripts\validation\validate-evidence.ps1 -FeatureRoot features/{{NNN}}-{{slug}}
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot features/{{NNN}}-{{slug}}
 ```
 
 ## Verifier note

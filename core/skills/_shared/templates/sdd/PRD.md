@@ -158,6 +158,24 @@ Se sim: tabelas/colunas afetadas, impacto em dados existentes, reversibilidade.
 
 [Alterações de payload ou API; breaking change Sim/Não com justificativa.]
 
+### 7.3 Contrato observável de API (quando houver endpoint)
+
+Antes de liberar este PRD para `sdd-plan`, cada endpoint deve declarar aqui ou
+referenciar um contrato canônico portátil:
+
+| Campo | Contrato |
+|-------|----------|
+| Método e rota | [ex.: `POST /orders`] |
+| Request | [schema, tipos e obrigatoriedade] |
+| Response | [schema, tipos e obrigatoriedade] |
+| Validações | [regras e resposta para entrada inválida] |
+| Status e erros | [status, código e payload de erro] |
+| Exemplos | [request/response representativos] |
+| Fonte canônica | [path portátil, se estiver fora do PRD] |
+
+Lacuna em qualquer campo comportamental é uma pergunta `blocker`: não avance
+para o PLAN até completar o contrato ou registrar a referência canônica.
+
 ## 8. Tratamento de erros
 
 ### TE01 - [Nome do cenário]

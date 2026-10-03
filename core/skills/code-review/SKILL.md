@@ -107,6 +107,11 @@ Read `references/<section>.md` for procedural tables and checklists — **not** 
 ### 0. Workspace
 Confirm target repo (not this toolkit repo unless that is the subject). Detect stack (`*.sln` -> .NET; `angular.json` -> Angular). Read `AGENTS.md` / `README.md`. Load dotnet-guidelines only for .NET reviews.
 
+For every reviewed path, discover `AGENTS.md` from repository root to the path.
+The closest applicable local instruction governs local guidance, unless it conflicts
+with higher-authority system, host, or repository instructions; expose such a
+conflict in the report. Do not apply an instruction from a sibling directory.
+
 ### 0.25 Review mode (single vs multi-angle)
 Resolve mode from the invocation **or** from the user's answer to the Trigger prompt.
 

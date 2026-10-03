@@ -49,6 +49,47 @@ $script:CopilotAdapterCommandNames = @(
 
 $script:CopilotAdapterSubagentsNative = 'native'
 
+# Evidence classes keep documented product behavior separate from toolkit
+# implementation facts and unverified host assumptions.
+$script:CopilotAdapterSurfaceMatrix = @(
+    [PSCustomObject]@{
+        Surface = 'Copilot CLI'
+        Version = 'Record `copilot --version` for every comparison; no version floor is asserted here.'
+        Modes = @('user', 'repo')
+        Instructions = 'Officially documented: user and repository customization; toolkit publishes ~/.copilot and .github layouts.'
+        SkillsAndAgents = 'Officially documented: CLI supports skills and custom agents; toolkit publishes both in user and repo modes.'
+        ToolsAndPermissions = 'Officially documented: CLI tools and hooks can affect tool permissions; toolkit smoke checks hook files only.'
+        Hooks = 'Officially documented for CLI; toolkit publishes hooks in user and repo layouts.'
+        Context = 'Record workspace/repository, prompt, model, and loaded instruction/skill identifiers for comparisons.'
+        SessionState = 'Record new/resumed session and observed events; static toolkit smoke does not inspect session state.'
+        Evidence = 'Documented product behavior + observable toolkit file layout.'
+    },
+    [PSCustomObject]@{
+        Surface = 'GitHub Copilot in VS Code'
+        Version = 'Record VS Code version and GitHub Copilot/Copilot Chat extension versions for every comparison.'
+        Modes = @('repo')
+        Instructions = 'Officially documented: repository instructions and path-specific instructions are available in VS Code.'
+        SkillsAndAgents = 'Officially documented VS Code customization varies by feature/version; this adapter does not verify IDE loading.'
+        ToolsAndPermissions = 'Record enabled agent tools and approval settings from the active VS Code session; not observable by this smoke.'
+        Hooks = 'Do not infer CLI hooks from this adapter smoke; VS Code execution is not tested here.'
+        Context = 'Record workspace, prompt, model, instruction/skill identifiers and relevant extension settings.'
+        SessionState = 'Observe the actual chat/session UI and record new/resumed state; toolkit smoke cannot observe it.'
+        Evidence = 'Officially documented customization + host behavior requires a live VS Code observation.'
+    },
+    [PSCustomObject]@{
+        Surface = 'GitHub Copilot SDK'
+        Version = 'Record SDK package version, runtime version, and Copilot CLI version for every comparison.'
+        Modes = @('application-defined')
+        Instructions = 'Application/session configuration; do not equate CLI or VS Code file discovery with SDK loading.'
+        SkillsAndAgents = 'Officially documented SDK skills, agents and tools are configured through SDK session/plugin facilities.'
+        ToolsAndPermissions = 'SDK hooks and permission handlers are application callbacks; configured tool set is application-defined.'
+        Hooks = 'Officially documented SDK hooks; toolkit does not create or execute an SDK session.'
+        Context = 'Record app configuration, working directory, model, loaded skills/plugins, prompt and tool list.'
+        SessionState = 'Record SDK session id, create/resume path, and lifecycle events; unavailable to filesystem smoke.'
+        Evidence = 'Officially documented SDK API + live application instrumentation required.'
+    }
+)
+
 $script:CopilotAdapterCapabilityFlags = [ordered]@{
     skills    = $true
     rules     = $true
@@ -116,6 +157,26 @@ function New-CopilotAdapterNotImplementedResult {
 
 function Get-CopilotAdapterCommandNames {
     return @($script:CopilotAdapterCommandNames)
+}
+
+function Get-CopilotSurfaceMatrix {
+    [CmdletBinding()]
+    param()
+
+    return @($script:CopilotAdapterSurfaceMatrix | ForEach-Object {
+        [PSCustomObject]@{
+            Surface = $_.Surface
+            Version = $_.Version
+            Modes = @($_.Modes)
+            Instructions = $_.Instructions
+            SkillsAndAgents = $_.SkillsAndAgents
+            ToolsAndPermissions = $_.ToolsAndPermissions
+            Hooks = $_.Hooks
+            Context = $_.Context
+            SessionState = $_.SessionState
+            Evidence = $_.Evidence
+        }
+    })
 }
 
 function Get-CopilotAdapterRepoRoot {
@@ -234,6 +295,7 @@ function Get-Capabilities {
         AgentId      = $resolvedAgentId
         Implemented  = $true
         Capabilities = [PSCustomObject]$script:CopilotAdapterCapabilityFlags
+        SurfaceMatrix = @(Get-CopilotSurfaceMatrix)
         Message      = $script:CopilotAdapterMessage.CapabilitiesReady
     }
 }
@@ -427,9 +489,10 @@ function Publish-Router {
 function Publish-Agents {
     <#
     .SYNOPSIS
-      Publish core/agents/*.md into InstallRoot/agents for Mode repo (.github/agents/).
+      Publish core/agents/*.md as Copilot agent profiles in both modes.
     .DESCRIPTION
-      Mode user is a documented no-op (no Copilot user-home agents directory).
+      Mode user publishes into ~/.copilot/agents; Mode repo publishes into .github/agents.
+      .agent.md profiles are discovered by VS Code and Copilot CLI.
     #>
     [CmdletBinding()]
     param(

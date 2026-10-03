@@ -76,7 +76,7 @@ Before emitting develop handoff, verify:
 ## Structural validate
 
 ```text
-.\scripts\validation\validate-change.ps1 -Path <features/NNN-slug/CHANGE.md>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
 Exit 0 = required sections present. Exit ≠ 0 = fix before plan/develop. Smoke: `Assert-ChangeContract.ps1`. Deterministic only (RNF-001) — never LLM-as-validator.

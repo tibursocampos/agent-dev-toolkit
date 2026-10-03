@@ -48,7 +48,7 @@ A typed, modular, and robust API client containing:
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`, `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | JavaScript / TypeScript | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-ts.md`, `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/google-ts-style.md` |

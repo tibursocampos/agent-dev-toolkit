@@ -4,8 +4,9 @@
     "preToolUse": [
       {
         "type": "command",
-        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
-        "powershell": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
+        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./guard-pre-tool.ps1",
+        "powershell": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./guard-pre-tool.ps1",
+        "cwd": "{{TOOLKIT_ROOT}}/hooks",
         "timeoutSec": 15
       }
     ]

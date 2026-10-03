@@ -1,0 +1,29 @@
+{
+  "fixture": "synthetic",
+  "input": {
+    "plan": "A checkout workflow with create and status endpoints for one consumer outcome.",
+    "environment": "local contract harness",
+    "configuration": "same seeded plan and contradiction set for both review modes",
+    "sha256": "960246e296c02cb898d2a9d1604d0f33a324e3f097246162b7a7fbfbd6aaceb0"
+  },
+  "telemetry": {
+    "available": false,
+    "reason": "This local PowerShell harness has no model token or host tool-call telemetry."
+  },
+  "seededContradictions": [
+    { "id": "CONTRA-01", "claimA": "Retries are allowed", "claimB": "Retries are forbidden" },
+    { "id": "CONTRA-02", "claimA": "Status is public", "claimB": "Status requires authentication" }
+  ],
+  "reviews": {
+    "full": {
+      "status": "SKIPPED",
+      "reason": "No observable host/model runner is available to execute the full review strategy.",
+      "inputSha256": "960246e296c02cb898d2a9d1604d0f33a324e3f097246162b7a7fbfbd6aaceb0"
+    },
+    "deltaRisk": {
+      "status": "SKIPPED",
+      "reason": "No observable host/model runner is available to execute the delta-risk review strategy.",
+      "inputSha256": "960246e296c02cb898d2a9d1604d0f33a324e3f097246162b7a7fbfbd6aaceb0"
+    }
+  }
+}

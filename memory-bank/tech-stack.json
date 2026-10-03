@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-09-25T14:11:35.6866622Z",
+  "generated_at": "2026-10-03T01:54:07.4768932Z",
   "languages": ["powershell", "markdown"],
   "frameworks": [],
   "package_managers": [],
@@ -20,7 +20,7 @@
       ".github/workflows/validate-toolkit.yml"
     ],
     "notes": [
-      "Inventory stack_hints: markdown, powershell. skill_count 41. assert_script_count 82.",
+      "Inventory stack_hints: markdown, powershell. skill_count 42. assert_script_count 86.",
       "PowerShell 5.1+ or pwsh 7+ on Windows; pwsh 7+ on Linux and macOS (README).",
       "Validation is scripts/validation Assert scripts plus fixture smokes, not a package-manager test runner.",
       "No npm, .NET, Python, or Rust lockfile in stack_hints."

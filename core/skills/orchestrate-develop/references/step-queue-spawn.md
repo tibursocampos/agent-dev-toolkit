@@ -14,6 +14,25 @@ Story preference: finish one story’s PLAN before starting another unless user 
 
 ---
 
+## O3 paired baseline and delta/risk review
+
+Before replacing a full O3 review with a delta/risk review, record a paired
+baseline using equivalent PLAN inputs, environment, and configuration. Record
+observed `tokens` and `tool_calls` for both runs; do not invent an absolute
+target before that baseline exists.
+
+The baseline fixture must include seeded contradictions. Both the initial full
+review and every eligible delta/risk review must detect **100%** of those seeded
+contradictions. A missed contradiction blocks the delta path and requires a full
+review or corrected contract.
+
+After the baseline, use delta/risk only when changed files and acceptance surface
+are known. Escalate to a full review for contract, dependency, or unresolved-risk
+changes. The receipt states `review_mode`, baseline reference, tokens, tool calls,
+detection count, and limitations; metrics are observations, never delivery targets.
+
+---
+
 ## Process — Build step queue
 
 For each PLAN:
@@ -50,13 +69,15 @@ After operator **sim** and before implement/spawn boundary, **MUST** call both c
 Prefer **one** Shell approve per step when the host can chain both `-File` calls:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
 ```
 
 | Script | Role |
 |--------|------|
 | `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent `step_confirmed` (skip rewrite if already true) |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT — still **MUST** run when claim is absent |
+
+After targeted tests execute and results are reported, the child **MUST** persist `tests_run` with `Invoke-DevelopSessionGate.ps1 -Action tests-run`, then validate it using `validate-session-gates.ps1 -RequiredGate tests_run` before marking the step complete. On scope close, reset both develop gates with `Invoke-DevelopSessionGate.ps1 -Action reset`. Never edit session JSON inline.
 
 **CT6:** session helper idempotent skip **MUST NOT** waive a missing ledger claim — always run `Invoke-PlanLedgerClaim` when claim is required and absent. No second claim SoT.
 
@@ -83,6 +104,7 @@ Child must:
 - Spawn a child with instructions to do Steps N and N+1
 - Mark PLAN checkboxes for steps the child did not complete
 - Skip `tests_run` / treat silence as step approval inside the child
+- Mark a step complete before `tests_run` is persisted and validated; reset develop gates by inline JSON mutation
 - Share one flat `{repo-hash}.json` develop gate across parallel children
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1`
 - Skip `Invoke-PlanLedgerClaim.ps1` because session helper already exited 0 (CT6)
@@ -103,7 +125,7 @@ Give each child:
 2. Instruction: execute `/sdd-develop` contract for **this step only** — read that step block and its task boxes; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
 4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
-5. Must stop after updating PLAN for this step; must run targeted tests before complete
+5. Must run targeted tests, persist and validate `tests_run`, then update PLAN; reset gates through the canonical helper before stopping after this step
 5a. After **sim**: **MUST** call `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` via `-File` (REQ-012 / CT6); **MUST NOT** inline session JSON mutators
 5b. When level ≥ `cheap`: update `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)
 5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)

@@ -78,6 +78,8 @@ Core content does not hardcode a single IDE home. Adapters resolve placeholders 
 
 At runtime, skills resolve SDD state via `effective_SDD_ROOT` so a foreign agent’s baked path does not win. `effective_SDD_ROOT` holds sessions, preferences, and `manifest.json` (schema v2), plus optional **global** `features/` and `memory-bank/` when `classic.storage_mode` is `global`. **Repository** mode keeps those trees under the consumer `$Cwd`.
 
+Published skills resolve their declared runtime helpers from the installed toolkit tree. Session helpers reject persisted repository or PLAN identity mismatches before state changes. Fixture and static checks prove those publication and session contracts; they do not prove a live host, IDE, or hook run.
+
 Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contain-ide.json`. Core suite: `scripts/validation/validate-core.ps1` (alias `validate-all.ps1`). Brand names may appear in co-author rules. They are not filesystem home paths.
 
 ## Entry points

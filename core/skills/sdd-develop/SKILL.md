@@ -27,13 +27,21 @@ Gate check:
 After the user says **sim** for this step, **MUST** persist develop `step_confirmed` via `-File` (cwd = repo root) — **MUST NOT** paste inline PowerShell that mutates session JSON under `sessions/`:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
 ```
+
+After targeted tests execute and their results are ready to report, persist the tests gate through the same canonical helper:
+
+```powershell
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -Action tests-run -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
+```
+
+Before ending the develop scope, reset both gates with `-Action reset` (optionally pass `-CurrentStep N+1`). Never mutate the session JSON inline. `tests-run` fails unless `step_confirmed` is already true.
 
 When a PLAN ledger claim is required (O3 / declared execution mode / parent handoff), **MUST** also call:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
 ```
 
 Prefer **one** Shell approve that chains both `-File` invocations when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still run the claim when the claim file is absent — session skip does **not** waive claim.
@@ -73,7 +81,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 
 ## Lazy-load (only when needed)
 
-| When | Path (after `scripts/sync-cursor.ps1`) |
+| When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/command.md` |
 | Pipeline, missing PLAN dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
@@ -171,7 +179,7 @@ Read `references/evidence-or-zero.md`. When the step claims AC coverage (or CONT
 3. Run structural gate (deterministic — never LLM-as-validator):
 
 ```powershell
-.\scripts\validation\validate-evidence.ps1 -FeatureRoot <features/NNN-slug> [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot <features/NNN-slug> [-Level cheap]
 ```
 
 Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
@@ -188,7 +196,7 @@ Read `references/living-loop-trace.md`. When CONTINUITY / operator closes the fe
 4. Run structural gate (deterministic — never LLM-as-validator):
 
 ```powershell
-.\scripts\validation\validate-trace.ps1 -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
 ```
 
 Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, optional trail events may be appended; missing TRACE is OK until archive-complete.
@@ -203,6 +211,8 @@ Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the use
 Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
 
 `references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
+
+After the tests gate validates true, update the PLAN/task status; then reset the develop session through the canonical helper before ending the scope.
 
 ### 7. Report
 Load `references/execution-display.md` and `references/session-report.md`. Emit `STEP_COMPLETED` or `STEP_BLOCKED`. Phrases follow the user chat language.
