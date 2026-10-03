@@ -64,6 +64,11 @@ function Initialize-OpenHandsKeyedUninstallWorkRoot {
     Remove-EphemeralSmokeWorkRoot -Path $workInstallRoot
     New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
     Get-ChildItem -LiteralPath $seedFixtureRoot -Force | Copy-Item -Destination $workInstallRoot -Recurse -Force
+    $skillsRoot = (Get-OpenHandsMappedInstallPaths -ResolvedInstallRoot $workInstallRoot).FixtureSkillsPath
+    if (Test-Path -LiteralPath $skillsRoot) {
+        Remove-Item -LiteralPath $skillsRoot -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $skillsRoot -Force | Out-Null
 }
 
 function Get-OpenHandsWorkMappedPaths {
@@ -165,6 +170,8 @@ try {
     New-Item -ItemType Directory -Path $mappedKeep.FixturePluginPath -Force | Out-Null
     $alienPluginPath = Join-Path $mappedKeep.FixturePluginPath $alienPluginFileName
     Set-Content -LiteralPath $alienPluginPath -Value ("# {0}`n" -f $alienPluginMarker) -Encoding UTF8
+    $managedSkillUserFile = Join-Path (Join-Path $mappedKeep.FixtureSkillsPath $knownSkillId) 'user-notes.txt'
+    Set-Content -LiteralPath $managedSkillUserFile -Value 'keep user data' -Encoding UTF8
     $configTomlPath = Join-Path $workInstallRoot $configTomlName
     Set-Content -LiteralPath $configTomlPath -Value ("# {0}`nkeep=true`n" -f $configTomlName) -Encoding UTF8
 
@@ -181,6 +188,9 @@ try {
 
     if (Test-OpenHandsToolkitSkillPresent) {
         Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
+    }
+    if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
+        Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
     }
     if (Test-OpenHandsToolkitHooksPresent) {
         Write-Fail -TestName $removeTest -Reason 'toolkit hooks should be removed after uninstall'

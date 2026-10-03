@@ -188,18 +188,8 @@ function Invoke-CopilotUninstallToolkit {
     $removedPaths = New-Object System.Collections.Generic.List[string]
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.SkillsDirectoryName
-    foreach ($rawSkillName in (Get-CopilotManagedSkillNames -SourceSkillsRoot $sourceSkillsRoot)) {
-        try {
-            $skillName = Assert-ToolkitManagedSkillName -SkillName $rawSkillName
-        }
-        catch {
-            continue
-        }
-        $skillPath = Join-Path $skillsRoot $skillName
-        if (Remove-CopilotManagedPath -TargetPath $skillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
-            $removedPaths.Add($skillPath) | Out-Null
-        }
-    }
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
 
     $instructionsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.InstructionsDirectoryName
     foreach ($instructionName in (Get-CopilotManagedInstructionFileNames -SourcePolicyRoot $sourcePolicyRoot)) {
@@ -239,6 +229,10 @@ function Invoke-CopilotUninstallToolkit {
     else {
         ($script:CopilotUninstallMessage.RemovedOk -f $removedCount, $resolvedInstallRoot, $normalizedMode)
     }
+    if ($preservedSkillPaths.Count -gt 0) {
+        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+    }
+    if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
         Success       = $true
@@ -249,6 +243,7 @@ function Invoke-CopilotUninstallToolkit {
         InstallRoot   = $resolvedInstallRoot
         RemovedCount  = $removedCount
         RemovedPaths  = @($removedPaths)
+        PreservedPaths = @($preservedSkillPaths)
         Message       = $message
         ExitCode      = 0
         KeyedOnly     = $true

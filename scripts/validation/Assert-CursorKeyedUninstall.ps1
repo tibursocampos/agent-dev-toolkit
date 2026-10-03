@@ -78,7 +78,13 @@ function Initialize-CursorKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Preserve SDD user state, but generate adapter-owned files into a clean
+    # destination so keyed uninstall tests ownership created by this run.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
+    $seedSddRoot = Join-Path $seedFixtureRoot 'sdd'
+    if (Test-Path -LiteralPath $seedSddRoot -PathType Container) {
+        Copy-Item -LiteralPath $seedSddRoot -Destination $workInstallRoot -Recurse -Force
+    }
 }
 
 function Invoke-CursorKeyedUninstallSync {
@@ -175,7 +181,10 @@ function Add-CursorFixtureHooksJsonAlienOverlay {
     $payload | Add-Member -NotePropertyName $alienHooksMetadataKey -NotePropertyValue ([ordered]@{ source = $alienHooksMetadataSource }) -Force
 
     $beforeSubmit = @($payload.hooks.beforeSubmitPrompt)
-    $beforeSubmit = ,@(@{ command = $broadPathHookCommand }) + $beforeSubmit
+    # Keep each hook as an individual array entry. The unary comma wraps the
+    # whole prepended array as one nested entry, which makes reverse-merge
+    # enumeration miss the owned handler that follows it.
+    $beforeSubmit = @(@{ command = $broadPathHookCommand }) + $beforeSubmit
     $payload.hooks.beforeSubmitPrompt = $beforeSubmit
 
     $json = $payload | ConvertTo-Json -Depth 10
@@ -313,8 +322,11 @@ if ($uninstall.RemovedCount -lt 1) {
     Write-Fail -TestName $removeTest -Reason 'expected at least one keyed artifact removed'
 }
 
-if (Test-CursorToolkitSkillPresent) {
-    Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
+if (-not (Test-CursorToolkitSkillPresent)) {
+    Write-Fail -TestName $removeTest -Reason 'names-only skill manifest means toolkit skill paths must be preserved'
+}
+if (@($uninstall.PreservedPaths).Count -eq 0) {
+    Write-Fail -TestName $removeTest -Reason 'uninstall must report ambiguous preserved skill paths'
 }
 if (Test-CursorToolkitRulePresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit rules should be removed after uninstall'

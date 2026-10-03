@@ -1,4 +1,7 @@
 #Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Hooks (scripts + hooks.json keyed merge).
@@ -75,7 +78,11 @@ function Write-CursorUtf8NoBom {
         -RequireStrictChild
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $tempPath = $Path + $script:CursorAdapterConstant.AtomicWriteTempSuffix
+    # hooks.json is a user-owned configuration file. Callers pass the result of
+    # a keyed merge that preserves alien entries, so it must be replaceable even
+    # when the managed publish inventory does not claim ownership of the file.
+    # A unique sibling temp file prevents stale artifacts from blocking writes.
+    $tempPath = $Path + $script:CursorAdapterConstant.AtomicWriteTempSuffix + [Guid]::NewGuid().ToString('N')
     $maxAttempts = [int]$script:CursorAdapterConstant.AtomicWriteMaxAttempts
     $delayMs = [int]$script:CursorAdapterConstant.AtomicWriteRetryDelayMilliseconds
     $lastError = $null
@@ -88,7 +95,7 @@ function Write-CursorUtf8NoBom {
                 -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
                 -RequireStrictChild
             [System.IO.File]::WriteAllText($tempPath, $Content, $utf8NoBom)
-            Move-Item -LiteralPath $tempPath -Destination $Path -Force
+            Move-Item -LiteralPath $tempPath -Destination $Path -Force -ErrorAction Stop
             return
         }
         catch {
@@ -399,7 +406,7 @@ function Copy-CursorHookScripts {
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
 
-        Copy-Item -LiteralPath $_.FullName -Destination $destPath -Force
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $_.FullName -DestinationPath $destPath
         $copied++
     }
 
@@ -417,7 +424,7 @@ function Copy-CursorHookScripts {
             -RootPath $InstallRoot `
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
-        Copy-Item -LiteralPath $sharedGuardSource -Destination $sharedDest -Force
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
         $copied++
     }
 

@@ -92,6 +92,14 @@ Caps, host table, and child payload rules live in SPAWN.md — use the **Read** 
 - Parent passes **scoped paths + receipt requirement + role** — not guideline dumps or full policy packs.
 - Expand child context only when the task truly needs it (security dumps, ambiguous architecture, user asked for full detail). Auto-Clarity / never-compress gates still apply.
 
+## Child invocation lifecycle
+
+- Batch related, bounded work into the initial handoff. Do not launch a child for each tiny lookup or keep expanding its assignment after launch.
+- A running child may receive only a concise clarification that stays inside its original scope. Added deliverables, phases, or paths require a new assignment.
+- When a child returns, never follow up, reopen, resume, or reuse that invocation, even for a correction, completion, or review of the same work. Submit the remaining work as a fresh child invocation with a compact receipt/excerpt, scoped paths, and a bounded request.
+- Treat the child return as final even if the host UI labels or retains the thread differently. Use host close/terminate controls only when documented and available; never promise process termination or context erasure otherwise.
+- Preserve SPAWN.md's thin-trivial in-parent exception and host concurrency caps.
+
 ---
 
 ## Invocation axes (A ≠ B ≠ C)

@@ -672,7 +672,7 @@ $script:ToolkitConstant = @{
     ToolkitChoiceNoShort           = 'no'
     ToolkitMainMenuChoices         = @('0', '1', '2', '3', '4', '5', '6', '7')
     ToolkitTargetMenuChoices       = @('0', '1', '2', '3')
-    ToolkitLabMenuChoices          = @('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
+    ToolkitLabMenuChoices          = @('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11')
     ExpectedCiSmokeScriptCount     = 10
     ToolkitHelpMenuChoices         = @('0', '1', '2', '3')
     ToolkitCopilotModeMenuChoices  = @('0', '1', '2')
@@ -831,9 +831,11 @@ $script:ToolkitMessage = @{
     ToolkitMenuWhatHint                = 'What do you want to do?'
     ToolkitAgentWizardTitle            = 'Select agent'
     ToolkitTargetWizardTitle           = 'Select InstallRoot target'
-    ToolkitTargetLiveLine              = '[1] Live agent home ({0}) - recommended default'
-    ToolkitTargetFixtureLine           = '[2] In-repo fixture (CI / learn the CLI - no profile write)'
-    ToolkitTargetCustomLine            = '[3] Custom path'
+    ToolkitUninstallTargetWizardTitle  = 'Select InstallRoot to uninstall from'
+    ToolkitTargetLiveLine              = '[1] Live agent home ({0}) - writes toolkit-managed files under this agent home'
+    ToolkitUninstallTargetLiveLine     = '[1] Live agent home ({0}) - remove toolkit-managed files from this agent home'
+    ToolkitTargetFixtureLine           = '[2] Temporary fixture (safe practice / validation; no profile write)'
+    ToolkitTargetCustomLine            = '[3] Custom InstallRoot path (review the path before confirming)'
     ToolkitTargetBackLine              = '[0] Back'
     ToolkitTargetLiveUnknown           = 'official user root'
     ToolkitTargetLiveCodexDualLine     = '    Codex note: config/AGENTS under ~/.codex; USER skills also at ~/.agents/skills; default sync writes plugin/ under InstallRoot'
@@ -842,21 +844,26 @@ $script:ToolkitMessage = @{
     ToolkitCustomPathPrompt            = 'Enter InstallRoot path'
     ToolkitCustomPathRequired          = 'InstallRoot path is required.'
     ToolkitAllowUserHomeConfirm        = 'This path is under USERPROFILE. Allow live-home write (-AllowUserHome)?'
+    ToolkitUninstallAllowUserHomeConfirm = 'This path is under USERPROFILE. Allow toolkit-managed uninstall here (-AllowUserHome)?'
     ToolkitLiveHomeConfirm             = 'Deploy to live agent home? This writes under your user profile.'
+    ToolkitUninstallLiveHomeConfirm    = 'Uninstall toolkit-managed files from this live agent home?'
     ToolkitCopilotModeTitle            = 'Copilot Mode'
     ToolkitCopilotModeUserLine         = '[1] user  — personal Copilot root (~/.copilot)'
     ToolkitCopilotModeRepoLine         = '[2] repo  — consumer app .github layout'
     ToolkitCopilotModeBackLine         = '[0] Back'
     ToolkitSummaryTitle                = 'Plan summary'
+    ToolkitUninstallSummaryTitle       = 'Uninstall plan summary'
     ToolkitSummaryAgent                = '  Agent:        {0}'
     ToolkitSummaryMode                 = '  Mode:         {0}'
     ToolkitSummaryInstallRoot          = '  InstallRoot:  {0}'
     ToolkitSummaryAllowUserHome        = '  AllowUserHome:{0}'
     ToolkitSummaryTargetKind           = '  Target:       {0}'
     ToolkitConfirmRunPrompt            = 'Run this plan? (y = run, n = cancel, 0 = back)'
+    ToolkitConfirmUninstallPrompt      = 'Proceed with uninstall? (y = remove toolkit-managed files, n = cancel, 0 = back)'
     ToolkitCancelled                   = 'Cancelled.'
     ToolkitSkippingValidateAfterSync   = 'Skipping validate because sync failed.'
     ToolkitLabTitle                    = 'Validation lab'
+    ToolkitLabIntro                    = 'Core checks repository contracts. CI smokes sync and validate an agent in a temporary fixture; they do not deploy to your home.'
     ToolkitLabCoreLine                 = '[1] Validate core (validate-core.ps1)'
     ToolkitLabBackLine                 = '[0] Back'
     ToolkitLabSmokeLine                = '[{0}] {1}'
@@ -871,6 +878,9 @@ Menu actions
 [1] Sync agent
     Publishes core skills/policy/router/agents/hooks into an agent InstallRoot via sync-agent.ps1.
     Wizard: pick agent -> fixture | live home | custom path -> confirm.
+    Fixture: temporary test target; no profile files are written. Live home: installs toolkit-managed files under that
+    agent's root. Custom: choose an InstallRoot yourself; profile paths need explicit confirmation. Review the plan
+    summary and target path before choosing y.
 
 [2] Validate agent
     Runs validate-core (unless -SkipCore) then the adapter smoke for one agent.
@@ -882,7 +892,8 @@ Menu actions
     Repo contract suite only. Never writes to your agent home.
 
 [5] Validation lab
-    Run validate-core or an ephemeral CI smoke (Invoke-*CiSmoke).
+    Validate core checks toolkit repository contracts. CI smokes sync and validate an agent in a temporary fixture;
+    they do not deploy to your agent home. The numbered smoke choices follow Validate core.
 
 [6] Uninstall agent
     Removes keyed toolkit artifacts from InstallRoot (not a wholesale wipe).

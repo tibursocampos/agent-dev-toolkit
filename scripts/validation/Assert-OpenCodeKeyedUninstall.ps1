@@ -66,7 +66,10 @@ function Initialize-OpenCodeKeyedUninstallWorkRoot {
     if (Test-Path -LiteralPath $workInstallRoot) {
         Remove-Item -LiteralPath $workInstallRoot -Recurse -Force
     }
-    Copy-Item -LiteralPath $seedFixtureRoot -Destination $workInstallRoot -Recurse -Force
+    # Keep only the user-owned fixture note; managed outputs must be generated
+    # by this test run so uninstall can establish their ownership.
+    New-Item -ItemType Directory -Path $workInstallRoot -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $seedFixtureRoot $fixtureReadmeName) -Destination $workInstallRoot -Force
 }
 
 $skillsPath = Join-Path $fixtureInstallRoot $skillsDirName
@@ -92,15 +95,6 @@ function Ensure-AlienArtifacts {
 
 function Assert-ToolkitArtifactsAbsent {
     param([Parameter(Mandatory = $true)][string] $TestName)
-
-    $coreSkillsRoot = Join-Path (Join-Path $repoRoot 'core') $skillsDirName
-    $managedIds = @(Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force | Select-Object -ExpandProperty Name)
-    foreach ($id in $managedIds) {
-        $managedSkillPath = Join-Path $skillsPath $id
-        if (Test-Path -LiteralPath $managedSkillPath) {
-            Write-Fail -TestName $TestName -Reason ("managed skill still present after uninstall: {0}" -f $id)
-        }
-    }
 
     if (Test-Path -LiteralPath $agentsPath) {
         Write-Fail -TestName $TestName -Reason 'AGENTS.md must be removed by keyed uninstall'

@@ -22,7 +22,7 @@ curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolk
 bootstrap.bat
 ```
 
-(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing, clears the browser download mark, and starts PowerShell with `-ExecutionPolicy Bypass`.)
+(`bootstrap.bat` auto-fetches `bootstrap.ps1` if missing, clears the browser download mark, and starts PowerShell with `-ExecutionPolicy Bypass`. Do not double-click `bootstrap.ps1`; it can be run from a PowerShell terminal. A browser-downloaded script may be blocked by `RemoteSigned`.)
 
 Linux / macOS:
 

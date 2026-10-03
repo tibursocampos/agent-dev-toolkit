@@ -33,6 +33,12 @@ Canonical form is the skill **id**.
 | Deny shape | `{ "decision": "deny", "reason": "…" }` |
 | Out of scope | Sidecars / Automations; legacy `antigravity-ide/plugins` bridge |
 
+## Terminal sandbox and network
+
+Antigravity terminal sandboxing is controlled in the host's user settings, separately from toolkit sync. When enabled, filesystem writes are restricted to the workspace and network access has its own setting; strict mode enables terminal sandboxing and denies network access. A terminal or CLI failure may therefore be an environment boundary, even when the same command works in a normal terminal. Diagnose the reported failure and the active Antigravity settings before changing anything. Do not change sandbox, strict-mode, or network settings during toolkit setup; explain the narrow host-side setting that applies and let the operator decide. Do not work around a denial by switching to an unapproved terminal or other tool.
+
+Official references: [Settings and strict mode](https://antigravity.google/docs/settings/), [Terminal sandbox](https://antigravity.google/docs/sandbox/).
+
 ## Spawn / subagents (honesty)
 
 Hierarchical subagents exist since **Antigravity 2.0** via `invoke_subagent` (async by default, nesting ≤10, optional git worktrees). Pré-2.0 Agent Manager ran parallel agents in separate conversations — not parent→child in-session delegation.
@@ -52,6 +58,11 @@ Hierarchical subagents exist since **Antigravity 2.0** via `invoke_subagent` (as
 4. Missing binary / parse failure / unknown → **`none`**.
 
 SPAWN/skills must use **effective** capability, not registry alone. Contract: `core/skills/_shared/agents/SPAWN.md`. Matrix: [docs/SPAWN.md](../../docs/SPAWN.md).
+
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
 
 ### Official references
 

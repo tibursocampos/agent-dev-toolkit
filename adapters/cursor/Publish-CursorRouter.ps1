@@ -89,14 +89,9 @@ function Invoke-CursorPublishRouter {
 
     $resolved = Get-CursorRouterPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
     Assert-CursorPlaceholdersResolvedInFile -FilePath $destAgentsPath -Text $resolved
-    Write-CursorUtf8NoBom -Path $destAgentsPath -Content $resolved -InstallRoot $resolvedInstallRoot
-
     $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
-    . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
-    Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:CursorAdapterConstant.AgentsMarkdownFileName `
-        -PublishedContent $resolved
+    . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
+    $null = Write-ToolkitFileIfAbsent -Path $destAgentsPath -Content $resolved -Encoding (New-Object System.Text.UTF8Encoding $false) -InstallRoot $resolvedInstallRoot -RelativePath $script:CursorAdapterConstant.AgentsMarkdownFileName
 
     return [PSCustomObject]@{
         Success          = $true

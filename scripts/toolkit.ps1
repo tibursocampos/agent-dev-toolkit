@@ -326,7 +326,11 @@ function Invoke-ToolkitTargetWizard {
         [string] $AgentId,
 
         [Parameter()]
-        [string] $ResolvedMode
+        [string] $ResolvedMode,
+
+        [Parameter()]
+        [ValidateSet('deploy', 'uninstall')]
+        [string] $ActionKind = 'deploy'
     )
 
     $livePath = Get-ToolkitLiveHomePath -AgentId $AgentId -ResolvedMode $ResolvedMode
@@ -340,8 +344,10 @@ function Invoke-ToolkitTargetWizard {
 
     while ($true) {
         Clear-ToolkitScreen
-        Show-ToolkitHeader -Title $script:ToolkitMessage.ToolkitTargetWizardTitle -RepoRoot $repoRoot -Subtitle ("Agent: {0}" -f $AgentId)
-        Write-Host ($script:ToolkitMessage.ToolkitTargetLiveLine -f $liveLabel)
+        $targetTitle = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitUninstallTargetWizardTitle } else { $script:ToolkitMessage.ToolkitTargetWizardTitle }
+        Show-ToolkitHeader -Title $targetTitle -RepoRoot $repoRoot -Subtitle ("Agent: {0}" -f $AgentId)
+        $liveLine = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitUninstallTargetLiveLine } else { $script:ToolkitMessage.ToolkitTargetLiveLine }
+        Write-Host ($liveLine -f $liveLabel)
         if ($showCodexDual) {
             Write-Host $script:ToolkitMessage.ToolkitTargetLiveCodexDualLine
         }
@@ -359,7 +365,8 @@ function Invoke-ToolkitTargetWizard {
                     Pause-Toolkit
                     continue
                 }
-                if (-not (Confirm-ToolkitYesNo -Prompt $script:ToolkitMessage.ToolkitLiveHomeConfirm -DefaultYes:$true)) {
+                $liveConfirm = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitUninstallLiveHomeConfirm } else { $script:ToolkitMessage.ToolkitLiveHomeConfirm }
+                if (-not (Confirm-ToolkitYesNo -Prompt $liveConfirm -DefaultYes:$true)) {
                     Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitCancelled
                     Pause-Toolkit
                     continue
@@ -388,7 +395,8 @@ function Invoke-ToolkitTargetWizard {
                 }
                 $allow = $false
                 if (Test-ToolkitPathUnderUserProfile -Path $custom.Trim()) {
-                    if (-not (Confirm-ToolkitYesNo -Prompt $script:ToolkitMessage.ToolkitAllowUserHomeConfirm -DefaultYes:$false)) {
+                    $allowConfirm = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitUninstallAllowUserHomeConfirm } else { $script:ToolkitMessage.ToolkitAllowUserHomeConfirm }
+                    if (-not (Confirm-ToolkitYesNo -Prompt $allowConfirm -DefaultYes:$false)) {
                         Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitCancelled
                         Pause-Toolkit
                         continue
@@ -416,11 +424,16 @@ function Confirm-ToolkitRunPlan {
         [string] $ResolvedMode,
 
         [Parameter(Mandatory = $true)]
-        [hashtable] $Target
+        [hashtable] $Target,
+
+        [Parameter()]
+        [ValidateSet('deploy', 'uninstall')]
+        [string] $ActionKind = 'deploy'
     )
 
     Clear-ToolkitScreen
-    Show-ToolkitHeader -Title $script:ToolkitMessage.ToolkitSummaryTitle -RepoRoot $repoRoot
+    $summaryTitle = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitUninstallSummaryTitle } else { $script:ToolkitMessage.ToolkitSummaryTitle }
+    Show-ToolkitHeader -Title $summaryTitle -RepoRoot $repoRoot
     Write-Host ($script:ToolkitMessage.ToolkitSummaryAgent -f $AgentId)
     if (-not [string]::IsNullOrWhiteSpace($ResolvedMode)) {
         Write-Host ($script:ToolkitMessage.ToolkitSummaryMode -f $ResolvedMode)
@@ -436,7 +449,8 @@ function Confirm-ToolkitRunPlan {
     Write-Host ($script:ToolkitMessage.ToolkitSummaryAllowUserHome -f $(if ($Target.AllowUserHome) { ' yes' } else { ' no' }))
     Write-Host $script:ToolkitConstant.ToolkitMenuRule -ForegroundColor Cyan
 
-    $choice = Read-ToolkitChoice -Prompt $script:ToolkitMessage.ToolkitConfirmRunPrompt -ValidChoices $script:ToolkitConstant.ToolkitConfirmRunChoices
+    $confirmPrompt = if ($ActionKind -eq 'uninstall') { $script:ToolkitMessage.ToolkitConfirmUninstallPrompt } else { $script:ToolkitMessage.ToolkitConfirmRunPrompt }
+    $choice = Read-ToolkitChoice -Prompt $confirmPrompt -ValidChoices $script:ToolkitConstant.ToolkitConfirmRunChoices
     if ([string]::Equals($choice, $script:ToolkitConstant.ToolkitChoiceBack, [System.StringComparison]::OrdinalIgnoreCase)) {
         return 'back'
     }
@@ -457,7 +471,11 @@ function Invoke-ToolkitInteractiveAgentFlow {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $FlowTitle
+        [string] $FlowTitle,
+
+        [Parameter()]
+        [ValidateSet('deploy', 'uninstall')]
+        [string] $ActionKind = 'deploy'
     )
 
     $agentId = Invoke-ToolkitAgentWizard -Title $FlowTitle
@@ -474,12 +492,12 @@ function Invoke-ToolkitInteractiveAgentFlow {
     }
 
     while ($true) {
-        $target = Invoke-ToolkitTargetWizard -AgentId $agentId -ResolvedMode $resolvedMode
+        $target = Invoke-ToolkitTargetWizard -AgentId $agentId -ResolvedMode $resolvedMode -ActionKind $ActionKind
         if ($null -eq $target) {
             return $null
         }
 
-        $decision = Confirm-ToolkitRunPlan -AgentId $agentId -ResolvedMode $resolvedMode -Target $target
+        $decision = Confirm-ToolkitRunPlan -AgentId $agentId -ResolvedMode $resolvedMode -Target $target -ActionKind $ActionKind
         switch ($decision) {
             'run' {
                 return @{
@@ -916,8 +934,10 @@ function Invoke-ToolkitValidationLab {
         Clear-ToolkitScreen
         Show-ToolkitHeader -Title $script:ToolkitMessage.ToolkitLabTitle -RepoRoot $repoRoot
         Write-Host $script:ToolkitMessage.ToolkitLabCoreLine
+        Write-Host $script:ToolkitMessage.ToolkitLabIntro
         foreach ($smoke in @($script:ToolkitConstant.CiSmokeScripts)) {
-            Write-Host ($script:ToolkitMessage.ToolkitLabSmokeLine -f $smoke.Id, $smoke.Label)
+            $menuId = ([int]$smoke.Id + 1).ToString()
+            Write-Host ($script:ToolkitMessage.ToolkitLabSmokeLine -f $menuId, $smoke.Label)
         }
         Write-Host $script:ToolkitMessage.ToolkitLabBackLine
         Write-Host $script:ToolkitConstant.ToolkitMenuRule -ForegroundColor Cyan
@@ -932,7 +952,7 @@ function Invoke-ToolkitValidationLab {
             continue
         }
 
-        $matched = @($script:ToolkitConstant.CiSmokeScripts | Where-Object { [string]$_.Id -eq $choice } | Select-Object -First 1)
+        $matched = @($script:ToolkitConstant.CiSmokeScripts | Where-Object { ([int]$_.Id + 1).ToString() -eq $choice } | Select-Object -First 1)
         if ($matched.Count -eq 0) {
             Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitInvalidMenuOptionRetry
             continue
@@ -1024,7 +1044,7 @@ while ($true) {
                 $ran = $false
             }
             '6' {
-                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuUninstallLine
+                $ctx = Invoke-ToolkitInteractiveAgentFlow -FlowTitle $script:ToolkitMessage.ToolkitMenuUninstallLine -ActionKind uninstall
                 if ($null -eq $ctx) { $ran = $false; break }
                 $null = Invoke-ToolkitActionFromContext -ActionName $script:ToolkitConstant.ToolkitActionUninstall -Context $ctx
             }

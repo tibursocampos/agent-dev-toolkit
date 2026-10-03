@@ -1,4 +1,7 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
+$script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+
 <#
 .SYNOPSIS
   Helpers for Cursor Publish-Policy (core/policy -> InstallRoot/rules as .mdc).
@@ -30,16 +33,12 @@ function Publish-CursorPolicyAsMdcRules {
             -RootPath $InstallRoot `
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
-        Copy-Item -LiteralPath $sourceFile.FullName -Destination $destPath -Force
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceFile.FullName -DestinationPath $destPath
         $published++
     }
 
-    # Cursor layout uses .mdc only - remove plain .md leftovers at destination.
-    Get-ChildItem -LiteralPath $DestRoot -File -Filter ('*{0}' -f $sourceExt) -ErrorAction SilentlyContinue |
-        ForEach-Object {
-            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $_.FullName -InstallRoot $InstallRoot
-            Remove-Item -LiteralPath $_.FullName -Force
-        }
+    # Plain .md files in the shared rules folder have no verifiable ownership.
+    # Preserve them instead of treating their extension as proof of toolkit ownership.
 
     # Do not delete .mdc files with no matching core/policy .md source: DestRoot is a shared,
     # user-writable rules folder and unmatched .mdc may be the user's own custom rules, not

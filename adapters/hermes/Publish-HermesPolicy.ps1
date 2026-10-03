@@ -224,14 +224,46 @@ function Write-HermesManagedAgentsMd {
         New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
     }
 
-    Write-HermesUtf8NoBomFile -Path $destinationAgentsMd -Content $updated
-
     $repoRoot = Get-HermesAdapterRepoRoot
-    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
-    $null = Set-ToolkitManagedPublishInventoryEntryFromContent `
-        -InstallRoot $ResolvedInstallRoot `
-        -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName `
-        -PublishedContent $updated
+    $managedTreeLib = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1'
+    . $managedTreeLib
+    . (Join-Path (Split-Path -Parent $managedTreeLib) 'ToolkitManagedPublishInventory.ps1')
+    Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $destinationAgentsMd -InstallRoot $ResolvedInstallRoot
+
+    $beginMarker = $script:HermesAdapterConstant.ManagedAgentsBeginMarker
+    $endMarker = $script:HermesAdapterConstant.ManagedAgentsEndMarker
+    $managedBlock = $beginMarker + [Environment]::NewLine + $updated.TrimEnd() + [Environment]::NewLine + $endMarker
+    $existing = if (Test-Path -LiteralPath $destinationAgentsMd) { [System.IO.File]::ReadAllText($destinationAgentsMd) } else { '' }
+    $beginCount = ([regex]::Matches($existing, [regex]::Escape($beginMarker))).Count
+    $endCount = ([regex]::Matches($existing, [regex]::Escape($endMarker))).Count
+    if ($beginCount -ne $endCount -or $beginCount -gt 1) {
+        throw 'Hermes AGENTS.md contains ambiguous managed guidance markers; refusing to overwrite it.'
+    }
+
+    if ($beginCount -eq 1) {
+        $pattern = '(?ms)(?:\r?\n)?' + [regex]::Escape($beginMarker) + '.*?' + [regex]::Escape($endMarker)
+        $baseContent = [regex]::Replace($existing, $pattern, '', 1)
+    }
+    else {
+        $baseContent = $existing
+    }
+    $separator = if ([string]::IsNullOrEmpty($baseContent) -or $baseContent.EndsWith("`n")) { '' } else { [Environment]::NewLine }
+    $merged = $baseContent + $separator + $managedBlock + [Environment]::NewLine
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $tempPath = $destinationAgentsMd + '.adt-tmp-' + [Guid]::NewGuid().ToString('N')
+    try {
+        Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $tempPath -InstallRoot $ResolvedInstallRoot
+        [System.IO.File]::WriteAllText($tempPath, $merged, $utf8NoBom)
+        Move-Item -LiteralPath $tempPath -Destination $destinationAgentsMd -Force -ErrorAction Stop
+    }
+    finally {
+        if (Test-Path -LiteralPath $tempPath) {
+            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $tempPath -InstallRoot $ResolvedInstallRoot
+            Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue
+        }
+    }
+    # This file can contain operator-owned text, so never claim whole-file ownership.
+    $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $ResolvedInstallRoot -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName
 
     $null = Initialize-HermesMemoryFileIfMissing -ResolvedInstallRoot $ResolvedInstallRoot
 

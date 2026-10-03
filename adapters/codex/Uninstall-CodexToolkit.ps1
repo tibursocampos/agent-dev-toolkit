@@ -246,7 +246,7 @@ function Invoke-CodexUninstallToolkit {
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $routerNotes = New-Object System.Collections.Generic.List[string]
-    $managedSkillIds = Get-CodexManagedSkillIds -RepoRoot $repoRoot
+    $managedSkillIds = @()
 
     $pluginRoot = Join-Path $resolvedInstallRoot $script:CodexPathConstant.PluginRootDirectoryName
     $pluginSkillsRoot = Join-Path $pluginRoot $script:CodexPathConstant.SkillsDirectoryName
@@ -264,46 +264,15 @@ function Invoke-CodexUninstallToolkit {
         ) $script:CodexPathConstant.PluginsDirectoryName
     ) $script:CodexPathConstant.MarketplaceFileName
 
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($pluginSkillsRoot, $homeSkillsRoot, $userSkillsRoot)
+    $managedSkillIds = @($skillAudit.SkillIds)
+    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+
     $wouldRemoveMarketplace = Update-CodexMarketplaceRemoveToolkitEntry -MarketplacePath $marketplacePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
     if ($wouldRemoveMarketplace) {
         $wouldRemovePaths.Add($marketplacePath) | Out-Null
         if (-not $WhatIf.IsPresent) {
             $removedPaths.Add($marketplacePath) | Out-Null
-        }
-    }
-
-    foreach ($rawSkillId in $managedSkillIds) {
-        try {
-            $skillId = Assert-ToolkitManagedSkillName -SkillName $rawSkillId
-        }
-        catch {
-            continue
-        }
-        $pluginSkillPath = Join-Path $pluginSkillsRoot $skillId
-        $wouldRemove = Remove-CodexPathIfPresent -Path $pluginSkillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
-        if ($wouldRemove) {
-            $wouldRemovePaths.Add($pluginSkillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($pluginSkillPath) | Out-Null
-            }
-        }
-
-        $homeSkillPath = Join-Path $homeSkillsRoot $skillId
-        $wouldRemoveHome = Remove-CodexPathIfPresent -Path $homeSkillPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -Recurse
-        if ($wouldRemoveHome) {
-            $wouldRemovePaths.Add($homeSkillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($homeSkillPath) | Out-Null
-            }
-        }
-
-        $userSkillPath = Join-Path $userSkillsRoot $skillId
-        $wouldRemoveUser = Remove-CodexPathIfPresent -Path $userSkillPath -InstallRoot $userSkillsContainmentRoot -WhatIf:$WhatIf -Recurse
-        if ($wouldRemoveUser) {
-            $wouldRemovePaths.Add($userSkillPath) | Out-Null
-            if (-not $WhatIf.IsPresent) {
-                $removedPaths.Add($userSkillPath) | Out-Null
-            }
         }
     }
 
@@ -400,6 +369,12 @@ function Invoke-CodexUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
+    if ($preservedSkillPaths.Count -gt 0) {
+        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+    }
+    if ($skillAudit.Notes.Count -gt 0) {
+        $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ')
+    }
 
     return [PSCustomObject]@{
         Success         = $true
@@ -410,6 +385,7 @@ function Invoke-CodexUninstallToolkit {
         RemovedCount    = $count
         RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
         ManagedSkillIds = @($managedSkillIds)
+        PreservedPaths  = @($preservedSkillPaths)
         KeyedOnly       = $true
         WholesaleWipe   = $false
         Message         = $message

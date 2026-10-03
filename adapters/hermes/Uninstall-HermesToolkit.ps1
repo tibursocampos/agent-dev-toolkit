@@ -5,9 +5,8 @@
 
 .DESCRIPTION
   Removes only known toolkit-managed paths under InstallRoot (core skill ids).
-  AGENTS.md is removed only when provenance confirms toolkit ownership
-  (.toolkit-managed-publish.json sha256, or legacy hash match to combined
-  router+policy publish). Operator-edited AGENTS.md is preserved.
+  Removes only the marked toolkit guidance section from AGENTS.md, preserving
+  unrelated operator content. Legacy whole-file installs still require hash proof.
   Also removes plugins/agent-dev-toolkit-guard and agent-hooks toolkit files,
   and reverse-merges keyed plugins.enabled / hooks.pre_tool_call entries in
   config.yaml without touching other keys (gateway/tokens preserved).
@@ -50,9 +49,7 @@ function Get-HermesKnownToolkitArtifactPaths {
                 return
             }
             $candidate = Join-Path $MappedPaths.FixtureSkillsPath $safeName
-            if (Test-Path -LiteralPath $candidate) {
-                $paths.Add([System.IO.Path]::GetFullPath($candidate))
-            }
+            # Names-only manifests cannot authorize recursive deletion of skill contents.
         }
     }
 
@@ -138,6 +135,13 @@ function Invoke-HermesUninstallToolkit {
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-HermesKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
+    $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($mapped.FixtureSkillsPath) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
     $routerNotes = New-Object System.Collections.Generic.List[string]
 
     $configTouched = Remove-HermesToolkitConfigYamlKeys `
@@ -149,12 +153,58 @@ function Invoke-HermesUninstallToolkit {
     }
 
     $agentsPath = $mapped.FixtureProjectAgentsPath
-    $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
-        -InstallRoot $resolvedInstallRoot `
-        -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName `
-        -CurrentFilePath $agentsPath `
-        -ResolveExpectedPublishContent { Get-HermesAgentsMdPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
-        -WhatIf:$WhatIf
+    $routerRemoveResult = $null
+    if (Test-Path -LiteralPath $agentsPath) {
+        $agentsText = [System.IO.File]::ReadAllText($agentsPath)
+        $beginMarker = [string]$script:HermesAdapterConstant.ManagedAgentsBeginMarker
+        $endMarker = [string]$script:HermesAdapterConstant.ManagedAgentsEndMarker
+        $beginCount = ([regex]::Matches($agentsText, [regex]::Escape($beginMarker))).Count
+        $endCount = ([regex]::Matches($agentsText, [regex]::Escape($endMarker))).Count
+        if ($beginCount -ne $endCount -or $beginCount -gt 1) {
+            throw 'Hermes AGENTS.md contains ambiguous managed guidance markers; refusing to uninstall.'
+        }
+        if ($beginCount -eq 1) {
+            $pattern = '(?ms)(?:\r?\n)?' + [regex]::Escape($beginMarker) + '.*?' + [regex]::Escape($endMarker) + '\r?\n?'
+            $remaining = [regex]::Replace($agentsText, $pattern, '', 1)
+            if (-not $WhatIf.IsPresent) {
+                $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+                if ([string]::IsNullOrWhiteSpace($remaining)) {
+                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $agentsPath -InstallRoot $resolvedInstallRoot
+                    Remove-Item -LiteralPath $agentsPath -Force
+                    $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $resolvedInstallRoot -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName
+                    $removedAgents = $true
+                }
+                else {
+                    $null = Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $agentsPath -InstallRoot $resolvedInstallRoot
+                    $tempPath = $agentsPath + '.adt-tmp-' + [Guid]::NewGuid().ToString('N')
+                    try {
+                        Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $tempPath -InstallRoot $resolvedInstallRoot
+                        [System.IO.File]::WriteAllText($tempPath, $remaining, $utf8NoBom)
+                        Move-Item -LiteralPath $tempPath -Destination $agentsPath -Force -ErrorAction Stop
+                    }
+                    finally {
+                        if (Test-Path -LiteralPath $tempPath) {
+                            $null = Assert-PathUnderInstallRootForDelete -CandidatePath $tempPath -InstallRoot $resolvedInstallRoot
+                            Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue
+                        }
+                    }
+                    $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $resolvedInstallRoot -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName
+                    $removedAgents = $false
+                }
+            }
+            else { $removedAgents = [string]::IsNullOrWhiteSpace($remaining) }
+            $routerRemoveResult = [PSCustomObject]@{ Removed=$removedAgents; WouldRemove=($WhatIf.IsPresent -and $removedAgents); Preserved=$false; RelativePath=$script:HermesAdapterConstant.OfficialAgentsFileName; CurrentFilePath=$agentsPath; Message=$null }
+        }
+    }
+    if ($null -eq $routerRemoveResult) {
+        # Compatibility for prior versions that published AGENTS.md as a whole file.
+        $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
+            -InstallRoot $resolvedInstallRoot `
+            -RelativePath $script:HermesAdapterConstant.OfficialAgentsFileName `
+            -CurrentFilePath $agentsPath `
+            -ResolveExpectedPublishContent { Get-HermesAgentsMdPublishContent -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome } `
+            -WhatIf:$WhatIf
+    }
     if ($routerRemoveResult.Removed) {
         $knownPaths = @($knownPaths | Where-Object { -not [string]::Equals($_, [System.IO.Path]::GetFullPath($agentsPath), [System.StringComparison]::OrdinalIgnoreCase) })
     }
@@ -172,7 +222,7 @@ function Invoke-HermesUninstallToolkit {
     }
 
     if ($WhatIf.IsPresent) {
-        $wouldRemoveCount = $knownPaths.Count
+        $wouldRemoveCount = $knownPaths.Count + $managedSkillResult.RemovedPaths.Count
         if ($routerRemoveResult.WouldRemove) {
             $wouldRemoveCount += 1
         }
@@ -185,8 +235,10 @@ function Invoke-HermesUninstallToolkit {
         if ($routerNotes.Count -gt 0) {
             $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
         }
+        if ($preservedSkillPaths.Count -gt 0) { $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ') }
+        if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
-        $whatIfPaths = @($knownPaths)
+        $whatIfPaths = @($knownPaths) + @($managedSkillResult.RemovedPaths)
         if ($routerRemoveResult.WouldRemove) {
             $whatIfPaths += @([System.IO.Path]::GetFullPath($agentsPath))
         }
@@ -198,6 +250,7 @@ function Invoke-HermesUninstallToolkit {
             WhatIf       = $true
             InstallRoot  = $resolvedInstallRoot
             RemovedPaths = @($whatIfPaths)
+            PreservedPaths = @($preservedSkillPaths)
             RemovedCount = $wouldRemoveCount
             Message      = $message
             ExitCode     = 0
@@ -215,7 +268,7 @@ function Invoke-HermesUninstallToolkit {
         $removed.Add($path)
     }
 
-    $removedArray = @($removed.ToArray())
+    $removedArray = @($removed.ToArray()) + @($managedSkillResult.RemovedPaths)
     if ($routerRemoveResult.Removed) {
         $removedArray += @([System.IO.Path]::GetFullPath($agentsPath))
     }
@@ -228,6 +281,8 @@ function Invoke-HermesUninstallToolkit {
     if ($routerNotes.Count -gt 0) {
         $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
+    if ($preservedSkillPaths.Count -gt 0) { $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ') }
+    if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
         Success      = $true
@@ -236,6 +291,7 @@ function Invoke-HermesUninstallToolkit {
         WhatIf       = $false
         InstallRoot  = $resolvedInstallRoot
         RemovedPaths = $removedArray
+        PreservedPaths = @($preservedSkillPaths)
         RemovedCount = $removedArray.Count
         Message      = $message
         ExitCode     = 0

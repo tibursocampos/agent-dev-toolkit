@@ -70,6 +70,11 @@ Non-`Copy-ToolkitManagedTree` writes under InstallRoot are fail-closed via `Asse
 
 Skills prefer Task when `subagents=native`; fallback in-parent when Task unavailable (never hard-fail).
 
+
+### Child assignment lifecycle
+
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+
 ## Hooks merge
 
 `Publish-Hooks` merges `hooks.json` with **Claude-style keyed upsert**: toolkit-owned commands (identity = `hooks/<managed-script>.ps1`) are replaced and prepended; alien commands and alien event keys are preserved. Re-sync does not keep stale toolkit entries solely because the exact `command` string already exists.

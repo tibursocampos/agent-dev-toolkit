@@ -137,9 +137,16 @@ function Assert-CopilotAgentAndHookMaterialization {
         $agentId = $source.BaseName
         $profilePath = Join-Path $agentsRoot ($agentId + '.agent.md')
         $legacyPath = Join-Path $agentsRoot ($agentId + '.md')
-        if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf) -or (Test-Path -LiteralPath $legacyPath)) {
-            throw ("Mode={0}: custom agent must publish as one .agent.md profile: {1}" -f $Mode, $agentId)
+        if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) {
+            throw ("Mode={0}: canonical custom agent .agent.md profile is missing: {1}" -f $Mode, $agentId)
         }
+        if (-not (Test-Path -LiteralPath $legacyPath -PathType Leaf)) {
+            throw ("Mode={0}: Copilot CLI custom agent .md profile is missing: {1}" -f $Mode, $agentId)
+        }
+
+        # Keep both host surfaces. The legacy .md file is also a supported CLI
+        # profile and may be a pre-existing, unowned user file; do not require
+        # its deletion to satisfy the canonical VS Code .agent.md check.
 
         $profile = [System.IO.File]::ReadAllText($profilePath)
         if ($profile -notmatch '(?s)^---\r?\n.*?\r?\n---') {
