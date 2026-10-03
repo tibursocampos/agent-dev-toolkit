@@ -119,6 +119,12 @@ Operator-facing STOP / confirm prompts use the **user chat language** (`LANGUAGE
 
 ## Before Write or mutating Shell
 
+### Persisted identity is a precondition to mutation (REQ-005 / CA5)
+
+Before any existing PLAN-scoped develop session action (`ensure`, `tests-run`, or `reset`), the helper resolves the active repository and PLAN to absolute paths, normalizes separators and trailing separators, and compares them case-insensitively with persisted `repo` and `plan_path`. Both fields must match. A mismatch fails closed, reports the resolved expected and persisted identities, and leaves the session bytes unchanged. `status` also reports the mismatch instead of presenting a gate from another context. Do not repair, rewrite, or migrate a mismatched session automatically; investigate the path/context and use the correct session scope.
+
+For a missing session, the helper creates the schema with the already-resolved active identity. Session identity fields are not inferred from the session filename/hash alone: they are verified against the active context before an existing file can change.
+
 1. Resolve the correct session file(s) for the gate in play.
 2. If required gate is `false`: **STOP** - ask user in the **user chat language** (`LANGUAGE.md`) - do not proceed.
 3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON. After tests execute and are reported, use `-Action tests-run`; before closing the scope, use `-Action reset`:

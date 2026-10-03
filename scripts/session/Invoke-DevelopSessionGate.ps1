@@ -111,6 +111,44 @@ function Convert-ToAbsoluteForwardSlashPath {
     return (Get-NormalizedPathForHash -PathValue $resolved)
 }
 
+function Convert-PersistedIdentityPath {
+    param([Parameter(Mandatory = $true)][string] $PathValue)
+    if ([string]::IsNullOrWhiteSpace($PathValue)) { return '' }
+    try {
+        $fullPath = [System.IO.Path]::GetFullPath($PathValue)
+        return (Get-NormalizedPathForHash -PathValue $fullPath)
+    }
+    catch {
+        return (Get-NormalizedPathForHash -PathValue $PathValue)
+    }
+}
+
+function Assert-SessionIdentityMatches {
+    param(
+        [Parameter(Mandatory = $true)]$SessionObject,
+        [Parameter(Mandatory = $true)][string] $ExpectedRepo,
+        [Parameter(Mandatory = $true)][string] $ExpectedPlan
+    )
+    $repoProperty = $SessionObject.PSObject.Properties['repo']
+    $planProperty = $SessionObject.PSObject.Properties['plan_path']
+    $storedRepoValue = if ($null -ne $repoProperty) { [string]$repoProperty.Value } else { '' }
+    $storedPlanValue = if ($null -ne $planProperty) { [string]$planProperty.Value } else { '' }
+    $storedRepo = Convert-PersistedIdentityPath -PathValue $storedRepoValue
+    $storedPlan = Convert-PersistedIdentityPath -PathValue $storedPlanValue
+    $repoMatches = $storedRepo.Equals($ExpectedRepo, [System.StringComparison]::OrdinalIgnoreCase)
+    $planMatches = $storedPlan.Equals($ExpectedPlan, [System.StringComparison]::OrdinalIgnoreCase)
+    if (-not $repoMatches -or -not $planMatches) {
+        $details = @{
+            ok = $false
+            error = 'session_identity_mismatch'
+            expected = @{ repo = $ExpectedRepo; plan_path = $ExpectedPlan }
+            persisted = @{ repo = $storedRepo; plan_path = $storedPlan }
+        }
+        Write-JsonResult -Object $details
+        exit $exitUsage
+    }
+}
+
 function Test-HasPlanStepSessionFiles {
     param(
         [Parameter(Mandatory = $true)][string] $RepoSessionsDir,
@@ -269,10 +307,6 @@ $repoHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $repoRes
 $planHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $planResolved)
 
 $repoSessionsDir = Join-Path $sessionsResolved $repoHash
-if (-not (Test-Path -LiteralPath $repoSessionsDir)) {
-    New-Item -ItemType Directory -Path $repoSessionsDir -Force | Out-Null
-}
-
 $sessionPath = Get-DevelopSessionFilePath -RepoSessionsDir $repoSessionsDir -PlanHash $planHash -StepNumber $Step
 $sessionPathPortable = ($sessionPath -replace '\\', '/')
 
@@ -290,6 +324,7 @@ switch ($Action) {
         }
 
         $existing = Read-DevelopSessionObject -Path $sessionPath
+        Assert-SessionIdentityMatches -SessionObject $existing -ExpectedRepo $repoAbsolute -ExpectedPlan $planAbsolute
         $testsRun = $false
         if ($null -ne $existing.gates -and $null -ne $existing.gates.tests_run) {
             $testsRun = [bool]$existing.gates.tests_run
@@ -310,6 +345,7 @@ switch ($Action) {
             exit $exitUsage
         }
         $existing = Read-DevelopSessionObject -Path $sessionPath
+        Assert-SessionIdentityMatches -SessionObject $existing -ExpectedRepo $repoAbsolute -ExpectedPlan $planAbsolute
         if ($null -eq $existing.gates) {
             $existing | Add-Member -NotePropertyName gates -NotePropertyValue ([pscustomobject]@{
                     step_confirmed = $false
@@ -366,6 +402,7 @@ switch ($Action) {
     'ensure' {
         if (Test-Path -LiteralPath $sessionPath) {
             $existing = Read-DevelopSessionObject -Path $sessionPath
+            Assert-SessionIdentityMatches -SessionObject $existing -ExpectedRepo $repoAbsolute -ExpectedPlan $planAbsolute
             if (Test-StepConfirmedTrue -SessionObject $existing) {
                 Write-JsonResult -Object @{
                     ok             = $true
@@ -405,6 +442,9 @@ switch ($Action) {
             exit $exitOk
         }
 
+        if (-not (Test-Path -LiteralPath $repoSessionsDir)) {
+            New-Item -ItemType Directory -Path $repoSessionsDir -Force | Out-Null
+        }
         $created = New-DefaultDevelopSessionObject -RepoAbsolute $repoAbsolute -PlanAbsolute $planAbsolute -StepNumber $Step -CurrentStepValue $CurrentStep
         $created.gates.step_confirmed = $true
         Write-DevelopSessionFile -Path $sessionPath -SessionObject $created
