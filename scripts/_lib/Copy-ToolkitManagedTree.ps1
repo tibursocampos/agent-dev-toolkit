@@ -35,6 +35,19 @@ if (-not (Get-Command -Name Test-IsPathUnderOrEqual -ErrorAction SilentlyContinu
     . (Join-Path $PSScriptRoot 'Resolve-InstallRoot.ps1')
 }
 
+# These values are shared by the copy/publish helpers below. Initialize them
+# when this file is dot-sourced so callers using StrictMode can safely inspect
+# them before the first copy operation.
+if (-not (Get-Variable -Scope Script -Name ToolkitLastManagedCopyPaths -ErrorAction SilentlyContinue)) {
+    $script:ToolkitLastManagedCopyPaths = New-Object System.Collections.Generic.List[string]
+}
+if (-not (Get-Variable -Scope Script -Name ToolkitLastManagedCopyConflicts -ErrorAction SilentlyContinue)) {
+    $script:ToolkitLastManagedCopyConflicts = New-Object System.Collections.Generic.List[string]
+}
+if (-not (Get-Variable -Scope Script -Name ToolkitLastPreservedStaleSkillNames -ErrorAction SilentlyContinue)) {
+    $script:ToolkitLastPreservedStaleSkillNames = @()
+}
+
 function Test-ToolkitManagedRelativeHasParentSegment {
     [CmdletBinding()]
     param(
