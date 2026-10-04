@@ -85,4 +85,6 @@ If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched
 
 One edit covers the `Implementation progress` ledger (status and evidence; keep `Analysis weight`), the step glyph (`☑` when `COMPLETED`), the matching `- [x]` boxes in `REFINE/tasks.md`, the counters, and the checkpoint. Show that ledger and those boxes in chat when the step starts and when it closes (`execution-display.md`). Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
 
+For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before redrawing the complete chat-only stage table and reconciled ledger and before emitting the session report. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
+
 ---

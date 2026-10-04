@@ -13,7 +13,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 | Pacing mode | Parent behavior | Child behavior |
 |-------------|-----------------|----------------|
 | `step_by_step` (default) | **sim** before **each** Task spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
+| `continuous` | After initial queue **sim**, the parent may spawn the next ready step only after receipt validation, PLAN checkpoint/ledger persistence and re-read, complete stage-table redraw, and session report. The parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
 
 ## Compose with execution-modes
 
@@ -28,3 +28,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 - One-step-per-child / per develop session
 - SESSION + PLAN-LEDGER remain SoT
 - No duration/effort estimates (`references/plan-contract.md`)
+
+## Reconciliation gate
+
+The authorization token does not close a step. For every child return, validate the receipt first; persist and re-read the PLAN checkpoint/ledger second; redraw the complete chat-only stage table and reconciled ledger third; emit the session report fourth; evaluate the next spawn last. `continuous` authorization remains valid across eligible steps after this sequence. `step_by_step` requires a fresh confirmation for each spawn. Missing, incomplete, inconsistent, blocked, or failed receipts pause the step and its dependents in either mode.

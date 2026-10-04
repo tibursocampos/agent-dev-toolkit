@@ -48,7 +48,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Mental map (ids unchanged):** O3 ≈ **apply** (implement PLAN steps via `sdd-develop`). O1 ≈ explore; O2 ≈ FEATURE+PRD+CHANGE. See `CHANGE-CONTRACT.md`.
 
-**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Task parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
+**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Task parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
 
 **Living loop / TRACE (REQ-006 / CA5):** at feature-wave close, children (or the final develop child) append `features/NNN-slug/TRACE.jsonl` and run **converge → sync current → archive**, then `validate-trace -RequireArchiveComplete`. Parent must **not** use O3 parallelism as the archive verifier. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
@@ -132,6 +132,10 @@ Parse pending steps; respect Deps; resolve **execution mode** (`serial` default)
 
 ### 5. Spawn exactly one step child (CA5)
 Load `sdd-develop/references/execution-display.md` before the spawn and after the receipt. Before the spawn, call `repo-analyst` and `architect`, plus `database` when the step or PLAN cites persistence. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
+
+After a child returns, the parent follows this observable order exactly: validate the receipt against the PLAN, acceptance, session gates, and claim; persist the PLAN checkpoint/ledger and re-read it; redraw the complete chat-only stage table and the reconciled ledger state; emit the session report; then evaluate the next spawn. The stage table is presentation only; the PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the session report is post-persistence communication; and `CONTINUITY.md` is the parent’s synthesis/path handoff. None substitutes for another.
+
+If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion, redraw success, emit `STEP_COMPLETED`, or spawn the dependent. If `continuous` authorization is valid, it may proceed only after the updated checkpoint/ledger has been re-read, the complete table and report have been published, and the next step is eligible. `step_by_step` still requires confirmation for each spawn.
 
 ### 5.5 Post-implement verifier (opt-in)
 When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.

@@ -28,8 +28,6 @@ features/NNN-slug/
 ├── FEATURE.md                 # Feature overview (Orchestrated Delivery / optional Classic SDD)
 ├── CONTINUITY.md              # Cross-agent / cross-session handoff
 ├── CHANGE.md                  # Brownfield delta vs current (ADDED|MODIFIED|REMOVED); required when Nature=brownfield — see CHANGE-CONTRACT.md
-├── EVD/                       # Post-impl evidence files (evidence-or-zero); see EVD-STATE-CONTRACT.md
-├── STATE.md                   # AC → evidence matrix + evidence level (off|cheap|standard|strict)
 ├── TRACE.jsonl                # Append-only event trail; living loop converge → sync_current → archive (P3); see TRACE-ARCHIVE-CONTRACT.md
 └── USnn/ or TSnn/             # Story folder (nn = 01, 02, …)
     ├── STORY.md               # Refined story + scorecard / deps
@@ -37,6 +35,8 @@ features/NNN-slug/
     ├── ANALYSIS/              # Impact / risk notes (required when needs_api or brownfield)
     ├── ARCH/                  # Architecture notes (required when needs_domain, needs_database, or brownfield)
     ├── SEC/                   # Security notes (required when needs_security)
+    ├── EVD/                   # Story-scoped post-implementation evidence (when level ≥ cheap)
+    ├── STATE.md               # Story-scoped AC → evidence matrix
     ├── PRD/                   # Canonical PRD for this story
     │   └── NNN_short_slug.md
     └── PLAN/
@@ -49,8 +49,8 @@ features/NNN-slug/
 | `slug` | kebab-case feature id |
 | `USnn` / `TSnn` | User story or technical story; zero-padded index |
 | `CHANGE.md` | Feature-root brownfield delta vs **current** (`memory-bank/` living docs). Required when FEATURE Nature is `brownfield`. Greenfield must not force an empty stub. Contract: `CHANGE-CONTRACT.md`. |
-| `EVD/` | Feature-root evidence folder for post-implementation verify. Required when evidence level ≥ `cheap`. Contract: `EVD-STATE-CONTRACT.md`. |
-| `STATE.md` | Feature-root AC → evidence matrix + **Evidence level** (`off` \| `cheap` \| `standard` \| `strict`). Gate via `validate-evidence.ps1`. **Verifier ≠ O3**. |
+| `EVD/` | Story-root evidence folder for post-implementation verify. Required when evidence level ≥ `cheap`. Contract: `EVD-STATE-CONTRACT.md`. Historical feature-root evidence is preserved and not bulk-migrated. |
+| `STATE.md` | Story-root AC → evidence matrix + **Evidence level** (`off` \| `cheap` \| `standard` \| `strict`). Gate via `validate-evidence.ps1`. **Verifier ≠ O3**. |
 | `TRACE.jsonl` | Feature-root append-only JSONL trail. Living loop **converge → sync current → archive** (REQ-006 / CA5). Gate via `validate-trace.ps1` (`-RequireArchiveComplete` at close). Contract: `TRACE-ARCHIVE-CONTRACT.md`. |
 | Story subfolders | `REFINE/` optional / on demand (`tasks.md` when complexity ≥ medium). `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
 

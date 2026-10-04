@@ -1,26 +1,47 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Structural validation for feature EVD/ + STATE.md (REQ-005 / CA4).
+  Structural validation for story EVD/ + STATE.md (REQ-005 / CA4).
 
 .DESCRIPTION
   Deterministic evidence-or-zero checks - no LLM.
   Levels: off | cheap | standard | strict.
 
-.PARAMETER FeatureRoot
-  Absolute or relative path to features/NNN-slug/.
+.PARAMETER StoryRoot
+  Absolute or relative path to features/NNN-slug/USnn or TSnn/.
+
+.PARAMETER PlanPath
+  Explicit PLAN path from which the story root is derived.
+
+.PARAMETER StoryPath
+  Explicit STORY.md path from which the story root is derived.
+
+.PARAMETER RepoPath
+  Repository root used for canonical path containment (defaults to the current directory).
 
 .PARAMETER Level
   Optional override. When omitted, reads Evidence level from STATE.md
   (defaults to cheap if STATE is missing and a gate is evaluated).
 
 .EXAMPLE
-  .\scripts\validation\validate-evidence.ps1 -FeatureRoot features\005-x -Level cheap
+  .\scripts\validation\validate-evidence.ps1 -StoryRoot features\005-x\US01 -Level cheap
+
+.EXAMPLE
+  .\scripts\validation\validate-evidence.ps1 -PlanPath features\005-x\TS02\PLAN\PLAN_005_x.md -Level cheap
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)]
-    [string] $FeatureRoot,
+    [Parameter(Mandatory = $false)]
+    [string] $StoryRoot,
+
+    [Parameter(Mandatory = $false)]
+    [string] $PlanPath,
+
+    [Parameter(Mandatory = $false)]
+    [string] $StoryPath,
+
+    [Parameter(Mandatory = $false)]
+    [string] $RepoPath = '',
 
     [Parameter(Mandatory = $false)]
     [ValidateSet('off', 'cheap', 'standard', 'strict')]
@@ -49,13 +70,84 @@ function Write-ValidatePass {
     Write-Host ("validate-evidence: PASS - {0}" -f $Message) -ForegroundColor Green
 }
 
-function Resolve-FeatureRootPath {
+function Test-PathUnder {
+    param(
+        [Parameter(Mandatory = $true)][string] $ChildPath,
+        [Parameter(Mandatory = $true)][string] $ParentPath
+    )
+    $child = [System.IO.Path]::GetFullPath($ChildPath).TrimEnd('\', '/')
+    $parent = [System.IO.Path]::GetFullPath($ParentPath).TrimEnd('\', '/')
+    return $child.StartsWith($parent + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase) -or
+        $child.Equals($parent, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
+function Resolve-InputPath {
     param([Parameter(Mandatory = $true)][string] $Path)
-    $resolved = $Path
-    if (-not [System.IO.Path]::IsPathRooted($resolved)) {
-        $resolved = Join-Path (Get-Location).Path $Path
+    if ($Path -match '(^|[\\/])\.\.([\\/]|$)') {
+        throw 'path traversal is not allowed'
     }
-    return $resolved
+    $candidate = $Path
+    if (-not [System.IO.Path]::IsPathRooted($candidate)) {
+        $candidate = Join-Path (Get-Location).Path $candidate
+    }
+    if (-not (Test-Path -LiteralPath $candidate)) {
+        throw ("path not found: {0}" -f $Path)
+    }
+    return (Resolve-Path -LiteralPath $candidate -ErrorAction Stop).Path
+}
+
+function Resolve-StoryRootPath {
+    $inputs = @(
+        @(
+            [PSCustomObject]@{ Name = 'StoryRoot'; Value = $StoryRoot },
+            [PSCustomObject]@{ Name = 'PlanPath'; Value = $PlanPath },
+            [PSCustomObject]@{ Name = 'StoryPath'; Value = $StoryPath }
+        ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_.Value) }
+    )
+    if ($inputs.Count -ne 1) {
+        throw 'provide exactly one of -StoryRoot, -PlanPath, or -StoryPath'
+    }
+
+    $repoCandidate = if ([string]::IsNullOrWhiteSpace($RepoPath)) { (Get-Location).Path } else { $RepoPath }
+    $repoRoot = (Resolve-Path -LiteralPath $repoCandidate -ErrorAction Stop).Path
+    $featuresRoot = Join-Path $repoRoot 'features'
+    $inputPath = Resolve-InputPath -Path $inputs[0].Value
+    $candidate = $inputPath
+
+    if ($inputs[0].Name -eq 'PlanPath') {
+        if ((Get-Item -LiteralPath $inputPath).PSIsContainer -or $inputPath -notmatch '(?i)[\\/]PLAN[\\/]PLAN_[^\\/]+\.md$') {
+            throw 'PlanPath must be a PLAN_*.md file under a story PLAN directory'
+        }
+        $candidate = Split-Path -Parent (Split-Path -Parent $inputPath)
+    }
+    elseif ($inputs[0].Name -eq 'StoryPath') {
+        if ((Get-Item -LiteralPath $inputPath).PSIsContainer -or (Split-Path -Leaf $inputPath) -ne 'STORY.md') {
+            throw 'StoryPath must point to STORY.md'
+        }
+        $candidate = Split-Path -Parent $inputPath
+    }
+    elseif (-not (Get-Item -LiteralPath $inputPath).PSIsContainer) {
+        throw 'StoryRoot must be a directory'
+    }
+
+    $storyRoot = (Resolve-Path -LiteralPath $candidate -ErrorAction Stop).Path
+    if (-not (Test-PathUnder -ChildPath $storyRoot -ParentPath $featuresRoot)) {
+        throw 'story root must remain under the repository features directory'
+    }
+
+    $relative = $storyRoot.Substring($repoRoot.Length).TrimStart('\', '/') -replace '\\', '/'
+    if ($relative -notmatch '^features/\d{3}-[^/]+/(US|TS)\d{2}$') {
+        throw 'story root must match features/NNN-slug/USnn or features/NNN-slug/TSnn'
+    }
+
+    $storyItem = Get-Item -LiteralPath $storyRoot
+    if (($storyItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw 'story root symlink/reparse point is not allowed'
+    }
+    return [PSCustomObject]@{
+        Root = $storyRoot
+        Relative = $relative
+    }
 }
 
 function Get-EvidenceLevelFromState {
@@ -140,20 +232,31 @@ function Get-MatrixRows {
 
 function Test-NonEmptyEvidenceFile {
     param(
-        [Parameter(Mandatory = $true)][string] $FeatureRootPath,
+        [Parameter(Mandatory = $true)][string] $StoryRootPath,
+        [Parameter(Mandatory = $true)][string] $StoryRelativePath,
         [Parameter(Mandatory = $true)][string] $EvidencePath
     )
     if ([string]::IsNullOrWhiteSpace($EvidencePath)) {
         return $false
     }
     $normalized = $EvidencePath -replace '\\', '/'
-    $normalized = $normalized -replace '^features/[^/]+/', ''
-    if ($normalized -notmatch '(?i)^EVD/') {
-        if ($normalized -notmatch '(?i)^EVD\b') {
-            $normalized = ('EVD/{0}' -f ($normalized.TrimStart('/')))
-        }
+    if ([System.IO.Path]::IsPathRooted($EvidencePath) -or $normalized -match '(^|/)\.\.(/|$)') {
+        return $false
     }
-    $full = Join-Path $FeatureRootPath ($normalized -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if ($normalized -match '(?i)^features/\d{3}-[^/]+/(US|TS)\d{2}/(EVD/.+)$') {
+        if ($normalized -notmatch ('(?i)^' + [regex]::Escape($StoryRelativePath) + '/')) {
+            return $false
+        }
+        $normalized = $Matches[2]
+    }
+    elseif ($normalized -notmatch '(?i)^EVD/') {
+        return $false
+    }
+    $full = Join-Path $StoryRootPath ($normalized -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $evdRoot = Join-Path $StoryRootPath 'EVD'
+    if (-not (Test-PathUnder -ChildPath $full -ParentPath $evdRoot)) {
+        return $false
+    }
     if (-not (Test-Path -LiteralPath $full)) {
         return $false
     }
@@ -168,11 +271,14 @@ function Test-NonEmptyEvidenceFile {
     return -not [string]::IsNullOrWhiteSpace($text)
 }
 
-$resolvedRoot = Resolve-FeatureRootPath -Path $FeatureRoot
-if (-not (Test-Path -LiteralPath $resolvedRoot)) {
-    Write-ValidateFail -Message ("feature root not found: {0}" -f $FeatureRoot)
+try {
+    $story = Resolve-StoryRootPath
+}
+catch {
+    Write-ValidateFail -Message $_.Exception.Message
     exit 1
 }
+$resolvedRoot = $story.Root
 
 $statePath = Join-Path $resolvedRoot $script:ToolkitConstant.SddArtifactStateFileName
 $evdDir = Join-Path $resolvedRoot $script:ToolkitConstant.SddArtifactEvdDirectoryName
@@ -239,7 +345,7 @@ if ($matrixRows.Count -eq 0) {
 
 $nonEmptyCount = 0
 foreach ($row in $matrixRows) {
-    if (Test-NonEmptyEvidenceFile -FeatureRootPath $resolvedRoot -EvidencePath $row.Evidence) {
+    if (Test-NonEmptyEvidenceFile -StoryRootPath $resolvedRoot -StoryRelativePath $story.Relative -EvidencePath $row.Evidence) {
         $nonEmptyCount++
     }
 }
@@ -251,7 +357,7 @@ if ($nonEmptyCount -eq 0) {
 
 if ($effectiveLevel -eq 'standard' -or $effectiveLevel -eq 'strict') {
     foreach ($row in $matrixRows) {
-        if (-not (Test-NonEmptyEvidenceFile -FeatureRootPath $resolvedRoot -EvidencePath $row.Evidence)) {
+        if (-not (Test-NonEmptyEvidenceFile -StoryRootPath $resolvedRoot -StoryRelativePath $story.Relative -EvidencePath $row.Evidence)) {
             [void]$failures.Add(("standard/strict: missing or empty evidence for AC '{0}' path '{1}'" -f $row.Ac, $row.Evidence))
         }
     }

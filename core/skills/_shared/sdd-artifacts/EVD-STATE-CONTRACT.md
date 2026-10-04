@@ -10,12 +10,23 @@ Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `SELECTIVE-RETR
 
 ## Purpose (REQ-005 / CA4)
 
-After implementation, verification records evidence under the feature root:
+After implementation, verification records evidence under the story root:
 
 ```text
-features/NNN-slug/EVD/          # evidence files (smoke notes, command outputs, links)
-features/NNN-slug/STATE.md      # AC → evidence matrix + evidence level
+features/NNN-slug/{USnn|TSnn}/EVD/     # evidence files (smoke notes, command outputs, links)
+features/NNN-slug/{USnn|TSnn}/STATE.md # AC → evidence matrix + evidence level
 ```
+
+`StoryRoot` is the canonical resolved root. The validator accepts an explicit
+story root or derives it only from an explicit `PlanPath`, `StoryPath`, or a
+uniquely shaped `USnn`/`TSnn` input. Feature-root fallback, ambiguous
+derivation, traversal, absolute-path escapes, symlink/reparse escapes, and
+roots without a story segment are rejected. TRACE/CHANGE remain feature-scoped,
+and historical feature-root evidence under older features is not bulk-migrated.
+
+Narrative prose in `STATE.md` and `EVD/*` follows the FEATURE/STORY
+content-language (pt-BR for this story); identifiers, field names, result
+tokens, and paths remain English.
 
 Policy name: **evidence-or-zero**.
 
@@ -47,7 +58,7 @@ Required when level ≥ `cheap`:
 Template stub: `skills/_shared/templates/features/EVD/README.md`.
 
 - Store short, named evidence files (e.g. `EVD/ca1-validate-smoke.md`)
-- Cite portable paths only (`features/NNN-slug/EVD/...`)
+- Cite portable paths only (`features/NNN-slug/{USnn|TSnn}/EVD/...`)
 - Do **not** dump full PRD / full `memory-bank/` (`SR-NO-FULL-DUMP`)
 
 ## Verifier ≠ O3 parallelism
@@ -65,7 +76,9 @@ O3 may still parallelize **implementation** of **disjoint PLAN steps** when the 
 ## Structural validate
 
 ```text
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot <features/NNN-slug> [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot <features/NNN-slug/TSnn> [-Level cheap]
+# Or derive the story root from an explicit plan/story file:
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -PlanPath <features/NNN-slug/TSnn/PLAN/PLAN_*.md> [-Level cheap]
 ```
 
 If `-Level` is omitted, the script reads **Evidence level** from `STATE.md` (default `cheap` when STATE is missing and a level is required).

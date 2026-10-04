@@ -180,6 +180,7 @@ finally {
 }
 
 $smokeRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateTraceFixtureArchiveSmokeRelativeDir
+$smokeStoryRoot = Join-Path $smokeRoot 'features/000-fixture-trace-archive/TS01'
 $changePath = Join-Path $smokeRoot 'CHANGE.md'
 if (-not (Test-Path -LiteralPath $changePath)) {
     Write-Fail -TestName 'Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard' -Reason 'archive-smoke missing CHANGE.md'
@@ -188,11 +189,11 @@ $changeResult = Invoke-Validator -ScriptPath $validateChangePath -Arguments @{ P
 if ($changeResult.ExitCode -ne 0) {
     Write-Fail -TestName 'Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard' -Reason ("validate-change failed: {0}" -f $changeResult.Output.Trim())
 }
-$cheapResult = Invoke-Validator -ScriptPath $validateEvidencePath -Arguments @{ FeatureRoot = $smokeRoot; Level = 'cheap' }
+$cheapResult = Invoke-Validator -ScriptPath $validateEvidencePath -Arguments @{ StoryRoot = $smokeStoryRoot; RepoPath = $smokeRoot; Level = 'cheap' }
 if ($cheapResult.ExitCode -ne 0) {
     Write-Fail -TestName 'Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard' -Reason ("validate-evidence cheap failed: {0}" -f $cheapResult.Output.Trim())
 }
-$standardResult = Invoke-Validator -ScriptPath $validateEvidencePath -Arguments @{ FeatureRoot = $smokeRoot; Level = 'standard' }
+$standardResult = Invoke-Validator -ScriptPath $validateEvidencePath -Arguments @{ StoryRoot = $smokeStoryRoot; RepoPath = $smokeRoot; Level = 'standard' }
 if ($standardResult.ExitCode -ne 0) {
     Write-Fail -TestName 'Should_Pass_When_ArchiveSmoke_BrownfieldChange_CheapToStandard' -Reason ("validate-evidence standard failed: {0}" -f $standardResult.Output.Trim())
 }

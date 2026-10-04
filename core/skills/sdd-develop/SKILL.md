@@ -174,12 +174,12 @@ Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-p
 
 Read `references/evidence-or-zero.md`. When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
 
-1. Create/update `features/NNN-slug/EVD/` and `features/NNN-slug/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`; detail: `references/evidence-or-zero.md`).
+1. Create/update `features/NNN-slug/{USnn|TSnn}/EVD/` and `features/NNN-slug/{USnn|TSnn}/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`; detail: `references/evidence-or-zero.md`).
 2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
 3. Run structural gate (deterministic — never LLM-as-validator):
 
 ```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot <features/NNN-slug> [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot <features/NNN-slug/{USnn|TSnn}> [-Level cheap]
 ```
 
 Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
