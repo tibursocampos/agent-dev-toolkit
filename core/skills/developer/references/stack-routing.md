@@ -12,6 +12,10 @@
    | `package.json` with `react-native` or `expo` | `react-native-developer` |
    | `package.json` with `react` | `react-developer` |
    | `package.json` with `@angular/core` or `angular` | `angular-developer` |
+   | Native ESP-IDF signals such as `idf_component.yml`, `idf_component_register`, ESP-IDF CMake structure, `sdkconfig`, or project `idf.py` scripts | ESP-IDF workflow; do not route by ESP32/ESP8266 board name |
+   | Explicit Arduino Core/framework evidence with Arduino project metadata or dependency/version declaration | `arduino-developer` |
+   | `platformio.ini` or equivalent with an environment explicitly declaring `framework = arduino` | `arduino-developer` (PlatformIO is conditional, not the default) |
+   | `.ino` or board-family name without Arduino Core/framework and toolchain evidence | Request framework/core/version/toolchain evidence; do not infer Arduino or ESP-IDF |
    | `package.json` (Node.js, no framework above) | `javascript-developer` |
    | `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
    | `pom.xml`, `build.gradle`, `build.gradle.kts`, or `settings.gradle` | `java-developer` |
@@ -19,7 +23,7 @@
 
 2. **Invoke the specialized skill (if match found)**:
    - Silently read the `SKILL.md` of the matched stack under `{{TOOLKIT_ROOT}}/skills/`:
-     - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, or `python-developer`
+     - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, `python-developer`, or `arduino-developer`
    - Assume the identity and instructions of that skill immediately.
    - Do **not** ask the user for confirmation to switch skills.
 

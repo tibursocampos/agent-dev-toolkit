@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **41** kebab skills.
+Total: **43** kebab skills.
 
 ## Tracks
 
@@ -53,6 +53,7 @@ Total: **41** kebab skills.
 | `react-developer` | `react-developer` | Small/medium React |
 | `react-native-developer` | `react-native-developer` | React Native / Expo |
 | `angular-developer` | `angular-developer` | Angular |
+| `arduino-developer` | `arduino-developer` | Arduino sketches, libraries, and Arduino Core projects |
 | `vue-developer` | `vue-developer` | Vue 3 |
 | `blazor-developer` | `blazor-developer` | Blazor (WASM/Server/Hybrid) |
 | `electron-developer` | `electron-developer` | Electron desktop |

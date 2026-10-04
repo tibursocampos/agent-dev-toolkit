@@ -14,9 +14,13 @@ Orchestrators and specialists **do not** reimplement stack work. Point implement
 | Node / plain JS | `/javascript-developer` |
 | Java / `pom.xml` / Gradle | `/java-developer` |
 | Python | `/python-developer` |
+| Explicit Arduino Core/framework evidence, Arduino metadata, or configured `framework = arduino` | `/arduino-developer` |
+| `.ino` or board-family name without Arduino Core/framework/toolchain evidence | `/developer` (request framework/core/version/toolchain evidence; do not infer by board name) |
 | Mixed / unclear | `/developer` (router) |
 | UI shape / audit first | `/impeccable` -> DESIGN-BRIEF -> stack skill |
 | Blip plugin scaffold | `/blip-plugin-developer` |
+
+The Arduino route is evidence-based. Native ESP-IDF remains governed by its existing native workflow boundary, and MicroPython remains outside this route; neither boundary is inferred from an ESP board name. CPython host code and tests remain on `/python-developer`.
 
 **Subagent-first (after route):** `*-developer` skills follow `_shared/developer-common/subagent-first.md` and `_shared/agents/SPAWN.md` (capability `subagents`; trivial **in-parent**; medium/complex ≤2 children or **fallback**).
 
