@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**43 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**45 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**43** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**45** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -113,7 +113,9 @@ If the invoke omits a mode, the skill asks once and loads **only** the chosen pl
 | `vue-developer` | Vue 3 without full SDD |
 | `blazor-developer` | Blazor (WASM/Server/Hybrid) without full SDD |
 | `electron-developer` | Electron desktop without full SDD |
+| `esp-idf-developer` | Native ESP-IDF C/C++ firmware without full SDD |
 | `javascript-developer` | JavaScript/Node without full SDD |
+| `micropython-developer` | MicroPython device firmware for identified ESP32/ESP8266 targets without full SDD |
 | `python-developer` | Python without full SDD |
 
 ## Blip plugins and design

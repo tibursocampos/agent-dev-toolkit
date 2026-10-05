@@ -12,18 +12,25 @@
    | `package.json` with `react-native` or `expo` | `react-native-developer` |
    | `package.json` with `react` | `react-developer` |
    | `package.json` with `@angular/core` or `angular` | `angular-developer` |
-   | Native ESP-IDF signals such as `idf_component.yml`, `idf_component_register`, ESP-IDF CMake structure, `sdkconfig`, or project `idf.py` scripts | ESP-IDF workflow; do not route by ESP32/ESP8266 board name |
-   | Explicit Arduino Core/framework evidence with Arduino project metadata or dependency/version declaration | `arduino-developer` |
+   | Native ESP-IDF signals such as `idf_component.yml`, a Component Manager lockfile, `idf_component_register`, ESP-IDF CMake structure, `sdkconfig`/`sdkconfig.defaults`, or project `idf.py` scripts | `esp-idf-developer`; preserve the observed CMake/`idf.py`, resolved dependencies, defaults, and local configuration |
+   | Explicit Arduino Core/framework evidence with Arduino project metadata or dependency/version declaration | `arduino-developer`; do not treat Arduino compatibility or an ESP32 board name as native ESP-IDF evidence |
    | `platformio.ini` or equivalent with an environment explicitly declaring `framework = arduino` | `arduino-developer` (PlatformIO is conditional, not the default) |
-   | `.ino` or board-family name without Arduino Core/framework and toolchain evidence | Request framework/core/version/toolchain evidence; do not infer Arduino or ESP-IDF |
+   | Declared MicroPython runtime, firmware image workflow, or project runtime files with runtime/target/port evidence | `micropython-developer`; keep device APIs and deployment scoped to the identified MicroPython configuration |
+   | `.ino`, `main.py`, or board-family name without framework/runtime and toolchain evidence | Request framework/core/runtime/version/toolchain evidence; do not infer Arduino, ESP-IDF, or MicroPython |
    | `package.json` (Node.js, no framework above) | `javascript-developer` |
    | `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
    | `pom.xml`, `build.gradle`, `build.gradle.kts`, or `settings.gradle` | `java-developer` |
-   | `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
+   | CPython host tooling/tests, `.py`, `requirements.txt`, or `pyproject.toml` with host-runtime evidence | `python-developer`; do not add device APIs or flashing guidance |
+
+   | C/C++ or Python host tooling/tests that exercise firmware without embedded project evidence | Route by the host language (`python-developer` for CPython); do not infer an embedded firmware framework |
+
+   | Python source without runtime/target/port evidence where APIs or deployment could differ | Ask for runtime, target, and port evidence before choosing a device workflow; `.py` alone is not MicroPython evidence |
+
+   Target and ESP-IDF version are separate evidence fields. A framework match does not establish either one: derive them from project declarations, configuration, build output, dependency metadata, lockfiles, or observed tool output; otherwise state the uncertainty and ask before version-sensitive guidance. Preserve `idf_component.yml`, lockfiles, `sdkconfig.defaults`, generated/local configuration, and existing resolved versions until a reviewed change is requested.
 
 2. **Invoke the specialized skill (if match found)**:
    - Silently read the `SKILL.md` of the matched stack under `{{TOOLKIT_ROOT}}/skills/`:
-     - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, `python-developer`, or `arduino-developer`
+     - `blip-plugin-developer`, `blazor-developer`, `electron-developer`, `vue-developer`, `react-native-developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `javascript-developer`, `python-developer`, `micropython-developer`, `arduino-developer`, or `esp-idf-developer`
    - Assume the identity and instructions of that skill immediately.
    - Do **not** ask the user for confirmation to switch skills.
 

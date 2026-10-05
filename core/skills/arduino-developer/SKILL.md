@@ -57,6 +57,8 @@ A configuration-aware implementation or diagnosis for the declared Arduino targe
 
 Do not preload unrelated stack packs or the whole memory bank. Load only the embedded topic needed for the current claim.
 
+**Never by default:** do not preload all `references/*.md`, unrelated embedded or stack guideline packs, or target-specific hardware documentation. Load only the reference needed for the current claim after the board, core, version, tooling, and validation boundary are identified.
+
 ## Process
 
 ### Step -1b - Caveman Mode (Full cap)
