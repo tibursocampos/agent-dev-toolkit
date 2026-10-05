@@ -188,12 +188,18 @@ function Get-CopilotVersionedSeedCopyScript {
         [Parameter(Mandatory = $true)][string] $RepoRoot
     )
 
+    $assertContainedPath = ${function:Assert-EphemeralSmokeContainedPath}.GetNewClosure()
     $assertSeedWrite = ${function:Assert-EphemeralSmokeSeedWrite}.GetNewClosure()
     return {
         param(
             [Parameter(Mandatory = $true)][string] $SeedFixtureRoot,
             [Parameter(Mandatory = $true)][string] $WorkInstallRoot
         )
+
+        # Captured scriptblocks do not inherit sibling functions reliably on
+        # PowerShell 7/Linux. Rebind the contained-path guard in this scope
+        # before invoking the captured seed-write guard.
+        Set-Item -Path Function:\Assert-EphemeralSmokeContainedPath -Value $assertContainedPath
 
         # Use an explicit recursive pathspec. A directory path happens to be
         # recursive in Git's normal pathspec mode, but that behavior is easy to
