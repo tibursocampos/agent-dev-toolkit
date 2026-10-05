@@ -213,7 +213,8 @@ function Get-ToolkitCanonicalPathForGuard {
     if (-not (Test-ToolkitIsWindows)) {
         try {
             $probeItem = Get-Item -LiteralPath $probe -Force -ErrorAction Stop
-            if (($probeItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            if (($probeItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 -or
+                -not [string]::IsNullOrWhiteSpace([string]$probeItem.LinkType)) {
                 return $null
             }
         }

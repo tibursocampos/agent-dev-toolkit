@@ -372,7 +372,7 @@ try {
                 -ProbeInstallRoot $sampleProbe `
                 -MarkerRelativePath $sample.MarkerRelativePath `
                 -SyncAgentPath $syncAgentScript `
-                -Mode $sample.Mode
+                -Mode $(if ($sample.PSObject.Properties.Name -contains 'Mode') { $sample.Mode } else { $null })
         }
         finally {
             Remove-ProbeDirectoryIfPresent -Path $sampleProbe

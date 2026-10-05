@@ -61,8 +61,9 @@ if (Test-Path -LiteralPath $fixtureRoot) {
 $null = New-Item -ItemType Directory -Path $fixtureRoot -Force
 
 $reparseTarget = Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-copilot-reparse-target'
-$reparseLink = Join-Path $fixtureRoot 'src\linked'
+$reparseLink = Join-Path (Join-Path $fixtureRoot 'src') 'linked'
 $null = New-Item -ItemType Directory -Path $reparseTarget -Force
+$null = New-Item -ItemType Directory -Path (Split-Path -Parent $reparseLink) -Force
 $reparseItemType = if ($env:OS -eq 'Windows_NT') { 'Junction' } else { 'SymbolicLink' }
 $null = New-Item -ItemType $reparseItemType -Path $reparseLink -Target $reparseTarget
 $reparsePayload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $reparseLink 'escape.cs'); content = 'class X {}' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }
