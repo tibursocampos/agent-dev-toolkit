@@ -188,6 +188,7 @@ function Get-CopilotVersionedSeedCopyScript {
         [Parameter(Mandatory = $true)][string] $RepoRoot
     )
 
+    $assertSeedWrite = ${function:Assert-EphemeralSmokeSeedWrite}.GetNewClosure()
     return {
         param(
             [Parameter(Mandatory = $true)][string] $SeedFixtureRoot,
@@ -222,13 +223,13 @@ function Get-CopilotVersionedSeedCopyScript {
             }
             $destinationPath = Join-Path $WorkInstallRoot $relative
             $destinationDirectory = Split-Path -Parent $destinationPath
-            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
+            & $assertSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
             if (-not (Test-Path -LiteralPath $destinationDirectory)) {
                 $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $WorkInstallRoot -Role 'work root' -AllowCanonicalPath
                 $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $destinationDirectory -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
                 New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
             }
-            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
+            & $assertSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
             Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force
         }
     }.GetNewClosure()
