@@ -559,6 +559,16 @@ if ($wrapperCount -ne 6) {
     Write-Fail -TestName $telemetryName -Reason ("workflow must wrap all six validation entry points with finally-backed telemetry; found {0}" -f $wrapperCount)
 }
 
+$invalidRunnerTempEnvCount = @([regex]::Matches($workflowText, '(?m)^\s*VALIDATION_RESULTS_PATH:\s*\$\{\{\s*runner\.temp')).Count
+if ($invalidRunnerTempEnvCount -ne 0) {
+    Write-Fail -TestName $telemetryName -Reason 'VALIDATION_RESULTS_PATH must not use runner.temp in job-level env'
+}
+
+$runtimeTelemetryPathCount = @([regex]::Matches($workflowText, 'Join-Path \$env:RUNNER_TEMP ''validation-results\.jsonl''')).Count
+if ($runtimeTelemetryPathCount -ne 6) {
+    Write-Fail -TestName $telemetryName -Reason ("workflow must initialize six per-run telemetry paths from RUNNER_TEMP; found {0}" -f $runtimeTelemetryPathCount)
+}
+
 if ($workflowJobs['ci-ok'] -notmatch '(?m)^\s*if:\s*always\(\)\s*$') {
     Write-Fail -TestName $telemetryName -Reason 'ci-ok must use if: always() so it can evaluate failed or skipped dependencies'
 }

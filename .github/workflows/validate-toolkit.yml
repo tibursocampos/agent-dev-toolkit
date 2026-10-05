@@ -11,7 +11,6 @@ jobs:
   validate:
     runs-on: windows-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: validate-windows
     steps:
       - name: Checkout
@@ -21,6 +20,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
@@ -76,7 +77,6 @@ jobs:
     needs: validate
     runs-on: windows-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: validate-windows-keyed-uninstall-${{ matrix.adapter }}
     strategy:
       fail-fast: false
@@ -101,6 +101,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: Run keyed uninstall assert
@@ -142,7 +144,6 @@ jobs:
     needs: validate
     runs-on: windows-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: validate-windows-adapter-smoke-${{ matrix.adapter }}
     strategy:
       fail-fast: false
@@ -167,6 +168,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: Run adapter smoke
@@ -206,7 +209,6 @@ jobs:
   validate-ubuntu:
     runs-on: ubuntu-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: validate-ubuntu
     steps:
       - name: Checkout
@@ -216,6 +218,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: Run validate-core
@@ -254,7 +258,6 @@ jobs:
     needs: validate-ubuntu
     runs-on: ubuntu-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: validate-ubuntu-adapter-smoke-${{ matrix.adapter }}
     strategy:
       fail-fast: false
@@ -279,6 +282,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: Run adapter smoke
@@ -349,7 +354,6 @@ jobs:
       - docs-strict
     runs-on: ubuntu-latest
     env:
-      VALIDATION_RESULTS_PATH: ${{ runner.temp }}/validation-results.jsonl
       VALIDATION_JOB_NAME: ci-ok
     steps:
       - name: Checkout
@@ -359,6 +363,8 @@ jobs:
       - name: Start validation telemetry
         shell: pwsh
         run: |
+          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
+          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: All validate jobs green
