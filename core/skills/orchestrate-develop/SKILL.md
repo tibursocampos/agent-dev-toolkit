@@ -34,7 +34,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Outcome
 
-1. Pending PLAN step(s) executed via Task children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / session); when `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
+1. Pending PLAN step(s) executed via Task children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
 3. Handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted) and/or next step / next story
 
@@ -133,7 +133,7 @@ Parse pending steps; respect Deps; resolve **execution mode** (`serial` default)
 ### 5. Spawn exactly one step child (CA5)
 Load `sdd-develop/references/execution-display.md` before the spawn and after the receipt. Before the spawn, call `repo-analyst` and `architect`, plus `database` when the step or PLAN cites persistence. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
 
-After a child returns, the parent follows this observable order exactly: validate the receipt against the PLAN, acceptance, session gates, and claim; persist the PLAN checkpoint/ledger and re-read it; redraw the complete chat-only stage table and the reconciled ledger state; emit the session report; then evaluate the next spawn. The stage table is presentation only; the PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the session report is post-persistence communication; and `CONTINUITY.md` is the parent’s synthesis/path handoff. None substitutes for another.
+Each child invocation is closed after its single PLAN step returns. The parent must not follow up, reopen, resume, or reuse that invocation, even for a correction or completion; remaining work uses a fresh invocation with a bounded handoff. After a child returns, the parent follows this observable order exactly: validate the receipt against the PLAN, acceptance, session gates, and claim; persist the PLAN checkpoint/ledger and re-read it; redraw the complete chat-only stage table and the reconciled ledger state; emit the session report; then evaluate the next spawn. The stage table is presentation only; the PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the session report is post-persistence communication; and `CONTINUITY.md` is the parent’s synthesis/path handoff. None substitutes for another.
 
 If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion, redraw success, emit `STEP_COMPLETED`, or spawn the dependent. If `continuous` authorization is valid, it may proceed only after the updated checkpoint/ledger has been re-read, the complete table and report have been published, and the next step is eligible. `step_by_step` still requires confirmation for each spawn.
 
@@ -153,7 +153,7 @@ Update phase / Memory-bank / estado / handoff at each milestone. Read `reference
 When a child changed app files: confirm → `refresh-light` → CONTINUITY `refreshed` (or skip). Read `references/continuity-handoff.md` § Process — Step N refresh-light and `references/preconditions.md` § Step N - refresh-light.
 
 ### 10. Handoff
-At scope close, in order: `code-review`, `run-tests`, `security`, then ask `/commit`, then ask `/push` separately. Read `references/continuity-handoff.md` § Handoff copy.
+At scope close, use this required order: `run-tests` -> `code-review` -> `run-tests` after review changes (or record that no changes required a rerun) -> the `security` role/prompt review of the diff -> ask `/commit` -> ask `/push` separately. Read `references/continuity-handoff.md` § Handoff copy. The security handoff is role-based (`{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`); use the host’s documented spawn mechanism when available, otherwise perform the bounded fallback in-parent. Do not claim a `/security` command or host capability that is not present.
 
 ## Anti-bypass checklist (must enforce)
 
@@ -168,7 +168,7 @@ Enforce the full list in `references/must-not.md`. Critical always-on: no parent
 | Situation | Next |
 |-----------|------|
 | Next PLAN step | New chat -> `orchestrate-develop` **or** `sdd-develop - <plan> - Step N` |
-| Story/feature done | `code-review`, then `run-tests`, then `security`, then `/commit`, then `/push` (`references/continuity-handoff.md`) |
+| Story/feature done | `run-tests`, then `code-review`, then `run-tests` after review changes, then the security role/prompt review, then `/commit`, then `/push` (`references/continuity-handoff.md`) |
 | Missing PLAN | `orchestrate-deliver` / `sdd-plan` |
 | Prefer no orchestrator | Manual `sdd-develop` only |
 

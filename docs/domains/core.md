@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 42 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 45 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -152,7 +152,7 @@ Inside those skills, contracts add gates/artifacts:
 | REQ + AC | PRD/PLAN templates | Stable IDs; PLAN covers REQ |
 | Structural validate | `validate-prd` / `validate-plan` (+ CHANGE/EVD/TRACE validators) | Deterministic exit codes; not LLM-as-validator |
 | CHANGE | `features/NNN-slug/CHANGE.md` | Brownfield delta vs current |
-| EVD + STATE | `features/NNN-slug/EVD/`, `STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`) |
+| EVD + STATE | `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`); feature-root `EVD/` and `STATE.md` paths are legacy compatibility only |
 | TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync (see below) |
 | PLAN-LEDGER | `PLAN-LEDGER-CONTRACT.md` | Atomic O3 step claim (see below) |
 | Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
@@ -219,7 +219,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **42**).
+Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **45**).
 
 | Concern | Behavior |
 |---------|----------|

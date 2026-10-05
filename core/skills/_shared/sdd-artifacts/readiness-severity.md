@@ -20,14 +20,14 @@ Canonical severity identifiers (English tokens only):
 |----|---------|---------------|
 | **B** (Blocker) | Ambiguity that would make wrong PRD/PLAN/impl likely | **Yes** |
 | **I** (Important) | Material gap; next stage unsafe without an answer | **Yes** |
-| **MINOR** | Nice-to-clarify; may proceed with a recorded assumption | **No** |
+| **MINOR** | Clarification still needed, but lower impact | **Yes** |
 
 Canonical status tokens:
 
 | Token | Meaning |
 |-------|---------|
-| **READY** | No open **B** or **I**. **MINOR** may remain listed. |
-| **NEEDS_CLARIFICATION** | One or more open **B** or **I** at a gate boundary. |
+| **READY** | No unanswered **B**, **I**, or **MINOR** questions. |
+| **NEEDS_CLARIFICATION** | One or more unanswered **B**, **I**, or **MINOR** questions at a gate boundary. |
 
 Do **not** invent alternate status ids that collapse READY vs NEEDS (e.g. “mostly ready”).
 
@@ -55,15 +55,21 @@ Readiness **READY** ≠ PLAN step Completed. Do **not** overload PLAN step statu
 
 ## STOP / NEEDS_CLARIFICATION (REQ-005 / TE01 / `RDY-STOP-O2`)
 
-At an O2 Write boundary (PRD/PLAN) or refine equivalent (fake-forward “approved for PRD” while B/I remain):
+At an O2 Write boundary (PRD/PLAN) or refine equivalent (fake-forward “approved for PRD” while B/I/MINOR remain):
 
-The paragraph above is the **global** READY rule. It does **not** change the severity table. At the four gates in § Open-question gate, an unanswered question blocks the write, including `MINOR`. Stop code: `open_question`. The B/I-only handoff applies only outside those four gates.
+The global READY rule applies at every readiness boundary: any unanswered **B**, **I**, or **MINOR** question blocks the next artifact. Stop code: `open_question`.
 
 1. **STOP** Write of PRD/PLAN (and do not claim backlog/PRD readiness).
 2. Emit typed handoff: status **`NEEDS_CLARIFICATION`** + **portable** artifact paths (`STORAGE.md` § Portable path) + short severity list (few sharp questions — align `clarify-depth.md`).
 3. Route to `refine-story` and/or O1 light — **not** a new Supply `clarify` skill clone.
 
 Presence STOP (missing `ANALYSIS/` / `ARCH/` / `SEC/` when `needs_*` / brownfield) remains orthogonal and still applies. WS3 **adds** quality/severity on top of presence — presence alone never yields READY (**RN02**).
+
+### Context boundary for required siblings
+
+The presence rule is strict only for `invocation_context=orchestrated` (O1/O2). In `direct` Classic SDD, a missing O1-only `ANALYSIS/`, `ARCH/`, or `SEC/` sibling is an operator decision point: ask for inline creation, explicit operator-risk continuation, or optional `/orchestrate-analyze`. Do not hard-block direct mode solely on that missing folder. This exception does not waive unanswered open questions at the four Open-question gates, does not make folder presence equal READY, and does not relax any B/I severity result.
+
+The risk path must durably register `owner`, the portable missing `path`, and the current `baseline` that is not reconciled. If the operator does not choose inline or risk, stop. Orchestrated mode must return to O1 and must not use the direct waiver.
 
 ### Operator handoff shape (user chat language; English tokens)
 
@@ -74,21 +80,16 @@ Paths:
 - features/NNN-slug/USnn/STORY.md
 - features/NNN-slug/USnn/REFINE/… (if any)
 
-Open (B/I only):
+Open (B/I/MINOR):
 - [B] <sharp question>
 - [I] <sharp question>
 
-MINOR (may remain):
-- [MINOR] <optional>
-
-Next: answer B/I → re-check READY → then O2 Write / sdd-spec
+Next: answer B/I/MINOR → re-check READY → then O2 Write / sdd-spec
 ```
 
-When **READY**: proceed with Write; list remaining MINOR as recorded assumptions if useful.
+When **READY**: proceed with Write.
 
 ## Open-question gate
-
-This section does **not** change the global severity table above. Outside the four gates below, **MINOR** still does not block READY and may remain as a recorded assumption.
 
 These four write gates use stop code **`open_question`**. At each of them, any unanswered question blocks the next artifact. That includes severity **MINOR**. On this chain, **MINOR** does not proceed on an assumption.
 
@@ -108,10 +109,10 @@ Finding shape: `refine-story/references/finding-format.md`. A blocked story does
 | Skill / ref | Obligation |
 |-------------|------------|
 | `clarify-depth.md` | Depth rules + pointer to this severity / READY rule |
-| `orchestrate-deliver` (`preconditions`, per-story, Must not) | Before PRD/PLAN Write: if open B/I → STOP + typed handoff |
-| `refine-story` (boundary / guardrails) | Do not hand off as ready-for-PRD while B/I open; emit `NEEDS_CLARIFICATION` |
+| `orchestrate-deliver` (`preconditions`, per-story, Must not) | Before PRD/PLAN Write: if any unanswered B/I/MINOR → STOP + typed handoff |
+| `refine-story` (boundary / guardrails) | Do not hand off as ready-for-PRD while any unanswered B/I/MINOR is open; emit `NEEDS_CLARIFICATION` |
 
-**Machine gate (PS1 + fixture / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` (runtime) + `scripts/validation/Assert-SiblingReadinessGate.ps1` (CI fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`). Wired in `validate-core` as `sibling-readiness-gate`. Stable markers only (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]` lists) — no free-form prose parse; no Jarvis/ADO/Python. This file remains the skill/contract SoT for taxonomy and STOP wording.
+**Machine gate (PS1 + fixture / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` (runtime) + `scripts/validation/Assert-SiblingReadinessGate.ps1` (CI fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`). Wired in `validate-core` as `sibling-readiness-gate`. Stable markers only (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]`/`-[MINOR]` lists) — no free-form prose parse; no Jarvis/ADO/Python. This file remains the skill/contract SoT for taxonomy and STOP wording.
 
 ## What this contract does **not** include
 
@@ -126,8 +127,8 @@ Finding shape: `refine-story/references/finding-format.md`. A blocked story does
 ## Checklist (manual CT for REQ-004 / REQ-005)
 
 - [ ] Severity rows use **B** \| **I** \| **MINOR** (or mapped legacy)
-- [ ] READY definition: zero open B/I; MINOR allowed
+- [ ] READY definition: zero unanswered B/I/MINOR
 - [ ] Dual plane: readiness ≠ `step_confirmed` / impl Complete
-- [ ] Open B/I at O2/refine boundary → STOP Write + `NEEDS_CLARIFICATION` + portable paths
+- [ ] Open B/I/MINOR at O2/refine boundary → STOP Write + `NEEDS_CLARIFICATION` + portable paths
 - [ ] At the four Open-question gates, any unanswered question (including `MINOR`) stops with `open_question`
 - [ ] Sibling folder present ≠ READY

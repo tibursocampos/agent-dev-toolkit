@@ -4,7 +4,7 @@ title: Arquitetura
 
 # Arquitetura
 
-O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**42** skills), `adapters/registry.json` (**10** agentes).
+O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agentes).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo d
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 42 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 45 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.
@@ -204,7 +204,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 |------------------|--------|
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `instructions/*.instructions.md` | Política |
-| `copilot-instructions.md` | Instruções sempre ligadas, a partir da origem do roteador |
+| `copilot-instructions.md` | Instruções sempre ligadas com o roteador embutido; o Copilot não tem superfície de roteador dedicada (`router=false`) |
 | `hooks/*` | `version:1` `preToolUse` de caminho e segredos |
 
 Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
@@ -253,7 +253,7 @@ Skills de usuário ao vivo: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserH
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `master`, `main` e `develop`. Jobs: `validate` (`windows-latest`), `validate-ubuntu` (`ubuntu-latest`), gate `ci-ok`.
+`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `master`, `main` e `develop`. A topologia é `validate` (`windows-latest`) → matrizes `validate-windows-keyed-uninstall` e `validate-windows-adapter-smoke`; separadamente, `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; em paralelo, `docs-strict` (`ubuntu-latest`) faz o build estrito do MkDocs; por fim, `ci-ok` (`ubuntu-latest`) depende dos seis jobs de validação.
 
 O job `validate` no Windows:
 
@@ -262,7 +262,7 @@ O job `validate` no Windows:
 3. `Assert-SyncAllowUserHomeForward.ps1`
 4. Dez smokes de agente (Copilot é uma suíte): Cursor, Antigravity, Claude, Codex, suíte Copilot, OpenCode, Grok, ZCode, Hermes, OpenHands
 
-`validate-ubuntu` roda `Assert-InstallRootSafety.ps1`, `validate-core.ps1 -Quiet` e os mesmos dez smokes de fixture.
+`validate-ubuntu` roda `Assert-InstallRootSafety.ps1` e `validate-core.ps1 -Quiet`; sua matriz separada de adapter-smoke roda os mesmos dez smokes de fixture da matriz Windows. `docs-strict` instala `docs-site/requirements-docs.txt` e roda `mkdocs build --strict -f docs-site/mkdocs.yml`.
 
 `publish-release-bootstrap.yml` envia o zip, o SHA256 e os entrypoints de bootstrap em `release` published e em `workflow_dispatch`. `enforce-release-source.yml` falha salvo se um pull request para `master` ou `main` vier de `develop`.
 

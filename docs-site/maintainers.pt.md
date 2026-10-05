@@ -67,7 +67,7 @@ O desenvolvimento interno usa Git em branches com acesso de escrita.
 | `develop` | Integração |
 | `master` / `main` | Release estável |
 
-Pull requests são só de colaboradores. Prefira `/open-github-pr` (depois de `/commit` / `/push`), ou use `.github/PULL_REQUEST_TEMPLATE.md` na UI web. Trabalho de feature e correção aponta para **`develop`**. PRs de release são **`develop` → `master` ou `main`**, impostos por `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`, `master` e `main`. O check de CI obrigatório é **`ci-ok`**. Os jobs `validate` e `validate-ubuntu` alimentam esse check. A proteção de branch precisa exigir `ci-ok`, e não só o nome de job `validate`.
+Pull requests são só de colaboradores. Prefira `/open-github-pr` (depois de `/commit` / `/push`), ou use `.github/PULL_REQUEST_TEMPLATE.md` na UI web. Trabalho de feature e correção aponta para **`develop`**. PRs de release são **`develop` → `master` ou `main`**, impostos por `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`, `master` e `main`. O check de CI obrigatório é **`ci-ok`**, que espera seis jobs de validação: os jobs-base de Windows e Ubuntu, suas matrizes de desinstalação chaveada e adapter-smoke, e `docs-strict`. A proteção de branch precisa exigir `ci-ok`, e não só o nome de job `validate`.
 
 ## Reportar uma vulnerabilidade
 

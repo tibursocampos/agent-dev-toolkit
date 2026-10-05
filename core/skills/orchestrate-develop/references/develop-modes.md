@@ -13,7 +13,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 | Pacing mode | Parent behavior | Child behavior |
 |-------------|-----------------|----------------|
 | `step_by_step` (default) | **sim** before **each** Task spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **sim**, the parent may spawn the next ready step only after receipt validation, PLAN checkpoint/ledger persistence and re-read, complete stage-table redraw, and session report. The parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
+| `continuous` | After initial queue **sim**, the parent may spawn the next ready step only after receipt validation, PLAN checkpoint/ledger persistence and re-read, complete stage-table redraw, and session report. The initial authorization remains valid across that reconciled queue; the parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
 
 ## Compose with execution-modes
 

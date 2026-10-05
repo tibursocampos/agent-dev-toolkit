@@ -24,6 +24,12 @@ derivation, traversal, absolute-path escapes, symlink/reparse escapes, and
 roots without a story segment are rejected. TRACE/CHANGE remain feature-scoped,
 and historical feature-root evidence under older features is not bulk-migrated.
 
+For compatibility, an explicit `-FeatureRoot` invocation remains supported for
+older artifacts that store `STATE.md` and `EVD/` directly under the feature
+root. It reports `mode=legacy-feature-root` and applies the same evidence-level
+and descendant reparse protections. It is not a fallback for `StoryRoot`, and
+story-scoped validation remains restricted to `features/NNN-slug/{USnn|TSnn}`.
+
 Narrative prose in `STATE.md` and `EVD/*` follows the FEATURE/STORY
 content-language (pt-BR for this story); identifiers, field names, result
 tokens, and paths remain English.
@@ -79,6 +85,8 @@ O3 may still parallelize **implementation** of **disjoint PLAN steps** when the 
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot <features/NNN-slug/TSnn> [-Level cheap]
 # Or derive the story root from an explicit plan/story file:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -PlanPath <features/NNN-slug/TSnn/PLAN/PLAN_*.md> [-Level cheap]
+# Legacy compatibility for feature-root STATE.md + EVD/ artifacts:
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot <features/NNN-slug> [-Level cheap]
 ```
 
 If `-Level` is omitted, the script reads **Evidence level** from `STATE.md` (default `cheap` when STATE is missing and a level is required).

@@ -28,8 +28,8 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 ```text
 ## O3 run
 
-1) sim -> Task(sdd-develop Step 1) -> CONTINUITY update
-2) new chat or sim -> Task(sdd-develop Step 2) -> …
+1) sim -> one child invocation (sdd-develop Step 1) -> child closes -> CONTINUITY update
+2) new chat or sim -> one fresh child invocation (sdd-develop Step 2) -> child closes -> …
 3) TS01 complete -> handoff:
 
 /code-review
@@ -48,11 +48,12 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 ## Handoff O3
 
 Scope closed. Next, in order:
-1) /code-review
-2) /run-tests
-3) security review on the diff
-4) /commit
-5) /push
+1) /run-tests
+2) /code-review
+3) /run-tests after review changes (or record that no changes required a rerun)
+4) security role/prompt review of the diff: `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`
+5) /commit
+6) /push
 
 ## Continuar develop manual (alternativa a O3)
 /sdd-develop - <portable-plan-path> - Step {N}
@@ -61,7 +62,7 @@ Scope closed. Next, in order:
 /orchestrate-develop - <portable-feature-path>
 ```
 
-At scope close the order is required: `code-review`, then `run-tests`, then the `security` agent, then ask `/commit`, then ask `/push` separately. Do not offer code-review versus commit in the middle of the steps. Render the prompt in the user chat language.
+At scope close the order is required: `run-tests`, then `code-review`, then `run-tests` after review changes, then the security role/prompt review of the diff, then ask `/commit`, then ask `/push` separately. If the review makes no changes, record that the post-review test rerun was not required before security. The canonical security handoff is the `security` role/prompt at `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`; use only a documented host spawn mechanism or the bounded in-parent fallback. Do not invent or claim a `/security` command. Do not offer code-review versus commit in the middle of the steps. Render the prompt in the user chat language.
 
 ### Before `/commit` from O3
 
@@ -87,6 +88,8 @@ Stop spawning and emit handoff when any of:
 | Context hard-stop | Hard stop; new chat required |
 | Child blocked / tests fail | Do not mark step done; report; wait for user |
 | User **cancelar** | Leave CONTINUITY with pending next step |
+
+Each child invocation owns exactly one PLAN step and is closed when its receipt is returned. Never reopen, resume, or reuse a returned child invocation; any remaining or corrective work starts as a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
 
 Resume strings: `references/contract-boundaries.md` § Canonical invoke strings.
 
