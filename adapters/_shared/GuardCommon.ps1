@@ -207,6 +207,21 @@ function Get-ToolkitCanonicalPathForGuard {
         $probe = $parent.FullName
     }
 
+    # POSIX writes through symlinks/reparse points are not safe to authorize
+    # without an atomic handle-relative operation. Deny the existing ancestor
+    # itself so a missing child below an escaping link cannot be written through.
+    if (-not (Test-ToolkitIsWindows)) {
+        try {
+            $probeItem = Get-Item -LiteralPath $probe -Force -ErrorAction Stop
+            if (($probeItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                return $null
+            }
+        }
+        catch {
+            return $null
+        }
+    }
+
     try {
         $resolvedProbe = Resolve-ToolkitExistingPath -Path $probe
         if ([string]::IsNullOrWhiteSpace($resolvedProbe)) {
