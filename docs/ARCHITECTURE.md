@@ -21,7 +21,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
-| CI | `validate-toolkit.yml` on `pull_request` to `master`, `main`, `develop`: jobs `validate` (windows), `validate-ubuntu`, gate `ci-ok`. Windows `validate` runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, and 10 agent smokes (Copilot is a suite) — no live-home sync for green |
+| CI | `validate-toolkit.yml` on `pull_request` to `master`, `main`, `develop`: Windows and Ubuntu base jobs, keyed-uninstall and adapter-smoke matrices, strict MkDocs build, then gate `ci-ok` — no live-home sync for green |
 
 ## Application architecture selection
 
@@ -38,7 +38,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 42 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
+- `core/skills/` — 45 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -188,7 +188,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiS
 |---------------|------|
 | `skills/<kebab-id>/SKILL.md` | Agent Skills |
 | `instructions/*.instructions.md` | Policy |
-| `copilot-instructions.md` | Always-on instructions from router source |
+| `copilot-instructions.md` | Always-on instructions with the router source embedded; Copilot has no dedicated router surface (`router=false`) |
 | `hooks/*` | Adapter hooks when `hooks=true` (`version:1` `preToolUse` path/secrets) |
 
 **Out of scope:** JetBrains and Eclipse Copilot IDE layouts. CI: `Invoke-CopilotCiSmokeSuite.ps1`.
@@ -237,14 +237,14 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Jobs are `validate` (`windows-latest`), `validate-ubuntu` (`ubuntu-latest`), and gate `ci-ok` (`needs` both). The Windows `validate` job does not deploy to USERPROFILE for a green run:
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Its topology is `validate` (`windows-latest`) → `validate-windows-keyed-uninstall` and `validate-windows-adapter-smoke` matrices; separately `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on all six validation jobs. The Windows `validate` job does not deploy to USERPROFILE for a green run:
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes, OpenHands) — separate step; not inside validate-core
-3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
-4. Ten agent CI smokes (Copilot is a suite): Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode, Hermes, OpenHands
+2. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
 
-`validate-ubuntu` runs `Assert-InstallRootSafety.ps1`, `validate-core.ps1 -Quiet`, and the same ten fixture smokes. `ci-ok` is the required gate once both jobs succeed.
+The separate `validate-windows-keyed-uninstall` matrix runs the ten keyed-uninstall asserts, and `validate-windows-adapter-smoke` runs the ten adapter CI smokes (Copilot is a suite).
+
+`validate-ubuntu` runs `Assert-InstallRootSafety.ps1` and `validate-core.ps1 -Quiet`. The Ubuntu adapter-smoke matrix runs the same ten fixture smokes as the Windows adapter-smoke matrix. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. `ci-ok` is the required gate only after every base, matrix, and docs job succeeds.
 
 `publish-release-bootstrap.yml` uploads bootstrap release assets (zip, SHA256, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 

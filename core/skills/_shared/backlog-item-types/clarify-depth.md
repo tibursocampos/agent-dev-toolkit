@@ -24,13 +24,13 @@ External ideas (paraphrase only): structured clarification (metrics, prioritizat
 |----------|---------------|
 | **B** | Yes |
 | **I** | Yes |
-| **MINOR** | No — may remain with a recorded assumption |
+| **MINOR** | Yes — answer before the next readiness boundary |
 
-**READY** = no open **B** or **I**. Sibling folder **presence** (`ANALYSIS/` / `ARCH/` / `SEC/`) ≠ READY (**RN02**).
+**READY** = no unanswered **B**, **I**, or **MINOR** question. Sibling folder **presence** (`ANALYSIS/` / `ARCH/` / `SEC/`) ≠ READY (**RN02**).
 
 Legacy template cells `blocker \| high \| medium \| low` map per `readiness-severity.md` (blocker→B, high→I, medium|low→MINOR). Prefer writing **B** / **I** / **MINOR** on new rows.
 
-When open **B**/**I** remain at an O2 or refine→PRD boundary: status **`NEEDS_CLARIFICATION`** — **STOP** Write; typed handoff with portable paths (`readiness-severity.md` / TE01). Do not treat SESSION `step_confirmed` as clarification READY (dual plane).
+When any unanswered **B**/**I**/**MINOR** remains at an O2 or refine→PRD boundary: status **`NEEDS_CLARIFICATION`** — **STOP** Write; typed handoff with portable paths (`readiness-severity.md` / TE01). Do not treat SESSION `step_confirmed` as clarification READY (dual plane).
 
 ---
 
@@ -61,5 +61,5 @@ When open **B**/**I** remain at an O2 or refine→PRD boundary: status **`NEEDS_
 | `readiness-severity.md` | Canonical B/I/MINOR, READY / NEEDS_CLARIFICATION, dual plane, STOP shape |
 | `feature-altitude.md` | Which questions belong on FEATURE vs story |
 | `sdd-spec` / `refine-story` | Wire challenge prompts; refine STOP fake-forward when B/I open |
-| `orchestrate-deliver` | O2 STOP Write on open B/I (`preconditions.md`) |
+| `orchestrate-deliver` | O2 STOP Write on any unanswered B/I/MINOR (`preconditions.md`) |
 | `invest-and-story-quality.md` | Negotiable / Estimable unlocked by clarify |

@@ -80,7 +80,7 @@ Process:
 3. Use a feature branch (`feature/<slug>` or `feat/<id>`).
 4. Implement identifiers in English. Comments follow the surrounding code or a greenfield question. Load structure guidance and **one** matching guideline file for the step (see [04](04-implement-and-guidelines.md)). Do not glob every architecture file.
 5. Build and targeted tests. A spawned child returns build, tests, and a short summary.
-6. When the step claims acceptance coverage, or evidence level is `cheap` or higher: update `features/NNN-slug/EVD/` and `STATE.md`, run `validate-evidence.ps1`. Failure leaves the step pending. Levels: `off`, `cheap`, `standard`, `strict`.
+6. When the step claims acceptance coverage, or evidence level is `cheap` or higher: update the story-scoped `features/NNN-slug/{USnn|TSnn}/EVD/` and `features/NNN-slug/{USnn|TSnn}/STATE.md`, then run `validate-evidence.ps1`. Feature-root `EVD/` and `STATE.md` paths are legacy compatibility only. Failure leaves the step pending. Levels: `off`, `cheap`, `standard`, `strict`.
 7. When this step closes the feature wave: append `TRACE.jsonl`, converge, sync current docs, archive, then `validate-trace.ps1 -RequireArchiveComplete`. Mid-feature TRACE is optional. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
 8. Update the PLAN in place (`COMPLETED` only when this step’s acceptance and tests passed; otherwise `BLOCKED` with the cause). Update progress and the checkpoint. Do not record duration. Preserve `## Related`.
 9. Report `STEP_COMPLETED` or `STEP_BLOCKED` (step id, validation, next eligible steps, counts, portability). Optional `/commit` after the living-artifact questions (bank refresh-light, project docs) when those trees exist. Silence does not count as skip.

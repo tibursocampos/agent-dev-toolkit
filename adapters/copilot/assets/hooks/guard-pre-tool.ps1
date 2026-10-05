@@ -7,6 +7,12 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
+if ($null -eq $inputJson) {
+    Write-CopilotPreToolDeny -Reason 'Hook denied malformed or empty JSON input; fail-closed.'
+}
+if (-not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-CopilotPreToolDeny -Reason 'Hook denied schema-invalid JSON input; expected a non-empty object.'
+}
 
 # Copilot may use toolName / toolArgs (JSON string) instead of tool_name / tool_input.
 $toolName = ''
@@ -17,7 +23,7 @@ elseif ($inputJson -and $inputJson.PSObject.Properties['toolName']) {
     $toolName = [string]$inputJson.toolName
 }
 
-$workspaceRoot = if ($inputJson -and $inputJson.cwd) {
+$workspaceRoot = if ($inputJson -and $inputJson.PSObject.Properties['cwd'] -and -not [string]::IsNullOrWhiteSpace([string]$inputJson.cwd)) {
     [string]$inputJson.cwd
 }
 else {
@@ -60,6 +66,10 @@ $isGuarded = (
 )
 if (-not $isGuarded) {
     Write-CopilotPreToolAllow
+}
+
+if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('preToolUse', 'PreToolUse'))) {
+    Write-CopilotPreToolDeny -Reason 'Hook denied write/shell event with missing or malformed preToolUse identity; fail-closed.'
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

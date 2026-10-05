@@ -11,7 +11,7 @@
 
 Escalate to **O1** when: multiple stories, unclear flags (`needs_*`), brownfield impact needs parallel specialists.
 
-Escalate to **sdd-spec** when: single story is clear enough for a PRD (or after refine approval) **and** clarification status is **READY** (no open **B**/**I** — consume `readiness-severity.md`; REQ-006). PRD contract (REQ-IDs, verifiable CA, OOS, optional hybrid EARS) lives in `templates/sdd/PRD.md` — refine does **not** invent a parallel PRD body.
+Escalate to **sdd-spec** when: single story is clear enough for a PRD (or after refine approval) **and** clarification status is **READY** (no unanswered **B**/**I**/**MINOR** at the refine→PRD gate — consume `readiness-severity.md`; REQ-006). PRD contract (REQ-IDs, verifiable CA, OOS, optional hybrid EARS) lives in `templates/sdd/PRD.md` — refine does **not** invent a parallel PRD body.
 
 ### Clarification STOP (REQ-004–006 / TE01)
 
@@ -19,7 +19,7 @@ Open questions use severity **B** \| **I** \| **MINOR** (`clarify-depth.md` + `r
 
 | Status | Refine behavior |
 |--------|-----------------|
-| **READY** | May hand off to `/sdd-spec` / O2; **MINOR** may remain listed; envelope `status: READY` |
+| **READY** | May hand off to `/sdd-spec` / O2 only when no unanswered **B**/**I**/**MINOR** remains at the open-question gate; envelope `status: READY` |
 | **NEEDS_CLARIFICATION** | **STOP** fake-forward “approved for PRD”; do **not** tell operator the item is ready for `sdd-spec` / O2 Write; emit typed handoff (portable paths + B/I list + `qa_history` ref) |
 
 **RN02:** sibling folder presence ≠ READY. **Dual plane (REQ-006):** clarification READY ≠ SESSION `step_confirmed` / implementation Complete / PLAN step Completed.
@@ -39,7 +39,7 @@ Handoff wording (portable paths only — RNF-002):
 ```
 Item grande / multi-história: /orchestrate-analyze - features/NNN-slug
 Item único READY para PRD: /sdd-spec - features/NNN-slug/USnn/STORY.md
-NEEDS_CLARIFICATION (B/I abertos): responder perguntas — qa_history: features/…/REFINE/qa-history.md — não /sdd-spec ainda
+NEEDS_CLARIFICATION (B/I/MINOR abertos): responder perguntas — qa_history: features/…/REFINE/qa-history.md — não /sdd-spec ainda
 Checklist local: /split-story-checklist - features/NNN-slug/USnn/STORY.md
 ```
 

@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 
 $contractsFileName = 'skill-contracts.json'
 $contractsRelativeDir = 'contracts'
-$fileExtensionsPattern = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
+. (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib\ToolkitValidationFileSystem.ps1')
 
 if (-not $RepoRoot) {
     . (Join-Path (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib') 'Get-ToolkitRepoRoot.ps1')
@@ -26,7 +26,7 @@ if (-not (Test-Path -LiteralPath $contractsPath)) {
     exit 1
 }
 
-$doc = Get-Content -LiteralPath $contractsPath -Raw | ConvertFrom-Json
+$doc = Read-ToolkitValidationText -Path $contractsPath | ConvertFrom-Json
 $skillsRoot = Join-Path $RepoRoot $doc.skillsRoot
 $failures = New-Object System.Collections.Generic.List[string]
 
@@ -77,7 +77,7 @@ foreach ($c in $doc.contracts) {
                 $failures.Add("$($c.id): missing file $path")
                 continue
             }
-            $text = Get-Content -LiteralPath $path -Raw
+            $text = Read-ToolkitValidationText -Path $path
             [void]$combined.AppendLine($text)
             $resolvedLabels.Add("$($c.skill)/$fileName")
             if ($c.PSObject.Properties.Name -contains 'mustNotContain' -and $c.mustNotContain) {
@@ -118,7 +118,7 @@ foreach ($c in $doc.contracts) {
             $failures.Add("$($c.id): missing file $path")
             continue
         }
-        $text = Get-Content -LiteralPath $path -Raw
+        $text = Read-ToolkitValidationText -Path $path
         if ($c.PSObject.Properties.Name -contains 'mustContain' -and $c.mustContain) {
             foreach ($needle in $c.mustContain) {
                 if ($text -notmatch [regex]::Escape($needle)) {
@@ -147,11 +147,9 @@ foreach ($c in $doc.contracts) {
 
 if ($doc.PSObject.Properties.Name -contains 'mustNotContain' -and $doc.mustNotContain) {
     # Scan all skill files under skillsRoot (incl. _shared) for IDE home-path needles.
-    $files = @(Get-ChildItem -LiteralPath $skillsRoot -Recurse -File | Where-Object {
-            $_.Extension -match $fileExtensionsPattern
-        })
+    $files = @(Get-ToolkitValidationFiles -Root $skillsRoot -Recurse -Extensions @('.md', '.mdc', '.json', '.ps1', '.yml', '.yaml', '.txt'))
     foreach ($file in $files) {
-        $text = [System.IO.File]::ReadAllText($file.FullName)
+        $text = Read-ToolkitValidationText -Path $file.FullName
         foreach ($needle in @($doc.mustNotContain)) {
             if ($text.Contains($needle)) {
                 $rel = $file.FullName.Substring($skillsRoot.Length).TrimStart('\', '/')

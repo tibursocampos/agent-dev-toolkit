@@ -16,6 +16,6 @@
 | 7 | Stop conditions | `references/continuity-handoff.md` § Stop |
 | 8 | Update CONTINUITY | `references/continuity-handoff.md` |
 | 9 | Step N refresh-light after app file changes | `references/continuity-handoff.md` § Step N; `references/preconditions.md` |
-| 10 | Scope close, in this order: `code-review`, `run-tests`, `security`, then ask `/commit`, then ask `/push` separately | `references/continuity-handoff.md` § Handoff |
+| 10 | Scope close, in this order: `run-tests`, `code-review`, post-review `run-tests`, `security`, then ask `/commit`, then ask `/push` separately | `references/continuity-handoff.md` § Handoff |
 
 **Anti-bypass:** `references/anti-bypass.md`. **Must not (full):** `references/must-not.md`.

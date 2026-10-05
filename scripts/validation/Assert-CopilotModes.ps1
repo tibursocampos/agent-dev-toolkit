@@ -73,6 +73,22 @@ $homeProbeRelative = '.agent-dev-toolkit-copilot-home-guard-test'
 $suitePassMarker = 'Copilot CI smoke suite PASSED'
 $comparison = [System.StringComparison]::OrdinalIgnoreCase
 $skillsProbeName = 'commit'
+$managedTreeScript = Join-Path $libDir 'Copy-ToolkitManagedTree.ps1'
+if (-not (Test-Path -LiteralPath $managedTreeScript)) {
+    Write-Fail -TestName 'Assert-CopilotModesPreconditions' -Reason ("missing {0}" -f $managedTreeScript)
+}
+$managedTreeText = Get-Content -LiteralPath $managedTreeScript -Raw
+foreach ($requiredMarker in @(
+    'Enter-ToolkitFilesystemGate',
+    'Exit-ToolkitFilesystemGate',
+    '.toolkit-managed-publish.lock',
+    'hostile concurrent reparse-point race'
+)) {
+    if ($managedTreeText -notmatch [regex]::Escape($requiredMarker)) {
+        Write-Fail -TestName 'Should_Use_CooperativeCopilotPublishGate' -Reason ("missing managed publication gate marker: {0}" -f $requiredMarker)
+    }
+}
+Write-Pass -TestName 'Should_Use_CooperativeCopilotPublishGate'
 
 foreach ($required in @($suiteScriptPath, $syncAgentPath, $workflowPath, $fixtureUserRoot, $fixtureRepoRoot)) {
     if (-not (Test-Path -LiteralPath $required)) {
@@ -105,13 +121,14 @@ foreach ($marker in $requiredWorkflowMarkers) {
 $workflowLines = @($workflowText -split "`r?`n")
 $copilotStepStart = -1
 for ($index = 0; $index -lt $workflowLines.Count; $index++) {
-    if ($workflowLines[$index] -match 'name:\s*Run Copilot CI smoke suite') {
+    if ($workflowLines[$index] -match 'name:\s*Run Copilot CI smoke suite' -or
+        $workflowLines[$index] -match 'script:\s*Invoke-CopilotCiSmokeSuite\.ps1') {
         $copilotStepStart = $index
         break
     }
 }
 if ($copilotStepStart -lt 0) {
-    Write-Fail -TestName $suiteName -Reason 'CI workflow is missing the Copilot CI smoke step'
+    Write-Fail -TestName $suiteName -Reason 'CI workflow is missing the Copilot CI smoke entry'
 }
 $copilotStepEnd = $workflowLines.Count
 for ($index = $copilotStepStart + 1; $index -lt $workflowLines.Count; $index++) {

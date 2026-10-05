@@ -4,6 +4,8 @@
 #   Should_Pass_When_ValidEvidenceFixture_Cheap
 #   Should_Fail_When_CheapWithZeroEvidence
 #   Should_Pass_When_LevelOffSkipsGate
+#   Should_Pass_When_LegacyFeatureRoot_Cheap
+#   Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence
 #   Should_Pass_When_SkillsWireEvidenceContract
 #   Should_Pass_When_VerifierForbidsO3Parallelism
 #
@@ -84,8 +86,12 @@ if (-not (Test-Path -LiteralPath $validatePath)) {
 
 $contractText = Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8
 $requiredContractMarkers = @(
-    'features/NNN-slug/EVD/',
-    'features/NNN-slug/STATE.md',
+    'features/NNN-slug/{USnn|TSnn}/EVD/',
+    'features/NNN-slug/{USnn|TSnn}/STATE.md',
+    'StoryRoot',
+    'PlanPath',
+    'StoryPath',
+    'historical feature-root evidence',
     'off',
     'cheap',
     'standard',
@@ -118,25 +124,52 @@ function Get-FixtureRoot {
     return $full
 }
 
-$validRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateEvidenceFixtureValidRelativeDir
-$validResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $validRoot; Level = 'cheap' }
+$validFixtureBase = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateEvidenceFixtureValidRelativeDir
+$validRoot = Join-Path $validFixtureBase 'features/000-fixture-evidence/TS01'
+$validResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $validRoot; RepoPath = $validFixtureBase; Level = 'cheap' }
 if ($validResult.ExitCode -ne 0) {
     Write-Fail -TestName 'Should_Pass_When_ValidEvidenceFixture_Cheap' -Reason ("expected exit 0, got {0}. {1}" -f $validResult.ExitCode, $validResult.Output.Trim())
 }
 Write-Pass -TestName 'Should_Pass_When_ValidEvidenceFixture_Cheap'
 
-$zeroRoot = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateEvidenceFixtureInvalidZeroRelativeDir
-$zeroResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $zeroRoot; Level = 'cheap' }
+$legacyResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $validFixtureBase; Level = 'cheap' }
+if ($legacyResult.ExitCode -ne 0) {
+    Write-Fail -TestName 'Should_Pass_When_LegacyFeatureRoot_Cheap' -Reason ("expected legacy mode exit 0, got {0}. {1}" -f $legacyResult.ExitCode, $legacyResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Pass_When_LegacyFeatureRoot_Cheap'
+
+$zeroFixtureBase = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateEvidenceFixtureInvalidZeroRelativeDir
+$zeroRoot = Join-Path $zeroFixtureBase 'features/000-fixture-evidence-zero/TS01'
+$zeroResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $zeroRoot; RepoPath = $zeroFixtureBase; Level = 'cheap' }
 if ($zeroResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_CheapWithZeroEvidence' -Reason 'expected non-zero exit when cheap has zero usable evidence'
 }
 Write-Pass -TestName 'Should_Fail_When_CheapWithZeroEvidence'
 
-$offResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $zeroRoot; Level = 'off' }
+$legacyZeroResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $zeroFixtureBase; Level = 'cheap' }
+if ($legacyZeroResult.ExitCode -eq 0) {
+    Write-Fail -TestName 'Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence' -Reason ("expected legacy mode failure, got {0}. {1}" -f $legacyZeroResult.ExitCode, $legacyZeroResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence'
+
+$offResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $zeroRoot; RepoPath = $zeroFixtureBase; Level = 'off' }
 if ($offResult.ExitCode -ne 0) {
     Write-Fail -TestName 'Should_Pass_When_LevelOffSkipsGate' -Reason ("expected exit 0 for level=off, got {0}" -f $offResult.ExitCode)
 }
 Write-Pass -TestName 'Should_Pass_When_LevelOffSkipsGate'
+
+$featureRoot = Split-Path -Parent $validRoot
+$featureResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $featureRoot; RepoPath = $validFixtureBase; Level = 'off' }
+if ($featureResult.ExitCode -eq 0) {
+    Write-Fail -TestName 'Should_Fail_When_FeatureRootUsedAsStoryRoot' -Reason 'feature-root fallback must be rejected even when level=off'
+}
+Write-Pass -TestName 'Should_Fail_When_FeatureRootUsedAsStoryRoot'
+
+$storyPathResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryPath = (Join-Path $validRoot 'STORY.md'); RepoPath = $validFixtureBase; Level = 'cheap' }
+if ($storyPathResult.ExitCode -ne 0) {
+    Write-Fail -TestName 'Should_Pass_When_StoryPathDerivesStoryRoot' -Reason ("expected exit 0, got {0}. {1}" -f $storyPathResult.ExitCode, $storyPathResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Pass_When_StoryPathDerivesStoryRoot'
 
 $wiringPaths = $script:ToolkitConstant.EvidenceContractSkillWiringRelativePaths
 foreach ($rel in $wiringPaths) {

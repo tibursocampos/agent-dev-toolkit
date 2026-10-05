@@ -8,7 +8,7 @@ How to run the in-repo test suite and agent smokes. **None of these steps requir
 |----------|----------------------|-------------|
 | **Visitor** | Understanding that tests exist; **not** expected to run the suite | None — clone/fork and read [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md) / [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | **Operator** | Syncing skills to an agent home and checking a fixture install | Optional: [Core suite](#core-suite) (`validate-core`); [Per-agent validate](#per-agent-validate) against a fixture `InstallRoot` — **never** `-AllowUserHome` to “make CI pass” |
-| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`). **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full matrix = `validate-core` + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent CI smokes (Copilot is a suite) |
+| **Maintainer** | Changing this repository (write access / CI owners) | **Required locally before merge:** `validate-core.ps1` (or `validate-all.ps1`) plus the relevant docs build. **Parity with Actions:** [What CI runs](#what-ci-runs) / [Local parity](#local-parity) (same scripts as [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml)). Full merge gate = core/security checks + keyed uninstall asserts + `Assert-SyncAllowUserHomeForward` + 10 agent CI smokes (Copilot is a suite) + strict MkDocs build |
 
 **Maintainers vs visitors:** Visitors do not need PowerShell validation. Maintainers own the green bar — run **validate-core** on every change that touches contracts, skills, router, or validation scripts; run the relevant **CI smoke** when an adapter or publish path changes. Operators may run the same scripts against fixtures; that does not grant upstream PR rights ([CONTRIBUTING.md](../CONTRIBUTING.md)).
 
@@ -153,37 +153,46 @@ Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/valida
 
 | Job | Runner | Role |
 |-----|--------|------|
-| `validate` | `windows-latest` | Full Windows matrix below |
-| `validate-ubuntu` | `ubuntu-latest` | `Assert-InstallRootSafety.ps1` + `validate-core` + all 10 agent fixture smokes (`pwsh 7+`) |
-| `ci-ok` | `ubuntu-latest` | Gate job (`needs: [validate, validate-ubuntu]`) — **require this check** in branch protection |
+| `validate` | `windows-latest` | Windows base: `validate-core` + `Assert-SyncAllowUserHomeForward` |
+| `validate-windows-keyed-uninstall` | `windows-latest` matrix | 10 keyed-uninstall asserts, after `validate` |
+| `validate-windows-adapter-smoke` | `windows-latest` matrix | 10 adapter CI smokes, after `validate` |
+| `validate-ubuntu` | `ubuntu-latest` | Ubuntu base: `validate-core` (including InstallRoot safety) |
+| `validate-ubuntu-adapter-smoke` | `ubuntu-latest` matrix | 10 adapter CI smokes, after `validate-ubuntu` |
+| `docs-strict` | `ubuntu-latest` | Strict MkDocs build; required by `ci-ok` on pull requests |
+| `ci-ok` | `ubuntu-latest` | Required gate with `needs` on all six validation jobs |
 
-### Job `validate` (Windows)
+### Job `validate` (Windows base)
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts (separate step — not inside validate-core): `Assert-ClaudeKeyedUninstall.ps1`, `Assert-CopilotKeyedUninstall.ps1`, `Assert-CodexKeyedUninstall.ps1`, `Assert-OpenCodeKeyedUninstall.ps1`, `Assert-AntigravityKeyedUninstall.ps1`, `Assert-GrokKeyedUninstall.ps1`, `Assert-CursorKeyedUninstall.ps1`, `Assert-ZcodeKeyedUninstall.ps1`, `Assert-HermesKeyedUninstall.ps1`, `Assert-OpenHandsKeyedUninstall.ps1`
-3. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
-4. `Invoke-CursorCiSmoke.ps1 -Quiet`
-5. `Invoke-AntigravityCiSmoke.ps1 -Quiet`
-6. `Invoke-ClaudeCiSmoke.ps1 -Quiet`
-7. `Invoke-CodexCiSmoke.ps1 -Quiet`
-8. `Invoke-CopilotCiSmokeSuite.ps1 -Quiet`
-9. `Invoke-OpenCodeCiSmoke.ps1 -Quiet` (filesystem fixture smoke — **not** OpenCode product runtime)
-10. `Invoke-GrokCiSmoke.ps1 -Quiet`
-11. `Invoke-ZCodeCiSmoke.ps1 -Quiet`
-12. `Invoke-HermesCiSmoke.ps1 -Quiet`
-13. `Invoke-OpenHandsCiSmoke.ps1 -Quiet`
+2. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
 
-Do **not** merge with `validate-ubuntu` red. Auto-merge must wait for `ci-ok`.
+The keyed-uninstall and adapter-smoke matrices are separate jobs. Both use `fail-fast: false`, `max-parallel: 4`, and the same ten adapters; keyed uninstall runs `Assert-*-KeyedUninstall.ps1`, while adapter smoke runs `Invoke-*-CiSmoke.ps1 -Quiet` (Copilot is a suite).
+
+`validate-ubuntu` runs `validate-core`, whose core checks include the InstallRoot safety assert. `validate-ubuntu-adapter-smoke` is a separate ten-entry matrix that depends on `validate-ubuntu`.
+
+`docs-strict` is the single strict MkDocs build for pull requests and is an explicit `ci-ok` dependency. The Pages workflow is intentionally not triggered by pull requests, so the same change does not build documentation twice. Documentation failures still block merge through `ci-ok`.
+
+`ci-ok` depends on `validate`, `validate-windows-keyed-uninstall`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict`. Do **not** merge with any required job red. Auto-merge must wait for `ci-ok`.
 
 ### Other workflows
 
 `publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 
-`.github/workflows/docs.yml` exists and this page does not document the site.
+`.github/workflows/docs.yml` builds the public MkDocs site on pushes to `master`/`main`/`develop` and manual dispatch; it is not run on pull requests because `validate-toolkit.yml` owns the required PR build. Only pushes to `master`/`main` deploy Pages.
+
+### CI tiers
+
+| Tier | Trigger | Coverage and gate policy |
+|------|---------|--------------------------|
+| PR / merge acceptance | `pull_request` to `develop`, `master`, or `main` | Full core/security coverage, keyed-uninstall and adapter matrices, `Assert-SyncAllowUserHomeForward`, and `docs-strict`; `ci-ok` is the required merge check. |
+| Nightly / manual | Not currently scheduled; workflows can be run with `workflow_dispatch` where provided | No test is demoted from the PR gate. If a nightly schedule is added, it must retain the same unique safety checks or add coverage explicitly. |
+| Release | Published release or manual dispatch | `publish-release-bootstrap.yml` packages and uploads the fixed bootstrap assets; release-source enforcement remains a separate PR guard. |
 
 ### Local parity
 
-Mirrors the Windows `validate` job order: `validate-core` → keyed uninstall asserts → `Assert-SyncAllowUserHomeForward` → 10 agent smokes (Copilot is a suite). The Ubuntu job also runs `Assert-InstallRootSafety.ps1` before `validate-core` and the same ten smokes. It does not repeat the keyed uninstall asserts.
+Mirrors the workflow topology: run the Windows base checks, then the keyed-uninstall and adapter-smoke matrices; separately run the Ubuntu base checks, then its adapter-smoke matrix; run the strict MkDocs build. `ci-ok` covers all six required validation jobs.
+
+The core suite is the invariant contract and remains on both Windows and Ubuntu. The adapter smoke matrices are the per-adapter portability contract and remain on both runners because the existing smoke scripts do not expose a supported reduced lane. Windows-only keyed-uninstall and `Assert-SyncAllowUserHomeForward` coverage remains mandatory; no security gate is demoted.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
@@ -200,6 +209,9 @@ pwsh -NoProfile -File .\scripts\validation\Assert-HermesKeyedUninstall.ps1
 pwsh -NoProfile -File .\scripts\validation\Assert-OpenHandsKeyedUninstall.ps1
 
 pwsh -NoProfile -File .\scripts\validation\Assert-SyncAllowUserHomeForward.ps1
+
+python -m pip install -r docs-site/requirements-docs.txt
+mkdocs build --strict -f docs-site/mkdocs.yml
 
 pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1 -Quiet
 pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1 -Quiet

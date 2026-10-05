@@ -10,7 +10,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **42** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **45** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
@@ -36,7 +36,9 @@ A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrat
 | Skill | What it does | Example |
 |-------|----------------|---------|
 | `developer` | Stack router, or a small script or HTML change | `/developer` |
+| `arduino-developer` | Arduino sketches, libraries, and board-specific firmware | `/arduino-developer` |
 | `dotnet-developer` | Small or medium .NET | `/dotnet-developer` |
+| `esp-idf-developer` | Native ESP-IDF C/C++ firmware | `/esp-idf-developer` |
 | `java-developer` | Small or medium Java | `/java-developer` |
 | `javascript-developer` | Small or medium Node or DOM | `/javascript-developer` |
 | `python-developer` | Small or medium Python | `/python-developer` |
@@ -47,6 +49,7 @@ A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrat
 | `blazor-developer` | Small or medium Blazor UI | `/blazor-developer` |
 | `electron-developer` | Small or medium Electron | `/electron-developer` |
 | `blip-plugin-developer` | Scaffold a new Blip React plugin | `/blip-plugin-developer` |
+| `micropython-developer` | MicroPython device firmware | `/micropython-developer` |
 | `impeccable` | Design. Writes `docs/DESIGN-BRIEF.md` and stops | `/impeccable` |
 
 ## Review, platform, git
@@ -73,4 +76,4 @@ A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrat
 | `document-plan` | `docs/overview.md` and the documentation plan | `/document-plan` |
 | `document-implement` | One pending documentation step | `/document-implement` |
 
-That is 10 + 13 + 19 = 42. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).
+That is 10 + 16 + 19 = 45. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).

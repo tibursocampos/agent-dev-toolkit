@@ -56,12 +56,17 @@ function Copy-CopilotHookFilesTree {
         [string] $DestinationHooksRoot,
 
         [Parameter()]
-        [string] $RepoRoot
+        [string] $RepoRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationHooksRoot)) {
+        Assert-ToolkitManagedWriteDestination -DestinationPath (Join-Path $DestinationHooksRoot 'hooks.json') -InstallRoot $InstallRoot
         New-Item -ItemType Directory -Path $DestinationHooksRoot -Force | Out-Null
     }
+    Assert-ToolkitManagedWriteDestination -DestinationPath (Join-Path $DestinationHooksRoot 'hooks.json') -InstallRoot $InstallRoot
 
     $filesCopied = 0
     $sourceFiles = Get-ChildItem -LiteralPath $SourceHooksRoot -Recurse -File
@@ -70,10 +75,16 @@ function Copy-CopilotHookFilesTree {
         $destinationPath = Join-Path $DestinationHooksRoot $relative
         $destinationDir = Split-Path -Parent $destinationPath
         if (-not (Test-Path -LiteralPath $destinationDir)) {
+            Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $relativeInventoryPath = ('hooks/{0}' -f $relative) -replace '\\', '/'
+        $null = Copy-ToolkitFileIfAbsent `
+            -SourcePath $file.FullName `
+            -DestinationPath $destinationPath `
+            -InstallRoot $InstallRoot `
+            -RelativePath $relativeInventoryPath
         $filesCopied++
     }
 
@@ -81,7 +92,11 @@ function Copy-CopilotHookFilesTree {
         $sharedSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Test-Path -LiteralPath $sharedSource) {
             $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
-            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+            $null = Copy-ToolkitFileIfAbsent `
+                -SourcePath $sharedSource `
+                -DestinationPath $sharedDest `
+                -InstallRoot $InstallRoot `
+                -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedGuardCommonFileName)
             $filesCopied++
         }
     }
@@ -162,27 +177,40 @@ function Invoke-CopilotPublishHooks {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destinationHooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName
 
-    $filesCopied = Copy-CopilotHookFilesTree `
-        -SourceHooksRoot $sourceHooksRoot `
-        -DestinationHooksRoot $destinationHooksRoot `
-        -RepoRoot $repoRoot
-    $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
-    Resolve-CopilotPlaceholdersInTree -RootPath $destinationHooksRoot -PlaceholderMap $placeholderMap
-    Assert-CopilotPlaceholdersResolved -RootPath $destinationHooksRoot
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $filesCopied = Copy-CopilotHookFilesTree `
+            -SourceHooksRoot $sourceHooksRoot `
+            -DestinationHooksRoot $destinationHooksRoot `
+            -RepoRoot $repoRoot `
+            -InstallRoot $resolvedInstallRoot
+        $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
+        Assert-ToolkitManagedWriteDestination `
+            -DestinationPath (Join-Path $destinationHooksRoot 'placeholder.txt') `
+            -InstallRoot $resolvedInstallRoot
+        $changedPaths = @(Resolve-CopilotPlaceholdersInTree -RootPath $destinationHooksRoot -PlaceholderMap $placeholderMap)
+        if ($changedPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $resolvedInstallRoot -Paths $changedPaths
+        }
+        Assert-CopilotPlaceholdersResolved -RootPath $destinationHooksRoot
 
-    return [PSCustomObject]@{
-        Success                 = $true
-        Implemented             = $true
-        CommandName             = 'Publish-Hooks'
-        NoOp                    = $false
-        WhatIf                  = $false
-        Mode                    = $normalizedMode
-        InstallRoot             = $resolvedInstallRoot
-        HooksRoot               = $destinationHooksRoot
-        SourceRoot              = $sourceHooksRoot
-        FilesCopied             = $filesCopied
-        Message                 = ($script:CopilotPublishMessage.HooksPublishedOk -f $filesCopied, $destinationHooksRoot, $normalizedMode)
-        ExitCode                = 0
-        SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
+        return [PSCustomObject]@{
+            Success                 = $true
+            Implemented             = $true
+            CommandName             = 'Publish-Hooks'
+            NoOp                    = $false
+            WhatIf                  = $false
+            Mode                    = $normalizedMode
+            InstallRoot             = $resolvedInstallRoot
+            HooksRoot               = $destinationHooksRoot
+            SourceRoot              = $sourceHooksRoot
+            FilesCopied             = $filesCopied
+            Message                 = ($script:CopilotPublishMessage.HooksPublishedOk -f $filesCopied, $destinationHooksRoot, $normalizedMode)
+            ExitCode                = 0
+            SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
+        }
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 }

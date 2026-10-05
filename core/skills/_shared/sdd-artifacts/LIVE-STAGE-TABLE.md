@@ -6,6 +6,8 @@ Weight tokens stay English: `Low`, `Medium`, `High`, `Very high`, or `—`. Weig
 
 Do not write the **stage** table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md`.
 
+For O3, the complete table is redrawn only after the child receipt has been validated and the PLAN checkpoint/ledger has been persisted and re-read. It is then followed by the session report and only afterward by next-spawn evaluation. This chat-only table is not the PLAN ledger/checkpoint, the PLAN-LEDGER claim, the session report, or `CONTINUITY.md`; each remains a separate artifact with its own purpose.
+
 The **step ledger** is different. It lives in the PLAN under `Implementation progress` and is redrawn in chat on each `sdd-develop` / `orchestrate-develop` step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
 
 ## Columns
@@ -30,6 +32,8 @@ Use these glyphs. The word beside the glyph follows the user chat language. Do n
 Before the first row runs, mark that row `◐` and the rest `☐`. After each row finishes, redraw the **entire** table: completed rows become `☑`, the next row becomes `◐`, and `What happened` states the action or the evidence path. Use `⊘` or `⚠` when the step stops. Do not imply success.
 
 `What happened` names actions, artifacts, evidence, and blockers. Do not narrate hidden reasoning.
+
+If receipt validation is missing, incomplete, inconsistent, blocked, or failed, stop the redraw at the blocked state and do not present a successful final table or imply that a dependent spawn is authorized. Do not invent events, streaming, or heartbeat cadence absent from the host.
 
 ## Caller rows
 

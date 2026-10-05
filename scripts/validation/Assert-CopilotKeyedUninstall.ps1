@@ -54,6 +54,13 @@ $alienRootFileName = 'alien-notes.md'
 $expectedSkillProbe = 'commit'
 $expectedInstructionProbe = 'guardrails.instructions.md'
 $expectedHookProbe = 'hooks.json'
+$expectedLegacyAgentProbe = 'repo-analyst.md'
+$expectedAgentProfileProbe = 'repo-analyst.agent.md'
+$userOwnedLegacyAgentContent = "# user-owned legacy agent`n"
+$userModifiedInstructionContent = "# user-modified instruction`n"
+$userModifiedRootInstructionContent = "# user-modified root instruction`n"
+$userModifiedHookContent = '{"userModified":true}' + "`n"
+$userModifiedAgentContent = "# user-modified agent profile`n"
 
 foreach ($required in @(
         $copilotModulePath,
@@ -157,30 +164,44 @@ function Invoke-CopilotSyncValidate {
 function Assert-ToolkitArtifactsAbsent {
     param(
         [Parameter(Mandatory = $true)][string] $FixtureRoot,
-        [Parameter(Mandatory = $true)][string] $TestName
+        [Parameter(Mandatory = $true)][string] $TestName,
+        [Parameter()][switch] $AllowModifiedManagedTargets
     )
 
     $skillProbe = Join-Path (Join-Path $FixtureRoot $skillsDirName) $expectedSkillProbe
     # Names-only manifests cannot prove ownership of files within a skill folder.
 
     $instructionProbe = Join-Path (Join-Path $FixtureRoot $instructionsDirName) $expectedInstructionProbe
-    if (Test-Path -LiteralPath $instructionProbe) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $instructionProbe)) {
         Write-Fail -TestName $TestName -Reason ("toolkit instruction still present: {0}" -f $instructionProbe)
     }
 
     $copilotInstructions = Join-Path $FixtureRoot $copilotInstructionsName
-    if (Test-Path -LiteralPath $copilotInstructions) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $copilotInstructions)) {
         Write-Fail -TestName $TestName -Reason ("copilot-instructions.md still present: {0}" -f $copilotInstructions)
     }
 
     $hookProbe = Join-Path (Join-Path $FixtureRoot $hooksDirName) $expectedHookProbe
-    if (Test-Path -LiteralPath $hookProbe) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $hookProbe)) {
         Write-Fail -TestName $TestName -Reason ("toolkit hook still present: {0}" -f $hookProbe)
     }
 
-    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) 'repo-analyst.agent.md'
-    if (Test-Path -LiteralPath $agentProbe) {
+    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedAgentProfileProbe
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $agentProbe)) {
         Write-Fail -TestName $TestName -Reason ("toolkit custom agent still present: {0}" -f $agentProbe)
+    }
+
+}
+
+function Assert-GeneratedLegacyAgentAbsent {
+    param(
+        [Parameter(Mandatory = $true)][string] $FixtureRoot,
+        [Parameter(Mandatory = $true)][string] $TestName
+    )
+
+    $legacyAgentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedLegacyAgentProbe
+    if (Test-Path -LiteralPath $legacyAgentProbe) {
+        Write-Fail -TestName $TestName -Reason ("generated legacy custom agent still present: {0}" -f $legacyAgentProbe)
     }
 }
 
@@ -210,9 +231,14 @@ function Assert-ToolkitArtifactsPresent {
         Write-Fail -TestName $TestName -Reason ("precondition: toolkit hook missing after sync: {0}" -f $hookProbe)
     }
 
-    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) 'repo-analyst.agent.md'
+    $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedAgentProfileProbe
     if (-not (Test-Path -LiteralPath $agentProbe)) {
         Write-Fail -TestName $TestName -Reason ("precondition: toolkit custom agent missing after sync: {0}" -f $agentProbe)
+    }
+
+    $legacyAgentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedLegacyAgentProbe
+    if (-not (Test-Path -LiteralPath $legacyAgentProbe)) {
+        Write-Fail -TestName $TestName -Reason ("precondition: generated legacy custom agent missing after sync: {0}" -f $legacyAgentProbe)
     }
 }
 
@@ -258,9 +284,19 @@ $userName = 'Should_RemoveToolkitArtifacts_When_UninstallCopilotUserFixture'
 
 Initialize-CopilotKeyedUninstallWorkRoot -SeedRoot $fixtureUserSeedRoot -WorkRoot $fixtureUserRoot
 Clear-CopilotFixturePublishedTree -FixtureRoot $fixtureUserRoot
+$userOwnedLegacyAgentPath = Join-Path (Join-Path $fixtureUserRoot $agentsDirName) $expectedLegacyAgentProbe
 Invoke-CopilotSyncValidate -FixtureRoot $fixtureUserRoot -Mode $modeUser -TestName $userName
 Assert-ToolkitArtifactsPresent -FixtureRoot $fixtureUserRoot -TestName $userName
 Add-AlienFilesUnderFixture -FixtureRoot $fixtureUserRoot
+[System.IO.File]::WriteAllText($userOwnedLegacyAgentPath, $userOwnedLegacyAgentContent, (New-Object System.Text.UTF8Encoding $false))
+$userModifiedInstructionPath = Join-Path (Join-Path $fixtureUserRoot $instructionsDirName) $expectedInstructionProbe
+$userModifiedRootInstructionPath = Join-Path $fixtureUserRoot $copilotInstructionsName
+$userModifiedHookPath = Join-Path (Join-Path $fixtureUserRoot $hooksDirName) $expectedHookProbe
+$userModifiedAgentPath = Join-Path (Join-Path $fixtureUserRoot $agentsDirName) $expectedAgentProfileProbe
+[System.IO.File]::WriteAllText($userModifiedInstructionPath, $userModifiedInstructionContent, (New-Object System.Text.UTF8Encoding $false))
+[System.IO.File]::WriteAllText($userModifiedRootInstructionPath, $userModifiedRootInstructionContent, (New-Object System.Text.UTF8Encoding $false))
+[System.IO.File]::WriteAllText($userModifiedHookPath, $userModifiedHookContent, (New-Object System.Text.UTF8Encoding $false))
+[System.IO.File]::WriteAllText($userModifiedAgentPath, $userModifiedAgentContent, (New-Object System.Text.UTF8Encoding $false))
 
 $uninstallUser = Uninstall-Toolkit -InstallRoot $fixtureUserRoot -Mode $modeUser
 if ($null -eq $uninstallUser) {
@@ -282,7 +318,22 @@ if ([string]$uninstallUser.Mode -ne $modeUser) {
     Write-Fail -TestName $userName -Reason ("Mode must be user, got: {0}" -f $uninstallUser.Mode)
 }
 
-Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureUserRoot -TestName $userName
+Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureUserRoot -TestName $userName -AllowModifiedManagedTargets
+if (-not (Test-Path -LiteralPath $userOwnedLegacyAgentPath) -or
+    (Get-Content -LiteralPath $userOwnedLegacyAgentPath -Raw) -ne $userOwnedLegacyAgentContent) {
+    Write-Fail -TestName $userName -Reason 'pre-existing user-owned legacy agent must survive uninstall unchanged'
+}
+foreach ($modifiedFile in @(
+        @{ Path = $userModifiedInstructionPath; Content = $userModifiedInstructionContent; Label = 'instruction' },
+        @{ Path = $userModifiedRootInstructionPath; Content = $userModifiedRootInstructionContent; Label = 'root instruction' },
+        @{ Path = $userModifiedHookPath; Content = $userModifiedHookContent; Label = 'hook' },
+        @{ Path = $userModifiedAgentPath; Content = $userModifiedAgentContent; Label = 'agent profile' }
+    )) {
+    if (-not (Test-Path -LiteralPath $modifiedFile.Path) -or
+        (Get-Content -LiteralPath $modifiedFile.Path -Raw) -ne $modifiedFile.Content) {
+        Write-Fail -TestName $userName -Reason ("modified managed-named {0} must survive uninstall unchanged" -f $modifiedFile.Label)
+    }
+}
 
 $smokeAfterUser = Invoke-SmokeValidate -InstallRoot $fixtureUserRoot -Mode $modeUser
 if ($null -eq $smokeAfterUser -or $smokeAfterUser.Success -eq $true) {
@@ -316,6 +367,7 @@ if ([string]$uninstallRepo.Mode -ne $modeRepo) {
 }
 
 Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureRepoRoot -TestName $repoName
+Assert-GeneratedLegacyAgentAbsent -FixtureRoot $fixtureRepoRoot -TestName $repoName
 
 $smokeAfterRepo = Invoke-SmokeValidate -InstallRoot $fixtureRepoRoot -Mode $modeRepo
 if ($null -eq $smokeAfterRepo -or $smokeAfterRepo.Success -eq $true) {

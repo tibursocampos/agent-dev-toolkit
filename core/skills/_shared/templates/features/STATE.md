@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Feature** | `features/{{NNN}}-{{slug}}/` |
+| **Story** | `features/{{NNN}}-{{slug}}/{{USnn|TSnn}}/` |
 | **Evidence level** | cheap |
-| **PLAN** | `./USnn/PLAN/PLAN_NNN_*.md` (portable path) |
+| **PLAN** | `./PLAN/PLAN_NNN_*.md` (portable path) |
 | **Updated** | YYYY-MM-DD |
 
 ## Purpose
@@ -25,7 +25,7 @@ Post-implementation **evidence-or-zero** ledger (REQ-005 / CA4). Maps acceptance
 - Level `strict`: every **Result** is `pass`
 
 ```text
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot features/{{NNN}}-{{slug}}
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot features/{{NNN}}-{{slug}}/{{USnn|TSnn}}
 ```
 
 ## Verifier note

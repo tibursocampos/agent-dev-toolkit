@@ -1,6 +1,6 @@
 ## Evidence-or-zero (REQ-005 / CA4)
 
-Canonical paths: `features/NNN-slug/EVD/`, `features/NNN-slug/STATE.md`.
+Canonical paths: `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md`.
 
 | Level | Gate |
 |-------|------|
@@ -10,7 +10,9 @@ Canonical paths: `features/NNN-slug/EVD/`, `features/NNN-slug/STATE.md`.
 | `strict` | `standard` + every Result = `pass` |
 
 ```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -FeatureRoot features/NNN-slug [-Level cheap]
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot features/NNN-slug/USnn [-Level cheap]
+# Or derive the story root only from an explicit plan/story path:
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -PlanPath features/NNN-slug/TSnn/PLAN/PLAN_*.md [-Level cheap]
 ```
 
 Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Smoke: `Assert-EvidenceContract.ps1`.

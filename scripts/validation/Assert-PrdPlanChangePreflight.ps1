@@ -115,6 +115,52 @@ if ($validResult.Output -notmatch 'ALLOW') {
 }
 Write-Pass -TestName 'Should_Pass_When_ConsistentPrdPlanChangePreflight'
 
+# --- direct context: missing brownfield CHANGE requires explicit risk ---
+$directWork = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-preflight-direct-{0}' -f [Guid]::NewGuid().ToString('N'))
+try {
+    New-Item -ItemType Directory -Path $directWork -Force | Out-Null
+    Copy-Item -LiteralPath $validRoot -Destination (Join-Path $directWork 'feature') -Recurse -Force
+    $directFeature = Join-Path $directWork 'feature'
+    $directChange = Join-Path $directFeature 'CHANGE.md'
+    Remove-Item -LiteralPath $directChange -Force
+    $directPlan = Find-FixturePlan -FeatureRootPath $directFeature
+    $directPrd = @(Get-ChildItem -LiteralPath $directFeature -Recurse -Filter '*_preflight_valid.md' -File |
+        Where-Object { $_.Directory.Name -eq 'PRD' })[0].FullName
+
+    $directBlocked = Invoke-Preflight -ScriptPath $preflightPath -Arguments @{
+        FeatureRoot       = $directFeature
+        PlanPath          = $directPlan
+        PrdPath           = $directPrd
+        RepoPath          = $repoRoot
+        InvocationContext = 'direct'
+    }
+    if ($directBlocked.ExitCode -ne $exitBlock -or $directBlocked.Output -notmatch 'direct_change_confirmation_required') {
+        Write-Fail -TestName 'Should_Ask_When_DirectBrownfieldChangeIsMissing' -Reason ("expected explicit direct risk gate. {0}" -f $directBlocked.Output.Trim())
+    }
+    Write-Pass -TestName 'Should_Ask_When_DirectBrownfieldChangeIsMissing'
+
+    $directAllowed = Invoke-Preflight -ScriptPath $preflightPath -Arguments @{
+        FeatureRoot       = $directFeature
+        PlanPath          = $directPlan
+        PrdPath           = $directPrd
+        RepoPath          = $repoRoot
+        InvocationContext = 'direct'
+        AllowDirectRisk   = $true
+        DirectRiskOwner   = 'fixture-owner'
+        DirectRiskBaseline = 'memory-bank/domain-knowledge.md'
+        DirectRiskPath    = 'CHANGE.md'
+    }
+    if ($directAllowed.ExitCode -ne $exitAllow -or $directAllowed.Output -notmatch 'change_missing_direct_risk' -or $directAllowed.Output -notmatch 'direct_risk: owner=fixture-owner') {
+        Write-Fail -TestName 'Should_Allow_When_DirectBrownfieldRiskIsExplicit' -Reason ("expected explicit direct risk warning. {0}" -f $directAllowed.Output.Trim())
+    }
+    Write-Pass -TestName 'Should_Allow_When_DirectBrownfieldRiskIsExplicit'
+}
+finally {
+    if (Test-Path -LiteralPath $directWork) {
+        Remove-Item -LiteralPath $directWork -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # --- orphan REQ ---
 $orphanRoot = Get-FixtureFeatureRoot -RelativeDir $script:ToolkitConstant.PrdPlanChangePreflightFixtureOrphanRelativeDir
 $orphanPlan = Find-FixturePlan -FeatureRootPath $orphanRoot

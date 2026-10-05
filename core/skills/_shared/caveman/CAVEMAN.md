@@ -16,7 +16,7 @@ Forces the agent to respond in telegraphic, concise fragments — eliminating
 conversational filler, preambles, and polite wrapper text — while preserving
 100% of technical content (code, paths, artifact drafts, confirmation gates).
 
-**Mouth smaller, brain same.** Compress style, not substance. Compress style, not language (chat stays pt-BR when that is the toolkit language policy).
+**Mouth smaller, brain same.** Compress style, not substance. Compress style, not language: chat follows the active user-language policy; artifact language follows artifact-language resolution.
 
 **Expected savings:** often 22–87% of *output prose* tokens on verbose replies.  
 **Honest cost:** loading this file adds ~1–1.5k input tokens per turn. Net-negative on short Q&A (~150 output tokens). Prefer ON for long review/debug/orchestration; OFF for terse coding Q&A. See `docs/guides/07-caveman-mode.md` and `docs/CREDITS.md`.
@@ -52,14 +52,14 @@ conversational filler, preambles, and polite wrapper text — while preserving
 3. If caveman_mode false: Mode = OFF — skip compression rules.
 4. If true: Mode = ON — apply intensity (see Levels), show activation notice once per session.
 5. In-session commands (not roleplay; no cave-themed language or emojis):
-   - "caveman on"              -> caveman_mode true; confirm: "[Caveman] Modo ativado (respostas compactas)."
-   - "caveman off"             -> caveman_mode false; confirm: "[Caveman] Modo desativado."
+   - "caveman on"              -> caveman_mode true; confirm in the active user-chat language.
+   - "caveman off"             -> caveman_mode false; confirm in the active user-chat language.
    - "caveman status"          -> report on/off + level.
    - "caveman lite|full|ultra" -> set caveman_level; if mode was off, turn on; confirm level.
 ```
 
 **Activation notice (when mode is ON):**
-> [Caveman] Modo ativo (respostas compactas, level={level}). Digite `caveman off` para desativar.
+Use the active user-chat language: `[Caveman] mode active (compact responses, level={level}). Type caveman off to disable.`
 
 **Persistence:** Mode stays ON every reply until `caveman off` / `normal mode` / `stop caveman`. Do not silently drift back to filler mid-session.
 

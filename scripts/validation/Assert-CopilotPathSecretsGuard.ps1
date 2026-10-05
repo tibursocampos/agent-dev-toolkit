@@ -13,6 +13,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+$guardHarnessScript = Join-Path $libDir 'Invoke-PathSecretsGuardHarness.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -28,27 +29,7 @@ function Write-Fail {
     exit 1
 }
 
-function Invoke-GuardHook {
-    param(
-        [Parameter(Mandatory = $true)][string] $HookScriptPath,
-        [Parameter(Mandatory = $true)][hashtable] $Payload
-    )
-
-    $json = $Payload | ConvertTo-Json -Compress -Depth 6
-    $output = $json | pwsh -NoProfile -File $HookScriptPath 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    if ($null -eq $code) { $code = 0 }
-    $parsed = $null
-    try {
-        $parsed = $output.Trim() | ConvertFrom-Json -ErrorAction Stop
-    }
-    catch {
-        $parsed = $null
-    }
-    return [PSCustomObject]@{ ExitCode = [int]$code; Output = $output; Payload = $parsed }
-}
-
-foreach ($required in @($repoRootScript, $constantsScript)) {
+foreach ($required in @($repoRootScript, $constantsScript, $guardHarnessScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-CopilotPathSecretsGuardPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -56,6 +37,7 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $constantsScript
 . $repoRootScript
+. $guardHarnessScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $hooksRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'copilot') 'assets') 'hooks'
@@ -78,30 +60,32 @@ if (Test-Path -LiteralPath $fixtureRoot) {
 }
 $null = New-Item -ItemType Directory -Path $fixtureRoot -Force
 
-$deny = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
-    toolName = 'write'
-    toolArgs = (@{ path = (Join-Path $fixtureRoot 'PRD\blocked.md'); content = '# blocked' } | ConvertTo-Json -Compress)
-    cwd      = $fixtureRoot
-}
-$denied = ($deny.ExitCode -eq 2) -or ($null -ne $deny.Payload -and [string]$deny.Payload.permissionDecision -eq 'deny')
-if (-not $denied) {
-    Write-Fail -TestName 'Should_Deny_When_ForbiddenSddPath' -Reason ("expected deny; exit={0} output={1}" -f $deny.ExitCode, $deny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_ForbiddenSddPath'
+$reparseTarget = Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-copilot-reparse-target'
+$reparseLink = Join-Path (Join-Path $fixtureRoot 'src') 'linked'
+$null = New-Item -ItemType Directory -Path $reparseTarget -Force
+$null = New-Item -ItemType Directory -Path (Split-Path -Parent $reparseLink) -Force
+$reparseItemType = if ($env:OS -eq 'Windows_NT') { 'Junction' } else { 'SymbolicLink' }
+$null = New-Item -ItemType $reparseItemType -Path $reparseLink -Target $reparseTarget
+$reparsePayload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $reparseLink 'escape.cs'); content = 'class X {}' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }
 
-$secret = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
-    toolName = 'write'
-    toolArgs = (@{
-            path    = (Join-Path $fixtureRoot 'src\ok.cs')
-            content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";'
-        } | ConvertTo-Json -Compress)
-    cwd = $fixtureRoot
+$cases = @(
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ForbiddenSddPath'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'PRD\blocked.md'); content = '# blocked' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'expected deny for forbidden SDD path' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_SecretPatternDetected'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'src\ok.cs'); content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'expected deny for secret pattern' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_HookIdentityMissing'; Payload = @{ toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'src\missing-identity.cs'); content = 'class X {}' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'write without preToolUse identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellHookIdentityMissing'; Payload = @{ toolName = 'bash'; toolArgs = (@{ command = 'Set-Content -Path src\missing-shell-identity.cs -Value x' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'shell without preToolUse identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_DescendantReparseEscapesWorkspace'; Payload = $reparsePayload; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'write through an escaping junction must deny' }
+)
+try {
+    Invoke-PathSecretsGuardHarness -AdapterName 'Copilot' -HookScriptPath $guardScript -Cases $cases -GetDecision {
+        param($Payload)
+        if ($null -eq $Payload) { return $null }
+        return [string]$Payload.permissionDecision
+    }
 }
-$secretDenied = ($secret.ExitCode -eq 2) -or ($null -ne $secret.Payload -and [string]$secret.Payload.permissionDecision -eq 'deny')
-if (-not $secretDenied) {
-    Write-Fail -TestName 'Should_Deny_When_SecretPatternDetected' -Reason ("expected secret deny; exit={0} output={1}" -f $secret.ExitCode, $secret.Output.Trim())
+finally {
+    Remove-Item -LiteralPath $reparseLink -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $reparseTarget -Force -Recurse -ErrorAction SilentlyContinue
 }
-Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
 

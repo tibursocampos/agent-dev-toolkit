@@ -73,19 +73,21 @@ function Invoke-CopilotPublishAgents {
 
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $destAgentsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CustomAgentsDirectoryName
-    $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
-    $publishResult = Invoke-ToolkitManagedAgentsPublish `
-        -SourceAgentsRoot $sourceAgentsRoot `
-        -DestinationAgentsRoot $destAgentsRoot `
-        -InstallRoot $resolvedInstallRoot `
-        -PlaceholderMap $placeholderMap `
-        -TextFileExtensionPattern $script:CopilotPathConstant.TextFileExtensionPattern `
-        -UnresolvedTokens @(
-            $script:CopilotPathConstant.PlaceholderToolkitRoot,
-            $script:CopilotPathConstant.PlaceholderSddRoot,
-            $script:CopilotPathConstant.PlaceholderGuardrailsPath
-        ) `
-        -UnresolvedMessageFormat $script:CopilotPublishMessage.PlaceholderUnresolved
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
+        $publishResult = Invoke-ToolkitManagedAgentsPublish `
+            -SourceAgentsRoot $sourceAgentsRoot `
+            -DestinationAgentsRoot $destAgentsRoot `
+            -InstallRoot $resolvedInstallRoot `
+            -PlaceholderMap $placeholderMap `
+            -TextFileExtensionPattern $script:CopilotPathConstant.TextFileExtensionPattern `
+            -UnresolvedTokens @(
+                $script:CopilotPathConstant.PlaceholderToolkitRoot,
+                $script:CopilotPathConstant.PlaceholderSddRoot,
+                $script:CopilotPathConstant.PlaceholderGuardrailsPath
+            ) `
+            -UnresolvedMessageFormat $script:CopilotPublishMessage.PlaceholderUnresolved
 
     # Copilot CLI accepts both .md and .agent.md; VS Code discovers .agent.md.
     # Publish one canonical profile per agent so both hosts resolve the same ID.
@@ -117,23 +119,32 @@ function Invoke-CopilotPublishAgents {
             }
         }
 
-        $null = Write-ToolkitFileIfAbsent -Path $profilePath -Content $profileText -Encoding (New-Object System.Text.UTF8Encoding $false)
+        $null = Write-ToolkitFileIfAbsent `
+            -Path $profilePath `
+            -Content $profileText `
+            -Encoding (New-Object System.Text.UTF8Encoding $false) `
+            -InstallRoot $resolvedInstallRoot `
+            -RelativePath ('agents/{0}' -f ($agentName + '.agent.md'))
         Write-Warning ("Preserved legacy agent Markdown file because ownership is not proven: {0}" -f $legacyPath)
     }
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
+        Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
 
-    return [PSCustomObject]@{
-        Success          = $true
-        Implemented      = $true
-        CommandName      = 'Publish-Agents'
-        WhatIf           = $false
-        Mode             = $normalizedMode
-        InstallRoot      = $resolvedInstallRoot
-        SourceAgentsRoot = $sourceAgentsRoot
-        DestAgentsRoot   = $destAgentsRoot
-        AgentFileCount   = $publishResult.AgentFileCount
-        Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
-        ExitCode         = 0
+        return [PSCustomObject]@{
+            Success          = $true
+            Implemented      = $true
+            CommandName      = 'Publish-Agents'
+            WhatIf           = $false
+            Mode             = $normalizedMode
+            InstallRoot      = $resolvedInstallRoot
+            SourceAgentsRoot = $sourceAgentsRoot
+            DestAgentsRoot   = $destAgentsRoot
+            AgentFileCount   = $publishResult.AgentFileCount
+            Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
+            ExitCode         = 0
+        }
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 }

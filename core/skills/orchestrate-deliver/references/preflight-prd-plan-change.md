@@ -18,9 +18,37 @@ Exit codes: `0` allow · `2` block · `1` usage.
 | `validate-plan` (+ PRD) | `validate_plan_failed` | Invokes existing script — does **not** replace it |
 | PLAN REQ not in PRD | `orphan_req` | Extra consistency beyond validate-plan coverage |
 | PRD vs PLAN filename NNN | `nnn_mismatch` | Also feature-folder NNN when `NNN-slug` leaf |
-| Brownfield CHANGE missing/invalid | `change_missing_brownfield` / `change_brownfield_invalid` | Uses `validate-change` + `CHANGE-CONTRACT.md` |
+| Brownfield CHANGE missing/invalid | `change_missing_brownfield` / `change_brownfield_invalid` | Uses `validate-change` + `CHANGE-CONTRACT.md`; orchestrated mode remains strict |
 
 Messages use **portable paths** only (`STORAGE.md` § Portable path). Preflight is **read-only** — zero app-code mutation.
+
+### Invocation context and direct-risk registration
+
+The script defaults to `-InvocationContext orchestrated`; a missing brownfield
+`CHANGE.md` blocks with `change_missing_brownfield`. Direct Classic SDD may choose
+an explicit risk continuation:
+
+```text
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/Invoke-PrdPlanChangePreflight.ps1" \
+  -FeatureRoot <features/NNN-slug> -PlanPath <portable-plan-path> \
+  -InvocationContext direct -AllowDirectRisk \
+  -DirectRiskOwner <owner> \
+  -DirectRiskBaseline <portable-current-baseline> \
+  -DirectRiskPath CHANGE.md
+```
+
+All three direct-risk fields are required. `DirectRiskPath` and
+`DirectRiskBaseline` must be portable paths without absolute or parent
+segments. A durable registration must also be present in the PLAN or its
+cited `ANALYSIS/ARCH` note, using this machine-readable form:
+
+```text
+<!-- direct-risk: owner=<owner>; baseline=<portable-baseline>; path=<portable-path> -->
+```
+
+Without that matching registration, direct mode blocks with
+`direct_change_confirmation_required`. The waiver never applies to
+orchestrated mode, and it does not skip validation when `CHANGE.md` exists.
 
 ### Operator / O2 wire
 

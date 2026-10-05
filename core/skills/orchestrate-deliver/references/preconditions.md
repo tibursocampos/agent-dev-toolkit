@@ -96,11 +96,11 @@ Paths (portable):
 - features/NNN-slug/…
 - features/NNN-slug/USnn/STORY.md
 
-Open B/I:
-- [B|I] <sharp question>
+Open B/I/MINOR:
+- [B|I|MINOR] <sharp question>
 
 1) Responder B/I (refine-story / O1) e reavaliar READY
 2) cancelar
 
-O2 não grava PRD/PLAN com B/I abertos. Presence de pasta ≠ READY.
+O2 não grava PRD/PLAN com B/I/MINOR abertos. Presence de pasta ≠ READY.
 ```

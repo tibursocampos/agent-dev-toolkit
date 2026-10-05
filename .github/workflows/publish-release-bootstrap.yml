@@ -8,9 +8,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to upload assets to (e.g. v1.2.3). Empty = create draft from current SHA.
-        required: false
-        default: ''
+        description: Existing release tag to upload assets to (e.g. v1.2.3).
+        required: true
 
 permissions:
   contents: write
@@ -21,12 +20,52 @@ env:
 
 jobs:
   publish:
+    if: >-
+      ${{ github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' &&
+      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) }}
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
     steps:
+      - name: Validate publication intent
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          WORKFLOW_REF: ${{ github.ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            [[ "${WORKFLOW_REF}" == "refs/heads/master" || "${WORKFLOW_REF}" == "refs/heads/main" ]] || {
+              echo "Manual publication is only approved from master or main (got ${WORKFLOW_REF})" >&2
+              exit 1
+            }
+            [[ "${INPUT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+              echo "Manual publication requires a tag matching vMAJOR.MINOR.PATCH" >&2
+              exit 1
+            }
+          fi
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          fetch-depth: 1
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Verify exact release tag checkout
+        env:
+          CHECKED_OUT_TAG: ${{ env.RELEASE_TAG }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_commit="$(git rev-list -n 1 "refs/tags/${CHECKED_OUT_TAG}")"
+          head_commit="$(git rev-parse HEAD)"
+          [[ "${tag_commit}" == "${head_commit}" ]] || {
+            echo "Checked out commit does not match requested release tag ${CHECKED_OUT_TAG}" >&2
+            exit 1
+          }
 
       - name: Pack toolkit zip + checksum + bootstrap entrypoints
         shell: bash
@@ -62,25 +101,11 @@ jobs:
       - name: Upload assets to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_TAG: ${{ inputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
           OUT="${RUNNER_TEMP}/adt-out"
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            TAG="${{ github.event.release.tag_name }}"
-          elif [[ -n "${INPUT_TAG}" ]]; then
-            TAG="${INPUT_TAG}"
-          else
-            TAG="bootstrap-smoke-$(git rev-parse --short HEAD)"
-            if gh release view "$TAG" >/dev/null 2>&1; then
-              echo "Release $TAG already exists"
-            else
-              gh release create "$TAG" --title "$TAG" --notes "Bootstrap assets (workflow_dispatch)." --draft
-            fi
-          fi
-
-          gh release upload "$TAG" \
+          gh release upload "$RELEASE_TAG" \
             "${OUT}/${ZIP_ASSET}" \
             "${OUT}/${CHECKSUM_ASSET}" \
             "${OUT}/bootstrap.ps1" \
@@ -88,5 +113,5 @@ jobs:
             "${OUT}/bootstrap.sh" \
             --clobber
 
-          echo "Uploaded to release tag: $TAG"
+          echo "Uploaded to release tag: $RELEASE_TAG"
           echo "Assets: ${ZIP_ASSET}, ${CHECKSUM_ASSET}, bootstrap.ps1, bootstrap.bat, bootstrap.sh"

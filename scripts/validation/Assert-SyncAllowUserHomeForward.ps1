@@ -372,7 +372,7 @@ try {
                 -ProbeInstallRoot $sampleProbe `
                 -MarkerRelativePath $sample.MarkerRelativePath `
                 -SyncAgentPath $syncAgentScript `
-                -Mode $sample.Mode
+                -Mode $(if ($sample -is [hashtable] -and $sample.ContainsKey('Mode')) { $sample['Mode'] } else { $null })
         }
         finally {
             Remove-ProbeDirectoryIfPresent -Path $sampleProbe

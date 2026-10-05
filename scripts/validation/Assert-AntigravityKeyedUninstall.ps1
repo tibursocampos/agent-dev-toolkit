@@ -47,7 +47,7 @@ if (-not (Test-Path -LiteralPath $resolveInstallRootScript)) {
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $modulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'antigravity') 'AntigravityAdapter.ps1'
 $seedFixtureRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-install-root'
-$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-keyed-uninstall'
+$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'antigravity-keyed-uninstall-work'
 $agentId = 'antigravity'
 $fixtureRelativeToken = 'fixtures/antigravity-install-root'
 $userGeminiSentinelRel = '.agent-dev-toolkit--antigravity-e2e-sentinel'

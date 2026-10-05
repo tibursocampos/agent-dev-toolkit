@@ -49,7 +49,7 @@ Follow the type file **Output template** and **Writing guidelines**. Combine use
 
 Immediately after the markdown, score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load `gherkin-budget.md` + `invest-and-story-quality.md` (and `product-evidence-lite.md` when Evidence is discussed). Score **Product depth** and verify AC budget (**happy + rule/edge + failure**, observable Then). Show total / 100, strengths, and specific improvements. Map Product depth → STORY 1–5 per rubric.
 
-Refresh envelope `status` from open questions. Outside the four open-question gates, READY means no open **B**/**I**. At those four gates, READY for the next artifact also requires no unanswered `MINOR` (`open_question`).
+Refresh envelope `status` from open questions. At the refine→PRD/O2 handoff, READY means no unanswered **B**/**I**/**MINOR** (`open_question`). An unanswered `MINOR` is blocking at that gate; it is not an assumption that may be carried forward.
 
 ### 5. Validation (chat-only)
 

@@ -17,6 +17,8 @@ Develop: {table row} — {step id}
 
 Do not narrate skill reads, agent names, or waits.
 
+For O3 reconciliation, the parent’s order is fixed: validate the child receipt; persist and re-read the PLAN checkpoint/ledger; redraw the complete chat-only stage table and reconciled ledger; emit the session report; then evaluate the next spawn. The stage table is never persisted. The PLAN ledger/checkpoint, PLAN-LEDGER claim, session report, and `CONTINUITY.md` remain separate artifacts with separate owners and moments. Missing or failed receipt validation pauses the step and dependents; no success state or next spawn is inferred. Do not invent events, streaming, or heartbeat cadence when the host does not expose them.
+
 ## Rows
 
 Fixed order:

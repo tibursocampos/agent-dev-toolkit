@@ -73,7 +73,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Operator notes |
 |-------|----------------|
-| `code-review` | Must choose **single** vs **multi-angle** (no silent default). Multi-angle: prefer parallel Tasks when `subagents=native`. Report pt-BR. |
+| `code-review` | Must choose **single** vs **multi-angle** (no silent default). Multi-angle: prefer parallel Tasks when `subagents=native`. Report in the active user-chat language. |
 | `developer` | Hybrid stack router or ad-hoc scripts; small/medium without full SDD. |
 | `*-developer` | Stack-specific small/medium work; medium/complex may spawn ≤2 children. |
 | `impeccable` | UI/UX harness → `DESIGN-BRIEF.md` → stack `*-developer`. Partial upstream Impeccable; not a full port. Live hooks need explicit consent. |

@@ -194,7 +194,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 | Situation | Next |
 |-----------|------|
-| After O3 (`orchestrate-develop`) completes | `/code-review` - skill asks single vs multi if not specified; never required as pipeline gate |
+| After O3 (`orchestrate-develop`) completes | First `/run-tests`, then `/code-review`; after review changes, `/run-tests` again, then the security role/prompt review of the diff. The security handoff is `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, using only a documented host mechanism or bounded in-parent fallback; never claim a `/security` command. |
 | New feature / PRD from review findings | `/sdd-spec` - paste or summarize review items; do **not** write PRD in this skill |
 | Coverage below threshold | `/test-coverage` -> then `/dotnet-developer` or `/sdd-develop` |
 | Fixes needed | `/developer` / `/sdd-develop` / stack `*-developer` (user chooses) |
@@ -204,7 +204,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 ### Recommended post-review loop (not mandatory)
 
-When the decision is **Changes required** (or the user fixed findings), **ask each** and wait (**sim** / **pular**) — never force:
+When the decision is **Changes required** (or the user fixed findings), **ask each** and wait (**sim** / **pular**) — never force. Any review change requires the post-review `/run-tests` stage before the security handoff:
 
 ```text
 Fluxo recomendado após o review:

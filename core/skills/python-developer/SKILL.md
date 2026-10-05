@@ -32,7 +32,9 @@ Invoke when the user asks for: `/python-developer`, `python fix`, `implement Fas
 
 ## Outcome
 
-Working **Python** code and tests in the open workspace: pytest (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Supports **FastAPI** and **Flask** — not a FastAPI-only skill. Does not replace SDD for multi-step or cross-repo features.
+Working **CPython host** code and tests in the open workspace: pytest (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Supports **FastAPI** and **Flask** — not a FastAPI-only skill. Does not replace SDD for multi-step or cross-repo features.
+
+Host boundary: use this skill for CPython applications, host tools, and host tests, including tools that communicate with a board. Do not use it to recommend MicroPython device APIs, device-only modules, REPL procedures, or flashing/deployment steps.
 
 ## Lazy-load (only when needed)
 
@@ -92,7 +94,7 @@ Follow `references/execute-flow.md` (subagent-first, workspace → guidelines �
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank.
+Enforce the full list in `references/must-not.md`. Critical: no guideline dumps into children; no auto-commit; lazy-load stack guidelines only — never dump full packs or memory-bank. If runtime, target, or port evidence is missing and the answer could change between CPython and MicroPython, ask for that context before recommending an API or deployment operation; never infer device runtime from `.py` alone.
 
 ## Handoff
 

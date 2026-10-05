@@ -27,6 +27,23 @@
 .PARAMETER RepoPath
   Optional repository root for portable path rendering.
 
+.PARAMETER InvocationContext
+  `orchestrated` (default) keeps the brownfield CHANGE gate strict.
+  `direct` requires AllowDirectRisk to continue when CHANGE.md is missing.
+
+.PARAMETER AllowDirectRisk
+  Explicit direct-mode acknowledgement for a missing brownfield CHANGE.md.
+  Requires DirectRiskOwner, DirectRiskBaseline, and DirectRiskPath.
+
+.PARAMETER DirectRiskOwner
+  Durable owner recorded for an accepted direct-mode risk.
+
+.PARAMETER DirectRiskBaseline
+  Current baseline that the accepted risk does not reconcile.
+
+.PARAMETER DirectRiskPath
+  Portable path registered for the accepted risk.
+
 .EXAMPLE
   .\scripts\validation\Invoke-PrdPlanChangePreflight.ps1 `
     -FeatureRoot features\006-skills-maturity-parity `
@@ -50,7 +67,26 @@ param(
     [string] $Nature = '',
 
     [Parameter(Mandatory = $false)]
-    [string] $RepoPath = ''
+    [string] $RepoPath = '',
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('direct', 'orchestrated')]
+    [string] $InvocationContext = 'orchestrated',
+
+    [Parameter(Mandatory = $false)]
+    [switch] $AllowDirectRisk,
+
+    [Parameter(Mandatory = $false)]
+    [Alias('RiskOwner')]
+    [string] $DirectRiskOwner = '',
+
+    [Parameter(Mandatory = $false)]
+    [Alias('RiskBaseline')]
+    [string] $DirectRiskBaseline = '',
+
+    [Parameter(Mandatory = $false)]
+    [Alias('RiskPath')]
+    [string] $DirectRiskPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -89,6 +125,47 @@ function Write-PreflightUsage {
     param([Parameter(Mandatory = $true)][string] $Message)
     Write-Output ("preflight: USAGE - {0}" -f $Message)
     exit $exitUsage
+}
+
+function Assert-DirectRiskRegistration {
+    param([Parameter(Mandatory = $true)][string] $ExpectedPath)
+    if ($InvocationContext -ne 'direct' -or -not $AllowDirectRisk) {
+        return
+    }
+    if ([string]::IsNullOrWhiteSpace($DirectRiskOwner) -or
+        [string]::IsNullOrWhiteSpace($DirectRiskBaseline) -or
+        [string]::IsNullOrWhiteSpace($DirectRiskPath)) {
+        Write-PreflightUsage -Message 'Direct risk requires DirectRiskOwner, DirectRiskBaseline, and DirectRiskPath.'
+    }
+    $registeredPath = ($DirectRiskPath.Trim() -replace '\\', '/')
+    $registeredBaseline = ($DirectRiskBaseline.Trim() -replace '\\', '/')
+    if ([System.IO.Path]::IsPathRooted($registeredPath) -or $registeredPath -match '(^|/)\.\.(/|$)' -or
+        [System.IO.Path]::IsPathRooted($registeredBaseline) -or $registeredBaseline -match '(^|/)\.\.(/|$)') {
+        Write-PreflightUsage -Message 'DirectRiskPath and DirectRiskBaseline must be portable paths without absolute or parent segments.'
+    }
+    if ($registeredPath -ne $ExpectedPath) {
+        Write-PreflightUsage -Message ("DirectRiskPath must register the missing path: {0}" -f $ExpectedPath)
+    }
+    $registrationFiles = @($resolvedPlan)
+    foreach ($folder in @('ANALYSIS', 'ARCH')) {
+        $folderPath = Join-Path $resolvedFeature $folder
+        if (Test-Path -LiteralPath $folderPath -PathType Container) {
+            $registrationFiles += @(Get-ChildItem -LiteralPath $folderPath -Recurse -Filter '*.md' -File | Select-Object -ExpandProperty FullName)
+        }
+    }
+    $registrationPattern = '(?im)^\s*<!--\s*direct-risk:\s*owner=(?<owner>[^;]+);\s*baseline=(?<baseline>[^;]+);\s*path=(?<path>[^\r\n]+?)\s*;?\s*-->\s*$'
+    foreach ($file in $registrationFiles) {
+        $registrationText = Get-Content -LiteralPath $file -Raw -Encoding UTF8
+        foreach ($match in [regex]::Matches($registrationText, $registrationPattern)) {
+            $fileOwner = $match.Groups['owner'].Value.Trim()
+            $fileBaseline = ($match.Groups['baseline'].Value.Trim() -replace '\\', '/')
+            $filePath = ($match.Groups['path'].Value.Trim() -replace '\\', '/')
+            if ($fileOwner -eq $DirectRiskOwner.Trim() -and $fileBaseline -eq $registeredBaseline -and $filePath -eq $registeredPath) {
+                return
+            }
+        }
+    }
+    Write-PreflightUsage -Message 'Direct risk requires a matching durable registration in PLAN, ANALYSIS, or ARCH.'
 }
 
 function Resolve-ExistingPath {
@@ -348,12 +425,23 @@ if ($featureNnnMatch.Success -and -not [string]::IsNullOrWhiteSpace($planNnn)) {
 $brownfield = $script:ToolkitConstant.PrdPlanChangePreflightNatureBrownfield
 if ($natureValue -eq $brownfield) {
     if (-not (Test-Path -LiteralPath $resolvedChange)) {
-        Write-PreflightBlock -Reason $script:ToolkitConstant.PrdPlanChangePreflightReasonChangeMissing -Detail $portableChange
+        $riskPath = if ([System.IO.Path]::IsPathRooted($portableChange)) { [System.IO.Path]::GetFileName($portableChange) } else { $portableChange }
+        if ($InvocationContext -eq 'direct' -and $AllowDirectRisk) {
+            Assert-DirectRiskRegistration -ExpectedPath $riskPath
+            Write-Output ("preflight: WARN reason=change_missing_direct_risk; detail={0}; follow_up=owner must create and validate CHANGE.md before O3" -f $portableChange)
+            Write-Output ("direct_risk: owner={0}; baseline={1}; path={2}" -f $DirectRiskOwner.Trim(), $DirectRiskBaseline.Trim(), ($DirectRiskPath.Trim() -replace '\\', '/'))
+        }
+        else {
+            $reason = if ($InvocationContext -eq 'direct') { 'direct_change_confirmation_required' } else { $script:ToolkitConstant.PrdPlanChangePreflightReasonChangeMissing }
+            Write-PreflightBlock -Reason $reason -Detail $portableChange
+        }
     }
-    $changeResult = Invoke-ChildValidator -ScriptPath $validateChangePath -Arguments @{ Path = $resolvedChange }
-    if ($changeResult.ExitCode -ne 0) {
-        $detail = ("{0} :: {1}" -f $portableChange, $changeResult.Output)
-        Write-PreflightBlock -Reason $script:ToolkitConstant.PrdPlanChangePreflightReasonChangeInvalid -Detail $detail
+    if (Test-Path -LiteralPath $resolvedChange) {
+        $changeResult = Invoke-ChildValidator -ScriptPath $validateChangePath -Arguments @{ Path = $resolvedChange }
+        if ($changeResult.ExitCode -ne 0) {
+            $detail = ("{0} :: {1}" -f $portableChange, $changeResult.Output)
+            Write-PreflightBlock -Reason $script:ToolkitConstant.PrdPlanChangePreflightReasonChangeInvalid -Detail $detail
+        }
     }
 }
 elseif ((Test-Path -LiteralPath $resolvedChange)) {
