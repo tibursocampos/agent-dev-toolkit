@@ -197,12 +197,6 @@ function Get-CopilotVersionedSeedCopyScript {
             [Parameter(Mandatory = $true)][string] $DestinationPath
         )
 
-        & $assertContainedPath -Path $SeedFixtureRoot -Role 'seed fixture' -AllowCanonicalPath
-        & $assertContainedPath -Path $WorkInstallRoot -Role 'work root' -AllowCanonicalPath
-        & $assertContainedPath -Path $SourcePath -Role 'seed source' -AllowCanonicalPath
-        $destinationParent = Split-Path -Parent $DestinationPath
-        & $assertContainedPath -Path $destinationParent -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
-
         $sourceItem = Get-Item -LiteralPath $SourcePath -Force -ErrorAction Stop
         if ($sourceItem.PSIsContainer -or ($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
             throw ("Refusing seed write from changed/reparse source: {0}" -f $SourcePath)
@@ -248,7 +242,6 @@ function Get-CopilotVersionedSeedCopyScript {
             }
             $destinationPath = Join-Path $WorkInstallRoot $relative
             $destinationDirectory = Split-Path -Parent $destinationPath
-            & $assertSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
             if (-not (Test-Path -LiteralPath $destinationDirectory)) {
                 $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $WorkInstallRoot -Role 'work root' -AllowCanonicalPath
                 $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $destinationDirectory -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing

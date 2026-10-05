@@ -289,8 +289,10 @@ function Assert-EphemeralSmokeTreeStateUnchanged {
         [Parameter(Mandatory = $true)][string] $Role
     )
 
-    $beforeText = ($Before | ForEach-Object { '{0}|{1}|{2}|{3}' -f $_.Path, $_.Attributes, $_.Length, $_.LastWriteTimeUtc }) -join "`n"
-    $afterText = ($After | ForEach-Object { '{0}|{1}|{2}|{3}' -f $_.Path, $_.Attributes, $_.Length, $_.LastWriteTimeUtc }) -join "`n"
+    # Directory/file timestamps can change on Windows while a fixture is
+    # inspected. Content shape, type, and size are the stable mutation gate.
+    $beforeText = ($Before | ForEach-Object { '{0}|{1}|{2}' -f $_.Path, $_.Attributes, $_.Length }) -join "`n"
+    $afterText = ($After | ForEach-Object { '{0}|{1}|{2}' -f $_.Path, $_.Attributes, $_.Length }) -join "`n"
     if (-not [string]::Equals($beforeText, $afterText, [System.StringComparison]::Ordinal)) {
         throw ("Refusing to remove changed {0}: tree changed during final validation." -f $Role)
     }
@@ -426,7 +428,6 @@ function Invoke-ManifestAdapterFixtureSmoke {
                 param([string] $SeedFixtureRoot, [string] $WorkInstallRoot)
                 $sourcePath = Join-Path $SeedFixtureRoot $seedFileName
                 $destinationPath = Join-Path $WorkInstallRoot $seedFileName
-                & $assertSeedWriteCommand -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
                 $seedText = [System.IO.File]::ReadAllText($sourcePath)
                 & $assertSeedWriteCommand -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
                 [System.IO.File]::WriteAllText($destinationPath, $seedText, (New-Object System.Text.UTF8Encoding $false))

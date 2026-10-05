@@ -163,7 +163,9 @@ function Assert-ZcodeAlienJsonKeysPreserved {
     if ($null -eq $cliConfig.$alienCliKey -or [string]$cliConfig.$alienCliKey -ne $alienCliValue) {
         Write-Fail -TestName $TestName -Reason 'alien cli/config.json key must survive reverse-merge uninstall'
     }
-    if ($null -ne $cliConfig.hooks -and ($cliConfig.hooks | ConvertTo-Json -Compress -Depth 10) -match [regex]::Escape($zcodeCliHooksMarker)) {
+    if (($cliConfig.PSObject.Properties.Name -contains 'hooks') -and
+        $null -ne $cliConfig.hooks -and
+        ($cliConfig.hooks | ConvertTo-Json -Compress -Depth 10) -match [regex]::Escape($zcodeCliHooksMarker)) {
         Write-Fail -TestName $TestName -Reason 'toolkit cli hooks marker must be removed on uninstall'
     }
 
