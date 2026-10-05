@@ -51,6 +51,18 @@ foreach ($rel in $paths) {
     }
 }
 
+$modelCostPath = Join-Path $repoRoot 'core\policy\model-cost-awareness.md'
+if (-not (Test-Path -LiteralPath $modelCostPath)) {
+    Write-Fail -TestName 'Should_Pass_When_ModelCostPolicyDocumented' -Reason 'missing core/policy/model-cost-awareness.md'
+}
+$modelCostText = Get-Content -LiteralPath $modelCostPath -Raw -Encoding UTF8
+foreach ($marker in @('first turn', 'Do **not** repeat', '**Never block** execution')) {
+    if ($modelCostText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_ModelCostPolicyDocumented' -Reason ("model-cost-awareness.md missing marker: {0}" -f $marker)
+    }
+}
+Write-Pass -TestName 'Should_Pass_When_ModelCostPolicyDocumented'
+
 Write-Pass -TestName $testName
 Write-Host 'Assert-PreferencesSchema: ALL PASS'
 exit 0

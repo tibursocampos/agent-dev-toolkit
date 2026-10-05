@@ -33,6 +33,14 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
 
 $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Invoke-ValidationTelemetry.ps1')
+
+$validationResultsPath = Get-ValidationTelemetryPath
+$validationJobName = if ([string]::IsNullOrWhiteSpace($env:VALIDATION_JOB_NAME)) {
+    'validate-core'
+} else {
+    $env:VALIDATION_JOB_NAME
+}
 
 $suiteTitle = 'agent-dev-toolkit core validation'
 $contractsScriptName = 'validate-skill-contracts.ps1'
@@ -163,19 +171,47 @@ function Invoke-ValidationCheck {
     )
 
     Write-Banner "Running: $Name"
+    $startedAt = [DateTimeOffset]::UtcNow
+    $timer = [System.Diagnostics.Stopwatch]::StartNew()
+    $exitCode = 1
+    $checkOutput = @()
     # Assertion scripts may emit success-stream objects through helper calls.
     # Capture and render them here so they cannot be mistaken for this check's
     # structured result by the caller's `$result = Invoke-ValidationCheck`.
-    $checkOutput = @(& $ScriptPath)
-    foreach ($outputItem in $checkOutput) {
-        $renderedOutput = ($outputItem | Out-String).TrimEnd()
-        if (-not [string]::IsNullOrWhiteSpace($renderedOutput)) {
-            Write-Host $renderedOutput
+    try {
+        $checkOutput = @(& $ScriptPath)
+        $exitCode = $LASTEXITCODE
+        if ($null -eq $exitCode) {
+            $exitCode = 0
+        }
+
+        foreach ($outputItem in $checkOutput) {
+            $renderedOutput = ($outputItem | Out-String).TrimEnd()
+            if (-not [string]::IsNullOrWhiteSpace($renderedOutput)) {
+                Write-Host $renderedOutput
+            }
         }
     }
-    $exitCode = $LASTEXITCODE
-    if ($null -eq $exitCode) {
-        $exitCode = 0
+    catch {
+        # A terminating assertion failure is still a check result. Keep the
+        # suite fail-closed while ensuring its telemetry is emitted below.
+        $exitCode = 1
+        Write-Host (($_ | Out-String).TrimEnd()) -ForegroundColor Red
+    }
+    finally {
+        $timer.Stop()
+        $finishedAt = [DateTimeOffset]::UtcNow
+        $status = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
+        Write-ValidationTelemetryCheck `
+            -Path $validationResultsPath `
+            -JobName $validationJobName `
+            -CheckName $Name `
+            -Status $status `
+            -ExitCode $exitCode `
+            -DurationMs $timer.Elapsed.TotalMilliseconds `
+            -StartedAtUtc $startedAt.ToString('o') `
+            -FinishedAtUtc $finishedAt.ToString('o') `
+            -ScriptPath $ScriptPath
     }
 
     return [PSCustomObject]@{
@@ -262,10 +298,10 @@ $coreChecks = @(
 # Assert-ToolkitCli / Assert-Orchestrators stay out: they nest sync/validate and would
 # recurse or re-run the full suite from inside validate-core.
 
-$results = @()
+$results = New-Object 'System.Collections.Generic.List[object]'
 foreach ($check in $coreChecks) {
     $result = Invoke-ValidationCheck -Name $check.Name -ScriptPath (Join-Path $scriptDir $check.Script)
-    $results += $result
+    [void]$results.Add($result)
 
     if ($FailFast -and $result.Status -eq 'FAIL') {
         break

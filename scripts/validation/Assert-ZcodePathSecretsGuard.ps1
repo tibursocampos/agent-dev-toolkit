@@ -13,6 +13,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+$guardHarnessScript = Join-Path $libDir 'Invoke-PathSecretsGuardHarness.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -28,26 +29,6 @@ function Write-Fail {
     exit 1
 }
 
-function Invoke-GuardHook {
-    param(
-        [Parameter(Mandatory = $true)][string] $HookScriptPath,
-        [Parameter(Mandatory = $true)][hashtable] $Payload
-    )
-
-    $json = $Payload | ConvertTo-Json -Compress -Depth 6
-    $output = $json | pwsh -NoProfile -File $HookScriptPath 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    if ($null -eq $code) { $code = 0 }
-    $parsed = $null
-    try {
-        $parsed = $output.Trim() | ConvertFrom-Json -ErrorAction Stop
-    }
-    catch {
-        $parsed = $null
-    }
-    return [PSCustomObject]@{ ExitCode = [int]$code; Output = $output; Payload = $parsed }
-}
-
 function Get-ZCodeGuardDecision {
     param($Payload)
     if ($null -eq $Payload -or -not $Payload.hookSpecificOutput) {
@@ -56,7 +37,7 @@ function Get-ZCodeGuardDecision {
     return [string]$Payload.hookSpecificOutput.permissionDecision
 }
 
-foreach ($required in @($repoRootScript, $constantsScript)) {
+foreach ($required in @($repoRootScript, $constantsScript, $guardHarnessScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-ZcodePathSecretsGuardPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -64,6 +45,7 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $constantsScript
 . $repoRootScript
+. $guardHarnessScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $hooksDir = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'zcode') 'hooks'

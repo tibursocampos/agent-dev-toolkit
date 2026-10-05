@@ -29,7 +29,7 @@ orchestrate-deliver
         ▼
 orchestrate-develop
   one sdd-develop child per PLAN step
-  → code-review → run-tests → security → commit → push
+  → run-tests → code-review → run-tests (after review changes, or record no rerun required) → security → commit → push
 ```
 
 The parent never writes application code. Roster: `core/skills/_shared/agents/ROSTER.md`. Spawn: [SPAWN.md](../SPAWN.md).
@@ -244,7 +244,7 @@ The parent updates `CONTINUITY.md` only after the child returns. Failure leaves 
 
 When a child changed application files, O3 asks, then runs `memory-bank-init` **refresh-light**.
 
-When the story or feature is done, the order is `/code-review`, then `/run-tests`, then the `security` agent, then `/commit`, then `/push` as a separate ask. Review options are in [05](05-review-and-quality.md). `run-tests` runs the detected stack’s test command. `test-coverage` stays the .NET Coverlet report. Before commit, if a bank or project docs exist, the operator is asked **sim** / **pular** for refresh and for docs. Silence does not skip that ask.
+When the story or feature is done, the order is `/run-tests`, then `/code-review`, then `/run-tests` again after review changes (or record that no rerun is required), then the `security` agent, then `/commit`, then `/push` as a separate ask. Review options are in [05](05-review-and-quality.md). `run-tests` runs the detected stack’s test command. `test-coverage` stays the .NET Coverlet report. Before commit, if a bank or project docs exist, the operator is asked **sim** / **pular** for refresh and for docs. Silence does not skip that ask.
 
 ## What this path reuses from other skills
 
@@ -257,8 +257,8 @@ When the story or feature is done, the order is `/code-review`, then `/run-tests
 | `refine-story` invoke | An open question at those gates, or a product person shaping one item outside a feature |
 | `split-story-checklist` | Called by `sdd-plan` (`source=prd`) to write `REFINE/tasks.md`. O1 may still check the five-group cap |
 | `memory-bank-init` | Step 0 and O3 Step N |
-| `code-review` | First handoff when implementation of a story or feature is done |
-| `run-tests` | After `code-review`, before the security pass. Does not replace `test-coverage` |
+| `code-review` | Second handoff, after the first `run-tests`, when implementation of a story or feature is done |
+| `run-tests` | First, then again after review changes (or record no rerun required), both before the security pass. Does not replace `test-coverage` |
 | `developer` / `*-developer` | Trivial triage shortcut only. Not the O3 implementer |
 | `read-sdd-artifact` | Normalizes a FEATURE, STORY, PRD, or PLAN path into `source_context` for a child. Not a fourth phase |
 

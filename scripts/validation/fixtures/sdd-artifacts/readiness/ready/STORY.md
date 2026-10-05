@@ -6,4 +6,6 @@ Status: READY
 
 | Question | Severity |
 |----------|----------|
-| Confirm log retention default days | MINOR |
+| Confirm log retention default days | answered |
+
+<!-- direct-risk: owner=fixture-owner; baseline=memory-bank/domain-knowledge.md; path=ARCH/missing-for-context-test.md -->

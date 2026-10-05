@@ -1,11 +1,9 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_PrdTemplateHasRequiredSections
-#   Should_Pass_When_ValidPrdFixtureHasSections
-#   Should_Fail_When_PrdMissingRequiredSections
 #   Should_Pass_When_SkillsWireReqIds
 #
-# REQ-ID / structural gates: PRD template + validate-prd section checks.
+# REQ-ID / structural gates: PRD template and skill wiring checks.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -28,22 +26,6 @@ function Write-Fail {
     exit 1
 }
 
-function Invoke-Validator {
-    param(
-        [Parameter(Mandatory = $true)][string] $ScriptPath,
-        [Parameter(Mandatory = $true)][hashtable] $Arguments
-    )
-    $output = & $ScriptPath @Arguments 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    if ($null -eq $code) {
-        $code = 0
-    }
-    return [PSCustomObject]@{
-        ExitCode = [int]$code
-        Output   = $output
-    }
-}
-
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
     Write-Fail -TestName 'Assert-PrdStructurePreconditions' -Reason ("missing {0}" -f $repoRootScript)
 }
@@ -56,29 +38,13 @@ if (-not (Test-Path -LiteralPath $constantsScript)) {
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $templateRel = $script:ToolkitConstant.PrdStructureTemplateRelativePath
-$validatePrdName = $script:ToolkitConstant.ValidatePrdScriptName
-$fixturesRel = $script:ToolkitConstant.SddArtifactFixturesRelativeDir
 $sectionMarkers = @($script:ToolkitConstant.PrdRequiredSectionMarkers)
 $skillPaths = @($script:ToolkitConstant.PrdStructureSkillWiringRelativePaths)
 
 $templatePath = Join-Path $repoRoot ($templateRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$validatePrdPath = Join-Path $scriptDir $validatePrdName
-$fixturesRoot = Join-Path $repoRoot ($fixturesRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 
 if (-not (Test-Path -LiteralPath $templatePath)) {
     Write-Fail -TestName 'Assert-PrdStructurePreconditions' -Reason ("missing template {0}" -f $templateRel)
-}
-if (-not (Test-Path -LiteralPath $validatePrdPath)) {
-    Write-Fail -TestName 'Assert-PrdStructurePreconditions' -Reason ("missing {0}" -f $validatePrdName)
-}
-
-function Get-FixturePath {
-    param([Parameter(Mandatory = $true)][string] $RelativeUnderFixtures)
-    $full = Join-Path $fixturesRoot ($RelativeUnderFixtures -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $full)) {
-        Write-Fail -TestName 'Assert-PrdStructurePreconditions' -Reason ("missing fixture {0}" -f $RelativeUnderFixtures)
-    }
-    return $full
 }
 
 $templateTest = 'Should_Pass_When_PrdTemplateHasRequiredSections'
@@ -90,20 +56,7 @@ foreach ($marker in $sectionMarkers) {
 }
 Write-Pass -TestName $templateTest
 
-$validPrd = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidatePrdFixtureValidRelativePath
-$validResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $validPrd }
-if ($validResult.ExitCode -ne 0) {
-    Write-Fail -TestName 'Should_Pass_When_ValidPrdFixtureHasSections' -Reason ("expected exit 0, got {0}. {1}" -f $validResult.ExitCode, $validResult.Output.Trim())
-}
-Write-Pass -TestName 'Should_Pass_When_ValidPrdFixtureHasSections'
-
-$invalidSections = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidatePrdFixtureInvalidNoSectionsRelativePath
-$invalidResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $invalidSections }
-if ($invalidResult.ExitCode -eq 0) {
-    Write-Fail -TestName 'Should_Fail_When_PrdMissingRequiredSections' -Reason 'expected non-zero exit for PRD missing required sections'
-}
-Write-Pass -TestName 'Should_Fail_When_PrdMissingRequiredSections'
-
+# PRD fixture execution is centralized in Assert-ValidatePrdPlan.ps1.
 $skillTest = 'Should_Pass_When_SkillsWireReqIds'
 foreach ($rel in $skillPaths) {
     $full = Join-Path $repoRoot ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar)

@@ -31,6 +31,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+. (Join-Path $libDir 'ToolkitValidationFileSystem.ps1')
 
 . $constantsScript
 
@@ -111,7 +112,7 @@ function Test-RelatedCitesSibling {
 
 function Find-PrdPlanPair {
     param([Parameter(Mandatory = $true)][string] $Root)
-    $files = @(Get-ChildItem -LiteralPath $Root -Recurse -File -Filter '*.md' -ErrorAction Stop)
+    $files = @(Get-ToolkitValidationFiles -Root $Root -Recurse -Extensions @('.md'))
     $prdFiles = @($files | Where-Object {
             ($_.FullName -replace '\\', '/') -match ("(?i)/{0}/" -f [regex]::Escape($prdDirSegment)) -and
             $_.Name -notlike ($planFilePrefix + '*')
@@ -146,8 +147,8 @@ function Invoke-NavigationGate {
 
     $prd = $pair.PrdFiles[0]
     $plan = $pair.PlanFiles[0]
-    $prdText = Get-Content -LiteralPath $prd.FullName -Raw -Encoding UTF8
-    $planText = Get-Content -LiteralPath $plan.FullName -Raw -Encoding UTF8
+    $prdText = Read-ToolkitValidationText -Path $prd.FullName
+    $planText = Read-ToolkitValidationText -Path $plan.FullName
     $prdRelated = Get-RelatedSectionText -Markdown $prdText
     $planRelated = Get-RelatedSectionText -Markdown $planText
 
@@ -220,7 +221,7 @@ foreach ($rel in $storageRels) {
     if (-not (Test-Path -LiteralPath $full)) {
         Write-Fail -TestName 'Should_Pass_When_StorageDefinesNavigationBlock' -Reason ("missing {0}" -f $rel)
     }
-    $text = Get-Content -LiteralPath $full -Raw -Encoding UTF8
+    $text = Read-ToolkitValidationText -Path $full
     if ($text -notmatch [regex]::Escape('Navigation block')) {
         Write-Fail -TestName 'Should_Pass_When_StorageDefinesNavigationBlock' -Reason ("{0} missing Navigation block" -f $rel)
     }
@@ -236,7 +237,7 @@ foreach ($rel in $templateRels) {
     if (-not (Test-Path -LiteralPath $full)) {
         Write-Fail -TestName 'Should_Pass_When_TemplatesHaveRelatedHeading' -Reason ("missing template {0}" -f $rel)
     }
-    $text = Get-Content -LiteralPath $full -Raw -Encoding UTF8
+    $text = Read-ToolkitValidationText -Path $full
     if ($text -notmatch [regex]::Escape($relatedHeading)) {
         Write-Fail -TestName 'Should_Pass_When_TemplatesHaveRelatedHeading' -Reason ("{0} missing {1}" -f $rel, $relatedHeading)
     }

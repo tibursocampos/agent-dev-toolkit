@@ -6,7 +6,9 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **42** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **45** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+
+O roteamento depende do adaptador: o Copilot tem `router=false`, então a orientação de `core/router/AGENTS.md` fica embutida no `copilot-instructions.md` gerado; isso não é um id de skill separado nem prova de execução no host ao vivo.
 
 `/hooks` do Codex e `/hooks-trust` do Grok são telas de confiança de hooks. Não são atalhos de skill. O Codex não tem a flag `$skill --menu`. O seletor `$` / `/skills` é o menu do produto.
 
@@ -34,7 +36,7 @@ Feature
         ├─ uma story já clara → sdd-spec
         └─ backlog aprovado → orchestrate-deliver
               └─ arquivos da story, sdd-spec, contestação do PRD, sdd-plan → orchestrate-develop
-                    └─ um passo sdd-develop por filho → code-review, run-tests, security
+                    └─ um passo sdd-develop por filho → run-tests, code-review, run-tests (após mudanças da revisão), security
 ```
 
 ### Orchestrated Delivery
@@ -127,7 +129,13 @@ developer
 | `package.json` sem nenhum dos anteriores | `javascript-developer` |
 | `.csproj` / `.sln` sem marcadores Blazor | `dotnet-developer` |
 | `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `java-developer` |
-| `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
+| Evidência explícita de Arduino Core/framework, metadados do Arduino ou `framework = arduino` configurado | `arduino-developer` |
+| Evidência nativa de ESP-IDF (`idf_component.yml`, lockfile do Component Manager, `idf_component_register`, estrutura CMake do ESP-IDF, `sdkconfig`/`sdkconfig.defaults` ou scripts `idf.py`) | `esp-idf-developer` |
+| Runtime MicroPython ou fluxo de firmware declarado, com evidência de runtime, target ou porta | `micropython-developer` |
+| Aplicações, ferramentas ou testes CPython no host (inclusive código do host que se comunica com firmware) | `python-developer` |
+| `.py`, `main.py` ou nome de família de placa sem evidência de framework/runtime/toolchain | `/developer` (pergunte evidências de framework/core/runtime/versão/toolchain; não infira) |
+| Python sem evidência de runtime/target/porta quando APIs ou deployment puderem diferir | `/developer` (pergunte evidências de runtime, target e porta; a ambiguidade é intencional) |
+| `requirements.txt` ou `pyproject.toml` com evidência de runtime no host | `python-developer` |
 
 HTML isolado ou scripts de shell ficam em `/developer`. Um escopo grande faz handoff para `/sdd-spec`. O O3 não chama `*-developer` para um passo do PLAN.
 
@@ -163,15 +171,17 @@ Greenfield propõe um estilo e escreve o ARCH final só depois do **sim**. Brown
 ### Depois da implementação
 
 ```text
-code-review
 run-tests
+code-review
+run-tests (após mudanças da revisão, ou registre que não foi necessário repetir)
+security
 test-coverage
 commit
 push
 open-github-pr
 ```
 
-`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. Quando um escopo do O3 fecha, `run-tests` roda em seguida, depois a passagem de security, depois `/commit` e `/push`.
+`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. Quando um escopo do O3 fecha, a ordem é `run-tests`, `code-review`, `run-tests` após mudanças da revisão (ou registre que não foi necessário repetir), a passagem de `security`, depois `/commit` e `/push`.
 
 `run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
 

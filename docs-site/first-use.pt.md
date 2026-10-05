@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **42** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **45** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -36,7 +36,9 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 | Skill | O que faz | Exemplo |
 |-------|-----------|---------|
 | `developer` | Roteador de stack, ou um script ou HTML pequeno | `/developer` |
+| `arduino-developer` | Sketches, bibliotecas e firmware específico de placa Arduino | `/arduino-developer` |
 | `dotnet-developer` | .NET pequeno ou médio | `/dotnet-developer` |
+| `esp-idf-developer` | Firmware C/C++ nativo com ESP-IDF | `/esp-idf-developer` |
 | `java-developer` | Java pequeno ou médio | `/java-developer` |
 | `javascript-developer` | Node ou DOM pequeno ou médio | `/javascript-developer` |
 | `python-developer` | Python pequeno ou médio | `/python-developer` |
@@ -47,6 +49,7 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 | `blazor-developer` | UI Blazor pequena ou média | `/blazor-developer` |
 | `electron-developer` | Electron pequeno ou médio | `/electron-developer` |
 | `blip-plugin-developer` | Andaime de um plugin Blip React novo | `/blip-plugin-developer` |
+| `micropython-developer` | Firmware de dispositivo MicroPython | `/micropython-developer` |
 | `impeccable` | Design. Escreve `docs/DESIGN-BRIEF.md` e para | `/impeccable` |
 
 ## Revisão, plataforma, git
@@ -73,4 +76,4 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 10 + 13 + 19 = 42. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 10 + 16 + 19 = 45. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

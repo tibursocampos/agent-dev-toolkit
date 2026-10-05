@@ -6,7 +6,9 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **42** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **45** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+
+Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
 Codex `/hooks` and Grok `/hooks-trust` are hooks-trust screens. They are not skill shortcuts. Codex has no `$skill --menu` flag. The `$` / `/skills` picker is the product menu.
 
@@ -34,7 +36,7 @@ Feature
         ├─ one already-clear story → sdd-spec
         └─ approved backlog → orchestrate-deliver
               └─ story files, sdd-spec, contest the PRD, sdd-plan → orchestrate-develop
-                    └─ one sdd-develop step per child → code-review, run-tests, security
+                    └─ one sdd-develop step per child → run-tests, code-review, run-tests (after review changes), security
 ```
 
 ### Orchestrated Delivery
@@ -127,7 +129,13 @@ developer
 | `package.json` with none of the above | `javascript-developer` |
 | `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
 | `pom.xml`, `build.gradle`, `build.gradle.kts`, `settings.gradle` | `java-developer` |
-| `.py`, `requirements.txt`, `pyproject.toml` | `python-developer` |
+| Explicit Arduino Core/framework evidence, Arduino metadata, or configured `framework = arduino` | `arduino-developer` |
+| Native ESP-IDF evidence (`idf_component.yml`, Component Manager lockfile, `idf_component_register`, ESP-IDF CMake structure, `sdkconfig`/`sdkconfig.defaults`, or `idf.py` scripts) | `esp-idf-developer` |
+| Declared MicroPython runtime or firmware workflow with runtime, target, or port evidence | `micropython-developer` |
+| CPython host applications, tools, or tests (including host code that communicates with firmware) | `python-developer` |
+| `.py`, `main.py`, or a board-family name without framework/runtime/toolchain evidence | `/developer` (ask for framework/core/runtime/version/toolchain evidence; do not infer) |
+| Python without runtime/target/port evidence when APIs or deployment could differ | `/developer` (ask for runtime, target, and port evidence; ambiguity is intentional) |
+| `requirements.txt` or `pyproject.toml` with host-runtime evidence | `python-developer` |
 
 Isolated HTML or shell scripts stay in `/developer`. A large scope hands off to `/sdd-spec`. O3 does not call `*-developer` for a PLAN step.
 
@@ -163,15 +171,17 @@ Greenfield proposes a style and writes the final ARCH only after **sim**. Brownf
 ### After implementation
 
 ```text
-code-review
 run-tests
+code-review
+run-tests (after review changes, or record no rerun required)
+security
 test-coverage
 commit
 push
 open-github-pr
 ```
 
-`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. When an O3 scope closes, `run-tests` runs next, then the security pass, then `/commit` and `/push`.
+`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. When an O3 scope closes, the order is `run-tests`, `code-review`, `run-tests` after review changes (or record no rerun required), the `security` pass, then `/commit` and `/push`.
 
 `run-tests` runs the test command of each detected stack and returns `PASS` or `FAIL`. It does not edit code. A check the repo does not have is `SKIPPED`.
 

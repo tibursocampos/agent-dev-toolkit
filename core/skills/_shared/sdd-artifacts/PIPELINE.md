@@ -47,7 +47,7 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 ## Skill order
 
 - **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The cap of 3 gap questions does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child**) and runs Step N **refresh-light** after code changes. Scope close is `code-review`, then `run-tests`, then the `security` agent.
+- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The cap of 3 gap questions does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child/invocation**) and runs Step N **refresh-light** after code changes. Scope close is `run-tests` -> `code-review` -> `run-tests` after review changes (or record no rerun required) -> the security role/prompt review of the diff, using only a documented host mechanism or bounded in-parent fallback.
 
 | Skill | Writes | Must not in same session |
 |-------|--------|
@@ -57,7 +57,7 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 | `memory-bank-init` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
 | `orchestrate-analyze` | `FEATURE.md` and `CONTINUITY.md` first; story folders only after no open question; ARCH confirm when greenfield/`needs_domain`; promote cited non-feature `.md` | App code; story folders while a question is open; skip Step 0 / human backlog approval / ARCH confirm when required; approve backlog if required folders are missing or promote is pointer-only |
 | `orchestrate-deliver` | PRD then PLAN per story, after the open-question gates | App code; skip Step 0 when wired; write the next artifact while `open_question` is set; treat **sim** as closing a question |
-| `orchestrate-develop` | CONTINUITY + one child per PLAN step; Step N refresh-light; close with `code-review`, `run-tests`, `security` | App code in parent; multi-step in one child; skip Step 0 when wired; treat a host plan scratch directory as O3 input |
+| `orchestrate-develop` | CONTINUITY + one child/invocation per PLAN step; Step N refresh-light; close with `run-tests`, `code-review`, `run-tests` after review changes, then the security role/prompt review | App code in parent; multi-step in one child; skip Step 0 when wired; treat a host plan scratch directory as O3 input |
 
 ## Canonical paths
 

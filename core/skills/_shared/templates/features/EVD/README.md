@@ -1,8 +1,8 @@
 # EVD: evidence folder
 
-Canonical path: `features/NNN-slug/EVD/`
+Canonical path: `features/NNN-slug/{USnn|TSnn}/EVD/`
 
-Store **short** evidence notes for AC rows in sibling `STATE.md` (REQ-005 / CA4).
+Store **short** evidence notes for AC rows in sibling `STATE.md` (REQ-005 / CA4). Narrative prose follows the FEATURE/STORY content-language; identifiers and tokens remain English.
 
 ## Naming
 

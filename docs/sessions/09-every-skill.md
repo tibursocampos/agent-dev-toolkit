@@ -1,6 +1,6 @@
 # 09 — Every skill
 
-Forty-two invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
+Forty-five invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
 
 The long form of a skill is the session linked on its heading. This page is the index that still says what the skill does, what it writes, and which skill it calls next.
 
@@ -91,6 +91,18 @@ Small or medium Blazor UI (WASM, Server, Hybrid). Backend API work in the same c
 ### `electron-developer`
 
 Small or medium Electron (main, preload, renderer, IPC, packaging). Security and CSP load first when IPC changes. One renderer pack (React, Vue, or JS) is loaded, not all of them. Detail: [04](04-implement-and-guidelines.md).
+
+### `arduino-developer`
+
+Configuration-aware Arduino sketches, libraries, and Arduino Core firmware. Requires evidence for the target, core/version, tooling, provenance, and validation boundary; native ESP-IDF and MicroPython work hand off to their dedicated skills. Detail: [04](04-implement-and-guidelines.md).
+
+### `esp-idf-developer`
+
+Native ESP-IDF C/C++ firmware using the project’s declared target, version, CMake configuration, `idf.py` workflow, and Component Manager metadata. Keeps host, compile, device, and HIL evidence separate. Detail: [04](04-implement-and-guidelines.md).
+
+### `micropython-developer`
+
+MicroPython firmware for identified ESP32 or ESP8266 targets. Keeps host CPython tooling/tests, deployment, and device-runtime evidence separate and does not generalize APIs across ports or builds. Detail: [04](04-implement-and-guidelines.md).
 
 ### `blip-plugin-developer`
 
@@ -184,4 +196,4 @@ Executes one pending step of that documentation plan, then stops. Detail: [08](0
 
 ## Count
 
-`CATALOG.md` groups the same 42 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 11, Blip and design 2, operational 17, documentation 2.
+`CATALOG.md` groups the same 45 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 17, documentation 2.

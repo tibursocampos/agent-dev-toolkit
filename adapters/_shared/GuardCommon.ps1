@@ -11,6 +11,242 @@
 
 Set-StrictMode -Version Latest
 
+function Test-ToolkitIsWindows {
+    $isWindowsVariable = Get-Variable -Name IsWindows -Scope Global -ErrorAction SilentlyContinue
+    if ($null -ne $isWindowsVariable) {
+        return [bool]$isWindowsVariable.Value
+    }
+    return ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
+}
+
+if ((Test-ToolkitIsWindows) -and -not ('Toolkit.GuardPathNative' -as [type])) {
+    Add-Type -TypeDefinition @'
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace Toolkit {
+    public static class GuardPathNative {
+        private const uint OpenExisting = 3;
+        private const uint FileFlagBackupSemantics = 0x02000000;
+        private static readonly IntPtr InvalidHandleValue = new IntPtr(-1);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr CreateFile(
+            string fileName, uint desiredAccess, FileShare share, IntPtr securityAttributes,
+            uint creationDisposition, uint flagsAndAttributes, IntPtr templateFile);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr handle);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern uint GetFinalPathNameByHandle(
+            IntPtr file, StringBuilder filePath, uint filePathLength, uint flags);
+
+        public static string ResolveExistingPath(string path) {
+            var handle = CreateFile(path, 0, FileShare.ReadWrite | FileShare.Delete,
+                IntPtr.Zero, OpenExisting, FileFlagBackupSemantics, IntPtr.Zero);
+            if (handle == InvalidHandleValue) {
+                throw new IOException("CreateFile failed for path resolution: " + path,
+                    Marshal.GetLastWin32Error());
+            }
+
+            try {
+                var buffer = new StringBuilder(32768);
+                var length = GetFinalPathNameByHandle(handle, buffer, (uint)buffer.Capacity, 0);
+                if (length == 0 || length >= buffer.Capacity) {
+                    throw new IOException("GetFinalPathNameByHandle failed for path resolution: " + path,
+                        Marshal.GetLastWin32Error());
+                }
+                return buffer.ToString();
+            }
+            finally {
+                CloseHandle(handle);
+            }
+        }
+    }
+}
+'@
+}
+
+if (-not (Test-ToolkitIsWindows) -and -not ('Toolkit.GuardPathPosixNative' -as [type])) {
+    try {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+
+namespace Toolkit {
+    public static class GuardPathPosixNative {
+        [DllImport("libc", CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr realpath(string path, IntPtr resolvedPath);
+
+        [DllImport("libc", SetLastError = true)]
+        private static extern void free(IntPtr pointer);
+
+        public static string ResolveExistingPath(string path) {
+            var pointer = realpath(path, IntPtr.Zero);
+            if (pointer == IntPtr.Zero) {
+                return null;
+            }
+
+            try {
+                return Marshal.PtrToStringAnsi(pointer);
+            }
+            finally {
+                free(pointer);
+            }
+        }
+    }
+}
+'@
+    }
+    catch {
+        # An unavailable native API is handled as an unverifiable path below.
+    }
+}
+
+function Resolve-ToolkitExistingPath {
+    param(
+        [Parameter(Mandatory = $true)][string] $Path
+    )
+
+    if (Test-ToolkitIsWindows) {
+        if (-not ('Toolkit.GuardPathNative' -as [type])) {
+            return $null
+        }
+        return [Toolkit.GuardPathNative]::ResolveExistingPath($Path)
+    }
+
+    # POSIX hosts do not have kernel32.dll. Call libc directly so attacker-
+    # controlled PATH entries cannot select the resolver executable.
+    if (-not ('Toolkit.GuardPathPosixNative' -as [type])) {
+        return $null
+    }
+    try {
+        $resolved = [Toolkit.GuardPathPosixNative]::ResolveExistingPath($Path)
+    }
+    catch {
+        # A native resolver failure must never fall back to lexical containment.
+        return $null
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$resolved)) {
+        return $null
+    }
+    return [System.IO.Path]::GetFullPath([string]$resolved)
+}
+
+function Get-ToolkitHookEventName {
+    param($HookInput)
+
+    if ($null -eq $HookInput) {
+        return ''
+    }
+    foreach ($name in @('hook_event_name', 'hookEventName', 'event_name', 'eventName', 'event')) {
+        $prop = $HookInput.PSObject.Properties[$name]
+        if ($prop -and $null -ne $prop.Value) {
+            return ([string]$prop.Value).Trim()
+        }
+    }
+    return ''
+}
+
+function Test-ToolkitHookEventIdentity {
+    param(
+        $HookInput,
+        [Parameter(Mandatory = $true)][string[]] $ExpectedEventNames
+    )
+
+    $actual = Get-ToolkitHookEventName -HookInput $HookInput
+    if ([string]::IsNullOrWhiteSpace($actual)) {
+        return $false
+    }
+    foreach ($expected in $ExpectedEventNames) {
+        if ($actual.Equals($expected, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Test-ToolkitHookInputSchema {
+    param($HookInput)
+
+    if ($null -eq $HookInput -or $HookInput -is [System.Array]) {
+        return $false
+    }
+    if ($HookInput -isnot [pscustomobject]) {
+        return $false
+    }
+
+    return (@($HookInput.PSObject.Properties).Count -gt 0)
+}
+
+function Get-ToolkitCanonicalPathForGuard {
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][string] $WorkspaceRoot
+    )
+
+    try {
+        $fullPath = [System.IO.Path]::GetFullPath($Path)
+        $rootFull = [System.IO.Path]::GetFullPath($WorkspaceRoot)
+    }
+    catch {
+        return $null
+    }
+
+    # Resolve the deepest existing ancestor. This covers both existing links and
+    # a not-yet-created child below a junction/symlink.
+    $probe = $fullPath
+    while (-not ([System.IO.File]::Exists($probe) -or [System.IO.Directory]::Exists($probe))) {
+        $parent = [System.IO.Directory]::GetParent($probe)
+        if ($null -eq $parent -or $parent.FullName -eq $probe) {
+            return $null
+        }
+        $probe = $parent.FullName
+    }
+
+    # POSIX writes through symlinks/reparse points are not safe to authorize
+    # without an atomic handle-relative operation. Deny the existing ancestor
+    # itself so a missing child below an escaping link cannot be written through.
+    if (-not (Test-ToolkitIsWindows)) {
+        try {
+            $probeItem = Get-Item -LiteralPath $probe -Force -ErrorAction Stop
+            if (($probeItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 -or
+                -not [string]::IsNullOrWhiteSpace([string]$probeItem.LinkType)) {
+                return $null
+            }
+        }
+        catch {
+            return $null
+        }
+    }
+
+    try {
+        $resolvedProbe = Resolve-ToolkitExistingPath -Path $probe
+        if ([string]::IsNullOrWhiteSpace($resolvedProbe)) {
+            return $null
+        }
+        if ($resolvedProbe.StartsWith('\\?\UNC\', [System.StringComparison]::OrdinalIgnoreCase)) {
+            $resolvedProbe = '\\' + $resolvedProbe.Substring(8)
+        }
+        elseif ($resolvedProbe.StartsWith('\\?\', [System.StringComparison]::OrdinalIgnoreCase)) {
+            $resolvedProbe = $resolvedProbe.Substring(4)
+        }
+        $resolvedProbe = [System.IO.Path]::GetFullPath($resolvedProbe)
+        $suffix = $fullPath.Substring($probe.Length).TrimStart('\', '/')
+        if ([string]::IsNullOrWhiteSpace($suffix)) {
+            return $resolvedProbe
+        }
+        return [System.IO.Path]::GetFullPath((Join-Path $resolvedProbe $suffix))
+    }
+    catch {
+        # Existing paths must never fall back to lexical containment.
+        return $null
+    }
+}
+
 function Test-ToolkitPathIsUnderWorkspaceRoot {
     param(
         [string] $FullPath,
@@ -68,13 +304,6 @@ function Get-ToolkitNormalizedRelativePath {
         }
     }
 
-    try {
-        $fullPath = [System.IO.Path]::GetFullPath($fullPath)
-    }
-    catch {
-        return ''
-    }
-
     $rootFull = ''
     if (-not [string]::IsNullOrWhiteSpace($WorkspaceRoot)) {
         try {
@@ -90,8 +319,14 @@ function Get-ToolkitNormalizedRelativePath {
         return $null
     }
 
-    if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $fullPath -RootFull $rootFull) {
-        $relative = $fullPath.Substring($rootFull.TrimEnd('\', '/').Length).TrimStart('\', '/')
+    $canonicalRoot = Get-ToolkitCanonicalPathForGuard -Path $rootFull -WorkspaceRoot $rootFull
+    $canonicalPath = Get-ToolkitCanonicalPathForGuard -Path $fullPath -WorkspaceRoot $rootFull
+    if ([string]::IsNullOrWhiteSpace($canonicalRoot) -or [string]::IsNullOrWhiteSpace($canonicalPath)) {
+        return $null
+    }
+
+    if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $canonicalPath -RootFull $canonicalRoot) {
+        $relative = $canonicalPath.Substring($canonicalRoot.TrimEnd('\', '/').Length).TrimStart('\', '/')
         return ($relative -replace '\\', '/')
     }
 
@@ -549,6 +784,16 @@ function Get-ToolkitPathSecretsGuardVerdict {
         $contentToScan = $shellCmd
         foreach ($p in @(Get-PathsReferencedInShellCommand -Command $shellCmd)) {
             $pathsToCheck.Add($p) | Out-Null
+        }
+        if ($pathsToCheck.Count -eq 0) {
+            return [PSCustomObject]@{
+                Decision     = 'deny'
+                Reason       = 'unverifiable_shell_path'
+                UserMessage  = 'Blocked: shell command has no verifiable workspace path.'
+                AgentMessage = 'Hook denied shell event because no verifiable path was found. Host approval is required for pathless shell commands.'
+                RelativePath = ''
+                SecretType   = ''
+            }
         }
     }
 

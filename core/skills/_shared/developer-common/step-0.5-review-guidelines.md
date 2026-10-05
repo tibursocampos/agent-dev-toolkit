@@ -19,6 +19,23 @@ If either is missing (before ETAPA 11), skip that file and rely on project `docs
 
 Do **not** glob all of `code-guidelines/`.
 
+## 1c. Embedded firmware (when the task context explicitly indicates firmware/MCU work)
+
+Trigger this section only when the task context explicitly mentions firmware, embedded development, an MCU/microcontroller target, board bring-up, device runtime, or hardware-in-the-loop (HIL). A board or family name alone (for example, `ESP32`) is not enough to infer ESP-IDF, Arduino, MicroPython, or any other platform stack.
+
+When triggered, load in this order:
+
+1. `{{TOOLKIT_ROOT}}/skills/_shared/embedded-guidelines/README.md` first.
+2. Only the relevant topic files from the README pack map, based on the task:
+   - `target-and-provenance.md` for target, runtime, framework, toolchain, source, or applicability context;
+   - `resources-and-communication.md` for resource budgets, payloads, queues, timeouts, or overload behavior;
+   - `security-and-dependencies.md` for secrets, trust boundaries, dependency provenance, or platform-qualified security claims;
+   - `validation-and-reporting.md` for host-only, compile-only, device-runtime, or HIL evidence and status reporting.
+
+Treat the embedded pack as the cross-platform **WHAT** layer. Keep stack-specific **HOW** guidance in the selected stack overlay and load only that overlay after the task identifies the runtime/framework/toolchain. Preserve these boundaries: Arduino, ESP-IDF, and MicroPython remain distinct stack overlays, while CPython host work remains with `python-developer`.
+
+If the task does not identify enough target/runtime/framework context for a platform-qualified recommendation, record the missing context or ask for it; do not infer a platform from a board name.
+
 ### 1b. Architecture style (greenfield / ARCH)
 
 | Situation | Load |

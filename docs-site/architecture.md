@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**42** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ After confirm (or a brownfield mirror): load **one** Layer B file under `princip
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 42 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 45 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.
@@ -253,16 +253,14 @@ Live user skills: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publi
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Jobs: `validate` (`windows-latest`), `validate-ubuntu` (`ubuntu-latest`), gate `ci-ok`.
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Its topology is `validate` (`windows-latest`) → the Windows keyed-uninstall and adapter-smoke matrices; separately `validate-ubuntu` (`ubuntu-latest`) → the Ubuntu adapter-smoke matrix; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on all six validation jobs.
 
-The Windows `validate` job:
+The Windows `validate` base job:
 
 1. `validate-core.ps1 -Quiet`
-2. Keyed uninstall asserts for Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes, and OpenHands
-3. `Assert-SyncAllowUserHomeForward.ps1`
-4. Ten agent smokes (Copilot is a suite): Cursor, Antigravity, Claude, Codex, Copilot suite, OpenCode, Grok, ZCode, Hermes, OpenHands
+2. `Assert-SyncAllowUserHomeForward.ps1`
 
-`validate-ubuntu` runs `Assert-InstallRootSafety.ps1`, `validate-core.ps1 -Quiet`, and the same ten fixture smokes.
+The Windows keyed-uninstall matrix runs the ten keyed-uninstall asserts. The Windows adapter-smoke matrix runs the ten agent smokes (Copilot is a suite). `validate-ubuntu` runs `validate-core.ps1 -Quiet`; its separate adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`.
 
 `publish-release-bootstrap.yml` uploads the zip, SHA256, and bootstrap entrypoints on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` fails unless a pull request into `master` or `main` comes from `develop`.
 

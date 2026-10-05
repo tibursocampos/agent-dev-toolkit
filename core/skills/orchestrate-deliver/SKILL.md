@@ -118,7 +118,7 @@ Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEAT
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Update CONTINUITY Memory-bank fields; pass `bank_path` into parallel draft Tasks read-only. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Preconditions (approved backlog)
-Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; **STOP** Write if open clarification **B**/**I** (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
+Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
 Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
@@ -137,7 +137,7 @@ Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `referen
 
 ## Must not
 
-Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN with open clarification **B**/**I** (`NEEDS_CLARIFICATION`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN at an O2 write gate with any unanswered question, including **MINOR** (`open_question`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 
@@ -147,7 +147,7 @@ Enforce the full list in `references/boundaries-must-not.md`. Critical always-on
 | Context pause mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
-| `NEEDS_CLARIFICATION` (open B/I) | `/refine-story` and/or `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN; `readiness-severity.md`) |
+| `open_question` (any unanswered question, including MINOR) | `/refine-story` and/or `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN; `readiness-severity.md`) |
 | Single story only (skip O2) | `/sdd-spec`, then PRD contestation, then `/split-story-checklist` when the feature is medium or complex, then `/sdd-plan` |
 
 ### Canonical develop handoffs

@@ -44,6 +44,17 @@ Template: `skills/_shared/templates/features/CHANGE.md`.
 | `greenfield` | **Optional** — do **not** force an empty CHANGE stub |
 | `operational` | Required only when the change alters current domain/product baselines (else skip) |
 
+## Ownership and timing (`IC-DIRECT-ORCHESTRATED`)
+
+`CHANGE.md` is a feature-root delta against current baselines. It is not an O1 story-sibling substitute and it is not an O3 implementation receipt.
+
+| Context | Owner | Required timing | Missing CHANGE behavior |
+|---|---|---|---|
+| `orchestrated` | O2 parent / its `sdd-spec` handoff | Before the PRD/PLAN is accepted and before the O3 handoff for a brownfield feature | **STOP** with `change_missing_brownfield`; O1/O2 repairs or creates it. |
+| `direct` | The direct `sdd-spec`/`sdd-plan` run for the feature (or the operator when explicitly choosing a risk) | Before a brownfield PLAN is handed to implementation; validate before O3 if O3 is later selected | Ask whether to create it inline, record an explicit operator-risk/follow-up, or switch to optional O1. Do not silently manufacture an empty stub. |
+
+Direct mode may continue only after the operator chooses inline creation or risk. A risk record must durably register all three fields: `owner`, the portable `CHANGE.md` `path`, and the current `baseline` that is not reconciled. The machine preflight emits `direct_risk: owner=...; baseline=...; path=...`; persist the same registration in the PLAN or its cited `ANALYSIS/ARCH` note before implementation. Orchestrated mode never accepts this direct risk waiver. Greenfield remains exempt from an empty CHANGE stub in both contexts.
+
 ## TASKS policy (complexity)
 
 | FEATURE **Complexity** | TASKS artifact |

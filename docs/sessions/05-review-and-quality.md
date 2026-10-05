@@ -1,6 +1,6 @@
 # 05 — Review and quality
 
-These skills run **after** code exists, or on a branch the operator names. When a story or feature is done, `orchestrate-develop` runs `/code-review`, then `/run-tests`, then the `security` agent, then asks `/commit` and `/push`. The review skill must not turn multi-angle into a mandatory gate.
+These skills run **after** code exists, or on a branch the operator names. When a story or feature is done, `orchestrate-develop` runs `/run-tests`, then `/code-review`, then `/run-tests` again after review changes (or records that no rerun is required), then the `security` agent, then asks `/commit` and `/push`. The review skill must not turn multi-angle into a mandatory gate.
 
 ## `code-review`
 
@@ -78,7 +78,7 @@ Excluded from the new-code denominator: migrations, `*.g.cs`, `*.Designer.cs`, t
 
 ## `run-tests`
 
-Trigger: `/run-tests`, or the close of a story in `orchestrate-develop`, after `code-review` and before the security pass.
+Trigger: `/run-tests`, or the close of a story in `orchestrate-develop`, once before `code-review` and once after review changes (or record no rerun required), both before the security pass.
 
 It detects the stack in the same order as `developer` and runs that stack’s existing test command. Several stacks mean one run each. The report is one row per stack: command, exit code, `PASS` or `FAIL`. A check the repo does not have is `SKIPPED`. Overall `PASS` only when every stack passed.
 

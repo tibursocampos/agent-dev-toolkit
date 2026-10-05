@@ -7,6 +7,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 $coreRoot = Join-Path $repoRoot 'core'
 $contractsPath = Join-Path $PSScriptRoot 'contracts\must-not-contain-ide.json'
+. (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib\ToolkitValidationFileSystem.ps1')
 
 $placeholderToolkitRoot = '{{TOOLKIT_ROOT}}'
 $placeholderSddRoot = '{{SDD_ROOT}}'
@@ -17,7 +18,7 @@ function Get-IdeHomeNeedles {
         Write-Error ("Prepared mustNotContain contract missing: {0}" -f $contractsPath)
         exit 1
     }
-    $doc = Get-Content -LiteralPath $contractsPath -Raw | ConvertFrom-Json
+    $doc = Read-ToolkitValidationText -Path $contractsPath | ConvertFrom-Json
     if (-not $doc.mustNotContain -or $doc.mustNotContain.Count -lt 1) {
         Write-Error 'must-not-contain-ide.json must declare mustNotContain needles'
         exit 1
@@ -36,12 +37,10 @@ function Find-IdeHomePathHits {
         return $hits
     }
 
-    $files = Get-ChildItem -LiteralPath $Root -Recurse -File | Where-Object {
-        $_.Extension -match '\.(md|mdc|json|ps1|yml|yaml|txt)$'
-    }
+    $files = Get-ToolkitValidationFiles -Root $Root -Recurse -Extensions @('.md', '.mdc', '.json', '.ps1', '.yml', '.yaml', '.txt')
 
     foreach ($file in $files) {
-        $text = [System.IO.File]::ReadAllText($file.FullName)
+        $text = Read-ToolkitValidationText -Path $file.FullName
         foreach ($needle in $Needles) {
             if ($text.Contains($needle)) {
                 $rel = $file.FullName.Substring($Root.Length).TrimStart('\', '/')
@@ -84,15 +83,13 @@ if ($coreHits.Count -gt 0) {
     exit 1
 }
 
-$scanFiles = Get-ChildItem -LiteralPath $coreRoot -Recurse -File | Where-Object {
-    $_.Extension -match '\.(md|mdc|json|ps1|yml|yaml|txt)$'
-}
+$scanFiles = Get-ToolkitValidationFiles -Root $coreRoot -Recurse -Extensions @('.md', '.mdc', '.json', '.ps1', '.yml', '.yaml', '.txt')
 
 $hasToolkit = $false
 $hasSdd = $false
 $hasGuardrails = $false
 foreach ($file in $scanFiles) {
-    $text = [System.IO.File]::ReadAllText($file.FullName)
+    $text = Read-ToolkitValidationText -Path $file.FullName
     if ($text.Contains($placeholderToolkitRoot)) { $hasToolkit = $true }
     if ($text.Contains($placeholderSddRoot)) { $hasSdd = $true }
     if ($text.Contains($placeholderGuardrailsPath)) { $hasGuardrails = $true }

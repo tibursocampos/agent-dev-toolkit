@@ -34,14 +34,14 @@ Verifier child must:
 
 **Parent on verifier `pass`:**
 
-- Proceed with normal post-child flow: CONTINUITY update → **sim** for next spawn.
+- Proceed with normal post-child flow: CONTINUITY update → apply the pacing rule: fresh **sim** for `step_by_step`, or the initial queue **sim** plus reconciled checkpoint/ledger and session report for `continuous`.
 
 **Must not:**
 
 - Use verifier as a second implementer (no code fixes in verifier child).
 - Spawn verifier when `verify_mode` is `false` (default).
 - Treat verifier as evidence gate — `validate-evidence` remains sequential inside `sdd-develop` (**Verifier ≠ O3** for EVD/TRACE too).
-- Auto-chain implementer → verifier → next implementer without **sim** between O3 spawns.
+- Auto-chain implementer → verifier → next implementer without the pacing rule's required authorization: fresh **sim** for `step_by_step`, or the initial queue **sim** plus reconciliation for `continuous`.
 
 ---
 

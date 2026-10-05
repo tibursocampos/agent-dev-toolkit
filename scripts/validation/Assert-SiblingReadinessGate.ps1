@@ -130,6 +130,54 @@ if ($readyResult.Output -notmatch [regex]::Escape("Status: $statusReady")) {
 }
 Write-Pass -TestName 'Should_Pass_When_ReadyFixture_CT3'
 
+# --- O1-only sibling context split: orchestrated strict, direct explicit risk ---
+$missingSibling = 'ARCH/missing-for-context-test.md'
+$strictSiblingResult = Invoke-Gate -ScriptPath $invokePath -Arguments @{
+    FeatureRoot         = $readyRoot
+    RepoPath            = $repoRoot
+    RequiredSiblingPath = $missingSibling
+    InvocationContext   = 'orchestrated'
+}
+if ($strictSiblingResult.ExitCode -ne $exitNeeds -or $strictSiblingResult.Output -notmatch 'return to O1') {
+    Write-Fail -TestName 'Should_Block_When_OrchestratedSiblingIsMissing' -Reason ("orchestrated mode must remain strict. {0}" -f $strictSiblingResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Block_When_OrchestratedSiblingIsMissing'
+
+$directWithoutRisk = Invoke-Gate -ScriptPath $invokePath -Arguments @{
+    FeatureRoot         = $readyRoot
+    RepoPath            = $repoRoot
+    RequiredSiblingPath = $missingSibling
+    InvocationContext   = 'direct'
+}
+if ($directWithoutRisk.ExitCode -ne $exitNeeds -or $directWithoutRisk.Output -notmatch 'confirmation required') {
+    Write-Fail -TestName 'Should_Ask_When_DirectSiblingIsMissing' -Reason ("direct mode must require an explicit choice. {0}" -f $directWithoutRisk.Output.Trim())
+}
+Write-Pass -TestName 'Should_Ask_When_DirectSiblingIsMissing'
+
+$directRiskResult = Invoke-Gate -ScriptPath $invokePath -Arguments @{
+    FeatureRoot           = $readyRoot
+    RepoPath              = $repoRoot
+    RequiredSiblingPath   = $missingSibling
+    InvocationContext     = 'direct'
+    AllowMissingSiblingRisk = $true
+    DirectRiskOwner       = 'fixture-owner'
+    DirectRiskBaseline    = 'memory-bank/domain-knowledge.md'
+    DirectRiskPath        = $missingSibling
+}
+if ($directRiskResult.ExitCode -ne $exitReady -or $directRiskResult.Output -notmatch 'operator-risk accepted' -or $directRiskResult.Output -notmatch 'direct_risk: owner=fixture-owner') {
+    Write-Fail -TestName 'Should_Allow_When_DirectSiblingRiskIsExplicit' -Reason ("direct risk acknowledgement should allow readiness. {0}" -f $directRiskResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Allow_When_DirectSiblingRiskIsExplicit'
+
+$minorResult = Invoke-Gate -ScriptPath $invokePath -Arguments @{
+    FeatureRoot = $openRoot
+    RepoPath    = $repoRoot
+}
+if ($minorResult.ExitCode -ne $exitNeeds -or $minorResult.Output -notmatch 'MINOR') {
+    Write-Fail -TestName 'Should_Block_When_UnansweredMinorExists' -Reason ("unanswered MINOR must block readiness. {0}" -f $minorResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Block_When_UnansweredMinorExists'
+
 # --- CT3 open B/I → fail / NEEDS ---
 $openResult = Invoke-Gate -ScriptPath $invokePath -Arguments @{
     FeatureRoot = $openRoot
