@@ -110,14 +110,14 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $path = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-          Write-Host "Running: $path"
+            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
+            Write-Host "Running: $scriptPath"
           $exitCode = Invoke-ValidationCheckWithTelemetry `
             -Path $env:VALIDATION_RESULTS_PATH `
             -JobName $env:VALIDATION_JOB_NAME `
             -CheckName '${{ matrix.adapter }}' `
-            -ScriptPath $path `
-            -Action { & $path }
+              -ScriptPath $scriptPath `
+              -Action { & $scriptPath }
           if ($exitCode -ne 0) { exit $exitCode }
         working-directory: ${{ github.workspace }}
       - name: Complete validation telemetry
@@ -177,14 +177,14 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $path = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-          Write-Host "Running: $path"
+            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
+            Write-Host "Running: $scriptPath"
           $exitCode = Invoke-ValidationCheckWithTelemetry `
             -Path $env:VALIDATION_RESULTS_PATH `
             -JobName $env:VALIDATION_JOB_NAME `
             -CheckName '${{ matrix.adapter }}' `
-            -ScriptPath $path `
-            -Action { & $path -Quiet }
+              -ScriptPath $scriptPath `
+              -Action { & $scriptPath -Quiet }
           if ($exitCode -ne 0) { exit $exitCode }
         working-directory: ${{ github.workspace }}
       - name: Complete validation telemetry
@@ -291,14 +291,14 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $path = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-          Write-Host "Running: $path"
+            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
+            Write-Host "Running: $scriptPath"
           $exitCode = Invoke-ValidationCheckWithTelemetry `
             -Path $env:VALIDATION_RESULTS_PATH `
             -JobName $env:VALIDATION_JOB_NAME `
             -CheckName '${{ matrix.adapter }}' `
-            -ScriptPath $path `
-            -Action { & $path -Quiet }
+              -ScriptPath $scriptPath `
+              -Action { & $scriptPath -Quiet }
           if ($exitCode -ne 0) { exit $exitCode }
         working-directory: ${{ github.workspace }}
       - name: Complete validation telemetry
