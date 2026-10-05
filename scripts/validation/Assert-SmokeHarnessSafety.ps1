@@ -13,6 +13,7 @@ $harnessScript = Join-Path $scriptDir 'Invoke-SmokeHarness.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $resolveInstallRootScript = Join-Path $libDir 'Resolve-InstallRoot.ps1'
+$ephemeralSmokeScript = Join-Path $libDir 'Invoke-EphemeralFixtureSmoke.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -88,7 +89,7 @@ function Get-DirectorySnapshotFingerprint {
     return ($items -join "`n")
 }
 
-foreach ($required in @($harnessScript, $constantsScript, $repoRootScript, $resolveInstallRootScript)) {
+foreach ($required in @($harnessScript, $constantsScript, $repoRootScript, $resolveInstallRootScript, $ephemeralSmokeScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -97,6 +98,7 @@ foreach ($required in @($harnessScript, $constantsScript, $repoRootScript, $reso
 . $constantsScript
 . $repoRootScript
 . $resolveInstallRootScript
+. $ephemeralSmokeScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $fixtureInstallRoot = Join-Path $repoRoot ($script:ToolkitConstant.DefaultFixtureInstallRootRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $fixtureReadme = Join-Path $fixtureInstallRoot 'README.md'
@@ -104,6 +106,69 @@ $fixtureReadme = Join-Path $fixtureInstallRoot 'README.md'
 if (-not (Test-Path -LiteralPath $fixtureReadme)) {
     Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason ("fixture seed missing: {0}" -f $fixtureReadme)
 }
+
+# --- Should_Reject_UnsafeEphemeralFixturePaths ---
+$unsafePathsName = 'Should_Reject_UnsafeEphemeralFixturePaths'
+$unsafePathCases = @(
+    ([System.IO.Path]::GetFullPath((Join-Path $repoRoot 'scripts/validation/fixtures/install-root'))),
+    '..\outside-fixture'
+)
+foreach ($unsafePath in $unsafePathCases) {
+    try {
+        Invoke-EphemeralFixtureSmoke -RepoRoot $repoRoot -SeedFixtureRel $unsafePath -WorkFixtureRel 'scripts/validation/fixtures/smoke-safety-work' -AgentId 'safety-test' | Out-Null
+        Write-Fail -TestName $unsafePathsName -Reason ("accepted unsafe seed path: {0}" -f $unsafePath)
+    }
+    catch {
+        if ($_.Exception.Message -notmatch '(?i)absolute|parent|outside|refus') {
+            Write-Fail -TestName $unsafePathsName -Reason ("unexpected unsafe-path error for {0}: {1}" -f $unsafePath, $_.Exception.Message)
+        }
+    }
+}
+Write-Pass -TestName $unsafePathsName
+
+# --- Should_FailClosed_When_EphemeralTreeChanges ---
+$treeChangeName = 'Should_FailClosed_When_EphemeralTreeChanges'
+$treeState = [PSCustomObject]@{
+    Path = 'fixture/file.txt'
+    Attributes = 0
+    Length = [int64]1
+    LastWriteTimeUtc = [int64]10
+}
+$changedTreeState = [PSCustomObject]@{
+    Path = 'fixture/file.txt'
+    Attributes = 0
+    Length = [int64]2
+    LastWriteTimeUtc = [int64]11
+}
+try {
+    Assert-EphemeralSmokeTreeStateUnchanged -Before @($treeState) -After @($changedTreeState) -Role 'safety test'
+    Write-Fail -TestName $treeChangeName -Reason 'accepted a changed deletion tree'
+}
+catch {
+    if ($_.Exception.Message -notmatch '(?i)changed|final validation') {
+        Write-Fail -TestName $treeChangeName -Reason ("unexpected tree-change error: {0}" -f $_.Exception.Message)
+    }
+}
+Write-Pass -TestName $treeChangeName
+
+# --- Should_Keep_EphemeralMutationGuards_InSharedRunner ---
+$guardContractName = 'Should_Keep_EphemeralMutationGuards_InSharedRunner'
+$ephemeralSmokeText = Get-Content -LiteralPath $ephemeralSmokeScript -Raw
+foreach ($requiredMarker in @(
+    'Assert-EphemeralSmokeSeedWrite',
+    'Assert-EphemeralSmokeDeleteTarget',
+    'Assert-EphemeralSmokeTreeStateUnchanged',
+    'Enter-EphemeralSmokeFilesystemGate',
+    '.toolkit-ephemeral-smoke.lock',
+    'FileAttributes]::ReparsePoint',
+    'residual race',
+    'hostile concurrent'
+)) {
+    if ($ephemeralSmokeText -notmatch [regex]::Escape($requiredMarker)) {
+        Write-Fail -TestName $guardContractName -Reason ("missing fail-closed guard marker: {0}" -f $requiredMarker)
+    }
+}
+Write-Pass -TestName $guardContractName
 
 $userProfile = Get-ToolkitUserHome
 if ([string]::IsNullOrWhiteSpace($userProfile)) {

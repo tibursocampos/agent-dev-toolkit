@@ -13,6 +13,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+. (Join-Path $libDir 'ToolkitValidationFileSystem.ps1')
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -52,7 +53,7 @@ function Get-NoFeaturesDocLinkScanTargets {
     $targets = [System.Collections.Generic.List[string]]::new()
     $docsRoot = Join-Path $RepoRoot 'docs'
     if (Test-Path -LiteralPath $docsRoot) {
-        Get-ChildItem -LiteralPath $docsRoot -Recurse -File -Filter '*.md' | ForEach-Object {
+        Get-ToolkitValidationFiles -Root $docsRoot -Recurse -Extensions @('.md') | ForEach-Object {
             $targets.Add($_.FullName)
         }
     }
@@ -113,7 +114,7 @@ if ($scanTargets.Count -eq 0) {
 
 $violations = [System.Collections.Generic.List[string]]::new()
 foreach ($path in $scanTargets) {
-    $text = Get-Content -LiteralPath $path -Raw
+    $text = Read-ToolkitValidationText -Path $path
     $hits = @(Get-NoFeaturesDocLinkHits -Text $text -Patterns $forbiddenPatterns)
     if ($hits.Count -eq 0) {
         continue

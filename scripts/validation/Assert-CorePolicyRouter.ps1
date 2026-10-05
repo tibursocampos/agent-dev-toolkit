@@ -32,6 +32,7 @@ $expectedPolicyNames = @(
     'context-management.md',
     'conventional-commits.md',
     'guardrails.md',
+    'model-cost-awareness.md',
     'orchestrator-session.md',
     'sdd-artifact-language-pt-br.md',
     'sdd-pipeline-guards.md',
@@ -45,6 +46,16 @@ foreach ($expected in $expectedPolicyNames) {
         exit 1
     }
 }
+
+$modelCostPath = Join-Path $policyRoot 'model-cost-awareness.md'
+$modelCostText = Get-Content -LiteralPath $modelCostPath -Raw -Encoding UTF8
+foreach ($marker in @('first turn', 'Do **not** repeat', '**Never block** execution', 'Do not maintain product-specific model ID allow/deny lists')) {
+    if ($modelCostText -notmatch [regex]::Escape($marker)) {
+        Write-Error ("model-cost-awareness.md missing enforcement marker: {0}" -f $marker)
+        exit 1
+    }
+}
+Write-Host 'Should_EnforceModelCostPolicy_When_CorePolicyPorted: PASS'
 
 $emptyPolicy = @($policyFiles | Where-Object { $_.Length -le 0 })
 if ($emptyPolicy.Count -gt 0) {

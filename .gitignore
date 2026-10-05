@@ -114,7 +114,12 @@ scripts/validation/fixtures/claude-sync-uninstall-work/
 scripts/validation/fixtures/cursor-keyed-uninstall-work/
 scripts/validation/fixtures/zcode-keyed-uninstall-work/
 scripts/validation/fixtures/*-keyed-uninstall-work/
+scripts/validation/fixtures/antigravity-keyed-uninstall-work/
 scripts/validation/fixtures/*-strict-probe/
+scripts/validation/fixtures/.runtime-script-publish-*/
+scripts/validation/fixtures/copilot/user/agents/
+scripts/validation/fixtures/copilot/user/scripts/
+scripts/validation/fixtures/sdd-artifacts/evidence/reparse-escape/
 
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md

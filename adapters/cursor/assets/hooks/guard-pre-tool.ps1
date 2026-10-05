@@ -8,6 +8,20 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
+if ($null -eq $inputJson) {
+    Write-PreToolJson @{
+        permission = 'deny'
+        user_message = 'Blocked: malformed or empty hook input.'
+        agent_message = 'Hook denied malformed or empty JSON input; fail-closed.'
+    }
+}
+if (-not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-PreToolJson @{
+        permission    = 'deny'
+        user_message  = 'Blocked: schema-invalid hook input.'
+        agent_message = 'Hook denied schema-invalid JSON input; expected a non-empty object.'
+    }
+}
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
     $toolName = [string]$inputJson.tool_name
@@ -31,6 +45,11 @@ if ([string]::IsNullOrWhiteSpace($toolName) -and $inputJson -and $inputJson.PSOb
     $directShell = [string]$inputJson.command
 }
 
+$expectedEventNames = @('preToolUse', 'PreToolUse')
+if (-not [string]::IsNullOrWhiteSpace($directShell)) {
+    $expectedEventNames = @('beforeShellExecution')
+}
+
 $isGuarded = (
     (Test-ToolkitWriteToolName $toolName) -or
     (Test-ToolkitDeleteToolName $toolName) -or
@@ -39,6 +58,14 @@ $isGuarded = (
 )
 if (-not $isGuarded) {
     Write-PreToolJson @{ permission = 'allow' }
+}
+
+if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames $expectedEventNames)) {
+    Write-PreToolJson @{
+        permission    = 'deny'
+        user_message  = 'Blocked: missing or malformed hook event identity.'
+        agent_message = 'Hook denied write/shell event with missing or malformed event identity; fail-closed.'
+    }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

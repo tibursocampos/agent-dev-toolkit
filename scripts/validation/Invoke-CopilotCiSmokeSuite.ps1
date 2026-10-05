@@ -182,6 +182,58 @@ function Assert-CopilotAgentAndHookMaterialization {
     }
 }
 
+function Get-CopilotVersionedSeedCopyScript {
+    param(
+        [Parameter(Mandatory = $true)][string] $SeedFixtureRel,
+        [Parameter(Mandatory = $true)][string] $RepoRoot
+    )
+
+    return {
+        param(
+            [Parameter(Mandatory = $true)][string] $SeedFixtureRoot,
+            [Parameter(Mandatory = $true)][string] $WorkInstallRoot
+        )
+
+        # Use an explicit recursive pathspec. A directory path happens to be
+        # recursive in Git's normal pathspec mode, but that behavior is easy to
+        # lose when the fixture is consumed from a sparse/filtered checkout.
+        # The seed contract is the index, never the generated working tree.
+        $seedPathspec = ($SeedFixtureRel.TrimEnd('/') + '/')
+        $trackedFiles = @(& git -C $RepoRoot ls-files --cached --full-name -- $seedPathspec)
+        if ($LASTEXITCODE -ne 0 -or $trackedFiles.Count -eq 0) {
+            throw ("Mode seed has no versioned files: {0}" -f $SeedFixtureRel)
+        }
+
+        foreach ($trackedFile in $trackedFiles) {
+            $trackedFile = ([string]$trackedFile).Trim()
+            if ([string]::IsNullOrWhiteSpace($trackedFile) -or
+                -not $trackedFile.StartsWith($seedPathspec, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw ("Mode seed returned a path outside its fixture: {0}" -f $trackedFile)
+            }
+
+            $relative = $trackedFile.Substring($seedPathspec.Length) -replace '/', [System.IO.Path]::DirectorySeparatorChar
+            if ([string]::IsNullOrWhiteSpace($relative)) {
+                continue
+            }
+
+            $sourcePath = Join-Path $repoRoot ($trackedFile -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+                throw ("Mode seed index entry is missing from the working tree: {0}" -f $trackedFile)
+            }
+            $destinationPath = Join-Path $WorkInstallRoot $relative
+            $destinationDirectory = Split-Path -Parent $destinationPath
+            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
+            if (-not (Test-Path -LiteralPath $destinationDirectory)) {
+                $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $WorkInstallRoot -Role 'work root' -AllowCanonicalPath
+                $null = Assert-EphemeralSmokeContainedPath -RepoRoot $repoRoot -Path $destinationDirectory -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
+                New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+            }
+            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
+            Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force
+        }
+    }.GetNewClosure()
+}
+
 if (-not $Quiet) {
     Write-Host ''
     Write-Host $suiteTitle -ForegroundColor Cyan
@@ -193,25 +245,31 @@ if (-not $Quiet) {
 $results = @()
 foreach ($entry in $suiteModes) {
     $seedFixtureRoot = Join-Path $repoRoot ($entry.SeedFixtureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $workInstallRoot = Join-Path $repoRoot ($entry.WorkFixtureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (-not (Test-Path -LiteralPath $seedFixtureRoot)) {
         Write-Host ("Missing fixture InstallRoot: {0}" -f $seedFixtureRoot) -ForegroundColor Red
         exit 1
     }
 
-    $result = Invoke-EphemeralFixtureSmoke `
-        -RepoRoot $repoRoot `
-        -SeedFixtureRel $entry.SeedFixtureRel `
-        -WorkFixtureRel $entry.WorkFixtureRel `
-        -AgentId $agentId `
-        -Mode $entry.Mode `
-        -Quiet:$Quiet `
-        -KeepWorkRoot:$true
-
+    # The shared runner retains the root only while this mode's post-smoke
+    # assertions run. User-visible retention is controlled solely by the
+    # explicit suite switch below.
     $seededFailureStatus = 'SKIPPED'
     $skillCopyStatus = 'SKIPPED'
-    $workInstallRoot = Join-Path $repoRoot ($entry.WorkFixtureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if ($result.Status -eq 'PASS') {
-        try {
+    try {
+        Remove-EphemeralSmokeWorkRoot -RepoRoot $repoRoot -Path $workInstallRoot
+
+        $result = Invoke-EphemeralFixtureSmoke `
+            -RepoRoot $repoRoot `
+            -SeedFixtureRel $entry.SeedFixtureRel `
+            -WorkFixtureRel $entry.WorkFixtureRel `
+            -AgentId $agentId `
+            -Mode $entry.Mode `
+            -SeedCopyScriptBlock (Get-CopilotVersionedSeedCopyScript -SeedFixtureRel $entry.SeedFixtureRel -RepoRoot $repoRoot) `
+            -Quiet:$Quiet `
+            -KeepWorkRoot:$true
+
+        if ($result.Status -eq 'PASS') {
             Assert-CopilotAgentAndHookMaterialization -InstallRoot $workInstallRoot -Mode $entry.Mode -RepoRoot $repoRoot
             $sourceSkillsRoot = Join-Path (Join-Path $repoRoot 'core') 'skills'
             $destinationSkillsRoot = Join-Path $workInstallRoot 'skills'
@@ -229,7 +287,8 @@ foreach ($entry in $suiteModes) {
                 throw ("Seed precondition missing: {0}" -f $primaryInstructions)
             }
 
-            Remove-Item -LiteralPath $primaryInstructions -Force
+            Assert-EphemeralSmokeDeleteTarget -Root $workInstallRoot -Target $primaryInstructions
+            Remove-Item -LiteralPath $primaryInstructions -Force -ErrorAction Stop
             $seeded = Invoke-SmokeValidate -InstallRoot $workInstallRoot -Mode $entry.Mode
             if ($seeded.EvidenceType -ne 'static' -or $seeded.HostExecutionStatus -ne 'SKIPPED') {
                 throw 'Smoke result did not distinguish static evidence from host execution.'
@@ -239,19 +298,16 @@ foreach ($entry in $suiteModes) {
             }
             $seededFailureStatus = 'DETECTED'
         }
-        catch {
-            Write-Host ("Seeded failure check Mode={0}: FAIL - {1}" -f $entry.Mode, $_.Exception.Message) -ForegroundColor Red
-            $result = [PSCustomObject]@{ Status = 'FAIL'; ExitCode = 1 }
-            $seededFailureStatus = 'FAIL'
-        }
-        finally {
-            if (-not $KeepWorkRoot) {
-                Remove-EphemeralSmokeWorkRoot -Path $workInstallRoot
-            }
-        }
     }
-    elseif (-not $KeepWorkRoot) {
-        Remove-EphemeralSmokeWorkRoot -Path $workInstallRoot
+    catch {
+        Write-Host ("Seeded failure check Mode={0}: FAIL - {1}" -f $entry.Mode, $_.Exception.Message) -ForegroundColor Red
+        $result = [PSCustomObject]@{ Status = 'FAIL'; ExitCode = 1 }
+        $seededFailureStatus = 'FAIL'
+    }
+    finally {
+        if (-not $KeepWorkRoot) {
+            Remove-EphemeralSmokeWorkRoot -RepoRoot $repoRoot -Path $workInstallRoot
+        }
     }
 
     $results += [PSCustomObject]@{

@@ -7,6 +7,18 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
+if ($null -eq $inputJson) {
+    Write-CodexPreToolJson @{
+        permissionDecision       = 'deny'
+        permissionDecisionReason = 'Hook denied malformed or empty JSON input; fail-closed.'
+    }
+}
+if (-not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-CodexPreToolJson @{
+        permissionDecision       = 'deny'
+        permissionDecisionReason = 'Hook denied schema-invalid JSON input; expected a non-empty object.'
+    }
+}
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
     $toolName = [string]$inputJson.tool_name
@@ -20,11 +32,9 @@ if ($inputJson -and $inputJson.PSObject.Properties['tool_input']) {
     $toolInput = $inputJson.tool_input
 }
 
-# Matcher may fire as Edit/Write aliases; normalize to apply_patch for content extraction.
+# Keep the host tool name so shared validation can read semantic Write/Edit
+# fields such as tool_input.path instead of treating them as patch text.
 $effectiveTool = $toolName
-if ($toolName -match '^(?i)(Edit|Write)$') {
-    $effectiveTool = 'apply_patch'
-}
 
 $isGuarded = (
     (Test-ToolkitWriteToolName $effectiveTool) -or
@@ -34,6 +44,13 @@ $isGuarded = (
 )
 if (-not $isGuarded) {
     Write-CodexPreToolJson @{ permissionDecision = 'allow' }
+}
+
+if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('PreToolUse', 'preToolUse'))) {
+    Write-CodexPreToolJson @{
+        permissionDecision       = 'deny'
+        permissionDecisionReason = 'Hook denied write/shell event with missing or malformed PreToolUse identity; fail-closed.'
+    }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

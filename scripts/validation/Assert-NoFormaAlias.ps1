@@ -11,6 +11,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+. (Join-Path $libDir 'ToolkitValidationFileSystem.ps1')
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -53,7 +54,7 @@ function Get-NoFormaAliasScanTargets {
         if (-not (Test-Path -LiteralPath $dirPath)) {
             continue
         }
-        Get-ChildItem -LiteralPath $dirPath -Recurse -File -Include '*.md', '*.mdc' | ForEach-Object {
+        Get-ToolkitValidationFiles -Root $dirPath -Recurse -Extensions @('.md', '.mdc') | ForEach-Object {
             $targets.Add($_.FullName)
         }
     }
@@ -108,7 +109,7 @@ if ($scanTargets.Count -eq 0) {
 
 $violations = [System.Collections.Generic.List[string]]::new()
 foreach ($path in $scanTargets) {
-    $text = Get-Content -LiteralPath $path -Raw
+    $text = Read-ToolkitValidationText -Path $path
     $hits = @(Get-NoFormaAliasHits -Text $text -Patterns $forbiddenPatterns)
     if ($hits.Count -eq 0) {
         continue

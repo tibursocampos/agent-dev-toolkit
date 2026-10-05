@@ -24,7 +24,11 @@
 
   Optional -InstallRoot (post Confirm/Initialize): re-asserts DestinationRoot /
   DestinationSkillsRoot is a strict child of InstallRoot before copy/prune, and
-  gates Sync Remove-Item with Assert-PathUnderInstallRootForDelete (child TOCTOU).
+  gates each destination parent and write operation with a final containment
+  check. This narrows child TOCTOU windows. A cooperative exclusive lock file
+  serializes toolkit publishers for the same InstallRoot; filesystem
+  operations are not transactional, so a hostile concurrent reparse-point race
+  remains possible.
 #>
 
 if (-not (Get-Variable -Scope Script -Name ToolkitConstant -ErrorAction SilentlyContinue)) {
@@ -46,6 +50,63 @@ if (-not (Get-Variable -Scope Script -Name ToolkitLastManagedCopyConflicts -Erro
 }
 if (-not (Get-Variable -Scope Script -Name ToolkitLastPreservedStaleSkillNames -ErrorAction SilentlyContinue)) {
     $script:ToolkitLastPreservedStaleSkillNames = @()
+}
+if (-not (Get-Variable -Scope Script -Name ToolkitFilesystemGateState -ErrorAction SilentlyContinue)) {
+    $script:ToolkitFilesystemGateState = @{}
+}
+
+function Enter-ToolkitFilesystemGate {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $RootPath,
+        [Parameter(Mandatory = $true)][string] $LockFileName
+    )
+
+    $rootFull = Get-NormalizedFullPath -Path $RootPath
+    $key = '{0}|{1}' -f $rootFull.ToLowerInvariant(), $LockFileName.ToLowerInvariant()
+    if ($script:ToolkitFilesystemGateState.ContainsKey($key)) {
+        $script:ToolkitFilesystemGateState[$key].Depth++
+        return
+    }
+    if (-not (Test-Path -LiteralPath $rootFull -PathType Container)) {
+        throw "Cannot acquire filesystem gate because the root is missing: $rootFull"
+    }
+
+    $lockPath = Join-Path $rootFull $LockFileName
+    $maxAttempts = 600
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        try {
+            $stream = [System.IO.File]::Open(
+                $lockPath,
+                [System.IO.FileMode]::OpenOrCreate,
+                [System.IO.FileAccess]::ReadWrite,
+                [System.IO.FileShare]::None)
+            $script:ToolkitFilesystemGateState[$key] = [PSCustomObject]@{ Stream = $stream; Depth = 1 }
+            return
+        }
+        catch [System.IO.IOException] {
+            if ($attempt -ge $maxAttempts) {
+                throw "Timed out waiting for cooperative filesystem gate: $lockPath"
+            }
+            Start-Sleep -Milliseconds 100
+        }
+    }
+}
+
+function Exit-ToolkitFilesystemGate {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $RootPath,
+        [Parameter(Mandatory = $true)][string] $LockFileName
+    )
+
+    $rootFull = Get-NormalizedFullPath -Path $RootPath
+    $key = '{0}|{1}' -f $rootFull.ToLowerInvariant(), $LockFileName.ToLowerInvariant()
+    if (-not $script:ToolkitFilesystemGateState.ContainsKey($key)) { return }
+    $state = $script:ToolkitFilesystemGateState[$key]
+    $state.Depth--
+    if ($state.Depth -gt 0) { return }
+    try { $state.Stream.Dispose() } finally { $script:ToolkitFilesystemGateState.Remove($key) }
 }
 
 function Test-ToolkitManagedRelativeHasParentSegment {
@@ -173,6 +234,7 @@ function Copy-ToolkitFileIfAbsent {
         if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and -not [string]::IsNullOrWhiteSpace($RelativePath)) {
             . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
             if (Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $RelativePath -CurrentFilePath $DestinationPath) {
+                Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationPath -InstallRoot $InstallRoot
                 Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -Force -ErrorAction Stop
                 $sha = Get-ToolkitFileContentSha256 -Path $DestinationPath
                 $null = Set-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $RelativePath -Sha256 $sha -Kind 'managed-file'
@@ -191,7 +253,13 @@ function Copy-ToolkitFileIfAbsent {
 
     $parent = Split-Path -Parent $DestinationPath
     if (-not (Test-Path -LiteralPath $parent)) {
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+            Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationPath -InstallRoot $InstallRoot
+        }
         New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+        Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationPath -InstallRoot $InstallRoot
     }
     Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -ErrorAction Stop
     $script:ToolkitLastManagedCopyPaths.Add($destinationFull) | Out-Null
@@ -216,6 +284,9 @@ function Write-ToolkitFileIfAbsent {
 
     if (Test-Path -LiteralPath $Path) {
         if ($AllowExistingMerge.IsPresent) {
+            if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+                Assert-ToolkitManagedWriteDestination -DestinationPath $Path -InstallRoot $InstallRoot
+            }
             [System.IO.File]::WriteAllText($Path, $Content, $Encoding)
             return $true
         }
@@ -232,7 +303,13 @@ function Write-ToolkitFileIfAbsent {
 
     $parent = Split-Path -Parent $Path
     if (-not (Test-Path -LiteralPath $parent)) {
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+            Assert-ToolkitManagedWriteDestination -DestinationPath $Path -InstallRoot $InstallRoot
+        }
         New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+        Assert-ToolkitManagedWriteDestination -DestinationPath $Path -InstallRoot $InstallRoot
     }
     [System.IO.File]::WriteAllText($Path, $Content, $Encoding)
     $destinationFull = [System.IO.Path]::GetFullPath($Path)
@@ -263,6 +340,30 @@ function Assert-ToolkitManagedDestinationUnderInstallRoot {
         -RootPath $InstallRoot `
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
+}
+
+function Assert-ToolkitManagedWriteDestination {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $DestinationPath,
+        [Parameter(Mandatory = $true)][string] $InstallRoot
+    )
+
+    # The parent may equal InstallRoot for a root-level file; the destination
+    # itself must remain a strict child. Resolve reparse targets immediately
+    # before the subsequent directory or file mutation.
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $DestinationPath `
+        -RootPath $InstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    $parent = Split-Path -Parent $DestinationPath
+    if (-not [string]::IsNullOrWhiteSpace($parent)) {
+        Assert-ToolkitManagedPathContained `
+            -CandidatePath $parent `
+            -RootPath $InstallRoot `
+            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+    }
 }
 
 function Update-ToolkitManagedCopyInventory {
@@ -377,9 +478,15 @@ function Copy-ToolkitManagedTree {
 
         $destinationDir = Split-Path -Parent $destinationPath
         if (-not (Test-Path -LiteralPath $destinationDir)) {
+            if ($hasInstallRoot) {
+                Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
+            }
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
+        if ($hasInstallRoot) {
+            Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
+        }
         Copy-Item -LiteralPath $file.FullName -Destination $destinationPath
         $script:ToolkitLastManagedCopyPaths.Add([System.IO.Path]::GetFullPath($destinationPath)) | Out-Null
         $filesCopied++
@@ -780,7 +887,7 @@ function Resolve-ToolkitPlaceholdersInTree {
     return @($changedPaths.ToArray())
 }
 
-function Invoke-ToolkitManagedSkillsPublish {
+function Invoke-ToolkitManagedSkillsPublishCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -880,7 +987,7 @@ function Get-ToolkitManagedAgentFileNames {
     )
 }
 
-function Invoke-ToolkitManagedAgentsPublish {
+function Invoke-ToolkitManagedAgentsPublishCore {
     <#
     .SYNOPSIS
       Copy core/agents markdown into InstallRoot/agents and resolve placeholders.
@@ -960,5 +1067,57 @@ function Invoke-ToolkitManagedAgentsPublish {
         FilesCopied    = $filesCopied
         AgentFileCount = $agentFileNames.Count
         AgentFileNames = $agentFileNames
+    }
+}
+
+function Invoke-ToolkitManagedSkillsPublish {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $SourceSkillsRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationSkillsRoot,
+        [Parameter()][System.Collections.IDictionary] $PlaceholderMap,
+        [Parameter()][string] $TextFileExtensionPattern = $script:ToolkitConstant.DefaultTextFileExtensionPattern,
+        [Parameter()][string[]] $UnresolvedTokens,
+        [Parameter()][string] $UnresolvedMessageFormat = $script:ToolkitMessage.PlaceholderUnresolved,
+        [Parameter()][switch] $SkipPlaceholderResolve,
+        [Parameter()][string] $InstallRoot
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+        Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
+    try {
+        return Invoke-ToolkitManagedSkillsPublishCore @PSBoundParameters
+    }
+    finally {
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+            Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        }
+    }
+}
+
+function Invoke-ToolkitManagedAgentsPublish {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $SourceAgentsRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationAgentsRoot,
+        [Parameter()][System.Collections.IDictionary] $PlaceholderMap,
+        [Parameter()][string] $TextFileExtensionPattern = $script:ToolkitConstant.DefaultTextFileExtensionPattern,
+        [Parameter()][string[]] $UnresolvedTokens,
+        [Parameter()][string] $UnresolvedMessageFormat = $script:ToolkitMessage.PlaceholderUnresolved,
+        [Parameter()][switch] $SkipPlaceholderResolve,
+        [Parameter()][string] $InstallRoot
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+        Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
+    try {
+        return Invoke-ToolkitManagedAgentsPublishCore @PSBoundParameters
+    }
+    finally {
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+            Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        }
     }
 }

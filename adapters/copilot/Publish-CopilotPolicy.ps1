@@ -81,12 +81,21 @@ function Copy-CopilotCorePolicyAsInstructions {
         [string] $SourcePolicyRoot,
 
         [Parameter(Mandatory = $true)]
-        [string] $DestinationInstructionsRoot
+        [string] $DestinationInstructionsRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationInstructionsRoot)) {
+        Assert-ToolkitManagedWriteDestination `
+            -DestinationPath (Join-Path $DestinationInstructionsRoot 'placeholder.instructions.md') `
+            -InstallRoot $InstallRoot
         New-Item -ItemType Directory -Path $DestinationInstructionsRoot -Force | Out-Null
     }
+    Assert-ToolkitManagedWriteDestination `
+        -DestinationPath (Join-Path $DestinationInstructionsRoot 'placeholder.instructions.md') `
+        -InstallRoot $InstallRoot
 
     $filesCopied = 0
     $sourceExt = $script:CopilotPathConstant.PolicySourceExtension
@@ -94,10 +103,17 @@ function Copy-CopilotCorePolicyAsInstructions {
     foreach ($file in $sourceFiles) {
         $destinationName = Get-CopilotInstructionsDestinationName -SourceFileName $file.Name
         $destinationPath = Join-Path $DestinationInstructionsRoot $destinationName
+        Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
         $raw = [System.IO.File]::ReadAllText($file.FullName)
         $converted = Convert-CopilotAlwaysApplyFrontmatterToApplyTo -Text $raw
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-        $null = Write-ToolkitFileIfAbsent -Path $destinationPath -Content $converted -Encoding $utf8NoBom
+        $relativeInventoryPath = ('instructions/{0}' -f $destinationName)
+        $null = Write-ToolkitFileIfAbsent `
+            -Path $destinationPath `
+            -Content $converted `
+            -Encoding $utf8NoBom `
+            -InstallRoot $InstallRoot `
+            -RelativePath $relativeInventoryPath
         $filesCopied++
     }
 
@@ -114,13 +130,18 @@ function Publish-CopilotRouterAsInstructionsFile {
         [string] $DestinationInstructionsFile,
 
         [Parameter(Mandatory = $true)]
-        [System.Collections.IDictionary] $PlaceholderMap
+        [System.Collections.IDictionary] $PlaceholderMap,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
     )
 
     $destinationDir = Split-Path -Parent $DestinationInstructionsFile
     if (-not (Test-Path -LiteralPath $destinationDir)) {
+        Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationInstructionsFile -InstallRoot $InstallRoot
         New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
     }
+    Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationInstructionsFile -InstallRoot $InstallRoot
 
     $raw = [System.IO.File]::ReadAllText($SourceRouterFile)
     $updated = Convert-CopilotRouterMdcReferencesToInstructions -Text $raw
@@ -131,7 +152,12 @@ function Publish-CopilotRouterAsInstructionsFile {
     }
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $DestinationInstructionsFile -Content $updated -Encoding $utf8NoBom
+    $null = Write-ToolkitFileIfAbsent `
+        -Path $DestinationInstructionsFile `
+        -Content $updated `
+        -Encoding $utf8NoBom `
+        -InstallRoot $InstallRoot `
+        -RelativePath 'copilot-instructions.md'
 }
 
 function Invoke-CopilotPublishPolicy {
@@ -198,40 +224,59 @@ function Invoke-CopilotPublishPolicy {
     $destinationInstructionsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.InstructionsDirectoryName
     $destinationInstructionsFile = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CopilotInstructionsFileName
 
-    $filesCopied = Copy-CopilotCorePolicyAsInstructions -SourcePolicyRoot $sourcePolicyRoot -DestinationInstructionsRoot $destinationInstructionsRoot
-    $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
-    Resolve-CopilotPlaceholdersInTree -RootPath $destinationInstructionsRoot -PlaceholderMap $placeholderMap
-    Assert-CopilotPlaceholdersResolved -RootPath $destinationInstructionsRoot
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $filesCopied = Copy-CopilotCorePolicyAsInstructions `
+            -SourcePolicyRoot $sourcePolicyRoot `
+            -DestinationInstructionsRoot $destinationInstructionsRoot `
+            -InstallRoot $resolvedInstallRoot
+        $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
+        Assert-ToolkitManagedWriteDestination `
+            -DestinationPath (Join-Path $destinationInstructionsRoot 'placeholder.instructions.md') `
+            -InstallRoot $resolvedInstallRoot
+        $changedPaths = @(Resolve-CopilotPlaceholdersInTree -RootPath $destinationInstructionsRoot -PlaceholderMap $placeholderMap)
+        if ($changedPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $resolvedInstallRoot -Paths $changedPaths
+        }
+        Assert-CopilotPlaceholdersResolved -RootPath $destinationInstructionsRoot
 
-    Publish-CopilotRouterAsInstructionsFile -SourceRouterFile $sourceRouterFile -DestinationInstructionsFile $destinationInstructionsFile -PlaceholderMap $placeholderMap
-    $filesCopied++
+        Publish-CopilotRouterAsInstructionsFile `
+            -SourceRouterFile $sourceRouterFile `
+            -DestinationInstructionsFile $destinationInstructionsFile `
+            -PlaceholderMap $placeholderMap `
+            -InstallRoot $resolvedInstallRoot
+        $filesCopied++
 
-    $placeholders = @(
-        $script:CopilotPathConstant.PlaceholderToolkitRoot,
-        $script:CopilotPathConstant.PlaceholderSddRoot,
-        $script:CopilotPathConstant.PlaceholderGuardrailsPath
-    )
-    $instructionsText = [System.IO.File]::ReadAllText($destinationInstructionsFile)
-    foreach ($placeholder in $placeholders) {
-        if ($instructionsText.Contains($placeholder)) {
-            throw ($script:CopilotPublishMessage.PlaceholderUnresolved -f $placeholder, $destinationInstructionsFile)
+        $placeholders = @(
+            $script:CopilotPathConstant.PlaceholderToolkitRoot,
+            $script:CopilotPathConstant.PlaceholderSddRoot,
+            $script:CopilotPathConstant.PlaceholderGuardrailsPath
+        )
+        $instructionsText = [System.IO.File]::ReadAllText($destinationInstructionsFile)
+        foreach ($placeholder in $placeholders) {
+            if ($instructionsText.Contains($placeholder)) {
+                throw ($script:CopilotPublishMessage.PlaceholderUnresolved -f $placeholder, $destinationInstructionsFile)
+            }
+        }
+
+        return [PSCustomObject]@{
+            Success                    = $true
+            Implemented                = $true
+            CommandName                = 'Publish-Policy'
+            WhatIf                     = $false
+            Mode                       = $normalizedMode
+            InstallRoot                = $resolvedInstallRoot
+            InstructionsRoot           = $destinationInstructionsRoot
+            CopilotInstructionsPath    = $destinationInstructionsFile
+            SourceRoot                 = $sourcePolicyRoot
+            RouterSourcePath           = $sourceRouterFile
+            FilesCopied                = $filesCopied
+            Message                    = ($script:CopilotPublishMessage.PolicyPublishedOk -f $filesCopied, $destinationInstructionsRoot, $normalizedMode)
+            ExitCode                   = 0
+            SmokeFilesystemOnlyNote    = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         }
     }
-
-    return [PSCustomObject]@{
-        Success                    = $true
-        Implemented                = $true
-        CommandName                = 'Publish-Policy'
-        WhatIf                     = $false
-        Mode                       = $normalizedMode
-        InstallRoot                = $resolvedInstallRoot
-        InstructionsRoot           = $destinationInstructionsRoot
-        CopilotInstructionsPath    = $destinationInstructionsFile
-        SourceRoot                 = $sourcePolicyRoot
-        RouterSourcePath           = $sourceRouterFile
-        FilesCopied                = $filesCopied
-        Message                    = ($script:CopilotPublishMessage.PolicyPublishedOk -f $filesCopied, $destinationInstructionsRoot, $normalizedMode)
-        ExitCode                   = 0
-        SmokeFilesystemOnlyNote    = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 }

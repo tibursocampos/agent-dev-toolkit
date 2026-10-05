@@ -4,6 +4,8 @@
 #   Should_Pass_When_ValidEvidenceFixture_Cheap
 #   Should_Fail_When_CheapWithZeroEvidence
 #   Should_Pass_When_LevelOffSkipsGate
+#   Should_Pass_When_LegacyFeatureRoot_Cheap
+#   Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence
 #   Should_Pass_When_SkillsWireEvidenceContract
 #   Should_Pass_When_VerifierForbidsO3Parallelism
 #
@@ -130,6 +132,12 @@ if ($validResult.ExitCode -ne 0) {
 }
 Write-Pass -TestName 'Should_Pass_When_ValidEvidenceFixture_Cheap'
 
+$legacyResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $validFixtureBase; Level = 'cheap' }
+if ($legacyResult.ExitCode -ne 0) {
+    Write-Fail -TestName 'Should_Pass_When_LegacyFeatureRoot_Cheap' -Reason ("expected legacy mode exit 0, got {0}. {1}" -f $legacyResult.ExitCode, $legacyResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Pass_When_LegacyFeatureRoot_Cheap'
+
 $zeroFixtureBase = Get-FixtureRoot -RelativeUnderFixtures $script:ToolkitConstant.ValidateEvidenceFixtureInvalidZeroRelativeDir
 $zeroRoot = Join-Path $zeroFixtureBase 'features/000-fixture-evidence-zero/TS01'
 $zeroResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $zeroRoot; RepoPath = $zeroFixtureBase; Level = 'cheap' }
@@ -137,6 +145,12 @@ if ($zeroResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_CheapWithZeroEvidence' -Reason 'expected non-zero exit when cheap has zero usable evidence'
 }
 Write-Pass -TestName 'Should_Fail_When_CheapWithZeroEvidence'
+
+$legacyZeroResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ FeatureRoot = $zeroFixtureBase; Level = 'cheap' }
+if ($legacyZeroResult.ExitCode -eq 0) {
+    Write-Fail -TestName 'Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence' -Reason ("expected legacy mode failure, got {0}. {1}" -f $legacyZeroResult.ExitCode, $legacyZeroResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Fail_When_LegacyFeatureRoot_CheapWithZeroEvidence'
 
 $offResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ StoryRoot = $zeroRoot; RepoPath = $zeroFixtureBase; Level = 'off' }
 if ($offResult.ExitCode -ne 0) {

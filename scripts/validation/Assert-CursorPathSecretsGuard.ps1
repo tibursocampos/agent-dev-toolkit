@@ -14,6 +14,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+$guardHarnessScript = Join-Path $libDir 'Invoke-PathSecretsGuardHarness.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -29,35 +30,7 @@ function Write-Fail {
     exit 1
 }
 
-function Invoke-GuardHook {
-    param(
-        [Parameter(Mandatory = $true)][string] $HookScriptPath,
-        [Parameter(Mandatory = $true)][hashtable] $Payload
-    )
-
-    $json = $Payload | ConvertTo-Json -Compress -Depth 6
-    $output = $json | pwsh -NoProfile -File $HookScriptPath 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    if ($null -eq $code) {
-        $code = 0
-    }
-
-    $parsed = $null
-    try {
-        $parsed = $output.Trim() | ConvertFrom-Json -ErrorAction Stop
-    }
-    catch {
-        $parsed = $null
-    }
-
-    return [PSCustomObject]@{
-        ExitCode = [int]$code
-        Output   = $output
-        Payload  = $parsed
-    }
-}
-
-foreach ($required in @($repoRootScript, $constantsScript)) {
+foreach ($required in @($repoRootScript, $constantsScript, $guardHarnessScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-CursorPathSecretsGuardPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -65,6 +38,7 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $constantsScript
 . $repoRootScript
+. $guardHarnessScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $hooksRootRel = $script:ToolkitConstant.CursorHooksAssetsRelativePath
@@ -134,30 +108,32 @@ if (Test-Path -LiteralPath $fixtureRoot) {
     Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
 }
 $null = New-Item -ItemType Directory -Path $fixtureRoot -Force
-$denyPayload = @{
-    tool_name  = 'Write'
-    tool_input = @{
-        path    = (Join-Path (Join-Path $fixtureRoot 'PRD') 'blocked.md')
-        content = '# blocked'
-    }
-    cwd = $fixtureRoot
-}
-$denyResult = Invoke-GuardHook -HookScriptPath $guardScript -Payload $denyPayload
-if ($null -eq $denyResult.Payload -or $denyResult.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_ForbiddenSddPath' -Reason ("guard hook should deny forbidden SDD path; output={0}" -f $denyResult.Output.Trim())
-}
+$denyPayload = @{ hook_event_name = 'preToolUse'; tool_name = 'Write'; tool_input = @{ path = (Join-Path (Join-Path $fixtureRoot 'PRD') 'blocked.md'); content = '# blocked' }; cwd = $fixtureRoot }
+$secretPayload = @{ hook_event_name = 'preToolUse'; tool_name = 'Write'; tool_input = @{ path = (Join-Path (Join-Path $fixtureRoot 'src') 'ok.cs'); content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";' }; cwd = $fixtureRoot }
 
-$secretPayload = @{
-    tool_name  = 'Write'
-    tool_input = @{
-        path    = (Join-Path (Join-Path $fixtureRoot 'src') 'ok.cs')
-        content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";'
+$reparseTarget = Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-cursor-reparse-target'
+$reparseLink = Join-Path $fixtureRoot 'src\linked'
+$null = New-Item -ItemType Directory -Path $reparseTarget -Force
+$null = New-Item -ItemType Junction -Path $reparseLink -Target $reparseTarget
+$reparsePayload = @{ hook_event_name = 'preToolUse'; tool_name = 'Write'; tool_input = @{ path = (Join-Path $reparseLink 'escape.cs'); content = 'class X {}' }; cwd = $fixtureRoot }
+
+$cases = @(
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_GuardHookForbiddenSddPath'; Payload = $denyPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'guard hook should deny forbidden SDD path' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_GuardHookSecretPatternDetected'; Payload = $secretPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'guard hook should deny secret content' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_HookIdentityMissing'; Payload = @{ tool_name = 'Write'; tool_input = @{ path = (Join-Path (Join-Path $fixtureRoot 'src') 'missing-identity.cs'); content = 'class X {}' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write without preToolUse identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellHookIdentityMissing'; Payload = @{ command = 'Set-Content -Path src\missing-shell-identity.cs -Value x'; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'beforeShellExecution without event identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_DescendantReparseEscapesWorkspace'; Payload = $reparsePayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write through an escaping junction must deny' }
+)
+try {
+    Invoke-PathSecretsGuardHarness -AdapterName 'Cursor' -HookScriptPath $guardScript -Cases $cases -GetDecision {
+        param($Payload)
+        if ($null -eq $Payload) { return $null }
+        return [string]$Payload.permission
     }
-    cwd = $fixtureRoot
 }
-$secretResult = Invoke-GuardHook -HookScriptPath $guardScript -Payload $secretPayload
-if ($null -eq $secretResult.Payload -or $secretResult.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_SecretPatternDetected' -Reason ("guard hook should deny secret content; output={0}" -f $secretResult.Output.Trim())
+finally {
+    Remove-Item -LiteralPath $reparseLink -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $reparseTarget -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 if (Test-Path -LiteralPath $fixtureRoot) {
@@ -202,44 +178,31 @@ $prdBlockedOutside = Join-Path (Join-Path $tempRoot 'PRD') 'blocked.md'
 $prdViaNamedOutside = Join-Path (Join-Path $tempRoot 'PRD') 'via-named-path.md'
 
 $deletePayload = @{
+    hook_event_name = 'preToolUse'
     tool_name  = 'Delete'
     tool_input = @{
         path = $prdBlockedOutside
     }
     cwd = $tempRoot
 }
-# Path check does not require the file to exist.
-$deleteDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $deletePayload
-if ($null -eq $deleteDeny.Payload -or $deleteDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_DeleteForbiddenPath' -Reason ("guard hook should deny Delete on forbidden SDD path; output={0}" -f $deleteDeny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_DeleteForbiddenPath'
-
 $shellPayload = @{
+    hook_event_name = 'preToolUse'
     tool_name  = 'Shell'
     tool_input = @{
         command = 'echo secret > PRD/legacy.md'
     }
     cwd = $tempRoot
 }
-$shellDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $shellPayload
-if ($null -eq $shellDeny.Payload -or $shellDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_ShellForbiddenPath' -Reason ("guard hook should deny Shell writing forbidden path; output={0}" -f $shellDeny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_ShellForbiddenPath'
 
 $beforeShellPayload = @{
+    hook_event_name = 'beforeShellExecution'
     command = 'Remove-Item -Recurse node_modules/pkg'
     cwd     = $tempRoot
 }
-$beforeShellDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $beforeShellPayload
-if ($null -eq $beforeShellDeny.Payload -or $beforeShellDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_BeforeShellForbiddenPath' -Reason ("beforeShellExecution shape should deny; output={0}" -f $beforeShellDeny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_BeforeShellForbiddenPath'
 
 $absOutside = Join-Path $tempRoot 'agent-dev-toolkit-guard-abs-outside.cs'
 $absPayload = @{
+    hook_event_name = 'preToolUse'
     tool_name  = 'Write'
     tool_input = @{
         path    = $absOutside
@@ -247,40 +210,42 @@ $absPayload = @{
     }
     cwd = $repoRoot
 }
-$absDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $absPayload
-if ($null -eq $absDeny.Payload -or $absDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace' -Reason ("absolute .cs outside workspace must deny; output={0}" -f $absDeny.Output.Trim())
-}
-if (Test-ToolkitAllowedWritePath -RelativePath $absOutside) {
-    Write-Fail -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace' -Reason 'Test-ToolkitAllowedWritePath must reject absolute paths'
-}
-Write-Pass -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace'
 
 $missingPathPayload = @{
+    hook_event_name = 'preToolUse'
     tool_name  = 'Write'
     tool_input = @{
         content = 'namespace X;'
     }
     cwd = $repoRoot
 }
-$missingPathDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $missingPathPayload
-if ($null -eq $missingPathDeny.Payload -or $missingPathDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_WriteMissingPath' -Reason ("write without path must deny; output={0}" -f $missingPathDeny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_WriteMissingPath'
 
 $namedPathShell = @{
+    hook_event_name = 'preToolUse'
     tool_name  = 'Shell'
     tool_input = @{
         command = ("Set-Content -Path '{0}' -Value 'x'" -f $prdViaNamedOutside)
     }
     cwd = $repoRoot
 }
-$namedPathDeny = Invoke-GuardHook -HookScriptPath $guardScript -Payload $namedPathShell
-if ($null -eq $namedPathDeny.Payload -or $namedPathDeny.Payload.permission -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_ShellNamedPathOutside' -Reason ("Set-Content -Path outside workspace must deny; output={0}" -f $namedPathDeny.Output.Trim())
+
+$cases = @(
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_DeleteForbiddenPath'; Payload = $deletePayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'guard hook should deny Delete on forbidden SDD path' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellForbiddenPath'; Payload = $shellPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'guard hook should deny Shell writing forbidden path' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_BeforeShellForbiddenPath'; Payload = $beforeShellPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'beforeShellExecution shape should deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_AbsolutePathOutsideWorkspace'; Payload = $absPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'absolute .cs outside workspace must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_WriteMissingPath'; Payload = $missingPathPayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write without path must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellNamedPathOutside'; Payload = $namedPathShell; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'Set-Content -Path outside workspace must deny' }
+)
+Invoke-PathSecretsGuardHarness -AdapterName 'Cursor' -HookScriptPath $guardScript -Cases $cases -GetDecision {
+    param($Payload)
+    if ($null -eq $Payload) { return $null }
+    return [string]$Payload.permission
 }
-Write-Pass -TestName 'Should_Deny_When_ShellNamedPathOutside'
+
+if (Test-ToolkitAllowedWritePath -RelativePath $absOutside) {
+    Write-Fail -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace' -Reason 'Test-ToolkitAllowedWritePath must reject absolute paths'
+}
 
 Write-Host 'Assert-CursorPathSecretsGuard: ALL PASS'
 exit 0

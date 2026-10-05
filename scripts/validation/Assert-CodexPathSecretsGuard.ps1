@@ -14,6 +14,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+$guardHarnessScript = Join-Path $libDir 'Invoke-PathSecretsGuardHarness.ps1'
 
 function Write-Pass {
     param([Parameter(Mandatory = $true)][string] $TestName)
@@ -29,33 +30,7 @@ function Write-Fail {
     exit 1
 }
 
-function Invoke-GuardHook {
-    param(
-        [Parameter(Mandatory = $true)][string] $HookScriptPath,
-        [Parameter(Mandatory = $true)][hashtable] $Payload
-    )
-
-    $json = $Payload | ConvertTo-Json -Compress -Depth 6
-    $output = $json | pwsh -NoProfile -File $HookScriptPath 2>&1 | Out-String
-    $parsed = $null
-    try {
-        $parsed = $output.Trim() | ConvertFrom-Json -ErrorAction Stop
-    }
-    catch {
-        $parsed = $null
-    }
-    return [PSCustomObject]@{ Output = $output; Payload = $parsed }
-}
-
-function Get-CodexGuardDecision {
-    param($Payload)
-    if ($null -eq $Payload -or -not $Payload.hookSpecificOutput) {
-        return $null
-    }
-    return [string]$Payload.hookSpecificOutput.permissionDecision
-}
-
-foreach ($required in @($repoRootScript, $constantsScript)) {
+foreach ($required in @($repoRootScript, $constantsScript, $guardHarnessScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-CodexPathSecretsGuardPreconditions' -Reason ("missing {0}" -f $required)
     }
@@ -63,6 +38,7 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 
 . $constantsScript
 . $repoRootScript
+. $guardHarnessScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $hooksAssets = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'codex') 'assets') 'hooks'
@@ -89,25 +65,30 @@ if (Test-Path -LiteralPath $fixtureRoot) {
 }
 $null = New-Item -ItemType Directory -Path $fixtureRoot -Force
 
-$deny = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
-    tool_name  = 'apply_patch'
-    tool_input = @{ command = "*** Add File: PRD/blocked.md`n+# blocked" }
-    cwd        = $fixtureRoot
-}
-if ((Get-CodexGuardDecision $deny.Payload) -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_ForbiddenSddPath' -Reason ("expected deny; output={0}" -f $deny.Output.Trim())
-}
-Write-Pass -TestName 'Should_Deny_When_ForbiddenSddPath'
+$reparseTarget = Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-codex-reparse-target'
+$reparseLink = Join-Path $fixtureRoot 'src\linked'
+$null = New-Item -ItemType Directory -Path $reparseTarget -Force
+$null = New-Item -ItemType Junction -Path $reparseLink -Target $reparseTarget
+$reparsePayload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Write'; tool_input = @{ path = (Join-Path $reparseLink 'escape.cs'); content = 'class X {}' }; cwd = $fixtureRoot }
 
-$secret = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
-    tool_name  = 'Bash'
-    tool_input = @{ command = 'echo ghp_TESTNOTREAL_aaaaabbbbbcccccddddd > src/ok.txt' }
-    cwd        = $fixtureRoot
+$cases = @(
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ForbiddenSddPath'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'apply_patch'; tool_input = @{ command = "*** Add File: PRD/blocked.md`n+# blocked" }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'expected deny for forbidden SDD path' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_SecretPatternDetected'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Bash'; tool_input = @{ command = 'echo ghp_TESTNOTREAL_aaaaabbbbbcccccddddd > src/ok.txt' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'expected deny for secret pattern' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_HookIdentityMissing'; Payload = @{ tool_name = 'Write'; tool_input = @{ path = (Join-Path $fixtureRoot 'src\missing-identity.cs'); content = 'class X {}' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write without PreToolUse identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellHookIdentityMissing'; Payload = @{ tool_name = 'Bash'; tool_input = @{ command = 'Set-Content -Path src\missing-shell-identity.cs -Value x' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'shell without PreToolUse identity must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Deny_When_DescendantReparseEscapesWorkspace'; Payload = $reparsePayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write through an escaping junction must deny' }
+)
+try {
+    Invoke-PathSecretsGuardHarness -AdapterName 'Codex' -HookScriptPath $guardScript -Cases $cases -GetDecision {
+        param($Payload)
+        if ($null -eq $Payload -or -not $Payload.hookSpecificOutput) { return $null }
+        return [string]$Payload.hookSpecificOutput.permissionDecision
+    }
 }
-if ((Get-CodexGuardDecision $secret.Payload) -ne 'deny') {
-    Write-Fail -TestName 'Should_Deny_When_SecretPatternDetected' -Reason ("expected secret deny; output={0}" -f $secret.Output.Trim())
+finally {
+    Remove-Item -LiteralPath $reparseLink -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $reparseTarget -Force -Recurse -ErrorAction SilentlyContinue
 }
-Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
 

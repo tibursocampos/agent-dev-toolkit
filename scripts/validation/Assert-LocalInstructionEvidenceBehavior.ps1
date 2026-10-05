@@ -5,15 +5,19 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 $fixtureRoot = Join-Path $PSScriptRoot 'fixtures\local-instruction-evidence'
 $seededFindingsPath = Join-Path $fixtureRoot 'seeded-findings.json'
+. (Join-Path (Split-Path -Parent $PSScriptRoot) '_lib\ToolkitValidationFileSystem.ps1')
 $initialFixtureHashes = @{}
-foreach ($fixtureFile in Get-ChildItem -LiteralPath $fixtureRoot -File -Recurse) {
-    $initialFixtureHashes[$fixtureFile.FullName] = (Get-FileHash -LiteralPath $fixtureFile.FullName -Algorithm SHA256).Hash
+foreach ($fixtureFile in Get-ToolkitValidationFiles -Root $fixtureRoot -Recurse) {
+    $initialFixtureHashes[$fixtureFile.FullName] = Get-ToolkitValidationFileFingerprint -Path $fixtureFile.FullName
 }
 $contractPaths = @(
     (Join-Path $repoRoot 'core\skills\_shared\developer-common\step-3.5-precommit-validation.md'),
     (Join-Path $repoRoot 'core\skills\code-review\references\verification.md'),
     (Join-Path $repoRoot 'core\agents\security.md')
 )
+
+$reparseEnumerationRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-reparse-root-{0}" -f [guid]::NewGuid().ToString('N'))
+$reparseEnumerationTarget = Join-Path ([System.IO.Path]::GetTempPath()) ("agent-validation-reparse-target-{0}" -f [guid]::NewGuid().ToString('N'))
 
 function Assert-True {
     param([bool] $Condition, [string] $Message)
@@ -78,7 +82,7 @@ Assert-True ($sourceChain[-1] -eq $nestedInstruction) 'The closest nested instru
 Assert-True ($sourceChain -notcontains $siblingInstruction) 'A sibling instruction must not apply to src/Widget.cs.'
 
 $higherAuthorityRule = 'Host policy: do not run automatic formatters or fixes.'
-$nestedText = Get-Content -LiteralPath $nestedInstruction -Raw
+$nestedText = Read-ToolkitValidationText -Path $nestedInstruction
 $conflicts = @()
 if ($nestedText -match 'Run an automatic formatter' -and $higherAuthorityRule -match 'do not run automatic formatters or fixes') {
     $conflicts += [pscustomobject]@{
@@ -91,7 +95,7 @@ Assert-True ($conflicts.Count -eq 1) 'A higher-authority conflict should be surf
 Assert-True ($conflicts[0].ControllingRule -eq $higherAuthorityRule) 'The higher-authority rule should remain controlling.'
 
 Assert-True (Test-Path -LiteralPath $seededFindingsPath) 'Seeded diagnostics fixture is missing.'
-$findingSeeds = Get-Content -LiteralPath $seededFindingsPath -Raw | ConvertFrom-Json
+$findingSeeds = Read-ToolkitValidationText -Path $seededFindingsPath | ConvertFrom-Json
 $seededFindings = @($findingSeeds | ForEach-Object {
     New-FindingRecord -Tool $_.Tool -Scope $_.Scope -Available ([bool]$_.Available) -Evidence $_.Evidence -Severity $_.Severity -Comparison $_.Comparison -Finding $_.Finding -UnavailableReason $_.UnavailableReason
 })
@@ -187,15 +191,35 @@ $missingRecord = $actualRecords | Where-Object Tool -eq 'missing-fixture-tool' |
 Assert-True ($missingRecord.Status -eq 'SKIPPED' -and $missingRecord.Reason -eq 'configured tool unavailable') 'Uninstalled configured tooling must be SKIPPED with a reason.'
 Assert-True ($missingRecord.Comparison -eq 'unavailable' -and $missingRecord.Severity -eq 'n/a') 'Unavailable tool output must identify unavailable comparison and severity.'
 
-$contractText = ($contractPaths | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n"
+# Recursive validation enumeration must not follow a junction into files outside its root.
+try {
+    $null = New-Item -ItemType Directory -Path $reparseEnumerationRoot -Force
+    $null = New-Item -ItemType Directory -Path $reparseEnumerationTarget -Force
+    Set-Content -LiteralPath (Join-Path $reparseEnumerationRoot 'visible.txt') -Value 'inside'
+    Set-Content -LiteralPath (Join-Path $reparseEnumerationTarget 'escaped.txt') -Value 'outside'
+    $reparseLink = Join-Path $reparseEnumerationRoot 'linked'
+    $null = New-Item -ItemType Junction -Path $reparseLink -Target $reparseEnumerationTarget
+
+    $enumeratedFiles = @(Get-ToolkitValidationFiles -Root $reparseEnumerationRoot -Recurse)
+    Assert-True (@($enumeratedFiles | Where-Object Name -eq 'visible.txt').Count -eq 1) 'Recursive validation enumeration should retain ordinary files.'
+    Assert-True (@($enumeratedFiles | Where-Object Name -eq 'escaped.txt').Count -eq 0) 'Recursive validation enumeration must skip reparse-point directories.'
+    Assert-True (@($enumeratedFiles | Where-Object { ($_.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 }).Count -eq 0) 'Validation enumeration must not return reparse-point files.'
+}
+finally {
+    Remove-Item -LiteralPath (Join-Path $reparseEnumerationRoot 'linked') -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $reparseEnumerationRoot -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $reparseEnumerationTarget -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+$contractText = ($contractPaths | ForEach-Object { Read-ToolkitValidationText -Path $_ }) -join "`n"
 foreach ($forbidden in @('--fix', 'package update', 'suppress', 'quick fix', 'cleanup')) {
     Assert-True ($contractText -match [regex]::Escape($forbidden)) "Contract must explicitly prohibit automatic remediation '$forbidden'."
 }
 
-$currentFixtureFiles = @(Get-ChildItem -LiteralPath $fixtureRoot -File -Recurse)
+$currentFixtureFiles = @(Get-ToolkitValidationFiles -Root $fixtureRoot -Recurse)
 Assert-True ($currentFixtureFiles.Count -eq $initialFixtureHashes.Count) 'Fixture file set changed during validation.'
 foreach ($fixtureFile in $currentFixtureFiles) {
-    $currentHash = (Get-FileHash -LiteralPath $fixtureFile.FullName -Algorithm SHA256).Hash
+    $currentHash = Get-ToolkitValidationFileFingerprint -Path $fixtureFile.FullName
     Assert-True ($currentHash -eq $initialFixtureHashes[$fixtureFile.FullName]) "Fixture was modified during validation: $($fixtureFile.FullName)"
 }
 
