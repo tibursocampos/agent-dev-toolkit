@@ -205,16 +205,12 @@ function Invoke-CopilotUninstallToolkit {
         throw ($script:CopilotUninstallMessage.HooksAssetsMissing -f $sourceHooksRoot)
     }
 
-    if ($WhatIf.IsPresent) {
-        $removedPaths = New-Object System.Collections.Generic.List[string]
-    }
-    else {
+    $removedPaths = New-Object System.Collections.Generic.List[string]
+    if (-not $WhatIf.IsPresent) {
         Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 
     try {
-        $removedPaths = if ($null -eq $removedPaths) { New-Object System.Collections.Generic.List[string] } else { $removedPaths }
-
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
     $preservedSkillPaths = @($skillAudit.PreservedPaths)

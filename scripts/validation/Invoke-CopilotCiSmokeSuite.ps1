@@ -189,17 +189,36 @@ function Get-CopilotVersionedSeedCopyScript {
     )
 
     $assertContainedPath = ${function:Assert-EphemeralSmokeContainedPath}.GetNewClosure()
-    $assertSeedWrite = ${function:Assert-EphemeralSmokeSeedWrite}.GetNewClosure()
+    $assertSeedWrite = {
+        param(
+            [Parameter(Mandatory = $true)][string] $SeedFixtureRoot,
+            [Parameter(Mandatory = $true)][string] $WorkInstallRoot,
+            [Parameter(Mandatory = $true)][string] $SourcePath,
+            [Parameter(Mandatory = $true)][string] $DestinationPath
+        )
+
+        & $assertContainedPath -Path $SeedFixtureRoot -Role 'seed fixture' -AllowCanonicalPath
+        & $assertContainedPath -Path $WorkInstallRoot -Role 'work root' -AllowCanonicalPath
+        & $assertContainedPath -Path $SourcePath -Role 'seed source' -AllowCanonicalPath
+        $destinationParent = Split-Path -Parent $DestinationPath
+        & $assertContainedPath -Path $destinationParent -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
+
+        $sourceItem = Get-Item -LiteralPath $SourcePath -Force -ErrorAction Stop
+        if ($sourceItem.PSIsContainer -or ($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+            throw ("Refusing seed write from changed/reparse source: {0}" -f $SourcePath)
+        }
+        if (Test-Path -LiteralPath $DestinationPath) {
+            $destinationItem = Get-Item -LiteralPath $DestinationPath -Force -ErrorAction Stop
+            if ($destinationItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                throw ("Refusing seed write to reparse destination: {0}" -f $DestinationPath)
+            }
+        }
+    }.GetNewClosure()
     return {
         param(
             [Parameter(Mandatory = $true)][string] $SeedFixtureRoot,
             [Parameter(Mandatory = $true)][string] $WorkInstallRoot
         )
-
-        # Captured scriptblocks do not inherit sibling functions reliably on
-        # PowerShell 7/Linux. Rebind the contained-path guard in this scope
-        # before invoking the captured seed-write guard.
-        Set-Item -Path Function:\Assert-EphemeralSmokeContainedPath -Value $assertContainedPath
 
         # Use an explicit recursive pathspec. A directory path happens to be
         # recursive in Git's normal pathspec mode, but that behavior is easy to
