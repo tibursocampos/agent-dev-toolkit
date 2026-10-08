@@ -518,20 +518,10 @@ function Invoke-TraceEmitterFromHookInput {
             }
         }
         elseif ($hookLower -match 'posttooluse') {
-            $eventName = 'note'
-            $toolName = ''
-            if ($InputObject.PSObject.Properties.Name -contains 'tool_name') {
-                $toolName = [string]$InputObject.tool_name
-            }
-            elseif ($InputObject.PSObject.Properties.Name -contains 'toolName') {
-                $toolName = [string]$InputObject.toolName
-            }
-            if ([string]::IsNullOrWhiteSpace($toolName)) {
-                $summary = 'postToolUse'
-            }
-            else {
-                $summary = ('postToolUse tool={0}' -f $toolName)
-            }
+            # Normal tool completion does not append a per-tool note.
+            # A requested wave close still records converge, sync_current, and archive
+            # through the archive contract, outside this hook.
+            return $false
         }
         else {
             $summary = if ([string]::IsNullOrWhiteSpace($resolvedHook)) { 'hook' } else { $resolvedHook }

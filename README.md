@@ -56,7 +56,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 In the menu:
 
 1. **Sync agent** — pick an agent, then **live agent home** (Enter = default; writes under your profile after confirm), **in-repo fixture** (safe), or **custom** path.
-2. **Validate core only** — `validate-core` repo contracts with no home write.
+2. **Validate core only** — `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, and `Assert-TraceEmitterFailOpen.ps1`; repo checks with no home write.
 3. **Help and docs** — what each action does and equivalent `-Action` flags.
 
 Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-CursorCiSmoke`, `Invoke-ClaudeCiSmoke`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.

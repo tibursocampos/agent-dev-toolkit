@@ -106,7 +106,7 @@ $suiteName = 'Should_RunBothModes_When_CiSmokeSuiteExecutes'
 $workflowText = Get-Content -LiteralPath $workflowPath -Raw
 $requiredWorkflowMarkers = @(
     $suiteScriptName,
-    'validate-core.ps1',
+    'Assert-CiWorkflow.ps1',
     'actions/checkout',
     'pwsh',
     'permissions:',

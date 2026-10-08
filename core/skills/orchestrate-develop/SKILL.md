@@ -1,6 +1,6 @@
 ---
 name: orchestrate-develop
-description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY; handoff to code-review. Use when invoking /orchestrate-develop.
+description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -36,7 +36,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 1. Pending PLAN step(s) executed via Task children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
-3. Handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted) and/or next step / next story
+3. When the operator asked to close the wave, handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted). When the operator did not ask, do not start that validation or specialist loop; hand off only the next step / next story
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md`. CONTINUITY stays the feature phase/handoff source.
 
@@ -157,7 +157,9 @@ Update phase / Memory-bank / estado / handoff at each milestone. Read `reference
 When a child changed app files: confirm → `refresh-light` → CONTINUITY `refreshed` (or skip). Read `references/continuity-handoff.md` § Process — Step N refresh-light and `references/preconditions.md` § Step N - refresh-light.
 
 ### 10. Handoff
-At scope close, use this required order: `run-tests` -> `code-review` -> `run-tests` after review changes (or record that no changes required a rerun) -> the `security` role/prompt review of the diff -> ask `/commit` -> ask `/push` separately. When code review is requested against this PLAN, run the impact, architecture, and persistence pass again before that review (`repo-analyst`, `architect`, and `database` when the PLAN cites persistence). That second pass is not a per-step spawn. Read `references/continuity-handoff.md` § Handoff copy. The security handoff is role-based (`{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`); use the host’s documented spawn mechanism when available, otherwise perform the bounded fallback in-parent. Do not claim a `/security` command or host capability that is not present.
+Run the scope-close loop only when the operator asked to close the wave. When the operator did not ask, do not start `run-tests`, `code-review`, a post-review rerun, the security review, or another specialist the operator did not request.
+
+When the operator asked to close the wave, use this required order: `run-tests` -> `code-review` -> `run-tests` after review changes (or record that no changes required a rerun) -> the `security` role/prompt review of the diff -> ask `/commit` -> ask `/push` separately. When code review is requested against this PLAN, run the impact, architecture, and persistence pass again before that review (`repo-analyst`, `architect`, and `database` when the PLAN cites persistence). That second pass is not a per-step spawn. Read `references/continuity-handoff.md` § Handoff copy. The security handoff is role-based (`{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`); use the host’s documented spawn mechanism when available, otherwise perform the bounded fallback in-parent. Do not claim a `/security` command or host capability that is not present. A requested wave close may still record `converge`, `sync_current`, and `archive` (`TRACE-ARCHIVE-CONTRACT.md`). Do not delete that contract.
 
 ## Anti-bypass checklist (must enforce)
 

@@ -4,8 +4,8 @@
   Validates toolkit core for a selected agent; optional adapter smoke (no-op when adapter not implemented).
 
 .DESCRIPTION
-  Requires -Agent (registry lookup). By default runs scripts/validation/validate-core.ps1.
-  Pass -SkipCore when the caller already ran validate-core (CI ephemeral smoke).
+  Requires -Agent (registry lookup). By default runs the named remaining checks.
+  Pass -SkipCore when the caller already ran those checks (CI ephemeral smoke).
   After core passes (or is skipped), loads the adapter module and calls
   Invoke-SmokeValidate when InstallRoot is available. Stub adapters
   (Implemented = false) are treated as documented no-op / skip - core result
@@ -21,16 +21,16 @@
   Skip Invoke-SmokeValidate even when the module is loaded.
 
 .PARAMETER SkipCore
-  Skip validate-core (CI smoke harness only; local default still runs core).
+  Skip the named remaining checks (CI smoke harness only; local default still runs them).
 
 .PARAMETER AllowUserHome
   Opt-in when InstallRoot resolves under USERPROFILE.
 
 .PARAMETER FailFast
-  Forwarded to validate-core.
+  Accepted for existing callers. The named remaining checks do not take this switch.
 
 .PARAMETER Quiet
-  Forwarded to validate-core.
+  Accepted for existing callers. The named remaining checks do not take this switch.
 
 .PARAMETER Mode
   Required for -Agent copilot: user|repo (TE02 when missing/invalid). Ignored for other agents.
@@ -95,12 +95,6 @@ try {
     $resolved = Resolve-RegistryAgent -RepoRoot $repoRoot -AgentId $Agent
     $resolvedMode = Assert-CopilotAgentMode -AgentId $resolved.AgentId -Mode $Mode
 
-    $validateCorePath = Join-Path $repoRoot ($script:ToolkitConstant.ValidateCoreRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $validateCorePath)) {
-        Write-ValidateError -Message ($script:ToolkitMessage.ValidateCoreMissing -f $validateCorePath)
-        exit 1
-    }
-
     Write-Host ("Validate agent: {0} ({1})" -f $resolved.AgentId, $resolved.DisplayName) -ForegroundColor Cyan
     Write-Host ("Module: {0}" -f $resolved.ModuleRelative) -ForegroundColor Cyan
     if (-not [string]::IsNullOrWhiteSpace($resolvedMode)) {
@@ -108,19 +102,23 @@ try {
     }
 
     if (-not $SkipCore) {
-        $forwardArgs = @{}
-        if ($FailFast) { $forwardArgs['FailFast'] = $true }
-        if ($Quiet) { $forwardArgs['Quiet'] = $true }
+        foreach ($relativePath in @($script:ToolkitConstant.NamedRemainingCheckRelativePaths)) {
+            $checkPath = Join-Path $repoRoot ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            if (-not (Test-Path -LiteralPath $checkPath)) {
+                Write-ValidateError -Message ($script:ToolkitMessage.ValidateCoreMissing -f $checkPath)
+                exit 1
+            }
 
-        & $validateCorePath @forwardArgs
-        $coreExit = $LASTEXITCODE
-        if ($null -eq $coreExit) {
-            $coreExit = 0
-        }
+            & $checkPath
+            $checkExit = $LASTEXITCODE
+            if ($null -eq $checkExit) {
+                $checkExit = 0
+            }
 
-        if ($coreExit -ne 0) {
-            Write-ValidateError -Message ("Core validation failed (exit {0})." -f $coreExit)
-            exit $coreExit
+            if ($checkExit -ne 0) {
+                Write-ValidateError -Message ("Named check failed ({0}, exit {1})." -f $relativePath, $checkExit)
+                exit $checkExit
+            }
         }
     }
     else {

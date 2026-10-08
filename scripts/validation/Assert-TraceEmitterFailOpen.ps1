@@ -7,6 +7,7 @@
 #   Should_Redact_When_SecretLikeSummaryAndExtra
 #   Should_Exit0_When_ForcedFail
 #   Should_Not_Echo_SensitiveToolBody
+#   Should_Not_Append_When_NormalPostToolUse
 #   Should_Pass_When_CursorHooksWireEmitters
 #   Should_Pass_When_EmitterAssetsPresentWithoutLiveHome
 #   Should_Skip_When_AuthorshipGitNotesDefaultOff
@@ -248,6 +249,53 @@ if ($output -match 'super-secret-value-should-not-echo' -or $output -match 'SECR
 Write-Pass -TestName 'Should_Not_Echo_SensitiveToolBody'
 
 Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
+
+$beforeNormal = @(Get-Content -LiteralPath $tracePath).Count
+$normalToolBody = 'NORMAL_TOOL_BODY_MUST_NOT_ECHO_OR_APPEND'
+$normalInput = [pscustomobject]@{
+    hook_event_name = 'postToolUse'
+    tool_name       = 'Read'
+    tool_input      = @{ content = $normalToolBody }
+}
+$normalJson = $normalInput | ConvertTo-Json -Compress -Depth 6
+$normalOutput = $normalJson | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
+$normalCode = $LASTEXITCODE
+if ($null -eq $normalCode) { $normalCode = 0 }
+if ($normalCode -ne 0) {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("exit {0} (expected 0 fail-open)" -f $normalCode)
+}
+$afterNormal = @(Get-Content -LiteralPath $tracePath).Count
+if ($afterNormal -ne $beforeNormal) {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'normal postToolUse appended a per-tool TRACE line'
+}
+$traceBody = Get-Content -LiteralPath $tracePath -Raw
+if ($traceBody -match 'postToolUse tool=Read') {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'TRACE contains a per-tool postToolUse note'
+}
+if ($normalOutput -match [regex]::Escape($normalToolBody)) {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'emitter stdout echoed the tool body'
+}
+$archiveContractRel = 'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
+$archiveContractPath = Join-Path $repoRoot ($archiveContractRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $archiveContractPath)) {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("missing {0}" -f $archiveContractRel)
+}
+$archiveContractText = Get-Content -LiteralPath $archiveContractPath -Raw -Encoding UTF8
+foreach ($livingEvent in @('converge', 'sync_current', 'archive')) {
+    if ($archiveContractText -notmatch [regex]::Escape($livingEvent)) {
+        Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("archive contract missing {0}" -f $livingEvent)
+    }
+}
+$orchestrateSkillRel = 'core/skills/orchestrate-develop/SKILL.md'
+$orchestrateSkillPath = Join-Path $repoRoot ($orchestrateSkillRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$orchestrateSkillText = Get-Content -LiteralPath $orchestrateSkillPath -Raw -Encoding UTF8
+if ($orchestrateSkillText -notmatch 'only when the operator asked to close the wave') {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'scope close must stay gated on an operator request'
+}
+if ($orchestrateSkillText -notmatch 'run-tests' -or $orchestrateSkillText -notmatch 'code-review') {
+    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'requested wave close must still name run-tests and code-review'
+}
+Write-Pass -TestName 'Should_Not_Append_When_NormalPostToolUse'
 
 $hooksJsonPath = Join-Path $repoRoot ($script:ToolkitConstant.CursorHooksJsonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 if (-not (Test-Path -LiteralPath $hooksJsonPath)) {

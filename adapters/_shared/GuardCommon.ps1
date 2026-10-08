@@ -847,9 +847,7 @@ function Get-ToolkitPathSecretsGuardVerdict {
         foreach ($p in @(Get-PathsReferencedInShellCommand -Command $shellCmd)) {
             $pathsToCheck.Add($p) | Out-Null
         }
-        if ($pathsToCheck.Count -eq 0) {
-            continue
-        }
+        # No path candidate: fall through. Secret scan still runs; an empty shell is allowed.
     }
 
     foreach ($rawPath in $pathsToCheck) {
