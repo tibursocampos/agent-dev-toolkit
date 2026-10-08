@@ -157,6 +157,8 @@ $runtimeScriptPublishScriptName = 'Assert-RuntimeScriptPublish.ps1'
 $runtimeScriptPublishCheckName = 'runtime-script-publish'
 $localInstructionEvidenceScriptName = 'Assert-LocalInstructionEvidenceContract.ps1'
 $localInstructionEvidenceCheckName = 'local-instruction-evidence-contract'
+$skillsAndFlowsContractsScriptName = 'Assert-SkillsAndFlowsContracts.ps1'
+$skillsAndFlowsContractsCheckName = 'skills-and-flows-contracts'
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -287,7 +289,8 @@ $coreChecks = @(
     @{ Name = $siblingReadinessGateCheckName; Script = $siblingReadinessGateScriptName },
     @{ Name = $navigationBlockCheckName; Script = $navigationBlockScriptName },
     @{ Name = $runtimeScriptPublishCheckName; Script = $runtimeScriptPublishScriptName },
-    @{ Name = $localInstructionEvidenceCheckName; Script = $localInstructionEvidenceScriptName }
+    @{ Name = $localInstructionEvidenceCheckName; Script = $localInstructionEvidenceScriptName },
+    @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

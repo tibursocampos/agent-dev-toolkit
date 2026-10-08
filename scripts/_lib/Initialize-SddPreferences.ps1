@@ -43,6 +43,10 @@ function New-ToolkitDefaultPreferencesObject {
 }
 
 function Resolve-ToolkitOrchestratorModeFromChoice {
+    <#
+    .SYNOPSIS
+      Map a legacy menu choice to always or adaptive. First sync does not call this.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -59,7 +63,10 @@ function Resolve-ToolkitOrchestratorModeFromChoice {
 function Invoke-ToolkitEnsurePreferences {
     <#
     .SYNOPSIS
-      Create preferences.json when missing; optional interactive orchestrator mode prompt.
+      Create preferences.json when missing. First sync writes orchestrator_mode always and does not ask.
+    .NOTES
+      -Interactive remains for callers and does not prompt or change the seeded mode.
+      In-session orchestrator adaptive stays in core/policy/orchestrator-session.md.
     #>
     [CmdletBinding()]
     param(
@@ -82,16 +89,9 @@ function Invoke-ToolkitEnsurePreferences {
         }
     }
 
+    # First sync of each adapter: missing preferences are seeded with always. No orchestration-mode question.
     $orchestratorMode = $script:ToolkitPreferencesConstant.DefaultOrchestratorMode
-    if ($Interactive.IsPresent) {
-        Write-Host $script:ToolkitMessage.ToolkitOrchestratorInstallPromptHeader -ForegroundColor Cyan
-        Write-Host $script:ToolkitMessage.ToolkitOrchestratorInstallPromptAlwaysLine
-        Write-Host $script:ToolkitMessage.ToolkitOrchestratorInstallPromptAdaptiveLine
-        $choice = Read-ToolkitChoice -Prompt $script:ToolkitMessage.ToolkitOrchestratorInstallPromptMenu `
-            -ValidChoices $script:ToolkitConstant.ToolkitOrchestratorInstallMenuChoices `
-            -DefaultChoice $script:ToolkitMessage.ToolkitOrchestratorInstallDefaultChoice
-        $orchestratorMode = Resolve-ToolkitOrchestratorModeFromChoice -Choice $choice
-    }
+    $null = $Interactive
 
     if ($WhatIf.IsPresent) {
         return [PSCustomObject]@{

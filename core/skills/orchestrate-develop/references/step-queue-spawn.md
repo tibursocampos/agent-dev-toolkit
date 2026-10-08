@@ -6,11 +6,11 @@
 3. Ready set = pending steps whose deps are all completed.
 4. Default pick = first ready in PLAN order within current story.
 5. Present pick; wait for sim; spawn one child.
-6. On return, validate the receipt against the PLAN, acceptance, session gates, and claim.
-7. Persist the PLAN checkpoint/ledger and re-read it before presenting any reconciled result.
-8. Redraw the complete chat-only stage table and the reconciled PLAN ledger; then emit the session report.
-9. Evaluate the next eligible spawn only after that report. `continuous` may proceed under its existing authorization; `step_by_step` requires a new sim.
-10. On missing, incomplete, inconsistent, blocked, or failed receipt: keep the step pending or blocked as applicable, report `blockedReason`, pause dependents, and do not advance.
+6. On return, validate the receipt against the PLAN acceptance, session gates, and claim.
+7. Persist the PLAN checkpoint and progress table and re-read them before presenting any reconciled result.
+8. Show the step ledger for every step and, for a valid receipt, the short result (step, `done` | `blocked` | `failed`, tests). Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger.
+9. Evaluate the next eligible spawn only after that result. `continuous` may proceed under its existing authorization; `step_by_step` requires a new sim.
+10. On a `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance: block the step, describe the deviation in one question, do not delegate the next step, do not invent a fix, and do not rewrite the PLAN. On a missing, incomplete, inconsistent, blocked, or failed receipt: keep the step pending or blocked as applicable, report `blockedReason`, pause dependents, and do not advance.
 ```
 
 ### Receipt validation and safe relay
@@ -135,9 +135,9 @@ Child must:
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1`
 - Skip `Invoke-PlanLedgerClaim.ps1` because session helper already exited 0 (CT6)
 
-After the receipt has been validated, the PLAN checkpoint/ledger has been persisted and re-read, the complete stage table and reconciled ledger have been redrawn, and the session report has been emitted, the parent evaluates the next eligible spawn: `continuous` may proceed without another per-step confirmation, while `step_by_step` asks **sim** again or hands off to a new chat. Only as a separate parent synthesis/path handoff does it update `CONTINUITY.md`; that update never replaces the PLAN, report, or gate checks. Never advance from an unvalidated receipt.
+After the receipt has been validated, the PLAN checkpoint and progress table have been persisted and re-read, and the step ledger plus the short result have been shown, the parent evaluates the next eligible spawn: `continuous` may proceed without another per-step confirmation, while `step_by_step` asks **sim** again or hands off to a new chat. Only as a separate parent synthesis/path handoff does it update `CONTINUITY.md`; that update never replaces the PLAN, the short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
 
-These artifacts remain distinct: the stage table is chat-only; the PLAN `Implementation progress` ledger and checkpoint are durable state; the PLAN-LEDGER claim is the atomic pre-work reservation; the session report is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another.
+These artifacts remain distinct: the PLAN `Implementation progress` ledger and checkpoint are durable state and the operator-facing close; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another. Do not replace the step ledger with the stage-weight table.
 
 See also § Task child prompt skeleton + § Anti-bypass checklist.
 

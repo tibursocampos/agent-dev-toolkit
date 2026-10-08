@@ -44,7 +44,23 @@ function Write-OpenHandsGuardDecision {
     exit 0
 }
 
-$raw = [Console]::In.ReadToEnd()
+$raw = ''
+try {
+    $stream = [Console]::OpenStandardInput()
+    $reader = New-Object System.IO.StreamReader($stream, [System.Text.UTF8Encoding]::new($false), $true, 4096, $true)
+    $raw = $reader.ReadToEnd()
+}
+catch {
+    $raw = ''
+}
+if ([string]::IsNullOrWhiteSpace($raw)) {
+    try {
+        $raw = [Console]::In.ReadToEnd()
+    }
+    catch {
+        $raw = ''
+    }
+}
 $inputJson = $null
 if (-not [string]::IsNullOrWhiteSpace($raw)) {
     try {

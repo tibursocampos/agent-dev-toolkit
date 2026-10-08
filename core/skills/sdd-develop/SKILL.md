@@ -160,7 +160,7 @@ After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or cr
 
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
 
 ### 2. Git
 
@@ -205,7 +205,7 @@ Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, 
 
 ### 5. Commit (optional)
 
-Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`) — wait for answers; never skip the ask on silence.
+Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the requested function finishes or this skill declares a blocker with the cause. Keep the memory-bank and docs asks. The required **sim** before writes stays.
 
 ### 6. Update PLAN + checkpoint
 Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
@@ -215,7 +215,7 @@ Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PRO
 After the tests gate validates true, update the PLAN/task status; then reset the develop session through the canonical helper before ending the scope.
 
 ### 7. Report
-Load `references/execution-display.md` and `references/session-report.md`. Emit `STEP_COMPLETED` or `STEP_BLOCKED`. Phrases follow the user chat language.
+Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
 
 ## Must not
 

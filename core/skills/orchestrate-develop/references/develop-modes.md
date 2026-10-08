@@ -13,7 +13,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 | Pacing mode | Parent behavior | Child behavior |
 |-------------|-----------------|----------------|
 | `step_by_step` (default) | **sim** before **each** Task spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **sim**, the parent may spawn the next ready step only after receipt validation, PLAN checkpoint/ledger persistence and re-read, complete stage-table redraw, and session report. The initial authorization remains valid across that reconciled queue; the parent still shows the live table and the step summary. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
+| `continuous` | After initial queue **sim**, the parent may spawn the next ready step only after receipt validation, PLAN checkpoint and progress-table persistence and re-read, the step ledger, and the short result. The initial authorization remains valid across that reconciled queue. The parent does not show the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or a ledger dump. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
 
 ## Compose with execution-modes
 
@@ -31,4 +31,4 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 
 ## Reconciliation gate
 
-The authorization token does not close a step. For every child return, validate the receipt first; persist and re-read the PLAN checkpoint/ledger second; redraw the complete chat-only stage table and reconciled ledger third; emit the session report fourth; evaluate the next spawn last. `continuous` authorization remains valid across eligible steps after this sequence. `step_by_step` requires a fresh confirmation for each spawn. Missing, incomplete, inconsistent, blocked, or failed receipts pause the step and its dependents in either mode.
+The authorization token does not close a step. For every child return, validate the receipt first; persist and re-read the PLAN checkpoint and progress table second; show the step ledger and the short result third; evaluate the next spawn last. Do not redraw a stage-weight table or dump the ledger into chat. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step: describe the deviation in one question, do not delegate the next step, do not invent a fix, and do not rewrite the PLAN. `continuous` authorization remains valid across eligible steps after this sequence. `step_by_step` requires a fresh confirmation for each spawn. Missing, incomplete, inconsistent, blocked, or failed receipts pause the step and its dependents in either mode. Impact, architecture, and persistence analysis runs once before the first PLAN step and again when code review is requested against that PLAN. It does not run before an intermediate step.

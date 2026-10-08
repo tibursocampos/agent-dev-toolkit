@@ -24,6 +24,7 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Create `memory-bank/` under `features/NNN-slug/` or replace CONTINUITY with bank body
 - Dump entire memory-bank into parent or child prompts
 - Write application/production code or tests (`*.cs`, `*.tsx`, `*.ts`, `*.js`, `*.vue`, `*.py`, migrations, etc.)
+- Show the current branch or ask for a branch switch. Write delivery artifacts on the current branch, including `main`, `master`, and `develop`
 - Call `*-developer` / `developer` / `sdd-develop` / `orchestrate-develop` to **implement** (handoff strings only)
 - Rewrite or fork the `sdd-spec` / `sdd-plan` process into a parallel undocumented flow
 - Skip human approval or treat silence as `sim`

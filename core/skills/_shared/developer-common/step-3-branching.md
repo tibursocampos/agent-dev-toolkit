@@ -2,6 +2,8 @@
 
 **Goal:** Work on a valid feature branch before editing tracked files.
 
+This integration-branch stop applies only to `developer`, `*-developer`, `sdd-develop`, and `orchestrate-develop`. Those skills show the current branch and apply the stop before changing code. `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, and `orchestrate-deliver` do not use this step and do not propose a branch switch.
+
 Canonical rule: `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` (overrides this file if they differ).
 
 ---

@@ -2,23 +2,19 @@
 
 Use this block after the PLAN is saved. Identifiers stay English. Sentences follow the user chat language (`LANGUAGE.md`).
 
+Operator-facing result after a valid receipt:
+
 ```text
-STEP_COMPLETED | STEP_BLOCKED
-Step: {step id} — {title}
-Validation: PASS | BLOCKED
-Evidence: {portable path or command result}
-Previous unblock: {what cleared the old block} | none
-Next eligible: {step ids}
-Counts: pending={n} in_progress={n} blocked={n} completed={n}
-Portability: LOCAL_ONLY | SHARED
-Implement weight: Low | Medium | High | Very high
+Step: {step id}
+Status: done | blocked | failed
+Tests: {tests summary}
 ```
 
-`SHARED` only after commit and push. Until both exist, portability is `LOCAL_ONLY`.
+Do not add the stage-weight table, a redraw of that table, the `Develop:` heartbeat, an implement-weight line, or a ledger dump. The PLAN progress table remains in the file. The step ledger at close is the PLAN `Implementation progress` table, not this short result.
 
-`STEP_COMPLETED` only when the step acceptance and the step test passed (`plan-contract.md`). No duration.
+`done` only when the step acceptance and the step test passed (`plan-contract.md`). No duration.
 
-For an O3 child return, this report is emitted only after the receipt is validated and the PLAN checkpoint/ledger is persisted and re-read, and after the complete chat-only stage table plus reconciled ledger have been redrawn. The report does not replace the stage table, PLAN ledger/checkpoint, PLAN-LEDGER claim, or `CONTINUITY.md`. A missing, incomplete, inconsistent, blocked, or failed receipt yields `STEP_BLOCKED` (or keeps the step pending as applicable), pauses dependents, and cannot authorize a spawn.
+For an O3 child return, this result is emitted only after the receipt is validated and the PLAN checkpoint and progress table are persisted and re-read, and after the step ledger is shown. The short result does not replace the PLAN ledger/checkpoint, PLAN-LEDGER claim, or `CONTINUITY.md`. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step and cannot authorize a spawn. A missing, incomplete, inconsistent, blocked, or failed receipt keeps the step pending or blocked as applicable, pauses dependents, and cannot authorize a spawn.
 
 When relaying a child receipt into this report, use only the canonical
 allowlisted projection (`planPath`, `step`, `status`, `files[]`,

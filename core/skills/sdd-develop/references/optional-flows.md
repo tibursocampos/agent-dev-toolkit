@@ -10,7 +10,7 @@ Do not auto-create PRs or link external trackers.
 
 ## When all PLAN steps are done (parent must ask)
 
-Present **both** options; wait for the user (do not assume):
+Present **both** options; wait for the user (do not assume). That question has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers. Silence, timeout, and end of turn are not answers. After the answer, resume the chosen function or declare a blocker with the cause.
 
 ```text
 US/PLAN concluído. Próximo?
@@ -20,7 +20,7 @@ US/PLAN concluído. Próximo?
 
 ### Before `/commit` (Classic SDD)
 
-If the user chooses commit (or asks `/commit` right after the last step), **ask and wait** for each applicable item (**sim** / **pular**). Do **not** run bank/docs writes on silence.
+If the user chooses commit (or asks `/commit` right after the last step), **ask and wait** for each applicable item (**sim** / **pular**). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. Do **not** run bank/docs writes on silence. After the answer, or after an intermediate skill the operator already authorized, resume the original skill until the requested function finishes or that skill declares a blocker with the cause. Keep the asks below.
 
 | When present | Ask (pt-BR) | On **sim** |
 |--------------|-------------|------------|

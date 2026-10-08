@@ -34,11 +34,12 @@ Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `par
 ## Preference check (every session / task start)
 
 1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }`.
+2. If missing: the first sync of each adapter creates `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` and does **not** ask the orchestration-mode question.
 3. If `orchestrator_mode` is missing: default `"always"`.
 4. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
 5. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
-6. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead.
+6. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead. The in-session command `orchestrator adaptive` stays.
+7. Work the spawn contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays in-parent.
 
 ---
 
