@@ -164,30 +164,31 @@ function Invoke-CopilotSyncValidate {
 function Assert-ToolkitArtifactsAbsent {
     param(
         [Parameter(Mandatory = $true)][string] $FixtureRoot,
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter()][switch] $AllowModifiedManagedTargets
+        [Parameter(Mandatory = $true)][string] $TestName
     )
 
     $skillProbe = Join-Path (Join-Path $FixtureRoot $skillsDirName) $expectedSkillProbe
-    # Names-only manifests cannot prove ownership of files within a skill folder.
+    if (Test-Path -LiteralPath $skillProbe) {
+        Write-Fail -TestName $TestName -Reason ("catalog skill still present: {0}" -f $skillProbe)
+    }
 
     $instructionProbe = Join-Path (Join-Path $FixtureRoot $instructionsDirName) $expectedInstructionProbe
-    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $instructionProbe)) {
+    if (Test-Path -LiteralPath $instructionProbe) {
         Write-Fail -TestName $TestName -Reason ("toolkit instruction still present: {0}" -f $instructionProbe)
     }
 
     $copilotInstructions = Join-Path $FixtureRoot $copilotInstructionsName
-    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $copilotInstructions)) {
+    if (Test-Path -LiteralPath $copilotInstructions) {
         Write-Fail -TestName $TestName -Reason ("copilot-instructions.md still present: {0}" -f $copilotInstructions)
     }
 
     $hookProbe = Join-Path (Join-Path $FixtureRoot $hooksDirName) $expectedHookProbe
-    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $hookProbe)) {
+    if (Test-Path -LiteralPath $hookProbe) {
         Write-Fail -TestName $TestName -Reason ("toolkit hook still present: {0}" -f $hookProbe)
     }
 
     $agentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedAgentProfileProbe
-    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $agentProbe)) {
+    if (Test-Path -LiteralPath $agentProbe) {
         Write-Fail -TestName $TestName -Reason ("toolkit custom agent still present: {0}" -f $agentProbe)
     }
 
@@ -318,20 +319,18 @@ if ([string]$uninstallUser.Mode -ne $modeUser) {
     Write-Fail -TestName $userName -Reason ("Mode must be user, got: {0}" -f $uninstallUser.Mode)
 }
 
-Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureUserRoot -TestName $userName -AllowModifiedManagedTargets
-if (-not (Test-Path -LiteralPath $userOwnedLegacyAgentPath) -or
-    (Get-Content -LiteralPath $userOwnedLegacyAgentPath -Raw) -ne $userOwnedLegacyAgentContent) {
-    Write-Fail -TestName $userName -Reason 'pre-existing user-owned legacy agent must survive uninstall unchanged'
+Assert-ToolkitArtifactsAbsent -FixtureRoot $fixtureUserRoot -TestName $userName
+if (Test-Path -LiteralPath $userOwnedLegacyAgentPath) {
+    Write-Fail -TestName $userName -Reason 'edited catalog legacy agent must be removed on uninstall'
 }
 foreach ($modifiedFile in @(
-        @{ Path = $userModifiedInstructionPath; Content = $userModifiedInstructionContent; Label = 'instruction' },
-        @{ Path = $userModifiedRootInstructionPath; Content = $userModifiedRootInstructionContent; Label = 'root instruction' },
-        @{ Path = $userModifiedHookPath; Content = $userModifiedHookContent; Label = 'hook' },
-        @{ Path = $userModifiedAgentPath; Content = $userModifiedAgentContent; Label = 'agent profile' }
+        @{ Path = $userModifiedInstructionPath; Label = 'instruction' },
+        @{ Path = $userModifiedRootInstructionPath; Label = 'root instruction' },
+        @{ Path = $userModifiedHookPath; Label = 'hook' },
+        @{ Path = $userModifiedAgentPath; Label = 'agent profile' }
     )) {
-    if (-not (Test-Path -LiteralPath $modifiedFile.Path) -or
-        (Get-Content -LiteralPath $modifiedFile.Path -Raw) -ne $modifiedFile.Content) {
-        Write-Fail -TestName $userName -Reason ("modified managed-named {0} must survive uninstall unchanged" -f $modifiedFile.Label)
+    if (Test-Path -LiteralPath $modifiedFile.Path) {
+        Write-Fail -TestName $userName -Reason ("edited catalog {0} must be removed on uninstall" -f $modifiedFile.Label)
     }
 }
 

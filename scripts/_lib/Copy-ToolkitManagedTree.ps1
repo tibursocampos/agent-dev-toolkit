@@ -223,31 +223,17 @@ function Copy-ToolkitFileIfAbsent {
         [Parameter(Mandatory = $true)][string] $SourcePath,
         [Parameter(Mandatory = $true)][string] $DestinationPath,
         [Parameter()][string] $InstallRoot,
-        [Parameter()][string] $RelativePath
+        [Parameter()][string] $RelativePath,
+        [Parameter()][switch] $PreserveExisting
     )
 
     if ($null -eq $script:ToolkitLastManagedCopyPaths) {
         $script:ToolkitLastManagedCopyPaths = New-Object System.Collections.Generic.List[string]
     }
-    $destinationFull = [System.IO.Path]::GetFullPath($DestinationPath)
-    if (Test-Path -LiteralPath $DestinationPath) {
-        if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and -not [string]::IsNullOrWhiteSpace($RelativePath)) {
-            . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
-            if (Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $RelativePath -CurrentFilePath $DestinationPath) {
-                Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationPath -InstallRoot $InstallRoot
-                Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -Force -ErrorAction Stop
-                $sha = Get-ToolkitFileContentSha256 -Path $DestinationPath
-                $null = Set-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $RelativePath -Sha256 $sha -Kind 'managed-file'
-                $script:ToolkitLastManagedCopyPaths.Add($destinationFull) | Out-Null
-                return $true
-            }
-        }
-        for ($index = $script:ToolkitLastManagedCopyPaths.Count - 1; $index -ge 0; $index--) {
-            if ([string]::Equals($script:ToolkitLastManagedCopyPaths[$index], $destinationFull, [StringComparison]::OrdinalIgnoreCase)) {
-                $script:ToolkitLastManagedCopyPaths.RemoveAt($index)
-            }
-        }
-        Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $DestinationPath)
+
+    # Non-catalog callers (settings backups) keep an existing destination.
+    # Catalog republish always replaces; a failed ownership check does not.
+    if ($PreserveExisting.IsPresent -and (Test-Path -LiteralPath $DestinationPath)) {
         return $false
     }
 
@@ -261,7 +247,8 @@ function Copy-ToolkitFileIfAbsent {
     if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
         Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationPath -InstallRoot $InstallRoot
     }
-    Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -ErrorAction Stop
+    Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -Force -ErrorAction Stop
+    $destinationFull = [System.IO.Path]::GetFullPath($DestinationPath)
     $script:ToolkitLastManagedCopyPaths.Add($destinationFull) | Out-Null
     if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and -not [string]::IsNullOrWhiteSpace($RelativePath)) {
         . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
@@ -283,22 +270,9 @@ function Write-ToolkitFileIfAbsent {
     )
 
     if (Test-Path -LiteralPath $Path) {
-        if ($AllowExistingMerge.IsPresent) {
-            if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
-                Assert-ToolkitManagedWriteDestination -DestinationPath $Path -InstallRoot $InstallRoot
-            }
-            [System.IO.File]::WriteAllText($Path, $Content, $Encoding)
-            return $true
-        }
-        $owned = $false
-        if (-not [string]::IsNullOrWhiteSpace($InstallRoot) -and -not [string]::IsNullOrWhiteSpace($RelativePath)) {
-            . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
-            $owned = Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $RelativePath -CurrentFilePath $Path
-        }
-        if (-not $owned) {
-            Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $Path)
-            return $false
-        }
+        . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+        $existingContent = [System.IO.File]::ReadAllText($Path)
+        $Content = Get-ToolkitCatalogRepublishContent -ExistingContent $existingContent -IncomingContent $Content
     }
 
     $parent = Split-Path -Parent $Path
@@ -463,19 +437,6 @@ function Copy-ToolkitManagedTree {
                 -RequireStrictChild
         }
 
-        if (Test-Path -LiteralPath $destinationPath) {
-            $owned = $false
-            if ($hasInstallRoot) {
-                $inventoryRoot = (Get-NormalizedFullPath -Path $InstallRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
-                $relativeInventoryPath = $destinationPath.Substring($inventoryRoot.Length)
-                $owned = Test-ToolkitManagedPublishInventoryOwnsFile -InstallRoot $InstallRoot -RelativePath $relativeInventoryPath -CurrentFilePath $destinationPath -InventoryEntries $inventoryEntries
-            }
-            if (-not $owned) {
-                $script:ToolkitLastManagedCopyConflicts.Add($destinationPath) | Out-Null
-                continue
-            }
-        }
-
         $destinationDir = Split-Path -Parent $destinationPath
         if (-not (Test-Path -LiteralPath $destinationDir)) {
             if ($hasInstallRoot) {
@@ -487,14 +448,9 @@ function Copy-ToolkitManagedTree {
         if ($hasInstallRoot) {
             Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
         }
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath
+        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
         $script:ToolkitLastManagedCopyPaths.Add([System.IO.Path]::GetFullPath($destinationPath)) | Out-Null
         $filesCopied++
-    }
-
-    if ($script:ToolkitLastManagedCopyConflicts.Count -gt 0) {
-        Write-Warning ('Preserved {0} existing managed-tree file(s) because file ownership is not recorded: {1}' -f `
-            $script:ToolkitLastManagedCopyConflicts.Count, ($script:ToolkitLastManagedCopyConflicts.ToArray() -join ', '))
     }
 
     if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries }
@@ -612,19 +568,21 @@ function Get-ToolkitManagedSkillsUninstallAudit {
 function Remove-ToolkitManagedSkillsByInventory {
     <#
     .SYNOPSIS
-      Remove unchanged toolkit-published skill files using per-file inventory hashes.
+      Remove catalog skill files listed in the managed publish inventory.
 
     .DESCRIPTION
-      The names-only skills manifest identifies candidate skill folders; the
-      managed publish inventory proves ownership of individual files. Modified,
-      untracked, and alien files are preserved. Empty directories are removed
-      only beneath a manifest-listed skill folder.
+      The names-only skills manifest identifies candidate skill folders. A file
+      inside those folders is removed when the publish inventory lists it, even
+      if the installed bytes were edited. Files that are not catalog entries,
+      including alien skills and operator sidecars, stay. Empty directories are
+      removed only beneath a manifest-listed skill folder. A candidate outside
+      InstallRoot or equal to InstallRoot is not deleted.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $InstallRoot,
-        [Parameter(Mandatory = $true)][string[]] $DestinationSkillsRoots,
-        [Parameter(Mandatory = $true)][string[]] $SkillIds,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $DestinationSkillsRoots,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $SkillIds,
         [Parameter()][switch] $WhatIf
     )
 
@@ -654,12 +612,11 @@ function Remove-ToolkitManagedSkillsByInventory {
                     throw ($script:ToolkitMessage.ManagedCopyPathEscapesRoot -f $fullPath, $installRootFull)
                 }
                 $relativePath = $fullPath.Substring($rootPrefix.Length) -replace '\\', '/'
-                $owned = Test-ToolkitManagedPublishInventoryOwnsFile `
+                $listed = Test-ToolkitManagedPublishInventoryListsFile `
                     -InstallRoot $installRootFull `
                     -RelativePath $relativePath `
-                    -CurrentFilePath $fullPath `
                     -InventoryEntries $inventoryEntries
-                if (-not $owned) {
+                if (-not $listed) {
                     $preserved.Add($fullPath) | Out-Null
                     continue
                 }

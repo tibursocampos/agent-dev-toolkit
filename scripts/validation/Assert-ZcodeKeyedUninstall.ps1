@@ -278,12 +278,8 @@ if ($uninstall.ExitCode -ne 0) {
     Write-Fail -TestName $removeTest -Reason ("expected ExitCode 0, got {0}" -f $uninstall.ExitCode)
 }
 
-if (-not (Test-ZcodeToolkitSkillPresent)) {
-    Write-Fail -TestName $removeTest -Reason 'modified toolkit skill must be preserved when its content no longer matches the ownership hash'
-}
-$modifiedCommitSkill = [System.IO.File]::ReadAllText((Join-Path (Join-Path $skillsRoot 'commit') 'SKILL.md'))
-if ($modifiedCommitSkill -notmatch 'zcode-user-edit-preserve-marker') {
-    Write-Fail -TestName $removeTest -Reason 'user modification to toolkit skill must survive uninstall'
+if (Test-ZcodeToolkitSkillPresent) {
+    Write-Fail -TestName $removeTest -Reason 'edited catalog skill must be removed on uninstall'
 }
 if (Test-Path -LiteralPath (Join-Path (Join-Path $skillsRoot 'help-skills') 'SKILL.md')) {
     Write-Fail -TestName $removeTest -Reason 'unchanged toolkit-owned skill must be removed on uninstall'

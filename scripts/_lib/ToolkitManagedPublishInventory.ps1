@@ -4,13 +4,17 @@
   Managed publish inventory for whole-file router targets under InstallRoot.
 
 .DESCRIPTION
-  Tracks SHA-256 hashes of toolkit-published whole-file router targets (e.g.
-  AGENTS.md, CLAUDE.md) at InstallRoot/.toolkit-managed-publish.json so
-  uninstall can remove only files whose on-disk content still matches the last
-  sync. Declared publish surfaces live in adapters/registry.json publishSurface.
+  Tracks SHA-256 hashes of toolkit-published files at
+  InstallRoot/.toolkit-managed-publish.json. A listed catalog path is removed
+  on uninstall even when the installed bytes were edited. AGENTS.md, CLAUDE.md,
+  and the same marked-block pattern lose only the toolkit section; operator
+  text outside the markers stays. Declared publish surfaces live in
+  adapters/registry.json publishSurface.
 
-  Never deletes target files — callers remove files only after
-  Test-ToolkitManagedPublishInventoryOwnsFile returns $true.
+  Catalog republish does not keep a differing catalog file when that ownership
+  check fails. Get-ToolkitCatalogRepublishContent returns the incoming catalog
+  bytes. When the destination already has one well-formed managed marker pair,
+  only that toolkit section is refreshed.
 #>
 
 if (-not (Get-Variable -Scope Script -Name ToolkitConstant -ErrorAction SilentlyContinue)) {
@@ -341,6 +345,366 @@ function Set-ToolkitManagedPublishInventoryEntries {
     return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $InventoryEntries)
 }
 
+function Get-ToolkitAdapterContentCompareProfile {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AdapterId
+    )
+
+    $profiles = $script:ToolkitConstant.ContentHashAdapterCompareProfiles
+    if ($null -eq $profiles -or -not $profiles.ContainsKey($AdapterId)) {
+        return $null
+    }
+
+    return $profiles[$AdapterId]
+}
+
+function New-ToolkitContentHashClassificationResult {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Outcome,
+
+        [Parameter(Mandatory = $true)]
+        [bool] $IsClosedDefect,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $NativeTransform,
+
+        [Parameter(Mandatory = $true)]
+        [bool] $SourceRevisionKnown,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Message
+    )
+
+    return [PSCustomObject]@{
+        Outcome              = $Outcome
+        IsClosedDefect       = $IsClosedDefect
+        NativeTransform      = $NativeTransform
+        SourceRevisionKnown  = $SourceRevisionKnown
+        Message              = $Message
+    }
+}
+
+function Resolve-ToolkitContentHashCompareFacts {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $AdapterId,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $SourceRevision,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $NativeTransform,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytes,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytesSpecified
+    )
+
+    $transform = $NativeTransform
+    $expectsSameBytes = $NativeTransformExpectsSameBytes
+    if (-not [string]::IsNullOrWhiteSpace($AdapterId)) {
+        $profile = Get-ToolkitAdapterContentCompareProfile -AdapterId $AdapterId
+        if ($null -ne $profile) {
+            $transformProperty = $script:ToolkitConstant.ContentHashProfileNativeTransformProperty
+            $expectsProperty = $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty
+            if ([string]::IsNullOrWhiteSpace($transform)) {
+                $transform = [string]$profile[$transformProperty]
+            }
+            if (-not $NativeTransformExpectsSameBytesSpecified) {
+                $expectsSameBytes = [bool]$profile[$expectsProperty]
+            }
+        }
+    }
+
+    $identityTransform = $script:ToolkitConstant.ContentHashNativeTransformNone
+    if ([string]::Equals($transform, $identityTransform, [System.StringComparison]::Ordinal)) {
+        $expectsSameBytes = $true
+    }
+
+    return [PSCustomObject]@{
+        SourceRevision     = $SourceRevision
+        NativeTransform    = $transform
+        ExpectsSameBytes   = $expectsSameBytes
+    }
+}
+
+function Get-ToolkitContentHashDifferenceClassification {
+    <#
+    .SYNOPSIS
+      Classify an installed-versus-source hash difference.
+    .DESCRIPTION
+      A difference is a closed defect only when the source revision and the native
+      transform are both known and those two should produce the same bytes.
+      A known native delta is documented. A missing revision or transform stays pending.
+    #>
+    [CmdletBinding()]
+    [OutputType([pscustomobject])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $InstalledContentHash,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $SourceContentHash,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $SourceRevision,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $NativeTransform,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytes,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytesSpecified,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $AdapterId
+    )
+
+    $facts = Resolve-ToolkitContentHashCompareFacts `
+        -AdapterId $AdapterId `
+        -SourceRevision $SourceRevision `
+        -NativeTransform $NativeTransform `
+        -NativeTransformExpectsSameBytes $NativeTransformExpectsSameBytes `
+        -NativeTransformExpectsSameBytesSpecified $NativeTransformExpectsSameBytesSpecified
+
+    $revisionKnown = -not [string]::IsNullOrWhiteSpace($facts.SourceRevision)
+    $transformKnown = -not [string]::IsNullOrWhiteSpace($facts.NativeTransform)
+    $transformLabel = $facts.NativeTransform
+    if ([string]::IsNullOrWhiteSpace($transformLabel)) {
+        $transformLabel = $script:ToolkitConstant.ContentHashNativeTransformUnrecorded
+    }
+
+    $hashesComparable = -not [string]::IsNullOrWhiteSpace($InstalledContentHash) -and
+        -not [string]::IsNullOrWhiteSpace($SourceContentHash)
+    $hashesEqual = $hashesComparable -and
+        [string]::Equals($InstalledContentHash, $SourceContentHash, [System.StringComparison]::OrdinalIgnoreCase)
+
+    if ($hashesEqual) {
+        return (New-ToolkitContentHashClassificationResult `
+            -Outcome $script:ToolkitConstant.ContentHashClassificationMatch `
+            -IsClosedDefect $false `
+            -NativeTransform $facts.NativeTransform `
+            -SourceRevisionKnown $revisionKnown `
+            -Message $script:ToolkitMessage.ContentHashDifferenceMatch)
+    }
+
+    if (-not $hashesComparable -or -not $revisionKnown -or -not $transformKnown) {
+        return (New-ToolkitContentHashClassificationResult `
+            -Outcome $script:ToolkitConstant.ContentHashClassificationPendingRevision `
+            -IsClosedDefect $false `
+            -NativeTransform $facts.NativeTransform `
+            -SourceRevisionKnown $revisionKnown `
+            -Message ($script:ToolkitMessage.ContentHashDifferencePendingRevision -f $transformLabel))
+    }
+
+    if (-not $facts.ExpectsSameBytes) {
+        return (New-ToolkitContentHashClassificationResult `
+            -Outcome $script:ToolkitConstant.ContentHashClassificationNativeDelta `
+            -IsClosedDefect $false `
+            -NativeTransform $facts.NativeTransform `
+            -SourceRevisionKnown $revisionKnown `
+            -Message ($script:ToolkitMessage.ContentHashDifferenceNativeDelta -f $transformLabel))
+    }
+
+    return (New-ToolkitContentHashClassificationResult `
+        -Outcome $script:ToolkitConstant.ContentHashClassificationClosedDefect `
+        -IsClosedDefect $true `
+        -NativeTransform $facts.NativeTransform `
+        -SourceRevisionKnown $revisionKnown `
+        -Message ($script:ToolkitMessage.ContentHashDifferenceClosedDefect -f $facts.SourceRevision, $transformLabel))
+}
+
+function Set-ToolkitLastContentHashDifferenceClassification {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $InstalledContentHash,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $SourceContentHash,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $SourceRevision,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $NativeTransform,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytes,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytesSpecified,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $AdapterId
+    )
+
+    $script:ToolkitLastContentHashDifferenceClassification = Get-ToolkitContentHashDifferenceClassification `
+        -InstalledContentHash $InstalledContentHash `
+        -SourceContentHash $SourceContentHash `
+        -SourceRevision $SourceRevision `
+        -NativeTransform $NativeTransform `
+        -NativeTransformExpectsSameBytes $NativeTransformExpectsSameBytes `
+        -NativeTransformExpectsSameBytesSpecified $NativeTransformExpectsSameBytesSpecified `
+        -AdapterId $AdapterId
+    return $script:ToolkitLastContentHashDifferenceClassification
+}
+
+function Get-ToolkitCatalogRepublishContent {
+    <#
+    .SYNOPSIS
+      Catalog bytes to write on republish. A failed ownership check does not keep the old catalog file.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $ExistingContent,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $IncomingContent
+    )
+
+    $markerPairs = @(
+        @($script:ToolkitConstant.ManagedBlockBeginMarker, $script:ToolkitConstant.ManagedBlockEndMarker),
+        @($script:ToolkitConstant.HermesManagedAgentsBeginMarker, $script:ToolkitConstant.HermesManagedAgentsEndMarker)
+    )
+
+    foreach ($pair in $markerPairs) {
+        $begin = [string]$pair[0]
+        $end = [string]$pair[1]
+        $beginMatches = [regex]::Matches($ExistingContent, [regex]::Escape($begin))
+        $endMatches = [regex]::Matches($ExistingContent, [regex]::Escape($end))
+        if ($beginMatches.Count -ne 1 -or $endMatches.Count -ne 1) {
+            continue
+        }
+
+        if ($endMatches[0].Index -lt $beginMatches[0].Index) {
+            continue
+        }
+
+        $pattern = '(?s)' + [regex]::Escape($begin) + '.*?' + [regex]::Escape($end)
+        $existingMatch = [regex]::Match($ExistingContent, $pattern)
+        if (-not $existingMatch.Success) {
+            continue
+        }
+
+        $incomingMatch = [regex]::Match($IncomingContent, $pattern)
+        $replacementBlock = if ($incomingMatch.Success) {
+            $incomingMatch.Value
+        }
+        else {
+            $begin + [Environment]::NewLine + $IncomingContent.TrimEnd() + [Environment]::NewLine + $end
+        }
+
+        $prefix = $ExistingContent.Substring(0, $existingMatch.Index)
+        $suffix = $ExistingContent.Substring($existingMatch.Index + $existingMatch.Length)
+        return ($prefix + $replacementBlock + $suffix)
+    }
+
+    return $IncomingContent
+}
+
+function Test-ToolkitManagedPublishInventoryListsFile {
+    <#
+    .SYNOPSIS
+      True when the publish inventory lists this relative path as a catalog file.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath,
+
+        [Parameter()]
+        [hashtable] $InventoryEntries
+    )
+
+    $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath $RelativePath
+    $entries = if ($null -eq $InventoryEntries) {
+        Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    }
+    else {
+        $InventoryEntries
+    }
+
+    return $entries.ContainsKey($relativePath)
+}
+
+function Get-ToolkitManagedMarkedRouterRemainder {
+    <#
+    .SYNOPSIS
+      Operator text left after removing one toolkit marked section.
+    .DESCRIPTION
+      Returns $null when the file has no single well-formed marker pair.
+      Remaining may be empty when the file was only the toolkit section.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Content
+    )
+
+    $markerPairs = @(
+        @($script:ToolkitConstant.ManagedBlockBeginMarker, $script:ToolkitConstant.ManagedBlockEndMarker),
+        @($script:ToolkitConstant.HermesManagedAgentsBeginMarker, $script:ToolkitConstant.HermesManagedAgentsEndMarker)
+    )
+
+    foreach ($pair in $markerPairs) {
+        $begin = [string]$pair[0]
+        $end = [string]$pair[1]
+        $beginMatches = [regex]::Matches($Content, [regex]::Escape($begin))
+        $endMatches = [regex]::Matches($Content, [regex]::Escape($end))
+        if ($beginMatches.Count -ne 1 -or $endMatches.Count -ne 1) {
+            continue
+        }
+
+        if ($endMatches[0].Index -lt $beginMatches[0].Index) {
+            continue
+        }
+
+        $pattern = '(?s)' + [regex]::Escape($begin) + '.*?' + [regex]::Escape($end) + '\r?\n?'
+        $existingMatch = [regex]::Match($Content, $pattern)
+        if (-not $existingMatch.Success) {
+            continue
+        }
+
+        return $Content.Remove($existingMatch.Index, $existingMatch.Length)
+    }
+
+    return $null
+}
+
 function Test-ToolkitManagedPublishInventoryOwnsFile {
     [CmdletBinding()]
     [OutputType([bool])]
@@ -358,9 +722,26 @@ function Test-ToolkitManagedPublishInventoryOwnsFile {
         [scriptblock] $ResolveExpectedPublishContent,
 
         [Parameter()]
-        [hashtable] $InventoryEntries
+        [hashtable] $InventoryEntries,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $SourceRevision,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $NativeTransform,
+
+        [Parameter()]
+        [bool] $NativeTransformExpectsSameBytes,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string] $AdapterId
     )
 
+    $expectsSameBytesSpecified = $PSBoundParameters.ContainsKey('NativeTransformExpectsSameBytes')
+    $script:ToolkitLastContentHashDifferenceClassification = $null
     $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath $RelativePath
     if (-not (Test-Path -LiteralPath $CurrentFilePath)) {
         return $false
@@ -377,11 +758,30 @@ function Test-ToolkitManagedPublishInventoryOwnsFile {
     if ($entries.ContainsKey($relativePath)) {
         $recorded = [string]$entries[$relativePath][$sha256Property]
         if (-not [string]::IsNullOrWhiteSpace($recorded)) {
-            return [string]::Equals($currentHash, $recorded, [System.StringComparison]::OrdinalIgnoreCase)
+            $matchesRecorded = [string]::Equals($currentHash, $recorded, [System.StringComparison]::OrdinalIgnoreCase)
+            if (-not $matchesRecorded) {
+                $null = Set-ToolkitLastContentHashDifferenceClassification `
+                    -InstalledContentHash $currentHash `
+                    -SourceContentHash '' `
+                    -SourceRevision $SourceRevision `
+                    -NativeTransform $NativeTransform `
+                    -NativeTransformExpectsSameBytes $NativeTransformExpectsSameBytes `
+                    -NativeTransformExpectsSameBytesSpecified $expectsSameBytesSpecified `
+                    -AdapterId $AdapterId
+            }
+            return $matchesRecorded
         }
     }
 
     if ($null -eq $ResolveExpectedPublishContent) {
+        $null = Set-ToolkitLastContentHashDifferenceClassification `
+            -InstalledContentHash $currentHash `
+            -SourceContentHash '' `
+            -SourceRevision $SourceRevision `
+            -NativeTransform $NativeTransform `
+            -NativeTransformExpectsSameBytes $NativeTransformExpectsSameBytes `
+            -NativeTransformExpectsSameBytesSpecified $expectsSameBytesSpecified `
+            -AdapterId $AdapterId
         return $false
     }
 
@@ -391,7 +791,18 @@ function Test-ToolkitManagedPublishInventoryOwnsFile {
     }
 
     $expectedHash = Get-ToolkitManagedContentSha256Hex -Content ([string]$expectedContent)
-    return [string]::Equals($currentHash, $expectedHash, [System.StringComparison]::OrdinalIgnoreCase)
+    $matchesExpected = [string]::Equals($currentHash, $expectedHash, [System.StringComparison]::OrdinalIgnoreCase)
+    if (-not $matchesExpected) {
+        $null = Set-ToolkitLastContentHashDifferenceClassification `
+            -InstalledContentHash $currentHash `
+            -SourceContentHash $expectedHash `
+            -SourceRevision $SourceRevision `
+            -NativeTransform $NativeTransform `
+            -NativeTransformExpectsSameBytes $NativeTransformExpectsSameBytes `
+            -NativeTransformExpectsSameBytesSpecified $expectsSameBytesSpecified `
+            -AdapterId $AdapterId
+    }
+    return $matchesExpected
 }
 
 function Remove-ToolkitManagedPublishInventoryEntry {
@@ -465,7 +876,12 @@ function Set-ToolkitManagedPublishInventoryEntryFromContent {
 function Remove-ToolkitManagedWholeFileRouterIfOwned {
     <#
     .SYNOPSIS
-      Delete a whole-file router only when provenance confirms toolkit ownership.
+      Remove a catalog router file, or only its toolkit marked section.
+    .DESCRIPTION
+      A single well-formed marker pair loses only the toolkit section. Operator
+      text outside the markers stays. A catalog-only file, including an edited
+      copy listed in the publish inventory, is removed as a whole file. A path
+      outside InstallRoot or equal to InstallRoot is not deleted.
     #>
     [CmdletBinding()]
     param(
@@ -498,20 +914,57 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
         }
     }
 
-    $ownsFile = Test-ToolkitManagedPublishInventoryOwnsFile `
-        -InstallRoot $InstallRoot `
-        -RelativePath $relativePath `
-        -CurrentFilePath $CurrentFilePath `
-        -ResolveExpectedPublishContent $ResolveExpectedPublishContent
+    $existingContent = [System.IO.File]::ReadAllText($CurrentFilePath)
+    $markedRemainder = Get-ToolkitManagedMarkedRouterRemainder -Content $existingContent
+    $catalogOnlyFile = $false
+    if ($null -ne $markedRemainder) {
+        $catalogOnlyFile = [string]::IsNullOrWhiteSpace($markedRemainder)
+    }
+    else {
+        $listed = Test-ToolkitManagedPublishInventoryListsFile `
+            -InstallRoot $InstallRoot `
+            -RelativePath $relativePath
+        if (-not $listed) {
+            return [PSCustomObject]@{
+                Removed           = $false
+                WouldRemove       = $false
+                Preserved         = $true
+                RelativePath      = $relativePath
+                CurrentFilePath   = $CurrentFilePath
+                Message           = ($script:ToolkitConstant.RouterFilePreservedNoteFormat -f $relativePath)
+            }
+        }
 
-    if (-not $ownsFile) {
+        $catalogOnlyFile = $true
+    }
+
+    if (-not $catalogOnlyFile) {
+        if ($WhatIf.IsPresent) {
+            return [PSCustomObject]@{
+                Removed           = $false
+                WouldRemove       = $false
+                Preserved         = $true
+                RelativePath      = $relativePath
+                CurrentFilePath   = $CurrentFilePath
+                Message           = $null
+            }
+        }
+
+        if (-not (Get-Command -Name Assert-ToolkitManagedDestinationUnderInstallRoot -ErrorAction SilentlyContinue)) {
+            . (Join-Path $PSScriptRoot 'Copy-ToolkitManagedTree.ps1')
+        }
+
+        Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $CurrentFilePath -InstallRoot $InstallRoot
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($CurrentFilePath, $markedRemainder, $utf8NoBom)
+        $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $relativePath
         return [PSCustomObject]@{
             Removed           = $false
             WouldRemove       = $false
             Preserved         = $true
             RelativePath      = $relativePath
             CurrentFilePath   = $CurrentFilePath
-            Message           = ($script:ToolkitConstant.RouterFilePreservedNoteFormat -f $relativePath)
+            Message           = $null
         }
     }
 

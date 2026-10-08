@@ -666,6 +666,63 @@ function Get-ApplyPatchPathsFromContent {
     return @($paths)
 }
 
+function Test-ToolkitShellTokenIsPath {
+    param([string] $Candidate)
+
+    if ([string]::IsNullOrWhiteSpace($Candidate) -or $Candidate.StartsWith('-')) {
+        return $false
+    }
+    if ($Candidate -match '^(?i)https?://') {
+        return $false
+    }
+    return ($Candidate -match '[\\/]' -or $Candidate -match '\.(cs|ts|js|json|md|ps1|sh|yml|yaml|toml|xml|txt)$')
+}
+
+function Add-ToolkitShellPathCandidate {
+    param(
+        $Paths,
+        [string] $Candidate
+    )
+
+    $value = $Candidate.Trim().Trim('"').Trim("'")
+    if (Test-ToolkitShellTokenIsPath -Candidate $value) {
+        [void]$Paths.Add($value)
+    }
+}
+
+function Test-ToolkitShellLiteralSitsUnderFeatures {
+    param(
+        [string] $Command,
+        [int] $Index,
+        [string] $Literal
+    )
+
+    if ($Literal -ne 'PRD/' -and $Literal -ne 'PLAN/') {
+        return $false
+    }
+    $before = $Command.Substring(0, $Index)
+    return $before -match '(?i)features[\\/][^\s"'']*$'
+}
+
+function Test-ToolkitShellOutsidePathIsCanonicalRuntime {
+    param(
+        [string] $Command,
+        [string] $FilePath
+    )
+
+    if ($Command -notmatch '(?i)(?:^|[\s;&|])(?:pwsh|powershell)(?:\.exe)?\b') {
+        return $false
+    }
+    if ($Command -match '(?i)\b(Set-Content|Add-Content|Out-File|Remove-Item|Move-Item|Copy-Item|New-Item|Clear-Content)\b') {
+        return $false
+    }
+    $norm = ($FilePath -replace '\\', '/').TrimEnd('/')
+    if ($norm -match '(?i)(^|/)\.cursor/scripts/(validation|session|ledger)/[^/]+\.ps1$') {
+        return $true
+    }
+    return $norm -match '(?i)(^|/)\.cursor/sdd$'
+}
+
 function Get-PathsReferencedInShellCommand {
     param([string] $Command)
 
@@ -680,27 +737,31 @@ function Get-PathsReferencedInShellCommand {
         '(?i)(?:Out-File|Set-Content|Add-Content|New-Item|Copy-Item|Move-Item|Remove-Item|Get-Content|Get-ChildItem)\s+[^\r\n]{0,400}?-(?:LiteralPath|FilePath|Path)\s+["'']?([^\s"'';|&;]+)',
         '(?i)-(?:LiteralPath|FilePath|Path)\s+["'']?([^\s"'';|&;]+)',
         '(?i)(?:rm|rmdir|unlink|mv|cp|install)\s+(?:-[a-zA-Z0-9\-]+\s+)*["'']?([^\s"'';|&;]+)',
-        '(?i)(?:^|[\s;&|])(?:cat|echo|printf)\s+[^\r\n]{0,200}(?:>{1,2})\s*["'']?([^\s"'';|&;]+)'
+        '(?i)(?:^|[\s;&|])(?:cat|echo|printf)\s+[^\r\n]{0,200}(?:>{1,2})\s*["'']?([^\s"'';|&;]+)',
+        '["'']([^"'']+)["'']',
+        '(?i)(?:^|[\s;&|])((?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+)'
     )
     foreach ($pattern in $patterns) {
         foreach ($match in [regex]::Matches($Command, $pattern)) {
-            if ($match.Groups.Count -gt 1 -and -not [string]::IsNullOrWhiteSpace($match.Groups[1].Value)) {
-                $candidate = $match.Groups[1].Value.Trim().Trim('"').Trim("'")
-                # Skip PowerShell switch-looking tokens mistaken for paths.
-                if ($candidate.StartsWith('-')) {
-                    continue
-                }
-                if ($candidate -match '[\\/.]' -or $candidate -match '\.(cs|ts|js|json|md|ps1|sh|yml|yaml|toml|xml|txt)$') {
-                    [void]$paths.Add($candidate)
-                }
+            if ($match.Groups.Count -gt 1) {
+                Add-ToolkitShellPathCandidate -Paths $paths -Candidate $match.Groups[1].Value
             }
         }
     }
 
-    # Also catch legacy/forbidden SDD path literals anywhere in the command.
+    # Legacy root trees stay forbidden. A canonical features/**/PLAN|PRD path is not that tree.
     foreach ($literal in @('PRD/', 'PLAN/', 'docs/PRD/', 'docs/PLAN/', 'docs/backlog/', '.cursor/plans/', 'node_modules/', '.git/')) {
-        if ($Command -match [regex]::Escape($literal)) {
-            [void]$paths.Add($literal.TrimEnd('/'))
+        $searchFrom = 0
+        while ($searchFrom -lt $Command.Length) {
+            $found = $Command.IndexOf($literal, $searchFrom, [System.StringComparison]::OrdinalIgnoreCase)
+            if ($found -lt 0) {
+                break
+            }
+            if (-not (Test-ToolkitShellLiteralSitsUnderFeatures -Command $Command -Index $found -Literal $literal)) {
+                [void]$paths.Add($literal.TrimEnd('/'))
+                break
+            }
+            $searchFrom = $found + $literal.Length
         }
     }
 
@@ -739,6 +800,7 @@ function Get-ToolkitPathSecretsGuardVerdict {
 
     $pathsToCheck = [System.Collections.Generic.List[string]]::new()
     $contentToScan = ''
+    $shellCmd = ''
 
     if ($isWrite) {
         $filePath = Get-WriteToolPathFromInput -ToolInput $ToolInput
@@ -786,20 +848,16 @@ function Get-ToolkitPathSecretsGuardVerdict {
             $pathsToCheck.Add($p) | Out-Null
         }
         if ($pathsToCheck.Count -eq 0) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'unverifiable_shell_path'
-                UserMessage  = 'Blocked: shell command has no verifiable workspace path.'
-                AgentMessage = 'Hook denied shell event because no verifiable path was found. Host approval is required for pathless shell commands.'
-                RelativePath = ''
-                SecretType   = ''
-            }
+            continue
         }
     }
 
     foreach ($rawPath in $pathsToCheck) {
         $relativePath = Get-ToolkitNormalizedRelativePath -FilePath $rawPath -WorkspaceRoot $WorkspaceRoot
         if ($null -eq $relativePath) {
+            if ($isShell -and (Test-ToolkitShellOutsidePathIsCanonicalRuntime -Command $shellCmd -FilePath $rawPath)) {
+                continue
+            }
             return [PSCustomObject]@{
                 Decision     = 'deny'
                 Reason       = 'outside_workspace'

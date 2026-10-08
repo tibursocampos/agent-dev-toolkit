@@ -224,9 +224,7 @@ function Write-ZCodeJsonFile {
 
     $json = $Object | ConvertTo-Json -Depth 100
     # Callers pass a fully merged/reverse-merged object that already preserves
-    # unrelated user keys. Permit replacing the existing JSON document here;
-    # Write-ToolkitFileIfAbsent's ownership gate is for whole-file copies and
-    # would silently block keyed JSON updates on user-owned config files.
+    # unrelated user keys. The catalog write replaces that JSON document.
     $null = Write-ToolkitFileIfAbsent -Path $Path -Content ($json + [Environment]::NewLine) -AllowExistingMerge
 }
 

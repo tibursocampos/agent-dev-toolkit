@@ -32,6 +32,8 @@ Legacy / non-canonical SDD trees (canonical artifacts live under `features/`):
 - `docs/PRD/**`, `docs/PLAN/**`, `docs/backlog/**`
 - `**/.cursor/plans/**`
 
+`features/**/PLAN/**` and `features/**/PRD/**` stay allowed, including when the path is `repo/features/.../PRD/`. Root `PLAN/` and `PRD/` stay denied. A shell command with no path is allowed. A path outside the current workspace root is denied, except a shell that only runs a canonical script under `.cursor/scripts/validation`, `.cursor/scripts/session`, `.cursor/scripts/ledger`, or `.cursor/sdd`. Secret patterns stay denied.
+
 ### Denied path segments
 
 Any path whose normalized form contains these directory segments:

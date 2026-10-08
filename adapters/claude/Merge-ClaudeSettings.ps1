@@ -742,9 +742,9 @@ function Backup-ClaudeSettingsFile {
     )
 
     try {
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $BackupPath
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $BackupPath -PreserveExisting
         if (-not [string]::IsNullOrWhiteSpace($TimestampedBackupPath)) {
-            $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $TimestampedBackupPath
+            $null = Copy-ToolkitFileIfAbsent -SourcePath $SettingsPath -DestinationPath $TimestampedBackupPath -PreserveExisting
         }
     }
     catch {

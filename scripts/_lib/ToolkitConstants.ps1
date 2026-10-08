@@ -659,6 +659,38 @@ $script:ToolkitConstant = @{
     ManagedPublishInventoryAtomicWriteMaxAttempts = 3
     ManagedPublishInventoryAtomicWriteRetryDelayMs = 50
     RouterFilePreservedNoteFormat      = '{0} preserved (operator edit or content drift; not toolkit-owned).'
+    ManagedBlockBeginMarker            = '<!-- agent-dev-toolkit:managed:begin -->'
+    ManagedBlockEndMarker              = '<!-- agent-dev-toolkit:managed:end -->'
+    HermesManagedAgentsBeginMarker     = '<!-- BEGIN agent-dev-toolkit managed Hermes guidance -->'
+    HermesManagedAgentsEndMarker       = '<!-- END agent-dev-toolkit managed Hermes guidance -->'
+    ContentHashClassificationMatch = 'match'
+    ContentHashClassificationClosedDefect = 'closed-defect'
+    ContentHashClassificationNativeDelta = 'native-delta'
+    ContentHashClassificationPendingRevision = 'pending-revision'
+    ContentHashNativeTransformNone = 'none'
+    ContentHashNativeTransformUnrecorded = 'unrecorded'
+    ContentHashProfileNativeTransformProperty = 'NativeTransform'
+    ContentHashProfileExpectsSameBytesProperty = 'ExpectsSameBytes'
+    ContentHashAdapterIdCursor = 'cursor'
+    ContentHashAdapterIdAntigravity = 'antigravity'
+    ContentHashAdapterIdClaude = 'claude'
+    ContentHashAdapterIdCodex = 'codex'
+    ContentHashAdapterIdCopilot = 'copilot'
+    ContentHashAdapterIdOpenCode = 'opencode'
+    ContentHashAdapterIdGrok = 'grok'
+    ContentHashAdapterIdZCode = 'zcode'
+    ContentHashAdapterIdHermes = 'hermes'
+    ContentHashAdapterIdOpenHands = 'openhands'
+    ContentHashNativeTransformCursor = 'cursor-placeholder-and-hooks-json-merge'
+    ContentHashNativeTransformAntigravity = 'antigravity-managed-markdown-block'
+    ContentHashNativeTransformClaude = 'claude-mdc-to-md-and-placeholder'
+    ContentHashNativeTransformCodex = 'codex-agent-markdown-to-toml'
+    ContentHashNativeTransformCopilot = 'copilot-instructions-frontmatter'
+    ContentHashNativeTransformOpenCode = 'opencode-dangling-rules-pointers'
+    ContentHashNativeTransformGrok = 'grok-mdc-to-md'
+    ContentHashNativeTransformZCode = 'zcode-json-merge-and-dangling-rules'
+    ContentHashNativeTransformHermes = 'hermes-folded-agents-md-block'
+    ContentHashNativeTransformOpenHands = 'openhands-folded-agents-md'
     RegistryPublishSurfacePropertyName = 'publishSurface'
     RegistryPublishSurfaceWholeFileRouterPropertyName = 'wholeFileRouter'
     DefaultTextFileExtensionPattern = '\.(md|mdc|json|ps1|yml|yaml|txt)$'
@@ -691,6 +723,49 @@ $script:ToolkitConstant = @{
         @{ Id = '9'; Label = 'Hermes CI smoke'; RelativePath = 'scripts/validation/Invoke-HermesCiSmoke.ps1' },
         @{ Id = '10'; Label = 'OpenHands CI smoke'; RelativePath = 'scripts/validation/Invoke-OpenHandsCiSmoke.ps1' }
     )
+}
+
+$script:ToolkitConstant.ContentHashAdapterCompareProfiles = @{
+    $script:ToolkitConstant.ContentHashAdapterIdCursor = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformCursor
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdAntigravity = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformAntigravity
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdClaude = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformClaude
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdCodex = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformCodex
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdCopilot = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformCopilot
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdOpenCode = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformOpenCode
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdGrok = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformGrok
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdZCode = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformZCode
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdHermes = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformHermes
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
+    $script:ToolkitConstant.ContentHashAdapterIdOpenHands = @{
+        $script:ToolkitConstant.ContentHashProfileNativeTransformProperty = $script:ToolkitConstant.ContentHashNativeTransformOpenHands
+        $script:ToolkitConstant.ContentHashProfileExpectsSameBytesProperty = $false
+    }
 }
 
 $script:ToolkitMessage = @{
@@ -731,6 +806,10 @@ $script:ToolkitMessage = @{
     RelativePathRequiredForPublishInventory = 'RelativePath is required for managed publish inventory operations.'
     FilePathRequiredForContentHash     = 'Path is required for file content hash.'
     FileNotFoundForContentHash         = 'File not found for content hash: {0}'
+    ContentHashDifferenceMatch         = 'Installed content hash matches the compared source hash.'
+    ContentHashDifferencePendingRevision = 'Installed content hash differs from source. Pending source revision and native transform record; not a closed defect. Transform: {0}.'
+    ContentHashDifferenceNativeDelta   = 'Installed content hash differs from source under known native transform {0}. Documented delta; not a byte-for-byte defect.'
+    ContentHashDifferenceClosedDefect  = 'Installed content hash differs from source. Source revision {0} and native transform {1} are known and should produce the same bytes. Closed defect.'
     RegistryPublishSurfaceMissing      = 'registry agent ''{0}'' missing publishSurface'
     RegistryPublishSurfaceWholeFileRouterMissing = 'registry agent ''{0}'' missing publishSurface.wholeFileRouter'
     RegistryPublishSurfaceWholeFileRouterInvalid = 'registry agent ''{0}'' publishSurface.wholeFileRouter must be an array'
