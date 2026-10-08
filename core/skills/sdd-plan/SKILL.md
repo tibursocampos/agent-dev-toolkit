@@ -86,7 +86,7 @@ Glob canonical PRDs under `features/**/PRD/` only (workspace + global feature ro
 
 | Situation | Action |
 |-----------|--------|
-| User gave canonical PRD path (must be `features/.../PRD/` or global `.../features/.../PRD/`) | `Read`; validate status **Pronto para planejamento** / **Ready for planning** |
+| User gave canonical PRD path (must be `features/.../PRD/` or global `.../features/.../PRD/`) | `Read`; validate status **Pronto para planejamento** / **Ready for planning**. **Implementado** / **Implemented** means the PLAN already closed the PRD: stop and ask before reopening that status |
 | No canonical PRD | `PIPELINE.md` section `sdd-plan` without PRD - options 1 or 2; then collect text or file path |
 | "Criar PRD" | Choice **1** -> hand off to `sdd-spec` inputs; do not write PLAN until PRD exists (unless user chose **2**) |
 | Non-canonical `.md` (root `PRD/`, `docs/PRD/`, etc.) | Promote under `features/...` via `sdd-spec` or ask for a canonical feature path |

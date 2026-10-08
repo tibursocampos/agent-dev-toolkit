@@ -212,6 +212,8 @@ Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PRO
 
 `references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
 
+When this edit sets PLAN **Implementation status** to `COMPLETED`, set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit (`references/plan-update.md` § Companion PRD). If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once. It is not a restart.
+
 After the tests gate validates true, update the PLAN/task status; then reset the develop session through the canonical helper before ending the scope.
 
 ### 7. Report
@@ -226,7 +228,7 @@ Also enforce `references/forbidden.md`. Before marking Completed: `references/qu
 - Skip `plan-acquisition` or mark Complete without **delivery-baseline** (`references/plan-contract.md`); add duration/effort estimates to checkpoints (REQ-010)
 - Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
 - Do not ignore `CP-AGREED-VS-INVENTED` — do not encode mid-step invented gaps as agreed requirements (`CONTRACT-PROVENANCE.md`)
-- Create PRD/PLAN; skip PLAN save; modify `.gitignore`
+- Create PRD/PLAN; skip PLAN save; skip the companion PRD status close when **Implementation status** becomes `COMPLETED`; modify `.gitignore`
 - Implement in Plan/Ask without Agent
 - Bypass one-step via orchestrator parent implementing code
 - Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
