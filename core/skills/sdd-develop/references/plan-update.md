@@ -99,4 +99,6 @@ When this edit sets the PLAN header **Implementation status** to `COMPLETED` (ev
 
 `/code-review` and `/commit` do not write this status. A review that finds PLAN `COMPLETED` with PRD still `Pronto para planejamento` / `Ready for planning` flags the drift and hands the close back here.
 
+For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before redrawing the complete chat-only stage table and reconciled ledger and before emitting the session report. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
+
 ---

@@ -164,7 +164,8 @@ function Invoke-CopilotSyncValidate {
 function Assert-ToolkitArtifactsAbsent {
     param(
         [Parameter(Mandatory = $true)][string] $FixtureRoot,
-        [Parameter(Mandatory = $true)][string] $TestName
+        [Parameter(Mandatory = $true)][string] $TestName,
+        [Parameter()][switch] $AllowModifiedManagedTargets
     )
 
     $skillProbe = Join-Path (Join-Path $FixtureRoot $skillsDirName) $expectedSkillProbe
@@ -173,17 +174,17 @@ function Assert-ToolkitArtifactsAbsent {
     }
 
     $instructionProbe = Join-Path (Join-Path $FixtureRoot $instructionsDirName) $expectedInstructionProbe
-    if (Test-Path -LiteralPath $instructionProbe) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $instructionProbe)) {
         Write-Fail -TestName $TestName -Reason ("toolkit instruction still present: {0}" -f $instructionProbe)
     }
 
     $copilotInstructions = Join-Path $FixtureRoot $copilotInstructionsName
-    if (Test-Path -LiteralPath $copilotInstructions) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $copilotInstructions)) {
         Write-Fail -TestName $TestName -Reason ("copilot-instructions.md still present: {0}" -f $copilotInstructions)
     }
 
     $hookProbe = Join-Path (Join-Path $FixtureRoot $hooksDirName) $expectedHookProbe
-    if (Test-Path -LiteralPath $hookProbe) {
+    if (-not $AllowModifiedManagedTargets.IsPresent -and (Test-Path -LiteralPath $hookProbe)) {
         Write-Fail -TestName $TestName -Reason ("toolkit hook still present: {0}" -f $hookProbe)
     }
 

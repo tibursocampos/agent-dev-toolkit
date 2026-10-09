@@ -129,20 +129,24 @@ function Invoke-CopilotPublishAgents {
         [System.IO.File]::Delete($legacyFinal)
     }
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
+        Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
 
-    return [PSCustomObject]@{
-        Success          = $true
-        Implemented      = $true
-        CommandName      = 'Publish-Agents'
-        WhatIf           = $false
-        Mode             = $normalizedMode
-        InstallRoot      = $resolvedInstallRoot
-        SourceAgentsRoot = $sourceAgentsRoot
-        DestAgentsRoot   = $destAgentsRoot
-        AgentFileCount   = $publishResult.AgentFileCount
-        Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
-        ExitCode         = 0
+        return [PSCustomObject]@{
+            Success          = $true
+            Implemented      = $true
+            CommandName      = 'Publish-Agents'
+            WhatIf           = $false
+            Mode             = $normalizedMode
+            InstallRoot      = $resolvedInstallRoot
+            SourceAgentsRoot = $sourceAgentsRoot
+            DestAgentsRoot   = $destAgentsRoot
+            AgentFileCount   = $publishResult.AgentFileCount
+            Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
+            ExitCode         = 0
+        }
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
     }
     finally {
