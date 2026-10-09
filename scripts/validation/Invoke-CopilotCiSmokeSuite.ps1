@@ -140,13 +140,12 @@ function Assert-CopilotAgentAndHookMaterialization {
         if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) {
             throw ("Mode={0}: canonical custom agent .agent.md profile is missing: {1}" -f $Mode, $agentId)
         }
-        if (-not (Test-Path -LiteralPath $legacyPath -PathType Leaf)) {
-            throw ("Mode={0}: Copilot CLI custom agent .md profile is missing: {1}" -f $Mode, $agentId)
+        if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+            throw ("Mode={0}: catalog markdown profile must not remain beside .agent.md: {1}" -f $Mode, $agentId)
         }
 
-        # Keep both host surfaces. The legacy .md file is also a supported CLI
-        # profile and may be a pre-existing, unowned user file; do not require
-        # its deletion to satisfy the canonical VS Code .agent.md check.
+        # Publish owns the catalog copy and keeps only nome.agent.md. Copilot CLI
+        # and VS Code both discover that suffix.
 
         $profile = [System.IO.File]::ReadAllText($profilePath)
         if ($profile -notmatch '(?s)^---\r?\n.*?\r?\n---') {
