@@ -179,7 +179,7 @@ The adapter-smoke matrices are separate jobs. Each uses `fail-fast: false`, `max
 
 ### Other workflows
 
-`release.yml` is a manual `workflow_dispatch`. The input is `MAJOR.MINOR.PATCH`. The workflow fast-forwards `master` to `develop` only when `master` is an ancestor, then publishes tag `vVERSION`. `publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
+`release.yml` is a manual `workflow_dispatch`. The input is `MAJOR.MINOR.PATCH`. The workflow fast-forwards `master` to `develop` only when `master` is an ancestor, then publishes tag `vVERSION` with notes shaped by [`.github/RELEASE_TEMPLATE.md`](../.github/RELEASE_TEMPLATE.md) (Highlights, Included work, Release assets, Changelog). `publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 
 `.github/workflows/docs.yml` builds the public MkDocs site on pushes to `master`/`main`/`develop` and manual dispatch; it is not run on pull requests because `validate-toolkit.yml` owns the required PR build. Only pushes to `master`/`main` deploy Pages.
 
