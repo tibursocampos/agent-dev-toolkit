@@ -9,7 +9,7 @@ Language: English
 | **Inventory at** | 2026-10-09T13:51:08.7695991Z |
 | **Status** | ready |
 | **Inventory hash** | `678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07` |
-| **Primary stack signals** | markdown, powershell (131 sources; 45 skills; 90 assert scripts) |
+| **Primary stack signals** | markdown, powershell (131 sources; 46 skills; 90 assert scripts) |
 <!-- END GENERATED: inventory-summary -->
 
 ## Purpose

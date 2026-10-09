@@ -118,6 +118,10 @@ Design commands (`init`, `shape`, `craft`, `critique`, `audit`, `harden`, and ot
 
 Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `nice-to-have`. `advisory` is not a finding band. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
 
+### `implementation-survey`
+
+Describes what changed and how the implementation appears to work. The report opens with the external observable goal and does not approve. It is not a mode of `code-review`. Detail: [05](05-review-and-quality.md).
+
 ### `test-coverage`
 
 .NET Coverlet report. Default 80% line coverage on changed production files. Writes `TestResults/CoverageReport/`. Does not block merge by itself; `code-review` applies the threshold. Called from `run-tests` only when the PLAN asks for coverage. Detail: [05](05-review-and-quality.md).
@@ -196,4 +200,4 @@ Executes one pending step of that documentation plan, then stops. Detail: [08](0
 
 ## Count
 
-`CATALOG.md` groups the same 45 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 17, documentation 2.
+`CATALOG.md` groups the same 46 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 18, documentation 2.

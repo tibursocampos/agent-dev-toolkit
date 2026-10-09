@@ -52,7 +52,7 @@ Specialist prompt files under `core/agents/` (`architect`, `database`, `repo-ana
 
 ## Skills and the delivery path
 
-**45** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
+**46** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
 
 The complete path is **Orchestrated Delivery**: `memory-bank-init` (Step 0) → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`. Analyze classifies the request, asks, sets `needs_*`, calls specialists, and shapes stories. Deliver runs `sdd-spec` then `sdd-plan` for each approved story. Develop runs `sdd-develop` once per PLAN step. How that works: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
