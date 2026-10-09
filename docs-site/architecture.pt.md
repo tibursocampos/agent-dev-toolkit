@@ -4,7 +4,7 @@ title: Arquitetura
 
 # Arquitetura
 
-O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agentes).
+O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agentes).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo d
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 45 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 46 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.
@@ -206,6 +206,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `instructions/*.instructions.md` | Política |
 | `copilot-instructions.md` | Instruções sempre ligadas com o roteador embutido; o Copilot não tem superfície de roteador dedicada (`router=false`) |
 | `hooks/*` | `version:1` `preToolUse` de caminho e segredos |
+| `agents/nome.agent.md` | Um arquivo de agente do catálogo no modo repo. O modo user não publica agentes |
 
 Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
 
@@ -235,7 +236,7 @@ O InstallRoot é o home do Hermes. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.
 | `memories/MEMORY.md` | Semeado uma vez se faltar |
 | `SOUL.md` | Nunca criado nem sobrescrito |
 
-`Publish-Agents` é no-op (`agents=false`). Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e substitui o item inteiro de `pre_tool_call` do toolkit. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
 
 ## OpenHands
 

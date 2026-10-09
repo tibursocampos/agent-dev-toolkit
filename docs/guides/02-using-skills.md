@@ -194,8 +194,9 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review          # optional; after fixes ask re-review / bank / docs (sim/pular)
-commit               # living-artifacts ask when bank/docs exist
+code-review          # optional; after the report ask fix / re-review only (sim/pular)
+implementation-survey  # describe the change; not a code-review mode
+commit               # message confirmation only; no memory-bank or docs question
 push
 open-github-pr       # optional, when opening a PR
 ```
@@ -213,7 +214,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**45** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**46** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

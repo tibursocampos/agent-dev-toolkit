@@ -116,7 +116,11 @@ Design commands (`init`, `shape`, `craft`, `critique`, `audit`, `harden`, and ot
 
 ### `code-review`
 
-Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `advisory`. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
+Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `nice-to-have`. `advisory` is not a finding band. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
+
+### `implementation-survey`
+
+Describes what changed and how the implementation appears to work. The report opens with the external observable goal and does not approve. It is not a mode of `code-review`. Detail: [05](05-review-and-quality.md).
 
 ### `test-coverage`
 
@@ -176,7 +180,7 @@ Prints the static catalog (`CATALOG.md`, and `OPERATOR.md` when the question is 
 
 ### `commit`
 
-Conventional Commit on a valid feature branch after the message is approved. Asks about memory-bank and project docs when those trees exist. Strips any `Co-authored-by` trailer. Does not open a pull request. Detail: [08](08-git-and-docs.md).
+Conventional Commit on a valid feature branch after the message is approved. Does not ask about memory bank or project docs, and does not start a refresh. Strips any `Co-authored-by` trailer. Does not open a pull request. Push or a pull request runs only when that same request already includes it. Detail: [08](08-git-and-docs.md).
 
 ### `push`
 
@@ -196,4 +200,4 @@ Executes one pending step of that documentation plan, then stops. Detail: [08](0
 
 ## Count
 
-`CATALOG.md` groups the same 45 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 17, documentation 2.
+`CATALOG.md` groups the same 46 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 18, documentation 2.

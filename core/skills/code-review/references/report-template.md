@@ -1,168 +1,174 @@
 ## Report template
 
-Use when writing the final report for the `code-review` skill. Keep the report in **Brazilian Portuguese (pt-BR)** (technical terms may stay in English). Replace bracketed placeholders.
+Use when writing the final report for the `code-review` skill. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Do not lock the spoken report to a single locale, including pt-BR. Severity and tool-status tokens stay English: `critical`, `important`, `nice-to-have`, `PASS`, `FAIL`, and `SKIPPED`. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Replace bracketed placeholders. The skeleton below is English; render spoken headings and sentences in the chat language from that matrix.
+
+Keep the positives section. Its spoken title follows `core/skills/_shared/agents/LANGUAGE.md`. Each item names one observed good point and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed.
 
 ---
 
 ```markdown
-# Code review - [Nome da feature]
+# Code review - [Feature name]
 
-## Resumo executivo
+## Executive summary
 
-**Decisão:** Aprovado | Aprovado com ressalvas | Alterações necessárias
+**Decision:** Approved | Approved with reservations | Changes required
 
-| Métrica | Valor |
+| Metric | Value |
 |---------|-------|
-| Aderência ao PRD | [ex.: 4/4 critérios] |
-| Status do PLAN | [ex.: 6/6 passos concluídos] |
-| SDD | [PRD/PLAN encontrados - caminhos] ou **Limitação SDD** (busca completa sem artefatos) |
-| Arquivos revisados | [N] |
-| Build / testes | [Passou / Falhou / Não executado] |
-| Cobertura (código novo) | [X% - Passou ≥ 80% / Abaixo / Não aplicável] |
-| Críticos | [0] |
-| Importantes | [N] |
-| Nice-to-have | [N] |
+| PRD adherence | [e.g. 4/4 criteria] |
+| PLAN status | [e.g. 6/6 steps completed] |
+| SDD | [PRD/PLAN found - paths] or **SDD limitation** (full search, no artifacts) |
+| Files reviewed | [N] |
+| Build / tests | [`PASS` / `FAIL` / `SKIPPED`] |
+| Coverage (new code) | [X% - Pass ≥ 80% / Below / Not applicable] |
+| critical | [0] |
+| important | [N] |
+| nice-to-have | [N] |
 
-[Um parágrafo: escopo, principais achados, recomendação.]
-
----
-
-## Verificação do PLAN (SDD)
-
-_Omitir esta seção somente se step 0.5 registrou **Limitação SDD**._
-
-**PLAN:** [caminho completo]
-
-- Progresso: [X/N] - [consistente | inconsistências listadas]
-- Passos concluídos: [lista]
-- Pendente / desvio: [lista ou Nenhum]
+[One paragraph: scope, main findings, recommendation. When the operator passed a pull-request URL and the review identified that range, cite the URL and that range. When `working_tree` and a path list were both set, state that the report covers the uncommitted diff limited to those paths.]
 
 ---
 
-## Aderência ao PRD (SDD)
+## PLAN verification (SDD)
 
-_Omitir esta seção somente se step 0.5 registrou **Limitação SDD**._
+_Omit this section only when step 0.5 recorded an **SDD limitation**._
 
-**PRD:** [caminho completo]
+**PLAN:** [full path]
 
-### Critérios de aceite
+- Progress: [X/N] - [consistent | listed inconsistencies]
+- Completed steps: [list]
+- Pending / drift: [list or None]
 
-| Critério | Status | Evidência |
+---
+
+## PRD adherence (SDD)
+
+_Omit this section only when step 0.5 recorded an **SDD limitation**._
+
+**PRD:** [full path]
+
+### Acceptance criteria
+
+| Criterion | Status | Evidence |
 |----------|--------|-----------|
-| [CA1] | Atendido / Parcial / Ausente | [arquivo, teste] |
+| [CA1] | Met / Partial / Missing | [file, test] |
 
-### Regras de negócio
+### Business rules
 
-| Regra | Status | Local |
-|-------|--------|-------|
-| [RN01] | Atendida / Ausente | [tipo.método] |
-
----
-
-## Arquivos revisados
-
-- [caminho] - [nota breve]
+| Rule | Status | Location |
+|-------|--------|-----------|
+| [RN01] | Met / Missing | [type.method] |
 
 ---
 
-## Pontos positivos
+## Files reviewed
 
-- [Boas práticas observadas]
-
----
-
-## Problemas críticos (bloqueantes)
-
-### [Título]
-
-- **Arquivo:** `caminho:linha`
-- **Categoria:** Segurança | Bug | Breaking change
-- **Problema:** [o que está errado]
-- **Impacto:** [por que bloqueia merge]
-- **Correção sugerida:** [passos concretos]
+- [path] - [brief note]
 
 ---
 
-## Problemas importantes (não bloqueantes)
+## Positives
 
-### [Título]
+Spoken title follows `core/skills/_shared/agents/LANGUAGE.md`. Each item names one observed good point and cites `path:line` evidence in the diff. When no such evidence exists, state that no positive was observed.
 
-- **Arquivo:** `caminho:linha`
-- **Problema:** [o que melhorar]
-- **Sugestão:** [como]
+- [Observed good point — `path:line`]
 
 ---
 
-## Nice-to-have
+## critical (blocking)
 
-- [Melhorias opcionais]
+### [Title]
 
----
-
-## Testes
-
-- **Unitários:** [passou/falhou, escopo]
-- **Integração:** [passou/falhou, escopo]
-- **Lacunas:** [cenários não cobertos]
-- **Cobertura (código novo / arquivos alterados):** [X% - Passou ≥ [threshold]% / Abaixo do target / Não executado]
-- **Cobertura geral (branch):** [Y% - informativo]
-- **Meta:** 100% (mínimo aceitável: [80]% quando target aplicável)
-- **Fonte:** `/test-coverage` - [colar bloco do relatório ou N/A]
+- **File:** `path:line`
+- **Category:** Security | Bug | Breaking change
+- **Problem:** [what is wrong]
+- **Impact:** [why it blocks merge]
+- **Suggested fix:** [concrete steps]
 
 ---
 
-## Segurança
+## important (non-blocking)
 
-- [ ] Sem secrets hardcoded
-- [ ] Validação de entrada em dados externos
-- [ ] Sem dados sensíveis em logs
-- [ ] Acesso a dados parametrizado (sem concatenação SQL)
+### [Title]
 
-Problemas: [Nenhum | listados]
+- **File:** `path:line`
+- **Problem:** [what to improve]
+- **Suggestion:** [how]
+
+---
+
+## nice-to-have
+
+- [Optional improvements]
+
+---
+
+## Tests
+
+- **Unit:** [`PASS` / `FAIL` / `SKIPPED`, scope]
+- **Integration:** [`PASS` / `FAIL` / `SKIPPED`, scope]
+- **Gaps:** [scenarios not covered]
+- **Coverage (new code / changed files):** [X% - Pass ≥ [threshold]% / Below target / Not run]
+- **Overall coverage (branch):** [Y% - informational]
+- **Target:** 100% (acceptable minimum: [80]% when a target applies)
+- **Source:** `/test-coverage` - [paste the report block or N/A]
+
+---
+
+## Security
+
+- [ ] No hardcoded secrets
+- [ ] Input validation on external data
+- [ ] No sensitive data in logs
+- [ ] Parameterized data access (no SQL concatenation)
+
+Problems: [None | listed]
 
 ---
 
 ## Performance
 
-- [ ] Sem N+1 óbvio no código alterado (ref: `references/n-plus-one.md`)
-- [ ] Async em trabalho I/O-bound
-- [ ] Sem loops/alocações ilimitados em hot paths
+- [ ] No obvious N+1 in the changed code (ref: `references/n-plus-one.md`)
+- [ ] Async for I/O-bound work
+- [ ] No unbounded loops or allocations on hot paths
 
-Problemas: [Nenhum | listados]
+Problems: [None | listed]
 
 ---
 
-## Policy / contracts (quando a superfície aplicar)
+## Policy / contracts (when the surface applies)
 
 - [ ] Policy / gates: `references/policy.md` (skills, rules, git flow)
 - [ ] Contracts / SDD / CHANGE / paths: `references/contracts.md`
-- [ ] Sem pasta/skill `framework-upgrade` introduzida sem feature aprovada (WS16b OOS)
+- [ ] No `framework-upgrade` folder or skill introduced without an approved feature (WS16b out of scope)
 
-Problemas: [N/A | Nenhum | listados]
+Problems: [N/A | None | listed]
 
 ---
 
-## Oportunidades de refatoração (opcional)
+## Refactoring opportunities (optional)
 
-| Prioridade | Área | Benefício |
+| Priority | Area | Benefit |
 |------------|------|-----------|
-| Média | [método/classe] | [legibilidade / testabilidade] |
+| Medium | [method/class] | [readability / testability] |
 
 ---
 
-## Recomendação final
+## Final recommendation
 
-**Decisão:** [Aprovado | Aprovado com ressalvas | Alterações necessárias]
+An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 
-**Obrigatório antes do merge:**
+**Decision:** [Approved | Approved with reservations | Changes required]
 
-1. [Ação ou Nenhuma]
+**Required before merge:**
 
-**Recomendado após o merge:**
+1. [Action or None]
 
-1. [Ação ou Nenhuma]
+**Recommended after merge:**
 
-**Próximos passos do autor:**
+1. [Action or None]
+
+**Author next steps:**
 
 - [ ]
 ```

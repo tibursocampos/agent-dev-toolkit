@@ -10,7 +10,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **45** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **46** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 

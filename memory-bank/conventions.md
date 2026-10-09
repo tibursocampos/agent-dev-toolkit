@@ -17,13 +17,17 @@
 
 ## Testing
 
-- Prefer: in-repo PowerShell asserts under `scripts/validation/` and fixture smokes. CI job runs `validate-core` and does not sync a live agent home.
+- Prefer the cheapest check that distinguishes a named regression risk. A wide suite is not the default. A removed test names the guarantee and the cheaper check that still covers it.
+- In-repo PowerShell asserts live under `scripts/validation/` with fixture smokes. The default CI `validate` job runs named asserts and does not sync a live agent home. `validate-core` stays a local core suite.
 - Layout: `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, fixtures under `scripts/validation/fixtures/`.
 
 ## Git / branches
 
 - Commit messages follow Conventional Commits (`core/policy/conventional-commits.md`).
 - Commit and push only from `feature/<slug>` or `feat/<id>` (`core/policy/branch-validation.md`).
+- `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, and `orchestrate-deliver` write the canonical artifact on the current branch. `orchestrate-develop`, `sdd-develop`, and `*-developer` still state the branch before code changes.
+- `/commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/push`, or a pull request unless that same operator request already includes them.
+- `/code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
 - Do not add `/memory-bank/` to the SDD `.gitignore` block. Commit bank prose when it is product knowledge. Never commit secrets.
 
 ## Do / don't

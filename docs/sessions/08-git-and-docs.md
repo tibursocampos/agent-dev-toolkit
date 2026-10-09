@@ -8,14 +8,7 @@ Allowed heads: `feature/<slug>` or `feat/<id>` (one segment). Blocked: `main`, `
 
 Drafts a Conventional Commit and **waits**. Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Subject and body in English. Approve the exact text before `git commit`. Prefer explicit paths over `git add -A`.
 
-Before staging, if not already answered in this turn:
-
-| Present | Ask |
-|---------|-----|
-| `memory-bank/` | refresh-light? **sim** / **pular** |
-| `docs/documentation-plan/plan.md` or `docs/overview.md` or `docs/domains/` | update project docs? **sim** / **pular** |
-
-**sim** on the bank runs `/memory-bank-init` refresh-light. **sim** on docs runs `/document-implement` if a plan step is pending, otherwise `/document-plan`.
+`/commit` does not ask about memory bank or project docs. Presence of those trees does not add a question, and this skill does not start `/memory-bank-init` or `/document-plan`. `orchestrate-develop` still confirms memory-bank **refresh-light** after application-file changes, before it hands off. That confirm is not part of `/commit`.
 
 After every commit, read `git log -1`. A `Co-authored-by` trailer (any agent) is stripped with amend until it is gone. Do not finish while that trailer remains. Do not add `--author` or `--trailer` for an agent.
 

@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ After confirm (or a brownfield mirror): load **one** Layer B file under `princip
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 45 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 46 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.
@@ -206,6 +206,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `instructions/*.instructions.md` | Policy |
 | `copilot-instructions.md` | Always-on instructions from the router source |
 | `hooks/*` | `version:1` `preToolUse` path and secrets |
+| `agents/nome.agent.md` | One catalog agent file in repo mode. Mode user does not publish agents |
 
 JetBrains and Eclipse layouts are out of scope. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
 
@@ -235,7 +236,7 @@ InstallRoot is the Hermes home. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.her
 | `memories/MEMORY.md` | Seeded once if missing |
 | `SOUL.md` | Never created or overwritten |
 
-`Publish-Agents` is a no-op (`agents=false`). Subagents: host `delegate_task`. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Agents` is a no-op (`agents=false`). The hook merge keeps non-toolkit keys and replaces the whole toolkit `pre_tool_call` item. Subagents: host `delegate_task`. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
 
 ## OpenHands
 

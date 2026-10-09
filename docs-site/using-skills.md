@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **45** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **46** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
@@ -181,7 +181,7 @@ push
 open-github-pr
 ```
 
-`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** for a fix, a re-review, a bank refresh, and project docs. When an O3 scope closes, the order is `run-tests`, `code-review`, `run-tests` after review changes (or record no rerun required), the `security` pass, then `/commit` and `/push`.
+`code-review` asks single versus multi-angle. There is no default. Angles: quality, acceptance, security (at most three children when `subagents=native`). Finding bands are `critical`, `important`, and `nice-to-have`. Decisions: **Approved**, **Approved with reservations**, **Changes required**. The skill does not edit code. After the report it asks **sim** / **pular** only for a fix and a re-review. It does not ask about a memory bank, project docs, or a pull request. `implementation-survey` is a separate skill. It describes the change and does not issue a verdict. When an O3 scope closes, the order is `run-tests`, `code-review`, `run-tests` after review changes (or record no rerun required), the `security` pass, then `/commit` and `/push`.
 
 `run-tests` runs the test command of each detected stack and returns `PASS` or `FAIL`. It does not edit code. A check the repo does not have is `SKIPPED`.
 
@@ -232,7 +232,7 @@ document-implement
 help-skills
 ```
 
-`commit` drafts a Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) and waits for the exact text. Subject and body are English. If `memory-bank/` exists, it asks refresh-light: **sim** / **pular**. If project docs exist, it asks whether to update them. **sim** on the bank runs `memory-bank-init` refresh-light. After the commit, a `Co-authored-by` trailer is stripped until it is gone.
+`commit` drafts a Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) and waits for the exact text. Subject and body are English. It does not ask about memory bank or project docs. After the commit, a `Co-authored-by` trailer is stripped until it is gone. Push or a pull request runs only when that same request already includes it.
 
 `push` runs `git push -u origin HEAD` after the branch check. If this conversation already asked for a pull request, it loads `open-github-pr`. Otherwise it asks.
 

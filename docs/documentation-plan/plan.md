@@ -6,10 +6,10 @@
 | **Doc language** | English |
 | **Stack detected** | PowerShell 5.1 scripts (`scripts/toolkit.ps1`, adapters), Markdown Agent Skills (`core/skills`), JSON adapter registry. GitHub Actions: `validate-toolkit.yml`, `publish-release-bootstrap.yml`, `enforce-release-source.yml`. `.github/workflows/docs.yml` exists and is out of scope. |
 | **Overview** | docs/overview.md (refreshed for the Feature 010 reliability delta) |
-| **Progress** | 8/8 (fact fixes and Feature 010 reliability documentation complete). Operator narrative is [sessions/README.md](../sessions/README.md). `guides/07-caveman-mode.md` was removed; compression is one section of [guides/session-behavior.md](../guides/session-behavior.md). |
+| **Progress** | 9/9 (Features 012 and 013 documentation update complete). Operator narrative is [sessions/README.md](../sessions/README.md). `guides/07-caveman-mode.md` was removed; compression is one section of [guides/session-behavior.md](../guides/session-behavior.md). |
 
 ```
-[🟢🟢🟢🟢🟢🟢🟢🟢] 100% (8/8)
+[🟢🟢🟢🟢🟢🟢🟢🟢🟢] 100% (9/9)
 ```
 
 ## Goals
@@ -285,11 +285,40 @@ docs/
 
 ---
 
+### ✅ STEP 9: Features 012 and 013 documentation
+
+**Status:** Completed | **Completed:** 2026-10-09 | **Deps:** 8 | **Kind:** update | **Est.:** 45 min
+
+**Deliverables:**
+- [x] Update existing operator docs so skill count is 46, `/commit` does not ask for a memory-bank or docs refresh, and `/code-review` finding bands and `implementation-survey` match `core/skills`.
+- [x] Update `README.md` skill preview and the paired `docs-site` pages that still describe the old commit and review handoffs.
+- [x] Record shared publish facts (hook stdin, Copilot `nome.agent.md`, Hermes alien-key merge, `ci-ok` job set) where architecture pages still omit them.
+
+**Tasks:**
+1. Use `core/skills/commit/SKILL.md`, `core/skills/code-review/SKILL.md`, `core/skills/implementation-survey/SKILL.md`, `CATALOG.md`, and `.github/workflows/validate-toolkit.yml` as evidence.
+2. Edit only stale sentences. Keep `sdd-develop` and `orchestrate-develop` refresh-light asks where those skills still require them.
+3. Product prose in **English** under `docs/`. Mirror meaning in existing `docs-site/*.pt.md` counterparts.
+4. Do not edit `core/`, `adapters/`, `scripts/`, or `memory-bank/` in this step.
+
+**Acceptance:**
+- [x] No operator page attributes a memory-bank or docs question to `/commit`
+- [x] `code-review` pages name bands `critical`, `important`, `nice-to-have` and do not hand off a pull request or documentation
+- [x] Root README, `docs/overview.md`, and `docs/sessions/README.md` count 46 skills
+- [x] Changed `docs-site` pages stay paired in English and Portuguese
+
+**Implementation notes:**
+- Skill count is 46 in `docs/overview.md`, `docs/sessions/README.md`, `docs/README.md`, `docs/domains/core.md`, and the root README preview.
+- `/commit` pages no longer ask for memory-bank refresh or project docs. `orchestrate-develop` refresh-light after application-file changes stays documented on the O3 page.
+- `code-review` bands and `implementation-survey` are in `docs/sessions/05-review-and-quality.md` and the paired `docs-site/using-skills` pages.
+- Architecture pages record hook stdin, Copilot `nome.agent.md`, and the Hermes alien-key merge. `ci-ok` was already accurate in `docs/ARCHITECTURE.md`.
+
+---
+
 ## Execution order
 
-**Critical path:** complete. Steps 1-8 are complete.
+**Critical path:** complete. Steps 1-9 are complete.
 
-**Next step:** none. Optional handoff: `/code-review` or `/commit`
+**Next step:** none. Optional handoff: `/commit`
 
 ## Update protocol (document-implement skill)
 

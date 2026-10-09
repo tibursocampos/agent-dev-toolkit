@@ -1,6 +1,6 @@
 ## Multi-angle mode
 
-Optional enrichment of the same report template. **No silent default:** if the invoke omits both single and multi, the skill **must ask** (pt-BR) before step 0.5 - see `SKILL.md` § Trigger and § 0.25. O3 may suggest review; never auto-blocks the pipeline.
+Optional enrichment of the same report template. **No silent default:** if the invoke omits both single and multi, the skill **must ask** in the chat language from `core/skills/_shared/agents/LANGUAGE.md` before step 0.5 - see `SKILL.md` § Trigger and § 0.25. O3 may suggest review; never auto-blocks the pipeline.
 
 ### Invoke examples
 
@@ -32,7 +32,7 @@ Bare `/code-review` -> ask mode (1 single / 2 multi-ângulo). Subset allowed, e.
 - [ ] Business rules from PRD present where in scope
 - [ ] Gaps flagged as important or critical per severity (not a separate gate)
 
-**Security (segurança)**
+**Security (segurança)** — run this checklist only when the mode is multi-angle and the security angle was requested. A single review does not run it. Fill the report security section with finding bands `critical`, `important`, and `nice-to-have`. Do not write `SEC/`. Do not emit blocks `B`, `I`, or `MINOR`. This checklist does not waive the closeout pass in `core/skills/_shared/agents/prompts/security.md`, and that pass does not waive this checklist.
 
 - [ ] AuthZ / AuthN assumptions for new endpoints or jobs
 - [ ] Input validation / injection (SQL, command, template)
@@ -44,9 +44,9 @@ Bare `/code-review` -> ask mode (1 single / 2 multi-ângulo). Subset allowed, e.
 
 1. Load `SPAWN.md`; consult capability `subagents`. When `native`: spawn one Task per requested angle (parallel, ≤3); when `none` or Task unavailable → **fallback** sequential **in-parent** angles (never hard-fail). Parent keeps the default flow for build/test/coverage.
 2. Deduplicate overlapping findings; keep the strongest severity and clearest `path:line`.
-3. Map into the existing template sections:
-   - Blocking bugs / security / broken PRD scope -> **Problemas críticos**
-   - Non-blocking quality, PLAN/PRD drift, gaps -> **Problemas importantes**
-   - Optional polish -> **Nice-to-have**
-4. Fold security-angle notes into § Segurança; acceptance into § Aderência ao PRD / Verificação do PLAN; quality into analysis sections and positives.
+3. Map into the existing template sections. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Do not use a Portuguese label as a band name.
+   - Blocking bugs / security / broken PRD scope -> `critical`
+   - Non-blocking quality, PLAN/PRD drift, gaps -> `important`
+   - Optional polish -> `nice-to-have`
+4. Fold security-angle notes into the security section; acceptance into PRD adherence and PLAN verification; quality into the analysis sections. Positives follow the same rule as step 7 and `references/report-template.md`: a title in the language from `core/skills/_shared/agents/LANGUAGE.md`, `path:line` evidence in the diff, or the statement that no positive was observed.
 5. Apply the **same** decision matrix and coverage gates - multi-angle does not change Approved / Approved with reservations / Changes required semantics.

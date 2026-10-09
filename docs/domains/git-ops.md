@@ -7,8 +7,9 @@ Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: installed `OPERATOR.m
 ## Skill chain
 
 ```text
-/code-review   (optional; after fixes ask re-review / bank / docs)
-/commit        (asks living-artifacts when bank/docs exist)
+/code-review   (optional; after the report ask fix / re-review only)
+/implementation-survey   (describe the change; not a review verdict)
+/commit        (message confirmation only; no memory-bank or docs question)
 /push
 /open-github-pr   (optional — when opening a PR)
 ```

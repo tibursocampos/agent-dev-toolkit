@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **45** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **46** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 

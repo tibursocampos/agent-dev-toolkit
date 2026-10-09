@@ -38,7 +38,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 45 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
+- `core/skills/` — 46 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -219,7 +219,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `memories/MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
-`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
 
 ## OpenHands install layout
 
@@ -234,6 +234,10 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `.plugin/plugin.json` | Plugin metadata (skills still work without the plugin) |
 
 **Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-OpenHandsCiSmoke.ps1`.
+
+## Shared publish rules
+
+Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `always`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
 
 ## CI
 

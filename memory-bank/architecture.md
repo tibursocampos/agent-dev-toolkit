@@ -1,7 +1,7 @@
 ﻿# Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory (2026-10-09T13:51:08.7695991Z; hash `678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07`)._
+_Entry points and layout hints from inventory (2026-10-09T22:01:32.3234953Z; hash `c97a99d739c2692581e2bec63cfc6f1b895834b45e5db88e21b03fd72fcdfea6`)._
 
 | Signal | Path |
 |--------|------|
@@ -45,6 +45,10 @@ One agent-neutral core is published by per-agent adapters into each host install
 - Release bootstrap reads env names only: `TOOLKIT_RELEASE_OWNER`, `TOOLKIT_RELEASE_REPO`, `TOOLKIT_RELEASE_ZIP_ASSET`, `TOOLKIT_RELEASE_CHECKSUM_ASSET`, `TOOLKIT_SYNC_AGENT`.
 - Hermes home override name: `HERMES_HOME`.
 - Antigravity subagent probe names: `ADT_ANTIGRAVITY_SUBAGENTS`, `ADT_ANTIGRAVITY_PRODUCT_VERSION`.
+- Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty (`adapters/cursor/assets/hooks/_hook-common.ps1` and the same pattern on the other hook assets).
+- Copilot agent publish keeps one `nome.agent.md` per catalog agent and drops the parallel `nome.md` (`adapters/copilot/Publish-CopilotAgents.ps1`).
+- A missing `preferences.json` is created on first sync with `orchestrator_mode` `always` (`scripts/_lib/Initialize-SddPreferences.ps1`).
+- Required pull-request check `ci-ok` needs `validate`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict` (`.github/workflows/validate-toolkit.yml`).
 
 ## Notes
 
