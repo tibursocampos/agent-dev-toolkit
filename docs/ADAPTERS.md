@@ -222,7 +222,7 @@ Relative layout under either InstallRoot is the same: `skills/`, `instructions/`
 | `instructions/*.instructions.md` | `Publish-Policy` from `core/policy/` (`.md` → `*.instructions.md`; no fake Cursor `.mdc`) |
 | `copilot-instructions.md` | `Publish-Policy` from `core/router/AGENTS.md` (always-on instructions) |
 | `hooks/*` | `Publish-Hooks` from `adapters/copilot/assets/hooks/` when `hooks=true` — `version:1` `hooks.json` + `preToolUse` → `guard-pre-tool.ps1` (path/secrets deny; IDE trust out of scope) |
-| `agents/*.md` | `Publish-Agents` from `core/agents/` **Mode repo only** (`.github/agents/`). Mode user is a documented no-op (no Copilot user-home agents dir). |
+| `agents/nome.agent.md` | `Publish-Agents` from `core/agents/` **Mode repo only** (`.github/agents/`). One `nome.agent.md` per catalog agent. The parallel `nome.md` from the copy step is dropped. Mode user is a documented no-op (no Copilot user-home agents dir). |
 
 `Publish-Router` is a documented **no-op** (`router=false`). Router guidance is folded into `copilot-instructions.md` via `Publish-Policy`.
 

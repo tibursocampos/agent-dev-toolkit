@@ -180,7 +180,7 @@ Prints the static catalog (`CATALOG.md`, and `OPERATOR.md` when the question is 
 
 ### `commit`
 
-Conventional Commit on a valid feature branch after the message is approved. Asks about memory-bank and project docs when those trees exist. Strips any `Co-authored-by` trailer. Does not open a pull request. Detail: [08](08-git-and-docs.md).
+Conventional Commit on a valid feature branch after the message is approved. Does not ask about memory bank or project docs, and does not start a refresh. Strips any `Co-authored-by` trailer. Does not open a pull request. Push or a pull request runs only when that same request already includes it. Detail: [08](08-git-and-docs.md).
 
 ### `push`
 

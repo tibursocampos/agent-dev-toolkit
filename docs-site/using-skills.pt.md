@@ -181,7 +181,7 @@ push
 open-github-pr
 ```
 
-`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** para uma correção, uma nova revisão, um refresh do bank e docs do projeto. Quando um escopo do O3 fecha, a ordem é `run-tests`, `code-review`, `run-tests` após mudanças da revisão (ou registre que não foi necessário repetir), a passagem de `security`, depois `/commit` e `/push`.
+`code-review` pergunta single versus multi-angle. Não há padrão. Ângulos: quality, acceptance, security (no máximo três filhos quando `subagents=native`). Faixas de achado: `critical`, `important` e `nice-to-have`. Decisões: **Approved**, **Approved with reservations**, **Changes required**. A skill não edita código. Depois do relatório ela pergunta **sim** / **pular** só para uma correção e uma nova revisão. Não pergunta sobre memory bank, docs do projeto ou pull request. `implementation-survey` é uma skill separada. Ela descreve a mudança e não emite veredito. Quando um escopo do O3 fecha, a ordem é `run-tests`, `code-review`, `run-tests` após mudanças da revisão (ou registre que não foi necessário repetir), a passagem de `security`, depois `/commit` e `/push`.
 
 `run-tests` roda o comando de teste de cada stack detectada e devolve `PASS` ou `FAIL`. Não edita código. Uma checagem que o repositório não tem fica `SKIPPED`.
 
@@ -232,7 +232,7 @@ document-implement
 help-skills
 ```
 
-`commit` redige um Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) e espera o texto exato. Assunto e corpo são em inglês. Se `memory-bank/` existir, pergunta refresh-light: **sim** / **pular**. Se docs do projeto existirem, pergunta se deve atualizá-los. **sim** no bank roda `memory-bank-init` refresh-light. Depois do commit, um trailer `Co-authored-by` é removido até sumir.
+`commit` redige um Conventional Commit (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`) e espera o texto exato. Assunto e corpo são em inglês. Não pergunta sobre memory bank nem docs do projeto. Depois do commit, um trailer `Co-authored-by` é removido até sumir. Push ou pull request só roda quando o mesmo pedido já inclui essa ação.
 
 `push` roda `git push -u origin HEAD` depois da checagem do branch. Se esta conversa já pediu um pull request, carrega `open-github-pr`. Caso contrário, pergunta.
 

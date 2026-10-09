@@ -194,8 +194,9 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review          # optional; after fixes ask re-review / bank / docs (sim/pular)
-commit               # living-artifacts ask when bank/docs exist
+code-review          # optional; after the report ask fix / re-review only (sim/pular)
+implementation-survey  # describe the change; not a code-review mode
+commit               # message confirmation only; no memory-bank or docs question
 push
 open-github-pr       # optional, when opening a PR
 ```

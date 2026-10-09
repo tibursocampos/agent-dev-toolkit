@@ -2,7 +2,7 @@
 
 **agent-dev-toolkit** is a multi-agent developer toolkit. One agent-neutral **core** (skills, policy, router, SDD contracts, specialist prompts) is published by **adapters** into each host **install root**. Operators sync with a PowerShell CLI, then invoke the same skill ids inside the host.
 
-Evidence for counts and capabilities: `core/skills/*/SKILL.md` frontmatter `name` (45), `core/skills/_shared/skills-catalog/CATALOG.md`, `adapters/registry.json` (10 agents).
+Evidence for counts and capabilities: `core/skills/*/SKILL.md` frontmatter `name` (46), `core/skills/_shared/skills-catalog/CATALOG.md`, `adapters/registry.json` (10 agents).
 
 ## Architecture
 

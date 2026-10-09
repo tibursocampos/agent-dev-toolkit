@@ -244,7 +244,7 @@ The parent updates `CONTINUITY.md` only after the child returns. Failure leaves 
 
 When a child changed application files, O3 asks, then runs `memory-bank-init` **refresh-light**.
 
-When the story or feature is done, the order is `/run-tests`, then `/code-review`, then `/run-tests` again after review changes (or record that no rerun is required), then the `security` agent, then `/commit`, then `/push` as a separate ask. Review options are in [05](05-review-and-quality.md). `run-tests` runs the detected stack’s test command. `test-coverage` stays the .NET Coverlet report. Before commit, if a bank or project docs exist, the operator is asked **sim** / **pular** for refresh and for docs. Silence does not skip that ask.
+When the story or feature is done, the order is `/run-tests`, then `/code-review`, then `/run-tests` again after review changes (or record that no rerun is required), then the `security` agent, then `/commit`, then `/push` as a separate ask. Review options are in [05](05-review-and-quality.md). `run-tests` runs the detected stack’s test command. `test-coverage` stays the .NET Coverlet report. Step N already asked memory-bank **refresh-light** when application files changed. The close still asks about project docs (**sim** / **pular**) before `/commit`. `/commit` does not repeat that question.
 
 ## What this path reuses from other skills
 

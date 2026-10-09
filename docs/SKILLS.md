@@ -159,7 +159,7 @@ If the invoke omits a mode, the skill asks once and loads **only** the chosen pl
 
 | Area | What you will be asked / options |
 |------|----------------------------------|
-| Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge; merge method = feature **`--squash`** / release **`--rebase`**. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
+| Git (`commit` / `push` / `open-github-pr`) | `/commit` confirms the message and does not ask about memory bank or project docs. Confirm push. PR feature vs release; confirm title/body; **always** ask auto-merge; merge method = feature **`--squash`** / release **`--rebase`**. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
 | `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs **`sim`** (silence ≠ approval); skill id must not pin a major |
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (**sim**/**pular**). Do not ask about memory bank or project docs. |
 | `implementation-survey` | `source` (`working-tree` or a ref git already resolves) and `target` (`HEAD` or another branch); one question when either is missing (no silent default); optional `path`; report without approval; read `SPAWN.md` before the first spawn decision |

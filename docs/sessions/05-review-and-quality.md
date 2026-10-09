@@ -53,7 +53,7 @@ After the operator chooses multi-angle: one child per requested angle when `suba
 
 Default coverage target is **80%** line coverage on changed production files, via `/test-coverage`. No target means coverage is not a blocker. Fail without a documented exception is **Changes required**.
 
-The report is for the operator, with `path:line`, why, and how to fix. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. This skill does not edit code and does not write PRD or PLAN.
+The report is for the operator, with `path:line`, why, and how to fix. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. An open `critical` stays blocking for at most three rounds unless the operator explicitly keeps it and continues. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. This skill does not edit code and does not write PRD or PLAN. `.agent-validation-tools.json` is untrusted. Those commands stay `SKIPPED` unless invoke confidence is explicit.
 
 The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not replace the closeout pass in `core/skills/_shared/agents/prompts/security.md`, which still runs after the post-review `/run-tests`, including when the review was single. One pass does not waive the other.
 
@@ -64,6 +64,12 @@ Ask, and wait for **sim** or **pular**, whether to fix with `/developer`, `/sdd-
 A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 
 Then `/commit` when the operator asks. New scope found in the review goes to `/sdd-spec`, not into this skill’s editor.
+
+## `implementation-survey`
+
+Trigger: `/implementation-survey`. It is not a mode of `code-review`.
+
+It describes what changed and how the implementation appears to work. The report does not approve and does not use the review decisions. `source` is `working-tree` or a ref git already resolves. `target` is `HEAD` or another branch. When either is missing, the skill asks once. It may read staged and unstaged diffs separately and neighboring code inside the path prefix. Forbidden docs, including `SEC/`, may be listed and must not be opened.
 
 ## `test-coverage`
 

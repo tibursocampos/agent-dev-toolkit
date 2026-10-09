@@ -206,6 +206,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `instructions/*.instructions.md` | Política |
 | `copilot-instructions.md` | Instruções sempre ligadas com o roteador embutido; o Copilot não tem superfície de roteador dedicada (`router=false`) |
 | `hooks/*` | `version:1` `preToolUse` de caminho e segredos |
+| `agents/nome.agent.md` | Um arquivo de agente do catálogo no modo repo. O modo user não publica agentes |
 
 Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
 
@@ -235,7 +236,7 @@ O InstallRoot é o home do Hermes. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.
 | `memories/MEMORY.md` | Semeado uma vez se faltar |
 | `SOUL.md` | Nunca criado nem sobrescrito |
 
-`Publish-Agents` é no-op (`agents=false`). Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e substitui o item inteiro de `pre_tool_call` do toolkit. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
 
 ## OpenHands
 

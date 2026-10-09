@@ -4,7 +4,7 @@
 
 | Area | Description | Evidence |
 |------|-------------|----------|
-| Skills catalog | 45 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
+| Skills catalog | 46 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. `implementation-survey` describes a change and is not a mode of `code-review`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Delivery path | Complete path is Orchestrated Delivery: Step 0 `memory-bank-init`, then `orchestrate-analyze`, `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story), `orchestrate-develop` (one `sdd-develop` child per PLAN step). Direct `sdd-spec` is the same contract when one story is already clear. `refine-story` is the O1 scorecard rubric plus a standalone invoke for one product item or open clarification B/I. | `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
 | Agent registry | 10 agents: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands. Capability `subagents` is `native` or `none`. | `adapters/registry.json` |
 | Spawn | Axes A (spawn vs in-parent), B (omit/inherit model), C (alternate model slug only after gate). Chat language follows the user. Spawn prompts and receipts are en-US. | `core/skills/_shared/agents/SPAWN.md`, `core/skills/_shared/agents/LANGUAGE.md` |
@@ -21,8 +21,12 @@
 | `subagents=native` | Host has a Task-equivalent spawn API. |
 | `subagents=none` | No Task equivalent. Work falls back in-parent. OpenHands registry value is `none`. |
 | Antigravity effective `subagents` | Probed at runtime (`ADT_ANTIGRAVITY_SUBAGENTS`, then product version). Registry value alone is not the effective value. |
-| Keyed uninstall | Removes toolkit-owned files. Alien operator files and `sdd/sessions` stay. |
+| Keyed uninstall | Removes toolkit-owned files, including catalog files the operator edited. Alien files and `sdd/sessions` stay. Mixed `AGENTS.md`, `CLAUDE.md`, and a marked router block lose only the toolkit span. |
 | Content-language | Language of written SDD artifact prose. Resolution: invocation, then `preferences.json` `artifact_language`, then manifest, else chat. |
+| Hook evidence status | `confirmado`, `descartado`, `comportamento do provider`, or `hipótese pendente`. `GuardCommon.ps1` changes only for a proven shared defect. |
+| Catalog republish | Replaces the toolkit catalog after the adapter's native transform. A hash delta is a defect only when source revision and that transform are known. |
+| `code-review` bands | Findings are `critical`, `important`, or `nice-to-have`. Decisions stay `Approved`, `Approved with reservations`, and `Changes required`. `advisory` is not a finding band. |
+| `implementation-survey` | Separate skill. It reports what changed and does not issue a review verdict. |
 
 ## Invariants / rules
 

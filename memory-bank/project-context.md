@@ -6,9 +6,9 @@ Language: English
 | Field | Value |
 |-------|--------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-10-09T13:51:08.7695991Z |
+| **Inventory at** | 2026-10-09T22:01:32.3234953Z |
 | **Status** | ready |
-| **Inventory hash** | `678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07` |
+| **Inventory hash** | `c97a99d739c2692581e2bec63cfc6f1b895834b45e5db88e21b03fd72fcdfea6` |
 | **Primary stack signals** | markdown, powershell (131 sources; 46 skills; 90 assert scripts) |
 <!-- END GENERATED: inventory-summary -->
 
@@ -23,7 +23,7 @@ Language: English
 
 ## Boundaries
 
-- In scope: `core/` (skills, policy, router, SDD contracts), `adapters/` (registry publish surfaces), CLI under `scripts/` (`toolkit.ps1`, `sync-agent.ps1`, `validate-agent.ps1`), in-repo install fixtures, and CI that runs validate-core plus fixture smokes.
+- In scope: `core/` (skills, policy, router, SDD contracts), `adapters/` (registry publish surfaces), CLI under `scripts/` (`toolkit.ps1`, `sync-agent.ps1`, `validate-agent.ps1`), in-repo install fixtures, and CI on pull requests to `develop` (`validate`, adapter smokes, `docs-strict`, gate `ci-ok`). The default `validate` job runs named asserts and an `-AllowUserHome` probe under a disposable profile. It does not run `validate-core` or sync a real user home.
 - Out of scope: Spec Kit, uv, and specify as a runtime dependency; SQLite/FTS as a deliverable.
 
 ## Links

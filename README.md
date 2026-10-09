@@ -96,7 +96,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (42)
+## Skills preview (46)
 
 | Group | Examples |
 |-------|----------|
@@ -105,7 +105,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `ada
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Docs RAG | `document-plan`, `document-implement` |
-| Ops | `help-skills`, `code-review`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, … |
+| Ops | `help-skills`, `code-review`, `implementation-survey`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, … |
 
 Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`.
 
