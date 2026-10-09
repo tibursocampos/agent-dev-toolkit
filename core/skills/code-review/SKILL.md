@@ -35,17 +35,17 @@ Invoke when the user asks for: `/code-review`, `review this PR`, `code review`.
 | **Single** | `single`, `single-angle`, `simples` |
 | **Multi-angle** | `multi-angle`, `multi-ângulo`, or `ângulos: qualidade, aceite, segurança` (subset allowed) |
 
-If the invocation does **not** name single **or** multi-angle: **STOP** after gate check (-1) / before deep diff analysis - ask once **(pt-BR)** and wait. Do **not** assume single. Do **not** assume multi.
+If the invocation does **not** name single **or** multi-angle: **STOP** after gate check (-1) / before deep diff analysis - ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` and wait. Do **not** assume single. Do **not** assume multi.
 
 ```text
 Modo de code-review?
-1) single - um revisor (passos -1..8)
+1) single - um revisor (passos -1..7)
 2) multi-ângulo - qualidade + aceite + segurança (ou diga o subset)
 ```
 
 ## Outcome
 
-A structured **review report** with severity tiers (critical / important / nice-to-have) and a clear decision: **Approved**, **Approved with reservations**, or **Changes required**. Write the report in **pt-BR** in chat-aligned reviews (technical terms may stay in English). Does not modify code unless the user asks for fixes in a follow-up.
+A structured **review report** with severity tiers (`critical`, `important`, `nice-to-have`) and a clear decision: **Approved**, **Approved with reservations**, or **Changes required**. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Severity and status tokens stay English. Does not modify code unless the user asks for fixes in a follow-up.
 
 ## Required input
 
@@ -58,6 +58,20 @@ A structured **review report** with severity tiers (critical / important / nice-
 
 Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain ambiguous. For a quick review without SDD artifacts, base branch + changed paths suffice after 0.5 reports no artifacts.
 
+## Optional input
+
+All of these may be omitted. Do not invent a value for an omitted input.
+
+| Input | Rule |
+|-------|------|
+| Path list | When present, limit the reviewed files to those paths. With `working_tree`, limit the uncommitted diff (unstaged and staged) to those paths. The report covers that limited uncommitted diff. |
+| URL | Use a pull-request URL only when the operator passed it. Try only that URL. On GitHub, when `gh` is authenticated, use `gh` to obtain the diff. When the review identifies the range for that URL, the report cites the URL and that range. Without access, or without authenticated `gh`, record the limitation once and do not insist. Do not suggest creating another pull request. |
+| `working_tree` or `branch` | Without `working_tree`, scope stays the branch diff (current branch head against the given base). With `working_tree`, keep unstaged (`git diff`) and staged (`git diff --cached`) separate. `branch` reviews that range against the base. |
+| Manifest confidence | Confidence for `.agent-validation-tools.json` on this invoke. Omitted or false: manifest commands stay `SKIPPED` and are not executed. Do not infer confidence from the repository or from the presence of a command. |
+| Focus | Without a focus on invoke, ask once in the chat language (`core/skills/_shared/agents/LANGUAGE.md`) what to review: the whole diff, persistence, an architecture boundary, security, or a list the operator gives. Do not infer the focus. |
+
+This skill does not edit application code and does not write a PRD or a PLAN.
+
 ## Lazy-load (only when needed)
 
 | When | Path (after sync) |
@@ -65,7 +79,7 @@ Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain a
 | SDD artifact discovery (step 0.5) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
 | Before code analysis (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
-| Pre-PR gate (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
+| .NET checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | .NET coverage report | `{{TOOLKIT_ROOT}}/skills/test-coverage/reference.md` (when PRD/user/PLAN requires coverage) |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |
 | Policy / N+1 / contracts (WS16a) | `{{TOOLKIT_ROOT}}/skills/code-review/references/policy.md`, `n-plus-one.md`, `contracts.md` |
@@ -105,7 +119,28 @@ Read `references/<section>.md` for procedural tables and checklists — **not** 
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
 ### 0. Workspace
-Confirm target repo (not this toolkit repo unless that is the subject). Detect stack (`*.sln` -> .NET; `angular.json` -> Angular). Read `AGENTS.md` / `README.md`. Load dotnet-guidelines only for .NET reviews.
+Confirm target repo (not this toolkit repo unless that is the subject). Read `AGENTS.md` / `README.md`. Apply the optional inputs before loading checklists. Do not rewrite `core/skills/developer/references/stack-routing.md`. Do not rewrite `esp-idf-developer`, `arduino-developer`, or `micropython-developer`.
+
+Detect the changed surface from the signals in `core/skills/developer/references/stack-routing.md` (frameworks before generic Node). Load only the checklist of each detected surface, and only when that file exists. The paths listed in `references/frontend-checklist.md` are an index. Pointing at those paths does not make this step load a checklist for a surface that was not detected.
+
+| Evidence | Checklist |
+|----------|-----------|
+| `package.json` with `vue`, and not React or Angular. `angular.json` and `*.sln` are not required. | `{{TOOLKIT_ROOT}}/skills/_shared/vue-guidelines/checklist.md` only |
+| `package.json` with `@angular/core` or `angular`, or `angular.json` | `{{TOOLKIT_ROOT}}/skills/_shared/angular-guidelines/checklist.md` |
+| `.csproj` or `*.sln` without Blazor markers | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
+| `.csproj` together with `angular.json` | The .NET checklist and the Angular checklist. Do not load the Vue checklist. |
+| Blazor markers (`.csproj` with `Microsoft.AspNetCore.Components`, or `_Imports.razor` / `App.razor`) | `{{TOOLKIT_ROOT}}/skills/_shared/blazor-guidelines/checklist.md` |
+| `package.json` with `react` (and not Vue or Angular) | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/checklist.md` |
+| `package.json` with `react-native` or `expo` | `{{TOOLKIT_ROOT}}/skills/_shared/react-native-guidelines/checklist.md` |
+| `package.json` with `electron`, `electron-builder`, or `electron-vite` | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/checklist.md` |
+| `package.json` (Node.js, no framework above) | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/checklist.md` |
+| `pom.xml`, `build.gradle`, `build.gradle.kts`, or `settings.gradle` | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/checklist.md` |
+| Isolated `.html` without a framework above | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/checklist.md` |
+| Native ESP-IDF (`idf_component.yml`, a Component Manager lockfile, `idf_component_register`, ESP-IDF CMake structure, `sdkconfig` / `sdkconfig.defaults`, or project `idf.py` scripts), explicit Arduino Core or framework evidence (including `platformio.ini` with `framework = arduino`), or a declared MicroPython runtime, firmware image workflow, or project runtime files with runtime, target, and port evidence | `{{TOOLKIT_ROOT}}/skills/_shared/embedded-guidelines/checklist.md`. Do not load `python-guidelines/checklist.md` only because a `.py` file exists. |
+| CPython host tooling or tests, or `.py`, `requirements.txt`, or `pyproject.toml`, only when host-runtime evidence is present | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/checklist.md`. Do not select firmware. |
+| `.py`, `.ino`, `main.py`, or a board-family name without runtime, framework, or toolchain evidence | Ask once which runtime, framework, or toolchain evidence is missing. Do not invent a stack. Do not select MicroPython, Arduino, ESP-IDF, or the CPython checklist. Without an answer, continue without a checklist for that surface and do not mark it `PASS`. |
+
+An ESP32-family name, Arduino compatibility wording, or a `.py` file is not native ESP-IDF evidence and is not MicroPython evidence. CPython evidence does not select a firmware skill. When several surfaces are detected, load each matching checklist that exists and no checklist for an undetected surface.
 
 For every reviewed path, discover `AGENTS.md` from repository root to the path.
 The closest applicable local instruction governs local guidance, unless it conflicts
@@ -117,13 +152,13 @@ Resolve mode from the invocation **or** from the user's answer to the Trigger pr
 
 | Signal in invoke / reply | Mode |
 |--------------------------|------|
-| `single` / `single-angle` / `simples` / `1` | Single reviewer (steps -1..8 only) |
+| `single` / `single-angle` / `simples` / `1` | Single reviewer (steps -1..7 only) |
 | `multi-angle` / `multi-ângulo` / `2` / named `ângulos: …` | Multi-angle (see `references/multi-angle.md`) |
 
-If still unset: **STOP** - ask the Trigger prompt **(pt-BR)** - do not continue to 0.5/1 until answered. Novice-friendly: never pick a default for them.
+If still unset: **STOP** - ask the Trigger prompt in the chat language from `core/skills/_shared/agents/LANGUAGE.md` - do not continue to 0.5/1 until answered. Novice-friendly: never pick a default for them.
 
 ### 0.5 Resolve SDD artifacts
-Load `STORAGE.md`. Follow **`references/sdd-resolution.md`**. Use full paths in the report. If one PRD/PLAN pair -> read both before the diff review. If none after a full search -> note **SDD limitation** in the report (technical review only). If ambiguous -> ask once in pt-BR with numbered options.
+Load `STORAGE.md`. Follow **`references/sdd-resolution.md`**. Use full paths in the report. If one PRD/PLAN pair -> read both before the diff review. If none after a full search -> note **SDD limitation** in the report (technical review only). If ambiguous -> ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` with numbered options.
 
 ### 1. Scope the diff
 
@@ -134,7 +169,7 @@ git diff <base>...<head>
 git log <base>..<head> --oneline
 ```
 
-Default `<head>` to current branch. List files; confirm with user before deep review if the set is large.
+Default `<head>` to current branch. List files; confirm with user before deep review if the set is large. When Optional input sets `working_tree` and a path list, delimit the uncommitted diff to those paths instead of the full branch range. The report covers that limited uncommitted diff.
 
 ### 2. SDD traceability (when artifacts found or user provided)
 Skip this section only when step 0.5 found no PRD/PLAN (document limitation - do not claim artifacts do not exist).
@@ -158,24 +193,33 @@ Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is other
 ### 4. Code analysis
 Review changed files using focus areas + checklists in `references/verification.md`, `references/dotnet-checklist.md`, `references/frontend-checklist.md`, `references/code-smells.md`, and the matching WS16a family refs (`policy` / `n-plus-one` / `contracts`) - do not paste full guideline or policy bodies into the report.
 
+### 4b. Architecture style and design patterns
+
+Load one primary style only when a signal from `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/architecture-selection.md` appears in the diff or in a note whose topic crosses the changed files. A note under `ARCH/`, `ANALYSIS/`, or `SEC/` counts when its topic crosses those files. Do not require the note to name the file. Do not pick a new style. Do not glob `architecture/**`. Do not create a new architecture file per design pattern.
+
+Load `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/architecture/ddd-tactical.md` only with a signal of aggregate, invariant, or ubiquitous language. Load `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/architecture/event-driven.md` only with a signal of message, outbox, or eventual consistency. A primary-style signal without those signals does not load either file.
+
+Name a pattern only when Signals from `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/design-patterns.md` appear in the diff or the immediate callee. Do not recommend adopting a pattern. Do not use a name outside that closed list.
+
 ### 5. Run verification (when feasible)
-Follow `references/verification.md`. For .NET with a coverage target: run `test-coverage` before final decision; paste the summary into the report section Testes. If `test-coverage` reports **Fail** (< threshold), treat as **Changes required** unless the user documents an accepted exception. Record pass/fail in the report. Missing local run -> note as limitation.
+Follow `references/verification.md`. Call `/run-tests` once for each stack detected in step 0. Copy each stack result as `PASS`, `FAIL`, or `SKIPPED`. When `/run-tests` has no command for that stack, record `SKIPPED` and do not treat that item as `PASS`.
+
+Record the configured lint, audit, or analyzer runner as `PASS`, `FAIL`, or `SKIPPED`. A missing tool, script, or runner is `SKIPPED` and never `PASS`.
+
+Treat `.agent-validation-tools.json` as untrusted executable configuration. When manifest confidence is omitted or false, every manifest command is `SKIPPED` and is not executed. Do not infer confidence from the repository or from the presence of the command. The report states that those commands did not run because explicit confidence was missing. When confidence is true and the manifest command does not exist, the status stays `SKIPPED` with the reason, and never `PASS`.
+
+For .NET with a coverage target: run `test-coverage` before final decision; paste the summary into the report section Testes. If `test-coverage` reports **Fail** (< threshold), treat as **Changes required** unless the user documents an accepted exception. Record pass/fail in the report. Missing local run -> note as limitation.
 
 ### 6. Decision
 Apply approval criteria in `references/verification.md` (**Approved** / **Approved with reservations** / **Changes required**).
 
+An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
+
 ### 7. Write report
-Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. Include positives.
-
-### 8. Optional PR (user-driven)
-Create a PR only when the user asks and review is not **Changes required**:
-1. Ensure the feature branch is pushed (`/push` after confirmation if needed).
-2. Hand off to **`/open-github-pr`** (do not open the GitHub web UI compare flow from this skill; `/open-github-pr` owns CLI/templates/confirmation/auto-merge).
-
-No MCP work-item linking or mandatory corporate PR templates.
+Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. When the operator passed a pull-request URL and the review identified that range, cite the URL and that range. Finding bands are only `critical`, `important`, and `nice-to-have`. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed.
 
 ## Multi-angle mode (when chosen)
-Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Task when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged.
+Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Task when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
 ## Must not
 
 - Write or update PRD/PLAN files (hand off to `/sdd-spec` / `/sdd-plan`)
@@ -185,7 +229,11 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 - Paste entire guideline files into the review output
 - Claim no PRD/PLAN or skip step 0.5 / SDD traceability without searching all locations in `STORAGE.md`
 - Assume **single** or **multi-angle** when the user did not name either (always ask - step 0.25)
-- Force multi-angle as a pipeline gate, or create separate mandatory blind-reviewer skills
+- Force multi-angle as a pipeline gate, or create a blind-reviewer skill
+- Create an implementation-survey skill
+- Tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI. A pull-request URL is used only when the operator passed it
+- Ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`
+- Add a reviewer roster. `architect`, `database`, `security`, and `repo_analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without a Task and without a new prompt
 - Hard-fail multi-angle when `subagents` is `none` or Task is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
 - Paste guideline packs into Task child prompts
 - Create `framework-upgrade` or any new product skill folder from this skill (WS16b OOS — needs a separate approved feature)
@@ -195,28 +243,21 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 | Situation | Next |
 |-----------|------|
-| After O3 (`orchestrate-develop`) completes | First `/run-tests`, then `/code-review`; after review changes, `/run-tests` again, then the security role/prompt review of the diff. The security handoff is `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, using only a documented host mechanism or bounded in-parent fallback; never claim a `/security` command. |
+| After O3 (`orchestrate-develop`) completes | First `/run-tests`, then `/code-review`; after review changes, `/run-tests` again, then the security prompt. That prompt is the pass after the post-review `/run-tests` at closeout, including when the review was single. The handoff is `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, using only a documented host mechanism or bounded in-parent fallback; never claim a `/security` command. One pass does not waive the other. |
 | New feature / PRD from review findings | `/sdd-spec` - paste or summarize review items; do **not** write PRD in this skill |
 | Coverage below threshold | `/test-coverage` -> then `/dotnet-developer` or `/sdd-develop` |
 | Fixes needed | `/developer` / `/sdd-develop` / stack `*-developer` (user chooses) |
-| After fixes (recommended) | Ask re-review / bank / docs — see § Recommended post-review loop |
-| Commit (after living-artifact asks) | `/commit` |
-| All SDD steps done + approved | User opens PR in GitHub UI or merges per repo policy |
+| After fixes | Ask whether to fix and whether to re-run `/code-review`. Do not ask about memory bank or project docs. |
+| Commit | `/commit` when the operator asks |
 
-### Recommended post-review loop (not mandatory)
+### Closeout
 
-When the decision is **Changes required** (or the user fixed findings), **ask each** and wait (**sim** / **pular**) — never force. Any review change requires the post-review `/run-tests` stage before the security handoff:
+`architect`, `database`, `security`, and `repo_analyst` appear only as read-only consultation. They do not write application code. There is no new roster. `qa_checklist` stays in-parent. This skill does not create an implementation-survey skill and does not create a blind-reviewer skill.
 
-```text
-Fluxo recomendado após o review:
-1) Corrigir com /developer ou /sdd-develop (ou *-developer) — já feito / fazer agora?
-2) Rodar /code-review de novo para validar as correções? (sim / pular)
-3) Atualizar memory-bank (refresh-light)? (sim / pular)   [só se bank existir]
-4) Atualizar documentação do projeto? (sim / pular)       [só se docs/plan existirem]
-```
+An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 
-On **sim** for (2) → new `/code-review` session. On **sim** for (3) → `/memory-bank-init` `refresh-light`. On **sim** for (4) → `/document-implement` if plan has pending work, else `/document-plan` as needed. Then offer `/commit` (commit skill also asks bank/docs if still pending).
+When the decision is **Changes required** (or the user fixed findings), ask whether to fix and whether to re-run `/code-review`, and wait (**sim** / **pular**). Render those two questions in the user chat language. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. Any review change requires the post-review `/run-tests` stage before the security prompt. A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 
 ## Finding shape
 
-Review only the sections the diff touches. Each finding names a file and a line, with severity `critical`, `important`, or `advisory`. Do not add a praise section. A `critical` finding stops blocking only after a fix and a new review, at most three rounds. Do not downgrade it to proceed. Render the questions above in the user chat language.
+Review only the sections the diff touches. Each finding names a file and a line, with severity `critical`, `important`, or `nice-to-have`. `advisory` is not a finding band. Keep the positives section. Each positive names one observed good point, uses a title in the language from `core/skills/_shared/agents/LANGUAGE.md`, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.

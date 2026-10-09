@@ -160,7 +160,7 @@ If the invoke omits a mode, the skill asks once and loads **only** the chosen pl
 |------|----------------------------------|
 | Git (`commit` / `push` / `open-github-pr`) | Living-artifacts ask (bank / docs) before commit when present; confirm commit message; confirm push; PR feature vs release; confirm title/body; **always** ask auto-merge; merge method = feature **`--squash`** / release **`--rebase`**. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
 | `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs **`sim`** (silence ≠ approval); skill id must not pin a major |
-| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, recommended loop asks re-review / bank / docs (**sim**/**pular**) |
+| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (**sim**/**pular**). Do not ask about memory bank or project docs. |
 | Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + **sim**; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |

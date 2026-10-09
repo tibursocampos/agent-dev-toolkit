@@ -116,7 +116,7 @@ Design commands (`init`, `shape`, `craft`, `critique`, `audit`, `harden`, and ot
 
 ### `code-review`
 
-Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `advisory`. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
+Review of a branch against guidelines and, when found, PRD/PLAN. Asks single versus multi-angle. Findings name a file and a line, severity `critical`, `important`, or `nice-to-have`. `advisory` is not a finding band. A `critical` finding stays blocking until a fix and a new review, at most three rounds. Decisions: Approved, Approved with reservations, Changes required. Does not edit code. First step when an O3 scope closes. Detail: [05](05-review-and-quality.md).
 
 ### `test-coverage`
 

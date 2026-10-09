@@ -41,7 +41,7 @@ Sibling feature contracts (do **not** reopen CI asserts from enrich-only reviews
 - [ ] API/schema diffs: naming/versioning consistent with project or `api-standards` pointers — no proprietary contract dump
 - [ ] Reviewer findings that are **not** in PRD/PLAN are labeled invented/suggestion — not claimed as failed REQ
 
-**Severity hint:** portable-path / gate / SoT regressions → **critical** or **important**; missing Related cite → often **important**; style-only contract prose → **nice-to-have**.
+**Severity hint:** finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Portable-path / gate / SoT regressions → `critical` or `important`; missing Related cite → often `important`; style-only contract prose → `nice-to-have`.
 
 ## OOS (WS16b) — explicit
 

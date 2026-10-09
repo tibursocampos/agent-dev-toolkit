@@ -44,7 +44,7 @@ Run on the **changed** surface only; skip rows that do not apply.
 - [ ] Consumer-repo review: project `docs/standards/` / `AGENTS.md` preferred over dumping toolkit policy into the report
 - [ ] Language-surface diffs honor `LANGUAGE.md` matrix over hard-coded locale install defaults
 
-**Severity hint:** weakened gates / silent PRD writes / auto-merge → **critical** or **important**; cosmetic policy prose → **nice-to-have**.
+**Severity hint:** finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Weakened gates / silent PRD writes / auto-merge → `critical` or `important`; cosmetic policy prose → `nice-to-have`.
 
 ## CT6 marker (policy)
 

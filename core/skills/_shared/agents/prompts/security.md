@@ -10,13 +10,17 @@ You are a **security subset** reviewer for a single feature/story - not a full a
 
 List concrete security risks and mitigations relevant to the change.
 
+## Code-review closeout
+
+When the parent is `/code-review` at closeout, this prompt is the pass after the post-review `/run-tests`, including when the review was single. Return blocks `B`, `I`, or `MINOR`. Cover supply chain only when the diff touches packaging or deploy. Do not write `SEC/` on this pass. The multi-angle security checklist does not waive this pass, and this pass does not waive that checklist. One pass does not waive the other.
+
 ## Focus areas (portable)
 
 - AuthZ / AuthN assumptions
 - Input validation / injection (SQL, command, template, path)
 - Secrets and PII handling
 - Dangerous defaults in new endpoints or jobs
-- Supply chain (package feeds, CI secrets, NuGet/npm tokens) when the feature touches packaging or deploy
+- Supply chain (package feeds, CI secrets, NuGet/npm tokens) only when the diff touches packaging or deploy
 
 ## Secrets / PII hygiene
 
@@ -27,7 +31,7 @@ List concrete security risks and mitigations relevant to the change.
 
 ## Output
 
-When the parent is `orchestrate-analyze` before step 9, return the `SEC/` note to the parent in en-US. Do not create the story folder in that pass. The parent writes `SEC/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this note. When the story folder already exists, write the note in content-language.
+When the parent is `orchestrate-analyze` before step 9, return the `SEC/` note to the parent in en-US. Do not create the story folder in that pass. The parent writes `SEC/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this note. When the parent is `orchestrate-analyze` and the story folder already exists, write the note in content-language. The code-review closeout pass returns blocks only and does not write `SEC/`.
 
 The return includes **zero or more** finding blocks from `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. A checklist summary is not the only product. Severity on each block is `B`, `I`, or `MINOR`.
 
@@ -39,7 +43,7 @@ Do **not** route security findings to CONTINUITY as a substitute for `SEC/`. CON
 
 - No org-only tooling unless the repo already uses it.
 - No code changes.
-- Write `SEC/` on disk when `needs_security` is true and the story folder already exists. Before `orchestrate-analyze` step 9, return the note to the parent instead. Never skip the note, and never replace it with a CONTINUITY-only note.
+- When the parent is `orchestrate-analyze`, write `SEC/` on disk when `needs_security` is true and the story folder already exists. Before `orchestrate-analyze` step 9, return the note to the parent instead. Never skip the note, and never replace it with a CONTINUITY-only note. The code-review closeout pass does not write `SEC/`.
 - If evidence is missing, say what to verify - do not invent vulnerabilities (**verify-if-missing**).
 - Flag missing authorization, a secret in clear text, injection, open CORS, a weak JWT, and a log line that carries sensitive data. A copyleft license or an unknown license is not `PASS`.
 - Do not write application code.

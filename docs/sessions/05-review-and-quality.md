@@ -53,18 +53,17 @@ After the operator chooses multi-angle: one child per requested angle when `suba
 
 Default coverage target is **80%** line coverage on changed production files, via `/test-coverage`. No target means coverage is not a blocker. Fail without a documented exception is **Changes required**.
 
-The report is for the operator (chat language), with `path:line`, why, and how to fix, plus positives. This skill does not edit code and does not write PRD or PLAN.
+The report is for the operator, with `path:line`, why, and how to fix. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. This skill does not edit code and does not write PRD or PLAN.
+
+The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not replace the closeout pass in `core/skills/_shared/agents/prompts/security.md`, which still runs after the post-review `/run-tests`, including when the review was single. One pass does not waive the other.
 
 ### After the report
 
-Ask, and wait for **sim** or **pular** on each. Do not force the loop.
+Ask, and wait for **sim** or **pular**, whether to fix with `/developer`, `/sdd-develop`, or a stack `*-developer`, and whether to re-run `/code-review`. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. There is no memory-bank gate and no documentation gate in this skill.
 
-1. Fix with `/developer`, `/sdd-develop`, or a stack `*-developer`
-2. Re-run `/code-review`
-3. `memory-bank-init` refresh-light, if a bank exists
-4. Project docs, if `docs/` or a documentation plan exists (`document-implement` or `document-plan`)
+A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 
-Then `/commit`. A pull request is `/push` then `/open-github-pr`, and only when the operator asks and the decision is not Changes required. New scope found in the review goes to `/sdd-spec`, not into this skill’s editor.
+Then `/commit` when the operator asks. New scope found in the review goes to `/sdd-spec`, not into this skill’s editor.
 
 ## `test-coverage`
 
