@@ -179,7 +179,7 @@ The adapter-smoke matrices are separate jobs. Each uses `fail-fast: false`, `max
 
 ### Other workflows
 
-`publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
+`release.yml` is a manual `workflow_dispatch`. The input is `MAJOR.MINOR.PATCH`. The workflow fast-forwards `master` to `develop` only when `master` is an ancestor, then publishes tag `vVERSION`. `publish-release-bootstrap.yml` uploads bootstrap release assets (zip `agent-dev-toolkit.zip`, checksum `agent-dev-toolkit.zip.sha256`, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 
 `.github/workflows/docs.yml` builds the public MkDocs site on pushes to `master`/`main`/`develop` and manual dispatch; it is not run on pull requests because `validate-toolkit.yml` owns the required PR build. Only pushes to `master`/`main` deploy Pages.
 
@@ -188,7 +188,8 @@ The adapter-smoke matrices are separate jobs. Each uses `fail-fast: false`, `max
 | Tier | Trigger | Coverage and gate policy |
 |------|---------|--------------------------|
 | PR into `develop` | `pull_request` to `develop` | Named remaining checks, adapter-smoke matrices, `Assert-SyncAllowUserHomeForward` on Windows, and `docs-strict`; `ci-ok` is the required merge check. |
-| Release PR | `pull_request` to `master` or `main` | `enforce-release-source.yml` only. Head must be `develop`, which already passed `ci-ok`. |
+| Release | `workflow_dispatch` of `release.yml` | Fast-forward `master` to `develop`, then tag `vVERSION`. `develop` already passed `ci-ok`. |
+| Release PR | `pull_request` to `master` or `main` | `enforce-release-source.yml` only. Head must be `develop`. |
 | Release publish | Published release or manual dispatch from `master` or `main` | `publish-release-bootstrap.yml` packages and uploads the fixed bootstrap assets. |
 
 ### Local parity

@@ -1,0 +1,57 @@
+# Fast-forward master to develop and publish vMAJOR.MINOR.PATCH.
+# develop is the only integration branch. This workflow does not rebase and does not open a sync PR.
+# publish-release-bootstrap.yml runs when the GitHub Release is published.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version MAJOR.MINOR.PATCH. The tag is vVERSION.
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-master
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Fast-forward master and publish the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${RELEASE_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version must be MAJOR.MINOR.PATCH (got ${RELEASE_VERSION})" >&2
+            exit 1
+          fi
+          tag="v${RELEASE_VERSION}"
+          git fetch origin master develop --tags
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "tag ${tag} already exists" >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/master origin/develop; then
+            echo "origin/master is not an ancestor of origin/develop. Stop." >&2
+            exit 1
+          fi
+          develop_sha="$(git rev-parse origin/develop)"
+          master_sha="$(git rev-parse origin/master)"
+          if [[ "${develop_sha}" != "${master_sha}" ]]; then
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${develop_sha}:refs/heads/master"
+          fi
+          gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --target "${develop_sha}" --title "${tag}" --generate-notes

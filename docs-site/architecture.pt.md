@@ -265,7 +265,7 @@ O job `validate` no Windows:
 
 `validate-ubuntu` roda `Assert-InstallRootSafety.ps1` e `validate-core.ps1 -Quiet`; sua matriz separada de adapter-smoke roda os mesmos dez smokes de fixture da matriz Windows. `docs-strict` instala `docs-site/requirements-docs.txt` e roda `mkdocs build --strict -f docs-site/mkdocs.yml`.
 
-`publish-release-bootstrap.yml` envia o zip, o SHA256 e os entrypoints de bootstrap em `release` published e em `workflow_dispatch`. `enforce-release-source.yml` falha salvo se um pull request para `master` ou `main` vier de `develop`.
+`release.yml` é um disparo manual. Informe `MAJOR.MINOR.PATCH`. Ele avança `master` em fast-forward até `develop` quando `master` já é ancestral, e publica a tag `vVERSION`. `publish-release-bootstrap.yml` envia o zip, o SHA256 e os entrypoints de bootstrap em `release` published e em `workflow_dispatch`. `enforce-release-source.yml` falha salvo se um pull request para `master` ou `main` vier de `develop`.
 
 `.github/workflows/docs.yml` publica este site. É um workflow separado.
 
