@@ -245,7 +245,7 @@ Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` firs
 
 `validate-windows-adapter-smoke` runs the ten adapter CI smokes (Copilot is a suite). `validate-ubuntu` runs the same three named checks without `Assert-SyncAllowUserHomeForward`. The Ubuntu adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. `ci-ok` is the required gate for merge into `develop` only after every base, matrix, and docs job succeeds. Pull requests into `master` or `main` do not run this workflow.
 
-`publish-release-bootstrap.yml` uploads bootstrap release assets (zip, SHA256, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
+`release.yml` is `workflow_dispatch` with a `MAJOR.MINOR.PATCH` version. It fast-forwards `master` to `develop` when `master` is already an ancestor, then publishes tag `vVERSION`. It does not rebase and does not open a sync pull request. `publish-release-bootstrap.yml` uploads bootstrap release assets (zip, SHA256, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` still runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 
 `.github/workflows/docs.yml` exists and is not part of this guide.
 

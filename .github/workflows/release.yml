@@ -1,0 +1,97 @@
+# Fast-forward master to develop and publish vMAJOR.MINOR.PATCH.
+# develop is the only integration branch. This workflow does not rebase and does not open a sync PR.
+# Notes follow .github/RELEASE_TEMPLATE.md. Do not pass --generate-notes.
+# publish-release-bootstrap.yml runs when the GitHub Release is published.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version MAJOR.MINOR.PATCH. The tag is vVERSION.
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-master
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Fast-forward master and publish the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${RELEASE_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version must be MAJOR.MINOR.PATCH (got ${RELEASE_VERSION})" >&2
+            exit 1
+          fi
+          tag="v${RELEASE_VERSION}"
+          git fetch origin master develop --tags
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "tag ${tag} already exists" >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/master origin/develop; then
+            echo "origin/master is not an ancestor of origin/develop. Stop." >&2
+            exit 1
+          fi
+          develop_sha="$(git rev-parse origin/develop)"
+          master_sha="$(git rev-parse origin/master)"
+          previous_tag="$(git describe --tags --abbrev=0 origin/master)"
+          notes_file="${RUNNER_TEMP}/release-notes.md"
+          {
+            echo "## Highlights"
+            echo
+            highlight_count=0
+            while IFS= read -r subject; do
+              [[ -z "${subject}" ]] && continue
+              [[ "${subject}" =~ ^Merge[[:space:]] ]] && continue
+              [[ "${subject}" =~ ^(merge|release): ]] && continue
+              line="${subject% (#*}"
+              echo "- ${line}"
+              highlight_count=$((highlight_count + 1))
+            done < <(git log --format='%s' "${previous_tag}..${develop_sha}")
+            if [[ "${highlight_count}" -eq 0 ]]; then
+              echo "- No product changes since ${previous_tag}."
+            fi
+            echo
+            echo "## Included work"
+            echo
+            included_count=0
+            while IFS= read -r pr; do
+              [[ -z "${pr}" ]] && continue
+              title="$(gh pr view "${pr}" --repo "${GITHUB_REPOSITORY}" --json title --jq .title)"
+              echo "- [PR #${pr}: ${title}](https://github.com/${GITHUB_REPOSITORY}/pull/${pr})"
+              included_count=$((included_count + 1))
+            done < <(git log --format='%s' "${previous_tag}..${develop_sha}" | grep -oE '#[0-9]+' | tr -d '#' | awk '!seen[$0]++')
+            if [[ "${included_count}" -eq 0 ]]; then
+              echo "- None."
+            fi
+            echo
+            echo "## Release assets"
+            echo
+            echo 'Attached by `publish-release-bootstrap.yml` when this release is published: `agent-dev-toolkit.zip`, `agent-dev-toolkit.zip.sha256`, `bootstrap.bat`, `bootstrap.ps1`, `bootstrap.sh`.'
+            echo
+            echo "## Changelog"
+            echo
+            echo "Compare: https://github.com/${GITHUB_REPOSITORY}/compare/${previous_tag}...${tag}"
+          } > "${notes_file}"
+          if [[ "${develop_sha}" != "${master_sha}" ]]; then
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${develop_sha}:refs/heads/master"
+          fi
+          gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --target "${develop_sha}" --title "${tag}" --notes-file "${notes_file}"

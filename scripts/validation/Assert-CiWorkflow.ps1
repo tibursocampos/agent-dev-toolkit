@@ -436,6 +436,7 @@ $workflowTopology = @(
     @{ RelativePath = '.github/workflows/docs.yml'; ExpectedJobs = @('build', 'deploy'); Required = @('jobs:', 'build:', 'runs-on: ubuntu-latest', 'mkdocs build --strict -f docs-site/mkdocs.yml', 'deploy:', 'needs: build', 'actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e') }
     @{ RelativePath = '.github/workflows/enforce-release-source.yml'; ExpectedJobs = @('release-source'); Required = @('jobs:', 'release-source:', 'branches: [master, main]', 'github.head_ref', 'develop') }
     @{ RelativePath = '.github/workflows/publish-release-bootstrap.yml'; ExpectedJobs = @('publish'); Required = @('release:', 'types: [published]', 'workflow_dispatch:', 'permissions:', 'contents: write', 'publish:', 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262', 'gh release upload') }
+    @{ RelativePath = '.github/workflows/release.yml'; ExpectedJobs = @('release'); Required = @('workflow_dispatch:', '.github/RELEASE_TEMPLATE.md', '## Highlights', '## Included work', '## Release assets', '## Changelog', '--notes-file') }
 )
 foreach ($workflow in $workflowTopology) {
     $path = Join-Path $repoRoot ($workflow.RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
@@ -448,6 +449,14 @@ foreach ($workflow in $workflowTopology) {
         if ($text.IndexOf($marker, [System.StringComparison]::Ordinal) -lt 0) {
             Write-Fail -TestName $ciName -Reason ("workflow '{0}' missing topology marker '{1}'" -f $workflow.RelativePath, $marker)
         }
+    }
+}
+
+$releaseNotesTemplatePath = Join-Path $repoRoot '.github/RELEASE_TEMPLATE.md'
+$releaseNotesTemplateText = Get-Content -LiteralPath $releaseNotesTemplatePath -Raw
+foreach ($releaseHeading in @('## Highlights', '## Included work', '## Release assets', '## Changelog')) {
+    if ($releaseNotesTemplateText -notlike ("*{0}*" -f $releaseHeading)) {
+        Write-Fail -TestName $ciName -Reason ("release notes template missing heading '{0}'" -f $releaseHeading)
     }
 }
 

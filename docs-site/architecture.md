@@ -260,7 +260,7 @@ The Windows `validate` base job runs `Assert-CiWorkflow.ps1`, `Assert-GuardShell
 
 The Windows adapter-smoke matrix runs the ten agent smokes (Copilot is a suite). `validate-ubuntu` runs the same three named checks without `Assert-SyncAllowUserHomeForward`; its separate adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. Pull requests into `master` or `main` do not run this workflow.
 
-`publish-release-bootstrap.yml` uploads the zip, SHA256, and bootstrap entrypoints on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` fails unless a pull request into `master` or `main` comes from `develop`.
+`release.yml` is a manual dispatch. Pass `MAJOR.MINOR.PATCH`. It fast-forwards `master` to `develop` when `master` is already an ancestor, then publishes tag `vVERSION`. `publish-release-bootstrap.yml` uploads the zip, SHA256, and bootstrap entrypoints on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` fails unless a pull request into `master` or `main` comes from `develop`.
 
 `.github/workflows/docs.yml` publishes this site. It is a separate workflow.
 
