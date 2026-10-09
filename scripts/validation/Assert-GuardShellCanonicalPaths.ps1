@@ -66,4 +66,4 @@ Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellUsesCanonicalFeature
 Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellContainsSecret' -ExpectedDecision 'deny' -Command 'Write-Output password=fixturetoken'
 Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellTargetsRootPlanTree' -ExpectedDecision 'deny' -Command 'Remove-Item -Recurse -Path PLAN/legacy'
 Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellTargetsRootPrdTree' -ExpectedDecision 'deny' -Command 'Remove-Item -Recurse -Path PRD/legacy'
-Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellPathEscapesWorkspace' -ExpectedDecision 'deny' -Command 'Get-Content -LiteralPath "../outside-workspace.txt"'
+Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellPathEscapesWorkspace' -ExpectedDecision 'deny' -Command 'Set-Content -LiteralPath "../outside-workspace.txt" -Value outside'
