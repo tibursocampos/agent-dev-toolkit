@@ -36,7 +36,7 @@ docs/          operator documentation in the repository
 | Adapters | Publish skills, policy, router, hooks, and agents into the host layout. Smoke uses a fixture InstallRoot |
 | CLI | `scripts/toolkit.ps1` chooses the agent for sync, validate, and uninstall |
 | Install root | Destination. Default sync target is an in-repo fixture. A user-profile path needs `-AllowUserHome` |
-| CI | `validate-toolkit.yml` on `pull_request` to `master`, `main`, `develop`. A green run does not sync a live home |
+| CI | `validate-toolkit.yml` on `pull_request` to `develop` only. A green run does not sync a live home |
 
 Stable adapter commands: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills`, `Publish-Policy`, `Publish-Router`, `Publish-Agents`, `Publish-Hooks`, `Get-SddRoot`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`.
 
@@ -253,14 +253,11 @@ Live user skills: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publi
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Its topology is `validate` (`windows-latest`) → the Windows keyed-uninstall and adapter-smoke matrices; separately `validate-ubuntu` (`ubuntu-latest`) → the Ubuntu adapter-smoke matrix; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on all six validation jobs.
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate` (`windows-latest`) → the Windows adapter-smoke matrix; separately `validate-ubuntu` (`ubuntu-latest`) → the Ubuntu adapter-smoke matrix; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on those five jobs.
 
-The Windows `validate` base job:
+The Windows `validate` base job runs `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, `Assert-TraceEmitterFailOpen.ps1`, and `Assert-SyncAllowUserHomeForward.ps1`. It does not run `validate-core.ps1` or a keyed-uninstall matrix.
 
-1. `validate-core.ps1 -Quiet`
-2. `Assert-SyncAllowUserHomeForward.ps1`
-
-The Windows keyed-uninstall matrix runs the ten keyed-uninstall asserts. The Windows adapter-smoke matrix runs the ten agent smokes (Copilot is a suite). `validate-ubuntu` runs `validate-core.ps1 -Quiet`; its separate adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`.
+The Windows adapter-smoke matrix runs the ten agent smokes (Copilot is a suite). `validate-ubuntu` runs the same three named checks without `Assert-SyncAllowUserHomeForward`; its separate adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. Pull requests into `master` or `main` do not run this workflow.
 
 `publish-release-bootstrap.yml` uploads the zip, SHA256, and bootstrap entrypoints on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` fails unless a pull request into `master` or `main` comes from `develop`.
 

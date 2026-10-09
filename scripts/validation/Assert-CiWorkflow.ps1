@@ -271,6 +271,12 @@ if (-not (Test-Path -LiteralPath $validationTelemetryPath)) {
 # --- Should_DocumentCiWorkflowContract_When_WorkflowPresent ---
 $ciName = 'Should_DocumentCiWorkflowContract_When_WorkflowPresent'
 $workflowText = Get-Content -LiteralPath $workflowPath -Raw
+if ($workflowText -notmatch '(?m)^  pull_request:\r?\n    branches: \[develop\]\s*$') {
+    Write-Fail -TestName 'Should_DocumentCiWorkflowContract_When_WorkflowPresent' -Reason 'full validation suite must run only on pull_request to develop'
+}
+if ($workflowText -match '(?m)branches:\s*\[(?:master|main)') {
+    Write-Fail -TestName 'Should_DocumentCiWorkflowContract_When_WorkflowPresent' -Reason 'validate-toolkit must not run the full suite on pull_request to master or main'
+}
 $validateCoreText = Get-Content -LiteralPath $validateCorePath -Raw
 $workflowJobs = @{}
 foreach ($jobName in @(

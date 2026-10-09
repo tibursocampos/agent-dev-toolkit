@@ -10,7 +10,7 @@ Public OSS policy for **agent-dev-toolkit**: who the docs are for, what visitors
 |----------|--------|------------|
 | **Visitor** | Understand the toolkit, clone/fork, read policy | [README.md](../README.md), [INSTALL.md](INSTALL.md), [guides/01-getting-started.md](guides/01-getting-started.md), [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | **Operator** | Sync skills to an agent home, run validation | [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [ADAPTERS.md](ADAPTERS.md), [SKILLS.md](SKILLS.md) |
-| **Maintainer** | Change this repository (write access / collaborators) | [CONTRIBUTING.md](../CONTRIBUTING.md) (Maintainers only), [VALIDATION.md](VALIDATION.md). Required check **`ci-ok`** on `pull_request` to `develop`, `master`, and `main` (`.github/workflows/validate-toolkit.yml`). Release source: `.github/workflows/enforce-release-source.yml`. |
+| **Maintainer** | Change this repository (write access / collaborators) | [CONTRIBUTING.md](../CONTRIBUTING.md) (Maintainers only), [VALIDATION.md](VALIDATION.md). Required check **`ci-ok`** on `pull_request` to `develop` (`.github/workflows/validate-toolkit.yml`). Release pull requests into `master` or `main` require **`release-source`** (`.github/workflows/enforce-release-source.yml`) and do not rerun the full suite. |
 
 ## Policy pointers
 

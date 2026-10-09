@@ -158,7 +158,7 @@ agent-dev-toolkit/
 - Live agent home requires **`-AllowUserHome`**.
 - Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-CI runs on `pull_request` to `develop`, `master`, and `main` (not `push`). Jobs `validate` and `validate-ubuntu` feed the required check `ci-ok` (see `.github/workflows/validate-toolkit.yml`). `validate` runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, and all ten agent CI smokes. `validate-ubuntu` runs `Assert-InstallRootSafety`, `validate-core`, and the same ten fixture smokes. Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
+The full suite in `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only (not `push`, and not release pull requests). Jobs `validate` and `validate-ubuntu` run the named remaining checks; adapter-smoke matrices and `docs-strict` feed the required check `ci-ok`. `validate-core` and the keyed-uninstall matrix stay off that path. Release pull requests into `master` or `main` must come from `develop` (`enforce-release-source.yml`) and do not rerun this suite.
 
 ## License
 

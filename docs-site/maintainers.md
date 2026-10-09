@@ -14,7 +14,7 @@ License: MIT © 2026 Raphael Campos.
 |----------|--------|-------|
 | **Visitor** | Understand the toolkit, clone or fork, read policy | [Home](index.md), [Get started](get-started.md), this page |
 | **Operator** | Sync skills to an agent home, run validation | [Get started](get-started.md), [Adapters](adapters.md), [Using skills](using-skills.md) |
-| **Maintainer** | Change this repository (write access) | The section below. Required check **`ci-ok`** on `pull_request` to `develop`, `master`, and `main` (`.github/workflows/validate-toolkit.yml`). Release source: `.github/workflows/enforce-release-source.yml` |
+| **Maintainer** | Change this repository (write access) | The section below. Required check **`ci-ok`** on `pull_request` to `develop` (`.github/workflows/validate-toolkit.yml`). Release pull requests require **`release-source`** (`.github/workflows/enforce-release-source.yml`) and do not rerun the full suite. |
 
 | Topic | Where |
 |-------|--------|
@@ -67,7 +67,7 @@ Internal development uses Git on branches with write access.
 | `develop` | Integration |
 | `master` / `main` | Stable release |
 
-Pull requests are collaborators only. Prefer `/open-github-pr` (after `/commit` / `/push`), or use `.github/PULL_REQUEST_TEMPLATE.md` in the web UI. Feature and fix work targets **`develop`**. Release PRs are **`develop` → `master` or `main`**, enforced by `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop`, `master`, and `main`. The required CI check is **`ci-ok`**, which waits for six validation jobs: the Windows and Ubuntu base jobs, their keyed-uninstall and adapter-smoke matrices, and `docs-strict`. Branch protection must require `ci-ok`, not the job name `validate` alone.
+Pull requests are collaborators only. Prefer `/open-github-pr` (after `/commit` / `/push`), or use `.github/PULL_REQUEST_TEMPLATE.md` in the web UI. Feature and fix work targets **`develop`**. Release PRs are **`develop` → `master` or `main`**, enforced by `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. The required CI check on that base is **`ci-ok`**, which waits for the Windows and Ubuntu base jobs, their adapter-smoke matrices, and `docs-strict`. Branch protection on `develop` must require `ci-ok`, not the job name `validate` alone. Release pull requests require `release-source` and do not rerun this suite.
 
 ## Reporting a vulnerability
 

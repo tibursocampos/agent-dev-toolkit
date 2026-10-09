@@ -1,8 +1,11 @@
 name: Validate toolkit
 
+# Full suite only on pull requests into develop.
+# Release pull requests into master or main run enforce-release-source.yml only.
+# That workflow accepts develop alone, and develop already passed this suite.
 on:
   pull_request:
-    branches: [master, main, develop]
+    branches: [develop]
 
 permissions:
   contents: read

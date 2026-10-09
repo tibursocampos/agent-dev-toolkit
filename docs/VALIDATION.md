@@ -147,32 +147,35 @@ CI harnesses often copy a fixture to an ephemeral work root so the versioned see
 
 ## What CI runs
 
-Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `master`, `main`, and `develop` (no `push`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green.
+Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `develop` only (no `push`, and no pull request into `master` or `main`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green. The wide suite `validate-core.ps1` and the keyed-uninstall matrix are not jobs on this path.
 
-**Jobs (all must be green before merge):**
+**Jobs (all must be green before merge into `develop`):**
 
 | Job | Runner | Role |
 |-----|--------|------|
-| `validate` | `windows-latest` | Windows base: `validate-core` + `Assert-SyncAllowUserHomeForward` |
-| `validate-windows-keyed-uninstall` | `windows-latest` matrix | 10 keyed-uninstall asserts, after `validate` |
+| `validate` | `windows-latest` | Named remaining checks plus `Assert-SyncAllowUserHomeForward` |
 | `validate-windows-adapter-smoke` | `windows-latest` matrix | 10 adapter CI smokes, after `validate` |
-| `validate-ubuntu` | `ubuntu-latest` | Ubuntu base: `validate-core` (including InstallRoot safety) |
+| `validate-ubuntu` | `ubuntu-latest` | The same named remaining checks |
 | `validate-ubuntu-adapter-smoke` | `ubuntu-latest` matrix | 10 adapter CI smokes, after `validate-ubuntu` |
-| `docs-strict` | `ubuntu-latest` | Strict MkDocs build; required by `ci-ok` on pull requests |
-| `ci-ok` | `ubuntu-latest` | Required gate with `needs` on all six validation jobs |
+| `docs-strict` | `ubuntu-latest` | Strict MkDocs build; required by `ci-ok` |
+| `ci-ok` | `ubuntu-latest` | Required gate with `needs` on the five jobs above |
 
 ### Job `validate` (Windows base)
 
-1. `validate-core.ps1 -Quiet`
-2. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
+Named remaining checks, each in its own process:
 
-The keyed-uninstall and adapter-smoke matrices are separate jobs. Both use `fail-fast: false`, `max-parallel: 4`, and the same ten adapters; keyed uninstall runs `Assert-*-KeyedUninstall.ps1`, while adapter smoke runs `Invoke-*-CiSmoke.ps1 -Quiet` (Copilot is a suite).
+1. `Assert-CiWorkflow.ps1`
+2. `Assert-GuardShellCanonicalPaths.ps1`
+3. `Assert-TraceEmitterFailOpen.ps1`
+4. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
 
-`validate-ubuntu` runs `validate-core`, whose core checks include the InstallRoot safety assert. `validate-ubuntu-adapter-smoke` is a separate ten-entry matrix that depends on `validate-ubuntu`.
+The adapter-smoke matrices are separate jobs. Each uses `fail-fast: false`, `max-parallel: 4`, and the same ten adapters. Adapter smoke runs `Invoke-*-CiSmoke.ps1 -Quiet` (Copilot is a suite).
 
-`docs-strict` is the single strict MkDocs build for pull requests and is an explicit `ci-ok` dependency. The Pages workflow is intentionally not triggered by pull requests, so the same change does not build documentation twice. Documentation failures still block merge through `ci-ok`.
+`validate-ubuntu` runs the same three named remaining checks and does not run `Assert-SyncAllowUserHomeForward`. `validate-ubuntu-adapter-smoke` is a separate ten-entry matrix that depends on `validate-ubuntu`.
 
-`ci-ok` depends on `validate`, `validate-windows-keyed-uninstall`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict`. Do **not** merge with any required job red. Auto-merge must wait for `ci-ok`.
+`docs-strict` is the single strict MkDocs build for pull requests into `develop` and is an explicit `ci-ok` dependency. The Pages workflow is intentionally not triggered by pull requests, so the same change does not build documentation twice. Documentation failures still block merge into `develop` through `ci-ok`.
+
+`ci-ok` depends on `validate`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict`. Do **not** merge into `develop` with any required job red. Auto-merge must wait for `ci-ok`.
 
 ### Other workflows
 
@@ -184,15 +187,15 @@ The keyed-uninstall and adapter-smoke matrices are separate jobs. Both use `fail
 
 | Tier | Trigger | Coverage and gate policy |
 |------|---------|--------------------------|
-| PR / merge acceptance | `pull_request` to `develop`, `master`, or `main` | Full core/security coverage, keyed-uninstall and adapter matrices, `Assert-SyncAllowUserHomeForward`, and `docs-strict`; `ci-ok` is the required merge check. |
-| Nightly / manual | Not currently scheduled; workflows can be run with `workflow_dispatch` where provided | No test is demoted from the PR gate. If a nightly schedule is added, it must retain the same unique safety checks or add coverage explicitly. |
-| Release | Published release or manual dispatch | `publish-release-bootstrap.yml` packages and uploads the fixed bootstrap assets; release-source enforcement remains a separate PR guard. |
+| PR into `develop` | `pull_request` to `develop` | Named remaining checks, adapter-smoke matrices, `Assert-SyncAllowUserHomeForward` on Windows, and `docs-strict`; `ci-ok` is the required merge check. |
+| Release PR | `pull_request` to `master` or `main` | `enforce-release-source.yml` only. Head must be `develop`, which already passed `ci-ok`. |
+| Release publish | Published release or manual dispatch from `master` or `main` | `publish-release-bootstrap.yml` packages and uploads the fixed bootstrap assets. |
 
 ### Local parity
 
-Mirrors the workflow topology: run the Windows base checks, then the keyed-uninstall and adapter-smoke matrices; separately run the Ubuntu base checks, then its adapter-smoke matrix; run the strict MkDocs build. `ci-ok` covers all six required validation jobs.
+Mirrors the workflow topology: run the Windows named checks, then the adapter-smoke matrix; separately run the Ubuntu named checks, then its adapter-smoke matrix; run the strict MkDocs build. `ci-ok` covers those five jobs.
 
-The core suite is the invariant contract and remains on both Windows and Ubuntu. The adapter smoke matrices are the per-adapter portability contract and remain on both runners because the existing smoke scripts do not expose a supported reduced lane. Windows-only keyed-uninstall and `Assert-SyncAllowUserHomeForward` coverage remains mandatory; no security gate is demoted.
+`validate-core.ps1` remains the local wide suite. It is not a default CI job. The adapter smoke matrices stay on both runners. Windows-only `Assert-SyncAllowUserHomeForward` stays on the `validate` job.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
