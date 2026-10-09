@@ -1,7 +1,7 @@
 ﻿# Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory (2026-10-03T01:54:07.4768932Z; hash `e6945fcf9ff1624d36f42fce412054838856a6b6d8f5518d1f219bf3f1469725`)._
+_Entry points and layout hints from inventory (2026-10-09T13:51:08.7695991Z; hash `678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07`)._
 
 | Signal | Path |
 |--------|------|
@@ -14,6 +14,7 @@ _Entry points and layout hints from inventory (2026-10-03T01:54:07.4768932Z; has
 | Policy | `core/policy/` |
 | Router index | `core/router/AGENTS.md` |
 | SDD storage contract | `core/sdd/STORAGE.md` |
+| Shared path guard | `adapters/_shared/GuardCommon.ps1` |
 <!-- END GENERATED: inventory-summary -->
 
 ## Overview

@@ -1,895 +1,937 @@
 {
-    "schema_version":  3,
-    "repo":  "agent-dev-toolkit",
-    "repo_path":  ".",
-    "bank_path":  "memory-bank",
-    "generated_at":  "2026-10-04T01:15:53.2738872Z",
-    "stale_days":  90,
-    "status":  "ready",
-    "status_reason":  "sources indexed with hash and summary",
-    "inventory_hash":  "d174c73fdb272308b6c6e145413efbaa84cc40feb69a37e0a8d6439f99721136",
-    "inventory_summary":  "125 source(s); stack: markdown, powershell",
-    "stack_hints":  [
-                        "markdown",
-                        "powershell"
-                    ],
-    "skill_count":  42,
-    "assert_script_count":  86,
-    "sources":  [
-                    {
-                        "path":  ".github/workflows/docs.yml",
-                        "last_write_utc":  "2026-09-14T23:46:19.8781656Z",
-                        "length":  1771,
-                        "hash":  "f23e0b3777edab3068c11326d7cc08ff12bfbcd487e74d0db58799cf7135e6c6",
-                        "summary":  "Build on every trigger; deploy only from push to master/main (see deploy job)."
-                    },
-                    {
-                        "path":  ".github/workflows/enforce-release-source.yml",
-                        "last_write_utc":  "2026-08-01T19:41:10.1434601Z",
-                        "length":  500,
-                        "hash":  "a8d283ec12348d121e3537828e9c4a9d8bf24672ff4898ba7eed1870efff67af",
-                        "summary":  "name: Enforce release source"
-                    },
-                    {
-                        "path":  ".github/workflows/publish-release-bootstrap.yml",
-                        "last_write_utc":  "2026-09-24T22:10:07.5633721Z",
-                        "length":  2980,
-                        "hash":  "9e51e708f9bea6e9f1dfc5601b66c8c8de48b6173aeecc3d0fb508dd3820dfaa",
-                        "summary":  "Publish Release assets for Option 0 bootstrap (HTTPS zip + SHA256 + entrypoints)."
-                    },
-                    {
-                        "path":  ".github/workflows/validate-toolkit.yml",
-                        "last_write_utc":  "2026-10-03T19:13:14.2193458Z",
-                        "length":  6828,
-                        "hash":  "41f45c395b6952730b812cc217a98a3e401fc800794a1a76d9831573b53d21af",
-                        "summary":  "In-repo core suite only — no sync to USERPROFILE / agent home."
-                    },
-                    {
-                        "path":  ".gitignore",
-                        "last_write_utc":  "2026-09-24T21:10:40.9197326Z",
-                        "length":  5710,
-                        "hash":  "327d7bbb69c0da821d4b4e7fbc9a80eabd097b0d5596b732e4ebc2903d993121",
-                        "summary":  "SDD artifacts (local agent workflow - agent-dev-toolkit)"
-                    },
-                    {
-                        "path":  "adapters/antigravity/AntigravityAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.2986880Z",
-                        "length":  41885,
-                        "hash":  "cb7c98145aff5774e50c6eb153c4ca9f4dee80c64ae1468932ded15b97cbe987",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/antigravity/Publish-AntigravityHooks.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.2258078Z",
-                        "length":  8388,
-                        "hash":  "7fcaa20e85d944fda2d14aae95179a72ed7484afe1324bfb9e7bb53b71643d52",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/antigravity/Publish-AntigravityPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7403542Z",
-                        "length":  10408,
-                        "hash":  "4b9fd14856091b675509ff0b30e077ac5d99fdf655348fb1656f3635ccfa1838",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/antigravity/Publish-AntigravityRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7413555Z",
-                        "length":  9298,
-                        "hash":  "deb8caba6b7fc5357cd42dab3c7e8334376138e723d460a26646961181cea1d9",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7430259Z",
-                        "length":  11134,
-                        "hash":  "fd27bb052710752351797e8c81d81e60c914f30c5ba222523e17e6d966d02a56",
-                        "summary":  "Explicitly never touch legacy bridge."
-                    },
-                    {
-                        "path":  "adapters/claude/ClaudeAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.2986880Z",
-                        "length":  12468,
-                        "hash":  "fc291396b012e9df96dc95edbb8e4fe22f0b0563b0cc36fb5772d26c8c4ed9b9",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/claude/Publish-ClaudeAgents.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5409729Z",
-                        "length":  3932,
-                        "hash":  "10d1e4d754b9abc31b476821682e9390857dc6117f0d5562c4f78180cd9e0783",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/claude/Publish-ClaudeHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7440149Z",
-                        "length":  7080,
-                        "hash":  "50d726d23fd48fc700d68737bb9a0e16ec07b7ba5bc46a6621447079d1c0afcc",
-                        "summary":  "Shared path/secret helpers beside published hooks."
-                    },
-                    {
-                        "path":  "adapters/claude/Publish-ClaudePolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7450232Z",
-                        "length":  4379,
-                        "hash":  "7338bcf83e4f8e25d9ff44498df9951ea6987ebf20c1079ef5a98aeff39fb2fe",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/claude/Publish-ClaudeRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7460228Z",
-                        "length":  5965,
-                        "hash":  "4e1056e829325bd18b46d2003e71a958d42f755acff671a0498e270e3b673588",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/claude/Publish-ClaudeSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5409729Z",
-                        "length":  7828,
-                        "hash":  "fa294d80493d50b87a783ec1cd8288e6805a7b4d8bfcc10d531ad221042b0dfb",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/claude/Uninstall-ClaudeToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7467727Z",
-                        "length":  15516,
-                        "hash":  "fe6f0d2514caf63cf86d0d3e8e38de20763517d6e879862000a68ba465ed9c91",
-                        "summary":  "Script-scope load so Remove-* helpers can call Assert-PathUnderInstallRootForDelete"
-                    },
-                    {
-                        "path":  "adapters/codex/CodexAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5521495Z",
-                        "length":  21456,
-                        "hash":  "4d0e57da2bc910953d56cc8cd27fbd85324535efb6b0d42f8ae9f9e6eeeb9a07",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/codex/Publish-CodexAgents.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7483120Z",
-                        "length":  8446,
-                        "hash":  "354e679d1e7e27216f1ef06f3b6a76e61963d91e27081021b3be22ab0194ca93",
-                        "summary":  "Load SPAWN knobs at script scope (dotsource inside a function stays local-only)."
-                    },
-                    {
-                        "path":  "adapters/codex/Publish-CodexHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7487940Z",
-                        "length":  9237,
-                        "hash":  "c8236f3c60fa7ef2a5419358032d7aac175b585a8aa5c8c3492af96012f4dcd0",
-                        "summary":  "Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets)."
-                    },
-                    {
-                        "path":  "adapters/codex/Publish-CodexPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7497807Z",
-                        "length":  4892,
-                        "hash":  "12e20c6318ecd38fbae87abd658629ee296af6c22032bd09ebaa65d4a9fd1c61",
-                        "summary":  "Policy/rules live under InstallRoot; TOOLKIT_ROOT matches Claude (InstallRoot)."
-                    },
-                    {
-                        "path":  "adapters/codex/Publish-CodexRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7502868Z",
-                        "length":  13281,
-                        "hash":  "d6702c2c804e0437844ab52486e8c874c7b3106892a09afd65d055b0c2e8ad2b",
-                        "summary":  "Defense-in-depth: strip any remaining repo docs path refs from published AGENTS."
-                    },
-                    {
-                        "path":  "adapters/codex/Publish-CodexSkills.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7510569Z",
-                        "length":  24046,
-                        "hash":  "9866f10b4d28b944fcf1a83950cbc0d605f8e8f817c4bf00234e505aa902d189",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/codex/Uninstall-CodexToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7525208Z",
-                        "length":  15428,
-                        "hash":  "a9350a4a99a7f7f7e531a05c6cf26fa3af56f14a5609d55f4e949756609bd77d",
-                        "summary":  "Unknown / corrupt catalog authored outside toolkit - leave untouched (RN07)."
-                    },
-                    {
-                        "path":  "adapters/copilot/CopilotAdapter.ps1",
-                        "last_write_utc":  "2026-10-03T02:44:41.7434429Z",
-                        "length":  27730,
-                        "hash":  "00cceb89a3ce30f611a3626496f8d50c4dd237bd81d5a037c376c4c4aee84747",
-                        "summary":  "Evidence classes keep documented product behavior separate from toolkit"
-                    },
-                    {
-                        "path":  "adapters/copilot/Publish-CopilotAgents.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7530255Z",
-                        "length":  6762,
-                        "hash":  "aeca92bec40cf292be9d39d01742dcb8450e80240380bb31c0845abe31db3ea9",
-                        "summary":  "Copilot CLI accepts both .md and .agent.md; VS Code discovers .agent.md."
-                    },
-                    {
-                        "path":  "adapters/copilot/Publish-CopilotHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7530255Z",
-                        "length":  7657,
-                        "hash":  "3b42690a7d2ee65b9229672a7fb36e76ff0bb0064ea14339fbb5669992b5d794",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/copilot/Publish-CopilotPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7540329Z",
-                        "length":  10703,
-                        "hash":  "0e8435e2839671bba78e148b83ee6fbe7f8bf97c4a690a978b5a8fd5e4f85521",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/copilot/Publish-CopilotSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  8967,
-                        "hash":  "8e9cc6c46b50a442444cf3f9bced451469e479183e24fa5e16174d17d83fac61",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/copilot/Uninstall-CopilotToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7550336Z",
-                        "length":  9586,
-                        "hash":  "548702f2bf7708478b928512ad33c2726a04f4a24d35f4a767b3463066d09601",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/cursor/CursorAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  10456,
-                        "hash":  "1f2d4d8eab7ff92036f4aff3736d4239059f0eca2819da070453e2be7d9498db",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/cursor/Publish-CursorAgents.ps1",
-                        "last_write_utc":  "2026-09-07T12:21:47.8438442Z",
-                        "length":  3775,
-                        "hash":  "8826f66ac0cdbd7d7d991b0f1fd5f8ba038b496b9ea2e50cf2abba76c5fd207c",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/cursor/Publish-CursorHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7560318Z",
-                        "length":  21109,
-                        "hash":  "15ad872170f3a218a5ca6dacf63ff3192851172685f11bbe58658985da2cc0f5",
-                        "summary":  "Script-scope load so path-gate asserts are available to Copy-/Write- helpers."
-                    },
-                    {
-                        "path":  "adapters/cursor/Publish-CursorPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7570328Z",
-                        "length":  5242,
-                        "hash":  "45e6dd9936a61c23a40cb9bcb4a220ce55d089ea268d04430f29b5894c7eaed3",
-                        "summary":  "Plain .md files in the shared rules folder have no verifiable ownership."
-                    },
-                    {
-                        "path":  "adapters/cursor/Publish-CursorRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7570328Z",
-                        "length":  4669,
-                        "hash":  "83c2b07441e5b8690d587d9cac606cd5fc26586186b58cf45774959ecd38f1ff",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/cursor/Publish-CursorSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  8172,
-                        "hash":  "25f1f130470cd687c4a3bc41f1ff4b00bbd5d4ad220d202570ce3b3fa93e8938",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/cursor/Uninstall-CursorToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7590326Z",
-                        "length":  16054,
-                        "hash":  "900ed597cb5debdbcf24fb7a300d8e58418b646b8e070f936f9bb9b09e41058e",
-                        "summary":  "Event had only toolkit handlers — drop empty event key."
-                    },
-                    {
-                        "path":  "adapters/grok/GrokAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  13665,
-                        "hash":  "80bb6c16503d94c25a10eaf931b854ddf426aae456850538b065de699dcd8bfd",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/grok/Publish-GrokAgents.ps1",
-                        "last_write_utc":  "2026-09-24T21:10:40.9227305Z",
-                        "length":  3704,
-                        "hash":  "2d7b878ff9d8142fbfaf855f5fd34a89a599e25f562268c28ae19949802523d3",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/grok/Publish-GrokHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7590326Z",
-                        "length":  10582,
-                        "hash":  "1adcfff50feccd8aaa8d10304544ad8d5ea8925bb2f18aaa3b1c8ec16e98de3d",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/grok/Publish-GrokPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7600339Z",
-                        "length":  4398,
-                        "hash":  "bd43234704321d4642a15ee9cf05ca5134117b6a58cd1c5bf7bcb6b2f3ffe668",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/grok/Publish-GrokRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7610358Z",
-                        "length":  8977,
-                        "hash":  "8e38865a5ddcb57ed51f26fd30a69dcaaf0cc1fe5ad0f1ceb262fa0ae53a5785",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/grok/Publish-GrokSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  9952,
-                        "hash":  "875eb0d57873759b63fbf954de67c559fa7fbdea9b747de17f261fd29ac81d6f",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/grok/Uninstall-GrokToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7620328Z",
-                        "length":  10897,
-                        "hash":  "0a52ebd4e9832b8919bf10af815afb5493a821391d4c53cec338fd32eb6d5e47",
-                        "summary":  "Script-scope load so Assert-PathUnderInstallRootForDelete is available"
-                    },
-                    {
-                        "path":  "adapters/hermes/HermesAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  13536,
-                        "hash":  "faf773adc31e89bbdac63c63beb8ff02bee9f6f9bf681550fdf313e47dfd8844",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/hermes/Publish-HermesHooks.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.1165800Z",
-                        "length":  16206,
-                        "hash":  "193860ba6e3f798ce86fcc24ed0044e8210546e9540b8bc5cd5ab9b608b97a9f",
-                        "summary":  "Best-effort executable bit; host may still invoke via sh/bash."
-                    },
-                    {
-                        "path":  "adapters/hermes/Publish-HermesPolicy.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7640346Z",
-                        "length":  13942,
-                        "hash":  "59619d91d7a4ad8c54cea8b82d1f2c6b1ab936f1062591573d7a77efd17ce165",
-                        "summary":  "Asset lives beside this publish script under adapters/hermes/assets/."
-                    },
-                    {
-                        "path":  "adapters/hermes/Publish-HermesRouter.ps1",
-                        "last_write_utc":  "2026-08-21T15:43:22.2968722Z",
-                        "length":  2680,
-                        "hash":  "c4712fad546d52210da15163630cb235b19b27b6a92be06ade9a6a354a98e6ce",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/hermes/Publish-HermesSkills.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7650329Z",
-                        "length":  16880,
-                        "hash":  "c1ffe6feef7485014257dbbe498d59c18a5d820fd65d4d05026083c9a4d3cb28",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/hermes/Uninstall-HermesToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7660329Z",
-                        "length":  14132,
-                        "hash":  "b34ee19122ebe8a96ac2fae1e7be595b4592f9b8ac53cd9e347fbfcb842c99b0",
-                        "summary":  "Names-only manifests cannot authorize recursive deletion of skill contents."
-                    },
-                    {
-                        "path":  "adapters/opencode/OpenCodeAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  18606,
-                        "hash":  "269eba87113c6ef5cd40248f72e1fb214418f546520a272e5fe031ba0d34384c",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/opencode/Publish-OpenCodeAgents.ps1",
-                        "last_write_utc":  "2026-09-24T21:10:40.9237299Z",
-                        "length":  4653,
-                        "hash":  "e1166e40cf0296ac46c6a725c704898964ef2d2e241a736132fa87f117b49018",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/opencode/Publish-OpenCodeHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7670352Z",
-                        "length":  9843,
-                        "hash":  "bcd9192a229c01c315c682ba837f4fde4dfb32424ff43a4a695eaa13be4b3c62",
-                        "summary":  "Re-assert after create / when dest already existed as a reparse child."
-                    },
-                    {
-                        "path":  "adapters/opencode/Publish-OpenCodeRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7680335Z",
-                        "length":  9437,
-                        "hash":  "f73d9ef5446687b50a98aa437760992ee8aec654ca6ec133209f91eb85dcd781",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/opencode/Publish-OpenCodeSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  8132,
-                        "hash":  "99c12ea1388f183e14644c81e3cd0afdbbeebd5d0f4a9c214957067054fca3ba",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7690339Z",
-                        "length":  8037,
-                        "hash":  "d1e1ca04acb14313eadfec029da6699d2d727ee31b7f51aa37192376b94a1188",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/OpenHandsAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5576300Z",
-                        "length":  13965,
-                        "hash":  "d6dd33573dd16471cd8918aebd1c1b451a106fd91c85b784c9b973d33fa590d2",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/Publish-OpenHandsAgents.ps1",
-                        "last_write_utc":  "2026-08-21T15:43:22.3129652Z",
-                        "length":  3460,
-                        "hash":  "7880f8e94d120f343a158828e8063e40742fd4c9c9e671c90e3248d8ea37d95b",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/Publish-OpenHandsHooks.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.2258078Z",
-                        "length":  11666,
-                        "hash":  "aaf844066f97cd8ea4593a9e542876a77a5312555d8f551fd7d53ed26452ee8b",
-                        "summary":  "Best-effort executable bit; host may still invoke via sh."
-                    },
-                    {
-                        "path":  "adapters/openhands/Publish-OpenHandsPolicy.ps1",
-                        "last_write_utc":  "2026-08-21T15:43:22.3181542Z",
-                        "length":  3532,
-                        "hash":  "2f9cf7d87a4f1ca2e59fb6857c70bb8643931662c851c6d21331c3f7b1ecd4af",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/Publish-OpenHandsRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7700337Z",
-                        "length":  9706,
-                        "hash":  "3675e3470933dce466acba66b570f5ea0b73857fe2cd92a1d5425e5e837875e2",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/Publish-OpenHandsSkills.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7710351Z",
-                        "length":  12287,
-                        "hash":  "138d8c24aa82ff15084daf6131029670fac293c74bc90286b0ff45e49f12e211",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7720344Z",
-                        "length":  9644,
-                        "hash":  "eca97e83b2723f62dd4c7af2f0aec6c608301e01a8b7de0f6c05c5b0aa376783",
-                        "summary":  "Names-only manifests cannot authorize recursive deletion of skill contents."
-                    },
-                    {
-                        "path":  "adapters/registry.json",
-                        "last_write_utc":  "2026-08-31T17:45:23.3462243Z",
-                        "length":  4204,
-                        "hash":  "83af9de6e09114ed21d0495a5666d9e502ed2b5479b87635705e023a815b81a0",
-                        "summary":  "{"
-                    },
-                    {
-                        "path":  "adapters/zcode/Publish-ZCodeAgents.ps1",
-                        "last_write_utc":  "2026-09-24T21:10:40.9237299Z",
-                        "length":  3793,
-                        "hash":  "bbe4579b367f4b1d3c6bff8c8540b7713ab9e55c4e685e16192804e1c42c5e13",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/zcode/Publish-ZCodeHooks.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7730344Z",
-                        "length":  15259,
-                        "hash":  "f1f4ce39ef40a23f64b9e3fa95a59fca1bc6102923958d1650bd960d92148f8f",
-                        "summary":  "Preserve JSON arrays with exactly one item. PowerShell otherwise"
-                    },
-                    {
-                        "path":  "adapters/zcode/Publish-ZCodeRouter.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7730344Z",
-                        "length":  11910,
-                        "hash":  "0adfdca7f7ad82d4ec17b2735c82fafecec26b5f7e249758f74df616b453cd3d",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "adapters/zcode/Publish-ZCodeSkills.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5688034Z",
-                        "length":  8883,
-                        "hash":  "26e5453d5edac8a7669387402b6574f9c84466580f55fe0fea992bfe1f0e7106",
-                        "summary":  "Load shared managed-tree helpers at script scope (dotsource inside a function"
-                    },
-                    {
-                        "path":  "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7740323Z",
-                        "length":  19146,
-                        "hash":  "46830dae9aab213f5b51deccc3cde09a891415a8ccb6e9f09e94b9b016bb4f04",
-                        "summary":  "Exact toolkit overlay leaf — drop."
-                    },
-                    {
-                        "path":  "adapters/zcode/ZCodeAdapter.ps1",
-                        "last_write_utc":  "2026-09-07T16:37:26.5688034Z",
-                        "length":  14341,
-                        "hash":  "113ffa594ff0d0b3a2a822de60feeebd4a191946a8d8472616116630734c4b41",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "CONTRIBUTING.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6459570Z",
-                        "length":  2940,
-                        "hash":  "62df493facff435df148a67f11450a62974569029eec9410218c8c6d58c9fcda",
-                        "summary":  "Repository policy"
-                    },
-                    {
-                        "path":  "core/router/AGENTS.md",
-                        "last_write_utc":  "2026-10-03T16:57:41.7760321Z",
-                        "length":  11443,
-                        "hash":  "18c712d1def70f7189a21a31da43c6e99c9026bc0bec9efa52b5a2f524a15152",
-                        "summary":  "Agent router (L0 index) - agent-dev-toolkit"
-                    },
-                    {
-                        "path":  "core/skills/_shared/agents/SPAWN.md",
-                        "last_write_utc":  "2026-10-03T16:57:41.7770322Z",
-                        "length":  13825,
-                        "hash":  "f2f0f6039925561e22b230ff400293348c59a25b0dcfcdd648d258426f290afe",
-                        "summary":  "Portable spawn contract (Orchestrated Delivery + developers)"
-                    },
-                    {
-                        "path":  "docs/ADAPTERS.md",
-                        "last_write_utc":  "2026-09-26T11:13:17.0676336Z",
-                        "length":  59817,
-                        "hash":  "cbb76af93399aedb6ad43ddfe70ade70e53ead15f79335ecaceeb3ae0b1380fa",
-                        "summary":  "Adapters"
-                    },
-                    {
-                        "path":  "docs/ARCHITECTURE.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1514550Z",
-                        "length":  15401,
-                        "hash":  "c6bbb66de25be575b43e363489d8905f7ab9413d73aea6710a6487077e0f7657",
-                        "summary":  "Architecture"
-                    },
-                    {
-                        "path":  "docs/CREDITS.md",
-                        "last_write_utc":  "2026-09-26T11:13:17.0697350Z",
-                        "length":  4393,
-                        "hash":  "21df2499648709b9de8825ca723801a23470248ed91afe1443e53a30a3892963",
-                        "summary":  "Credits and acknowledgments"
-                    },
-                    {
-                        "path":  "docs/DESIGN-BRIEF.md",
-                        "last_write_utc":  "2026-09-26T11:13:17.0676336Z",
-                        "length":  6310,
-                        "hash":  "d84c6d01fd1428fa2c58649f89acc1107a4458672bbad058cee0e20e6068ce67",
-                        "summary":  "DESIGN-BRIEF — Public docs site reading pass"
-                    },
-                    {
-                        "path":  "docs/documentation-plan/plan.md",
-                        "last_write_utc":  "2026-10-03T19:13:14.5320627Z",
-                        "length":  21944,
-                        "hash":  "cdd81b4e5ef23de800f6fd92c80a88f6408b56ebfbfbfa7e5c41ade75f1dd0cb",
-                        "summary":  "Documentation plan: agent-dev-toolkit"
-                    },
-                    {
-                        "path":  "docs/documentation-plan/SITE-HARDEN-PLAN.md",
-                        "last_write_utc":  "2026-08-03T12:58:43.2477739Z",
-                        "length":  7212,
-                        "hash":  "891893edab62264a2dace064d6fa7ab4382a2cd539686e05d7dc1186681d2377",
-                        "summary":  "SITE-HARDEN-PLAN — Docs site (GitHub Pages)"
-                    },
-                    {
-                        "path":  "docs/domains/adapters.md",
-                        "last_write_utc":  "2026-09-25T13:41:44.3576839Z",
-                        "length":  8677,
-                        "hash":  "fa406faf7adbfeb5e489ba4ec7a6ac7459fd7f6e73c5811e3528e99ad6cb0296",
-                        "summary":  "Domain: Adapters"
-                    },
-                    {
-                        "path":  "docs/domains/cli-scripts.md",
-                        "last_write_utc":  "2026-10-03T02:44:41.7695246Z",
-                        "length":  15585,
-                        "hash":  "0926a9efbcdd1efeb0e64f022a74cb7548cbbd029caf9df1375c2811f192d455",
-                        "summary":  "Domain: CLI scripts"
-                    },
-                    {
-                        "path":  "docs/domains/core.md",
-                        "last_write_utc":  "2026-10-03T02:44:41.7705211Z",
-                        "length":  31563,
-                        "hash":  "9520036162690dc4ca6fd17af26e18b308531d13e9b590f28bc9b54ba47aae18",
-                        "summary":  "Domain: Core"
-                    },
-                    {
-                        "path":  "docs/domains/git-ops.md",
-                        "last_write_utc":  "2026-09-25T13:41:44.3586847Z",
-                        "length":  8510,
-                        "hash":  "7cc631c111fffd6324aab014d16d8ccffc62d9f8e7a5f119ccdb05beab777a4b",
-                        "summary":  "Domain: Git ops"
-                    },
-                    {
-                        "path":  "docs/guides/01-getting-started.md",
-                        "last_write_utc":  "2026-10-03T19:13:14.5320627Z",
-                        "length":  7326,
-                        "hash":  "0a9c6612d478bf7efb490e053a764b082196190b91e3bb8b1ac041313f3e4e81",
-                        "summary":  "Getting started"
-                    },
-                    {
-                        "path":  "docs/guides/02-using-skills.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1545763Z",
-                        "length":  13928,
-                        "hash":  "dea9334b146ab7ad53a8d190cfc12e35fc832a8ae8a57be5c1c6afe054d586fa",
-                        "summary":  "Using skills"
-                    },
-                    {
-                        "path":  "docs/guides/08-orchestrator-mode.md",
-                        "last_write_utc":  "2026-09-26T11:13:17.0691257Z",
-                        "length":  2750,
-                        "hash":  "90a4b9e6aaa7d453083b7f769523f7b956948ebe43eec83d74027e4824421705",
-                        "summary":  "08 — Orchestrator mode"
-                    },
-                    {
-                        "path":  "docs/guides/09-authorship-git-notes.md",
-                        "last_write_utc":  "2026-09-25T13:41:44.3626914Z",
-                        "length":  2054,
-                        "hash":  "d3d1df6005005141eee0e05a1b35ea9abf2d7f6a099ba6ff3d7bd7c0c68a1aaa",
-                        "summary":  "Authorship git-notes (opt-in, beside TRACE)"
-                    },
-                    {
-                        "path":  "docs/guides/README.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1555772Z",
-                        "length":  6872,
-                        "hash":  "6bc6185aab1b0e807da6b4e2b7fb050eb682ddc4a1087f2021260c0623af24db",
-                        "summary":  "User guides"
-                    },
-                    {
-                        "path":  "docs/guides/session-behavior.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6890589Z",
-                        "length":  3454,
-                        "hash":  "e556574d6341da4324642fc152e4385769c7b32c3919cba957b4f47797fc7bea",
-                        "summary":  "Session behavior"
-                    },
-                    {
-                        "path":  "docs/INSTALL.md",
-                        "last_write_utc":  "2026-10-03T19:13:14.2193458Z",
-                        "length":  17286,
-                        "hash":  "fd3c736e44cb1cf11acba6a1aed8d69ba9ed55ce3687fd09c7b6db3baf537953",
-                        "summary":  "Install and sync"
-                    },
-                    {
-                        "path":  "docs/overview.md",
-                        "last_write_utc":  "2026-10-03T02:44:41.7705211Z",
-                        "length":  9230,
-                        "hash":  "23620ca1489ca8bba103f08bb122a9ccf8be86de36d219637c7478d123fa7e89",
-                        "summary":  "Overview"
-                    },
-                    {
-                        "path":  "docs/README.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1525749Z",
-                        "length":  3474,
-                        "hash":  "fed7019bca3212bc84143f367b22e009de570c9b641268a6ec7ac3aff80ab63b",
-                        "summary":  "Documentation index"
-                    },
-                    {
-                        "path":  "docs/REPO_GOVERNANCE.md",
-                        "last_write_utc":  "2026-09-26T11:13:17.0697350Z",
-                        "length":  2594,
-                        "hash":  "69c4cdfc689023f752e2063b10b45b47300c569f1deadb67d60fef1a3c3c411c",
-                        "summary":  "Repository governance"
-                    },
-                    {
-                        "path":  "docs/sessions/01-orchestrated-delivery.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1575762Z",
-                        "length":  19118,
-                        "hash":  "8fc2b2d7c2b1442f07e704066e7953a13e1caf01b02b2558484177a1409f352c",
-                        "summary":  "01 — Orchestrated Delivery"
-                    },
-                    {
-                        "path":  "docs/sessions/02-classic-sdd.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1575762Z",
-                        "length":  9504,
-                        "hash":  "392124db312f381e833b64625b6110d4044abb06a0a8593bc5bb90a677b54e7c",
-                        "summary":  "02 — Classic SDD"
-                    },
-                    {
-                        "path":  "docs/sessions/03-backlog-shape.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1585738Z",
-                        "length":  5190,
-                        "hash":  "d03aec863f6fba0b7717a38e8b6d0908d0bfe0f729d3e83773b143e99b817376",
-                        "summary":  "03 — Backlog shape"
-                    },
-                    {
-                        "path":  "docs/sessions/04-implement-and-guidelines.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6910595Z",
-                        "length":  8007,
-                        "hash":  "08260018123c1681c4e5353139f4f57fe5e1fd371a5cb10cb85ff6b4ae9a662c",
-                        "summary":  "04 — Implement and guidelines"
-                    },
-                    {
-                        "path":  "docs/sessions/05-review-and-quality.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1595764Z",
-                        "length":  6808,
-                        "hash":  "20da817d96976b28b778a55025a5c42b0d87c137bc5ffad265050c3ff621913d",
-                        "summary":  "05 — Review and quality"
-                    },
-                    {
-                        "path":  "docs/sessions/06-framework-upgrade.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6920593Z",
-                        "length":  2485,
-                        "hash":  "81e5b9eaceea696e09b63cf8094adf8c1750f1d0845408fdac6c6a4550403585",
-                        "summary":  "06 — Framework upgrade"
-                    },
-                    {
-                        "path":  "docs/sessions/07-platform-skills.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6930596Z",
-                        "length":  3941,
-                        "hash":  "1f352567b304206245c9754812a157d826a2946d37a6d8ff27caf330d18d45d5",
-                        "summary":  "07 — Platform skills"
-                    },
-                    {
-                        "path":  "docs/sessions/08-git-and-docs.md",
-                        "last_write_utc":  "2026-09-25T23:20:41.6930596Z",
-                        "length":  4057,
-                        "hash":  "19a92cde7a5f5026f84317eb6cbb7540ac6038a98af3bb3b212b8b93a5bc56bd",
-                        "summary":  "08 — Git and repository docs"
-                    },
-                    {
-                        "path":  "docs/sessions/09-every-skill.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1605758Z",
-                        "length":  12852,
-                        "hash":  "e38c7ea108f85183e8641d207371d273ba327e422930775e74639455294cb1e0",
-                        "summary":  "09 — Every skill"
-                    },
-                    {
-                        "path":  "docs/sessions/README.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1605758Z",
-                        "length":  2654,
-                        "hash":  "9cda0d1a7c0cccc025c2237a63272f51bf97c5863c3d9c3c10ab60da9bbe5bca",
-                        "summary":  "Skill sessions"
-                    },
-                    {
-                        "path":  "docs/SKILLS.md",
-                        "last_write_utc":  "2026-09-27T00:40:56.1535726Z",
-                        "length":  13490,
-                        "hash":  "06072059f870776c446e304177556e148de9160fc29e50cfc8d06aebd7efabfc",
-                        "summary":  "Skills catalog"
-                    },
-                    {
-                        "path":  "docs/SPAWN.md",
-                        "last_write_utc":  "2026-10-03T16:57:41.7800330Z",
-                        "length":  9333,
-                        "hash":  "00b5875e381db0649a084e6065124726b830c8e074e484a37e6911bb5ef2f77e",
-                        "summary":  "Spawn / subagents"
-                    },
-                    {
-                        "path":  "docs/VALIDATION.md",
-                        "last_write_utc":  "2026-10-03T02:44:41.7685204Z",
-                        "length":  17005,
-                        "hash":  "861a999f646e0ccef2e20c54a0f6d1226f2fc4bfdc0d57669ddf3a97e58483a8",
-                        "summary":  "Validation and local CI"
-                    },
-                    {
-                        "path":  "LICENSE",
-                        "last_write_utc":  "2026-07-31T02:48:10.1904525Z",
-                        "length":  1092,
-                        "hash":  "2027605eec6df42699dbe6074be1ab2a14be51c901648ec3c5e978cfca879be4",
-                        "summary":  "MIT License"
-                    },
-                    {
-                        "path":  "README.md",
-                        "last_write_utc":  "2026-10-03T19:13:14.5320627Z",
-                        "length":  11459,
-                        "hash":  "9819982adfa7cc8adf61e94b7463d727615e9c3429258dc99d0143dd2a30982c",
-                        "summary":  "Agent Dev Toolkit"
-                    },
-                    {
-                        "path":  "scripts/_lib/Assert-CopilotAgentMode.ps1",
-                        "last_write_utc":  "2026-08-01T19:41:10.2929379Z",
-                        "length":  1964,
-                        "hash":  "bab665efe76e1d15de73f78f20a0d25009a6e7e2daea2e7b1e74a0e52078bdac",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/Copy-ToolkitManagedTree.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7820323Z",
-                        "length":  40123,
-                        "hash":  "c34f408a43f097ba32874f7f5ba0f82a7744ef4b4e0951d78fe0f307bb0f642c",
-                        "summary":  "These values are shared by the copy/publish helpers below. Initialize them"
-                    },
-                    {
-                        "path":  "scripts/_lib/Get-ToolkitRepoRoot.ps1",
-                        "last_write_utc":  "2026-08-01T19:41:10.2939386Z",
-                        "length":  1703,
-                        "hash":  "78ffb7d38009beb1d08cc6ab9f1fd934d31a7b22a5a38270aad6e7c9478da46c",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/Initialize-SddPreferences.ps1",
-                        "last_write_utc":  "2026-08-31T17:45:23.4404759Z",
-                        "length":  4178,
-                        "hash":  "54e3609560eab3d1ac084cec0612ba44601dc12f947a5fdd37ebae8cb388dc8c",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/Initialize-SddRootLayout.ps1",
-                        "last_write_utc":  "2026-08-21T15:43:22.4098460Z",
-                        "length":  14113,
-                        "hash":  "eb56dc2a4c9c83e5916e209d8f5b0b2e57a0b9223e6b86bed05cfe0c1e104d8b",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/Invoke-EphemeralFixtureSmoke.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.5320627Z",
-                        "length":  9352,
-                        "hash":  "2ac9288a182a2748e3860f10db7400237bdedd45429902ef1579efd3f8a3698f",
-                        "summary":  "Windows Defender / indexer can transiently lock files immediately after a bulk"
-                    },
-                    {
-                        "path":  "scripts/_lib/Resolve-AdapterFixtureInstallRoot.ps1",
-                        "last_write_utc":  "2026-08-01T19:41:10.2949370Z",
-                        "length":  2076,
-                        "hash":  "331ff99c2d5a01286c4abe56ffc746d53f0e90f3a525dd9c9bdaefeb65b09c8c",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/Resolve-InstallRoot.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.5320627Z",
-                        "length":  19565,
-                        "hash":  "0ef3b962da41cf4846553252b49399193464f2b1a98e0fd95fce238b99048b1b",
-                        "summary":  "Strip longest/specific UNC forms before the short drive forms."
-                    },
-                    {
-                        "path":  "scripts/_lib/Resolve-RegistryAgent.ps1",
-                        "last_write_utc":  "2026-08-01T19:41:10.2959377Z",
-                        "length":  4294,
-                        "hash":  "a5fd36d8063244db077887a0a7a6a5f04516500dad1e3569557579443f9dc2cd",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/_lib/ToolkitCliUi.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7820323Z",
-                        "length":  5578,
-                        "hash":  "919cb81ba8654013a0842b357f8ecd3a395fd84dc7bc4c2de5c99ea6c19d6a16",
-                        "summary":  "Some hosts reject Clear-Host; continue without failing the CLI."
-                    },
-                    {
-                        "path":  "scripts/_lib/ToolkitConstants.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.5278938Z",
-                        "length":  66700,
-                        "hash":  "37d6cc97bcf924758f68f03383f59e9396780e0ea52bff62dbc317e296cc55fe",
-                        "summary":  "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
-                    },
-                    {
-                        "path":  "scripts/_lib/ToolkitManagedPublishInventory.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.7840337Z",
-                        "length":  19992,
-                        "hash":  "0762b9f0ec19527120f7622880d0f533024c4b37c7ac372b6904383d12bbc9d0",
-                        "summary":  "#Requires -Version 5.1"
-                    },
-                    {
-                        "path":  "scripts/sync-agent.ps1",
-                        "last_write_utc":  "2026-10-03T02:44:41.7755692Z",
-                        "length":  15838,
-                        "hash":  "f119c15040606fc0bbbd4bdccd118882ed812a3fc1ac890e7b8bf6bbcb12f5e0",
-                        "summary":  "Re-resolve every path after directory creation and immediately before"
-                    },
-                    {
-                        "path":  "scripts/toolkit.ps1",
-                        "last_write_utc":  "2026-10-03T19:13:14.5223859Z",
-                        "length":  41865,
-                        "hash":  "4c4d9a7ab43f42e1f2446d8e549d753595bd46f7da953d57a3880c2ed7d3bf5b",
-                        "summary":  "--- Entry ---"
-                    },
-                    {
-                        "path":  "scripts/validate-agent.ps1",
-                        "last_write_utc":  "2026-08-01T19:41:10.2984433Z",
-                        "length":  6973,
-                        "hash":  "aab78ea0178dc98565fe7f0628a2699c8f30b56d50d52777f2694e6449b2ff10",
-                        "summary":  "Dot-source before InstallRoot default so adapters can expose FixtureRelativePath."
-                    },
-                    {
-                        "path":  "scripts/validation/validate-core.ps1",
-                        "last_write_utc":  "2026-10-03T16:57:41.8141230Z",
-                        "length":  18917,
-                        "hash":  "f500b1efd12545fbd229f60dfbced693be60fe816cbdfb77d1360f0ac017af73",
-                        "summary":  "Assertion scripts may emit success-stream objects through helper calls."
-                    },
-                    {
-                        "path":  "SECURITY.md",
-                        "last_write_utc":  "2026-08-01T19:41:10.1454597Z",
-                        "length":  2014,
-                        "hash":  "e08cbc34d325f2841d24faa3b168a8451d5c9742b6d62bdbf3f666bad724b3b9",
-                        "summary":  "Security policy"
-                    }
-                ]
+  "schema_version": 3,
+  "repo": "agent-dev-toolkit",
+  "repo_path": ".",
+  "bank_path": "memory-bank",
+  "generated_at": "2026-10-09T13:51:08.7695991Z",
+  "stale_days": 90,
+  "status": "ready",
+  "status_reason": "sources indexed with hash and summary",
+  "inventory_hash": "678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07",
+  "inventory_summary": "131 source(s); stack: markdown, powershell",
+  "stack_hints": [
+    "markdown",
+    "powershell"
+  ],
+  "skill_count": 45,
+  "assert_script_count": 90,
+  "sources": [
+    {
+      "path": ".github/workflows/docs.yml",
+      "last_write_utc": "2026-10-06T10:53:13.3952752Z",
+      "length": 1897,
+      "hash": "dc0490e5e308ff16df61ef7ac2012284daaf057a9e4c370b5c982a3eafe42f46",
+      "summary": "Build on pushes and manual dispatch; pull-request merge acceptance is owned"
+    },
+    {
+      "path": ".github/workflows/enforce-release-source.yml",
+      "last_write_utc": "2026-08-01T19:41:10.1434601Z",
+      "length": 500,
+      "hash": "a8d283ec12348d121e3537828e9c4a9d8bf24672ff4898ba7eed1870efff67af",
+      "summary": "name: Enforce release source"
+    },
+    {
+      "path": ".github/workflows/publish-release-bootstrap.yml",
+      "last_write_utc": "2026-10-06T10:53:13.3962765Z",
+      "length": 4000,
+      "hash": "559ccffde35edc4744480919a7a6f38cd9a3584541b27e254861df7b92894424",
+      "summary": "Publish Release assets for Option 0 bootstrap (HTTPS zip + SHA256 + entrypoints)."
+    },
+    {
+      "path": ".github/workflows/validate-toolkit.yml",
+      "last_write_utc": "2026-10-09T10:30:59.2251107Z",
+      "length": 17824,
+      "hash": "7fcbab75ec627ddddd5527ff9a0921969982699b43f722fa96684fedaabb8d0e",
+      "summary": "Named remaining checks for default-wide-suite. No sync to a real user home."
+    },
+    {
+      "path": ".gitignore",
+      "last_write_utc": "2026-10-06T10:53:13.3972792Z",
+      "length": 6308,
+      "hash": "9ee113c0f4f4d44d7dc06f784b55e2397a94082ab41bf66b1364ebebd910b8d5",
+      "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
+    },
+    {
+      "path": "adapters/antigravity/AntigravityAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.2986880Z",
+      "length": 41885,
+      "hash": "cb7c98145aff5774e50c6eb153c4ca9f4dee80c64ae1468932ded15b97cbe987",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/antigravity/Publish-AntigravityHooks.ps1",
+      "last_write_utc": "2026-10-07T22:37:02.3017594Z",
+      "length": 8388,
+      "hash": "7fcaa20e85d944fda2d14aae95179a72ed7484afe1324bfb9e7bb53b71643d52",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/antigravity/Publish-AntigravityPolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7403542Z",
+      "length": 10408,
+      "hash": "4b9fd14856091b675509ff0b30e077ac5d99fdf655348fb1656f3635ccfa1838",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/antigravity/Publish-AntigravityRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7413555Z",
+      "length": 9298,
+      "hash": "deb8caba6b7fc5357cd42dab3c7e8334376138e723d460a26646961181cea1d9",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:58.9736546Z",
+      "length": 11516,
+      "hash": "7636071268e27e4d5c21e51142425df7d55b2f9c23917ba66ae02120748ce9d1",
+      "summary": "Explicitly never touch legacy bridge."
+    },
+    {
+      "path": "adapters/claude/ClaudeAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.2986880Z",
+      "length": 12468,
+      "hash": "fc291396b012e9df96dc95edbb8e4fe22f0b0563b0cc36fb5772d26c8c4ed9b9",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/claude/Publish-ClaudeAgents.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5409729Z",
+      "length": 3932,
+      "hash": "10d1e4d754b9abc31b476821682e9390857dc6117f0d5562c4f78180cd9e0783",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/claude/Publish-ClaudeHooks.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7440149Z",
+      "length": 7080,
+      "hash": "50d726d23fd48fc700d68737bb9a0e16ec07b7ba5bc46a6621447079d1c0afcc",
+      "summary": "Shared path/secret helpers beside published hooks."
+    },
+    {
+      "path": "adapters/claude/Publish-ClaudePolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7450232Z",
+      "length": 4379,
+      "hash": "7338bcf83e4f8e25d9ff44498df9951ea6987ebf20c1079ef5a98aeff39fb2fe",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/claude/Publish-ClaudeRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7460228Z",
+      "length": 5965,
+      "hash": "4e1056e829325bd18b46d2003e71a958d42f755acff671a0498e270e3b673588",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/claude/Publish-ClaudeSkills.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5409729Z",
+      "length": 7828,
+      "hash": "fa294d80493d50b87a783ec1cd8288e6805a7b4d8bfcc10d531ad221042b0dfb",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:58.9730648Z",
+      "length": 15887,
+      "hash": "5acd4b10e7ab60fe5325916a72bfadc2b41743de1ca5b88aeb8a2554b8d68238",
+      "summary": "Script-scope load so Remove-* helpers can call Assert-PathUnderInstallRootForDelete"
+    },
+    {
+      "path": "adapters/codex/CodexAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5521495Z",
+      "length": 21456,
+      "hash": "4d0e57da2bc910953d56cc8cd27fbd85324535efb6b0d42f8ae9f9e6eeeb9a07",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/codex/Publish-CodexAgents.ps1",
+      "last_write_utc": "2026-10-09T12:09:10.8555861Z",
+      "length": 8746,
+      "hash": "de01915c6dd059d030f01eb1fbfe7c97f52a746a05c64362544471b23c615fa1",
+      "summary": "Load SPAWN knobs at script scope (dotsource inside a function stays local-only)."
+    },
+    {
+      "path": "adapters/codex/Publish-CodexHooks.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7487940Z",
+      "length": 9237,
+      "hash": "c8236f3c60fa7ef2a5419358032d7aac175b585a8aa5c8c3492af96012f4dcd0",
+      "summary": "Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets)."
+    },
+    {
+      "path": "adapters/codex/Publish-CodexPolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7497807Z",
+      "length": 4892,
+      "hash": "12e20c6318ecd38fbae87abd658629ee296af6c22032bd09ebaa65d4a9fd1c61",
+      "summary": "Policy/rules live under InstallRoot; TOOLKIT_ROOT matches Claude (InstallRoot)."
+    },
+    {
+      "path": "adapters/codex/Publish-CodexRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7502868Z",
+      "length": 13281,
+      "hash": "d6702c2c804e0437844ab52486e8c874c7b3106892a09afd65d055b0c2e8ad2b",
+      "summary": "Defense-in-depth: strip any remaining repo docs path refs from published AGENTS."
+    },
+    {
+      "path": "adapters/codex/Publish-CodexSkills.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7510569Z",
+      "length": 24046,
+      "hash": "9866f10b4d28b944fcf1a83950cbc0d605f8e8f817c4bf00234e505aa902d189",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/codex/Uninstall-CodexToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.2191793Z",
+      "length": 16558,
+      "hash": "aa3b2c42ca761e0060f7d8ffe03e10e83209b13feff6c0c2d2617425b5eaf4a7",
+      "summary": "Unknown / corrupt catalog authored outside toolkit - leave untouched (RN07)."
+    },
+    {
+      "path": "adapters/copilot/CopilotAdapter.ps1",
+      "last_write_utc": "2026-10-03T02:44:41.7434429Z",
+      "length": 27730,
+      "hash": "00cceb89a3ce30f611a3626496f8d50c4dd237bd81d5a037c376c4c4aee84747",
+      "summary": "Evidence classes keep documented product behavior separate from toolkit"
+    },
+    {
+      "path": "adapters/copilot/Publish-CopilotAgents.ps1",
+      "last_write_utc": "2026-10-09T13:46:33.7995789Z",
+      "length": 7396,
+      "hash": "de3ecdcf65401fe426480c8873fdb1cd47b84c10c756339d4591b97982028ca2",
+      "summary": "Copilot CLI and VS Code discover nome.agent.md. Drop the parallel nome.md this copy just wrote."
+    },
+    {
+      "path": "adapters/copilot/Publish-CopilotHooks.ps1",
+      "last_write_utc": "2026-10-06T10:53:13.4012758Z",
+      "length": 9257,
+      "hash": "cb593abbf14e9136adfdfbd09ec03521a30aca39e1453bc3928346db77e3d599",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/copilot/Publish-CopilotPolicy.ps1",
+      "last_write_utc": "2026-10-09T11:56:15.6683982Z",
+      "length": 15764,
+      "hash": "ae22092a198dab7afb1bd862935038b71493834ba8a291afe6c2eb194b63fdf9",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/copilot/Publish-CopilotSkills.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 8967,
+      "hash": "8e9cc6c46b50a442444cf3f9bced451469e479183e24fa5e16174d17d83fac61",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:58.9730648Z",
+      "length": 11732,
+      "hash": "657f8754d3ddd12dc6e6bedb5faccbab7766f017ff93ef8712ade82c72456655",
+      "summary": "Uninstall targets are published files. Never recurse into a user-created"
+    },
+    {
+      "path": "adapters/cursor/CursorAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 10456,
+      "hash": "1f2d4d8eab7ff92036f4aff3736d4239059f0eca2819da070453e2be7d9498db",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/cursor/Publish-CursorAgents.ps1",
+      "last_write_utc": "2026-09-07T12:21:47.8438442Z",
+      "length": 3775,
+      "hash": "8826f66ac0cdbd7d7d991b0f1fd5f8ba038b496b9ea2e50cf2abba76c5fd207c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/cursor/Publish-CursorHooks.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7560318Z",
+      "length": 21109,
+      "hash": "15ad872170f3a218a5ca6dacf63ff3192851172685f11bbe58658985da2cc0f5",
+      "summary": "Script-scope load so path-gate asserts are available to Copy-/Write- helpers."
+    },
+    {
+      "path": "adapters/cursor/Publish-CursorPolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7570328Z",
+      "length": 5242,
+      "hash": "45e6dd9936a61c23a40cb9bcb4a220ce55d089ea268d04430f29b5894c7eaed3",
+      "summary": "Plain .md files in the shared rules folder have no verifiable ownership."
+    },
+    {
+      "path": "adapters/cursor/Publish-CursorRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7570328Z",
+      "length": 4669,
+      "hash": "83c2b07441e5b8690d587d9cac606cd5fc26586186b58cf45774959ecd38f1ff",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/cursor/Publish-CursorSkills.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 8172,
+      "hash": "25f1f130470cd687c4a3bc41f1ff4b00bbd5d4ad220d202570ce3b3fa93e8938",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/cursor/Uninstall-CursorToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.0289581Z",
+      "length": 16425,
+      "hash": "c8dc6e610ab3879f507e6a85fd98042ff0c15df75a9db003fae69bc1341a919a",
+      "summary": "Event had only toolkit handlers — drop empty event key."
+    },
+    {
+      "path": "adapters/grok/GrokAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 13665,
+      "hash": "80bb6c16503d94c25a10eaf931b854ddf426aae456850538b065de699dcd8bfd",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokAgents.ps1",
+      "last_write_utc": "2026-09-24T21:10:40.9227305Z",
+      "length": 3704,
+      "hash": "2d7b878ff9d8142fbfaf855f5fd34a89a599e25f562268c28ae19949802523d3",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokHooks.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7590326Z",
+      "length": 10582,
+      "hash": "1adcfff50feccd8aaa8d10304544ad8d5ea8925bb2f18aaa3b1c8ec16e98de3d",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokPolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7600339Z",
+      "length": 4398,
+      "hash": "bd43234704321d4642a15ee9cf05ca5134117b6a58cd1c5bf7bcb6b2f3ffe668",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7610358Z",
+      "length": 8977,
+      "hash": "8e38865a5ddcb57ed51f26fd30a69dcaaf0cc1fe5ad0f1ceb262fa0ae53a5785",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/grok/Publish-GrokSkills.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 9952,
+      "hash": "875eb0d57873759b63fbf954de67c559fa7fbdea9b747de17f261fd29ac81d6f",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/grok/Uninstall-GrokToolkit.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7620328Z",
+      "length": 10897,
+      "hash": "0a52ebd4e9832b8919bf10af815afb5493a821391d4c53cec338fd32eb6d5e47",
+      "summary": "Script-scope load so Assert-PathUnderInstallRootForDelete is available"
+    },
+    {
+      "path": "adapters/hermes/HermesAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 13536,
+      "hash": "faf773adc31e89bbdac63c63beb8ff02bee9f6f9bf681550fdf313e47dfd8844",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/hermes/Publish-HermesHooks.ps1",
+      "last_write_utc": "2026-10-09T13:45:42.0297779Z",
+      "length": 16912,
+      "hash": "4537c9dbeb2678cab1ffcbab9d9cd41be43f0d59f8bfb253fe5e44cb349aefcd",
+      "summary": "Best-effort executable bit; host may still invoke via sh/bash."
+    },
+    {
+      "path": "adapters/hermes/Publish-HermesPolicy.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7640346Z",
+      "length": 13942,
+      "hash": "59619d91d7a4ad8c54cea8b82d1f2c6b1ab936f1062591573d7a77efd17ce165",
+      "summary": "Asset lives beside this publish script under adapters/hermes/assets/."
+    },
+    {
+      "path": "adapters/hermes/Publish-HermesRouter.ps1",
+      "last_write_utc": "2026-08-21T15:43:22.2968722Z",
+      "length": 2680,
+      "hash": "c4712fad546d52210da15163630cb235b19b27b6a92be06ade9a6a354a98e6ce",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/hermes/Publish-HermesSkills.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7650329Z",
+      "length": 16880,
+      "hash": "c1ffe6feef7485014257dbbe498d59c18a5d820fd65d4d05026083c9a4d3cb28",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/hermes/Uninstall-HermesToolkit.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7660329Z",
+      "length": 14132,
+      "hash": "b34ee19122ebe8a96ac2fae1e7be595b4592f9b8ac53cd9e347fbfcb842c99b0",
+      "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
+    },
+    {
+      "path": "adapters/opencode/OpenCodeAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 18606,
+      "hash": "269eba87113c6ef5cd40248f72e1fb214418f546520a272e5fe031ba0d34384c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/opencode/Publish-OpenCodeAgents.ps1",
+      "last_write_utc": "2026-09-24T21:10:40.9237299Z",
+      "length": 4653,
+      "hash": "e1166e40cf0296ac46c6a725c704898964ef2d2e241a736132fa87f117b49018",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/opencode/Publish-OpenCodeHooks.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7670352Z",
+      "length": 9843,
+      "hash": "bcd9192a229c01c315c682ba837f4fde4dfb32424ff43a4a695eaa13be4b3c62",
+      "summary": "Re-assert after create / when dest already existed as a reparse child."
+    },
+    {
+      "path": "adapters/opencode/Publish-OpenCodeRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7680335Z",
+      "length": 9437,
+      "hash": "f73d9ef5446687b50a98aa437760992ee8aec654ca6ec133209f91eb85dcd781",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/opencode/Publish-OpenCodeSkills.ps1",
+      "last_write_utc": "2026-10-09T13:02:15.4802782Z",
+      "length": 8116,
+      "hash": "3b833425b8a7445a45b8ebd930108647f9d5acb14ae8647d285a37525ba0e858",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.0272088Z",
+      "length": 8405,
+      "hash": "96a88ee73893947c67f3508cd89415f9815efd7af24f679ba269908d77b750db",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/OpenHandsAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
+      "length": 13965,
+      "hash": "d6dd33573dd16471cd8918aebd1c1b451a106fd91c85b784c9b973d33fa590d2",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/Publish-OpenHandsAgents.ps1",
+      "last_write_utc": "2026-08-21T15:43:22.3129652Z",
+      "length": 3460,
+      "hash": "7880f8e94d120f343a158828e8063e40742fd4c9c9e671c90e3248d8ea37d95b",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/Publish-OpenHandsHooks.ps1",
+      "last_write_utc": "2026-10-07T22:37:02.3027577Z",
+      "length": 11666,
+      "hash": "aaf844066f97cd8ea4593a9e542876a77a5312555d8f551fd7d53ed26452ee8b",
+      "summary": "Best-effort executable bit; host may still invoke via sh."
+    },
+    {
+      "path": "adapters/openhands/Publish-OpenHandsPolicy.ps1",
+      "last_write_utc": "2026-08-21T15:43:22.3181542Z",
+      "length": 3532,
+      "hash": "2f9cf7d87a4f1ca2e59fb6857c70bb8643931662c851c6d21331c3f7b1ecd4af",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/Publish-OpenHandsRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7700337Z",
+      "length": 9706,
+      "hash": "3675e3470933dce466acba66b570f5ea0b73857fe2cd92a1d5425e5e837875e2",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/Publish-OpenHandsSkills.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7710351Z",
+      "length": 12287,
+      "hash": "138d8c24aa82ff15084daf6131029670fac293c74bc90286b0ff45e49f12e211",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7720344Z",
+      "length": 9644,
+      "hash": "eca97e83b2723f62dd4c7af2f0aec6c608301e01a8b7de0f6c05c5b0aa376783",
+      "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
+    },
+    {
+      "path": "adapters/registry.json",
+      "last_write_utc": "2026-08-31T17:45:23.3462243Z",
+      "length": 4204,
+      "hash": "83af9de6e09114ed21d0495a5666d9e502ed2b5479b87635705e023a815b81a0",
+      "summary": "{"
+    },
+    {
+      "path": "adapters/zcode/Publish-ZCodeAgents.ps1",
+      "last_write_utc": "2026-09-24T21:10:40.9237299Z",
+      "length": 3793,
+      "hash": "bbe4579b367f4b1d3c6bff8c8540b7713ab9e55c4e685e16192804e1c42c5e13",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/zcode/Publish-ZCodeHooks.ps1",
+      "last_write_utc": "2026-10-09T10:30:58.9736546Z",
+      "length": 15102,
+      "hash": "7683922ff25b394412bc605a934763d12841defb11618a5a3e6ee3a08e4f7065",
+      "summary": "Preserve JSON arrays with exactly one item. PowerShell otherwise"
+    },
+    {
+      "path": "adapters/zcode/Publish-ZCodeRouter.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7730344Z",
+      "length": 11910,
+      "hash": "0adfdca7f7ad82d4ec17b2735c82fafecec26b5f7e249758f74df616b453cd3d",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "adapters/zcode/Publish-ZCodeSkills.ps1",
+      "last_write_utc": "2026-10-09T13:02:17.5105220Z",
+      "length": 8917,
+      "hash": "85e70e46cd7458036d2b34a2b0817b8b196cb42b05076895fd51c9b087fcf469",
+      "summary": "Load shared managed-tree helpers at script scope (dotsource inside a function"
+    },
+    {
+      "path": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7740323Z",
+      "length": 19146,
+      "hash": "46830dae9aab213f5b51deccc3cde09a891415a8ccb6e9f09e94b9b016bb4f04",
+      "summary": "Exact toolkit overlay leaf — drop."
+    },
+    {
+      "path": "adapters/zcode/ZCodeAdapter.ps1",
+      "last_write_utc": "2026-09-07T16:37:26.5688034Z",
+      "length": 14341,
+      "hash": "113ffa594ff0d0b3a2a822de60feeebd4a191946a8d8472616116630734c4b41",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "last_write_utc": "2026-09-25T23:20:41.6459570Z",
+      "length": 2940,
+      "hash": "62df493facff435df148a67f11450a62974569029eec9410218c8c6d58c9fcda",
+      "summary": "Repository policy"
+    },
+    {
+      "path": "core/router/AGENTS.md",
+      "last_write_utc": "2026-10-06T10:53:13.4032773Z",
+      "length": 11528,
+      "hash": "aeb5a963a01f881e2cda4ebe9b71e286f0679a9f259b7eddf0edd05358f6ff78",
+      "summary": "Agent router (L0 index) - agent-dev-toolkit"
+    },
+    {
+      "path": "core/skills/_shared/agents/SPAWN.md",
+      "last_write_utc": "2026-10-09T10:30:59.2257559Z",
+      "length": 14227,
+      "hash": "ce346c4cc1f29ee5c2c61a68bce26e47f59b5616a85fb2522d82686adf896973",
+      "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
+    },
+    {
+      "path": "docs/ADAPTERS.md",
+      "last_write_utc": "2026-09-26T11:13:17.0676336Z",
+      "length": 59817,
+      "hash": "cbb76af93399aedb6ad43ddfe70ade70e53ead15f79335ecaceeb3ae0b1380fa",
+      "summary": "Adapters"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "last_write_utc": "2026-10-06T10:53:13.4328173Z",
+      "length": 15735,
+      "hash": "53c0dd37c0bcb9c1d5f93e078e696e86c346424d70bc92b0605f45a2a2147fae",
+      "summary": "Architecture"
+    },
+    {
+      "path": "docs/CREDITS.md",
+      "last_write_utc": "2026-09-26T11:13:17.0697350Z",
+      "length": 4393,
+      "hash": "21df2499648709b9de8825ca723801a23470248ed91afe1443e53a30a3892963",
+      "summary": "Credits and acknowledgments"
+    },
+    {
+      "path": "docs/DESIGN-BRIEF.md",
+      "last_write_utc": "2026-09-26T11:13:17.0676336Z",
+      "length": 6310,
+      "hash": "d84c6d01fd1428fa2c58649f89acc1107a4458672bbad058cee0e20e6068ce67",
+      "summary": "DESIGN-BRIEF — Public docs site reading pass"
+    },
+    {
+      "path": "docs/documentation-plan/plan.md",
+      "last_write_utc": "2026-10-07T22:37:02.4218986Z",
+      "length": 21944,
+      "hash": "cdd81b4e5ef23de800f6fd92c80a88f6408b56ebfbfbfa7e5c41ade75f1dd0cb",
+      "summary": "Documentation plan: agent-dev-toolkit"
+    },
+    {
+      "path": "docs/documentation-plan/SITE-HARDEN-PLAN.md",
+      "last_write_utc": "2026-08-03T12:58:43.2477739Z",
+      "length": 7212,
+      "hash": "891893edab62264a2dace064d6fa7ab4382a2cd539686e05d7dc1186681d2377",
+      "summary": "SITE-HARDEN-PLAN — Docs site (GitHub Pages)"
+    },
+    {
+      "path": "docs/domains/adapters.md",
+      "last_write_utc": "2026-09-25T13:41:44.3576839Z",
+      "length": 8677,
+      "hash": "fa406faf7adbfeb5e489ba4ec7a6ac7459fd7f6e73c5811e3528e99ad6cb0296",
+      "summary": "Domain: Adapters"
+    },
+    {
+      "path": "docs/domains/cli-scripts.md",
+      "last_write_utc": "2026-10-03T02:44:41.7695246Z",
+      "length": 15585,
+      "hash": "0926a9efbcdd1efeb0e64f022a74cb7548cbbd029caf9df1375c2811f192d455",
+      "summary": "Domain: CLI scripts"
+    },
+    {
+      "path": "docs/domains/core.md",
+      "last_write_utc": "2026-10-06T10:53:13.4348207Z",
+      "length": 31677,
+      "hash": "720ce5f7b813d5d118fe2c824272ce2822a24da06476c69984b60b9a583c56ea",
+      "summary": "Domain: Core"
+    },
+    {
+      "path": "docs/domains/git-ops.md",
+      "last_write_utc": "2026-09-25T13:41:44.3586847Z",
+      "length": 8510,
+      "hash": "7cc631c111fffd6324aab014d16d8ccffc62d9f8e7a5f119ccdb05beab777a4b",
+      "summary": "Domain: Git ops"
+    },
+    {
+      "path": "docs/ENFORCEMENT.md",
+      "last_write_utc": "2026-10-06T10:53:13.4328173Z",
+      "length": 3690,
+      "hash": "42ee6851c29b4e4801c0b3329a9473d5b0f4c19c19e4cd8dd1cd495963d5eafa",
+      "summary": "Enforcement model"
+    },
+    {
+      "path": "docs/guides/01-getting-started.md",
+      "last_write_utc": "2026-10-07T22:37:02.4218986Z",
+      "length": 7326,
+      "hash": "0a9c6612d478bf7efb490e053a764b082196190b91e3bb8b1ac041313f3e4e81",
+      "summary": "Getting started"
+    },
+    {
+      "path": "docs/guides/02-using-skills.md",
+      "last_write_utc": "2026-10-06T10:53:13.4348207Z",
+      "length": 13928,
+      "hash": "f970a042c585b92390832864d8dc8722e22650014390e3ad667018c80215a8e9",
+      "summary": "Using skills"
+    },
+    {
+      "path": "docs/guides/08-orchestrator-mode.md",
+      "last_write_utc": "2026-09-26T11:13:17.0691257Z",
+      "length": 2750,
+      "hash": "90a4b9e6aaa7d453083b7f769523f7b956948ebe43eec83d74027e4824421705",
+      "summary": "08 — Orchestrator mode"
+    },
+    {
+      "path": "docs/guides/09-authorship-git-notes.md",
+      "last_write_utc": "2026-09-25T13:41:44.3626914Z",
+      "length": 2054,
+      "hash": "d3d1df6005005141eee0e05a1b35ea9abf2d7f6a099ba6ff3d7bd7c0c68a1aaa",
+      "summary": "Authorship git-notes (opt-in, beside TRACE)"
+    },
+    {
+      "path": "docs/guides/README.md",
+      "last_write_utc": "2026-10-06T10:53:11.2954217Z",
+      "length": 6872,
+      "hash": "6bc6185aab1b0e807da6b4e2b7fb050eb682ddc4a1087f2021260c0623af24db",
+      "summary": "User guides"
+    },
+    {
+      "path": "docs/guides/session-behavior.md",
+      "last_write_utc": "2026-09-25T23:20:41.6890589Z",
+      "length": 3454,
+      "hash": "e556574d6341da4324642fc152e4385769c7b32c3919cba957b4f47797fc7bea",
+      "summary": "Session behavior"
+    },
+    {
+      "path": "docs/HOOKS.md",
+      "last_write_utc": "2026-10-06T10:53:13.4328173Z",
+      "length": 2500,
+      "hash": "a4e52a054e0731473d53e33ee07fb3387095a76abd89eea9130c3bb5121406e0",
+      "summary": "Toolkit hooks"
+    },
+    {
+      "path": "docs/impeccable-integration.md",
+      "last_write_utc": "2026-10-06T10:53:13.4358133Z",
+      "length": 1112,
+      "hash": "f5c9dcf8af824d72b6956c02c44bdca32b15019939fd66ebf054ab5d69ff5b2a",
+      "summary": "Impeccable integration"
+    },
+    {
+      "path": "docs/INSTALL.md",
+      "last_write_utc": "2026-10-07T22:37:02.0838634Z",
+      "length": 17286,
+      "hash": "fd3c736e44cb1cf11acba6a1aed8d69ba9ed55ce3687fd09c7b6db3baf537953",
+      "summary": "Install and sync"
+    },
+    {
+      "path": "docs/overview.md",
+      "last_write_utc": "2026-10-06T10:53:13.4358133Z",
+      "length": 9304,
+      "hash": "fe378c3e6d567f128c8f0f2961f0e0349978deadda07f613d78b9b971dffe8cf",
+      "summary": "Overview"
+    },
+    {
+      "path": "docs/README.md",
+      "last_write_utc": "2026-10-06T10:53:11.2934222Z",
+      "length": 3474,
+      "hash": "fed7019bca3212bc84143f367b22e009de570c9b641268a6ec7ac3aff80ab63b",
+      "summary": "Documentation index"
+    },
+    {
+      "path": "docs/REPO_GOVERNANCE.md",
+      "last_write_utc": "2026-09-26T11:13:17.0697350Z",
+      "length": 2594,
+      "hash": "69c4cdfc689023f752e2063b10b45b47300c569f1deadb67d60fef1a3c3c411c",
+      "summary": "Repository governance"
+    },
+    {
+      "path": "docs/sessions/01-orchestrated-delivery.md",
+      "last_write_utc": "2026-10-06T10:53:13.4358133Z",
+      "length": 19353,
+      "hash": "a905469f72c0c4bfae92056337c9787c6e3cf7b244ba395a1fe0dcf80e7c7a98",
+      "summary": "01 — Orchestrated Delivery"
+    },
+    {
+      "path": "docs/sessions/02-classic-sdd.md",
+      "last_write_utc": "2026-10-06T10:53:13.4368124Z",
+      "length": 9640,
+      "hash": "9b7e7b5c7595e26f9410a820080d07d3b324187e92a020b67d49694e92a1c8d2",
+      "summary": "02 — Classic SDD"
+    },
+    {
+      "path": "docs/sessions/03-backlog-shape.md",
+      "last_write_utc": "2026-09-27T00:40:56.1585738Z",
+      "length": 5190,
+      "hash": "d03aec863f6fba0b7717a38e8b6d0908d0bfe0f729d3e83773b143e99b817376",
+      "summary": "03 — Backlog shape"
+    },
+    {
+      "path": "docs/sessions/04-implement-and-guidelines.md",
+      "last_write_utc": "2026-09-25T23:20:41.6910595Z",
+      "length": 8007,
+      "hash": "08260018123c1681c4e5353139f4f57fe5e1fd371a5cb10cb85ff6b4ae9a662c",
+      "summary": "04 — Implement and guidelines"
+    },
+    {
+      "path": "docs/sessions/05-review-and-quality.md",
+      "last_write_utc": "2026-10-06T10:53:13.4368124Z",
+      "length": 6961,
+      "hash": "256d399e1707ea59740438a3971c7da66c90332a7dc7e064cc04ef84cf9fc554",
+      "summary": "05 — Review and quality"
+    },
+    {
+      "path": "docs/sessions/06-framework-upgrade.md",
+      "last_write_utc": "2026-09-25T23:20:41.6920593Z",
+      "length": 2485,
+      "hash": "81e5b9eaceea696e09b63cf8094adf8c1750f1d0845408fdac6c6a4550403585",
+      "summary": "06 — Framework upgrade"
+    },
+    {
+      "path": "docs/sessions/07-platform-skills.md",
+      "last_write_utc": "2026-09-25T23:20:41.6930596Z",
+      "length": 3941,
+      "hash": "1f352567b304206245c9754812a157d826a2946d37a6d8ff27caf330d18d45d5",
+      "summary": "07 — Platform skills"
+    },
+    {
+      "path": "docs/sessions/08-git-and-docs.md",
+      "last_write_utc": "2026-09-25T23:20:41.6930596Z",
+      "length": 4057,
+      "hash": "19a92cde7a5f5026f84317eb6cbb7540ac6038a98af3bb3b212b8b93a5bc56bd",
+      "summary": "08 — Git and repository docs"
+    },
+    {
+      "path": "docs/sessions/09-every-skill.md",
+      "last_write_utc": "2026-10-06T10:53:13.4378130Z",
+      "length": 13731,
+      "hash": "6443ad913f7cfbaa2ca126b4ecc361bc66edad0ea3740e822182d73be0921870",
+      "summary": "09 — Every skill"
+    },
+    {
+      "path": "docs/sessions/README.md",
+      "last_write_utc": "2026-10-06T10:53:11.2954217Z",
+      "length": 2654,
+      "hash": "9cda0d1a7c0cccc025c2237a63272f51bf97c5863c3d9c3c10ab60da9bbe5bca",
+      "summary": "Skill sessions"
+    },
+    {
+      "path": "docs/SKILLS.md",
+      "last_write_utc": "2026-10-06T10:53:13.4338176Z",
+      "length": 13759,
+      "hash": "775efab145f22846a64c97c733408dae9ba18c849d303cb890aea588564f5d43",
+      "summary": "Skills catalog"
+    },
+    {
+      "path": "docs/SPAWN.md",
+      "last_write_utc": "2026-10-03T16:57:41.7800330Z",
+      "length": 9333,
+      "hash": "00b5875e381db0649a084e6065124726b830c8e074e484a37e6911bb5ef2f77e",
+      "summary": "Spawn / subagents"
+    },
+    {
+      "path": "docs/VALIDATION.md",
+      "last_write_utc": "2026-10-06T10:53:13.4338176Z",
+      "length": 18902,
+      "hash": "d4fd6940674d11d69c71f994a86fdd2596a54ddb1eda7a6a52ee4ba85032f06c",
+      "summary": "Validation and local CI"
+    },
+    {
+      "path": "LICENSE",
+      "last_write_utc": "2026-07-31T02:48:10.1904525Z",
+      "length": 1092,
+      "hash": "2027605eec6df42699dbe6074be1ab2a14be51c901648ec3c5e978cfca879be4",
+      "summary": "MIT License"
+    },
+    {
+      "path": "README.md",
+      "last_write_utc": "2026-10-09T10:30:59.2257559Z",
+      "length": 11543,
+      "hash": "778505e64923e4a5b719d230b9bb8f578746eef1de76cd9d832eda137ebd75cc",
+      "summary": "Agent Dev Toolkit"
+    },
+    {
+      "path": "scripts/_lib/Assert-CopilotAgentMode.ps1",
+      "last_write_utc": "2026-08-01T19:41:10.2929379Z",
+      "length": 1964,
+      "hash": "bab665efe76e1d15de73f78f20a0d25009a6e7e2daea2e7b1e74a0e52078bdac",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/Copy-ToolkitManagedTree.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.2257559Z",
+      "length": 44534,
+      "hash": "7a7ee559608ae13e5f0375fe2196dcefb82d16c8bb54d67ee478da7be2e4ae58",
+      "summary": "These values are shared by the copy/publish helpers below. Initialize them"
+    },
+    {
+      "path": "scripts/_lib/Get-ToolkitRepoRoot.ps1",
+      "last_write_utc": "2026-08-01T19:41:10.2939386Z",
+      "length": 1703,
+      "hash": "78ffb7d38009beb1d08cc6ab9f1fd934d31a7b22a5a38270aad6e7c9478da46c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/Initialize-SddPreferences.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.2196830Z",
+      "length": 3934,
+      "hash": "4d189b011dafec72b21841c22a1c52b67f9899a6d97d2de91945ff96876348b0",
+      "summary": "First sync of each adapter: missing preferences are seeded with always. No orchestration-mode question."
+    },
+    {
+      "path": "scripts/_lib/Initialize-SddRootLayout.ps1",
+      "last_write_utc": "2026-08-21T15:43:22.4098460Z",
+      "length": 14113,
+      "hash": "eb56dc2a4c9c83e5916e209d8f5b0b2e57a0b9223e6b86bed05cfe0c1e104d8b",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/Invoke-EphemeralFixtureSmoke.ps1",
+      "last_write_utc": "2026-10-07T22:37:02.4218986Z",
+      "length": 32027,
+      "hash": "8deac12d5c783fe5c944dfb30a1ec27b010142b5cd41719536b06c19f439ee52",
+      "summary": "Windows Defender / indexer can transiently lock files immediately after a bulk"
+    },
+    {
+      "path": "scripts/_lib/Invoke-PathSecretsGuardHarness.ps1",
+      "last_write_utc": "2026-10-06T10:53:13.4418125Z",
+      "length": 3691,
+      "hash": "75f9f88e93aa3f99928d05863b52ea1a944d37825ad21a0acb11f49a58663fb2",
+      "summary": "[redacted: secret-named source]"
+    },
+    {
+      "path": "scripts/_lib/Invoke-ValidationTelemetry.ps1",
+      "last_write_utc": "2026-10-06T10:53:13.4418125Z",
+      "length": 5087,
+      "hash": "e7c7a0b78bb23f04401edea5cdc119bcaf31c2a5a97f8bc45d15f6ef7c63ccb5",
+      "summary": "Observability must never alter validation behavior."
+    },
+    {
+      "path": "scripts/_lib/Resolve-AdapterFixtureInstallRoot.ps1",
+      "last_write_utc": "2026-08-01T19:41:10.2949370Z",
+      "length": 2076,
+      "hash": "331ff99c2d5a01286c4abe56ffc746d53f0e90f3a525dd9c9bdaefeb65b09c8c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/Resolve-InstallRoot.ps1",
+      "last_write_utc": "2026-10-07T22:37:02.4218986Z",
+      "length": 19565,
+      "hash": "0ef3b962da41cf4846553252b49399193464f2b1a98e0fd95fce238b99048b1b",
+      "summary": "Strip longest/specific UNC forms before the short drive forms."
+    },
+    {
+      "path": "scripts/_lib/Resolve-RegistryAgent.ps1",
+      "last_write_utc": "2026-08-01T19:41:10.2959377Z",
+      "length": 4294,
+      "hash": "a5fd36d8063244db077887a0a7a6a5f04516500dad1e3569557579443f9dc2cd",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/ToolkitCliUi.ps1",
+      "last_write_utc": "2026-10-03T16:57:41.7820323Z",
+      "length": 5578,
+      "hash": "919cb81ba8654013a0842b357f8ecd3a395fd84dc7bc4c2de5c99ea6c19d6a16",
+      "summary": "Some hosts reject Clear-Host; continue without failing the CLI."
+    },
+    {
+      "path": "scripts/_lib/ToolkitConstants.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.2257559Z",
+      "length": 72792,
+      "hash": "3e04a9fe9d8d2bbb796fbc5a992b8cb51cdcad0ab156b69ac29fc90c622cdc34",
+      "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
+    },
+    {
+      "path": "scripts/_lib/ToolkitManagedPublishInventory.ps1",
+      "last_write_utc": "2026-10-08T21:34:11.3388227Z",
+      "length": 36687,
+      "hash": "6b400e8c85f3187899223e2449bcf6983eec85107acd474e9f2ecfeb1242d44c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/ToolkitValidationFileSystem.ps1",
+      "last_write_utc": "2026-10-06T10:53:13.4418125Z",
+      "length": 3054,
+      "hash": "ca02a6135a10399c7eff532a7deba0801ab9a3143cb7b7ca09d7e8a3c07f59be",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/sync-agent.ps1",
+      "last_write_utc": "2026-10-03T02:44:41.7755692Z",
+      "length": 15838,
+      "hash": "f119c15040606fc0bbbd4bdccd118882ed812a3fc1ac890e7b8bf6bbcb12f5e0",
+      "summary": "Re-resolve every path after directory creation and immediately before"
+    },
+    {
+      "path": "scripts/toolkit.ps1",
+      "last_write_utc": "2026-10-08T23:24:25.5020107Z",
+      "length": 42236,
+      "hash": "6d36d5c6e3957cb99394dd8f7a3b3a14c089acd45009c8afa0dba46190250cbe",
+      "summary": "--- Entry ---"
+    },
+    {
+      "path": "scripts/validate-agent.ps1",
+      "last_write_utc": "2026-10-08T23:28:09.3428970Z",
+      "length": 7070,
+      "hash": "1c659fc9b6eb2eba264266bc6f2c86fa47da7f8d37cdc400e289e060e5cd126e",
+      "summary": "Dot-source before InstallRoot default so adapters can expose FixtureRelativePath."
+    },
+    {
+      "path": "scripts/validation/validate-core.ps1",
+      "last_write_utc": "2026-10-09T10:30:59.2257559Z",
+      "length": 21050,
+      "hash": "87ae83c4912ecb01d47d4bff2db45b9d7485afaf8936561e5a6557d722f09579",
+      "summary": "Assertion scripts may emit success-stream objects through helper calls."
+    },
+    {
+      "path": "SECURITY.md",
+      "last_write_utc": "2026-08-01T19:41:10.1454597Z",
+      "length": 2014,
+      "hash": "e08cbc34d325f2841d24faa3b168a8451d5c9742b6d62bdbf3f666bad724b3b9",
+      "summary": "Security policy"
+    }
+  ]
 }

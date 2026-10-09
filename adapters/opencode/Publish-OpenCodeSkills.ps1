@@ -6,7 +6,8 @@
 .DESCRIPTION
   Copies core/skills into InstallRoot/skills keeping kebab-case folder names
   (no underscore remapping). Resolves {{TOOLKIT_ROOT}}, {{SDD_ROOT}}, and
-  {{GUARDRAILS_PATH}} under the published InstallRoot. Uses Resolve-InstallRoot
+  {{GUARDRAILS_PATH}} to InstallRoot/AGENTS.md. Publish-Policy does not create
+  rules/guardrails.md. Uses Resolve-InstallRoot
   (USERPROFILE guard).
 #>
 
@@ -51,7 +52,7 @@ function Get-OpenCodePlaceholderMap {
     $toolkitRoot = Get-OpenCodeNormalizedForwardSlashPath -Path $InstallRoot
     $sddRoot = Get-OpenCodeNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:OpenCodePathConstant.SddDirectoryName)
     $guardrailsPath = Get-OpenCodeNormalizedForwardSlashPath -Path (
-        Join-Path (Join-Path $InstallRoot $script:OpenCodePathConstant.RulesDirectoryName) $script:OpenCodePathConstant.GuardrailsFileName
+        Join-Path $InstallRoot $script:OpenCodePathConstant.AgentsFileName
     )
 
     return [ordered]@{

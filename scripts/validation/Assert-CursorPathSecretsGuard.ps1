@@ -73,7 +73,9 @@ $allowedCases = @(
     'features/004-example/US01/PRD/004_example.md',
     'memory-bank/architecture.md',
     'src/Services/Foo.cs',
-    'docs/guides/README.md'
+    'docs/guides/README.md',
+    'firmware/build/app.bin',
+    'node_modules/pkg/index.js'
 )
 foreach ($case in $allowedCases) {
     if (-not (Test-ToolkitAllowedWritePath -RelativePath $case)) {
@@ -85,7 +87,7 @@ Write-Pass -TestName 'Should_Pass_When_AllowedPathsAccepted'
 $forbiddenCases = @(
     'PRD/legacy.md',
     'docs/PRD/legacy.md',
-    'node_modules/pkg/index.js'
+    '.git/config'
 )
 foreach ($case in $forbiddenCases) {
     if (Test-ToolkitAllowedWritePath -RelativePath $case) {
@@ -198,7 +200,7 @@ $shellPayload = @{
 
 $beforeShellPayload = @{
     hook_event_name = 'beforeShellExecution'
-    command = 'Remove-Item -Recurse node_modules/pkg'
+    command = 'Remove-Item -Recurse .git/objects'
     cwd     = $tempRoot
 }
 
@@ -248,6 +250,20 @@ Invoke-PathSecretsGuardHarness -AdapterName 'Cursor' -HookScriptPath $guardScrip
 if (Test-ToolkitAllowedWritePath -RelativePath $absOutside) {
     Write-Fail -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace' -Reason 'Test-ToolkitAllowedWritePath must reject absolute paths'
 }
+
+$userFeature = Join-Path (Join-Path $env:USERPROFILE '.cursor') 'sdd\features\012-example\US01\PLAN\PLAN.md'
+$userVerdict = Get-ToolkitPathSecretsGuardVerdict -ToolName 'Write' -ToolInput ([PSCustomObject]@{ path = $userFeature; content = '# plan' }) -WorkspaceRoot $repoRoot
+if ($userVerdict.Decision -ne 'allow') {
+    Write-Fail -TestName 'Should_Allow_When_WriteIsUnderUserAdapterHome' -Reason ("user adapter SDD path must allow; decision={0}" -f $userVerdict.Decision)
+}
+Write-Pass -TestName 'Should_Allow_When_WriteIsUnderUserAdapterHome'
+
+$adapterSibling = Join-Path $env:USERPROFILE '.cursor-evil\features\x.md'
+$siblingVerdict = Get-ToolkitPathSecretsGuardVerdict -ToolName 'Write' -ToolInput ([PSCustomObject]@{ path = $adapterSibling; content = '# x' }) -WorkspaceRoot $repoRoot
+if ($siblingVerdict.Decision -ne 'deny') {
+    Write-Fail -TestName 'Should_Deny_When_PathIsOutsideAdapterHome' -Reason 'a sibling of .cursor must stay denied'
+}
+Write-Pass -TestName 'Should_Deny_When_PathIsOutsideAdapterHome'
 
 Write-Host 'Assert-CursorPathSecretsGuard: ALL PASS'
 exit 0

@@ -1,13 +1,15 @@
+Language: English
+
 # Project context
 
 <!-- BEGIN GENERATED: inventory-summary -->
 | Field | Value |
 |-------|--------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-10-03T01:54:07.4768932Z |
+| **Inventory at** | 2026-10-09T13:51:08.7695991Z |
 | **Status** | ready |
-| **Inventory hash** | `e6945fcf9ff1624d36f42fce412054838856a6b6d8f5518d1f219bf3f1469725` |
-| **Primary stack signals** | markdown, powershell (125 sources) |
+| **Inventory hash** | `678207ff40295caacb42ed788b10f1c2344ea398ffd22abbf426285782e8da07` |
+| **Primary stack signals** | markdown, powershell (131 sources; 45 skills; 90 assert scripts) |
 <!-- END GENERATED: inventory-summary -->
 
 ## Purpose

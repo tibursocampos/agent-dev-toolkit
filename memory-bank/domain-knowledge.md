@@ -4,7 +4,7 @@
 
 | Area | Description | Evidence |
 |------|-------------|----------|
-| Skills catalog | 41 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
+| Skills catalog | 45 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Delivery path | Complete path is Orchestrated Delivery: Step 0 `memory-bank-init`, then `orchestrate-analyze`, `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story), `orchestrate-develop` (one `sdd-develop` child per PLAN step). Direct `sdd-spec` is the same contract when one story is already clear. `refine-story` is the O1 scorecard rubric plus a standalone invoke for one product item or open clarification B/I. | `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
 | Agent registry | 10 agents: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands. Capability `subagents` is `native` or `none`. | `adapters/registry.json` |
 | Spawn | Axes A (spawn vs in-parent), B (omit/inherit model), C (alternate model slug only after gate). Chat language follows the user. Spawn prompts and receipts are en-US. | `core/skills/_shared/agents/SPAWN.md`, `core/skills/_shared/agents/LANGUAGE.md` |

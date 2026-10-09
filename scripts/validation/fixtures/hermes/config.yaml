@@ -1,0 +1,12 @@
+other_consumer:
+  api_key: foreign-consumer-keep
+plugins:
+  enabled:
+    - agent-dev-toolkit-guard
+    - foreign-consumer-plugin
+hooks:
+  pre_tool_call:
+    - matcher: "terminal|write_file|patch"
+      command: 'pwsh -NoProfile -File "~/.hermes/agent-hooks/guard-pre-tool.ps1"'
+      timeout: 15
+      fail_closed: true

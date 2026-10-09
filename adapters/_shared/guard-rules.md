@@ -22,7 +22,7 @@ should reuse `GuardCommon.ps1` and map host tool names using the table below.
 
 ## Path deny (always blocked)
 
-Evaluated before allow prefixes/extensions.
+Evaluated before the in-workspace allow.
 
 ### Forbidden SDD locations
 
@@ -41,15 +41,8 @@ Any path whose normalized form contains these directory segments:
 | Segment |
 |---------|
 | `/.git/` |
-| `/node_modules/` |
-| `/bin/` |
-| `/obj/` |
-| `/dist/` |
-| `/build/` |
-| `/coverage/` |
-| `/.vs/` |
-| `/target/` |
-| `/vendor/` |
+
+Build outputs, `node_modules/`, and other workspace trees are allowed. The guard does not keep a directory or extension allowlist.
 
 ## Path allow
 
@@ -57,7 +50,6 @@ A write/edit is allowed when **all** of the following hold:
 
 1. The path resolves **inside the workspace root** (see Workspace binding below).
 2. The path is **not** denied above.
-3. **Any** of the following holds (case-insensitive prefixes; paths normalized with `/`):
 
 ### Workspace binding (fail-closed)
 
@@ -68,39 +60,14 @@ must **not** count as inside the workspace.
 
 | Resolve result | Guard behavior |
 |----------------|----------------|
-| Inside workspace | Relative path; apply deny segments + allow prefixes/extensions |
-| Outside workspace (absolute elsewhere, sibling prefix, UNC escape) | **Deny** — `$null` from normalize; extension allowlist does **not** apply |
+| Inside workspace | Relative path; deny only `.git/` and legacy PRD/PLAN trees |
+| User adapter home | Allow `.cursor`, `.codex`, `.claude`, `.copilot`, `.grok`, `.hermes`, `.opencode`, `.zcode`, `.antigravity`, `.gemini`, `.agents` under the user profile, plus `%LOCALAPPDATA%\hermes`. Global SDD under those homes is a write target. `.git` inside them stays denied |
+| Outside workspace and outside those homes | **Deny** on write, delete, and mutating shell |
 | Blank input path on write/delete | **Deny** (fail-closed; path required) |
 
-### SDD / docs prefixes
+Absolute paths outside the workspace stay denied on write and on shell that mutates a file (e.g. `C:\Temp\evil.cs` → deny). Read and execute commands are not path-gated; secret scan still runs on the command text.
 
-- `features/`
-- `memory-bank/`
-- `docs/`
-- `.cursor/sdd/`
-
-### Application directory prefixes
-
-`src/`, `test/`, `tests/`, `app/`, `lib/`, `pkg/`, `internal/`, `cmd/`, `api/`,
-`server/`, `client/`, `backend/`, `frontend/`, `services/`, `components/`, `pages/`,
-`assets/`, `public/`, `wwwroot/`, `infrastructure/`, `application/`, `domain/`,
-`presentation/`, `core/`, `scripts/`, `adapters/`, `docs-site/`, `.github/`
-
-### Allowed extensions (workspace-relative only, if not denied)
-
-`.cs`, `.ts`, `.tsx`, `.js`, `.jsx`, `.py`, `.java`, `.kt`, `.go`, `.rs`, `.vue`,
-`.svelte`, `.css`, `.scss`, `.sass`, `.less`, `.html`, `.htm`, `.sql`, `.razor`,
-`.cshtml`, `.fs`, `.fsx`, `.rb`, `.php`, `.swift`, `.m`, `.h`, `.cpp`, `.c`, `.hpp`,
-`.json`, `.yaml`, `.yml`, `.toml`, `.xml`, `.md`, `.mdc`, `.ps1`, `.sh`, `.dart`,
-`.ex`, `.exs`, `.sln`, `.csproj`, `.fsproj`, `.props`, `.targets`, `.gradle`,
-`.kts`, `.lock`, `.config`
-
-Absolute paths and paths outside the workspace are **never** allowed solely because of
-an allowed extension (e.g. `C:\Temp\evil.cs` → deny).
-
-Empty / unresolvable paths on write/delete: **deny** (fail-closed). Shell commands with
-no extractable paths still run secret scan; named `-Path`/`-FilePath`/`-LiteralPath`
-arguments to `Set-Content`/`Out-File`/etc. are extracted for path checks.
+Empty / unresolvable paths on write/delete: **deny** (fail-closed). Shell commands that do not mutate a file skip path checks. Redirects and `Set-Content`/`Out-File`/`Remove-Item`/`Copy-Item`/`Move-Item` still extract paths.
 
 ## Secret patterns
 

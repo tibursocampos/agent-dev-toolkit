@@ -7,8 +7,8 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   Helpers for Copilot Publish-Agents.
 
 .DESCRIPTION
-  Publish core/agents as Copilot custom agent profiles in both supported scopes.
-  Copilot CLI accepts .agent.md profiles and VS Code requires that suffix.
+  Publish core/agents as one nome.agent.md profile per agent.
+  Copilot CLI and VS Code both discover that suffix.
 #>
 
 $script:CopilotAgentsModuleDirectory = $PSScriptRoot
@@ -89,8 +89,7 @@ function Invoke-CopilotPublishAgents {
             ) `
             -UnresolvedMessageFormat $script:CopilotPublishMessage.PlaceholderUnresolved
 
-    # Copilot CLI accepts both .md and .agent.md; VS Code discovers .agent.md.
-    # Publish one canonical profile per agent so both hosts resolve the same ID.
+    # Copilot CLI and VS Code discover nome.agent.md. Drop the parallel nome.md this copy just wrote.
     foreach ($sourceName in $publishResult.AgentFileNames) {
         $legacyPath = Join-Path $destAgentsRoot $sourceName
         $agentName = [System.IO.Path]::GetFileNameWithoutExtension($sourceName)
@@ -124,25 +123,27 @@ function Invoke-CopilotPublishAgents {
             -Content $profileText `
             -Encoding (New-Object System.Text.UTF8Encoding $false) `
             -InstallRoot $resolvedInstallRoot `
-            -RelativePath ('agents/{0}' -f ($agentName + '.agent.md'))
-        Write-Warning ("Preserved legacy agent Markdown file because ownership is not proven: {0}" -f $legacyPath)
+            -RelativePath ('{0}/{1}' -f $script:CopilotPathConstant.CustomAgentsDirectoryName, ($agentName + $script:CopilotPathConstant.CustomAgentProfileExtension))
+        # The managed copy emits nome.md. This publish owns that file and keeps only nome.agent.md.
+        $legacyFinal = Assert-PathUnderInstallRootForDelete -CandidatePath $legacyPath -InstallRoot $resolvedInstallRoot
+        [System.IO.File]::Delete($legacyFinal)
     }
 
-        Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
 
-        return [PSCustomObject]@{
-            Success          = $true
-            Implemented      = $true
-            CommandName      = 'Publish-Agents'
-            WhatIf           = $false
-            Mode             = $normalizedMode
-            InstallRoot      = $resolvedInstallRoot
-            SourceAgentsRoot = $sourceAgentsRoot
-            DestAgentsRoot   = $destAgentsRoot
-            AgentFileCount   = $publishResult.AgentFileCount
-            Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
-            ExitCode         = 0
-        }
+    return [PSCustomObject]@{
+        Success          = $true
+        Implemented      = $true
+        CommandName      = 'Publish-Agents'
+        WhatIf           = $false
+        Mode             = $normalizedMode
+        InstallRoot      = $resolvedInstallRoot
+        SourceAgentsRoot = $sourceAgentsRoot
+        DestAgentsRoot   = $destAgentsRoot
+        AgentFileCount   = $publishResult.AgentFileCount
+        Message          = ($script:CopilotPublishMessage.AgentsPublishedOk -f $publishResult.AgentFileCount, $destAgentsRoot, $normalizedMode)
+        ExitCode         = 0
+    }
     }
     finally {
         Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'

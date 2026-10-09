@@ -162,13 +162,15 @@ function Invoke-CodexPublishAgents {
         $toml = Convert-CodexAgentMarkdownToToml -MarkdownText $raw -SourcePath $mdFile.FullName
         $destName = [System.IO.Path]::ChangeExtension($mdFile.Name, $script:CodexPathConstant.CustomAgentTomlExtension)
         $destPath = Join-Path $destAgentsRoot $destName
-        $null = Write-ToolkitFileIfAbsent -Path $destPath -Content $toml -Encoding $utf8NoBom
+        $relativeTomlPath = '{0}/{1}' -f $script:CodexPathConstant.CustomAgentsDirectoryName, $destName
+        $null = Write-ToolkitFileIfAbsent -Path $destPath -Content $toml -Encoding $utf8NoBom -InstallRoot $resolvedInstallRoot -RelativePath $relativeTomlPath
         $published++
 
-        # Preserve any stale .md copy; extension/name alone cannot prove toolkit ownership.
-        $staleMd = Join-Path $destAgentsRoot $mdFile.Name
-        if (Test-Path -LiteralPath $staleMd) {
-            Write-Warning ("Preserved agent Markdown file because ownership is not proven: {0}" -f $staleMd)
+        # Catalog stem only: nome.md beside the published nome.toml. Other names stay.
+        $catalogMarkdownPath = Join-Path $destAgentsRoot $mdFile.Name
+        if (Test-Path -LiteralPath $catalogMarkdownPath -PathType Leaf) {
+            $catalogMarkdownFinal = Assert-PathUnderInstallRootForDelete -CandidatePath $catalogMarkdownPath -InstallRoot $resolvedInstallRoot
+            [System.IO.File]::Delete($catalogMarkdownFinal)
         }
     }
 

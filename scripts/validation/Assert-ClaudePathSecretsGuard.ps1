@@ -84,7 +84,9 @@ $allowedCases = @(
     'features/004-example/US01/PRD/004_example.md',
     'memory-bank/architecture.md',
     'src/Services/Foo.cs',
-    'docs/guides/README.md'
+    'docs/guides/README.md',
+    'firmware/build/app.bin',
+    'node_modules/pkg/index.js'
 )
 foreach ($case in $allowedCases) {
     if (-not (Test-ToolkitAllowedWritePath -RelativePath $case)) {
@@ -96,7 +98,7 @@ Write-Pass -TestName 'Should_Pass_When_AllowedPathsAccepted'
 $forbiddenCases = @(
     'PRD/legacy.md',
     'docs/PRD/legacy.md',
-    'node_modules/pkg/index.js'
+    '.git/config'
 )
 foreach ($case in $forbiddenCases) {
     if (Test-ToolkitAllowedWritePath -RelativePath $case) {
