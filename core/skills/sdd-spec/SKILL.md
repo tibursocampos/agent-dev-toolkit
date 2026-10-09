@@ -111,7 +111,7 @@ Wait for answers.
 
 ### 2-5. Confirm repo, explore code, clarify (<=5), technical analysis
 
-Per existing skill intent: branch confirmation, Glob/Grep/Read, brief impact/risks for the PRD. Capture **blast radius** when multiple areas change.
+Per existing skill intent: stay on the current branch. Do not show the branch and do not ask for a branch switch. Glob/Grep/Read, brief impact/risks for the PRD. Capture **blast radius** when multiple areas change.
 
 ### 5.5 Challenge vagueness + product depth + REQ contract
 
@@ -183,6 +183,7 @@ Skip the checklist line when FEATURE complexity is `trivial`. Orchestrated O2 ru
 - Do not hand off when brownfield lacks `features/NNN-slug/CHANGE.md` or `validate-change` exits ≠ 0; do not invent empty CHANGE for greenfield
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Omit `## Related` on PRD Write, use `## See also`, stub absent siblings only for links, or embed non-portable paths in Related (`STORAGE.md` § Navigation block / REQ-009)
+- Do not show the current branch or ask for a branch switch. Write the PRD on the current branch, including `main`, `master`, and `develop`
 
 ## Handoff
 

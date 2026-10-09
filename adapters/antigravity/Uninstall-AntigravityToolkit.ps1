@@ -242,7 +242,12 @@ function Invoke-AntigravityUninstallToolkit {
 
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
     $managedSkillIds = @($skillAudit.SkillIds)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($mapped.FixtureSkillsPath) `
+        -SkillIds $managedSkillIds `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
 
     $devPersonaDir = $mapped.FixtureDevPersonaDir
     if (Test-Path -LiteralPath $devPersonaDir -PathType Container) {
@@ -273,14 +278,20 @@ function Invoke-AntigravityUninstallToolkit {
     $legacyBridgePath = Join-Path $resolvedInstallRoot ($script:AntigravityAdapterConstant.LegacyBridgeRelativePath -replace '/', $sep)
     $hooksPath = $mapped.FixtureHooksPath
 
-    $message = if ($WhatIf.IsPresent) {
-        $script:AntigravityUninstallMessage.WhatIfOk -f $wouldRemovePaths.Count, $resolvedInstallRoot
+    $pathCount = if ($WhatIf.IsPresent) {
+        $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
-        $script:AntigravityUninstallMessage.RemovedOk -f $removedPaths.Count, $resolvedInstallRoot
+        $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
+    $message = if ($WhatIf.IsPresent) {
+        $script:AntigravityUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot
+    }
+    else {
+        $script:AntigravityUninstallMessage.RemovedOk -f $pathCount, $resolvedInstallRoot
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+        $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ')
     }
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
@@ -289,8 +300,8 @@ function Invoke-AntigravityUninstallToolkit {
         Implemented              = $true
         CommandName              = 'Uninstall-Toolkit'
         InstallRoot              = $resolvedInstallRoot
-        RemovedPathCount         = $(if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count })
-        RemovedPaths             = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        RemovedPathCount         = $pathCount
+        RemovedPaths             = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
         PreservedPaths           = @($preservedSkillPaths)
         WhatIf                   = [bool]$WhatIf.IsPresent
         SmokeTargetsLegacyBridge = $false

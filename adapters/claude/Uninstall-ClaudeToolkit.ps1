@@ -322,7 +322,12 @@ function Invoke-ClaudeUninstallToolkit {
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($skillsRoot) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
 
     $rulesRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.RulesDirectoryName
     foreach ($ruleRelative in (Get-ClaudeManagedRuleRelativePaths -RepoRoot $repoRoot)) {
@@ -378,7 +383,12 @@ function Invoke-ClaudeUninstallToolkit {
         }
     }
 
-    $pathCount = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
+    $pathCount = if ($WhatIf.IsPresent) {
+        $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
+    else {
+        $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
     $messageParts = @(
         $(if ($WhatIf.IsPresent) {
             ('{0}; {1}' -f ($script:ClaudeUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
@@ -391,7 +401,7 @@ function Invoke-ClaudeUninstallToolkit {
         $messageParts += @($routerNotes.ToArray())
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $messageParts += @('Skill paths preserved because names-only manifests cannot prove per-file ownership: ' + ($preservedSkillPaths -join ', '))
+        $messageParts += @('skill paths preserved: ' + ($preservedSkillPaths -join ', '))
     }
     if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
@@ -403,7 +413,7 @@ function Invoke-ClaudeUninstallToolkit {
         WhatIf          = [bool]$WhatIf.IsPresent
         InstallRoot     = $resolvedInstallRoot
         RemovedCount    = $pathCount
-        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
         PreservedPaths  = @($preservedSkillPaths)
         SettingsTouched = [bool]$settingsResult.SettingsTouched
         SettingsPath    = $settingsResult.SettingsPath

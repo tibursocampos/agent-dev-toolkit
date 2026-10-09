@@ -1,0 +1,3 @@
+name: agent-dev-toolkit-guard
+version: "1.0"
+description: Path allow/deny and secret-pattern pre_tool_call guard for agent-dev-toolkit

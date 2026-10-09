@@ -83,8 +83,20 @@ If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched
 
 ### 9. Single edit
 
-One edit covers the `Implementation progress` ledger (status and evidence; keep `Analysis weight`), the step glyph (`☑` when `COMPLETED`), the matching `- [x]` boxes in `REFINE/tasks.md`, the counters, and the checkpoint. Show that ledger and those boxes in chat when the step starts and when it closes (`execution-display.md`). Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
+One edit covers the `Implementation progress` ledger (status and evidence; keep `Analysis weight`), the step glyph (`☑` when `COMPLETED`), the matching `- [x]` boxes in `REFINE/tasks.md`, the counters, and the checkpoint. In `step_by_step`, the chat before the edit is the narrative summary, what the PLAN says to do, and the blocking question (`execution-display.md`). When the step closes, show that ledger for every step and those boxes. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
 
-For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before redrawing the complete chat-only stage table and reconciled ledger and before emitting the session report. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
+For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before showing the step ledger and the short result. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step, asks the deviation, and does not delegate the next step. Do not invent a fix and do not rewrite the PLAN. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
+
+### 10. Companion PRD when Implementation status is COMPLETED
+
+When this edit sets the PLAN header **Implementation status** to `COMPLETED` (every step `COMPLETED` or `SKIPPED`, progress `N/N`), close the cited PRD in the same edit.
+
+1. Read the portable path in the PLAN metadata row `**PRD**`. If the row or the file is absent, say so in the session report and do not invent a PRD.
+2. Set that PRD metadata **Status** to `Implementado` when the PRD prose is pt-BR, or `Implemented` when it is English. Leave acceptance criteria, scope, and requirements unchanged.
+3. In `## Definição de pronto` or `## Definition of done`, check only the boxes whose text is implementation alignment, tests or fixtures, and build or structural validation. Leave spec-quality boxes (REQ coverage, explicit OOS) as they already are.
+4. If `## Histórico de alterações` or `## Change history` exists, append one row: today's date, the next version number, `sdd-develop`, and that the PLAN **Implementation status** reached `COMPLETED`.
+5. If the PLAN is already `COMPLETED` and the PRD status is still `Pronto para planejamento` or `Ready for planning`, apply this close once. That repair is not a restart of implementation.
+
+`/code-review` and `/commit` do not write this status. A review that finds PLAN `COMPLETED` with PRD still `Pronto para planejamento` / `Ready for planning` flags the drift and hands the close back here.
 
 ---

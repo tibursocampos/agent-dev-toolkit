@@ -32,23 +32,25 @@ If the user has **not** said **sim** to the current action, do **NOT** execute m
 
 **Allowed without confirmation:** read-only - `git status`, `git diff`, `git log`, `git branch --show-current`.
 
-### Working branch (every skill, before the first write)
+### Working branch (development skills, before the first code change)
 
-Before the first file write or mutating shell in a conversation, run read-only `git status -sb` or `git branch --show-current`.
+The integration-branch stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`.
+
+Before those skills change code, run read-only `git status -sb` or `git branch --show-current` and show the branch name.
 
 If the current branch is `main`, `master`, or `develop`:
 
-1. Stop before writing.
-2. Tell the user **(pt-BR)** the branch name. Integration branches are not a work branch.
+1. Stop before writing code.
+2. Tell the user **(pt-BR)** the branch name. Integration branches are not a work branch for these skills.
 3. Propose `feature/<slug>` or `feat/<id>-<slug>` cut from that branch.
 4. Create the branch only after **sim**. `git checkout -b` stays blocked until that sim.
 5. Read-only work may continue while waiting.
 
 If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
 
-This gate is generic. SDD, developer, documentation, and operational skills all read it here. A checklist inside one skill does not replace it. `sdd-spec` "branch confirmation" means this gate.
+`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
 
-Exception: the user explicitly says to keep the current integration branch.
+Exception: the user explicitly says to keep the current integration branch. That exception is only for the development skills listed above.
 
 Mutating git commands require explicit **sim** in the user's **immediately previous** message, or the user runs them manually.
 
@@ -69,6 +71,20 @@ Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 **Exception:** updating an existing PLAN after an **already approved** develop step - no re-confirmation.
 
 Before editing production code or tests: confirm scope unless the user explicitly approved the current step/task.
+
+---
+
+## Open questions without a written deadline
+
+A question whose rule states no deadline stays open until the operator answers every pending question.
+
+After that question is sent, send no further agent message until those answers arrive. Silence, a timeout, and the end of the turn are not answers.
+
+A host that offers an interactive question uses that mechanism. Every other host asks in text. Both block the flow.
+
+After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes. It finishes the requested function or declares a blocker and states the cause.
+
+The required **sim** before writes in §2 stays in force. This section does not replace that confirm.
 
 ---
 

@@ -121,7 +121,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (do not
 Apply Lite caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Lite cap).
 
 ### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked.
+Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Stay on the current branch. Do not show the branch and do not ask for a branch switch, including when the branch is `main`, `master`, or `develop`.
 
 ### 1b. Resolve invocation context
 Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into child handoffs (path cite only — do not dump the contract body).

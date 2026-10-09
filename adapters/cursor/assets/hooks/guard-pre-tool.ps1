@@ -1,5 +1,6 @@
-# preToolUse / beforeShellExecution - deny writes, deletes, and shell outside allowed scopes;
-# block obvious secret patterns.
+# preToolUse / beforeShellExecution - deny writes and mutating shell outside the workspace
+# and outside user adapter homes, under .git, or in legacy PRD/PLAN trees; block secrets.
+# Read and execute commands stay allowed. Global SDD under the user adapter home is allowed.
 # Contract: sdd-pipeline-guards (features/ canonical SDD) + step-3.5-precommit-validation (secrets).
 
 #Requires -Version 5.1

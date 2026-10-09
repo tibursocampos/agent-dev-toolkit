@@ -4,9 +4,10 @@
 #   Should_Throw_When_WriteManagedSkillsManifestGetsBadName
 #   Should_Throw_When_CopyRelativeWouldEscapeViaParentSegment
 #   Should_NotPruneUnknownDirs_When_PreviousManifestEmptyOrMissing
-#   Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree
-#   Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets
-#   Should_PreserveExistingGeneratedConfigAndRouter_When_PublishingUnownedTargets
+#   Should_ReplaceCollidingCatalogFilesAndPreserveStaleSkills_When_CopyingManagedTree
+#   Should_ReplaceCatalogHookAndRuleFiles_When_Republishing
+#   Should_ReplaceCatalogConfigAndRefreshMarkedRouter_When_Republishing
+#   Should_RemoveEditedCatalogSkillsAndOnlyMarkedRouterSection_When_Uninstalling
 #   Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters
 $ErrorActionPreference = 'Stop'
 
@@ -14,6 +15,7 @@ $scriptDir = $PSScriptRoot
 $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $managedTreeScript = Join-Path $libDir 'Copy-ToolkitManagedTree.ps1'
+$inventoryScript = Join-Path $libDir 'ToolkitManagedPublishInventory.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
 
 function Write-Pass {
@@ -30,13 +32,14 @@ function Write-Fail {
     exit 1
 }
 
-foreach ($required in @($managedTreeScript, $constantsScript)) {
+foreach ($required in @($managedTreeScript, $inventoryScript, $constantsScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Fail -TestName 'Assert-ManagedSkillsPathSafetyPreconditions' -Reason ("missing {0}" -f $required)
     }
 }
 
 . $managedTreeScript
+. $inventoryScript
 
 $probeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("adt-managed-skills-path-safety-" + [Guid]::NewGuid().ToString('N'))
 $destinationSkillsRoot = Join-Path $probeRoot 'skills'
@@ -192,8 +195,8 @@ try {
         Write-Fail -TestName $emptyManifestTest -Reason 'empty skills[] manifest must not delete unknown kebab skill dirs'
     }
 
-    # --- Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree ---
-    $preserveTest = 'Should_PreserveCollidingFilesAndStaleSkills_When_CopyingManagedTree'
+    # --- Should_ReplaceCollidingCatalogFilesAndPreserveStaleSkills_When_CopyingManagedTree ---
+    $preserveTest = 'Should_ReplaceCollidingCatalogFilesAndPreserveStaleSkills_When_CopyingManagedTree'
     $copySource = Join-Path $probeRoot 'copy-source'
     $copyDestination = Join-Path $probeRoot 'copy-destination'
     $sourceSkill = Join-Path $copySource 'same-name-skill'
@@ -203,6 +206,8 @@ try {
     $destinationCollision = Join-Path $destinationSkill 'SKILL.md'
     [System.IO.File]::WriteAllText($sourceCollision, 'Toolkit {{ROOT}}')
     [System.IO.File]::WriteAllText($destinationCollision, 'Operator content {{ROOT}}')
+    $operatorSidecar = Join-Path $destinationSkill 'operator-notes.txt'
+    [System.IO.File]::WriteAllText($operatorSidecar, 'keep operator sidecar')
     $newSourceFile = Join-Path $sourceSkill 'new-reference.md'
     [System.IO.File]::WriteAllText($newSourceFile, 'Toolkit path {{ROOT}}')
     $staleId = 'retired-skill'
@@ -218,8 +223,11 @@ try {
     $destinationCollisionText = [System.IO.File]::ReadAllText($destinationCollision)
     $newFileText = [System.IO.File]::ReadAllText((Join-Path $destinationSkill 'new-reference.md'))
     $updatedManifest = Read-ToolkitManagedSkillsManifest -DestinationSkillsRoot $copyDestination
-    if ($destinationCollisionText -ne 'Operator content {{ROOT}}') {
-        Write-Fail -TestName $preserveTest -Reason 'existing same-name user skill file or its placeholder token was changed'
+    if ($destinationCollisionText -ne 'Toolkit resolved-root') {
+        Write-Fail -TestName $preserveTest -Reason ("catalog skill file must match source after placeholder transform; got '{0}'" -f $destinationCollisionText)
+    }
+    if ([System.IO.File]::ReadAllText($operatorSidecar) -ne 'keep operator sidecar') {
+        Write-Fail -TestName $preserveTest -Reason 'non-catalog sidecar inside a skill folder must stay untouched'
     }
     if ($newFileText -ne 'Toolkit path resolved-root') {
         Write-Fail -TestName $preserveTest -Reason ("new toolkit file must still receive placeholder resolution; got '{0}'; tracked='{1}'" -f $newFileText, (@($script:ToolkitLastManagedCopyPaths) -join '|'))
@@ -231,8 +239,8 @@ try {
     Write-Pass -TestName $emptyManifestTest
     Write-Pass -TestName $preserveTest
 
-    # --- Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets ---
-    $hookRuleTest = 'Should_PreserveExistingHookAndRuleFiles_When_PublishingUnownedTargets'
+    # --- Should_ReplaceCatalogHookAndRuleFiles_When_Republishing ---
+    $hookRuleTest = 'Should_ReplaceCatalogHookAndRuleFiles_When_Republishing'
     $publishSource = Join-Path $probeRoot 'publish-source'
     $publishRoot = Join-Path $probeRoot 'publish-root'
     $hookSource = Join-Path $publishSource 'hooks.json'
@@ -241,34 +249,158 @@ try {
     $ruleTarget = Join-Path (Join-Path $publishRoot 'rules') 'rtk.md'
     $configTarget = Join-Path (Join-Path $publishRoot 'config') 'settings.json'
     $routerTarget = Join-Path $publishRoot 'AGENTS.md'
+    $secretTarget = Join-Path $publishRoot 'operator-secret.txt'
     New-Item -ItemType Directory -Path $publishSource,(Split-Path -Parent $hookTarget),(Split-Path -Parent $ruleTarget),(Split-Path -Parent $configTarget),(Split-Path -Parent $routerTarget) -Force | Out-Null
-    [System.IO.File]::WriteAllText($hookSource, '{"hooks":{"RTK":"operator-hook"}}')
+    [System.IO.File]::WriteAllText($hookSource, '{"hooks":{"RTK":"source-hook"}}')
     [System.IO.File]::WriteAllText($hookTarget, '{"hooks":{"RTK":"keep-this-hook"}}')
     [System.IO.File]::WriteAllText($ruleSource, 'toolkit rule')
     [System.IO.File]::WriteAllText($ruleTarget, 'operator RTK rule')
     [System.IO.File]::WriteAllText($configTarget, '{"settings":{"RTK":"keep-this-setting"}}')
-    [System.IO.File]::WriteAllText($routerTarget, 'operator router content')
+    $beginMarker = $script:ToolkitConstant.ManagedBlockBeginMarker
+    $endMarker = $script:ToolkitConstant.ManagedBlockEndMarker
+    $routerBefore = "operator preface`n$beginMarker`nold toolkit section`n$endMarker`noperator after`n"
+    [System.IO.File]::WriteAllText($routerTarget, $routerBefore)
+    [System.IO.File]::WriteAllText($secretTarget, 'do not touch secret')
 
     $hookCopied = Copy-ToolkitFileIfAbsent -SourcePath $hookSource -DestinationPath $hookTarget
     $ruleCopied = Copy-ToolkitFileIfAbsent -SourcePath $ruleSource -DestinationPath $ruleTarget
-    if ($hookCopied -or $ruleCopied) {
-        Write-Fail -TestName $hookRuleTest -Reason 'unowned hook/rule destinations must be preserved'
+    if (-not $hookCopied -or -not $ruleCopied) {
+        Write-Fail -TestName $hookRuleTest -Reason 'catalog hook and rule destinations must be replaced'
     }
-    if ([System.IO.File]::ReadAllText($hookTarget) -ne '{"hooks":{"RTK":"keep-this-hook"}}' -or
-        [System.IO.File]::ReadAllText($ruleTarget) -ne 'operator RTK rule') {
-        Write-Fail -TestName $hookRuleTest -Reason 'existing RTK-like hook or unrelated rule content changed'
+    if ([System.IO.File]::ReadAllText($hookTarget) -ne '{"hooks":{"RTK":"source-hook"}}' -or
+        [System.IO.File]::ReadAllText($ruleTarget) -ne 'toolkit rule') {
+        Write-Fail -TestName $hookRuleTest -Reason 'catalog hook or rule content must match the source'
+    }
+    if ([System.IO.File]::ReadAllText($secretTarget) -ne 'do not touch secret') {
+        Write-Fail -TestName $hookRuleTest -Reason 'non-catalog secret file must stay untouched'
     }
     Write-Pass -TestName $hookRuleTest
 
-    $generatedCollisionTest = 'Should_PreserveExistingGeneratedConfigAndRouter_When_PublishingUnownedTargets'
+    $generatedCollisionTest = 'Should_ReplaceCatalogConfigAndRefreshMarkedRouter_When_Republishing'
     $configWritten = Write-ToolkitFileIfAbsent -Path $configTarget -Content '{"settings":{"toolkit":true}}'
-    $routerWritten = Write-ToolkitFileIfAbsent -Path $routerTarget -Content 'toolkit router content'
-    if ($configWritten -or $routerWritten -or
-        [System.IO.File]::ReadAllText($configTarget) -ne '{"settings":{"RTK":"keep-this-setting"}}' -or
-        [System.IO.File]::ReadAllText($routerTarget) -ne 'operator router content') {
-        Write-Fail -TestName $generatedCollisionTest -Reason 'existing generated settings or router content changed'
+    $routerIncoming = "$beginMarker`nnew toolkit section`n$endMarker"
+    $routerWritten = Write-ToolkitFileIfAbsent -Path $routerTarget -Content $routerIncoming
+    $routerAfter = [System.IO.File]::ReadAllText($routerTarget)
+    if (-not $configWritten -or [System.IO.File]::ReadAllText($configTarget) -ne '{"settings":{"toolkit":true}}') {
+        Write-Fail -TestName $generatedCollisionTest -Reason 'catalog settings file must be replaced with the published content'
+    }
+    if (-not $routerWritten -or $routerAfter -notmatch 'operator preface' -or $routerAfter -notmatch 'operator after' -or $routerAfter -notmatch 'new toolkit section' -or $routerAfter -match 'old toolkit section') {
+        Write-Fail -TestName $generatedCollisionTest -Reason 'marked router must refresh only the toolkit section'
+    }
+
+    $claudeTarget = Join-Path $publishRoot 'CLAUDE.md'
+    $hermesBegin = $script:ToolkitConstant.HermesManagedAgentsBeginMarker
+    $hermesEnd = $script:ToolkitConstant.HermesManagedAgentsEndMarker
+    [System.IO.File]::WriteAllText($claudeTarget, "operator preface`n$hermesBegin`nold hermes section`n$hermesEnd`noperator after`n")
+    $claudeWritten = Write-ToolkitFileIfAbsent -Path $claudeTarget -Content "$hermesBegin`nnew hermes section`n$hermesEnd"
+    $claudeAfter = [System.IO.File]::ReadAllText($claudeTarget)
+    if (-not $claudeWritten -or $claudeAfter -notmatch 'operator preface' -or $claudeAfter -notmatch 'operator after' -or $claudeAfter -notmatch 'new hermes section' -or $claudeAfter -match 'old hermes section') {
+        Write-Fail -TestName $generatedCollisionTest -Reason 'marked CLAUDE.md must refresh only the toolkit section'
     }
     Write-Pass -TestName $generatedCollisionTest
+
+    $uninstallTest = 'Should_RemoveEditedCatalogSkillsAndOnlyMarkedRouterSection_When_Uninstalling'
+    $installRoot = Join-Path $probeRoot 'uninstall-root'
+    $sourceRoot = Join-Path $probeRoot 'uninstall-source'
+    $skillsDest = Join-Path $installRoot 'skills'
+    $sourceSkillDir = Join-Path $sourceRoot 'sample-skill'
+    New-Item -ItemType Directory -Path $sourceSkillDir -Force | Out-Null
+    [System.IO.File]::WriteAllText((Join-Path $sourceSkillDir 'SKILL.md'), "catalog skill body`n")
+    $null = Copy-ToolkitManagedTree -SourceRoot $sourceRoot -DestinationRoot $skillsDest -InstallRoot $installRoot
+    $null = Write-ToolkitManagedSkillsManifest -DestinationSkillsRoot $skillsDest -SkillNames @('sample-skill')
+    $catalogSkillFile = Join-Path (Join-Path $skillsDest 'sample-skill') 'SKILL.md'
+    [System.IO.File]::AppendAllText($catalogSkillFile, "operator-edit-marker`n")
+    $sidecarPath = Join-Path (Join-Path $skillsDest 'sample-skill') 'operator-note.txt'
+    [System.IO.File]::WriteAllText($sidecarPath, "keep sidecar`n")
+    $alienSkillDir = Join-Path $skillsDest 'alien-skill'
+    New-Item -ItemType Directory -Path $alienSkillDir -Force | Out-Null
+    $alienSkillFile = Join-Path $alienSkillDir 'SKILL.md'
+    [System.IO.File]::WriteAllText($alienSkillFile, "alien skill`n")
+    $secretPath = Join-Path $installRoot 'operator-secret.txt'
+    [System.IO.File]::WriteAllText($secretPath, "do not touch secret`n")
+
+    $beginMarker = $script:ToolkitConstant.ManagedBlockBeginMarker
+    $endMarker = $script:ToolkitConstant.ManagedBlockEndMarker
+    $agentsTarget = Join-Path $installRoot 'AGENTS.md'
+    [System.IO.File]::WriteAllText($agentsTarget, "operator preface`n$beginMarker`ntoolkit section`n$endMarker`noperator after`n")
+    $hermesBegin = $script:ToolkitConstant.HermesManagedAgentsBeginMarker
+    $hermesEnd = $script:ToolkitConstant.HermesManagedAgentsEndMarker
+    $claudeTarget = Join-Path $installRoot 'CLAUDE.md'
+    [System.IO.File]::WriteAllText($claudeTarget, "operator preface`n$hermesBegin`nhermes toolkit section`n$hermesEnd`noperator after`n")
+    $catalogRouterTarget = Join-Path $installRoot 'CATALOG.md'
+    $null = Write-ToolkitFileIfAbsent -Path $catalogRouterTarget -Content "catalog router`n" -InstallRoot $installRoot -RelativePath 'CATALOG.md'
+    [System.IO.File]::WriteAllText($catalogRouterTarget, "catalog router edited`n")
+
+    $skillRemoval = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $installRoot `
+        -DestinationSkillsRoots @($skillsDest) `
+        -SkillIds @('sample-skill')
+    if (Test-Path -LiteralPath $catalogSkillFile) {
+        Write-Fail -TestName $uninstallTest -Reason 'edited catalog skill file must be removed'
+    }
+    if (-not (Test-Path -LiteralPath $sidecarPath) -or [System.IO.File]::ReadAllText($sidecarPath) -notmatch 'keep sidecar') {
+        Write-Fail -TestName $uninstallTest -Reason 'non-catalog sidecar inside a skill folder must stay'
+    }
+    if (-not (Test-Path -LiteralPath $alienSkillFile)) {
+        Write-Fail -TestName $uninstallTest -Reason 'alien skill must stay'
+    }
+    if (-not (Test-Path -LiteralPath $installRoot -PathType Container)) {
+        Write-Fail -TestName $uninstallTest -Reason 'InstallRoot must stay'
+    }
+    if (-not (Test-Path -LiteralPath $secretPath)) {
+        Write-Fail -TestName $uninstallTest -Reason 'non-catalog secret must stay'
+    }
+
+    $agentsRemoval = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $installRoot `
+        -RelativePath 'AGENTS.md' `
+        -CurrentFilePath $agentsTarget `
+        -ResolveExpectedPublishContent { 'unused' }
+    $agentsAfter = [System.IO.File]::ReadAllText($agentsTarget)
+    if ($agentsRemoval.Removed -or -not (Test-Path -LiteralPath $agentsTarget) -or $agentsAfter -match [regex]::Escape($beginMarker) -or $agentsAfter -notmatch 'operator preface' -or $agentsAfter -notmatch 'operator after') {
+        Write-Fail -TestName $uninstallTest -Reason 'mixed AGENTS.md must lose only the toolkit section'
+    }
+    $claudeRemoval = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $installRoot `
+        -RelativePath 'CLAUDE.md' `
+        -CurrentFilePath $claudeTarget `
+        -ResolveExpectedPublishContent { 'unused' }
+    $claudeAfter = [System.IO.File]::ReadAllText($claudeTarget)
+    if ($claudeRemoval.Removed -or -not (Test-Path -LiteralPath $claudeTarget) -or $claudeAfter -match [regex]::Escape($hermesBegin) -or $claudeAfter -notmatch 'operator preface' -or $claudeAfter -notmatch 'operator after') {
+        Write-Fail -TestName $uninstallTest -Reason 'mixed CLAUDE.md must lose only the toolkit section'
+    }
+    $catalogRouterRemoval = Remove-ToolkitManagedWholeFileRouterIfOwned `
+        -InstallRoot $installRoot `
+        -RelativePath 'CATALOG.md' `
+        -CurrentFilePath $catalogRouterTarget `
+        -ResolveExpectedPublishContent { 'catalog router' }
+    if (-not $catalogRouterRemoval.Removed -or (Test-Path -LiteralPath $catalogRouterTarget)) {
+        Write-Fail -TestName $uninstallTest -Reason 'edited catalog-only router must be removed as a whole file'
+    }
+
+    $outsideFile = Join-Path $probeRoot 'outside-install-root.txt'
+    [System.IO.File]::WriteAllText($outsideFile, "outside`n")
+    $outsideThrew = $false
+    try {
+        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $outsideFile -InstallRoot $installRoot
+    }
+    catch {
+        $outsideThrew = $true
+    }
+    if (-not $outsideThrew -or -not (Test-Path -LiteralPath $outsideFile)) {
+        Write-Fail -TestName $uninstallTest -Reason 'a delete candidate outside InstallRoot must not be deleted'
+    }
+    $rootThrew = $false
+    try {
+        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $installRoot -InstallRoot $installRoot
+    }
+    catch {
+        $rootThrew = $true
+    }
+    if (-not $rootThrew -or -not (Test-Path -LiteralPath $installRoot -PathType Container)) {
+        Write-Fail -TestName $uninstallTest -Reason 'InstallRoot itself must not be deleted'
+    }
+    Write-Pass -TestName $uninstallTest
 
     $publisherDeleteTest = 'Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters'
     $repoRoot = Split-Path -Parent $scriptsRoot

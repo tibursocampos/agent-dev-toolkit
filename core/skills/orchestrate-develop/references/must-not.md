@@ -3,6 +3,8 @@
 - Skip Step 0 Memory Bank Gate (unless explicit user `skip-memory-bank`)
 - Create `memory-bank/` under `features/` or dump bank into CONTINUITY / child prompts
 - Parent writes application/production code or tests
+- Invent a fix or rewrite the PLAN when a receipt `status` is outside `done`, `blocked`, and `failed`, or when the implementation is outside the PLAN acceptance. Block the step, ask the deviation, and do not delegate the next step
+- Repeat impact, architecture, and persistence analysis before an intermediate PLAN step. Run that pass once before the first step and again when code review is requested against that PLAN
 - Merge N PLAN steps into one Task / one session context
 - Bypass or weaken `sdd-develop` one-step-per-session contract (including under develop mode `continuous`)
 - Skip child/parent `plan-acquisition` or accept Complete without **delivery-baseline** (`references/plan-contract.md`)

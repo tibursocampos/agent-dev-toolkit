@@ -21,7 +21,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
-| CI | `validate-toolkit.yml` on `pull_request` to `master`, `main`, `develop`: Windows and Ubuntu base jobs, keyed-uninstall and adapter-smoke matrices, strict MkDocs build, then gate `ci-ok` — no live-home sync for green |
+| CI | `validate-toolkit.yml` on `pull_request` to `develop` only: named remaining checks, adapter-smoke matrices, strict MkDocs build, then gate `ci-ok`. Release pull requests into `master` or `main` run `enforce-release-source.yml` only |
 
 ## Application architecture selection
 
@@ -237,14 +237,9 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `master`, `main`, and `develop`. Its topology is `validate` (`windows-latest`) → `validate-windows-keyed-uninstall` and `validate-windows-adapter-smoke` matrices; separately `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on all six validation jobs. The Windows `validate` job does not deploy to USERPROFILE for a green run:
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate` (`windows-latest`) → `validate-windows-adapter-smoke`; separately `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on those five jobs. The Windows `validate` job does not deploy to USERPROFILE for a green run. It runs `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, `Assert-TraceEmitterFailOpen.ps1`, and `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe). It does not run `validate-core.ps1` or a keyed-uninstall matrix.
 
-1. `validate-core.ps1 -Quiet`
-2. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe)
-
-The separate `validate-windows-keyed-uninstall` matrix runs the ten keyed-uninstall asserts, and `validate-windows-adapter-smoke` runs the ten adapter CI smokes (Copilot is a suite).
-
-`validate-ubuntu` runs `Assert-InstallRootSafety.ps1` and `validate-core.ps1 -Quiet`. The Ubuntu adapter-smoke matrix runs the same ten fixture smokes as the Windows adapter-smoke matrix. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. `ci-ok` is the required gate only after every base, matrix, and docs job succeeds.
+`validate-windows-adapter-smoke` runs the ten adapter CI smokes (Copilot is a suite). `validate-ubuntu` runs the same three named checks without `Assert-SyncAllowUserHomeForward`. The Ubuntu adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. `ci-ok` is the required gate for merge into `develop` only after every base, matrix, and docs job succeeds. Pull requests into `master` or `main` do not run this workflow.
 
 `publish-release-bootstrap.yml` uploads bootstrap release assets (zip, SHA256, and bootstrap entrypoints) on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` runs on `pull_request` to `master` and `main` and fails unless the head branch is `develop`.
 

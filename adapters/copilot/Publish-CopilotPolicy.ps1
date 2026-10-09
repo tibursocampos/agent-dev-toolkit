@@ -63,6 +63,70 @@ function Convert-CopilotRouterMdcReferencesToInstructions {
     return $updated.Replace($mdcExtension, $instructionsExtension)
 }
 
+function Convert-CopilotHomeAgentsPathToInstructionsFile {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Text,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    $separator = $script:CopilotPathConstant.PathSeparatorForwardSlash
+    $agentsFileName = $script:CopilotPathConstant.RouterSourceFileName
+    $instructionsFileName = $script:CopilotPathConstant.CopilotInstructionsFileName
+    $normalizedRoot = (Get-CopilotNormalizedForwardSlashPath -Path $InstallRoot).TrimEnd($separator)
+    $instructionsPath = $normalizedRoot + $separator + $instructionsFileName
+    $resolvedHomeAgentsPath = $normalizedRoot + $separator + $agentsFileName
+    $placeholderHomeAgentsPath = $script:CopilotPathConstant.PlaceholderToolkitRoot + $separator + $agentsFileName
+
+    $updated = $Text.Replace($placeholderHomeAgentsPath, $instructionsPath)
+    return $updated.Replace($resolvedHomeAgentsPath, $instructionsPath)
+}
+
+function Update-CopilotTreeHomeAgentsReferences {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RootPath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $RootPath)) {
+        return @()
+    }
+
+    $extensionPattern = $script:CopilotPathConstant.TextFileExtensionPattern
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $changedPaths = New-Object System.Collections.Generic.List[string]
+    $files = Get-ChildItem -LiteralPath $RootPath -Recurse -File -ErrorAction Stop
+    foreach ($file in $files) {
+        if ($file.Name -notmatch $extensionPattern -and $file.Extension -notmatch $extensionPattern) {
+            continue
+        }
+
+        $text = [System.IO.File]::ReadAllText($file.FullName)
+        $updated = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $text -InstallRoot $InstallRoot
+        if ([string]::Equals($updated, $text, [System.StringComparison]::Ordinal)) {
+            continue
+        }
+
+        Assert-ToolkitManagedWriteDestination -DestinationPath $file.FullName -InstallRoot $InstallRoot
+        [System.IO.File]::WriteAllText($file.FullName, $updated, $utf8NoBom)
+        $changedPaths.Add([System.IO.Path]::GetFullPath($file.FullName)) | Out-Null
+    }
+
+    if ($changedPaths.Count -gt 0) {
+        Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -Paths @($changedPaths.ToArray())
+    }
+
+    return @($changedPaths.ToArray())
+}
+
 function Get-CopilotInstructionsDestinationName {
     [CmdletBinding()]
     param(
@@ -106,6 +170,7 @@ function Copy-CopilotCorePolicyAsInstructions {
         Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
         $raw = [System.IO.File]::ReadAllText($file.FullName)
         $converted = Convert-CopilotAlwaysApplyFrontmatterToApplyTo -Text $raw
+        $converted = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $converted -InstallRoot $InstallRoot
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
         $relativeInventoryPath = ('instructions/{0}' -f $destinationName)
         $null = Write-ToolkitFileIfAbsent `
@@ -145,6 +210,7 @@ function Publish-CopilotRouterAsInstructionsFile {
 
     $raw = [System.IO.File]::ReadAllText($SourceRouterFile)
     $updated = Convert-CopilotRouterMdcReferencesToInstructions -Text $raw
+    $updated = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $updated -InstallRoot $InstallRoot
     foreach ($key in $PlaceholderMap.Keys) {
         if ($updated.Contains([string]$key)) {
             $updated = $updated.Replace([string]$key, [string]$PlaceholderMap[$key])
@@ -239,6 +305,7 @@ function Invoke-CopilotPublishPolicy {
             Update-ToolkitManagedCopyInventory -InstallRoot $resolvedInstallRoot -Paths $changedPaths
         }
         Assert-CopilotPlaceholdersResolved -RootPath $destinationInstructionsRoot
+        $null = Update-CopilotTreeHomeAgentsReferences -RootPath $destinationInstructionsRoot -InstallRoot $resolvedInstallRoot
 
         Publish-CopilotRouterAsInstructionsFile `
             -SourceRouterFile $sourceRouterFile `

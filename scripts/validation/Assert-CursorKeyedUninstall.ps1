@@ -322,11 +322,8 @@ if ($uninstall.RemovedCount -lt 1) {
     Write-Fail -TestName $removeTest -Reason 'expected at least one keyed artifact removed'
 }
 
-if (-not (Test-CursorToolkitSkillPresent)) {
-    Write-Fail -TestName $removeTest -Reason 'names-only skill manifest means toolkit skill paths must be preserved'
-}
-if (@($uninstall.PreservedPaths).Count -eq 0) {
-    Write-Fail -TestName $removeTest -Reason 'uninstall must report ambiguous preserved skill paths'
+if (Test-CursorToolkitSkillPresent) {
+    Write-Fail -TestName $removeTest -Reason 'catalog skill files must be removed on uninstall even when the manifest is names-only'
 }
 if (Test-CursorToolkitRulePresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit rules should be removed after uninstall'

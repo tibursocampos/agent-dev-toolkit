@@ -1,8 +1,11 @@
 name: Validate toolkit
 
+# Full suite only on pull requests into develop.
+# Release pull requests into master or main run enforce-release-source.yml only.
+# That workflow accepts develop alone, and develop already passed this suite.
 on:
   pull_request:
-    branches: [master, main, develop]
+    branches: [develop]
 
 permissions:
   contents: read
@@ -25,18 +28,28 @@ jobs:
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      # In-repo core suite only — no sync to USERPROFILE / agent home.
+      # Named remaining checks for default-wide-suite. No sync to a real user home.
+      # Child pwsh keeps each script exit inside that process. Writes stay in repository fixtures.
       # Keyed uninstall asserts run separately and use validate-agent -SkipCore.
-      - name: Run validate-core
+      - name: Run named remaining checks
         shell: pwsh
         run: |
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
           $exitCode = Invoke-ValidationCheckWithTelemetry `
             -Path $env:VALIDATION_RESULTS_PATH `
             -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName 'validate-core' `
-            -ScriptPath './scripts/validation/validate-core.ps1' `
-            -Action { & ./scripts/validation/validate-core.ps1 -Quiet }
+            -CheckName 'assert-ci-workflow' `
+            -ScriptPath './scripts/validation/Assert-CiWorkflow.ps1' `
+            -Action {
+              foreach ($relativePath in @(
+                  './scripts/validation/Assert-CiWorkflow.ps1',
+                  './scripts/validation/Assert-GuardShellCanonicalPaths.ps1',
+                  './scripts/validation/Assert-TraceEmitterFailOpen.ps1'
+                )) {
+                & pwsh -NoProfile -File $relativePath
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+              }
+            }
           if ($exitCode -ne 0) { exit $exitCode }
         working-directory: ${{ github.workspace }}
       # Disposable USERPROFILE probes (not TEMP — guard only applies under USERPROFILE).
@@ -69,73 +82,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: validation-results-${{ github.job }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn
-
-  validate-windows-keyed-uninstall:
-    name: Windows keyed uninstall (${{ matrix.adapter }})
-    needs: validate
-    runs-on: windows-latest
-    env:
-      VALIDATION_JOB_NAME: validate-windows-keyed-uninstall-${{ matrix.adapter }}
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include:
-          - { adapter: Claude, script: Assert-ClaudeKeyedUninstall.ps1 }
-          - { adapter: Copilot, script: Assert-CopilotKeyedUninstall.ps1 }
-          - { adapter: Codex, script: Assert-CodexKeyedUninstall.ps1 }
-          - { adapter: OpenCode, script: Assert-OpenCodeKeyedUninstall.ps1 }
-          - { adapter: Antigravity, script: Assert-AntigravityKeyedUninstall.ps1 }
-          - { adapter: Grok, script: Assert-GrokKeyedUninstall.ps1 }
-          - { adapter: Cursor, script: Assert-CursorKeyedUninstall.ps1 }
-          - { adapter: ZCode, script: Assert-ZcodeKeyedUninstall.ps1 }
-          - { adapter: Hermes, script: Assert-HermesKeyedUninstall.ps1 }
-          - { adapter: OpenHands, script: Assert-OpenHandsKeyedUninstall.ps1 }
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - name: Start validation telemetry
-        shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      - name: Run keyed uninstall assert
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-            Write-Host "Running: $scriptPath"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName '${{ matrix.adapter }}' `
-              -ScriptPath $scriptPath `
-              -Action { & $scriptPath }
-          if ($exitCode -ne 0) { exit $exitCode }
-        working-directory: ${{ github.workspace }}
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}-${{ matrix.adapter }}
           path: ${{ runner.temp }}/validation-results.jsonl
           if-no-files-found: warn
 
@@ -222,16 +168,27 @@ jobs:
           "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $startedAt = [DateTimeOffset]::UtcNow
           $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      - name: Run validate-core
+      # Named remaining checks for default-wide-suite. No sync to a real user home.
+      # Child pwsh keeps each script exit inside that process. Writes stay in repository fixtures.
+      - name: Run named remaining checks
         shell: pwsh
         run: |
           . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
           $exitCode = Invoke-ValidationCheckWithTelemetry `
             -Path $env:VALIDATION_RESULTS_PATH `
             -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName 'validate-core' `
-            -ScriptPath './scripts/validation/validate-core.ps1' `
-            -Action { & ./scripts/validation/validate-core.ps1 -Quiet }
+            -CheckName 'assert-ci-workflow' `
+            -ScriptPath './scripts/validation/Assert-CiWorkflow.ps1' `
+            -Action {
+              foreach ($relativePath in @(
+                  './scripts/validation/Assert-CiWorkflow.ps1',
+                  './scripts/validation/Assert-GuardShellCanonicalPaths.ps1',
+                  './scripts/validation/Assert-TraceEmitterFailOpen.ps1'
+                )) {
+                & pwsh -NoProfile -File $relativePath
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+              }
+            }
           if ($exitCode -ne 0) { exit $exitCode }
         working-directory: ${{ github.workspace }}
       - name: Complete validation telemetry
@@ -347,7 +304,6 @@ jobs:
     if: always()
     needs:
       - validate
-      - validate-windows-keyed-uninstall
       - validate-windows-adapter-smoke
       - validate-ubuntu
       - validate-ubuntu-adapter-smoke
@@ -374,7 +330,6 @@ jobs:
         run: |
           $requiredDependencies = @(
             'validate'
-            'validate-windows-keyed-uninstall'
             'validate-windows-adapter-smoke'
             'validate-ubuntu'
             'validate-ubuntu-adapter-smoke'

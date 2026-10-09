@@ -97,13 +97,32 @@ function Get-HermesShellHookCommand {
         $onWindowsHost = ($env:OS -match 'Windows')
     }
 
-    if ($onWindowsHost) {
-        $ps1 = Join-Path $AgentHooksRoot $script:HermesAdapterConstant.AgentHooksGuardPs1FileName
-        return ('pwsh -NoProfile -File "{0}"' -f $ps1)
+    $hooksDir = $script:HermesAdapterConstant.AgentHooksDirectoryName
+    $hooksLeaf = Split-Path -Leaf $AgentHooksRoot
+    if ($hooksLeaf -ne $hooksDir) {
+        throw ('Agent hooks root must be the {0} directory.' -f $hooksDir)
     }
 
-    $sh = Join-Path $AgentHooksRoot $script:HermesAdapterConstant.AgentHooksGuardShFileName
-    return $sh
+    $scriptName = $script:HermesAdapterConstant.AgentHooksGuardShFileName
+    if ($onWindowsHost) {
+        $scriptName = $script:HermesAdapterConstant.AgentHooksGuardPs1FileName
+    }
+
+    $scriptPath = Join-Path $AgentHooksRoot $scriptName
+    $fullPath = [System.IO.Path]::GetFullPath($scriptPath).Replace('\', '/')
+    if ($onWindowsHost) {
+        return ('pwsh -NoProfile -File "{0}"' -f $fullPath)
+    }
+
+    return $fullPath
+}
+
+function ConvertTo-HermesYamlSingleQuotedScalar {
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
+    )
+
+    return ("'{0}'" -f $Value.Replace("'", "''"))
 }
 
 function Test-HermesPluginsEnabledContains {
@@ -187,8 +206,8 @@ function Remove-HermesToolkitPreToolCallEntries {
         return $YamlText
     }
 
-    # Remove list items whose command references toolkit guard-pre-tool (multi-line YAML maps).
-    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?terminal\|write_file\|patch["'']?\s*\r?\n(?:\s+[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:\s+[^\r\n]*\r?\n)*?'
+    # Remove the whole toolkit list item, including keys after command. Stop before the next list item.
+    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?terminal\|write_file\|patch["'']?\s*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*'
     return [regex]::Replace($YamlText, $pattern, '')
 }
 
@@ -201,10 +220,11 @@ function Merge-HermesPreToolCallHook {
 
     $matcher = $script:HermesAdapterConstant.HooksPreToolCallMatcher
     $timeout = [int]$script:HermesAdapterConstant.HooksPreToolCallTimeoutSeconds
+    $quotedCommand = ConvertTo-HermesYamlSingleQuotedScalar -Value $HookCommand
     $entry = @"
   pre_tool_call:
     - matcher: "$matcher"
-      command: "$HookCommand"
+      command: $quotedCommand
       timeout: $timeout
       fail_closed: true
 "@
@@ -221,7 +241,7 @@ function Merge-HermesPreToolCallHook {
             $text = [regex]::Replace(
                 $text,
                 '(?m)^  pre_tool_call:\s*\r?\n',
-                ('  pre_tool_call:{0}    - matcher: "{1}"{0}      command: "{2}"{0}      timeout: {3}{0}      fail_closed: true{0}' -f [Environment]::NewLine, $matcher, $HookCommand, $timeout),
+                ('  pre_tool_call:{0}    - matcher: "{1}"{0}      command: {2}{0}      timeout: {3}{0}      fail_closed: true{0}' -f [Environment]::NewLine, $matcher, $quotedCommand, $timeout),
                 1
             )
         }

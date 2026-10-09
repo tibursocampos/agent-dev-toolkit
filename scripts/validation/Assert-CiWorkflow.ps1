@@ -2,6 +2,10 @@
 # Tests:
 #   Should_DocumentCiWorkflowContract_When_WorkflowPresent
 #   Should_DocumentCiSmokePaths_When_DocsPresent
+#   Should_OmitWideSuite_When_DefaultCommandAndJobsRead
+#   Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath
+#   Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead
+#   Should_TargetRepositoryFixture_When_NamedCheckDeclared
 #
 # Static contract for .github/workflows/validate-toolkit.yml.
 # Does NOT re-invoke validate-core (this assert is part of the validate-core suite).
@@ -251,7 +255,6 @@ $workflowPath = Join-Path $repoRoot ($workflowRel -replace '/', [System.IO.Path]
 $validateCorePath = Join-Path $repoRoot ($validateCoreRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $validationTelemetryPath = Join-Path $repoRoot (Join-Path 'scripts/_lib' 'Invoke-ValidationTelemetry.ps1')
 $allowUserHomeForwardAssertName = $script:ToolkitConstant.AssertSyncAllowUserHomeForwardScriptName
-$keyedUninstallCiAsserts = @($script:ToolkitConstant.KeyedUninstallCiAsserts)
 
 if (-not (Test-Path -LiteralPath $workflowPath)) {
     Write-Fail -TestName 'Assert-CiWorkflowPreconditions' -Reason ("missing workflow: {0}" -f $workflowRel)
@@ -268,11 +271,16 @@ if (-not (Test-Path -LiteralPath $validationTelemetryPath)) {
 # --- Should_DocumentCiWorkflowContract_When_WorkflowPresent ---
 $ciName = 'Should_DocumentCiWorkflowContract_When_WorkflowPresent'
 $workflowText = Get-Content -LiteralPath $workflowPath -Raw
+if ($workflowText -notmatch '(?m)^  pull_request:\r?\n    branches: \[develop\]\s*$') {
+    Write-Fail -TestName 'Should_DocumentCiWorkflowContract_When_WorkflowPresent' -Reason 'full validation suite must run only on pull_request to develop'
+}
+if ($workflowText -match '(?m)branches:\s*\[(?:master|main)') {
+    Write-Fail -TestName 'Should_DocumentCiWorkflowContract_When_WorkflowPresent' -Reason 'validate-toolkit must not run the full suite on pull_request to master or main'
+}
 $validateCoreText = Get-Content -LiteralPath $validateCorePath -Raw
 $workflowJobs = @{}
 foreach ($jobName in @(
         'validate',
-        'validate-windows-keyed-uninstall',
         'validate-windows-adapter-smoke',
         'validate-ubuntu',
         'validate-ubuntu-adapter-smoke',
@@ -283,7 +291,9 @@ foreach ($jobName in @(
 }
 
 $requiredWorkflowMarkers = @(
-    'validate-core.ps1',
+    'Assert-CiWorkflow.ps1',
+    'Assert-GuardShellCanonicalPaths.ps1',
+    'Assert-TraceEmitterFailOpen.ps1',
     'actions/checkout',
     'pwsh',
     'permissions:',
@@ -317,12 +327,16 @@ foreach ($repositoryWorkflowFile in $repositoryWorkflowFiles) {
 # -like treats [] as wildcards; use -match for the needs gate line.
 Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate' -TestName $ciName -Markers @(
     '(?m)^\s*runs-on:\s*windows-latest\s*$'
-    'validate-core\.ps1'
+    'Assert-CiWorkflow\.ps1'
+    'Assert-GuardShellCanonicalPaths\.ps1'
+    'Assert-TraceEmitterFailOpen\.ps1'
     [regex]::Escape($allowUserHomeForwardAssertName)
 )
+if ($workflowJobs['validate'] -match 'validate-core\.ps1') {
+    Write-Fail -TestName $ciName -Reason 'job validate must not require validate-core.ps1'
+}
 
 $matrixJobs = @(
-    'validate-windows-keyed-uninstall'
     'validate-windows-adapter-smoke'
     'validate-ubuntu-adapter-smoke'
 )
@@ -335,11 +349,6 @@ foreach ($matrixJob in $matrixJobs) {
     )
 }
 
-Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate-windows-keyed-uninstall' -TestName $ciName -Markers @(
-    '(?m)^\s*needs:\s*validate\s*$'
-    'Run keyed uninstall assert'
-)
-
 Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate-windows-adapter-smoke' -TestName $ciName -Markers @(
     '(?m)^\s*needs:\s*validate\s*$'
     'Run adapter smoke'
@@ -347,10 +356,15 @@ Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate-windows-adapter-smoke'
 
 Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate-ubuntu' -TestName $ciName -Markers @(
     '(?m)^\s*runs-on:\s*ubuntu-latest\s*$'
-    'validate-core\.ps1'
+    'Assert-CiWorkflow\.ps1'
+    'Assert-GuardShellCanonicalPaths\.ps1'
+    'Assert-TraceEmitterFailOpen\.ps1'
 )
+if ($workflowJobs['validate-ubuntu'] -match 'validate-core\.ps1') {
+    Write-Fail -TestName $ciName -Reason 'job validate-ubuntu must not require validate-core.ps1'
+}
 if ($workflowJobs['validate-ubuntu'] -match '(?i)Run InstallRoot safety assert|Assert-InstallRootSafety\.ps1') {
-    Write-Fail -TestName $ciName -Reason 'validate-ubuntu must rely on validate-core for the InstallRoot safety check'
+    Write-Fail -TestName $ciName -Reason 'validate-ubuntu default step must not add an InstallRoot runner; the named remaining checks are Assert-CiWorkflow, Assert-GuardShellCanonicalPaths, and Assert-TraceEmitterFailOpen'
 }
 
 Assert-WorkflowJob -Jobs $workflowJobs -JobName 'validate-ubuntu-adapter-smoke' -TestName $ciName -Markers @(
@@ -366,7 +380,6 @@ Assert-WorkflowJob -Jobs $workflowJobs -JobName 'docs-strict' -TestName $ciName 
 
 $ciOkNeeds = @(
     'validate'
-    'validate-windows-keyed-uninstall'
     'validate-windows-adapter-smoke'
     'validate-ubuntu'
     'validate-ubuntu-adapter-smoke'
@@ -374,12 +387,6 @@ $ciOkNeeds = @(
 foreach ($requiredJob in $ciOkNeeds) {
     if ($workflowJobs['ci-ok'] -notmatch ('(?m)^\s*-\s*{0}\s*$' -f [regex]::Escape($requiredJob))) {
         Write-Fail -TestName $ciName -Reason ("ci-ok must depend on '{0}'" -f $requiredJob)
-    }
-}
-
-foreach ($keyedAssert in $keyedUninstallCiAsserts) {
-    if ($workflowText -notlike ("*{0}*" -f $keyedAssert.ScriptName)) {
-        Write-Fail -TestName $ciName -Reason ("workflow missing keyed uninstall assert '{0}'" -f $keyedAssert.ScriptName)
     }
 }
 
@@ -403,18 +410,6 @@ foreach ($adapterSmokeScript in $adapterSmokeScripts) {
     }
 }
 
-$expectedKeyedMatrix = @(
-    @{ Adapter = 'Claude'; Script = 'Assert-ClaudeKeyedUninstall.ps1' }
-    @{ Adapter = 'Copilot'; Script = 'Assert-CopilotKeyedUninstall.ps1' }
-    @{ Adapter = 'Codex'; Script = 'Assert-CodexKeyedUninstall.ps1' }
-    @{ Adapter = 'OpenCode'; Script = 'Assert-OpenCodeKeyedUninstall.ps1' }
-    @{ Adapter = 'Antigravity'; Script = 'Assert-AntigravityKeyedUninstall.ps1' }
-    @{ Adapter = 'Grok'; Script = 'Assert-GrokKeyedUninstall.ps1' }
-    @{ Adapter = 'Cursor'; Script = 'Assert-CursorKeyedUninstall.ps1' }
-    @{ Adapter = 'ZCode'; Script = 'Assert-ZcodeKeyedUninstall.ps1' }
-    @{ Adapter = 'Hermes'; Script = 'Assert-HermesKeyedUninstall.ps1' }
-    @{ Adapter = 'OpenHands'; Script = 'Assert-OpenHandsKeyedUninstall.ps1' }
-)
 $expectedSmokeMatrix = @(
     @{ Adapter = 'Cursor'; Script = 'Invoke-CursorCiSmoke.ps1' }
     @{ Adapter = 'Antigravity'; Script = 'Invoke-AntigravityCiSmoke.ps1' }
@@ -427,12 +422,10 @@ $expectedSmokeMatrix = @(
     @{ Adapter = 'Hermes'; Script = 'Invoke-HermesCiSmoke.ps1' }
     @{ Adapter = 'OpenHands'; Script = 'Invoke-OpenHandsCiSmoke.ps1' }
 )
-Assert-MatrixContract -Jobs $workflowJobs -JobName 'validate-windows-keyed-uninstall' -ExpectedEntries $expectedKeyedMatrix -TestName $ciName
 Assert-MatrixContract -Jobs $workflowJobs -JobName 'validate-windows-adapter-smoke' -ExpectedEntries $expectedSmokeMatrix -TestName $ciName
 Assert-MatrixContract -Jobs $workflowJobs -JobName 'validate-ubuntu-adapter-smoke' -ExpectedEntries $expectedSmokeMatrix -TestName $ciName
 Assert-ExactNeeds -Jobs $workflowJobs -JobName 'ci-ok' -ExpectedJobs @(
     'validate'
-    'validate-windows-keyed-uninstall'
     'validate-windows-adapter-smoke'
     'validate-ubuntu'
     'validate-ubuntu-adapter-smoke'
@@ -555,8 +548,8 @@ foreach ($marker in @(
 }
 
 $wrapperCount = @([regex]::Matches($workflowText, '(?m)^\s*\$exitCode\s*=\s*Invoke-ValidationCheckWithTelemetry\s*`')).Count
-if ($wrapperCount -ne 6) {
-    Write-Fail -TestName $telemetryName -Reason ("workflow must wrap all six validation entry points with finally-backed telemetry; found {0}" -f $wrapperCount)
+if ($wrapperCount -ne 5) {
+    Write-Fail -TestName $telemetryName -Reason ("workflow must wrap all five validation entry points with finally-backed telemetry; found {0}" -f $wrapperCount)
 }
 
 $invalidRunnerTempEnvCount = @([regex]::Matches($workflowText, '(?m)^\s*VALIDATION_RESULTS_PATH:\s*\$\{\{\s*runner\.temp')).Count
@@ -565,8 +558,8 @@ if ($invalidRunnerTempEnvCount -ne 0) {
 }
 
 $runtimeTelemetryPathCount = @([regex]::Matches($workflowText, 'Join-Path \$env:RUNNER_TEMP ''validation-results\.jsonl''')).Count
-if ($runtimeTelemetryPathCount -ne 6) {
-    Write-Fail -TestName $telemetryName -Reason ("workflow must initialize six per-run telemetry paths from RUNNER_TEMP; found {0}" -f $runtimeTelemetryPathCount)
+if ($runtimeTelemetryPathCount -ne 5) {
+    Write-Fail -TestName $telemetryName -Reason ("workflow must initialize five per-run telemetry paths from RUNNER_TEMP; found {0}" -f $runtimeTelemetryPathCount)
 }
 
 if ($workflowJobs['ci-ok'] -notmatch '(?m)^\s*if:\s*always\(\)\s*$') {
@@ -621,6 +614,196 @@ foreach ($marker in $readmeMarkers) {
 }
 
 Write-Pass -TestName $docsName
+
+$namedRemainingChecks = @(
+    'Assert-CiWorkflow.ps1'
+    'Assert-GuardShellCanonicalPaths.ps1'
+    'Assert-TraceEmitterFailOpen.ps1'
+)
+$wideSuiteRelativePath = $script:ToolkitConstant.ValidateCoreRelativePath
+$keyedUninstallJobName = 'validate-windows-keyed-uninstall'
+$testsLeavingDefaultPath = @(
+    'default-wide-suite'
+    'keyed-uninstall-matrix'
+)
+
+function Get-NamedRemainingCheckBlock {
+    param([Parameter(Mandatory = $true)][string] $JobBlock)
+
+    $match = [regex]::Match($JobBlock, '(?ms)^[ ]{6}- name: Run named remaining checks\s*$.*?(?=^[ ]{6}# |^[ ]{6}- name: |\z)')
+    if (-not $match.Success) {
+        return $null
+    }
+
+    return $match.Value
+}
+
+function Test-RegisterRowCoversLeavingTest {
+    param([Parameter(Mandatory = $true)][string] $Row)
+
+    $cells = @($Row.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+    if ($cells.Count -lt 2) {
+        return $false
+    }
+
+    foreach ($cell in $cells) {
+        if ($cell -match 'risk_does_not_apply') {
+            return $true
+        }
+    }
+
+    if ($cells.Count -lt 3) {
+        return $false
+    }
+
+    return -not [string]::IsNullOrWhiteSpace($cells[1]) -and -not [string]::IsNullOrWhiteSpace($cells[2])
+}
+
+# --- Should_OmitWideSuite_When_DefaultCommandAndJobsRead (CT1) ---
+$defaultPathName = 'Should_OmitWideSuite_When_DefaultCommandAndJobsRead'
+foreach ($menuLine in @(
+        $script:ToolkitMessage.ToolkitMenuValidateLine
+        $script:ToolkitMessage.ToolkitMenuValidateCoreLine
+    )) {
+    if ($menuLine -match 'validate-core') {
+        Write-Fail -TestName $defaultPathName -Reason 'default menu command must not require the wide suite'
+    }
+    foreach ($namedCheck in $namedRemainingChecks) {
+        $namedCheckCommand = [System.IO.Path]::GetFileNameWithoutExtension($namedCheck)
+        if ($menuLine -notlike ('*{0}*' -f $namedCheckCommand)) {
+            Write-Fail -TestName $defaultPathName -Reason ('default menu command missing named check {0}' -f $namedCheckCommand)
+        }
+    }
+}
+
+$readmeMenuCitation = [regex]::Match($readmeText, '(?m)^2\.\s+\*\*Validate core only\*\*.*$')
+if (-not $readmeMenuCitation.Success) {
+    Write-Fail -TestName $defaultPathName -Reason 'README menu citation for Validate core only is missing'
+}
+if ($readmeMenuCitation.Value -like ('*{0}*' -f $wideSuiteRelativePath)) {
+    Write-Fail -TestName $defaultPathName -Reason 'README menu citation must not require the wide suite'
+}
+foreach ($namedCheck in $namedRemainingChecks) {
+    if ($readmeMenuCitation.Value -notlike ('*{0}*' -f $namedCheck)) {
+        Write-Fail -TestName $defaultPathName -Reason ('README menu citation missing named check {0}' -f $namedCheck)
+    }
+}
+
+foreach ($defaultJobName in @('validate', 'validate-ubuntu')) {
+    if ($workflowJobs[$defaultJobName] -match [regex]::Escape($wideSuiteRelativePath)) {
+        Write-Fail -TestName $defaultPathName -Reason ('job {0} must not require the wide suite' -f $defaultJobName)
+    }
+}
+
+$toolkitScriptPath = Join-Path $repoRoot 'scripts/toolkit.ps1'
+$validateAgentScriptPath = Join-Path $repoRoot 'scripts/validate-agent.ps1'
+$toolkitScriptText = Get-Content -LiteralPath $toolkitScriptPath -Raw
+$validateAgentScriptText = Get-Content -LiteralPath $validateAgentScriptPath -Raw
+$validateCoreFunction = [regex]::Match($toolkitScriptText, '(?s)function Invoke-ToolkitValidateCore \{.*?\n\}')
+if (-not $validateCoreFunction.Success) {
+    Write-Fail -TestName $defaultPathName -Reason 'Invoke-ToolkitValidateCore is missing'
+}
+if ($validateCoreFunction.Value -match 'ValidateCoreRelativePath') {
+    Write-Fail -TestName $defaultPathName -Reason 'Validate core menu action must not invoke the wide suite'
+}
+if ($validateCoreFunction.Value -notmatch 'NamedRemainingCheckRelativePaths') {
+    Write-Fail -TestName $defaultPathName -Reason 'Validate core menu action must run the named remaining checks'
+}
+$validateAgentDefault = [regex]::Match($validateAgentScriptText, '(?s)if \(-not \$SkipCore\) \{.*?\n    \}')
+if (-not $validateAgentDefault.Success) {
+    Write-Fail -TestName $defaultPathName -Reason 'validate-agent default branch is missing'
+}
+if ($validateAgentDefault.Value -match 'ValidateCoreRelativePath') {
+    Write-Fail -TestName $defaultPathName -Reason 'Validate agent default must not invoke the wide suite'
+}
+if ($validateAgentDefault.Value -notmatch 'NamedRemainingCheckRelativePaths') {
+    Write-Fail -TestName $defaultPathName -Reason 'Validate agent default must run the named remaining checks'
+}
+Write-Pass -TestName $defaultPathName
+
+# --- Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath (CT2) ---
+$registerName = 'Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath'
+$guaranteeRegisterRel = 'features/012-multiprovider-toolkit-corrections/US08/EVD/guarantee-register.md'
+$guaranteeRegisterPath = Join-Path $repoRoot ($guaranteeRegisterRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $guaranteeRegisterPath)) {
+    Write-Fail -TestName $registerName -Reason ('missing guarantee register: {0}' -f $guaranteeRegisterRel)
+}
+
+$guaranteeRegisterText = Get-Content -LiteralPath $guaranteeRegisterPath -Raw
+if ($guaranteeRegisterText -notmatch 'GuaranteeRegister') {
+    Write-Fail -TestName $registerName -Reason 'guarantee register must keep the existing register id'
+}
+
+foreach ($leavingTestId in $testsLeavingDefaultPath) {
+    $rowMatches = [regex]::Matches($guaranteeRegisterText, ('(?m)^\| `{0}` \|.*$' -f [regex]::Escape($leavingTestId)))
+    if ($rowMatches.Count -eq 0) {
+        Write-Fail -TestName $registerName -Reason ('register has no row for test that leaves the default path: {0}' -f $leavingTestId)
+    }
+
+    $covered = $false
+    foreach ($rowMatch in $rowMatches) {
+        if (Test-RegisterRowCoversLeavingTest -Row $rowMatch.Value) {
+            $covered = $true
+            break
+        }
+    }
+
+    if (-not $covered) {
+        Write-Fail -TestName $registerName -Reason ('test {0} needs the former guarantee plus the remaining check, or risk_does_not_apply' -f $leavingTestId)
+    }
+}
+Write-Pass -TestName $registerName
+
+# --- Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead (CT3) ---
+$publishMatrixName = 'Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead'
+if ($workflowText -match ('(?m)^  {0}:\s*$' -f [regex]::Escape($keyedUninstallJobName))) {
+    Write-Fail -TestName $publishMatrixName -Reason ('workflow must not declare job {0}' -f $keyedUninstallJobName)
+}
+if ($workflowJobs['ci-ok'] -match [regex]::Escape($keyedUninstallJobName)) {
+    Write-Fail -TestName $publishMatrixName -Reason ('ci-ok needs must not include {0}' -f $keyedUninstallJobName)
+}
+if ($workflowText -match 'KeyedUninstall') {
+    Write-Fail -TestName $publishMatrixName -Reason 'workflow must not declare a per-adapter keyed uninstall publish matrix'
+}
+if ($workflowJobs['ci-ok'] -match '(?m)^\s*matrix:\s*$') {
+    Write-Fail -TestName $publishMatrixName -Reason 'ci-ok must not declare a per-adapter full publish matrix'
+}
+Write-Pass -TestName $publishMatrixName
+
+# --- Should_TargetRepositoryFixture_When_NamedCheckDeclared (CT6) ---
+$fixtureTargetName = 'Should_TargetRepositoryFixture_When_NamedCheckDeclared'
+$fixtureRelativeDir = $script:ToolkitConstant.TraceEmitterFixtureRelativeDir
+$repositoryFixturesPrefix = 'scripts/validation/fixtures/'
+if (-not $fixtureRelativeDir.StartsWith($repositoryFixturesPrefix, [System.StringComparison]::Ordinal)) {
+    Write-Fail -TestName $fixtureTargetName -Reason 'named check fixture must stay under scripts/validation/fixtures'
+}
+
+$repositoryFixturesRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot ($repositoryFixturesPrefix -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+$namedFixtureRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot ($fixtureRelativeDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+$fixturesPrefixWithSeparator = $repositoryFixturesRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+if (-not $namedFixtureRoot.StartsWith($fixturesPrefixWithSeparator, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Write-Fail -TestName $fixtureTargetName -Reason 'named check write root must resolve inside the repository fixture tree'
+}
+
+foreach ($defaultJobName in @('validate', 'validate-ubuntu')) {
+    if ($workflowJobs[$defaultJobName] -notmatch 'Writes stay in repository fixtures') {
+        Write-Fail -TestName $fixtureTargetName -Reason ('job {0} must keep named-check writes in a repository fixture' -f $defaultJobName)
+    }
+    if ($workflowJobs[$defaultJobName] -notmatch 'No sync to a real user home') {
+        Write-Fail -TestName $fixtureTargetName -Reason ('job {0} must not target a real user home' -f $defaultJobName)
+    }
+
+    $namedCheckBlock = Get-NamedRemainingCheckBlock -JobBlock $workflowJobs[$defaultJobName]
+    if ([string]::IsNullOrWhiteSpace($namedCheckBlock)) {
+        Write-Fail -TestName $fixtureTargetName -Reason ('job {0} missing named remaining checks step' -f $defaultJobName)
+    }
+    foreach ($forbiddenHomeTarget in @('USERPROFILE', 'AllowUserHome', '$env:HOME', 'InstallRoot', '~/.cursor')) {
+        if ($namedCheckBlock.IndexOf($forbiddenHomeTarget, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+            Write-Fail -TestName $fixtureTargetName -Reason ('named check in job {0} must not target {1}' -f $defaultJobName, $forbiddenHomeTarget)
+        }
+    }
+}
+Write-Pass -TestName $fixtureTargetName
 
 Write-Host 'Assert-CiWorkflow: ALL PASS'
 exit 0

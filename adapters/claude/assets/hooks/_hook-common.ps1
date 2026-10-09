@@ -45,7 +45,23 @@ function Ensure-HooksStateDir {
 }
 
 function Read-HookInputJson {
-    $raw = [Console]::In.ReadToEnd()
+    $raw = ''
+    try {
+        $stream = [Console]::OpenStandardInput()
+        $reader = New-Object System.IO.StreamReader($stream, [System.Text.UTF8Encoding]::new($false), $true, 4096, $true)
+        $raw = $reader.ReadToEnd()
+    }
+    catch {
+        $raw = ''
+    }
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+        try {
+            $raw = [Console]::In.ReadToEnd()
+        }
+        catch {
+            $raw = ''
+        }
+    }
     if ([string]::IsNullOrWhiteSpace($raw)) {
         return $null
     }

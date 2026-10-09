@@ -305,7 +305,12 @@ function Invoke-CursorUninstallToolkit {
 
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($skillsRoot) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
 
     $rulesRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.RulesDirectoryName
     foreach ($ruleRelative in (Get-CursorManagedRuleDestRelativePaths -RepoRoot $repoRoot)) {
@@ -361,7 +366,12 @@ function Invoke-CursorUninstallToolkit {
         }
     }
 
-    $pathCount = if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count }
+    $pathCount = if ($WhatIf.IsPresent) {
+        $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
+    else {
+        $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
     $baseMessage = if ($pathCount -eq 0 -and -not $hooksJsonResult.HooksJsonTouched) {
         ($script:CursorUninstallMessage.NothingFound -f $resolvedInstallRoot)
     }
@@ -377,7 +387,7 @@ function Invoke-CursorUninstallToolkit {
         $messageParts += @($routerNotes.ToArray())
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $messageParts += @('Skill paths preserved because names-only manifests cannot prove per-file ownership: ' + ($preservedSkillPaths -join ', '))
+        $messageParts += @('skill paths preserved: ' + ($preservedSkillPaths -join ', '))
     }
     if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
@@ -389,7 +399,7 @@ function Invoke-CursorUninstallToolkit {
         WhatIf           = [bool]$WhatIf.IsPresent
         InstallRoot      = $resolvedInstallRoot
         RemovedCount     = $pathCount
-        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
         PreservedPaths   = @($preservedSkillPaths)
         HooksJsonTouched = [bool]$hooksJsonResult.HooksJsonTouched
         HooksJsonPath    = $hooksJsonResult.HooksJsonPath

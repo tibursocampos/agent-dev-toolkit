@@ -6,9 +6,9 @@ Weight tokens stay English: `Low`, `Medium`, `High`, `Very high`, or `—`. Weig
 
 Do not write the **stage** table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md`.
 
-For O3, the complete table is redrawn only after the child receipt has been validated and the PLAN checkpoint/ledger has been persisted and re-read. It is then followed by the session report and only afterward by next-spawn evaluation. This chat-only table is not the PLAN ledger/checkpoint, the PLAN-LEDGER claim, the session report, or `CONTINUITY.md`; each remains a separate artifact with its own purpose.
+`sdd-develop` and `orchestrate-develop` do not render this stage table, do not redraw it, and do not emit a `Develop:` heartbeat. Their operator chat follows `sdd-develop/references/execution-display.md`. The PLAN progress table stays in the PLAN file.
 
-The **step ledger** is different. It lives in the PLAN under `Implementation progress` and is redrawn in chat on each `sdd-develop` / `orchestrate-develop` step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
+The **step ledger** is different. It lives in the PLAN under `Implementation progress`. At step close, `sdd-develop` / `orchestrate-develop` show that ledger for every step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Do not replace it with this stage table. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
 
 ## Columns
 
@@ -64,6 +64,8 @@ Stop redraw when `open_question` fires. The blocked row is `⚠`. Do not continu
 Do not save this table in the PLAN.
 
 ### sdd-develop / orchestrate-develop
+
+Do not render these rows in the operator chat. Do not redraw them. The chat contract is `sdd-develop/references/execution-display.md`.
 
 | Stage | Analysis weight |
 |-------|-----------------|

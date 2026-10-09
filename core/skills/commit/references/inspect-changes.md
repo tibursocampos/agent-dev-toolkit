@@ -1,6 +1,6 @@
-## Living artifacts ask (before inspect / `git add`)
+## No memory bank or documentation ask
 
-When `memory-bank/` (or resolved bank_root) exists and/or project docs exist (`docs/documentation-plan/plan.md`, `docs/overview.md`, or `docs/domains/`), **ask each applicable question and wait** for **sim** / **pular** (see commit `SKILL.md` § 1.5). Execute agreed updates before staging. Skip re-ask only if the user already answered in this turn.
+Do not ask about memory bank or project docs before inspect or `git add`. Do not start `/memory-bank-init`, `refresh-light`, `/document-plan`, or `/document-implement`. Presence of `memory-bank/` or project docs does not add a question. The only confirmation in this skill is the commit message (`SKILL.md` § 4). Silence, timeout, and end of turn are not answers to that confirmation.
 
 ## Inspect changes
 

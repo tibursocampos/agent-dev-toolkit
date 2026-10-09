@@ -708,6 +708,18 @@ function Invoke-ToolkitValidate {
 
 function Invoke-ToolkitValidateCore {
     Write-ToolkitStepBanner -Title 'Validate core'
+    foreach ($relativePath in @($script:ToolkitConstant.NamedRemainingCheckRelativePaths)) {
+        $passed = Invoke-ToolkitScript -RelativePath $relativePath -ArgumentTable @{}
+        if (-not $passed) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
+function Invoke-ToolkitWideSuite {
+    Write-ToolkitStepBanner -Title 'Validate core suite'
     $coreTable = @{}
     if ($Quiet) { $coreTable['Quiet'] = $true }
     return (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.ValidateCoreRelativePath -ArgumentTable $coreTable)
@@ -947,7 +959,7 @@ function Invoke-ToolkitValidationLab {
             return
         }
         if ($choice -eq '1') {
-            $null = Invoke-ToolkitValidateCore
+            $null = Invoke-ToolkitWideSuite
             Pause-Toolkit
             continue
         }

@@ -45,7 +45,7 @@ When `artifact_language` is `en` or user requested English in invocation:
 
 | Field / section | Rule | Severity |
 |-----------------|------|----------|
-| Metadata `Status` / `Status` | Not empty; pt: **Pronto para planejamento** (or EN: Ready for planning) | error |
+| Metadata `Status` / `Status` | Not empty. New spec write: pt **Pronto para planejamento** (or EN: Ready for planning). After PLAN **Implementation status** `COMPLETED`: pt **Implementado** (or EN: Implemented). Any other value | error |
 | Metadata `Prioridade` / `Priority` | Alta/Média/Baixa or High/Medium/Low | error |
 | Metadata `Complexidade` / `Complexity` | Baixa/Média/Alta or Low/Medium/High | error |
 | Objective section | Non-empty, not bracket placeholder | error |

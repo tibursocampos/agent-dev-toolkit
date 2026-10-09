@@ -141,10 +141,10 @@ function Remove-CopilotManagedPath {
     $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
     $targetFull = Get-NormalizedFullPath -Path $TargetPath
     $relativePath = $targetFull.Substring($installRootFull.TrimEnd('\', '/').Length).TrimStart('\', '/') -replace '\\', '/'
-    if ($RequireOwnership.IsPresent -and -not (Test-ToolkitManagedPublishInventoryOwnsFile `
-            -InstallRoot $installRootFull `
-            -RelativePath $relativePath `
-            -CurrentFilePath $TargetPath)) {
+    $listed = Test-ToolkitManagedPublishInventoryListsFile `
+        -InstallRoot $installRootFull `
+        -RelativePath $relativePath
+    if ($RequireOwnership.IsPresent -and -not $listed) {
         Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $TargetPath)
         return $false
     }
@@ -213,7 +213,15 @@ function Invoke-CopilotUninstallToolkit {
     try {
     $skillsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($skillsRoot) `
+        -SkillIds @($skillAudit.SkillIds) `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
+    foreach ($removedSkillPath in @($managedSkillResult.RemovedPaths)) {
+        $removedPaths.Add($removedSkillPath) | Out-Null
+    }
 
     $instructionsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.InstructionsDirectoryName
     foreach ($instructionName in (Get-CopilotManagedInstructionFileNames -SourcePolicyRoot $sourcePolicyRoot)) {
@@ -259,7 +267,7 @@ function Invoke-CopilotUninstallToolkit {
         ($script:CopilotUninstallMessage.RemovedOk -f $removedCount, $resolvedInstallRoot, $normalizedMode)
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+        $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ')
     }
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 

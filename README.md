@@ -56,7 +56,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 In the menu:
 
 1. **Sync agent** — pick an agent, then **live agent home** (Enter = default; writes under your profile after confirm), **in-repo fixture** (safe), or **custom** path.
-2. **Validate core only** — `validate-core` repo contracts with no home write.
+2. **Validate core only** — `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, and `Assert-TraceEmitterFailOpen.ps1`; repo checks with no home write.
 3. **Help and docs** — what each action does and equivalent `-Action` flags.
 
 Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-CursorCiSmoke`, `Invoke-ClaudeCiSmoke`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.
@@ -158,7 +158,7 @@ agent-dev-toolkit/
 - Live agent home requires **`-AllowUserHome`**.
 - Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-CI runs on `pull_request` to `develop`, `master`, and `main` (not `push`). Jobs `validate` and `validate-ubuntu` feed the required check `ci-ok` (see `.github/workflows/validate-toolkit.yml`). `validate` runs `validate-core`, keyed uninstall asserts, `Assert-SyncAllowUserHomeForward`, and all ten agent CI smokes. `validate-ubuntu` runs `Assert-InstallRootSafety`, `validate-core`, and the same ten fixture smokes. Release PRs into `master`/`main` must come from `develop` (`enforce-release-source.yml`).
+The full suite in `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only (not `push`, and not release pull requests). Jobs `validate` and `validate-ubuntu` run the named remaining checks; adapter-smoke matrices and `docs-strict` feed the required check `ci-ok`. `validate-core` and the keyed-uninstall matrix stay off that path. Release pull requests into `master` or `main` must come from `develop` (`enforce-release-source.yml`) and do not rerun this suite.
 
 ## License
 

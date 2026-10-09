@@ -9,6 +9,8 @@
 | CI does not prove a live agent home | Validation | `.github/workflows/validate-toolkit.yml` runs validate-core plus fixture smokes and keyed-uninstall asserts. It does not sync `USERPROFILE`. |
 | Backup is a stub | CLI | `-Action Backup` is fail-closed unless a test passes `-ForceStub`. It does not snapshot an install. |
 | Uninstall is keyed | Adapters | Toolkit-owned files are removed. Alien operator files and `sdd/sessions` stay. Re-sync is update-in-place, not uninstall-then-install. |
+| Path guard is not the installed copy | Hooks | `adapters/_shared/GuardCommon.ps1` allows writes inside the workspace (outside `.git` and legacy root `PRD/` / `PLAN/`) and under user adapter homes. Secrets and paths outside both stay denied. The copy under the live agent home changes only after sync. |
+| Hermes hook command is host-absolute at publish | Hermes | `config.yaml` `command` is a YAML single-quoted scalar because Hermes runs it with `shlex` and `shell=False`. The versioned fixture seed stays `~/.hermes/...`. A local publish rewrites that file with the fixture absolute path; do not commit that rewrite. |
 
 ## Fragile areas
 

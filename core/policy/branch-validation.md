@@ -86,11 +86,19 @@ fi
    ```
 3. Re-run the commit flow (`commit` skill or your git commands).
 
-## Where this applies
+## Integration-branch stop before code changes
+
+This stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`. Those skills show the current branch and, when it is `main`, `master`, or `develop`, stop before changing code. They propose `feature/<slug>` or `feat/<id>-<slug>` and create it only after **sim**.
+
+`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill write on the current branch. They do not show the branch and do not ask for a branch switch.
+
+## Where commit and push still apply
 
 - `commit` skill - before staging or committing
-- `sdd-develop` skill - aligns with branching step in `developer-common`
-- Any agent-initiated commit or push
+- `sdd-develop`, `developer`, and `*-developer` - same stop as `developer-common` step 3, before code changes
+- Any agent-initiated commit or push from a development skill
+
+Commit and push remain refused on an integration branch. That refusal does not move the stop into spec, plan, analyze, or deliver.
 
 ## Install path
 

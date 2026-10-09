@@ -5,8 +5,9 @@
 
 .DESCRIPTION
   Copies core/skills into InstallRoot/skills and resolves {{TOOLKIT_ROOT}},
-  {{SDD_ROOT}}, and {{GUARDRAILS_PATH}} at the destination only (core/ on disk
-  keeps placeholders). Uses Resolve-InstallRoot (USERPROFILE guard).
+  {{SDD_ROOT}}, and {{GUARDRAILS_PATH}} at the destination only. The guardrails
+  path is InstallRoot/AGENTS.md. Publish-Policy does not create rules/guardrails.mdc.
+  core/ on disk keeps placeholders. Uses Resolve-InstallRoot (USERPROFILE guard).
 #>
 
 $script:ZCodeAdapterModuleDirectory = $PSScriptRoot
@@ -50,7 +51,7 @@ function Get-ZCodePlaceholderMap {
     $toolkitRoot = Get-ZCodeNormalizedForwardSlashPath -Path $InstallRoot
     $sddRoot = Get-ZCodeNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:ZCodePathConstant.SddDirectoryName)
     $guardrailsPath = Get-ZCodeNormalizedForwardSlashPath -Path (
-        Join-Path (Join-Path $InstallRoot $script:ZCodePathConstant.CursorRulesDirectoryName) $script:ZCodePathConstant.GuardrailsFileName
+        Join-Path $InstallRoot $script:ZCodePathConstant.AgentsFileName
     )
 
     return [ordered]@{

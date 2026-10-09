@@ -128,7 +128,12 @@ function Invoke-OpenCodeUninstallToolkit {
     $skillsRoot = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
     $managedSkillIds = @($skillAudit.SkillIds)
-    $preservedSkillPaths = @($skillAudit.PreservedPaths)
+    $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `
+        -InstallRoot $resolvedInstallRoot `
+        -DestinationSkillsRoots @($skillsRoot) `
+        -SkillIds $managedSkillIds `
+        -WhatIf:$WhatIf
+    $preservedSkillPaths = @($managedSkillResult.PreservedPaths)
 
     $agentsPath = Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.AgentsFileName
     $routerRemoveResult = Remove-ToolkitManagedWholeFileRouterIfOwned `
@@ -173,17 +178,23 @@ function Invoke-OpenCodeUninstallToolkit {
         }
     }
 
-    $message = if ($WhatIf.IsPresent) {
-        $script:OpenCodeUninstallMessage.WhatIfOk -f $wouldRemovePaths.Count, $resolvedInstallRoot
+    $pathCount = if ($WhatIf.IsPresent) {
+        $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
-        $script:OpenCodeUninstallMessage.RemovedOk -f $removedPaths.Count, $resolvedInstallRoot
+        $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
+    }
+    $message = if ($WhatIf.IsPresent) {
+        $script:OpenCodeUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot
+    }
+    else {
+        $script:OpenCodeUninstallMessage.RemovedOk -f $pathCount, $resolvedInstallRoot
     }
     if ($routerNotes.Count -gt 0) {
         $message = '{0}; {1}' -f $message, ($routerNotes -join '; ')
     }
     if ($preservedSkillPaths.Count -gt 0) {
-        $message = '{0}; skill paths preserved because names-only manifests cannot prove per-file ownership: {1}' -f $message, ($preservedSkillPaths -join ', ')
+        $message = '{0}; skill paths preserved: {1}' -f $message, ($preservedSkillPaths -join ', ')
     }
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
@@ -193,8 +204,8 @@ function Invoke-OpenCodeUninstallToolkit {
         CommandName         = 'Uninstall-Toolkit'
         WhatIf              = [bool]$WhatIf.IsPresent
         InstallRoot         = $resolvedInstallRoot
-        RemovedCount        = $(if ($WhatIf.IsPresent) { $wouldRemovePaths.Count } else { $removedPaths.Count })
-        RemovedPaths        = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) } else { @($removedPaths.ToArray()) })
+        RemovedCount        = $pathCount
+        RemovedPaths        = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
         PreservedPaths      = @($preservedSkillPaths)
         ManagedSkillIds     = @($managedSkillIds)
         KeyedOnly           = $true

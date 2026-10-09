@@ -79,7 +79,7 @@ Read `references/<section>.md` for execution detail — **not** full `reference.
 
 Pick the first step with **Status:** Pending (or **Pendente**) whose dependencies are completed (`references/step-selection.md`). If user names a step id, use that step after validating deps.
 
-Summarize objective and deliverables. If `step_confirmed` is false: ask **(pt-BR)** to implement this doc step; set gate `true` only after **sim**.
+Summarize objective and deliverables. If `step_confirmed` is false: ask **(pt-BR)** to implement this doc step; set gate `true` only after **sim**. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
 
 ### 2. Execute step
 

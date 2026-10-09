@@ -44,9 +44,9 @@ Report the final message body in chat (without co-author trailers).
 
 Do not use `git commit --amend` on shared or pushed history unless the user explicitly requests it and amend rules apply.
 
-## Push (optional)
+## Push and pull request (same request only)
 
-Push only when the user asks:
+Run `git push` only when the same operator request that started `/commit` already includes push. Do not ask whether to push. Do not start the `/push` skill.
 
 ```bash
 git push -u origin HEAD
@@ -54,23 +54,18 @@ git push -u origin HEAD
 
 Never `git push --force` to `main`, `master`, or `develop`.
 
-After a successful push from this skill, follow `/push` §3: **ask** whether to open a PR with **`/open-github-pr`**. Do **not** create the pull request here — hand off to that skill on **sim**.
+Do not follow `/push` to ask about a pull request. Hand off to `/open-github-pr` only when that same operator request already includes a pull request. Do not create the pull request inside `/commit`. Load that skill’s `SKILL.md` before any pull-request action. Do not skip that skill’s confirmation when the handoff is in scope.
 
-If the user asked for commit + push + PR in one message (EN/pt-BR), treat PR intent as already granted for **handoff only**:
-
-| Phrase examples (non-exhaustive) | After commit (+ push if approved) |
-|----------------------------------|-----------------------------------|
-| `fluxo completo`, `faça o fluxo completo` | **Read and follow** `open-github-pr/SKILL.md` end-to-end |
-| `abra o PR`, `abrir PR`, `criar PR`, `faça o PR` | same |
-| `commit + push + PR`, `push and open PR`, `open the PR` | same |
-
-Do **not** open the PR inside `/commit`. Do **not** skip `/open-github-pr` confirmation or its auto-merge ask. Load that skill’s `SKILL.md` before any PR-creation action.
+| Phrase in the same request (non-exhaustive) | After the confirmed commit |
+|---------------------------------------------|----------------------------|
+| `fluxo completo`, `faça o fluxo completo`, `commit + push + PR`, `push and open PR` | Push, then read and follow `open-github-pr/SKILL.md` |
+| push without a pull request (`push`, `git push`, `faça o push`) | Push only, then stop. Do not offer a pull request. |
+| pull request without push (`abra o PR`, `abrir PR`, `criar PR`, `faça o PR`, `open the PR`) | Hand off to `/open-github-pr`. Do not push unless that same request also includes push. |
 
 ## Report
 
 - Branch name
 - Short commit hash (`git rev-parse --short HEAD`)
 - Files included
-- Push status (if applicable)
-- SDD handoff: if mid-PLAN, remind to update PLAN via `sdd-develop` before the next step in a new chat
-- If push succeeded and PR was not declined: remind that PR opening is **`/open-github-pr`** only
+- Push status only when the same request included push
+- Stop. Do not start memory bank, documentation, `/push`, or a pull request from this report.

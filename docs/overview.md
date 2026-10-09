@@ -92,7 +92,7 @@ GitHub Actions:
 
 | Workflow | Role |
 |----------|------|
-| `.github/workflows/validate-toolkit.yml` | `pull_request` to `master`, `main`, `develop`. The Windows and Ubuntu base jobs feed their keyed-uninstall and adapter-smoke matrices; `docs-strict` builds MkDocs; `ci-ok` depends on all six validation jobs. |
+| `.github/workflows/validate-toolkit.yml` | `pull_request` to `develop` only. Named remaining checks, adapter-smoke matrices, and `docs-strict` feed `ci-ok`. Release pull requests do not run this workflow. |
 | `.github/workflows/publish-release-bootstrap.yml` | Release zip `agent-dev-toolkit.zip` plus SHA256 sidecar and bootstrap entrypoints. |
 | `.github/workflows/enforce-release-source.yml` | Pull requests into `master` / `main` must come from `develop`. |
 
