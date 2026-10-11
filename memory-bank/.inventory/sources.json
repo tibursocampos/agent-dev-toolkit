@@ -3,18 +3,18 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-11T15:39:55.7054431Z",
+  "generated_at": "2026-10-11T21:17:03.8114561Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "91917befd5e9f11969dfafe8ec2c2f7f35722c4998b8b50d1ea8c1b8d41e583c",
-  "inventory_summary": "133 source(s); stack: markdown, powershell",
+  "inventory_hash": "3dd509812a236453459d05233fd15ac3e9b8da10c8d692a06957472e9eee67ba",
+  "inventory_summary": "132 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
   "skill_count": 45,
-  "assert_script_count": 95,
+  "assert_script_count": 99,
   "sources": [
     {
       "path": ".github/workflows/docs.yml",
@@ -53,9 +53,9 @@
     },
     {
       "path": ".gitignore",
-      "last_write_utc": "2026-10-09T22:58:39.6439939Z",
-      "length": 6308,
-      "hash": "9ee113c0f4f4d44d7dc06f784b55e2397a94082ab41bf66b1364ebebd910b8d5",
+      "last_write_utc": "2026-10-11T20:53:06.0842146Z",
+      "length": 6200,
+      "hash": "1d61f392791b360b2ddb948f1d61947a016e41f062a6311f1cc4760579295fd9",
       "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
     },
     {
@@ -67,9 +67,9 @@
     },
     {
       "path": "adapters/antigravity/Publish-AntigravityHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.6595998Z",
-      "length": 8388,
-      "hash": "7fcaa20e85d944fda2d14aae95179a72ed7484afe1324bfb9e7bb53b71643d52",
+      "last_write_utc": "2026-10-11T18:55:08.9850224Z",
+      "length": 9121,
+      "hash": "b49e2c440cd2139325e1b7423b16cf5e97993380e93455ccc53be6d9ae658de0",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -88,9 +88,9 @@
     },
     {
       "path": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.6958480Z",
-      "length": 11516,
-      "hash": "7636071268e27e4d5c21e51142425df7d55b2f9c23917ba66ae02120748ce9d1",
+      "last_write_utc": "2026-10-11T18:58:37.8302381Z",
+      "length": 11545,
+      "hash": "9245f19ddbfa3db34234108c969b38d9a687f1b74d7e5b8c5fceb12e88f337ef",
       "summary": "Explicitly never touch legacy bridge."
     },
     {
@@ -109,9 +109,9 @@
     },
     {
       "path": "adapters/claude/Publish-ClaudeHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.7259634Z",
-      "length": 7080,
-      "hash": "50d726d23fd48fc700d68737bb9a0e16ec07b7ba5bc46a6621447079d1c0afcc",
+      "last_write_utc": "2026-10-11T18:55:08.9860218Z",
+      "length": 7717,
+      "hash": "1cb123bc9dc403ebceb54074c7d62d1c5123af9453591c4cbe8da5ae0bcbac0c",
       "summary": "Shared path/secret helpers beside published hooks."
     },
     {
@@ -137,9 +137,9 @@
     },
     {
       "path": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.7054992Z",
-      "length": 15887,
-      "hash": "5acd4b10e7ab60fe5325916a72bfadc2b41743de1ca5b88aeb8a2554b8d68238",
+      "last_write_utc": "2026-10-11T18:55:43.0286984Z",
+      "length": 15988,
+      "hash": "097e9d9bc4cc695442780a4ceba993d5057d166ffa475894f274a8d1901153de",
       "summary": "Script-scope load so Remove-* helpers can call Assert-PathUnderInstallRootForDelete"
     },
     {
@@ -158,9 +158,9 @@
     },
     {
       "path": "adapters/codex/Publish-CodexHooks.ps1",
-      "last_write_utc": "2026-10-11T02:34:04.8516086Z",
-      "length": 8856,
-      "hash": "f5cd34c45de819157bfd89261421177cbf1a42b269967b599bdd7f093da4b708",
+      "last_write_utc": "2026-10-11T18:55:08.9870221Z",
+      "length": 9405,
+      "hash": "7f5a30938e32817e88dd1bb6218dd6ce3e846c072355a98d939f577335b82e41",
       "summary": "Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets)."
     },
     {
@@ -186,9 +186,9 @@
     },
     {
       "path": "adapters/codex/Uninstall-CodexToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.8507732Z",
-      "length": 16558,
-      "hash": "aa3b2c42ca761e0060f7d8ffe03e10e83209b13feff6c0c2d2617425b5eaf4a7",
+      "last_write_utc": "2026-10-11T18:55:23.0131998Z",
+      "length": 16693,
+      "hash": "bbcccb11f6e0e2e052be2e7f63f49b3ed1e6abfbdf2d7392d39ab23e5b2193d9",
       "summary": "Unknown / corrupt catalog authored outside toolkit - leave untouched (RN07)."
     },
     {
@@ -207,9 +207,9 @@
     },
     {
       "path": "adapters/copilot/Publish-CopilotHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.8422273Z",
-      "length": 9257,
-      "hash": "cb593abbf14e9136adfdfbd09ec03521a30aca39e1453bc3928346db77e3d599",
+      "last_write_utc": "2026-10-11T16:56:50.6613585Z",
+      "length": 10019,
+      "hash": "cdadac655573a703021285f6eb7e7dcf3788ca7376d0023839501cac0824f26c",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -228,9 +228,9 @@
     },
     {
       "path": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.6775558Z",
-      "length": 11732,
-      "hash": "657f8754d3ddd12dc6e6bedb5faccbab7766f017ff93ef8712ade82c72456655",
+      "last_write_utc": "2026-10-11T18:55:43.0286984Z",
+      "length": 11811,
+      "hash": "4196bf5cf68d5df25eae22f0c001aa4ad441bece7d8db956d730c357bae1902d",
       "summary": "Uninstall targets are published files. Never recurse into a user-created"
     },
     {
@@ -249,9 +249,9 @@
     },
     {
       "path": "adapters/cursor/Publish-CursorHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.9009786Z",
-      "length": 21109,
-      "hash": "15ad872170f3a218a5ca6dacf63ff3192851172685f11bbe58658985da2cc0f5",
+      "last_write_utc": "2026-10-11T18:55:08.9890212Z",
+      "length": 22182,
+      "hash": "28f634336fd6afa6a584813fe6968af41c142902d2e2f26f2b5a7ada91da0037",
       "summary": "Script-scope load so path-gate asserts are available to Copy-/Write- helpers."
     },
     {
@@ -277,9 +277,9 @@
     },
     {
       "path": "adapters/cursor/Uninstall-CursorToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.8507732Z",
-      "length": 16425,
-      "hash": "c8dc6e610ab3879f507e6a85fd98042ff0c15df75a9db003fae69bc1341a919a",
+      "last_write_utc": "2026-10-11T18:58:31.3484757Z",
+      "length": 16464,
+      "hash": "c3e45d13a52354263873acdda9c52697978a83dbb9b5f72ddd63b1284d5bb114",
       "summary": "Event had only toolkit handlers — drop empty event key."
     },
     {
@@ -298,9 +298,9 @@
     },
     {
       "path": "adapters/grok/Publish-GrokHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.9553375Z",
-      "length": 10582,
-      "hash": "1adcfff50feccd8aaa8d10304544ad8d5ea8925bb2f18aaa3b1c8ec16e98de3d",
+      "last_write_utc": "2026-10-11T18:55:08.9870221Z",
+      "length": 11092,
+      "hash": "61365fdd140c6535f92c971c62c23028b6cddd29a293c37f0308a3986150bd24",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -326,9 +326,9 @@
     },
     {
       "path": "adapters/grok/Uninstall-GrokToolkit.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.9723605Z",
-      "length": 10897,
-      "hash": "0a52ebd4e9832b8919bf10af815afb5493a821391d4c53cec338fd32eb6d5e47",
+      "last_write_utc": "2026-10-11T18:55:32.8810112Z",
+      "length": 11173,
+      "hash": "0bb5300f7e11354d4435c65be95d61e825d58c7ea1eebf32207276b797fb5977",
       "summary": "Script-scope load so Assert-PathUnderInstallRootForDelete is available"
     },
     {
@@ -340,9 +340,9 @@
     },
     {
       "path": "adapters/hermes/Publish-HermesHooks.ps1",
-      "last_write_utc": "2026-10-10T22:31:09.2536118Z",
-      "length": 16921,
-      "hash": "471f2bc6682c13c74f68f7fb981306d55bb773cfa7063510bf804b22a0edf526",
+      "last_write_utc": "2026-10-11T20:07:20.8870312Z",
+      "length": 18055,
+      "hash": "8c05e6f6c4b3c43e636d442dde8be3cb4f829d07f116fe9772cb3fe9631221e3",
       "summary": "Best-effort executable bit; host may still invoke via sh/bash."
     },
     {
@@ -368,9 +368,9 @@
     },
     {
       "path": "adapters/hermes/Uninstall-HermesToolkit.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.9989829Z",
-      "length": 14132,
-      "hash": "b34ee19122ebe8a96ac2fae1e7be595b4592f9b8ac53cd9e347fbfcb842c99b0",
+      "last_write_utc": "2026-10-11T18:58:31.3494744Z",
+      "length": 14174,
+      "hash": "e82a15e52f59809c45b0e140474ed7312fce1753556ebe2e299429e9930ff3bd",
       "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
     },
     {
@@ -389,9 +389,9 @@
     },
     {
       "path": "adapters/opencode/Publish-OpenCodeHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.0073224Z",
-      "length": 9843,
-      "hash": "bcd9192a229c01c315c682ba837f4fde4dfb32424ff43a4a695eaa13be4b3c62",
+      "last_write_utc": "2026-10-11T18:55:08.9890212Z",
+      "length": 10097,
+      "hash": "4af5ebb05cf8ba0b2adfe85d0374006b89f506f757a85b4def21e163169fdac8",
       "summary": "Re-assert after create / when dest already existed as a reparse child."
     },
     {
@@ -410,9 +410,9 @@
     },
     {
       "path": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.7054992Z",
-      "length": 8405,
-      "hash": "96a88ee73893947c67f3508cd89415f9815efd7af24f679ba269908d77b750db",
+      "last_write_utc": "2026-10-11T18:55:35.4829957Z",
+      "length": 8989,
+      "hash": "84772c9d0e22d4067d14417dc465f4c418742bfceb8f73c7c9937365b5a8f147",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -431,9 +431,9 @@
     },
     {
       "path": "adapters/openhands/Publish-OpenHandsHooks.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.0271729Z",
-      "length": 11666,
-      "hash": "aaf844066f97cd8ea4593a9e542876a77a5312555d8f551fd7d53ed26452ee8b",
+      "last_write_utc": "2026-10-11T18:55:08.9880220Z",
+      "length": 12453,
+      "hash": "6ad39e2c261c8d658ee6682fd206fa566bdb6d4f587cdbdca0f14fb1ff505686",
       "summary": "Best-effort executable bit; host may still invoke via sh."
     },
     {
@@ -459,9 +459,9 @@
     },
     {
       "path": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.0301731Z",
-      "length": 9644,
-      "hash": "eca97e83b2723f62dd4c7af2f0aec6c608301e01a8b7de0f6c05c5b0aa376783",
+      "last_write_utc": "2026-10-11T18:55:32.8830108Z",
+      "length": 9727,
+      "hash": "cf9821003487118ad8f587c20414b8a2f7d40fdbaa6281619f2b6a5a29d496cb",
       "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
     },
     {
@@ -480,9 +480,9 @@
     },
     {
       "path": "adapters/zcode/Publish-ZCodeHooks.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.7054992Z",
-      "length": 15102,
-      "hash": "7683922ff25b394412bc605a934763d12841defb11618a5a3e6ee3a08e4f7065",
+      "last_write_utc": "2026-10-11T18:55:08.9890212Z",
+      "length": 15801,
+      "hash": "900835726ad8b1cf4031b0cc2907e9b621327a2c0a5f2b38a49dab603be205fe",
       "summary": "Preserve JSON arrays with exactly one item. PowerShell otherwise"
     },
     {
@@ -501,9 +501,9 @@
     },
     {
       "path": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.0592417Z",
-      "length": 19146,
-      "hash": "46830dae9aab213f5b51deccc3cde09a891415a8ccb6e9f09e94b9b016bb4f04",
+      "last_write_utc": "2026-10-11T18:55:43.0296997Z",
+      "length": 19854,
+      "hash": "1fee60a27c165cdb7f567c1a628109da130bade8a5d6b188d06a1716a2c2de47",
       "summary": "Exact toolkit overlay leaf — drop."
     },
     {
@@ -550,30 +550,30 @@
     },
     {
       "path": "docs/CREDITS.md",
-      "last_write_utc": "2026-10-11T12:10:20.5509699Z",
-      "length": 4265,
-      "hash": "9751493bdbf5217f7f7d6ad56ace3661b74a8be399ef1ec753e8d7bbe661381c",
+      "last_write_utc": "2026-10-11T20:44:41.9642213Z",
+      "length": 3747,
+      "hash": "c1398efd58c1016b6c6ebd7708e39c5b2da7b6b928bd348e841b3b791ddf3f6d",
       "summary": "Credits and acknowledgments"
     },
     {
       "path": "docs/DESIGN-BRIEF.md",
-      "last_write_utc": "2026-09-26T11:13:17.0676336Z",
-      "length": 6310,
-      "hash": "d84c6d01fd1428fa2c58649f89acc1107a4458672bbad058cee0e20e6068ce67",
+      "last_write_utc": "2026-10-11T20:44:36.4694163Z",
+      "length": 6237,
+      "hash": "a6f4e8d6fe90e5dce02de837a0b607a5a990789bebda62a87c1a7a15d9e09ff3",
       "summary": "DESIGN-BRIEF — Public docs site reading pass"
     },
     {
       "path": "docs/documentation-plan/plan.md",
-      "last_write_utc": "2026-10-09T22:58:40.3901720Z",
-      "length": 24152,
-      "hash": "5240f5461d5facefbed6c18b035c65a44f72671b6fa9a33e004bc1628d0f35bb",
+      "last_write_utc": "2026-10-11T20:44:36.4704159Z",
+      "length": 24139,
+      "hash": "8081eab6bdaa581cca40bd27ab1237bf02757eea4e6914dbed1d3b9f7c668206",
       "summary": "Documentation plan: agent-dev-toolkit"
     },
     {
       "path": "docs/documentation-plan/SITE-HARDEN-PLAN.md",
-      "last_write_utc": "2026-08-03T12:58:43.2477739Z",
-      "length": 7212,
-      "hash": "891893edab62264a2dace064d6fa7ab4382a2cd539686e05d7dc1186681d2377",
+      "last_write_utc": "2026-10-11T20:45:22.8295359Z",
+      "length": 7236,
+      "hash": "c25fba55638ab832804e8f5d8bc3de70b11783d3da3b17d21f9ff8a5e4118646",
       "summary": "SITE-HARDEN-PLAN — Docs site (GitHub Pages)"
     },
     {
@@ -585,9 +585,9 @@
     },
     {
       "path": "docs/domains/cli-scripts.md",
-      "last_write_utc": "2026-10-09T22:58:40.3911702Z",
-      "length": 15585,
-      "hash": "0926a9efbcdd1efeb0e64f022a74cb7548cbbd029caf9df1375c2811f192d455",
+      "last_write_utc": "2026-10-11T20:44:36.4704159Z",
+      "length": 15347,
+      "hash": "ca85d0d6a80867a89fe12ccbc2dd031b82c24a7f1f49a25e3a4aca01b3382e63",
       "summary": "Domain: CLI scripts"
     },
     {
@@ -655,17 +655,10 @@
     },
     {
       "path": "docs/HOOKS.md",
-      "last_write_utc": "2026-10-11T12:08:37.4917384Z",
-      "length": 2621,
-      "hash": "cfb73c0817e2dafe80471c423a8d9ee7bab981e74f1130de66c9c47b1eb8bd66",
+      "last_write_utc": "2026-10-11T20:44:41.9642213Z",
+      "length": 2220,
+      "hash": "5aa1af92848f4d307caca9e545ab175e6371ca3212f2573ef0a308e04ac5d586",
       "summary": "Toolkit hooks"
-    },
-    {
-      "path": "docs/impeccable-integration.md",
-      "last_write_utc": "2026-10-11T12:08:37.4917384Z",
-      "length": 1629,
-      "hash": "7ac94a35a458bc953926f94924c9958c5b5ca1236880056696ae78c3e4a25144",
-      "summary": "Optional upstream Impeccable"
     },
     {
       "path": "docs/INSTALL.md",
@@ -683,9 +676,9 @@
     },
     {
       "path": "docs/README.md",
-      "last_write_utc": "2026-10-11T12:10:41.3869879Z",
-      "length": 3474,
-      "hash": "07cb7eafc51a44241706f3bf067ba928433b8d9ab908626d1477817e725184db",
+      "last_write_utc": "2026-10-11T20:44:36.4694163Z",
+      "length": 3462,
+      "hash": "fb03a8fedf1b45568ebdc122127fa09c2671120a5260fa697482604a29fc6777",
       "summary": "Documentation index"
     },
     {
@@ -718,9 +711,9 @@
     },
     {
       "path": "docs/sessions/04-implement-and-guidelines.md",
-      "last_write_utc": "2026-10-11T12:29:10.3969017Z",
-      "length": 6724,
-      "hash": "744f74ff38db6ea9bc8b3c6faff9d796184960f4d864cc3e01eb40971e42258b",
+      "last_write_utc": "2026-10-11T20:44:36.4694163Z",
+      "length": 6597,
+      "hash": "071737d3a0ed13e521db8a75fde9c472f541719d3dee7bfca6091b9acda6461e",
       "summary": "04 — Implement and guidelines"
     },
     {
@@ -767,9 +760,9 @@
     },
     {
       "path": "docs/SKILLS.md",
-      "last_write_utc": "2026-10-11T12:09:49.2834995Z",
-      "length": 14020,
-      "hash": "41b8535f17bf190537c4b25502b15b79aec686b773b5cc6576ee25af12b04e5a",
+      "last_write_utc": "2026-10-11T20:44:36.4694163Z",
+      "length": 14007,
+      "hash": "f26f1b2167aa2cf0346d13e58d277e4aff6e2cb9429ec05497f8ad75016f6c26",
       "summary": "Skills catalog"
     },
     {
@@ -795,9 +788,9 @@
     },
     {
       "path": "README.md",
-      "last_write_utc": "2026-10-11T12:10:41.3838214Z",
-      "length": 11546,
-      "hash": "d3e8bbf05360aa3cc285741da90dc505c0356d9b832663be45be6c1a35a4fadf",
+      "last_write_utc": "2026-10-11T20:44:36.4674163Z",
+      "length": 11534,
+      "hash": "9e02a2f11882f35ced2720e14f5fa3f7451ce8633f6884dd5c2e43a595a03740",
       "summary": "Agent Dev Toolkit"
     },
     {
@@ -809,9 +802,9 @@
     },
     {
       "path": "scripts/_lib/Copy-ToolkitManagedTree.ps1",
-      "last_write_utc": "2026-10-11T15:37:28.2128836Z",
-      "length": 49551,
-      "hash": "866b5e527de42f4d966c92645fb56b04f0f29da78058b384faf53d08fa9c5796",
+      "last_write_utc": "2026-10-11T20:52:54.3749567Z",
+      "length": 47896,
+      "hash": "65f59233cccfed805ed6ecf4b18c3538f0b3bf361a9e5e6f3218ed39b7ec5db8",
       "summary": "These values are shared by the copy/publish helpers below. Initialize them"
     },
     {
