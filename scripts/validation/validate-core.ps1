@@ -246,6 +246,7 @@ $coreChecks = @(
     @{ Name = $routerDocLinksCheckName; Script = $routerDocLinksScriptName },
     @{ Name = $spawnContractCheckName; Script = $spawnContractScriptName },
     @{ Name = $adapterContractCheckName; Script = $adapterContractScriptName },
+    @{ Name = 'core-sdd-contracts'; Script = 'Assert-CoreSddContracts.ps1' },
     @{ Name = $orchestrateSpawnFallbackCheckName; Script = $orchestrateSpawnFallbackScriptName },
     @{ Name = $hermesSpawnIsolationCheckName; Script = $hermesSpawnIsolationScriptName },
     @{ Name = $antigravitySubagentsProbeCheckName; Script = $antigravitySubagentsProbeScriptName },

@@ -96,18 +96,19 @@ Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyConti
 
 . $codexAdapter
 $hooksObj = New-CodexPreToolUseHooksObject
+$preToolUseHooks = @($hooksObj.hooks.PreToolUse)
+if ($preToolUseHooks.Count -ne 2) {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'expected separate Bash and patch/edit/write matcher groups'
+}
+if ($preToolUseHooks[0].matcher -ne 'Bash' -or $preToolUseHooks[1].matcher -ne 'apply_patch|Edit|Write') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'unexpected PreToolUse matchers'
+}
 $hooksJsonText = ($hooksObj | ConvertTo-Json -Depth 8)
 if ($hooksJsonText -notmatch 'PreToolUse') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing PreToolUse'
 }
 if ($hooksJsonText -notmatch 'guard-pre-tool\.ps1') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing guard-pre-tool.ps1 command'
-}
-if ($hooksJsonText -notmatch 'apply_patch\|Edit\|Write') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing apply_patch|Edit|Write matcher'
-}
-if ($hooksJsonText -notmatch '"Bash"') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing Bash matcher'
 }
 Write-Pass -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse'
 

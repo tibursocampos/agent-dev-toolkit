@@ -33,14 +33,17 @@ function New-CodexPreToolUseHooksObject {
         description = $c.HooksDescription
         hooks       = [ordered]@{
             ($c.HooksPreToolUseEventName) = @(
-                [ordered]@{
-                    hooks = @(
-                        [ordered]@{
-                            type          = $c.HooksCommandType
-                            command       = $guardCommand
-                            statusMessage = $c.HooksPreToolUseStatusMessage
-                        }
-                    )
+                foreach ($matcher in @($c.HooksPreToolUseBashMatcher, $c.HooksPreToolUsePatchMatcher)) {
+                    [ordered]@{
+                        matcher = $matcher
+                        hooks   = @(
+                            [ordered]@{
+                                type          = $c.HooksCommandType
+                                command       = $guardCommand
+                                statusMessage = $c.HooksPreToolUseStatusMessage
+                            }
+                        )
+                    }
                 }
             )
         }

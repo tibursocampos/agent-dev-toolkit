@@ -1,4 +1,4 @@
-﻿# Memory Bank Gate (Orchestrated Delivery Step 0)
+# Memory Bank Gate (Orchestrated Delivery Step 0)
 
 Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
 

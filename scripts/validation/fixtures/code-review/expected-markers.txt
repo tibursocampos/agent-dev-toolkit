@@ -1,2 +1,2 @@
 ﻿Must not
-GitHub web UI
+Do not suggest creating another pull request
