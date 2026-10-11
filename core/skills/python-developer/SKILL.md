@@ -27,6 +27,8 @@ Gate check:
 # Skill: python-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/python-developer`, `python fix`, `implement FastAPI/Flask feature`, or for **small** Python work that does not need a full PRD/PLAN cycle.
 

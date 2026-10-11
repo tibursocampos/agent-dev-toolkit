@@ -27,6 +27,8 @@ Gate check:
 # Skill: ef-add-migration
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/ef-add-migration`, `add migration`, `/ef-add-migration`, or when a PLAN step requires a new EF Core migration.
 

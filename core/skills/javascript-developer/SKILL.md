@@ -27,6 +27,8 @@ Gate check:
 # Skill: javascript-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/javascript-developer`, `js fix`, `node fix`, `implement Express/Fastify feature`, or for **small** JavaScript/TypeScript work that does not need a full PRD/PLAN cycle.
 

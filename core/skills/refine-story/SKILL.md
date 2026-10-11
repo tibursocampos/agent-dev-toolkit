@@ -27,6 +27,8 @@ Gate check:
 # Skill: refine-story
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/refine-story`, `refine backlog item`, or quick intake before SDD / Orchestrated Delivery.
 

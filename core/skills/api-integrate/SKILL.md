@@ -28,6 +28,8 @@ Gate check:
 # Skill: api-integrate
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user requests: `/api-integrate`, `integrate api`, `/api-integrate`, or asks to integrate endpoints from a schema.
 

@@ -18,6 +18,18 @@ Update when:
 | **Related** | Keep/refresh `## Related` with portable paths to on-disk siblings only — **omit-if-absent**. CONTINUITY carries **handoff paths**, not a second navigation SoT (006 REQ-009 / `STORAGE.md` § Navigation block) |
 | **What not to write** | Full code diffs, guideline dumps, memory-bank body |
 
+For each active story, keep one machine-checkable `## Estado atual do O3` block in CONTINUITY, derived from the saved and re-read PLAN. Required fields use this exact shape and portable PLAN path:
+
+```text
+## Estado atual do O3
+- PLAN: `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`
+- Progresso: 2/5
+- Concluídos: S1, S2
+- Próximo: S3 — <exact PLAN step title>
+```
+
+Use `none` for an empty completed list or no next step. Before each session/claim/spawn, the O3 preflight compares this block to the PLAN's saved progress table, step states, order, and dependencies. Missing or stale fields block the queue until the parent reconciles CONTINUITY. The PLAN remains the sole queue/dependency source.
+
 ---
 
 ## Example - serial two steps then review
@@ -105,6 +117,7 @@ On each meaningful milestone (before/after child, pause, story done):
 | **Last agent** | `orchestrate-develop` |
 | **Memory-bank** | Path + status from Step 0 (`fresh` / `refreshed` / `created`) |
 | **Estado atual** | Short per CONTINUITY template: active PLAN, last step done, next step |
+| **O3 Current State** | Persist `## Estado atual do O3` with PLAN path, progress, completed IDs, and exact next PLAN step title; derive from saved/re-read PLAN and pass `Invoke-O3ArtifactPreflight.ps1` before session, claim, or spawn |
 | **Handoff tipado** | Exact next `/…` with **portable paths** (`STORAGE.md` § Portable path) |
 
 Do not paste full diffs, guideline bodies, or memory-bank body into CONTINUITY. CONTINUITY owns phase/handoff; bank does not replace it. Do **not** invent a parallel navigation index — Related is path edges only (`STORAGE.md` § Navigation block / 006 REQ-009).

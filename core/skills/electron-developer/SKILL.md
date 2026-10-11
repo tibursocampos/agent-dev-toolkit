@@ -26,6 +26,8 @@ Gate check:
 # Skill: electron-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use when user asks for `/electron-developer`, `electron fix`, or a small isolated Electron implementation.
 

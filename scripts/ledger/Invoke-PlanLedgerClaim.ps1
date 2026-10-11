@@ -65,6 +65,7 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
 $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Get-ToolkitRelativePath.ps1')
 
 $exitClaimOk = [int]$script:ToolkitConstant.PlanLedgerExitClaimOk
 $exitClaimRejected = [int]$script:ToolkitConstant.PlanLedgerExitClaimRejected
@@ -178,6 +179,36 @@ if (-not (Test-Path -LiteralPath $planCandidate)) {
 
 $planResolved = (Resolve-Path -LiteralPath $planCandidate).Path
 $portablePlan = Convert-ToPortablePlanPath -FullPlanPath $planResolved -RepoRootPath $repoResolved
+$canonicalPlan = $false
+$sddConfigRoot = if (-not [string]::IsNullOrWhiteSpace($SddRoot)) { $SddRoot } else { Join-Path $env:USERPROFILE '.codex/sdd' }
+$manifestPath = Join-Path $sddConfigRoot 'manifest.json'
+if (Test-Path -LiteralPath $manifestPath) {
+    $manifestValue = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $repoKey = $repoResolved.Replace('\','/').TrimEnd('/')
+    $entry = $manifestValue.repositories.PSObject.Properties | Where-Object { $_.Name.Replace('\','/').TrimEnd('/').Equals($repoKey,[StringComparison]::OrdinalIgnoreCase) } | Select-Object -First 1
+    if ($null -ne $entry -and $null -ne $entry.Value.classic) {
+        $classic = $entry.Value.classic
+        if ([string]$classic.storage_mode -eq 'repository') {
+            $rel = (Get-ToolkitRelativePath -BasePath (Join-Path $repoResolved 'features') -TargetPath $planResolved).Replace('\','/')
+            $canonicalPlan = $rel -notmatch '^\.\.' -and $rel -match '^[^/]+/(US|TS)\d{2}/PLAN/PLAN_\d{3}_[^/]+\.md$'
+        } elseif ([string]$classic.storage_mode -eq 'global' -and -not [string]::IsNullOrWhiteSpace([string]$classic.path)) {
+            $globalRoot = [IO.Path]::GetFullPath([string]$classic.path)
+            $sddAbsolute = [IO.Path]::GetFullPath($sddConfigRoot).TrimEnd('\','/')
+            if ($globalRoot.StartsWith($sddAbsolute + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) {
+                $rel = (Get-ToolkitRelativePath -BasePath (Join-Path $globalRoot 'features') -TargetPath $planResolved).Replace('\','/')
+                $canonicalPlan = $rel -notmatch '^\.\.' -and $rel -match '^[^/]+/(US|TS)\d{2}/PLAN/PLAN_\d{3}_[^/]+\.md$'
+            }
+        }
+    }
+}
+if ($Action -eq 'claim' -and $canonicalPlan) {
+    $planTextForGate = Get-Content -LiteralPath $planResolved -Raw -Encoding UTF8
+    $planStatus = [regex]::Match($planTextForGate, '(?im)^\|\s*\*\*Status\*\*\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
+    if ($planStatus -cne 'approved') {
+        Write-Error 'plan_not_explicitly_approved: claim creation is blocked until the canonical PLAN Status is exactly approved.'
+        exit $exitUsage
+    }
+}
 
 $repoHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $repoResolved)
 $planHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $planResolved)

@@ -26,6 +26,8 @@ Gate check:
 # Skill: react-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/react-developer`, `react fix`, or **small** isolated React (web) work that does not need a full PRD/PLAN cycle.
 

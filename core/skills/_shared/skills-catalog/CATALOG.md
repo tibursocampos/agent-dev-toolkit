@@ -98,3 +98,39 @@ Total: **46** kebab skills.
 |-------|--------------|---------|
 | `document-plan` | `document-plan`, `doc plan` | Baby-step documentation plan |
 | `document-implement` | `document-implement` | Execute one documentation plan step |
+
+## Activation contract
+
+A skill is eligible only when at least one positive signal declared in its `SKILL.md` Trigger section matches the request and its required context is present. An explicit request naming one installed skill is a positive signal for that skill and takes precedence over topical similarity to other skills. A skill name appearing only in quoted, negated, or descriptive text is not an activation request. A request that does not meet a skill's declared trigger or required context is a negative signal and must not activate it. General topic similarity, isolated keywords, and assumptions about intent are not sufficient.
+
+Apply this decision order:
+
+1. Honor one direct, unambiguous request to invoke a named installed skill; do not activate a second skill based only on topic overlap.
+2. Otherwise, consider only skills whose declared trigger and required context both match. If exactly one qualifies, it is eligible.
+3. If multiple skills qualify and the request does not state an unambiguous sequence or division of work, ask which capability the user wants before any mutating action. Do not choose by catalog order, wording similarity, or an undocumented ranking.
+4. If no skill qualifies, or required context/signals are missing, activate no skill. If the missing information matters to a requested mutating action, ask for clarification before that action.
+
+An explicit request for multiple named skills is eligible only when it specifies a clear sequence or division of work; otherwise ask for clarification. These rules define no numeric thresholds and contain no host-specific APIs or metadata.
+
+The activation corpus records reproducible positive, negative, overlap, and insufficient-signal examples with exact expected outcomes. Positive examples name one installed skill explicitly; negative examples contain no applicable declared trigger and expect no skill. Overlap cases either identify the eligible explicit skill or expect clarification before mutation; insufficient-signal cases expect no activation. The corpus is expected behavior, not a runtime classifier or proof of provider conformance.
+
+## Flow terminal contract
+
+Every skill flow ends its current invocation with one explicit outcome and the next action. The outcome is terminal for that invocation; a handoff or retry starts only after its stated condition is met.
+
+| Outcome | Use when | Required next action |
+|---|---|---|
+| `done` | The requested scope and its acceptance conditions are complete. | Report the result and give the exact eligible handoff, if one exists. |
+| `blocked` | A required dependency, input, approval, or user decision is missing. | Name what is missing and the action that can resolve it; keep dependent work stopped. |
+| `failed` | An attempted operation or validation failed. | Report the observed cause and a bounded recovery action; do not repeat the same transition automatically. |
+| `open_question` | A material question awaits the user. | Ask one clear question and wait. Silence, timeout, or end of turn leaves the flow blocked. |
+
+Do not treat an unanswered question, unchanged retry, repeated prompt, or handoff suggestion as completion or authorization. Resume only after new input or changed evidence satisfies the recorded next-action condition; then revalidate the affected gates before proceeding. Each flow's existing Outcome, Handoff, report, or stop instructions must name its applicable condition and next action; a flow with no further transition ends with its completed result. These labels describe skill-flow control, not provider APIs or runtime classifier states.
+
+| Reproducible condition | Expected outcome | Next action |
+|---|---|---|
+| Acceptance and required validation pass. | `done` | Persist the result and expose only the next eligible handoff. |
+| Required dependency or approval is absent. | `blocked` | Name the dependency and stop dependent work until it is available; revalidate before resuming. |
+| Validation or operation fails. | `failed` | Report the observed failure and a bounded recovery; do not replay the same attempt automatically. |
+| A material user decision is unanswered. | `open_question` (the active work remains `blocked`) | Wait for an answer; silence does not advance. Ask again only after new user input or a changed question context. |
+| The prior outcome is unchanged and no new input/evidence exists. | Preserve the prior terminal outcome. | Do not repeat the transition; wait or hand off the recorded recovery condition. |

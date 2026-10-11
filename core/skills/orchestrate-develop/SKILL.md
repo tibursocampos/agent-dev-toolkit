@@ -27,6 +27,8 @@ Gate check:
 # Skill: orchestrate-develop
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery O3 after O2 handoff.
 
@@ -122,7 +124,13 @@ Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Deli
 Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; every develop child handoff must include `invocation_context: orchestrated` (path cite only — no contract body dump).
 
 ### 2. Resolve feature / PLAN set (plan-acquisition)
-Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Read `references/plan-acquisition.md` and `references/process-common.md` § Process — Resolve feature / PLAN set.
+Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Before queue parsing, session creation, claim, or specialist invocation, run the deterministic read-only artifact gate:
+
+```powershell
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1" -FeatureRoot <feature-root> -PlanPath <canonical-plan> -RepoPath <repo-root> -SddRoot <sdd-root>
+```
+
+Any nonzero result is `plan_stale` / blocked: do not create or update a session, claim, or specialist. Re-run after checkpoint/CONTINUITY reconciliation and immediately before every subsequent effect; do not rely on an earlier snapshot. Only exact PLAN metadata `Status=approved` passes. Parse queue and dependency order exclusively from the saved PLAN; validate that its six related artifacts agree, then derive CONTINUITY from the saved and re-read PLAN. Report the validator's `features_versioned` state verbatim; `false` means local SDD files are unversioned and may not accompany commits/clones. Do not call them committed. Read `references/plan-acquisition.md` and `references/process-common.md` § Process — Resolve feature / PLAN set.
 
 ### 3. Step 0 - Memory Bank Gate
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
@@ -137,7 +145,11 @@ Call `repo-analyst` and `architect`, plus `database` when the step or PLAN cites
 
 Before a child changes code, show the current branch and apply the integration-branch gate. That gate belongs to this skill, `sdd-develop`, `developer`, and `*-developer` (`core/policy/guardrails.md`).
 
+Immediately before invoking each child, re-run `Invoke-O3ArtifactPreflight.ps1`; then perform SESSION and PLAN-LEDGER checks. The preflight is read-only and must pass before those effects. A stale/missing/inconsistent artifact pauses the queue for reconciliation; do not silently use CONTINUITY as a substitute queue.
+
 Each child invocation is closed after its single PLAN step returns. The parent must not follow up, reopen, resume, or reuse that invocation, even for a correction or completion; remaining work uses a fresh invocation with a bounded handoff. After a child returns, the parent follows this observable order exactly: validate the receipt against the PLAN acceptance, session gates, and claim; persist the PLAN checkpoint and progress table and re-read them; show the step ledger and the short result; then evaluate the next spawn. The PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is the parent’s synthesis/path handoff. None substitutes for another.
+
+Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`: `done` permits evaluation of the next step only after reconciliation; `blocked` keeps dependents stopped and names the missing prerequisite/input; `failed` reports evidence and a bounded recovery action. An unanswered user question is `open_question` and remains blocked. Do not repeat a spawn, prompt, or state transition without new user input or changed evidence and revalidation. A handoff suggestion alone never advances the queue.
 
 A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step. Receipt status `COMPLETED` is outside that allow list. Describe the deviation in one question (`core/policy/guardrails.md` § Open questions without a written deadline). Do not delegate the next step. Do not invent a fix. Do not rewrite the PLAN. If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion or spawn the dependent. In `continuous`, use `Test-ContinuousQueueStepAuthorization` after the checkpoint and progress table have been re-read and the step ledger and short result have been shown; its authorization covers only the first eligible next step and is consumed by that spawn. Re-evaluate after every child return. `step_by_step` still requires confirmation for each spawn.
 

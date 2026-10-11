@@ -27,6 +27,8 @@ Gate check:
 # Skill: repair-dotnet-build
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/repair-dotnet-build`, `fix build`, `/repair-dotnet-build`, or when build/test failures block progress.
 

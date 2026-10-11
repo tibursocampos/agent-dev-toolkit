@@ -28,6 +28,8 @@ Gate check:
 # Skill: arduino-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke `arduino-developer` for Arduino sketches, libraries, board-specific firmware, or Arduino Core projects. Host examples: `/arduino-developer`, `$arduino-developer`, `use skill arduino-developer`.
 

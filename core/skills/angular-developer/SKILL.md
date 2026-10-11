@@ -26,6 +26,8 @@ Gate check:
 # Skill: angular-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/angular-developer`, `angular fix`, or **small** isolated Angular work that does not need a full PRD/PLAN cycle.
 

@@ -27,6 +27,8 @@ Gate check:
 # Skill: split-story-checklist
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, `/split-story-checklist`, or after `refine-story`.
 

@@ -6,6 +6,8 @@ description: Describe what changed and how the implementation appears to work. T
 # Skill: implementation-survey
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for `/implementation-survey`.
 

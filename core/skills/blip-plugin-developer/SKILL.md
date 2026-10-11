@@ -26,6 +26,8 @@ Gate check:
 # Skill: blip-plugin-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 - User asks for `/blip-plugin-developer`, `blip plugin`, or a **new** Blip React extension
 - User wants scaffold + documentation setup before implementation

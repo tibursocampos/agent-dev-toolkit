@@ -27,6 +27,13 @@ Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portabl
 
 {{CURRENT_STATE}}
 
+## Estado atual do O3
+
+- PLAN: `{{PORTABLE_PLAN_PATH}}`
+- Progresso: {{COMPLETED}}/{{TOTAL}}
+- Concluídos: {{COMPLETED_STEP_IDS_OR_NONE}}
+- Próximo: {{NEXT_STEP_ID_AND_EXACT_PLAN_TITLE_OR_NONE}}
+
 ## Decisões
 
 - {{DECISION}}

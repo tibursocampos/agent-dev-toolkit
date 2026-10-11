@@ -51,12 +51,23 @@ Prefer **one** Shell approve that chains both `-File` invocations when the host 
 # Skill: sdd-develop
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
 One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
+
+### Terminal outcomes
+
+Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`:
+
+- `done`: acceptance and required targeted validation passed; save and re-read the PLAN checkpoint, then report the exact next eligible step.
+- `blocked`: a dependency, gate, or unanswered decision is missing; record the cause, keep dependents pending, and state what input or change resolves it.
+- `failed`: implementation or validation failed; record evidence and bounded recovery, without retrying the same transition automatically.
+- `open_question`: ask the user once and wait; silence leaves the step blocked. Re-entry requires new input or changed evidence and fresh gate validation.
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
@@ -157,6 +168,8 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 Resolve develop pacing mode `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Detect stack from PLAN step.
 
 After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
+
+**Orchestrated child preflight (before any session or claim effect):** when `invocation_context: orchestrated`, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1` with the resolved feature root, canonical PLAN path, repo root, and SDD root before creating/loading the develop session or claiming the step. Re-run immediately before any later effect if artifacts may have changed. Nonzero means stop with `plan_stale`; do not ensure session, claim, or implement. The parent runs this same read-only check before queue construction and before each spawn. `Status=approved` is required; `draft`, missing, or any other value blocks.
 
 ### 1. Validate step
 

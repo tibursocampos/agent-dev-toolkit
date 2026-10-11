@@ -27,6 +27,8 @@ Gate check:
 Inspired by [pbakaus/impeccable](https://github.com/pbakaus/impeccable) — this skill is a **partial toolkit harness**, not a full port. See `docs/CREDITS.md`.
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use when user asks for `/impeccable`, `/impeccable`, or any Impeccable command (`shape`, `audit`, `polish`, `craft`, etc.).
 

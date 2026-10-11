@@ -30,6 +30,8 @@ Gate check:
 Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.com/github/spec-kit); this skill does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
 
