@@ -1,8 +1,11 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-10-09T22:01:32.3234953Z",
-  "languages": ["powershell", "markdown"],
+  "generated_at": "2026-10-11T03:04:14.5359761Z",
+  "languages": [
+    "powershell",
+    "markdown"
+  ],
   "frameworks": [],
   "package_managers": [],
   "test_runners": [],

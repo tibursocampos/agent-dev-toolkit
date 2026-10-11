@@ -26,7 +26,7 @@ _(none)_
 
 ## Notes
 
-Refresh 2026-10-09. Inventory `status=ready`, hash `c97a99d739c2692581e2bec63cfc6f1b895834b45e5db88e21b03fd72fcdfea6`. Synthesis roles: `repo_analyst`, `architect`, `security`.
+Refresh 2026-10-09. Inventory status=ready, hash c97a99d739c2692581e2bec63cfc6f1b895834b45e5db88e21b03fd72fcdfea6. Synthesis roles: repo_analyst, architect, security.
 
-- [ ] `features/012-multiprovider-toolkit-corrections/` has story PRDs and `00-INDICE-E-DECISOES.md` and no `FEATURE.md`.
-- [ ] `features/013-code-review-improvements/` has `CONTINUITY.md` and story PRDs and no `FEATURE.md`.
+- `features/012-multiprovider-toolkit-corrections/` has story PRDs and 00-INDICE-E-DECISOES.md and no FEATURE.md.
+- `features/013-code-review-improvements/` has CONTINUITY.md and story PRDs and no FEATURE.md.
