@@ -136,13 +136,6 @@
       "signal": "explicit-skill-name"
     },
     {
-      "id": "positive-impeccable",
-      "kind": "positive",
-      "input": "Use the impeccable skill for this task.",
-      "expected_skill": "impeccable",
-      "signal": "explicit-skill-name"
-    },
-    {
       "id": "positive-implementation-survey",
       "kind": "positive",
       "input": "Use the implementation-survey skill for this task.",
@@ -475,14 +468,6 @@
       "expected_skill": null,
       "signal": "no-declared-trigger",
       "evaluated_skill": "i18n-manager"
-    },
-    {
-      "id": "negative-impeccable",
-      "kind": "negative",
-      "input": "What is the weather in São Paulo?",
-      "expected_skill": null,
-      "signal": "no-declared-trigger",
-      "evaluated_skill": "impeccable"
     },
     {
       "id": "negative-implementation-survey",

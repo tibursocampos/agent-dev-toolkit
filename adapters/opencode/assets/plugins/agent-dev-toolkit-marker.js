@@ -76,8 +76,6 @@ const SECRET_PATTERNS = [
   { name: 'azure_account_key', re: /AccountKey\s*=\s*[A-Za-z0-9+/=]{20,}/i },
 ]
 
-const FALSE_POSITIVE = /YOUR_|example|<TOKEN>|xxx|placeholder|Configuration\[|Environment\.Get|process\.env/i
-
 const FORBIDDEN_LITERALS = [
   'PRD/', 'PLAN/', 'docs/PRD/', 'docs/PLAN/', 'docs/backlog/',
   '.cursor/plans/', 'node_modules/', '.git/',
@@ -151,6 +149,15 @@ function resolveThroughExistingAncestor(candidate) {
   try { return path.resolve(fs.realpathSync.native(probe), ...suffix) } catch { return null }
 }
 
+function isPhysicallyWithinWorkspace(candidate, workspaceRoot) {
+  const resolvedRoot = resolveThroughExistingAncestor(workspaceRoot)
+  const resolvedCandidate = resolveThroughExistingAncestor(path.resolve(workspaceRoot, candidate))
+  if (!resolvedRoot || !resolvedCandidate) return false
+  const root = path.resolve(resolvedRoot).toLowerCase()
+  const target = path.resolve(resolvedCandidate).toLowerCase()
+  return target === root || target.startsWith(`${root}${path.sep}`)
+}
+
 function hasProtectedSddSegment(filePath) {
   return /(^|[\\/])\.git([\\/]|$)/i.test(filePath)
 }
@@ -193,15 +200,29 @@ export function findSecretFindings(content) {
   const lines = String(content).split(/\r?\n/)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    if (FALSE_POSITIVE.test(line)) continue
     for (const entry of SECRET_PATTERNS) {
-      if (entry.re.test(line)) {
-        findings.push({ type: entry.name, line: i + 1 })
+      const flags = entry.re.flags.includes('g') ? entry.re.flags : `${entry.re.flags}g`
+      const matcher = new RegExp(entry.re.source, flags)
+      let match
+      while ((match = matcher.exec(line)) !== null) {
+        if (!isSecretCandidateFalsePositive(match[0])) {
+          findings.push({ type: entry.name, line: i + 1 })
+          break
+        }
+        if (match[0] === '') matcher.lastIndex++
+      }
+      if (findings.length > 0 && findings[findings.length - 1].line === i + 1) {
         break
       }
     }
   }
   return findings
+}
+
+function isSecretCandidateFalsePositive(candidate) {
+  if (!candidate || typeof candidate !== 'string') return false
+  const value = candidate.replace(/^.*?=\s*/is, '').trim().replace(/^['"]|['"]$/g, '')
+  return /^(YOUR_[A-Z0-9_]+|<TOKEN>|x{3,}|placeholder(?:[_-][A-Z0-9_-]+)?)$/i.test(value)
 }
 
 function extractPath(args) {
@@ -252,6 +273,22 @@ function pathsFromShell(command) {
   }
 
   return paths
+}
+
+function shellCommandMutates(command) {
+  if (!command || typeof command !== 'string') return false
+  if (/(?:\d?>|&>|\|\s*tee\b)/i.test(command)) return true
+  return /(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b)(?=\s|$)/i.test(command)
+}
+
+function shellCommandIsReadOnly(command) {
+  if (!command || typeof command !== 'string') return false
+  for (const segment of command.split(/;|&&|\|\||\|/)) {
+    const text = segment.trim()
+    if (!text) continue
+    if (!/^(?:get-date|get-location|get-content|get-childitem|get-item|test-path|resolve-path|write-output|write-host|echo|printf|cat|head|tail|grep|rg|find|ls|dir|pwd|whoami|where|which|git\s+(?:status|diff|log|show|branch|rev-parse|ls-files))(?=\s|$)/i.test(text)) return false
+  }
+  return true
 }
 
 function isWriteTool(tool) {
@@ -312,7 +349,14 @@ export function evaluatePathSecretsGuard(tool, args, workspaceRoot) {
       return { decision: 'deny', reason: 'Hook denied shell execution because its command is missing, empty, or malformed.' }
     }
     content = cmd
+    const shellMutates = shellCommandMutates(cmd)
     paths.push(...pathsFromShell(cmd))
+    if (shellMutates && paths.length === 0) {
+      return { decision: 'deny', reason: 'Hook denied shell execution because a write-capable command had no safely classified target path.' }
+    }
+    if (!shellMutates && !shellCommandIsReadOnly(cmd)) {
+      return { decision: 'deny', reason: 'Hook denied shell execution because its effect could not be classified as read-only.' }
+    }
   }
 
   for (const raw of paths) {
@@ -326,6 +370,12 @@ export function evaluatePathSecretsGuard(tool, args, workspaceRoot) {
       }
     }
     const candidate = relative || raw
+    if (relative !== null && !isPhysicallyWithinWorkspace(candidate, workspaceRoot)) {
+      return {
+        decision: 'deny',
+        reason: `Hook denied tool targeting '${raw}'. The physical destination resolves outside the workspace root.`,
+      }
+    }
     if (!evaluateAuthorization(effect, 'workspace')) return { decision: 'deny', reason: 'Effect/scope is not authorized by portable contract.' }
     if (!candidate) continue
     if (!isAllowedWritePath(candidate)) {

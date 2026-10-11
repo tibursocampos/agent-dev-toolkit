@@ -2,7 +2,7 @@
 
 Confirmed in chat on 2026-09-25. Replaces the earlier home brief that put a copy-command CTA and a ten-agent switcher in the first viewport.
 
-**Register:** brand. **PRODUCT.md:** [../PRODUCT.md](../PRODUCT.md). **DESIGN.md:** not present. Upstream Impeccable `DESIGN.md` is their example product, not this site.
+**Register:** brand. **PRODUCT.md:** [../PRODUCT.md](../PRODUCT.md). **DESIGN.md:** not present.
 
 **Locales:** English (`index.md` and unsuffixed pages) is the default. Brazilian Portuguese is the `*.pt.md` translation of the same pages. Same facts, commands, ids, and flags.
 

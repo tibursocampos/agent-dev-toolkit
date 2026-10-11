@@ -16,7 +16,7 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite; visitors: read only) |
 | [SKILLS.md](SKILLS.md) | Everyone | Skill ids; behavior is in `sessions/` |
 | [guides/session-behavior.md](guides/session-behavior.md) | Everyone | Language, orchestrator, optional chat compression |
-| [CREDITS.md](CREDITS.md) | Everyone | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
+| [CREDITS.md](CREDITS.md) | Everyone | Third-party inspiration (Caveman, Spec Kit) |
 | [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md) | Everyone | Orchestrator charter, `orchestrator_mode`, commands |
 
 ## Overview and architecture

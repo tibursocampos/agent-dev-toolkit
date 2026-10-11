@@ -69,7 +69,7 @@ docs/
 | `docs/ARCHITECTURE.md` | keep-and-correct | Layers and CI section say push/PR and Windows-only |
 | `docs/ADAPTERS.md` | keep-and-correct | Add declared `subagents` column; registry flags already match |
 | `docs/SPAWN.md` | keep-and-correct | Says OpenCode and Grok skip Publish-Agents (`agents=false`); registry has `agents: true` for both |
-| `docs/CREDITS.md` | leave-untouched | Matches Caveman / Impeccable / Spec Kit boundaries in core |
+| `docs/CREDITS.md` | leave-untouched | Matches Caveman / Spec Kit boundaries in core |
 | `docs/REPO_GOVERNANCE.md` | keep-and-correct | Audience map should name the `ci-ok` check |
 | `docs/DESIGN-BRIEF.md` | leave-untouched | Site brief; do not expand the site |
 | `docs/guides/README.md` | keep-and-correct | Decision tree should state tracks are recommendations, not prerequisites |

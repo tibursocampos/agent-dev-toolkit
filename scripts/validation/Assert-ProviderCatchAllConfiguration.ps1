@@ -24,7 +24,7 @@ Assert-CatchAll 'claude' ($claudeConstants -match "HookMatcherPreToolUse\s*=\s*'
 . (Join-Path $repoRoot 'adapters/codex/Publish-CodexHooks.ps1')
 $codex = New-CodexPreToolUseHooksObject
 $codexGroups = @($codex.hooks.PreToolUse)
-Assert-CatchAll 'codex' ($codexGroups.Count -eq 1 -and -not $codexGroups[0].Contains('matcher')) 'single unfiltered PreToolUse group'
+Assert-CatchAll 'codex' ($codexGroups.Count -eq 1 -and $codexGroups[0].matcher -eq '.*') 'single PreToolUse group with matcher .*'
 
 $copilot = Get-Content (Join-Path $repoRoot 'adapters/copilot/assets/hooks/hooks.json') -Raw | ConvertFrom-Json
 Assert-CatchAll 'copilot' ($copilot.hooks.preToolUse.Count -eq 1 -and -not $copilot.hooks.preToolUse[0].PSObject.Properties['matcher']) 'preToolUse event has no matcher filter'

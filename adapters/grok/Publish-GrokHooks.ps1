@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -130,6 +131,9 @@ function Copy-GrokGuardHookAssets {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
     $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceCommon -DestinationPath $destCommon
+    $contractSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:GrokAdapterConstant.SharedAuthorizationContractFileName
+    $contractDest = Join-Path $HooksDirectory $script:GrokAdapterConstant.SharedAuthorizationContractFileName
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
     return $destGuard
 }
 

@@ -10,12 +10,6 @@ This toolkit ships a **portable preferences/contract integration** (`core/skills
 
 Operator note (compression is one session preference, default off): [guides/session-behavior.md](guides/session-behavior.md).
 
-## Impeccable
-
-The toolkit's former partial UI/UX design guidance drew from **[pbakaus/impeccable](https://github.com/pbakaus/impeccable)** and its CLI (`npx impeccable`).
-
-The toolkit no longer distributes its former partial Impeccable harness or adapted playbooks. The upstream project and CLI remain independent; installing them is optional and requires **explicit user consent** for the target project. Their behavior and lifecycle are outside this toolkit's publishing and uninstall flows.
-
 ## Anthropic frontend-design (optional external)
 
 Distinctive-UI heuristics (signature motif, compact token plan before code, UX writing intent) are **inspired in part by** [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
@@ -45,4 +39,4 @@ Evidence fields follow **omit > fabricate** (`product-evidence-lite.md`); scorec
 
 ## License
 
-Toolkit license: [LICENSE](../LICENSE) (MIT © Raphael Campos). Respect the licenses of any third-party tools you install separately (e.g. Impeccable CLI, Spec Kit).
+Toolkit license: [LICENSE](../LICENSE) (MIT © Raphael Campos). Respect the licenses of any third-party tools you install separately (e.g. Spec Kit).

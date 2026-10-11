@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -144,6 +145,14 @@ function Copy-OpenHandsSharedGuardCommon {
         -RequireStrictChild
 
     $null = Copy-ToolkitFileIfAbsent -SourcePath $source -DestinationPath $destinationPath
+    $contractSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:OpenHandsAdapterConstant.SharedAuthorizationContractFileName
+    $contractDestinationPath = Join-Path $HooksScriptsDirectory $script:OpenHandsAdapterConstant.SharedAuthorizationContractFileName
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $contractDestinationPath `
+        -RootPath $InstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDestinationPath -InstallRoot $InstallRoot
     return $destinationPath
 }
 

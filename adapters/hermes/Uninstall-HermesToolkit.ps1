@@ -8,6 +8,7 @@
   Removes only the marked toolkit guidance section from AGENTS.md, preserving
   unrelated operator content. Legacy whole-file installs still require hash proof.
   Also removes plugins/agent-dev-toolkit-guard and agent-hooks toolkit files,
+  including authorization-contract.json,
   and reverse-merges keyed plugins.enabled / hooks.pre_tool_call entries in
   config.yaml without touching other keys (gateway/tokens preserved).
   Preserves alien skills, config.yaml secrets, MEMORY.md, SOUL.md, sdd/sessions,

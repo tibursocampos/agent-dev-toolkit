@@ -14,12 +14,6 @@ O que este repositório entrega é uma integração de preferências: `core/skil
 
 A compressão é uma preferência de sessão e começa desligada. Os comandos, e o texto que permanece em prosa completa: [Usando skills](using-skills.md#session-behavior).
 
-## Impeccable
-
-Antigamente, a orientação parcial de design de UI do toolkit se inspirava em [pbakaus/impeccable](https://github.com/pbakaus/impeccable) e na CLI (`npx impeccable`).
-
-A cópia parcial do harness Impeccable e seus playbooks adaptados não são mais distribuídos pelo toolkit. O projeto e a CLI upstream continuam independentes e opcionais; sua instalação e runtime ficam fora da publicação e da limpeza do toolkit.
-
 ## frontend-design da Anthropic
 
 Um motivo de assinatura, um plano compacto de tokens antes do código e a intenção de escrita de UX vêm em parte de [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
@@ -47,4 +41,4 @@ Campos de evidência seguem omitir em vez de fabricar (`product-evidence-lite.md
 
 ## Licença
 
-MIT © Raphael Campos (`LICENSE` no repositório). Ferramentas que você instala à parte mantêm a própria licença, inclusive a CLI Impeccable e o Spec Kit.
+MIT © Raphael Campos (`LICENSE` no repositório). Ferramentas que você instala à parte mantêm a própria licença, inclusive o Spec Kit.

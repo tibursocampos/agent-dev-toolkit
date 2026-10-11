@@ -14,7 +14,7 @@ Shared packs live under `core/skills/_shared/` — not invoked as skills (except
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
-Credits for Caveman / Impeccable / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
+Credits for Caveman / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
 ## Lazy-load (invocable skills)
 

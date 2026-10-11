@@ -6,4 +6,4 @@ Before UI implementation, check project context:
 2. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists -> treat it as acceptance source; delegate to the matching `*-developer` skill **without reinterpreting visual decisions**.
 3. Record visual direction in `docs/DESIGN-BRIEF.md` before implementation. Keep design decisions and implementation in separate sessions when both need substantial work.
 
-For a substantial visual redesign without a brief, create a concise brief covering audience, hierarchy, visual direction, responsive behavior, component states, and accessibility before stack implementation. The upstream Impeccable CLI may be installed separately as an optional tool; it is not distributed by this toolkit.
+For a substantial visual redesign without a brief, create a concise brief covering audience, hierarchy, visual direction, responsive behavior, component states, and accessibility before stack implementation.

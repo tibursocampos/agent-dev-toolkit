@@ -154,7 +154,7 @@ Cada skill de stack é trabalho pequeno ou médio. Confirme com **sim** antes de
 | `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` para a API |
 | `electron-developer` | Main, preload, renderer, IPC, empacotamento | Segurança e CSP carregam primeiro quando o IPC muda |
 | `blip-plugin-developer` | Andaime de um plugin Blip React novo | UI para `react-developer`. Ela não implementa o conjunto da feature |
-Para UI nova ou redesign visual substancial, registre público, hierarquia, direção visual, comportamento responsivo, estados dos componentes e acessibilidade em `docs/DESIGN-BRIEF.md` antes da implementação. A orientação geral está em `core/skills/_shared/frontend-guidelines/frontend-practices.md`. A CLI Impeccable upstream é opcional e independente; veja [as notas de integração](impeccable-integration.md).
+Para UI nova ou redesign visual substancial, registre público, hierarquia, direção visual, comportamento responsivo, estados dos componentes e acessibilidade em `docs/DESIGN-BRIEF.md` antes da implementação. A orientação geral está em `core/skills/_shared/frontend-guidelines/frontend-practices.md`.
 
 Guidelines ficam em `core/skills/_shared/code-guidelines/`. Carregue um arquivo.
 

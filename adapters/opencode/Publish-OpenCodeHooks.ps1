@@ -104,7 +104,12 @@ function Copy-OpenCodePluginFilesTree {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
 
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $relativeInventoryPath = ('{0}/{1}' -f $script:OpenCodePathConstant.PluginsDirectoryName, ($relative -replace '\\', '/'))
+        $null = Copy-ToolkitFileIfAbsent `
+            -SourcePath $file.FullName `
+            -DestinationPath $destinationPath `
+            -InstallRoot $InstallRoot `
+            -RelativePath $relativeInventoryPath
         $filesCopied++
     }
 

@@ -23,10 +23,6 @@ A host permission prompt is rendered by the host and controls whether that host 
 
 Hooks are installed only where the adapter documents them. Cursor-style hooks live under the adapter's install-root hooks directory; Claude and other hosts use their native hook/settings locations when supported. Copilot instruction placement is separate from hook placement: user mode targets the user's Copilot tree, while repo mode targets `.github/` in the consumer repository. Do not create a project-local `.cursor/hooks.json` merely to enable toolkit hooks.
 
-## Impeccable coexistence
-
-The optional upstream Impeccable live/design hook may be installed in a consumer project only after explicit consent. Merge it with existing toolkit/host hooks; do not overwrite unrelated entries. Separate integrations or scopes can coexist, while duplicate copies in the same harness and scope may conflict. See [impeccable-integration.md](impeccable-integration.md).
-
 ## Non-goals
 
 Hooks do not select models, classify model cost, read host session JSONL as a required dependency, implement SDD gates, or make a failed policy check pass. When a hook fails, record the limitation and continue with the portable policy path.

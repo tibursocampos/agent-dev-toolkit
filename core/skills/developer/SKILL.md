@@ -94,5 +94,5 @@ Enforce the full list in `references/must-not.md`. Critical: route before implem
 | .NET work (explicit) | `/dotnet-developer` |
 | Java work (explicit) | `/java-developer` |
 | Large scope | `/sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| UI design / brief | Create or update `docs/DESIGN-BRIEF.md`; see `frontend-guidelines/frontend-practices.md`. The upstream Impeccable CLI is optional and independent. |
+| UI design / brief | Create or update `docs/DESIGN-BRIEF.md`; see `frontend-guidelines/frontend-practices.md`. |
 | New Blip plugin scaffold | `/blip-plugin-developer` |

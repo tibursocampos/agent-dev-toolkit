@@ -66,12 +66,15 @@ $script:CodexPathConstant = @{
     HooksPreToolUseStatusMessage   = 'Checking path/secrets policy'
     HooksSessionStartCommandTemplate = 'pwsh -NoProfile -File "${PLUGIN_ROOT}/hooks/session_start.ps1"'
     HooksPreToolUseCommandTemplate = 'pwsh -NoProfile -File "${PLUGIN_ROOT}/hooks/guard-pre-tool.ps1"'
-    HooksPreToolUseBashMatcher     = 'Bash'
-    HooksPreToolUsePatchMatcher    = 'apply_patch|Edit|Write'
+    # Codex sends tool names in the PreToolUse payload. Match every event so
+    # newly added or unclassified tools reach guard-pre-tool and fail closed.
+    HooksPreToolUseCatchAllMatcher = '.*'
     HooksDescription               = 'Codex plugin PreToolUse catch-all authorization guard for agent-dev-toolkit (trust via /hooks is manual).'
     HooksTrustComment              = 'RN03: smoke asserts hooks files only - never invoke or require Codex /hooks trust UI.'
     SharedGuardCommonRelativePath  = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
+    SharedAuthorizationContractRelativePath = 'adapters/_shared/authorization-contract.json'
+    SharedAuthorizationContractFileName = 'authorization-contract.json'
     CustomAgentTomlExtension       = '.toml'
     ExpectedCustomAgentTomlFileNames = @(
         'repo-analyst.toml',

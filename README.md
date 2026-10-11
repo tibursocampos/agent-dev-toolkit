@@ -118,7 +118,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/INSTALL.md](docs/INSTALL.md) | Release bootstrap (option 0), clone, sync, live home, uninstall |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
-| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
+| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Spec Kit) |
 | [docs/guides/session-behavior.md](docs/guides/session-behavior.md) | Session behavior, language surfaces, and Caveman controls |
 | [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |

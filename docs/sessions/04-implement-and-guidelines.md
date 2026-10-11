@@ -17,7 +17,7 @@ Trigger: `/developer`, or coding that does not name a stack.
 
 Order:
 
-1. **UI.** For net-new UI or a substantial visual redesign, clarify the product context and record visual decisions in `docs/DESIGN-BRIEF.md`. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists, it is the acceptance source; implement with the matching `*-developer` and do not reinterpret the brief. Keep substantial design discovery and implementation in separate sessions. The upstream Impeccable CLI is an optional independent install; see [impeccable-integration.md](../impeccable-integration.md).
+1. **UI.** For net-new UI or a substantial visual redesign, clarify the product context and record visual decisions in `docs/DESIGN-BRIEF.md`. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists, it is the acceptance source; implement with the matching `*-developer` and do not reinterpret the brief. Keep substantial design discovery and implementation in separate sessions.
 2. **Stack match.** First hit wins. The router loads that skill and stops. It does not ask permission to switch.
 
 | Signal | Skill |

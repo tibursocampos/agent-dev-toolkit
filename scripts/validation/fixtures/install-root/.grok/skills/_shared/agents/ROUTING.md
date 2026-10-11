@@ -1,4 +1,4 @@
-﻿# Agent routing -> stack skills
+# Agent routing -> stack skills
 
 Orchestrators and specialists **do not** reimplement stack work. Point implementation to existing developer skills.
 
@@ -14,7 +14,7 @@ Orchestrators and specialists **do not** reimplement stack work. Point implement
 | Node / plain JS | `/javascript-developer` |
 | Python | `/python-developer` |
 | Mixed / unclear | `/developer` (router) |
-| UI shape / audit first | `/impeccable` -> DESIGN-BRIEF -> stack skill |
+| UI shape / audit first | `UI design brief` -> DESIGN-BRIEF -> stack skill |
 | Blip plugin scaffold | `/blip-plugin-developer` |
 
 ## Orchestrator boundaries

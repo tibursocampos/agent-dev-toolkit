@@ -1,4 +1,4 @@
-﻿# SDD artifacts (local agent workflow - agent-dev-toolkit)
+# SDD artifacts (local agent workflow - agent-dev-toolkit)
 /features/
 /docs/features/
 /PRD/
@@ -27,9 +27,6 @@ venv/
 dist/
 build/
 node_modules/
-
-# Impeccable local install / live mode (PRODUCT.md + docs/DESIGN-BRIEF.md stay tracked)
-.impeccable/
 
 # OS / editor
 .DS_Store

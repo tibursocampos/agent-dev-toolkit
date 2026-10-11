@@ -8,7 +8,7 @@
   - skills/<id> folders that match core/skills (including _shared)
   - AGENTS.md at InstallRoot root (Publish-Router target) when provenance confirms toolkit ownership
     (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
-  - plugins/agent-dev-toolkit-marker.js (Decision A Publish-Hooks)
+  - plugins/agent-dev-toolkit-marker.js and authorization-contract.json (Decision A Publish-Hooks)
 
   Operator-edited or drifted AGENTS.md is preserved.
 
@@ -160,6 +160,17 @@ function Invoke-OpenCodeUninstallToolkit {
         $wouldRemovePaths.Add($pluginMarkerPath) | Out-Null
         if (-not $WhatIf.IsPresent) {
             $removedPaths.Add($pluginMarkerPath) | Out-Null
+        }
+    }
+
+    $pluginContractPath = Join-Path (
+        Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.PluginsDirectoryName
+    ) $script:OpenCodePathConstant.SharedAuthorizationContractFileName
+    $wouldRemoveContract = Remove-OpenCodePathIfPresent -Path $pluginContractPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+    if ($wouldRemoveContract) {
+        $wouldRemovePaths.Add($pluginContractPath) | Out-Null
+        if (-not $WhatIf.IsPresent) {
+            $removedPaths.Add($pluginContractPath) | Out-Null
         }
     }
 

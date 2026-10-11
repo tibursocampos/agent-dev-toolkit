@@ -50,7 +50,7 @@ Quick checks (always apply):
 | Electron | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/electron-guidelines/` |
 | Vanilla / DOM | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/install-root/skills/_shared/javascript-guidelines/dom-patterns.md` |
 
-Visual decisions: `docs/DESIGN-BRIEF.md` or `/impeccable` - do not invent palette/typography from generic guidelines.
+Visual decisions: `docs/DESIGN-BRIEF.md` or `UI design brief` - do not invent palette/typography from generic guidelines.
 
 ## 4. Other stacks
 

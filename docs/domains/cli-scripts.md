@@ -41,7 +41,6 @@ Every executable script path referenced from `core/skills/**/*.md` is classified
 | `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, `scripts/validation/Invoke-*CiSmoke.ps1` | fixture, contract, and CI validation references in skills | internal | not published |
 | `scripts/validation/fixtures/**`, `scripts/validation/contracts/**` | validator fixtures and toolkit contract data | internal | not published |
 | `scripts/sync-agent.ps1`, `scripts/toolkit.ps1`, bootstrap, uninstall/publish scripts, remaining `scripts/_lib/**` | toolkit installation and maintenance instructions | internal | not published |
-| `node .cursor/skills/impeccable/scripts/*.mjs` | external project skill commands; files are not part of this toolkit source | external dependency | supplied by the separately installed Impeccable skill; not published by this adapter |
 
 Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references in skills. The inventory script requires `-RepoPath`; it does not search for or depend on an open toolkit checkout. Sync fails with the source path and calling skill when a manifest entry is missing.
 

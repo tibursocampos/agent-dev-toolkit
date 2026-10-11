@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -53,7 +54,10 @@ function Copy-AntigravityHookFilesTree {
         [string] $DestinationHooksRoot,
 
         [Parameter()]
-        [string] $RepoRoot
+        [string] $RepoRoot,
+
+        [Parameter()]
+        [string] $InstallRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationHooksRoot)) {
@@ -76,11 +80,15 @@ function Copy-AntigravityHookFilesTree {
 
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
         $sharedSource = Join-Path $RepoRoot ($script:AntigravityPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Test-Path -LiteralPath $sharedSource) {
-            $sharedDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedGuardCommonFileName
-            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-            $filesCopied++
+        if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
+            throw "GuardCommon source is missing: $sharedSource"
         }
+        $sharedDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedGuardCommonFileName
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+        $contractSource = Join-Path $RepoRoot ($script:AntigravityPathConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $contractDest = Join-Path $DestinationHooksRoot $script:AntigravityPathConstant.SharedAuthorizationContractFileName
+        $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
+        $filesCopied += 2
     }
 
     return $filesCopied
@@ -175,7 +183,8 @@ function Invoke-AntigravityPublishHooks {
     $filesCopied = Copy-AntigravityHookFilesTree `
         -SourceHooksRoot $sourceHooksRoot `
         -DestinationHooksRoot $destinationHooksRoot `
-        -RepoRoot $repoRoot
+        -RepoRoot $repoRoot `
+        -InstallRoot $resolvedInstallRoot
 
     return [PSCustomObject]@{
         Success                   = $true

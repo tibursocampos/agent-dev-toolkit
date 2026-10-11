@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Hermes filesystem smoke validate (InstallRoot = ~/.hermes layout; TE01-TE05 files only).
+  Hermes filesystem smoke validate (InstallRoot = ~/.hermes layout; TE01-TE05 files only, including authorization-contract.json).
 #>
 
 function Test-HermesPathHasSkillManifest {

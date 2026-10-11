@@ -106,6 +106,7 @@ function Get-CopilotManagedHookRelativePaths {
         }
         $paths += $relative
     }
+    $paths += $script:CopilotPathConstant.SharedAuthorizationContractFileName
     return $paths
 }
 

@@ -14,12 +14,6 @@ What this repository ships is a preferences integration: `core/skills/_shared/ca
 
 Compression is one session preference and defaults to off. Commands, and the text that stays in full prose: [Using skills](using-skills.md#session-behavior).
 
-## Impeccable
-
-The toolkit's former partial UI design guidance drew from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) and its CLI (`npx impeccable`).
-
-The toolkit no longer distributes its former partial Impeccable harness or adapted playbooks. The upstream project and CLI remain independent and optional; their installation and runtime are outside toolkit publication and cleanup.
-
 ## Anthropic frontend-design
 
 A signature motif, a compact token plan before code, and UX writing intent draw in part from [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
@@ -47,4 +41,4 @@ Evidence fields follow omit over fabricate (`product-evidence-lite.md`). A score
 
 ## License
 
-MIT © Raphael Campos (`LICENSE` in the repository). Tools you install separately keep their own licenses, including the Impeccable CLI and Spec Kit.
+MIT © Raphael Campos (`LICENSE` in the repository). Tools you install separately keep their own licenses, including Spec Kit.

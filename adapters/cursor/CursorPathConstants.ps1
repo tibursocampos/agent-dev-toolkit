@@ -49,10 +49,13 @@ $script:CursorAdapterConstant = @{
         'context-pre-compact.ps1',
         'guard-pre-tool.ps1',
         'plan-after-edit.ps1',
-        'emit-trace.ps1'
+        'emit-trace.ps1',
+        'authorization-contract.json'
     )
     SharedGuardCommonRelativePath  = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName      = 'GuardCommon.ps1'
+    SharedAuthorizationContractRelativePath = 'adapters/_shared/authorization-contract.json'
+    SharedAuthorizationContractFileName = 'authorization-contract.json'
     AtomicWriteTempSuffix          = '.tmp'
     AtomicWriteMaxAttempts         = 3
     AtomicWriteRetryDelayMilliseconds = 50

@@ -62,6 +62,8 @@ Use `/commit` / `/push` after confirmation.
 
 ## 2. Write / delete (confirm before write)
 
+Technical authorization by effect and scope is a separate decision from the operator confirmation required for the current action. An `allow` result from a provider or shared policy does not satisfy the required `sim`; `continuous` is independently limited to its eligible O3 queue step.
+
 Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
 1. Show title, path, summary bullets.

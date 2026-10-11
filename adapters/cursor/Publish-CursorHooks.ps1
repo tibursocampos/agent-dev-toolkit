@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -413,6 +414,9 @@ function Copy-CursorHookScripts {
     # Shared path/secret helpers (adapters/_shared) published beside host hooks.
     $repoRootForShared = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
     $sharedGuardSource = Join-Path $repoRootForShared ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $sharedGuardSource -PathType Leaf)) {
+        throw "GuardCommon source is missing: $sharedGuardSource"
+    }
     if (Test-Path -LiteralPath $sharedGuardSource) {
         $sharedDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedGuardCommonFileName
         Assert-ToolkitManagedPathContained `
@@ -425,6 +429,12 @@ function Copy-CursorHookScripts {
             -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
             -RequireStrictChild
         $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
+        $copied++
+        $contractSource = Join-Path $repoRootForShared ($script:CursorAdapterConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $contractDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedAuthorizationContractFileName
+        Assert-ToolkitManagedPathContained -CandidatePath $contractDest -RootPath $destRootFull -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+        Assert-ToolkitManagedPathContained -CandidatePath $contractDest -RootPath $InstallRoot -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot -RequireStrictChild
+        $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
         $copied++
     }
 

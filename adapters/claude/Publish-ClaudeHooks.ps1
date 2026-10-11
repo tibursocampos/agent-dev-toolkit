@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -64,11 +65,15 @@ function Copy-ClaudeHookScriptsTree {
     # Shared path/secret helpers beside published hooks.
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
         $sharedSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Test-Path -LiteralPath $sharedSource) {
-            $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
-            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-            $filesCopied++
+        if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
+            throw "GuardCommon source is missing: $sharedSource"
         }
+        $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
+        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+        $contractSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $contractDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName
+        $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
+        $filesCopied += 2
     }
 
     return $filesCopied

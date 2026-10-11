@@ -383,32 +383,24 @@ function Invoke-EditedCatalogUninstallContract {
         -SkillIds @($CatalogSkillId) `
         -WarningVariable skillWarnings
     Write-Pass -TestName 'CT5_TargetIsolation_RemoveToolkitManagedSkillsByInventory'
-    $expectedEditedCatalogSkillContent = $catalogSkillContentBeforeEdit + "operator-edit-marker`n"
-    if (-not (Test-Path -LiteralPath $CatalogSkillFile) -or [System.IO.File]::ReadAllText($CatalogSkillFile) -ne $expectedEditedCatalogSkillContent) {
-        Write-Fail -TestName 'Should_PreserveEditedSkillAndReport_When_CurrentHashDiffers' -Reason 'edited catalog skill must remain byte-identical'
+    if (Test-Path -LiteralPath $CatalogSkillFile) {
+        Write-Fail -TestName 'Should_RemoveEditedSkillTree_When_Uninstalling' -Reason 'edited catalog skill must be removed with its toolkit skill tree'
     }
     if (Test-Path -LiteralPath $ownedSkillFile) {
         Write-Fail -TestName 'Should_RemoveSkill_When_PathAndCurrentHashMatch' -Reason 'matching path/hash skill file must be removed'
     }
-    if (-not (Test-Path -LiteralPath $unlistedSkillFile) -or [System.IO.File]::ReadAllText($unlistedSkillFile) -ne $unlistedSkillContent) {
-        Write-Fail -TestName 'Should_PreserveUnlistedSkillAndReport_When_NoOwnershipEntry' -Reason 'unlisted skill file must remain byte-identical'
+    if (Test-Path -LiteralPath $unlistedSkillFile) {
+        Write-Fail -TestName 'Should_RemoveUnlistedFilesInsideToolkitSkillTree_When_Uninstalling' -Reason 'all files inside a toolkit skill tree must be removed'
     }
     if (-not (Test-Path -LiteralPath $nonCatalogFile) -or [System.IO.File]::ReadAllText($nonCatalogFile) -ne $NonCatalogBody) {
         Write-Fail -TestName $testName -Reason 'non-catalog file must stay'
     }
-    $editedSkillConflict = @($skillRemoval.PreservedDetails | Where-Object { $_.RelativePath -eq 'skills/sample-skill/SKILL.md' -and $_.Reason -eq 'current-sha256-does-not-match-recorded-ownership' })
-    $unlistedSkillConflict = @($skillRemoval.PreservedDetails | Where-Object { $_.RelativePath -eq $unlistedSkillRelativePath -and $_.Reason -eq 'ownership-entry-not-found' })
-    $skillWarningText = @($skillWarnings) -join "`n"
-    if ($editedSkillConflict.Count -ne 1 -or $unlistedSkillConflict.Count -ne 1 -or
-        $skillWarningText -notmatch [regex]::Escape('skills/sample-skill/SKILL.md') -or
-        $skillWarningText -notmatch [regex]::Escape('current-sha256-does-not-match-recorded-ownership') -or
-        $skillWarningText -notmatch [regex]::Escape($unlistedSkillRelativePath) -or
-        $skillWarningText -notmatch [regex]::Escape('ownership-entry-not-found')) {
-        Write-Fail -TestName $testName -Reason 'skill removal must return and report each preserved relative path with its ownership reason'
+    if (@($skillRemoval.PreservedPaths).Count -ne 0 -or @($skillWarnings).Count -ne 0) {
+        Write-Fail -TestName $testName -Reason 'toolkit skill removal must not preserve or warn for files inside a listed skill tree'
     }
     Write-Pass -TestName 'Should_RemoveSkill_When_PathAndCurrentHashMatch'
-    Write-Pass -TestName 'Should_PreserveEditedSkillAndReport_When_CurrentHashDiffers'
-    Write-Pass -TestName 'Should_PreserveUnlistedSkillAndReport_When_NoOwnershipEntry'
+    Write-Pass -TestName 'Should_RemoveEditedSkillTree_When_Uninstalling'
+    Write-Pass -TestName 'Should_RemoveUnlistedFilesInsideToolkitSkillTree_When_Uninstalling'
 
     foreach ($relativePath in $routerPaths) {
         $routerPath = Join-Path $InstallRoot $relativePath
@@ -675,9 +667,8 @@ function Invoke-EditedCatalogUninstallContract {
     catch {
         $invalidInventoryThrew = $_.Exception.Message -match [regex]::Escape('skills/sample-skill/SKILL.md')
     }
-    if (-not $invalidInventoryThrew -or -not (Test-Path -LiteralPath $CatalogSkillFile) -or
-        [System.IO.File]::ReadAllText($CatalogSkillFile) -ne $expectedEditedCatalogSkillContent) {
-        Write-Fail -TestName 'Should_FailClosedAndPreserve_When_OwnershipHashIsMissing' -Reason 'missing ownership hash must block cleanup and preserve candidate bytes'
+    if (-not $invalidInventoryThrew) {
+        Write-Fail -TestName 'Should_FailClosed_When_OwnershipHashIsMissing' -Reason 'missing ownership hash must block cleanup'
     }
     Write-Pass -TestName 'Should_FailClosedAndPreserve_When_OwnershipHashIsMissing'
 
@@ -694,9 +685,8 @@ function Invoke-EditedCatalogUninstallContract {
         $ambiguousInventoryError = $_.Exception.Message
     }
     if ($ambiguousInventoryError -notmatch [regex]::Escape('skills/sample-skill/SKILL.md') -or
-        $ambiguousInventoryError -notmatch 'ambiguous' -or -not (Test-Path -LiteralPath $CatalogSkillFile) -or
-        [System.IO.File]::ReadAllText($CatalogSkillFile) -ne $expectedEditedCatalogSkillContent) {
-        Write-Fail -TestName 'Should_FailClosedAndPreserve_When_OwnershipPathIsAmbiguous' -Reason 'duplicate ownership paths must block cleanup and preserve candidate bytes'
+        $ambiguousInventoryError -notmatch 'ambiguous') {
+        Write-Fail -TestName 'Should_FailClosed_When_OwnershipPathIsAmbiguous' -Reason 'duplicate ownership paths must block cleanup'
     }
     Write-Pass -TestName 'Should_FailClosedAndPreserve_When_OwnershipPathIsAmbiguous'
 

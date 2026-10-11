@@ -10,7 +10,7 @@
   - config/plugins/agent-dev-toolkit (GUARDRAILS)
   - managed entry id in config/skills.json
   - managed begin/end blocks in config/AGENTS.md and config/GEMINI.md
-  - toolkit-managed files under config/hooks (hooks.json, guard scripts, GuardCommon.ps1)
+  - toolkit-managed files under config/hooks (hooks.json, guard scripts, GuardCommon.ps1, authorization-contract.json)
 
   Does not wipe InstallRoot, alien skills, or the legacy
   antigravity-ide/plugins bridge. Uses Resolve-InstallRoot (USERPROFILE guard).

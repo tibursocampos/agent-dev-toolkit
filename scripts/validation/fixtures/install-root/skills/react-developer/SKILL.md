@@ -48,7 +48,7 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as the acceptance source. Map sections to React/TSX; do **not** reinterpret visual decisions. Implement **one session scope** from section 10 only.
 
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
+If the task is net-new UI without a brief, recommend `UI design brief shape` in a **new session** before implementing.
 
 ## Lazy-load (only when needed)
 
@@ -146,5 +146,5 @@ Run `step-3.5-precommit-validation.md` when appropriate. Offer `/commit` — do 
 | Commit | `/commit` |
 | Review | `/code-review` |
 | Scope grew | `/sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | `UI design brief shape` (new session) |
 | Mobile / Expo | `/react-native-developer` |
