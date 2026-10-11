@@ -42,8 +42,11 @@ $isGuarded = (
     (Test-ToolkitApplyPatchToolName $effectiveTool) -or
     ($toolName -match '^(?i)(Edit|Write)$')
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'codex' -ToolName $toolName) {
     Write-CodexPreToolJson @{ permissionDecision = 'allow' }
+}
+if (-not $isGuarded) {
+    Write-CodexPreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = ('Hook denied unclassified tool surface: ' + $toolName) }
 }
 
 if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('PreToolUse', 'preToolUse'))) {

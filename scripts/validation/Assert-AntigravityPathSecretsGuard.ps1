@@ -105,8 +105,8 @@ $hooksText = Get-Content -LiteralPath $hooksJsonPath -Raw -Encoding UTF8
 if ($hooksText -notmatch '(?i)PreToolUse') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json missing PreToolUse'
 }
-if ($hooksText -notmatch 'write_to_file\|replace_file_content\|multi_replace_file_content\|run_command') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json missing Antigravity tool matcher'
+if ($hooksText -notmatch '"matcher"\s*:\s*"\.\*"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json must catch all Antigravity tool names'
 }
 if ($hooksText -notmatch 'guard-pre-tool\.ps1') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json must wire guard-pre-tool.ps1'

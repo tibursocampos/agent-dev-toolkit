@@ -76,6 +76,9 @@ if (-not [string]::IsNullOrWhiteSpace($raw)) {
         $inputJson = $null
     }
 }
+if ($null -eq $inputJson -or -not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-GrokPreToolDecision -Decision 'deny' -Reason 'Hook denied malformed, empty, or schema-invalid input; fail-closed.'
+}
 
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
@@ -106,8 +109,11 @@ $isGuarded = (
     (Test-ToolkitDeleteToolName $effective) -or
     (Test-ToolkitApplyPatchToolName $effective)
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'grok' -ToolName $toolName) {
     Write-GrokPreToolDecision -Decision 'allow'
+}
+if (-not $isGuarded) {
+    Write-GrokPreToolDecision -Decision 'deny' -Reason ('Hook denied unclassified tool surface: ' + $toolName)
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

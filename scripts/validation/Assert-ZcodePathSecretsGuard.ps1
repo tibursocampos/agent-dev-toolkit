@@ -103,14 +103,17 @@ if ($hooksText -notmatch 'PreToolUse') {
 if ($hooksText -notmatch 'guard-pre-tool\.ps1') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json missing guard-pre-tool.ps1'
 }
-if ($hooksText -notmatch 'Write\|Edit\|Bash\|PowerShell') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json missing Write|Edit|Bash|PowerShell matcher'
+if ($hooksText -notmatch '"matcher"\s*:\s*"\*"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'hooks.json must catch every ZCode tool'
 }
 
 $cliText = Get-Content -LiteralPath $cliConfigPath -Raw -Encoding UTF8
 $cliObj = $cliText | ConvertFrom-Json
 if (-not $cliObj.hooks.enabled) {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'cli/config.json hooks.enabled must be true'
+}
+if ($cliObj.hooks.events.PreToolUse[0].matcher -ne '*') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'cli/config.json PreToolUse must catch every ZCode tool'
 }
 if ($cliText -notmatch 'PreToolUse') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'cli/config.json missing PreToolUse event'

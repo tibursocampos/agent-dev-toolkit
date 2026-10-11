@@ -163,6 +163,10 @@ $hooksMultiproviderContractsScriptName = 'Assert-HooksMultiproviderContracts.ps1
 $hooksMultiproviderContractsCheckName = 'hooks-multiprovider-contracts'
 $publishOwnershipContractsScriptName = 'Assert-PublishOwnershipContracts.ps1'
 $publishOwnershipContractsCheckName = 'publish-ownership-contracts'
+$authorizationPolicyScriptName = 'Assert-AuthorizationPolicy.ps1'
+$authorizationPolicyCheckName = 'authorization-policy'
+$continuousQueueAuthorizationScriptName = 'Assert-ContinuousQueueAuthorization.ps1'
+$continuousQueueAuthorizationCheckName = 'continuous-queue-authorization'
 
 function Write-Banner([string] $Message) {
     if (-not $Quiet) {
@@ -296,7 +300,9 @@ $coreChecks = @(
     @{ Name = $localInstructionEvidenceCheckName; Script = $localInstructionEvidenceScriptName },
     @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName },
     @{ Name = $hooksMultiproviderContractsCheckName; Script = $hooksMultiproviderContractsScriptName },
-    @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName }
+    @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName },
+    @{ Name = $authorizationPolicyCheckName; Script = $authorizationPolicyScriptName },
+    @{ Name = $continuousQueueAuthorizationCheckName; Script = $continuousQueueAuthorizationScriptName }
 )
 
 # Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.

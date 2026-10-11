@@ -176,8 +176,8 @@ if ($hooksText -notmatch 'pre_tool_use') {
 if ($hooksText -notmatch 'guard_pre_tool\.sh') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing guard_pre_tool.sh command'
 }
-if ($hooksText -notmatch 'write\|terminal\|file_editor') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing write|terminal|file_editor matcher'
+if ($hooksText -notmatch '"matcher"\s*:\s*"\*"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'PreToolUse matcher must catch every OpenHands tool'
 }
 if ($script:OpenHandsAdapterConstant.SubagentsNone -ne 'none') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'OpenHands subagents must remain none'

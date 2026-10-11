@@ -61,11 +61,11 @@ must **not** count as inside the workspace.
 | Resolve result | Guard behavior |
 |----------------|----------------|
 | Inside workspace | Relative path; deny only `.git/` and legacy PRD/PLAN trees |
-| User adapter home | Allow `.cursor`, `.codex`, `.claude`, `.copilot`, `.grok`, `.hermes`, `.opencode`, `.zcode`, `.antigravity`, `.gemini`, `.agents` under the user profile, plus `%LOCALAPPDATA%\hermes`. Global SDD under those homes is a write target. `.git` inside them stays denied |
-| Outside workspace and outside those homes | **Deny** on write, delete, and mutating shell |
+| User adapter home | Existing recognized adapter homes retain their scoped adapter-home authorization. The OpenCode root `~/.config/opencode` and Hermes roots (`HERMES_HOME` or `%LOCALAPPDATA%\hermes`) allow writes only under their `sdd/` subtree. |
+| Outside workspace and outside authorized adapter/SDD scopes | **Deny** on write, delete, and mutating shell |
 | Blank input path on write/delete | **Deny** (fail-closed; path required) |
 
-Absolute paths outside the workspace stay denied on write and on shell that mutates a file (e.g. `C:\Temp\evil.cs` → deny). Read and execute commands are not path-gated; secret scan still runs on the command text.
+Absolute paths outside the workspace and authorized provider scopes stay denied on write and on shell that mutates a file (e.g. `C:\Temp\evil.cs` → deny). The shared decision maps a mutating effect (`file.write`, `file.delete`, `file.patch`, or `shell.mutate`) and classified scope (`workspace`, `local_sdd`, or `provider_home`) through `Test-ActionAuthorization`. Read and execute commands are not path-gated; secret scan still runs on the command text. The native OpenCode JS and Hermes Python guards recognize provider-local `sdd/` roots explicitly; this is not host ACL/sandbox bypass.
 
 Empty / unresolvable paths on write/delete: **deny** (fail-closed). Shell commands that do not mutate a file skip path checks. Redirects and `Set-Content`/`Out-File`/`Remove-Item`/`Copy-Item`/`Move-Item` still extract paths.
 

@@ -7,6 +7,9 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
+if ($null -eq $inputJson -or -not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-AntigravityPreToolDeny -Reason 'Hook denied malformed, empty, or schema-invalid input; fail-closed.'
+}
 
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['toolCall'] -and $inputJson.toolCall) {
@@ -52,8 +55,11 @@ $isGuarded = (
     (Test-ToolkitShellToolName $effective) -or
     (Test-ToolkitApplyPatchToolName $effective)
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'antigravity' -ToolName $toolName) {
     Write-AntigravityPreToolAllow
+}
+if (-not $isGuarded) {
+    Write-AntigravityPreToolDeny -Reason ('Hook denied unclassified tool surface: ' + $toolName)
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

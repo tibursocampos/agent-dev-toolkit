@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # OpenHands PreToolUse path/secrets guard.
-# Matchers: write|terminal (and file_editor aliases). Deny = decision deny + exit 2.
+# Catch-all matcher delegates every tool surface to the provider classifier. Deny = decision deny + exit 2.
 # Prefer colocated guard_pre_tool.ps1 + GuardCommon when pwsh is available.
 
 set -eu

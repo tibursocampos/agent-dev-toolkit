@@ -193,7 +193,7 @@ $preEntries = @($managedHooks['PreToolUse'])
 $matcherOk = $false
 $commandOk = $false
 foreach ($entry in $preEntries) {
-    if ($entry.Contains('matcher') -and [string]$entry['matcher'] -match 'Write\|Edit\|Bash\|PowerShell') {
+    if ($entry.Contains('matcher') -and [string]$entry['matcher'] -eq '*') {
         $matcherOk = $true
     }
     foreach ($handler in @($entry['hooks'])) {
@@ -203,12 +203,12 @@ foreach ($entry in $preEntries) {
     }
 }
 if (-not $matcherOk) {
-    Write-Fail -TestName 'Should_Pass_When_SettingsWirePreToolUse' -Reason 'PreToolUse matcher must be Write|Edit|Bash|PowerShell'
+    Write-Fail -TestName 'Should_Pass_When_SettingsWirePreToolUse' -Reason 'PreToolUse matcher must catch every tool'
 }
 if (-not $commandOk) {
     Write-Fail -TestName 'Should_Pass_When_SettingsWirePreToolUse' -Reason 'PreToolUse must wire guard-pre-tool.ps1'
 }
-if ($script:ClaudeSettingsJsonConstant.HookMatcherPreToolUse -ne 'Write|Edit|Bash|PowerShell') {
+if ($script:ClaudeSettingsJsonConstant.HookMatcherPreToolUse -ne '*') {
     Write-Fail -TestName 'Should_Pass_When_SettingsWirePreToolUse' -Reason 'ClaudePathConstants HookMatcherPreToolUse incorrect'
 }
 Write-Pass -TestName 'Should_Pass_When_SettingsWirePreToolUse'

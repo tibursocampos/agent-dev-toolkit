@@ -4,7 +4,7 @@
     "preToolUse": [
       {
         "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
-        "matcher": "Write|StrReplace|Edit|MultiEdit|search_replace|Delete|Shell",
+        "matcher": "",
         "failClosed": true
       }
     ],

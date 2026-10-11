@@ -4,10 +4,29 @@ from __future__ import annotations
 
 import os
 import re
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+with (Path(__file__).parent / "authorization-contract.json").open(encoding="utf-8") as _contract_file:
+    AUTHORIZATION_CONTRACT = json.load(_contract_file)
+
+
+def _authorized(effect: str, scope: str) -> bool:
+    contract = AUTHORIZATION_CONTRACT
+    if not isinstance(contract, dict) or contract.get("schemaVersion") != 1:
+        return False
+    entries = contract.get("authorizations")
+    return isinstance(entries, list) and any(
+        isinstance(entry, dict) and entry.get("effect") == effect and entry.get("scope") == scope
+        for entry in entries
+    )
+
 GUARDED_TOOLS = {"terminal", "write_file", "patch"}
+READ_ONLY_TOOLS = {
+    "read_file", "read_many_files", "list_directory", "search_files",
+    "find_files", "web_search", "web_fetch", "memory_search", "ask_user",
+}
 
 FORBIDDEN_SDD_PREFIXES = (
     "PRD/",
@@ -181,6 +200,36 @@ def _norm_rel(path: str, workspace: str) -> Optional[str]:
         return None
 
 
+def _under_local_sdd_root(path: str) -> bool:
+    if not path:
+        return False
+    target = Path(path).expanduser().resolve(strict=False)
+    home = Path.home().resolve()
+    roots = [home / name / "sdd" for name in (
+        ".cursor", ".codex", ".claude", ".copilot", ".grok", ".hermes",
+        ".opencode", ".zcode", ".antigravity", ".gemini", ".agents",
+    )]
+    roots.append(home / ".config" / "opencode" / "sdd")
+    hermes_home = os.environ.get("HERMES_HOME")
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if hermes_home:
+        roots.append(Path(hermes_home).expanduser().resolve() / "sdd")
+    if local_app_data:
+        roots.append(Path(local_app_data).resolve() / "hermes" / "sdd")
+    for root in roots:
+        try:
+            lexical_root = Path(os.path.abspath(os.fspath(root)))
+            canonical_root = root.resolve(strict=True) if root.exists() else lexical_root
+            if canonical_root != lexical_root:
+                continue  # Never trust an SDD root redirected through a symlink.
+            target.relative_to(canonical_root)
+            if ".git" not in {part.lower() for part in target.parts}:
+                return True
+        except ValueError:
+            continue
+    return False
+
+
 def _forbidden_sdd(rel: str) -> bool:
     n = rel.replace("\\", "/").lstrip("/")
     if re.match(r"^(PRD|PLAN)/", n):
@@ -295,9 +344,11 @@ def _block_path(check: str) -> Dict[str, str]:
     }
 
 
-def _check_path(path: str, workspace: str) -> Optional[Dict[str, str]]:
+def _check_path(path: str, workspace: str, effect: str) -> Optional[Dict[str, str]]:
     rel = _norm_rel(path, workspace)
     if rel is None:
+        if _under_local_sdd_root(path) and _authorized(effect, "local_sdd"):
+            return None
         return _block_path(path)
     check = rel or path.replace("\\", "/")
     if not _allowed_path(check):
@@ -311,7 +362,9 @@ def _check_path(path: str, workspace: str) -> Optional[Dict[str, str]]:
 def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
     """Return Hermes block directive or None to allow."""
     if tool_name not in GUARDED_TOOLS:
-        return None
+        if tool_name in READ_ONLY_TOOLS:
+            return None
+        return {"action": "block", "message": f"Hook denied unclassified tool surface: {tool_name or '(missing name)'}"}
 
     workspace = _workspace_root()
     content = _extract_content(args)
@@ -321,10 +374,15 @@ def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Option
         cmd = ""
         if isinstance(args, dict):
             for key in ("command", "cmd", "shell_command", "script", "CommandLine"):
-                val = args.get(key)
-                if isinstance(val, str) and val.strip():
-                    cmd = val
+                if key in args:
+                    val = args.get(key)
+                    if not isinstance(val, str):
+                        return {"action": "block", "message": "Hook denied terminal because its command payload is malformed; a non-empty command string is required."}
+                    if val.strip():
+                        cmd = val
                     break
+        if not cmd.strip():
+            return {"action": "block", "message": "Hook denied terminal because its command is missing or empty; a non-empty command string is required."}
         content = cmd or content
         paths = _paths_from_shell(cmd)
         # Fail-closed when a write-like cmd looks path-bearing but extract found nothing
@@ -343,7 +401,11 @@ def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Option
         paths = [path]
 
     for raw in paths:
-        blocked = _check_path(raw, workspace)
+        effect = "shell.mutate" if tool_name == "terminal" else "file.patch" if tool_name == "patch" else "file.write"
+        scope = "workspace" if _norm_rel(raw, workspace) is not None else "local_sdd"
+        if not _authorized(effect, scope):
+            return {"action": "block", "message": f"Effect/scope not authorized: {effect}/{scope}"}
+        blocked = _check_path(raw, workspace, effect)
         if blocked:
             return blocked
 

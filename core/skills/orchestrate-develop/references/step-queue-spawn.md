@@ -9,7 +9,7 @@
 6. On return, validate the receipt against the PLAN acceptance, session gates, and claim.
 7. Persist the PLAN checkpoint and progress table and re-read them before presenting any reconciled result.
 8. Show the step ledger for every step and, for a valid receipt, the short result (step, `done` | `blocked` | `failed`, tests). Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger.
-9. Evaluate the next eligible spawn only after that result. `continuous` may proceed under its existing authorization; `step_by_step` requires a new sim.
+9. Evaluate the next eligible spawn only after that result. For `continuous`, call `Test-ContinuousQueueStepAuthorization` from `core/policy/continuous-queue.ps1` with the validated receipt/session/claim state, the re-read queue snapshot, and the completed reconciliation flags. It can authorize only the first eligible pending step and that authorization is consumed by its single spawn; run the decision again after every child return. `step_by_step` requires a new sim.
 10. On a `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance: block the step, describe the deviation in one question, do not delegate the next step, do not invent a fix, and do not rewrite the PLAN. On a missing, incomplete, inconsistent, blocked, or failed receipt: keep the step pending or blocked as applicable, report `blockedReason`, pause dependents, and do not advance.
 ```
 
@@ -135,7 +135,7 @@ Child must:
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1`
 - Skip `Invoke-PlanLedgerClaim.ps1` because session helper already exited 0 (CT6)
 
-After the receipt has been validated, the PLAN checkpoint and progress table have been persisted and re-read, and the step ledger plus the short result have been shown, the parent evaluates the next eligible spawn: `continuous` may proceed without another per-step confirmation, while `step_by_step` asks **sim** again or hands off to a new chat. Only as a separate parent synthesis/path handoff does it update `CONTINUITY.md`; that update never replaces the PLAN, the short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
+After the receipt has been validated, the PLAN checkpoint and progress table have been persisted and re-read, and the step ledger plus short result have been shown, the parent evaluates one next spawn. In `continuous`, `Test-ContinuousQueueStepAuthorization` from `core/policy/continuous-queue.ps1` allows only the first eligible pending step from that re-read queue snapshot; the authorization is consumed by that spawn and cannot cover a later spawn. Re-evaluate after each child return. In `step_by_step`, ask **sim** again or hand off to a new chat. Only as a separate parent synthesis/path handoff does the parent update `CONTINUITY.md`; that update never replaces the PLAN, short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
 
 These artifacts remain distinct: the PLAN `Implementation progress` ledger and checkpoint are durable state and the operator-facing close; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another. Do not replace the step ledger with the stage-weight table.
 

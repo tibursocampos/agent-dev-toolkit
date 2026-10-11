@@ -11,6 +11,44 @@
 
 Set-StrictMode -Version Latest
 
+function Test-ActionAuthorization {
+    [CmdletBinding()]
+    param(
+        [AllowNull()][AllowEmptyString()][string] $Effect,
+        [AllowNull()][AllowEmptyString()][string] $Scope,
+        [AllowNull()][object[]] $Authorizations = @()
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Effect) -or [string]::IsNullOrWhiteSpace($Scope)) {
+        return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_request' }
+    }
+    if ($null -eq $Authorizations) {
+        return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_authorization' }
+    }
+    foreach ($authorization in $Authorizations) {
+        if ($null -eq $authorization -or
+            $null -eq $authorization.PSObject.Properties['Effect'] -or
+            $null -eq $authorization.PSObject.Properties['Scope'] -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.Effect) -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.Scope)) {
+            return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_authorization' }
+        }
+    }
+    foreach ($authorization in $Authorizations) {
+        if ([string]::Equals([string]$authorization.Effect, $Effect, [StringComparison]::Ordinal) -and
+            [string]::Equals([string]$authorization.Scope, $Scope, [StringComparison]::Ordinal)) {
+            return [PSCustomObject]@{ Allowed = $true; Reason = 'authorized' }
+        }
+    }
+    return [PSCustomObject]@{ Allowed = $false; Reason = 'effect_or_scope_not_authorized' }
+}
+
+function Get-ToolkitAuthorizationContract {
+    $contractPath = Join-Path $PSScriptRoot 'authorization-contract.json'
+    try { return (Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json) }
+    catch { return $null }
+}
+
 function Test-ToolkitIsWindows {
     $isWindowsVariable = Get-Variable -Name IsWindows -Scope Global -ErrorAction SilentlyContinue
     if ($null -ne $isWindowsVariable) {
@@ -318,34 +356,44 @@ function Test-ToolkitPathIsUnderUserAdapterRoot {
         return $false
     }
 
-    $full = ''
-    try {
-        $full = [System.IO.Path]::GetFullPath($FilePath)
-    }
-    catch {
-        return $false
-    }
+    $full = Get-ToolkitCanonicalPathForGuard -Path $FilePath -WorkspaceRoot (Get-Location).Path
+    if ([string]::IsNullOrWhiteSpace($full)) { return $false }
 
     foreach ($name in $script:ToolkitUserAdapterRootNames) {
-        $root = [System.IO.Path]::GetFullPath((Join-Path $userHome $name))
+        $lexicalRoot = [System.IO.Path]::GetFullPath((Join-Path $userHome $name))
+        $root = Get-ToolkitCanonicalPathForGuard -Path $lexicalRoot -WorkspaceRoot (Get-Location).Path
+        if ([string]::IsNullOrWhiteSpace($root) -or -not $root.Equals($lexicalRoot, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
         if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $root) {
             return $true
         }
     }
 
-    $localAppData = $env:LOCALAPPDATA
-    if (-not [string]::IsNullOrWhiteSpace($localAppData)) {
-        try {
-            $hermesRoot = [System.IO.Path]::GetFullPath((Join-Path $localAppData 'hermes'))
-            if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $hermesRoot) {
-                return $true
-            }
-        }
-        catch {
-            return $false
-        }
-    }
+    return $false
+}
 
+function Test-ToolkitPathIsUnderLocalSddRoot {
+    param([string] $FilePath)
+    if ([string]::IsNullOrWhiteSpace($FilePath)) { return $false }
+    $userHome = Get-ToolkitUserHomeForGuard
+    if ([string]::IsNullOrWhiteSpace($userHome)) { return $false }
+    $roots = [System.Collections.Generic.List[string]]::new()
+    foreach ($name in $script:ToolkitUserAdapterRootNames) {
+        $roots.Add((Join-Path (Join-Path $userHome $name) 'sdd'))
+    }
+    # OpenCode and Hermes have provider-specific roots that are not in the generic list.
+    $roots.Add((Join-Path (Join-Path $userHome '.config\opencode') 'sdd'))
+    if (-not [string]::IsNullOrWhiteSpace($env:HERMES_HOME)) { $roots.Add((Join-Path $env:HERMES_HOME 'sdd')) }
+    if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { $roots.Add((Join-Path (Join-Path $env:LOCALAPPDATA 'hermes') 'sdd')) }
+    try { $full = Get-ToolkitCanonicalPathForGuard -Path $FilePath -WorkspaceRoot (Get-Location).Path } catch { return $false }
+    if ([string]::IsNullOrWhiteSpace($full)) { return $false }
+    foreach ($candidate in $roots) {
+        try { $lexicalRoot = [System.IO.Path]::GetFullPath($candidate) } catch { continue }
+        try { $root = Get-ToolkitCanonicalPathForGuard -Path $candidate -WorkspaceRoot (Get-Location).Path } catch { continue }
+        if ([string]::IsNullOrWhiteSpace($root)) { continue }
+        # The trust boundary itself must not be redirected by a link/reparse point.
+        if (-not $root.Equals($lexicalRoot, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $root) { return $true }
+    }
     return $false
 }
 
@@ -624,6 +672,33 @@ function Test-ToolkitApplyPatchToolName {
     return $ToolName -match '^(?i)(apply_patch)$'
 }
 
+function Test-ToolkitReadOnlyToolName {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProviderId,
+        [string] $ToolName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ToolName)) {
+        return $false
+    }
+
+    $readOnlyTools = @{
+        cursor      = @('Read', 'Grep', 'Glob', 'LS')
+        antigravity = @('read_file', 'read_many_files', 'list_directory', 'glob', 'grep_search', 'google_web_search', 'web_fetch', 'get_internal_docs')
+        claude      = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        codex       = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch')
+        copilot     = @('view', 'grep', 'glob')
+        grok        = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        zcode       = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        hermes      = @('read_file', 'read_many_files', 'list_directory', 'search_files', 'find_files', 'web_search', 'web_fetch', 'memory_search', 'ask_user')
+        openhands   = @('read', 'browse', 'search', 'list_files', 'find_files', 'grep', 'glob', 'view')
+    }
+    if (-not $readOnlyTools.ContainsKey($ProviderId)) {
+        return $false
+    }
+    return $readOnlyTools[$ProviderId] -contains $ToolName
+}
+
 function Get-ShellCommandFromInput {
     param($ToolInput)
 
@@ -632,8 +707,9 @@ function Get-ShellCommandFromInput {
     }
     foreach ($name in @('command', 'cmd', 'shell_command', 'script', 'CommandLine')) {
         $prop = $ToolInput.PSObject.Properties[$name]
-        if ($prop -and -not [string]::IsNullOrWhiteSpace([string]$prop.Value)) {
-            return [string]$prop.Value
+        if ($prop) {
+            if ($prop.Value -isnot [string]) { return '' }
+            if (-not [string]::IsNullOrWhiteSpace($prop.Value)) { return $prop.Value }
         }
     }
     return ''
@@ -854,6 +930,14 @@ function Get-ToolkitPathSecretsGuardVerdict {
             }
         }
         $pathsToCheck.Add($filePath) | Out-Null
+        $resolvedWritePath = Get-ToolkitCanonicalPathForGuard -Path $filePath -WorkspaceRoot $WorkspaceRoot
+        $resolvedWorkspace = Get-ToolkitCanonicalPathForGuard -Path $WorkspaceRoot -WorkspaceRoot $WorkspaceRoot
+        if ([string]::IsNullOrWhiteSpace($resolvedWritePath) -or [string]::IsNullOrWhiteSpace($resolvedWorkspace) -or
+            (-not (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $resolvedWritePath -RootFull $resolvedWorkspace) -and
+             -not (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $filePath) -and
+             -not (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $filePath))) {
+            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'outside_workspace'; UserMessage = 'Blocked: resolved destination escapes authorized scopes.'; AgentMessage = 'Hook denied the write because the resolved target is outside workspace and local SDD roots.'; RelativePath = $filePath; SecretType = '' }
+        }
         $contentToScan = Get-WriteToolContentFromInput -ToolInput $ToolInput
     }
     elseif ($isDelete) {
@@ -882,6 +966,9 @@ function Get-ToolkitPathSecretsGuardVerdict {
         if ([string]::IsNullOrWhiteSpace($shellCmd)) {
             $shellCmd = Get-ShellCommandFromInput -ToolInput $ToolInput
         }
+        if ([string]::IsNullOrWhiteSpace($shellCmd)) {
+            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'invalid_shell_payload'; UserMessage = 'Blocked: shell tool requires a non-empty command string.'; AgentMessage = 'Hook denied shell execution because the command is missing, empty, or malformed.'; RelativePath = ''; SecretType = '' }
+        }
         $contentToScan = $shellCmd
         if (Test-ToolkitShellCommandMutatesPaths -Command $shellCmd) {
             foreach ($p in @(Get-PathsReferencedInShellCommand -Command $shellCmd)) {
@@ -891,13 +978,41 @@ function Get-ToolkitPathSecretsGuardVerdict {
         # Read and execute commands are not path-gated. Secret scan still runs.
     }
 
+    $authorizationEffect = if ($isDelete) { 'file.delete' } elseif ($isPatch) { 'file.patch' } elseif ($isShell) { 'shell.mutate' } else { 'file.write' }
+    $contract = Get-ToolkitAuthorizationContract
+    $authorizationPairs = if ($null -ne $contract -and $contract.schemaVersion -eq 1) { @($contract.authorizations) } else { @() }
+
     foreach ($rawPath in $pathsToCheck) {
+        $canonicalRawPath = Get-ToolkitCanonicalPathForGuard -Path $rawPath -WorkspaceRoot $WorkspaceRoot
+        $canonicalWorkspaceRoot = Get-ToolkitCanonicalPathForGuard -Path $WorkspaceRoot -WorkspaceRoot $WorkspaceRoot
+        if ([string]::IsNullOrWhiteSpace($canonicalRawPath) -or [string]::IsNullOrWhiteSpace($canonicalWorkspaceRoot)) {
+            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'unresolvable_path'; UserMessage = 'Blocked: destination path could not be safely resolved.'; AgentMessage = 'Hook denied the path because its existing path components could not be resolved.'; RelativePath = $rawPath; SecretType = '' }
+        }
+        if (-not (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $canonicalRawPath -RootFull $canonicalWorkspaceRoot) -and
+            -not (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $rawPath) -and
+            -not (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath)) {
+            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'outside_workspace'; UserMessage = ("Blocked: path outside allowed scopes ({0})." -f $rawPath); AgentMessage = ("Hook denied tool targeting '{0}'. Resolved target escapes every authorized scope." -f $rawPath); RelativePath = $rawPath; SecretType = '' }
+        }
         $relativePath = Get-ToolkitNormalizedRelativePath -FilePath $rawPath -WorkspaceRoot $WorkspaceRoot
         if ($null -eq $relativePath) {
             if ($isShell -and (Test-ToolkitShellOutsidePathIsCanonicalRuntime -Command $shellCmd -FilePath $rawPath)) {
                 continue
             }
-            if (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath) {
+            $scope = if (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $rawPath) { 'local_sdd' }
+                     elseif (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath) { 'provider_home' }
+                     else { '' }
+            $authorization = Test-ActionAuthorization -Effect $authorizationEffect -Scope $scope -Authorizations $authorizationPairs
+            if (-not $authorization.Allowed) {
+                return [PSCustomObject]@{
+                    Decision     = 'deny'
+                    Reason       = 'outside_workspace'
+                    UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
+                    AgentMessage = ("Hook denied tool targeting '{0}'. Mutating effects require an authorized workspace, local SDD, or provider scope." -f $rawPath)
+                    RelativePath = $rawPath
+                    SecretType   = ''
+                }
+            }
+            if ($scope -eq 'local_sdd' -or $scope -eq 'provider_home') {
                 if (Test-ToolkitDeniedPathSegment -RelativePath $rawPath) {
                     return [PSCustomObject]@{
                         Decision     = 'deny'
@@ -919,6 +1034,18 @@ function Get-ToolkitPathSecretsGuardVerdict {
                 SecretType   = ''
             }
         }
+        $authorization = Test-ActionAuthorization -Effect $authorizationEffect -Scope 'workspace' -Authorizations $authorizationPairs
+        if (-not $authorization.Allowed) {
+            return [PSCustomObject]@{
+                Decision     = 'deny'
+                Reason       = 'unauthorized_effect_or_scope'
+                UserMessage  = 'Blocked: mutating effect is not authorized for the workspace scope.'
+                AgentMessage = 'Hook denied mutating effect because the shared effect/scope contract rejected it.'
+                RelativePath = $relativePath
+                SecretType   = ''
+            }
+        }
+
         if ([string]::IsNullOrWhiteSpace($relativePath)) {
             # Bare forbidden tokens from shell scan (e.g. "PRD").
             if ((Test-ToolkitForbiddenSddPath -RelativePath $rawPath) -or (Test-ToolkitDeniedPathSegment -RelativePath $rawPath)) {

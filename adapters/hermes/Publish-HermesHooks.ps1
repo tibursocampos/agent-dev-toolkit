@@ -207,7 +207,7 @@ function Remove-HermesToolkitPreToolCallEntries {
     }
 
     # Remove the whole toolkit list item, including keys after command. Stop before the next list item.
-    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?terminal\|write_file\|patch["'']?\s*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*'
+    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?(?:terminal\|write_file\|patch|\.\*)["'']?\s*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*'
     return [regex]::Replace($YamlText, $pattern, '')
 }
 

@@ -96,8 +96,8 @@ if ($hooksText -notmatch 'PreToolUse') {
 if ($hooksText -notmatch 'guard-pre-tool\.ps1') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing guard-pre-tool.ps1'
 }
-if ($hooksText -notmatch 'Write\|Edit\|Bash') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing Write|Edit|Bash matcher'
+if ($hooksText -notmatch '"matcher"\s*:\s*"\*"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'matcher must catch every Grok tool'
 }
 Write-Pass -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse'
 

@@ -7,7 +7,7 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
 
 .DESCRIPTION
-  Writes PreToolUse path/secrets guard for Bash and apply_patch|Edit|Write.
+  Writes one catch-all PreToolUse path/secrets guard.
   RN03: never invoke or assert Codex /hooks trust UI.
 #>
 
@@ -29,26 +29,12 @@ function New-CodexPreToolUseHooksObject {
 
     $c = $script:CodexPathConstant
     $guardCommand = $c.HooksPreToolUseCommandTemplate
-    $bashMatcher = $c.HooksPreToolUseBashMatcher
-    $patchMatcher = $c.HooksPreToolUsePatchMatcher
-
     return [ordered]@{
         description = $c.HooksDescription
         hooks       = [ordered]@{
             ($c.HooksPreToolUseEventName) = @(
                 [ordered]@{
-                    matcher = $bashMatcher
-                    hooks   = @(
-                        [ordered]@{
-                            type          = $c.HooksCommandType
-                            command       = $guardCommand
-                            statusMessage = $c.HooksPreToolUseStatusMessage
-                        }
-                    )
-                },
-                [ordered]@{
-                    matcher = $patchMatcher
-                    hooks   = @(
+                    hooks = @(
                         [ordered]@{
                             type          = $c.HooksCommandType
                             command       = $guardCommand

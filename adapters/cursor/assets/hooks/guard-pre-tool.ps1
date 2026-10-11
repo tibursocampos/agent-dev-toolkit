@@ -1,6 +1,6 @@
 # preToolUse / beforeShellExecution - deny writes and mutating shell outside the workspace
 # and outside user adapter homes, under .git, or in legacy PRD/PLAN trees; block secrets.
-# Read and execute commands stay allowed. Global SDD under the user adapter home is allowed.
+# Classified read-only tools stay allowed; unclassified tools are denied. Global SDD under the user adapter home is allowed.
 # Contract: sdd-pipeline-guards (features/ canonical SDD) + step-3.5-precommit-validation (secrets).
 
 #Requires -Version 5.1
@@ -57,8 +57,11 @@ $isGuarded = (
     (Test-ToolkitShellToolName $toolName) -or
     (Test-ToolkitApplyPatchToolName $toolName)
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'cursor' -ToolName $toolName) {
     Write-PreToolJson @{ permission = 'allow' }
+}
+if (-not $isGuarded) {
+    Write-PreToolJson @{ permission = 'deny'; user_message = 'Blocked: tool surface is not classified by the provider adapter.'; agent_message = ('Hook denied unclassified tool surface: ' + $toolName) }
 }
 
 if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames $expectedEventNames)) {

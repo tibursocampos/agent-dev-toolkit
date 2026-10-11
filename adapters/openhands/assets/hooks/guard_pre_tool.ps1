@@ -70,6 +70,9 @@ if (-not [string]::IsNullOrWhiteSpace($raw)) {
         $inputJson = $null
     }
 }
+if ($null -eq $inputJson -or -not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-OpenHandsGuardDecision -Decision 'deny' -Reason 'Hook denied malformed, empty, or schema-invalid input; fail-closed.'
+}
 
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
@@ -105,8 +108,11 @@ $isGuarded = (
     (Test-ToolkitWriteToolName $effective) -or
     (Test-ToolkitShellToolName $effective)
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'openhands' -ToolName $toolName) {
     Write-OpenHandsGuardDecision -Decision 'allow'
+}
+if (-not $isGuarded) {
+    Write-OpenHandsGuardDecision -Decision 'deny' -Reason ('Hook denied unclassified tool surface: ' + $toolName)
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

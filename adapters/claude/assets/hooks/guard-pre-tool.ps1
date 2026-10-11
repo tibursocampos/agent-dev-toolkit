@@ -7,6 +7,9 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
+if ($null -eq $inputJson -or -not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-ClaudePreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = 'Hook denied malformed, empty, or schema-invalid input; fail-closed.' }
+}
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
     $toolName = [string]$inputJson.tool_name
@@ -29,8 +32,11 @@ $isGuarded = (
     (Test-ToolkitDeleteToolName $toolName) -or
     (Test-ToolkitApplyPatchToolName $toolName)
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'claude' -ToolName $toolName) {
     Write-ClaudePreToolJson @{ permissionDecision = 'allow' }
+}
+if (-not $isGuarded) {
+    Write-ClaudePreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = ('Hook denied unclassified tool surface: ' + $toolName) }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `
