@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**46 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**45 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**46** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**45** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -24,7 +24,7 @@ Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enfo
 |-------|------|
 | `SKILL.md` | Gate + Process; must include `## Lazy-load` and `**Never by default:**` |
 | `reference.md` | Optional routing index (≤50 lines when section files exist) |
-| `references/*.md` | Section bodies (impeccable may use `reference/`) |
+| `references/*.md` | Section bodies |
 
 **FAIL** when `**Never by default:**` is missing, or a monolithic `reference.md` is **>150** lines without a split into `references/` (or `reference/`). Agents load only the section needed for the current Process step — never glob all references at skill start.
 
@@ -123,7 +123,6 @@ If the invoke omits a mode, the skill asks once and loads **only** the chosen pl
 | Skill | Purpose |
 |-------|---------|
 | `blip-plugin-developer` | Scaffold Blip React extensions; hand off to `react-developer` |
-| `impeccable` | UI/UX design router; shape → `docs/DESIGN-BRIEF.md` (partial Impeccable harness — [CREDITS](CREDITS.md)) |
 
 ## Operational
 

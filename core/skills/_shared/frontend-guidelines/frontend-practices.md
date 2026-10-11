@@ -1,6 +1,6 @@
 # Frontend Core Guidelines
 
-Engineering standards for web frontends. **Visual decisions** (palette, typography, layout, motion) come from `docs/DESIGN-BRIEF.md` and `/impeccable` - not from this file.
+Engineering standards for web frontends. **Visual decisions** (palette, typography, layout, motion) come from `docs/DESIGN-BRIEF.md` or a brief created for the task.
 
 Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` — identifiers **English**; comments/docs **mirror** touched area or **ask** on greenfield.
 
@@ -8,10 +8,10 @@ Cross-stack structure/quality: `../code-guidelines/principles/structure-and-qual
 
 | Source | Covers |
 |--------|--------|
-| `DESIGN-BRIEF.md` / Impeccable | Colors (OKLCH), typography scale, spacing rhythm, component states, anti-patterns |
+| `DESIGN-BRIEF.md` | Colors, typography scale, spacing rhythm, component states, and anti-patterns |
 | This file | Semantic HTML, SEO, tooling, accessibility basics, stack matching |
 
-For **net-new UI** without a brief, recommend `/impeccable shape` in a new session before implementing.
+For **net-new UI** or a substantial visual redesign without a brief, record the audience, content hierarchy, visual direction, responsive behavior, component states, and accessibility needs before implementing. Keep tokens consistent, establish a clear focal point, and verify the result at narrow and wide viewport sizes. For basic visual changes, use the existing product patterns and stack skill directly.
 
 ## Technology stack
 

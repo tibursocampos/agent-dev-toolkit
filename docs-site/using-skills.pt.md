@@ -1,4 +1,4 @@
-﻿---
+---
 title: Usando skills
 ---
 
@@ -6,7 +6,7 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **46** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **45** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
 O roteamento depende do adaptador: o Copilot tem `router=false`, então a orientação de `core/router/AGENTS.md` fica embutida no `copilot-instructions.md` gerado; isso não é um id de skill separado nem prova de execução no host ao vivo.
 
@@ -149,14 +149,12 @@ Cada skill de stack é trabalho pequeno ou médio. Confirme com **sim** antes de
 | `python-developer` | FastAPI ou Flask, pytest | `/sdd-spec` |
 | `react-developer` | React web | `/react-native-developer` para mobile |
 | `react-native-developer` | React Native ou Expo | `/react-developer` para web |
-| `angular-developer` | Angular | Brief de UI para `impeccable` quando falta |
-| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Brief de UI para `impeccable` quando falta |
+| `angular-developer` | Angular | Criar um brief quando decisões visuais substanciais forem necessárias |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Criar um brief quando decisões visuais substanciais forem necessárias |
 | `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` para a API |
 | `electron-developer` | Main, preload, renderer, IPC, empacotamento | Segurança e CSP carregam primeiro quando o IPC muda |
 | `blip-plugin-developer` | Andaime de um plugin Blip React novo | UI para `react-developer`. Ela não implementa o conjunto da feature |
-| `impeccable` | Comandos de design | Escreve `docs/DESIGN-BRIEF.md` depois da confirmação e para |
-
-Gatilhos de `impeccable`: `/impeccable`, `/impeccable <command>`, `/impeccable-shape`, `/impeccable-audit`. `teach` é um alias obsoleto de `init`. Se `PRODUCT.md` faltar, rode `init` primeiro. O register é `brand` ou `product`. Comandos que vêm no repositório incluem `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. Depois do **sim** em `shape` ou `craft`, o chat seguinte é a skill de stack nomeada por `target_stack`.
+Para UI nova ou redesign visual substancial, registre público, hierarquia, direção visual, comportamento responsivo, estados dos componentes e acessibilidade em `docs/DESIGN-BRIEF.md` antes da implementação. A orientação geral está em `core/skills/_shared/frontend-guidelines/frontend-practices.md`. A CLI Impeccable upstream é opcional e independente; veja [as notas de integração](impeccable-integration.md).
 
 Guidelines ficam em `core/skills/_shared/code-guidelines/`. Carregue um arquivo.
 

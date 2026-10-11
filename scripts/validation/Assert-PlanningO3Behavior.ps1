@@ -245,6 +245,17 @@ try {
     $drift = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
     Assert-True ($LASTEXITCODE -eq 2 -and $drift -match 'continuity_plan_reconciliation_mismatch') 'Stale CONTINUITY next step must block preflight.'
     Write-Host 'O3ArtifactPreflight: PASS (stale CONTINUITY blocked)'
+
+    # A blocked first step must prevent its dependent from becoming the next
+    # eligible step, even though the completed prefix is still zero.
+    [IO.File]::WriteAllText($planPath, $planText.Replace('| `PENDING` | — |','| `BLOCKED` | — |'), (New-Object Text.UTF8Encoding $false))
+    $blockedContinuity = Get-Content -LiteralPath $continuityPath -Raw -Encoding UTF8
+    $blockedContinuity = $blockedContinuity.Replace('Próximo: S2 — Stale next step','Próximo: none')
+    [IO.File]::WriteAllText($continuityPath, $blockedContinuity, (New-Object Text.UTF8Encoding $false))
+    $blocked = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) { Write-Host $blocked }
+    Assert-True ($LASTEXITCODE -eq 0 -and $blocked -match 'preflight: ALLOW' -and $blocked -match 'completed=0') 'A blocked step must reconcile with no next step and must keep dependent steps ineligible.'
+    Write-Host 'O3ArtifactPreflight: PASS (blocked step prevents dependent eligibility)'
 }
 finally {
     if (Test-Path -LiteralPath $tempFeature) { Remove-Item -LiteralPath $tempFeature -Recurse -Force }

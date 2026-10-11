@@ -20,7 +20,7 @@ Orchestrators and specialists **do not** reimplement stack work. Point implement
 | `.ino`, `main.py`, or board-family name without framework/runtime/toolchain evidence | `/developer` (request framework/core/runtime/version/toolchain evidence; do not infer by board name) |
 | Python or `.py` without runtime/target evidence when APIs or deployment could differ | `/developer` (ask for runtime, target, and port evidence; do not infer MicroPython from the extension) |
 | Mixed / unclear | `/developer` (router) |
-| UI shape / audit first | `/impeccable` -> DESIGN-BRIEF -> stack skill |
+| UI shape / audit first | Create or update `docs/DESIGN-BRIEF.md`, then use the matching stack skill. The optional upstream Impeccable CLI is independent; see `docs/impeccable-integration.md`. |
 | Blip plugin scaffold | `/blip-plugin-developer` |
 
 The ESP-IDF route is evidence-based and must remain distinct from Arduino Core and MicroPython. An ESP32-family name alone never selects a framework. Derive the target and ESP-IDF version separately from project/configuration/build evidence, and preserve `idf_component.yml`, resolved lockfiles, `sdkconfig.defaults`, generated `sdkconfig`, and other local configuration until a reviewed change is requested. CPython host code and tests remain on `/python-developer`, even when they interact with embedded firmware.

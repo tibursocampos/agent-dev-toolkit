@@ -1,4 +1,4 @@
-﻿---
+---
 title: Using skills
 ---
 
@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **46** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **45** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
@@ -149,14 +149,12 @@ Each stack skill is small-to-medium work. Confirm with **sim** before writes. On
 | `python-developer` | FastAPI or Flask, pytest | `/sdd-spec` |
 | `react-developer` | React web | `/react-native-developer` for mobile |
 | `react-native-developer` | React Native or Expo | `/react-developer` for web |
-| `angular-developer` | Angular | UI brief to `impeccable` when missing |
-| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | UI brief to `impeccable` when missing |
+| `angular-developer` | Angular | Create a brief when substantial visual decisions are needed |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Create a brief when substantial visual decisions are needed |
 | `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` for the API |
 | `electron-developer` | Main, preload, renderer, IPC, packaging | Security and CSP load first when IPC changes |
 | `blip-plugin-developer` | Scaffolds a new Blip React plugin | UI to `react-developer`. It does not implement the feature set |
-| `impeccable` | Design commands | Writes `docs/DESIGN-BRIEF.md` after confirm and stops |
-
-`impeccable` triggers: `/impeccable`, `/impeccable <command>`, `/impeccable-shape`, `/impeccable-audit`. `teach` is a deprecated alias of `init`. If `PRODUCT.md` is missing, run `init` first. Register is `brand` or `product`. Commands that ship in-repo include `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. After **sim** on `shape` or `craft`, the next chat is the stack skill named by `target_stack`.
+For net-new UI or a substantial visual redesign, record audience, hierarchy, visual direction, responsive behavior, component states, and accessibility in `docs/DESIGN-BRIEF.md` before implementation. General guidance is in `core/skills/_shared/frontend-guidelines/frontend-practices.md`. The upstream Impeccable CLI is optional and independent; see [its integration notes](impeccable-integration.md).
 
 Guidelines live in `core/skills/_shared/code-guidelines/`. Load one file.
 

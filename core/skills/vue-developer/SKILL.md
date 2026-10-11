@@ -111,4 +111,4 @@ Enforce the full list in `references/must-not.md`. Critical: no guideline dumps 
 | Commit | `/commit` |
 | Review | `/code-review` |
 | Scope grew | `/sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | Create a concise `docs/DESIGN-BRIEF.md` before substantial UI redesign work; see `frontend-guidelines/frontend-practices.md`. |

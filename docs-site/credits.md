@@ -16,15 +16,15 @@ Compression is one session preference and defaults to off. Commands, and the tex
 
 ## Impeccable
 
-UI command flow and design guidance draw from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) and the Impeccable CLI (`npx impeccable`).
+The toolkit's former partial UI design guidance drew from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) and its CLI (`npx impeccable`).
 
-The toolkit skill `impeccable` is a partial harness synced by the adapters: a subset of references, a `DESIGN-BRIEF.md` handoff, and this toolkit’s gates. A full upstream install, including hooks, stays optional and waits for an explicit yes. Running this skill and running Impeccable on its own are different sessions.
+The toolkit no longer distributes its former partial Impeccable harness or adapted playbooks. The upstream project and CLI remain independent and optional; their installation and runtime are outside toolkit publication and cleanup.
 
 ## Anthropic frontend-design
 
 A signature motif, a compact token plan before code, and UX writing intent draw in part from [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-Product UI in this toolkit goes `/impeccable` → `docs/DESIGN-BRIEF.md` → a stack `*-developer`. Upstream `frontend-design` is an optional reference beside that handoff. It is not a Core skill, and that repository is not copied into `core/`.
+For product UI, record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. Upstream `frontend-design` is an optional reference; it is not a Core skill, and that repository is not copied into `core/`.
 
 ## Memory bank and Spec Kit
 

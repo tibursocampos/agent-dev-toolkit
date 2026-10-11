@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 46 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 45 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -20,7 +20,7 @@ Each invocable skill is a folder with `SKILL.md` plus optional lazy-load referen
 |--------|------|
 | `SKILL.md` | Gate + Process; **must** have `## Lazy-load` and `**Never by default:**` |
 | `reference.md` | Optional index (≤50 lines when section files exist) |
-| `references/*.md` | Section bodies (`reference/` for impeccable) |
+| `references/*.md` | Section bodies |
 
 **FAIL** if `**Never by default:**` is missing or monolithic `reference.md` **>150** lines without split. Load one section per Process step — do not preload all references.
 
@@ -32,7 +32,7 @@ Top-level folders:
 | Backlog shape | `refine-story`, `split-story-checklist` |
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
-| Product / design | `blip-plugin-developer`, `impeccable` |
+| Product / design | `blip-plugin-developer` |
 | Ops | `help-skills`, `code-review`, `implementation-survey`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `run-tests`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
 | Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
@@ -219,7 +219,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **46**).
+Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **45**).
 
 | Concern | Behavior |
 |---------|----------|

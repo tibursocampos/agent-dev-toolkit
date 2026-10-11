@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **46** kebab skills.
+Total: **45** kebab skills.
 
 ## Tracks
 
@@ -67,7 +67,6 @@ Total: **46** kebab skills.
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `blip-plugin-developer` | `blip-plugin-developer` | Scaffold Blip React extensions → `react-developer` |
-| `impeccable` | `impeccable` | UI/UX design router → `DESIGN-BRIEF.md` |
 
 ## Operational
 

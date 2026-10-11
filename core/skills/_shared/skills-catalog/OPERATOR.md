@@ -77,7 +77,6 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 | `implementation-survey` | `source` is `working-tree` or a ref git already resolves. `target` is `HEAD` or another branch. Ask one question when `source` or `target` is missing (no silent default). `path` is optional. The report does not approve. Read `SPAWN.md` before the first spawn decision. |
 | `developer` | Hybrid stack router or ad-hoc scripts; small/medium without full SDD. |
 | `*-developer` | Stack-specific small/medium work; medium/complex may spawn ≤2 children. |
-| `impeccable` | UI/UX harness → `DESIGN-BRIEF.md` → stack `*-developer`. Partial upstream Impeccable; not a full port. Live hooks need explicit consent. |
 | `blip-plugin-developer` | Scaffold Blip plugin → handoff `react-developer`. |
 
 ---

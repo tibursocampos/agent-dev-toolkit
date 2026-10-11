@@ -17,4 +17,4 @@ Recommend `/sdd-spec` -> `sdd-plan` -> `sdd-develop` if **two or more** apply:
 
 If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as the acceptance source. Map sections to Vue SFCs/composables; do **not** reinterpret visual decisions. Implement **one session scope** from section 10 only.
 
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
+For net-new UI or a substantial visual redesign without a brief, create a concise `docs/DESIGN-BRIEF.md` covering audience, hierarchy, direction, states, responsive behavior, and accessibility before implementing.

@@ -25,7 +25,7 @@ Hooks are installed only where the adapter documents them. Cursor-style hooks li
 
 ## Impeccable coexistence
 
-The optional Impeccable live/design hook may be installed in a consumer project only after explicit consent. Merge it with existing toolkit/host hooks; do not overwrite unrelated entries. See [impeccable-integration.md](impeccable-integration.md).
+The optional upstream Impeccable live/design hook may be installed in a consumer project only after explicit consent. Merge it with existing toolkit/host hooks; do not overwrite unrelated entries. Separate integrations or scopes can coexist, while duplicate copies in the same harness and scope may conflict. See [impeccable-integration.md](impeccable-integration.md).
 
 ## Non-goals
 

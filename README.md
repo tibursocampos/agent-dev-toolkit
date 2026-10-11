@@ -1,4 +1,4 @@
-﻿# Agent Dev Toolkit
+# Agent Dev Toolkit
 
 Unified multi-agent skills **core** with per-agent **adapters**. Sync the same SDD workflows, stack skills, and policy into Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, and OpenHands.
 
@@ -96,7 +96,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (46)
+## Skills preview (45)
 
 | Group | Examples |
 |-------|----------|

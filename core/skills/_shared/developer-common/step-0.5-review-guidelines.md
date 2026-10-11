@@ -84,7 +84,7 @@ Quick checks (always apply):
 | Electron | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/` |
 | Vanilla / DOM | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/dom-patterns.md` |
 
-Visual decisions: `docs/DESIGN-BRIEF.md` or `/impeccable` - do not invent palette/typography from generic guidelines.
+Visual decisions: use `docs/DESIGN-BRIEF.md` when present; otherwise follow the existing product design system or record explicit choices before substantial redesign work. Do not invent palette/typography from generic guidelines.
 
 ## 4. Other stacks
 

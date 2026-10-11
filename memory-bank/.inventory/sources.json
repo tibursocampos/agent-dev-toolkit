@@ -3,17 +3,17 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-11T08:36:04.2779617Z",
+  "generated_at": "2026-10-11T15:39:55.7054431Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "ed49f6c293bfe830425c98309a41b155c6c9af5f799606b1ff61d5a36ab57cdc",
-  "inventory_summary": "132 source(s); stack: markdown, powershell",
+  "inventory_hash": "91917befd5e9f11969dfafe8ec2c2f7f35722c4998b8b50d1ea8c1b8d41e583c",
+  "inventory_summary": "133 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
-  "skill_count": 46,
+  "skill_count": 45,
   "assert_script_count": 95,
   "sources": [
     {
@@ -522,16 +522,16 @@
     },
     {
       "path": "core/router/AGENTS.md",
-      "last_write_utc": "2026-10-09T22:58:40.0841397Z",
-      "length": 11528,
-      "hash": "aeb5a963a01f881e2cda4ebe9b71e286f0679a9f259b7eddf0edd05358f6ff78",
+      "last_write_utc": "2026-10-11T12:07:53.8557085Z",
+      "length": 11519,
+      "hash": "80982293d168fcdec314da53bf482476aec2df5815f2001ad1b1244e92e57147",
       "summary": "Agent router (L0 index) - agent-dev-toolkit"
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-10-10T21:22:34.4433104Z",
-      "length": 14227,
-      "hash": "ce346c4cc1f29ee5c2c61a68bce26e47f59b5616a85fb2522d82686adf896973",
+      "last_write_utc": "2026-10-11T08:44:35.2190395Z",
+      "length": 14603,
+      "hash": "c4ab30b37152eec23f0a424c41b099b55bb8314dc17f14bca8a534398ee166cd",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
@@ -543,16 +543,16 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "last_write_utc": "2026-10-09T22:58:40.3751574Z",
-      "length": 16603,
-      "hash": "88e0d75ddeae20487f8eff4fefa62726d530bb63766db2cdf0986ca937e3eed3",
+      "last_write_utc": "2026-10-11T12:10:41.3859877Z",
+      "length": 16600,
+      "hash": "afff1b82703a3fca565f74aee5a87bd4b1de1dcfedb8b0a574d7732d74d4a782",
       "summary": "Architecture"
     },
     {
       "path": "docs/CREDITS.md",
-      "last_write_utc": "2026-09-26T11:13:17.0697350Z",
-      "length": 4393,
-      "hash": "21df2499648709b9de8825ca723801a23470248ed91afe1443e53a30a3892963",
+      "last_write_utc": "2026-10-11T12:10:20.5509699Z",
+      "length": 4265,
+      "hash": "9751493bdbf5217f7f7d6ad56ace3661b74a8be399ef1ec753e8d7bbe661381c",
       "summary": "Credits and acknowledgments"
     },
     {
@@ -592,9 +592,9 @@
     },
     {
       "path": "docs/domains/core.md",
-      "last_write_utc": "2026-10-09T22:58:40.3931700Z",
-      "length": 31702,
-      "hash": "a286c807959543eb12c0ac59f3bdba1bf722782b6704bf885c588da303d36060",
+      "last_write_utc": "2026-10-11T12:10:41.3869879Z",
+      "length": 31658,
+      "hash": "6166c9d78472567f66723fec7ec5a21190e7edd722c94e567e2c25f6fe0d3169",
       "summary": "Domain: Core"
     },
     {
@@ -620,9 +620,9 @@
     },
     {
       "path": "docs/guides/02-using-skills.md",
-      "last_write_utc": "2026-10-09T22:58:40.3971712Z",
-      "length": 14017,
-      "hash": "142f3fb52fe270dde5cd83f7bcd092df067f2dd99226501bd5a6fa5ee5aa5de8",
+      "last_write_utc": "2026-10-11T12:10:41.3879867Z",
+      "length": 14014,
+      "hash": "665bfb0a3cfb1da87502d339453643db94c4861686117ac7569aaec8541cd0ef",
       "summary": "Using skills"
     },
     {
@@ -655,17 +655,17 @@
     },
     {
       "path": "docs/HOOKS.md",
-      "last_write_utc": "2026-10-09T22:58:40.3764515Z",
-      "length": 2500,
-      "hash": "a4e52a054e0731473d53e33ee07fb3387095a76abd89eea9130c3bb5121406e0",
+      "last_write_utc": "2026-10-11T12:08:37.4917384Z",
+      "length": 2621,
+      "hash": "cfb73c0817e2dafe80471c423a8d9ee7bab981e74f1130de66c9c47b1eb8bd66",
       "summary": "Toolkit hooks"
     },
     {
       "path": "docs/impeccable-integration.md",
-      "last_write_utc": "2026-10-09T22:58:40.3981708Z",
-      "length": 1112,
-      "hash": "f5c9dcf8af824d72b6956c02c44bdca32b15019939fd66ebf054ab5d69ff5b2a",
-      "summary": "Impeccable integration"
+      "last_write_utc": "2026-10-11T12:08:37.4917384Z",
+      "length": 1629,
+      "hash": "7ac94a35a458bc953926f94924c9958c5b5ca1236880056696ae78c3e4a25144",
+      "summary": "Optional upstream Impeccable"
     },
     {
       "path": "docs/INSTALL.md",
@@ -676,16 +676,16 @@
     },
     {
       "path": "docs/overview.md",
-      "last_write_utc": "2026-10-09T22:58:40.4079242Z",
+      "last_write_utc": "2026-10-11T12:10:41.3859877Z",
       "length": 9258,
-      "hash": "3acc6d15c25acc421f65c825cd783ab84a136f6b6576e9a596ee5ba9d88da01b",
+      "hash": "e88bf248fc65990febba31e02b0425303518802a4af0fd40d79d3a834fcc75d3",
       "summary": "Overview"
     },
     {
       "path": "docs/README.md",
-      "last_write_utc": "2026-10-09T22:58:40.3784787Z",
+      "last_write_utc": "2026-10-11T12:10:41.3869879Z",
       "length": 3474,
-      "hash": "4d1623162c003158328913a6161cdb886ab4b6e07c9ac9d430b6f49d40cd2f7b",
+      "hash": "07cb7eafc51a44241706f3bf067ba928433b8d9ab908626d1477817e725184db",
       "summary": "Documentation index"
     },
     {
@@ -718,9 +718,9 @@
     },
     {
       "path": "docs/sessions/04-implement-and-guidelines.md",
-      "last_write_utc": "2026-09-25T23:20:41.6910595Z",
-      "length": 8007,
-      "hash": "08260018123c1681c4e5353139f4f57fe5e1fd371a5cb10cb85ff6b4ae9a662c",
+      "last_write_utc": "2026-10-11T12:29:10.3969017Z",
+      "length": 6724,
+      "hash": "744f74ff38db6ea9bc8b3c6faff9d796184960f4d864cc3e01eb40971e42258b",
       "summary": "04 — Implement and guidelines"
     },
     {
@@ -753,23 +753,23 @@
     },
     {
       "path": "docs/sessions/09-every-skill.md",
-      "last_write_utc": "2026-10-09T22:58:40.4299497Z",
-      "length": 14109,
-      "hash": "91a41730ea3e12ed3b65ae730505f52fdda6f09783ad83690639ad6bee93bb67",
+      "last_write_utc": "2026-10-11T12:11:37.8179069Z",
+      "length": 13849,
+      "hash": "2c41f10f74261ab44fc48c1e2e5118820bf90d8b1eedb151c525da8b3580c78b",
       "summary": "09 — Every skill"
     },
     {
       "path": "docs/sessions/README.md",
-      "last_write_utc": "2026-10-09T22:58:40.4344488Z",
-      "length": 2702,
-      "hash": "64fbccb27cde3a873024cda8e28b6d4703a743296b08c9ae0fd87437abe3ee29",
+      "last_write_utc": "2026-10-11T12:10:41.3889862Z",
+      "length": 2681,
+      "hash": "6f8df0546580ddcb49dab374640e584adaba1690ad3c4df924f5d72ea44c53f9",
       "summary": "Skill sessions"
     },
     {
       "path": "docs/SKILLS.md",
-      "last_write_utc": "2026-10-09T22:58:40.3866513Z",
-      "length": 14183,
-      "hash": "831079455f5ae94d274d67d1b982fd57b1fc5a8ab22cb1538242308a7ca93028",
+      "last_write_utc": "2026-10-11T12:09:49.2834995Z",
+      "length": 14020,
+      "hash": "41b8535f17bf190537c4b25502b15b79aec686b773b5cc6576ee25af12b04e5a",
       "summary": "Skills catalog"
     },
     {
@@ -795,9 +795,9 @@
     },
     {
       "path": "README.md",
-      "last_write_utc": "2026-10-10T21:22:34.4433104Z",
-      "length": 11549,
-      "hash": "a0237d26a11eb000994b3d7573616e8a637a2483fc9f466e8c44bf84c9537c25",
+      "last_write_utc": "2026-10-11T12:10:41.3838214Z",
+      "length": 11546,
+      "hash": "d3e8bbf05360aa3cc285741da90dc505c0356d9b832663be45be6c1a35a4fadf",
       "summary": "Agent Dev Toolkit"
     },
     {
@@ -809,10 +809,17 @@
     },
     {
       "path": "scripts/_lib/Copy-ToolkitManagedTree.ps1",
-      "last_write_utc": "2026-10-10T21:22:34.4433104Z",
-      "length": 44534,
-      "hash": "7a7ee559608ae13e5f0375fe2196dcefb82d16c8bb54d67ee478da7be2e4ae58",
+      "last_write_utc": "2026-10-11T15:37:28.2128836Z",
+      "length": 49551,
+      "hash": "866b5e527de42f4d966c92645fb56b04f0f29da78058b384faf53d08fa9c5796",
       "summary": "These values are shared by the copy/publish helpers below. Initialize them"
+    },
+    {
+      "path": "scripts/_lib/Get-ToolkitRelativePath.ps1",
+      "last_write_utc": "2026-10-11T11:11:22.7341335Z",
+      "length": 1492,
+      "hash": "c8d483d26f43271f808c381f5307e738cb4a7aadf1c6ded52d146e681fab970c",
+      "summary": "function Get-ToolkitRelativePath {"
     },
     {
       "path": "scripts/_lib/Get-ToolkitRepoRoot.ps1",
@@ -893,10 +900,10 @@
     },
     {
       "path": "scripts/_lib/ToolkitManagedPublishInventory.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.4867235Z",
-      "length": 36687,
-      "hash": "6b400e8c85f3187899223e2449bcf6983eec85107acd474e9f2ecfeb1242d44c",
-      "summary": "#Requires -Version 5.1"
+      "last_write_utc": "2026-10-11T15:37:08.0694870Z",
+      "length": 47688,
+      "hash": "dec86f0f91529f7fcaae8c29736dacc9986b184d5790624eddec82e9a844c07f",
+      "summary": "The prior process exited while holding the lock; ownership is"
     },
     {
       "path": "scripts/_lib/ToolkitValidationFileSystem.ps1",

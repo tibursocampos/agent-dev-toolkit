@@ -52,13 +52,13 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 | Deploy / CI | `{{TOOLKIT_ROOT}}/skills/_shared/blip-guidelines/deploy-and-ci.md` |
 | React guidelines | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/` — only files needed for scaffold UI |
 | Frontend practices | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| Design brief template | `{{TOOLKIT_ROOT}}/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
+| Design guidance | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Branch / commit | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/blip-plugin-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/blip-plugin-developer/references/<section>.md` |
 
-**Never by default:** do not preload all `references/*.md`. do not preload the full `blip-guidelines/` pack, all `react-guidelines/`, or impeccable command refs. Load architecture + design-system for scaffold; fan-out to auth/iframe/API/deploy only when that profile step runs. Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Never by default:** do not preload all `references/*.md`. do not preload the full `blip-guidelines/` pack or all `react-guidelines/`. Load architecture + design-system for scaffold; fan-out to auth/iframe/API/deploy only when that profile step runs. Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 **Progressive load:** integration overview / architecture first; then the Blip row for the active scaffold step.
 
@@ -97,7 +97,7 @@ Enforce the full list in `references/must-not.md`. Critical: no unofficial scaff
 | Situation | Next |
 |-----------|------|
 | Implement UI/features | `/react-developer` |
-| Design new screens | `/impeccable shape` |
+| Design new screens | Create a project-specific `docs/DESIGN-BRIEF.md` with `target_stack: react` and Blip/BDS notes in section 9; use the shared frontend design guidance. |
 | Backend API | `/dotnet-developer` (separate repo) |
 | Full SDD feature | `/sdd-spec` |
 | Commit (after implementation) | `/commit` |

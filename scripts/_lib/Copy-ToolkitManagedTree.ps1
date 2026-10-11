@@ -217,7 +217,7 @@ function Assert-ToolkitManagedSkillDestinationPath {
     }
 }
 
-function Copy-ToolkitFileIfAbsent {
+function Copy-ToolkitFileIfAbsentCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $SourcePath,
@@ -258,7 +258,7 @@ function Copy-ToolkitFileIfAbsent {
     return $true
 }
 
-function Write-ToolkitFileIfAbsent {
+function Write-ToolkitFileIfAbsentCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $Path,
@@ -297,6 +297,52 @@ function Write-ToolkitFileIfAbsent {
         $null = Set-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $RelativePath -Sha256 $sha -Kind 'managed-file'
     }
     return $true
+}
+
+function Copy-ToolkitFileIfAbsent {
+    # Catalog republish always replaces; a failed ownership check does not.
+    # Hold the destination lock across replacement and ownership inventory update.
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $SourcePath,
+        [Parameter(Mandatory = $true)][string] $DestinationPath,
+        [Parameter()][string] $InstallRoot,
+        [Parameter()][string] $RelativePath,
+        [Parameter()][switch] $PreserveExisting
+    )
+
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    return (Invoke-ToolkitManagedPublishDestinationLock -DestinationPath $DestinationPath -Action {
+        Copy-ToolkitFileIfAbsentCore `
+            -SourcePath $SourcePath `
+            -DestinationPath $DestinationPath `
+            -InstallRoot $InstallRoot `
+            -RelativePath $RelativePath `
+            -PreserveExisting:$PreserveExisting
+    })
+}
+
+function Write-ToolkitFileIfAbsent {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Content,
+        [Parameter()][System.Text.Encoding] $Encoding = (New-Object System.Text.UTF8Encoding $false),
+        [Parameter()][string] $InstallRoot,
+        [Parameter()][string] $RelativePath,
+        [Parameter()][switch] $AllowExistingMerge
+    )
+
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    return (Invoke-ToolkitManagedPublishDestinationLock -DestinationPath $Path -Action {
+        Write-ToolkitFileIfAbsentCore `
+            -Path $Path `
+            -Content $Content `
+            -Encoding $Encoding `
+            -InstallRoot $InstallRoot `
+            -RelativePath $RelativePath `
+            -AllowExistingMerge:$AllowExistingMerge
+    })
 }
 
 function Assert-ToolkitManagedDestinationUnderInstallRoot {
@@ -565,18 +611,18 @@ function Get-ToolkitManagedSkillsUninstallAudit {
     }
 }
 
-function Remove-ToolkitManagedSkillsByInventory {
+function Remove-ToolkitManagedSkillsByInventoryCore {
     <#
     .SYNOPSIS
       Remove catalog skill files listed in the managed publish inventory.
 
     .DESCRIPTION
       The names-only skills manifest identifies candidate skill folders. A file
-      inside those folders is removed when the publish inventory lists it, even
-      if the installed bytes were edited. Files that are not catalog entries,
-      including alien skills and operator sidecars, stay. Empty directories are
-      removed only beneath a manifest-listed skill folder. A candidate outside
-      InstallRoot or equal to InstallRoot is not deleted.
+      is removed only when its relative path is listed in the publish inventory
+      and its current SHA-256 matches the recorded ownership hash. Unlisted or
+      changed files stay and are reported. Empty directories are removed only
+      beneath a manifest-listed skill folder. A candidate outside InstallRoot
+      or equal to InstallRoot is not deleted.
     #>
     [CmdletBinding()]
     param(
@@ -591,6 +637,7 @@ function Remove-ToolkitManagedSkillsByInventory {
     $inventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $installRootFull
     $removed = New-Object System.Collections.Generic.List[string]
     $preserved = New-Object System.Collections.Generic.List[string]
+    $preservationDetails = New-Object System.Collections.Generic.List[object]
     $inventoryChanged = $false
     $rootPrefix = $installRootFull.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
 
@@ -612,20 +659,50 @@ function Remove-ToolkitManagedSkillsByInventory {
                     throw ($script:ToolkitMessage.ManagedCopyPathEscapesRoot -f $fullPath, $installRootFull)
                 }
                 $relativePath = $fullPath.Substring($rootPrefix.Length) -replace '\\', '/'
-                $listed = Test-ToolkitManagedPublishInventoryListsFile `
+                $reason = $null
+                if (-not $inventoryEntries.ContainsKey($relativePath)) {
+                    $reason = 'ownership-entry-not-found'
+                }
+                elseif (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
                     -InstallRoot $installRootFull `
                     -RelativePath $relativePath `
-                    -InventoryEntries $inventoryEntries
-                if (-not $listed) {
+                    -CurrentFilePath $fullPath `
+                    -InventoryEntries $inventoryEntries)) {
+                    $reason = 'current-sha256-does-not-match-recorded-ownership'
+                }
+
+                if ($null -ne $reason) {
                     $preserved.Add($fullPath) | Out-Null
+                    $preservationDetails.Add([PSCustomObject]@{
+                        RelativePath = $relativePath
+                        Reason       = $reason
+                    }) | Out-Null
+                    Write-Warning ("Preserved '{0}': {1}." -f $relativePath, $reason)
                     continue
                 }
 
-                $removed.Add($fullPath) | Out-Null
+                $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
                 if (-not $WhatIf.IsPresent) {
-                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
-                    Remove-Item -LiteralPath $fullPath -Force -ErrorAction Stop
+                    if (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
+                        -InstallRoot $installRootFull `
+                        -RelativePath $relativePath `
+                        -CurrentFilePath $fullPath `
+                        -InventoryEntries $inventoryEntries)) {
+                        $preserved.Add($fullPath) | Out-Null
+                        $preservationDetails.Add([PSCustomObject]@{
+                            RelativePath = $relativePath
+                            Reason       = 'current-sha256-changed-before-removal'
+                        }) | Out-Null
+                        Write-Warning ("Preserved '{0}': current-sha256-changed-before-removal." -f $relativePath)
+                        continue
+                    }
+
+                    Remove-Item -LiteralPath $fullPath -ErrorAction Stop
+                    $removed.Add($fullPath) | Out-Null
                     if ($inventoryEntries.Remove($relativePath)) { $inventoryChanged = $true }
+                }
+                else {
+                    $removed.Add($fullPath) | Out-Null
                 }
             }
 
@@ -634,12 +711,12 @@ function Remove-ToolkitManagedSkillsByInventory {
                 foreach ($directory in $directories) {
                     if (@(Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop).Count -eq 0) {
                         $null = Assert-PathUnderInstallRootForDelete -CandidatePath $directory.FullName -InstallRoot $installRootFull
-                        Remove-Item -LiteralPath $directory.FullName -Force -ErrorAction Stop
+                        Remove-Item -LiteralPath $directory.FullName -ErrorAction Stop
                     }
                 }
                 if (@(Get-ChildItem -LiteralPath $skillPathFull -Force -ErrorAction Stop).Count -eq 0) {
                     $null = Assert-PathUnderInstallRootForDelete -CandidatePath $skillPathFull -InstallRoot $installRootFull
-                    Remove-Item -LiteralPath $skillPathFull -Force -ErrorAction Stop
+                    Remove-Item -LiteralPath $skillPathFull -ErrorAction Stop
                 }
             }
         }
@@ -652,6 +729,42 @@ function Remove-ToolkitManagedSkillsByInventory {
     return [PSCustomObject]@{
         RemovedPaths = @($removed.ToArray())
         PreservedPaths = @($preserved.ToArray())
+        PreservedDetails = @($preservationDetails.ToArray())
+    }
+}
+
+function Remove-ToolkitManagedSkillsByInventory {
+    <#
+    .SYNOPSIS
+      Remove owned skill files under the same install-root gate used by publish.
+
+    .DESCRIPTION
+      Skill publication holds .toolkit-managed-publish.lock across copy, stale
+      skill synchronization, placeholder resolution, and inventory updates.
+      Removal must use that same cooperative gate so its ownership recheck and
+      delete cannot race a public skill publish for the same installation.
+      Enter/Exit are depth-aware for callers already inside the publish gate.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $DestinationSkillsRoots,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $SkillIds,
+        [Parameter()][switch] $WhatIf
+    )
+
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+            Remove-ToolkitManagedSkillsByInventoryCore `
+                -InstallRoot $InstallRoot `
+                -DestinationSkillsRoots $DestinationSkillsRoots `
+                -SkillIds $SkillIds `
+                -WhatIf:$WhatIf
+        })
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
 }
 

@@ -16,15 +16,15 @@ A compressão é uma preferência de sessão e começa desligada. Os comandos, e
 
 ## Impeccable
 
-O fluxo de comandos de UI e a orientação de design vêm de [pbakaus/impeccable](https://github.com/pbakaus/impeccable) e da CLI Impeccable (`npx impeccable`).
+Antigamente, a orientação parcial de design de UI do toolkit se inspirava em [pbakaus/impeccable](https://github.com/pbakaus/impeccable) e na CLI (`npx impeccable`).
 
-A skill `impeccable` do toolkit é um harness parcial, sincronizado pelos adaptadores: um subconjunto de referências, um handoff de `DESIGN-BRIEF.md` e os gates deste toolkit. Uma instalação upstream completa, inclusive hooks, permanece opcional e espera um sim explícito. Rodar esta skill e rodar o Impeccable sozinho são sessões diferentes.
+A cópia parcial do harness Impeccable e seus playbooks adaptados não são mais distribuídos pelo toolkit. O projeto e a CLI upstream continuam independentes e opcionais; sua instalação e runtime ficam fora da publicação e da limpeza do toolkit.
 
 ## frontend-design da Anthropic
 
 Um motivo de assinatura, um plano compacto de tokens antes do código e a intenção de escrita de UX vêm em parte de [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-A UI de produto neste toolkit segue `/impeccable` → `docs/DESIGN-BRIEF.md` → um `*-developer` de stack. O `frontend-design` de origem é uma referência opcional ao lado desse handoff. Não é uma skill do Core, e aquele repositório não é copiado para `core/`.
+Para UI de produto, registre decisões visuais em `docs/DESIGN-BRIEF.md` e depois use a skill `*-developer` pertinente. A orientação geral de frontend continua em `core/skills/_shared/frontend-guidelines/`. O `frontend-design` de origem é uma referência opcional; não é uma skill do Core e aquele repositório não é copiado para `core/`.
 
 ## Memory bank e Spec Kit
 

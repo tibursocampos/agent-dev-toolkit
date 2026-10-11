@@ -95,17 +95,20 @@ try {
         [PSCustomObject]@{ Number=[int]$_.Groups[1].Value; Id=$_.Groups[2].Value; Name=$_.Groups[3].Value.Trim() }
     })
     if ($steps.Count -eq 0) { Stop-Preflight 'plan_steps_missing' }
+    $progressSectionMatch = [regex]::Match($planText,'(?ms)^## Progresso da implementação\s*\r?\n(?<section>.*?)(?=^## |\z)')
+    if (-not $progressSectionMatch.Success) { Stop-Preflight 'plan_progress_section_missing' }
+    $progressSection = $progressSectionMatch.Groups['section'].Value
     $refineGroups = @([regex]::Matches($refineText,'(?m)^###\s+[✅☐☑]*\s*STEP\s+\d+\s+—\s+(.+)$'))
     $planStates = @{}
     $dependenciesByStep = @{}
     foreach ($step in $steps) {
         if ($refineText -notmatch ('(?<![A-Za-z0-9]){0}(?!\d)' -f [regex]::Escape($step.Id))) { Stop-Preflight "plan_refine_step_mismatch:$($step.Id)" }
-        $row = [regex]::Match($planText, ('(?m)^\|\s*{0}\s*\|[^\r\n]*$' -f [regex]::Escape($step.Id)))
+        $row = [regex]::Match($progressSection, ('(?m)^\|\s*{0}\s*\|[^\r\n]*$' -f [regex]::Escape($step.Id)))
         if (-not $row.Success) { Stop-Preflight "plan_step_ledger_missing:$($step.Id)" }
         $cells = @($row.Value.Trim('|').Split('|') | ForEach-Object { $_.Trim() })
         if ($cells.Count -lt 5) { Stop-Preflight "plan_step_ledger_invalid:$($step.Id)" }
         $state = $cells[4].Trim('`')
-        if ($state -notin @('COMPLETED','PENDING','IN_PROGRESS','BLOCKED')) { Stop-Preflight "plan_step_state_invalid:$($step.Id)" }
+        if ($state -notin @('COMPLETED','PENDING','IN_PROGRESS','BLOCKED','FAILED')) { Stop-Preflight "plan_step_state_invalid:$($step.Id)" }
         $planStates[$step.Id] = $state
         $planDependencies = @([regex]::Matches($cells[2],'S\d+') | ForEach-Object { $_.Value } | Sort-Object -Unique)
         $dependenciesByStep[$step.Id] = $planDependencies
@@ -144,7 +147,21 @@ try {
     if ([int]$progress.Groups[1].Value -ne $completed) { Stop-Preflight 'plan_progress_completed_mismatch' }
     $prdStatus = [regex]::Match($prdText,'(?im)^\|\s*\*\*Status\*\*\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
     if ($completed -eq $steps.Count -and $prdStatus -notin @('Implementado','Implemented')) { Stop-Preflight "completed_plan_prd_status_mismatch:$prdStatus" }
-    $next = @($steps | Where-Object { $_.Number -gt $completed } | Select-Object -First 1)
+    # The completed count alone is insufficient when execution stopped on a
+    # blocked/failed step: later steps remain ineligible even if they are the
+    # next ordinal after the completed prefix.
+    $next = @()
+    foreach ($candidate in $steps) {
+        $candidateState = $planStates[$candidate.Id]
+        if ($candidateState -eq 'COMPLETED') { continue }
+        if ($candidateState -in @('BLOCKED','FAILED')) { break }
+        $dependenciesReady = $true
+        foreach ($dependency in $dependenciesByStep[$candidate.Id]) {
+            if ($planStates[$dependency] -ne 'COMPLETED') { $dependenciesReady = $false; break }
+        }
+        if ($dependenciesReady) { $next = @($candidate); break }
+        break
+    }
     $continuityState = [regex]::Match($continuityText,'(?ms)^## Estado atual do O3\s*\r?\n(?<state>.*?)(?=^## |\z)').Groups['state'].Value
     if ([string]::IsNullOrWhiteSpace($continuityState)) { Stop-Preflight 'continuity_o3_state_missing' }
     $continuityPlanPath = [regex]::Match($continuityState,'(?im)^- PLAN:\s*`?([^`\r\n]+)').Groups[1].Value.Trim()
@@ -161,7 +178,10 @@ try {
     $continuityPlanMatches = [string]::Equals($continuityPlanPath, $relativePlan, [StringComparison]::Ordinal)
     $continuityCompletedMatches = [string]::Equals($continuityCompleted, $expectedCompleted, [StringComparison]::Ordinal)
     $continuityNextMatches = [string]::Equals($continuityNext, $expectedNext, [StringComparison]::Ordinal)
-    if (-not $continuityPlanMatches -or -not $continuityProgressMatch.Success -or [int]$continuityProgress[1].Value -ne [int]$progress.Groups[1].Value -or [int]$continuityProgress[2].Value -ne [int]$progress.Groups[2].Value -or -not $continuityCompletedMatches -or -not $continuityNextMatches) { Stop-Preflight ("continuity_plan_reconciliation_mismatch:plan={0}/{1};progress={2}/{3};completed={4}/{5};next={6}/{7}" -f $continuityPlanPath,$relativePlan,$continuityProgressMatch.Value,$progress.Value,$continuityCompleted,$expectedCompleted,$continuityNext,$expectedNext) }
+    if (-not $continuityPlanMatches -or -not $continuityProgressMatch.Success -or [int]$continuityProgress[1].Value -ne [int]$progress.Groups[1].Value -or [int]$continuityProgress[2].Value -ne [int]$progress.Groups[2].Value -or -not $continuityCompletedMatches -or -not $continuityNextMatches) {
+        $mismatch = [string]::Format('continuity_plan_reconciliation_mismatch:plan={0}/{1};progress={2}/{3};completed={4}/{5};next={6}/{7}', @($continuityPlanPath,$relativePlan,$continuityProgressMatch.Value,$progress.Value,$continuityCompleted,$expectedCompleted,$continuityNext,$expectedNext))
+        Stop-Preflight $mismatch
+    }
     $git = & git -C $repo status --short --untracked-files=no -- $relativeFeature 2>$null
     Write-Output "preflight: ALLOW - plan=$relativePlan; status=approved; steps=$($steps.Count); completed=$completed; $script:StorageSummary; git_feature_status=$([string]::Join('',@($git)))"
     exit 0
