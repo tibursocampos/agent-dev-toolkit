@@ -12,17 +12,17 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
 ## Roster (maximum)
 
-| Role id | When to spawn | Writes (under feature/story) | Must not |
-|---------|---------------|------------------------------|----------|
-| `repo_analyst` | Brownfield / impact unclear / `needs_api` | `ANALYSIS/` notes (**folder on disk**) | App code; invent APIs; CONTINUITY-only substitute |
-| `architect` | `needs_domain`, cross-cutting design, **greenfield**, or **brownfield** (mirror) | `ARCH/` notes (**folder on disk**; draft until confirm on greenfield) | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield; skip ARCH on brownfield |
-| `security` | `needs_security` | `SEC/` notes (**folder on disk**) | compliance theater; route findings to CONTINUITY instead of `SEC/` |
-| `database` | `needs_database` or brownfield with persistence | `ARCH/` DB slice (**folder on disk**) | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
-| `qa_checklist` | Before handoff / review | Checklist bullets in CONTINUITY or STORY only | Write production tests silently; **no** Task spawn; **no** `prompts/qa*.md` file |
+| Role id | When to spawn | Writes (under feature/story) | Expected result / receipt meaning | Must not |
+|---------|---------------|------------------------------|----------------------------------|----------|
+| `repo_analyst` | Brownfield / impact unclear / `needs_api` | `ANALYSIS/` notes (**folder on disk**) | `done`: scoped findings delivered; `blocked`: evidence/scope missing; `failed`: analysis attempt failed. Use the canonical receipt fields when returned as a Task; parent checks the assigned artifact. | App code; invent APIs; CONTINUITY-only substitute |
+| `architect` | `needs_domain`, cross-cutting design, **greenfield**, or **brownfield** (mirror) | `ARCH/` notes (**folder on disk**; draft until confirm on greenfield) | `done`: scoped design result delivered; `blocked`: decision/confirmation/input missing; `failed`: design attempt failed. `done` does not bypass an applicable approval gate. | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield; skip ARCH on brownfield |
+| `security` | `needs_security` | `SEC/` notes (**folder on disk**) | `done`: scoped review delivered; `blocked`: required evidence/scope missing; `failed`: review attempt failed. Parent checks the assigned review scope. | compliance theater; route findings to CONTINUITY instead of `SEC/` |
+| `database` | `needs_database` or brownfield with persistence | `ARCH/` DB slice (**folder on disk**) | `done`: assigned data design/migration result delivered; `blocked`: required schema/input unavailable; `failed`: assigned work failed. Parent checks step acceptance and required validation. | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
+| `qa_checklist` | Before handoff / review | Checklist bullets in CONTINUITY or STORY only | Parent-authored checklist context; no Task receipt or terminal Task status. | Write production tests silently; **no** Task spawn; **no** `prompts/qa*.md` file |
 
 ## qa_checklist (HIGH — in-parent only)
 
-`qa_checklist` is a **role**, not a Task specialist. Parent (or refine/O1 handoff) writes checklist bullets into CONTINUITY or STORY. Do **not** create `prompts/qa*.md`. Do **not** emit Jarvis lifecycle-tags / `JARVIS_*`.
+`qa_checklist` is a **role**, not a Task specialist. Parent (or refine/O1 handoff) writes checklist bullets into CONTINUITY or STORY. It does not return a Task receipt and cannot set persisted step state. Do **not** create `prompts/qa*.md`. Do **not** emit Jarvis lifecycle-tags / `JARVIS_*`.
 
 Minimum HIGH checklist before handoff / review (adapt to story; keep portable paths):
 

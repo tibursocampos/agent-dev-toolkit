@@ -42,8 +42,20 @@ Resolve in order (first explicit wins):
 2. Apply the active mode **before** spawn:
    - `serial` → pick exactly one ready step; refuse a multi-child wave
    - `parallel` → may pick up to ≤4 independent ready steps after **sim**; each child gets its own PLAN+step SESSION file
-   - `manual` → do not Task-spawn; emit `/sdd-develop - <portable-plan-path> - Step N`
+   - `manual` → do not Task-spawn; emit `/sdd-develop - <portable-plan-path> - Step N` and stop the parent flow
 3. Never enqueue a step whose deps are not Completed.
+
+### Manual handoff and host-mode gate
+
+When `subagents=none` or the current host cannot spawn a Task, O3 uses the manual handoff for the next eligible PLAN step:
+
+```text
+/sdd-develop - <portable-plan-path> - Step N
+```
+
+Use the canonical portable PLAN path and the numeric step selected from the queue. The handoff asks the operator to start a separate `sdd-develop` invocation; it does not execute the step or count as a child receipt. The parent must stop without editing application files, running the child's validation, updating the step as completed, or claiming work was done.
+
+If the host is in Plan or Ask mode and that mode prevents the required writes or validation, state that Agent mode is required, show the handoff, and stop. The operator must switch modes and invoke the handoff; do not imply that the step was started or completed, and do not mutate its status or gates on the operator's behalf.
 
 ## Claim rules (ledger integration)
 

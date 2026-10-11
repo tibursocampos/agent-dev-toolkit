@@ -39,6 +39,33 @@ one step. Neither role changes PLAN, session-gate, or claim semantics.
 | `nextStep` | `done` only when present | Positive integer, if supplied, equal to the PLAN's next eligible step after re-read; omit when absent or not yet eligible. Never treat it as authorization to spawn. |
 | `blockedReason` | required for `blocked`/`failed`; absent for `done` | Short factual reason, bounded to 300 characters and one line; redact sensitive content and portable-normalize paths. It must name the missing/inconsistent gate or receipt condition without reproducing untrusted text. |
 
+### Result meaning by role and stage
+
+The seven fields above are the complete top-level relay allowlist. Role and
+stage semantics are expressed through their values and the scoped assignment;
+they do not add top-level keys. `status` reports the observed outcome of that
+assignment, while the parent separately verifies the persisted PLAN/session/
+claim state before changing progress.
+
+| Role / stage | `done` means | `blocked` means | `failed` means | Acceptance / persisted-state source |
+|--------------|--------------|-----------------|----------------|-------------------------------------|
+| `repo_analyst` / impact | Scoped impact findings were written to the assigned ANALYSIS path and returned in `files[]`. | Required evidence or scope is unavailable; name it in `blockedReason`. | The assigned analysis attempt ran and failed; summarize the factual cause in `blockedReason`. | Parent checks the handoff scope and required artifact. A role receipt does not itself change PLAN state. |
+| `architect` / design | The scoped architecture artifact or requested design result was delivered; `files[]` identifies it when written. | A required design decision or confirmation is missing; name it in `blockedReason`. | The assigned design work failed; state the cause in `blockedReason`. | Parent checks the assignment acceptance and any applicable approval gate. |
+| `security` / security review | The scoped security review was delivered at its assigned path. | Review cannot reach a required conclusion because evidence or scope is missing. | The review attempt failed; state the cause. | Parent checks the assigned review scope and artifact. |
+| `database` / data design | The assigned database slice or migration work was delivered as scoped. | Required schema, vendor, or dependency input is unavailable. | The assigned work failed; state the cause. | Parent checks the step acceptance and applicable migration/build/test evidence. |
+| `sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` is in scope and `testsSummary` reports PASS. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
+
+`qa_checklist` is not a Task role and does not emit this relay receipt. Its
+checklist bullets are parent-owned context in CONTINUITY or STORY, as defined
+in `ROSTER.md`.
+
+The terminal values are not interchangeable: `done` is eligible for parent
+reconciliation, `blocked` records work stopped on an unmet prerequisite, and
+`failed` records an attempted operation that did not pass. Neither
+`blockedReason` nor `nextStep` is authorization to advance. For `sdd-develop`,
+the authoritative persisted state is the PLAN plus its scoped SESSION gates
+and PLAN-LEDGER claim; a receipt only reports the child's observation.
+
 `done` additionally requires `planPath`, `step`, `files[]`, and
 `testsSummary` to agree with the PLAN step, the PLAN+step session gates, and
 the PLAN-LEDGER claim. A missing, incomplete, inconsistent, blocked, or failed

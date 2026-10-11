@@ -3,7 +3,7 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-11T03:04:14.5359761Z",
+  "generated_at": "2026-10-11T08:36:04.2779617Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
