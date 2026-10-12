@@ -18,6 +18,8 @@ description: >-
 # Skill: esp-idf-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke for native ESP-IDF applications and components written in C or C++ when project evidence identifies ESP-IDF. A board name such as ESP32, ESP32-S3, or ESP32-C3 is not framework evidence by itself.
 

@@ -1,4 +1,4 @@
-﻿---
+---
 title: Using skills
 ---
 
@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **46** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **45** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
@@ -75,9 +75,9 @@ read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 
 `sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session.
 
-`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one later `sdd-develop` session. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
+`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one `sdd-develop` invocation. A canonical PLAN plus an explicit eligible step can start in the current session after dependency and confirmation gates; if the step or execution route is omitted, the skill asks whether to run manually or use O3. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
 
-`sdd-develop` needs the canonical PLAN path and a step id. One session completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
+`sdd-develop` needs the canonical PLAN path and a step id. One invocation completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
 
 `read-sdd-artifact` has no **sim** gate. Kinds allowed: FEATURE, STORY, PRD, PLAN. Reject reasons: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
 
@@ -149,14 +149,12 @@ Each stack skill is small-to-medium work. Confirm with **sim** before writes. On
 | `python-developer` | FastAPI or Flask, pytest | `/sdd-spec` |
 | `react-developer` | React web | `/react-native-developer` for mobile |
 | `react-native-developer` | React Native or Expo | `/react-developer` for web |
-| `angular-developer` | Angular | UI brief to `impeccable` when missing |
-| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | UI brief to `impeccable` when missing |
+| `angular-developer` | Angular | Create a brief when substantial visual decisions are needed |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | Create a brief when substantial visual decisions are needed |
 | `blazor-developer` | WASM, Server, Hybrid | `/dotnet-developer` for the API |
 | `electron-developer` | Main, preload, renderer, IPC, packaging | Security and CSP load first when IPC changes |
 | `blip-plugin-developer` | Scaffolds a new Blip React plugin | UI to `react-developer`. It does not implement the feature set |
-| `impeccable` | Design commands | Writes `docs/DESIGN-BRIEF.md` after confirm and stops |
-
-`impeccable` triggers: `/impeccable`, `/impeccable <command>`, `/impeccable-shape`, `/impeccable-audit`. `teach` is a deprecated alias of `init`. If `PRODUCT.md` is missing, run `init` first. Register is `brand` or `product`. Commands that ship in-repo include `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. After **sim** on `shape` or `craft`, the next chat is the stack skill named by `target_stack`.
+For net-new UI or a substantial visual redesign, record audience, hierarchy, visual direction, responsive behavior, component states, and accessibility in `docs/DESIGN-BRIEF.md` before implementation. General guidance is in `core/skills/_shared/frontend-guidelines/frontend-practices.md`.
 
 Guidelines live in `core/skills/_shared/code-guidelines/`. Load one file.
 
@@ -197,7 +195,7 @@ open-github-pr
 
 ### Platform skills
 
-These sit beside delivery. When the change is a PLAN step, finish the skill and return to `/sdd-develop` on the next step in a new chat.
+These sit beside delivery. When the change is a PLAN step, finish the skill and return to `/sdd-develop` for the relevant step. Each step needs its own invocation, but not a new operator chat.
 
 ```text
 api-standards
@@ -271,7 +269,7 @@ Task `model` is omitted so the child uses the parent session model (`core/skills
 
 ### Optional chat compression
 
-`caveman_mode` defaults to **off**. It only shortens chat prose. It does not change skill steps, gates, or documentation.
+First interactive sync asks whether Caveman response compression is on or off; **on** is the default. Non-interactive first sync defaults to `caveman_mode: true`. It only shortens chat prose. It does not change skill steps, gates, or documentation.
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
 
@@ -282,7 +280,7 @@ Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 | Key | Default | Effect |
 |-----|---------|--------|
 | `orchestrator_mode` | `always` | Parent stays orchestrator |
-| `caveman_mode` | `false` | Chat compression off |
+| `caveman_mode` | `true` on first sync | Chat compression on; interactive sync may set it off |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |
 | `verify_mode` | `false` | O3 does not spawn a read-only verifier after each implementer |

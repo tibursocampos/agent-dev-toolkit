@@ -184,20 +184,51 @@ if ($null -eq $smokeAfter -or $smokeAfter.Implemented -ne $true -or $smokeAfter.
     Write-Fail -TestName $syncValidateName -Reason 'Invoke-SmokeValidate must remain Implemented+Success after validate-agent (not stub no-op)'
 }
 
-# Default InstallRoot via FixtureRelativePath: sync then validate without explicit -InstallRoot
-Clear-CursorPublishedSurfaces -InstallRoot $seedFixtureRoot
-& $syncAgentScript -Agent cursor
-$syncDefaultExit = $LASTEXITCODE
-if ($null -eq $syncDefaultExit) { $syncDefaultExit = 0 }
-if ($syncDefaultExit -ne 0) {
-    Write-Fail -TestName $syncValidateName -Reason ("sync-agent -Agent cursor (default FixtureRelativePath) failed (exit {0})" -f $syncDefaultExit)
+# Default InstallRoot via FixtureRelativePath: exercise the real default path while
+# temporarily swapping in a disposable target. Restore the tracked seed in finally,
+# including when an assertion exits early.
+$fixtureParent = Split-Path -Parent $seedFixtureRoot
+$normalizedFixtureParent = [System.IO.Path]::GetFullPath($fixtureParent).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+$normalizedSeedFixtureRoot = [System.IO.Path]::GetFullPath($seedFixtureRoot)
+if (-not $normalizedSeedFixtureRoot.StartsWith($normalizedFixtureParent, $comparison)) {
+    Write-Fail -TestName $syncValidateName -Reason 'seed Cursor fixture must be contained by scripts/validation/fixtures'
 }
+$displacedSeedRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("cursor-install-root-seed-{0}" -f [guid]::NewGuid().ToString('N'))
+$seedText = [System.IO.File]::ReadAllText($seedHooksJsonPath)
+$seedDisplaced = $false
+try {
+    Move-Item -LiteralPath $seedFixtureRoot -Destination $displacedSeedRoot
+    $seedDisplaced = $true
+    New-Item -ItemType Directory -Path $seedFixtureRoot -Force | Out-Null
+    [System.IO.File]::WriteAllText((Join-Path $seedFixtureRoot $hooksJsonFileName), $seedText, (Get-Utf8NoBomEncoding))
 
-& $validateAgentScript -Agent cursor -Quiet
-$validateDefaultExit = $LASTEXITCODE
-if ($null -eq $validateDefaultExit) { $validateDefaultExit = 0 }
-if ($validateDefaultExit -ne 0) {
-    Write-Fail -TestName $syncValidateName -Reason ("validate-agent -Agent cursor (default FixtureRelativePath) failed (exit {0})" -f $validateDefaultExit)
+    & $syncAgentScript -Agent cursor
+    $syncDefaultExit = $LASTEXITCODE
+    if ($null -eq $syncDefaultExit) { $syncDefaultExit = 0 }
+    if ($syncDefaultExit -ne 0) {
+        Write-Fail -TestName $syncValidateName -Reason ("sync-agent -Agent cursor (default FixtureRelativePath) failed (exit {0})" -f $syncDefaultExit)
+    }
+
+    & $validateAgentScript -Agent cursor -Quiet
+    $validateDefaultExit = $LASTEXITCODE
+    if ($null -eq $validateDefaultExit) { $validateDefaultExit = 0 }
+    if ($validateDefaultExit -ne 0) {
+        Write-Fail -TestName $syncValidateName -Reason ("validate-agent -Agent cursor (default FixtureRelativePath) failed (exit {0})" -f $validateDefaultExit)
+    }
+}
+finally {
+    if ($seedDisplaced) {
+        if (Test-Path -LiteralPath $normalizedSeedFixtureRoot) {
+            $currentSeedPath = [System.IO.Path]::GetFullPath($normalizedSeedFixtureRoot)
+            if (-not $currentSeedPath.StartsWith($normalizedFixtureParent, $comparison)) {
+                throw 'Refusing to remove disposable default-sync target outside scripts/validation/fixtures'
+            }
+            Remove-Item -LiteralPath $currentSeedPath -Recurse -Force
+        }
+        if (Test-Path -LiteralPath $displacedSeedRoot) {
+            Move-Item -LiteralPath $displacedSeedRoot -Destination $normalizedSeedFixtureRoot
+        }
+    }
 }
 
 Write-Pass -TestName $syncValidateName

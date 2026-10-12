@@ -112,7 +112,7 @@ Finding shape: `refine-story/references/finding-format.md`. A blocked story does
 | `orchestrate-deliver` (`preconditions`, per-story, Must not) | Before PRD/PLAN Write: if any unanswered B/I/MINOR → STOP + typed handoff |
 | `refine-story` (boundary / guardrails) | Do not hand off as ready-for-PRD while any unanswered B/I/MINOR is open; emit `NEEDS_CLARIFICATION` |
 
-**Machine gate (PS1 + fixture / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` (runtime) + `scripts/validation/Assert-SiblingReadinessGate.ps1` (CI fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`). Wired in `validate-core` as `sibling-readiness-gate`. Stable markers only (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]`/`-[MINOR]` lists) — no free-form prose parse; no Jarvis/ADO/Python. This file remains the skill/contract SoT for taxonomy and STOP wording.
+**Machine gate (PS1 / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` evaluates the stable markers (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]`/`-[MINOR]` lists) — no free-form prose parse; no Jarvis/ADO/Python. This file remains the skill/contract SoT for taxonomy and STOP wording.
 
 ## What this contract does **not** include
 

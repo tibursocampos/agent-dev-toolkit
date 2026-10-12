@@ -309,8 +309,9 @@ function Invoke-CodexUninstallToolkit {
     $hooksGuardPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksGuardScriptName
     $hooksCommonPath = Join-Path $pluginHooksRoot '_hook-common.ps1'
     $hooksSharedPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.SharedGuardCommonFileName
+    $hooksContractPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.SharedAuthorizationContractFileName
     $hooksLegacySessionPath = Join-Path $pluginHooksRoot $script:CodexPathConstant.HooksSessionStartScriptName
-    foreach ($hooksPath in @($hooksJsonPath, $hooksGuardPath, $hooksCommonPath, $hooksSharedPath, $hooksLegacySessionPath)) {
+    foreach ($hooksPath in @($hooksJsonPath, $hooksGuardPath, $hooksCommonPath, $hooksSharedPath, $hooksContractPath, $hooksLegacySessionPath)) {
         $wouldRemoveHooks = Remove-CodexPathIfPresent -Path $hooksPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
         if ($wouldRemoveHooks) {
             $wouldRemovePaths.Add($hooksPath) | Out-Null

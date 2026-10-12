@@ -16,13 +16,13 @@ Prefer `caN-<short-slug>.md` (e.g. `ca4-validate-evidence.md`).
 | Field | Value |
 |-------|--------|
 | **AC** | CA4 |
-| **Command / check** | `.\scripts\validation\Assert-EvidenceContract.ps1` |
+| **Command / check** | `.\scripts\validation\validate-evidence.ps1` |
 | **Result** | pass |
 | **When** | YYYY-MM-DD |
 
 ## Notes
 
-- Exit 0; summary line …
+- Exit 0; record the command result and date.
 ```
 
 ## Rules

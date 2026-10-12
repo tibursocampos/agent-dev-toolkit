@@ -13,10 +13,10 @@ Canonical rule: `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` (overrides this f
 | Pattern | Example |
 |---------|---------|
 | `feature/<slug>` | `feature/add-oauth-login` |
-| `feat/<id>` | `feat/42`, `feat/issue-123` |
+| `feat/<id>-<slug>` | `feat/42-export`, `feat/issue-123-export` |
 
 - `<slug>` - kebab-case topic (no extra `/`)
-- `<id>` - issue number or short id (no extra `/`)
+- `<id>` - issue number or short id; `<slug>` names the work (no extra `/`)
 
 ---
 
@@ -39,7 +39,7 @@ git fetch origin
 git checkout <baseline>          # e.g. main or develop - user confirms
 git pull origin <baseline>       # if team uses pull before branch
 
-git checkout -b feature/<slug>   # or feat/<id>
+git checkout -b feature/<slug>   # or feat/<id>-<slug>
 # first push when ready:
 git push -u origin HEAD
 ```
@@ -51,8 +51,8 @@ If the branch already exists locally or on remote, checkout and pull/rebase per 
 ```powershell
 $branch = git rev-parse --abbrev-ref HEAD
 $blocked = @('main', 'master', 'develop')
-if ($branch -in $blocked -or $branch -notmatch '^(feature|feat)/[^/]+$') {
-  Write-Error "Blocked: branch '$branch' must be feature/<slug> or feat/<id>"
+if ($branch -in $blocked -or $branch -notmatch '^(feature/[A-Za-z0-9]+(-[A-Za-z0-9]+)*|feat/[A-Za-z0-9]+(-[A-Za-z0-9]+)*-[A-Za-z0-9]+(-[A-Za-z0-9]+)*)$') {
+  Write-Error "Blocked: branch '$branch' must be feature/<slug> or feat/<id>-<slug>"
   exit 1
 }
 ```
@@ -64,7 +64,7 @@ if ($branch -in $blocked -or $branch -notmatch '^(feature|feat)/[^/]+$') {
 | Never | Always |
 |-------|--------|
 | Edit on `main` / `develop` | Branch from agreed baseline |
-| Use nested `feature/a/b` | Use `feature/<slug>` or `feat/<id>` |
+| Use nested `feature/a/b` | Use `feature/<slug>` or `feat/<id>-<slug>` |
 | Force-push without explicit user request | Confirm branch before first file edit |
 
 ---
@@ -81,7 +81,7 @@ if ($branch -in $blocked -or $branch -notmatch '^(feature|feat)/[^/]+$') {
 
 ## Step 3 checklist
 
-- [ ] Current branch matches `feature/<slug>` or `feat/<id>`
+- [ ] Current branch matches `feature/<slug>` or `feat/<id>-<slug>`
 - [ ] Not on blocked default branch
 - [ ] Baseline branch confirmed with user when PLAN is silent
 - [ ] Remote tracking set after first push (if pushing)

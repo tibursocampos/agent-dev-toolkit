@@ -32,7 +32,6 @@ $expectedPolicyNames = @(
     'context-management.md',
     'conventional-commits.md',
     'guardrails.md',
-    'model-cost-awareness.md',
     'orchestrator-session.md',
     'sdd-artifact-language-pt-br.md',
     'sdd-pipeline-guards.md',
@@ -49,13 +48,11 @@ foreach ($expected in $expectedPolicyNames) {
 
 $modelCostPath = Join-Path $policyRoot 'model-cost-awareness.md'
 $modelCostText = Get-Content -LiteralPath $modelCostPath -Raw -Encoding UTF8
-foreach ($marker in @('first turn', 'Do **not** repeat', '**Never block** execution', 'Do not maintain product-specific model ID allow/deny lists')) {
-    if ($modelCostText -notmatch [regex]::Escape($marker)) {
-        Write-Error ("model-cost-awareness.md missing enforcement marker: {0}" -f $marker)
-        exit 1
-    }
+if ($modelCostText -match '(?i)alwaysApply:\s*true|COST NOTICE|high-cost model|switching to a more economical model') {
+    Write-Error 'Retired model-cost policy must not remain active or repeat cost guidance'
+    exit 1
 }
-Write-Host 'Should_EnforceModelCostPolicy_When_CorePolicyPorted: PASS'
+Write-Host 'Should_RetireModelCostPolicy_When_CorePolicyPorted: PASS'
 
 $emptyPolicy = @($policyFiles | Where-Object { $_.Length -le 0 })
 if ($emptyPolicy.Count -gt 0) {
@@ -64,6 +61,16 @@ if ($emptyPolicy.Count -gt 0) {
 }
 
 Write-Host 'Should_ExposePolicyFiles_When_CorePolicyPorted: PASS'
+
+$contextPolicyText = Get-Content -LiteralPath (Join-Path $policyRoot 'context-management.md') -Raw -Encoding UTF8
+$guardrailsText = Get-Content -LiteralPath (Join-Path $policyRoot 'guardrails.md') -Raw -Encoding UTF8
+if ($contextPolicyText -match '(?i)\b(?:40|80)\s*%|COST NOTICE|high-cost' -or
+    $contextPolicyText -match '(?i)alwaysApply:\s*true' -or
+    $guardrailsText -match '(?i)≥\s*(?:40|80)%|>=\s*(?:40|80)%|Critical stop') {
+    Write-Error 'Context or cost pressure must not be an always-on or percentage-based gate'
+    exit 1
+}
+Write-Host 'Should_NotRequireContextOrCostThreshold_When_CorePolicyPorted: PASS'
 
 if (-not (Test-Path -LiteralPath $routerRoot)) {
     Write-Error 'core/router is missing'

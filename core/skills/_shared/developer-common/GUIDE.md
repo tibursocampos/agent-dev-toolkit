@@ -17,7 +17,7 @@ developer-common/
 ├── subagent-first.md                # Subagent-first policy for *-developer (SPAWN + fallback)
 ├── step-0-context.md                # AGENTS.md / README, task list
 ├── step-0.5-review-guidelines.md    # Lazy-load principles + stack guidelines
-├── step-3-branching.md              # feature/<slug> or feat/<id>
+├── step-3-branching.md              # feature/<slug> or feat/<id>-<slug>
 ├── step-3.5-precommit-validation.md # Secrets, lint, build, quick tests
 ├── step-4-commits-pr.md             # Conventional commits; optional GitHub PR
 ├── step-7-checklist.md              # Pre-commit / pre-PR checklist
@@ -58,7 +58,7 @@ Override only stack-specific commands (e.g. `dotnet test` vs `npm test`).
 │ - dotnet-guidelines when .NET (lazy)                         │
 ├──────────────────────────────────────────────────────────────┤
 │ Step 3: Branching                                            │
-│ - feature/<slug> or feat/<id> from baseline branch           │
+│ - feature/<slug> or feat/<id>-<slug> from baseline branch           │
 ├──────────────────────────────────────────────────────────────┤
 │ Step 3.5: Pre-commit validation                              │
 │ - Secrets, format, build, quick tests                        │
@@ -81,7 +81,6 @@ SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inli
 |------|----------------|
 | 3 | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | 4 | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc`, `commit` skill |
-| Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | SDD PLAN | `sdd-develop` skill |
 
 Rules win over conflicting text in step files.

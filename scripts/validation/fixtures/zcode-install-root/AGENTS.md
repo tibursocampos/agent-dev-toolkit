@@ -56,7 +56,7 @@ Three coexisting **work tracks**. Classic SDD / Orchestrated Delivery writes lan
 | Stack router / ad-hoc | `developer` |
 | Explicit .NET | `dotnet-developer` |
 | Explicit Java | `java-developer` |
-| Frontend UI design | `impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
+| Frontend UI design | `former UI design skill` → `DESIGN-BRIEF.md` → stack `*-developer` |
 | Blip React plugin | `blip-plugin-developer` → `react-developer` |
 
 ### Optional flows (index)
@@ -104,7 +104,7 @@ Agent SoT: `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/zcode-
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
 | Ops / quality | `code-review`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate` |
-| Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
+| Design / docs / backlog | `former UI design skill`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
 
 ## Post-sync validation
 

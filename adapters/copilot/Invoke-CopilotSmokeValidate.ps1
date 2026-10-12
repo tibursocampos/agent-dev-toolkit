@@ -4,7 +4,7 @@
   Filesystem-only smoke checks for the Copilot adapter.
 
 .DESCRIPTION
-  Validates skills, instructions, and hooks under InstallRoot for -Mode user|repo.
+  Validates skills, instructions, and hooks under InstallRoot for -Mode user|repo, including authorization-contract.json.
   Does not invoke Copilot IDE, VS Code extension, or GitHub login.
   TE01 via Resolve-InstallRoot; TE02 Mode; TE03 missing artifacts; TE04 hooks capable but missing.
 #>

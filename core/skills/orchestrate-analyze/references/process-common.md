@@ -10,7 +10,7 @@
 
 ## Process — Resolve storage
 
-Load `STORAGE.md`. Run resolution with `$Workflow = classic`. Resolve feature root and bank root:
+Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`. Resolve feature root and bank root:
 
 - **repository** -> feature `$Cwd/features/`; bank `$Cwd/memory-bank/`
 - **global** -> feature `<classic.path>/features/`; bank `<classic.path>/memory-bank/`
@@ -46,9 +46,9 @@ Remind (pt-BR): O2 will ask série vs paralelo for per-story PRD/PLAN.
 
 ---
 
-## Process — Context pressure (TE02 / RNF02)
+## Process — Durable progress handoff
 
-Honor `{{TOOLKIT_ROOT}}/rules/context-management.mdc` thresholds (checkpoint / hard stop). When pressure is high:
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 1. Persist latest `CONTINUITY.md` (estado atual short per CONTINUITY template, decisões, pendências, exact next `/…`).
 2. Offer session handoff - same phase, resume with feature path:

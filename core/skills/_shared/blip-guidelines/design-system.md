@@ -79,6 +79,6 @@ Prefer consistency within a project - do not mix web components and React wrappe
 - Use Inter or other non-Blip fonts as primary typography
 - Skip BDS initialization in the entry point
 
-## Impeccable handoff
+## Design brief handoff
 
 When `docs/DESIGN-BRIEF.md` exists, map visual decisions to BDS components and tokens in section 9 (stack notes). Do not introduce non-BDS patterns during implementation.

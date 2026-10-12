@@ -75,9 +75,15 @@ function Invoke-PathSecretsGuardHarness {
             default { throw ("{0}: unsupported guard acceptance mode '{1}'" -f $case.TestName, $acceptance) }
         }
 
+        $mustNotContain = if ($case.PSObject.Properties['MustNotContain']) { [string]$case.MustNotContain } else { '' }
+        $sensitiveTextLeaked = -not [string]::IsNullOrEmpty($mustNotContain) -and $result.Output.IndexOf($mustNotContain, [System.StringComparison]::OrdinalIgnoreCase) -ge 0
+        if ($sensitiveTextLeaked) {
+            $passed = $false
+        }
+
         if (-not $passed) {
             $failureReasonValue = if ($case.PSObject.Properties['FailureReason']) { $case.FailureReason } else { $null }
-            $reason = if ($failureReasonValue) { [string]$failureReasonValue } else { 'guard result did not match the expected decision/exit contract' }
+            $reason = if ($sensitiveTextLeaked) { 'guard output leaked sensitive fixture text' } elseif ($failureReasonValue) { [string]$failureReasonValue } else { 'guard result did not match the expected decision/exit contract' }
             $diagnostic = "adapter={0}; exit={1}; decision='{2}'; output={3}" -f $AdapterName, $result.ExitCode, $decision, $result.Output.Trim()
             Write-Error ("{0}: FAIL - {1}; {2}" -f $case.TestName, $reason, $diagnostic)
             exit 1

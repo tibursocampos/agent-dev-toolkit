@@ -4,7 +4,7 @@ Execution order, host session mode, canonical paths, confirmation gates, and mis
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
-Companion: `STORAGE.md` (folders, manifest, `.gitignore`, **portable path** for artifact cross-refs, **Navigation block** / `## Related`).
+Companion: `STORAGE.md` (folders, `.gitignore`, **portable path** for artifact cross-refs, **Navigation block** / `## Related`) and `STORAGE-RESOLUTION.md` (manifest / dynamic roots when needed).
 
 **Artifact cross-refs:** FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites and typed handoffs use **portable paths** (`STORAGE.md` § Portable path) — never OS absolute / user-home InstallRoot embeds in written artifacts. Confirm UI may show absolute; Writes use portable paths.
 
@@ -47,7 +47,7 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 ## Skill order
 
 - **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The cap of 3 gap questions does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child/invocation**) and runs Step N **refresh-light** after code changes. Scope close is `run-tests` -> `code-review` -> `run-tests` after review changes (or record no rerun required) -> the security role/prompt review of the diff, using only a documented host mechanism or bounded in-parent fallback.
+- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The cap of 3 gap questions does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child**) and runs Step N **refresh-light** after code changes. Scope close is `code-review`, then `run-tests`, then the `security` agent.
 
 | Skill | Writes | Must not in same session |
 |-------|--------|
@@ -57,7 +57,7 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 | `memory-bank-init` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
 | `orchestrate-analyze` | `FEATURE.md` and `CONTINUITY.md` first; story folders only after no open question; ARCH confirm when greenfield/`needs_domain`; promote cited non-feature `.md` | App code; story folders while a question is open; skip Step 0 / human backlog approval / ARCH confirm when required; approve backlog if required folders are missing or promote is pointer-only |
 | `orchestrate-deliver` | PRD then PLAN per story, after the open-question gates | App code; skip Step 0 when wired; write the next artifact while `open_question` is set; treat **sim** as closing a question |
-| `orchestrate-develop` | CONTINUITY + one child/invocation per PLAN step; Step N refresh-light; close with `run-tests`, `code-review`, `run-tests` after review changes, then the security role/prompt review | App code in parent; multi-step in one child; skip Step 0 when wired; treat a host plan scratch directory as O3 input |
+| `orchestrate-develop` | CONTINUITY + one child per PLAN step; Step N refresh-light; close with `code-review`, `run-tests`, `security` | App code in parent; multi-step in one child; skip Step 0 when wired; treat a host plan scratch directory as O3 input |
 
 ## Canonical paths
 
@@ -116,7 +116,7 @@ Applies when `invocation_context` is `orchestrated`. Do **not** apply these O1 g
 4. `Write` only under `features/NNN-slug/[USnn|TSnn]/{PRD|PLAN}/`.
 5. Do not delete the old file unless the user asks.
 
-Manifest folders must resolve per `STORAGE.md` schema v2 (`features/` root).
+Manifest-backed roots must resolve per `STORAGE-RESOLUTION.md` schema v2 (`features/` root).
 
 ## Host session mode - Phase A / Phase B
 
@@ -157,7 +157,7 @@ Always before the first `Write` of a **new** PRD or PLAN (and when replacing an 
 3. `Write` only after explicit **sim**.
 4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
 
-`sdd-develop` updates the existing PLAN file after completing a step without re-asking storage (per `context-management.mdc`).
+`sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
 
 ## Prior context (chat, Plan, code-review, feature tree)
 
@@ -250,7 +250,8 @@ If validation fails, do not write - fix path or promote.
 | `sdd-spec`, `sdd-plan`, `sdd-develop` | Step -1 load; steps reference § by name |
 | `orchestrate-*` | Orchestrated Delivery order; feature Prior context; CONTINUITY |
 | `refine-story`, `split-story-checklist` | Backlog Refine; prefer feature STORY paths |
-| `STORAGE.md` | Folders, manifest, invalid-path summary |
+| `STORAGE.md` | Folders, `.gitignore`, portable paths, invalid-path summary |
+| `STORAGE-RESOLUTION.md` | Manifest schema and dynamic repository/global roots |
 | `rules/sdd-pipeline-guards.mdc` | Short always-on reminder |
 | `code-review` | Handoff to `sdd-spec` for new PRD; read-only SDD discovery |
 | `test-coverage` | Phase B / Agent for shell; report paths in `reference.md` |

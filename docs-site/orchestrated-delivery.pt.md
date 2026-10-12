@@ -41,7 +41,7 @@ flowchart TD
   step0["memory-bank-init<br/>Passo 0, política auto"]
   o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, sim"]
   o2["orchestrate-deliver<br/>arquivos da story, sdd-spec, contestação do PRD,<br/>sdd-plan, sim, preflight"]
-  o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN,<br/>depois code-review, run-tests, security"]
+  o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN;<br/>revisão de fechamento e security quando solicitadas"]
   step0 --> o1 --> o2 --> o3
 ```
 
@@ -58,7 +58,7 @@ A primeira escrita da feature pergunta se os artefatos SDD ficam **local (reposi
 
 Use caminhos portáteis nos artefatos e nos handoffs (`features/NNN-slug/US01/PRD/...`). No modo **repository** o agente pode acrescentar `/features/` ao `.gitignore` quando `features_versioned` é false (o padrão). Não há `PRD/` nem `PLAN/` soltos na raiz do repositório. Essas pastas ficam em `features/NNN-slug/USnn|TSnn/`.
 
-No primeiro sync, se `preferences.json` não existir, o assistente pergunta **Always orchestrate** (padrão) ou **Adaptive**.
+No primeiro sync interativo, se `preferences.json` não existir, o assistente pergunta **Always orchestrate** (padrão) ou **Adaptive** e depois se a compressão Caveman fica ligada (padrão) ou desligada. O primeiro sync não interativo usa `always` e Caveman ligado. Preferências existentes são preservadas.
 
 ## Passo 0 — memory bank
 
@@ -266,13 +266,13 @@ O3 começa com uma revisão completa de contrato. Revisões posteriores podem fo
 
 `verify_mode: true` nas preferências acrescenta um filho verificador somente leitura depois de um implementador bem-sucedido e antes de `CONTINUITY` ser atualizado. O padrão é false.
 
-O pai atualiza `CONTINUITY.md` só depois que o filho volta. Falha deixa o passo `PENDING` ou `BLOCKED`, com a causa no PLAN. O próximo passo é um chat novo, ou outro **sim**. O pai não marca passos que o filho não terminou e não chama `*-developer` para implementar um passo do PLAN. Se Task faltar, o handoff é `/sdd-develop` manual para aquele passo.
+O pai atualiza `CONTINUITY.md` só depois que o filho volta. Falha deixa o passo `PENDING` ou `BLOCKED`, com a causa no PLAN. Cada próximo passo usa uma nova invocação de filho ou uma invocação manual de `/sdd-develop`; não é necessário abrir outro chat do operador. O pai não marca passos que o filho não terminou e não chama `*-developer` para implementar um passo do PLAN. Se Task faltar, o handoff é `/sdd-develop` manual para aquele passo.
 
 ### Depois que o código existe
 
 Quando um filho alterou arquivos de aplicação, o O3 pergunta e então roda `memory-bank-init` **refresh-light**.
 
-Quando a story ou a feature termina, a ordem de fechamento é `code-review`, depois `run-tests`, depois a passagem de security, depois `/commit` e então `/push`. `test-coverage` continua sendo o relatório Coverlet .NET. `run-tests` não o substitui.
+Quando você pede ao O3 para fechar a onda, ele encaminha para `code-review`; se você não escolher, a skill pergunta entre revisão single ou multi-angle. Siga o fluxo de fechamento para revisão, testes e security antes de `/commit` e `/push`. Sem pedido de fechamento, o O3 encaminha só o próximo passo ou a próxima story. `test-coverage` continua sendo o relatório Coverlet .NET. `run-tests` não o substitui.
 
 Uma mudança pequena, um arquivo, quando o analyze oferece o atalho:
 

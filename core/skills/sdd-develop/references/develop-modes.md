@@ -17,12 +17,14 @@ Declare how the operator/orchestrator **paces** PLAN steps. Both modes **preserv
 - **One PLAN step per `sdd-develop` session scope** (guardrails / RNF-003)
 - SESSION develop gates + PLAN-LEDGER claim SoT (006) — **no second SoT**
 
+Resolve the execution route before pacing. A canonical PLAN plus an explicit step starts that step in the current `sdd-develop` session after dependency and confirmation gates; it never requires a new session. If the invocation omits a step or route, `plan-acquisition.md` asks manual-per-invocation vs O3. This route is separate from pacing and `preferences.json` `orchestrator_mode` (`always` | `adaptive`).
+
 ## Mode table
 
 | Mode id | Default? | Direct `/sdd-develop` | O3 parent (`orchestrate-develop`) |
 |---------|----------|----------------------|-----------------------------------|
-| `step_by_step` | **Yes** | One step → mark Complete → **STOP**; handoff invoke for Step N+1 only | Present queue; require **sim** before **each** spawn |
-| `continuous` | No (opt-in) | Still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md` and the step summary. It does not go silent between steps. **each** child still one step |
+| `step_by_step` | **Yes** | Explicitly requested eligible step → execute now, mark Complete → **STOP**; handoff invoke for Step N+1 only | Present queue; require **sim** before **each** spawn |
+| `continuous` | No (opt-in) | Explicitly requested eligible step → execute now, still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md` and the step summary. It does not go silent between steps. **each** child still one step |
 
 Unknown mode id → treat as `step_by_step` (document the fallback; do not invent silent third pacing mode).
 

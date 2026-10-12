@@ -78,6 +78,9 @@ if (-not [string]::IsNullOrWhiteSpace($raw)) {
         $inputJson = $null
     }
 }
+if ($null -eq $inputJson -or -not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-ZCodePreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = 'Hook denied malformed, empty, or schema-invalid input; fail-closed.' }
+}
 
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
@@ -100,6 +103,9 @@ $isGuarded = (
     (Test-ToolkitDeleteToolName $toolName) -or
     (Test-ToolkitApplyPatchToolName $toolName)
 )
+if (Test-ToolkitReadOnlyToolName -ProviderId 'zcode' -ToolName $toolName) {
+    Write-ZCodePreToolJson @{ permissionDecision = 'allow' }
+}
 if (-not $isGuarded) {
     Write-ZCodePreToolJson @{ permissionDecision = 'allow' }
 }

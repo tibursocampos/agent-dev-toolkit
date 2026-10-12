@@ -56,7 +56,7 @@ If the task does not identify enough target/runtime/framework context for a plat
 | Vertical slice (ARCH = VSA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/vertical-slice.md` |
 | Tactical DDD (ARCH = ddd) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/ddd-tactical.md` |
 | Event-driven (ARCH = EDA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/event-driven.md` |
-| Tests (xUnit, Moq, Shouldly, `Should_<R>_When_<C>`) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Tests (xUnit, Moq, Shouldly, `Should_<R>_When_<C>`) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | **Structure and formatting** (architecture vs style, language, one type/file, signatures/160 chars, constants, blank lines, readable construction, method order) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` - normative §§ File structure, Source language, Method signatures, Architecture vs style, Named constants, Blank lines, Readable construction, Method ordering |
 | Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 
@@ -84,7 +84,7 @@ Quick checks (always apply):
 | Electron | `{{TOOLKIT_ROOT}}/skills/_shared/electron-guidelines/` |
 | Vanilla / DOM | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/dom-patterns.md` |
 
-Visual decisions: `docs/DESIGN-BRIEF.md` or `/impeccable` - do not invent palette/typography from generic guidelines.
+Visual decisions: use `docs/DESIGN-BRIEF.md` when present; otherwise follow the existing product design system or record explicit choices before substantial redesign work. Do not invent palette/typography from generic guidelines.
 
 ## 4. Other stacks
 

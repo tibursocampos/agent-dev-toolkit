@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -59,16 +60,6 @@ function Copy-ClaudeHookScriptsTree {
 
         $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
         $filesCopied++
-    }
-
-    # Shared path/secret helpers beside published hooks.
-    if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Test-Path -LiteralPath $sharedSource) {
-            $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
-            $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-            $filesCopied++
-        }
     }
 
     return $filesCopied

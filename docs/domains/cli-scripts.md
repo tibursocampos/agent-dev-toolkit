@@ -17,7 +17,7 @@ Operator entry points under `scripts/`.
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
 | `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship git-notes (default off; never TRACE SoT) — [guide 09](../guides/09-authorship-git-notes.md) |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | PLAN-LEDGER claim / status / release |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` (WS10) |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` for `sdd-develop`, `orchestrate-develop`, and `document-implement` (WS10) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
@@ -29,7 +29,7 @@ Every executable script path referenced from `core/skills/**/*.md` is classified
 | Source | Caller / reference | Class | Installed destination |
 |--------|--------------------|-------|-----------------------|
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `memory-bank-init`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | `sdd-develop`, `orchestrate-develop`, SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `sdd-develop`, `orchestrate-develop`, `document-implement`, SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | `sdd-develop`, `orchestrate-develop`, SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/ledger/` path |
 | `scripts/ledger/Invoke-ExecutionModeGate.ps1` | `orchestrate-develop` execution-mode gate | runtime | matching `TOOLKIT_ROOT/scripts/ledger/` path |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | shared readiness-severity contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
@@ -37,11 +37,10 @@ Every executable script path referenced from `core/skills/**/*.md` is classified
 | `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/validate-prd.ps1`, `validate-plan.ps1`, `validate-change.ps1` | `sdd-spec`, `sdd-plan`, and change artifact structural gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | `orchestrate-deliver` preflight | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
-| `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-InstallRoot.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (these three files only) |
+| `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-EffectiveSddRoot.ps1`, `Resolve-InstallRoot.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (these four files only) |
 | `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, `scripts/validation/Invoke-*CiSmoke.ps1` | fixture, contract, and CI validation references in skills | internal | not published |
 | `scripts/validation/fixtures/**`, `scripts/validation/contracts/**` | validator fixtures and toolkit contract data | internal | not published |
 | `scripts/sync-agent.ps1`, `scripts/toolkit.ps1`, bootstrap, uninstall/publish scripts, remaining `scripts/_lib/**` | toolkit installation and maintenance instructions | internal | not published |
-| `node .cursor/skills/impeccable/scripts/*.mjs` | external project skill commands; files are not part of this toolkit source | external dependency | supplied by the separately installed Impeccable skill; not published by this adapter |
 
 Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references in skills. The inventory script requires `-RepoPath`; it does not search for or depend on an open toolkit checkout. Sync fails with the source path and calling skill when a manifest entry is missing.
 
@@ -52,7 +51,7 @@ For O3 / Classic develop, skills **MUST** invoke the canonical scripts with `-Fi
 1. `scripts/session/Invoke-DevelopSessionGate.ps1`
 2. `scripts/ledger/Invoke-PlanLedgerClaim.ps1`
 
-Sessions root: `~/.cursor/sdd/sessions` (or `$SDD_ROOT/sessions`). **RNF-004:** do not auto-approve all Shell; do not mutate hooks policy silently; path/secrets guards stay intact. Cursor detail: [adapters/cursor/README.md](../../adapters/cursor/README.md) § Shell allowlist.
+Sessions root: `<active InstallRoot>/sdd/sessions` for published runtime helpers; an explicit `-SddRoot` or `-SessionsRoot` can select another root for deliberate callers and isolated tests. The helpers do not infer a root from the user profile. **RNF-004:** do not auto-approve all Shell; do not mutate hooks policy silently; path/secrets guards stay intact. Cursor detail: [adapters/cursor/README.md](../../adapters/cursor/README.md) § Shell allowlist.
 
 ## Operator workflow (inventory → preflight → develop → harvest)
 
@@ -87,7 +86,7 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SiblingReadinessGate.ps1 `
   -FeatureRoot features\<NNN-slug>\<story>
 ```
 
-Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Assert: `Assert-SiblingReadinessGate.ps1`. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
+Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
 
 ### PRD / PLAN / CHANGE preflight
 
@@ -106,7 +105,7 @@ pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
   -FeatureRoot features\<NNN-slug>
 ```
 
-Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`. Assert: `Assert-TraceHarvest.ps1`.
+Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`.
 
 ### PLAN-LEDGER CLI
 
@@ -122,6 +121,8 @@ See [core.md PLAN-LEDGER + session gate](core.md#plan-ledger--develop-session-ga
 pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
   -PlanPath features\<...>\PLAN\PLAN_....md -RepoPath . -SddRoot <sdd-root>
 ```
+
+For published runtime helpers, `-SddRoot` is optional and defaults to the active InstallRoot's `sdd` directory. Pass it explicitly when running from source or selecting a test root.
 
 Assert: `Assert-DevelopSessionGate.ps1` (also checks allowlist docs cite both scripts).
 

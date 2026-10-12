@@ -1,4 +1,4 @@
-﻿# Agent Dev Toolkit
+# Agent Dev Toolkit
 
 Unified multi-agent skills **core** with per-agent **adapters**. Sync the same SDD workflows, stack skills, and policy into Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, and OpenHands.
 
@@ -96,7 +96,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (46)
+## Skills preview (45)
 
 | Group | Examples |
 |-------|----------|
@@ -118,7 +118,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/INSTALL.md](docs/INSTALL.md) | Release bootstrap (option 0), clone, sync, live home, uninstall |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
-| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Impeccable, Spec Kit) |
+| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Spec Kit) |
 | [docs/guides/session-behavior.md](docs/guides/session-behavior.md) | Session behavior, language surfaces, and Caveman controls |
 | [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |

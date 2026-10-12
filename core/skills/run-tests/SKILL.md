@@ -34,6 +34,8 @@ When caveman is on, load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` an
 # Skill: run-tests
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 `/run-tests`, or `orchestrate-develop` closing a story scope.
 

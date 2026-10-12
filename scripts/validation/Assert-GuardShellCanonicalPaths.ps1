@@ -1,13 +1,13 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Allow_When_ShellHasNoPath
-#   Should_Allow_When_ShellInvokesRepoValidationScript
+#   Should_Deny_When_ShellInvokesUnclassifiedScript
 #   Should_Allow_When_ShellUsesCanonicalFeaturePlan
 #   Should_Allow_When_ShellUsesCanonicalFeaturePrd
 #   Should_Deny_When_ShellContainsSecret
-#   Should_Deny_When_ShellTargetsRootPlanTree
-#   Should_Deny_When_ShellTargetsRootPrdTree
-#   Should_Deny_When_ShellPathEscapesWorkspace
+#   Should_Allow_When_ShellTargetsRootPlanTree
+#   Should_Allow_When_ShellTargetsRootPrdTree
+#   Should_Allow_When_ShellPathEscapesWorkspace
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -60,10 +60,12 @@ function Assert-GuardShellDecision {
 }
 
 Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellHasNoPath' -ExpectedDecision 'allow' -Command 'Get-Date'
-Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellInvokesRepoValidationScript' -ExpectedDecision 'allow' -Command 'pwsh -NoProfile -File "scripts/validation/validate-evidence.ps1" -StoryRoot "features/012-multiprovider-toolkit-corrections/US02" -Level cheap'
-Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellUsesCanonicalFeaturePlan' -ExpectedDecision 'allow' -Command 'pwsh -NoProfile -File "C:/Users/example/.cursor/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath "features/012-multiprovider-toolkit-corrections/US02/PLAN/PLAN_012_hooks_multiprovider.md" -RepoPath "." -SddRoot "C:/Users/example/.cursor/sdd" -Step 1'
-Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellUsesCanonicalFeaturePrd' -ExpectedDecision 'allow' -Command 'Get-Content -LiteralPath "features/012-multiprovider-toolkit-corrections/US08/PRD/012_reducao_de_testes.md"'
-Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellContainsSecret' -ExpectedDecision 'deny' -Command 'Write-Output password=fixturetoken'
-Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellTargetsRootPlanTree' -ExpectedDecision 'deny' -Command 'Remove-Item -Recurse -Path PLAN/legacy'
-Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellTargetsRootPrdTree' -ExpectedDecision 'deny' -Command 'Remove-Item -Recurse -Path PRD/legacy'
-Assert-GuardShellDecision -TestName 'Should_Deny_When_ShellPathEscapesWorkspace' -ExpectedDecision 'deny' -Command 'Set-Content -LiteralPath "../outside-workspace.txt" -Value outside'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellInvokesToolkitValidationScript' -ExpectedDecision 'allow' -Command 'pwsh -NoProfile -File "scripts/validation/validate-evidence.ps1" -StoryRoot "features/999-fixture/US01" -Level cheap'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellUsesCanonicalFeaturePlan' -ExpectedDecision 'allow' -Command 'pwsh -NoProfile -File "C:/Users/example/.cursor/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath "features/999-fixture/US01/PLAN/PLAN_999_fixture.md" -RepoPath "." -SddRoot "C:/Users/example/.cursor/sdd" -Step 1'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellUsesCanonicalFeaturePrd' -ExpectedDecision 'allow' -Command 'Get-Content -LiteralPath "features/999-fixture/US01/PRD/999_fixture.md"'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellContainsSecretWithoutAuthorizationVeto' -ExpectedDecision 'allow' -Command 'Write-Output password=fixturetoken'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellTargetsRootPlanTree' -ExpectedDecision 'allow' -Command 'Remove-Item -Recurse -Path PLAN/legacy'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellTargetsRootPrdTree' -ExpectedDecision 'allow' -Command 'Remove-Item -Recurse -Path PRD/legacy'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_ShellPathEscapesWorkspace' -ExpectedDecision 'allow' -Command 'Set-Content -LiteralPath "../outside-workspace.txt" -Value outside'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_WriteCapableShellHasNoClassifiableTarget' -ExpectedDecision 'allow' -Command 'python -c "open(''src/out.txt'',''w'').write(''x'')"'
+Assert-GuardShellDecision -TestName 'Should_Allow_When_RedirectionTargetCannotBeClassified' -ExpectedDecision 'allow' -Command 'echo x>target'

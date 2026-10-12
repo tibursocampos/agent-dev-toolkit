@@ -6,7 +6,6 @@ Update `CONTINUITY.md` when:
 - [ ] Each story PRD+PLAN landed (or batch milestone)
 - [ ] Before / after human approval gate
 - [ ] Final multi-path handoff emitted
-- [ ] Context ≥40% pause (TE02)
 
 | Field | Rule |
 |-------|------|

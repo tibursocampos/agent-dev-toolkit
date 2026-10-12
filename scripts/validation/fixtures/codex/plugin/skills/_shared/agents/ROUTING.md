@@ -1,4 +1,4 @@
-﻿# Agent routing -> stack skills
+# Agent routing -> stack skills
 
 Orchestrators and specialists **do not** reimplement stack work. Point implementation to existing developer skills.
 
@@ -15,7 +15,7 @@ Orchestrators and specialists **do not** reimplement stack work. Point implement
 | Java / `pom.xml` / Gradle | `/java-developer` |
 | Python | `/python-developer` |
 | Mixed / unclear | `/developer` (router) |
-| UI shape / audit first | `/impeccable` -> DESIGN-BRIEF -> stack skill |
+| UI shape / audit first | `UI design brief` -> DESIGN-BRIEF -> stack skill |
 | Blip plugin scaffold | `/blip-plugin-developer` |
 
 **Subagent-first (after route):** `*-developer` skills follow `_shared/developer-common/subagent-first.md` and `_shared/agents/SPAWN.md` (capability `subagents`; trivial **in-parent**; medium/complex ≤2 children or **fallback**).

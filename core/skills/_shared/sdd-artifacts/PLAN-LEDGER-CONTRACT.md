@@ -113,10 +113,9 @@ PLAN documents stay **magro**: cite this path; do not embed claim JSON in PLAN m
 
 ```text
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -SessionsRoot <temp-or-sdd-sessions> -RepoPath <cwd>
-.\scripts\validation\Assert-PlanLedgerContract.ps1
 ```
 
-`Assert-PlanLedgerContract.ps1` must prove: contract present, `sdd-plan` wire, and a **double-claim** race (first succeeds, second fails with auditable reason).
+The claim helper returns an auditable rejection when another holder already owns the step.
 
 ## Must not
 

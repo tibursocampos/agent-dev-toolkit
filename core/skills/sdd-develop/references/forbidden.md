@@ -3,7 +3,7 @@
 | Avoid | Use instead |
 |-------|-------------|
 | `git clone` into `projects/{repo}` | Use open workspace only |
-| `feature/base/{parent}/{child}` | `feature/<slug>` or `feat/<id>` only |
+| `feature/base/{parent}/{child}` | `feature/<slug>` or `feat/<id>-<slug>` only |
 | Portuguese implement skill / `PLANO_*` filenames | `sdd-develop`, `PLAN_*` |
 | Absolute “comments always English” | Mirror touched area or **ask** on greenfield (`structure-and-quality.md` §2); identifiers stay English |
 | NUnit-only bans in new tests | `dotnet-guidelines`, xUnit/Moq |

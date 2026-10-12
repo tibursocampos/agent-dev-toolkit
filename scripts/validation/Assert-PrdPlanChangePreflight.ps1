@@ -124,6 +124,9 @@ try {
     $directChange = Join-Path $directFeature 'CHANGE.md'
     Remove-Item -LiteralPath $directChange -Force
     $directPlan = Find-FixturePlan -FeatureRootPath $directFeature
+    $directPlanText = Get-Content -LiteralPath $directPlan -Raw -Encoding UTF8
+    $directRiskRegistration = "`r`n<!-- direct-risk: owner=fixture-owner; baseline=memory-bank/domain-knowledge.md; path=CHANGE.md -->`r`n"
+    [System.IO.File]::WriteAllText($directPlan, ($directPlanText + $directRiskRegistration), (New-Object System.Text.UTF8Encoding $false))
     $directPrd = @(Get-ChildItem -LiteralPath $directFeature -Recurse -Filter '*_preflight_valid.md' -File |
         Where-Object { $_.Directory.Name -eq 'PRD' })[0].FullName
 

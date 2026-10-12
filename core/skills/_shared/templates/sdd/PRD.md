@@ -1,4 +1,4 @@
-﻿# PRD: [Nome da feature]
+# PRD: [Nome da feature]
 
 | Campo | Valor |
 |-------|--------|

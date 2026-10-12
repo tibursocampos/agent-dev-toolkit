@@ -228,9 +228,11 @@ New-Item -ItemType Directory -Path $alienHomeSkillDir -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $alienHomeSkillDir 'SKILL.md') -Value ("# {0}`n" -f $alienSkillMarker) -Encoding UTF8
 
 # Catalog files inside a managed skill folder are removed even after edits.
-# An operator sidecar and a stale manifest key that was never published stay.
+# Sidecars within managed skill folders are removed; stale paths not published remain.
 $coLocatedPath = Join-Path (Join-Path $pluginSkillsRoot 'commit') 'operator-note.txt'
 Set-Content -LiteralPath $coLocatedPath -Value 'keep co-located operator file' -Encoding UTF8
+# A stale names-only manifest entry still identifies a Toolkit-managed skill
+# folder. Uninstall removes that entire folder, including later-added files.
 $staleSkillId = 'retired-toolkit-skill'
 $staleSkillDir = Join-Path $pluginSkillsRoot $staleSkillId
 New-Item -ItemType Directory -Path $staleSkillDir -Force | Out-Null
@@ -263,17 +265,17 @@ $catalogCommitSkill = Join-Path (Join-Path $pluginSkillsRoot 'commit') 'SKILL.md
 if (Test-Path -LiteralPath $catalogCommitSkill -PathType Leaf) {
     Write-Fail -TestName $removeTest -Reason 'catalog skill file must be removed on uninstall'
 }
-if (-not (Test-Path -LiteralPath $coLocatedPath -PathType Leaf)) {
-    Write-Fail -TestName $removeTest -Reason 'operator file inside managed-named skill directory must survive uninstall'
+if (Test-Path -LiteralPath $coLocatedPath -PathType Leaf) {
+    Write-Fail -TestName $removeTest -Reason 'operator sidecar inside managed skill directory must be removed with that managed unit'
 }
-if (-not (Test-Path -LiteralPath $staleSkillFile -PathType Leaf)) {
-    Write-Fail -TestName $removeTest -Reason 'stale names-only skill key must not authorize recursive deletion'
+if (Test-Path -LiteralPath $staleSkillFile -PathType Leaf) {
+    Write-Fail -TestName $removeTest -Reason 'stale names-only managed skill folder must be removed on uninstall'
 }
 $preservedFull = @($uninstall.PreservedPaths | ForEach-Object { [System.IO.Path]::GetFullPath($_) })
 $coLocatedFull = [System.IO.Path]::GetFullPath($coLocatedPath)
 $staleFull = [System.IO.Path]::GetFullPath($staleSkillFile)
-if ($preservedFull -notcontains $coLocatedFull -or $preservedFull -notcontains $staleFull) {
-    Write-Fail -TestName $removeTest -Reason 'uninstall result must report co-located and stale non-catalog skill paths'
+if ($preservedFull -contains $coLocatedFull -or $preservedFull -contains $staleFull) {
+    Write-Fail -TestName $removeTest -Reason 'uninstall result must omit paths removed from Toolkit-managed skill folders'
 }
 
 # Skeleton dirs must remain (no wholesale plugin / skills / .agents wipe)

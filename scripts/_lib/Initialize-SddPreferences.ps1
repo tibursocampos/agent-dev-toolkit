@@ -15,6 +15,7 @@ if (-not (Get-Command -Name ConvertTo-ToolkitSddCleanJson -ErrorAction SilentlyC
 $script:ToolkitPreferencesConstant = @{
     FileName                 = 'preferences.json'
     DefaultOrchestratorMode  = 'always'
+    DefaultCavemanMode       = $true
     OrchestratorModeAlways   = 'always'
     OrchestratorModeAdaptive = 'adaptive'
 }
@@ -34,7 +35,7 @@ function New-ToolkitDefaultPreferencesObject {
     }
 
     return [ordered]@{
-        caveman_mode      = $false
+        caveman_mode      = $script:ToolkitPreferencesConstant.DefaultCavemanMode
         caveman_level     = 'full'
         orchestrator_mode = $mode
         artifact_language = $null
@@ -60,12 +61,32 @@ function Resolve-ToolkitOrchestratorModeFromChoice {
     return $script:ToolkitPreferencesConstant.OrchestratorModeAlways
 }
 
+function Read-ToolkitPreferenceChoice {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $Header,
+        [Parameter(Mandatory = $true)][string[]] $Options,
+        [Parameter(Mandatory = $true)][string] $Prompt,
+        [Parameter(Mandatory = $true)][string] $DefaultChoice
+    )
+
+    Write-Host $Header
+    foreach ($option in $Options) { Write-Host $option }
+    while ($true) {
+        $choice = Read-Host $Prompt
+        if ([string]::IsNullOrWhiteSpace($choice)) { return $DefaultChoice }
+        $choice = $choice.Trim()
+        if ($Options | Where-Object { $_ -match ('^\s*\[' + [regex]::Escape($choice) + '\]') }) { return $choice }
+        Write-Host 'Invalid option. Choose one of the listed values.' -ForegroundColor Yellow
+    }
+}
+
 function Invoke-ToolkitEnsurePreferences {
     <#
     .SYNOPSIS
-      Create preferences.json when missing. First sync writes orchestrator_mode always and does not ask.
+      Create preferences.json when missing. Interactive first sync asks for orchestrator and Caveman preferences.
     .NOTES
-      -Interactive remains for callers and does not prompt or change the seeded mode.
+      Existing preferences are preserved; non-interactive roots receive deterministic defaults.
       In-session orchestrator adaptive stays in core/policy/orchestrator-session.md.
     #>
     [CmdletBinding()]
@@ -89,17 +110,34 @@ function Invoke-ToolkitEnsurePreferences {
         }
     }
 
-    # First sync of each adapter: missing preferences are seeded with always. No orchestration-mode question.
+    # Keep direct sync non-interactive; only toolkit's explicit interactive flow passes -Interactive.
     $orchestratorMode = $script:ToolkitPreferencesConstant.DefaultOrchestratorMode
-    $null = $Interactive
+    $cavemanMode = $script:ToolkitPreferencesConstant.DefaultCavemanMode
 
     if ($WhatIf.IsPresent) {
         return [PSCustomObject]@{
             Created           = $true
             PreferencesPath   = $preferencesPath
             OrchestratorMode  = $orchestratorMode
+            CavemanMode       = $cavemanMode
             WhatIf            = $true
         }
+    }
+
+    if ($Interactive.IsPresent) {
+        $modeChoice = Read-ToolkitPreferenceChoice `
+            -Header $script:ToolkitMessage.ToolkitOrchestratorInstallPromptHeader `
+            -Options @($script:ToolkitMessage.ToolkitOrchestratorInstallPromptAlwaysLine, $script:ToolkitMessage.ToolkitOrchestratorInstallPromptAdaptiveLine) `
+            -Prompt $script:ToolkitMessage.ToolkitOrchestratorInstallPromptMenu `
+            -DefaultChoice $script:ToolkitMessage.ToolkitOrchestratorInstallDefaultChoice
+        $orchestratorMode = Resolve-ToolkitOrchestratorModeFromChoice -Choice $modeChoice
+
+        $cavemanChoice = Read-ToolkitPreferenceChoice `
+            -Header $script:ToolkitMessage.ToolkitCavemanInstallPromptHeader `
+            -Options @($script:ToolkitMessage.ToolkitCavemanInstallPromptOnLine, $script:ToolkitMessage.ToolkitCavemanInstallPromptOffLine) `
+            -Prompt $script:ToolkitMessage.ToolkitCavemanInstallPromptMenu `
+            -DefaultChoice $script:ToolkitMessage.ToolkitCavemanInstallDefaultChoice
+        $cavemanMode = [string]::Equals($cavemanChoice, '1', [System.StringComparison]::OrdinalIgnoreCase)
     }
 
     if (-not (Test-Path -LiteralPath $SddRoot)) {
@@ -107,6 +145,7 @@ function Invoke-ToolkitEnsurePreferences {
     }
 
     $seed = New-ToolkitDefaultPreferencesObject -OrchestratorMode $orchestratorMode
+    $seed.caveman_mode = $cavemanMode
     $json = ConvertTo-ToolkitSddCleanJson -Object $seed
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($preferencesPath, $json, $utf8NoBom)
@@ -117,5 +156,6 @@ function Invoke-ToolkitEnsurePreferences {
         Created           = $true
         PreferencesPath   = $preferencesPath
         OrchestratorMode  = $orchestratorMode
+        CavemanMode       = $cavemanMode
     }
 }

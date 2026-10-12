@@ -28,6 +28,8 @@ Gate check:
 # Skill: i18n-manager
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user requests: `/i18n-manager`, `localize code`, or asks to internationalize a component.
 

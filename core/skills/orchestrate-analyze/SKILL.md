@@ -27,6 +27,8 @@ Gate check:
 # Skill: orchestrate-analyze
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Orchestrated Delivery analysis for a complex / multi-story / brownfield feature.
 
@@ -40,7 +42,7 @@ Under the resolved classic feature root (`STORAGE.md`, `$Workflow = classic`):
 2. `features/NNN-slug/CONTINUITY.md` - phase, decisions, typed handoff, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote)
 3. `features/NNN-slug/USnn/STORY.md` and/or `TSnn/STORY.md` - BDD + scorecard summary + deps. Create these only at step 9, and only when FEATURE has no open question.
 
-**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** triage. Resolve `bank_root` via `STORAGE.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **never** under `features/NNN-slug/`.
+**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** triage. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **never** under `features/NNN-slug/`.
 
 **Human gate:** backlog must be explicitly approved (`sim` / `ajustar` / `cancelar`) before O2. **Silence is not approval** (RN01). Do **not** mark approved if required specialist folders are missing or cited non-feature `.md` was not promoted (pointer-only = fail O1). When greenfield / `needs_domain` without an established style, an **architecture confirm gate** (ARCH draft → **sim** → ARCH approved) runs after the architect pass and before treating style as selected (`references/arch-confirm.md`). Brownfield skips **style re-pick** only — still write mirror ARCH.
 
@@ -59,6 +61,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Step 1 triage — intent classification (before Step 0 when not full O1) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/intent-classification.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
@@ -78,7 +81,6 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Cap / altitude rationale (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
 | Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
 | Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
 
@@ -162,8 +164,8 @@ Product artifact quality gates must have passed. Required folders + promote firs
 ### 11. Approve -> CONTINUITY + O2 handoff
 On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.
 
-### 12. Context pressure (TE02 / RNF02)
-Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `references/process-common.md` § Process — Context pressure.
+### 12. Durable progress checkpoint
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ## Must not
 
@@ -174,7 +176,7 @@ Enforce the full list in `references/must-not.md`. Critical always-on: no app co
 | Situation | Next |
 |-----------|------|
 | Backlog approved | `/orchestrate-deliver - <portable-feature-path>` |
-| Context pause mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
+| Handoff mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
 | Trivial after triage | `/developer` or stack `*-developer` |
 | Single clear story, skip O2 multi | `/sdd-spec` (Classic SDD) after STORY exists |
 | Informal single item only | `/refine-story` (Backlog Refine) |

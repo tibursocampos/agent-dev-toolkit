@@ -91,11 +91,8 @@ $validate = Invoke-ScriptCapture -ScriptPath $validateScript -ArgumentList @('-A
 if ($validate.ExitCode -ne 0) {
     Write-Fail -TestName $implName -Reason ("expected validate cursor to pass; exit={0}; output={1}" -f $validate.ExitCode, $validate.Output.Trim())
 }
-if ($validate.Output -notmatch 'Core validation PASSED' -and $validate.Output -notmatch 'core PASS') {
-    Write-Fail -TestName $implName -Reason ("expected core PASS marker, got: {0}" -f $validate.Output.Trim())
-}
-if ($validate.Output -notmatch 'Adapter smoke: PASS' -and $validate.Output -notmatch 'Validate agent completed') {
-    Write-Fail -TestName $implName -Reason ("expected adapter smoke pass, got: {0}" -f $validate.Output.Trim())
+if ($validate.Output -notmatch 'Adapter smoke: PASS' -or $validate.Output -notmatch 'Validate agent completed') {
+    Write-Fail -TestName $implName -Reason ("expected adapter smoke pass and validation completion, got: {0}" -f $validate.Output.Trim())
 }
 Write-Pass -TestName $implName
 

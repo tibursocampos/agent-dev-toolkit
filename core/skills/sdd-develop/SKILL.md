@@ -38,6 +38,8 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 
 Before ending the develop scope, reset both gates with `-Action reset` (optionally pass `-CurrentStep N+1`). Never mutate the session JSON inline. `tests-run` fails unless `step_confirmed` is already true.
 
+Treat every session-helper invocation, including reset, as a hard gate. A nonzero exit, denied write, or missing confirmation output stops the operation; return `blocked` or `failed` with the observed cause and do not continue or report success. Never bypass the helper or edit session JSON inline. If the canonical SDD root is unwritable, ask the operator to restore a writable root through the supported setup mechanism before retrying the helper.
+
 When a PLAN ledger claim is required (O3 / declared execution mode / parent handoff), **MUST** also call:
 
 ```powershell
@@ -51,12 +53,23 @@ Prefer **one** Shell approve that chains both `-File` invocations when the host 
 # Skill: sdd-develop
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
+One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, conditional tests/build, receipt/handoff). Do not start the next step in the same develop session scope.
+
+### Terminal outcomes
+
+Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`:
+
+- `done`: acceptance and required targeted validation passed; save and re-read the PLAN checkpoint, then report the exact next eligible step.
+- `blocked`: a dependency, gate, or unanswered decision is missing; record the cause, keep dependents pending, and state what input or change resolves it.
+- `failed`: implementation or validation failed; record evidence and bounded recovery, without retrying the same transition automatically.
+- `open_question`: ask the user once and wait; silence leaves the step blocked. Re-entry requires new input or changed evidence and fresh gate validation.
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
@@ -77,7 +90,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Input | Rule |
 |-------|------|
 | PLAN path | Canonical only: `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` (or `TSnn`; global under `{{SDD_ROOT}}/<repo-id>/features/...`). Root/flat `PLAN/` is **not** valid - do not read/update for execution |
-| Step | `Step 1`, `PASSO 1`, etc. |
+| Step | `Step 1`, `PASSO 1`, etc. An explicit PLAN + step invokes that step in the current session after gates pass; do not demand a new session. |
 
 ## Lazy-load (only when needed)
 
@@ -86,6 +99,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/command.md` |
 | Pipeline, missing PLAN dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
@@ -101,7 +115,6 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Developer-common (on trigger) | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | .NET guidelines (on trigger) | **one** file under `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `dotnet-guidelines/*.md`, the full developer-common pack, or all `references/*.md`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; then fan-out on trigger — **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
@@ -137,10 +150,10 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 
 ### -1. Pipeline and mode
 
-Load `STORAGE.md` and `PIPELINE.md`. Use `STORAGE.md` schema v2 and run the dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
+Load `STORAGE.md` and `PIPELINE.md`; when resolving repository/global storage, also load `STORAGE-RESOLUTION.md`. Use its schema v2 and dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
 Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless O3/parent handoff marks `orchestrated`. Apply the matching observable table (orchestrated child = one PLAN step; no parent CONTINUITY ownership).
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cited REQs as `agreed`; new mid-step gaps stay `invented` until operator confirm — do not silently encode them as requirements.
-**Agent mode** is required for code changes and PLAN updates. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
+**Agent mode** is required for code changes and PLAN updates. If the host is in Plan or Ask and this step requires an edit, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
 
 ### 0. Workspace (plan-acquisition)
 
@@ -154,13 +167,15 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
-Resolve develop pacing mode `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Detect stack from PLAN step.
+Resolve execution route separately from `orchestrator_mode`: a direct invocation with PLAN + explicit step proceeds in this current session after gates pass; when the step or route is missing, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or claim. Execute one step only and stop after its report.
 
 After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
 
+**Orchestrated child preflight (before any session or claim effect):** when `invocation_context: orchestrated`, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1` with the resolved feature root, canonical PLAN path, repo root, and SDD root before creating/loading the develop session or claiming the step. Re-run immediately before any later effect if artifacts may have changed. Nonzero means stop with `plan_stale`; do not ensure session, claim, or implement. The parent runs this same read-only check before queue construction and before each spawn. `Status=approved` is required; `draft`, missing, or any other value blocks.
+
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed unless the operator already explicitly confirmed this same step in the current invocation. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use a host interactive question only when its answer is observable to the agent; otherwise ask in text. Accept a semantically affirmative answer in the conversation language, not only the literal token `sim`; ambiguity remains blocking. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the step finishes or this skill declares a blocker with the cause. The confirmation and `step_confirmed` gate remain in force.
 
 ### 2. Git
 
@@ -168,7 +183,7 @@ Feature branch per `branch-validation.mdc`. Read `references/git-checklist.md`.
 
 ### 3-4. Analyze and implement
 
-Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`.  Code/tests in English; targeted build/test. When spawned as a child, end with `{ build, tests, summary }` per PLAN **Execution policy** and `SPAWN.md`.
+Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`. Code/tests in English. When this PLAN step is the O3 producer, return only the canonical relay receipt `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }` from `RECEIPT.md`; emit `step` as a positive JSON integer. Include build only in the US-close receipt when a build is applicable. When delegating nested stack `*-developer` work, require that role's reduced `{ files[], testsSummary }` receipt and validate it locally; do not require `planPath` or `step` from `developer-child`.
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 
@@ -210,7 +225,7 @@ Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the use
 ### 6. Update PLAN + checkpoint
 Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
 
-`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
+`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Persist at the end of the step before handoff. **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
 
 When this edit sets PLAN **Implementation status** to `COMPLETED`, set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit (`references/plan-update.md` § Companion PRD). If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once. It is not a restart.
 

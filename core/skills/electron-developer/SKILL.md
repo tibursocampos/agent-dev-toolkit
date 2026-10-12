@@ -26,6 +26,8 @@ Gate check:
 # Skill: electron-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use when user asks for `/electron-developer`, `electron fix`, or a small isolated Electron implementation.
 
@@ -52,7 +54,6 @@ Working main/preload/renderer changes, validated with build and documented smoke
 | Frontend core | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Markup / styles | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/` |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ **one** approved style — never glob `architecture/**`) |
-| Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/electron-developer/reference.md` |
@@ -98,4 +99,4 @@ Enforce the full list in `references/must-not.md`. Critical: no guideline dumps 
 | Commit | `/commit` |
 | Review | `/code-review` |
 | Scope grew | `sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | Create a concise `docs/DESIGN-BRIEF.md` before substantial UI redesign work; see `frontend-guidelines/frontend-practices.md`. |

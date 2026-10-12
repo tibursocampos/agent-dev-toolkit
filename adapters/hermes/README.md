@@ -17,7 +17,7 @@ Registry entry remains `adapters/hermes/HermesAdapter.ps1` (thin contract surfac
 | `Publish-HermesSkills.ps1` | Shared path/placeholder helpers + `Invoke-HermesPublishSkills` + MEMORY.md seed + best-effort `hermes skills trust` |
 | `Publish-HermesPolicy.ps1` | Fold `core/policy` into `AGENTS.md` + append spawn bridge (`Invoke-HermesPublishPolicy`) |
 | `Publish-HermesRouter.ps1` | `Invoke-HermesPublishRouter` (same combined `AGENTS.md`) |
-| `Publish-HermesHooks.ps1` | Plugin + `agent-hooks` path/secrets dual (`hooks=true`, `plugin=true`) |
+| `Publish-HermesHooks.ps1` | Compatibility plugin publication; removes legacy Toolkit authorization hook wiring |
 | `Invoke-HermesSmokeValidate.ps1` | Native-layout smoke helpers + `Invoke-HermesSmokeValidate` |
 | `Uninstall-HermesToolkit.ps1` | Keyed `Invoke-HermesUninstallToolkit` |
 | `assets/spawn-bridge.md` | Hermes-only spawn operability block appended to managed `AGENTS.md` |
@@ -32,7 +32,7 @@ Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*
 |------|-------|-------|
 | `skills` | true | `core/skills` → `skills/<id>/SKILL.md` under InstallRoot (live `$HERMES_HOME/skills`) |
 | `rules` | true | **Do not** publish `rules/` or `.mdc`. Fold `core/policy/*.md` into `AGENTS.md` |
-| `hooks` | true | Shell dual under `agent-hooks/` + keyed `hooks.pre_tool_call` (`terminal\|write_file\|patch`, `fail_closed: true`) |
+| `hooks` | true | Compatibility surface only; native Hermes permissions remain authoritative and legacy fail-closed shell-hook entries are removed |
 | `router` | true | `core/router/AGENTS.md` → `<InstallRoot>/AGENTS.md`, combined with folded policy (idempotent overwrite of managed `AGENTS.md`) |
 | `plugin` | true | `plugins/agent-dev-toolkit-guard` + best-effort `hermes plugins enable`; fallback keyed `plugins.enabled` only |
 | `agents` | false | No `agents/*.md` roster; `Publish-Agents` no-op |
@@ -44,15 +44,15 @@ Hermes terminal commands may run locally, in Docker, over SSH, or in a configure
 
 Official references: [Terminal backend configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration), [Docker setup](https://hermes-agent.nousresearch.com/docs/user-guide/docker), [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security). For Docker, credential forwarding and mounting the launch directory are explicit access grants; forward only named credentials the operator intends to expose.
 
-## Hooks / plugin (path + secrets)
+## Hooks / plugin compatibility surface
 
 Official refs: [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks), [Plugins](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins).
 
 | Surface | Path / behavior |
 |---------|-----------------|
-| Plugin | `plugins/agent-dev-toolkit-guard/` — `register(ctx)` → `pre_tool_call` returns `{ action: "block", message }` |
-| Shell dual | `agent-hooks/guard-pre-tool.ps1` (+ `.sh`) |
-| Config merge | **Only** `plugins.enabled` list + `hooks.pre_tool_call` entry — never gateway/tokens/`SOUL.md`/memories |
+| Plugin | `plugins/agent-dev-toolkit-guard/` — compatibility package; it does not register a tool-call hook |
+| Shell dual | Legacy assets remain for cleanup compatibility; publisher does not register a Toolkit shell authorization hook |
+| Config merge | `plugins.enabled` list and removal of legacy Toolkit `hooks.pre_tool_call` entries; never gateway/tokens/`SOUL.md`/memories |
 | Enable | Best-effort `hermes plugins enable agent-dev-toolkit-guard` |
 
 ## Spawn / subagents (honesty)
@@ -100,7 +100,7 @@ On publish, if `memories/MEMORY.md` is absent at InstallRoot, the adapter writes
 
 ### Project skills trust
 
-Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `$HERMES_HOME/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). Publish-Hooks may keyed-merge **only** `plugins.enabled` and `hooks.pre_tool_call` in `config.yaml` — never gateway tokens or other secrets.
+Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. Trusted roots are stored by the CLI in `skills.trusted_project_dirs` inside the user `$HERMES_HOME/config.yaml`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). Publish-Hooks updates `plugins.enabled` and removes only the legacy Toolkit `hooks.pre_tool_call` entry in `config.yaml` — never gateway tokens or other secrets.
 
 ## Fixture + smoke
 

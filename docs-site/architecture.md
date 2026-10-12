@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -59,7 +59,7 @@ After confirm (or a brownfield mirror): load **one** Layer B file under `princip
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 46 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 45 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.
@@ -76,7 +76,7 @@ Core content does not hardcode a single IDE home. Adapters resolve placeholders 
 | `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, `manifest.json`, optional global Classic tree) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy path for the target agent |
 
-At runtime, skills resolve SDD state via `effective_SDD_ROOT` so a foreign agent’s baked path does not win. `effective_SDD_ROOT` holds sessions, preferences, and `manifest.json` (schema v2), plus optional **global** `features/` and `memory-bank/` when `classic.storage_mode` is `global`. **Repository** mode keeps those trees under the consumer `$Cwd`.
+At runtime, skills resolve SDD state via `effective_SDD_ROOT` so a foreign agent’s baked path does not win. Runtime scripts under `<InstallRoot>/scripts/<area>` resolve an omitted `-SddRoot` to `<InstallRoot>/sdd`; helpers do not infer it from the user profile. `effective_SDD_ROOT` holds sessions, preferences, and `manifest.json` (schema v2), plus optional **global** `features/` and `memory-bank/` when `classic.storage_mode` is `global`. **Repository** mode keeps those trees under the consumer `$Cwd`.
 
 Published skills resolve their declared runtime helpers from the installed toolkit tree. Session helpers reject persisted repository or PLAN identity mismatches before state changes. Fixture and static checks prove those publication and session contracts; they do not prove a live host, IDE, or hook run.
 
@@ -112,8 +112,8 @@ InstallRoot models `~/.cursor`.
 | `skills/<kebab-id>/SKILL.md` | Skills from `core/skills/` |
 | `rules/*.mdc` | Policy (`.md` → `.mdc`) |
 | `AGENTS.md` | Router |
-| `hooks/*.ps1` | Including `guard-pre-tool.ps1` and `GuardCommon.ps1` |
-| `hooks.json` | `preToolUse` and `beforeShellExecution` (`failClosed`) |
+| `hooks/*.ps1` | Compatibility assets; they do not decide authorization |
+| `hooks.json` | Managed hooks; Toolkit authorization entries are removed on sync |
 | `agents/*.md` | Roster when `agents=true` |
 | `sdd/sessions/` | Sessions (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Seed when absent. Never overwrite an existing file |
@@ -128,7 +128,7 @@ InstallRoot models `~/.gemini`.
 |---------------|------|
 | `config/skills` | Kebab skills plus `dev_persona` |
 | `config/plugins` | Plugin surface (GUARDRAILS under the managed plugin id) |
-| `config/hooks` | PreToolUse path and secrets guard when `hooks=true` |
+| `config/hooks` | Provider hook configuration; no Toolkit authorization decision |
 | `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` | Discovery and managed markdown |
 
 `antigravity-ide/plugins` is a legacy bridge, documentation and opt-in only. It is not a CI gate. Live Knowledge Items and the IDE trust UI are out of scope. Smoke: `Invoke-AntigravityCiSmoke.ps1`. Registry `subagents` is `native`. The effective value comes from `Get-Capabilities` (fail-closed probe).
@@ -173,7 +173,7 @@ InstallRoot models `~/.config/opencode`.
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `AGENTS.md` | Router |
 | `agents/*.md` | `Publish-Agents` |
-| `plugins/*.js` | JS plugins. `tool.execute.before` path and secrets throw |
+| `plugins/*.js` | JS plugins. The compatibility marker installs no authorization hook |
 
 Hooks are plugin-only. Smoke: `Invoke-OpenCodeCiSmoke.ps1` (filesystem only).
 
@@ -187,7 +187,7 @@ InstallRoot models `~/.zcode` (ADE filesystem, not GLM Coding Plan).
 | `AGENTS.md` | Router |
 | `agents/*.md` | Roster |
 | `cli/config.json` | Hooks config |
-| `hooks/hooks.json` | PreToolUse path and secrets |
+| `hooks/hooks.json` | PreToolUse configuration; Toolkit does not decide authorization |
 
 Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCodeCiSmoke.ps1`.
 
@@ -205,7 +205,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `instructions/*.instructions.md` | Policy |
 | `copilot-instructions.md` | Always-on instructions from the router source |
-| `hooks/*` | `version:1` `preToolUse` path and secrets |
+| `hooks/*` | `version:1` `preToolUse` hooks; no Toolkit authorization decision |
 | `agents/nome.agent.md` | One catalog agent file in repo mode. Mode user does not publish agents |
 
 JetBrains and Eclipse layouts are out of scope. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
@@ -219,7 +219,7 @@ InstallRoot is `~/.grok` (or a project `.grok` you pass). The tree is native, no
 | `skills` | Skills, live `~/.grok/skills` |
 | `rules` | Policy |
 | `agents` | Roster |
-| `hooks` | PreToolUse. `/hooks-trust` is manual |
+| `hooks` | Compatibility PreToolUse hooks. `/hooks-trust` is manual |
 | `AGENTS.md` | Router |
 
 Fixture: `scripts/validation/fixtures/grok`.
@@ -232,7 +232,7 @@ InstallRoot is the Hermes home. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.her
 |---------------|------|
 | `skills/<id>/SKILL.md` | Skills |
 | `AGENTS.md` | Router plus folded policy. No `rules/` tree |
-| `plugins/agent-dev-toolkit-guard` and `agent-hooks/` | Path and secrets hooks |
+| `plugins/agent-dev-toolkit-guard` and `agent-hooks/` | Compatibility hook assets; authorization remains with Hermes |
 | `memories/MEMORY.md` | Seeded once if missing |
 | `SOUL.md` | Never created or overwritten |
 

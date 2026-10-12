@@ -106,11 +106,7 @@ MicroPython firmware for identified ESP32 or ESP8266 targets. Keeps host CPython
 
 ### `blip-plugin-developer`
 
-Scaffolds a **new** Blip React plugin and records the profile. Does not implement the feature set. Hands UI to `react-developer`, a new screen’s brief to `impeccable`, a backend to `dotnet-developer`, and a full spec to `sdd-spec`. An existing `blip-ds` project starts at `react-developer` instead. Detail: [04](04-implement-and-guidelines.md).
-
-### `impeccable`
-
-Design commands (`init`, `shape`, `craft`, `critique`, `audit`, `harden`, and others). Writes `docs/DESIGN-BRIEF.md` after confirm and stops. The next chat is the stack skill named by `target_stack`. Does not implement in the same session. Detail: [04](04-implement-and-guidelines.md).
+Scaffolds a **new** Blip React plugin and records the profile. Does not implement the feature set. Hands UI implementation to `react-developer`, a backend to `dotnet-developer`, and a full spec to `sdd-spec`. A project-specific design brief can be written before substantial UI implementation. An existing `blip-ds` project starts at `react-developer` instead. Detail: [04](04-implement-and-guidelines.md).
 
 ## Review and change
 
@@ -200,4 +196,4 @@ Executes one pending step of that documentation plan, then stops. Detail: [08](0
 
 ## Count
 
-`CATALOG.md` groups the same 46 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip and design 2, operational 18, documentation 2.
+`CATALOG.md` groups the same 45 ids: Classic SDD 4, Backlog Refine 2, Orchestrated Delivery 4, developer routing and stack 14, Blip 1, operational 18, documentation 2.

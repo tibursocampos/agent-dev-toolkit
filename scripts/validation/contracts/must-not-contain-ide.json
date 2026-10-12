@@ -22,6 +22,6 @@
   ],
   "consciousExceptions": [
     "Brand names Cursor / Antigravity in AI co-author and stealth rules (not filesystem home paths).",
-    "Project-relative .cursor/hooks.json (and similar) documenting third-party Cursor CLI output (e.g. impeccable) — not user-profile install roots."
+    "Project-relative .cursor/hooks.json (and similar) documenting third-party Cursor CLI output — not user-profile install roots."
   ]
 }

@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Hermes filesystem smoke validate (InstallRoot = ~/.hermes layout; TE01-TE05 files only).
+  Hermes filesystem smoke validate (InstallRoot = ~/.hermes layout; TE01-TE05 files only, including authorization-contract.json).
 #>
 
 function Test-HermesPathHasSkillManifest {
@@ -133,11 +133,11 @@ function Test-HermesRequiredPluginHooksPresent {
         $yaml = [System.IO.File]::ReadAllText($MappedPaths.FixtureConfigYamlPath)
         $pluginName = $script:HermesAdapterConstant.GuardPluginDirectoryName
         $hasPlugin = $yaml -match ("(?m)^\s*-\s*{0}\s*$" -f [regex]::Escape($pluginName))
-        $hasMatcher = $yaml -match [regex]::Escape($script:HermesAdapterConstant.HooksPreToolCallMatcher)
-        $configOk = $hasPlugin -and $hasMatcher
+        $hasLegacyToolkitHook = $yaml -match '(?is)pre_tool_call:.*?guard-pre-tool'
+        $configOk = $hasPlugin -and -not $hasLegacyToolkitHook
     }
     if (-not $configOk) {
-        $missing.Add('config.yaml (plugins.enabled + hooks.pre_tool_call)')
+        $missing.Add('config.yaml (Toolkit plugin enabled; legacy Toolkit pre_tool_call removed)')
     }
 
     return [PSCustomObject]@{

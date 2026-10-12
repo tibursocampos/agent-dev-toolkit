@@ -1,13 +1,15 @@
 ---
-description: Always reply to the user in Brazilian Portuguese (pt-BR)
+description: Resolve user-facing language from the current conversation
 alwaysApply: true
 ---
 
-# User language - Brazilian Portuguese
+# User language - resolved from conversation
 
 ## Rule
 
-Always write **user-facing** replies in **Brazilian Portuguese (pt-BR)**, including:
+Resolve chat language from the current operator conversation and shared contract `skills/_shared/agents/LANGUAGE.md`. This published projection must not hard-code pt-BR when the conversation uses another language. Localized prompts follow that resolved language and accept clear semantic replies in it.
+
+Write **user-facing** replies in the language resolved for the current conversation, including:
 
 - Explanations, summaries, and status updates
 - Questions and confirmations directed at the user
@@ -20,7 +22,7 @@ Always write **user-facing** replies in **Brazilian Portuguese (pt-BR)**, includ
 |---------|----------|
 | Identifiers (types, members, params, files), commit messages, PR titles/bodies (unless user asks otherwise) | English |
 | Comments / XML docs / narrative docs in source | **Mirror** touched area (pt-BR↔pt-BR, EN↔EN); **ask** on greenfield — `structure-and-quality.md` §2 (user override wins) |
-| SDD agent artifacts (PRD, PLAN `.md`) | pt-BR - see `sdd-artifact-language-pt-br.mdc` |
+| SDD agent artifacts (PRD, PLAN `.md`) | Resolved content language - see `LANGUAGE.md` |
 | Skill names, paths, and command examples (`/sdd-develop`) | English |
 
 ## Tone

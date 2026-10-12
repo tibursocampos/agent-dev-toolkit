@@ -1,13 +1,14 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
   Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
 
 .DESCRIPTION
-  Writes PreToolUse path/secrets guard for Bash and apply_patch|Edit|Write.
+  Writes one catch-all PreToolUse path/secrets guard.
   RN03: never invoke or assert Codex /hooks trust UI.
 #>
 
@@ -29,25 +30,12 @@ function New-CodexPreToolUseHooksObject {
 
     $c = $script:CodexPathConstant
     $guardCommand = $c.HooksPreToolUseCommandTemplate
-    $bashMatcher = $c.HooksPreToolUseBashMatcher
-    $patchMatcher = $c.HooksPreToolUsePatchMatcher
-
     return [ordered]@{
         description = $c.HooksDescription
         hooks       = [ordered]@{
             ($c.HooksPreToolUseEventName) = @(
                 [ordered]@{
-                    matcher = $bashMatcher
-                    hooks   = @(
-                        [ordered]@{
-                            type          = $c.HooksCommandType
-                            command       = $guardCommand
-                            statusMessage = $c.HooksPreToolUseStatusMessage
-                        }
-                    )
-                },
-                [ordered]@{
-                    matcher = $patchMatcher
+                    matcher = $c.HooksPreToolUseCatchAllMatcher
                     hooks   = @(
                         [ordered]@{
                             type          = $c.HooksCommandType
@@ -68,7 +56,10 @@ function Write-CodexGuardPreToolScript {
         [string] $HooksDirectory,
 
         [Parameter(Mandatory = $true)]
-        [string] $RepoRoot
+        [string] $RepoRoot,
+
+        [Parameter()]
+        [string] $InstallRoot
     )
 
     if (-not (Test-Path -LiteralPath $HooksDirectory)) {
@@ -89,10 +80,14 @@ function Write-CodexGuardPreToolScript {
     }
 
     $sharedSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (Test-Path -LiteralPath $sharedSource) {
-        $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+    if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
+        throw "GuardCommon source is missing: $sharedSource"
     }
+    $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+    $contractSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $contractDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedAuthorizationContractFileName
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
 
     # Thin _hook-common for Codex (loads GuardCommon + Read/Write helpers).
     $commonSource = Join-Path (Split-Path -Parent $sourceGuard) '_hook-common.ps1'
@@ -198,7 +193,7 @@ function Invoke-CodexPublishHooks {
     }
 
     $writtenHooks = Write-CodexHooksJson -HooksDirectory $hooksDirectory
-    $guardPath = Write-CodexGuardPreToolScript -HooksDirectory $hooksDirectory -RepoRoot $repoRoot
+    $guardPath = Write-CodexGuardPreToolScript -HooksDirectory $hooksDirectory -RepoRoot $repoRoot -InstallRoot $resolvedInstallRoot
 
     # Preserve the legacy SessionStart-only script; no ownership marker proves it belongs to this toolkit.
     $legacySession = Join-Path $hooksDirectory $script:CodexPathConstant.HooksSessionStartScriptName

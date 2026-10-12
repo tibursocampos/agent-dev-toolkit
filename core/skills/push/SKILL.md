@@ -28,6 +28,8 @@ Gate check:
 # Skill: push
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use for `/push`, `push changes`, or `/push`.
 

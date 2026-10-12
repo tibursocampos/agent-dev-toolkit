@@ -28,6 +28,8 @@ Gate check:
 # Skill: refactor
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user requests: `/refactor`, `refactor code`, `/refactor`, or when code reviews indicate high complexity.
 
@@ -47,6 +49,7 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md`, `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-formatting.md` |
+| .NET tests (when changing tests) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md`, `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md` |
 | JavaScript / TypeScript | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-js.md`, `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-ts.md`, `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/google-ts-style.md` |
 | React components | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/components-and-state.md`, `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/hooks-and-effects.md` |

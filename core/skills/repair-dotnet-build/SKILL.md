@@ -27,6 +27,8 @@ Gate check:
 # Skill: repair-dotnet-build
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/repair-dotnet-build`, `fix build`, `/repair-dotnet-build`, or when build/test failures block progress.
 
@@ -50,7 +52,8 @@ Structured diagnosis, proposed fixes with rationale, fixes applied only after us
 |------|------|
 | Reference index (routing only) | `skills/repair-dotnet-build/reference.md` or `{{TOOLKIT_ROOT}}/skills/repair-dotnet-build/reference.md` after sync |
 | Process step detail (lazy) | `skills/repair-dotnet-build/references/<section>.md` |
-| C# patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| C# production patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| .NET test patterns (when editing tests) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Structure / quality (after edits) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Commit | `/commit` |
@@ -109,7 +112,7 @@ Categories: compile, restore/NuGet, test assertion, configuration, pipeline conf
 
 For each item, Read/Grep the codebase. Apply heuristics in `references/common-causes.md` (culture, timezone, Bogus seed, fixture order, glob in CI YAML).
 
-Load `csharp-patterns.md` only when editing production or test code.
+Load `csharp-patterns.md` only when editing production C#; load `dotnet-test-patterns.md` when editing tests.
 
 ### 4. Propose fixes
 

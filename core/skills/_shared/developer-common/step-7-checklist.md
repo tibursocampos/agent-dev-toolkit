@@ -14,7 +14,7 @@
 
 ## 7.2. Branching (step 3)
 
-- [ ] On `feature/<slug>` or `feat/<id>` - not on `main` / `master` / `develop`
+- [ ] On `feature/<slug>` or `feat/<id>-<slug>` - not on `main` / `master` / `develop`
 - [ ] No nested `feature/parent/child` branch names
 - [ ] Changes belong to the current feature scope
 

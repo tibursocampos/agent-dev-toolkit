@@ -94,6 +94,11 @@ function Get-ZCodeSmokeLayoutGaps {
 
     $cliPresent = Test-Path -LiteralPath $cliConfigPath -PathType Leaf
     $hooksJsonPresent = Test-Path -LiteralPath $hooksJsonPath -PathType Leaf
+    $authorizationContractPath = Join-Path (Join-Path $InstallRoot $script:ZCodePathConstant.HooksDirectoryName) $script:ZCodePathConstant.SharedAuthorizationContractFileName
+    $authorizationContractPresent = Test-Path -LiteralPath $authorizationContractPath -PathType Leaf
+    if ($hooksJsonPresent -and -not $authorizationContractPresent) {
+        $gaps.Add(('hooks/{0}' -f $script:ZCodePathConstant.SharedAuthorizationContractFileName)) | Out-Null
+    }
     $cliHooksEnabled = $false
     if ($cliPresent) {
         $cliHooksEnabled = Test-ZCodeSmokeHooksEnabled -CliConfigPath $cliConfigPath
@@ -127,8 +132,10 @@ function Get-ZCodeSmokeLayoutGaps {
         AgentsPath       = $agentsPath
         CliConfigPath    = $cliConfigPath
         HooksJsonPath    = $hooksJsonPath
+        AuthorizationContractPath = $authorizationContractPath
         CliPresent       = $cliPresent
         HooksJsonPresent = $hooksJsonPresent
+        AuthorizationContractPresent = $authorizationContractPresent
         CliHooksEnabled  = $cliHooksEnabled
     }
 }

@@ -125,7 +125,6 @@ $sessionContractRel = $script:ToolkitConstant.DevelopSessionGateSessionContractR
 $sessionMirrorRel = $script:ToolkitConstant.DevelopSessionGateSessionMirrorRelativePath
 $allowlistCursorRel = $script:ToolkitConstant.DevelopSessionGateAllowlistCursorReadmeRelativePath
 $allowlistCliRel = $script:ToolkitConstant.DevelopSessionGateAllowlistCliScriptsRelativePath
-$fixturePlanRel = $script:ToolkitConstant.PlanLedgerFixturePlanRelativePath
 
 $helperPath = Join-Path $repoRoot ($helperRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $claimPath = Join-Path $repoRoot ($claimRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
@@ -134,7 +133,6 @@ $sessionContractPath = Join-Path $repoRoot ($sessionContractRel -replace '/', [S
 $sessionMirrorPath = Join-Path $repoRoot ($sessionMirrorRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $allowlistCursorPath = Join-Path $repoRoot ($allowlistCursorRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $allowlistCliPath = Join-Path $repoRoot ($allowlistCliRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$fixturePlanPath = Join-Path $repoRoot ($fixturePlanRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $approvalGatesPath = Join-Path $repoRoot 'core/skills/orchestrate-deliver/references/approval-gates.md'
 $preconditionsPath = Join-Path $repoRoot 'core/skills/orchestrate-deliver/references/preconditions.md'
 $adaptersReadmePath = Join-Path $repoRoot 'adapters/README.md'
@@ -169,10 +167,6 @@ if (-not (Test-Path -LiteralPath $claimPath)) {
 if (-not (Test-Path -LiteralPath $validatePath)) {
     Write-Fail -TestName 'Should_Pass_When_ValidateSessionGatesSeesTrue' -Reason ("missing validator {0}" -f $validateRel)
 }
-if (-not (Test-Path -LiteralPath $fixturePlanPath)) {
-    Write-Fail -TestName 'Should_Pass_When_HelperCreatesSessionAndSetsGate' -Reason ("missing fixture PLAN {0}" -f $fixturePlanRel)
-}
-
 # --- REQ-014: SESSION cites real scripts ---
 foreach ($contractPath in @($sessionContractPath, $sessionMirrorPath)) {
     if (-not (Test-Path -LiteralPath $contractPath)) {
@@ -245,6 +239,10 @@ foreach ($forbidden in @('plan-ledger-claim/v1', 'FileMode]::CreateNew', '.claim
 Write-Pass -TestName 'Should_Pass_When_HelperDoesNotTouchLedger_RN04'
 
 $workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-develop-session-gate-{0}' -f [Guid]::NewGuid().ToString('N'))
+$fixturePlanPath = Join-Path $workRoot 'features/999-fixture/US01/PLAN/PLAN_999_fixture.md'
+$fixturePlanDirectory = Split-Path -Parent $fixturePlanPath
+New-Item -ItemType Directory -Path $fixturePlanDirectory -Force | Out-Null
+[System.IO.File]::WriteAllText($fixturePlanPath, "# PLAN: Session gate fixture`n", (New-Object System.Text.UTF8Encoding $false))
 $sessionsRoot = Join-Path $workRoot 'sessions'
 New-Item -ItemType Directory -Path $sessionsRoot -Force | Out-Null
 

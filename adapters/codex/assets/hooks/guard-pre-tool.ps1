@@ -19,6 +19,12 @@ if (-not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
         permissionDecisionReason = 'Hook denied schema-invalid JSON input; expected a non-empty object.'
     }
 }
+if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('PreToolUse', 'preToolUse'))) {
+    Write-CodexPreToolJson @{
+        permissionDecision       = 'deny'
+        permissionDecisionReason = 'Hook denied event with missing or malformed PreToolUse identity; fail-closed.'
+    }
+}
 $toolName = ''
 if ($inputJson -and $inputJson.PSObject.Properties['tool_name']) {
     $toolName = [string]$inputJson.tool_name
@@ -42,15 +48,11 @@ $isGuarded = (
     (Test-ToolkitApplyPatchToolName $effectiveTool) -or
     ($toolName -match '^(?i)(Edit|Write)$')
 )
-if (-not $isGuarded) {
+if (Test-ToolkitReadOnlyToolName -ProviderId 'codex' -ToolName $toolName) {
     Write-CodexPreToolJson @{ permissionDecision = 'allow' }
 }
-
-if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('PreToolUse', 'preToolUse'))) {
-    Write-CodexPreToolJson @{
-        permissionDecision       = 'deny'
-        permissionDecisionReason = 'Hook denied write/shell event with missing or malformed PreToolUse identity; fail-closed.'
-    }
+if (-not $isGuarded) {
+    Write-CodexPreToolJson @{ permissionDecision = 'allow' }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

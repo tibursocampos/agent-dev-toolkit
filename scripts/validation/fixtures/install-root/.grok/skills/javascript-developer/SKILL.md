@@ -40,7 +40,7 @@ Recommend `sdd-spec` -> `sdd-plan` -> `sdd-develop` for multi-service, large API
 
 If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists with `target_stack: html-css`, treat it as the acceptance source. Map to DOM/vanilla or light libs; do **not** reinterpret visual decisions.
 
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
+If the task is net-new UI without a brief, recommend `UI design brief shape` in a **new session** before implementing.
 
 ## Lazy-load references
 
@@ -114,4 +114,4 @@ Offer `/commit`. Do not commit automatically.
 | Commit | `/commit` |
 | Review | `/code-review` |
 | Scope grew | `sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | `UI design brief shape` (new session) |

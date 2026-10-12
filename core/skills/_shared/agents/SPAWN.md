@@ -1,4 +1,4 @@
-﻿# Portable spawn contract (Orchestrated Delivery + developers)
+# Portable spawn contract (Orchestrated Delivery + developers)
 
 Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 
@@ -78,15 +78,17 @@ Need specialist work?
   ├─ analysis spans multiple files / one-file might extend / any doubt /
   │  script-batch / long build-test / deep investigation / non-trivial planning
   │    ├─ subagents == native → prefer Task / host equivalent (table above)
-  │    └─ else                → fallback in-parent (O1 flags: write ANALYSIS/ARCH/SEC; never CONTINUITY substitute)
-  │                             NEVER hard-fail only because Task is absent
+  │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Task is absent
+  │                             O1 flags: in-parent ANALYSIS/ARCH/SEC work (never CONTINUITY substitute)
+  │                             O3: manual `/sdd-develop` handoff; parent stops and does not implement
   └─ *-developer trivial path → in-parent (always)
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
 | `orchestrate-analyze` | Task (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
-| `orchestrate-deliver` / `develop` | Task (or host equivalent) per roster/caps | Same specialist work **in-parent** (never hard-fail) |
+| `orchestrate-deliver` | Task (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
+| `orchestrate-develop` (O3) | Task (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
 | `code-review` multi-angle | Parallel specialist Tasks / host equivalents | Sequential in-parent angles |
 | `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |
 | Parent general chat (analysis / multi-file / long build-test) | Specialist Task when independent work is heavy | Same work in-parent |
@@ -190,4 +192,4 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | PRD | Covered here |
 |-----|----------------|
 | CA1 | Native vs fallback for orchestrate / code-review; no Task hard-fail |
-| CA2 | Developer ≤2; paths + receipt; no guideline paste; trivial in-parent; `none` → in-parent |
+| CA2 | Developer ≤2; paths + receipt; no guideline paste; trivial in-parent; O3 `none` → manual `/sdd-develop` handoff |

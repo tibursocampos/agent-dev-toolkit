@@ -2,6 +2,7 @@
 <#
 .SYNOPSIS
   Cursor filesystem smoke helpers + Invoke-CursorSmokeValidate (TE01/TE04).
+  Managed hook checks include authorization-contract.json.
 #>
 
 function New-CursorSmokeResult {

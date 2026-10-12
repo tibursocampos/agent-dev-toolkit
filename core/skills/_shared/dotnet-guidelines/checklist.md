@@ -49,6 +49,8 @@ Use before opening a pull request.
 
 ## .NET patterns
 
+For test framework, naming, structure, and assertion conventions, load `dotnet-test-patterns.md` only when reviewing or changing tests.
+
 - [ ] Async methods use `Async` suffix
 - [ ] `await` used (no `.Result` / `.Wait()` / sync-over-async / `ConfigureAwait` in app code)
 - [ ] `CancellationToken` propagated on async APIs

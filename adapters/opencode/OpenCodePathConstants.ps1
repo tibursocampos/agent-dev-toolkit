@@ -33,6 +33,7 @@ This host does not publish a rules tree (`rules=false`). Honor **Parallel specia
     AssetsDirectoryName       = 'assets'
     PluginsDirectoryName      = 'plugins'
     PluginMarkerFileName      = 'agent-dev-toolkit-marker.js'
+    SharedAuthorizationContractFileName = 'authorization-contract.json'
     FixtureInstallRootRel     = 'scripts/validation/fixtures/opencode'
     PlaceholderToolkitRoot    = '{{TOOLKIT_ROOT}}'
     PlaceholderSddRoot        = '{{SDD_ROOT}}'
@@ -73,6 +74,7 @@ $script:OpenCodeSmokeMessage = @{
     Te02AgentsMissing      = 'TE02: OpenCode agent ''opencode'' smoke failed - AGENTS.md missing or empty at: {0}'
     Te02CustomAgentsMissing = 'TE02: OpenCode agent ''opencode'' smoke failed - custom agents markdown missing under: {0}'
     Te03PluginMismatch     = 'TE03: OpenCode hooks/plugin capable (Decision A) but plugin marker missing at: {0}. Capability vs artifacts mismatch (RN03: no shell/PS1 hooks required).'
+    Te03AuthorizationContractMissing = 'TE03: OpenCode hooks/plugin capable (Decision A) but authorization-contract.json is missing at: {0}.'
     Te05SddLayoutMissing   = 'TE05: OpenCode smoke failed - SDD layout incomplete under InstallRoot. Missing: {0}'
     FilesystemOnlyNote     = 'OpenCode smoke is filesystem-only - does not invoke OpenCode runtime (TE04 out of scope).'
 }

@@ -6,6 +6,8 @@ description: Resolve canonical FEATURE/STORY/PRD/PLAN paths under features/ into
 # Skill: read-sdd-artifact
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/read-sdd-artifact`, `$read-sdd-artifact`, `use skill read-sdd-artifact`, OpenCode `skill({ name: "read-sdd-artifact" })`), or needs a normalized **`source_context`** envelope for FEATURE / STORY / PRD / PLAN under `features/`.
 
@@ -20,6 +22,7 @@ Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/r
 | When | Path (after agent sync) |
 |------|-------------------------|
 | Portable path / features layout | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Invocation handoff (orchestrated) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/read-sdd-artifact/reference.md` |

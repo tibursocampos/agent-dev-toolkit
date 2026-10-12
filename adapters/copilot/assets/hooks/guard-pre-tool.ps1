@@ -64,6 +64,9 @@ $isGuarded = (
     (Test-ToolkitShellToolName $effective) -or
     (Test-ToolkitApplyPatchToolName $effective)
 )
+if (Test-ToolkitReadOnlyToolName -ProviderId 'copilot' -ToolName $toolName) {
+    Write-CopilotPreToolAllow
+}
 if (-not $isGuarded) {
     Write-CopilotPreToolAllow
 }

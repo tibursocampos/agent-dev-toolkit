@@ -56,7 +56,7 @@ If `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` exists, treat it as t
 
 For Hybrid targets, note platform-specific constraints in section 9 of the brief.
 
-If the task is net-new UI without a brief, recommend `/impeccable shape` in a **new session** before implementing.
+If the task is net-new UI without a brief, recommend `UI design brief shape` in a **new session** before implementing.
 
 ## Lazy-load references
 
@@ -149,4 +149,4 @@ Offer `/commit`. Do not commit automatically.
 | Review | `/code-review` |
 | Backend / API only | `/dotnet-developer` |
 | Scope grew | `sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | `UI design brief shape` (new session) |

@@ -5,8 +5,8 @@
 
 .DESCRIPTION
   Tracks SHA-256 hashes of toolkit-published files at
-  InstallRoot/.toolkit-managed-publish.json. A listed catalog path is removed
-  on uninstall even when the installed bytes were edited. AGENTS.md, CLAUDE.md,
+  InstallRoot/.toolkit-managed-publish.json. Whole-file removal requires the
+  current bytes to match the recorded ownership hash. AGENTS.md, CLAUDE.md,
   and the same marked-block pattern lose only the toolkit section; operator
   text outside the markers stays. Declared publish surfaces live in
   adapters/registry.json publishSurface.
@@ -99,6 +99,69 @@ function Get-ToolkitManagedPublishInventoryPath {
     return (Join-Path $installRootFull $script:ToolkitConstant.ManagedPublishInventoryFileName)
 }
 
+function Invoke-ToolkitManagedPublishDestinationLock {
+    <#
+    .SYNOPSIS
+      Serialize toolkit publish and retirement mutations for one destination.
+    .DESCRIPTION
+      The mutex name is a SHA-256 of the normalized, case-insensitive full
+      destination path. The same named mutex is shared across toolkit
+      processes; it is released and disposed even when the action throws.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $DestinationPath,
+        [Parameter(Mandatory = $true)][scriptblock] $Action
+    )
+
+    $fullPath = [System.IO.Path]::GetFullPath($DestinationPath).TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    $identityBytes = [System.Text.Encoding]::UTF8.GetBytes($fullPath.ToUpperInvariant())
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($identityBytes)
+    $identity = ([BitConverter]::ToString($digest) -replace '-', '')
+    $mutex = New-Object System.Threading.Mutex($false, ('Global\ToolkitManagedPublish_' + $identity))
+    $acquired = $false
+    try {
+        try {
+            $acquired = $mutex.WaitOne()
+        }
+        catch [System.Threading.AbandonedMutexException] {
+            # The prior process exited while holding the lock; ownership is
+            # granted to this process and the action can safely continue.
+            $acquired = $true
+        }
+        return (& $Action)
+    }
+    finally {
+        if ($acquired) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
+}
+
+function Invoke-ToolkitManagedPublishInventoryLock {
+    <# Serialize the complete inventory read-modify-write transaction per InstallRoot. #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][scriptblock] $Action
+    )
+
+    $root = Assert-ToolkitManagedPublishInstallRoot -InstallRoot $InstallRoot
+    $identityBytes = [System.Text.Encoding]::UTF8.GetBytes($root.TrimEnd('\', '/').ToUpperInvariant())
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($identityBytes)
+    $identity = ([BitConverter]::ToString($digest) -replace '-', '')
+    $mutex = New-Object System.Threading.Mutex($false, ('Global\ToolkitManagedPublishInventory_' + $identity))
+    $acquired = $false
+    try {
+        try { $acquired = $mutex.WaitOne() }
+        catch [System.Threading.AbandonedMutexException] { $acquired = $true }
+        return (& $Action)
+    }
+    finally {
+        if ($acquired) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
+}
+
 function Get-ToolkitFileContentSha256 {
     [CmdletBinding()]
     param(
@@ -118,6 +181,100 @@ function Get-ToolkitFileContentSha256 {
     return [string]$hash.Hash
 }
 
+function Get-ToolkitManagedPublishInventoryDuplicatePath {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $RawJson
+    )
+
+    $depth = 0
+    $inString = $false
+    $escapeNext = $false
+    $tokenStart = -1
+    $filesPropertyPending = $false
+    $expectFilesObject = $false
+    $filesObjectDepth = -1
+    $pathNames = [System.Collections.Hashtable]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    for ($index = 0; $index -lt $RawJson.Length; $index++) {
+        $character = $RawJson[$index]
+        if ($inString) {
+            if ($escapeNext) {
+                $escapeNext = $false
+                continue
+            }
+            if ($character -eq '\') {
+                $escapeNext = $true
+                continue
+            }
+            if ($character -ne '"') {
+                continue
+            }
+
+            $inString = $false
+            $token = $RawJson.Substring($tokenStart, $index - $tokenStart + 1)
+            $nextIndex = $index + 1
+            while ($nextIndex -lt $RawJson.Length -and [char]::IsWhiteSpace($RawJson[$nextIndex])) {
+                $nextIndex++
+            }
+            if ($nextIndex -lt $RawJson.Length -and $RawJson[$nextIndex] -eq ':') {
+                $decodedName = [string](ConvertFrom-Json -InputObject $token -ErrorAction Stop)
+                if ($depth -eq 1 -and [string]::Equals($decodedName, $script:ToolkitConstant.ManagedPublishInventoryFilesProperty, [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $filesPropertyPending = $true
+                }
+                elseif ($depth -eq $filesObjectDepth) {
+                    if ($pathNames.ContainsKey($decodedName)) {
+                        return $decodedName
+                    }
+                    $pathNames[$decodedName] = $true
+                }
+            }
+            continue
+        }
+
+        if ($expectFilesObject -and -not [char]::IsWhiteSpace($character)) {
+            if ($character -eq '{') {
+                $depth++
+                $filesObjectDepth = $depth
+            }
+            $expectFilesObject = $false
+            $filesPropertyPending = $false
+            if ($character -eq '{') { continue }
+        }
+
+        if ($character -eq '"') {
+            $inString = $true
+            $escapeNext = $false
+            $tokenStart = $index
+            continue
+        }
+        if ($character -eq ':') {
+            if ($filesPropertyPending) {
+                $expectFilesObject = $true
+            }
+            continue
+        }
+        if ([char]::IsWhiteSpace($character) -or $character -eq ',') {
+            continue
+        }
+        if ($character -eq '{') {
+            $depth++
+            continue
+        }
+        if ($character -eq '}') {
+            if ($depth -eq $filesObjectDepth) {
+                $filesObjectDepth = -1
+            }
+            $depth--
+        }
+    }
+
+    return $null
+}
+
 function Read-ToolkitManagedPublishInventory {
     [CmdletBinding()]
     param(
@@ -135,6 +292,10 @@ function Read-ToolkitManagedPublishInventory {
 
     try {
         $raw = [System.IO.File]::ReadAllText($inventoryPath)
+        $duplicatePath = Get-ToolkitManagedPublishInventoryDuplicatePath -RawJson $raw
+        if (-not [string]::IsNullOrWhiteSpace($duplicatePath)) {
+            throw ("Duplicate ownership path is ambiguous: {0}" -f $duplicatePath)
+        }
         $parsed = $raw | ConvertFrom-Json
     }
     catch {
@@ -160,8 +321,12 @@ function Read-ToolkitManagedPublishInventory {
         Assert-ToolkitManagedPublishPathUnderInstallRoot -CandidatePath $candidatePath -InstallRoot $installRootFull
 
         $entry = $prop.Value
-        if ($null -eq $entry) {
+        $entryProperties = if ($null -eq $entry) { @() } else { @($entry.PSObject.Properties | ForEach-Object { [string]$_.Name }) }
+        if ($null -eq $entry -or $entryProperties -notcontains $kindProperty) {
             throw ($script:ToolkitMessage.ManagedPublishInventoryInvalid -f $inventoryPath, ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingKind -f $relativePath))
+        }
+        if ($entryProperties -notcontains $sha256Property) {
+            throw ($script:ToolkitMessage.ManagedPublishInventoryInvalid -f $inventoryPath, ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingSha256 -f $relativePath))
         }
 
         $kind = [string]$entry.$kindProperty
@@ -297,15 +462,16 @@ function Set-ToolkitManagedPublishInventoryEntry {
         throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingKind -f $relativePath)
     }
 
-    $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
-    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
-    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
-    $entries[$relativePath] = [ordered]@{
-        $kindProperty   = $Kind
-        $sha256Property = $Sha256.ToUpperInvariant()
-    }
-
-    return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries)
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+        $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+        $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+        $entries[$relativePath] = [ordered]@{
+            $kindProperty   = $Kind
+            $sha256Property = $Sha256.ToUpperInvariant()
+        }
+        Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries
+    })
 }
 
 function Set-ToolkitManagedPublishInventoryEntries {
@@ -316,33 +482,32 @@ function Set-ToolkitManagedPublishInventoryEntries {
         [Parameter()][hashtable] $InventoryEntries
     )
 
-    if ($null -eq $InventoryEntries) {
-        $InventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
-    }
-
-    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
-    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
-    foreach ($key in $Updates.Keys) {
-        $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath ([string]$key)
-        $entry = $Updates[$key]
-        $kind = [string]$entry[$kindProperty]
-        $sha256 = [string]$entry[$sha256Property]
-        if ([string]::IsNullOrWhiteSpace($kind)) {
-            throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingKind -f $relativePath)
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        # Always merge against the latest on-disk snapshot; callers may have
+        # prepared InventoryEntries before another independent publisher ran.
+        $currentEntries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+        $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+        $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+        foreach ($key in $Updates.Keys) {
+            $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath ([string]$key)
+            $entry = $Updates[$key]
+            $kind = [string]$entry[$kindProperty]
+            $sha256 = [string]$entry[$sha256Property]
+            if ([string]::IsNullOrWhiteSpace($kind)) {
+                throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingKind -f $relativePath)
+            }
+            if ([string]::IsNullOrWhiteSpace($sha256)) {
+                throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingSha256 -f $relativePath)
+            }
+            $candidatePath = Join-Path (Assert-ToolkitManagedPublishInstallRoot -InstallRoot $InstallRoot) $relativePath
+            Assert-ToolkitManagedPublishPathUnderInstallRoot -CandidatePath $candidatePath -InstallRoot $InstallRoot
+            $currentEntries[$relativePath] = [ordered]@{
+                $kindProperty   = $kind
+                $sha256Property = $sha256.ToUpperInvariant()
+            }
         }
-        if ([string]::IsNullOrWhiteSpace($sha256)) {
-            throw ($script:ToolkitMessage.ManagedPublishInventoryEntryMissingSha256 -f $relativePath)
-        }
-
-        $candidatePath = Join-Path (Assert-ToolkitManagedPublishInstallRoot -InstallRoot $InstallRoot) $relativePath
-        Assert-ToolkitManagedPublishPathUnderInstallRoot -CandidatePath $candidatePath -InstallRoot $InstallRoot
-        $InventoryEntries[$relativePath] = [ordered]@{
-            $kindProperty   = $kind
-            $sha256Property = $sha256.ToUpperInvariant()
-        }
-    }
-
-    return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $InventoryEntries)
+        Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $currentEntries
+    })
 }
 
 function Get-ToolkitAdapterContentCompareProfile {
@@ -816,13 +981,12 @@ function Remove-ToolkitManagedPublishInventoryEntry {
     )
 
     $relativePath = Assert-ToolkitManagedPublishRelativePath -RelativePath $RelativePath
-    $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
-    if (-not $entries.ContainsKey($relativePath)) {
-        return $null
-    }
-
-    $entries.Remove($relativePath) | Out-Null
-    return (Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries)
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+        if (-not $entries.ContainsKey($relativePath)) { return $null }
+        $entries.Remove($relativePath) | Out-Null
+        Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries
+    })
 }
 
 function Get-ToolkitManagedContentSha256Hex {
@@ -873,15 +1037,16 @@ function Set-ToolkitManagedPublishInventoryEntryFromContent {
         -Kind $kindValue
 }
 
-function Remove-ToolkitManagedWholeFileRouterIfOwned {
+function Remove-ToolkitManagedWholeFileRouterIfOwnedCore {
     <#
     .SYNOPSIS
       Remove a catalog router file, or only its toolkit marked section.
     .DESCRIPTION
-      A single well-formed marker pair loses only the toolkit section. Operator
-      text outside the markers stays. A catalog-only file, including an edited
-      copy listed in the publish inventory, is removed as a whole file. A path
-      outside InstallRoot or equal to InstallRoot is not deleted.
+    A single well-formed marker pair loses only the toolkit section when the
+    relative path and current whole-file SHA-256 match the publish inventory.
+    Otherwise the complete file is preserved. A catalog-only file is removed
+    as a whole under the same ownership check. A path outside InstallRoot or
+    equal to InstallRoot is not deleted.
     #>
     [CmdletBinding()]
     param(
@@ -921,24 +1086,37 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
         $catalogOnlyFile = [string]::IsNullOrWhiteSpace($markedRemainder)
     }
     else {
-        $listed = Test-ToolkitManagedPublishInventoryListsFile `
+        $catalogOnlyFile = $true
+    }
+
+    if (-not $catalogOnlyFile) {
+        $inventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+        $ownershipReason = $null
+        if (-not $inventoryEntries.ContainsKey($relativePath)) {
+            $ownershipReason = 'ownership-entry-not-found'
+        }
+        elseif (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
             -InstallRoot $InstallRoot `
-            -RelativePath $relativePath
-        if (-not $listed) {
+            -RelativePath $relativePath `
+            -CurrentFilePath $CurrentFilePath `
+            -InventoryEntries $inventoryEntries)) {
+            $ownershipReason = 'current-sha256-does-not-match-recorded-ownership'
+        }
+
+        if ($null -ne $ownershipReason) {
+            $message = ("{0} preserved: {1}." -f $relativePath, $ownershipReason)
+            Write-Warning $message
             return [PSCustomObject]@{
                 Removed           = $false
                 WouldRemove       = $false
                 Preserved         = $true
                 RelativePath      = $relativePath
                 CurrentFilePath   = $CurrentFilePath
-                Message           = ($script:ToolkitConstant.RouterFilePreservedNoteFormat -f $relativePath)
+                Reason            = $ownershipReason
+                Message           = $message
             }
         }
 
-        $catalogOnlyFile = $true
-    }
-
-    if (-not $catalogOnlyFile) {
         if ($WhatIf.IsPresent) {
             return [PSCustomObject]@{
                 Removed           = $false
@@ -955,6 +1133,24 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
         }
 
         Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $CurrentFilePath -InstallRoot $InstallRoot
+        if (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
+            -InstallRoot $InstallRoot `
+            -RelativePath $relativePath `
+            -CurrentFilePath $CurrentFilePath `
+            -InventoryEntries $inventoryEntries)) {
+            $message = ("{0} preserved: current-sha256-changed-before-removal." -f $relativePath)
+            Write-Warning $message
+            return [PSCustomObject]@{
+                Removed           = $false
+                WouldRemove       = $false
+                Preserved         = $true
+                RelativePath      = $relativePath
+                CurrentFilePath   = $CurrentFilePath
+                Reason            = 'current-sha256-changed-before-removal'
+                Message           = $message
+            }
+        }
+
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
         [System.IO.File]::WriteAllText($CurrentFilePath, $markedRemainder, $utf8NoBom)
         $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $relativePath
@@ -965,6 +1161,33 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
             RelativePath      = $relativePath
             CurrentFilePath   = $CurrentFilePath
             Message           = $null
+        }
+    }
+
+    $inventoryEntries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+    $ownershipReason = $null
+    if (-not $inventoryEntries.ContainsKey($relativePath)) {
+        $ownershipReason = 'ownership-entry-not-found'
+    }
+    elseif (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
+        -InstallRoot $InstallRoot `
+        -RelativePath $relativePath `
+        -CurrentFilePath $CurrentFilePath `
+        -InventoryEntries $inventoryEntries)) {
+        $ownershipReason = 'current-sha256-does-not-match-recorded-ownership'
+    }
+
+    if ($null -ne $ownershipReason) {
+        $message = ("{0} preserved: {1}." -f $relativePath, $ownershipReason)
+        Write-Warning $message
+        return [PSCustomObject]@{
+            Removed           = $false
+            WouldRemove       = $false
+            Preserved         = $true
+            RelativePath      = $relativePath
+            CurrentFilePath   = $CurrentFilePath
+            Reason            = $ownershipReason
+            Message           = $message
         }
     }
 
@@ -984,7 +1207,25 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
     }
 
     $null = Assert-PathUnderInstallRootForDelete -CandidatePath $CurrentFilePath -InstallRoot $InstallRoot
-    Remove-Item -LiteralPath $CurrentFilePath -Force
+    if (-not (Test-ToolkitManagedPublishInventoryOwnsFile `
+        -InstallRoot $InstallRoot `
+        -RelativePath $relativePath `
+        -CurrentFilePath $CurrentFilePath `
+        -InventoryEntries $inventoryEntries)) {
+        $message = ("{0} preserved: current-sha256-changed-before-removal." -f $relativePath)
+        Write-Warning $message
+        return [PSCustomObject]@{
+            Removed           = $false
+            WouldRemove       = $false
+            Preserved         = $true
+            RelativePath      = $relativePath
+            CurrentFilePath   = $CurrentFilePath
+            Reason            = 'current-sha256-changed-before-removal'
+            Message           = $message
+        }
+    }
+
+    Remove-Item -LiteralPath $CurrentFilePath -ErrorAction Stop
     $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $InstallRoot -RelativePath $relativePath
 
     return [PSCustomObject]@{
@@ -995,4 +1236,24 @@ function Remove-ToolkitManagedWholeFileRouterIfOwned {
         CurrentFilePath   = $CurrentFilePath
         Message           = $null
     }
+}
+
+function Remove-ToolkitManagedWholeFileRouterIfOwned {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string] $RelativePath,
+        [Parameter(Mandatory = $true)][string] $CurrentFilePath,
+        [Parameter(Mandatory = $true)][scriptblock] $ResolveExpectedPublishContent,
+        [Parameter()][switch] $WhatIf
+    )
+
+    return (Invoke-ToolkitManagedPublishDestinationLock -DestinationPath $CurrentFilePath -Action {
+        Remove-ToolkitManagedWholeFileRouterIfOwnedCore `
+            -InstallRoot $InstallRoot `
+            -RelativePath $RelativePath `
+            -CurrentFilePath $CurrentFilePath `
+            -ResolveExpectedPublishContent $ResolveExpectedPublishContent `
+            -WhatIf:$WhatIf
+    })
 }

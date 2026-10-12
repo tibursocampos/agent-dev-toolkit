@@ -31,14 +31,7 @@ If the output contains `Co-authored-by:` (any variant, any email), strip it and 
 1. Rewrite the message file with **only** the approved Conventional Commits text (no `Co-authored-by` lines).
 2. Run `git commit --amend -F <path-to-approved-message.txt>`.
 3. Re-check with `git log -1 --format=%B`.
-4. If the trailer is still present, run `git commit --amend -F <path-to-approved-message.txt> --no-verify` **only** to remove the unauthorized co-author line - do not skip hooks for any other reason.
-5. If the trailer **still** remains (`prepare-commit-msg` may run even with `--no-verify`), amend with hooks disabled:
-
-```bash
-git -c core.hooksPath=<empty-directory> commit --amend -F <path-to-approved-message.txt>
-```
-
-Use a temporary empty folder (not the repo `.git/hooks`). Re-check `git log -1 --format=%B`.
+4. If tooling adds the trailer again, stop and ask the operator to remove or reconfigure that tooling. Keep commit hooks enabled for every commit and amend.
 
 Report the final message body in chat (without co-author trailers).
 

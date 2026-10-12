@@ -1,10 +1,10 @@
-﻿# Memory Bank Gate (Orchestrated Delivery Step 0)
+# Memory Bank Gate (Orchestrated Delivery Step 0)
 
 Single source of truth for the **workspace-scoped** `memory-bank/` contract and Step 0 / Step N policies used by `orchestrate-analyze`, `orchestrate-deliver`, and `orchestrate-develop`. Load on demand - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`
 
-Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` into the host skills install root. Storage resolution: `STORAGE.md` (same manifest as `features/`).
+Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1` — resolve via toolkit root / clone (see Inventory below); sync does **not** publish `scripts/` into the host skills install root. Storage resolution: `STORAGE.md` + `STORAGE-RESOLUTION.md` (same manifest as `features/`; load the latter when resolving `bank_root`).
 
 **Credits:** durable-bank ideas are inspired in part by practices around [github/spec-kit](https://github.com/github/spec-kit); this toolkit does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
@@ -127,7 +127,7 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt. Normative rule for SDD/refine skills: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke `Assert-SelectiveRetrieval.ps1`.
+6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke: `Assert-SelectiveRetrieval.ps1`.
 7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md` (REQ-011). Skip D: no ADO mutate, Reversa, SpecKit constitution (REQ-013).
 
 ### Modes (`memory-bank-init`)
@@ -156,7 +156,7 @@ Toolkit itself may keep templates only - not a live bank unless documenting the 
 ## Step 0 algorithm (orchestrate-* start)
 
 ```
-1. Resolve bank_root via STORAGE.md (manifest classic -> repository | global)
+1. Resolve bank_root via `STORAGE.md` + `STORAGE-RESOLUTION.md` (manifest classic -> repository | global). Load the resolution guide for the manifest-backed root algorithm.
 2. Policy = auto (unless require/skip from user)
 3. If skip (explicit): log and continue
 4. Evaluate presence + completeness + stale at bank_root

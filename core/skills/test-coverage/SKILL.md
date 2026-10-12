@@ -25,6 +25,8 @@ Gate check:
 ---
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/test-coverage`, `coverage report`, `coverage`, or when a PLAN step / `code-review` requires coverage evidence.
 
@@ -56,7 +58,7 @@ Does not modify code unless the user asks for test additions in a follow-up.
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/test-coverage/references/<section>.md` |
 | Host session mode (Agent for shell) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` section Host session mode |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Add tests for gaps | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Add tests for gaps | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Commit | `/commit` |
 
 **Never by default:** do not preload all `references/*.md` or full guideline packs. Load **one** section file per Process step — never full `reference.md` when a section exists (`SKILL-REFERENCE-RETRIEVAL.md`).

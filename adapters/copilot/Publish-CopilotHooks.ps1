@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -90,15 +91,23 @@ function Copy-CopilotHookFilesTree {
 
     if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
         $sharedSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Test-Path -LiteralPath $sharedSource) {
-            $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
-            $null = Copy-ToolkitFileIfAbsent `
-                -SourcePath $sharedSource `
-                -DestinationPath $sharedDest `
-                -InstallRoot $InstallRoot `
-                -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedGuardCommonFileName)
-            $filesCopied++
+        if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
+            throw "GuardCommon source is missing: $sharedSource"
         }
+        $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
+        $null = Copy-ToolkitFileIfAbsent `
+            -SourcePath $sharedSource `
+            -DestinationPath $sharedDest `
+            -InstallRoot $InstallRoot `
+            -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedGuardCommonFileName)
+        $contractSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $contractDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedAuthorizationContractFileName
+        $null = Copy-ToolkitAuthorizationContract `
+            -SourcePath $contractSource `
+            -DestinationPath $contractDest `
+            -InstallRoot $InstallRoot `
+            -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedAuthorizationContractFileName)
+        $filesCopied += 2
     }
 
     return $filesCopied

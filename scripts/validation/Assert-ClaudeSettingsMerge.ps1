@@ -92,7 +92,7 @@ $alienHookMarker = 'alien-notification-hook'
 $userAllowEntry = 'Bash(git status)'
 $legacyBroadAllowPwsh = 'Bash(pwsh *)'
 $legacyBroadAllowPowershell = 'Bash(powershell *)'
-$managedHookEvents = @('UserPromptSubmit', 'PreCompact', 'PostToolUse', 'PreToolUse')
+$managedHookEvents = @('UserPromptSubmit', 'PostToolUse', 'SubagentStop')
 $invalidJsonMarker = '{ this is not valid json'
 
 
@@ -182,6 +182,8 @@ $seed = @{
     hooks = @{
         $alienHookEvent     = @(@{ hooks = @(@{ type = 'command'; command = $alienHookMarker }) })
         UserPromptSubmit    = @(@{ hooks = @(@{ type = 'command'; command = 'stale-user-prompt' }) })
+        PreCompact          = @(@{ hooks = @(@{ type = 'command'; command = 'pwsh -NoProfile -File "C:/old/hooks/context-pre-compact.ps1"' }) })
+        PreToolUse          = @(@{ hooks = @(@{ type = 'command'; command = 'pwsh -NoProfile -File "C:/old/hooks/guard-pre-tool.ps1"' }) })
     }
 } | ConvertTo-Json -Depth 10
 Write-JsonFileNoBom -Path $settingsPath -Json $seed
@@ -195,6 +197,11 @@ $after = Read-SettingsObject -Path $settingsPath
 foreach ($eventName in $managedHookEvents) {
     if (-not ($after.hooks.PSObject.Properties.Name -contains $eventName)) {
         Write-Fail -TestName $testName -Reason ("managed hook event missing: {0}" -f $eventName)
+    }
+}
+foreach ($removedEvent in @('PreCompact', 'PreToolUse')) {
+    if ($after.hooks.PSObject.Properties.Name -contains $removedEvent) {
+        Write-Fail -TestName $testName -Reason ("legacy Toolkit event '{0}' must be removed" -f $removedEvent)
     }
 }
 $userPromptCmd = [string]$after.hooks.UserPromptSubmit[0].hooks[0].command

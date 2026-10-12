@@ -10,11 +10,11 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **46** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **45** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
-Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrate-analyze`, depois `orchestrate-deliver`, depois `orchestrate-develop`. As outras linhas são skills para um trabalho. Idioma da sessão, o pai e a compressão opcional estão em [Usando skills](using-skills.md).
+Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orquestrada](orchestrated-delivery.md): `orchestrate-analyze`, depois `orchestrate-deliver`, depois `orchestrate-develop`. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) também pode ser iniciado diretamente para uma feature clara. As outras linhas são skills para um trabalho. Idioma da sessão, o pai e a compressão opcional estão em [Usando skills](using-skills.md).
 
 ## Entrega
 
@@ -50,7 +50,7 @@ Uma feature segue a [Entrega orquestrada](orchestrated-delivery.md): `orchestrat
 | `electron-developer` | Electron pequeno ou médio | `/electron-developer` |
 | `blip-plugin-developer` | Andaime de um plugin Blip React novo | `/blip-plugin-developer` |
 | `micropython-developer` | Firmware de dispositivo MicroPython | `/micropython-developer` |
-| `impeccable` | Design. Escreve `docs/DESIGN-BRIEF.md` e para | `/impeccable` |
+| `*-developer` | Orientação de design e implementação de UI | `/react-developer`, `/angular-developer` ou outra skill de stack |
 
 ## Revisão, plataforma, git
 

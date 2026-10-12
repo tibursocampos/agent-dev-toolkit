@@ -10,7 +10,7 @@
 
 ## Process — Resolve feature and storage
 
-Load `STORAGE.md`. Run resolution with `$Workflow = classic`.
+Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`.
 
 Accept feature path from invoke (preferred) or Glob under feature root:
 
@@ -32,9 +32,9 @@ Não encontrei FEATURE.md / CONTINUITY.md em `{path}`.
 
 ---
 
-## Process — Context pressure (TE02 / RNF02)
+## Process — Durable progress handoff
 
-Honor `context-management.mdc` thresholds. When pressure is high:
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 1. Persist `CONTINUITY.md` (estado, decisões, which stories done/pending, exact next invoke).
 2. Offer resume:

@@ -5,7 +5,7 @@ Load on demand - do not paste into PLAN:
 | Topic | File |
 |-------|------|
 | Layers, handlers, repositories | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
-| Tests, fakes, anti-patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| Tests, fakes, anti-patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Pre-PR checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 
 **Test stack (toolkit default):** xUnit, Moq, Shouldly; method names `Should_<Result>_When_<Condition>`.

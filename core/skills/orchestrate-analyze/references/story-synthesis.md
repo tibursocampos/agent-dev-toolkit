@@ -61,7 +61,6 @@ Update `CONTINUITY.md` when:
 - [ ] Product artifact quality gates passed (FEATURE depth / promotion / cap) before human backlog approval gate
 - [ ] Before human backlog approval gate
 - [ ] After approval (typed O2 handoff)
-- [ ] Context ≥40% pause or session handoff (TE02)
 
 | Field | Rule |
 |-------|------|

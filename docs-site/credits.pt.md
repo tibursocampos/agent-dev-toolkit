@@ -14,17 +14,11 @@ O que este repositório entrega é uma integração de preferências: `core/skil
 
 A compressão é uma preferência de sessão e começa desligada. Os comandos, e o texto que permanece em prosa completa: [Usando skills](using-skills.md#session-behavior).
 
-## Impeccable
-
-O fluxo de comandos de UI e a orientação de design vêm de [pbakaus/impeccable](https://github.com/pbakaus/impeccable) e da CLI Impeccable (`npx impeccable`).
-
-A skill `impeccable` do toolkit é um harness parcial, sincronizado pelos adaptadores: um subconjunto de referências, um handoff de `DESIGN-BRIEF.md` e os gates deste toolkit. Uma instalação upstream completa, inclusive hooks, permanece opcional e espera um sim explícito. Rodar esta skill e rodar o Impeccable sozinho são sessões diferentes.
-
 ## frontend-design da Anthropic
 
 Um motivo de assinatura, um plano compacto de tokens antes do código e a intenção de escrita de UX vêm em parte de [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-A UI de produto neste toolkit segue `/impeccable` → `docs/DESIGN-BRIEF.md` → um `*-developer` de stack. O `frontend-design` de origem é uma referência opcional ao lado desse handoff. Não é uma skill do Core, e aquele repositório não é copiado para `core/`.
+Para UI de produto, registre decisões visuais em `docs/DESIGN-BRIEF.md` e depois use a skill `*-developer` pertinente. A orientação geral de frontend continua em `core/skills/_shared/frontend-guidelines/`. O `frontend-design` de origem é uma referência opcional; não é uma skill do Core e aquele repositório não é copiado para `core/`.
 
 ## Memory bank e Spec Kit
 
@@ -47,4 +41,4 @@ Campos de evidência seguem omitir em vez de fabricar (`product-evidence-lite.md
 
 ## Licença
 
-MIT © Raphael Campos (`LICENSE` no repositório). Ferramentas que você instala à parte mantêm a própria licença, inclusive a CLI Impeccable e o Spec Kit.
+MIT © Raphael Campos (`LICENSE` no repositório). Ferramentas que você instala à parte mantêm a própria licença, inclusive o Spec Kit.

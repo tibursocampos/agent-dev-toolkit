@@ -11,6 +11,73 @@
 
 Set-StrictMode -Version Latest
 
+function Test-ActionAuthorization {
+    [CmdletBinding()]
+    param(
+        [AllowNull()][AllowEmptyString()][string] $Effect,
+        [AllowNull()][AllowEmptyString()][string] $Scope,
+        [AllowNull()][object[]] $Authorizations = @()
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Effect) -or [string]::IsNullOrWhiteSpace($Scope)) {
+        return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_request'; Effect = $Effect; Scope = $Scope }
+    }
+    if ($null -eq $Authorizations) {
+        return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_authorization'; Effect = $Effect; Scope = $Scope }
+    }
+    foreach ($authorization in $Authorizations) {
+        if ($null -eq $authorization -or
+            $null -eq $authorization.PSObject.Properties['Effect'] -or
+            $null -eq $authorization.PSObject.Properties['Scope'] -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.Effect) -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.Scope)) {
+            return [PSCustomObject]@{ Allowed = $false; Reason = 'invalid_authorization'; Effect = $Effect; Scope = $Scope }
+        }
+    }
+    foreach ($authorization in $Authorizations) {
+        if ([string]::Equals([string]$authorization.Effect, $Effect, [StringComparison]::Ordinal) -and
+            [string]::Equals([string]$authorization.Scope, $Scope, [StringComparison]::Ordinal)) {
+            return [PSCustomObject]@{ Allowed = $true; Reason = 'authorized'; Effect = $Effect; Scope = $Scope }
+        }
+    }
+    return [PSCustomObject]@{ Allowed = $false; Reason = 'effect_or_scope_not_authorized'; Effect = $Effect; Scope = $Scope }
+}
+
+function Get-ToolkitAuthorizationContract {
+    $contractPath = Join-Path $PSScriptRoot 'authorization-contract.json'
+    if (-not (Test-Path -LiteralPath $contractPath -PathType Leaf)) {
+        throw "Authorization contract is missing beside GuardCommon.ps1: $contractPath"
+    }
+
+    try {
+        $contract = Get-Content -LiteralPath $contractPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Authorization contract is invalid JSON beside GuardCommon.ps1: $contractPath. $($_.Exception.Message)"
+    }
+
+    if ($null -eq $contract -or $contract.schemaVersion -ne 1 -or $null -eq $contract.authorizations) {
+        throw "Authorization contract is invalid beside GuardCommon.ps1: expected schemaVersion 1 and authorizations: $contractPath"
+    }
+
+    $authorizations = @($contract.authorizations)
+    if ($authorizations.Count -eq 0) {
+        throw "Authorization contract is invalid beside GuardCommon.ps1: authorizations cannot be empty: $contractPath"
+    }
+
+    foreach ($authorization in $authorizations) {
+        if ($null -eq $authorization -or
+            $null -eq $authorization.PSObject.Properties['effect'] -or
+            $null -eq $authorization.PSObject.Properties['scope'] -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.effect) -or
+            [string]::IsNullOrWhiteSpace([string]$authorization.scope)) {
+            throw "Authorization contract is invalid beside GuardCommon.ps1: every authorization needs effect and scope: $contractPath"
+        }
+    }
+
+    return $contract
+}
+
 function Test-ToolkitIsWindows {
     $isWindowsVariable = Get-Variable -Name IsWindows -Scope Global -ErrorAction SilentlyContinue
     if ($null -ne $isWindowsVariable) {
@@ -318,34 +385,44 @@ function Test-ToolkitPathIsUnderUserAdapterRoot {
         return $false
     }
 
-    $full = ''
-    try {
-        $full = [System.IO.Path]::GetFullPath($FilePath)
-    }
-    catch {
-        return $false
-    }
+    $full = Get-ToolkitCanonicalPathForGuard -Path $FilePath -WorkspaceRoot (Get-Location).Path
+    if ([string]::IsNullOrWhiteSpace($full)) { return $false }
 
     foreach ($name in $script:ToolkitUserAdapterRootNames) {
-        $root = [System.IO.Path]::GetFullPath((Join-Path $userHome $name))
+        $lexicalRoot = [System.IO.Path]::GetFullPath((Join-Path $userHome $name))
+        $root = Get-ToolkitCanonicalPathForGuard -Path $lexicalRoot -WorkspaceRoot (Get-Location).Path
+        if ([string]::IsNullOrWhiteSpace($root) -or -not $root.Equals($lexicalRoot, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
         if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $root) {
             return $true
         }
     }
 
-    $localAppData = $env:LOCALAPPDATA
-    if (-not [string]::IsNullOrWhiteSpace($localAppData)) {
-        try {
-            $hermesRoot = [System.IO.Path]::GetFullPath((Join-Path $localAppData 'hermes'))
-            if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $hermesRoot) {
-                return $true
-            }
-        }
-        catch {
-            return $false
-        }
-    }
+    return $false
+}
 
+function Test-ToolkitPathIsUnderLocalSddRoot {
+    param([string] $FilePath)
+    if ([string]::IsNullOrWhiteSpace($FilePath)) { return $false }
+    $userHome = Get-ToolkitUserHomeForGuard
+    if ([string]::IsNullOrWhiteSpace($userHome)) { return $false }
+    $roots = [System.Collections.Generic.List[string]]::new()
+    foreach ($name in $script:ToolkitUserAdapterRootNames) {
+        $roots.Add((Join-Path (Join-Path $userHome $name) 'sdd'))
+    }
+    # OpenCode and Hermes have provider-specific roots that are not in the generic list.
+    $roots.Add((Join-Path (Join-Path $userHome '.config\opencode') 'sdd'))
+    if (-not [string]::IsNullOrWhiteSpace($env:HERMES_HOME)) { $roots.Add((Join-Path $env:HERMES_HOME 'sdd')) }
+    if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { $roots.Add((Join-Path (Join-Path $env:LOCALAPPDATA 'hermes') 'sdd')) }
+    try { $full = Get-ToolkitCanonicalPathForGuard -Path $FilePath -WorkspaceRoot (Get-Location).Path } catch { return $false }
+    if ([string]::IsNullOrWhiteSpace($full)) { return $false }
+    foreach ($candidate in $roots) {
+        try { $lexicalRoot = [System.IO.Path]::GetFullPath($candidate) } catch { continue }
+        try { $root = Get-ToolkitCanonicalPathForGuard -Path $candidate -WorkspaceRoot (Get-Location).Path } catch { continue }
+        if ([string]::IsNullOrWhiteSpace($root)) { continue }
+        # The trust boundary itself must not be redirected by a link/reparse point.
+        if (-not $root.Equals($lexicalRoot, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $full -RootFull $root) { return $true }
+    }
     return $false
 }
 
@@ -478,13 +555,24 @@ function Test-AllowedPath {
 function Test-ToolkitSecretFalsePositive {
     param([string] $Line)
 
-    if ([string]::IsNullOrWhiteSpace($Line)) {
-        return $true
-    }
-    if ($Line -match '(?i)YOUR_|example|<TOKEN>|xxx|placeholder|Configuration\[|Environment\.Get|process\.env') {
-        return $true
-    }
+    # Kept as a compatibility helper for callers that only have a line. A line
+    # containing documentation context is never sufficient to suppress a
+    # secret finding; matching is performed against the individual candidate.
+    # This overload therefore cannot produce a false-positive exemption.
     return $false
+}
+
+function Test-ToolkitSecretCandidateFalsePositive {
+    param([string] $Candidate)
+
+    if ([string]::IsNullOrWhiteSpace($Candidate)) {
+        return $false
+    }
+
+    # Only suppress an exact, explicit placeholder value. Do not inspect or
+    # suppress the rest of the source line: a real secret can share that line.
+    $value = ($Candidate -replace '(?is)^.*?=\s*', '').Trim().Trim('''').Trim('"')
+    return $value -match '(?i)^(YOUR_[A-Z0-9_]+|<TOKEN>|x{3,}|placeholder(?:[_-][A-Z0-9_-]+)?)$'
 }
 
 function Get-ToolkitSecretFindings {
@@ -508,17 +596,17 @@ function Get-ToolkitSecretFindings {
     $lineNo = 0
     foreach ($line in ($Content -split "`r?`n")) {
         $lineNo++
-        if (Test-ToolkitSecretFalsePositive -Line $line) {
-            continue
-        }
         foreach ($entry in $patterns) {
-            if ($line -match $entry.Pattern) {
-                [void]$findings.Add([PSCustomObject]@{
-                        Type = $entry.Name
-                        Line = $lineNo
-                    })
-                break
+            foreach ($match in [regex]::Matches($line, $entry.Pattern)) {
+                if (-not (Test-ToolkitSecretCandidateFalsePositive -Candidate $match.Value)) {
+                    [void]$findings.Add([PSCustomObject]@{
+                            Type = $entry.Name
+                            Line = $lineNo
+                        })
+                    break
+                }
             }
+            if ($findings.Count -gt 0 -and $findings[$findings.Count - 1].Line -eq $lineNo) { break }
         }
     }
 
@@ -624,6 +712,33 @@ function Test-ToolkitApplyPatchToolName {
     return $ToolName -match '^(?i)(apply_patch)$'
 }
 
+function Test-ToolkitReadOnlyToolName {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProviderId,
+        [string] $ToolName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ToolName)) {
+        return $false
+    }
+
+    $readOnlyTools = @{
+        cursor      = @('Read', 'Grep', 'Glob', 'LS')
+        antigravity = @('read_file', 'read_many_files', 'list_directory', 'glob', 'grep_search', 'google_web_search', 'web_fetch', 'get_internal_docs')
+        claude      = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        codex       = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch')
+        copilot     = @('view', 'grep', 'glob')
+        grok        = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        zcode       = @('Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch', 'AskUserQuestion', 'TodoRead')
+        hermes      = @('read_file', 'read_many_files', 'list_directory', 'search_files', 'find_files', 'web_search', 'web_fetch', 'memory_search', 'ask_user')
+        openhands   = @('read', 'browse', 'search', 'list_files', 'find_files', 'grep', 'glob', 'view')
+    }
+    if (-not $readOnlyTools.ContainsKey($ProviderId)) {
+        return $false
+    }
+    return $readOnlyTools[$ProviderId] -contains $ToolName
+}
+
 function Get-ShellCommandFromInput {
     param($ToolInput)
 
@@ -632,8 +747,9 @@ function Get-ShellCommandFromInput {
     }
     foreach ($name in @('command', 'cmd', 'shell_command', 'script', 'CommandLine')) {
         $prop = $ToolInput.PSObject.Properties[$name]
-        if ($prop -and -not [string]::IsNullOrWhiteSpace([string]$prop.Value)) {
-            return [string]$prop.Value
+        if ($prop) {
+            if ($prop.Value -isnot [string]) { return '' }
+            if (-not [string]::IsNullOrWhiteSpace($prop.Value)) { return $prop.Value }
         }
     }
     return ''
@@ -755,11 +871,43 @@ function Test-ToolkitShellCommandMutatesPaths {
         return $false
     }
 
-    if ($Command -match '(?i)(?:^|[\s;&|])>{1,2}') {
+    if ($Command.Trim() -match '(?i)^python(?:3)?\s+-c\s+(["''])(?:print\(-?\d+(?:\.\d+)?\)|print\(["''][^"'']*["'']\))\1$') {
+        return $false
+    }
+
+    if ($Command -match '(?i)(?:\d?>|&>|\|\s*tee\b)') {
         return $true
     }
 
-    return $Command -match '(?i)(?:^|[\s;&|])(?:Out-File|Set-Content|Add-Content|New-Item|Copy-Item|Move-Item|Remove-Item|Clear-Content|\bri\b|\brm\b|\bdel\b|\berase\b|\btee\b|rmdir|unlink|\bmv\b|\bcp\b)\b'
+    return $Command -match '(?i)(?:^|[\s;&|])(?:Out-File|Set-Content|Add-Content|New-Item|Copy-Item|Move-Item|Remove-Item|Rename-Item|Clear-Content|\bri\b|\brm\b|\bdel\b|\berase\b|\btee\b|rmdir|unlink|\bmv\b|\bcp\b|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b)\b'
+}
+
+function Test-ToolkitShellCommandIsReadOnly {
+    param([string] $Command)
+
+    if ([string]::IsNullOrWhiteSpace($Command)) {
+        return $false
+    }
+
+    foreach ($segment in @($Command -split '(?:;|&&|\|\||\|)')) {
+        $text = $segment.Trim()
+        if ([string]::IsNullOrWhiteSpace($text)) {
+            continue
+        }
+        if ($text -match '(?i)^python(?:3)?\s+-c\s+(["''])(?:print\(-?\d+(?:\.\d+)?\)|print\(["''][^"'']*["'']\))\1$') {
+            continue
+        }
+        if ($text -match '(?i)^sed\s+(?:-[nE]\s+)*["'']s/[^/]+/[^/]+/g?["'']\s+(?:[A-Za-z0-9_.-]+[\\/])*[A-Za-z0-9_.-]+$') {
+            continue
+        }
+        if ($text -match '(?i)^(?:pwsh|powershell)(?:\.exe)?\s+-[^\r\n]*\s+-File\s+["'']?.*\.cursor/scripts/(?:validation|session|ledger)/[^"'']+\.ps1(?:["'']?\s|$)') {
+            continue
+        }
+        if ($text -notmatch '^(?i)(?:Get-Date|Get-Location|Get-Content|Get-ChildItem|Get-Item|Test-Path|Resolve-Path|Write-Output|Write-Host|echo|printf|cat|head|tail|grep|rg|find|ls|dir|pwd|whoami|where|which|git\s+(?:status|diff|log|show|branch|rev-parse|ls-files))(?=\s|$)') {
+            return $false
+        }
+    }
+    return $true
 }
 
 function Get-PathsReferencedInShellCommand {
@@ -807,10 +955,74 @@ function Get-PathsReferencedInShellCommand {
     return @($paths)
 }
 
+function Resolve-ToolkitGuardPathExpression {
+    <#
+    .SYNOPSIS
+      Expand only the environment-variable forms supported by the guard.
+
+    .DESCRIPTION
+      Path input is data, not PowerShell source.  Do not invoke a parser or
+      evaluate arbitrary expressions here.  The accepted forms are
+      $env:NAME, ${env:NAME}, and %NAME%.  Missing variables and every other
+      variable/expression form are rejected so an unresolved expression cannot
+      be mistaken for a workspace-relative path.
+    #>
+    param(
+        [Parameter(Mandatory = $true)][string] $Path
+    )
+
+    $result = [PSCustomObject]@{
+        Supported  = $true
+        ExpandedPath = $Path
+        Reason     = ''
+    }
+
+    if ($Path.IndexOf('$', [System.StringComparison]::Ordinal) -lt 0 -and
+        $Path.IndexOf('%', [System.StringComparison]::Ordinal) -lt 0) {
+        return $result
+    }
+
+    $expanded = $Path
+    $envPattern = '\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}|\$env:([A-Za-z_][A-Za-z0-9_]*)'
+    $envMatches = [regex]::Matches($expanded, $envPattern)
+    foreach ($match in $envMatches) {
+        $name = if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $match.Groups[2].Value }
+        $value = [Environment]::GetEnvironmentVariable($name)
+        if ([string]::IsNullOrEmpty($value)) {
+            $result.Supported = $false
+            $result.Reason = "environment_variable_unset:$name"
+            return $result
+        }
+        $expanded = $expanded.Replace($match.Value, $value)
+    }
+
+    $percentPattern = '%([A-Za-z_][A-Za-z0-9_]*)%'
+    $percentMatches = [regex]::Matches($expanded, $percentPattern)
+    foreach ($match in $percentMatches) {
+        $name = $match.Groups[1].Value
+        $value = [Environment]::GetEnvironmentVariable($name)
+        if ([string]::IsNullOrEmpty($value)) {
+            $result.Supported = $false
+            $result.Reason = "environment_variable_unset:$name"
+            return $result
+        }
+        $expanded = $expanded.Replace($match.Value, $value)
+    }
+
+    if ($expanded -match '\$|%') {
+        $result.Supported = $false
+        $result.Reason = 'unsupported_path_expression'
+        return $result
+    }
+
+    $result.ExpandedPath = $expanded
+    return $result
+}
+
 function Get-ToolkitPathSecretsGuardVerdict {
     <#
     .SYNOPSIS
-      Host-agnostic allow/deny for write, delete, shell, and apply_patch tool calls.
+      Compatibility shim for adapter hooks. Toolkit hooks do not decide host authorization.
     #>
     param(
         [string] $ToolName,
@@ -819,151 +1031,15 @@ function Get-ToolkitPathSecretsGuardVerdict {
         [string] $DirectShellCommand = ''
     )
 
-    $allow = [PSCustomObject]@{
+    return [PSCustomObject]@{
         Decision     = 'allow'
-        Reason       = ''
+        Reason       = 'host_authorization'
         UserMessage  = ''
         AgentMessage = ''
         RelativePath = ''
         SecretType   = ''
     }
-
-    $isWrite = Test-ToolkitWriteToolName -ToolName $ToolName
-    $isDelete = Test-ToolkitDeleteToolName -ToolName $ToolName
-    $isShell = Test-ToolkitShellToolName -ToolName $ToolName
-    $isPatch = Test-ToolkitApplyPatchToolName -ToolName $ToolName
-
-    if (-not ($isWrite -or $isDelete -or $isShell -or $isPatch)) {
-        return $allow
-    }
-
-    $pathsToCheck = [System.Collections.Generic.List[string]]::new()
-    $contentToScan = ''
-    $shellCmd = ''
-
-    if ($isWrite) {
-        $filePath = Get-WriteToolPathFromInput -ToolInput $ToolInput
-        if ([string]::IsNullOrWhiteSpace($filePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'missing_path'
-                UserMessage  = 'Blocked: write/edit tool missing file path.'
-                AgentMessage = 'Hook denied write/edit because tool_input has no path/file_path. Fail-closed: path is required.'
-                RelativePath = ''
-                SecretType   = ''
-            }
-        }
-        $pathsToCheck.Add($filePath) | Out-Null
-        $contentToScan = Get-WriteToolContentFromInput -ToolInput $ToolInput
-    }
-    elseif ($isDelete) {
-        $filePath = Get-DeleteToolPathFromInput -ToolInput $ToolInput
-        if ([string]::IsNullOrWhiteSpace($filePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'missing_path'
-                UserMessage  = 'Blocked: delete tool missing file path.'
-                AgentMessage = 'Hook denied Delete because tool_input has no path. Fail-closed: path is required.'
-                RelativePath = ''
-                SecretType   = ''
-            }
-        }
-        $pathsToCheck.Add($filePath) | Out-Null
-    }
-    elseif ($isPatch) {
-        $patchBody = Get-ApplyPatchContentFromInput -ToolInput $ToolInput
-        $contentToScan = $patchBody
-        foreach ($p in @(Get-ApplyPatchPathsFromContent -PatchContent $patchBody)) {
-            $pathsToCheck.Add($p) | Out-Null
-        }
-    }
-    elseif ($isShell) {
-        $shellCmd = $DirectShellCommand
-        if ([string]::IsNullOrWhiteSpace($shellCmd)) {
-            $shellCmd = Get-ShellCommandFromInput -ToolInput $ToolInput
-        }
-        $contentToScan = $shellCmd
-        if (Test-ToolkitShellCommandMutatesPaths -Command $shellCmd) {
-            foreach ($p in @(Get-PathsReferencedInShellCommand -Command $shellCmd)) {
-                $pathsToCheck.Add($p) | Out-Null
-            }
-        }
-        # Read and execute commands are not path-gated. Secret scan still runs.
-    }
-
-    foreach ($rawPath in $pathsToCheck) {
-        $relativePath = Get-ToolkitNormalizedRelativePath -FilePath $rawPath -WorkspaceRoot $WorkspaceRoot
-        if ($null -eq $relativePath) {
-            if ($isShell -and (Test-ToolkitShellOutsidePathIsCanonicalRuntime -Command $shellCmd -FilePath $rawPath)) {
-                continue
-            }
-            if (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath) {
-                if (Test-ToolkitDeniedPathSegment -RelativePath $rawPath) {
-                    return [PSCustomObject]@{
-                        Decision     = 'deny'
-                        Reason       = 'forbidden_path'
-                        UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
-                        AgentMessage = ("Hook denied tool targeting '{0}'. .git stays protected inside adapter homes." -f $rawPath)
-                        RelativePath = $rawPath
-                        SecretType   = ''
-                    }
-                }
-                continue
-            }
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'outside_workspace'
-                UserMessage  = ("Blocked: path outside workspace ({0})." -f $rawPath)
-                AgentMessage = ("Hook denied tool targeting '{0}'. Writes must stay in the workspace or in a user adapter home (.cursor, .codex, and the other toolkit homes)." -f $rawPath)
-                RelativePath = $rawPath
-                SecretType   = ''
-            }
-        }
-        if ([string]::IsNullOrWhiteSpace($relativePath)) {
-            # Bare forbidden tokens from shell scan (e.g. "PRD").
-            if ((Test-ToolkitForbiddenSddPath -RelativePath $rawPath) -or (Test-ToolkitDeniedPathSegment -RelativePath $rawPath)) {
-                return [PSCustomObject]@{
-                    Decision     = 'deny'
-                    Reason       = 'forbidden_path'
-                    UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
-                    AgentMessage = ("Hook denied tool targeting '{0}'. SDD artifacts belong under features/; avoid legacy PRD/PLAN trees and denied segments." -f $rawPath)
-                    RelativePath = $rawPath
-                    SecretType   = ''
-                }
-            }
-            continue
-        }
-
-        if (-not (Test-ToolkitAllowedWritePath -RelativePath $relativePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'forbidden_path'
-                UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $relativePath)
-                AgentMessage = ("Hook denied tool targeting '{0}'. Paths must stay inside the workspace and outside .git and legacy PRD/PLAN trees." -f $relativePath)
-                RelativePath = $relativePath
-                SecretType   = ''
-            }
-        }
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($contentToScan)) {
-        $secretFindings = @(Get-ToolkitSecretFindings -Content $contentToScan)
-        if ($secretFindings.Count -gt 0) {
-            $first = $secretFindings[0]
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'secret_pattern'
-                UserMessage  = ("Blocked: possible secret ({0}) near line {1}." -f $first.Type, $first.Line)
-                AgentMessage = ("Hook denied tool because content matches secret pattern '{0}'. Use env var names or placeholders. Never commit API keys, tokens, passwords, or private keys." -f $first.Type)
-                RelativePath = ''
-                SecretType   = [string]$first.Type
-            }
-        }
-    }
-
-    return $allow
 }
-
 function Resolve-ToolkitGuardCommonPath {
     <#
     .SYNOPSIS

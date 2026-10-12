@@ -47,7 +47,7 @@ Every `git commit` must follow [Conventional Commits](https://www.conventionalco
 - Under NO circumstances should you include `Co-authored-by: Cursor <cursoragent@cursor.com>`, `Co-authored-by: Antigravity`, or any other AI agent attribution in the commit message or body. The commit message must contain JUST the commit message.
 - No `git commit --trailer` / `--trailer=…` for co-author attribution
 - No extra `-m` blocks or `--author` overrides added for Cursor attribution
-- **Agents:** after `git commit`, run `git log -1 --format=%B`. If `Co-authored-by:` appears (often injected by the IDE), amend immediately with the approved message only - see `/commit` §5.1. Use `--no-verify` on amend **only** when needed to drop an unauthorized co-author trailer.
+- **Agents:** after `git commit`, run `git log -1 --format=%B`. If `Co-authored-by:` appears (often injected by the IDE), amend with the approved message only - see `/commit` §5.1. Keep commit hooks enabled; if tooling adds the trailer again, stop and ask the operator to remove or reconfigure that tooling.
 
 Allowed footers: `Refs: #…`, `BREAKING CHANGE:`, `Fixes: #…` - per project convention only. **Not** `Co-authored-by:` for AI tools.
 

@@ -1,4 +1,4 @@
-﻿# Caveman Compact - Continuity / memory prose
+# Caveman Compact - Continuity / memory prose
 
 Lean, optional compression of **narrative** context files so later sessions spend fewer input tokens.
 Not a port of upstream `caveman-compress`. Agent-driven rewrite with **hard validators** + user `sim`.

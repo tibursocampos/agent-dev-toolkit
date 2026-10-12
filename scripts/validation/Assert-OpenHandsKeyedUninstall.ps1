@@ -189,8 +189,8 @@ try {
     if (Test-OpenHandsToolkitSkillPresent) {
         Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
     }
-    if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
-        Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
+    if (Test-Path -LiteralPath $managedSkillUserFile) {
+        Write-Fail -TestName $removeTest -Reason 'all files inside toolkit-managed skill directories must be removed'
     }
     if (Test-OpenHandsToolkitHooksPresent) {
         Write-Fail -TestName $removeTest -Reason 'toolkit hooks should be removed after uninstall'

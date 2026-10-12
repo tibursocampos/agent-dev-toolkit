@@ -1,4 +1,4 @@
-﻿---
+---
 name: blip-plugin-developer
 description: Scaffold a new Blip React plugin (create-blip-extension), config:plugin, and SDD handoff to react-developer. Use for new Blip plugins or when invoking /blip-plugin-developer.
 ---
@@ -48,7 +48,7 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 | Deploy / CI | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/_shared/blip-guidelines/deploy-and-ci.md` |
 | React guidelines | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/_shared/react-guidelines/` |
 | Frontend practices | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| Design brief template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md` |
+| Design brief template | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skillsUI design brief/reference/DESIGN-BRIEF-TEMPLATE.md` |
 | Subagent-first / SPAWN.md | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/_shared/developer-common/subagent-first.md`, `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/_shared/agents/SPAWN.md` |
 | Branch / commit | `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/rules/branch-validation.mdc` |
 
@@ -138,11 +138,11 @@ Ask **(pt-BR)** what to implement next. Route by scope:
 
 | Scope | Next step |
 |-------|-----------|
-| Net-new UI / redesign | `/impeccable shape` -> `docs/DESIGN-BRIEF.md` with `target_stack: react` and Blip/BDS notes in section 9 |
+| Net-new UI / redesign | `UI design brief shape` -> `docs/DESIGN-BRIEF.md` with `target_stack: react` and Blip/BDS notes in section 9 |
 | Plugin implementation | `/react-developer` (auto-loads `blip-guidelines/` when `blip-ds` present) |
 | Backend API (.NET) | `/dotnet-developer` in **separate repo** - not in plugin scaffold session |
 
-**DESIGN-BRIEF:** use template at `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md`. One session = design **or** implementation, not both.
+**DESIGN-BRIEF:** use template at `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/opencode/skillsUI design brief/reference/DESIGN-BRIEF-TEMPLATE.md`. One session = design **or** implementation, not both.
 
 **External API:** if Phase 1 answer was REST backend, remind user to read `external-api-integration.md` during `react-developer` sessions.
 
@@ -162,7 +162,7 @@ Load `auth-and-permissions.md` only for Full profile.
 | Situation | Next |
 |-----------|------|
 | Implement UI/features | `/react-developer` |
-| Design new screens | `/impeccable shape` |
+| Design new screens | `UI design brief shape` |
 | Backend API | `/dotnet-developer` (separate repo) |
 | Full SDD feature | `/sdd-spec` |
 | Commit (after implementation) | `/commit` |
