@@ -1,0 +1,30 @@
+name: Master release CI
+
+on:
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: none
+
+jobs:
+  ci-ok:
+    name: ci-ok
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release PR branches
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${HEAD_REF}" == "develop" ]] || {
+            echo "Release PR head must be develop (got: ${HEAD_REF})" >&2
+            exit 1
+          }
+          [[ "${BASE_REF}" == "master" || "${BASE_REF}" == "main" ]] || {
+            echo "Release PR base must be master or main (got: ${BASE_REF})" >&2
+            exit 1
+          }
+          echo "OK: ${HEAD_REF} → ${BASE_REF}"

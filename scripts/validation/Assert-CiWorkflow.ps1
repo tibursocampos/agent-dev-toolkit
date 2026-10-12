@@ -433,6 +433,7 @@ Assert-ExactNeeds -Jobs $workflowJobs -JobName 'ci-ok' -ExpectedJobs @(
 
 $workflowTopology = @(
     @{ RelativePath = '.github/workflows/docs.yml'; ExpectedJobs = @('build', 'deploy'); Required = @('jobs:', 'build:', 'runs-on: ubuntu-latest', 'mkdocs build --strict -f docs-site/mkdocs.yml', 'deploy:', 'needs: build', 'actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e') }
+    @{ RelativePath = '.github/workflows/master-release-ci.yml'; ExpectedJobs = @('ci-ok'); Required = @('pull_request:', 'branches: [master, main]', 'permissions:', 'contents: none', 'name: ci-ok', 'github.head_ref', 'github.base_ref', 'HEAD_REF', 'BASE_REF', 'Release PR head must be develop', 'Release PR base must be master or main') }
     @{ RelativePath = '.github/workflows/enforce-release-source.yml'; ExpectedJobs = @('release-source', 'release-metadata'); Required = @('jobs:', 'release-source:', 'release-metadata:', 'branches: [master, main]', 'github.head_ref', 'develop', 'Create release:', 'MAJOR.MINOR.PATCH', 'Highlights must contain one or more non-empty bullet lines only.', '"git", "tag", "--list"') }
     @{ RelativePath = '.github/workflows/publish-release-bootstrap.yml'; ExpectedJobs = @('publish'); Required = @('release:', 'types: [published]', 'workflow_call:', 'workflow_dispatch:', 'permissions:', 'contents: write', 'publish:', 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262', 'gh release upload') }
     @{ RelativePath = '.github/workflows/release.yml'; ExpectedJobs = @('release', 'publish-assets', 'reconcile-develop'); Required = @('workflow_dispatch:', 'pull_request:', 'types: [closed]', 'github.event.pull_request.merged', '.github/RELEASE_TEMPLATE.md', '## Highlights', '## Included work', '## Release assets', '## Changelog', '--notes-file', 'uses: ./.github/workflows/publish-release-bootstrap.yml', 'merge-base --is-ancestor', 'promoted_tree', 'merge --no-ff', 'gh pr create', 'RELEASE_SYNC_APP_ID', 'RELEASE_SYNC_APP_PRIVATE_KEY', 'gh api', 'git rev-list --reverse', 'gh pr merge', '--auto --merge', 'autoMergeRequest', "Version must be greater than the latest existing release tag.") }
@@ -450,6 +451,21 @@ foreach ($workflow in $workflowTopology) {
         }
     }
 }
+
+# --- Should_KeepMasterReleaseCiLightweight_When_WorkflowPresent ---
+$masterReleaseCiName = 'Should_KeepMasterReleaseCiLightweight_When_WorkflowPresent'
+$masterReleaseCiPath = Join-Path $repoRoot '.github/workflows/master-release-ci.yml'
+$masterReleaseCiText = Get-Content -LiteralPath $masterReleaseCiPath -Raw
+if ($masterReleaseCiText -match '(?im)^\s*uses:\s*') {
+    Write-Fail -TestName $masterReleaseCiName -Reason 'master release ci-ok must not invoke actions or checkout code'
+}
+if ($masterReleaseCiText -match '(?i)validate-core|Invoke-.*Smoke|setup-python|setup-dotnet|actions/checkout') {
+    Write-Fail -TestName $masterReleaseCiName -Reason 'master release ci-ok must only validate release branch refs'
+}
+if ($masterReleaseCiText -notmatch '(?m)^  pull_request:\r?\n    branches: \[master, main\]\s*$') {
+    Write-Fail -TestName $masterReleaseCiName -Reason 'master release ci-ok must trigger only for PRs targeting master or main'
+}
+Write-Pass -TestName $masterReleaseCiName
 
 $releaseAutomationText = Get-Content -LiteralPath (Join-Path $repoRoot '.github/workflows/release.yml') -Raw
 $treeCheckIndex = $releaseAutomationText.IndexOf('promoted_tree', [System.StringComparison]::Ordinal)
