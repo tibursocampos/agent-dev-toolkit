@@ -2,20 +2,72 @@ name: Enforce release source
 
 on:
   pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
     branches: [master, main]
 
-permissions: {}
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   release-source:
     runs-on: ubuntu-latest
     steps:
       - name: Require head branch develop
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         shell: bash
         run: |
-          head_ref="${{ github.head_ref }}"
-          if [[ "$head_ref" != "develop" ]]; then
-            echo "PRs into master/main must come from develop (got: $head_ref)"
+          [[ "${HEAD_REF}" == "develop" ]] || {
+            echo "PRs into master/main must come from develop (got: ${HEAD_REF})" >&2
             exit 1
-          fi
+          }
           echo "OK: head is develop"
+
+  release-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tags for SemVer validation
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Validate release decision and version
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+
+          body = os.environ.get("PR_BODY", "")
+          decisions = re.findall(r"(?mi)^\s*Create release:\s*(yes|no)\s*$", body)
+          versions = re.findall(r"(?mi)^\s*Version:\s*(.*?)\s*$", body)
+          if len(decisions) != 1 or len(versions) != 1:
+              sys.exit("Template must contain exactly one 'Create release: yes/no' and one 'Version: MAJOR.MINOR.PATCH' field.")
+          decision, version = decisions[0].lower(), versions[0]
+          if decision == "no":
+              if version not in ("", "N/A", "n/a", "-"):
+                  sys.exit("When Create release is no, Version must be blank, N/A, or '-'.")
+              print("Release not requested; source and metadata are valid.")
+              raise SystemExit(0)
+          if not re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", version):
+              sys.exit("Version must be SemVer MAJOR.MINOR.PATCH without a v prefix or leading zeroes.")
+          highlights = re.search(r"(?ims)^## Highlights\s*$\n(.*?)(?=^## |\Z)", body)
+          section = re.sub(r"(?s)<!--.*?-->", "", highlights.group(1) if highlights else "")
+          lines = [line.strip() for line in section.splitlines() if line.strip()]
+          if not lines or any(not re.fullmatch(r"[-*]\s+\S.*", line) for line in lines):
+              sys.exit("When creating a release, ## Highlights must contain one or more non-empty bullet lines only.")
+
+          current = tuple(map(int, version.split(".")))
+          tags = subprocess.check_output(["git", "tag", "--list", "v[0-9]*.[0-9]*.[0-9]*"], text=True).splitlines()
+          prior = []
+          for tag in tags:
+              match = re.fullmatch(r"v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", tag)
+              if match:
+                  prior.append(tuple(map(int, match.groups())))
+          if prior and current <= max(prior):
+              sys.exit(f"Version {version} must be greater than the latest release v{'.'.join(map(str, max(prior)))}.")
+          print(f"Release version v{version} is valid and newer than existing release tags.")
+          PY
