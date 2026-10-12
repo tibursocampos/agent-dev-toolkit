@@ -527,6 +527,7 @@ function Invoke-CodexSmokeValidate {
         AgentsMaterializedOk     = $false
         CustomAgentFilesPresent  = $false
         HooksPresent             = $false
+        AuthorizationContractPresent = $false
         HooksRequired            = $false
         UserSkillsFixtureOk      = $false
         UserSkillsMirrored       = $false
@@ -784,6 +785,18 @@ function Invoke-CodexSmokeValidate {
                 -ExitCode $exitFail
         }
         $checks.GuardScriptPresent = $true
+
+        $authorizationContractPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.SharedAuthorizationContractFileName
+        if (-not (Test-Path -LiteralPath $authorizationContractPath -PathType Leaf)) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex authorization-contract.json missing at: {0}" -f $authorizationContractPath) `
+                -ExitCode $exitFail
+        }
+        $checks.AuthorizationContractPresent = $true
     }
     else {
         $checks.HooksPresent = Test-Path -LiteralPath $hooksPath -PathType Leaf

@@ -147,7 +147,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -
 | Default | If `TRACE.jsonl` is missing → exit 0 (trail optional until close). If present → every line valid JSON + required fields |
 | `-RequireArchiveComplete` | TRACE must exist and pass living-loop triad + sync target rules |
 
-Exit 0 = OK. Exit ≠ 0 = fix before declaring archive done. Smoke: `Assert-TraceArchiveContract.ps1`. Deterministic only (RNF-001) — never LLM-as-validator.
+Exit 0 = OK. Exit ≠ 0 = fix before declaring archive done. Validation is deterministic; no LLM-as-validator.
 
 ## When to write
 

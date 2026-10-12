@@ -88,6 +88,11 @@ function Get-GrokKnownToolkitArtifactPaths {
         $paths.Add([System.IO.Path]::GetFullPath($guardCommon))
     }
 
+    $authorizationContract = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.SharedAuthorizationContractFileName
+    if (Test-Path -LiteralPath $authorizationContract) {
+        $paths.Add([System.IO.Path]::GetFullPath($authorizationContract))
+    }
+
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $RepoRoot
     if (Test-Path -LiteralPath $sourceAgentsRoot) {
         Get-ChildItem -LiteralPath $sourceAgentsRoot -File | ForEach-Object {

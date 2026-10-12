@@ -4,7 +4,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIV
 
 **Language:** This guideline is **English**. Chat prompts to the operator mirror the **user chat language** (`LANGUAGE.md`).
 
-Companion: `PIPELINE.md` § Prior context, `MEMORY-BANK.md` § Selective read, `context-management.mdc`.
+Companion: `PIPELINE.md` § Prior context and `MEMORY-BANK.md` § Selective read. These selective-read rules are independent of context-usage thresholds.
 
 ---
 

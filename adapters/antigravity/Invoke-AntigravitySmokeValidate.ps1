@@ -11,7 +11,7 @@
   - config/skills/dev_persona/SKILL.md (CA1)
   - managed markers in config/AGENTS.md and/or config/GEMINI.md (CA1)
   Fails on underscore-only skill trees (TE04) or missing GUARDRAILS/dev_persona (TE05).
-  When hooks=true: asserts config/hooks/hooks.json + guard scripts. Legacy bridge not gated.
+  When hooks=true: asserts config/hooks/hooks.json + guard scripts, including authorization-contract.json. Legacy bridge not gated.
   Resolves InstallRoot via Resolve-InstallRoot (TE01). Never writes outside InstallRoot.
 #>
 

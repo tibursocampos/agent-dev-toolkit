@@ -27,6 +27,8 @@ Gate check:
 # Skill: python-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/python-developer`, `python fix`, `implement FastAPI/Flask feature`, or for **small** Python work that does not need a full PRD/PLAN cycle.
 
@@ -59,7 +61,6 @@ Host boundary: use this skill for CPython applications, host tools, and host tes
 | Style / principles | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md`, `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/python-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/python-developer/references/<section>.md` |
 

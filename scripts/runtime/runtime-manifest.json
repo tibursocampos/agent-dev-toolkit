@@ -19,8 +19,10 @@
     { "source": "scripts/validation/validate-plan.ps1", "destination": "validation/validate-plan.ps1", "class": "runtime", "caller": "sdd-plan PLAN structure gate" },
     { "source": "scripts/validation/validate-change.ps1", "destination": "validation/validate-change.ps1", "class": "runtime", "caller": "sdd-spec and change artifact gate" },
     { "source": "scripts/validation/Invoke-PrdPlanChangePreflight.ps1", "destination": "validation/Invoke-PrdPlanChangePreflight.ps1", "class": "runtime", "caller": "orchestrate-deliver preflight" },
+    { "source": "scripts/validation/Invoke-O3ArtifactPreflight.ps1", "destination": "validation/Invoke-O3ArtifactPreflight.ps1", "class": "runtime", "caller": "orchestrate-develop preflight" },
     { "source": "scripts/_lib/ToolkitConstants.ps1", "destination": "_lib/ToolkitConstants.ps1", "class": "support", "caller": "published runtime scripts above" },
     { "source": "scripts/_lib/Get-ToolkitRepoRoot.ps1", "destination": "_lib/Get-ToolkitRepoRoot.ps1", "class": "support", "caller": "session, ledger, and preflight runtime scripts above" },
+    { "source": "scripts/_lib/Resolve-EffectiveSddRoot.ps1", "destination": "_lib/Resolve-EffectiveSddRoot.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
     { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "preflight runtime script above" }
   ]
 }

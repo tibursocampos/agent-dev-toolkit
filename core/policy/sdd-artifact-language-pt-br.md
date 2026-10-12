@@ -1,9 +1,9 @@
 ---
-description: SDD agent artifacts (PRD, PLAN) in Brazilian Portuguese by default; identifiers English; comments/docs mirror or ask
+description: Resolve SDD artifact language from invocation, preferences, manifest, and conversation; identifiers English
 alwaysApply: true
 ---
 
-# SDD artifact language - pt-BR (agent workflow only)
+# SDD artifact language - resolved content language (agent workflow only)
 
 ## Scope (read first)
 
@@ -17,12 +17,12 @@ This rule does **not** change code language. It does **not** default project doc
 
 **Host plans** the operator reads (Cursor Plan mode, `CreatePlan`, `.cursor/plans/`) are **user-facing chat**, not this SDD PLAN path and not `SKILL.md`. They follow `user-language-pt-br.md` / `LANGUAGE.md` chat output. Do not write them in English because guidelines are English.
 
-## SDD artifacts - default pt-BR
+## SDD artifacts - resolve content language
 
-Write **section titles**, **metadata labels**, **prose**, **acceptance criteria** (Dado/Quando/Então/E), **PLAN steps**, and **implementation notes** in **Brazilian Portuguese (pt-BR)**.
+Write **section titles**, **metadata labels**, **prose**, **acceptance criteria**, **PLAN steps**, and **implementation notes** in the resolved content language from `skills/_shared/agents/LANGUAGE.md` (invocation override, preferences, manifest, then conversation language).
 
-- Use templates in `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` and `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` (pt-BR variant).
-- Do **not** write PRD/PLAN body in English unless the user overrides in the **same skill invocation** (see below).
+- Use templates in `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` and `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` matching the resolved content language.
+- Do **not** hard-code pt-BR when the resolved content language is another language.
 
 **Identifiers in prose:** type names, method names, API routes, file paths, and test names stay in **English** (e.g. `UserService`, `Should_ReturnOk_When_ValidRequest`).
 
@@ -65,8 +65,8 @@ Set `artifact_language` to `"en"` in `{{SDD_ROOT}}/<repo-id>/manifest.json` when
 
 | Skill | Behavior |
 |-------|----------|
-| `sdd-spec` | New PRD -> pt-BR unless override |
-| `sdd-plan` | New PLAN -> pt-BR unless override; read existing PRD in any language |
+| `sdd-spec` | New PRD -> resolved content language |
+| `sdd-plan` | New PLAN -> resolved content language; read existing PRD in any language |
 | `sdd-develop` | Code -> English; update PLAN in **existing file language** |
 
 This rule overrides conflicting lines in `AGENTS.md` or old templates **only for SDD agent `.md` files** listed above.

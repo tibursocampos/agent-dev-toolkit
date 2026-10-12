@@ -1,19 +1,9 @@
 {
   "version": 1,
   "hooks": {
-    "preToolUse": [
-      {
-        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
-        "matcher": "Write|StrReplace|Edit|MultiEdit|search_replace|Delete|Shell",
-        "failClosed": true
-      }
-    ],
-    "beforeShellExecution": [
-      {
-        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/guard-pre-tool.ps1",
-        "failClosed": true
-      }
-    ],
+    "preToolUse": [],
+    "beforeShellExecution": [],
+    "preCompact": [],
     "postToolUse": [
       {
         "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./hooks/emit-trace.ps1"
@@ -32,11 +22,6 @@
     "afterFileEdit": [
       {
         "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/plan-after-edit.ps1"
-      }
-    ],
-    "preCompact": [
-      {
-        "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./hooks/context-pre-compact.ps1"
       }
     ]
   }

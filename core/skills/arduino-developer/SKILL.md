@@ -28,6 +28,8 @@ Gate check:
 # Skill: arduino-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke `arduino-developer` for Arduino sketches, libraries, board-specific firmware, or Arduino Core projects. Host examples: `/arduino-developer`, `$arduino-developer`, `use skill arduino-developer`.
 
@@ -53,7 +55,6 @@ A configuration-aware implementation or diagnosis for the declared Arduino targe
 | Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 | Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 Do not preload unrelated stack packs or the whole memory bank. Load only the embedded topic needed for the current claim.
 

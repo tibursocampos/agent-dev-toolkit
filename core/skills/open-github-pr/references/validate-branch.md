@@ -4,7 +4,7 @@ Enforce mode-specific rules (also respect `branch-validation.mdc` for feature he
 
 **Feature mode**
 
-- Head (current branch) must be `feature/<slug>` or `feat/<id>` (single segment after prefix)
+- Head (current branch) must be `feature/<slug>` or `feat/<id>-<slug>` (single segment after prefix)
 - Blocked head: `main`, `master`, `develop`, nested `feature/a/b`, or any other pattern
 - Default base: `develop` (override only if user or PLAN says otherwise)
 

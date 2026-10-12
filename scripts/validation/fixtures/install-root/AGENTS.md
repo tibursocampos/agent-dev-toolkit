@@ -33,7 +33,7 @@ Three coexisting **work tracks**. Classic SDD / Orchestrated Delivery writes lan
 | Stack router / ad-hoc | `developer` — `/developer` |
 | Explicit .NET | `dotnet-developer` — `/dotnet-developer` |
 | Explicit Java | `java-developer` — `/java-developer` |
-| Frontend UI design | `impeccable` — `/impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
+| Frontend UI design | `former UI design skill` — `UI design brief` → `DESIGN-BRIEF.md` → stack `*-developer` |
 | Blip React plugin | `blip-plugin-developer` — `/blip-plugin-developer` → `react-developer` |
 
 ### Optional flows (index)
@@ -89,7 +89,7 @@ Full list: `docs/SKILLS.md`. Prefer `/<name>`. Compat: `use skill <name>` may st
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
 | Ops / quality | `code-review`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate` |
-| Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
+| Design / docs / backlog | `former UI design skill`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
 
 ## Post-sync validation
 

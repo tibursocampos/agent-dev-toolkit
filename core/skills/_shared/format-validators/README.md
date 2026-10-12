@@ -10,7 +10,7 @@ Ensure generated documents and messages follow the templates defined in this too
 
 | Validator | File | Description |
 |-----------|------|-------------|
-| **PRD validator** | `feature-validator.md` | Validates PRD markdown against the spec skill template |
+| **PRD content checklist** | `feature-validator.md` | Maps authoring guidance to `templates/sdd/PRD.md`; executable structural gate is `scripts/validation/validate-prd.ps1` |
 | **Commit message validator** | `commit-message-validator.md` | Conventional Commits (Git-only) |
 | **PR comment validator** | `pr-comment-validator.md` | Inline review comment structure (GitHub/generic) |
 
@@ -48,7 +48,7 @@ When generating an output:
 
 | Skill | Validator | When |
 |-------|-----------|------|
-| **spec** | `feature-validator.md` | Before saving PRD |
+| **spec** | `scripts/validation/validate-prd.ps1` | After writing PRD and before handoff; `feature-validator.md` is reference guidance |
 | **commit** | `commit-message-validator.md` | Before `git commit` |
 | **code-review** | `commit-message-validator.md`, `pr-comment-validator.md` | When summarizing commits or drafting review comments |
 

@@ -29,6 +29,10 @@
   Opt-in only: mirrors to ~/.agents/skills. Do not enable by default — Codex
   already discovers InstallRoot/skills (~/.codex/skills); dual mirrors duplicate $ picks.
 
+.PARAMETER DeferPreferences
+  Internal toolkit wrapper signal. Direct sync stays non-interactive and seeds defaults;
+  toolkit.ps1 initializes preferences after publication so its interactive menu can ask.
+
 .PARAMETER Mode
   Required for -Agent copilot: user|repo (TE02 when missing/invalid). Ignored for other agents.
 
@@ -59,7 +63,10 @@ param(
     [switch] $AllowUserHome,
 
     [Parameter()]
-    [switch] $UserScope
+    [switch] $UserScope,
+
+    [Parameter()]
+    [switch] $DeferPreferences
 )
 
 Set-StrictMode -Version Latest
@@ -77,6 +84,7 @@ $libDir = Join-Path $scriptDir '_lib'
 . (Join-Path $libDir 'Resolve-RegistryAgent.ps1')
 . (Join-Path $libDir 'Assert-CopilotAgentMode.ps1')
 . (Join-Path $libDir 'Resolve-AdapterFixtureInstallRoot.ps1')
+. (Join-Path $libDir 'Initialize-SddPreferences.ps1')
 
 function Write-SyncError {
     param([Parameter(Mandatory = $true)][string] $Message)
@@ -334,6 +342,10 @@ try {
     }
 
     Write-SyncPublishOk -CommandName 'Get-SddRoot -Prepare' -Result $sddResult
+
+    if (-not $WhatIf.IsPresent -and -not $DeferPreferences.IsPresent) {
+        $null = Invoke-ToolkitEnsurePreferences -SddRoot $sddResult.SddRoot
+    }
 
     Write-Host 'Sync completed.' -ForegroundColor Green
     exit 0

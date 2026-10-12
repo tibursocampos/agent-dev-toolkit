@@ -10,11 +10,11 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **46** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **45** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
-A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrate-analyze`, then `orchestrate-deliver`, then `orchestrate-develop`. The other rows are skills you call for one job. Session language, the parent, and optional compression are on [Using skills](using-skills.md).
+For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orchestrated-delivery.md): `orchestrate-analyze`, then `orchestrate-deliver`, then `orchestrate-develop`. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is also valid directly for a clear feature. The other rows are skills you call for one job. Session language, the parent, and optional compression are on [Using skills](using-skills.md).
 
 ## Delivery
 
@@ -50,7 +50,7 @@ A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrat
 | `electron-developer` | Small or medium Electron | `/electron-developer` |
 | `blip-plugin-developer` | Scaffold a new Blip React plugin | `/blip-plugin-developer` |
 | `micropython-developer` | MicroPython device firmware | `/micropython-developer` |
-| `impeccable` | Design. Writes `docs/DESIGN-BRIEF.md` and stops | `/impeccable` |
+| `*-developer` | UI design and implementation guidance | `/react-developer`, `/angular-developer`, or another stack skill |
 
 ## Review, platform, git
 

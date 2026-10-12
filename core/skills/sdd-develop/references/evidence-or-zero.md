@@ -15,7 +15,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -PlanPath features/NNN-slug/TSnn/PLAN/PLAN_*.md [-Level cheap]
 ```
 
-Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Smoke: `Assert-EvidenceContract.ps1`.
+Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Run `validate-evidence.ps1` when the step declares evidence validation.
 
 **Verifier ≠ O3:** never use orchestrate-develop Task parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
 

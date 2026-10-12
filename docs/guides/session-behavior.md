@@ -32,7 +32,7 @@ Task `model` is omitted so the child uses the parent session model (`core/skills
 
 ## Optional chat compression
 
-`caveman_mode` defaults to **off**. It only shortens chat prose. It does not change skill steps, gates, or this documentation.
+`caveman_mode` defaults to **on** when non-interactive sync creates `preferences.json`. On interactive first sync, the toolkit asks for both parent orchestration mode and Caveman mode, with **on** as the default choice. Existing preferences are preserved. Caveman only shortens chat prose; it does not change skill steps, gates, or this documentation.
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
 
@@ -45,7 +45,7 @@ Created with the defaults object when the file is missing:
 | Key | Default | Effect |
 |-----|---------|--------|
 | `orchestrator_mode` | `always` | Parent stays orchestrator |
-| `caveman_mode` | `false` | Chat compression off |
+| `caveman_mode` | `true` | Chat compression on (interactive first sync can choose off) |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |
 | `verify_mode` | `false` | O3 does not spawn a read-only verifier after each implementer |

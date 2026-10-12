@@ -2,7 +2,7 @@
 
 **agent-dev-toolkit** is a multi-agent developer toolkit. One agent-neutral **core** (skills, policy, router, SDD contracts, specialist prompts) is published by **adapters** into each host **install root**. Operators sync with a PowerShell CLI, then invoke the same skill ids inside the host.
 
-Evidence for counts and capabilities: `core/skills/*/SKILL.md` frontmatter `name` (46), `core/skills/_shared/skills-catalog/CATALOG.md`, `adapters/registry.json` (10 agents).
+Evidence for counts and capabilities: `core/skills/*/SKILL.md` frontmatter `name` (45), `core/skills/_shared/skills-catalog/CATALOG.md`, `adapters/registry.json` (10 agents).
 
 ## Architecture
 
@@ -23,7 +23,7 @@ host layout   ~/.cursor, ~/.claude, ~/.codex, ~/.copilot or .github, …
 | **Install root** | Destination tree. Default sync target is an in-repo fixture. A path under the user profile is refused unless `-AllowUserHome` is set (`scripts/_lib/Resolve-InstallRoot.ps1`). |
 | **CLI** | `scripts/toolkit.ps1` (Smart Manager or `-Action`), `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`. Release entry: `scripts/bootstrap/` downloads `agent-dev-toolkit.zip`, checks SHA256, extracts, then opens the CLI. |
 
-`scripts/sync-agent.ps1` loads the registry module and runs the Publish commands, then always `Get-SddRoot -Prepare` (sessions directory and a seed `manifest.json` only when that file is absent).
+`scripts/sync-agent.ps1` loads the registry module and runs the Publish commands, then prepares the effective SDD root. Storage resolution is governed by the SDD storage-resolution contract; adapter-managed publication and keyed uninstall follow their managed-file lifecycle contracts.
 
 ## Registry agents (10)
 
@@ -52,7 +52,7 @@ Specialist prompt files under `core/agents/` (`architect`, `database`, `repo-ana
 
 ## Skills and the delivery path
 
-**46** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
+**45** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
 
 The complete path is **Orchestrated Delivery**: `memory-bank-init` (Step 0) → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`. Analyze classifies the request, asks, sets `needs_*`, calls specialists, and shapes stories. Deliver runs `sdd-spec` then `sdd-plan` for each approved story. Develop runs `sdd-develop` once per PLAN step. How that works: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
@@ -82,7 +82,7 @@ Sync, Validate, and Uninstall require an explicit `-Agent`. **Uninstall** is key
 
 ## Reliability safeguards
 
-Published skills resolve their required runtime helpers from the installed toolkit tree; adapter fixtures verify the publication contract separately from a live-host run. Session helpers reject persisted repository or PLAN identity mismatches before changing state. During development and review, applicable local instructions and configured diagnostic commands are recorded with evidence as `PASS`, `FOUND`, or `SKIPPED`; unavailable commands and host-only observations remain `SKIPPED`, never a passing result. Story sizing and observable API-contract checks run before planning, and O3 can compare a full review with a focused delta/risk review without treating unavailable token or tool telemetry as an acceptance failure.
+Published skills resolve their required runtime helpers from the installed toolkit tree; adapter fixtures verify the publication contract separately from a live-host run. Session helpers scope persisted state to repository and PLAN identity before changing state. Storage resolution, session gates, and orchestration behavior are defined by the SDD contracts in `core/sdd/`. Adapters apply provider authorization and hook behavior according to their publish contracts; validation covers repository fixtures and declared runtime checks, not proof of every live host. During development and review, applicable local instructions and configured diagnostic commands are recorded as `PASS`, `FOUND`, or `SKIPPED`; unavailable commands and host-only observations remain `SKIPPED`.
 
 ## Validation and CI
 
@@ -92,7 +92,7 @@ GitHub Actions:
 
 | Workflow | Role |
 |----------|------|
-| `.github/workflows/validate-toolkit.yml` | `pull_request` to `develop` only. Named remaining checks, adapter-smoke matrices, and `docs-strict` feed `ci-ok`. Release pull requests do not run this workflow. |
+| `.github/workflows/validate-toolkit.yml` | `pull_request` to `develop` only. Windows and Ubuntu validation, ten Windows adapter-smoke jobs, and documentation checks feed `ci-ok`. Release pull requests do not run this workflow. |
 | `.github/workflows/publish-release-bootstrap.yml` | Release zip `agent-dev-toolkit.zip` plus SHA256 sidecar and bootstrap entrypoints. |
 | `.github/workflows/enforce-release-source.yml` | Pull requests into `master` / `main` must come from `develop`. |
 

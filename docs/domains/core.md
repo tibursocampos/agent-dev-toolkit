@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 46 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 45 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -20,7 +20,7 @@ Each invocable skill is a folder with `SKILL.md` plus optional lazy-load referen
 |--------|------|
 | `SKILL.md` | Gate + Process; **must** have `## Lazy-load` and `**Never by default:**` |
 | `reference.md` | Optional index (≤50 lines when section files exist) |
-| `references/*.md` | Section bodies (`reference/` for impeccable) |
+| `references/*.md` | Section bodies |
 
 **FAIL** if `**Never by default:**` is missing or monolithic `reference.md` **>150** lines without split. Load one section per Process step — do not preload all references.
 
@@ -32,7 +32,7 @@ Top-level folders:
 | Backlog shape | `refine-story`, `split-story-checklist` |
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
-| Product / design | `blip-plugin-developer`, `impeccable` |
+| Product / design | `blip-plugin-developer` |
 | Ops | `help-skills`, `code-review`, `implementation-survey`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `run-tests`, `repair-dotnet-build`, `ef-add-migration`, `scaffold-message-handler`, `refactor`, `api-integrate`, `api-standards`, `performance-profile`, `containerize`, `i18n-manager` — git flow deep dive: [git-ops.md](git-ops.md); upgrade orchestrator: [SKILLS.md](../SKILLS.md) |
 | Docs | `document-plan`, `document-implement` — Kind **new** (one step ≈ one new file) vs **update** (coalesce existing paths); prefer fewer larger steps (not 5–12 tiny baby-steps); spawn ≤2 only for large greenfield/refactor when `subagents=native` |
 | Shared | `_shared/` (not a slash skill; includes `skills-catalog/CATALOG.md` + `OPERATOR.md`) |
@@ -108,7 +108,7 @@ Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Navigation block (WS7 / REQ
 | Classic | **PRD ↔ PLAN** when either side is written/updated; **STORY** if on-disk |
 | Orchestrated O1+ | Bidirectional among on-disk siblings (FEATURE / CONTINUITY / STORY / ANALYSIS\|ARCH\|SEC ↔ PRD ↔ PLAN) |
 
-Assert: `scripts/validation/Assert-NavigationBlock.ps1` (wired in `validate-core`; fixture under `scripts/validation/fixtures/sdd-artifacts/navigation/`).
+This reciprocal-link convention is documented here; automated acceptance fixtures are not retained.
 
 ### Clarification readiness (B / I / MINOR)
 
@@ -125,7 +125,7 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 | **READY** | No open **B** or **I** |
 | **NEEDS_CLARIFICATION** | Open **B** or **I** at a handoff boundary → **STOP** Write; typed handoff |
 
-**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). Selective PS1: `Assert-SiblingReadinessGate.ps1` / `Invoke-SiblingReadinessGate.ps1` (fixtures under `scripts/validation/fixtures/sdd-artifacts/readiness/`). That script still treats open **B**/**I** as `NEEDS_CLARIFICATION`. It does not change the table above.
+**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper treats open **B**/**I** as `NEEDS_CLARIFICATION`. It does not change the table above.
 
 Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. **sim** does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
 
@@ -157,7 +157,7 @@ Inside those skills, contracts add gates/artifacts:
 | PLAN-LEDGER | `PLAN-LEDGER-CONTRACT.md` | Atomic O3 step claim (see below) |
 | Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
 | Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
-| Navigation | STORAGE § Navigation / `Assert-NavigationBlock.ps1` | `## Related` + portable paths (see above) |
+| Navigation | STORAGE § Navigation | `## Related` + portable paths (see above) |
 | Clarification readiness | `readiness-severity.md` / SiblingReadinessGate | B/I/MINOR → READY \| NEEDS_CLARIFICATION (see above) |
 | Develop session gate | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Idempotent `step_confirmed` (see PLAN-LEDGER + session) |
 | Invocation contexts | `INVOCATION-CONTEXTS.md` | `direct` vs `orchestrated` (see below) |
@@ -219,7 +219,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
-Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **46**).
+Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catalog row: Classic SDD ([SKILLS.md](../SKILLS.md); CATALOG total **45**).
 
 | Concern | Behavior |
 |---------|----------|
@@ -307,10 +307,6 @@ Item templates (one at a time): `user-story.md`, `technical-story.md`, `bug.md`;
 | STORY | `core/skills/_shared/templates/features/story/STORY.md` |
 | PRD / PLAN | `core/skills/_shared/templates/sdd/PRD.md`, `…/PLAN.md` |
 
-#### Maintainer Assert
-
-`scripts/validation/Assert-ProductArtifactQuality.ps1` (check `product-artifact-quality` in `validate-core`) — fixture CTs under `scripts/validation/fixtures/product-artifact-quality/` (CT1 incomplete FEATURE, CT2 task-shaped title, CT3 AC budget OK, CT4 cap without rationale, CT6 honest Evidence omit). Complements O1 gate docs in `story-synthesis.md`; does not invent product names.
-
 Human mirror: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) · [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) · [VALIDATION.md](../VALIDATION.md).
 
 ### TRACE archive (living loop)
@@ -330,7 +326,6 @@ Archive-complete order is strict: at least one of each living-loop event, non-de
 | Script | Role |
 |--------|------|
 | `scripts/validation/validate-trace.ps1` | Default: missing TRACE → exit 0; present → JSON + required fields. `-RequireArchiveComplete` enforces the triad |
-| `scripts/validation/Assert-TraceArchiveContract.ps1` | Structural smoke for the contract |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped harvest summary (operator ops — [cli-scripts](cli-scripts.md)); TRACE-only — ignores git-notes |
 | `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship notes (default off); never TRACE SoT |
 
@@ -360,7 +355,6 @@ Ledger files under the SDD sessions root (same hash rules as `SESSION.md`):
 ```powershell
 .\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <portable-or-abs> -RepoPath <cwd> -SddRoot <sdd-root> [-Step N]
 .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -RepoPath <cwd> -SessionsRoot <sessions>
-.\scripts\validation\Assert-PlanLedgerContract.ps1
 .\scripts\validation\Assert-DevelopSessionGate.ps1
 ```
 

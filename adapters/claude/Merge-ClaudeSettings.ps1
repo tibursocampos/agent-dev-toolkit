@@ -158,9 +158,8 @@ function Get-ClaudeManagedHooksObject {
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptUserPromptSubmit
     )
 
-    $hooks[$c.HookEventPreCompact] = New-ClaudeManagedHookEventEntries -Command (
-        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreCompact
-    )
+    # PreCompact context-usage pressure hook was removed; keep the script identity
+    # in the managed event map below so incremental merge can strip the old entry.
 
     # PostToolUse: plan checkpoint + fail-open TRACE emit (co-located managed handlers).
     $postToolEntries = New-Object System.Collections.Generic.List[object]
@@ -176,13 +175,16 @@ function Get-ClaudeManagedHooksObject {
     }
     $hooks[$c.HookEventPostToolUse] = @($postToolEntries.ToArray())
 
-    $hooks[$c.HookEventPreToolUse] = New-ClaudeManagedHookEventEntries -Command (
-        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreToolUse
-    ) -Matcher $c.HookMatcherPreToolUse
+    # Toolkit authorization hooks no longer participate in provider decisions.
 
     $hooks[$c.HookEventSubagentStop] = New-ClaudeManagedHookEventEntries -Command (
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptTraceEmit
     )
+
+    # Empty managed projections let keyed merge remove legacy Toolkit entries
+    # without touching handlers owned by the user or another integration.
+    $hooks[$c.HookEventPreCompact] = @()
+    $hooks[$c.HookEventPreToolUse] = @()
 
     return $hooks
 }
@@ -272,9 +274,7 @@ function Get-ClaudeManagedPermissionsAllowEntries {
 
     foreach ($scriptFileName in @(
             $c.HookScriptUserPromptSubmit,
-            $c.HookScriptPreCompact,
             $c.HookScriptPostToolUse,
-            $c.HookScriptPreToolUse,
             $c.HookScriptTraceEmit
         )) {
         $command = Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $scriptFileName
@@ -386,6 +386,7 @@ function Merge-ClaudeHookEventEntries {
         $ExistingEntries,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [array] $ManagedEntries,
 
         [Parameter(Mandatory = $true)]
@@ -441,7 +442,7 @@ function Merge-ClaudeHookEventEntries {
         $merged.Add($preservedEntry) | Out-Null
     }
 
-    return , @($merged.ToArray())
+    return $merged.ToArray()
 }
 
 function Merge-ClaudeHooksKeyed {
@@ -502,7 +503,13 @@ function Merge-ClaudeHooksKeyed {
             $hooks[$eventName] = @($mergedList.ToArray())
         }
         else {
-            $hooks[$eventName] = Merge-ClaudeHookEventEntries -ExistingEntries $existingEntries -ManagedEntries $managedEntries -ManagedScriptFileName $primaryScript
+            $mergedEntries = @(Merge-ClaudeHookEventEntries -ExistingEntries $existingEntries -ManagedEntries $managedEntries -ManagedScriptFileName $primaryScript)
+            if ($mergedEntries.Count -eq 0) {
+                $hooks.Remove($eventName)
+            }
+            else {
+                $hooks[$eventName] = $mergedEntries
+            }
         }
     }
 }

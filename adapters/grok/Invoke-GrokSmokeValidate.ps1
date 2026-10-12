@@ -69,6 +69,10 @@ function Test-GrokNativeHooksPresent {
         if (-not (Test-Path -LiteralPath $guardPath)) {
             return $false
         }
+        $contractPath = Join-Path $HooksRoot $script:GrokAdapterConstant.SharedAuthorizationContractFileName
+        if (-not (Test-Path -LiteralPath $contractPath -PathType Leaf)) {
+            return $false
+        }
         return $true
     }
     catch {

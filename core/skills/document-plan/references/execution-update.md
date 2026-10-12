@@ -6,10 +6,10 @@ After each completed step, `document-implement` updates `docs/documentation-plan
 
 ## Context management
 
-Per `{{TOOLKIT_ROOT}}/rules/context-management.mdc`:
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 - After overview + plan draft: checkpoint
-- When planning many domains in one session: save `plan.md` at ≥ 40% and hand off continuation
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 Pause message includes: `docs/documentation-plan/plan.md` path, steps completed, next step id.
 

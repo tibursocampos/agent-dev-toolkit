@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "authorizations": [
+    { "effect": "file.write", "scope": "workspace" }, { "effect": "file.write", "scope": "local_sdd" }, { "effect": "file.write", "scope": "provider_home" },
+    { "effect": "file.delete", "scope": "workspace" }, { "effect": "file.delete", "scope": "local_sdd" }, { "effect": "file.delete", "scope": "provider_home" },
+    { "effect": "file.patch", "scope": "workspace" }, { "effect": "file.patch", "scope": "local_sdd" }, { "effect": "file.patch", "scope": "provider_home" },
+    { "effect": "shell.mutate", "scope": "workspace" }, { "effect": "shell.mutate", "scope": "local_sdd" }, { "effect": "shell.mutate", "scope": "provider_home" }
+  ]
+}

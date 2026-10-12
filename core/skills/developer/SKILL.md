@@ -32,6 +32,8 @@ Gate check:
 ---
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use when user asks for `/developer` or requests generic coding/refactoring tasks without specifying a stack.
 
@@ -46,7 +48,6 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Git / language policy | `{{TOOLKIT_ROOT}}/AGENTS.md`, `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/developer/reference.md` |
@@ -92,5 +93,5 @@ Enforce the full list in `references/must-not.md`. Critical: route before implem
 | .NET work (explicit) | `/dotnet-developer` |
 | Java work (explicit) | `/java-developer` |
 | Large scope | `/sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| UI design / brief | `/impeccable` (`shape` / `craft`) |
+| UI design / brief | For net-new UI or a substantial visual redesign, create or update `docs/DESIGN-BRIEF.md`; see `frontend-guidelines/frontend-practices.md`. |
 | New Blip plugin scaffold | `/blip-plugin-developer` |

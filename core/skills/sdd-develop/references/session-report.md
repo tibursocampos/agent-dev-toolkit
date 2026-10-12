@@ -31,13 +31,6 @@ Handoff for the next step stays a new chat:
 /sdd-develop - <portable-plan-path> - Step {next}
 ```
 
-## Context checkpoint (mandatory)
+## Durable checkpoint
 
-From `context-management.mdc` after PLAN persist:
-
-1. Update the PLAN.
-2. Assess context usage if visible.
-3. At **≥ 40%:** show a pause message; do not start the next PLAN step in this session.
-4. At **≥ 80%:** stop; the user must start a new chat.
-
-Include in the pause message: saved PLAN path, last step id, next eligible step ids.
+After completing the step, persist the PLAN status and evidence before handoff. Context usage and token estimates do not add a stop condition; the one-step boundary and session gates remain authoritative.

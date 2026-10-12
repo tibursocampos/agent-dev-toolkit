@@ -1,17 +1,18 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
-  Hermes Publish-Hooks: plugin-first path/secrets guard + shell agent-hooks dual.
+  Hermes Publish-Hooks: compatibility plugin/assets with host-owned authorization.
 
 .DESCRIPTION
   1) Copy adapters/hermes/assets/plugins/agent-dev-toolkit-guard -> InstallRoot/plugins/
   2) Best-effort `hermes plugins enable agent-dev-toolkit-guard`; fallback keyed merge
      ONLY plugins.enabled in config.yaml (never gateway/tokens/SOUL.md/memories).
-  3) Copy adapters/hermes/assets/agent-hooks (+ GuardCommon.ps1) -> InstallRoot/agent-hooks/
-  4) Keyed merge hooks.pre_tool_call (matcher terminal|write_file|patch, fail_closed:true).
+  3) Copy adapters/hermes/assets/agent-hooks for upgrade cleanup compatibility.
+  4) Remove only legacy Toolkit hooks.pre_tool_call entries; do not register a guard.
 #>
 
 $script:HermesHooksHelperDirectory = $PSScriptRoot
@@ -52,7 +53,9 @@ function Copy-HermesDirectoryTree {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $SourceRoot,
-        [Parameter(Mandatory = $true)][string] $DestinationRoot
+        [Parameter(Mandatory = $true)][string] $DestinationRoot,
+
+        [Parameter()][string] $InstallRoot
     )
 
     if (-not (Test-Path -LiteralPath $DestinationRoot)) {
@@ -67,7 +70,15 @@ function Copy-HermesDirectoryTree {
         if (-not (Test-Path -LiteralPath $destinationDir)) {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $file.FullName -DestinationPath $destinationPath
+        $copyArgs = @{
+            SourcePath      = $file.FullName
+            DestinationPath = $destinationPath
+        }
+        if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
+            $copyArgs.InstallRoot = $InstallRoot
+            $copyArgs.RelativePath = $destinationPath.Substring(([System.IO.Path]::GetFullPath($InstallRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar).Length) -replace '\\', '/'
+        }
+        $null = Copy-ToolkitFileIfAbsent @copyArgs
         if ($file.Extension -eq '.sh' -and -not (Test-HermesIsWindowsPlatform)) {
             try {
                 if (Get-Command -Name chmod -ErrorAction SilentlyContinue) {
@@ -207,7 +218,7 @@ function Remove-HermesToolkitPreToolCallEntries {
     }
 
     # Remove the whole toolkit list item, including keys after command. Stop before the next list item.
-    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?terminal\|write_file\|patch["'']?\s*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*'
+    $pattern = '(?ms)^\s*-\s*matcher:\s*["'']?(?:terminal\|write_file\|patch|\.\*)["'']?\s*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*?\s*command:\s*[^\r\n]*guard-pre-tool[^\r\n]*\r?\n(?:[ \t]+(?!-[ \t])[^\r\n]*\r?\n)*'
     return [regex]::Replace($YamlText, $pattern, '')
 }
 
@@ -275,7 +286,8 @@ function Save-HermesConfigYamlKeyedMerge {
     }
 
     $pluginsResult = Merge-HermesPluginsEnabledList -YamlText $existing -PluginName $PluginName
-    $hooksResult = Merge-HermesPreToolCallHook -YamlText $pluginsResult.Text -HookCommand $HookCommand
+    $cleanedConfig = Remove-HermesToolkitPreToolCallEntries -YamlText $pluginsResult.Text
+    $hooksResult = [PSCustomObject]@{ Text = $cleanedConfig; Changed = ($cleanedConfig -ne $pluginsResult.Text) }
 
     $parent = Split-Path -Parent $ConfigPath
     if (-not (Test-Path -LiteralPath $parent)) {
@@ -412,15 +424,19 @@ function Invoke-HermesPublishHooks {
     $configPath = $mapped.FixtureConfigYamlPath
 
     $filesCopied = 0
-    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourcePluginsRoot -DestinationRoot $destPluginRoot
-    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourceAgentHooksRoot -DestinationRoot $destAgentHooksRoot
+    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourcePluginsRoot -DestinationRoot $destPluginRoot -InstallRoot $resolvedInstallRoot
+    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourceAgentHooksRoot -DestinationRoot $destAgentHooksRoot -InstallRoot $resolvedInstallRoot
 
     $sharedSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (Test-Path -LiteralPath $sharedSource) {
-        $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-        $filesCopied++
+    if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
+        throw "GuardCommon source is missing: $sharedSource"
     }
+    $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
+    $contractSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $contractDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedAuthorizationContractFileName
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $resolvedInstallRoot
+    $filesCopied += 2
 
     $enableResult = Invoke-HermesPluginsEnableBestEffort -PluginName $pluginName
     $hookCommand = Get-HermesShellHookCommand -AgentHooksRoot $destAgentHooksRoot

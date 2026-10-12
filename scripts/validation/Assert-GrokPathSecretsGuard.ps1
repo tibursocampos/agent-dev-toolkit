@@ -1,8 +1,8 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
-#   Should_Deny_When_ForbiddenSddPath
-#   Should_Deny_When_SecretPatternDetected
+#   Should_Allow_When_HostOwnsForbiddenSddPath
+#   Should_Allow_AndRedact_When_SecretPatternDetected
 #   Should_Pass_When_HooksJsonWiresPreToolUse
 #   Should_Pass_When_AgentsCapabilityTrue
 #
@@ -66,10 +66,10 @@ $deny = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
     cwd = $fixtureRoot
 }
 $denied = ($deny.ExitCode -eq 2) -or ($null -ne $deny.Payload -and [string]$deny.Payload.decision -eq 'deny')
-if (-not $denied) {
-    Write-Fail -TestName 'Should_Deny_When_ForbiddenSddPath' -Reason ("expected deny; exit={0} output={1}" -f $deny.ExitCode, $deny.Output.Trim())
+if ($denied) {
+    Write-Fail -TestName 'Should_Allow_When_HostOwnsForbiddenSddPath' -Reason ("Toolkit hook must not veto the host's authorization decision; exit={0} output={1}" -f $deny.ExitCode, $deny.Output.Trim())
 }
-Write-Pass -TestName 'Should_Deny_When_ForbiddenSddPath'
+Write-Pass -TestName 'Should_Allow_When_HostOwnsForbiddenSddPath'
 
 $secret = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
     tool_name  = 'Bash'
@@ -77,10 +77,13 @@ $secret = Invoke-GuardHook -HookScriptPath $guardScript -Payload @{
     cwd        = $fixtureRoot
 }
 $secretDenied = ($secret.ExitCode -eq 2) -or ($null -ne $secret.Payload -and [string]$secret.Payload.decision -eq 'deny')
-if (-not $secretDenied) {
-    Write-Fail -TestName 'Should_Deny_When_SecretPatternDetected' -Reason ("expected secret deny; exit={0} output={1}" -f $secret.ExitCode, $secret.Output.Trim())
+if ($secretDenied) {
+    Write-Fail -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected' -Reason ("Toolkit hook must not veto host authorization; exit={0} output={1}" -f $secret.ExitCode, $secret.Output.Trim())
 }
-Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
+if ($secret.Output -match 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd') {
+    Write-Fail -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected' -Reason 'hook output must not disclose the secret-like value'
+}
+Write-Pass -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected'
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
 
@@ -96,8 +99,8 @@ if ($hooksText -notmatch 'PreToolUse') {
 if ($hooksText -notmatch 'guard-pre-tool\.ps1') {
     Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing guard-pre-tool.ps1'
 }
-if ($hooksText -notmatch 'Write\|Edit\|Bash') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing Write|Edit|Bash matcher'
+if ($hooksText -notmatch '"matcher"\s*:\s*"\*"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'matcher must catch every Grok tool'
 }
 Write-Pass -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse'
 

@@ -73,7 +73,8 @@ function Get-OpenHandsKnownToolkitArtifactPaths {
     foreach ($extraHook in @(
             $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName,
             $script:OpenHandsAdapterConstant.HooksGuardPreToolPs1Name,
-            $script:OpenHandsAdapterConstant.SharedGuardCommonFileName
+            $script:OpenHandsAdapterConstant.SharedGuardCommonFileName,
+            $script:OpenHandsAdapterConstant.SharedAuthorizationContractFileName
         )) {
         $extraPath = Join-Path $MappedPaths.FixtureHooksScriptsPath $extraHook
         if (Test-Path -LiteralPath $extraPath) {

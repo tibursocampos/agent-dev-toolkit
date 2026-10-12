@@ -27,6 +27,8 @@ Gate check:
 # Skill: orchestrate-develop
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery O3 after O2 handoff.
 
@@ -38,7 +40,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
 3. When the operator asked to close the wave, handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted). When the operator did not ask, do not start that validation or specialist loop; hand off only the next step / next story
 
-**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md`. CONTINUITY stays the feature phase/handoff source.
+**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md`. CONTINUITY stays the feature phase/handoff source.
 
 **Step N (after code changes):** when at least one develop child succeeded with app file changes, run `memory-bank-init` mode **`refresh-light`** at `bank_root` before final handoff (`MEMORY-BANK.md` Step N). Confirm (pt-BR) first.
 
@@ -61,6 +63,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Pipeline Orchestrated Delivery, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | Develop contract (source of truth) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` + `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
@@ -77,7 +80,6 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
 
@@ -122,7 +124,13 @@ Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Deli
 Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; every develop child handoff must include `invocation_context: orchestrated` (path cite only — no contract body dump).
 
 ### 2. Resolve feature / PLAN set (plan-acquisition)
-Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Read `references/plan-acquisition.md` and `references/process-common.md` § Process — Resolve feature / PLAN set.
+Load `STORAGE.md` and `STORAGE-RESOLUTION.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Before queue parsing, session creation, claim, or specialist invocation, run the deterministic read-only artifact gate:
+
+```powershell
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1" -FeatureRoot <feature-root> -PlanPath <canonical-plan> -RepoPath <repo-root> -SddRoot <sdd-root>
+```
+
+Any nonzero result is `plan_stale` / blocked: do not create or update a session, claim, or specialist. Re-run after checkpoint/CONTINUITY reconciliation and immediately before every subsequent effect; do not rely on an earlier snapshot. Only exact PLAN metadata `Status=approved` passes. Parse queue and dependency order exclusively from the saved PLAN; validate that its six related artifacts agree, then derive CONTINUITY from the saved and re-read PLAN. Report the validator's `features_versioned` state verbatim; `false` means local SDD files are unversioned and may not accompany commits/clones. Do not call them committed. Read `references/plan-acquisition.md` and `references/process-common.md` § Process — Resolve feature / PLAN set.
 
 ### 3. Step 0 - Memory Bank Gate
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Pass **`bank_path`** into every develop child as read-only Prior context. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
@@ -133,16 +141,20 @@ Parse pending steps; respect Deps; resolve **execution mode** (`serial` default)
 ### 5. Spawn exactly one step child (CA5)
 Load `sdd-develop/references/execution-display.md` before the spawn and after the receipt. In `step_by_step`, the operator chat is a narrative summary, what the PLAN says to do, and the blocking question. A valid receipt then gets a short result that names the step, the status (`done`, `blocked`, or `failed`), and the tests. Do not put the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or a ledger dump in the chat. The PLAN progress table stays in the file and is updated. The operator-facing close keeps the step ledger for every step. Do not replace that ledger with the stage-weight table.
 
-Call `repo-analyst` and `architect`, plus `database` when the step or PLAN cites persistence, once before the first PLAN step. Do not repeat that impact, architecture, and persistence pass before an intermediate step. Run the same pass again when code review is requested against that PLAN. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
+Use `ROSTER.md` as the spawn source of truth: call `repo_analyst` for brownfield/impact uncertainty or `needs_api`; call `architect` for `needs_domain`, greenfield, or brownfield mirror; call `database` only for `needs_database` or persistence in scope. Evaluate those conditions once before the first PLAN step, not before every intermediate step. Do not repeat that impact, architecture, and persistence pass before an intermediate step. Run the same pass again when code review is requested against that PLAN. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. When fallback work requires editing and the host is in Plan/Ask, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
 
 Before a child changes code, show the current branch and apply the integration-branch gate. That gate belongs to this skill, `sdd-develop`, `developer`, and `*-developer` (`core/policy/guardrails.md`).
 
+Immediately before invoking each child, re-run `Invoke-O3ArtifactPreflight.ps1`; then perform SESSION and PLAN-LEDGER checks. The preflight is read-only and must pass before those effects. A stale/missing/inconsistent artifact pauses the queue for reconciliation; do not silently use CONTINUITY as a substitute queue.
+
 Each child invocation is closed after its single PLAN step returns. The parent must not follow up, reopen, resume, or reuse that invocation, even for a correction or completion; remaining work uses a fresh invocation with a bounded handoff. After a child returns, the parent follows this observable order exactly: validate the receipt against the PLAN acceptance, session gates, and claim; persist the PLAN checkpoint and progress table and re-read them; show the step ledger and the short result; then evaluate the next spawn. The PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is the parent’s synthesis/path handoff. None substitutes for another.
 
-A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step. Receipt status `COMPLETED` is outside that allow list. Describe the deviation in one question (`core/policy/guardrails.md` § Open questions without a written deadline). Do not delegate the next step. Do not invent a fix. Do not rewrite the PLAN. If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion or spawn the dependent. If `continuous` authorization is valid, it may proceed only after the updated checkpoint and progress table have been re-read, the step ledger and short result have been shown, and the next step is eligible. `step_by_step` still requires confirmation for each spawn.
+Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`: `done` permits evaluation of the next step only after reconciliation; `blocked` keeps dependents stopped and names the missing prerequisite/input; `failed` reports evidence and a bounded recovery action. An unanswered user question is `open_question` and remains blocked. Do not repeat a spawn, prompt, or state transition without new user input or changed evidence and revalidation. A handoff suggestion alone never advances the queue.
+
+A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step. Receipt status `COMPLETED` is outside that allow list. Describe the deviation in one question (`core/policy/guardrails.md` § Open questions without a written deadline). Do not delegate the next step. Do not invent a fix. Do not rewrite the PLAN. If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion or spawn the dependent. In `continuous`, use `Test-ContinuousQueueStepAuthorization` after the checkpoint and progress table have been re-read and the step ledger and short result have been shown; its authorization covers only the first eligible next step and is consumed by that spawn. Re-evaluate after every child return. `step_by_step` still requires confirmation for each spawn.
 
 ### 5.5 Post-implement verifier (opt-in)
-When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. Read `references/step-verifier.md`.
+When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. The verifier uses its separate result contract in `references/step-verifier.md`; do not validate it as an implementer relay. Read that reference.
 
 ### 6. Safe parallelism (optional)
 Default **serial** mode. Parallel only when mode is `parallel` **and** all independence conditions + user **sim** + distinct SESSION files; cap ≤4. Mode violations reject/audit — never silent ignore. Read `references/execution-modes.md` and `references/parallelism.md`.
@@ -159,7 +171,7 @@ When a child changed app files: confirm → `refresh-light` → CONTINUITY `refr
 ### 10. Handoff
 Run the scope-close loop only when the operator asked to close the wave. When the operator did not ask, do not start `run-tests`, `code-review`, a post-review rerun, the security review, or another specialist the operator did not request.
 
-When the operator asked to close the wave, use this required order: `run-tests` -> `code-review` -> `run-tests` after review changes (or record that no changes required a rerun) -> the `security` role/prompt review of the diff -> ask `/commit` -> ask `/push` separately. When code review is requested against this PLAN, run the impact, architecture, and persistence pass again before that review (`repo-analyst`, `architect`, and `database` when the PLAN cites persistence). That second pass is not a per-step spawn. Read `references/continuity-handoff.md` § Handoff copy. The security handoff is role-based (`{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`); use the host’s documented spawn mechanism when available, otherwise perform the bounded fallback in-parent. Do not claim a `/security` command or host capability that is not present. A requested wave close may still record `converge`, `sync_current`, and `archive` (`TRACE-ARCHIVE-CONTRACT.md`). Do not delete that contract.
+When the operator asked to close the wave, use this required order: `run-tests` -> `code-review` -> `run-tests` after review changes (or record that no changes required a rerun) -> the `security` role/prompt review of the diff -> assign an applicable build to `shell-runner` at US close only -> ask `/commit` -> ask `/push` separately. If no build command applies, record `not applicable`. Do not run build per step. When code review is requested against this PLAN, run the impact, architecture, and persistence pass again before that review (`repo-analyst`, `architect`, and `database` when the PLAN cites persistence). That second pass is not a per-step spawn. Read `references/continuity-handoff.md` § Handoff copy. The security handoff is role-based (`{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`); use the host’s documented spawn mechanism when available, otherwise perform the bounded fallback in-parent. Do not claim a `/security` command or host capability that is not present. A requested wave close may still record `converge`, `sync_current`, and `archive` (`TRACE-ARCHIVE-CONTRACT.md`). Do not delete that contract.
 
 ## Anti-bypass checklist (must enforce)
 

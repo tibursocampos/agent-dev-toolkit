@@ -12,7 +12,7 @@ Canonical path: `features/NNN-slug/TRACE.jsonl`.
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot features/NNN-slug [-RequireArchiveComplete]
 ```
 
-Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`. Smoke: `Assert-TraceArchiveContract.ps1`.
+Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
 Mid-feature: optional trail events; TRACE may be absent until close. At archive: require living-loop triad + coherent sync targets (no `openspec/` / `.specs/` / SQLite SoT).
 

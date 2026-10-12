@@ -19,6 +19,6 @@
 | 9 | Synthesize story folders only when FEATURE has no open question. Then FEATURE / CONTINUITY / STORY and product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4) | `references/story-synthesis.md`; lazy `anti-task-shatter.md` / `feature-altitude.md` |
 | 10 | Human backlog approval (**sim**) — only if gates passed | `references/process-common.md` § Backlog approval |
 | 11 | Approve → CONTINUITY + O2 handoff | `references/boundaries-handoff.md` |
-| 12 | Context pressure / resume | `references/process-common.md` § Context pressure |
+| 12 | Durable progress handoff | `references/process-common.md` § Durable progress handoff |
 
 **Must not (full):** `references/must-not.md`. Handoff strings: `references/boundaries-handoff.md`.

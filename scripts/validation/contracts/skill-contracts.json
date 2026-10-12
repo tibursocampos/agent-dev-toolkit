@@ -44,20 +44,20 @@
       "id": "commit-no-auto-pr-cli",
       "skill": "commit",
       "files": ["SKILL.md"],
-      "mustContain": ["open-github-pr", "fluxo completo", "Must not"],
+      "mustContain": ["open-github-pr", "same operator request", "Must not"],
       "mustNotContain": ["gh pr", "gh run"]
     },
     {
-      "id": "commit-living-artifacts-ask",
+      "id": "commit-no-lateral-artifact-flow",
       "skill": "commit",
       "files": ["SKILL.md"],
-      "mustContain": ["Living artifacts", "sim / pular", "memory-bank", "document"]
+      "mustContain": ["Do not ask about memory bank", "Do not start a memory-bank refresh", "Do not hand off documentation"]
     },
     {
-      "id": "code-review-post-review-loop",
+      "id": "code-review-post-o3-closeout-loop",
       "skill": "code-review",
       "files": ["SKILL.md"],
-      "mustContain": ["Recommended post-review loop", "sim / pular"]
+      "mustContain": ["After O3", "/run-tests", "/code-review", "security prompt"]
     },
     {
       "id": "sdd-develop-bank-docs-handoff-ask",

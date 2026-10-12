@@ -1,4 +1,4 @@
-﻿# SDD artifacts (local agent workflow - agent-dev-toolkit)
+# SDD artifacts (local agent workflow - agent-dev-toolkit)
 /features/
 /docs/features/
 /PRD/
@@ -6,7 +6,6 @@
 /docs/PRD/
 /docs/PLAN/
 /docs/documentation-plan/*
-!/docs/documentation-plan/plan.md
 
 # GitHub Pages / MkDocs (build output + local caches — never commit)
 /site/
@@ -27,9 +26,6 @@ venv/
 dist/
 build/
 node_modules/
-
-# Impeccable local install / live mode (PRODUCT.md + docs/DESIGN-BRIEF.md stay tracked)
-.impeccable/
 
 # OS / editor
 .DS_Store
@@ -125,7 +121,11 @@ scripts/validation/fixtures/.runtime-script-publish-*/
 scripts/validation/fixtures/copilot/user/agents/
 scripts/validation/fixtures/copilot/user/scripts/
 scripts/validation/fixtures/copilot/user/.toolkit-managed-publish.lock
-scripts/validation/fixtures/sdd-artifacts/evidence/reparse-escape/
+
+# Generated plan instances (keep templates and validation fixtures tracked)
+/docs/documentation-plan/plan.md
+/features/**/PLAN/PLAN_*.md
+/docs/features/**/PLAN/PLAN_*.md
 
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md

@@ -58,9 +58,11 @@ $claudeMdFileName = 'CLAUDE.md'
 $settingsFileName = 'settings.json'
 $fixtureReadmeName = 'README.md'
 $alienSkillId = 'user-alien-skill-'
+$upstreamSkillId = 'impeccable'
 $alienRuleFileName = 'user-alien-rule-.md'
 $alienHookFileName = 'user-alien-hook-.ps1'
 $alienSkillManifest = "# Alien skill`nMust survive keyed uninstall.`n"
+$upstreamSkillManifest = "# Impeccable upstream sentinel`nMust remain untouched by toolkit uninstall.`n"
 $alienRuleContent = "# Alien rule`nMust survive keyed uninstall.`n"
 $alienHookContent = "# Alien hook`nMust survive keyed uninstall.`n"
 $operatorCustomKey = 'operatorCustomKey'
@@ -114,6 +116,10 @@ function Ensure-AlienArtifacts {
     }
     [System.IO.File]::WriteAllText((Join-Path $alienSkillPath 'SKILL.md'), $alienSkillManifest, (Get-Utf8NoBomEncoding))
 
+    $upstreamSkillPath = Join-Path $skillsPath $upstreamSkillId
+    New-Item -ItemType Directory -Path $upstreamSkillPath -Force | Out-Null
+    [System.IO.File]::WriteAllText((Join-Path $upstreamSkillPath 'SKILL.md'), $upstreamSkillManifest, (Get-Utf8NoBomEncoding))
+
     if (-not (Test-Path -LiteralPath $rulesPath)) {
         New-Item -ItemType Directory -Path $rulesPath -Force | Out-Null
     }
@@ -151,7 +157,7 @@ function Assert-ManagedArtifactsPresent {
     }
 
     $hooksPath = Join-Path $workInstallRoot $hooksDirName
-    foreach ($hookName in @('context-before-prompt.ps1', 'context-pre-compact.ps1', 'plan-after-edit.ps1', '_hook-common.ps1')) {
+    foreach ($hookName in @('context-before-prompt.ps1', 'plan-after-edit.ps1', 'emit-trace.ps1', '_hook-common.ps1')) {
         if (-not (Test-Path -LiteralPath (Join-Path $hooksPath $hookName))) {
             Write-Fail -TestName $TestName -Reason ("expected managed hook after sync: {0}" -f $hookName)
         }
@@ -215,6 +221,14 @@ function Assert-AlienAndSettingsPreserved {
     $alienSkillManifestPath = Join-Path (Join-Path (Join-Path $workInstallRoot $skillsDirName) $alienSkillId) 'SKILL.md'
     if (-not (Test-Path -LiteralPath $alienSkillManifestPath)) {
         Write-Fail -TestName $TestName -Reason 'alien skill must survive keyed uninstall'
+    }
+    $upstreamSkillManifestPath = Join-Path (Join-Path (Join-Path $workInstallRoot $skillsDirName) $upstreamSkillId) 'SKILL.md'
+    if (-not (Test-Path -LiteralPath $upstreamSkillManifestPath)) {
+        Write-Fail -TestName $TestName -Reason 'upstream impeccable sentinel must survive keyed uninstall'
+    }
+    $upstreamSkillText = [System.IO.File]::ReadAllText($upstreamSkillManifestPath)
+    if ($upstreamSkillText -cne $upstreamSkillManifest) {
+        Write-Fail -TestName $TestName -Reason 'upstream impeccable sentinel content must remain unchanged'
     }
     if (-not (Test-Path -LiteralPath (Join-Path (Join-Path $workInstallRoot $rulesDirName) $alienRuleFileName))) {
         Write-Fail -TestName $TestName -Reason 'alien rule must survive keyed uninstall'

@@ -31,6 +31,8 @@ Gate check:
 **Scaffold** - guides discovery, requirements, and implementation in the **target repository**. This toolkit ships **no** embedded corporate consumer templates or org-specific wiring.
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/scaffold-message-handler`, `create message consumer`, `/scaffold-message-handler`, or when a PLAN step adds a new queue/topic handler.
 
@@ -52,7 +54,8 @@ In the **target workspace** (not this toolkit repo unless it is the .NET repo un
 | Reference index (routing only) | `skills/scaffold-message-handler/reference.md` or `{{TOOLKIT_ROOT}}/skills/scaffold-message-handler/reference.md` after sync |
 | Process step detail (lazy) | `skills/scaffold-message-handler/references/<section>.md` |
 | Generating or reviewing .NET code | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
-| C# / test naming | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| C# conventions | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| .NET test patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Small follow-up without SDD | `/dotnet-developer` |
 
@@ -114,7 +117,7 @@ Ask explicit confirmation before writing code.
 
 After confirmation:
 
-1. Load `clean-architecture.md` and `csharp-patterns.md` (`references/layering.md`, `references/test-guidance.md`)
+1. Load `clean-architecture.md` and `csharp-patterns.md`; when adding tests, load `dotnet-test-patterns.md` (`references/layering.md`, `references/test-guidance.md`)
 2. Mirror naming and folder structure from step 2
 3. Add consumer/handler, contract if missing, registration, and tests
 4. Run `dotnet build` and targeted `dotnet test` for affected projects

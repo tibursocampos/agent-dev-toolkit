@@ -34,6 +34,8 @@ Gate check:
 # Skill: open-github-pr
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when **any** of these apply (slash, English, or pt-BR — including bundled “full flow” requests):
 

@@ -7,7 +7,7 @@
   Asserts InstallRoot models ~/.config/opencode after sync:
   - skills/<kebab-id>/SKILL.md (TE02)
   - AGENTS.md at config root (TE02)
-  - plugins/agent-dev-toolkit-marker.js when hooks/plugin capable (TE03)
+  - plugins/agent-dev-toolkit-marker.js and authorization-contract.json when hooks/plugin capable (TE03)
   Resolves InstallRoot via Resolve-InstallRoot (TE01 / CA4 home guard).
   Never invokes OpenCode runtime; never requires .ps1 shell hooks (RN03).
 #>
@@ -121,12 +121,14 @@ function Invoke-OpenCodeSmokeValidate {
     $agentsPath = $mapped.FixtureAgentsPath
     $pluginsPath = $mapped.FixturePluginsPath
     $pluginMarkerPath = Join-Path $pluginsPath $script:OpenCodePathConstant.PluginMarkerFileName
+    $pluginContractPath = Join-Path $pluginsPath $script:OpenCodePathConstant.SharedAuthorizationContractFileName
 
     $checks = [ordered]@{
         SkillsPresent       = $false
         AgentsMdPresent     = $false
         CustomAgentsPresent = $false
         PluginMarkerPresent = $false
+        AuthorizationContractPresent = $false
         PluginRequired      = $false
         ShellHooksRequired  = $false
         SddLayoutPresent    = $false
@@ -199,9 +201,22 @@ function Invoke-OpenCodeSmokeValidate {
                 -Message ($script:OpenCodeSmokeMessage.Te03PluginMismatch -f $pluginMarkerPath) `
                 -ExitCode 1
         }
+
+        $contractOk = Test-Path -LiteralPath $pluginContractPath -PathType Leaf
+        $checks.AuthorizationContractPresent = $contractOk
+        if (-not $contractOk) {
+            return New-OpenCodeSmokeResult `
+                -Success $false `
+                -ErrorCode $script:OpenCodePathConstant.SmokeTe03Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ($script:OpenCodeSmokeMessage.Te03AuthorizationContractMissing -f $pluginContractPath) `
+                -ExitCode 1
+        }
     }
     else {
         $checks.PluginMarkerPresent = Test-Path -LiteralPath $pluginMarkerPath -PathType Leaf
+        $checks.AuthorizationContractPresent = Test-Path -LiteralPath $pluginContractPath -PathType Leaf
     }
 
     $sddMissing = [System.Collections.Generic.List[string]]::new()

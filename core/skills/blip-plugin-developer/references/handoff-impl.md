@@ -8,11 +8,11 @@ Ask **(pt-BR)** what to implement next. Route by scope:
 
 | Scope | Next step |
 |-------|-----------|
-| Net-new UI / redesign | `/impeccable shape` -> `docs/DESIGN-BRIEF.md` with `target_stack: react` and Blip/BDS notes in section 9 |
+| Net-new UI / redesign | Create `docs/DESIGN-BRIEF.md` with `target_stack: react` and Blip/BDS notes in section 9, then hand off to `react-developer` |
 | Plugin implementation | `/react-developer` (auto-loads `blip-guidelines/` when `blip-ds` present) |
 | Backend API (.NET) | `/dotnet-developer` in **separate repo** - not in plugin scaffold session |
 
-**DESIGN-BRIEF:** use template at `{{TOOLKIT_ROOT}}/skills/impeccable/reference/DESIGN-BRIEF-TEMPLATE.md`. One session = design **or** implementation, not both.
+**DESIGN-BRIEF:** write a project-specific brief using `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` as general guidance. Keep substantial design discovery and implementation in separate sessions.
 
 **External API:** if Phase 1 answer was REST backend, remind user to read `external-api-integration.md` during `react-developer` sessions.
 

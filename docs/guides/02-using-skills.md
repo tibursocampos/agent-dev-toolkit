@@ -1,4 +1,4 @@
-﻿# Using skills
+# Using skills
 
 How to invoke toolkit skills after a successful sync. Prefer **skill ids** (kebab-case under `core/skills/`). The **id** is stable across hosts; the prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>` or natural language matching the skill `description`.
 
@@ -214,7 +214,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**46** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**45** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

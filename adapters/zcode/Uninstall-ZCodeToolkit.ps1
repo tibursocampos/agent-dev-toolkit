@@ -430,6 +430,21 @@ function Invoke-ZCodeUninstallToolkit {
         }
     }
 
+    foreach ($hookFileName in @(
+            $script:ZCodePathConstant.HooksGuardPreToolScriptName,
+            $script:ZCodePathConstant.SharedGuardCommonFileName,
+            $script:ZCodePathConstant.SharedAuthorizationContractFileName
+        )) {
+        $hookPath = Join-Path $resolvedInstallRoot (Join-Path $script:ZCodePathConstant.HooksDirectoryName $hookFileName)
+        $hit = Remove-ZCodeManagedPathIfPresent -Path $hookPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
+        if ($hit) {
+            $wouldRemovePaths.Add($hookPath) | Out-Null
+            if (-not $WhatIf.IsPresent) {
+                $removedPaths.Add($hookPath) | Out-Null
+            }
+        }
+    }
+
     $skillsRoot = Join-Path $resolvedInstallRoot $script:ZCodePathConstant.SkillsDirectoryName
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($skillsRoot)
     $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `

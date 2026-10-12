@@ -4,7 +4,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SKILL-RE
 
 **Language:** This guideline is **English**. Chat prompts to the operator mirror the **user chat language** (`LANGUAGE.md`).
 
-Companion: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), skill `SKILL.md` Lazy-load tables, `reference.md` indexes under `references/` (or `reference/` for skills that use that folder, e.g. impeccable).
+Companion: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), skill `SKILL.md` Lazy-load tables, `reference.md` indexes under `references/` (or `reference/` for skills that use that folder).
 
 ---
 
@@ -55,7 +55,7 @@ skill-id/
     ...
 ```
 
-Alternate folder name (existing convention): `reference/` (singular) — e.g. `impeccable/reference/`. Assert accepts either `references/` or `reference/` as a valid split.
+Alternate folder name (existing convention): `reference/` (singular). Assert accepts either `references/` or `reference/` as a valid split.
 
 Examples that use the split: `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop`, and Wave 1A skills such as `code-review`, `open-github-pr`, `test-coverage`, `sdd-develop`, `refine-story`, `split-story-checklist`, `document-plan`, `commit`.
 
@@ -84,4 +84,4 @@ Fail the assert → fix the skill before marking lazy-load reference work done.
 - Treat reading all `references/*.md` / `reference/*.md` as default context assembly
 - Require a `## Reference routing` table on skills that only use Lazy-load + Process paths
 - Assume the split layout applies only to `orchestrate-*` skills (or that every skill must split)
-
+

@@ -26,6 +26,8 @@ Gate check:
 # Skill: blazor-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Use when user asks for `/blazor-developer`, `blazor fix`, or a small isolated Blazor UI implementation.
 
@@ -51,10 +53,10 @@ Working Razor components and tests in the target workspace, validated with `dotn
 | Frontend core | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | FE structure (ARCH / CONTINUITY needs folder layout) | Prefer `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-architecture.md` — **not** a per-framework CA tree |
 | Markup / styles | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/` |
-| .NET patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| .NET production patterns | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| .NET test patterns (when testing) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | API rings (when Blazor + concentric .NET API) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` — only if ARCH = concentric |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ `architecture-selection.md` or **one** approved style — never glob `architecture/**`) |
-| Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/blazor-developer/reference.md` |
@@ -101,4 +103,4 @@ Enforce the full list in `references/must-not.md`. Critical: no guideline dumps 
 | Review | `/code-review` |
 | Backend / API only | `/dotnet-developer` |
 | Scope grew | `sdd-spec` -> `sdd-plan` -> `sdd-develop` |
-| Missing design brief | `/impeccable shape` (new session) |
+| Missing design brief | Create a concise `docs/DESIGN-BRIEF.md` before substantial UI redesign work; see `frontend-guidelines/frontend-practices.md`. |

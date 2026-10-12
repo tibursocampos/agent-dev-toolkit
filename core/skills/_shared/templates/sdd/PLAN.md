@@ -1,4 +1,4 @@
-﻿# PLAN: [Nome da feature]
+# PLAN: [Nome da feature]
 
 | Campo | Valor |
 |-------|--------|

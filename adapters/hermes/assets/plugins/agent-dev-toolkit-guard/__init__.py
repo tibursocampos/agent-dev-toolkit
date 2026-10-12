@@ -4,10 +4,29 @@ from __future__ import annotations
 
 import os
 import re
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+with (Path(__file__).parent / "authorization-contract.json").open(encoding="utf-8") as _contract_file:
+    AUTHORIZATION_CONTRACT = json.load(_contract_file)
+
+
+def _authorized(effect: str, scope: str) -> bool:
+    contract = AUTHORIZATION_CONTRACT
+    if not isinstance(contract, dict) or contract.get("schemaVersion") != 1:
+        return False
+    entries = contract.get("authorizations")
+    return isinstance(entries, list) and any(
+        isinstance(entry, dict) and entry.get("effect") == effect and entry.get("scope") == scope
+        for entry in entries
+    )
+
 GUARDED_TOOLS = {"terminal", "write_file", "patch"}
+READ_ONLY_TOOLS = {
+    "read_file", "read_many_files", "list_directory", "search_files",
+    "find_files", "web_search", "web_fetch", "memory_search", "ask_user",
+}
 
 FORBIDDEN_SDD_PREFIXES = (
     "PRD/",
@@ -145,6 +164,19 @@ SHELL_PATH_PATTERNS = (
     re.compile(r'(?i)(?:^|[\s;&|])(?:cat|echo|printf)\s+[^\r\n]{0,200}(?:>{1,2})\s*["\']?([^\s"\'|&;]+)'),
 )
 
+SHELL_MUTATION_PATTERN = re.compile(
+    r"(?i)(?:\d?>|&>|\|\s*tee\b|(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b))(?=\s|$)"
+)
+SAFE_PYTHON_PRINT_PATTERN = re.compile(
+    r"(?i)^python(?:3)?\s+-c\s+([\"'])(?:print\(-?\d+(?:\.\d+)?\)|print\([\"'][^\"']*[\"']\))\1$"
+)
+SAFE_SED_READ_PATTERN = re.compile(
+    r"(?i)^sed\s+(?:-[nE]\s+)*[\"']s/[^/]+/[^/]+/g?[\"']\s+(?:[A-Za-z0-9_.-]+[\\/])*[A-Za-z0-9_.-]+$"
+)
+READ_ONLY_COMMAND_PATTERN = re.compile(
+    r"(?i)^(?:get-date|get-location|get-content|get-childitem|get-item|test-path|resolve-path|write-output|write-host|echo|printf|cat|head|tail|grep|rg|find|ls|dir|pwd|whoami|where|which|git\s+(?:status|diff|log|show|branch|rev-parse|ls-files))(?=\s|$)"
+)
+
 FORBIDDEN_LITERALS = (
     "PRD/",
     "PLAN/",
@@ -179,6 +211,36 @@ def _norm_rel(path: str, workspace: str) -> Optional[str]:
             return None
     except Exception:
         return None
+
+
+def _under_local_sdd_root(path: str) -> bool:
+    if not path:
+        return False
+    target = Path(path).expanduser().resolve(strict=False)
+    home = Path.home().resolve()
+    roots = [home / name / "sdd" for name in (
+        ".cursor", ".codex", ".claude", ".copilot", ".grok", ".hermes",
+        ".opencode", ".zcode", ".antigravity", ".gemini", ".agents",
+    )]
+    roots.append(home / ".config" / "opencode" / "sdd")
+    hermes_home = os.environ.get("HERMES_HOME")
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if hermes_home:
+        roots.append(Path(hermes_home).expanduser().resolve() / "sdd")
+    if local_app_data:
+        roots.append(Path(local_app_data).resolve() / "hermes" / "sdd")
+    for root in roots:
+        try:
+            lexical_root = Path(os.path.abspath(os.fspath(root)))
+            canonical_root = root.resolve(strict=True) if root.exists() else lexical_root
+            if canonical_root != lexical_root:
+                continue  # Never trust an SDD root redirected through a symlink.
+            target.relative_to(canonical_root)
+            if ".git" not in {part.lower() for part in target.parts}:
+                return True
+        except ValueError:
+            continue
+    return False
 
 
 def _forbidden_sdd(rel: str) -> bool:
@@ -268,6 +330,20 @@ def _paths_from_shell(command: str) -> List[str]:
     return found
 
 
+def _shell_is_read_only(command: str) -> bool:
+    if SAFE_PYTHON_PRINT_PATTERN.fullmatch(command.strip()):
+        return True
+    for segment in re.split(r";|&&|\|\||\|", command):
+        text = segment.strip()
+        if not text:
+            continue
+        if SAFE_PYTHON_PRINT_PATTERN.fullmatch(text) or SAFE_SED_READ_PATTERN.fullmatch(text):
+            continue
+        if not READ_ONLY_COMMAND_PATTERN.match(text):
+            return False
+    return True
+
+
 def _secret_hit(content: str) -> Optional[str]:
     if not content:
         return None
@@ -295,9 +371,11 @@ def _block_path(check: str) -> Dict[str, str]:
     }
 
 
-def _check_path(path: str, workspace: str) -> Optional[Dict[str, str]]:
+def _check_path(path: str, workspace: str, effect: str) -> Optional[Dict[str, str]]:
     rel = _norm_rel(path, workspace)
     if rel is None:
+        if _under_local_sdd_root(path) and _authorized(effect, "local_sdd"):
+            return None
         return _block_path(path)
     check = rel or path.replace("\\", "/")
     if not _allowed_path(check):
@@ -309,59 +387,9 @@ def _check_path(path: str, workspace: str) -> Optional[Dict[str, str]]:
 
 
 def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
-    """Return Hermes block directive or None to allow."""
-    if tool_name not in GUARDED_TOOLS:
-        return None
-
-    workspace = _workspace_root()
-    content = _extract_content(args)
-    paths: List[str] = []
-
-    if tool_name == "terminal":
-        cmd = ""
-        if isinstance(args, dict):
-            for key in ("command", "cmd", "shell_command", "script", "CommandLine"):
-                val = args.get(key)
-                if isinstance(val, str) and val.strip():
-                    cmd = val
-                    break
-        content = cmd or content
-        paths = _paths_from_shell(cmd)
-        # Fail-closed when a write-like cmd looks path-bearing but extract found nothing
-        # and forbidden literals are also absent — still allow read-only commands.
-        # Path checks run for every extracted path; do not skip the path branch for terminal.
-    elif tool_name in ("write_file", "patch"):
-        path = _extract_path(args)
-        if not path:
-            return {
-                "action": "block",
-                "message": (
-                    "Hook denied write/edit because tool args have no path. "
-                    "Fail-closed: path is required."
-                ),
-            }
-        paths = [path]
-
-    for raw in paths:
-        blocked = _check_path(raw, workspace)
-        if blocked:
-            return blocked
-
-    secret = _secret_hit(content)
-    if secret:
-        return {
-            "action": "block",
-            "message": (
-                f"Hook denied tool because content matches secret pattern '{secret}'. "
-                "Use env var names or placeholders."
-            ),
-        }
+    """Leave tool authorization to Hermes and its configured native controls."""
     return None
-
-
 def register(ctx: Any) -> None:
-    def on_pre_tool_call(tool_name: str, args: dict, task_id: str = "", **kwargs: Any):
-        del task_id, kwargs
-        return evaluate_tool_call(tool_name, args if isinstance(args, dict) else {})
-
-    ctx.register_hook("pre_tool_call", on_pre_tool_call)
+    """Keep plugin discovery compatible without registering an authorization hook."""
+    del ctx
+    return None

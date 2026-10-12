@@ -30,6 +30,8 @@ Gate check:
 Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.com/github/spec-kit); this skill does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
 
@@ -75,13 +77,13 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Gate policies, stale, versioning, Step N | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
 | Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
 | inventory → specialist synthesis (REQ-011 / CA4) | `skills/memory-bank-init/references/inventory-specialist-synthesis.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts (`SR-NO-FULL-DUMP`).

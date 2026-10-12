@@ -16,11 +16,11 @@ Load Electron + renderer guidelines for this task. Review security defaults befo
 
 ### 2. Branch
 
-Use `feature/<slug>` or `feat/<id>`. Never commit on `main`/`master`/`develop`.
+Use `feature/<slug>` or `feat/<id>-<slug>`. Never commit on `main`/`master`/`develop`.
 
 ### 3. Micro-plan
 
-Define 3-7 concrete tasks; checkpoint context at >= 40%.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 4. Implement
 

@@ -201,8 +201,8 @@ try {
     if (Test-HermesToolkitSkillPresent) {
         Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
     }
-    if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
-        Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
+    if (Test-Path -LiteralPath $managedSkillUserFile) {
+        Write-Fail -TestName $removeTest -Reason 'all files inside toolkit-managed skill directories must be removed'
     }
     if (-not (Test-Path -LiteralPath (Get-HermesWorkAgentsPath))) {
         Write-Fail -TestName $removeTest -Reason 'uninstall must preserve unrelated AGENTS.md content'

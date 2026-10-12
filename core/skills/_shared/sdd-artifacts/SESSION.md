@@ -1,10 +1,12 @@
-﻿# Session state and gates
+# Session state and gates
 
 Load at **step -1** of every skill. Do not paste into PRD/PLAN/sdd-spec bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`
 
 ## Session file locations
+
+Runtime scripts published under `<InstallRoot>/scripts/<area>` resolve an omitted `-SddRoot` to `<InstallRoot>/sdd` through the shared `Resolve-EffectiveSddRoot.ps1` helper. Session, ledger and execution-mode state therefore stays under the active installation's SDD root; helpers must not infer a root from the user profile. Explicit roots remain supported for isolated tests and deliberate callers.
 
 Two scopes share the same directory root:
 
@@ -119,6 +121,12 @@ Operator-facing STOP / confirm prompts use the **user chat language** (`LANGUAGE
 
 ## Before Write or mutating Shell
 
+### Persisted identity is a precondition to mutation (REQ-005 / CA5)
+
+Before any existing PLAN-scoped develop session action (`ensure`, `tests-run`, or `reset`), the helper resolves the active repository and PLAN to absolute paths, normalizes separators and trailing separators, and compares them case-insensitively with persisted `repo` and `plan_path`. Both fields must match. A mismatch fails closed, reports the resolved expected and persisted identities, and leaves the session bytes unchanged. `status` also reports the mismatch instead of presenting a gate from another context. Do not repair, rewrite, or migrate a mismatched session automatically; investigate the path/context and use the correct session scope.
+
+For a missing session, the helper creates the schema with the already-resolved active identity. Session identity fields are not inferred from the session filename/hash alone: they are verified against the active context before an existing file can change.
+
 1. Resolve the correct session file(s) for the gate in play.
 2. If required gate is `false`: **STOP** - ask user in the **user chat language** (`LANGUAGE.md`) - do not proceed.
 3. After user **sim** for develop `step_confirmed`: **MUST** use the canonical helper (idempotent) via `-File` — **MUST NOT** inline-mutate session JSON. After tests execute and are reported, use `-Action tests-run`; before closing the scope, use `-Action reset`:
@@ -133,6 +141,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 - **Idempotent (REQ-011 / CT5):** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
 - `-Action tests-run` requires `step_confirmed = true`, records tests only after execution/reporting, and skips rewriting if already true.
 - `-Action reset` clears both develop gates and sets `phase = idle` after step close; it skips rewriting when both are already false.
+- Every helper invocation is a required gate: a nonzero exit, denied write, or missing confirmation output stops the current operation. Report `blocked` or `failed` with the helper's cause; do not continue to claim, spawn, implement, validate completion, or report success. Never bypass the helper or mutate session JSON inline. If the canonical SDD root is not writable, ask the operator to restore a writable root through the supported setup mechanism, then retry the same helper only after that condition changes.
 - **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
 4. Repo gates (`storage_confirmed` / `write_confirmed`) remain on the flat `{repo-hash}.json` (helper above is develop-scope only).
 
@@ -171,7 +180,7 @@ Canonical scripts (REQ-014):
 
 | Script | Role |
 |--------|------|
-| `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent set of `step_confirmed`, record of `tests_run` after tests, and develop-gate reset |
+| `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` | `ensure` sets `step_confirmed`; `-Action tests-run` records `tests_run` only after declared tests execute and pass; `-Action reset` clears both develop gates |
 | `{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1` | Read/check gate true vs blocked |
 | `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT (unchanged; not reimplemented by session helper) |
 
@@ -182,4 +191,3 @@ Canonical scripts (REQ-014):
 | All skills | Step -1 gate check before Write/Shell |
 | `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step); **MUST** call `Invoke-DevelopSessionGate.ps1` after **sim** (REQ-012); claim still required when absent (CT6) |
 | `rules/guardrails.mdc` | References this file |
-| `rules/context-management.mdc` | Complements session gates |

@@ -299,7 +299,7 @@ try {
     }
     Write-Pass -TestName $generatedCollisionTest
 
-    $uninstallTest = 'Should_RemoveEditedCatalogSkillsAndOnlyMarkedRouterSection_When_Uninstalling'
+    $uninstallTest = 'Should_RemoveToolkitSkillTreeAndOnlyMarkedRouterSection_When_Uninstalling'
     $installRoot = Join-Path $probeRoot 'uninstall-root'
     $sourceRoot = Join-Path $probeRoot 'uninstall-source'
     $skillsDest = Join-Path $installRoot 'skills'
@@ -322,11 +322,15 @@ try {
     $beginMarker = $script:ToolkitConstant.ManagedBlockBeginMarker
     $endMarker = $script:ToolkitConstant.ManagedBlockEndMarker
     $agentsTarget = Join-Path $installRoot 'AGENTS.md'
-    [System.IO.File]::WriteAllText($agentsTarget, "operator preface`n$beginMarker`ntoolkit section`n$endMarker`noperator after`n")
+    $agentsContent = "operator preface`n$beginMarker`ntoolkit section`n$endMarker`noperator after`n"
+    [System.IO.File]::WriteAllText($agentsTarget, $agentsContent)
+    $null = Set-ToolkitManagedPublishInventoryEntryFromContent -InstallRoot $installRoot -RelativePath 'AGENTS.md' -PublishedContent $agentsContent -Kind 'router'
     $hermesBegin = $script:ToolkitConstant.HermesManagedAgentsBeginMarker
     $hermesEnd = $script:ToolkitConstant.HermesManagedAgentsEndMarker
     $claudeTarget = Join-Path $installRoot 'CLAUDE.md'
-    [System.IO.File]::WriteAllText($claudeTarget, "operator preface`n$hermesBegin`nhermes toolkit section`n$hermesEnd`noperator after`n")
+    $claudeContent = "operator preface`n$hermesBegin`nhermes toolkit section`n$hermesEnd`noperator after`n"
+    [System.IO.File]::WriteAllText($claudeTarget, $claudeContent)
+    $null = Set-ToolkitManagedPublishInventoryEntryFromContent -InstallRoot $installRoot -RelativePath 'CLAUDE.md' -PublishedContent $claudeContent -Kind 'router'
     $catalogRouterTarget = Join-Path $installRoot 'CATALOG.md'
     $null = Write-ToolkitFileIfAbsent -Path $catalogRouterTarget -Content "catalog router`n" -InstallRoot $installRoot -RelativePath 'CATALOG.md'
     [System.IO.File]::WriteAllText($catalogRouterTarget, "catalog router edited`n")
@@ -338,8 +342,8 @@ try {
     if (Test-Path -LiteralPath $catalogSkillFile) {
         Write-Fail -TestName $uninstallTest -Reason 'edited catalog skill file must be removed'
     }
-    if (-not (Test-Path -LiteralPath $sidecarPath) -or [System.IO.File]::ReadAllText($sidecarPath) -notmatch 'keep sidecar') {
-        Write-Fail -TestName $uninstallTest -Reason 'non-catalog sidecar inside a skill folder must stay'
+    if (Test-Path -LiteralPath $sidecarPath) {
+        Write-Fail -TestName $uninstallTest -Reason 'all files inside a toolkit skill folder must be removed'
     }
     if (-not (Test-Path -LiteralPath $alienSkillFile)) {
         Write-Fail -TestName $uninstallTest -Reason 'alien skill must stay'
@@ -374,8 +378,8 @@ try {
         -RelativePath 'CATALOG.md' `
         -CurrentFilePath $catalogRouterTarget `
         -ResolveExpectedPublishContent { 'catalog router' }
-    if (-not $catalogRouterRemoval.Removed -or (Test-Path -LiteralPath $catalogRouterTarget)) {
-        Write-Fail -TestName $uninstallTest -Reason 'edited catalog-only router must be removed as a whole file'
+    if ($catalogRouterRemoval.Removed -or -not (Test-Path -LiteralPath $catalogRouterTarget)) {
+        Write-Fail -TestName $uninstallTest -Reason 'edited catalog-only router must be preserved without ownership proof'
     }
 
     $outsideFile = Join-Path $probeRoot 'outside-install-root.txt'

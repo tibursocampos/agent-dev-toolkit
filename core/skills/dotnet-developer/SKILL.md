@@ -27,6 +27,8 @@ Gate check:
 # Skill: dotnet-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/dotnet-developer`, `dotnet fix`, `implement .NET feature`, or for **small** backend work that does not need a full PRD/PLAN cycle.
 
@@ -50,17 +52,17 @@ Working **.NET** code and tests in the open workspace: build and tests green, on
 | Architecture (ARCH = vertical-slice / VSA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/vertical-slice.md` (+ optional `principles/architecture/vertical-slice.md`) |
 | Architecture (ARCH = ddd / tactical DDD) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/ddd-tactical.md` (+ optional `principles/architecture/ddd-tactical.md`) |
 | Architecture (ARCH = event-driven / EDA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/event-driven.md` (+ optional `principles/architecture/event-driven.md`) |
-| C# / tests | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| C# production conventions | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
+| .NET tests | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Final checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/dotnet-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/dotnet-developer/references/<section>.md` |
 
 **Never by default:** do not preload all `references/*.md`. do not preload all `dotnet-guidelines/` files, all `developer-common/step-*.md`, or `code-guidelines/languages/**` / corporate pipeline docs. **MUST NOT** glob `architecture/**` — load **one** style overlay from ARCH/CONTINUITY (brownfield: discover-first if style omitted). Do not dump full stack guideline packs or memory-bank. Load **one** section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
-**Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index for which packs to open; fan-out to individual `step-3*` / `step-4` / `step-7` only when that process step runs. For architecture: selection/contract (`architecture-selection.md` or ARCH) → **one** `dotnet-guidelines/` overlay → `csharp-patterns.md` / checklist only when coding or pre-PR.
+**Progressive load:** `step-0-context.md` first; then `step-0.5-review-guidelines.md` as the index for which packs to open; fan-out to individual `step-3*` / `step-4` / `step-7` only when that process step runs. For architecture: selection/contract (`architecture-selection.md` or ARCH) → **one** `dotnet-guidelines/` overlay → `csharp-patterns.md` / checklist only when coding or pre-PR; load `dotnet-test-patterns.md` only when creating or reviewing tests.
 
 ## Reference routing
 

@@ -247,6 +247,8 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare`.
 
+When `preferences.json` is missing, interactive first sync asks for parent orchestration mode and Caveman mode (both default to the first choice: `always` and `on`). Direct or other non-interactive sync seeds defaults without prompting; existing preferences remain intact. The preferences are stored under that install's `<InstallRoot>/sdd/`.
+
 ### Storage (SDD artifacts)
 
 After prepare, `manifest.json` (schema **v2**) lives under the effective SDD root (`effective_SDD_ROOT` = `<InstallRoot>/sdd`; docs may still say `{{SDD_ROOT}}`). Per-project Classic settings are `repositories[<cwd>].classic.storage_mode` and `.path`.

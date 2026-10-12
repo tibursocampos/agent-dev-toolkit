@@ -30,6 +30,8 @@ Gate check:
 # Skill: micropython-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke for Python code that runs as MicroPython firmware on an identified ESP32
 or ESP8266 device. A `.py` extension, an ESP32-family name, or a board label

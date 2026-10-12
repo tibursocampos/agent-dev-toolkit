@@ -14,6 +14,6 @@
 | 6 | Per story: story-file gate, `sdd-spec`, PRD contestation, `split-story-checklist` when medium or complex, then `sdd-plan`. An open question stops that story. | `references/per-story-contracts.md` |
 | 7 | Approval per story or batch (**sim**) | `references/approval-gates.md` |
 | 8 | CONTINUITY + multi-path handoff (CHANGE cross-check) | `references/continuity-handoff.md` |
-| 9 | Context pressure / resume | `references/process-common.md` § Context pressure |
+| 9 | Durable progress handoff | `references/process-common.md` § Durable progress handoff |
 
 **Must not (full):** `references/boundaries-must-not.md`. Develop handoffs: `SKILL.md` § Canonical develop handoffs.

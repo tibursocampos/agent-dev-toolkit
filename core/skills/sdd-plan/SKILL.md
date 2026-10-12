@@ -27,6 +27,8 @@ Gate check:
 # Skill: sdd-plan
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/sdd-plan`, `create plan`, `execution plan`.
 
@@ -43,13 +45,13 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/command.md` |
 | Pipeline guards, missing PRD dialog | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage, manifest, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | PLAN-LEDGER atomic claim (`REQ-002` / CA2) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (+ `references/plan-ledger.md`) |
 | PLAN document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PLAN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| SDD language, context, .NET | `sdd-artifact-language-pt-br.mdc`, `context-management.mdc`, `dotnet-guidelines/*.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/<section>.md` |
@@ -71,7 +73,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 
 ### -1. Pipeline and mode
 
-Load `STORAGE.md` and `PIPELINE.md`. Use `STORAGE.md` schema v2 and run the dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
+Load `STORAGE.md` and `PIPELINE.md`; when resolving repository/global storage, also load `STORAGE-RESOLUTION.md`. Use its schema v2 and dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
 Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless parent handoff marks `orchestrated`. Apply the matching observable table.
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`) when mapping PRD → steps: treat unlabeled REQs as `agreed`; do not promote `invented` assumptions into Aceite as locked criteria.
 Phase A/B as for `sdd-spec`. No PRD authoring; no production/test code.
@@ -115,11 +117,11 @@ Do not invent steps. Do not assign a duration.
 
 ### 5. Context checkpoint
 
-`context-management.mdc`; PLAN draft in chat if >=40%.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 5.5 PLAN storage
 
-`STORAGE.md`; global PLAN if PRD is global; else manifest or prompt.
+`STORAGE.md` + `STORAGE-RESOLUTION.md`; global PLAN if PRD is global; else manifest or prompt.
 
 ### 5.75 Confirm before write
 

@@ -17,7 +17,7 @@ Trigger: `/developer`, or coding that does not name a stack.
 
 Order:
 
-1. **UI.** Net-new UI or a visual redesign with no `PRODUCT.md`: recommend `/impeccable init` in a new session. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists, it is the acceptance source; implement with the matching `*-developer` and do not reinterpret the brief. One session is design or implementation, not both.
+1. **UI.** For net-new UI or a substantial visual redesign, clarify the product context and record visual decisions in `docs/DESIGN-BRIEF.md`. If `docs/DESIGN-BRIEF.md` (or `docs/design/DESIGN-BRIEF.md`) exists, it is the acceptance source; implement with the matching `*-developer` and do not reinterpret the brief. Keep substantial design discovery and implementation in separate sessions.
 2. **Stack match.** First hit wins. The router loads that skill and stops. It does not ask permission to switch.
 
 | Signal | Skill |
@@ -47,15 +47,15 @@ Each one implements **small-to-medium** work in the open workspace. Full multi-s
 |-------|--------|----------------------------------|----------------------------|
 | `dotnet-developer` | .NET backend | `dotnet-guidelines/` (one style: clean architecture, vertical slice, DDD tactical, or event-driven, plus C# patterns) | `/sdd-spec` |
 | `java-developer` | JVM, Spring Boot by default | `java-guidelines/` including `architecture/` overlays | `/sdd-spec` |
-| `javascript-developer` | Node (Express/Fastify) or DOM. There is no `node-developer` id | `javascript-guidelines/` | `/sdd-spec`; UI brief to impeccable |
+| `javascript-developer` | Node (Express/Fastify) or DOM. There is no `node-developer` id | `javascript-guidelines/` | `/sdd-spec`; create a UI brief when substantial visual decisions are needed |
 | `python-developer` | FastAPI or Flask | `python-guidelines/` plus one shared Layer B style file | `/sdd-spec` |
-| `react-developer` | React web. React Native is a different skill | `react-guidelines/`, frontend and HTML/CSS as needed; Blip pack when `blip-ds` is present | `/react-native-developer` for mobile; `/impeccable shape` when the brief is missing |
+| `react-developer` | React web. React Native is a different skill | `react-guidelines/`, frontend and HTML/CSS as needed; Blip pack when `blip-ds` is present | `/react-native-developer` for mobile; create a brief when substantial visual decisions are needed |
 | `react-native-developer` | React Native / Expo | `react-native-guidelines/` | `/react-developer` for web |
-| `angular-developer` | Angular | `angular-guidelines/` plus HTML/CSS | impeccable when the brief is missing |
-| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | `vue-guidelines/` | impeccable when the brief is missing |
+| `angular-developer` | Angular | `angular-guidelines/` plus HTML/CSS | create a brief when substantial visual decisions are needed |
+| `vue-developer` | Vue 3, Composition API, Pinia, Vitest | `vue-guidelines/` | create a brief when substantial visual decisions are needed |
 | `blazor-developer` | WASM, Server, Hybrid | `blazor-guidelines/` one topic at a time; `dotnet-guidelines` patterns; clean architecture only when ARCH is concentric and an API sits behind the UI | `/dotnet-developer` for the API |
-| `electron-developer` | Main, preload, renderer, IPC, packaging | `electron-guidelines/` (security/CSP first when IPC changes) plus one renderer pack | impeccable when the brief is missing |
-| `blip-plugin-developer` | **New** plugin scaffold, not feature coding | `blip-guidelines/` and the impeccable brief template | Implementation is `/react-developer`. Backend API is `/dotnet-developer` in another repo. Full feature is `/sdd-spec` |
+| `electron-developer` | Main, preload, renderer, IPC, packaging | `electron-guidelines/` (security/CSP first when IPC changes) plus one renderer pack | create a brief when substantial visual decisions are needed |
+| `blip-plugin-developer` | **New** plugin scaffold, not feature coding | `blip-guidelines/` | Implementation is `/react-developer`. Backend API is `/dotnet-developer` in another repo. Full feature is `/sdd-spec` |
 
 Greenfield or an unset architecture style starts at `architecture-selection.md` instead of guessing a folder layout. Brownfield mirrors the style already in ARCH.
 
@@ -76,26 +76,3 @@ Clean Architecture, onion, and hexagonal are the same concentric rule. Vertical 
 Packs under `core/skills/_shared/`: `angular-guidelines`, `blazor-guidelines`, `blip-guidelines`, `code-guidelines`, `devops-guidelines`, `dotnet-guidelines`, `electron-guidelines`, `frontend-guidelines`, `html-css-guidelines`, `java-guidelines`, `javascript-guidelines`, `python-guidelines`, `react-guidelines`, `react-native-guidelines`, `vue-guidelines`.
 
 `sdd-develop` loads the same packs one file at a time for the PLAN step. It does not switch into a `*-developer` skill.
-
-## `impeccable`
-
-UI design skill. Trigger: `/impeccable` (menu; does not auto-run), `/impeccable <command>`, or aliases `/impeccable-shape` and `/impeccable-audit`. `teach` is a deprecated alias of `init`.
-
-If `PRODUCT.md` is missing, stop and run `init` before any other command. Register is `brand` (marketing, landing, portfolio) or `product` (app UI). Do not load both unless routing requires it.
-
-Commands that ship in-repo references include `init`, `shape`, `craft`, `critique`, `audit`, `harden`, `polish`, `onboard`. `document` and `extract` are not bundled. `live` and design hooks call `npx impeccable install` and need an explicit **sim**; they write project hook files.
-
-After **sim** on a `shape` or `craft` brief, write `docs/DESIGN-BRIEF.md` from the skill template, set `target_stack`, and **stop**. The next chat implements:
-
-| `target_stack` | Skill |
-|----------------|--------|
-| `react` | `/react-developer` |
-| `react-native` | `/react-native-developer` |
-| `angular` | `/angular-developer` |
-| `vue` | `/vue-developer` |
-| `blazor` | `/blazor-developer` |
-| `electron` | `/electron-developer` |
-| `html-css` | `/javascript-developer` |
-| ambiguous | `/developer` |
-
-Blip section of the brief records design-system components and iframe limits; implementation is still `react-developer` plus `blip-guidelines/`. A large feature that also needs a PRD continues through `sdd-spec`. This repo’s `docs/DESIGN-BRIEF.md` is the toolkit site brief, not a consumer-app brief. Credit: [CREDITS.md](../CREDITS.md).

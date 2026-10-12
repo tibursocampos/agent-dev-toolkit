@@ -57,6 +57,8 @@ When Phase A is done and persistence is still pending, tell the user, in the use
 
 ## Boundaries
 
+A canonical PLAN plus an explicit eligible step starts in the current session after dependency and confirmation gates; do not require a new session. If invocation omits the step or execution route, ask manual-per-invocation vs O3; keep that answer independent from `orchestrator_mode` and pacing. Stop after the one requested step.
+
 - `sdd-spec` / `sdd-plan`: no production or test code changes.
 - `sdd-develop`: **one PLAN step per develop session** (unchanged contract — do not weaken). Handoff to the next step cites the portable PLAN path + step id only. Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `{{SDD_ROOT}}/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
 - `code-review`: does not write PRD/PLAN; hand off findings with `/sdd-spec`.

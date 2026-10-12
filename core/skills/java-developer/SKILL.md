@@ -27,6 +27,8 @@ Gate check:
 # Skill: java-developer
 
 ## Trigger
+**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+
 
 Invoke when the user asks for: `/java-developer`, `java fix`, `implement Spring Boot feature`, or for **small** JVM backend work that does not need a full PRD/PLAN cycle.
 
@@ -62,7 +64,6 @@ Working **Java** (Spring Boot by default) code and tests in the open workspace: 
 | Final checklist | `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/checklist.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/java-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/java-developer/references/<section>.md` |
 

@@ -113,6 +113,8 @@ function Get-ClaudeManagedHookRelativePaths {
         $paths.Add($relative) | Out-Null
     }
 
+    $paths.Add($script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName) | Out-Null
+
     return @($paths.ToArray())
 }
 

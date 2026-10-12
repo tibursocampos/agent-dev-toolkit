@@ -74,7 +74,8 @@ function Test-OpenHandsNativeHooksPresent {
     $hooksJsonPath = Join-Path $HooksRoot $script:OpenHandsAdapterConstant.HooksJsonFileName
     $hooksScriptPath = Join-Path $HooksScriptsRoot $script:OpenHandsAdapterConstant.HooksSessionStartScriptName
     $guardScriptPath = Join-Path $HooksScriptsRoot $script:OpenHandsAdapterConstant.HooksGuardPreToolScriptName
-    if (-not ((Test-Path -LiteralPath $hooksJsonPath) -and (Test-Path -LiteralPath $hooksScriptPath) -and (Test-Path -LiteralPath $guardScriptPath))) {
+    $contractPath = Join-Path $HooksScriptsRoot $script:OpenHandsAdapterConstant.SharedAuthorizationContractFileName
+    if (-not ((Test-Path -LiteralPath $hooksJsonPath) -and (Test-Path -LiteralPath $hooksScriptPath) -and (Test-Path -LiteralPath $guardScriptPath) -and (Test-Path -LiteralPath $contractPath -PathType Leaf))) {
         return $false
     }
 

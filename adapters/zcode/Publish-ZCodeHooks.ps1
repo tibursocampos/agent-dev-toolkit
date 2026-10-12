@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'adapters') '_shared\PublishAuthorizationContract.ps1')
 
 <#
 .SYNOPSIS
@@ -363,6 +364,10 @@ function Invoke-ZCodePublishHooks {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
     $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedGuardDest
+    $contractSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:ZCodePathConstant.SharedAuthorizationContractFileName
+    $contractDest = Join-Path $hooksDir $script:ZCodePathConstant.SharedAuthorizationContractFileName
+    Assert-ToolkitManagedPathContained -CandidatePath $contractDest -RootPath $resolvedInstallRoot -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot -RequireStrictChild
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $resolvedInstallRoot
     return [PSCustomObject]@{
         Success          = $true
         Implemented      = $true

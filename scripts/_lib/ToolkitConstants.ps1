@@ -190,8 +190,6 @@ $script:ToolkitConstant = @{
         'core/skills/split-story-checklist/reference.md'
     )
     ValidateEvidenceScriptName         = 'validate-evidence.ps1'
-    AssertEvidenceContractScriptName   = 'Assert-EvidenceContract.ps1'
-    EvidenceContractCheckName          = 'evidence-contract'
     EvidenceContractGuideRelativePath  = 'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
     StateTemplateRelativePath          = 'core/skills/_shared/templates/features/STATE.md'
     EvdTemplateReadmeRelativePath      = 'core/skills/_shared/templates/features/EVD/README.md'
@@ -200,24 +198,7 @@ $script:ToolkitConstant = @{
     SddArtifactEvidenceLevelDefault    = 'cheap'
     SddArtifactEvidenceLevelFieldPattern = '(?im)\|\s*\*{0,2}Evidence level\*{0,2}\s*\|\s*`?(off|cheap|standard|strict)`?\s*\|'
     SddArtifactEvidenceMatrixHeadingPattern = '(?im)^#{1,3}\s*AC\s*(.|->)\s*evidence matrix\b'
-    ValidateEvidenceFixtureValidRelativeDir = 'evidence/valid'
-    ValidateEvidenceFixtureInvalidZeroRelativeDir = 'evidence/invalid-zero'
-    EvidenceContractSkillWiringRelativePaths = @(
-        'core/skills/sdd-develop/SKILL.md',
-        'core/skills/sdd-develop/reference.md',
-        'core/skills/orchestrate-develop/SKILL.md',
-        'core/skills/orchestrate-develop/reference.md',
-        'core/skills/_shared/sdd-artifacts/STORAGE.md',
-        'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
-    )
-    EvidenceVerifierNoO3RelativePaths = @(
-        'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md',
-        'core/skills/sdd-develop/SKILL.md',
-        'core/skills/orchestrate-develop/SKILL.md'
-    )
     ValidateTraceScriptName            = 'validate-trace.ps1'
-    AssertTraceArchiveContractScriptName = 'Assert-TraceArchiveContract.ps1'
-    TraceArchiveContractCheckName      = 'trace-archive-contract'
     TraceArchiveContractGuideRelativePath = 'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
     TraceTemplateRelativePath          = 'core/skills/_shared/templates/features/TRACE.jsonl'
     SddArtifactTraceFileName           = 'TRACE.jsonl'
@@ -244,19 +225,6 @@ $script:ToolkitConstant = @{
     SddArtifactTraceFeaturePathPattern = '(?i)^features/[0-9]{3}-[a-z0-9][a-z0-9\-]*$'
     SddArtifactTraceAllowedTargetPattern = '(?i)^(memory-bank/|docs/)'
     SddArtifactTraceForbiddenTargetPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
-    ValidateTraceFixtureValidRelativeDir = 'trace/valid'
-    ValidateTraceFixtureInvalidIncompleteRelativeDir = 'trace/invalid-incomplete'
-    ValidateTraceFixtureInvalidBadJsonRelativeDir = 'trace/invalid-bad-json'
-    ValidateTraceFixtureInvalidOrchestrationRelativeDir = 'trace/invalid-orchestration'
-    ValidateTraceFixtureArchiveSmokeRelativeDir = 'trace/archive-smoke'
-    TraceArchiveContractSkillWiringRelativePaths = @(
-        'core/skills/sdd-develop/SKILL.md',
-        'core/skills/sdd-develop/reference.md',
-        'core/skills/orchestrate-develop/SKILL.md',
-        'core/skills/orchestrate-develop/reference.md',
-        'core/skills/_shared/sdd-artifacts/STORAGE.md',
-        'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
-    )
     AssertOrchestratorCharterPublishedScriptName = 'Assert-OrchestratorCharterPublished.ps1'
     OrchestratorCharterPublishedCheckName        = 'orchestrator-charter-published'
     AssertOrchestratorCommandsScriptName         = 'Assert-OrchestratorCommands.ps1'
@@ -299,22 +267,6 @@ $script:ToolkitConstant = @{
     AssertStorySizingContractScriptName          = 'Assert-StorySizingContract.ps1'
     StorySizingContractCheckName                 = 'story-sizing-contract'
     StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
-    AssertProductArtifactQualityScriptName       = 'Assert-ProductArtifactQuality.ps1'
-    ProductArtifactQualityCheckName              = 'product-artifact-quality'
-    ProductArtifactQualityFixturesRelativeDir    = 'scripts/validation/fixtures/product-artifact-quality'
-    ProductArtifactQualityCt1RelativeDir         = 'ct1-feature-incomplete'
-    ProductArtifactQualityCt2RelativeDir         = 'ct2-task-shaped'
-    ProductArtifactQualityCt3RelativeDir         = 'ct3-story-ac-budget-ok'
-    ProductArtifactQualityCt4RelativeDir         = 'ct4-cap-exceeded'
-    ProductArtifactQualityCt6RelativeDir         = 'ct6-evidence-omitted'
-    ProductArtifactQualityMaturityCap            = 4
-    ProductArtifactQualityMinProductDepthBand    = 3
-    ProductArtifactQualityEvidenceOmittedMarker  = 'omitted — none yet'
-    ProductArtifactQualityTaskShapedTitlePattern = '(?i)^(Create|Add|Update|Implement|Write|Fix)\s+[`'']?[A-Za-z0-9_.\-]+\.(ps1|cs|ts|tsx|js|py|md)[`'']?\b'
-    ProductArtifactQualityCapRationalePattern    = '(?i)(Cap exception rationale|justifies (?:the )?extra split|RN03 exception|split beyond (?:the )?cap)'
-    ProductArtifactQualityCt2TaskTitle           = 'Create Assert-Foo.ps1'
-    ProductArtifactQualityCt2OutcomeTitle        = 'Operators export archives by date range'
-    ProductArtifactQualityStorySynthesisRelativePath = 'core/skills/orchestrate-analyze/references/story-synthesis.md'
     AssertIntentClassificationScriptName         = 'Assert-IntentClassification.ps1'
     IntentClassificationCheckName                = 'intent-classification'
     IntentClassificationContractRelativePath   = 'core/skills/orchestrate-analyze/references/intent-classification.md'
@@ -322,14 +274,10 @@ $script:ToolkitConstant = @{
     AssertMemoryBankInventoryScriptName          = 'Assert-MemoryBankInventory.ps1'
     MemoryBankInventoryCheckName                 = 'memory-bank-inventory'
     MemoryBankInventoryFixtureRelativeDir        = 'scripts/validation/fixtures/memory-bank-inventory-work'
-    PlanLedgerContractRelativePath               = 'core/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md'
-    PlanLedgerSddPlanReferenceRelativePath       = 'core/skills/sdd-plan/references/plan-ledger.md'
-    PlanLedgerSddPlanIndexRelativePath           = 'core/skills/sdd-plan/reference.md'
-    PlanLedgerSddPlanSkillRelativePath           = 'core/skills/sdd-plan/SKILL.md'
-    InvokePlanLedgerClaimScriptRelativePath      = 'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
-    AssertPlanLedgerContractScriptName           = 'Assert-PlanLedgerContract.ps1'
-    PlanLedgerContractCheckName                  = 'plan-ledger-contract'
     InvokeDevelopSessionGateScriptRelativePath   = 'scripts/session/Invoke-DevelopSessionGate.ps1'
+    InvokePlanLedgerClaimScriptRelativePath      = 'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
+    PlanLedgerFixtureHolderA                     = 'holder-A'
+    PlanLedgerFixtureStep                        = 2
     ValidateSessionGatesScriptRelativePath       = 'scripts/validation/validate-session-gates.ps1'
     AssertDevelopSessionGateScriptName           = 'Assert-DevelopSessionGate.ps1'
     DevelopSessionGateCheckName                  = 'develop-session-gate'
@@ -378,10 +326,6 @@ $script:ToolkitConstant = @{
     AuthorshipGitNotesExitOk                     = 0
     AuthorshipGitNotesExitFail                   = 2
     AuthorshipGitNotesHonestyRelativePath        = 'adapters/_shared/trace-emitter-honesty.md'
-    AssertTraceHarvestScriptName                 = 'Assert-TraceHarvest.ps1'
-    TraceHarvestCheckName                        = 'trace-harvest'
-    TraceHarvestValidFixtureRelativeDir          = 'scripts/validation/fixtures/sdd-artifacts/trace/valid'
-    TraceHarvestFixtureFeatureSlug               = '000-fixture-trace'
     TraceHarvestExitOk                           = 0
     TraceHarvestExitFail                         = 2
     TraceHarvestStatusOk                         = 'ok'
@@ -405,32 +349,6 @@ $script:ToolkitConstant = @{
     AssertInvocationAxesScriptName               = 'Assert-InvocationAxes.ps1'
     InvocationAxesCheckName                      = 'invocation-axes'
     InvokeSiblingReadinessGateScriptRelativePath = 'scripts/validation/Invoke-SiblingReadinessGate.ps1'
-    AssertSiblingReadinessGateScriptName         = 'Assert-SiblingReadinessGate.ps1'
-    SiblingReadinessGateCheckName                = 'sibling-readiness-gate'
-    AssertNavigationBlockScriptName              = 'Assert-NavigationBlock.ps1'
-    NavigationBlockCheckName                     = 'navigation-block'
-    NavigationBlockFixtureValidRelativeDir       = 'navigation/valid'
-    NavigationBlockFixtureNoMutualRelativeDir    = 'navigation/no-mutual'
-    NavigationBlockRelatedHeading                = '## Related'
-    NavigationBlockRelatedSectionPattern         = '(?ms)^## Related\s*\r?\n(?<body>.*?)(?=^## |\z)'
-    NavigationBlockPrdDirSegment                 = 'PRD'
-    NavigationBlockPlanDirSegment                = 'PLAN'
-    NavigationBlockPlanFilePrefix                = 'PLAN_'
-    NavigationBlockExitOk                        = 0
-    NavigationBlockExitFail                      = 1
-    NavigationBlockExitUsage                     = 2
-    NavigationBlockContractRelativePaths         = @(
-        'core/skills/_shared/sdd-artifacts/STORAGE.md',
-        'core/skills/_shared/sdd-artifacts/PIPELINE.md'
-    )
-    NavigationBlockTemplateRelativePaths         = @(
-        'core/skills/_shared/templates/sdd/PRD.md',
-        'core/skills/_shared/templates/sdd/PLAN.md',
-        'core/skills/_shared/templates/features/CONTINUITY.md',
-        'core/skills/_shared/templates/features/story/STORY.md',
-        'core/skills/_shared/templates/features/FEATURE.md'
-    )
-    NavigationBlockForbiddenRefinementRelativePath = 'core/skills/_shared/sdd-artifacts/feature-refinement.md'
     SiblingReadinessContractRelativePath         = 'core/skills/_shared/sdd-artifacts/readiness-severity.md'
     SiblingReadinessFixtureReadyRelativeDir      = 'readiness/ready'
     SiblingReadinessFixtureOpenBiRelativeDir     = 'readiness/open-bi'
@@ -453,6 +371,12 @@ $script:ToolkitConstant = @{
     PlanLedgerStatusReleased                     = 'released'
     PlanLedgerDirectoryName                      = 'ledger'
     PlanLedgerSessionsFolderName                 = 'sessions'
+    PlanLedgerSessionsRootRequired               = 'SessionsRoot is required (or pass -SddRoot so sessions = <SddRoot>/sessions).'
+    PlanLedgerRepoPathMissing                    = 'RepoPath not found: {0}'
+    PlanLedgerPlanPathMissing                    = 'PlanPath not found: {0}'
+    PlanLedgerDoubleClaimFormat                  = 'PLAN-LEDGER reject: step {0} already claimed by holder={1}; attempted_holder={2}; reason=step_already_claimed'
+    PlanLedgerReleaseDeniedFormat                = 'PLAN-LEDGER release denied: attempted_holder={0}; existing_holder={1}; reason=release_forbidden'
+    PlanLedgerUnknownAction                      = 'Unknown PLAN-LEDGER action.'
     PlanLedgerExitClaimOk                        = 0
     PlanLedgerExitClaimRejected                  = 2
     PlanLedgerExitUsage                          = 1
@@ -461,16 +385,6 @@ $script:ToolkitConstant = @{
     PlanLedgerReasonReleaseForbidden             = 'release_forbidden'
     PlanLedgerReasonNotClaimed                   = 'step_not_claimed'
     PlanLedgerEventClaimRejected                 = 'claim_rejected'
-    PlanLedgerFixturePlanRelativePath            = 'scripts/validation/fixtures/sdd-artifacts/plan/valid.md'
-    PlanLedgerFixtureHolderA                     = 'holder-A'
-    PlanLedgerFixtureHolderB                     = 'holder-B'
-    PlanLedgerFixtureStep                        = 2
-    PlanLedgerSessionsRootRequired               = 'SessionsRoot is required (or pass -SddRoot so sessions = <SddRoot>/sessions).'
-    PlanLedgerRepoPathMissing                    = 'RepoPath not found: {0}'
-    PlanLedgerPlanPathMissing                    = 'PlanPath not found: {0}'
-    PlanLedgerDoubleClaimFormat                  = 'PLAN-LEDGER reject: step {0} already claimed by holder={1}; attempted_holder={2}; reason=step_already_claimed'
-    PlanLedgerReleaseDeniedFormat                = 'PLAN-LEDGER release denied: attempted_holder={0}; existing_holder={1}; reason=release_forbidden'
-    PlanLedgerUnknownAction                      = 'Unknown PLAN-LEDGER action.'
     ExecutionModesReferenceRelativePath          = 'core/skills/orchestrate-develop/references/execution-modes.md'
     ExecutionModesSkillIndexRelativePath         = 'core/skills/orchestrate-develop/reference.md'
     ExecutionModesSkillBodyRelativePath          = 'core/skills/orchestrate-develop/SKILL.md'
@@ -543,8 +457,8 @@ $script:ToolkitConstant = @{
     PreferencesSchemaDocRelativePaths            = @(
         'core/policy/caveman-mode.md',
         'core/skills/_shared/caveman/CAVEMAN.md',
-        'core/sdd/STORAGE.md',
-        'core/skills/_shared/sdd-artifacts/STORAGE.md'
+        'core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md',
+        'core/sdd/STORAGE-RESOLUTION.md'
     )
     PreferencesSchemaKeyMarkers                  = @(
         'caveman_mode',
@@ -846,11 +760,16 @@ $script:ToolkitMessage = @{
     PreferencesSchemaMissingKey        = '{0} missing preferences key: {1}'
     ExecutionPolicyMissingHeading      = '{0} missing ## Execution policy'
     ExecutionPolicySkillMissingRef     = '{0} must reference Execution policy'
-    ToolkitOrchestratorInstallPromptHeader = 'Orchestrator mode (preferences.json missing)'
-    ToolkitOrchestratorInstallPromptAlwaysLine = '  [1] Always orchestrate (default)'
+    ToolkitOrchestratorInstallPromptHeader = 'Parent orchestration mode (preferences.json missing)'
+    ToolkitOrchestratorInstallPromptAlwaysLine = '  [1] Always orchestrate (recommended default)'
     ToolkitOrchestratorInstallPromptAdaptiveLine = '  [2] Adaptive'
     ToolkitOrchestratorInstallPromptMenu = 'Choice'
     ToolkitOrchestratorInstallDefaultChoice = '1'
+    ToolkitCavemanInstallPromptHeader = 'Caveman Mode (response compression)'
+    ToolkitCavemanInstallPromptOnLine = '  [1] On (recommended default)'
+    ToolkitCavemanInstallPromptOffLine = '  [2] Off (disables response compression)'
+    ToolkitCavemanInstallPromptMenu = 'Choice'
+    ToolkitCavemanInstallDefaultChoice = '1'
     ToolkitOrchestratorPreferencesCreated = 'Created preferences.json at {0} (orchestrator_mode={1}).'
     SpawnMdMissing                     = 'SPAWN contract missing or empty: {0}'
     SpawnMdNegativeExpectedFail        = 'invented missing SPAWN path did not fail existence check: {0}'

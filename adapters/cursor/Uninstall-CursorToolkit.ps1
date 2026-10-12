@@ -9,7 +9,7 @@
   - rules/<file>.mdc matching core/policy/*.md
   - AGENTS.md (Publish-Router target) when provenance confirms toolkit ownership
     (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
-  - hooks/<script> matching ManagedHookScriptNames
+  - hooks/<script> matching ManagedHookScriptNames, including authorization-contract.json
   - reverse-merge InstallRoot/hooks.json (drop toolkit-managed handlers by command identity)
 
   Operator-edited or drifted AGENTS.md is preserved (not deleted). JSON reverse-merge

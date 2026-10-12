@@ -74,7 +74,7 @@ Tracks are **recommendations**, never prerequisites between each other. The oper
 | Stack router / ad-hoc | `developer` |
 | Explicit .NET | `dotnet-developer` |
 | Explicit Java | `java-developer` |
-| Frontend UI design | `impeccable` → `DESIGN-BRIEF.md` → stack `*-developer` |
+| Frontend UI design | Create or update `docs/DESIGN-BRIEF.md` → stack `*-developer` |
 | Blip React plugin | `blip-plugin-developer` → `react-developer` |
 
 ### Optional flows (index)
@@ -119,7 +119,6 @@ Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under 
 | Orchestrator session | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
 | AI stealth | `{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc` |
 | SDD pipeline | `{{TOOLKIT_ROOT}}/rules/sdd-pipeline-guards.mdc` |
-| Context management | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | SDD artifact language | `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc` |
 | User chat language | `{{TOOLKIT_ROOT}}/rules/user-language-pt-br.mdc` |
 | Branch / commits | `branch-validation.mdc`, `conventional-commits.mdc` |
@@ -136,7 +135,7 @@ Agent SoT: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (map) + `
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
 | Ops / quality | `code-review`, `run-tests`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate`, `api-standards` |
-| Design / docs / backlog | `impeccable`, `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
+| Design / docs / backlog | `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
 
 ## Post-sync validation
 

@@ -46,16 +46,20 @@ if ([string]::IsNullOrWhiteSpace($raw)) {
     }
 }
 if ([string]::IsNullOrWhiteSpace($raw)) {
-    Write-Output '{}'
-    exit 0
+    Write-Output '{"action":"block","message":"Hook denied empty input; fail-closed."}'
+    exit 2
 }
 
 try {
     $inputJson = $raw | ConvertFrom-Json -ErrorAction Stop
 }
 catch {
-    Write-Output '{}'
-    exit 0
+    Write-Output '{"action":"block","message":"Hook denied malformed input; fail-closed."}'
+    exit 2
+}
+if (-not (Test-ToolkitHookInputSchema -HookInput $inputJson)) {
+    Write-Output '{"action":"block","message":"Hook denied schema-invalid input; fail-closed."}'
+    exit 2
 }
 
 $toolName = ''
@@ -89,6 +93,10 @@ $isGuarded = (
     (Test-ToolkitShellToolName $effective) -or
     (Test-ToolkitApplyPatchToolName $effective)
 )
+if (Test-ToolkitReadOnlyToolName -ProviderId 'hermes' -ToolName $toolName) {
+    Write-Output '{}'
+    exit 0
+}
 if (-not $isGuarded) {
     Write-Output '{}'
     exit 0

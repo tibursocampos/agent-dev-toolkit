@@ -112,6 +112,9 @@ if ($pluginText -notmatch 'export\s+(const|async|function|default)') {
 if ($pluginText -match '(?i)\.ps1' -and $pluginText -match '(?i)shell.?hook') {
     Write-Fail -TestName $capsName -Reason 'plugin must not invent shell/PS1 hook parity'
 }
+if ($pluginText -match 'tool\.execute\.before' -or $pluginText -match 'throw new Error') {
+    Write-Fail -TestName $capsName -Reason 'Toolkit marker plugin must not intercept or deny provider tool calls'
+}
 
 $normalizedPluginPath = [System.IO.Path]::GetFullPath([string]$publishResult.PluginPath)
 $expectedPluginPath = [System.IO.Path]::GetFullPath($destinationPlugin)

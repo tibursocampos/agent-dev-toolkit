@@ -10,17 +10,11 @@ This toolkit ships a **portable preferences/contract integration** (`core/skills
 
 Operator note (compression is one session preference, default off): [guides/session-behavior.md](guides/session-behavior.md).
 
-## Impeccable
-
-UI/UX command flow and design guidance draw from **[pbakaus/impeccable](https://github.com/pbakaus/impeccable)** / the Impeccable CLI (`npx impeccable`).
-
-The toolkit skill `impeccable` is a **partial, adapter-synced harness** (`DESIGN-BRIEF.md` handoff, toolkit gates). Selected playbooks under `core/skills/impeccable/reference/` and `agents/` are adapted from that repository and stay under the Apache License 2.0 (Copyright 2025 Paul Bakaus). See `core/skills/impeccable/NOTICE.md`. The engine launcher, live browser bundle, font index, and their `docs/` site are not vendored. Full upstream install/hooks are optional and require **explicit user consent**. Behavior is not identical to running Impeccable standalone.
-
 ## Anthropic frontend-design (optional external)
 
 Distinctive-UI heuristics (signature motif, compact token plan before code, UX writing intent) are **inspired in part by** [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-**Canonical stack for product UI in this toolkit:** `/impeccable` → `docs/DESIGN-BRIEF.md` → stack `*-developer`. We do **not** ship Anthropic `frontend-design` as a sibling Core skill.
+**Design handoff for product UI in this toolkit:** record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. We do **not** ship Anthropic `frontend-design` as a sibling Core skill.
 
 Use the upstream skill only as an **optional external** reference for one-shot Claude.ai / artifact sessions outside the product handoff path. Do not vendor that repository into Core.
 
@@ -45,4 +39,4 @@ Evidence fields follow **omit > fabricate** (`product-evidence-lite.md`); scorec
 
 ## License
 
-Toolkit license: [LICENSE](../LICENSE) (MIT © Raphael Campos). Respect the licenses of any third-party tools you install separately (e.g. Impeccable CLI, Spec Kit).
+Toolkit license: [LICENSE](../LICENSE) (MIT © Raphael Campos). Respect the licenses of any third-party tools you install separately (e.g. Spec Kit).
