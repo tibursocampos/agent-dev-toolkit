@@ -139,6 +139,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 - **Idempotent (REQ-011 / CT5):** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
 - `-Action tests-run` requires `step_confirmed = true`, records tests only after execution/reporting, and skips rewriting if already true.
 - `-Action reset` clears both develop gates and sets `phase = idle` after step close; it skips rewriting when both are already false.
+- Every helper invocation is a required gate: a nonzero exit, denied write, or missing confirmation output stops the current operation. Report `blocked` or `failed` with the helper's cause; do not continue to claim, spawn, implement, validate completion, or report success. Never bypass the helper or mutate session JSON inline. If the canonical SDD root is not writable, ask the operator to restore a writable root through the supported setup mechanism, then retry the same helper only after that condition changes.
 - **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
 4. Repo gates (`storage_confirmed` / `write_confirmed`) remain on the flat `{repo-hash}.json` (helper above is develop-scope only).
 
@@ -177,7 +178,7 @@ Canonical scripts (REQ-014):
 
 | Script | Role |
 |--------|------|
-| `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent set of develop `step_confirmed` |
+| `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` | `ensure` sets `step_confirmed`; `-Action tests-run` records `tests_run` only after declared tests execute and pass; `-Action reset` clears both develop gates |
 | `{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gates.ps1` | Read/check gate true vs blocked |
 | `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Claim SoT (unchanged; not reimplemented by session helper) |
 

@@ -38,6 +38,8 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 
 Before ending the develop scope, reset both gates with `-Action reset` (optionally pass `-CurrentStep N+1`). Never mutate the session JSON inline. `tests-run` fails unless `step_confirmed` is already true.
 
+Treat every session-helper invocation, including reset, as a hard gate. A nonzero exit, denied write, or missing confirmation output stops the operation; return `blocked` or `failed` with the observed cause and do not continue or report success. Never bypass the helper or edit session JSON inline. If the canonical SDD root is unwritable, ask the operator to restore a writable root through the supported setup mechanism before retrying the helper.
+
 When a PLAN ledger claim is required (O3 / declared execution mode / parent handoff), **MUST** also call:
 
 ```powershell
@@ -58,7 +60,7 @@ Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, child build+tests, receipt/handoff). Do not start the next step in the same develop session scope.
+One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, conditional tests/build, receipt/handoff). Do not start the next step in the same develop session scope.
 
 ### Terminal outcomes
 
@@ -151,7 +153,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 Load `STORAGE.md` and `PIPELINE.md`. Use `STORAGE.md` schema v2 and run the dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
 Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless O3/parent handoff marks `orchestrated`. Apply the matching observable table (orchestrated child = one PLAN step; no parent CONTINUITY ownership).
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cited REQs as `agreed`; new mid-step gaps stay `invented` until operator confirm — do not silently encode them as requirements.
-**Agent mode** is required for code changes and PLAN updates. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
+**Agent mode** is required for code changes and PLAN updates. If the host is in Plan or Ask and this step requires an edit, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
 
 ### 0. Workspace (plan-acquisition)
 
@@ -181,7 +183,7 @@ Feature branch per `branch-validation.mdc`. Read `references/git-checklist.md`.
 
 ### 3-4. Analyze and implement
 
-Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`.  Code/tests in English; targeted build/test. When spawned as a child, end with `{ build, tests, summary }` per PLAN **Execution policy** and `SPAWN.md`.
+Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`. Code/tests in English. When this PLAN step is the O3 producer, return only the canonical relay receipt `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }` from `RECEIPT.md`; emit `step` as a positive JSON integer. Include build only in the US-close receipt when a build is applicable. When delegating nested stack `*-developer` work, require that role's reduced `{ files[], testsSummary }` receipt and validate it locally; do not require `planPath` or `step` from `developer-child`.
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 

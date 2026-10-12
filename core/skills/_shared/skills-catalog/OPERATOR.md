@@ -1,4 +1,4 @@
-﻿# Skills operator notes (agent SoT)
+# Skills operator notes (agent SoT)
 
 Static operator-facing nuances for installed skills. **Read this file** (with `CATALOG.md`) via skill `help-skills` — do **not** re-analyze every `SKILL.md` to answer catalog or “what will I be asked?” questions.
 
@@ -46,7 +46,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Confirmations / options | Handoffs |
 |-------|-------------------------|----------|
-| `commit` | Feature branch only (`feature/<slug>` or `feat/<id>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional skill `push`; PR only via `open-github-pr`. |
+| `commit` | Feature branch only (`feature/<slug>` or `feat/<id>-<slug>`). Confirm Conventional Commit **message** before commit. No AI co-author trailers. Does **not** open PRs. | Optional skill `push`; PR only via `open-github-pr`. |
 | `push` | Confirm before push. No force on protected branches. | After success: hand off to `open-github-pr` immediately when PR intent was clear, else ask. |
 | `open-github-pr` | Modes: **feature** (head → `develop`) or **release** (`develop` → `master`/`main`). Confirm **title/body** every time. Ask **auto-merge** every time (`sim`/`não`) — do not infer from “fluxo completo”. Needs `gh` auth. | Owns all `gh pr create`; commit/push must not invent PR shortcuts. |
 

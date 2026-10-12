@@ -16,7 +16,7 @@ Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guideli
 
 ### 2. Branch (step 3)
 
-Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>` - never commit on `main` / `master` / `develop`.
+Baseline branch from user or repo default. Create/checkout `feature/<slug>` or `feat/<id>-<slug>` - never commit on `main` / `master` / `develop`.
 
 ### 3. Plan micro-steps
 

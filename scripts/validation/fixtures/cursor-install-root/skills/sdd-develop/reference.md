@@ -219,7 +219,7 @@ Canonical paths: `features/NNN-slug/EVD/`, `features/NNN-slug/STATE.md`.
 .\scripts\validation\validate-evidence.ps1 -FeatureRoot features/NNN-slug [-Level cheap]
 ```
 
-Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Smoke: `Assert-EvidenceContract.ps1`.
+Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`.
 
 **Verifier ≠ O3:** never use orchestrate-develop Task parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
 
@@ -239,7 +239,7 @@ Canonical path: `features/NNN-slug/TRACE.jsonl`.
 .\scripts\validation\validate-trace.ps1 -FeatureRoot features/NNN-slug [-RequireArchiveComplete]
 ```
 
-Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`. Smoke: `Assert-TraceArchiveContract.ps1`.
+Template: `skills/_shared/templates/features/TRACE.jsonl`. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
 Mid-feature: optional trail events; TRACE may be absent until close. At archive: require living-loop triad + coherent sync targets (no `openspec/` / `.specs/` / SQLite SoT).
 

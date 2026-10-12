@@ -30,7 +30,7 @@ Also accept `stop caveman` / `normal mode` as off.
    - Load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`.
    - Apply intensity: `lite` | `full` | `ultra` (default `full`), capped by active skill participation table in that file.
    - Show once: `[Caveman] Modo ativo (respostas compactas, level={level}). Digite caveman off para desativar.`
-4. Skills `commit` and `push`: **NEVER** compress — clear prose only.
+4. Skills `help-skills`, `commit`, `push`, and `open-github-pr`: **NEVER** compress — clear prose only, regardless of `caveman_mode`.
 
 ## 3. Compression when enabled
 

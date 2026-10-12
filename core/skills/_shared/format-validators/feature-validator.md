@@ -1,6 +1,6 @@
 # PRD Format Validator
 
-Validates PRD markdown against the **spec** skill template (`skills/sdd-spec/reference.md`).
+Documents the PRD content checklist against the canonical template at `templates/sdd/PRD.md`. The executable structural gate is `scripts/validation/validate-prd.ps1`; this file is guidance, not an executable validator.
 
 **Content-language:** Resolve via `agents/LANGUAGE.md` (invocation → preferences → manifest → else chat; `null` ≠ pt-BR). When content-language is **pt-BR**, use the pt-BR section titles checklist below. When `artifact_language: en` / English override, use the **English override** checklist.
 
@@ -10,27 +10,9 @@ Validates PRD markdown against the **spec** skill template (`skills/sdd-spec/ref
 
 ### Level 1: Structure - pt-BR (when content-language is pt-BR)
 
-**Required sections (in order, after title/metadata table):**
+**Executable structure:** `validate-prd.ps1` requires the PRD title and core metadata rows; Execution policy and Related headings; numbered sections 1–5 and 8–14; overview/context/objective; technical scope subsections 3.1–3.4; requirement subsections 4.1–4.4; at least one `REQ-NNN`, one `CA` heading, and a use-case block. It accepts the Portuguese canonical headings and the corresponding English headings where defined by the English override. It does not check heading order or prose quality.
 
-- `# PRD:` title
-- Metadata table (`Sequência`, `Status`, `Prioridade`, `Complexidade`, `Repositório`, `Stack` - or English equivalents if `en` override)
-- `## 1. Visão geral` (`### 1.1 Contexto`, `### 1.2 Objetivo`)
-- `## 2. Critérios de aceite` (at least one `### CA` block with Dado/Quando/Então)
-- `## 3. Escopo técnico (alto nível)`
-- `## 4. Especificações técnicas`
-- `## 5. Regras de negócio`
-- `## 6. Requisitos funcionais`
-- `## 7. Requisitos não funcionais`
-- `## 8. Migrações de banco (se aplicável)` or clear N/A in section
-- `## 9. Integrações (se aplicável)` or N/A
-- `## 10. Tratamento de erros`
-- `## 11. Casos de uso`
-- `## 12. Cenários de teste`
-- `## 13. Definição de pronto`
-- `## 14. Próximos passos` (contains `/sdd-plan`)
-- `## 15. Referências`
-- `## 16. Notas`
-- `## 17. Histórico de alterações`
+**Conditional content:** sections 1.3 (success metrics), 1.4 (blast radius), 6 (database migrations), and 7 (integrations) may be omitted when they have no applicable content; the gate does not infer applicability from prose. The `### 4.5 EARS` subsection is optional; omit it when EARS adds no clarity. `## 5.1 Perguntas em aberto` is optional and should be omitted when there are no open questions. Within `## Related`, sibling rows are optional when the corresponding artifacts are unavailable; supplied paths must be portable. An API route described requires `### 7.3 Contrato observável de API`; other integrations do not.
 
 ### Level 1: Structure - English override
 
@@ -38,7 +20,7 @@ When `artifact_language` is `en` or user requested English in invocation:
 
 - `## 1. Overview`, `### 1.1 Context`, `### 1.2 Objective`
 - `## 2. Acceptance criteria` with Given/When/Then
-- Sections 3-17 per English template in `reference.md` (Overview through Change history)
+- Sections 3-14 per the corresponding English headings in `templates/sdd/PRD.md` (Technical scope through Change history), preserving the same conditional and optional rules above
 - Status **Ready for planning**
 
 ### Level 2: Content (recommended)
@@ -62,16 +44,16 @@ When `artifact_language` is `en` or user requested English in invocation:
 | Próximos passos / Handoff | Contains `/sdd-plan` with PRD path | info |
 | Identifiers in prose | Type/method names in English when cited | info |
 
-## Usage in spec skill
+## Executable gate in spec and plan skills
 
-**Integration point:** After generating PRD content, before writing the file.
+**Integration point:** After writing the PRD and before handoff to `/sdd-plan`; `/sdd-plan` reruns the same deterministic gate on its source PRD.
 
 **Flow:**
 
 1. Detect content-language from `LANGUAGE.md` resolution (invocation → preferences → manifest → else chat).
-2. Validate at `level: content` with matching section list.
-3. On errors: log section + expected + actual; offer regenerate or save with warning.
-4. `canAutoFix = false` for structural issues.
+2. Run `scripts/validation/validate-prd.ps1`; use this file as template/content review guidance, not as an executable substitute.
+3. On errors, report missing REQ ids, CA headings, required template structure, or a triggered conditional section and correct the PRD before handoff.
+4. The script checks structure and applicability triggers only; it does not establish content quality, requirement-to-CA traceability, or host activation behavior.
 
 ## Output example
 

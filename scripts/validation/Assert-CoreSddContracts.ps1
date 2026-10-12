@@ -117,8 +117,7 @@ function Invoke-IdentityGateCase {
 function Invoke-ContractSelfChecks {
     param(
         [Parameter(Mandatory = $true)][string] $SessionContract,
-        [Parameter(Mandatory = $true)][string] $RepoPath,
-        [Parameter(Mandatory = $true)][string] $PlanPath
+        [Parameter(Mandatory = $true)][string] $RepoPath
     )
 
     $checks = New-Object System.Collections.Generic.List[string]
@@ -145,11 +144,14 @@ function Invoke-ContractSelfChecks {
     }
     $sessionFixtureRoot = Join-Path $repoRoot ('scripts/validation/fixtures/.core-sdd-identity-' + [guid]::NewGuid().ToString('N'))
     try {
-        if (-not (Invoke-IdentityGateCase -RepoPath $RepoPath -PlanPath $PlanPath -SessionsRoot $sessionFixtureRoot -MissingField '')) {
+        $planFixturePath = Join-Path $sessionFixtureRoot 'PLAN_000_identity_fixture.md'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $planFixturePath) -Force | Out-Null
+        [System.IO.File]::WriteAllText($planFixturePath, '# Session identity fixture', (New-Object System.Text.UTF8Encoding $false))
+        if (-not (Invoke-IdentityGateCase -RepoPath $RepoPath -PlanPath $planFixturePath -SessionsRoot $sessionFixtureRoot -MissingField '')) {
             throw 'Valid identity case failed.'
         }
         foreach ($field in @('repo', 'plan_path')) {
-            if (-not (Invoke-IdentityGateCase -RepoPath $RepoPath -PlanPath $PlanPath -SessionsRoot $sessionFixtureRoot -MissingField $field)) {
+            if (-not (Invoke-IdentityGateCase -RepoPath $RepoPath -PlanPath $planFixturePath -SessionsRoot $sessionFixtureRoot -MissingField $field)) {
                 throw ('Missing identity field case failed: {0}.' -f $field)
             }
             [void]$checks.Add('identity')
@@ -245,7 +247,7 @@ try {
     }
 
     $script:validationStage = 'identity-and-diagnostic-cases'
-    $selfCheckCount = Invoke-ContractSelfChecks -SessionContract $sessionContract -RepoPath $repoRoot -PlanPath (Join-Path $repoRoot 'features/014-improve-and-fix-disagreements/US02/PLAN/PLAN_014_us02_canonical_sources.md')
+    $selfCheckCount = Invoke-ContractSelfChecks -SessionContract $sessionContract -RepoPath $repoRoot
     $fixtureRelative = 'scripts/validation/fixtures/.core-sdd-contracts-' + [guid]::NewGuid().ToString('N')
     $installRoot = Join-Path $repoRoot ($fixtureRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     $resolvedInstallRoot = [System.IO.Path]::GetFullPath($installRoot)

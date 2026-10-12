@@ -3,7 +3,6 @@
 #   Should_DocumentCiWorkflowContract_When_WorkflowPresent
 #   Should_DocumentCiSmokePaths_When_DocsPresent
 #   Should_OmitWideSuite_When_DefaultCommandAndJobsRead
-#   Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath
 #   Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead
 #   Should_TargetRepositoryFixture_When_NamedCheckDeclared
 #
@@ -510,7 +509,6 @@ foreach ($pattern in @(
         'scripts/validation/fixtures/antigravity-keyed-uninstall-work/'
         'scripts/validation/fixtures/copilot/user/agents/'
         'scripts/validation/fixtures/copilot/user/scripts/'
-        'scripts/validation/fixtures/sdd-artifacts/evidence/reparse-escape/'
     )) {
     if ($gitignoreText -notlike ("*{0}*" -f $pattern)) {
         Write-Fail -TestName $ciName -Reason (".gitignore missing generated fixture pattern '{0}'" -f $pattern)
@@ -631,11 +629,6 @@ $namedRemainingChecks = @(
 )
 $wideSuiteRelativePath = $script:ToolkitConstant.ValidateCoreRelativePath
 $keyedUninstallJobName = 'validate-windows-keyed-uninstall'
-$testsLeavingDefaultPath = @(
-    'default-wide-suite'
-    'keyed-uninstall-matrix'
-)
-
 function Get-NamedRemainingCheckBlock {
     param([Parameter(Mandatory = $true)][string] $JobBlock)
 
@@ -645,27 +638,6 @@ function Get-NamedRemainingCheckBlock {
     }
 
     return $match.Value
-}
-
-function Test-RegisterRowCoversLeavingTest {
-    param([Parameter(Mandatory = $true)][string] $Row)
-
-    $cells = @($Row.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
-    if ($cells.Count -lt 2) {
-        return $false
-    }
-
-    foreach ($cell in $cells) {
-        if ($cell -match 'risk_does_not_apply') {
-            return $true
-        }
-    }
-
-    if ($cells.Count -lt 3) {
-        return $false
-    }
-
-    return -not [string]::IsNullOrWhiteSpace($cells[1]) -and -not [string]::IsNullOrWhiteSpace($cells[2])
 }
 
 # --- Should_OmitWideSuite_When_DefaultCommandAndJobsRead (CT1) ---
@@ -729,39 +701,6 @@ if ($validateAgentDefault.Value -notmatch 'NamedRemainingCheckRelativePaths') {
     Write-Fail -TestName $defaultPathName -Reason 'Validate agent default must run the named remaining checks'
 }
 Write-Pass -TestName $defaultPathName
-
-# --- Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath (CT2) ---
-$registerName = 'Should_NameFormerGuaranteeOrRisk_When_RegisterLeavesDefaultPath'
-$guaranteeRegisterRel = 'features/012-multiprovider-toolkit-corrections/US08/EVD/guarantee-register.md'
-$guaranteeRegisterPath = Join-Path $repoRoot ($guaranteeRegisterRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $guaranteeRegisterPath)) {
-    Write-Fail -TestName $registerName -Reason ('missing guarantee register: {0}' -f $guaranteeRegisterRel)
-}
-
-$guaranteeRegisterText = Get-Content -LiteralPath $guaranteeRegisterPath -Raw
-if ($guaranteeRegisterText -notmatch 'GuaranteeRegister') {
-    Write-Fail -TestName $registerName -Reason 'guarantee register must keep the existing register id'
-}
-
-foreach ($leavingTestId in $testsLeavingDefaultPath) {
-    $rowMatches = [regex]::Matches($guaranteeRegisterText, ('(?m)^\| `{0}` \|.*$' -f [regex]::Escape($leavingTestId)))
-    if ($rowMatches.Count -eq 0) {
-        Write-Fail -TestName $registerName -Reason ('register has no row for test that leaves the default path: {0}' -f $leavingTestId)
-    }
-
-    $covered = $false
-    foreach ($rowMatch in $rowMatches) {
-        if (Test-RegisterRowCoversLeavingTest -Row $rowMatch.Value) {
-            $covered = $true
-            break
-        }
-    }
-
-    if (-not $covered) {
-        Write-Fail -TestName $registerName -Reason ('test {0} needs the former guarantee plus the remaining check, or risk_does_not_apply' -f $leavingTestId)
-    }
-}
-Write-Pass -TestName $registerName
 
 # --- Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead (CT3) ---
 $publishMatrixName = 'Should_OmitKeyedPublishMatrix_When_CiOkNeedsRead'

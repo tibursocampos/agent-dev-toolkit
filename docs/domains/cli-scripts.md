@@ -86,7 +86,7 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SiblingReadinessGate.ps1 `
   -FeatureRoot features\<NNN-slug>\<story>
 ```
 
-Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Assert: `Assert-SiblingReadinessGate.ps1`. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
+Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
 
 ### PRD / PLAN / CHANGE preflight
 
@@ -105,7 +105,7 @@ pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
   -FeatureRoot features\<NNN-slug>
 ```
 
-Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`. Assert: `Assert-TraceHarvest.ps1`.
+Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`.
 
 ### PLAN-LEDGER CLI
 

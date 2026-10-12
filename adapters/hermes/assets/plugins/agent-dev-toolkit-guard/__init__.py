@@ -164,6 +164,19 @@ SHELL_PATH_PATTERNS = (
     re.compile(r'(?i)(?:^|[\s;&|])(?:cat|echo|printf)\s+[^\r\n]{0,200}(?:>{1,2})\s*["\']?([^\s"\'|&;]+)'),
 )
 
+SHELL_MUTATION_PATTERN = re.compile(
+    r"(?i)(?:\d?>|&>|\|\s*tee\b|(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b)(?=\s|$)"
+)
+SAFE_PYTHON_PRINT_PATTERN = re.compile(
+    r"(?i)^python(?:3)?\s+-c\s+([\"'])(?:print\(-?\d+(?:\.\d+)?\)|print\([\"'][^\"']*[\"']\))\1$"
+)
+SAFE_SED_READ_PATTERN = re.compile(
+    r"(?i)^sed\s+(?:-[nE]\s+)*[\"']s/[^/]+/[^/]+/g?[\"']\s+(?:[A-Za-z0-9_.-]+[\\/])*[A-Za-z0-9_.-]+$"
+)
+READ_ONLY_COMMAND_PATTERN = re.compile(
+    r"(?i)^(?:get-date|get-location|get-content|get-childitem|get-item|test-path|resolve-path|write-output|write-host|echo|printf|cat|head|tail|grep|rg|find|ls|dir|pwd|whoami|where|which|git\s+(?:status|diff|log|show|branch|rev-parse|ls-files))(?=\s|$)"
+)
+
 FORBIDDEN_LITERALS = (
     "PRD/",
     "PLAN/",
@@ -317,6 +330,20 @@ def _paths_from_shell(command: str) -> List[str]:
     return found
 
 
+def _shell_is_read_only(command: str) -> bool:
+    if SAFE_PYTHON_PRINT_PATTERN.fullmatch(command.strip()):
+        return True
+    for segment in re.split(r";|&&|\|\||\|", command):
+        text = segment.strip()
+        if not text:
+            continue
+        if SAFE_PYTHON_PRINT_PATTERN.fullmatch(text) or SAFE_SED_READ_PATTERN.fullmatch(text):
+            continue
+        if not READ_ONLY_COMMAND_PATTERN.match(text):
+            return False
+    return True
+
+
 def _secret_hit(content: str) -> Optional[str]:
     if not content:
         return None
@@ -384,10 +411,12 @@ def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Option
         if not cmd.strip():
             return {"action": "block", "message": "Hook denied terminal because its command is missing or empty; a non-empty command string is required."}
         content = cmd or content
-        paths = _paths_from_shell(cmd)
-        # Fail-closed when a write-like cmd looks path-bearing but extract found nothing
-        # and forbidden literals are also absent — still allow read-only commands.
-        # Path checks run for every extracted path; do not skip the path branch for terminal.
+        if SHELL_MUTATION_PATTERN.search(cmd) and not SAFE_PYTHON_PRINT_PATTERN.fullmatch(cmd.strip()):
+            paths = _paths_from_shell(cmd)
+            if not paths:
+                return {"action": "block", "message": "Hook denied terminal because a mutating command has no safely classified target path."}
+        elif not _shell_is_read_only(cmd):
+            return {"action": "block", "message": "Hook denied terminal because its effect could not be classified as read-only."}
     elif tool_name in ("write_file", "patch"):
         path = _extract_path(args)
         if not path:

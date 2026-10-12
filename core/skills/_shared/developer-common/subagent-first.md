@@ -40,11 +40,15 @@ Classify task complexity
 ## Child payload (when spawning)
 
 1. Pass scoped **paths** only (files/dirs the child may touch).
-2. Require a **receipt** per `RECEIPT.md` (lazy-load — do not paste the schema body).
+2. Spawn the `developer-child` role from `ROSTER.md` and require its reduced `{ files[], testsSummary }` receipt as defined in `RECEIPT.md`; do not require `planPath` or `step` from this nested child. Missing, malformed, out-of-scope, or contradictory receipts cannot be treated as success; stop and report the mismatch to the operator.
 3. Point to role/skill paths; **do not** paste `_shared/*-guidelines/`, full SKILL bodies, or large policy dumps.
 4. Child prompts and agent receipts: **always en-US** (`LANGUAGE.md`). Pass **paths + excerpt** of user-language artifacts — no full PLAN/PRD dump.
 
 Cap: **≤ 2** children per task wave (`*-developer`).
+
+If fallback or in-parent work requires a code edit while the host is in Plan/Ask,
+stop before editing and explicitly ask the operator to switch to Agent. Never
+change host mode silently or claim an edit was saved from Plan/Ask.
 
 ---
 

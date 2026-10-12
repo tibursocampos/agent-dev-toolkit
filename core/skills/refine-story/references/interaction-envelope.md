@@ -57,7 +57,7 @@ Status tokens and B/I/MINOR taxonomy: `_shared/sdd-artifacts/readiness-severity.
 | **READY** | Zero open **B**/**I**; may hand off to `/sdd-spec` / O2 path |
 | **NEEDS_CLARIFICATION** | Open **B**/**I** remain — **STOP** fake-forward ready-for-PRD |
 
-**READY ≠** SESSION `step_confirmed` / PLAN step Complete / folder presence (**RN02**, `RDY-DUAL-PLANE`). Do **not** reopen `Assert-SiblingReadinessGate.ps1` / taxonomy scripts in this enrich step.
+**READY ≠** SESSION `step_confirmed` / PLAN step Complete / folder presence (**RN02**, `RDY-DUAL-PLANE`). Do not reopen taxonomy scripts in this enrich step.
 
 ## Chat report (session user language; English tokens)
 

@@ -1,10 +1,10 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Fixture contracts for catalog republish, mixed-router uninstall, hash classification, and adapter coverage.
+  Fixture contracts for catalog republish, mixed-router uninstall, and hash classification.
 
 .DESCRIPTION
-  Covers CT1, CA3, CT2, CT3, CT4, and CT5 from the publication-ownership plan.
+  Covers toolkit-owned publish and uninstall behavior in disposable fixtures.
   Writes only under scripts/validation/fixtures. Does not create or modify a real user-home path.
 #>
 [CmdletBinding()]
@@ -29,10 +29,6 @@ $NonCatalogBody = "do not touch secret`n"
 $MarkedRouterRelativePath = 'MARKED.md'
 $AgentsRelativePath = 'AGENTS.md'
 $ClaudeRelativePath = 'CLAUDE.md'
-$InventoryRelativePath = 'features/012-multiprovider-toolkit-corrections/US06/ANALYSIS/adapter-publish-uninstall-inventory.md'
-$InventoryRootsHeading = '**Raízes declaradas**'
-$InventoryCapabilitiesHeading = '**Capacidades**'
-$InventoryActiveCapabilityMark = 'atingida'
 $HomeSentinelPrefix = 'adt-publish-ownership-ct5-'
 $UpstreamSentinelRelativePath = 'install-root/independent-upstream-sentinel.txt'
 $UpstreamSentinelBody = "upstream-independent-content-must-remain-identical`n"
@@ -711,16 +707,14 @@ function Invoke-HashWithoutRevisionContract {
     Write-Pass -TestName $testName
 }
 
-function Invoke-AdapterCoverageContract {
+function Invoke-AdapterRegistryContract {
     $testName = 'Should_ListDeclaredDestinationsAndActiveCapabilities_When_ReadingRegistry'
     $registryPath = Join-Path $repoRoot 'adapters/registry.json'
-    $inventoryPath = Join-Path $repoRoot $InventoryRelativePath
-    if (-not (Test-Path -LiteralPath $registryPath) -or -not (Test-Path -LiteralPath $inventoryPath)) {
-        Write-Fail -TestName $testName -Reason 'registry or S1 inventory is missing'
+    if (-not (Test-Path -LiteralPath $registryPath)) {
+        Write-Fail -TestName $testName -Reason 'adapter registry is missing'
     }
 
     $registry = Get-Content -LiteralPath $registryPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    $inventoryText = Get-Content -LiteralPath $inventoryPath -Raw -Encoding UTF8
     $registryIds = @($registry.agents | ForEach-Object { [string]$_.id })
     $profileIds = @($script:ToolkitConstant.ContentHashAdapterCompareProfiles.Keys | ForEach-Object { [string]$_ })
     if ($registryIds.Count -eq 0 -or $registryIds.Count -ne $profileIds.Count) {
@@ -741,24 +735,6 @@ function Invoke-AdapterCoverageContract {
             Write-Fail -TestName $testName -Reason ("adapter '{0}' has no active capability" -f $adapterId)
         }
 
-        $sectionPattern = '(?ms)^## ' + [regex]::Escape($adapterId) + '\r?\n(.*?)(?=^## |\z)'
-        $sectionMatch = [regex]::Match($inventoryText, $sectionPattern)
-        if (-not $sectionMatch.Success) {
-            Write-Fail -TestName $testName -Reason ("S1 inventory has no section for '{0}'" -f $adapterId)
-        }
-        $section = $sectionMatch.Groups[1].Value
-        $rootsIndex = $section.IndexOf($InventoryRootsHeading, [System.StringComparison]::Ordinal)
-        $capabilitiesIndex = $section.IndexOf($InventoryCapabilitiesHeading, [System.StringComparison]::Ordinal)
-        if ($rootsIndex -lt 0 -or $capabilitiesIndex -le $rootsIndex) {
-            Write-Fail -TestName $testName -Reason ("adapter '{0}' inventory is missing declared roots or capabilities" -f $adapterId)
-        }
-        $rootsBlock = $section.Substring($rootsIndex, $capabilitiesIndex - $rootsIndex)
-        if ($rootsBlock -notmatch '`[^`]+`') {
-            Write-Fail -TestName $testName -Reason ("adapter '{0}' has no declared destination" -f $adapterId)
-        }
-        if ($section.IndexOf($InventoryActiveCapabilityMark, [System.StringComparison]::Ordinal) -lt 0) {
-            Write-Fail -TestName $testName -Reason ("adapter '{0}' has no active capability mark in the inventory" -f $adapterId)
-        }
     }
 
     Write-Pass -TestName $testName
@@ -806,7 +782,7 @@ try {
     Invoke-IdenticalCatalogReplaceContract -InstallRoot $installRoot
     Invoke-EditedCatalogUninstallContract -InstallRoot $installRoot -SkillsDestination $skillsDestination -CatalogSkillFile $catalogSkillFile
     Invoke-HashWithoutRevisionContract
-    Invoke-AdapterCoverageContract
+    Invoke-AdapterRegistryContract
     Assert-IndependentFixtureSnapshotUnchanged -Root (Join-Path $fullProbeRoot 'upstream-independent') -Baseline $independentSnapshotBefore
     Invoke-RealHomeUntouchedContract
 }

@@ -19,7 +19,7 @@ Posso seguir? (sim / ajustar / cancelar)
 
 Enforce `branch-validation.mdc`:
 
-- Allowed: `feature/<slug>`, `feat/<id>`
+- Allowed: `feature/<slug>`, `feat/<id>-<slug>`
 - Blocked: `main`, `master`, `develop`, invalid patterns
 
 If blocked, stop and show how to create a valid branch. Do not push.

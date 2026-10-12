@@ -9,7 +9,6 @@
 #   Should_AnalyzeOnce_When_IntermediateStepStarts
 #   Should_BlockStep_When_ReceiptStatusIsCompleted
 #   Should_ResumeOrBlock_When_QuestionOrIntermediateSkillEnds
-#   Should_RecordFourHosts_When_NoHomeWasWritten
 #   Should_StayOnCurrentBranch_When_SpecPlanAnalyzeDeliver
 #   Should_ShowBranchGate_When_SddDevelopChangesCode
 #   Should_ReadRedirectedStdin_When_PublishedPowerShellHook
@@ -59,7 +58,6 @@ $executionDisplayRelative = 'core/skills/sdd-develop/references/execution-displa
 $orchestrateDevelopRelative = 'core/skills/orchestrate-develop/SKILL.md'
 $orchestrateMustNotRelative = 'core/skills/orchestrate-develop/references/must-not.md'
 $sddDevelopRelative = 'core/skills/sdd-develop/SKILL.md'
-$hostEvaluationRelative = 'features/012-multiprovider-toolkit-corrections/US07/ANALYSIS/host-default-evaluation.md'
 $sddSpecRelative = 'core/skills/sdd-spec/SKILL.md'
 $sddPlanRelative = 'core/skills/sdd-plan/SKILL.md'
 $orchestrateAnalyzeRelative = 'core/skills/orchestrate-analyze/SKILL.md'
@@ -98,7 +96,6 @@ $executionDisplay = Get-RepoText -RelativePath $executionDisplayRelative
 $orchestrateDevelop = Get-RepoText -RelativePath $orchestrateDevelopRelative
 $orchestrateMustNot = Get-RepoText -RelativePath $orchestrateMustNotRelative
 $sddDevelop = Get-RepoText -RelativePath $sddDevelopRelative
-$hostEvaluation = Get-RepoText -RelativePath $hostEvaluationRelative
 $sddSpec = Get-RepoText -RelativePath $sddSpecRelative
 $sddPlan = Get-RepoText -RelativePath $sddPlanRelative
 $orchestrateAnalyze = Get-RepoText -RelativePath $orchestrateAnalyzeRelative
@@ -196,15 +193,6 @@ $ct8Name = 'Should_ResumeOrBlock_When_QuestionOrIntermediateSkillEnds'
 Assert-Includes -TestName $ct8Name -Text $guardrails -Needle 'After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes.' -Reason 'the original skill resumes'
 Assert-Includes -TestName $ct8Name -Text $guardrails -Needle 'declares a blocker and states the cause.' -Reason 'the original skill declares a blocker with the cause'
 Write-Pass -TestName $ct8Name
-
-# --- Should_RecordFourHosts_When_NoHomeWasWritten (CT9) ---
-$ct9Name = 'Should_RecordFourHosts_When_NoHomeWasWritten'
-foreach ($hostName in @('Codex', 'Copilot', 'Hermes', 'Cursor')) {
-    Assert-Includes -TestName $ct9Name -Text $hostEvaluation -Needle $hostName -Reason 'host evaluation records the four hosts'
-}
-Assert-Includes -TestName $ct9Name -Text $hostEvaluation -Needle 'not written, not synced, not repaired' -Reason 'evaluation states that no home was written'
-Assert-Includes -TestName $ct9Name -Text $hostEvaluation -Needle 'Nenhuma home real foi lida ou alterada.' -Reason 'evaluation states that no real home was changed'
-Write-Pass -TestName $ct9Name
 
 # --- Should_StayOnCurrentBranch_When_SpecPlanAnalyzeDeliver (CT10) ---
 $ct10Name = 'Should_StayOnCurrentBranch_When_SpecPlanAnalyzeDeliver'

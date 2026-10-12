@@ -8,7 +8,7 @@ Confirm the **target repository** (not this toolkit repo unless that is the proj
 
 Before any `git add`, `git commit`, or `git push`, enforce `branch-validation.mdc`:
 
-- Allowed: `feature/<slug>`, `feat/<id>` (single segment after prefix)
+- Allowed: `feature/<slug>`, `feat/<id>-<slug>` (single segment after prefix)
 - Blocked: `main`, `master`, `develop`, nested `feature/a/b`, or any other pattern
 
 If blocked, stop and show how to create a valid branch. Do not stage or commit.

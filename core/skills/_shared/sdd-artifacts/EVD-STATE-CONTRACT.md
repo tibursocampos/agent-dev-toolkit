@@ -91,7 +91,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1
 
 If `-Level` is omitted, the script reads **Evidence level** from `STATE.md` (default `cheap` when STATE is missing and a level is required).
 
-Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Smoke: `Assert-EvidenceContract.ps1`. Deterministic only (RNF-001) — never LLM-as-validator.
+Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Deterministic only (RNF-001) — never LLM-as-validator.
 
 ## When to write
 

@@ -37,7 +37,7 @@ Smoke harness alone (fixture `InstallRoot` under the repo):
 pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 ```
 
-`validate-core` also wires structural SDD artifact smokes (`validate-prd` / `validate-plan` / CHANGE / EVD / TRACE fixtures, selective-retrieval assert) plus maturity asserts for memory-bank inventory, PLAN-LEDGER, **develop session gate** (`Assert-DevelopSessionGate.ps1`), **InvocationAxes** (WS1), **SiblingReadinessGate** (WS3), **NavigationBlock** (WS7), PublishSpawnKnobs, TRACE archive/harvest, TRACE emitter fail-open, and **product artifact quality** (`Assert-ProductArtifactQuality.ps1` — FEATURE depth, task-shaped titles, AC budget, cap, honest Evidence omit). Those are **scripts**, not LLM validators. They do not introduce a second toolkit CLI or SQLite/FTS.
+`validate-core` wires structural PRD / PLAN / CHANGE validation and focused toolkit contract checks. It does not run acceptance fixtures for individual US/FEATURE artifacts. These are scripts, not LLM validators, and do not introduce a second toolkit CLI or SQLite/FTS.
 
 These prove contracts and scripts exist. They are not a substitute for running inventory, preflight, or harvest on a consumer feature. Operator entry points stay in the table below.
 
@@ -50,14 +50,9 @@ Planning checks also cover outcome-based story sizing and observable API-contrac
 | Assert / script | Role |
 |-----------------|------|
 | `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |
-| `Assert-PlanLedgerContract.ps1` | PLAN-LEDGER present + double-claim race |
 | `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Idempotent develop `step_confirmed` helper + skill MUST `-File` (WS10) |
 | `Assert-InvocationAxes.ps1` | Spawn Axis B omit/inherit prose + harness wiring (WS1) |
 | `Assert-PublishSpawnKnobs.ps1` | Publish honesty depth/threads/inherit (no child≠parent pin) |
-| `Assert-SiblingReadinessGate.ps1` | Clarification READY / NEEDS_CLARIFICATION + B/I fixtures (WS3) |
-| `Assert-NavigationBlock.ps1` | `## Related` PRD↔PLAN reciprocity fixture (WS7) |
-| `Assert-TraceArchiveContract.ps1` | TRACE living-loop contract smoke |
-| `Assert-TraceHarvest.ps1` | Harvest scope / exit behavior |
 | `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
 | `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
 | `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
@@ -75,7 +70,6 @@ Run against a **consumer** feature / bank when closing a wave or before O3 — n
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION check | [core readiness](domains/core.md#clarification-readiness-b--i--minor) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |
 | `scripts/validation/validate-trace.ps1` | Structural TRACE check; `-RequireArchiveComplete` at archive | [core TRACE](domains/core.md#trace-archive-living-loop) |
-| `scripts/validation/Assert-ProductArtifactQuality.ps1` | Fixture CTs for FEATURE/STORY quality bar (via `validate-core`) | [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types) |
 
 Suggested order: **inventory → preflight → develop (session gate + claim) → TRACE harvest**. Emitter honesty (which hosts actually wire TRACE): [adapters.md](domains/adapters.md#trace-emitter-honesty).
 

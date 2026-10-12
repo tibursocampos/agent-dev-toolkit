@@ -34,7 +34,7 @@ Invoke when the user asks for: `/commit`, `commit changes`.
 
 ## Outcome
 
-One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>`. Ask confirmation of the commit message and create the commit only after that confirmation. Do not ask about memory bank, do not start a memory-bank refresh, and do not hand off documentation. Push or a pull request runs only when the same operator request already includes that action.
+One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>-<slug>`. Ask confirmation of the commit message and create the commit only after that confirmation. Do not ask about memory bank, do not start a memory-bank refresh, and do not hand off documentation. Push or a pull request runs only when the same operator request already includes that action.
 
 ## Lazy-load (only when needed)
 

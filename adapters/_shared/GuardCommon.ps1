@@ -871,6 +871,10 @@ function Test-ToolkitShellCommandMutatesPaths {
         return $false
     }
 
+    if ($Command.Trim() -match '(?i)^python(?:3)?\s+-c\s+(["''])(?:print\(-?\d+(?:\.\d+)?\)|print\(["''][^"'']*["'']\))\1$') {
+        return $false
+    }
+
     if ($Command -match '(?i)(?:\d?>|&>|\|\s*tee\b)') {
         return $true
     }
@@ -888,6 +892,12 @@ function Test-ToolkitShellCommandIsReadOnly {
     foreach ($segment in @($Command -split '(?:;|&&|\|\||\|)')) {
         $text = $segment.Trim()
         if ([string]::IsNullOrWhiteSpace($text)) {
+            continue
+        }
+        if ($text -match '(?i)^python(?:3)?\s+-c\s+(["''])(?:print\(-?\d+(?:\.\d+)?\)|print\(["''][^"'']*["'']\))\1$') {
+            continue
+        }
+        if ($text -match '(?i)^sed\s+(?:-[nE]\s+)*["'']s/[^/]+/[^/]+/g?["'']\s+(?:[A-Za-z0-9_.-]+[\\/])*[A-Za-z0-9_.-]+$') {
             continue
         }
         if ($text -match '(?i)^(?:pwsh|powershell)(?:\.exe)?\s+-[^\r\n]*\s+-File\s+["'']?.*\.cursor/scripts/(?:validation|session|ledger)/[^"'']+\.ps1(?:["'']?\s|$)') {

@@ -16,7 +16,7 @@ Load Electron + renderer guidelines for this task. Review security defaults befo
 
 ### 2. Branch
 
-Use `feature/<slug>` or `feat/<id>`. Never commit on `main`/`master`/`develop`.
+Use `feature/<slug>` or `feat/<id>-<slug>`. Never commit on `main`/`master`/`develop`.
 
 ### 3. Micro-plan
 

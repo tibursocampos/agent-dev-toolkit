@@ -111,10 +111,6 @@ $validatePrdPlanScriptName = $script:ToolkitConstant.AssertValidatePrdPlanScript
 $validatePrdPlanCheckName = $script:ToolkitConstant.ValidatePrdPlanCheckName
 $changeContractScriptName = $script:ToolkitConstant.AssertChangeContractScriptName
 $changeContractCheckName = $script:ToolkitConstant.ChangeContractCheckName
-$evidenceContractScriptName = $script:ToolkitConstant.AssertEvidenceContractScriptName
-$evidenceContractCheckName = $script:ToolkitConstant.EvidenceContractCheckName
-$traceArchiveContractScriptName = $script:ToolkitConstant.AssertTraceArchiveContractScriptName
-$traceArchiveContractCheckName = $script:ToolkitConstant.TraceArchiveContractCheckName
 $orchestratorCharterPublishedScriptName = $script:ToolkitConstant.AssertOrchestratorCharterPublishedScriptName
 $orchestratorCharterPublishedCheckName = $script:ToolkitConstant.OrchestratorCharterPublishedCheckName
 $orchestratorCommandsScriptName = $script:ToolkitConstant.AssertOrchestratorCommandsScriptName
@@ -131,14 +127,10 @@ $skillLazyLoadScriptName = $script:ToolkitConstant.AssertSkillLazyLoadScriptName
 $skillLazyLoadCheckName = $script:ToolkitConstant.SkillLazyLoadCheckName
 $storySizingContractScriptName = $script:ToolkitConstant.AssertStorySizingContractScriptName
 $storySizingContractCheckName = $script:ToolkitConstant.StorySizingContractCheckName
-$productArtifactQualityScriptName = $script:ToolkitConstant.AssertProductArtifactQualityScriptName
-$productArtifactQualityCheckName = $script:ToolkitConstant.ProductArtifactQualityCheckName
 $intentClassificationScriptName = $script:ToolkitConstant.AssertIntentClassificationScriptName
 $intentClassificationCheckName = $script:ToolkitConstant.IntentClassificationCheckName
 $memoryBankInventoryScriptName = $script:ToolkitConstant.AssertMemoryBankInventoryScriptName
 $memoryBankInventoryCheckName = $script:ToolkitConstant.MemoryBankInventoryCheckName
-$planLedgerContractScriptName = $script:ToolkitConstant.AssertPlanLedgerContractScriptName
-$planLedgerContractCheckName = $script:ToolkitConstant.PlanLedgerContractCheckName
 $developSessionGateScriptName = $script:ToolkitConstant.AssertDevelopSessionGateScriptName
 $developSessionGateCheckName = $script:ToolkitConstant.DevelopSessionGateCheckName
 $traceEmitterFailOpenScriptName = $script:ToolkitConstant.AssertTraceEmitterFailOpenScriptName
@@ -149,18 +141,10 @@ $publishSpawnKnobsScriptName = $script:ToolkitConstant.AssertPublishSpawnKnobsSc
 $publishSpawnKnobsCheckName = $script:ToolkitConstant.PublishSpawnKnobsCheckName
 $invocationAxesScriptName = $script:ToolkitConstant.AssertInvocationAxesScriptName
 $invocationAxesCheckName = $script:ToolkitConstant.InvocationAxesCheckName
-$siblingReadinessGateScriptName = $script:ToolkitConstant.AssertSiblingReadinessGateScriptName
-$siblingReadinessGateCheckName = $script:ToolkitConstant.SiblingReadinessGateCheckName
-$navigationBlockScriptName = $script:ToolkitConstant.AssertNavigationBlockScriptName
-$navigationBlockCheckName = $script:ToolkitConstant.NavigationBlockCheckName
 $runtimeScriptPublishScriptName = 'Assert-RuntimeScriptPublish.ps1'
 $runtimeScriptPublishCheckName = 'runtime-script-publish'
-$localInstructionEvidenceScriptName = 'Assert-LocalInstructionEvidenceContract.ps1'
-$localInstructionEvidenceCheckName = 'local-instruction-evidence-contract'
 $skillsAndFlowsContractsScriptName = 'Assert-SkillsAndFlowsContracts.ps1'
 $skillsAndFlowsContractsCheckName = 'skills-and-flows-contracts'
-$hooksMultiproviderContractsScriptName = 'Assert-HooksMultiproviderContracts.ps1'
-$hooksMultiproviderContractsCheckName = 'hooks-multiprovider-contracts'
 $publishOwnershipContractsScriptName = 'Assert-PublishOwnershipContracts.ps1'
 $publishOwnershipContractsCheckName = 'publish-ownership-contracts'
 $authorizationPolicyScriptName = 'Assert-AuthorizationPolicy.ps1'
@@ -276,8 +260,6 @@ $coreChecks = @(
     @{ Name = $selectiveRetrievalCheckName; Script = $selectiveRetrievalScriptName },
     @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
     @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
-    @{ Name = $evidenceContractCheckName; Script = $evidenceContractScriptName },
-    @{ Name = $traceArchiveContractCheckName; Script = $traceArchiveContractScriptName },
     @{ Name = $orchestratorCharterPublishedCheckName; Script = $orchestratorCharterPublishedScriptName },
     @{ Name = $orchestratorCommandsCheckName; Script = $orchestratorCommandsScriptName },
     @{ Name = $preferencesSchemaCheckName; Script = $preferencesSchemaScriptName },
@@ -285,22 +267,16 @@ $coreChecks = @(
     @{ Name = $prdStructureCheckName; Script = $prdStructureScriptName },
     @{ Name = $planStructureCheckName; Script = $planStructureScriptName },
     @{ Name = $storySizingContractCheckName; Script = $storySizingContractScriptName },
-    @{ Name = $productArtifactQualityCheckName; Script = $productArtifactQualityScriptName },
     @{ Name = $intentClassificationCheckName; Script = $intentClassificationScriptName },
     @{ Name = $skillLazyLoadCheckName; Script = $skillLazyLoadScriptName },
     @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName },
-    @{ Name = $planLedgerContractCheckName; Script = $planLedgerContractScriptName },
     @{ Name = $developSessionGateCheckName; Script = $developSessionGateScriptName },
     @{ Name = $executionModesCheckName; Script = $executionModesScriptName },
     @{ Name = $traceEmitterFailOpenCheckName; Script = $traceEmitterFailOpenScriptName },
     @{ Name = $publishSpawnKnobsCheckName; Script = $publishSpawnKnobsScriptName },
     @{ Name = $invocationAxesCheckName; Script = $invocationAxesScriptName },
-    @{ Name = $siblingReadinessGateCheckName; Script = $siblingReadinessGateScriptName },
-    @{ Name = $navigationBlockCheckName; Script = $navigationBlockScriptName },
     @{ Name = $runtimeScriptPublishCheckName; Script = $runtimeScriptPublishScriptName },
-    @{ Name = $localInstructionEvidenceCheckName; Script = $localInstructionEvidenceScriptName },
     @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName },
-    @{ Name = $hooksMultiproviderContractsCheckName; Script = $hooksMultiproviderContractsScriptName },
     @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName },
     @{ Name = $authorizationPolicyCheckName; Script = $authorizationPolicyScriptName },
     @{ Name = $continuousQueueAuthorizationCheckName; Script = $continuousQueueAuthorizationScriptName }

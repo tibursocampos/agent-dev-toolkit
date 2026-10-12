@@ -11,7 +11,7 @@ Toolkit and consumer repos that follow this guide use:
 Naming convention for branches (enforced by `branch-validation`):
 
 - `feature/<slug>` — e.g. `feature/add-oauth-login`
-- `feat/<id>` — e.g. `feat/123`, `feat/PLAN-001`
+- `feat/<id>-<slug>` — e.g. `feat/123`, `feat/PLAN-001`
 
 Do not use `fix/` or `chore/` as branch prefixes under this model; keep those as Conventional Commit **types**, not branch names.
 

@@ -277,6 +277,7 @@ function pathsFromShell(command) {
 
 function shellCommandMutates(command) {
   if (!command || typeof command !== 'string') return false
+  if (/^python(?:3)?\s+-c\s+(["'])(?:print\(-?\d+(?:\.\d+)?\)|print\(["'][^"']*["']\))\1$/i.test(command.trim())) return false
   if (/(?:\d?>|&>|\|\s*tee\b)/i.test(command)) return true
   return /(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b)(?=\s|$)/i.test(command)
 }
@@ -286,6 +287,8 @@ function shellCommandIsReadOnly(command) {
   for (const segment of command.split(/;|&&|\|\||\|/)) {
     const text = segment.trim()
     if (!text) continue
+    if (/^python(?:3)?\s+-c\s+(["'])(?:print\(-?\d+(?:\.\d+)?\)|print\(["'][^"']*["']\))\1$/i.test(text)) continue
+    if (/^sed\s+(?:-[nE]\s+)*["']s\/[^/]+\/[^/]+\/g?["']\s+(?:[A-Za-z0-9_.-]+[\\/])*[A-Za-z0-9_.-]+$/i.test(text)) continue
     if (!/^(?:get-date|get-location|get-content|get-childitem|get-item|test-path|resolve-path|write-output|write-host|echo|printf|cat|head|tail|grep|rg|find|ls|dir|pwd|whoami|where|which|git\s+(?:status|diff|log|show|branch|rev-parse|ls-files))(?=\s|$)/i.test(text)) return false
   }
   return true

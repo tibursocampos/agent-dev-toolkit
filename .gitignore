@@ -122,7 +122,6 @@ scripts/validation/fixtures/.runtime-script-publish-*/
 scripts/validation/fixtures/copilot/user/agents/
 scripts/validation/fixtures/copilot/user/scripts/
 scripts/validation/fixtures/copilot/user/.toolkit-managed-publish.lock
-scripts/validation/fixtures/sdd-artifacts/evidence/reparse-escape/
 
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md

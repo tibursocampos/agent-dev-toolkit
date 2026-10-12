@@ -1,5 +1,5 @@
 ---
-description: Block commit and push unless the branch matches feature/<slug> or feat/<id>
+description: Block commit and push unless the branch matches feature/<slug> or feat/<id>-<slug>
 alwaysApply: true
 ---
 
@@ -14,10 +14,10 @@ Before any `git add`, `git commit`, or `git push`, verify the current branch nam
 | Pattern | Example |
 |---------|---------|
 | `feature/<slug>` | `feature/add-oauth-login` |
-| `feat/<id>` | `feat/123`, `feat/issue-42` |
+| `feat/<id>-<slug>` | `feat/123-login`, `feat/issue-42-login` |
 
 - `<slug>` - kebab-case or alphanumeric segment (no extra `/`)
-- `<id>` - ticket, issue number, or short identifier (no extra `/`)
+- `<id>` - ticket, issue number, or short identifier; `<slug>` names the work (no extra `/`)
 
 ### Blocked branches
 
@@ -53,8 +53,8 @@ hotfix/urgent-fix
 ```powershell
 $branch = git rev-parse --abbrev-ref HEAD
 $blocked = @('main', 'master', 'develop')
-if ($branch -in $blocked -or $branch -notmatch '^(feature|feat)/[^/]+$') {
-  Write-Error "Blocked: branch '$branch' must be feature/<slug> or feat/<id>"
+if ($branch -in $blocked -or $branch -notmatch '^(feature/[A-Za-z0-9]+(-[A-Za-z0-9]+)*|feat/[A-Za-z0-9]+(-[A-Za-z0-9]+)*-[A-Za-z0-9]+(-[A-Za-z0-9]+)*)$') {
+  Write-Error "Blocked: branch '$branch' must be feature/<slug> or feat/<id>-<slug>"
   exit 1
 }
 ```
@@ -69,8 +69,8 @@ case "$BRANCH" in
     exit 1
     ;;
 esac
-if [[ ! "$BRANCH" =~ ^(feature|feat)/[^/]+$ ]]; then
-  echo "Blocked: branch '$BRANCH' must be feature/<slug> or feat/<id>"
+if [[ ! "$BRANCH" =~ ^(feature/[[:alnum:]]+(-[[:alnum:]]+)*|feat/[[:alnum:]]+(-[[:alnum:]]+)*-[[:alnum:]]+(-[[:alnum:]]+)*)$ ]]; then
+  echo "Blocked: branch '$BRANCH' must be feature/<slug> or feat/<id>-<slug>"
   exit 1
 fi
 ```
@@ -82,7 +82,7 @@ fi
    ```bash
    git checkout -b feature/<slug>
    # or
-   git checkout -b feat/<id>
+   git checkout -b feat/<id>-<slug>
    ```
 3. Re-run the commit flow (`commit` skill or your git commands).
 
@@ -102,4 +102,4 @@ Commit and push remain refused on an integration branch. That refusal does not m
 
 ## Install path
 
-After `scripts/sync-cursor.ps1`: `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` (see `docs/INSTALL.md`)
+After `scripts/sync-agent.ps1`: `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` (see `docs/INSTALL.md`)
