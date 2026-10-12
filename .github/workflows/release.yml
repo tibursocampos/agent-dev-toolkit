@@ -1,19 +1,22 @@
-# Fast-forward master to develop and publish vMAJOR.MINOR.PATCH.
-# develop is the only integration branch. This workflow does not rebase and does not open a sync PR.
-# Notes follow .github/RELEASE_TEMPLATE.md. Do not pass --generate-notes.
-# publish-release-bootstrap.yml runs when the GitHub Release is published.
+# Publish an opt-in release after a validated develop -> master/main PR merges.
+# The release tag points at the promoted commit on the destination branch.
+# The generated body follows .github/RELEASE_TEMPLATE.md.
 name: Release
 
 on:
+  pull_request:
+    types: [closed]
+    branches: [master, main]
   workflow_dispatch:
     inputs:
       version:
-        description: Version MAJOR.MINOR.PATCH. The tag is vVERSION.
+        description: Recovery only. Version MAJOR.MINOR.PATCH; tag is vVERSION.
         required: true
         type: string
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
   group: release-master
@@ -21,7 +24,14 @@ concurrency:
 
 jobs:
   release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop')
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      commit: ${{ steps.release.outputs.commit }}
+      should_publish: ${{ steps.release.outputs.should_publish }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -29,69 +39,215 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Fast-forward master and publish the tag
+      - name: Create release from the promoted commit
+        id: release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          DISPATCH_VERSION: ${{ inputs.version }}
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! "${RELEASE_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "version must be MAJOR.MINOR.PATCH (got ${RELEASE_VERSION})" >&2
-            exit 1
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            version="${DISPATCH_VERSION}"
+            [[ "${GITHUB_REF_NAME}" == "master" || "${GITHUB_REF_NAME}" == "main" ]] || {
+              echo "Manual recovery must run from master or main" >&2; exit 1;
+            }
+            target="$(git rev-parse HEAD)"
+            summary="- Manual recovery publication for ${version}."
+          else
+            [[ "${PR_BASE}" == "master" || "${PR_BASE}" == "main" ]] || { echo "Unsupported release base" >&2; exit 1; }
+            [[ "${PR_HEAD}" == "develop" ]] || { echo "Release PR head must be develop" >&2; exit 1; }
+            if ! grep -Eiq '^[[:space:]]*Create release:[[:space:]]*yes[[:space:]]*$' <<<"${PR_BODY}"; then
+              echo "commit=${MERGE_SHA}" >> "$GITHUB_OUTPUT"
+              echo "should_publish=false" >> "$GITHUB_OUTPUT"
+              echo "Release was not requested by PR #${PR_NUMBER}; skipping publication."
+              exit 0
+            fi
+            version="$(sed -nE 's/^Version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]*$/\1/p' <<<"${PR_BODY}" | head -n1)"
+            target="${MERGE_SHA}"
+            [[ -n "${target}" ]] || { echo "GitHub did not provide the promoted commit SHA" >&2; exit 1; }
+            summary="$(python3 - "${PR_BODY}" <<'PY'
+          import re, sys
+          body = sys.argv[1]
+          match = re.search(r"(?ims)^## Highlights\s*$\n(.*?)(?=^## |\Z)", body)
+          section = re.sub(r"(?s)<!--.*?-->", "", match.group(1) if match else "")
+          lines = [line.strip() for line in section.splitlines() if line.strip()]
+          if not lines or any(not re.fullmatch(r"[-*]\s+\S.*", line) for line in lines):
+              sys.exit("Release highlights must contain non-empty bullet lines only.")
+          print("\n".join(lines))
+          PY
+          )"
           fi
-          tag="v${RELEASE_VERSION}"
-          git fetch origin master develop --tags
-          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
-            echo "tag ${tag} already exists" >&2
-            exit 1
+          [[ "${version}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Version must be strict MAJOR.MINOR.PATCH SemVer" >&2; exit 1; }
+          tag="v${version}"
+          git fetch origin --tags
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists" >&2; exit 1
           fi
-          if ! git merge-base --is-ancestor origin/master origin/develop; then
-            echo "origin/master is not an ancestor of origin/develop. Stop." >&2
-            exit 1
+          python3 - "${version}" <<'PY'
+          import re, subprocess, sys
+          version = tuple(map(int, sys.argv[1].split(".")))
+          tags = subprocess.check_output(["git", "tag", "--list", "v[0-9]*.[0-9]*.[0-9]*"], text=True).splitlines()
+          existing = []
+          for tag in tags:
+              match = re.fullmatch(r"v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", tag)
+              if match:
+                  existing.append(tuple(map(int, match.groups())))
+          if existing and version <= max(existing):
+              sys.exit("Version must be greater than the latest existing release tag.")
+          PY
+          target_commit="$(git rev-parse "${target}^{commit}")"
+          previous_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n1 || true)"
+          [[ -n "${previous_tag}" ]] || previous_tag="$(git describe --tags --abbrev=0 "${target_commit}" 2>/dev/null || true)"
+          included_file="${RUNNER_TEMP}/included-work.md"
+          : > "${included_file}"
+          if [[ -n "${previous_tag}" ]]; then
+            git merge-base --is-ancestor "${previous_tag}" "${target_commit}" || {
+              echo "Previous release tag ${previous_tag} is not an ancestor of promoted commit ${target_commit}; cannot calculate an accurate release range." >&2
+              exit 1
+            }
+            commit_range="${previous_tag}..${target_commit}"
+          else
+            commit_range="${target_commit}"
           fi
-          develop_sha="$(git rev-parse origin/develop)"
-          master_sha="$(git rev-parse origin/master)"
-          previous_tag="$(git describe --tags --abbrev=0 origin/master)"
+          pr_numbers_file="${RUNNER_TEMP}/included-pr-numbers.txt"
+          commits_file="${RUNNER_TEMP}/release-range-commits.txt"
+          : > "${pr_numbers_file}"
+          git rev-list --reverse "${commit_range}" > "${commits_file}"
+          while IFS= read -r commit; do
+            [[ -n "${commit}" ]] || continue
+            gh api "repos/${GITHUB_REPOSITORY}/commits/${commit}/pulls" --jq '.[].number' >> "${pr_numbers_file}"
+          done < "${commits_file}"
+          sort -nu -o "${pr_numbers_file}" "${pr_numbers_file}"
+          while IFS= read -r pr_number; do
+            [[ -n "${pr_number}" ]] || continue
+            pr_metadata="$(gh pr view "${pr_number}" --repo "${GITHUB_REPOSITORY}" --json title,baseRefName,headRefName --jq '[.title, .baseRefName, .headRefName] | @tsv')"
+            IFS=$'\t' read -r title base_ref head_ref <<<"${pr_metadata}"
+            # The promotion PR and its generated reconciliation PR are plumbing, not shipped work.
+            if [[ ( "${head_ref}" == "develop" && ( "${base_ref}" == "master" || "${base_ref}" == "main" ) ) ||
+                  ( "${base_ref}" == "develop" && "${head_ref}" == automation/reconcile-release-pr-* ) ]]; then
+              continue
+            fi
+            title="$(printf '%s' "${title}" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g; s/^[[:space:]]\+//; s/[[:space:]]\+$//; s/\[/\\[/g; s/\]/\\]/g')"
+            printf -- '- [PR #%s: %s](https://github.com/%s/pull/%s)\n' "${pr_number}" "${title}" "${GITHUB_REPOSITORY}" "${pr_number}" >> "${included_file}"
+          done < "${pr_numbers_file}"
+          if [[ ! -s "${included_file}" ]]; then
+            printf '%s\n' "- No pull requests are associated with commits in ${commit_range}." > "${included_file}"
+          fi
           notes_file="${RUNNER_TEMP}/release-notes.md"
           {
             echo "## Highlights"
             echo
-            highlight_count=0
-            while IFS= read -r subject; do
-              [[ -z "${subject}" ]] && continue
-              [[ "${subject}" =~ ^Merge[[:space:]] ]] && continue
-              [[ "${subject}" =~ ^(merge|release): ]] && continue
-              line="${subject% (#*}"
-              echo "- ${line}"
-              highlight_count=$((highlight_count + 1))
-            done < <(git log --format='%s' "${previous_tag}..${develop_sha}")
-            if [[ "${highlight_count}" -eq 0 ]]; then
-              echo "- No product changes since ${previous_tag}."
-            fi
+            if [[ -n "${summary:-}" ]]; then printf '%s\n' "${summary}"; else echo "- Changes included in ${tag}."; fi
             echo
             echo "## Included work"
             echo
-            included_count=0
-            while IFS= read -r pr; do
-              [[ -z "${pr}" ]] && continue
-              title="$(gh pr view "${pr}" --repo "${GITHUB_REPOSITORY}" --json title --jq .title)"
-              echo "- [PR #${pr}: ${title}](https://github.com/${GITHUB_REPOSITORY}/pull/${pr})"
-              included_count=$((included_count + 1))
-            done < <(git log --format='%s' "${previous_tag}..${develop_sha}" | grep -oE '#[0-9]+' | tr -d '#' | awk '!seen[$0]++')
-            if [[ "${included_count}" -eq 0 ]]; then
-              echo "- None."
-            fi
+            cat "${included_file}"
             echo
             echo "## Release assets"
             echo
-            echo 'Attached by `publish-release-bootstrap.yml` when this release is published: `agent-dev-toolkit.zip`, `agent-dev-toolkit.zip.sha256`, `bootstrap.bat`, `bootstrap.ps1`, `bootstrap.sh`.'
+            echo 'Attached by `publish-release-bootstrap.yml`: `agent-dev-toolkit.zip`, `agent-dev-toolkit.zip.sha256`, `bootstrap.bat`, `bootstrap.ps1`, `bootstrap.sh`.'
             echo
             echo "## Changelog"
             echo
-            echo "Compare: https://github.com/${GITHUB_REPOSITORY}/compare/${previous_tag}...${tag}"
+            if [[ -n "${previous_tag}" ]]; then echo "Compare: https://github.com/${GITHUB_REPOSITORY}/compare/${previous_tag}...${tag}"; else echo "First release in the current SemVer tag series."; fi
           } > "${notes_file}"
-          if [[ "${develop_sha}" != "${master_sha}" ]]; then
-            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${develop_sha}:refs/heads/master"
+          gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --target "${target_commit}" --title "${tag}" --notes-file "${notes_file}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "commit=${target_commit}" >> "$GITHUB_OUTPUT"
+          echo "should_publish=true" >> "$GITHUB_OUTPUT"
+
+  publish-assets:
+    needs: release
+    if: needs.release.outputs.should_publish == 'true'
+    uses: ./.github/workflows/publish-release-bootstrap.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    permissions:
+      contents: write
+
+  reconcile-develop:
+    needs: release
+    if: always() && github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Mint narrowly scoped repository app token
+        id: app-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b0c8c7cc
+        with:
+          app-id: ${{ secrets.RELEASE_SYNC_APP_ID }}
+          private-key: ${{ secrets.RELEASE_SYNC_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout develop for sync PR
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: develop
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Reconcile develop ancestry with master
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_COMMIT: ${{ needs.release.outputs.commit || github.event.pull_request.merge_commit_sha }}
+          RELEASE_BASE: ${{ github.event.pull_request.base.ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 -w0)"
+          git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ${auth}"
+          git fetch origin develop "${RELEASE_BASE}"
+          promoted="$(git rev-parse "${RELEASE_COMMIT}^{commit}")"
+          develop="$(git rev-parse origin/develop)"
+          if git merge-base --is-ancestor "${promoted}" "${develop}"; then
+            echo "develop already contains the promoted master commit."
+            exit 0
           fi
-          gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --target "${develop_sha}" --title "${tag}" --notes-file "${notes_file}"
+          sync_branch="automation/reconcile-release-pr-${PR_NUMBER}"
+          git checkout -B "${sync_branch}" "${develop}"
+          promoted_tree="$(git rev-parse "${promoted}^{tree}")"
+          develop_tree="$(git rev-parse "${develop}^{tree}")"
+          if [[ "${promoted_tree}" == "${develop_tree}" ]]; then
+            # Rebase/squash promotion has identical content; record ancestry without altering either tree.
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              merge --no-ff -s ours "${promoted}" -m "merge: reconcile ${RELEASE_BASE} after release PR #${PR_NUMBER}"
+          else
+            # Preserve any promoted content that is absent from develop. Conflicts fail for maintainer resolution.
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              merge --no-ff "${promoted}" -m "merge: reconcile ${RELEASE_BASE} after release PR #${PR_NUMBER}"
+          fi
+          git push origin "HEAD:refs/heads/${sync_branch}"
+          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${OWNER}:${sync_branch}" --state open --json url --jq '.[0].url // empty')"
+          if [[ -z "${existing_pr}" ]]; then
+            gh pr create --repo "${REPOSITORY}" --base develop --head "${sync_branch}" \
+              --title "chore: reconcile develop after release PR #${PR_NUMBER}" \
+              --body "This sync PR restores develop ancestry with ${RELEASE_BASE} after release PR #${PR_NUMBER}. It preserves promoted content; GitHub auto-merge will use normal repository branch rules after required checks pass."
+          else
+            echo "Existing reconciliation PR: ${existing_pr}"
+          fi
+          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${OWNER}:${sync_branch}" --state open --json url --jq '.[0].url // empty')"
+          [[ -n "${existing_pr}" ]] || { echo "Reconciliation PR was not created or found." >&2; exit 1; }
+          if ! gh pr merge "${existing_pr}" --repo "${REPOSITORY}" --auto --merge; then
+            echo "Could not enable auto-merge for reconciliation PR ${existing_pr}. Check that repository auto-merge is enabled and the App token can request a normal merge; no branch protection bypass is used." >&2
+            exit 1
+          fi
+          pr_state="$(gh pr view "${existing_pr}" --repo "${REPOSITORY}" --json state,autoMergeRequest,mergedAt --jq '[.state, (.autoMergeRequest != null), (.mergedAt != null)] | @tsv')"
+          if [[ "${pr_state}" != $'OPEN\ttrue\tfalse' && "${pr_state}" != $'CLOSED\tfalse\ttrue' ]]; then
+            echo "GitHub did not queue reconciliation PR ${existing_pr} for auto-merge (state: ${pr_state}). Check repository auto-merge configuration and required checks." >&2
+            exit 1
+          fi
+          echo "Reconciliation PR ${existing_pr} is queued for normal auto-merge after required checks."
