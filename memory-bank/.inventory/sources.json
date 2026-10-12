@@ -3,11 +3,11 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-12T09:17:03.8283767Z",
+  "generated_at": "2026-10-12T10:35:59.3643283Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "25db09b0392b2e95f08106bcf1a54b13b3467ca049ad4db347fde0d9460d7d53",
+  "inventory_hash": "5f22bca4c8fde73cf81794adf1698ea157fc2f2b53e8671b32d53305f66f716d",
   "inventory_summary": "132 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
@@ -886,9 +886,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-12T03:08:36.7986069Z",
-      "length": 66905,
-      "hash": "dcd3b7bc242b383b7b17fa38adebe5a5f9d7937e2600f4d5f91c1b7c039f9df4",
+      "last_write_utc": "2026-10-12T10:02:04.6109494Z",
+      "length": 65972,
+      "hash": "a4619d794322cc1d2abd5f5c7f5757936f86cde3b53d6ebd2a75743b1d138901",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {

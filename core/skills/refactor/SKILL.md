@@ -49,6 +49,7 @@ Safely refactored code with lower cognitive complexity, improved testability, an
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | C# projects | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md`, `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-formatting.md` |
+| .NET tests (when changing tests) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | Python projects | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md`, `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md` |
 | JavaScript / TypeScript | `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-js.md`, `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/clean-code-ts.md`, `{{TOOLKIT_ROOT}}/skills/_shared/javascript-guidelines/google-ts-style.md` |
 | React components | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/components-and-state.md`, `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/hooks-and-effects.md` |

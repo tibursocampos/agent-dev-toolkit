@@ -457,8 +457,8 @@ $script:ToolkitConstant = @{
     PreferencesSchemaDocRelativePaths            = @(
         'core/policy/caveman-mode.md',
         'core/skills/_shared/caveman/CAVEMAN.md',
-        'core/sdd/STORAGE.md',
-        'core/skills/_shared/sdd-artifacts/STORAGE.md'
+        'core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md',
+        'core/sdd/STORAGE-RESOLUTION.md'
     )
     PreferencesSchemaKeyMarkers                  = @(
         'caveman_mode',

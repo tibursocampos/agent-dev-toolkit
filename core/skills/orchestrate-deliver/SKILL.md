@@ -45,7 +45,7 @@ Under each approved story folder (`USnn` / `TSnn`):
 
 **Mental map (ids unchanged):** O2 ≈ **FEATURE + PRD + CHANGE** (then PLAN). O1 ≈ explore; O3 ≈ apply. Skill ids stay `orchestrate-*`.
 
-**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** mode selection / story contracts. Resolve `bank_root` via `STORAGE.md` - never under `features/`. CONTINUITY remains the feature phase/handoff source; bank does not replace it.
+**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** mode selection / story contracts. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md` - never under `features/`. CONTINUITY remains the feature phase/handoff source; bank does not replace it.
 
 **Human gate:** PRD/PLAN approval per story **or** batch (`sim` / `ajustar` / `cancelar`). Silence ≠ approval (RN01).
 
@@ -60,6 +60,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | CONTINUITY / FEATURE templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/` |

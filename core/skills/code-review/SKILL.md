@@ -81,6 +81,7 @@ This skill does not edit application code and does not write a PRD or a PLAN.
 | SDD artifact discovery (step 0.5) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
 | Before code analysis (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
+| Test review (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | .NET checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | .NET coverage report | `{{TOOLKIT_ROOT}}/skills/test-coverage/reference.md` (when PRD/user/PLAN requires coverage) |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |

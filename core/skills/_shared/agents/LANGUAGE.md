@@ -8,7 +8,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`
 
 **Rule ID:** `CL-CONTENT-LANGUAGE`
 
-Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `STORAGE.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
+Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
 
 ## Normative matrix (RNF-001 / REQ-014)
 

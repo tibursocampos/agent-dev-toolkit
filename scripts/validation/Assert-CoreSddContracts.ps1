@@ -12,12 +12,13 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $sourceRoot = Join-Path $repoRoot 'core\sdd'
 $projectionRoot = Join-Path $repoRoot 'core\skills\_shared\sdd-artifacts'
-$contracts = @('PIPELINE.md', 'STORAGE.md', 'SESSION.md', 'MEMORY-BANK.md')
+$contracts = @('PIPELINE.md', 'STORAGE.md', 'STORAGE-RESOLUTION.md', 'SESSION.md', 'MEMORY-BANK.md')
 $memoryBankSourceCommand = '.\scripts\inventory\Invoke-MemoryBankInventory.ps1'
 $memoryBankProjectionCommand = 'pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1"'
 $approvedPlaceholderCounts = @{
     'PIPELINE.md' = @{ '{{TOOLKIT_ROOT}}' = 2; '{{SDD_ROOT}}' = 4; '{{GUARDRAILS_PATH}}' = 0 }
-    'STORAGE.md' = @{ '{{TOOLKIT_ROOT}}' = 1; '{{SDD_ROOT}}' = 7; '{{GUARDRAILS_PATH}}' = 0 }
+    'STORAGE.md' = @{ '{{TOOLKIT_ROOT}}' = 1; '{{SDD_ROOT}}' = 2; '{{GUARDRAILS_PATH}}' = 0 }
+    'STORAGE-RESOLUTION.md' = @{ '{{TOOLKIT_ROOT}}' = 0; '{{SDD_ROOT}}' = 5; '{{GUARDRAILS_PATH}}' = 0 }
     'SESSION.md' = @{ '{{TOOLKIT_ROOT}}' = 12; '{{SDD_ROOT}}' = 2; '{{GUARDRAILS_PATH}}' = 0 }
     'MEMORY-BANK.md' = @{ '{{TOOLKIT_ROOT}}' = 3; '{{SDD_ROOT}}' = 0; '{{GUARDRAILS_PATH}}' = 0 }
 }
@@ -124,6 +125,7 @@ function Invoke-ContractSelfChecks {
     foreach ($case in @(
         @{ Name = 'PIPELINE.md'; Location = 'source'; Exists = $false },
         @{ Name = 'STORAGE.md'; Location = 'projection'; Exists = $false },
+        @{ Name = 'STORAGE-RESOLUTION.md'; Location = 'projection'; Exists = $false },
         @{ Name = 'SESSION.md'; Location = 'published'; Exists = $false }
     )) {
         $result = @(Get-PresenceDiagnostic -Name $case.Name -Location $case.Location -Exists $case.Exists)
@@ -286,7 +288,7 @@ try {
         exit 1
     }
 
-    Write-Host ('Assert-CoreSddContracts: PASS (4 contracts; {0} focused negative/transform checks; cursor publisher fixture)' -f $selfCheckCount)
+    Write-Host ('Assert-CoreSddContracts: PASS ({1} contracts; {0} focused negative/transform checks; cursor publisher fixture)' -f $selfCheckCount, $contracts.Count)
     exit 0
 }
 catch {

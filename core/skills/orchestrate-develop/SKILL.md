@@ -40,7 +40,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
 3. When the operator asked to close the wave, handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted). When the operator did not ask, do not start that validation or specialist loop; hand off only the next step / next story
 
-**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md`. CONTINUITY stays the feature phase/handoff source.
+**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md`. CONTINUITY stays the feature phase/handoff source.
 
 **Step N (after code changes):** when at least one develop child succeeded with app file changes, run `memory-bank-init` mode **`refresh-light`** at `bank_root` before final handoff (`MEMORY-BANK.md` Step N). Confirm (pt-BR) first.
 
@@ -63,6 +63,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Pipeline Orchestrated Delivery, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | Develop contract (source of truth) | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` + `{{TOOLKIT_ROOT}}/skills/sdd-develop/reference.md` |
@@ -124,7 +125,7 @@ Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Deli
 Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; every develop child handoff must include `invocation_context: orchestrated` (path cite only — no contract body dump).
 
 ### 2. Resolve feature / PLAN set (plan-acquisition)
-Load `STORAGE.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Before queue parsing, session creation, claim, or specialist invocation, run the deterministic read-only artifact gate:
+Load `STORAGE.md` and `STORAGE-RESOLUTION.md`; resolve feature + `bank_root`; path sanitize; **plan-acquisition** for canonical PLAN path(s) or **STOP** if missing. Before queue parsing, session creation, claim, or specialist invocation, run the deterministic read-only artifact gate:
 
 ```powershell
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1" -FeatureRoot <feature-root> -PlanPath <canonical-plan> -RepoPath <repo-root> -SddRoot <sdd-root>

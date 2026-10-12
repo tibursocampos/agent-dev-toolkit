@@ -52,6 +52,7 @@ The only approved structural substitutions are these named path placeholders in 
 | File | Role |
 |------|------|
 | `PIPELINE.md` | Spec / plan / develop order, canonical paths, confirmation gates |
-| `STORAGE.md` | Storage modes, feature tree, manifest resolution |
+| `STORAGE.md` | Feature tree, `.gitignore`, portable paths, navigation |
+| `STORAGE-RESOLUTION.md` | Manifest, preferences, and dynamic storage roots |
 | `SESSION.md` | Repo vs develop session files, required persisted identity, and gates |
 | `MEMORY-BANK.md` | Step 0 / Step N policy, inventory operation, and router pointer (details in the contract-consumer inventory above). |

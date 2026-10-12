@@ -45,6 +45,7 @@ A new EF Core migration in the **target workspace** (not this toolkit repo unles
 | Reference index (routing only) | `skills/ef-add-migration/reference.md` or `{{TOOLKIT_ROOT}}/skills/ef-add-migration/reference.md` after sync |
 | Process step detail (lazy) | `skills/ef-add-migration/references/<section>.md` |
 | .NET layering | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` |
+| .NET test patterns (when adding tests) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 
 **Never by default:** do not preload all `references/*.md`, full EF docs, or unrelated dotnet guideline packs. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
 

@@ -10,7 +10,7 @@
 
 ## Process — Resolve feature and storage
 
-Load `STORAGE.md`. Run resolution with `$Workflow = classic`.
+Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`.
 
 Accept feature path from invoke (preferred) or Glob under feature root:
 

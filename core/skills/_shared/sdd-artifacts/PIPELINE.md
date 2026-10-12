@@ -4,7 +4,7 @@ Execution order, host session mode, canonical paths, confirmation gates, and mis
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
-Companion: `STORAGE.md` (folders, manifest, `.gitignore`, **portable path** for artifact cross-refs, **Navigation block** / `## Related`).
+Companion: `STORAGE.md` (folders, `.gitignore`, **portable path** for artifact cross-refs, **Navigation block** / `## Related`) and `STORAGE-RESOLUTION.md` (manifest / dynamic roots when needed).
 
 **Artifact cross-refs:** FEATURE / CONTINUITY / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / bank cites and typed handoffs use **portable paths** (`STORAGE.md` § Portable path) — never OS absolute / user-home InstallRoot embeds in written artifacts. Confirm UI may show absolute; Writes use portable paths.
 
@@ -116,7 +116,7 @@ Applies when `invocation_context` is `orchestrated`. Do **not** apply these O1 g
 4. `Write` only under `features/NNN-slug/[USnn|TSnn]/{PRD|PLAN}/`.
 5. Do not delete the old file unless the user asks.
 
-Manifest folders must resolve per `STORAGE.md` schema v2 (`features/` root).
+Manifest-backed roots must resolve per `STORAGE-RESOLUTION.md` schema v2 (`features/` root).
 
 ## Host session mode - Phase A / Phase B
 
@@ -250,7 +250,8 @@ If validation fails, do not write - fix path or promote.
 | `sdd-spec`, `sdd-plan`, `sdd-develop` | Step -1 load; steps reference § by name |
 | `orchestrate-*` | Orchestrated Delivery order; feature Prior context; CONTINUITY |
 | `refine-story`, `split-story-checklist` | Backlog Refine; prefer feature STORY paths |
-| `STORAGE.md` | Folders, manifest, invalid-path summary |
+| `STORAGE.md` | Folders, `.gitignore`, portable paths, invalid-path summary |
+| `STORAGE-RESOLUTION.md` | Manifest schema and dynamic repository/global roots |
 | `rules/sdd-pipeline-guards.mdc` | Short always-on reminder |
 | `code-review` | Handoff to `sdd-spec` for new PRD; read-only SDD discovery |
 | `test-coverage` | Phase B / Agent for shell; report paths in `reference.md` |

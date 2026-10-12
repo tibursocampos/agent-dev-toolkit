@@ -35,7 +35,7 @@ Match existing project patterns (Glob/Read similar types first).
 | Infrastructure | EF, repositories, external clients |
 | API | Endpoints, DTOs, auth filters |
 
-Apply the **one** ARCH-matched architecture overlay (see lazy-load table) and `csharp-patterns.md` from `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` while writing - do not paste full bodies into chat. Never glob `architecture/**`.
+Apply the **one** ARCH-matched architecture overlay (see lazy-load table) and `csharp-patterns.md` from `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` while writing production C#. When creating or changing tests, load `dotnet-test-patterns.md` too - do not paste full bodies into chat. Never glob `architecture/**`.
 
 ### 5. Tests
 

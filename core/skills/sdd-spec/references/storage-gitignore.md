@@ -1,6 +1,6 @@
 ## Storage and `.gitignore` (spec skill)
 
-Before `Write` in **repository** mode, follow `STORAGE.md` § Repository mode - `.gitignore`: read `features_versioned` from manifest and apply the matching SDD block. When `false`, include `/features/` and `/docs/features/`; when `true`, omit them. Always include safety-net `/PRD/`, `/PLAN/`, `/docs/PRD/`, `/docs/PLAN/` and `/docs/documentation-plan/*` with `!/docs/documentation-plan/plan.md`. **Do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets. Run on first SDD write in a repo.
+Before `Write` in **repository** mode, follow `STORAGE.md` § Repository mode - `.gitignore` and `STORAGE-RESOLUTION.md`: resolve the manifest and read `features_versioned` and apply the matching SDD block. When `false`, include `/features/` and `/docs/features/`; when `true`, omit them. Always include safety-net `/PRD/`, `/PLAN/`, `/docs/PRD/`, `/docs/PLAN/` and `/docs/documentation-plan/*` with `!/docs/documentation-plan/plan.md`. **Do not** add `/memory-bank/` — commit bank when product knowledge; never commit secrets. Run on first SDD write in a repo.
 
 **Global** mode: no `.gitignore` changes (do not add features / memory-bank / PRD / PLAN patterns).
 

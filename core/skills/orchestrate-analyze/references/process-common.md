@@ -10,7 +10,7 @@
 
 ## Process — Resolve storage
 
-Load `STORAGE.md`. Run resolution with `$Workflow = classic`. Resolve feature root and bank root:
+Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`. Resolve feature root and bank root:
 
 - **repository** -> feature `$Cwd/features/`; bank `$Cwd/memory-bank/`
 - **global** -> feature `<classic.path>/features/`; bank `<classic.path>/memory-bank/`

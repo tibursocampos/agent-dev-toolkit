@@ -22,6 +22,7 @@ Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/r
 | When | Path (after agent sync) |
 |------|-------------------------|
 | Portable path / features layout | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Invocation handoff (orchestrated) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/read-sdd-artifact/reference.md` |
