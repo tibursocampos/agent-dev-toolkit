@@ -60,7 +60,6 @@ Working React Native components and tests in the target workspace, validated wit
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ `architecture-selection.md` or **one** approved style — never glob `architecture/**`) |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/react-native-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/react-native-developer/references/<section>.md` |
 

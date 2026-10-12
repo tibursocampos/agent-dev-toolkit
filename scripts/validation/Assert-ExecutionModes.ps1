@@ -101,13 +101,11 @@ if ($skillBodyText -notmatch 'execution-modes\.md') {
 }
 Write-Pass -TestName 'Should_Pass_When_OrchestrateDevelopWiresExecutionModes'
 
-$fixturePlanRel = $script:ToolkitConstant.PlanLedgerFixturePlanRelativePath
-$fixturePlanPath = Join-Path $repoRoot ($fixturePlanRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $fixturePlanPath)) {
-    Write-Fail -TestName 'Should_Fail_When_SerialModeRejectsParallelSpawn' -Reason ("missing fixture PLAN {0}" -f $fixturePlanRel)
-}
-
 $workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-execution-modes-{0}' -f [Guid]::NewGuid().ToString('N'))
+$fixturePlanPath = Join-Path $workRoot 'features/999-fixture/US01/PLAN/PLAN_999_fixture.md'
+$fixturePlanDirectory = Split-Path -Parent $fixturePlanPath
+New-Item -ItemType Directory -Path $fixturePlanDirectory -Force | Out-Null
+[System.IO.File]::WriteAllText($fixturePlanPath, "# PLAN: Execution mode fixture`n", (New-Object System.Text.UTF8Encoding $false))
 $sessionsRoot = Join-Path $workRoot 'sessions'
 New-Item -ItemType Directory -Path $sessionsRoot -Force | Out-Null
 

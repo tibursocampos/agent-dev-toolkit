@@ -119,7 +119,6 @@ Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under 
 | Orchestrator session | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
 | AI stealth | `{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc` |
 | SDD pipeline | `{{TOOLKIT_ROOT}}/rules/sdd-pipeline-guards.mdc` |
-| Context management | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | SDD artifact language | `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc` |
 | User chat language | `{{TOOLKIT_ROOT}}/rules/user-language-pt-br.mdc` |
 | Branch / commits | `branch-validation.mdc`, `conventional-commits.mdc` |

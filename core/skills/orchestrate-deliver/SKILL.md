@@ -74,7 +74,6 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
 
@@ -135,8 +134,8 @@ Present summary; **sim** / ajustar / cancelar (por história | lote). Read `refe
 ### 8. CONTINUITY + multi-path handoff (RF04)
 Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Read `references/continuity-handoff.md`.
 
-### 9. Context pressure (TE02 / RNF02)
-Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `references/process-common.md` § Process — Context pressure.
+### 9. Durable progress checkpoint
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ## Must not
 
@@ -147,7 +146,7 @@ Enforce the full list in `references/boundaries-must-not.md`. Critical always-on
 | Situation | Next |
 |-----------|------|
 | All stories approved | `/orchestrate-develop - <portable-feature-path>` **or** per-story `sdd-develop` |
-| Context pause mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
+| Handoff mid-O2 | `/orchestrate-deliver - <portable-feature-path>` |
 | Backlog not approved | `/orchestrate-analyze - <portable-feature-path>` |
 | Required siblings missing | `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN) |
 | `open_question` (any unanswered question, including MINOR) | `/refine-story` and/or `/orchestrate-analyze - <portable-feature-path>` (do not Write PRD/PLAN; `readiness-severity.md`) |

@@ -16,6 +16,8 @@ Resolve **before** reading `manifest.json` or any global classic path. Does **no
 4. Read and write `manifest.json`, `preferences.json`, sessions, and the global classic path only under `effective_SDD_ROOT`.
 5. Do not invent a second shared SDD root. One install, one `sdd` folder.
 
+Runtime session and PLAN-ledger scripts derive `effective_SDD_ROOT` from their published location (`<InstallRoot>/scripts/<area>` → `<InstallRoot>/sdd`) when `-SddRoot` is omitted. They must not fall back to a user profile or another adapter installation. Explicit `-SddRoot` / `-SessionsRoot` values remain available to isolated fixtures and callers that deliberately select a root.
+
 Core source keeps the placeholder `{{SDD_ROOT}}`. Publish may bake an absolute. Runtime must apply this override when that absolute is not the current install.
 
 ### Manifest location
@@ -53,13 +55,13 @@ Use placeholder / portable paths in docs and **artifact bodies**; never hardcode
 <effective_SDD_ROOT>/preferences.json
 ```
 
-Toolkit-wide runtime preferences (Caveman Mode, orchestrator mode, optional artifact language override). Create on first read when missing — agents and `toolkit.ps1` seed the default schema below.
+Toolkit-wide runtime preferences (Caveman Mode, parent orchestrator mode, optional artifact language override). The interactive first-install flow in `toolkit.ps1` asks both preferences only when this file is missing. Non-interactive first sync seeds the defaults below; existing choices are preserved. `sync-agent.ps1` remains non-interactive.
 
 ### Preferences structure
 
 ```json
 {
-  "caveman_mode": false,
+  "caveman_mode": true,
   "caveman_level": "full",
   "orchestrator_mode": "always",
   "artifact_language": null,
@@ -69,13 +71,13 @@ Toolkit-wide runtime preferences (Caveman Mode, orchestrator mode, optional arti
 
 | Key | Type | Default | Purpose |
 |-----|------|---------|---------|
-| `caveman_mode` | bool | `false` | Response compression master switch (`caveman-mode` policy) |
+| `caveman_mode` | bool | `true` | Response compression master switch (`caveman-mode` policy); interactive first-install may choose off |
 | `caveman_level` | string | `"full"` | `lite` \| `full` \| `ultra` when mode ON |
 | `orchestrator_mode` | string | `"always"` | `always` \| `adaptive` — parent orchestrator policy (`orchestrator-session`) |
 | `artifact_language` | string \| null | `null` | Optional SDD artifact language override; when `null`, match user chat per `LANGUAGE.md` |
 | `verify_mode` | bool | `false` | When `true`, O3 spawns a read-only verifier child after each implementer returns (`orchestrate-develop` Step 5.5) |
 
-In-session commands update this file (`caveman on|off|…`, `orchestrator always|adaptive|status`). Interactive first sync via `toolkit.ps1` may prompt for orchestrator mode when the file is missing.
+In-session commands update this file (`caveman on|off|…`, `orchestrator always|adaptive|status`). On an interactive first sync, `toolkit.ps1` asks for parent mode (`always`/`adaptive`) and Caveman (`on`/`off`) in the same flow. Caveman on is recommended; off disables response compression. With `WhatIf`, neither prompt nor write occurs. These installation preferences do not select manual versus O3 execution for an individual invocation.
 
 ### Legacy migration (v1 -> v2)
 

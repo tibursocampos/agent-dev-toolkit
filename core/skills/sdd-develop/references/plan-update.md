@@ -75,7 +75,7 @@ If an objective (O1, O2, …) is fully satisfied by this step alone, mark its ch
 - Build or targeted tests still failing
 - User chose not to commit and step acceptance requires pushed commit (rare - note in PLAN)
 - Dependency steps incomplete
-- Session ended at context ≥ 40% **before** PLAN write - still write the PLAN with **Status:** `IN_PROGRESS` or leave `PENDING` and note the partial work
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 8. Recovery
 

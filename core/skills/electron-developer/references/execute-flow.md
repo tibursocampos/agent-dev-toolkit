@@ -20,7 +20,7 @@ Use `feature/<slug>` or `feat/<id>-<slug>`. Never commit on `main`/`master`/`dev
 
 ### 3. Micro-plan
 
-Define 3-7 concrete tasks; checkpoint context at >= 40%.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 4. Implement
 

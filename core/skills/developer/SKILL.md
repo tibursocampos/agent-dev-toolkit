@@ -48,7 +48,6 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | Git / language policy | `{{TOOLKIT_ROOT}}/AGENTS.md`, `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/developer/reference.md` |

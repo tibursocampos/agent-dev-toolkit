@@ -1022,7 +1022,7 @@ function Resolve-ToolkitGuardPathExpression {
 function Get-ToolkitPathSecretsGuardVerdict {
     <#
     .SYNOPSIS
-      Host-agnostic allow/deny for write, delete, shell, and apply_patch tool calls.
+      Compatibility shim for adapter hooks. Toolkit hooks do not decide host authorization.
     #>
     param(
         [string] $ToolName,
@@ -1031,220 +1031,15 @@ function Get-ToolkitPathSecretsGuardVerdict {
         [string] $DirectShellCommand = ''
     )
 
-    $allow = [PSCustomObject]@{
+    return [PSCustomObject]@{
         Decision     = 'allow'
-        Reason       = ''
+        Reason       = 'host_authorization'
         UserMessage  = ''
         AgentMessage = ''
         RelativePath = ''
         SecretType   = ''
     }
-
-    $isWrite = Test-ToolkitWriteToolName -ToolName $ToolName
-    $isDelete = Test-ToolkitDeleteToolName -ToolName $ToolName
-    $isShell = Test-ToolkitShellToolName -ToolName $ToolName
-    $isPatch = Test-ToolkitApplyPatchToolName -ToolName $ToolName
-
-    if (-not ($isWrite -or $isDelete -or $isShell -or $isPatch)) {
-        return $allow
-    }
-
-    $pathsToCheck = [System.Collections.Generic.List[string]]::new()
-    $contentToScan = ''
-    $shellCmd = ''
-
-    if ($isWrite) {
-        $filePath = Get-WriteToolPathFromInput -ToolInput $ToolInput
-        if ([string]::IsNullOrWhiteSpace($filePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'missing_path'
-                UserMessage  = 'Blocked: write/edit tool missing file path.'
-                AgentMessage = 'Hook denied write/edit because tool_input has no path/file_path. Fail-closed: path is required.'
-                RelativePath = ''
-                SecretType   = ''
-            }
-        }
-        $pathsToCheck.Add($filePath) | Out-Null
-        $writePathExpression = Resolve-ToolkitGuardPathExpression -Path $filePath
-        if (-not $writePathExpression.Supported) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = $writePathExpression.Reason; UserMessage = 'Blocked: path expression is unsupported or unresolved.'; AgentMessage = 'Hook denied the write because path expansion is limited to supported environment-variable forms and must resolve before authorization.'; RelativePath = $filePath; SecretType = '' }
-        }
-        $filePath = $writePathExpression.ExpandedPath
-        $pathsToCheck.Clear()
-        $pathsToCheck.Add($filePath) | Out-Null
-        $resolvedWritePath = Get-ToolkitCanonicalPathForGuard -Path $filePath -WorkspaceRoot $WorkspaceRoot
-        $resolvedWorkspace = Get-ToolkitCanonicalPathForGuard -Path $WorkspaceRoot -WorkspaceRoot $WorkspaceRoot
-        if ([string]::IsNullOrWhiteSpace($resolvedWritePath) -or [string]::IsNullOrWhiteSpace($resolvedWorkspace) -or
-            (-not (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $resolvedWritePath -RootFull $resolvedWorkspace) -and
-             -not (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $filePath) -and
-             -not (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $filePath))) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'outside_workspace'; UserMessage = 'Blocked: resolved destination escapes authorized scopes.'; AgentMessage = 'Hook denied the write because the resolved target is outside workspace and local SDD roots.'; RelativePath = $filePath; SecretType = '' }
-        }
-        $contentToScan = Get-WriteToolContentFromInput -ToolInput $ToolInput
-    }
-    elseif ($isDelete) {
-        $filePath = Get-DeleteToolPathFromInput -ToolInput $ToolInput
-        if ([string]::IsNullOrWhiteSpace($filePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'missing_path'
-                UserMessage  = 'Blocked: delete tool missing file path.'
-                AgentMessage = 'Hook denied Delete because tool_input has no path. Fail-closed: path is required.'
-                RelativePath = ''
-                SecretType   = ''
-            }
-        }
-        $pathsToCheck.Add($filePath) | Out-Null
-    }
-    elseif ($isPatch) {
-        $patchBody = Get-ApplyPatchContentFromInput -ToolInput $ToolInput
-        $contentToScan = $patchBody
-        foreach ($p in @(Get-ApplyPatchPathsFromContent -PatchContent $patchBody)) {
-            $pathsToCheck.Add($p) | Out-Null
-        }
-    }
-    elseif ($isShell) {
-        $shellCmd = $DirectShellCommand
-        if ([string]::IsNullOrWhiteSpace($shellCmd)) {
-            $shellCmd = Get-ShellCommandFromInput -ToolInput $ToolInput
-        }
-        if ([string]::IsNullOrWhiteSpace($shellCmd)) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'invalid_shell_payload'; UserMessage = 'Blocked: shell tool requires a non-empty command string.'; AgentMessage = 'Hook denied shell execution because the command is missing, empty, or malformed.'; RelativePath = ''; SecretType = '' }
-        }
-        $contentToScan = $shellCmd
-        $shellMutates = Test-ToolkitShellCommandMutatesPaths -Command $shellCmd
-        if ($shellMutates) {
-            foreach ($p in @(Get-PathsReferencedInShellCommand -Command $shellCmd)) {
-                $pathsToCheck.Add($p) | Out-Null
-            }
-            if ($pathsToCheck.Count -eq 0) {
-                return [PSCustomObject]@{ Decision = 'deny'; Reason = 'unclassified_shell_mutation'; UserMessage = 'Blocked: shell command appears write-capable but its target could not be classified.'; AgentMessage = 'Hook denied shell execution because a write-capable command had no safely classified target path.'; RelativePath = ''; SecretType = '' }
-            }
-        }
-        elseif (-not (Test-ToolkitShellCommandIsReadOnly -Command $shellCmd)) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'unclassified_shell_effect'; UserMessage = 'Blocked: shell command effect could not be classified as read-only.'; AgentMessage = 'Hook denied shell execution because an unclassified command cannot be proven free of write effects.'; RelativePath = ''; SecretType = '' }
-        }
-    }
-
-    $authorizationEffect = if ($isDelete) { 'file.delete' } elseif ($isPatch) { 'file.patch' } elseif ($isShell) { 'shell.mutate' } else { 'file.write' }
-    $contract = Get-ToolkitAuthorizationContract
-    $authorizationPairs = @($contract.authorizations)
-
-    foreach ($rawPath in $pathsToCheck) {
-        $pathExpression = Resolve-ToolkitGuardPathExpression -Path $rawPath
-        if (-not $pathExpression.Supported) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = $pathExpression.Reason; UserMessage = 'Blocked: path expression is unsupported or unresolved.'; AgentMessage = 'Hook denied the path because only supported environment-variable forms may be expanded before authorization.'; RelativePath = $rawPath; SecretType = '' }
-        }
-        $rawPath = $pathExpression.ExpandedPath
-        $canonicalRawPath = Get-ToolkitCanonicalPathForGuard -Path $rawPath -WorkspaceRoot $WorkspaceRoot
-        $canonicalWorkspaceRoot = Get-ToolkitCanonicalPathForGuard -Path $WorkspaceRoot -WorkspaceRoot $WorkspaceRoot
-        if ([string]::IsNullOrWhiteSpace($canonicalRawPath) -or [string]::IsNullOrWhiteSpace($canonicalWorkspaceRoot)) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'unresolvable_path'; UserMessage = 'Blocked: destination path could not be safely resolved.'; AgentMessage = 'Hook denied the path because its existing path components could not be resolved.'; RelativePath = $rawPath; SecretType = '' }
-        }
-        if (-not (Test-ToolkitPathIsUnderWorkspaceRoot -FullPath $canonicalRawPath -RootFull $canonicalWorkspaceRoot) -and
-            -not (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $rawPath) -and
-            -not (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath)) {
-            return [PSCustomObject]@{ Decision = 'deny'; Reason = 'outside_workspace'; UserMessage = ("Blocked: path outside allowed scopes ({0})." -f $rawPath); AgentMessage = ("Hook denied tool targeting '{0}'. Resolved target escapes every authorized scope." -f $rawPath); RelativePath = $rawPath; SecretType = '' }
-        }
-        $relativePath = Get-ToolkitNormalizedRelativePath -FilePath $rawPath -WorkspaceRoot $WorkspaceRoot
-        if ($null -eq $relativePath) {
-            if ($isShell -and (Test-ToolkitShellOutsidePathIsCanonicalRuntime -Command $shellCmd -FilePath $rawPath)) {
-                continue
-            }
-            $scope = if (Test-ToolkitPathIsUnderLocalSddRoot -FilePath $rawPath) { 'local_sdd' }
-                     elseif (Test-ToolkitPathIsUnderUserAdapterRoot -FilePath $rawPath) { 'provider_home' }
-                     else { '' }
-            $authorization = Test-ActionAuthorization -Effect $authorizationEffect -Scope $scope -Authorizations $authorizationPairs
-            if (-not $authorization.Allowed) {
-                return [PSCustomObject]@{
-                    Decision     = 'deny'
-                    Reason       = 'outside_workspace'
-                    UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
-                    AgentMessage = ("Hook denied tool targeting '{0}'. Mutating effects require an authorized workspace, local SDD, or provider scope." -f $rawPath)
-                    RelativePath = $rawPath
-                    SecretType   = ''
-                }
-            }
-            if ($scope -eq 'local_sdd' -or $scope -eq 'provider_home') {
-                if (Test-ToolkitDeniedPathSegment -RelativePath $rawPath) {
-                    return [PSCustomObject]@{
-                        Decision     = 'deny'
-                        Reason       = 'forbidden_path'
-                        UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
-                        AgentMessage = ("Hook denied tool targeting '{0}'. .git stays protected inside adapter homes." -f $rawPath)
-                        RelativePath = $rawPath
-                        SecretType   = ''
-                    }
-                }
-                continue
-            }
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'outside_workspace'
-                UserMessage  = ("Blocked: path outside workspace ({0})." -f $rawPath)
-                AgentMessage = ("Hook denied tool targeting '{0}'. Writes must stay in the workspace or in a user adapter home (.cursor, .codex, and the other toolkit homes)." -f $rawPath)
-                RelativePath = $rawPath
-                SecretType   = ''
-            }
-        }
-        $authorization = Test-ActionAuthorization -Effect $authorizationEffect -Scope 'workspace' -Authorizations $authorizationPairs
-        if (-not $authorization.Allowed) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'unauthorized_effect_or_scope'
-                UserMessage  = 'Blocked: mutating effect is not authorized for the workspace scope.'
-                AgentMessage = 'Hook denied mutating effect because the shared effect/scope contract rejected it.'
-                RelativePath = $relativePath
-                SecretType   = ''
-            }
-        }
-
-        if ([string]::IsNullOrWhiteSpace($relativePath)) {
-            # Bare forbidden tokens from shell scan (e.g. "PRD").
-            if ((Test-ToolkitForbiddenSddPath -RelativePath $rawPath) -or (Test-ToolkitDeniedPathSegment -RelativePath $rawPath)) {
-                return [PSCustomObject]@{
-                    Decision     = 'deny'
-                    Reason       = 'forbidden_path'
-                    UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $rawPath)
-                    AgentMessage = ("Hook denied tool targeting '{0}'. SDD artifacts belong under features/; avoid legacy PRD/PLAN trees and denied segments." -f $rawPath)
-                    RelativePath = $rawPath
-                    SecretType   = ''
-                }
-            }
-            continue
-        }
-
-        if (-not (Test-ToolkitAllowedWritePath -RelativePath $relativePath)) {
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'forbidden_path'
-                UserMessage  = ("Blocked: path outside allowed scopes ({0})." -f $relativePath)
-                AgentMessage = ("Hook denied tool targeting '{0}'. Paths must stay inside the workspace and outside .git and legacy PRD/PLAN trees." -f $relativePath)
-                RelativePath = $relativePath
-                SecretType   = ''
-            }
-        }
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($contentToScan)) {
-        $secretFindings = @(Get-ToolkitSecretFindings -Content $contentToScan)
-        if ($secretFindings.Count -gt 0) {
-            $first = $secretFindings[0]
-            return [PSCustomObject]@{
-                Decision     = 'deny'
-                Reason       = 'secret_pattern'
-                UserMessage  = ("Blocked: possible secret ({0}) near line {1}." -f $first.Type, $first.Line)
-                AgentMessage = ("Hook denied tool because content matches secret pattern '{0}'. Use env var names or placeholders. Never commit API keys, tokens, passwords, or private keys." -f $first.Type)
-                RelativePath = ''
-                SecretType   = [string]$first.Type
-            }
-        }
-    }
-
-    return $allow
 }
-
 function Resolve-ToolkitGuardCommonPath {
     <#
     .SYNOPSIS

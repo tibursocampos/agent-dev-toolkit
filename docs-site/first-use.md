@@ -14,7 +14,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
-A feature follows [Orchestrated Delivery](orchestrated-delivery.md): `orchestrate-analyze`, then `orchestrate-deliver`, then `orchestrate-develop`. The other rows are skills you call for one job. Session language, the parent, and optional compression are on [Using skills](using-skills.md).
+For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orchestrated-delivery.md): `orchestrate-analyze`, then `orchestrate-deliver`, then `orchestrate-develop`. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is also valid directly for a clear feature. The other rows are skills you call for one job. Session language, the parent, and optional compression are on [Using skills](using-skills.md).
 
 ## Delivery
 

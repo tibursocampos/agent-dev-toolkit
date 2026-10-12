@@ -5,14 +5,14 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
 
 <#
 .SYNOPSIS
-  Hermes Publish-Hooks: plugin-first path/secrets guard + shell agent-hooks dual.
+  Hermes Publish-Hooks: compatibility plugin/assets with host-owned authorization.
 
 .DESCRIPTION
   1) Copy adapters/hermes/assets/plugins/agent-dev-toolkit-guard -> InstallRoot/plugins/
   2) Best-effort `hermes plugins enable agent-dev-toolkit-guard`; fallback keyed merge
      ONLY plugins.enabled in config.yaml (never gateway/tokens/SOUL.md/memories).
-  3) Copy adapters/hermes/assets/agent-hooks (+ GuardCommon.ps1) -> InstallRoot/agent-hooks/
-  4) Keyed merge hooks.pre_tool_call (matcher terminal|write_file|patch, fail_closed:true).
+  3) Copy adapters/hermes/assets/agent-hooks for upgrade cleanup compatibility.
+  4) Remove only legacy Toolkit hooks.pre_tool_call entries; do not register a guard.
 #>
 
 $script:HermesHooksHelperDirectory = $PSScriptRoot
@@ -286,7 +286,8 @@ function Save-HermesConfigYamlKeyedMerge {
     }
 
     $pluginsResult = Merge-HermesPluginsEnabledList -YamlText $existing -PluginName $PluginName
-    $hooksResult = Merge-HermesPreToolCallHook -YamlText $pluginsResult.Text -HookCommand $HookCommand
+    $cleanedConfig = Remove-HermesToolkitPreToolCallEntries -YamlText $pluginsResult.Text
+    $hooksResult = [PSCustomObject]@{ Text = $cleanedConfig; Changed = ($cleanedConfig -ne $pluginsResult.Text) }
 
     $parent = Split-Path -Parent $ConfigPath
     if (-not (Test-Path -LiteralPath $parent)) {

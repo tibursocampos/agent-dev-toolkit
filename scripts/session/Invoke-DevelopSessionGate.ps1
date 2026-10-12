@@ -17,11 +17,10 @@
   Repository root used for repo-hash. Defaults via Get-ToolkitRepoRoot.
 
 .PARAMETER SessionsRoot
-  Sessions root (testable). Defaults to <SddRoot>/sessions when -SddRoot given,
-  else requires explicit -SessionsRoot.
+  Sessions root (testable). Defaults to <SddRoot>/sessions.
 
 .PARAMETER SddRoot
-  Optional SDD runtime root; sessions = Join-Path SddRoot 'sessions'.
+  Optional SDD runtime root; defaults to the active InstallRoot's sdd folder.
 
 .PARAMETER Step
   Optional 1-based PLAN step for PLAN+step session files
@@ -70,6 +69,7 @@ $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $libDir 'ToolkitConstants.ps1')
 . (Join-Path $libDir 'Get-ToolkitRelativePath.ps1')
+. (Join-Path $libDir 'Resolve-EffectiveSddRoot.ps1')
 
 $exitOk = [int]$script:ToolkitConstant.DevelopSessionGateExitOk
 $exitUsage = [int]$script:ToolkitConstant.DevelopSessionGateExitUsage
@@ -276,11 +276,17 @@ if (-not (Test-Path -LiteralPath $RepoPath)) {
 
 $repoResolved = (Resolve-Path -LiteralPath $RepoPath).Path
 
-if ([string]::IsNullOrWhiteSpace($SessionsRoot)) {
-    if ([string]::IsNullOrWhiteSpace($SddRoot)) {
-        Write-Error $script:ToolkitConstant.PlanLedgerSessionsRootRequired
+if ([string]::IsNullOrWhiteSpace($SddRoot)) {
+    try {
+        $SddRoot = Resolve-EffectiveSddRoot -ScriptDirectory $scriptDir
+    }
+    catch {
+        Write-Error $_
         exit $exitUsage
     }
+}
+
+if ([string]::IsNullOrWhiteSpace($SessionsRoot)) {
     $SessionsRoot = Join-Path $SddRoot $sessionsFolderName
 }
 
@@ -305,7 +311,7 @@ $repoAbsolute = Convert-ToAbsoluteForwardSlashPath -PathValue $repoResolved
 $planAbsolute = Convert-ToAbsoluteForwardSlashPath -PathValue $planResolved
 
 $canonicalPlan = $false
-$sddConfigRoot = if (-not [string]::IsNullOrWhiteSpace($SddRoot)) { $SddRoot } else { Join-Path $env:USERPROFILE '.codex/sdd' }
+$sddConfigRoot = $SddRoot
 $manifestPath = Join-Path $sddConfigRoot 'manifest.json'
 if (Test-Path -LiteralPath $manifestPath) {
     $manifestValue = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json

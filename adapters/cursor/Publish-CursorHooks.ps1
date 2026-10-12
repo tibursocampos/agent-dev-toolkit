@@ -210,7 +210,12 @@ function Get-CursorManagedHookScriptNamesFromEntries {
             }
         }
     }
-    return , @($names)
+    # Remove hooks installed by earlier Toolkit versions that enforced path,
+    # tool-classification, or context-usage policy.
+    foreach ($retiredScript in @('guard-pre-tool.ps1', 'context-pre-compact.ps1')) {
+        [void]$names.Add($retiredScript)
+    }
+    return [string[]]@($names)
 }
 
 function Test-CursorHookCommandIsToolkitManaged {
@@ -411,33 +416,6 @@ function Copy-CursorHookScripts {
         $copied++
     }
 
-    # Shared path/secret helpers (adapters/_shared) published beside host hooks.
-    $repoRootForShared = Split-Path -Parent (Split-Path -Parent $script:CursorHooksHelperDirectory)
-    $sharedGuardSource = Join-Path $repoRootForShared ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $sharedGuardSource -PathType Leaf)) {
-        throw "GuardCommon source is missing: $sharedGuardSource"
-    }
-    if (Test-Path -LiteralPath $sharedGuardSource) {
-        $sharedDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedGuardCommonFileName
-        Assert-ToolkitManagedPathContained `
-            -CandidatePath $sharedDest `
-            -RootPath $destRootFull `
-            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
-        Assert-ToolkitManagedPathContained `
-            -CandidatePath $sharedDest `
-            -RootPath $InstallRoot `
-            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
-            -RequireStrictChild
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedDest
-        $copied++
-        $contractSource = Join-Path $repoRootForShared ($script:CursorAdapterConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $contractDest = Join-Path $destRootFull $script:CursorAdapterConstant.SharedAuthorizationContractFileName
-        Assert-ToolkitManagedPathContained -CandidatePath $contractDest -RootPath $destRootFull -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
-        Assert-ToolkitManagedPathContained -CandidatePath $contractDest -RootPath $InstallRoot -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot -RequireStrictChild
-        $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
-        $copied++
-    }
-
     return $copied
 }
 
@@ -473,10 +451,6 @@ function Invoke-CursorPublishHooks {
     $destHooksJson = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.HooksJsonFileName
     $scriptCount = @(Get-ChildItem -LiteralPath $sourceHooksRoot -File -ErrorAction Stop |
             Where-Object { $_.Name -ne $script:CursorAdapterConstant.HooksJsonFileName }).Count
-    $sharedGuardForCount = Join-Path $repoRoot ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (Test-Path -LiteralPath $sharedGuardForCount) {
-        $scriptCount++
-    }
 
     # Validate toolkit + user JSON before any mutation (TE03: fail closed, do not truncate).
     $null = Merge-CursorHooksJsonContent -ToolkitHooksPath $sourceHooksJson -UserHooksPath $destHooksJson
@@ -512,6 +486,14 @@ function Invoke-CursorPublishHooks {
     Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $destHooksRoot -InstallRoot $resolvedInstallRoot
 
     $publishedScripts = Copy-CursorHookScripts -SourceRoot $sourceHooksRoot -DestRoot $destHooksRoot -InstallRoot $resolvedInstallRoot
+    $repoRoot = Get-CursorAdapterRepoRoot
+    $sharedGuardSource = Join-Path $repoRoot ($script:CursorAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $sharedGuardDestination = Join-Path $destHooksRoot $script:CursorAdapterConstant.SharedGuardCommonFileName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedGuardSource -DestinationPath $sharedGuardDestination -InstallRoot $resolvedInstallRoot -RelativePath ('hooks/{0}' -f $script:CursorAdapterConstant.SharedGuardCommonFileName)
+    $contractSource = Join-Path $repoRoot ($script:CursorAdapterConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $contractDestination = Join-Path $destHooksRoot $script:CursorAdapterConstant.SharedAuthorizationContractFileName
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDestination -InstallRoot $resolvedInstallRoot
+    $publishedScripts += 2
     $mergeResult = Merge-CursorHooksJsonContent -ToolkitHooksPath $sourceHooksJson -UserHooksPath $destHooksJson
     $json = ConvertTo-CursorCleanJson -Object $mergeResult.Payload
     Write-CursorUtf8NoBom -Path $destHooksJson -Content $json -InstallRoot $resolvedInstallRoot

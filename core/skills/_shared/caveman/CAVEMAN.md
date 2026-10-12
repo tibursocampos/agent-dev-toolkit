@@ -1,4 +1,4 @@
-﻿# Caveman Mode - Response Compression Guideline
+# Caveman Mode - Response Compression Guideline
 
 Single source of truth for Caveman Mode behavior across all participating skills.
 Load on demand from skills at step -1 - do not pre-load.
@@ -30,7 +30,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 **Structure:**
 ```json
 {
-  "caveman_mode": false,
+  "caveman_mode": true,
   "caveman_level": "full",
   "orchestrator_mode": "always",
   "artifact_language": null,
@@ -47,7 +47,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 **Resolution algorithm (run by always-on rule `caveman-mode` and at Step -1 of participating skills):**
 
 ```
-1. If preferences.json missing: create { "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }. Mode = OFF.
+1. If preferences.json is missing, use { "caveman_mode": true, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }. An interactive first sync may explicitly save `caveman_mode: false`; otherwise the default mode is ON.
 2. Read caveman_mode / caveman_level (missing level => "full").
 3. If caveman_mode false: Mode = OFF — skip compression rules.
 4. If true: Mode = ON — apply intensity (see Levels), show activation notice once per session.

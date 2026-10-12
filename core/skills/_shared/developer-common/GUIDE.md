@@ -81,7 +81,6 @@ SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inli
 |------|----------------|
 | 3 | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | 4 | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc`, `commit` skill |
-| Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | SDD PLAN | `sdd-develop` skill |
 
 Rules win over conflicting text in step files.

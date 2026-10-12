@@ -6,7 +6,6 @@
 /docs/PRD/
 /docs/PLAN/
 /docs/documentation-plan/*
-!/docs/documentation-plan/plan.md
 
 # GitHub Pages / MkDocs (build output + local caches — never commit)
 /site/
@@ -122,6 +121,11 @@ scripts/validation/fixtures/.runtime-script-publish-*/
 scripts/validation/fixtures/copilot/user/agents/
 scripts/validation/fixtures/copilot/user/scripts/
 scripts/validation/fixtures/copilot/user/.toolkit-managed-publish.lock
+
+# Generated plan instances (keep templates and validation fixtures tracked)
+/docs/documentation-plan/plan.md
+/features/**/PLAN/PLAN_*.md
+/docs/features/**/PLAN/PLAN_*.md
 
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md

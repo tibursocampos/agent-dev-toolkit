@@ -5,7 +5,6 @@ Update when:
 - [ ] Queue presented / mode (série default)
 - [ ] After each child returns
 - [ ] Story complete / feature complete
-- [ ] Context ≥40% pause
 - [ ] Before code-review handoff
 
 | Field | Rule |
@@ -96,7 +95,6 @@ Stop spawning and emit handoff when any of:
 |-------|--------|
 | Story PLAN all steps complete | Offer next story or code-review |
 | Feature all PLANs complete | Phase -> review; code-review handoff |
-| Context pressure (TE02) | Persist CONTINUITY per `context-management.mdc`; resume invoke |
 | Context hard-stop | Hard stop; new chat required |
 | Child blocked / tests fail | Do not mark step done; report; wait for user |
 | User **cancelar** | Leave CONTINUITY with pending next step |

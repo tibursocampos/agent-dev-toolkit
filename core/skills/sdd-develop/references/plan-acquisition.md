@@ -22,14 +22,18 @@ Obtain and validate the **canonical PLAN** path and step before implement. Rejec
 
 ## Acquisition algorithm (observable)
 
-1. **Resolve path** from invoke / parent handoff (exact path preferred).
+1. **Resolve path** from invoke / parent handoff (exact path preferred). A canonical PLAN plus an explicit step is a complete request to execute that step in the current session; do not require a new session or ask the operator to repeat it. Continue through the normal dependency and confirmation gates.
 2. **Normalize** (`\` → `/`, trim trailing `/`). Reject `..` and escapes outside features root.
 3. **Validate shape** — must match canonical table above. Flat/root PLAN → **STOP**; ask migrate via `/sdd-plan`.
 4. **Read** that file in place (update **that** path only).
-5. **Resolve step** (`Step N` / `PASSO N`). Confirm step heading exists; deps are **Completed** / **Concluídos**.
+5. **Resolve step** (`Step N` / `PASSO N`). Confirm step heading exists; deps are **Completed** / **Concluídos**. If the invocation identifies a PLAN but omits the step, or the PLAN omits an execution route, ask whether the operator wants manual execution (one explicit invocation per step) or Orchestrated Delivery O3. Present localized labels and map clear semantic answers to stable ids `manual` and `orchestrated`. This per-invocation route is independent of `preferences.json` `orchestrator_mode` (`always` | `adaptive`) and pacing (`continuous` | `step_by_step`). Do not infer a route or implement before the answer.
 6. **Load develop SESSION** scoped by PLAN (or PLAN+step) per `SESSION.md` — never use flat repo JSON for `step_confirmed` / `tests_run`.
 7. **Honor develop mode** (`continuous` \| `step_by_step`) from `references/develop-modes.md` — does **not** waive one-step-per-session.
-8. Only then: analyze / implement / tests.
+8. Only then: analyze / implement / tests. Execute only the resolved step in the current session; after reporting it, stop and hand off without auto-advancing.
+
+### Observable route question
+
+Use an adapter-native question component only when its selected answer is returned to the agent as observable input. Otherwise ask in localized text with numbered choices and accept semantically equivalent replies, not only fixed tokens such as `manual`, `O3`, or `sim`. Missing or ambiguous answers remain blocking. Route selection does not approve the step: retain normal confirmation, `step_confirmed`, dependency, scoped-session, and PLAN-ledger checks.
 
 If path missing: Glob `features/**/PLAN/PLAN_*.md` (workspace + global feature root); if none → `PIPELINE.md` § sdd-develop without PLAN (options 1–3). **Do not** create PRD/PLAN here.
 

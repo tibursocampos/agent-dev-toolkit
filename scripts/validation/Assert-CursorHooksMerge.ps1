@@ -107,7 +107,7 @@ if ($beforeSubmitCommands -contains $staleBeforeSubmit) {
     Write-Fail -TestName $hooksUpsertName -Reason 'stale toolkit beforeSubmitPrompt command must not remain'
 }
 
-foreach ($eventName in @('afterFileEdit', 'preCompact')) {
+foreach ($eventName in @('afterFileEdit')) {
     $entries = @($mergedHooks[$eventName])
     if ($entries.Count -lt 1) {
         Write-Fail -TestName $hooksUpsertName -Reason ("managed event missing after merge: {0}" -f $eventName)
@@ -116,6 +116,10 @@ foreach ($eventName in @('afterFileEdit', 'preCompact')) {
     if ($cmds | Where-Object { $_ -match '(?i)-Old\b' }) {
         Write-Fail -TestName $hooksUpsertName -Reason ("stale -Old toolkit command must not remain on {0}" -f $eventName)
     }
+}
+$retiredCompactEntries = @($mergedHooks['preCompact'])
+if ($retiredCompactEntries | Where-Object { [string]$_.command -match '(?i)context-pre-compact\.ps1' }) {
+    Write-Fail -TestName $hooksUpsertName -Reason 'retired Toolkit preCompact handler must be stripped during merge'
 }
 
 $sessionEntries = @($mergedHooks['sessionStart'])

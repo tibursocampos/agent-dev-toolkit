@@ -1,4 +1,4 @@
-﻿# SDD artifact storage (sdd-spec / sdd-plan / sdd-develop)
+# SDD artifact storage (sdd-spec / sdd-plan / sdd-develop)
 
 Single source of truth for where Classic SDD and Orchestrated Delivery artifacts are written. Load on demand from skills - do not paste this file into PRD/PLAN bodies.
 

@@ -1,10 +1,12 @@
-﻿# Session state and gates
+# Session state and gates
 
 Load at **step -1** of every skill. Do not paste into PRD/PLAN/sdd-spec bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`
 
 ## Session file locations
+
+Runtime scripts published under `<InstallRoot>/scripts/<area>` resolve an omitted `-SddRoot` to `<InstallRoot>/sdd` through the shared `Resolve-EffectiveSddRoot.ps1` helper. Session, ledger and execution-mode state therefore stays under the active installation's SDD root; helpers must not infer a root from the user profile. Explicit roots remain supported for isolated tests and deliberate callers.
 
 Two scopes share the same directory root:
 
@@ -189,4 +191,3 @@ Canonical scripts (REQ-014):
 | All skills | Step -1 gate check before Write/Shell |
 | `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step); **MUST** call `Invoke-DevelopSessionGate.ps1` after **sim** (REQ-012); claim still required when absent (CT6) |
 | `rules/guardrails.mdc` | References this file |
-| `rules/context-management.mdc` | Complements session gates |

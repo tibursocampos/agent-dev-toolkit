@@ -65,7 +65,11 @@ Product `docs/` / README / ADRs follow **project convention**; if no mirror evid
 | Artifact Write | Content-language from resolution above |
 | Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` (`SR-NO-FULL-DUMP` / CT6) |
 | Parent synthesis | Parent writes user-facing chat and artifacts in content-language. A specialist receipt stays en-US. The parent translates that receipt before writing `ANALYSIS/`, `ARCH/`, or `SEC/`. Folder names stay English. |
-| Gate STOP / confirm-before-write prompts | User chat language (same as chat output) |
+| Gate STOP / confirm-before-write prompts | User chat language (same as chat output); accept semantically equivalent localized answers rather than requiring a fixed-language token |
+
+## Observable operator choices
+
+Use an adapter-native choice surface only when the selected answer is returned to the agent in an observable form. If the host does not expose the answer, ask in text in the conversation language, number the choices, and map a clear semantic answer to stable English ids. Do not require a fixed Portuguese or English token when the operator's intent is clear. A missing or ambiguous answer still blocks the gated action. Read repository-local instructions (for example `AGENTS.md`) and honor them within scope; when they conflict with a higher-priority toolkit contract or the operator's explicit request, explain the conflict and apply established precedence rather than silently overriding either source.
 
 Content-language **must not** flip child prompts to the operator language. Selective retrieval stays path/summary oriented regardless of artifact locale.
 

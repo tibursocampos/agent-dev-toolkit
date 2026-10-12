@@ -68,7 +68,7 @@ Máx. síntese + paths. Detalhes ficam em `STORY.md` / `PRD` / `PLAN` / notas so
 ## Regras de atualização (agentes)
 
 1. **Who updates:** every O1/O2/O3 stage and any specialist Task that finishes a meaningful note set.
-2. **When:** before human approval gates; at ≥40% context pause; before session handoff.
+2. **When:** before human approval gates, at planned step boundaries, and before session handoff.
 3. **What to write:** phase, last agent, estado atual (≤10 lines), new decisões, open pendências, exact next `/…` string with **portable paths** (`STORAGE.md` § Portable path — not OS absolute).
 4. **What not to write:** full PRD/PLAN bodies, guideline dumps, application code, or the body of `memory-bank/` (path + status only); never secrets, API keys, feed tokens, connection strings, or PII - use `***` / env var names only. Schema/product forks: **pointers only** (path to `ANALYSIS/` / `ARCH/` / bank phase 2) — do not pile unresolved vendor/schema/product choices here. Operational blockers (waiting on human, missing env) may stay in Pendências.
 5. **Merge:** append decisões; replace estado atual; never delete unresolved pendências without marking done. Prefer specialist **receipts** (`_shared/agents/RECEIPT.md`) over dumping full specialist chat.

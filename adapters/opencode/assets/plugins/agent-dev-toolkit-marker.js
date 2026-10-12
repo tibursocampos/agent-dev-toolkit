@@ -1,8 +1,8 @@
 /**
- * agent-dev-toolkit OpenCode plugin (path/secrets PreToolUse + marker).
+ * agent-dev-toolkit OpenCode compatibility marker plugin.
  * Path (global): ~/.config/opencode/plugins/agent-dev-toolkit-marker.js
  * RN03: hooks are JavaScript plugins only — no shell/PS1 hook parity.
- * Deny = throw from tool.execute.before (OpenCode blocks the tool).
+ * Tool authorization remains owned by OpenCode and its configured permission controls.
  *
  * @see https://opencode.ai/docs/plugins/
  * @see adapters/_shared/guard-rules.md
@@ -311,104 +311,12 @@ function isPatchTool(tool) {
  * @returns {{ decision: 'allow'|'deny', reason: string }}
  */
 export function evaluatePathSecretsGuard(tool, args, workspaceRoot) {
-  const allow = { decision: 'allow', reason: '' }
-  const write = isWriteTool(tool)
-  const shell = isShellTool(tool)
-  const patch = isPatchTool(tool)
-  if (!write && !shell && !patch) {
-    if (READ_ONLY_TOOLS.has(String(tool || '').toLowerCase())) return allow
-    return { decision: 'deny', reason: `Hook denied unclassified tool surface: ${tool || '(missing name)'}` }
-  }
-
-  const paths = []
-  let content = ''
-  if (write) {
-    const p = extractPath(args)
-    if (!p) {
-      return {
-        decision: 'deny',
-        reason: 'Hook denied write/edit because tool args have no path. Fail-closed: path is required.',
-      }
-    }
-    paths.push(p)
-    content = extractContent(args)
-  } else if (patch) {
-    const patchText = args && (args.patchText || args.patch || args.command)
-    if (typeof patchText !== 'string' || !patchText.trim()) {
-      return { decision: 'deny', reason: 'Hook denied apply_patch because its patch payload is missing.' }
-    }
-    content = patchText
-    for (const match of patchText.matchAll(/(?:\*\*\*\s+(?:Add|Update|Delete)\s+File:\s+|diff --git a\/)([^\r\n ]+)/gi)) {
-      paths.push(match[1])
-    }
-    if (paths.length === 0) {
-      return { decision: 'deny', reason: 'Hook denied apply_patch because no target path could be classified.' }
-    }
-  } else if (shell) {
-    const shellKeys = ['command', 'cmd', 'shell_command', 'script', 'CommandLine']
-    const shellKey = args && typeof args === 'object' ? shellKeys.find((key) => Object.prototype.hasOwnProperty.call(args, key)) : undefined
-    const cmd = shellKey && typeof args[shellKey] === 'string' ? args[shellKey] : ''
-    if (!cmd.trim()) {
-      return { decision: 'deny', reason: 'Hook denied shell execution because its command is missing, empty, or malformed.' }
-    }
-    content = cmd
-    const shellMutates = shellCommandMutates(cmd)
-    paths.push(...pathsFromShell(cmd))
-    if (shellMutates && paths.length === 0) {
-      return { decision: 'deny', reason: 'Hook denied shell execution because a write-capable command had no safely classified target path.' }
-    }
-    if (!shellMutates && !shellCommandIsReadOnly(cmd)) {
-      return { decision: 'deny', reason: 'Hook denied shell execution because its effect could not be classified as read-only.' }
-    }
-  }
-
-  for (const raw of paths) {
-    const effect = patch ? 'file.patch' : shell ? 'shell.mutate' : /^(delete|remove)$/i.test(String(tool || '')) ? 'file.delete' : 'file.write'
-    const relative = normalizeRelative(raw, workspaceRoot)
-    if (relative === null) {
-      if (isUnderLocalSddRoot(raw) && !hasProtectedSddSegment(raw) && evaluateAuthorization(effect, 'local_sdd')) continue
-      return {
-        decision: 'deny',
-        reason: `Hook denied tool targeting '${raw}'. Paths must resolve under the workspace root; extension allowlists do not apply outside the workspace.`,
-      }
-    }
-    const candidate = relative || raw
-    if (relative !== null && !isPhysicallyWithinWorkspace(candidate, workspaceRoot)) {
-      return {
-        decision: 'deny',
-        reason: `Hook denied tool targeting '${raw}'. The physical destination resolves outside the workspace root.`,
-      }
-    }
-    if (!evaluateAuthorization(effect, 'workspace')) return { decision: 'deny', reason: 'Effect/scope is not authorized by portable contract.' }
-    if (!candidate) continue
-    if (!isAllowedWritePath(candidate)) {
-      return {
-        decision: 'deny',
-        reason: `Hook denied tool targeting '${candidate}'. SDD artifacts belong under features/; avoid legacy PRD/PLAN trees and denied segments.`,
-      }
-    }
-  }
-
-  const secrets = findSecretFindings(content)
-  if (secrets.length > 0) {
-    return {
-      decision: 'deny',
-      reason: `Hook denied tool because content matches secret pattern '${secrets[0].type}'. Use env var names or placeholders.`,
-    }
-  }
-  return allow
+  // The host owns permission decisions. Keep this export for compatibility with existing fixtures.
+  return { decision: 'allow', reason: 'host_authorization' }
 }
-
 export const AgentDevToolkitMarkerPlugin = async (ctx) => {
-  const workspaceRoot = (ctx && (ctx.directory || ctx.worktree)) || process.cwd()
+  void ctx
   return {
-    'tool.execute.before': async (input, output) => {
-      const tool = input && input.tool ? String(input.tool) : ''
-      const args = output && output.args ? output.args : {}
-      const verdict = evaluatePathSecretsGuard(tool, args, workspaceRoot)
-      if (verdict.decision === 'deny') {
-        throw new Error(verdict.reason || 'Blocked by agent-dev-toolkit path/secrets guard')
-      }
-    },
+    // Compatibility marker only; no interception hook is installed.
   }
 }

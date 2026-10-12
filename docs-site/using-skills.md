@@ -75,9 +75,9 @@ read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 
 `sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session.
 
-`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one later `sdd-develop` session. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
+`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one `sdd-develop` invocation. A canonical PLAN plus an explicit eligible step can start in the current session after dependency and confirmation gates; if the step or execution route is omitted, the skill asks whether to run manually or use O3. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
 
-`sdd-develop` needs the canonical PLAN path and a step id. One session completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
+`sdd-develop` needs the canonical PLAN path and a step id. One invocation completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
 
 `read-sdd-artifact` has no **sim** gate. Kinds allowed: FEATURE, STORY, PRD, PLAN. Reject reasons: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
 
@@ -195,7 +195,7 @@ open-github-pr
 
 ### Platform skills
 
-These sit beside delivery. When the change is a PLAN step, finish the skill and return to `/sdd-develop` on the next step in a new chat.
+These sit beside delivery. When the change is a PLAN step, finish the skill and return to `/sdd-develop` for the relevant step. Each step needs its own invocation, but not a new operator chat.
 
 ```text
 api-standards
@@ -269,7 +269,7 @@ Task `model` is omitted so the child uses the parent session model (`core/skills
 
 ### Optional chat compression
 
-`caveman_mode` defaults to **off**. It only shortens chat prose. It does not change skill steps, gates, or documentation.
+First interactive sync asks whether Caveman response compression is on or off; **on** is the default. Non-interactive first sync defaults to `caveman_mode: true`. It only shortens chat prose. It does not change skill steps, gates, or documentation.
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
 
@@ -280,7 +280,7 @@ Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 | Key | Default | Effect |
 |-----|---------|--------|
 | `orchestrator_mode` | `always` | Parent stays orchestrator |
-| `caveman_mode` | `false` | Chat compression off |
+| `caveman_mode` | `true` on first sync | Chat compression on; interactive sync may set it off |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |
 | `verify_mode` | `false` | O3 does not spawn a read-only verifier after each implementer |

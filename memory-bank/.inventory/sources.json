@@ -3,12 +3,12 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-12T10:35:59.3643283Z",
+  "generated_at": "2026-10-12T18:20:01.7497821Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "5f22bca4c8fde73cf81794adf1698ea157fc2f2b53e8671b32d53305f66f716d",
-  "inventory_summary": "132 source(s); stack: markdown, powershell",
+  "inventory_hash": "0fd2d25d7379282608f07cdaa1de57730b3702d11036f73c0f0e67806c5fc59e",
+  "inventory_summary": "133 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
@@ -109,10 +109,10 @@
     },
     {
       "path": "adapters/claude/Publish-ClaudeHooks.ps1",
-      "last_write_utc": "2026-10-11T18:55:08.9860218Z",
-      "length": 7717,
-      "hash": "1cb123bc9dc403ebceb54074c7d62d1c5123af9453591c4cbe8da5ae0bcbac0c",
-      "summary": "Shared path/secret helpers beside published hooks."
+      "last_write_utc": "2026-10-12T16:00:03.4199171Z",
+      "length": 6591,
+      "hash": "ef01ececfc242093dfdb43b26d96b929d5a794044fd41a409367d8e5d38ef9b9",
+      "summary": "#Requires -Version 5.1"
     },
     {
       "path": "adapters/claude/Publish-ClaudePolicy.ps1",
@@ -249,9 +249,9 @@
     },
     {
       "path": "adapters/cursor/Publish-CursorHooks.ps1",
-      "last_write_utc": "2026-10-11T18:55:08.9890212Z",
-      "length": 22182,
-      "hash": "28f634336fd6afa6a584813fe6968af41c142902d2e2f26f2b5a7ada91da0037",
+      "last_write_utc": "2026-10-12T16:32:33.6219294Z",
+      "length": 21161,
+      "hash": "6874784910799b96e9364d73a571b4a5c1cf79bb59c0521e8eb3ca67a40d43e5",
       "summary": "Script-scope load so path-gate asserts are available to Copy-/Write- helpers."
     },
     {
@@ -340,9 +340,9 @@
     },
     {
       "path": "adapters/hermes/Publish-HermesHooks.ps1",
-      "last_write_utc": "2026-10-11T20:07:20.8870312Z",
-      "length": 18055,
-      "hash": "8c05e6f6c4b3c43e636d442dde8be3cb4f829d07f116fe9772cb3fe9631221e3",
+      "last_write_utc": "2026-10-12T16:07:27.7752626Z",
+      "length": 18139,
+      "hash": "d0227c105bde232cf49110d4a3d3c46dc52914d96934c29643ea21948e03ee07",
       "summary": "Best-effort executable bit; host may still invoke via sh/bash."
     },
     {
@@ -375,9 +375,9 @@
     },
     {
       "path": "adapters/opencode/OpenCodeAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
-      "length": 18606,
-      "hash": "269eba87113c6ef5cd40248f72e1fb214418f546520a272e5fe031ba0d34384c",
+      "last_write_utc": "2026-10-12T16:02:10.5353347Z",
+      "length": 18597,
+      "hash": "8277e566f1d0237060c38dedeaab996cd78fe9febc76c1c90da1c3b299a6d3bb",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -522,16 +522,16 @@
     },
     {
       "path": "core/router/AGENTS.md",
-      "last_write_utc": "2026-10-11T12:07:53.8557085Z",
-      "length": 11519,
-      "hash": "80982293d168fcdec314da53bf482476aec2df5815f2001ad1b1244e92e57147",
+      "last_write_utc": "2026-10-12T15:57:30.4722646Z",
+      "length": 11445,
+      "hash": "76580fe9746ab70cbb31b665ada1768595849be24ed7b306e0432e7792e5c49a",
       "summary": "Agent router (L0 index) - agent-dev-toolkit"
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-10-11T08:44:35.2190395Z",
-      "length": 14603,
-      "hash": "c4ab30b37152eec23f0a424c41b099b55bb8314dc17f14bca8a534398ee166cd",
+      "last_write_utc": "2026-10-12T16:00:43.2743564Z",
+      "length": 14600,
+      "hash": "ecf1572756d3d41866a76d9185a009175281c60e83b4e5cab154dde03f0c7556",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
@@ -823,10 +823,10 @@
     },
     {
       "path": "scripts/_lib/Initialize-SddPreferences.ps1",
-      "last_write_utc": "2026-10-10T21:22:33.8642837Z",
-      "length": 3934,
-      "hash": "4d189b011dafec72b21841c22a1c52b67f9899a6d97d2de91945ff96876348b0",
-      "summary": "First sync of each adapter: missing preferences are seeded with always. No orchestration-mode question."
+      "last_write_utc": "2026-10-12T15:41:15.7807358Z",
+      "length": 6166,
+      "hash": "97ae7f897b5041c57ab7d9b9a7c639fc2a19ca5bb5f197026b8c13c3b583337e",
+      "summary": "Keep direct sync non-interactive; only toolkit's explicit interactive flow passes -Interactive."
     },
     {
       "path": "scripts/_lib/Initialize-SddRootLayout.ps1",
@@ -844,9 +844,9 @@
     },
     {
       "path": "scripts/_lib/Invoke-PathSecretsGuardHarness.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.4710460Z",
-      "length": 3691,
-      "hash": "75f9f88e93aa3f99928d05863b52ea1a944d37825ad21a0acb11f49a58663fb2",
+      "last_write_utc": "2026-10-12T17:36:53.3676423Z",
+      "length": 4146,
+      "hash": "21e23f6dab4faa0a50c1e978728e0ca0bce777313bde9e9bc3dac7e2b4da69e4",
       "summary": "[redacted: secret-named source]"
     },
     {
@@ -861,6 +861,13 @@
       "last_write_utc": "2026-08-01T19:41:10.2949370Z",
       "length": 2076,
       "hash": "331ff99c2d5a01286c4abe56ffc746d53f0e90f3a525dd9c9bdaefeb65b09c8c",
+      "summary": "#Requires -Version 5.1"
+    },
+    {
+      "path": "scripts/_lib/Resolve-EffectiveSddRoot.ps1",
+      "last_write_utc": "2026-10-12T15:24:16.8468775Z",
+      "length": 1388,
+      "hash": "dfecb005ac768584aec01c34a6a4c747aff39a52c516fa50eefe02c4464ac38f",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -886,9 +893,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-12T10:02:04.6109494Z",
-      "length": 65972,
-      "hash": "a4619d794322cc1d2abd5f5c7f5757936f86cde3b53d6ebd2a75743b1d138901",
+      "last_write_utc": "2026-10-12T17:36:26.9237854Z",
+      "length": 66320,
+      "hash": "bd392b764e0340bf3768602d0988900163fefd8244aad92159f4fd3682077e51",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {
@@ -907,16 +914,16 @@
     },
     {
       "path": "scripts/sync-agent.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.4962301Z",
-      "length": 15838,
-      "hash": "f119c15040606fc0bbbd4bdccd118882ed812a3fc1ac890e7b8bf6bbcb12f5e0",
+      "last_write_utc": "2026-10-12T15:40:45.5281774Z",
+      "length": 16317,
+      "hash": "73e4a936ad6626ca6eb7c2edecfb1a4cd1e9bcb0218c27d0b13a59ab976e887e",
       "summary": "Re-resolve every path after directory creation and immediately before"
     },
     {
       "path": "scripts/toolkit.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.5047039Z",
-      "length": 42236,
-      "hash": "6d36d5c6e3957cb99394dd8f7a3b3a14c089acd45009c8afa0dba46190250cbe",
+      "last_write_utc": "2026-10-12T15:40:45.5291782Z",
+      "length": 42288,
+      "hash": "809f6ab670aafe0e599f9b2ecb5abf4454d97986b111368861b1cf449e2c1de9",
       "summary": "--- Entry ---"
     },
     {

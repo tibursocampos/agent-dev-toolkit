@@ -68,7 +68,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'copilot' -ToolName $toolName) {
     Write-CopilotPreToolAllow
 }
 if (-not $isGuarded) {
-    Write-CopilotPreToolDeny -Reason ('Hook denied unclassified tool surface: ' + $toolName)
+    Write-CopilotPreToolAllow
 }
 
 if (-not (Test-ToolkitHookEventIdentity -HookInput $inputJson -ExpectedEventNames @('preToolUse', 'PreToolUse'))) {

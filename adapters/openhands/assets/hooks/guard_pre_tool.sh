@@ -15,6 +15,6 @@ if command -v pwsh >/dev/null 2>&1 && [ -f "$PS1_HELPER" ]; then
   exit $?
 fi
 
-# Fail-closed when pwsh is unavailable (cannot evaluate GuardCommon).
-printf '%s\n' '{"decision":"deny","reason":"pwsh unavailable; OpenHands guard fail-closed"}'
-exit 2
+# The host owns authorization; missing optional Toolkit hook runtime must not deny.
+printf '%s\n' '{"decision":"allow","reason":"Toolkit hook unavailable; host authorization remains active"}'
+exit 0

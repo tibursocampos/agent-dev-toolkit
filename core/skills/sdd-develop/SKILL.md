@@ -90,7 +90,7 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Input | Rule |
 |-------|------|
 | PLAN path | Canonical only: `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md` (or `TSnn`; global under `{{SDD_ROOT}}/<repo-id>/features/...`). Root/flat `PLAN/` is **not** valid - do not read/update for execution |
-| Step | `Step 1`, `PASSO 1`, etc. |
+| Step | `Step 1`, `PASSO 1`, etc. An explicit PLAN + step invokes that step in the current session after gates pass; do not demand a new session. |
 
 ## Lazy-load (only when needed)
 
@@ -115,7 +115,6 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 | Developer-common (on trigger) | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` — then individual `step-*.md` only when that step runs |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
 | .NET guidelines (on trigger) | **one** file under `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` matching the PLAN step — never glob `*.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `dotnet-guidelines/*.md`, the full developer-common pack, or all `references/*.md`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; then fan-out on trigger — **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
@@ -168,7 +167,7 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
-Resolve develop pacing mode `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Detect stack from PLAN step.
+Resolve execution route separately from `orchestrator_mode`: a direct invocation with PLAN + explicit step proceeds in this current session after gates pass; when the step or route is missing, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or claim. Execute one step only and stop after its report.
 
 After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
 
@@ -176,7 +175,7 @@ After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or cr
 
 ### 1. Validate step
 
-Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
+Step exists; deps **Concluidos** / **Completed**; summarize objective, files, tests, and **REQ-NNN / CA** targets from the step **Aceite** or **Acceptance** line (markers in `references/plan-contract.md`); ask to proceed unless the operator already explicitly confirmed this same step in the current invocation. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use a host interactive question only when its answer is observable to the agent; otherwise ask in text. Accept a semantically affirmative answer in the conversation language, not only the literal token `sim`; ambiguity remains blocking. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the step finishes or this skill declares a blocker with the cause. The confirmation and `step_confirmed` gate remain in force.
 
 ### 2. Git
 
@@ -226,7 +225,7 @@ Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the use
 ### 6. Update PLAN + checkpoint
 Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
 
-`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Save before context pause (>=40%). **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
+`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Persist at the end of the step before handoff. **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
 
 When this edit sets PLAN **Implementation status** to `COMPLETED`, set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit (`references/plan-update.md` § Companion PRD). If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once. It is not a restart.
 

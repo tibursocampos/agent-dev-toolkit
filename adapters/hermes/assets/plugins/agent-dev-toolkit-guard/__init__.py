@@ -165,7 +165,7 @@ SHELL_PATH_PATTERNS = (
 )
 
 SHELL_MUTATION_PATTERN = re.compile(
-    r"(?i)(?:\d?>|&>|\|\s*tee\b|(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b)(?=\s|$)"
+    r"(?i)(?:\d?>|&>|\|\s*tee\b|(?:^|[\s;&|])(?:out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|clear-content|ri|rm|del|erase|tee|rmdir|unlink|mv|cp|touch|mkdir|install|truncate|dd|chmod|chown|sed\s+-[^\r\n]*i\b|perl\s+-[^\r\n]*i\b|git\s+(?:add|apply|checkout|clean|commit|merge|mv|reset|restore|rebase|rm)\b|npm\s+(?:install|ci|uninstall|publish)\b|dotnet\s+(?:build|publish|restore)\b|python(?:3)?\s+-c\b|node\s+-e\b))(?=\s|$)"
 )
 SAFE_PYTHON_PRINT_PATTERN = re.compile(
     r"(?i)^python(?:3)?\s+-c\s+([\"'])(?:print\(-?\d+(?:\.\d+)?\)|print\([\"'][^\"']*[\"']\))\1$"
@@ -387,72 +387,9 @@ def _check_path(path: str, workspace: str, effect: str) -> Optional[Dict[str, st
 
 
 def evaluate_tool_call(tool_name: str, args: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
-    """Return Hermes block directive or None to allow."""
-    if tool_name not in GUARDED_TOOLS:
-        if tool_name in READ_ONLY_TOOLS:
-            return None
-        return {"action": "block", "message": f"Hook denied unclassified tool surface: {tool_name or '(missing name)'}"}
-
-    workspace = _workspace_root()
-    content = _extract_content(args)
-    paths: List[str] = []
-
-    if tool_name == "terminal":
-        cmd = ""
-        if isinstance(args, dict):
-            for key in ("command", "cmd", "shell_command", "script", "CommandLine"):
-                if key in args:
-                    val = args.get(key)
-                    if not isinstance(val, str):
-                        return {"action": "block", "message": "Hook denied terminal because its command payload is malformed; a non-empty command string is required."}
-                    if val.strip():
-                        cmd = val
-                    break
-        if not cmd.strip():
-            return {"action": "block", "message": "Hook denied terminal because its command is missing or empty; a non-empty command string is required."}
-        content = cmd or content
-        if SHELL_MUTATION_PATTERN.search(cmd) and not SAFE_PYTHON_PRINT_PATTERN.fullmatch(cmd.strip()):
-            paths = _paths_from_shell(cmd)
-            if not paths:
-                return {"action": "block", "message": "Hook denied terminal because a mutating command has no safely classified target path."}
-        elif not _shell_is_read_only(cmd):
-            return {"action": "block", "message": "Hook denied terminal because its effect could not be classified as read-only."}
-    elif tool_name in ("write_file", "patch"):
-        path = _extract_path(args)
-        if not path:
-            return {
-                "action": "block",
-                "message": (
-                    "Hook denied write/edit because tool args have no path. "
-                    "Fail-closed: path is required."
-                ),
-            }
-        paths = [path]
-
-    for raw in paths:
-        effect = "shell.mutate" if tool_name == "terminal" else "file.patch" if tool_name == "patch" else "file.write"
-        scope = "workspace" if _norm_rel(raw, workspace) is not None else "local_sdd"
-        if not _authorized(effect, scope):
-            return {"action": "block", "message": f"Effect/scope not authorized: {effect}/{scope}"}
-        blocked = _check_path(raw, workspace, effect)
-        if blocked:
-            return blocked
-
-    secret = _secret_hit(content)
-    if secret:
-        return {
-            "action": "block",
-            "message": (
-                f"Hook denied tool because content matches secret pattern '{secret}'. "
-                "Use env var names or placeholders."
-            ),
-        }
+    """Leave tool authorization to Hermes and its configured native controls."""
     return None
-
-
 def register(ctx: Any) -> None:
-    def on_pre_tool_call(tool_name: str, args: dict, task_id: str = "", **kwargs: Any):
-        del task_id, kwargs
-        return evaluate_tool_call(tool_name, args if isinstance(args, dict) else {})
-
-    ctx.register_hook("pre_tool_call", on_pre_tool_call)
+    """Keep plugin discovery compatible without registering an authorization hook."""
+    del ctx
+    return None

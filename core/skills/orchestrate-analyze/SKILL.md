@@ -81,7 +81,6 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Cap / altitude rationale (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
 | Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
 | Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
 
@@ -165,8 +164,8 @@ Product artifact quality gates must have passed. Required folders + promote firs
 ### 11. Approve -> CONTINUITY + O2 handoff
 On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.
 
-### 12. Context pressure (TE02 / RNF02)
-Honor `context-management.mdc`; persist CONTINUITY; resume invoke. Read `references/process-common.md` § Process — Context pressure.
+### 12. Durable progress checkpoint
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ## Must not
 
@@ -177,7 +176,7 @@ Enforce the full list in `references/must-not.md`. Critical always-on: no app co
 | Situation | Next |
 |-----------|------|
 | Backlog approved | `/orchestrate-deliver - <portable-feature-path>` |
-| Context pause mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
+| Handoff mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
 | Trivial after triage | `/developer` or stack `*-developer` |
 | Single clear story, skip O2 multi | `/sdd-spec` (Classic SDD) after STORY exists |
 | Informal single item only | `/refine-story` (Backlog Refine) |

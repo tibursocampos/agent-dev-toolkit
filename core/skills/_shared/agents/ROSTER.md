@@ -1,4 +1,4 @@
-﻿# Portable agent roster (Orchestrated Delivery)
+# Portable agent roster (Orchestrated Delivery)
 
 Shared prompts and roles for `orchestrate-*` Task subagents. **English** prompt bodies. Keep this roster small - do **not** add 40 agent files.
 

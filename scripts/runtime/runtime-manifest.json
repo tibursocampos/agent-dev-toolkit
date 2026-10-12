@@ -22,6 +22,7 @@
     { "source": "scripts/validation/Invoke-O3ArtifactPreflight.ps1", "destination": "validation/Invoke-O3ArtifactPreflight.ps1", "class": "runtime", "caller": "orchestrate-develop preflight" },
     { "source": "scripts/_lib/ToolkitConstants.ps1", "destination": "_lib/ToolkitConstants.ps1", "class": "support", "caller": "published runtime scripts above" },
     { "source": "scripts/_lib/Get-ToolkitRepoRoot.ps1", "destination": "_lib/Get-ToolkitRepoRoot.ps1", "class": "support", "caller": "session, ledger, and preflight runtime scripts above" },
+    { "source": "scripts/_lib/Resolve-EffectiveSddRoot.ps1", "destination": "_lib/Resolve-EffectiveSddRoot.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
     { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "preflight runtime script above" }
   ]
 }

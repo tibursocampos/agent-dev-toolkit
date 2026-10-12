@@ -1,4 +1,4 @@
-﻿# orchestrate-deliver — reference index
+# orchestrate-deliver — reference index
 
 Extended detail for `skills/orchestrate-deliver/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 

@@ -3,6 +3,23 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
+$developSkill = Get-Content -LiteralPath (Join-Path $repoRoot 'core/skills/sdd-develop/SKILL.md') -Raw
+$languageContract = Get-Content -LiteralPath (Join-Path $repoRoot 'core/skills/_shared/agents/LANGUAGE.md') -Raw
+$guardrails = Get-Content -LiteralPath (Join-Path $repoRoot 'core/policy/guardrails.md') -Raw
+$branchPolicy = Get-Content -LiteralPath (Join-Path $repoRoot 'core/policy/branch-validation.md') -Raw
+if ($developSkill -notmatch 'semantically affirmative answer' -or $developSkill -notmatch 'answer is observable') {
+    throw 'Develop confirmation must accept localized semantic answers and only observable native choices.'
+}
+if ($languageContract -notmatch 'semantically equivalent localized answers' -or $languageContract -notmatch 'selected answer is returned to the agent') {
+    throw 'Shared language contract must define observable choices and semantic localized answers.'
+}
+if ($guardrails -notmatch 'semantic choice is unambiguous' -or $guardrails -notmatch 'repository-local instructions') {
+    throw 'Guardrails must preserve semantic confirmation and local instruction precedence.'
+}
+if ($branchPolicy -match 'branch -notmatch|BRANCH.*=~|Branches that do not match the patterns') {
+    throw 'Branch policy must not reject valid operator-requested branch names via a closed allowlist.'
+}
+Write-Host 'Should_AcceptLocalizedConfirmationAndHonorLocalInstructionPrecedence: PASS'
 . (Join-Path $repoRoot 'core\policy\authorization.ps1')
 . (Join-Path $repoRoot 'core\policy\continuous-queue.ps1')
 

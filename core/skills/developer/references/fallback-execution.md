@@ -10,7 +10,7 @@ Confirm target repo, read `README.md` (if exists), and summarize requested accep
 
 ### 1. Micro-plan
 
-Define 2-5 concrete tasks. Checkpoint context usage after each major change per `context-management.mdc`.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 2. Implement
 

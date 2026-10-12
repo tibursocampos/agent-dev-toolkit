@@ -1,4 +1,4 @@
-﻿# Feature tree scaffold (Classic SDD / Backlog Refine / Orchestrated Delivery)
+# Feature tree scaffold (Classic SDD / Backlog Refine / Orchestrated Delivery)
 
 Copy this layout under the resolved Classic feature root (`STORAGE.md`):
 

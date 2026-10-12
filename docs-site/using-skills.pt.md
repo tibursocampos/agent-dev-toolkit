@@ -75,9 +75,9 @@ read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 
 `sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera **sim** / **ajustar** / **cancelar**. Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão.
 
-`sdd-plan` exige um PRD canônico cujo status está pronto para planejamento. O número do PLAN bate com o do PRD e vive na mesma pasta da story. Cada passo é uma sessão posterior de `sdd-develop`. SQL, DDL, JSON e OpenAPI ficam em um arquivo canônico. O PLAN cita esse caminho. **sim** antes de escrever. `validate-plan` precisa passar antes de `/sdd-develop`.
+`sdd-plan` exige um PRD canônico cujo status está pronto para planejamento. O número do PLAN bate com o do PRD e vive na mesma pasta da story. Cada passo é uma invocação de `sdd-develop`. Um PLAN canônico e um passo elegível explícito podem começar na sessão atual depois dos gates de dependência e confirmação; se o passo ou a rota de execução não forem informados, a skill pergunta entre execução manual e O3. SQL, DDL, JSON e OpenAPI ficam em um arquivo canônico. O PLAN cita esse caminho. **sim** antes de escrever. `validate-plan` precisa passar antes de `/sdd-develop`.
 
-`sdd-develop` precisa do caminho canônico do PLAN e de um id de passo. Uma sessão completa um passo. Depois do **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` grava `step_confirmed`. Quando uma reivindicação é necessária, roda `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Use um branch de feature (`feature/<slug>` ou `feat/<id>`). Carregue um arquivo de guideline para o passo. Quando o passo alega cobertura de aceite, ou o nível de evidência é `cheap` ou mais alto, atualize `EVD/` e `STATE.md` e rode `validate-evidence.ps1`. Níveis: `off`, `cheap`, `standard`, `strict`. Quando o passo fecha a onda da feature, acrescente `TRACE.jsonl` e rode `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/` e SQLite não são a fonte da verdade do trace.
+`sdd-develop` precisa do caminho canônico do PLAN e de um id de passo. Uma invocação completa um passo. Depois do **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` grava `step_confirmed`. Quando uma reivindicação é necessária, roda `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Use um branch de feature (`feature/<slug>` ou `feat/<id>`). Carregue um arquivo de guideline para o passo. Quando o passo alega cobertura de aceite, ou o nível de evidência é `cheap` ou mais alto, atualize `EVD/` e `STATE.md` e rode `validate-evidence.ps1`. Níveis: `off`, `cheap`, `standard`, `strict`. Quando o passo fecha a onda da feature, acrescente `TRACE.jsonl` e rode `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/` e SQLite não são a fonte da verdade do trace.
 
 `read-sdd-artifact` não tem gate de **sim**. Tipos permitidos: FEATURE, STORY, PRD, PLAN. Motivos de rejeição: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
 
@@ -195,7 +195,7 @@ Modos de `framework-upgrade`: `audit`, `plan`, `migrate`, `validate`. Packs no d
 
 ### Skills de plataforma
 
-Elas ficam ao lado da entrega. Quando a mudança é um passo do PLAN, termine a skill e volte a `/sdd-develop` no próximo passo, em um chat novo.
+Elas ficam ao lado da entrega. Quando a mudança é um passo do PLAN, termine a skill e volte a `/sdd-develop` para o passo correspondente. Cada passo precisa da própria invocação, mas não exige um novo chat do operador.
 
 ```text
 api-standards
@@ -269,7 +269,7 @@ O `model` da Task é omitido para o filho usar o modelo da sessão pai (`core/sk
 
 ### Compressão opcional do chat
 
-`caveman_mode` começa **desligado**. Ele só encurta a prosa do chat. Não muda passos de skill, gates nem documentação.
+O primeiro sync interativo pergunta se a compressão de resposta Caveman fica ligada ou desligada; **ligada** é o padrão. O primeiro sync não interativo usa `caveman_mode: true`. Ela só encurta a prosa do chat. Não muda passos de skill, gates nem documentação.
 
 Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` e `normal mode` desligam.
 
@@ -280,7 +280,7 @@ Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 | Chave | Padrão | Efeito |
 |-------|--------|--------|
 | `orchestrator_mode` | `always` | O pai permanece orquestrador |
-| `caveman_mode` | `false` | Compressão do chat desligada |
+| `caveman_mode` | `true` no primeiro sync | Compressão do chat ligada; o sync interativo pode desligá-la |
 | `caveman_level` | `full` | Intensidade se a compressão for ligada |
 | `artifact_language` | `null` | Sem override de locale |
 | `verify_mode` | `false` | O O3 não faz spawn de um verificador somente leitura depois de cada implementador |

@@ -59,7 +59,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'antigravity' -ToolName $toolName) 
     Write-AntigravityPreToolAllow
 }
 if (-not $isGuarded) {
-    Write-AntigravityPreToolDeny -Reason ('Hook denied unclassified tool surface: ' + $toolName)
+    Write-AntigravityPreToolAllow
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

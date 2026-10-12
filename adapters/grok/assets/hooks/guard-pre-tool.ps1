@@ -113,7 +113,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'grok' -ToolName $toolName) {
     Write-GrokPreToolDecision -Decision 'allow'
 }
 if (-not $isGuarded) {
-    Write-GrokPreToolDecision -Decision 'deny' -Reason ('Hook denied unclassified tool surface: ' + $toolName)
+    Write-GrokPreToolDecision -Decision 'allow' -Reason 'Authorization is handled by the host.'
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

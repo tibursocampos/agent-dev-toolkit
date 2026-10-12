@@ -157,7 +157,7 @@ Always before the first `Write` of a **new** PRD or PLAN (and when replacing an 
 3. `Write` only after explicit **sim**.
 4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
 
-`sdd-develop` updates the existing PLAN file after completing a step without re-asking storage (per `context-management.mdc`).
+`sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
 
 ## Prior context (chat, Plan, code-review, feature tree)
 

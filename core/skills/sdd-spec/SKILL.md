@@ -59,7 +59,6 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 | .NET / C# context | `dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/references/<section>.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Product depth challenge (Step 5.5) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md`, `invest-and-story-quality.md`, `gherkin-budget.md`, `clarify-depth.md`, `product-evidence-lite.md` |
 | Anti-task-shatter titles (only if task-shaped) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 
@@ -126,7 +125,7 @@ Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agr
 
 ### 6. Context checkpoint
 
-`context-management.mdc`. At >=40%, draft in chat or partial file; warn before continuing.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 6.75 Confirm before write
 

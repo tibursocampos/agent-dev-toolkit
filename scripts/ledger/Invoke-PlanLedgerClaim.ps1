@@ -23,11 +23,10 @@
   Repository root used for repo-hash and portable plan_path.
 
 .PARAMETER SessionsRoot
-  Sessions root (testable). Defaults to <SddRoot>/sessions when -SddRoot given,
-  else requires explicit -SessionsRoot.
+  Sessions root (testable). Defaults to <SddRoot>/sessions.
 
 .PARAMETER SddRoot
-  Optional SDD runtime root; sessions = Join-Path SddRoot 'sessions'.
+  Optional SDD runtime root; defaults to the active InstallRoot's sdd folder.
 
 .EXAMPLE
   .\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath features\006-x\TS01\PLAN\PLAN_006_x.md -Step 2 -Holder agent-A -RepoPath . -SessionsRoot $env:TEMP\adt-ledger
@@ -66,6 +65,7 @@ $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $libDir 'ToolkitConstants.ps1')
 . (Join-Path $libDir 'Get-ToolkitRelativePath.ps1')
+. (Join-Path $libDir 'Resolve-EffectiveSddRoot.ps1')
 
 $exitClaimOk = [int]$script:ToolkitConstant.PlanLedgerExitClaimOk
 $exitClaimRejected = [int]$script:ToolkitConstant.PlanLedgerExitClaimRejected
@@ -153,11 +153,17 @@ if (-not (Test-Path -LiteralPath $RepoPath)) {
 
 $repoResolved = (Resolve-Path -LiteralPath $RepoPath).Path
 
-if ([string]::IsNullOrWhiteSpace($SessionsRoot)) {
-    if ([string]::IsNullOrWhiteSpace($SddRoot)) {
-        Write-Error $script:ToolkitConstant.PlanLedgerSessionsRootRequired
+if ([string]::IsNullOrWhiteSpace($SddRoot)) {
+    try {
+        $SddRoot = Resolve-EffectiveSddRoot -ScriptDirectory $scriptDir
+    }
+    catch {
+        Write-Error $_
         exit $exitUsage
     }
+}
+
+if ([string]::IsNullOrWhiteSpace($SessionsRoot)) {
     $SessionsRoot = Join-Path $SddRoot $script:ToolkitConstant.PlanLedgerSessionsFolderName
 }
 
@@ -180,7 +186,7 @@ if (-not (Test-Path -LiteralPath $planCandidate)) {
 $planResolved = (Resolve-Path -LiteralPath $planCandidate).Path
 $portablePlan = Convert-ToPortablePlanPath -FullPlanPath $planResolved -RepoRootPath $repoResolved
 $canonicalPlan = $false
-$sddConfigRoot = if (-not [string]::IsNullOrWhiteSpace($SddRoot)) { $SddRoot } else { Join-Path $env:USERPROFILE '.codex/sdd' }
+$sddConfigRoot = $SddRoot
 $manifestPath = Join-Path $sddConfigRoot 'manifest.json'
 if (Test-Path -LiteralPath $manifestPath) {
     $manifestValue = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json

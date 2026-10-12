@@ -20,7 +20,7 @@ Baseline from user or repo default. Create/checkout `feature/<slug>` or `feat/<i
 
 ### 3. Plan micro-steps
 
-List 3-7 concrete tasks; checkpoint per `context-management.mdc` (>= 40% -> pause, offer `/commit`).
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 4. Implement
 

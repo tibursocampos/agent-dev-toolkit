@@ -238,8 +238,8 @@ function Assert-ToolkitArtifactsPresent {
     }
 
     $legacyAgentProbe = Join-Path (Join-Path $FixtureRoot $agentsDirName) $expectedLegacyAgentProbe
-    if (-not (Test-Path -LiteralPath $legacyAgentProbe)) {
-        Write-Fail -TestName $TestName -Reason ("precondition: generated legacy custom agent missing after sync: {0}" -f $legacyAgentProbe)
+    if (Test-Path -LiteralPath $legacyAgentProbe) {
+        Write-Fail -TestName $TestName -Reason ("publisher must emit the supported .agent.md profile without parallel legacy .md: {0}" -f $legacyAgentProbe)
     }
 }
 

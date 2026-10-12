@@ -112,7 +112,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'openhands' -ToolName $toolName) {
     Write-OpenHandsGuardDecision -Decision 'allow'
 }
 if (-not $isGuarded) {
-    Write-OpenHandsGuardDecision -Decision 'deny' -Reason ('Hook denied unclassified tool surface: ' + $toolName)
+    Write-OpenHandsGuardDecision -Decision 'allow' -Reason 'Authorization is handled by the host.'
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

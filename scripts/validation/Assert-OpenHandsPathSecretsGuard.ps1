@@ -1,8 +1,8 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
-#   Should_Deny_When_ForbiddenSddPath
-#   Should_Deny_When_SecretPatternDetected
+#   Should_Allow_When_HostOwnsForbiddenSddPath
+#   Should_Allow_AndRedact_When_SecretPatternDetected
 #   Should_Pass_When_HooksJsonWiresPreToolUse
 #
 # Frente 2.5: OpenHands pre_tool_use path + secrets guard.
@@ -98,10 +98,10 @@ $deny = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     cwd        = $fixtureRoot
 }
 $denied = ($deny.ExitCode -eq 2) -or ($null -ne $deny.Payload -and [string]$deny.Payload.decision -eq 'deny')
-if (-not $denied) {
-    Write-Fail -TestName 'Should_Deny_When_ForbiddenSddPath' -Reason ("expected deny; exit={0} output={1}" -f $deny.ExitCode, $deny.Output.Trim())
+if ($denied) {
+    Write-Fail -TestName 'Should_Allow_When_HostOwnsForbiddenSddPath' -Reason ("Toolkit hook must not veto the host's authorization decision; exit={0} output={1}" -f $deny.ExitCode, $deny.Output.Trim())
 }
-Write-Pass -TestName 'Should_Deny_When_ForbiddenSddPath'
+Write-Pass -TestName 'Should_Allow_When_HostOwnsForbiddenSddPath'
 
 $allowed = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     tool_name  = 'write'
@@ -126,8 +126,11 @@ $secret = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     cwd = $fixtureRoot
 }
 $secretDenied = ($secret.ExitCode -eq 2) -or ($null -ne $secret.Payload -and [string]$secret.Payload.decision -eq 'deny')
-if (-not $secretDenied) {
-    Write-Fail -TestName 'Should_Deny_When_SecretPatternDetected' -Reason ("expected secret deny; exit={0} output={1}" -f $secret.ExitCode, $secret.Output.Trim())
+if ($secretDenied) {
+    Write-Fail -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected' -Reason ("Toolkit hook must not veto host authorization; exit={0} output={1}" -f $secret.ExitCode, $secret.Output.Trim())
+}
+if ($secret.Output -match 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd') {
+    Write-Fail -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected' -Reason 'hook output must not disclose the secret-like value'
 }
 
 $terminal = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
@@ -136,10 +139,11 @@ $terminal = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     cwd        = $fixtureRoot
 }
 $terminalDenied = ($terminal.ExitCode -eq 2) -or ($null -ne $terminal.Payload -and [string]$terminal.Payload.decision -eq 'deny')
-if (-not $terminalDenied) {
-    Write-Fail -TestName 'Should_Deny_When_TerminalForbiddenPath' -Reason ("expected terminal deny; exit={0} output={1}" -f $terminal.ExitCode, $terminal.Output.Trim())
+if ($terminalDenied) {
+    Write-Fail -TestName 'Should_Allow_When_HostOwnsTerminalPathAuthorization' -Reason ("Toolkit hook must not veto the host authorization decision; exit={0} output={1}" -f $terminal.ExitCode, $terminal.Output.Trim())
 }
-Write-Pass -TestName 'Should_Deny_When_SecretPatternDetected'
+Write-Pass -TestName 'Should_Allow_When_HostOwnsTerminalPathAuthorization'
+Write-Pass -TestName 'Should_Allow_AndRedact_When_SecretPatternDetected'
 
 $absOutside = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) 'agent-dev-toolkit-guard-abs-outside.cs'
 $abs = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
@@ -151,17 +155,17 @@ $abs = Invoke-GuardHook -HookScriptPath $guardPs1 -Payload @{
     cwd        = $repoRoot
 }
 $absDenied = ($abs.ExitCode -eq 2) -or ($null -ne $abs.Payload -and [string]$abs.Payload.decision -eq 'deny')
-if (-not $absDenied) {
-    Write-Fail -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace' -Reason ("absolute .cs outside workspace must deny; exit={0} output={1}" -f $abs.ExitCode, $abs.Output.Trim())
+if ($absDenied) {
+    Write-Fail -TestName 'Should_Allow_When_HostOwnsAbsolutePathAuthorization' -Reason ("Toolkit hook must not veto the host authorization decision; exit={0} output={1}" -f $abs.ExitCode, $abs.Output.Trim())
 }
-Write-Pass -TestName 'Should_Deny_When_AbsolutePathOutsideWorkspace'
+Write-Pass -TestName 'Should_Allow_When_HostOwnsAbsolutePathAuthorization'
 
 $shText = Get-Content -LiteralPath $guardSh -Raw -Encoding UTF8
-if ($shText -match 'fail-open') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'guard_pre_tool.sh must not fail-open when pwsh missing'
+if ($shText -notmatch 'host authorization remains active') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing-runtime fallback must leave authorization to OpenHands'
 }
-if ($shText -notmatch 'fail-closed') {
-    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'guard_pre_tool.sh must fail-closed when pwsh missing'
+if ($shText -notmatch '"decision":"allow"') {
+    Write-Fail -TestName 'Should_Pass_When_HooksJsonWiresPreToolUse' -Reason 'missing-runtime fallback must not veto host authorization'
 }
 
 Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue

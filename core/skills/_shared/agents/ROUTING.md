@@ -1,4 +1,4 @@
-﻿# Agent routing -> stack skills
+# Agent routing -> stack skills
 
 Orchestrators and specialists **do not** reimplement stack work. Point implementation to existing developer skills.
 

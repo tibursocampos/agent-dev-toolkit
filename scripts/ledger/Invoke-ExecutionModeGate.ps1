@@ -27,10 +27,10 @@
   Repository root for ledger hashing.
 
 .PARAMETER SessionsRoot
-  Sessions root (testable). Defaults via -SddRoot when provided.
+  Sessions root (testable). Defaults to <SddRoot>/sessions.
 
 .PARAMETER SddRoot
-  Optional SDD runtime root; sessions = <SddRoot>/sessions.
+  Optional SDD runtime root; defaults to the active InstallRoot's sdd folder.
 
 .PARAMETER SkipClaim
   Test-only: skip ledger claim after mode allow (Assert uses claim path by default).
@@ -74,6 +74,7 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
 $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 . (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Resolve-EffectiveSddRoot.ps1')
 
 $exitOk = [int]$script:ToolkitConstant.ExecutionModeExitOk
 $exitRejected = [int]$script:ToolkitConstant.ExecutionModeExitRejected
@@ -114,11 +115,7 @@ function Resolve-SessionsRoot {
     if (-not [string]::IsNullOrWhiteSpace($SessionsRoot)) {
         return [System.IO.Path]::GetFullPath($SessionsRoot)
     }
-    if (-not [string]::IsNullOrWhiteSpace($SddRoot)) {
-        return Join-Path ([System.IO.Path]::GetFullPath($SddRoot)) $sessionsFolder
-    }
-    Write-Error $script:ToolkitConstant.PlanLedgerSessionsRootRequired
-    exit $exitUsage
+    return Join-Path ([System.IO.Path]::GetFullPath($SddRoot)) $sessionsFolder
 }
 
 function Write-ModeAudit {
@@ -164,6 +161,16 @@ function Get-PortablePlanPath {
 
 $modeNorm = $Mode.Trim().ToLowerInvariant()
 $intentNorm = $Intent.Trim().ToLowerInvariant()
+
+if ([string]::IsNullOrWhiteSpace($SddRoot)) {
+    try {
+        $SddRoot = Resolve-EffectiveSddRoot -ScriptDirectory $scriptDir
+    }
+    catch {
+        Write-Error $_
+        exit $exitUsage
+    }
+}
 
 $repoNormalized = Get-NormalizedRepoPath -Path $RepoPath
 $sessionsResolved = Resolve-SessionsRoot
@@ -252,7 +259,7 @@ if ($needsClaim) {
         exit $exitUsage
     }
 
-    $claimOut = & $claimScript -Action claim -PlanPath $PlanPath -Step $Step -Holder $Holder -RepoPath $repoNormalized -SessionsRoot $sessionsResolved 2>&1 | Out-String
+    $claimOut = & $claimScript -Action claim -PlanPath $PlanPath -Step $Step -Holder $Holder -RepoPath $repoNormalized -SessionsRoot $sessionsResolved -SddRoot $SddRoot 2>&1 | Out-String
     $claimCode = $LASTEXITCODE
     if ($null -eq $claimCode) { $claimCode = 0 }
     if ($claimCode -ne [int]$script:ToolkitConstant.PlanLedgerExitClaimOk) {

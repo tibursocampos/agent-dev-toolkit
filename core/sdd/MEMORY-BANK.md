@@ -127,7 +127,7 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load bank selectively (context-management); never dump entire bank into the parent prompt. Normative rule for SDD/refine skills: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke `Assert-SelectiveRetrieval.ps1`.
+6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke: `Assert-SelectiveRetrieval.ps1`.
 7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md` (REQ-011). Skip D: no ADO mutate, Reversa, SpecKit constitution (REQ-013).
 
 ### Modes (`memory-bank-init`)

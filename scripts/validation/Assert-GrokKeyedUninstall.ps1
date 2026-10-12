@@ -182,8 +182,8 @@ if ($uninstall.RemovedCount -lt 1) {
 if (Test-GrokToolkitSkillPresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit skills should be removed after uninstall'
 }
-if (-not (Test-Path -LiteralPath $managedSkillUserFile) -or [System.IO.File]::ReadAllText($managedSkillUserFile) -notmatch 'keep user data') {
-    Write-Fail -TestName $removeTest -Reason 'unowned files inside toolkit skill directories must be preserved'
+if (Test-Path -LiteralPath $managedSkillUserFile) {
+    Write-Fail -TestName $removeTest -Reason 'all files inside toolkit-managed skill directories must be removed'
 }
 if (Test-GrokToolkitRulePresent) {
     Write-Fail -TestName $removeTest -Reason 'toolkit rules should be removed after uninstall'

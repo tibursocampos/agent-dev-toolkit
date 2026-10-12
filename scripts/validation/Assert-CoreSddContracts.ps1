@@ -180,6 +180,83 @@ function Invoke-ContractSelfChecks {
     $unauthorized = @(Get-ComparisonDiagnostic -Name 'MEMORY-BANK.md' -Location 'projection' -Expected $projection -Actual ($projection + ' drift'))
     if ($unauthorized.Count -ne 1) { throw 'Unauthorized transform case failed.' }
     [void]$checks.Add('named-transform')
+
+    $runtimeFiles = @(
+        'scripts/session/Invoke-DevelopSessionGate.ps1',
+        'scripts/ledger/Invoke-PlanLedgerClaim.ps1',
+        'scripts/ledger/Invoke-ExecutionModeGate.ps1'
+    )
+    foreach ($relativePath in $runtimeFiles) {
+        $runtimeText = Read-ContractText -Path (Join-Path $repoRoot $relativePath)
+        if ($runtimeText -match "`$env:USERPROFILE.*\.codex/sdd" -or $runtimeText -notmatch 'Resolve-EffectiveSddRoot') {
+            throw ("Runtime helper does not consistently resolve the active InstallRoot: {0}" -f $relativePath)
+        }
+    }
+
+    $runtimeManifest = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts/runtime/runtime-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    if (-not @($runtimeManifest.files | Where-Object { $_.source -eq 'scripts/_lib/Resolve-EffectiveSddRoot.ps1' -and $_.destination -eq '_lib/Resolve-EffectiveSddRoot.ps1' }).Count) {
+        throw 'Effective SDD root resolver is missing from runtime publication manifest.'
+    }
+
+    $fixtureName = '.sdd-effective-root-' + [guid]::NewGuid().ToString('N')
+    $fixtureRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot ('scripts/validation/fixtures/' + $fixtureName))).TrimEnd('\', '/')
+    $fixtureBase = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'scripts/validation/fixtures')).TrimEnd('\', '/')
+    if (-not $fixtureRoot.StartsWith($fixtureBase + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Refusing effective SDD root fixture outside validation fixtures.'
+    }
+    $fixtureRepo = Join-Path $fixtureRoot 'repo'
+    $fixtureScripts = Join-Path $fixtureRoot 'install/scripts'
+    $fixtureSddRoot = Join-Path $fixtureRoot 'install/sdd'
+    try {
+        foreach ($relativePath in @(
+            'scripts/_lib/ToolkitConstants.ps1',
+            'scripts/_lib/Get-ToolkitRepoRoot.ps1',
+            'scripts/_lib/Get-ToolkitRelativePath.ps1',
+            'scripts/_lib/Resolve-EffectiveSddRoot.ps1',
+            'scripts/session/Invoke-DevelopSessionGate.ps1',
+            'scripts/ledger/Invoke-PlanLedgerClaim.ps1',
+            'scripts/ledger/Invoke-ExecutionModeGate.ps1'
+        )) {
+            $destination = Join-Path $fixtureRoot ('install/scripts/' + $relativePath.Substring('scripts/'.Length))
+            New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+            Copy-Item -LiteralPath (Join-Path $repoRoot $relativePath) -Destination $destination -Force
+        }
+        $fixturePlan = Join-Path $fixtureRepo 'features/000-root/US01/PLAN/PLAN_000_root.md'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $fixturePlan) -Force | Out-Null
+        [System.IO.File]::WriteAllText($fixturePlan, '# Root fixture', (New-Object System.Text.UTF8Encoding $false))
+
+        $sessionScript = Join-Path $fixtureScripts 'session/Invoke-DevelopSessionGate.ps1'
+        $sessionOutput = @(& pwsh -NoProfile -File $sessionScript -Action status -PlanPath $fixturePlan -RepoPath $fixtureRepo -Step 1 2>&1)
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $fixtureSddRoot 'sessions'))) {
+            throw ('Session helper did not resolve omitted SddRoot to the active install: ' + ($sessionOutput -join ' '))
+        }
+
+        $claimScript = Join-Path $fixtureScripts 'ledger/Invoke-PlanLedgerClaim.ps1'
+        $claimOutput = @(& pwsh -NoProfile -File $claimScript -Action status -PlanPath $fixturePlan -Step 1 -RepoPath $fixtureRepo 2>&1)
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $fixtureSddRoot 'sessions'))) {
+            throw ('PLAN ledger did not resolve omitted SddRoot to the active install: ' + ($claimOutput -join ' '))
+        }
+
+        $modeScript = Join-Path $fixtureScripts 'ledger/Invoke-ExecutionModeGate.ps1'
+        $null = @(& pwsh -NoProfile -File $modeScript -Mode manual -Intent serial-spawn -PlanPath $fixturePlan -Step 1 -RepoPath $fixtureRepo 2>&1)
+        if ($LASTEXITCODE -eq 0) { throw 'Execution-mode rejection fixture unexpectedly succeeded.' }
+        $repoHash = Get-HashHex16 -Value ([System.IO.Path]::GetFullPath($fixtureRepo))
+        $ledgerFiles = @(Get-ChildItem -LiteralPath (Join-Path $fixtureSddRoot ('sessions/' + $repoHash + '/ledger')) -File -Recurse -ErrorAction SilentlyContinue)
+        if ($ledgerFiles.Count -ne 1 -or $ledgerFiles[0].Name -notmatch '\.audit\.jsonl$') {
+            throw 'Execution-mode audit was not written only beneath the active install SDD root.'
+        }
+        [void]$checks.Add('effective-sdd-root-runtime')
+    }
+    finally {
+        if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
+    }
+
+    $sourceSessions = Join-Path $repoRoot 'core/sdd/sessions'
+    if (Test-Path -LiteralPath $sourceSessions -PathType Container) {
+        $sourceRuntimeFiles = @(Get-ChildItem -LiteralPath $sourceSessions -Recurse -File -ErrorAction Stop)
+        if ($sourceRuntimeFiles.Count -gt 0) { throw 'Runtime state exists under core/sdd/sessions.' }
+    }
+    [void]$checks.Add('no-core-runtime-state')
     return $checks.Count
 }
 
@@ -248,8 +325,23 @@ try {
         exit 1
     }
 
+    $script:validationStage = 's3-operator-flow-contract'
+    $acquisition = Read-ContractText -Path (Join-Path $repoRoot 'core/skills/sdd-develop/references/plan-acquisition.md')
+    $developSkill = Read-ContractText -Path (Join-Path $repoRoot 'core/skills/sdd-develop/SKILL.md')
+    $pacing = Read-ContractText -Path (Join-Path $repoRoot 'core/skills/sdd-develop/references/develop-modes.md')
+    foreach ($required in @(
+        @{ Text = $acquisition; Pattern = 'explicit step.*current session' },
+        @{ Text = $acquisition; Pattern = 'manual execution.*O3' },
+        @{ Text = $acquisition; Pattern = 'independent of.*orchestrator_mode' },
+        @{ Text = $acquisition; Pattern = 'answer is returned.*observable' },
+        @{ Text = $acquisition; Pattern = 'semantically equivalent replies' },
+        @{ Text = $developSkill; Pattern = 'direct invocation with PLAN \+ explicit step proceeds in this current session' },
+        @{ Text = $pacing; Pattern = 'exactly one.*step this session' }
+    )) {
+        if ($required.Text -notmatch $required.Pattern) { throw ('S3 operator-flow contract missing: ' + $required.Pattern) }
+    }
     $script:validationStage = 'identity-and-diagnostic-cases'
-    $selfCheckCount = Invoke-ContractSelfChecks -SessionContract $sessionContract -RepoPath $repoRoot
+    $selfCheckCount = (Invoke-ContractSelfChecks -SessionContract $sessionContract -RepoPath $repoRoot) + 1
     $fixtureRelative = 'scripts/validation/fixtures/.core-sdd-contracts-' + [guid]::NewGuid().ToString('N')
     $installRoot = Join-Path $repoRoot ($fixtureRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     $resolvedInstallRoot = [System.IO.Path]::GetFullPath($installRoot)

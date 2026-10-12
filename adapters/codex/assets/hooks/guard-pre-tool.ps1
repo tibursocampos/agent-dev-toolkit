@@ -52,7 +52,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'codex' -ToolName $toolName) {
     Write-CodexPreToolJson @{ permissionDecision = 'allow' }
 }
 if (-not $isGuarded) {
-    Write-CodexPreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = ('Hook denied unclassified tool surface: ' + $toolName) }
+    Write-CodexPreToolJson @{ permissionDecision = 'allow' }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

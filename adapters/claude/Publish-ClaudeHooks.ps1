@@ -62,20 +62,6 @@ function Copy-ClaudeHookScriptsTree {
         $filesCopied++
     }
 
-    # Shared path/secret helpers beside published hooks.
-    if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
-            throw "GuardCommon source is missing: $sharedSource"
-        }
-        $sharedDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-        $contractSource = Join-Path $RepoRoot ($script:ClaudeSettingsJsonConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $contractDest = Join-Path $DestinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName
-        $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
-        $filesCopied += 2
-    }
-
     return $filesCopied
 }
 

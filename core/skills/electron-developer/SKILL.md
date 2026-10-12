@@ -54,7 +54,6 @@ Working main/preload/renderer changes, validated with build and documented smoke
 | Frontend core | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Markup / styles | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/` |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ **one** approved style — never glob `architecture/**`) |
-| Context | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/electron-developer/reference.md` |

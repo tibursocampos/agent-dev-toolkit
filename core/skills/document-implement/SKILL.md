@@ -51,7 +51,6 @@ One **documentation plan step** completed in the target repo: new/updated markdo
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Session gates (PLAN-scoped) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
 | Spawn vs in-parent (large new/refactor steps) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload all `references/*.md`, full document-plan packs, or unrelated SDD contracts. Load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
@@ -112,7 +111,7 @@ After complete: clear `step_confirmed` and `tests_run` to `false` on the scoped 
 
 ### 4. Context checkpoint
 
-After the step, follow `context-management.mdc` and `references/context-management.md`. At **>= 40%**, save plan + docs and pause - do not start the next plan step in the same session.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 5. Report
 

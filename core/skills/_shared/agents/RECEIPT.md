@@ -1,4 +1,4 @@
-﻿# Specialist receipt (Caveman ON)
+# Specialist receipt (Caveman ON)
 
 When/how to spawn children (native vs fallback, limits): `SPAWN.md` — do not paste spawn policy here. Parent orchestrator policy: `core/policy/orchestrator-session.md`.
 

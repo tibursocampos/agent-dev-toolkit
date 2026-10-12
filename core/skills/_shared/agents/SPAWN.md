@@ -1,4 +1,4 @@
-﻿# Portable spawn contract (Orchestrated Delivery + developers)
+# Portable spawn contract (Orchestrated Delivery + developers)
 
 Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
 

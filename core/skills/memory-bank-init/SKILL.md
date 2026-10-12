@@ -84,7 +84,6 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts (`SR-NO-FULL-DUMP`).

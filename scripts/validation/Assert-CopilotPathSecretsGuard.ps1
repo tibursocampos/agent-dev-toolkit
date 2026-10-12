@@ -1,8 +1,8 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_GuardHookPresent
-#   Should_Deny_When_ForbiddenSddPath
-#   Should_Deny_When_SecretPatternDetected
+#   Should_Allow_When_HostOwnsForbiddenSddPath
+#   Should_Allow_AndRedact_When_SecretPatternDetected
 #   Should_Pass_When_HooksJsonVersion1PreToolUse
 #
 # Frente 2.4: Copilot version:1 preToolUse path + secrets guard.
@@ -69,11 +69,11 @@ $null = New-Item -ItemType $reparseItemType -Path $reparseLink -Target $reparseT
 $reparsePayload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $reparseLink 'escape.cs'); content = 'class X {}' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }
 
 $cases = @(
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_ForbiddenSddPath'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'PRD\blocked.md'); content = '# blocked' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'expected deny for forbidden SDD path' }
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_SecretPatternDetected'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'src\ok.cs'); content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'expected deny for secret pattern' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_When_HostOwnsForbiddenSddPath'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'PRD\blocked.md'); content = '# blocked' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'allow'; ExpectedExitCodes = @(0); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'Toolkit hook must not veto the host authorization decision for a path' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_AndRedact_When_SecretPatternDetected'; Payload = @{ hookEventName = 'preToolUse'; toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'src\ok.cs'); content = 'const string key = "ghp_TESTNOTREAL_aaaaabbbbbcccccddddd";' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'allow'; ExpectedExitCodes = @(0); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'host-owned authorization must not be vetoed'; MustNotContain = 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd' }
     [PSCustomObject]@{ TestName = 'Should_Deny_When_HookIdentityMissing'; Payload = @{ toolName = 'write'; toolArgs = (@{ path = (Join-Path $fixtureRoot 'src\missing-identity.cs'); content = 'class X {}' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'write without preToolUse identity must deny' }
     [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellHookIdentityMissing'; Payload = @{ toolName = 'bash'; toolArgs = (@{ command = 'Set-Content -Path src\missing-shell-identity.cs -Value x' } | ConvertTo-Json -Compress); cwd = $fixtureRoot }; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'shell without preToolUse identity must deny' }
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_DescendantReparseEscapesWorkspace'; Payload = $reparsePayload; ExpectedDecision = 'deny'; ExpectedExitCodes = @(2); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'write through an escaping junction must deny' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_When_HostOwnsEscapingPathAuthorization'; Payload = $reparsePayload; ExpectedDecision = 'allow'; ExpectedExitCodes = @(0); Acceptance = 'ExitCodeOrDecision'; FailureReason = 'Toolkit hook must not veto the host authorization decision for a path' }
 )
 try {
     Invoke-PathSecretsGuardHarness -AdapterName 'Copilot' -HookScriptPath $guardScript -Cases $cases -GetDecision {

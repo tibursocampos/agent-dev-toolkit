@@ -46,8 +46,6 @@ $script:CursorAdapterConstant = @{
         'GuardCommon.ps1',
         'TraceEmitCommon.ps1',
         'context-before-prompt.ps1',
-        'context-pre-compact.ps1',
-        'guard-pre-tool.ps1',
         'plan-after-edit.ps1',
         'emit-trace.ps1',
         'authorization-contract.json'

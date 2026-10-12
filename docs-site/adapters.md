@@ -56,28 +56,15 @@ Every listed agent has a concrete module with publish and an in-repo smoke. The 
 | `claude` | true | true | true | true | false | true | `native` | Hooks smoke is files only. Trust UI is out of scope |
 | `codex` | true | true | true | true | true | true | `native` | Dual-root. `Publish-Agents` → `agents/*.toml`. `/hooks` trust is manual |
 | `copilot` | true | true | true | false | false | true | `native` | `Publish-Router` is a no-op. Mode `repo` publishes agents |
-| `opencode` | true | false | true | true | true | true | `native` | `HooksSemantics=plugin-only` (JS throw) |
+| `opencode` | true | false | true | true | true | true | `native` | `HooksSemantics=plugin-only`; compatibility marker installs no authorization hook |
 | `grok` | true | true | true | true | false | true | `native` | Native under `~/.grok` |
 | `zcode` | true | false | true | true | false | true | `native` | `Publish-Policy` is a no-op |
 | `hermes` | true | true | true | true | true | false | `native` | Policy folded into `AGENTS.md`. Never `SOUL.md` |
 | `openhands` | true | true | true | true | true | true | `none` | The only declared `none`. Roster is not native spawn |
 
-### Path and secrets guard
+### Authorization boundary
 
-Shared rules: `adapters/_shared/guard-rules.md`. Helpers: `adapters/_shared/GuardCommon.ps1`. Paths outside the workspace, and a write or delete without a resolvable path, are denied (fail-closed).
-
-| Agent | Wiring |
-|-------|--------|
-| Cursor | `preToolUse` Write/Edit/Shell/Delete plus `beforeShellExecution`. `failClosed`. GuardCommon |
-| Claude | PreToolUse `Write\|Edit\|Bash\|PowerShell` → `permissionDecision` deny |
-| Codex | PreToolUse plus `agents/*.toml` |
-| Copilot | hooks `version:1` `preToolUse` |
-| OpenHands | `pre_tool_use` plus `guard_pre_tool.sh` |
-| ZCode | PreToolUse |
-| Grok | PreToolUse |
-| OpenCode | JS `tool.execute.before` throw |
-| Antigravity | `config/hooks` PreToolUse |
-| Hermes | Plugin `agent-dev-toolkit-guard` plus `agent-hooks`. Keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call`. Never SOUL, tokens, or gateway |
+Toolkit hooks do not decide whether a provider may run a tool. ACLs, sandboxing, trust settings, and native confirmations remain owned by the provider and operator. The shared `GuardCommon.ps1` evaluator is compatibility-only and always allows; it does not classify paths/tools, enforce allowlists, or scan for secrets. Cursor and Claude remove stale managed authorization-hook entries during sync. Other published compatibility hooks do not veto tool calls. OpenHands' POSIX wrapper also allows when optional `pwsh` is unavailable. See `adapters/provider-authorization-conformance.md` and `adapters/_shared/guard-rules.md`.
 
 Most adapters declare `subagents: native`. OpenHands declares `none` (SPAWN stays in the parent). Antigravity’s effective capability is fail-closed in `Get-Capabilities`. Probe order in `core/skills/_shared/agents/SPAWN.md`: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0` when known → parseable `agy --version` `>= 1.0.0` as a 2.0 harness proxy (the CLI stays `1.x`; do not require CLI major ≥ 2) → else `none`. Before 2.0, or when the probe cannot tell, the effective value is `none`.
 
@@ -88,7 +75,7 @@ TRACE emitter honesty:
 | Claim | Hosts |
 |-------|--------|
 | Wired fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop). Claude (PostToolUse / SubagentStop) |
-| Asset only, not a live PostToolUse wire | Codex (`Publish-Hooks` stays the PreToolUse guard) |
+| Asset only, not a live PostToolUse wire | Codex (the compatibility PreToolUse hook does not authorize calls) |
 | Not claimed | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
 
 Assert: `Assert-TraceEmitterFailOpen.ps1`. The trail file is `features/NNN-slug/TRACE.jsonl`.
@@ -183,9 +170,9 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent antigravity
 | Capabilities | `skills`, `rules`, `hooks`, `router`, `agents` true. `plugin` false |
 | Artifacts | `skills/`, `rules/*.md`, `hooks/*.ps1`, `CLAUDE.md`, `agents/*.md`, merged `settings.json` |
 
-`settings.json` merge: write `settings.json.bak` first; keyed upsert for `UserPromptSubmit`, `PreCompact`, `PostToolUse`, `PreToolUse`; additive narrow `permissions.allow` entries, one `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook. Re-sync strips legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions`. Other keys stay. Encoding is UTF-8 without BOM. Invalid JSON aborts (TE01). Backup failure aborts (TE02).
+`settings.json` merge: write `settings.json.bak` first; keyed upsert for managed non-authorization events; stale managed `PreToolUse` authorization entries are removed. `permissions.allow` receives additive narrow entries for managed hooks. Re-sync strips legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions`. Other keys stay. Encoding is UTF-8 without BOM. Invalid JSON aborts (TE01). Backup failure aborts (TE02).
 
-`PreToolUse` matcher `Write|Edit|Bash|PowerShell` runs `guard-pre-tool.ps1`. Hook trust UI is outside smoke.
+The published hook assets are compatibility material; the managed authorization `PreToolUse` matcher is removed. Hook trust UI is outside smoke.
 
 ```powershell
 $claudeFixture = Join-Path $PWD 'scripts\validation\fixtures\claude'

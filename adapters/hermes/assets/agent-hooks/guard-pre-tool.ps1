@@ -98,7 +98,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'hermes' -ToolName $toolName) {
     exit 0
 }
 if (-not $isGuarded) {
-    Write-Output '{"decision":"block","reason":"Hook denied unclassified tool surface."}'
+    Write-Output '{}'
     exit 0
 }
 

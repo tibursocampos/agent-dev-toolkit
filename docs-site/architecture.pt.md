@@ -76,7 +76,7 @@ O conteúdo do core não grava um home de IDE fixo. Os adaptadores resolvem plac
 | `{{SDD_ROOT}}` | Raiz de estado SDD (`preferences.json`, `sessions/`, `manifest.json`, árvore Classic global opcional) |
 | `{{GUARDRAILS_PATH}}` | Caminho da política de guardrails para o agente alvo |
 
-Em runtime, as skills resolvem o estado SDD via `effective_SDD_ROOT`, para um caminho gravado de outro agente não vencer. `effective_SDD_ROOT` guarda sessões, preferências e `manifest.json` (schema v2), mais `features/` e `memory-bank/` **globais** opcionais quando `classic.storage_mode` é `global`. O modo **repository** mantém essas árvores sob o `$Cwd` do consumidor.
+Em runtime, as skills resolvem o estado SDD via `effective_SDD_ROOT`, para um caminho gravado de outro agente não vencer. Scripts de runtime sob `<InstallRoot>/scripts/<area>` resolvem `-SddRoot` omitido para `<InstallRoot>/sdd`; os helpers não inferem essa raiz pelo perfil do usuário. `effective_SDD_ROOT` guarda sessões, preferências e `manifest.json` (schema v2), mais `features/` e `memory-bank/` **globais** opcionais quando `classic.storage_mode` é `global`. O modo **repository** mantém essas árvores sob o `$Cwd` do consumidor.
 
 Skills publicadas resolvem seus helpers de runtime declarados a partir da árvore instalada do toolkit. Helpers de sessão recusam incompatibilidades persistidas de identidade de repositório ou PLAN antes de alterar estado. Checks de fixture e estáticos comprovam esses contratos de publicação e sessão; eles não comprovam uma execução em host, IDE ou hook ao vivo.
 
@@ -112,8 +112,8 @@ O InstallRoot modela `~/.cursor`.
 | `skills/<kebab-id>/SKILL.md` | Skills de `core/skills/` |
 | `rules/*.mdc` | Política (`.md` → `.mdc`) |
 | `AGENTS.md` | Roteador |
-| `hooks/*.ps1` | Inclui `guard-pre-tool.ps1` e `GuardCommon.ps1` |
-| `hooks.json` | `preToolUse` e `beforeShellExecution` (`failClosed`) |
+| `hooks/*.ps1` | Assets de compatibilidade; não decidem autorização |
+| `hooks.json` | Hooks geridos; entradas de autorização do Toolkit são removidas no sync |
 | `agents/*.md` | Roster quando `agents=true` |
 | `sdd/sessions/` | Sessões (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Semente quando ausente. Nunca sobrescreve um arquivo existente |
@@ -128,7 +128,7 @@ O InstallRoot modela `~/.gemini`.
 |------------------|--------|
 | `config/skills` | Skills em kebab mais `dev_persona` |
 | `config/plugins` | Superfície de plugin (GUARDRAILS sob o id do plugin gerido) |
-| `config/hooks` | Guarda PreToolUse de caminho e segredos quando `hooks=true` |
+| `config/hooks` | Configuração de hooks do provider; sem decisão de autorização do Toolkit |
 | `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` | Descoberta e markdown gerido |
 
 `antigravity-ide/plugins` é uma ponte legada, só documentação e opt-in. Não é um gate de CI. Knowledge Items ao vivo e a UI de confiança da IDE ficam fora de escopo. Smoke: `Invoke-AntigravityCiSmoke.ps1`. O `subagents` do registro é `native`. O valor efetivo vem de `Get-Capabilities` (sonda fail-closed).
@@ -173,7 +173,7 @@ O InstallRoot modela `~/.config/opencode`.
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `AGENTS.md` | Roteador |
 | `agents/*.md` | `Publish-Agents` |
-| `plugins/*.js` | Plugins JS. `tool.execute.before` lança em caminho e segredos |
+| `plugins/*.js` | Plugins JS. O marcador de compatibilidade não instala hook de autorização |
 
 Hooks são só plugin. Smoke: `Invoke-OpenCodeCiSmoke.ps1` (só filesystem).
 
@@ -187,7 +187,7 @@ O InstallRoot modela `~/.zcode` (filesystem ADE, não GLM Coding Plan).
 | `AGENTS.md` | Roteador |
 | `agents/*.md` | Roster |
 | `cli/config.json` | Config de hooks |
-| `hooks/hooks.json` | PreToolUse de caminho e segredos |
+| `hooks/hooks.json` | Configuração PreToolUse; o Toolkit não decide autorização |
 
 Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCodeCiSmoke.ps1`.
 
@@ -205,7 +205,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `instructions/*.instructions.md` | Política |
 | `copilot-instructions.md` | Instruções sempre ligadas com o roteador embutido; o Copilot não tem superfície de roteador dedicada (`router=false`) |
-| `hooks/*` | `version:1` `preToolUse` de caminho e segredos |
+| `hooks/*` | Hooks `version:1` `preToolUse`; sem decisão de autorização do Toolkit |
 | `agents/nome.agent.md` | Um arquivo de agente do catálogo no modo repo. O modo user não publica agentes |
 
 Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
@@ -219,7 +219,7 @@ O InstallRoot é `~/.grok` (ou um `.grok` de projeto que você passa). A árvore
 | `skills` | Skills, ao vivo `~/.grok/skills` |
 | `rules` | Política |
 | `agents` | Roster |
-| `hooks` | PreToolUse. `/hooks-trust` é manual |
+| `hooks` | Hooks PreToolUse de compatibilidade. `/hooks-trust` é manual |
 | `AGENTS.md` | Roteador |
 
 Fixture: `scripts/validation/fixtures/grok`.
@@ -232,7 +232,7 @@ O InstallRoot é o home do Hermes. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.
 |------------------|--------|
 | `skills/<id>/SKILL.md` | Skills |
 | `AGENTS.md` | Roteador mais política dobrada. Sem árvore `rules/` |
-| `plugins/agent-dev-toolkit-guard` e `agent-hooks/` | Hooks de caminho e segredos |
+| `plugins/agent-dev-toolkit-guard` e `agent-hooks/` | Assets de hook de compatibilidade; a autorização continua com o Hermes |
 | `memories/MEMORY.md` | Semeado uma vez se faltar |
 | `SOUL.md` | Nunca criado nem sobrescrito |
 

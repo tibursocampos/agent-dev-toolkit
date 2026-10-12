@@ -3,9 +3,9 @@
 #   Should_Pass_When_GuardHookPresent
 #   Should_Allow_When_ReadOnlyToolIsCaptured
 #   Should_Allow_When_MutatingToolIsWithinWorkspace
-#   Should_Deny_When_ForbiddenSddPath
-#   Should_Deny_When_SecretPatternDetected
-#   Should_Deny_When_UnknownToolIsCaptured
+#   Should_Allow_When_HostOwnsForbiddenSddPath
+#   Should_Allow_AndRedact_When_SecretPatternDetected
+#   Should_Allow_When_HostOwnsUnknownToolAuthorization
 #   Should_Deny_When_MalformedOrEmptyInput
 #   Should_Deny_When_InvalidHookIdentity
 #   Should_Pass_When_HooksJsonWiresPreToolUse
@@ -131,16 +131,16 @@ catch {
 $cases = @(
     [PSCustomObject]@{ TestName = 'Should_Allow_When_ReadOnlyToolIsCaptured'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Read'; tool_input = @{ path = (Join-Path $fixtureRoot 'srcknown.cs') }; cwd = $fixtureRoot }; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'supported read-only tool must be allowed after valid catch-all capture' }
     [PSCustomObject]@{ TestName = 'Should_Allow_When_MutatingToolIsWithinWorkspace'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Write'; tool_input = @{ path = (Join-Path $fixtureRoot 'srcknown.cs'); content = 'class X {}' }; cwd = $fixtureRoot }; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'supported mutating tool within workspace must be allowed' }
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_ForbiddenSddPath'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'apply_patch'; tool_input = @{ command = "*** Add File: PRD/blocked.md`n+# blocked" }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'expected deny for forbidden SDD path' }
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_SecretPatternDetected'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Bash'; tool_input = @{ command = 'echo ghp_TESTNOTREAL_aaaaabbbbbcccccddddd > src/ok.txt' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'expected deny for secret pattern' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_When_HostOwnsForbiddenSddPath'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'apply_patch'; tool_input = @{ command = "*** Add File: PRD/blocked.md`n+# blocked" }; cwd = $fixtureRoot }; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'Toolkit hook must not veto the host authorization decision for a path' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_AndRedact_When_SecretPatternDetected'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'Bash'; tool_input = @{ command = 'echo ghp_TESTNOTREAL_aaaaabbbbbcccccddddd > src/ok.txt' }; cwd = $fixtureRoot }; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'host-owned authorization must not be vetoed'; MustNotContain = 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd' }
     [PSCustomObject]@{ TestName = 'Should_Deny_When_HookIdentityMissing'; Payload = @{ tool_name = 'Write'; tool_input = @{ path = (Join-Path $fixtureRoot 'src\missing-identity.cs'); content = 'class X {}' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write without PreToolUse identity must deny' }
     [PSCustomObject]@{ TestName = 'Should_Deny_When_ShellHookIdentityMissing'; Payload = @{ tool_name = 'Bash'; tool_input = @{ command = 'Set-Content -Path src\missing-shell-identity.cs -Value x' }; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'shell without PreToolUse identity must deny' }
-    [PSCustomObject]@{ TestName = 'Should_Deny_When_UnknownToolIsCaptured'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'FutureCodexTool'; tool_input = @{}; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'unknown tool must be denied after catch-all capture' }
+    [PSCustomObject]@{ TestName = 'Should_Allow_When_HostOwnsUnknownToolAuthorization'; Payload = @{ hook_event_name = 'PreToolUse'; tool_name = 'FutureCodexTool'; tool_input = @{}; cwd = $fixtureRoot }; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'Toolkit hook must not veto host authorization for unknown tools' }
     [PSCustomObject]@{ TestName = 'Should_Deny_When_InvalidHookIdentity'; Payload = @{ hook_event_name = 'PostToolUse'; tool_name = 'Read'; tool_input = @{}; cwd = $fixtureRoot }; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'read-only tool with invalid event identity must deny' }
 )
 
 if ($reparseAvailable) {
-    $cases += [PSCustomObject]@{ TestName = 'Should_Deny_When_DescendantReparseEscapesWorkspace'; Payload = $reparsePayload; ExpectedDecision = 'deny'; Acceptance = 'Decision'; FailureReason = 'write through an escaping junction must deny' }
+    $cases += [PSCustomObject]@{ TestName = 'Should_Allow_When_HostOwnsEscapingPathAuthorization'; Payload = $reparsePayload; ExpectedDecision = 'allow'; Acceptance = 'Decision'; FailureReason = 'Toolkit hook must not veto the host authorization decision for a path' }
 }
 
 try {

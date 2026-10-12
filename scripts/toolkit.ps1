@@ -670,7 +670,7 @@ function Invoke-ToolkitSync {
         [Parameter()][string] $OverrideInstallRoot,
         [Parameter()][string] $OverrideMode,
         [Parameter()][Nullable[bool]] $OverrideAllowUserHome,
-        [Parameter()][switch] $PromptOrchestratorMode
+        [Parameter()][switch] $PromptInstallPreferences
     )
 
     Write-ToolkitStepBanner -Title ("Sync agent ({0})" -f $AgentId)
@@ -678,6 +678,7 @@ function Invoke-ToolkitSync {
     if ($WhatIf.IsPresent) {
         $syncTable[$script:ToolkitConstant.WhatIfParameterName] = $true
     }
+    $syncTable['DeferPreferences'] = $true
     $syncOk = (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.SyncAgentRelativePath -ArgumentTable $syncTable)
     if (-not $syncOk) {
         return $false
@@ -686,7 +687,7 @@ function Invoke-ToolkitSync {
     Invoke-ToolkitPostSyncPreferences `
         -OverrideInstallRoot $OverrideInstallRoot `
         -OverrideAllowUserHome $OverrideAllowUserHome `
-        -Interactive:$PromptOrchestratorMode.IsPresent `
+        -Interactive:$PromptInstallPreferences.IsPresent `
         -WhatIf:$WhatIf.IsPresent
 
     return $true
@@ -919,13 +920,13 @@ function Invoke-ToolkitActionFromContext {
 
     switch ($ActionName) {
         { $_ -eq $script:ToolkitConstant.ToolkitActionSync } {
-            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptOrchestratorMode)
+            return (Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionValidate } {
             return (Invoke-ToolkitValidate -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow)
         }
         { $_ -eq $script:ToolkitConstant.ToolkitActionSyncAndValidate } {
-            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptOrchestratorMode
+            $syncOk = Invoke-ToolkitSync -AgentId $agentId -OverrideInstallRoot $overrideRoot -OverrideMode $overrideMode -OverrideAllowUserHome $overrideAllow -PromptInstallPreferences
             if (-not $syncOk) {
                 Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitSkippingValidateAfterSync
                 return $false

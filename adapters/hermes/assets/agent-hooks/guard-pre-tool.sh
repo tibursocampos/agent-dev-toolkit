@@ -17,6 +17,6 @@ if command -v pwsh >/dev/null 2>&1 && [[ -f "${PS1_GUARD}" ]]; then
   exit $?
 fi
 
-# Fail-closed: cannot evaluate GuardCommon without pwsh.
-printf '{"action":"block","message":"pwsh unavailable; Hermes agent-hooks guard fail-closed"}\n'
-exit 2
+# The host owns authorization; missing optional Toolkit hook runtime must not deny.
+printf '{}\n'
+exit 0

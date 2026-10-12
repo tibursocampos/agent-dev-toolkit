@@ -52,7 +52,6 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 | PLAN-LEDGER atomic claim (`REQ-002` / CA2) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (+ `references/plan-ledger.md`) |
 | PLAN document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PLAN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| SDD language, context, .NET | `sdd-artifact-language-pt-br.mdc`, `context-management.mdc`, `dotnet-guidelines/*.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/<section>.md` |
@@ -118,7 +117,7 @@ Do not invent steps. Do not assign a duration.
 
 ### 5. Context checkpoint
 
-`context-management.mdc`; PLAN draft in chat if >=40%.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 5.5 PLAN storage
 

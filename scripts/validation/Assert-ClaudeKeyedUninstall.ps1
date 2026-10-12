@@ -157,7 +157,7 @@ function Assert-ManagedArtifactsPresent {
     }
 
     $hooksPath = Join-Path $workInstallRoot $hooksDirName
-    foreach ($hookName in @('context-before-prompt.ps1', 'context-pre-compact.ps1', 'plan-after-edit.ps1', '_hook-common.ps1')) {
+    foreach ($hookName in @('context-before-prompt.ps1', 'plan-after-edit.ps1', 'emit-trace.ps1', '_hook-common.ps1')) {
         if (-not (Test-Path -LiteralPath (Join-Path $hooksPath $hookName))) {
             Write-Fail -TestName $TestName -Reason ("expected managed hook after sync: {0}" -f $hookName)
         }

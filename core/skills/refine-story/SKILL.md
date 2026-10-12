@@ -94,7 +94,6 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Feature storage | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`, `PIPELINE.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Story template | `skills/_shared/templates/features/story/STORY.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do **not** preload mode playbooks `feature.md` / `tech.md` / `split.md` until the mode is chosen — load **only** the chosen mode’s playbook; do not preload the other two modes, all `references/*.md`, all backlog-item-types, or `persona-context.md` for Bug/Technical Story. After gates load `references/command.md` for step discovery; then **one** mode playbook + **one** type file + **one** section per step (`SKILL-REFERENCE-RETRIEVAL.md`). Load Product-depth norms only at scorecard Step 4 (or when AC budget is challenged). Do not dump entire `memory-bank/` or full PRD (`SR-NO-FULL-DUMP`).

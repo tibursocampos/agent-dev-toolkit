@@ -91,6 +91,9 @@ function Get-RepoText {
 
 $commitSkill = Get-RepoText -RelativePath $commitSkillRelative
 $preferences = Get-RepoText -RelativePath $preferencesRelative
+$constants = Get-RepoText -RelativePath 'scripts/_lib/ToolkitConstants.ps1'
+$toolkit = Get-RepoText -RelativePath 'scripts/toolkit.ps1'
+$syncAgent = Get-RepoText -RelativePath 'scripts/sync-agent.ps1'
 $guardrails = Get-RepoText -RelativePath $guardrailsRelative
 $executionDisplay = Get-RepoText -RelativePath $executionDisplayRelative
 $orchestrateDevelop = Get-RepoText -RelativePath $orchestrateDevelopRelative
@@ -109,20 +112,22 @@ Assert-Includes -TestName $ct1Name -Text $commitSkill -Needle 'wait for user con
 Assert-Includes -TestName $ct1Name -Text $commitSkill -Needle 'Create the commit only after the operator confirms the message' -Reason 'commit is created only after message confirmation'
 Write-Pass -TestName $ct1Name
 
-# --- Should_SeedOrchestratorModeAlways_When_FirstSync (CT2) ---
-$ct2Name = 'Should_SeedOrchestratorModeAlways_When_FirstSync'
-Assert-Includes -TestName $ct2Name -Text $preferences -Needle "DefaultOrchestratorMode  = 'always'" -Reason 'first sync seeds orchestrator_mode always'
-Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'First sync writes orchestrator_mode always and does not ask' -Reason 'first sync does not ask the mode'
-Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'No orchestration-mode question' -Reason 'first sync has no mode question'
-Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'does not prompt or change the seeded mode' -Reason 'Interactive does not ask on first sync'
-$ensureStart = $preferences.IndexOf('function Invoke-ToolkitEnsurePreferences', [System.StringComparison]::Ordinal)
-if ($ensureStart -lt 0) {
-    Write-Fail -TestName $ct2Name -Reason 'Invoke-ToolkitEnsurePreferences is missing'
-}
-$ensureBody = $preferences.Substring($ensureStart)
-if ($ensureBody.IndexOf('Read-Host', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
-    Write-Fail -TestName $ct2Name -Reason 'first sync must not prompt with Read-Host'
-}
+# --- Should_AskPreferencesOnly_OnInteractiveFirstSync (CT2) ---
+$ct2Name = 'Should_AskPreferencesOnly_OnInteractiveFirstSync'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle "DefaultOrchestratorMode  = 'always'" -Reason 'non-interactive first sync defaults to always'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'DefaultCavemanMode       = $true' -Reason 'first sync defaults Caveman on'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'if ($Interactive.IsPresent)' -Reason 'interactive preference prompt is scoped to toolkit interactive flow'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'if ($WhatIf.IsPresent)' -Reason 'WhatIf exits before interactive prompts'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'ToolkitCavemanInstallPromptOffLine' -Reason 'Caveman off option is shown'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'ToolkitOrchestratorInstallPromptAdaptiveLine' -Reason 'adaptive option is shown'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'Test-Path -LiteralPath $preferencesPath' -Reason 'existing preferences are preserved before prompting'
+Assert-Includes -TestName $ct2Name -Text $preferences -Needle 'Read-Host $Prompt' -Reason 'interactive choices are read from the console'
+Assert-Includes -TestName $ct2Name -Text $constants -Needle 'Off (disables response compression)' -Reason 'Caveman off explains the response-compression effect'
+Assert-Includes -TestName $ct2Name -Text $toolkit -Needle '-Interactive:$PromptInstallPreferences.IsPresent' -Reason 'toolkit interactive sync passes the install-preferences signal after publication'
+Assert-Includes -TestName $ct2Name -Text $toolkit -Needle '-PromptInstallPreferences' -Reason 'the interactive toolkit sync opts in to preference prompts'
+Assert-Includes -TestName $ct2Name -Text $toolkit -Needle "`$syncTable['DeferPreferences'] = `$true" -Reason 'toolkit defers direct-sync defaults until the interactive post-publish flow'
+Assert-Includes -TestName $ct2Name -Text $syncAgent -Needle '[switch] $DeferPreferences' -Reason 'direct sync remains non-interactive unless toolkit defers preference initialization'
+Assert-Includes -TestName $ct2Name -Text $syncAgent -Needle 'Invoke-ToolkitEnsurePreferences -SddRoot $sddResult.SddRoot' -Reason 'direct non-interactive sync persists default preferences'
 Write-Pass -TestName $ct2Name
 
 # --- Should_KeepOpenQuestion_When_NoOperatorAnswer (CT3) ---

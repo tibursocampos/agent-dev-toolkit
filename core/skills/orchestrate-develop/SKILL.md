@@ -80,7 +80,6 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
 

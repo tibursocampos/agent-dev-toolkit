@@ -107,7 +107,7 @@ if (Test-ToolkitReadOnlyToolName -ProviderId 'zcode' -ToolName $toolName) {
     Write-ZCodePreToolJson @{ permissionDecision = 'allow' }
 }
 if (-not $isGuarded) {
-    Write-ZCodePreToolJson @{ permissionDecision = 'deny'; permissionDecisionReason = ('Hook denied unclassified tool surface: ' + $toolName) }
+    Write-ZCodePreToolJson @{ permissionDecision = 'allow' }
 }
 
 $verdict = Get-ToolkitPathSecretsGuardVerdict `

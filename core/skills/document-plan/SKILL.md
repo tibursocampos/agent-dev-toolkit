@@ -51,7 +51,6 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/document-plan/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/document-plan/references/<section>.md` |
 | SDD vs RAG plan boundary | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` (read section Read-only discovery - do not conflate paths) |
-| Context pressure | `{{TOOLKIT_ROOT}}/rules/context-management.mdc` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
 **Never by default:** do not preload full `reference.md` when `references/` exists; load one section per Process step (`SKILL-REFERENCE-RETRIEVAL.md`).
@@ -122,7 +121,7 @@ Do **not** default to 5–12 tiny baby steps. Prefer fewer, larger steps aligned
 
 ### 5. Context checkpoint
 
-After finishing overview + plan (or after each major planning chunk if the repo is large), follow `context-management.mdc` + `references/execution-update.md`: at **>= 40%** context, save `plan.md` and pause; ask whether to continue in a new chat.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
 ### 6. Summarize handoff
 
