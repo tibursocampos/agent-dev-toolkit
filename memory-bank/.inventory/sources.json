@@ -3,18 +3,18 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-11T21:17:03.8114561Z",
+  "generated_at": "2026-10-12T09:17:03.8283767Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "3dd509812a236453459d05233fd15ac3e9b8da10c8d692a06957472e9eee67ba",
+  "inventory_hash": "25db09b0392b2e95f08106bcf1a54b13b3467ca049ad4db347fde0d9460d7d53",
   "inventory_summary": "132 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
   "skill_count": 45,
-  "assert_script_count": 99,
+  "assert_script_count": 89,
   "sources": [
     {
       "path": ".github/workflows/docs.yml",
@@ -53,9 +53,9 @@
     },
     {
       "path": ".gitignore",
-      "last_write_utc": "2026-10-11T20:53:06.0842146Z",
-      "length": 6200,
-      "hash": "1d61f392791b360b2ddb948f1d61947a016e41f062a6311f1cc4760579295fd9",
+      "last_write_utc": "2026-10-12T02:49:12.5421809Z",
+      "length": 6132,
+      "hash": "27ee40cebc8aa16ca7b9c67ad2612e60af87c432ab4aecc3add7baf323486956",
       "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
     },
     {
@@ -585,16 +585,16 @@
     },
     {
       "path": "docs/domains/cli-scripts.md",
-      "last_write_utc": "2026-10-11T20:44:36.4704159Z",
-      "length": 15347,
-      "hash": "ca85d0d6a80867a89fe12ccbc2dd031b82c24a7f1f49a25e3a4aca01b3382e63",
+      "last_write_utc": "2026-10-12T02:47:50.2919714Z",
+      "length": 15269,
+      "hash": "ef2df444504d9e982495a16848e711e90a2dde3ab7921fac332de9facd2418b0",
       "summary": "Domain: CLI scripts"
     },
     {
       "path": "docs/domains/core.md",
-      "last_write_utc": "2026-10-11T12:10:41.3869879Z",
-      "length": 31658,
-      "hash": "6166c9d78472567f66723fec7ec5a21190e7edd722c94e567e2c25f6fe0d3169",
+      "last_write_utc": "2026-10-12T02:47:46.7224747Z",
+      "length": 30888,
+      "hash": "4132077939f54bfe5300968592669964a0922035b58c839c95551e55089654ef",
       "summary": "Domain: Core"
     },
     {
@@ -774,9 +774,9 @@
     },
     {
       "path": "docs/VALIDATION.md",
-      "last_write_utc": "2026-10-09T22:58:40.3891661Z",
-      "length": 19026,
-      "hash": "e027ab1b5e903475ba106a528aa56247e15a8c41ae60f487d9d12d1dc2343a64",
+      "last_write_utc": "2026-10-12T02:47:31.1843242Z",
+      "length": 17998,
+      "hash": "57108d7bfe85d5e978239e61470915991a279cd386a3f79b6974436a6b0bc8ae",
       "summary": "Validation and local CI"
     },
     {
@@ -886,9 +886,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-10T21:22:34.4550569Z",
-      "length": 72792,
-      "hash": "3e04a9fe9d8d2bbb796fbc5a992b8cb51cdcad0ab156b69ac29fc90c622cdc34",
+      "last_write_utc": "2026-10-12T03:08:36.7986069Z",
+      "length": 66905,
+      "hash": "dcd3b7bc242b383b7b17fa38adebe5a5f9d7937e2600f4d5f91c1b7c039f9df4",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {
@@ -928,9 +928,9 @@
     },
     {
       "path": "scripts/validation/validate-core.ps1",
-      "last_write_utc": "2026-10-11T02:03:44.6586238Z",
-      "length": 21608,
-      "hash": "2072943f37a3b1056fd39c12fb23e9ce8dfb1eed3ca19885d401d4ad1b94bbaf",
+      "last_write_utc": "2026-10-12T03:08:14.9525644Z",
+      "length": 19491,
+      "hash": "67be386422f0e2683fe957ba214ab7fcdcec6e0928f38bcebb8e38226536aa2b",
       "summary": "Assertion scripts may emit success-stream objects through helper calls."
     },
     {

@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory (2026-10-11T21:17:03.8114561Z; hash `3dd509812a236453459d05233fd15ac3e9b8da10c8d692a06957472e9eee67ba`)._
+_Entry points and layout hints from inventory (2026-10-12T09:17:03.8283767Z; hash `25db09b0392b2e95f08106bcf1a54b13b3467ca049ad4db347fde0d9460d7d53`)._
 
 | Signal | Path |
 |--------|------|
