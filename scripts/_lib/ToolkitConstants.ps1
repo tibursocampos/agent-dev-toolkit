@@ -698,6 +698,7 @@ $script:ToolkitMessage = @{
     DeletePathRequired                 = 'Delete candidate path is required.'
     DeletePathIsInstallRoot            = 'Refuse delete of InstallRoot itself (wholesale wipe blocked): {0}'
     DeletePathEscapesInstallRoot       = 'Refuse delete: path resolves outside InstallRoot. Path: {0}; Final: {1}; InstallRoot: {2}'
+    DeletePathReparsePoint             = 'Refuse delete: path contains a reparse point. Path: {0}'
     FromPathRequired                   = 'FromPath is required.'
     ToolkitRepoRootNotFound            = 'Toolkit repo root not found from path: {0}'
     ToolkitPathLibNotFound             = 'Toolkit path lib not found: {0}'
@@ -828,7 +829,7 @@ $script:ToolkitMessage = @{
     ToolkitMenuSyncValidateLine        = '[3] Sync then validate    Sync, then smoke that agent'
     ToolkitMenuValidateCoreLine        = '[4] Validate core only    Assert-CiWorkflow, Assert-GuardShellCanonicalPaths, and Assert-TraceEmitterFailOpen; no agent home write'
     ToolkitMenuValidationLabLine       = '[5] Validation lab        Run core or a CI smoke script'
-    ToolkitMenuUninstallLine           = '[6] Uninstall agent       Keyed toolkit removal (preserves SDD sessions/manifest)'
+    ToolkitMenuUninstallLine           = '[6] Uninstall agent       Keyed removal of toolkit files and SDD runtime state'
     ToolkitMenuHelpLine                = '[7] Help and docs         What each action does + equivalent flags'
     ToolkitMenuExitLine                = '[0] Exit'
     ToolkitMenuWhatHint                = 'What do you want to do?'
@@ -900,7 +901,7 @@ Menu actions
 
 [6] Uninstall agent
     Removes keyed toolkit artifacts from InstallRoot (not a wholesale wipe).
-    Preserves sdd/sessions and sdd/manifest.json (operator runtime state).
+    Removes toolkit-owned SDD manifest/preferences and canonical develop sessions; preserves unrecognized session data.
 
 [7] Help and docs
     This help. Full install flags: docs/INSTALL.md
@@ -939,7 +940,7 @@ Validate agent:
 Validate core:
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 
-Uninstall (fixture; all registry agents; preserves SDD sessions/manifest):
+Uninstall (fixture; all registry agents; removes toolkit-owned SDD state and preserves unrecognized session data):
   pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Uninstall -Agent claude
 
 Copilot requires -Mode user|repo.

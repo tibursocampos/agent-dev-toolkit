@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Interactive / non-interactive CLI for agent-dev-toolkit (multi-agent).
@@ -811,6 +811,12 @@ function Invoke-ToolkitUninstall {
         return $false
     }
 
+    if ($result.PSObject.Properties.Name -contains 'Status' -and [string]$result.Status -ne 'Complete') {
+        $pending = if ($result.PSObject.Properties.Name -contains 'IncompletePaths') { @($result.IncompletePaths) -join '; ' } else { '' }
+        $detail = if ([string]::IsNullOrWhiteSpace($pending)) { [string]$result.Message } else { '{0}; pending: {1}' -f $result.Message, $pending }
+        Write-ToolkitError -Message ($script:ToolkitMessage.ToolkitUninstallFailed -f $resolved.AgentId, ('{0}: {1}' -f $result.Status, $detail))
+        return $false
+    }
     if ($result.PSObject.Properties.Name -contains 'Success' -and $result.Success -eq $false) {
         $detail = if ($result.PSObject.Properties.Name -contains 'Message') { [string]$result.Message } else { 'Uninstall-Toolkit' }
         Write-ToolkitError -Message ($script:ToolkitMessage.ToolkitUninstallFailed -f $resolved.AgentId, $detail)

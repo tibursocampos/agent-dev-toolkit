@@ -3,12 +3,12 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-12T18:20:01.7497821Z",
+  "generated_at": "2026-10-13T02:22:59.8630543Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "0fd2d25d7379282608f07cdaa1de57730b3702d11036f73c0f0e67806c5fc59e",
-  "inventory_summary": "133 source(s); stack: markdown, powershell",
+  "inventory_hash": "1db15b5edfd1ee8f2352762a60b14e932ac8d7f7df84ac406af7494bc58a7f1c",
+  "inventory_summary": "134 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
@@ -53,9 +53,9 @@
     },
     {
       "path": ".gitignore",
-      "last_write_utc": "2026-10-12T02:49:12.5421809Z",
-      "length": 6132,
-      "hash": "27ee40cebc8aa16ca7b9c67ad2612e60af87c432ab4aecc3add7baf323486956",
+      "last_write_utc": "2026-10-12T23:20:45.8133039Z",
+      "length": 6274,
+      "hash": "76fc5f6fa9a021f7e103e5fb0613507626f2b3588637cfd8a71c1b8f4ffb9048",
       "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
     },
     {
@@ -88,9 +88,9 @@
     },
     {
       "path": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:58:37.8302381Z",
-      "length": 11545,
-      "hash": "9245f19ddbfa3db34234108c969b38d9a687f1b74d7e5b8c5fceb12e88f337ef",
+      "last_write_utc": "2026-10-13T00:39:46.7801525Z",
+      "length": 12151,
+      "hash": "96e4da2072099e718e66a781668b2943c68f9734633b65ade8d1a459e538212a",
       "summary": "Explicitly never touch legacy bridge."
     },
     {
@@ -137,9 +137,9 @@
     },
     {
       "path": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:43.0286984Z",
-      "length": 15988,
-      "hash": "097e9d9bc4cc695442780a4ceba993d5057d166ffa475894f274a8d1901153de",
+      "last_write_utc": "2026-10-13T01:23:02.7351397Z",
+      "length": 16603,
+      "hash": "39f997c180092ddeea30c9d18ca6da2266fc860b6effd04659154054f059f1ba",
       "summary": "Script-scope load so Remove-* helpers can call Assert-PathUnderInstallRootForDelete"
     },
     {
@@ -186,9 +186,9 @@
     },
     {
       "path": "adapters/codex/Uninstall-CodexToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:23.0131998Z",
-      "length": 16693,
-      "hash": "bbcccb11f6e0e2e052be2e7f63f49b3ed1e6abfbdf2d7392d39ab23e5b2193d9",
+      "last_write_utc": "2026-10-13T00:39:46.7801525Z",
+      "length": 17307,
+      "hash": "da3bd6afeddd955419c7dbc2e5b6eac0ff88a54c43e74936dddf3afca7544c52",
       "summary": "Unknown / corrupt catalog authored outside toolkit - leave untouched (RN07)."
     },
     {
@@ -228,9 +228,9 @@
     },
     {
       "path": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:43.0286984Z",
-      "length": 11811,
-      "hash": "4196bf5cf68d5df25eae22f0c001aa4ad441bece7d8db956d730c357bae1902d",
+      "last_write_utc": "2026-10-13T00:39:46.7801525Z",
+      "length": 11707,
+      "hash": "9e7cddbb3d935e5a34d03588d02e16a3e2ea8df38bdb685d8fd2c8e0ed19d44f",
       "summary": "Uninstall targets are published files. Never recurse into a user-created"
     },
     {
@@ -277,9 +277,9 @@
     },
     {
       "path": "adapters/cursor/Uninstall-CursorToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:58:31.3484757Z",
-      "length": 16464,
-      "hash": "c3e45d13a52354263873acdda9c52697978a83dbb9b5f72ddd63b1284d5bb114",
+      "last_write_utc": "2026-10-13T00:58:52.5802487Z",
+      "length": 17660,
+      "hash": "87aac7d4b26abd6854254ee7196064198c0f3a3a024fcc878cc6be7da42f20ee",
       "summary": "Event had only toolkit handlers — drop empty event key."
     },
     {
@@ -326,9 +326,9 @@
     },
     {
       "path": "adapters/grok/Uninstall-GrokToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:32.8810112Z",
-      "length": 11173,
-      "hash": "0bb5300f7e11354d4435c65be95d61e825d58c7ea1eebf32207276b797fb5977",
+      "last_write_utc": "2026-10-13T02:02:22.1086417Z",
+      "length": 12151,
+      "hash": "80f042ff81be6e09f2f935f2143142be009823281e1577ce9388c04a30d26f3f",
       "summary": "Script-scope load so Assert-PathUnderInstallRootForDelete is available"
     },
     {
@@ -347,9 +347,9 @@
     },
     {
       "path": "adapters/hermes/Publish-HermesPolicy.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.9959828Z",
-      "length": 13942,
-      "hash": "59619d91d7a4ad8c54cea8b82d1f2c6b1ab936f1062591573d7a77efd17ce165",
+      "last_write_utc": "2026-10-13T00:38:10.3521691Z",
+      "length": 14309,
+      "hash": "60dc1fe7b76715d22f782a5b6d6fb73c4555e6d9d3daa66c04f48a9770dfc55f",
       "summary": "Asset lives beside this publish script under adapters/hermes/assets/."
     },
     {
@@ -368,9 +368,9 @@
     },
     {
       "path": "adapters/hermes/Uninstall-HermesToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:58:31.3494744Z",
-      "length": 14174,
-      "hash": "e82a15e52f59809c45b0e140474ed7312fce1753556ebe2e299429e9930ff3bd",
+      "last_write_utc": "2026-10-13T02:02:22.1106419Z",
+      "length": 15158,
+      "hash": "8e5a3fe5bbdd759ffb3ddb927d13138d29d72a0ea1d25b08e18cf59eeeb36a1d",
       "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
     },
     {
@@ -410,9 +410,9 @@
     },
     {
       "path": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:35.4829957Z",
-      "length": 8989,
-      "hash": "84772c9d0e22d4067d14417dc465f4c418742bfceb8f73c7c9937365b5a8f147",
+      "last_write_utc": "2026-10-13T00:39:46.7801525Z",
+      "length": 9602,
+      "hash": "40508ed0ac7f1882d15aef126dbe11e8e456b2091862b7ff72761b52d1acba02",
       "summary": "#Requires -Version 5.1"
     },
     {
@@ -459,9 +459,9 @@
     },
     {
       "path": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:32.8830108Z",
-      "length": 9727,
-      "hash": "cf9821003487118ad8f587c20414b8a2f7d40fdbaa6281619f2b6a5a29d496cb",
+      "last_write_utc": "2026-10-13T02:02:22.1106419Z",
+      "length": 10717,
+      "hash": "47be308978faa8f65bbc9714120aea257130df981e0d81b534e9d072fd246ca1",
       "summary": "Names-only manifests cannot authorize recursive deletion of skill contents."
     },
     {
@@ -501,9 +501,9 @@
     },
     {
       "path": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
-      "last_write_utc": "2026-10-11T18:55:43.0296997Z",
-      "length": 19854,
-      "hash": "1fee60a27c165cdb7f567c1a628109da130bade8a5d6b188d06a1716a2c2de47",
+      "last_write_utc": "2026-10-13T00:52:00.6918459Z",
+      "length": 20491,
+      "hash": "6a85ba9b8e7aa68be8690b09bbbc8a0cd5f9b84a03440cf7f2fe8ad63eab7bdd",
       "summary": "Exact toolkit overlay leaf — drop."
     },
     {
@@ -564,10 +564,10 @@
     },
     {
       "path": "docs/documentation-plan/plan.md",
-      "last_write_utc": "2026-10-11T20:44:36.4704159Z",
-      "length": 24139,
-      "hash": "8081eab6bdaa581cca40bd27ab1237bf02757eea4e6914dbed1d3b9f7c668206",
-      "summary": "Documentation plan: agent-dev-toolkit"
+      "last_write_utc": "2026-10-12T18:42:28.7316106Z",
+      "length": 3974,
+      "hash": "76c54cace9ab6f81a9f1104da6b21c9ced64078bde386c1d7410c76cb63b286b",
+      "summary": "Documentation plan: branch documentation update"
     },
     {
       "path": "docs/documentation-plan/SITE-HARDEN-PLAN.md",
@@ -585,9 +585,9 @@
     },
     {
       "path": "docs/domains/cli-scripts.md",
-      "last_write_utc": "2026-10-12T02:47:50.2919714Z",
-      "length": 15269,
-      "hash": "ef2df444504d9e982495a16848e711e90a2dde3ab7921fac332de9facd2418b0",
+      "last_write_utc": "2026-10-12T18:33:34.6986346Z",
+      "length": 15753,
+      "hash": "e1a5fe508a74439b0434de638369576c3433b975260c48cd10e9954a940b3ce1",
       "summary": "Domain: CLI scripts"
     },
     {
@@ -648,9 +648,9 @@
     },
     {
       "path": "docs/guides/session-behavior.md",
-      "last_write_utc": "2026-09-25T23:20:41.6890589Z",
-      "length": 3454,
-      "hash": "e556574d6341da4324642fc152e4385769c7b32c3919cba957b4f47797fc7bea",
+      "last_write_utc": "2026-10-12T18:33:34.6976357Z",
+      "length": 3717,
+      "hash": "f708ff146b65af2b4c982f06a0e173b3c5291844584a2619ffe090a6d26f0d5d",
       "summary": "Session behavior"
     },
     {
@@ -662,16 +662,16 @@
     },
     {
       "path": "docs/INSTALL.md",
-      "last_write_utc": "2026-10-09T22:58:40.3773125Z",
-      "length": 17286,
-      "hash": "fd3c736e44cb1cf11acba6a1aed8d69ba9ed55ce3687fd09c7b6db3baf537953",
+      "last_write_utc": "2026-10-12T18:33:34.7006345Z",
+      "length": 17632,
+      "hash": "c87af0f6991a41e980417dc689e405667222cf10c5121f216f222c6ed6a9b11b",
       "summary": "Install and sync"
     },
     {
       "path": "docs/overview.md",
-      "last_write_utc": "2026-10-11T12:10:41.3859877Z",
-      "length": 9258,
-      "hash": "e88bf248fc65990febba31e02b0425303518802a4af0fd40d79d3a834fcc75d3",
+      "last_write_utc": "2026-10-12T18:29:05.8042615Z",
+      "length": 9418,
+      "hash": "a10ab565686693f38647dafacdf8837bb5f929083efa84ffa7698c6f1477c44e",
       "summary": "Overview"
     },
     {
@@ -802,9 +802,9 @@
     },
     {
       "path": "scripts/_lib/Copy-ToolkitManagedTree.ps1",
-      "last_write_utc": "2026-10-11T20:52:54.3749567Z",
-      "length": 47896,
-      "hash": "65f59233cccfed805ed6ecf4b18c3538f0b3bf361a9e5e6f3218ed39b7ec5db8",
+      "last_write_utc": "2026-10-13T01:15:50.1517229Z",
+      "length": 53582,
+      "hash": "eb54ff8077f209ed8ff9a0b197954f053f47074f20299c116d03e51781c9efbf",
       "summary": "These values are shared by the copy/publish helpers below. Initialize them"
     },
     {
@@ -872,9 +872,9 @@
     },
     {
       "path": "scripts/_lib/Resolve-InstallRoot.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.4730457Z",
-      "length": 19565,
-      "hash": "0ef3b962da41cf4846553252b49399193464f2b1a98e0fd95fce238b99048b1b",
+      "last_write_utc": "2026-10-13T00:00:55.5753966Z",
+      "length": 23948,
+      "hash": "ef16fe8009d115398f976831d40dc39fe7b86a9cd62cff97fc9db4f721b030f2",
       "summary": "Strip longest/specific UNC forms before the short drive forms."
     },
     {
@@ -893,17 +893,24 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-12T17:36:26.9237854Z",
-      "length": 66320,
-      "hash": "bd392b764e0340bf3768602d0988900163fefd8244aad92159f4fd3682077e51",
+      "last_write_utc": "2026-10-13T00:47:22.3947214Z",
+      "length": 66501,
+      "hash": "f770439505d3b1c98c6451f6754d4c3cb9ca9a54eaaf350fc3773605e210db06",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {
       "path": "scripts/_lib/ToolkitManagedPublishInventory.ps1",
-      "last_write_utc": "2026-10-11T15:37:08.0694870Z",
-      "length": 47688,
-      "hash": "dec86f0f91529f7fcaae8c29736dacc9986b184d5790624eddec82e9a844c07f",
+      "last_write_utc": "2026-10-13T01:31:37.0284875Z",
+      "length": 52210,
+      "hash": "8ec407f5cef228d6fca4abda354737e17954055616bb5df99131e475dffa99d5",
       "summary": "The prior process exited while holding the lock; ownership is"
+    },
+    {
+      "path": "scripts/_lib/ToolkitUninstallArtifacts.ps1",
+      "last_write_utc": "2026-10-13T01:58:36.7684016Z",
+      "length": 30190,
+      "hash": "04d2f60dbdf27b4dc801eacfbbd2a6392518b1ee8f21133e2faa33380a35e437",
+      "summary": "Mirror sync-agent's finite adapter/mode mapping. Codex user-scope is"
     },
     {
       "path": "scripts/_lib/ToolkitValidationFileSystem.ps1",
@@ -914,16 +921,16 @@
     },
     {
       "path": "scripts/sync-agent.ps1",
-      "last_write_utc": "2026-10-12T15:40:45.5281774Z",
-      "length": 16317,
-      "hash": "73e4a936ad6626ca6eb7c2edecfb1a4cd1e9bcb0218c27d0b13a59ab976e887e",
-      "summary": "Re-resolve every path after directory creation and immediately before"
+      "last_write_utc": "2026-10-13T01:05:19.0046529Z",
+      "length": 17013,
+      "hash": "28a5b139b82f260237e86aee09e0207ff4d74497b32108bc60dac8823f2ed674",
+      "summary": "Serialize the complete runtime manifest publication against uninstall."
     },
     {
       "path": "scripts/toolkit.ps1",
-      "last_write_utc": "2026-10-12T15:40:45.5291782Z",
-      "length": 42288,
-      "hash": "809f6ab670aafe0e599f9b2ecb5abf4454d97986b111368861b1cf449e2c1de9",
+      "last_write_utc": "2026-10-13T00:40:05.2975591Z",
+      "length": 42852,
+      "hash": "038417bca4409b3ed0c28aa5471e71cbe6a7b3b714f7f2004bd2dd34f4d22e45",
       "summary": "--- Entry ---"
     },
     {

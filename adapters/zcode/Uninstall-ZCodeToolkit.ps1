@@ -41,7 +41,7 @@ $script:ZCodeUninstallMessage = @{
     JsonWhatIfOk          = 'WhatIf: would reverse-merge toolkit overlay out of {0}.'
     JsonCleanedOk         = 'Reverse-merged toolkit overlay out of {0}.'
     JsonInvalid           = 'Invalid JSON at {0}: {1}'
-    SddPreservedNote      = 'SDD sessions/manifest preserved (operator state).'
+    SddPreservedNote      = 'Removed toolkit-owned SDD state; preserved unrecognized session data.'
 }
 
 function Get-ZCodeUninstallRepoRoot {
@@ -365,6 +365,8 @@ function Invoke-ZCodeUninstallToolkit {
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $routerNotes = New-Object System.Collections.Generic.List[string]
@@ -484,12 +486,15 @@ function Invoke-ZCodeUninstallToolkit {
         }
     }
 
+
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'zcode' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $pathCount = if ($WhatIf.IsPresent) {
         $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
         $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
     }
+    $pathCount += $artifactCleanup.RemovedPaths.Count
     $jsonTouched = [bool]($cliResult.Touched -or $hooksResult.Touched)
     $baseMessage = if ($pathCount -eq 0 -and -not $jsonTouched) {
         ($script:ZCodeUninstallMessage.NothingFound -f $resolvedInstallRoot)
@@ -512,20 +517,22 @@ function Invoke-ZCodeUninstallToolkit {
     $message = ($messageParts -join '; ')
 
     return [PSCustomObject]@{
-        Success          = $true
+        Success         = ($artifactCleanup.Status -eq 'Complete')
         Implemented      = $true
         CommandName      = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
         WhatIf           = [bool]$WhatIf.IsPresent
         InstallRoot      = $resolvedInstallRoot
         RemovedCount     = $pathCount
-        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
+        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) })
         PreservedPaths   = @($preservedSkillPaths)
         CliConfigTouched = [bool]$cliResult.Touched
         HooksJsonTouched = [bool]$hooksResult.Touched
         KeyedOnly        = $true
         WholesaleWipe    = $false
-        SddPreserved     = $true
+        SddPreserved     = $false
         Message          = $message
-        ExitCode         = 0
+        ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }
 }

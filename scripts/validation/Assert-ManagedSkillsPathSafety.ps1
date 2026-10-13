@@ -304,6 +304,7 @@ try {
     $sourceRoot = Join-Path $probeRoot 'uninstall-source'
     $skillsDest = Join-Path $installRoot 'skills'
     $sourceSkillDir = Join-Path $sourceRoot 'sample-skill'
+    New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
     New-Item -ItemType Directory -Path $sourceSkillDir -Force | Out-Null
     [System.IO.File]::WriteAllText((Join-Path $sourceSkillDir 'SKILL.md'), "catalog skill body`n")
     $null = Copy-ToolkitManagedTree -SourceRoot $sourceRoot -DestinationRoot $skillsDest -InstallRoot $installRoot
