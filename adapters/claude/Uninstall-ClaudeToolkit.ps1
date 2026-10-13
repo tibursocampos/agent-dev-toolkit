@@ -293,6 +293,8 @@ function Invoke-ClaudeUninstallToolkit {
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $routerNotes = New-Object System.Collections.Generic.List[string]
@@ -384,13 +386,14 @@ function Invoke-ClaudeUninstallToolkit {
             }
         }
     }
-
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'claude' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $pathCount = if ($WhatIf.IsPresent) {
         $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
         $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
     }
+    $pathCount += $artifactCleanup.RemovedPaths.Count
     $messageParts = @(
         $(if ($WhatIf.IsPresent) {
             ('{0}; {1}' -f ($script:ClaudeUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot), $settingsResult.Message)
@@ -409,19 +412,21 @@ function Invoke-ClaudeUninstallToolkit {
     $message = ($messageParts -join '; ')
 
     return [PSCustomObject]@{
-        Success         = $true
+        Success         = ($artifactCleanup.Status -eq 'Complete')
         Implemented     = $true
         CommandName     = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
         WhatIf          = [bool]$WhatIf.IsPresent
         InstallRoot     = $resolvedInstallRoot
         RemovedCount    = $pathCount
-        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
+        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) })
         PreservedPaths  = @($preservedSkillPaths)
         SettingsTouched = [bool]$settingsResult.SettingsTouched
         SettingsPath    = $settingsResult.SettingsPath
         KeyedOnly       = $true
         WholesaleWipe   = $false
         Message         = $message
-        ExitCode        = 0
+        ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }
 }

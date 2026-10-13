@@ -120,10 +120,8 @@ function Remove-CopilotManagedPath {
         [string] $InstallRoot,
 
         [Parameter()]
-        [switch] $WhatIf,
+        [switch] $WhatIf
 
-        [Parameter()]
-        [switch] $RequireOwnership
     )
 
     # Uninstall targets are published files. Never recurse into a user-created
@@ -139,25 +137,15 @@ function Remove-CopilotManagedPath {
 
     $null = Assert-PathUnderInstallRootForDelete -CandidatePath $TargetPath -InstallRoot $InstallRoot
 
-    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
-    $targetFull = Get-NormalizedFullPath -Path $TargetPath
-    $relativePath = $targetFull.Substring($installRootFull.TrimEnd('\', '/').Length).TrimStart('\', '/') -replace '\\', '/'
-    $listed = Test-ToolkitManagedPublishInventoryListsFile `
-        -InstallRoot $installRootFull `
-        -RelativePath $relativePath
-    if ($RequireOwnership.IsPresent -and -not $listed) {
-        Write-Warning ("Preserved existing destination file because ownership is not proven: {0}" -f $TargetPath)
-        return $false
-    }
+    # Candidate paths come from the current Copilot publishers. Their exact
+    # source identity is the ownership proof; hashes and bookkeeping are not
+    # prerequisites for deleting edited exclusive files.
 
     if ($WhatIf.IsPresent) {
         return $true
     }
 
     Remove-Item -LiteralPath $TargetPath -Recurse -Force
-    if ($RequireOwnership.IsPresent) {
-        $null = Remove-ToolkitManagedPublishInventoryEntry -InstallRoot $installRootFull -RelativePath $relativePath
-    }
     return $true
 }
 
@@ -189,6 +177,8 @@ function Invoke-CopilotUninstallToolkit {
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
 
     $sourceSkillsRoot = Join-Path (Join-Path $repoRoot $script:CopilotPathConstant.CoreDirectoryName) $script:CopilotPathConstant.SkillsDirectoryName
     $sourcePolicyRoot = Join-Path (Join-Path $repoRoot $script:CopilotPathConstant.CoreDirectoryName) $script:CopilotPathConstant.PolicyDirectoryName
@@ -227,20 +217,20 @@ function Invoke-CopilotUninstallToolkit {
     $instructionsRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.InstructionsDirectoryName
     foreach ($instructionName in (Get-CopilotManagedInstructionFileNames -SourcePolicyRoot $sourcePolicyRoot)) {
         $instructionPath = Join-Path $instructionsRoot $instructionName
-        if (Remove-CopilotManagedPath -TargetPath $instructionPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -RequireOwnership) {
+        if (Remove-CopilotManagedPath -TargetPath $instructionPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($instructionPath) | Out-Null
         }
     }
 
     $copilotInstructionsPath = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.CopilotInstructionsFileName
-    if (Remove-CopilotManagedPath -TargetPath $copilotInstructionsPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -RequireOwnership) {
+    if (Remove-CopilotManagedPath -TargetPath $copilotInstructionsPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
         $removedPaths.Add($copilotInstructionsPath) | Out-Null
     }
 
     $hooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName
     foreach ($hookRelative in (Get-CopilotManagedHookRelativePaths -SourceHooksRoot $sourceHooksRoot)) {
         $hookPath = Join-Path $hooksRoot ($hookRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (Remove-CopilotManagedPath -TargetPath $hookPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -RequireOwnership) {
+        if (Remove-CopilotManagedPath -TargetPath $hookPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($hookPath) | Out-Null
         }
     }
@@ -249,18 +239,21 @@ function Invoke-CopilotUninstallToolkit {
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
     foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
         $legacyAgentPath = Join-Path $customAgentsRoot $agentFileName
-        if (Remove-CopilotManagedPath -TargetPath $legacyAgentPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -RequireOwnership) {
+        if (Remove-CopilotManagedPath -TargetPath $legacyAgentPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($legacyAgentPath) | Out-Null
         }
 
         $profileName = [System.IO.Path]::GetFileNameWithoutExtension($agentFileName) + $script:CopilotPathConstant.CustomAgentProfileExtension
         $agentFilePath = Join-Path $customAgentsRoot $profileName
-        if (Remove-CopilotManagedPath -TargetPath $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf -RequireOwnership) {
+        if (Remove-CopilotManagedPath -TargetPath $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($agentFilePath) | Out-Null
         }
     }
 
+
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'copilot' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $removedCount = $removedPaths.Count
+    $removedCount += $artifactCleanup.RemovedPaths.Count
     $message = if ($WhatIf.IsPresent) {
         ($script:CopilotUninstallMessage.WhatIfOk -f $removedCount, $resolvedInstallRoot, $normalizedMode)
     }
@@ -273,17 +266,19 @@ function Invoke-CopilotUninstallToolkit {
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
         return [PSCustomObject]@{
-            Success       = $true
+            Success         = ($artifactCleanup.Status -eq 'Complete')
             Implemented   = $true
             CommandName   = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
             WhatIf        = [bool]$WhatIf.IsPresent
             Mode          = $normalizedMode
             InstallRoot   = $resolvedInstallRoot
             RemovedCount  = $removedCount
-            RemovedPaths  = @($removedPaths)
+            RemovedPaths  = @($removedPaths) + @($artifactCleanup.RemovedPaths)
             PreservedPaths = @($preservedSkillPaths)
             Message       = $message
-            ExitCode      = 0
+            ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
             KeyedOnly     = $true
         }
     }

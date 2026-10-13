@@ -162,6 +162,52 @@ function Invoke-ToolkitManagedPublishInventoryLock {
     }
 }
 
+function Remove-ToolkitManagedPublishInventoryIfEmpty {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string] $InstallRoot)
+
+    $root = Assert-ToolkitManagedPublishInstallRoot -InstallRoot $InstallRoot
+    $identityBytes = [System.Text.Encoding]::UTF8.GetBytes($root.TrimEnd('\', '/').ToUpperInvariant())
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($identityBytes)
+    $identity = ([BitConverter]::ToString($digest) -replace '-', '')
+    $filesystemMutex = New-Object System.Threading.Mutex($false, ('Global\ToolkitFilesystemGate_' + $identity))
+    $filesystemAcquired = $false
+    try {
+        try { $filesystemAcquired = $filesystemMutex.WaitOne([TimeSpan]::FromSeconds(60)) }
+        catch [System.Threading.AbandonedMutexException] { $filesystemAcquired = $true }
+        if (-not $filesystemAcquired) {
+            return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'active-operation-or-timeout' }
+        }
+
+        return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $root -Action {
+            $inventoryPath = Get-ToolkitManagedPublishInventoryPath -InstallRoot $root
+            if (-not (Test-Path -LiteralPath $inventoryPath -PathType Leaf)) {
+                return [PSCustomObject]@{ Removed = $false; Complete = $true; Reason = 'inventory-missing' }
+            }
+            try { $entries = Read-ToolkitManagedPublishInventory -InstallRoot $root }
+            catch {
+                return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'inventory-ambiguous'; Error = $_.Exception.Message }
+            }
+            if ($entries.Count -gt 0) {
+                return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'managed-entries-remain'; RemainingEntries = $entries.Count }
+            }
+            try {
+                $probe = [System.IO.File]::Open($inventoryPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+                $probe.Dispose()
+                [System.IO.File]::Delete($inventoryPath)
+                return [PSCustomObject]@{ Removed = $true; Complete = $true; Reason = 'empty-inventory-retired' }
+            }
+            catch {
+                return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'inventory-active-or-retirement-failed'; Error = $_.Exception.Message }
+            }
+        })
+    }
+    finally {
+        if ($filesystemAcquired) { $filesystemMutex.ReleaseMutex() }
+        $filesystemMutex.Dispose()
+    }
+}
+
 function Get-ToolkitFileContentSha256 {
     [CmdletBinding()]
     param(
@@ -275,7 +321,7 @@ function Get-ToolkitManagedPublishInventoryDuplicatePath {
     return $null
 }
 
-function Read-ToolkitManagedPublishInventory {
+function Read-ToolkitManagedPublishInventoryCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -347,7 +393,15 @@ function Read-ToolkitManagedPublishInventory {
     return $entries
 }
 
-function Write-ToolkitManagedPublishInventory {
+function Read-ToolkitManagedPublishInventory {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string] $InstallRoot)
+
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        Read-ToolkitManagedPublishInventoryCore -InstallRoot $InstallRoot
+    })
+}
+function Write-ToolkitManagedPublishInventoryCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -438,6 +492,17 @@ function Write-ToolkitManagedPublishInventory {
     throw ($script:ToolkitMessage.ManagedPublishInventoryAtomicWriteFailed -f $inventoryPath, $maxAttempts, $lastError.Exception.Message)
 }
 
+function Write-ToolkitManagedPublishInventory {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][hashtable] $Entries
+    )
+
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        Write-ToolkitManagedPublishInventoryCore -InstallRoot $InstallRoot -Entries $Entries
+    })
+}
 function Set-ToolkitManagedPublishInventoryEntry {
     [CmdletBinding()]
     param(
@@ -986,6 +1051,35 @@ function Remove-ToolkitManagedPublishInventoryEntry {
         if (-not $entries.ContainsKey($relativePath)) { return $null }
         $entries.Remove($relativePath) | Out-Null
         Write-ToolkitManagedPublishInventory -InstallRoot $InstallRoot -Entries $entries
+    })
+}
+
+function Remove-ToolkitManagedPublishInventoryEntries {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $RelativePaths
+    )
+
+    $normalizedPaths = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($path in $RelativePaths) {
+        if (-not [string]::IsNullOrWhiteSpace($path)) {
+            [void]$normalizedPaths.Add((Assert-ToolkitManagedPublishRelativePath -RelativePath $path))
+        }
+    }
+    if ($normalizedPaths.Count -eq 0) { return $false }
+
+    return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+        $entries = Read-ToolkitManagedPublishInventoryCore -InstallRoot $InstallRoot
+        $changed = $false
+        foreach ($path in $normalizedPaths) {
+            if ($entries.ContainsKey($path)) {
+                $entries.Remove($path)
+                $changed = $true
+            }
+        }
+        if ($changed) { Write-ToolkitManagedPublishInventoryCore -InstallRoot $InstallRoot -Entries $entries }
+        return $changed
     })
 }
 

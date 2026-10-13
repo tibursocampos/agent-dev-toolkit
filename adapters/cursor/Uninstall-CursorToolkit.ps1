@@ -42,7 +42,7 @@ $script:CursorUninstallMessage = @{
     HooksJsonWhatIfOk        = 'WhatIf: would reverse-merge toolkit handlers out of {0}.'
     HooksJsonCleanedOk       = 'Reverse-merged toolkit handlers out of {0}.'
     HooksJsonInvalid         = 'Invalid hooks.json at {0}: {1}'
-    SddPreservedNote         = 'SDD sessions/manifest preserved (operator state).'
+    SddPreservedNote         = 'Removed toolkit-owned SDD state; preserved unrecognized session data.'
     RouterPreservedNote      = 'AGENTS.md preserved (operator edit or drift; not toolkit-owned).'
 }
 
@@ -274,9 +274,12 @@ function Invoke-CursorUninstallToolkit {
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $routerNotes = New-Object System.Collections.Generic.List[string]
+    $routerIncompletePaths = New-Object System.Collections.Generic.List[string]
 
     $hooksJsonResult = Remove-CursorToolkitHooksJsonEntries -ResolvedInstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
     if ($null -eq $hooksJsonResult -or $hooksJsonResult.Success -ne $true) {
@@ -339,6 +342,9 @@ function Invoke-CursorUninstallToolkit {
     }
     elseif ($routerRemoveResult.Preserved -and -not [string]::IsNullOrWhiteSpace($routerRemoveResult.Message)) {
         $routerNotes.Add([string]$routerRemoveResult.Message) | Out-Null
+        if (-not [string]::IsNullOrWhiteSpace([string]$routerRemoveResult.CurrentFilePath)) {
+            $routerIncompletePaths.Add([string]$routerRemoveResult.CurrentFilePath) | Out-Null
+        }
     }
 
     $customAgentsRoot = Join-Path $resolvedInstallRoot $script:CursorAdapterConstant.CustomAgentsDirectoryName
@@ -366,12 +372,15 @@ function Invoke-CursorUninstallToolkit {
         }
     }
 
+
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'cursor' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $pathCount = if ($WhatIf.IsPresent) {
         $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
         $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
     }
+    $pathCount += $artifactCleanup.RemovedPaths.Count
     $baseMessage = if ($pathCount -eq 0 -and -not $hooksJsonResult.HooksJsonTouched) {
         ($script:CursorUninstallMessage.NothingFound -f $resolvedInstallRoot)
     }
@@ -392,21 +401,29 @@ function Invoke-CursorUninstallToolkit {
     if ($skillAudit.Notes.Count -gt 0) { $messageParts += @($skillAudit.Notes) }
     $message = ($messageParts -join '; ')
 
+    $uninstallStatus = [string]$artifactCleanup.Status
+    if ($uninstallStatus -eq 'Complete' -and $routerIncompletePaths.Count -gt 0) {
+        $uninstallStatus = 'Incomplete'
+    }
+    $incompletePaths = @($artifactCleanup.IncompletePaths) + @($routerIncompletePaths.ToArray())
+
     return [PSCustomObject]@{
-        Success          = $true
+        Success         = ($uninstallStatus -eq 'Complete')
         Implemented      = $true
         CommandName      = 'Uninstall-Toolkit'
+        Status          = $uninstallStatus
+        IncompletePaths  = @($incompletePaths | Select-Object -Unique)
         WhatIf           = [bool]$WhatIf.IsPresent
         InstallRoot      = $resolvedInstallRoot
         RemovedCount     = $pathCount
-        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
+        RemovedPaths     = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) })
         PreservedPaths   = @($preservedSkillPaths)
         HooksJsonTouched = [bool]$hooksJsonResult.HooksJsonTouched
         HooksJsonPath    = $hooksJsonResult.HooksJsonPath
         KeyedOnly        = $true
         WholesaleWipe    = $false
-        SddPreserved     = $true
+        SddPreserved     = $false
         Message          = $message
-        ExitCode         = 0
+        ExitCode        = $(if ($uninstallStatus -eq 'Complete') { 0 } else { 1 })
     }
 }

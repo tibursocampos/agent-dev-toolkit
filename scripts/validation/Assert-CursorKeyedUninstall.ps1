@@ -7,7 +7,7 @@
 #   Should_NotMutateOnWhatIfAndBeIdempotent_When_UninstallCursorFixture
 #
 # CU03 / RN07: keyed uninstall + e2e sync -> validate -> uninstall on Cursor fixture.
-# SDD sessions/manifest must survive uninstall.
+# Toolkit-owned SDD manifest is removed; unrelated session files survive.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -257,7 +257,6 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
 
 $sessionProbePath = Join-Path $sessionsPath $sessionProbeFileName
 Set-Content -LiteralPath $sessionProbePath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionProbeMarker) -Encoding UTF8
-$manifestBefore = [System.IO.File]::ReadAllText($manifestPath)
 
 $validateLines = @(& $validateAgentScript -Agent cursor -InstallRoot $fixtureInstallRoot -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
@@ -345,12 +344,8 @@ $sessionProbeText = [System.IO.File]::ReadAllText($sessionProbePath)
 if ($sessionProbeText -notmatch [regex]::Escape($sessionProbeMarker)) {
     Write-Fail -TestName $removeTest -Reason 'sdd session content must be preserved'
 }
-if (-not (Test-Path -LiteralPath $manifestPath)) {
-    Write-Fail -TestName $removeTest -Reason 'sdd/manifest.json must survive uninstall'
-}
-$manifestAfter = [System.IO.File]::ReadAllText($manifestPath)
-if ($manifestAfter -ne $manifestBefore) {
-    Write-Fail -TestName $removeTest -Reason 'sdd/manifest.json must not be modified by uninstall'
+if (Test-Path -LiteralPath $manifestPath) {
+    Write-Fail -TestName $removeTest -Reason 'toolkit-owned sdd/manifest.json must be removed by uninstall'
 }
 
 Write-Pass -TestName $removeTest
@@ -383,8 +378,8 @@ if ($uninstallAgain.RemovedCount -gt 0) {
 if (-not (Test-Path -LiteralPath $sessionProbePath)) {
     Write-Fail -TestName $whatIfTest -Reason 'sdd session probe must survive idempotent uninstall cycle'
 }
-if ([System.IO.File]::ReadAllText($manifestPath) -ne $manifestBefore) {
-    Write-Fail -TestName $whatIfTest -Reason 'sdd/manifest.json must remain unchanged across WhatIf/idempotent uninstall'
+if (Test-Path -LiteralPath $manifestPath) {
+    Write-Fail -TestName $whatIfTest -Reason 'toolkit-owned sdd/manifest.json must stay removed after idempotent uninstall'
 }
 
 Write-Pass -TestName $whatIfTest

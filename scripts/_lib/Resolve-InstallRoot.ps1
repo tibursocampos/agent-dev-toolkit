@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Resolves and validates an InstallRoot for publish/smoke (fail-closed).
@@ -517,7 +517,9 @@ function Assert-PathUnderInstallRootForDelete {
         [string] $CandidatePath,
 
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [string] $AuthorizedRoot
     )
 
     if ([string]::IsNullOrWhiteSpace($CandidatePath)) {
@@ -528,17 +530,104 @@ function Assert-PathUnderInstallRootForDelete {
         throw $script:ToolkitMessage.InstallRootRequired
     }
 
-    $candidateFinal = Get-NormalizedFullPath -Path $CandidatePath
+    # Compare lexical paths first. Resolving CandidatePath before inspecting its
+    # components would follow a leaf symlink/junction and could authorize its target.
+    $rootLexical = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $InstallRoot))
+    $authorizedLexical = $rootLexical
+    if (-not [string]::IsNullOrWhiteSpace($AuthorizedRoot)) {
+        $authorizedLexical = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $AuthorizedRoot))
+    }
+    $candidateLexical = [System.IO.Path]::GetFullPath((Get-PathWithoutExtendedLengthPrefix -Path $CandidatePath))
     $rootFinal = Get-NormalizedFullPath -Path $InstallRoot
+    $authorizedFinal = Get-NormalizedFullPath -Path $authorizedLexical
     $comparison = [System.StringComparison]::OrdinalIgnoreCase
 
-    if ([string]::Equals($candidateFinal, $rootFinal, $comparison)) {
-        throw ($script:ToolkitMessage.DeletePathIsInstallRoot -f $candidateFinal)
+    if ([string]::Equals($candidateLexical, $authorizedLexical, $comparison)) {
+        throw ($script:ToolkitMessage.DeletePathIsInstallRoot -f $candidateLexical)
     }
 
-    if (-not (Test-IsPathUnderOrEqual -ChildPath $candidateFinal -ParentPath $rootFinal)) {
-        throw ($script:ToolkitMessage.DeletePathEscapesInstallRoot -f $CandidatePath, $candidateFinal, $rootFinal)
+    if (-not (Test-IsLexicalPathUnderOrEqual -ChildPath $authorizedLexical -ParentPath $rootLexical) -or
+        -not (Test-IsLexicalPathUnderOrEqual -ChildPath $candidateLexical -ParentPath $authorizedLexical)) {
+        throw ($script:ToolkitMessage.DeletePathEscapesInstallRoot -f $CandidatePath, $candidateLexical, $authorizedLexical)
+    }
+
+    # Walk every existing component below the authorized root without following
+    # links. This rejects both intermediate and leaf reparse points, even when
+    # their resolved targets happen to remain inside InstallRoot.
+    $authorizedPrefix = $authorizedLexical.TrimEnd([char]92, [char]47) + [System.IO.Path]::DirectorySeparatorChar
+    $relative = $candidateLexical.Substring($authorizedPrefix.Length)
+    $cursor = $authorizedLexical
+    foreach ($segment in @($relative -split '[\\/]')) {
+        if ([string]::IsNullOrWhiteSpace($segment) -or $segment -eq '.') { continue }
+        $cursor = Join-Path $cursor $segment
+        $item = $null
+        try {
+            $item = Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+        }
+        catch {
+            if ($_.CategoryInfo.Category -notin @('ObjectNotFound', 'ResourceUnavailable')) { throw }
+        }
+        if ($null -ne $item) {
+            if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw ($script:ToolkitMessage.DeletePathReparsePoint -f $cursor)
+            }
+        }
+    }
+
+    # A recursive Remove-Item of a safe-looking directory must also reject
+    # reparse points anywhere below it; enumerate one directory at a time and
+    # never enqueue a link target.
+    $candidateItem = $null
+    try { $candidateItem = Get-Item -LiteralPath $candidateLexical -Force -ErrorAction Stop }
+    catch {
+        if ($_.CategoryInfo.Category -notin @('ObjectNotFound', 'ResourceUnavailable')) { throw }
+    }
+    if ($null -ne $candidateItem -and $candidateItem.PSIsContainer) {
+        $pendingDirectories = New-Object 'System.Collections.Generic.Stack[string]'
+        $pendingDirectories.Push($candidateLexical)
+        while ($pendingDirectories.Count -gt 0) {
+            $directoryPath = $pendingDirectories.Pop()
+            foreach ($child in @(Get-ChildItem -LiteralPath $directoryPath -Force -ErrorAction Stop)) {
+                if (($child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                    throw ($script:ToolkitMessage.DeletePathReparsePoint -f $child.FullName)
+                }
+                if ($child.PSIsContainer) { $pendingDirectories.Push($child.FullName) }
+            }
+        }
+    }
+
+    $candidateFinal = Get-NormalizedFullPath -Path $candidateLexical
+    if (-not (Test-IsPathUnderOrEqual -ChildPath $candidateFinal -ParentPath $authorizedFinal)) {
+        throw ($script:ToolkitMessage.DeletePathEscapesInstallRoot -f $CandidatePath, $candidateFinal, $authorizedFinal)
     }
 
     return $candidateFinal
+}
+
+function New-ToolkitUninstallTargetResult {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('Complete', 'Incomplete', 'Failed')][string] $Status,
+        [Parameter(Mandatory = $true)][string] $TargetPath,
+        [Parameter(Mandatory = $true)][string] $Adapter,
+        [Parameter(Mandatory = $true)][string] $Operation,
+        [string] $Reason
+    )
+
+    [pscustomobject]@{
+        Adapter = $Adapter
+        TargetPath = $TargetPath
+        Operation = $Operation
+        Status = $Status
+        Reason = $Reason
+    }
+}
+
+function Get-ToolkitUninstallStatus {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][object[]] $TargetResults)
+
+    if (@($TargetResults | Where-Object { $_.Status -eq 'Failed' }).Count -gt 0) { return 'Failed' }
+    if (@($TargetResults | Where-Object { $_.Status -eq 'Incomplete' }).Count -gt 0) { return 'Incomplete' }
+    return 'Complete'
 }

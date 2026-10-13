@@ -228,10 +228,10 @@ try {
     $sessionsRoot = Join-Path $sddRoot $sessionsDirectoryName
     $manifestPath = Join-Path $sddRoot $manifestFileName
     if (-not (Test-Path -LiteralPath $sessionsRoot)) {
-        Write-Fail -TestName $removeTest -Reason 'sdd/sessions must survive keyed uninstall'
+        Write-Fail -TestName $removeTest -Reason 'sdd/sessions must remain while it contains unrelated session data'
     }
-    if (-not (Test-Path -LiteralPath $manifestPath)) {
-        Write-Fail -TestName $removeTest -Reason 'sdd/manifest.json must survive keyed uninstall'
+    if (Test-Path -LiteralPath $manifestPath) {
+        Write-Fail -TestName $removeTest -Reason 'toolkit-created sdd/manifest.json must be removed by uninstall'
     }
 
     Write-Pass -TestName $removeTest
@@ -269,8 +269,8 @@ try {
     }
 
     $manifestPath = Join-Path $sddRoot $manifestFileName
-    if (-not (Test-Path -LiteralPath $manifestPath)) {
-        Write-Fail -TestName $keepTest -Reason 'sdd/manifest.json must be preserved'
+    if (Test-Path -LiteralPath $manifestPath) {
+        Write-Fail -TestName $keepTest -Reason 'toolkit-created sdd/manifest.json must stay removed while alien session data remains'
     }
 
     if (Test-HermesToolkitSkillPresent) {

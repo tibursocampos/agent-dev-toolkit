@@ -216,6 +216,8 @@ function Invoke-AntigravityUninstallToolkit {
     $libDir = Join-Path (Join-Path $repoRoot 'scripts') '_lib'
     . (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
     $resolvedInstallRoot = Resolve-AntigravityInstallRootPath -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $mapped = Get-AntigravityMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
@@ -278,12 +280,15 @@ function Invoke-AntigravityUninstallToolkit {
     $legacyBridgePath = Join-Path $resolvedInstallRoot ($script:AntigravityAdapterConstant.LegacyBridgeRelativePath -replace '/', $sep)
     $hooksPath = $mapped.FixtureHooksPath
 
+
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'antigravity' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $pathCount = if ($WhatIf.IsPresent) {
         $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
         $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
     }
+    $pathCount += $artifactCleanup.RemovedPaths.Count
     $message = if ($WhatIf.IsPresent) {
         $script:AntigravityUninstallMessage.WhatIfOk -f $pathCount, $resolvedInstallRoot
     }
@@ -296,18 +301,20 @@ function Invoke-AntigravityUninstallToolkit {
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
-        Success                  = $true
+        Success         = ($artifactCleanup.Status -eq 'Complete')
         Implemented              = $true
         CommandName              = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
         InstallRoot              = $resolvedInstallRoot
         RemovedPathCount         = $pathCount
-        RemovedPaths             = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
+        RemovedPaths             = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) })
         PreservedPaths           = @($preservedSkillPaths)
         WhatIf                   = [bool]$WhatIf.IsPresent
         SmokeTargetsLegacyBridge = $false
         LegacyBridgePath         = $legacyBridgePath
         OfficialHooksPath        = $hooksPath
         Message                  = $message
-        ExitCode                 = 0
+        ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }
 }

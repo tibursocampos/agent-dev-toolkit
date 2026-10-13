@@ -134,6 +134,8 @@ function Invoke-HermesUninstallToolkit {
     . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
     . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitManagedPublishInventory.ps1')
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $knownPaths = @(Get-HermesKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
@@ -223,7 +225,9 @@ function Invoke-HermesUninstallToolkit {
     }
 
     if ($WhatIf.IsPresent) {
-        $wouldRemoveCount = $knownPaths.Count + $managedSkillResult.RemovedPaths.Count
+        $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'hermes' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
+        $wouldRemoveCount = $knownPaths.Count + $managedSkillResult.RemovedPaths.Count + $artifactCleanup.RemovedPaths.Count
+
         if ($routerRemoveResult.WouldRemove) {
             $wouldRemoveCount += 1
         }
@@ -240,21 +244,24 @@ function Invoke-HermesUninstallToolkit {
         if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
         $whatIfPaths = @($knownPaths) + @($managedSkillResult.RemovedPaths)
+        $whatIfPaths += @($artifactCleanup.RemovedPaths)
         if ($routerRemoveResult.WouldRemove) {
             $whatIfPaths += @([System.IO.Path]::GetFullPath($agentsPath))
         }
 
         return [PSCustomObject]@{
-            Success      = $true
+            Success         = ($artifactCleanup.Status -eq 'Complete')
             Implemented  = $true
             CommandName  = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
             WhatIf       = $true
             InstallRoot  = $resolvedInstallRoot
             RemovedPaths = @($whatIfPaths)
             PreservedPaths = @($preservedSkillPaths)
             RemovedCount = $wouldRemoveCount
             Message      = $message
-            ExitCode     = 0
+            ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
         }
     }
 
@@ -269,7 +276,9 @@ function Invoke-HermesUninstallToolkit {
         $removed.Add($path)
     }
 
-    $removedArray = @($removed.ToArray()) + @($managedSkillResult.RemovedPaths)
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'hermes' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot
+
+    $removedArray = @($removed.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths)
     if ($routerRemoveResult.Removed) {
         $removedArray += @([System.IO.Path]::GetFullPath($agentsPath))
     }
@@ -286,15 +295,17 @@ function Invoke-HermesUninstallToolkit {
     if ($skillAudit.Notes.Count -gt 0) { $message = '{0}; {1}' -f $message, ($skillAudit.Notes -join '; ') }
 
     return [PSCustomObject]@{
-        Success      = $true
+        Success         = ($artifactCleanup.Status -eq 'Complete')
         Implemented  = $true
         CommandName  = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
         WhatIf       = $false
         InstallRoot  = $resolvedInstallRoot
         RemovedPaths = $removedArray
         PreservedPaths = @($preservedSkillPaths)
         RemovedCount = $removedArray.Count
         Message      = $message
-        ExitCode     = 0
+        ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }
 }
