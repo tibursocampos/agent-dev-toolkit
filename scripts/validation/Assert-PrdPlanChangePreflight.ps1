@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 # Tests:
 #   Should_Pass_When_ConsistentPrdPlanChangePreflight
+#   Should_Pass_When_PublishedInstallOmitsRepoPath
 #   Should_Block_When_OrphanReqInPlanPreflight
 #   Should_Block_When_NnnMismatchPreflight
 #   Should_Block_When_BrownfieldChangeInvalidPreflight
@@ -102,6 +103,65 @@ function Find-FixturePlan {
 # --- allow path ---
 $validRoot = Get-FixtureFeatureRoot -RelativeDir $script:ToolkitConstant.PrdPlanChangePreflightFixtureValidRelativeDir
 $validPlan = Find-FixturePlan -FeatureRootPath $validRoot
+
+# --- published install: scripts parent is not the toolkit clone ---
+$publishedWork = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-preflight-published-{0}' -f [Guid]::NewGuid().ToString('N'))
+try {
+    $publishedScripts = Join-Path $publishedWork 'scripts'
+    $publishedValidation = Join-Path $publishedScripts 'validation'
+    $publishedLib = Join-Path $publishedScripts '_lib'
+    New-Item -ItemType Directory -Path $publishedValidation -Force | Out-Null
+    New-Item -ItemType Directory -Path $publishedLib -Force | Out-Null
+
+    foreach ($name in @(
+            'Invoke-PrdPlanChangePreflight.ps1',
+            'validate-prd.ps1',
+            'validate-plan.ps1',
+            'validate-change.ps1'
+        )) {
+        Copy-Item -LiteralPath (Join-Path $scriptDir $name) -Destination (Join-Path $publishedValidation $name)
+    }
+    foreach ($name in @(
+            'ToolkitConstants.ps1',
+            'Get-ToolkitRepoRoot.ps1',
+            'Resolve-InstallRoot.ps1'
+        )) {
+        Copy-Item -LiteralPath (Join-Path $libDir $name) -Destination (Join-Path $publishedLib $name)
+    }
+
+    $coreSkills = Join-Path (Join-Path $publishedWork 'core') 'skills'
+    $publishedReadme = Join-Path $publishedWork 'README.md'
+    if ((Test-Path -LiteralPath $coreSkills) -or (Test-Path -LiteralPath $publishedReadme)) {
+        Write-Fail -TestName 'Should_Pass_When_PublishedInstallOmitsRepoPath' -Reason 'published temp root must not be a toolkit clone'
+    }
+
+    $copiedPreflight = Join-Path $publishedValidation 'Invoke-PrdPlanChangePreflight.ps1'
+    $inRepoResult = Invoke-Preflight -ScriptPath $preflightPath -Arguments @{
+        FeatureRoot = $validRoot
+        PlanPath    = $validPlan
+        RepoPath    = $repoRoot
+    }
+    $publishedResult = Invoke-Preflight -ScriptPath $copiedPreflight -Arguments @{
+        FeatureRoot = $validRoot
+        PlanPath    = $validPlan
+    }
+    if ($publishedResult.Output -match 'Toolkit repo root not found') {
+        Write-Fail -TestName 'Should_Pass_When_PublishedInstallOmitsRepoPath' -Reason 'output must not report a missing toolkit repo root'
+    }
+    if ($publishedResult.ExitCode -ne $inRepoResult.ExitCode) {
+        Write-Fail -TestName 'Should_Pass_When_PublishedInstallOmitsRepoPath' -Reason ("published exit {0} differed from in-repo exit {1}. published={2}" -f $publishedResult.ExitCode, $inRepoResult.ExitCode, $publishedResult.Output.Trim())
+    }
+    if ($publishedResult.Output -notmatch 'preflight:') {
+        Write-Fail -TestName 'Should_Pass_When_PublishedInstallOmitsRepoPath' -Reason 'expected a preflight result after root resolution'
+    }
+    Write-Pass -TestName 'Should_Pass_When_PublishedInstallOmitsRepoPath'
+}
+finally {
+    if (Test-Path -LiteralPath $publishedWork) {
+        Remove-Item -LiteralPath $publishedWork -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 $validResult = Invoke-Preflight -ScriptPath $preflightPath -Arguments @{
     FeatureRoot = $validRoot
     PlanPath    = $validPlan
