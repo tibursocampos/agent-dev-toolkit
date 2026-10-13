@@ -310,7 +310,10 @@ function Get-FileNnn {
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoPath)) {
-    $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
+    $repoRoot = Split-Path -Parent $scriptsRoot
+    if ([string]::IsNullOrWhiteSpace($repoRoot) -or -not (Test-Path -LiteralPath $repoRoot)) {
+        Write-PreflightUsage -Message 'Pass -RepoPath when the parent of the scripts directory is missing.'
+    }
 }
 else {
     $repoRoot = Resolve-ExistingPath -Candidate $RepoPath
