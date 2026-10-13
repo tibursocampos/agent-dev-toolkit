@@ -3,11 +3,11 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-13T02:22:59.8630543Z",
+  "generated_at": "2026-10-13T03:17:23.2359432Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "1db15b5edfd1ee8f2352762a60b14e932ac8d7f7df84ac406af7494bc58a7f1c",
+  "inventory_hash": "a039ea412f4a6caa23696a1b06961286eb5e86aaf17f846b001c185e0424e8e6",
   "inventory_summary": "134 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
@@ -25,24 +25,31 @@
     },
     {
       "path": ".github/workflows/enforce-release-source.yml",
-      "last_write_utc": "2026-08-01T19:41:10.1434601Z",
-      "length": 500,
-      "hash": "a8d283ec12348d121e3537828e9c4a9d8bf24672ff4898ba7eed1870efff67af",
+      "last_write_utc": "2026-10-13T03:15:50.9357056Z",
+      "length": 3253,
+      "hash": "7a71296ce796479e6b6f2275f9e89d5bb6c1673958afe3529f955d73f6cfa7e5",
       "summary": "name: Enforce release source"
     },
     {
+      "path": ".github/workflows/master-release-ci.yml",
+      "last_write_utc": "2026-10-13T03:15:50.9357056Z",
+      "length": 798,
+      "hash": "d0379126f442a015274bf8aa5fbf480bf20c1f33187478290d70b7aff2dd059c",
+      "summary": "name: Master release CI"
+    },
+    {
       "path": ".github/workflows/publish-release-bootstrap.yml",
-      "last_write_utc": "2026-10-09T22:58:39.6429946Z",
-      "length": 4000,
-      "hash": "559ccffde35edc4744480919a7a6f38cd9a3584541b27e254861df7b92894424",
+      "last_write_utc": "2026-10-13T03:15:50.9357056Z",
+      "length": 4426,
+      "hash": "944dd26e4f39ab3016f741a837bc71855359b3e11ec5a9149fce12a0dfe74394",
       "summary": "Publish Release assets for Option 0 bootstrap (HTTPS zip + SHA256 + entrypoints)."
     },
     {
       "path": ".github/workflows/release.yml",
-      "last_write_utc": "2026-10-09T22:58:39.6439939Z",
-      "length": 4117,
-      "hash": "27b8777de8362782abce41a327e080b4a4bb474f6c2157d0a1e038e845076eda",
-      "summary": "Fast-forward master to develop and publish vMAJOR.MINOR.PATCH."
+      "last_write_utc": "2026-10-13T03:15:50.9541910Z",
+      "length": 13942,
+      "hash": "a9132aa5374c4e5f0baf70fc3318d7cc28259b5b19755fb027a54dac53a49c1a",
+      "summary": "Publish an opt-in release after a validated develop -> master/main PR merges."
     },
     {
       "path": ".github/workflows/validate-toolkit.yml",
@@ -53,9 +60,9 @@
     },
     {
       "path": ".gitignore",
-      "last_write_utc": "2026-10-12T23:20:45.8133039Z",
-      "length": 6274,
-      "hash": "76fc5f6fa9a021f7e103e5fb0613507626f2b3588637cfd8a71c1b8f4ffb9048",
+      "last_write_utc": "2026-10-13T03:15:48.1387855Z",
+      "length": 6273,
+      "hash": "bcb6c5bab969562c63979afbe1bf3743c114935edd11e3b9c8aa7d676310f8c8",
       "summary": "SDD artifacts (local agent workflow - agent-dev-toolkit)"
     },
     {
@@ -543,9 +550,9 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "last_write_utc": "2026-10-11T12:10:41.3859877Z",
-      "length": 16600,
-      "hash": "afff1b82703a3fca565f74aee5a87bd4b1de1dcfedb8b0a574d7732d74d4a782",
+      "last_write_utc": "2026-10-13T03:15:50.9541910Z",
+      "length": 17523,
+      "hash": "bfc60639efce3fbfedf9b4263bbf365fb8886bf3e62ec58794d828555ab57ea2",
       "summary": "Architecture"
     },
     {
@@ -561,13 +568,6 @@
       "length": 6237,
       "hash": "a6f4e8d6fe90e5dce02de837a0b607a5a990789bebda62a87c1a7a15d9e09ff3",
       "summary": "DESIGN-BRIEF — Public docs site reading pass"
-    },
-    {
-      "path": "docs/documentation-plan/plan.md",
-      "last_write_utc": "2026-10-12T18:42:28.7316106Z",
-      "length": 3974,
-      "hash": "76c54cace9ab6f81a9f1104da6b21c9ced64078bde386c1d7410c76cb63b286b",
-      "summary": "Documentation plan: branch documentation update"
     },
     {
       "path": "docs/documentation-plan/SITE-HARDEN-PLAN.md",
@@ -774,9 +774,9 @@
     },
     {
       "path": "docs/VALIDATION.md",
-      "last_write_utc": "2026-10-12T02:47:31.1843242Z",
-      "length": 17998,
-      "hash": "57108d7bfe85d5e978239e61470915991a279cd386a3f79b6974436a6b0bc8ae",
+      "last_write_utc": "2026-10-13T03:15:50.9551932Z",
+      "length": 21169,
+      "hash": "2577a656dee5af3776fefe5a6c73c3ac033ace8cc1eea3ec711a756441250b03",
       "summary": "Validation and local CI"
     },
     {
@@ -802,9 +802,9 @@
     },
     {
       "path": "scripts/_lib/Copy-ToolkitManagedTree.ps1",
-      "last_write_utc": "2026-10-13T01:15:50.1517229Z",
-      "length": 53582,
-      "hash": "eb54ff8077f209ed8ff9a0b197954f053f47074f20299c116d03e51781c9efbf",
+      "last_write_utc": "2026-10-13T03:17:16.8498997Z",
+      "length": 53604,
+      "hash": "74cdf9db56e0730d7373b97971525db3081d9028f035e2448912c0b607b94185",
       "summary": "These values are shared by the copy/publish helpers below. Initialize them"
     },
     {
@@ -900,9 +900,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitManagedPublishInventory.ps1",
-      "last_write_utc": "2026-10-13T01:31:37.0284875Z",
-      "length": 52210,
-      "hash": "8ec407f5cef228d6fca4abda354737e17954055616bb5df99131e475dffa99d5",
+      "last_write_utc": "2026-10-13T03:17:16.8642906Z",
+      "length": 52229,
+      "hash": "c52e3fff8552b38a8fd80c156a8daaca8d978e017531ef6f8783c705f5ccbcdb",
       "summary": "The prior process exited while holding the lock; ownership is"
     },
     {
@@ -921,7 +921,7 @@
     },
     {
       "path": "scripts/sync-agent.ps1",
-      "last_write_utc": "2026-10-13T01:05:19.0046529Z",
+      "last_write_utc": "2026-10-13T03:17:16.8642906Z",
       "length": 17013,
       "hash": "28a5b139b82f260237e86aee09e0207ff4d74497b32108bc60dac8823f2ed674",
       "summary": "Serialize the complete runtime manifest publication against uninstall."

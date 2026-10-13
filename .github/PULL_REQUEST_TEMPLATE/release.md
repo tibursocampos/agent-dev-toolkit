@@ -8,9 +8,22 @@
 
 -
 
+## Release decision
+
+<!-- Required: choose yes or no. Version must be the next MAJOR.MINOR.PATCH when yes; use N/A when no. -->
+
+Create release: no
+Version: N/A
+
+## Highlights
+
+<!-- Short release highlights copied into the published GitHub Release notes. One bullet per highlight. -->
+
+-
+
 ## Included changes
 
-<!-- PRs merged into `develop` since the last release. `/open-github-pr` release mode can auto-fill this table. -->
+<!-- Application PRs merged into `develop` since the last release; omit the release promotion and generated reconciliation PRs. `/open-github-pr` release mode can auto-fill this table. -->
 
 | PR | Title | Author | Merged |
 | --- | --- | --- | --- |
