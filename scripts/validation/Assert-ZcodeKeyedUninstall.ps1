@@ -213,7 +213,6 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
 
 $sessionProbePath = Join-Path $sessionsPath $sessionProbeFileName
 Set-Content -LiteralPath $sessionProbePath -Value ("{{ `"marker`": `"{0}`" }}`n" -f $sessionProbeMarker) -Encoding UTF8
-$manifestBefore = [System.IO.File]::ReadAllText($manifestPath)
 
 $validateLines = @(& $validateAgentScript -Agent zcode -InstallRoot $fixtureInstallRoot -Quiet -SkipCore *>&1 | ForEach-Object { "$_" })
 $validateExit = $LASTEXITCODE
@@ -300,12 +299,8 @@ if (Test-ZcodeToolkitHooksOverlayPresent) {
 if (-not (Test-Path -LiteralPath $sessionProbePath)) {
     Write-Fail -TestName $removeTest -Reason 'sdd/sessions probe must survive uninstall'
 }
-if (-not (Test-Path -LiteralPath $manifestPath)) {
-    Write-Fail -TestName $removeTest -Reason 'sdd/manifest.json must survive uninstall'
-}
-$manifestAfter = [System.IO.File]::ReadAllText($manifestPath)
-if ($manifestAfter -ne $manifestBefore) {
-    Write-Fail -TestName $removeTest -Reason 'sdd/manifest.json must not be modified by uninstall'
+if (Test-Path -LiteralPath $manifestPath) {
+    Write-Fail -TestName $removeTest -Reason 'toolkit-owned sdd/manifest.json must be removed by uninstall'
 }
 
 Write-Pass -TestName $removeTest
@@ -333,8 +328,8 @@ if ($uninstallAgain.RemovedCount -gt 0) {
 if (-not (Test-Path -LiteralPath $sessionProbePath)) {
     Write-Fail -TestName $whatIfTest -Reason 'sdd session probe must survive idempotent uninstall cycle'
 }
-if ([System.IO.File]::ReadAllText($manifestPath) -ne $manifestBefore) {
-    Write-Fail -TestName $whatIfTest -Reason 'sdd/manifest.json must remain unchanged across WhatIf/idempotent uninstall'
+if (Test-Path -LiteralPath $manifestPath) {
+    Write-Fail -TestName $whatIfTest -Reason 'toolkit-owned sdd/manifest.json must stay removed after idempotent uninstall'
 }
 
 Write-Pass -TestName $whatIfTest

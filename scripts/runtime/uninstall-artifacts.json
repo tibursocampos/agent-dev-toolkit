@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "status": "static-inventory",
+  "evidencePolicy": "Each target requires a cited publisher, runtime manifest, path constant, or explicit legacy identity. A matching filename alone does not establish ownership.",
+  "sourceManifest": "scripts/runtime/runtime-manifest.json",
+  "adapters": [
+    {
+      "id": "cursor",
+      "publisherRoot": "adapters/cursor/Publish-*.ps1",
+      "uninstaller": "adapters/cursor/Uninstall-CursorToolkit.ps1",
+      "assertion": "scripts/validation/Assert-CursorKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "hooks.json"
+      ],
+      "state": [
+        "sdd/**",
+        "hooks-state/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [
+        "hooks/context-pre-compact.ps1",
+        "hooks/guard-pre-tool.ps1"
+      ],
+      "legacyFiles": [
+        "hooks/context-pre-compact.ps1",
+        "hooks/guard-pre-tool.ps1"
+      ],
+      "legacySource": "adapters/cursor/Publish-CursorHooks.ps1",
+      "pruneRoots": [
+        "skills",
+        "rules",
+        "hooks",
+        "agents"
+      ]
+    },
+    {
+      "id": "antigravity",
+      "publisherRoot": "adapters/antigravity/Publish-*.ps1",
+      "uninstaller": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
+      "assertion": "scripts/validation/Assert-AntigravityKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": false
+      },
+      "sharedConfig": [
+        "config/skills.json",
+        "config/AGENTS.md",
+        "config/GEMINI.md",
+        "config/hooks/hooks.json"
+      ],
+      "state": [
+        "sdd/**",
+        "config/hooks/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "legacyLimit": "Uninstaller explicitly preserves the antigravity-ide/plugins bridge; no legacy artifact ownership inferred.",
+      "pruneRoots": [
+        "config/skills",
+        "config/hooks",
+        "plugins"
+      ]
+    },
+    {
+      "id": "claude",
+      "publisherRoot": "adapters/claude/Publish-*.ps1",
+      "uninstaller": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
+      "assertion": "scripts/validation/Assert-ClaudeKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "settings.json: hooks",
+        "settings.json: permissions.allow"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [
+        "permissions.allow: Bash(pwsh *)",
+        "permissions.allow: Bash(powershell *)"
+      ],
+      "legacySource": "adapters/claude/ClaudePathConstants.ps1",
+      "pruneRoots": [
+        "skills",
+        "rules",
+        "hooks",
+        "agents"
+      ]
+    },
+    {
+      "id": "codex",
+      "publisherRoot": "adapters/codex/Publish-*.ps1",
+      "uninstaller": "adapters/codex/Uninstall-CodexToolkit.ps1",
+      "assertion": "scripts/validation/Assert-CodexKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "plugin/hooks/hooks.json",
+        "marketplace.json"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        "plugin/scripts/**",
+        ".agents/scripts/** (optional user-scope)",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [
+        "plugin/hooks/session_start.ps1"
+      ],
+      "legacyFiles": [
+        "plugin/hooks/session_start.ps1"
+      ],
+      "legacySource": "adapters/codex/Uninstall-CodexToolkit.ps1",
+      "pruneRoots": [
+        "skills",
+        "rules",
+        "agents",
+        "plugin/skills",
+        "plugin/hooks",
+        "plugin"
+      ]
+    },
+    {
+      "id": "copilot",
+      "publisherRoot": "adapters/copilot/Publish-*.ps1",
+      "uninstaller": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
+      "assertion": "scripts/validation/Assert-CopilotKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": false,
+        "agents": true
+      },
+      "sharedConfig": [
+        "mode-specific instructions/hooks"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "legacyLimit": "Requires explicit user/repo mode; no additional legacy path established in S1.",
+      "publishedFiles": [
+        "hooks/GuardCommon.ps1"
+      ],
+      "pruneRoots": [
+        "skills",
+        "instructions",
+        "hooks",
+        "agents"
+      ]
+    },
+    {
+      "id": "opencode",
+      "publisherRoot": "adapters/opencode/Publish-*.ps1",
+      "uninstaller": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
+      "assertion": "scripts/validation/Assert-OpenCodeKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": false,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "plugins/agent-dev-toolkit-marker.js",
+        "plugins/authorization-contract.json"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "notApplicable": [
+        "rules tree",
+        "PowerShell hook scripts"
+      ],
+      "legacyLimit": "Hooks are plugin-JS only; no shell-hook legacy inferred.",
+      "pruneRoots": [
+        "skills",
+        "plugins",
+        "agents"
+      ]
+    },
+    {
+      "id": "grok",
+      "publisherRoot": "adapters/grok/Publish-*.ps1",
+      "uninstaller": "adapters/grok/Uninstall-GrokToolkit.ps1",
+      "assertion": "scripts/validation/Assert-GrokKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "hooks/toolkit-session-start.json",
+        "config.toml (preserved)"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "currentHookIdentities": [
+        "toolkit-session-start.json",
+        "session_start.ps1",
+        "guard-pre-tool.ps1"
+      ],
+      "legacyLimit": "Constants identify current published hook targets, not legacy versions.",
+      "publishedFiles": [
+        "hooks/GuardCommon.ps1"
+      ],
+      "pruneRoots": [
+        "skills",
+        "rules",
+        "hooks",
+        "agents"
+      ]
+    },
+    {
+      "id": "zcode",
+      "publisherRoot": "adapters/zcode/Publish-*.ps1",
+      "uninstaller": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
+      "assertion": "scripts/validation/Assert-ZcodeKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": false,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        "cli/config.json",
+        "hooks/hooks.json"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "currentHookIdentities": [
+        "agent-dev-toolkit-zcode-hooks",
+        "agent-dev-toolkit-zcode-session-start",
+        "guard-pre-tool.ps1"
+      ],
+      "legacyLimit": "Markers and filenames identify the current contribution, not a historical version.",
+      "pruneRoots": [
+        "skills",
+        "hooks",
+        "agents"
+      ]
+    },
+    {
+      "id": "hermes",
+      "publisherRoot": "adapters/hermes/Publish-*.ps1",
+      "uninstaller": "adapters/hermes/Uninstall-HermesToolkit.ps1",
+      "assertion": "scripts/validation/Assert-HermesKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": false
+      },
+      "sharedConfig": [
+        "config.yaml: plugins.enabled",
+        "config.yaml: hooks.pre_tool_call"
+      ],
+      "state": [
+        "sdd/**",
+        "agent-hooks/**",
+        "scripts/**",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [
+        "toolkit-session-start.json",
+        "hooks.pre_tool_call fail_closed entries"
+      ],
+      "legacySources": [
+        "adapters/hermes/HermesPathConstants.ps1",
+        "adapters/hermes/Uninstall-HermesToolkit.ps1"
+      ],
+      "publishedFiles": [
+        "agent-hooks/GuardCommon.ps1"
+      ],
+      "preserve": [
+        "memories/MEMORY.md",
+        "SOUL.md",
+        "gateway/token config"
+      ],
+      "pruneRoots": [
+        "skills",
+        "agent-hooks"
+      ]
+    },
+    {
+      "id": "openhands",
+      "publisherRoot": "adapters/openhands/Publish-*.ps1",
+      "uninstaller": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
+      "assertion": "scripts/validation/Assert-OpenHandsKeyedUninstall.ps1",
+      "capabilities": {
+        "skills": true,
+        "rules": true,
+        "hooks": true,
+        "router": true,
+        "agents": true
+      },
+      "sharedConfig": [
+        ".openhands/hooks.json",
+        "AGENTS.md managed content"
+      ],
+      "state": [
+        "sdd/**",
+        "scripts/**",
+        ".agents/scripts/** (project-scope)",
+        ".toolkit-managed-skills.json",
+        ".toolkit-managed-publish.json",
+      ],
+      "legacyEvidence": [],
+      "legacyLimit": "No legacy microagents path is published by current source; do not remove it without historical evidence.",
+      "publishedFiles": [
+        ".openhands/hooks/GuardCommon.ps1"
+      ],
+      "pruneRoots": [
+        ".agents/skills",
+        ".agents/agents",
+        ".openhands/hooks",
+        ".plugin"
+      ]
+    }
+  ],
+  "runtimeManifestPolicy": "The 17 entries in scripts/runtime/runtime-manifest.json are current shared publish targets under each adapter InstallRoot/scripts. Additional toolkit roots are conditional and listed by adapter in that manifest. Uninstall must scope entries to the adapter roots actually resolved by sync-agent; this inventory does not authorize broad recursive deletion.",
+  "directoryPruningPolicy": "Only remove ancestor directories proven to be toolkit-managed and empty after owned files are removed.",
+  "unknownLegacyPolicy": "No ownership from filename similarity alone; add only finite identities backed by publisher history or an explicit constant/source reference."
+}

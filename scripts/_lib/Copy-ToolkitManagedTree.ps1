@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Shared copy + placeholder resolve/assert + managed-skills prune for adapter publish.
@@ -59,7 +59,8 @@ function Enter-ToolkitFilesystemGate {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $RootPath,
-        [Parameter(Mandatory = $true)][string] $LockFileName
+        [Parameter(Mandatory = $true)][string] $LockFileName,
+        [Parameter()][ValidateRange(0, 3600)][int] $TimeoutSeconds = 60
     )
 
     $rootFull = Get-NormalizedFullPath -Path $RootPath
@@ -72,8 +73,21 @@ function Enter-ToolkitFilesystemGate {
         throw "Cannot acquire filesystem gate because the root is missing: $rootFull"
     }
 
+    # The named mutex protects the lock file's entire lifecycle. Without it,
+    # an uninstaller could delete the file after a publisher closes its
+    # handle while another publisher is waiting to recreate/open it.
+    $identityBytes = [System.Text.Encoding]::UTF8.GetBytes($rootFull.TrimEnd('\', '/').ToUpperInvariant())
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($identityBytes)
+    $identity = ([BitConverter]::ToString($digest) -replace '-', '')
+    $mutex = New-Object System.Threading.Mutex($false, ('Global\ToolkitFilesystemGate_' + $identity))
+    $mutexAcquired = $false
+    try {
+        try { $mutexAcquired = $mutex.WaitOne([TimeSpan]::FromSeconds($TimeoutSeconds)) }
+        catch [System.Threading.AbandonedMutexException] { $mutexAcquired = $true }
+        if (-not $mutexAcquired) { throw "Timed out waiting for cooperative filesystem lifecycle gate: $rootFull" }
+
     $lockPath = Join-Path $rootFull $LockFileName
-    $maxAttempts = 600
+    $maxAttempts = if ($TimeoutSeconds -eq 0) { 1 } else { [Math]::Max(1, $TimeoutSeconds * 10) }
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
             $stream = [System.IO.File]::Open(
@@ -81,7 +95,9 @@ function Enter-ToolkitFilesystemGate {
                 [System.IO.FileMode]::OpenOrCreate,
                 [System.IO.FileAccess]::ReadWrite,
                 [System.IO.FileShare]::None)
-            $script:ToolkitFilesystemGateState[$key] = [PSCustomObject]@{ Stream = $stream; Depth = 1 }
+            $script:ToolkitFilesystemGateState[$key] = [PSCustomObject]@{ Stream = $stream; Depth = 1; Mutex = $mutex; RetireRequested = $false; LockPath = $lockPath }
+            $mutex = $null
+            $mutexAcquired = $false
             return
         }
         catch [System.IO.IOException] {
@@ -90,6 +106,11 @@ function Enter-ToolkitFilesystemGate {
             }
             Start-Sleep -Milliseconds 100
         }
+    }
+    }
+    finally {
+        if ($mutexAcquired -and $null -ne $mutex) { $mutex.ReleaseMutex() }
+        if ($null -ne $mutex) { $mutex.Dispose() }
     }
 }
 
@@ -106,7 +127,66 @@ function Exit-ToolkitFilesystemGate {
     $state = $script:ToolkitFilesystemGateState[$key]
     $state.Depth--
     if ($state.Depth -gt 0) { return }
-    try { $state.Stream.Dispose() } finally { $script:ToolkitFilesystemGateState.Remove($key) }
+    try {
+        $state.Stream.Dispose()
+        if ($state.RetireRequested -and (Test-Path -LiteralPath $state.LockPath -PathType Leaf)) {
+            # The lifecycle mutex remains held until after deletion, so every
+            # cooperating publisher observes either the old lock or its absence.
+            [System.IO.File]::Delete($state.LockPath)
+        }
+    }
+    finally {
+        $script:ToolkitFilesystemGateState.Remove($key)
+        try { $state.Mutex.ReleaseMutex() } finally { $state.Mutex.Dispose() }
+    }
+}
+
+function Remove-ToolkitFilesystemGateFile {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $RootPath,
+        [Parameter(Mandatory = $true)][string] $LockFileName
+    )
+
+    $rootFull = Get-NormalizedFullPath -Path $RootPath
+    if (-not (Test-Path -LiteralPath $rootFull -PathType Container)) {
+        return [PSCustomObject]@{ Removed = $false; Complete = $true; Reason = 'root-missing' }
+    }
+    $identityBytes = [System.Text.Encoding]::UTF8.GetBytes($rootFull.TrimEnd('\', '/').ToUpperInvariant())
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($identityBytes)
+    $identity = ([BitConverter]::ToString($digest) -replace '-', '')
+    $mutex = New-Object System.Threading.Mutex($false, ('Global\ToolkitFilesystemGate_' + $identity))
+    $acquired = $false
+    $lockPath = Join-Path $rootFull $LockFileName
+    try {
+        try { $acquired = $mutex.WaitOne([TimeSpan]::FromSeconds(60)) }
+        catch [System.Threading.AbandonedMutexException] { $acquired = $true }
+        if (-not $acquired) { return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'active-operation-or-timeout' } }
+        $stateKey = '{0}|{1}' -f $rootFull.ToLowerInvariant(), $LockFileName.ToLowerInvariant()
+        if ($script:ToolkitFilesystemGateState.ContainsKey($stateKey)) {
+            $script:ToolkitFilesystemGateState[$stateKey].RetireRequested = $true
+            return [PSCustomObject]@{ Removed = $false; Complete = $true; Reason = 'retirement-deferred-until-gate-exit' }
+        }
+        if (-not (Test-Path -LiteralPath $lockPath -PathType Leaf)) {
+            return [PSCustomObject]@{ Removed = $false; Complete = $true; Reason = 'lock-missing' }
+        }
+        try {
+            $probe = [System.IO.File]::Open($lockPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+            $probe.Dispose()
+        }
+        catch [System.IO.IOException] {
+            return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'active-or-uncertain-lock-handle' }
+        }
+        [System.IO.File]::Delete($lockPath)
+        return [PSCustomObject]@{ Removed = $true; Complete = $true; Reason = 'retired' }
+    }
+    catch {
+        return [PSCustomObject]@{ Removed = $false; Complete = $false; Reason = 'retirement-failed'; Error = $_.Exception.Message }
+    }
+    finally {
+        if ($acquired) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
 }
 
 function Test-ToolkitManagedRelativeHasParentSegment {
@@ -411,7 +491,7 @@ function Update-ToolkitManagedCopyInventory {
     }
 }
 
-function Copy-ToolkitManagedTree {
+function Copy-ToolkitManagedTreeCore {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -504,6 +584,29 @@ function Copy-ToolkitManagedTree {
     return $filesCopied
 }
 
+function Copy-ToolkitManagedTree {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $SourceRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationRoot,
+        [Parameter()][string] $InstallRoot
+    )
+
+    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+        return (Copy-ToolkitManagedTreeCore -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot)
+    }
+
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        return (Invoke-ToolkitManagedPublishInventoryLock -InstallRoot $InstallRoot -Action {
+            Copy-ToolkitManagedTreeCore -SourceRoot $SourceRoot -DestinationRoot $DestinationRoot -InstallRoot $InstallRoot
+        })
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
+}
 function Get-ToolkitSourceSkillNames {
     [CmdletBinding()]
     param(
@@ -652,6 +755,17 @@ function Remove-ToolkitManagedSkillsByInventoryCore {
             $skillPathFull = Get-NormalizedFullPath -Path $skillPath
             Assert-ToolkitManagedDestinationUnderInstallRoot -DestinationPath $skillPathFull -InstallRoot $installRootFull
 
+            if ($WhatIf.IsPresent) {
+                # The owned skill directory is the recursive removal target.
+                # Do not enumerate every file just to describe a dry-run; this
+                # can be very expensive for large adapter skill catalogs. The
+                # path is truthful at the operation level: uninstall removes
+                # the complete toolkit-managed tree rooted here.
+                $null = Assert-PathUnderInstallRootForDelete -CandidatePath $skillPathFull -InstallRoot $installRootFull
+                $removed.Add($skillPathFull) | Out-Null
+                continue
+            }
+
             foreach ($file in @(Get-ChildItem -LiteralPath $skillPathFull -Recurse -File -Force -ErrorAction Stop)) {
                 $fullPath = Get-NormalizedFullPath -Path $file.FullName
                 if (-not $fullPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -659,31 +773,21 @@ function Remove-ToolkitManagedSkillsByInventoryCore {
                 }
                 $relativePath = $fullPath.Substring($rootPrefix.Length) -replace '\\', '/'
                 $null = Assert-PathUnderInstallRootForDelete -CandidatePath $fullPath -InstallRoot $installRootFull
-                if (-not $WhatIf.IsPresent) {
-                    Remove-Item -LiteralPath $fullPath -ErrorAction Stop
-                    $removed.Add($fullPath) | Out-Null
-                    if ($inventoryEntries.Remove($relativePath)) { $inventoryChanged = $true }
-                }
-                else {
-                    $removed.Add($fullPath) | Out-Null
-                }
+                Remove-Item -LiteralPath $fullPath -ErrorAction Stop
+                $removed.Add($fullPath) | Out-Null
+                if ($inventoryEntries.Remove($relativePath)) { $inventoryChanged = $true }
             }
 
-            if (-not $WhatIf.IsPresent) {
-                $directories = @(Get-ChildItem -LiteralPath $skillPathFull -Directory -Recurse -Force -ErrorAction Stop | Sort-Object { $_.FullName.Length } -Descending)
-                foreach ($directory in $directories) {
-                    if (@(Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop).Count -eq 0) {
-                        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $directory.FullName -InstallRoot $installRootFull
-                        Remove-Item -LiteralPath $directory.FullName -ErrorAction Stop
-                    }
-                }
-                if (@(Get-ChildItem -LiteralPath $skillPathFull -Force -ErrorAction Stop).Count -eq 0) {
-                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $skillPathFull -InstallRoot $installRootFull
-                    Remove-Item -LiteralPath $skillPathFull -ErrorAction Stop
+            $directories = @(Get-ChildItem -LiteralPath $skillPathFull -Directory -Recurse -Force -ErrorAction Stop | Sort-Object { $_.FullName.Length } -Descending)
+            foreach ($directory in $directories) {
+                if (@(Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop).Count -eq 0) {
+                    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $directory.FullName -InstallRoot $installRootFull
+                    Remove-Item -LiteralPath $directory.FullName -ErrorAction Stop
                 }
             }
-            elseif (@(Get-ChildItem -LiteralPath $skillPathFull -Force -ErrorAction Stop).Count -gt 0) {
-                $removed.Add($skillPathFull) | Out-Null
+            if (@(Get-ChildItem -LiteralPath $skillPathFull -Force -ErrorAction Stop).Count -eq 0) {
+                $null = Assert-PathUnderInstallRootForDelete -CandidatePath $skillPathFull -InstallRoot $installRootFull
+                Remove-Item -LiteralPath $skillPathFull -ErrorAction Stop
             }
         }
     }
@@ -719,6 +823,7 @@ function Remove-ToolkitManagedSkillsByInventory {
         [Parameter()][switch] $WhatIf
     )
 
+    . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
     . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
     Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
     try {
@@ -1121,7 +1226,8 @@ function Invoke-ToolkitManagedSkillsPublish {
     )
 
     if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
-        Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
     try {
         return Invoke-ToolkitManagedSkillsPublishCore @PSBoundParameters
@@ -1147,7 +1253,8 @@ function Invoke-ToolkitManagedAgentsPublish {
     )
 
     if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
-        Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
     }
     try {
         return Invoke-ToolkitManagedAgentsPublishCore @PSBoundParameters

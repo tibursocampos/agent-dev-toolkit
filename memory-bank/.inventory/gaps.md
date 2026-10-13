@@ -5,12 +5,12 @@ Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 
 ## MVP coverage
 
-- [x] project-context filled from evidence
-- [x] tech-stack.json matches detected manifests (markdown, powershell)
-- [x] architecture entry points verified
-- [x] domain-knowledge has at least one evidenced area (or N/A noted)
-- [x] conventions aligned with AGENTS/README
-- [x] known-risks reviewed once
+- [ ] project-context filled from evidence
+- [ ] tech-stack.json matches detected manifests (markdown, powershell)
+- [ ] architecture entry points verified
+- [ ] domain-knowledge has at least one evidenced area (or N/A noted)
+- [ ] conventions aligned with AGENTS/README
+- [ ] known-risks reviewed once
 
 ## Phase 2 / rich contracts
 

@@ -85,6 +85,7 @@ $libDir = Join-Path $scriptDir '_lib'
 . (Join-Path $libDir 'Assert-CopilotAgentMode.ps1')
 . (Join-Path $libDir 'Resolve-AdapterFixtureInstallRoot.ps1')
 . (Join-Path $libDir 'Initialize-SddPreferences.ps1')
+. (Join-Path $libDir 'Copy-ToolkitManagedTree.ps1')
 
 function Write-SyncError {
     param([Parameter(Mandatory = $true)][string] $Message)
@@ -145,6 +146,14 @@ function Publish-RuntimeScripts {
         [Parameter()][switch] $UserScope,
         [Parameter()][switch] $AllowUserHome
     )
+
+    # Serialize the complete runtime manifest publication against uninstall.
+    # The lifecycle mutex is shared with ToolkitUninstallArtifacts; the nested
+    # helper state keeps lock-file retirement deferred until this scope exits.
+    # A sync contending with uninstall fails closed instead of waiting and
+    # republishing files after cleanup has retired the lock.
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock' -TimeoutSeconds 0
+    try {
 
     $manifestPath = Join-Path $RepoRoot 'scripts/runtime/runtime-manifest.json'
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
@@ -222,6 +231,10 @@ function Publish-RuntimeScripts {
         }
     }
     Write-Host ("Publish-RuntimeScripts: OK ({0} allowlisted files across {1} toolkit root(s))" -f @($manifest.files).Count, $uniqueRoots.Count) -ForegroundColor Green
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
 }
 
 try {

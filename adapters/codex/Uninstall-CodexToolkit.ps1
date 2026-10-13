@@ -243,6 +243,8 @@ function Invoke-CodexUninstallToolkit {
     . (Join-Path $libDir 'ToolkitManagedPublishInventory.ps1')
 
     $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
+$artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
+    . $artifactHelper
     $removedPaths = New-Object System.Collections.Generic.List[string]
     $wouldRemovePaths = New-Object System.Collections.Generic.List[string]
     $routerNotes = New-Object System.Collections.Generic.List[string]
@@ -370,12 +372,15 @@ function Invoke-CodexUninstallToolkit {
         }
     }
 
+
+    $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'codex' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $count = if ($WhatIf.IsPresent) {
         $wouldRemovePaths.Count + $managedSkillResult.RemovedPaths.Count
     }
     else {
         $removedPaths.Count + $managedSkillResult.RemovedPaths.Count
     }
+    $count += $artifactCleanup.RemovedPaths.Count
     $message = if ($WhatIf.IsPresent) {
         if ($count -eq 0) {
             $script:CodexUninstallMessage.NothingFound -f $resolvedInstallRoot
@@ -401,18 +406,20 @@ function Invoke-CodexUninstallToolkit {
     }
 
     return [PSCustomObject]@{
-        Success         = $true
+        Success         = ($artifactCleanup.Status -eq 'Complete')
         Implemented     = $true
         CommandName     = 'Uninstall-Toolkit'
+        Status          = $artifactCleanup.Status
+        IncompletePaths  = @($artifactCleanup.IncompletePaths)
         WhatIf          = [bool]$WhatIf.IsPresent
         InstallRoot     = $resolvedInstallRoot
         RemovedCount    = $count
-        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) })
+        RemovedPaths    = $(if ($WhatIf.IsPresent) { @($wouldRemovePaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) } else { @($removedPaths.ToArray()) + @($managedSkillResult.RemovedPaths) + @($artifactCleanup.RemovedPaths) })
         ManagedSkillIds = @($managedSkillIds)
         PreservedPaths  = @($preservedSkillPaths)
         KeyedOnly       = $true
         WholesaleWipe   = $false
         Message         = $message
-        ExitCode        = 0
+        ExitCode        = $(if ($artifactCleanup.Status -eq 'Complete') { 0 } else { 1 })
     }
 }

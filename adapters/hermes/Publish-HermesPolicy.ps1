@@ -320,7 +320,14 @@ function Invoke-HermesPublishPolicy {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $destinationAgentsMd = $mapped.FixtureProjectAgentsPath
-    $written = Write-HermesManagedAgentsMd -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    . (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $written = Write-HermesManagedAgentsMd -ResolvedInstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
 
     return [PSCustomObject]@{
         Success      = $true
