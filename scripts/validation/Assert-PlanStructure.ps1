@@ -2,6 +2,7 @@
 # Tests:
 #   Should_Pass_When_PlanTemplateHasRequiredSections
 #   Should_Pass_When_SkillsWirePlanStructure
+#   Should_Require_Traceability_Validation_And_Evidence_BeforeCompletion
 #
 # REQ-ID / structural gates: PLAN template and skill wiring checks.
 $ErrorActionPreference = 'Stop'
@@ -55,6 +56,21 @@ foreach ($marker in $sectionMarkers) {
     }
 }
 Write-Pass -TestName $templateTest
+
+$readinessTest = 'Should_Require_Traceability_Validation_And_Evidence_BeforeCompletion'
+foreach ($marker in @(
+    '| REQ | CA | Step | Validation (test/check) | Where (portable PRD path + section) | Evidence / result |',
+    'DoR gap and blocks the first',
+    'Use `BLOCKED` when a required result is',
+    'Step DoD',
+    'US/PLAN DoD',
+    'implementation DoR nor authorizes a step or proves DoD'
+)) {
+    if ($templateText.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+        Write-Fail -TestName $readinessTest -Reason ("{0} lacks traceability/readiness/completion contract: {1}" -f $templateRel, $marker)
+    }
+}
+Write-Pass -TestName $readinessTest
 
 # PLAN fixture execution is centralized in Assert-ValidatePrdPlan.ps1.
 $skillTest = 'Should_Pass_When_SkillsWirePlanStructure'

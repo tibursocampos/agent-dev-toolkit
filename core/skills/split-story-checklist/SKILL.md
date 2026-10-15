@@ -55,7 +55,9 @@ In the **target workspace**, a grouped checklist (backend / frontend / tests) wi
 2. `features/NNN-slug/USnn/TASKS.md` - only if user explicitly asks for flat beside `STORY.md` (do not invent both)
 3. Shortcut: `docs/implementation-tasks/<slug>.md` (legacy alias `docs/sdd-developation-tasks/` still accepted)
 
-`split-story-checklist` writes this file. `sdd-plan` only reads the ids. Orchestrated O2 calls this skill after the PRD is accepted and before the plan.
+`split-story-checklist` writes this file. `sdd-plan` consumes the ids but never authors or edits the checklist. Orchestrated O2 calls this skill after the PRD is accepted and before the plan.
+
+When `sdd-plan` coordinates this skill because the required checklist is absent, this skill remains the sole author. Return the canonical output path and a concise completion status; preserve all applicable session/write gates and open questions. A caller may validate the returned artifact but must not edit it or change its step IDs.
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 

@@ -5,6 +5,8 @@
 - [ ] Body follows `templates/sdd/PRD.md` (REQ-NNN ids, verifiable CA, OOS; EARS only if useful)
 - [ ] `## Related` present; omit-if-absent; portable paths; PLAN cited when known (`STORAGE.md` § Navigation block / REQ-009)
 - [ ] Vague AC/REQ challenged and rewritten
+- [ ] Implementation DoR inputs are explicit: REQ→verifiable CA, scope/OOS, and relevant dependencies/decisions; `READY` is recorded only as clarification status and is not treated as implementation authorization (`templates/sdd/PRD.md` §2.1; `readiness-severity.md`)
+- [ ] PRD DoD items describe implementation completion and evidence separately from specification readiness; do not mark implementation DoD complete during specification
 - [ ] Product depth challenged: metrics (§1.3), MoSCoW (§4.3), Severity on open questions (§5.1); FEATURE/STORY sibling depth when present (`references/challenge-vagueness.md`)
 - [ ] No implementation how/code in the PRD from depth challenges
 - [ ] `validate-prd` exit 0 on the written path

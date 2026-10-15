@@ -104,6 +104,8 @@ Legacy repo files may still contain unused `step_confirmed` / `tests_run` keys. 
 8. Always read repo session separately for storage_confirmed / write_confirmed when those gates apply.
 ```
 
+For `-Action reset`, when `-Step` is omitted and exactly one PLAN+step session file exists for the PLAN, the helper infers that file's step. This supports advancing `-CurrentStep` while clearing the just-completed step's gates. If multiple PLAN+step files exist, pass `-Step N` explicitly; other actions continue to require explicit `-Step` whenever PLAN+step scoping is active.
+
 **Windows:** always hash the **absolute** path with forward slashes. Agents and `validate-session-gates.ps1` must use the same absolute form (avoid relative `$Cwd` vs absolute mismatch).
 
 ## Gate rules
@@ -147,7 +149,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 
 ## After develop step completes (mandatory)
 
-1. On the **scoped develop** file, call the canonical helper with `-Action reset`; it sets both gates to `false` and `phase` to `idle` (optionally updating `current_step`).
+1. On the **scoped develop** file, call the canonical helper with `-Action reset`; it sets both gates to `false` and `phase` to `idle` (optionally updating `current_step`). For a PLAN+step session, pass `-Step N` or rely on inference only when exactly one PLAN+step file exists.
 2. On the **repo** file: set `write_confirmed` to `false` if it was used; do **not** clear another PLAN's develop gates.
 3. Write only the files touched.
 4. **STOP** that develop scope - handoff to new conversation (or next O3 child with its own scoped file).

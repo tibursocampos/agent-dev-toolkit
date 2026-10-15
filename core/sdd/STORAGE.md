@@ -82,13 +82,13 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
    | `/docs/PRD/` | Safety net |
    | `/docs/PLAN/` | Safety net |
    | `/docs/documentation-plan/*` | Ignore scratch under documentation-plan |
-   | `!/docs/documentation-plan/plan.md` | **Always** version `plan.md` (never ignore) |
+   | No negation pattern | `docs/documentation-plan/plan.md` remains ignored with the rest of the documentation-plan scratch files; do not add a negation rule |
 
    **Do not** add or require `/memory-bank/` in the SDD ignore block. Commit bank when product knowledge; never commit secrets.
 
    Use leading `/` so `skills/sdd-plan/`, `skills/_shared/templates/features/`, `skills/_shared/templates/memory-bank/`, and other non-root paths are **not** ignored.
 
-3. If **any** required pattern for the active `features_versioned` mode is missing, append or migrate the **full** block below. **Remove** legacy `/docs/documentation-plan/` (whole folder) if present — replace with `/*` + `!plan.md`. When `features_versioned` is `true`, **never** re-add `/features/` or `/docs/features/` even if absent from `.gitignore`.
+3. If **any** required pattern for the active `features_versioned` mode is missing, append or migrate the **full** block below. **Remove** legacy `/docs/documentation-plan/` (whole folder) if present — replace it with `/docs/documentation-plan/*`, without a negation for `plan.md`. When `features_versioned` is `true`, **never** re-add `/features/` or `/docs/features/` even if absent from `.gitignore`.
 
    `features_versioned: false` (default):
 
@@ -101,7 +101,6 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
    /docs/PRD/
    /docs/PLAN/
    /docs/documentation-plan/*
-   !/docs/documentation-plan/plan.md
    ```
 
    `features_versioned: true`:
@@ -113,7 +112,6 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
    /docs/PRD/
    /docs/PLAN/
    /docs/documentation-plan/*
-   !/docs/documentation-plan/plan.md
    ```
 
 4. Report: patterns added, migrated, or all already present. If `/memory-bank/` is already present from an older policy, do **not** re-add it; the human may remove it so the bank can be versioned. If the human removed `/features/` manually and manifest has no `features_versioned` yet, ask once and persist the choice.
@@ -246,7 +244,7 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 | split-story-checklist | Prefer feature story folder | No | Task checklist under story / backlog |
 | code-review | No | No | Read-only |
 | repair-dotnet-build | No | No | Read-only |
-| document-plan / document-implement | No | No | **Do not** use this file for `docs/documentation-plan/plan.md` |
+| document-plan / document-implement | No | No | `docs/documentation-plan/plan.md` is local workflow state and remains ignored; do not add a negation rule to version it |
 
 ---
 

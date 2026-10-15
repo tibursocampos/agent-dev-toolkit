@@ -370,7 +370,7 @@
       ]
     }
   ],
-  "runtimeManifestPolicy": "The 17 entries in scripts/runtime/runtime-manifest.json are current shared publish targets under each adapter InstallRoot/scripts. Additional toolkit roots are conditional and listed by adapter in that manifest. Uninstall must scope entries to the adapter roots actually resolved by sync-agent; this inventory does not authorize broad recursive deletion.",
+  "runtimeManifestPolicy": "The 18 entries in scripts/runtime/runtime-manifest.json are current shared publish targets under each adapter InstallRoot/scripts. Additional toolkit roots are conditional and listed by adapter in that manifest. Uninstall must scope entries to the adapter roots actually resolved by sync-agent; this inventory does not authorize broad recursive deletion.",
   "directoryPruningPolicy": "Only remove ancestor directories proven to be toolkit-managed and empty after owned files are removed.",
   "unknownLegacyPolicy": "No ownership from filename similarity alone; add only finite identities backed by publisher history or an explicit constant/source reference."
 }

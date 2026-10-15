@@ -136,7 +136,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 | Feature root | `$Cwd/features/NNN-slug/` | `<effective_SDD_ROOT>/<repo-id>/features/NNN-slug/` (or manifest path under effective root) |
 | Memory-bank root | `$Cwd/memory-bank/` | `<classic.path>/memory-bank/` |
 | PRD/PLAN | Under story `PRD/` / `PLAN/` only | Same under global feature root |
-| `.gitignore` SDD block | Per `features_versioned` (see § Repository mode); always `!/docs/documentation-plan/plan.md`; **not** `/memory-bank/` | Do **not** edit project `.gitignore` |
+| `.gitignore` SDD block | Per `features_versioned` (see § Repository mode); `docs/documentation-plan/plan.md` remains ignored; **not** `/memory-bank/` | Do **not** edit project `.gitignore` |
 | Root / flat `PRD/`/`PLAN/` | Not used (ignored if present) | Not used |
 | Leading `/` on ignore patterns | Must not ignore `skills/sdd-plan/` or templates | N/A |
 
@@ -158,7 +158,7 @@ Versionar artefatos SDD em features/ e docs/features/ no git deste repositório?
 
 1) Não (padrão) — /features/ e /docs/features/ no .gitignore
 2) Sim — features/ e docs/features/ versionadas; safety-net para PRD/PLAN soltos na raiz
-(docs/documentation-plan/plan.md sempre versionado em ambos os casos)
+(docs/documentation-plan/plan.md permanece ignorado em ambos os casos)
 ```
 
 Persist `features_versioned: true|false` in manifest `classic` section. Apply `.gitignore` block per § Repository mode.

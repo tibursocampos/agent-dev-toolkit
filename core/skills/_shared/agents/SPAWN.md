@@ -88,6 +88,7 @@ Need specialist work?
 |----------|----------------------|----------------------|
 | `orchestrate-analyze` | Task (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
 | `orchestrate-deliver` | Task (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
+| `sdd-plan` required-checklist acquisition | One bounded `split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
 | `orchestrate-develop` (O3) | Task (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
 | `code-review` multi-angle | Parallel specialist Tasks / host equivalents | Sequential in-parent angles |
 | `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |

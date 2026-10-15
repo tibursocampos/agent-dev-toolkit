@@ -64,6 +64,17 @@ function Get-PresenceDiagnostic {
     return @('{0}: {1}: missing-contract' -f $Name, $Location)
 }
 
+function Test-DocumentationPlanVersioningPolicy {
+    param([Parameter(Mandatory = $true)][string] $Text)
+
+    if ($Text -match '(?i)!/docs/documentation-plan/plan\.md' -or
+        $Text -match '(?i)always\*{0,2}\s+version\s+`?plan\.md`?' -or
+        $Text -match '(?i)plan\.md\s+sempre\s+versionado') {
+        return $false
+    }
+    return $true
+}
+
 function Add-Diagnostics {
     param(
         [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[string]] $Target,
@@ -181,6 +192,48 @@ function Invoke-ContractSelfChecks {
     if ($unauthorized.Count -ne 1) { throw 'Unauthorized transform case failed.' }
     [void]$checks.Add('named-transform')
 
+    foreach ($relativePath in @(
+        'core/sdd/STORAGE.md',
+        'core/sdd/STORAGE-RESOLUTION.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE.md',
+        'core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md',
+        'core/skills/memory-bank-init/SKILL.md',
+        'core/skills/memory-bank-init/references/versioning.md',
+        'docs/README.md',
+        'docs/INSTALL.md',
+        'docs/domains/core.md',
+        'docs-site/cli.md',
+        'docs-site/cli.pt.md'
+    )) {
+        $policyText = Read-ContractText -Path (Join-Path $repoRoot $relativePath)
+        if (-not (Test-DocumentationPlanVersioningPolicy -Text $policyText)) {
+            throw ('Documentation-plan versioning exception remains in {0}.' -f $relativePath)
+        }
+    }
+    foreach ($legacyPolicy in @(
+        '!/docs/documentation-plan/plan.md',
+        '**Always** version `plan.md` (never ignore)',
+        'docs/documentation-plan/plan.md sempre versionado'
+    )) {
+        if (Test-DocumentationPlanVersioningPolicy -Text $legacyPolicy) {
+            throw 'Documentation-plan versioning negative semantic fixture was accepted.'
+        }
+    }
+    $storagePolicy = Read-ContractText -Path (Join-Path $sourceRoot 'STORAGE.md')
+    if ($storagePolicy -notmatch '(?i)remains ignored' -or $storagePolicy -notmatch '(?i)without a negation') {
+        throw 'Canonical storage contract does not state that the documentation plan stays ignored without a negation.'
+    }
+    foreach ($relativePath in @(
+        'core/skills/memory-bank-init/SKILL.md',
+        'core/skills/memory-bank-init/references/versioning.md'
+    )) {
+        $memoryBankPolicy = Read-ContractText -Path (Join-Path $repoRoot $relativePath)
+        if ($memoryBankPolicy -notmatch '(?i)documentation-plan/plan\.md.*ignored without a negation rule') {
+            throw ('Memory-bank versioning guidance does not preserve the canonical ignored-plan policy in {0}.' -f $relativePath)
+        }
+    }
+    [void]$checks.Add('documentation-plan-not-versioned')
+
     $runtimeFiles = @(
         'scripts/session/Invoke-DevelopSessionGate.ps1',
         'scripts/ledger/Invoke-PlanLedgerClaim.ps1',
@@ -196,6 +249,17 @@ function Invoke-ContractSelfChecks {
     $runtimeManifest = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts/runtime/runtime-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     if (-not @($runtimeManifest.files | Where-Object { $_.source -eq 'scripts/_lib/Resolve-EffectiveSddRoot.ps1' -and $_.destination -eq '_lib/Resolve-EffectiveSddRoot.ps1' }).Count) {
         throw 'Effective SDD root resolver is missing from runtime publication manifest.'
+    }
+    foreach ($runtimeScript in @('scripts/session/Invoke-DevelopSessionGate.ps1', 'scripts/ledger/Invoke-PlanLedgerClaim.ps1')) {
+        $runtimeText = Read-ContractText -Path (Join-Path $repoRoot $runtimeScript)
+        $dotSourcedLibraries = [regex]::Matches($runtimeText, "Join-Path `$libDir\s+'([^']+\.ps1)'")
+        foreach ($match in $dotSourcedLibraries) {
+            $source = 'scripts/_lib/' + $match.Groups[1].Value
+            $destination = '_lib/' + $match.Groups[1].Value
+            if (-not @($runtimeManifest.files | Where-Object { $_.source -eq $source -and $_.destination -eq $destination }).Count) {
+                throw ("Runtime dependency '{0}' required by '{1}' is missing from runtime publication manifest." -f $source, $runtimeScript)
+            }
+        }
     }
 
     $fixtureName = '.sdd-effective-root-' + [guid]::NewGuid().ToString('N')

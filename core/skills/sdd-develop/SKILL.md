@@ -229,7 +229,7 @@ Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PRO
 
 When this edit sets PLAN **Implementation status** to `COMPLETED`, set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit (`references/plan-update.md` § Companion PRD). If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once. It is not a restart.
 
-After the tests gate validates true, update the PLAN/task status; then reset the develop session through the canonical helper before ending the scope.
+**Terminal gate lifecycle (strict order):** finish every implementation/artifact edit, re-read the final artifacts, and complete all required validations first. Only after their results are ready, call `tests-run` once and update the PLAN/task status and evidence while the gate is still active. Then call `reset` as the final operation in this develop scope. Reset clears both gates and is terminal: after a successful reset, do not call any session helper, validator, or make any further file/artifact edit in this scope. If a post-reset correction is necessary, stop and begin a fresh, explicitly authorized develop scope/session with its gate confirmed; never repeat `tests-run` against cleared gates. A failed helper remains a hard stop under the rule above.
 
 ### 7. Report
 Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.

@@ -10,6 +10,7 @@
 #   Should_Pass_When_ClaimStillRunsWhenGateAlreadyTrue_CT6
 #   Should_Pass_When_SessionContractCitesCanonicalScripts_REQ014
 #   Should_Pass_When_AllowlistDocsCiteBothScripts_REQ013
+#   Should_Pass_When_DevelopResetIsTerminalAfterFinalValidation
 #
 # REQ-011 / REQ-012 / REQ-013 / REQ-014 / CA4 / CT5 / CT6: idempotent develop session gate + claim still required.
 $ErrorActionPreference = 'Stop'
@@ -117,6 +118,53 @@ catch {
 . $constantsScript
 . $repoRootScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
+
+# The develop scope has one terminal reset. Keep source skill, PLAN template,
+# and PLAN-author checklist aligned so no post-reset tests-run can be suggested.
+$developSkillPath = Join-Path $repoRoot 'core/skills/sdd-develop/SKILL.md'
+$planTemplatePath = Join-Path $repoRoot 'core/skills/_shared/templates/sdd/PLAN.md'
+$planChecklistPath = Join-Path $repoRoot 'core/skills/sdd-plan/references/quality-checklist.md'
+$lifecycleTest = 'Should_Pass_When_DevelopResetIsTerminalAfterFinalValidation'
+foreach ($path in @($developSkillPath, $planTemplatePath, $planChecklistPath)) {
+    if (-not (Test-Path -LiteralPath $path)) {
+        Write-Fail -TestName $lifecycleTest -Reason ("missing lifecycle contract file {0}" -f $path)
+    }
+}
+$developLifecycle = Get-Content -LiteralPath $developSkillPath -Raw -Encoding UTF8
+$planLifecycle = Get-Content -LiteralPath $planTemplatePath -Raw -Encoding UTF8
+$planChecklist = Get-Content -LiteralPath $planChecklistPath -Raw -Encoding UTF8
+$orderedMarkers = @(
+    'finish every implementation/artifact edit',
+    'complete all required validations first',
+    'call `tests-run` once',
+    'update the PLAN/task status and evidence',
+    'call `reset` as the final operation',
+    'Reset clears both gates and is terminal',
+    'never repeat `tests-run` against cleared gates'
+)
+$previousIndex = -1
+foreach ($marker in $orderedMarkers) {
+    $index = $developLifecycle.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+    if ($index -le $previousIndex) {
+        Write-Fail -TestName $lifecycleTest -Reason ("develop lifecycle missing or out of order: {0}" -f $marker)
+    }
+    $previousIndex = $index
+}
+foreach ($marker in @(
+        'Develop-session gate lifecycle',
+        'before recording',
+        'then reset the session as the final operation',
+        'do not run another helper, validator, or edit',
+        'never rerun `tests-run` against cleared gates'
+    )) {
+    if ($planLifecycle.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+        Write-Fail -TestName $lifecycleTest -Reason ("PLAN template missing lifecycle marker: {0}" -f $marker)
+    }
+}
+if ($planChecklist -notmatch 'develop-session gate lifecycle') {
+    Write-Fail -TestName $lifecycleTest -Reason 'sdd-plan quality checklist must require the lifecycle contract'
+}
+Write-Pass -TestName $lifecycleTest
 
 $helperRel = $script:ToolkitConstant.InvokeDevelopSessionGateScriptRelativePath
 $claimRel = $script:ToolkitConstant.InvokePlanLedgerClaimScriptRelativePath
@@ -357,6 +405,45 @@ try {
         Write-Fail -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent' -Reason ("repeated reset was not idempotent: exit {0}: {1}" -f $resetAgainCode, $resetAgain)
     }
     Write-Pass -TestName 'Should_Pass_When_ResetIsCanonicalAndIdempotent'
+
+    # PLAN+step reset may infer its target only when exactly one scoped file exists.
+    $stepScopeRoot = Join-Path $workRoot 'sessions-plan-step-reset'
+    $stepEnsure = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $stepScopeRoot -Step 1 2>&1 | Out-String
+    $stepEnsureCode = $LASTEXITCODE
+    if ($stepEnsureCode -ne 0) {
+        Write-Fail -TestName 'Should_Pass_When_ResetInfersUniquePlanStepScope' -Reason ("ensure failed: exit {0}: {1}" -f $stepEnsureCode, $stepEnsure)
+    }
+    $stepSession = Get-ChildItem -LiteralPath $stepScopeRoot -Recurse -Filter 'plan-*-step-1.json' -File | Select-Object -First 1
+    if ($null -eq $stepSession) {
+        Write-Fail -TestName 'Should_Pass_When_ResetInfersUniquePlanStepScope' -Reason 'expected PLAN+step session file for step 1'
+    }
+    $stepReset = & $helperPath -Action reset -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $stepScopeRoot -CurrentStep 2 2>&1 | Out-String
+    $stepResetCode = $LASTEXITCODE
+    $stepResetObject = Get-Content -LiteralPath $stepSession.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($stepResetCode -ne 0 -or $stepResetObject.phase -ne 'idle' -or
+        [bool]$stepResetObject.gates.step_confirmed -or [bool]$stepResetObject.gates.tests_run -or
+        $stepResetObject.current_step -ne 2 -or $stepReset -match 'Step is required') {
+        Write-Fail -TestName 'Should_Pass_When_ResetInfersUniquePlanStepScope' -Reason ("reset failed: exit {0}: {1}" -f $stepResetCode, $stepReset)
+    }
+    Write-Pass -TestName 'Should_Pass_When_ResetInfersUniquePlanStepScope'
+
+    $ambiguousRoot = Join-Path $workRoot 'sessions-plan-step-reset-ambiguous'
+    $null = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $ambiguousRoot -Step 1 2>&1
+    $null = & $helperPath -PlanPath $fixturePlanPath -RepoPath $repoRoot -SessionsRoot $ambiguousRoot -Step 2 2>&1
+    $ambiguousStdout = Join-Path $workRoot 'ambiguous-reset.stdout.txt'
+    $ambiguousStderr = Join-Path $workRoot 'ambiguous-reset.stderr.txt'
+    $powerShellExecutable = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $ambiguousProcess = Start-Process -FilePath $powerShellExecutable -ArgumentList @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $helperPath,
+        '-Action', 'reset', '-PlanPath', $fixturePlanPath,
+        '-RepoPath', $repoRoot, '-SessionsRoot', $ambiguousRoot, '-CurrentStep', '3'
+    ) -PassThru -Wait -NoNewWindow -RedirectStandardOutput $ambiguousStdout -RedirectStandardError $ambiguousStderr
+    $ambiguousCode = $ambiguousProcess.ExitCode
+    $ambiguousReset = ((Get-Content -LiteralPath $ambiguousStdout -Raw -ErrorAction SilentlyContinue) + (Get-Content -LiteralPath $ambiguousStderr -Raw -ErrorAction SilentlyContinue))
+    if ($ambiguousCode -eq 0 -or $ambiguousReset -notmatch 'Step is required') {
+        Write-Fail -TestName 'Should_Fail_When_ResetHasAmbiguousPlanStepScope' -Reason ("expected explicit -Step, got exit {0}: {1}" -f $ambiguousCode, $ambiguousReset)
+    }
+    Write-Pass -TestName 'Should_Fail_When_ResetHasAmbiguousPlanStepScope'
 
     $prerequisiteRoot = Join-Path $workRoot 'sessions-no-step-confirmation'
     New-Item -ItemType Directory -Path $prerequisiteRoot -Force | Out-Null

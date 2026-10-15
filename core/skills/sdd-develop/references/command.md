@@ -7,7 +7,7 @@
 | -1b | Caveman Full when active | `CAVEMAN.md` |
 | -1 | Pipeline + STORAGE; resolve `invocation_context`; honor provenance | `PIPELINE.md`, `STORAGE.md`, `INVOCATION-CONTEXTS.md`, `CONTRACT-PROVENANCE.md` |
 | 0 | **plan-acquisition**; resolve develop mode; load PLAN-scoped SESSION | `references/plan-acquisition.md`; `references/develop-modes.md`; `SESSION.md` |
-| 1 | Validate step (deps Completed; Aceite REQ/CA); ask proceed | PLAN step block; `references/plan-contract.md` |
+| 1 | On the first implementation step, evaluate the shared PLAN DoR; then validate this step (deps Completed; Aceite REQ/CA) and ask proceed | PLAN/PRD; `references/plan-contract.md` |
 | 2 | Feature branch / git prep | `references/git-checklist.md` |
 | 3–4 | Analyze + implement; targeted tests; child receipt | `references/code-analysis.md`, `references/stack-pointers.md` |
 | 4b | Evidence-or-zero when level ≥ cheap | `references/evidence-or-zero.md`; `EVD-STATE-CONTRACT.md` |
