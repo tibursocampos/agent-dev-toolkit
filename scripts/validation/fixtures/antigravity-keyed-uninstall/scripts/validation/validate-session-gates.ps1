@@ -35,7 +35,7 @@ param(
 
     [string] $PlanPath,
 
-    [ValidateRange(1, 9999)]
+    [ValidateRange(0, 9999)]
     [int] $Step = 0,
 
     [Parameter(Mandatory = $true)]

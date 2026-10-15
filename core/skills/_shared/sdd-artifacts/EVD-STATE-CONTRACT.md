@@ -91,6 +91,22 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1
 
 If `-Level` is omitted, the script reads **Evidence level** from `STATE.md` (default `cheap` when STATE is missing and a level is required).
 
+### Final US consolidation and evidence history
+
+The final test-consolidation step maps each applicable acceptance criterion to
+its current tests, results, and evidence. Update the current STATE matrix row
+when a newer result becomes authoritative; do not erase valid historical EVD
+files. A prior result may be superseded only when the replacement is equivalent
+or stronger, covers the same criterion, and was produced against the current
+implementation. Record the superseded path, replacement path, and reason in the
+evidence record, retain the old artifact, and cite the current result from
+STATE.md. A deferred test remains pending and is never evidence of a pass or a
+basis to complete an intermediate step.
+
+Run validation without `-Level` for final consolidation so the level declared
+in `STATE.md` applies; when no level is declared, the repository default
+applies. Do not silently lower a configured level to make the gate pass.
+
 Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Deterministic only (RNF-001) — never LLM-as-validator.
 
 ## When to write

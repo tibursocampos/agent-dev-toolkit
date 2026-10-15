@@ -2,6 +2,7 @@
 # Tests:
 #   Should_Pass_When_PrdTemplateHasRequiredSections
 #   Should_Pass_When_SkillsWireReqIds
+#   Should_Separate_ImplementationDoR_From_ClarificationReady_And_DoD
 #
 # REQ-ID / structural gates: PRD template and skill wiring checks.
 $ErrorActionPreference = 'Stop'
@@ -55,6 +56,20 @@ foreach ($marker in $sectionMarkers) {
     }
 }
 Write-Pass -TestName $templateTest
+
+$readinessTest = 'Should_Separate_ImplementationDoR_From_ClarificationReady_And_DoD'
+foreach ($marker in @(
+    '## 2.1 DoR de implementação',
+    'o DoR não está satisfeito',
+    '## 11. Definição de pronto',
+    'DoD da implementação',
+    'O estado `READY` não satisfaz'
+)) {
+    if ($templateText.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+        Write-Fail -TestName $readinessTest -Reason ("{0} lacks separate DoR/DoD/READY contract: {1}" -f $templateRel, $marker)
+    }
+}
+Write-Pass -TestName $readinessTest
 
 # PRD fixture execution is centralized in Assert-ValidatePrdPlan.ps1.
 $skillTest = 'Should_Pass_When_SkillsWireReqIds'

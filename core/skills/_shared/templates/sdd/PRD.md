@@ -65,6 +65,25 @@ Use BDD: **Dado** / **Quando** / **Então** / **E**. Cada CA deve ser **verific�
 **Dado** [contexto inicial]
 **Quando** [ação]
 **Então** [resultado observável]
+
+### 2.1 DoR de implementação
+
+O DoR de implementação registra se os artefatos permitem iniciar com segurança; ele
+é distinto do `READY` de esclarecimento definido em
+`skills/_shared/sdd-artifacts/readiness-severity.md`. Antes do primeiro passo,
+confirme e registre evidência para cada item aplicável:
+
+- Todos os REQ funcionais estão mapeados para pelo menos um CA verificável; cada CA
+  tem cenário de validação identificado em §10.
+- Escopo, exclusões e critérios obrigatórios estão explícitos em §3–§5.
+- Dependências, decisões e perguntas que possam mudar a solução ou o aceite estão
+  resolvidas; perguntas restantes têm responsável e não bloqueiam a execução.
+- O PLAN canônico aprovado cobre cada REQ/CA em passos com aceite verificável,
+  dependências e validações previstas.
+
+Se um item aplicável estiver ausente ou sem evidência, o DoR não está satisfeito e o
+início da implementação deve aguardar. `READY` continua indicando somente que não há
+perguntas B, I ou MINOR sem resposta; ele não aprova o PLAN nem autoriza implementação.
 **E** [condição extra opcional]
 
 ### CA2 - [Nome descritivo]
@@ -209,11 +228,20 @@ Espelhar CA; incluir borda e falha. Preferir ligação a REQ/CA.
 
 ## 11. Definição de pronto
 
-- [ ] Todos os REQ-IDs cobertos por CA verificáveis
-- [ ] OOS explícito
-- [ ] Implementação alinhada a este PRD
-- [ ] Testes unitários/integração para o novo comportamento
-- [ ] Build passa local/CI
+Esta seção separa qualidade da especificação (DoR) de conclusão da implementação
+(DoD). Marque os itens de DoD somente após verificar o resultado e registrar a
+evidência correspondente no PLAN/EVD:
+
+- [ ] **DoR da especificação:** todos os REQ estão cobertos por CA verificáveis e o
+      OOS está explícito (pré-condições para planejamento, não prova de conclusão).
+- [ ] **DoD da implementação:** implementação alinhada aos REQ e CA aceitos; cada
+      passo concluído tem aceite atendido e validações previstas aprovadas.
+- [ ] **DoD da implementação:** testes aplicáveis cobrem os critérios e resultados
+      estão registrados; falhas e pendências obrigatórias foram resolvidas.
+- [ ] **DoD da implementação:** build/validação estrutural aplicável passou e a
+      revisão do PLAN não encontrou lacunas obrigatórias abertas.
+
+O estado `READY` não satisfaz nenhum item de DoR de implementação ou DoD por si só.
 
 ## 12. Próximos passos
 

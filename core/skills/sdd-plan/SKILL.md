@@ -56,6 +56,7 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/references/<section>.md` |
 | Anti file-named steps / sizing (Steps 2–4) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`, `anti-task-shatter.md` |
+| Required checklist acquisition and validation | `references/checklist-acquisition.md` |
 | Cite ARCH/ANALYSIS (when present) | story `ARCH/`, `ANALYSIS/` (portable paths only — PLAN magro) |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full sdd-spec/develop packs, all templates, or all `backlog-item-types/*`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load `story-sizing.md` / `anti-task-shatter.md` only when sizing or rewriting step titles.
@@ -100,14 +101,14 @@ Summarize PRD (**cite portable path** — **must not** paste the full PRD body i
 
 Do not invent steps. Do not assign a duration.
 
-1. If FEATURE complexity is `medium` or `complex` and `REFINE/tasks.md` is missing, stop. Do not invent steps. Hand off, then resume this plan when the file exists:
+1. Load `references/checklist-acquisition.md`. If FEATURE complexity is `medium` or `complex` and `REFINE/tasks.md` is missing, coordinate its owner skill before continuing. Never invent steps. With an available native specialist, delegate exactly the `split-story-checklist` work using its canonical STORY path and require its receipt. Without subagents, execute that skill's workflow in the current flow; do not hard-fail or ask for a manual handoff. Keep authorship with `split-story-checklist` in either route. Validate the completed artifact and its IDs as specified by the reference; on failure or an open question, stop with the cause and do not resume the PLAN. After valid output, resume this same `sdd-plan` invocation at the normal exploration/review flow:
 
 ```text
-/split-story-checklist - <portable-story-path>
-/sdd-plan - <portable-prd-path>
+split-story-checklist - <portable-story-path>
+sdd-plan resumes from checklist validation
 ```
 
-`trivial` uses one step and does not get a tasks file. Never call `split-story-checklist` from inside this skill. The checklist is the only writer.
+`trivial` uses one step and does not get a tasks file. Existing valid checklist: read and preserve IDs; do not regenerate it. `split-story-checklist` remains the only writer. Normal PRD review, open-question gates, confirm-before-write, structural validation, and PLAN preview still apply after resumption.
 2. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. Challenge vague acceptance — `references/challenge-vagueness.md`. Acceptance stays the challenge surface. It is not a reason to invent a step.
 3. Show `LIVE-STAGE-TABLE.md` § sdd-plan while drafting. Do not save that table in the PLAN.
 4. Run `references/self-review.md`. Fix. Run it again. If the second pass fails, stop without writing.
@@ -154,7 +155,8 @@ Present steps, deps, risks. Confirm first sdd-develop step.
 ## Must not
 
 - Write PLAN in a language other than user chat / `artifact_language` without override. Template headings that are English in `templates/sdd/PLAN.md` are translated to content-language on Write. `## Execution policy` stays English. Status tokens stay English (`PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`, `NOT_STARTED`)
-- Create `REFINE/tasks.md` or renumber its step ids. That file belongs to `split-story-checklist`. If complexity is `medium` or `complex` and the file is missing, stop and hand off `/split-story-checklist`
+- Create `REFINE/tasks.md` or renumber its step ids; that file belongs to `split-story-checklist`. For missing-checklist behavior, follow `references/checklist-acquisition.md` (coordinate the owner skill, validate its output, and resume this invocation only after success; stop with the specified blocker when acquisition fails or has unresolved questions).
+- Resume PLAN authoring after a checklist-owner failure, invalid output, ID drift, unresolved question, or missing required gate
 - Write a PLAN step that has no matching `- [ ]` row for that `STEP n` in `REFINE/tasks.md`
 - Paste a new method or type body into the PLAN. A contract signature and a short excerpt of code that already exists (path and line) are allowed anchors
 - Omit SQL/DDL/JSON/OpenAPI from PLAN when no canonical path exists — in `orchestrated` context O1/O2 creates first; in `direct` context create inline or ask; PLAN then cites the path (`INVOCATION-CONTEXTS.md`)

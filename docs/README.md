@@ -50,6 +50,6 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 
 | Path | Purpose |
 |------|---------|
-| `documentation-plan/plan.md` | Maintainer doc plan (`document-plan` / `document-implement`). **Versioned** in git (`!/docs/documentation-plan/plan.md` per `STORAGE.md`); other scratch files under `documentation-plan/` may stay gitignored. Do not publish via MkDocs. |
+| `documentation-plan/plan.md` | Maintainer doc plan (`document-plan` / `document-implement`). Local workflow state; ignored by git with the rest of `documentation-plan/` per `STORAGE.md`. Do not publish via MkDocs. |
 
 For daily skill choice, prefer **[guides/README.md](guides/README.md)** over reading `SKILL.md` files directly.

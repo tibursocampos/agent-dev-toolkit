@@ -12,13 +12,15 @@ Do not write a draft that still has an open question. When nothing is open, the 
 - `AGENTS.md`: when missing, record `not_found` and continue. Absence does not block.
 - Current repository evidence outranks `memory-bank` when they disagree.
 - Every PRD acceptance criterion maps to a step and a test. A criterion with no evidence is `BLOCKED`. Any `BLOCKED` row blocks the write.
+- The readiness contract is separate from `READY`: `READY` closes clarification questions only. Before implementation, the DoR has complete REQ→CA→step mapping, planned validations, explicit scope/OOS and dependencies, and no unresolved implementation-affecting decision.
+- The PLAN distinguishes planned validation from execution evidence. Step/US DoD cannot be satisfied by a planned check, clarification `READY`, or an unrecorded result.
 - No invented existing path or symbol. An existing path was read. A new path is `proposed`.
 - Actions are only `CREATE`, `MODIFY`, `REMOVE`, or `NO_CHANGE`.
 - Each step id in `REFINE/tasks.md` appears once as a node **and** every blocking dependency is an arrow. A node list with no edges is invalid when any step has a dependency. Isolated nodes are only the steps whose dependency is `none`.
 - Step status tokens are only `PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`. A new plan is `NOT_STARTED` with progress `0/N` and every step `PENDING`.
 - Section titles in the saved file follow content-language. `## Execution policy` stays English. Do not leave mixed English/Portuguese headings.
 - `Open decisions`: when none remain, write exactly one sentence in content-language, `Nenhuma decisão em aberto.` or `No open decision.` That sentence is not an open decision. Do not leave the heading with an empty body.
-- Do not author `REFINE/tasks.md`. Read it. If `medium`/`complex` and the file is missing, stop.
+- Do not author `REFINE/tasks.md`. For `medium`/`complex`, acquire a missing checklist through `references/checklist-acquisition.md`; validate output before this review. A missing or invalid checklist blocks the review.
 - Each PLAN step has at least one `- [ ]` row in `tasks.md` with the same `STEP n`. A step without those boxes fails the review.
 - Each step block is visually separated: heading, one field per line, then `---`. Status line uses `☐` `◐` `☑` `⊘` `⚠` plus the English token.
 - The step states symbols, the change, what not to touch, and the acceptance text. A contract signature and a short excerpt of existing code are allowed. A new method body is not.

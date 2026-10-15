@@ -48,10 +48,10 @@ param(
 
     [string] $SddRoot,
 
-    [ValidateRange(1, 9999)]
+    [ValidateRange(0, 9999)]
     [int] $Step = 0,
 
-    [ValidateRange(1, 9999)]
+    [ValidateRange(0, 9999)]
     [int] $CurrentStep = 0,
 
     [ValidateSet('ensure', 'tests-run', 'reset', 'status')]
@@ -160,6 +160,31 @@ function Test-HasPlanStepSessionFiles {
     $pattern = ('plan-{0}-step-*.json' -f $PlanHash)
     $hits = @(Get-ChildItem -LiteralPath $RepoSessionsDir -Filter $pattern -File -ErrorAction SilentlyContinue)
     return ($hits.Count -gt 0)
+}
+
+function Resolve-ResetStepScope {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoSessionsDir,
+        [Parameter(Mandatory = $true)][string] $PlanHash,
+        [int] $RequestedStep,
+        [string] $RequestedAction
+    )
+
+    if ($RequestedStep -gt 0 -or $RequestedAction -ne 'reset' -or -not (Test-Path -LiteralPath $RepoSessionsDir)) {
+        return $RequestedStep
+    }
+
+    $pattern = ('plan-{0}-step-*.json' -f $PlanHash)
+    $hits = @(Get-ChildItem -LiteralPath $RepoSessionsDir -Filter $pattern -File -ErrorAction SilentlyContinue)
+    if ($hits.Count -ne 1) {
+        return $RequestedStep
+    }
+
+    $match = [regex]::Match($hits[0].Name, ('^plan-{0}-step-(\d+)\.json$' -f [regex]::Escape($PlanHash)))
+    if (-not $match.Success) {
+        return $RequestedStep
+    }
+    return [int]$match.Groups[1].Value
 }
 
 function Get-DevelopSessionFilePath {
@@ -307,6 +332,7 @@ $repoHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $repoRes
 $planHash = Get-Sha256Hex16 -Text (Get-NormalizedPathForHash -PathValue $planResolved)
 
 $repoSessionsDir = Join-Path $sessionsResolved $repoHash
+$Step = Resolve-ResetStepScope -RepoSessionsDir $repoSessionsDir -PlanHash $planHash -RequestedStep $Step -RequestedAction $Action
 $sessionPath = Get-DevelopSessionFilePath -RepoSessionsDir $repoSessionsDir -PlanHash $planHash -StepNumber $Step
 $sessionPathPortable = ($sessionPath -replace '\\', '/')
 
