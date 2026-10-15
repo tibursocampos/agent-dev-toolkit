@@ -62,7 +62,7 @@ Direct mode may continue only after the operator chooses inline creation or risk
 | `trivial` (small) | **Not required** — do not create `TASKS.md` / `REFINE/tasks.md` only to satisfy a gate |
 | `medium` or `complex` | **Required** — `features/NNN-slug/{USnn\|TSnn}/REFINE/tasks.md`. Flat `TASKS.md` only if the user asks |
 
-`split-story-checklist` is the **only** writer of that file. `sdd-plan` reads the stable step ids and must not create or rename them. Orchestrated O2 runs `split-story-checklist` after the PRD is accepted and before `sdd-plan`. If the file is missing, `sdd-plan` stops and hands off `/split-story-checklist`.
+`split-story-checklist` is the **only** writer of that file. `sdd-plan` reads and preserves the stable step ids and must not create, edit, or rename them. Orchestrated O2 runs `split-story-checklist` after the PRD is accepted and before `sdd-plan`. If the required file is missing, `sdd-plan` coordinates the owner skill (native specialist when available; otherwise the owner workflow inline), validates the canonical output, and resumes only on success. Owner gates and open questions remain in force; failure, invalid output, or an unanswered question blocks planning. Details: `core/skills/sdd-plan/references/checklist-acquisition.md`.
 
 ## Mental map (ids unchanged)
 

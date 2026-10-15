@@ -53,6 +53,15 @@ New open-question rows **prefer** `B` \| `I` \| `MINOR` directly.
 
 Readiness **READY** ≠ PLAN step Completed. Do **not** overload PLAN step status or SESSION develop gates with clarify severity. `step_confirmed` never implies READY.
 
+`READY` is only the clarification status: no unanswered B/I/MINOR questions remain.
+It does not mean the implementation Definition of Ready (DoR) is satisfied, does
+not approve a PLAN, and does not authorize starting a step. The implementation DoR
+is checked separately against the PRD/PLAN contract in
+`templates/sdd/PRD.md` §2.1 and `templates/sdd/PLAN.md` §Readiness and completion
+contract. Likewise, a satisfied DoR does not mean implementation DoD is met; DoD
+requires the declared acceptance, validations, and evidence at the applicable
+step/US boundary.
+
 ## STOP / NEEDS_CLARIFICATION (REQ-005 / TE01 / `RDY-STOP-O2`)
 
 At an O2 Write boundary (PRD/PLAN) or refine equivalent (fake-forward “approved for PRD” while B/I/MINOR remain):

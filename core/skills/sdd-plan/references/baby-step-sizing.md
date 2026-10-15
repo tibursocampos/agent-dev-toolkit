@@ -2,6 +2,8 @@
 
 `sdd-plan` does not invent steps and does not size them by duration. Step ids, titles, dependencies, and waves come from `split-story-checklist` (`REFINE/tasks.md`).
 
+If the feature is medium/complex and the checklist is absent, follow `references/checklist-acquisition.md`: coordinate `split-story-checklist`, validate its output, and resume only after success. Never author or renumber the checklist in this skill.
+
 - [ ] Step id copied from `tasks.md`; no extra step
 - [ ] No duration on any step
 - [ ] No step with 4+ new files without the split already grouping them that way

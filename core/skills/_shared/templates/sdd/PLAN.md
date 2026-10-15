@@ -66,11 +66,46 @@ Every PRD REQ appears. A step's acceptance cites the REQ. Prose in this file fol
 
 ## Acceptance traceability
 
-| Criterion | Step | Test | Where | Evidence status |
-|-----------|------|------|-------|-----------------|
-| CA1 | S1 | CT1 | PRD §2 CA, §4 REQ, §10 CT | PASS |
+| REQ | CA | Step | Validation (test/check) | Where (portable PRD path + section) | Evidence / result |
+|-----|----|------|-------------------------|------------------------------------|-------------------|
+| REQ-001 | CA1 | S1 | CT1 / named check | `features/.../PRD/NNN_….md` §2, §4, §10 | `PLANNED` |
 
-The `Where` cell is the portable PRD path plus the section. One row per PRD criterion. If the cell has no evidence, the evidence status is `BLOCKED`. Do not invent the behavior. If any row stays `BLOCKED`, do not write this PLAN.
+Include every PRD REQ and CA; a criterion may use multiple rows when its checks
+belong to different steps. The validation names the observable test, script, or
+manual check. Before implementation starts, the PLAN must show each REQ→CA→step
+mapping, its planned validation, explicit dependencies, and scope/OOS source. Missing
+mapping, validation, or dependency information is a DoR gap and blocks the first
+implementation step. Do not invent behavior to fill a gap.
+
+The evidence cell is `PLANNED` before execution, then records a portable evidence
+path or concise result after validation. Use `BLOCKED` when a required result is
+missing or failed; a blocked required row prevents its step/PLAN completion. `READY`
+is not an evidence state and does not satisfy this implementation DoR.
+
+## Readiness and completion contract
+
+- **Implementation DoR (before the first step):** canonical approved PRD and PLAN;
+  complete REQ→CA→step traceability; observable acceptance and planned checks for
+  each step; explicit scope/OOS and dependencies; no unresolved decision that can
+  change scope, implementation, or acceptance. Record the review result and any
+  portable supporting paths. Missing evidence means DoR is unsatisfied.
+- **Step DoD:** mark a step `COMPLETED` only when its acceptance is met, all checks
+  declared for that step pass, and evidence/results are recorded in the step ledger.
+- **US/PLAN DoD:** reconcile every required REQ and CA with implementation and test
+  evidence, resolve required failures and blocking findings, and record applicable
+  final checks before closing the scope.
+- **Develop-session gate lifecycle:** finish all implementation and artifact edits,
+  re-read the final artifacts, and complete required validations before recording
+  `tests_run`. Update step status/evidence while the confirmed gate is still active,
+  then reset the session as the final operation. A successful `reset` clears both
+  gates and ends that develop scope: do not run another helper, validator, or edit
+  artifacts afterward. A needed post-reset correction starts a fresh, explicitly
+  authorized develop scope/session; never rerun `tests-run` against cleared gates.
+- **Clarification `READY`:** retain the independent meaning in
+  `readiness-severity.md` (no unanswered B/I/MINOR questions). It neither proves
+  implementation DoR nor authorizes a step or proves DoD.
+
+Do not mark a required evidence row `PASS` based only on a plan to run a check.
 
 ## Current implementation evidence
 
@@ -160,6 +195,26 @@ No duration. Do not paste a new method body. A contract signature and a short ex
 ---
 
 ## Test strategy
+
+Use a mixed strategy by default: run unit, contract, integration, or end-to-end
+checks in the implementation step when they provide timely, distinct feedback.
+The `Required` column identifies checks that gate that step. A deferred check is
+not a passing result and cannot satisfy or approve an intermediate step; record
+it as pending and assign it to the final test-consolidation step for this US.
+That final step reviews tests created or changed across the US, maps each
+applicable acceptance criterion to tests and recorded evidence, and runs the
+required consolidation checks before the US/PLAN DoD can close.
+
+Consolidation may remove a test only when its behavior is covered elsewhere and
+it provides no unique acceptance, path, boundary, or failure-mode coverage.
+Prefer integration or end-to-end coverage for primary user flows while keeping
+unit tests that provide distinct feedback. Preserve unrelated smoke tests.
+
+At final consolidation, update `STATE.md` and `EVD/` and run the evidence
+validator at the level configured in `STATE.md` (or the repository default).
+Keep valid prior evidence. Supersede it only when a newer equivalent or
+stronger result covers the same criterion against the current implementation;
+record the reason and replacement, and retain the prior evidence artifact.
 
 | Layer | Precondition | Action | Assertion | Required |
 |-------|--------------|--------|-----------|----------|

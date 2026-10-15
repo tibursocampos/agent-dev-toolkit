@@ -4,7 +4,7 @@
 
 | `storage_mode` | Action |
 |----------------|--------|
-| **repository** | Ensure SDD `.gitignore` block per `STORAGE.md` and `features_versioned` before first write — **do not** add `/memory-bank/`; always `!/docs/documentation-plan/plan.md` |
+| **repository** | Ensure SDD `.gitignore` block per `STORAGE.md` and `features_versioned` before first write — keep `docs/documentation-plan/plan.md` ignored without a negation rule; **do not** add `/memory-bank/` |
 | **global** | Bank under `<classic.path>/memory-bank/` - **do not** edit consumer `.gitignore` |
 
 | `features_versioned` | `/features/` `/docs/features/` in `.gitignore` |

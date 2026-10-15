@@ -65,7 +65,7 @@ Order per story. Do not jump from spec to plan.
 1. Check `STORY.md` and the `ANALYSIS/`, `ARCH/`, and `SEC/` folders required by `needs_*`. Run the same research as `refine-story/references/feature-research.md`. An open question in any of those files stops **this** story with `open_question`. Do not write the PRD. A stuck story does not erase the others and does not re-slice the feature.
 2. `sdd-spec` writes the PRD under `features/NNN-slug/{USnn|TSnn}/PRD/`. Then run the contestation in `refine-story/references/tech.md` § Story PRD contestation on that PRD. An open question means the PRD is not accepted. Do not call the plan.
 3. Only after that acceptance, the parent runs `split-story-checklist` when FEATURE complexity is `medium` or `complex`. That skill writes `REFINE/tasks.md`. `trivial` does not get the file. The parent does not ask `sdd-plan` to create it.
-4. Only then `sdd-plan`. It reads the checklist ids. If `medium` or `complex` and `REFINE/tasks.md` is missing, stop this story and hand off. After the checklist exists, resume the same plan:
+4. Only then `sdd-plan`. It reads the checklist ids. If `medium` or `complex` and `REFINE/tasks.md` is missing, `sdd-plan` coordinates `split-story-checklist` (native specialist when available, owner workflow inline otherwise), validates the canonical output, then resumes this same plan. The owner skill remains the only checklist writer; its gates and open questions remain active. Failure or invalid output blocks this story. O2's normal route should still run the checklist before calling `sdd-plan`:
 
 ```text
 /split-story-checklist - features/NNN-slug/{USnn|TSnn}/STORY.md
@@ -80,8 +80,8 @@ The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask e
 |-------|----------|-------------|
 | Story files | `feature-research.md` | Required siblings; any open question, including `MINOR`, stops this story |
 | Spec | `sdd-spec` | PRD in the chat language; no PLAN in this stage; no app code; `## Related` (REQ-009); contestation before the PRD is accepted |
-| Checklist | `split-story-checklist` | After contestation accepts the PRD; medium/complex only; writes `REFINE/tasks.md` |
-| Plan | `sdd-plan` | After contestation and, when required, the checklist. Reads ids and does not call the checklist. Two self-reviews and the preview before write. The parent does not accept a PLAN that skipped them and does not rewrite the plan sections |
+| Checklist | `split-story-checklist` | After contestation accepts the PRD; medium/complex only; sole writer of `REFINE/tasks.md`; also callable by `sdd-plan` recovery when missing |
+| Plan | `sdd-plan` | After contestation and, when required, a valid checklist. May coordinate the owner skill only for a missing checklist; validates and preserves IDs. Two self-reviews and the preview before write. The parent does not accept a PLAN that skipped them and does not rewrite the plan sections |
 
 **Navigation (REQ-009 / CA3):** Parent Writes of PRD/PLAN **MUST** honor `sdd-spec` / `sdd-plan` Related obligations (`STORAGE.md` § Navigation block). Classic minimum: **PRD ↔ PLAN** mutual portable-path cite when both exist; cite **STORY** if on-disk; upward FEATURE / CONTINUITY only when present. **Omit-if-absent** — never stub siblings solely for links. After each story lands, refresh CONTINUITY / FEATURE / STORY Related edges for new PRD/PLAN paths (still paths-only — not a second navigation SoT).
 

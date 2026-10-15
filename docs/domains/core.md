@@ -97,7 +97,7 @@ No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `feat
 
 **Portable paths:** artifact bodies, handoffs, CONTINUITY, and inventory cites use workspace-relative (or InstallRoot-relative for global) paths — never OS absolute / user-home InstallRoot embeds. Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Portable path.
 
-**Repository `.gitignore`:** when `classic.features_versioned` is `false` (default), skills add `/features/` and `/docs/features/` (plus safety-net `/PRD/`, `/PLAN/`, …). When `true`, those `/features/` lines are omitted so SDD artifacts can be versioned. Always keep `!/docs/documentation-plan/plan.md`. Do **not** add `/memory-bank/`. Global mode does not edit project `.gitignore`. Detail: [STORAGE.md](../../core/sdd/STORAGE.md) § Repository mode - `.gitignore`.
+**Repository `.gitignore`:** when `classic.features_versioned` is `false` (default), skills add `/features/` and `/docs/features/` (plus safety-net `/PRD/`, `/PLAN/`, …). When `true`, those `/features/` lines are omitted so SDD artifacts can be versioned. Keep `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` remains ignored and must not receive a negation rule. Do **not** add `/memory-bank/`. Global mode does not edit project `.gitignore`. Detail: [STORAGE.md](../../core/sdd/STORAGE.md) § Repository mode - `.gitignore`.
 
 ### Navigation block (Related)
 

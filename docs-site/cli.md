@@ -154,7 +154,7 @@ After prepare, `manifest.json` (schema **v2**) lives under the effective SDD roo
 | **repository** | `$Cwd/features/` and `$Cwd/memory-bank/` |
 | **global** | Path under the SDD root (`classic.path`, typically `{{SDD_ROOT}}/<repo-id>/`) — `features/` and `memory-bank/` together there |
 
-Use portable paths in artifact bodies (`features/NNN-slug/US01/PRD/...`). In **repository** mode, default `features_versioned: false` adds `/features/` to `.gitignore` (plus `/docs/features/` and PRD/PLAN safety nets). Set it to `true` to version those trees. Always keep `!/docs/documentation-plan/plan.md`. Global mode does not edit the project `.gitignore`.
+Use portable paths in artifact bodies (`features/NNN-slug/US01/PRD/...`). In **repository** mode, default `features_versioned: false` adds `/features/` to `.gitignore` (plus `/docs/features/` and PRD/PLAN safety nets). Set it to `true` to version those trees. Keep `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` stays ignored and must not receive a negation rule. Global mode does not edit the project `.gitignore`.
 
 The seed never overwrites an existing manifest. Full contract: `core/sdd/STORAGE.md`.
 

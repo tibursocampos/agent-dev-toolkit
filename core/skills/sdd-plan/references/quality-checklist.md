@@ -5,6 +5,13 @@
 - [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
 - [ ] `## Related` present; PRD↔PLAN mutual cite when both exist; omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
 - [ ] Every PRD REQ and acceptance criterion appears in some step
+- [ ] Implementation DoR is reviewable before the first step: every REQ→CA→step has a named planned validation, scope/OOS and dependencies are explicit, and unresolved implementation-affecting decisions block start
+- [ ] Acceptance traceability records planned validation separately from execution evidence; no planned check is represented as a passing result
+- [ ] Step/US DoD requires accepted outcomes, passed declared checks, and recorded evidence; clarification `READY` is not used as authorization or completion
+- [ ] PLAN preserves the develop-session gate lifecycle: finish edits/re-read/validation, record `tests_run`, update status/evidence, then reset terminally; no helper, validation, or artifact edit follows reset in that scope
+- [ ] Mixed test strategy is explicit; deferred checks have a final US consolidation owner and cannot approve an intermediate step
+- [ ] Final consolidation maps acceptance criteria to tests/evidence, preserves unique unit and unrelated smoke coverage, and removes only proven redundancy
+- [ ] Final US/PLAN DoD requires consolidation checks and STATE/EVD validation at the configured evidence level; valid prior evidence is retained or explicitly superseded with a reason and replacement
 - [ ] Vague Aceite challenged and rewritten (observable checks only)
 - [ ] No file-named / task-shaped step titles (file/class/script only) — `story-sizing.md` / `anti-task-shatter.md`
 - [ ] When present, story `ARCH/` / `ANALYSIS/` cited by portable path (not pasted)

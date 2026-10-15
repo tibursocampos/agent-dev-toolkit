@@ -26,14 +26,59 @@ Do **not** require or invent time/effort fields (`Time:`, `duration`, `effort`, 
 
 ## delivery-baseline (observável)
 
+### Implementation Definition of Ready (DoR) — direct and O3
+
+Before the first implementation step of a PLAN, both direct `sdd-develop` and
+O3 `orchestrate-develop` evaluate the same DoR. O3 performs this check before
+the first child spawn; direct execution performs it before implementing the
+first step. Later steps do not repeat the PLAN-level gate, but still require
+their own completed dependencies and step acceptance.
+
+The DoR passes only when all of these are observable in the approved PRD/PLAN:
+
+1. The canonical PRD and PLAN are approved and their paths are resolved.
+2. Every in-scope PRD REQ maps to a verifiable CA and one or more PLAN steps;
+   each step has acceptance text tied to its REQ/CA.
+3. Every step names its applicable validation (test, build, structural check,
+   or justified non-applicability), explicit dependencies, and scope/OOS source.
+4. Dependencies are valid and no unanswered decision can change scope,
+   implementation, or acceptance.
+5. The PLAN records a review result and portable supporting evidence for the
+   readiness assessment. A planned check is not evidence that it passed.
+
+If any item is absent, contradictory, or unverifiable, stop before the first
+implementation step, name the exact missing artifact/row, and leave the step
+`PENDING` (or preserve an existing `BLOCKED` status). `READY` only closes
+clarification questions; it never substitutes for this DoR. See the shared
+check in `orchestrate-develop/references/preconditions.md`.
+
+### Step and PLAN Definition of Done (DoD)
+
 A step may be marked **`COMPLETED`** only when **all** hold:
 
 1. **plan-acquisition** succeeded for the canonical PLAN + step.
 2. The step was marked `IN_PROGRESS` and the PLAN file was re-read before the edit.
-3. Acceptance and the tests for **this** step passed. A failure sets the step to `BLOCKED` with the cause in the PLAN. Dependents stay `PENDING`. Resume a `BLOCKED` step only when the recorded block is gone from the file.
+3. Every acceptance item for **this** step is met, every declared applicable validation passed, and results/evidence are recorded in the step ledger or the declared evidence artifact. Acceptance without validation, a planned check without a result, or a missing required evidence reference is not completion. A failure sets the step to `BLOCKED` with the cause in the PLAN. Dependents stay `PENDING`. Resume a `BLOCKED` step only when the recorded block is gone from the file.
 4. Targeted build/tests for the step’s stack ran when the step claims code/test work.
 5. Develop SESSION / ledger rules intact (one-step; no second SoT).
 6. PLAN progress and the execution checkpoint updated per `plan-update.md`.
+
+The PLAN/US may be closed as `COMPLETED` only after its DoD reconciles every
+required REQ and CA to completed steps and recorded implementation/test
+evidence, all required validations have passed, and no unresolved mandatory
+requirement or blocking review finding remains. Record skipped or
+non-applicable checks with their rationale; never infer success from `READY`,
+an empty finding list, or an acceptance statement alone.
+
+Use the PLAN's mixed test strategy. A deferred check is pending, never a pass,
+and cannot satisfy an intermediate step's acceptance or approve that step. It
+may be assigned to the final test-consolidation step only when it does not gate
+the current step's acceptance; that final step must map applicable acceptance
+criteria to tests and evidence and run all required consolidation checks before
+US/PLAN DoD. Remove tests only when they add no unique coverage, and retain
+valid evidence unless a newer equivalent or stronger result for the same
+criterion on the current implementation explicitly supersedes it. Record the
+supersession reason and replacement; keep the old artifact.
 
 No duration.
 
