@@ -1,5 +1,7 @@
 # Deploy and CI
 
+The command examples below use npm. When applying this guidance to an existing repository, preserve its lockfile-selected package manager, declared scripts, and existing CI conventions.
+
 Production deployment artifacts for Blip plugins from `create-blip-extension` / CRA scaffold (or a user-provided template).
 
 ## config:plugin

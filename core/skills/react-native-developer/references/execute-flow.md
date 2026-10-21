@@ -30,15 +30,15 @@ Functional components, hooks, clean React Native architecture. Match existing pa
 
 ### 5. Tests
 
-Jest + React Native Testing Library (or project equivalents) for changed behavior. Prefer `testing.md` guidance.
+Use the configured test runner and package-manager scripts for changed behavior; prefer `testing.md` guidance. Jest + React Native Testing Library are defaults only when no test baseline exists and they fit the task.
 
 ### 6. Build and test
 
 ```bash
-npm test
+<configured-package-manager> run <declared-test-script>
 ```
 
-(or project-equivalent scripts such as `yarn test`, `expo` lint/typecheck, or CI scripts from `package.json`)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager. Use Expo lint/typecheck or CI commands only when configured by the project.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

@@ -70,11 +70,11 @@ Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
 ### Commands (when applicable)
 
 ```bash
-npm run lint
-npm run build
+<configured-package-manager> run <declared-lint-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-Use the project’s stylelint / prettier / axe scripts when present. Do not add new linters in a small markup PR.
+Inspect the lockfile and project scripts first; use the configured package manager and declared lint/build scripts. Use Stylelint / Prettier / axe only when present; do not add new linters in a small markup PR.
 
 ---
 

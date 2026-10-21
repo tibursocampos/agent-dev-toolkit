@@ -44,11 +44,11 @@ Add or update tests for changed behavior. Prefer integration-style HTTP tests wh
 ### 6. Build and test
 
 ```bash
-npm test
-npm run build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-Add lint/type steps if configured. Fix failures within scope. Ask before running the full suite if the repo is very large.
+Inspect the lockfile and `package.json` scripts first; use the repository's configured package manager and declared scripts. If a script is absent, use the documented project command or report that check as unavailable rather than assuming npm. Add lint/type steps only when configured. Fix failures within scope. Ask before running the full suite if the repo is very large.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

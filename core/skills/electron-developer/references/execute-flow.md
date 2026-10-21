@@ -30,15 +30,15 @@ Main/preload/renderer separation, typed IPC, contextIsolation. Match existing el
 
 ### 5. Tests
 
-Unit tests for pure modules; manual smoke: app launches, changed flow works.
+Use the project's configured test runner and package-manager scripts for pure modules; preserve its existing test setup. If no test baseline exists, choose a minimal runner appropriate to the change. Manual smoke: app launches, changed flow works.
 
 ### 6. Validate
 
 ```bash
-npm run build
+<configured-package-manager> run <declared-build-script>
 ```
 
-Document smoke steps in chat (launch app, exercise changed feature).
+Inspect the lockfile and `package.json` scripts first. If no build script is declared, use the documented Electron build command for the detected setup; do not assume npm or add a script solely to satisfy this checklist. Document smoke steps in chat (launch app, exercise changed feature).
 
 ### 7. Handoff
 

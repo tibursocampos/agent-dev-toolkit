@@ -30,17 +30,17 @@ Discover architectural patterns in the touched area first. Follow `structure-and
 
 ### 5. Tests
 
-Vitest + Vue Test Utils for changed behavior.
+Use the project's configured test runner for changed behavior. Preserve existing Vue test utilities and conventions; on a new project without a test baseline, prefer Vitest + Vue Test Utils.
 
 ### 6. Build and test
 
 ```bash
-npm test
-npm run build
-vue-tsc --noEmit
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
+<configured-package-manager> run <declared-typecheck-script>
 ```
 
-(or project-equivalent scripts)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager. Run typecheck only when the project declares/configures it.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

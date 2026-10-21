@@ -17,9 +17,9 @@
 
 **Tests**
 
-- [ ] xUnit + Moq + Shouldly
-- [ ] Names: `Should_<Result>_When_<Condition>`
-- [ ] Arrange / Act / Assert structure with `// Arrange`, `// Act`, `// Assert` comments
+- [ ] Existing project test framework, libraries, naming, and structure followed; toolkit defaults apply only when no baseline is verifiable
+- [ ] When toolkit defaults apply: xUnit + Moq + Shouldly as relevant; names `Should_<Result>_When_<Condition>`
+- [ ] Arrange / Act / Assert structure with `// Arrange`, `// Act`, `// Assert` comments when consistent with the project baseline
 - [ ] Edge cases and failure paths where behavior changed
 
 **EF / data**

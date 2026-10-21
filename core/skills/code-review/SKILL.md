@@ -186,7 +186,7 @@ Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is other
 
 ### 3. Standards and guidelines
 1. Project `docs/standards/` or equivalent
-2. `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` for .NET (layers, tests: xUnit, Moq, Shouldly, `Should_<Result>_When_<Condition>`)
+2. `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/` for .NET (layers; test guidance follows the project baseline and uses toolkit defaults only when none is verifiable)
 3. Principles cheatsheet when installed
 4. **WS16a families (actionable refs — load when surface matches; pointers only):**
    - Policy → `references/policy.md`

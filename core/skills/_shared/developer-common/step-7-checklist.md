@@ -60,8 +60,8 @@
 | Stack | Blockers | Optional |
 |-------|----------|----------|
 | .NET | `dotnet build`, `dotnet test` (scoped) | `csharpier check .` when configured |
-| Node | `npm run build`, `npm test` | `npm run lint` |
-| Python | `pytest` (project venv) | `ruff` / `mypy` when configured |
+| Node | Configured package manager's declared build/test scripts | Declared lint script, when configured |
+| Python | Repository's configured test command (pytest only as a suitable fallback without a baseline) | Configured lint/type tools |
 
 ---
 

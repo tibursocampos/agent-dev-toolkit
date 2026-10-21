@@ -30,7 +30,7 @@ Razor components, parameters, `@bind`, lifecycle. Match existing patterns (code-
 
 ### 5. Tests
 
-bUnit for component logic; Playwright for E2E when the project has E2E setup.
+Match the repository's test stack for component logic. Use bUnit when already referenced or when no test baseline exists and component tests are needed; use Playwright for E2E only when the project has E2E setup.
 
 ### 6. Validate
 

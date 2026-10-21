@@ -30,16 +30,16 @@ Components, services, RxJS patterns. Match existing module structure. Apply `ang
 
 ### 5. Tests
 
-Jasmine/Karma (or project test runner) for changed behavior.
+Use the runner and test command configured by the repository (for example, the test target in `angular.json` and the corresponding package script). Preserve its package manager and established test configuration. Use Jasmine/Karma only when the project uses it or when no test baseline exists and it fits the task.
 
 ### 6. Build and test
 
 ```bash
-ng test
-ng build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-(or project-equivalent scripts)
+If a required script is absent, use the repository's documented Angular CLI command and configuration; do not assume `npm` or introduce another runner.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

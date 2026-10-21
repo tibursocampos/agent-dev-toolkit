@@ -83,15 +83,13 @@ Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win au
 
 ---
 
-## Tests (new code)
+## Tests (new code; toolkit defaults only when no repository baseline exists)
 
-- [ ] xUnit (`[Fact]` / `[Theory]`)
-- [ ] Shouldly (`ShouldBe`, `ShouldNotBeNull`, …)
-- [ ] Moq for mocks
-- [ ] Names follow `Should_<Result>_When_<Condition>`
+- [ ] Existing test framework, assertion/mocking libraries, and naming conventions discovered and followed; use the toolkit defaults below only when no baseline is verifiable
+- [ ] When toolkit defaults apply: xUnit (`[Fact]` / `[Theory]`), Shouldly (`ShouldBe`, `ShouldNotBeNull`, …), and Moq when mocking is needed
+- [ ] When toolkit defaults apply: names follow `Should_<Result>_When_<Condition>`
 - [ ] English identifiers in tests
-- [ ] Mock variables suffixed with `Mock`
-- [ ] Arrange data built via `*Fake` classes (not inline domain objects)
+- [ ] When toolkit defaults apply: mock variables suffixed with `Mock`; arrange data uses `*Fake` classes when reusable test data is appropriate
 - [ ] One behavior per test
 - [ ] Arrange / Act / Assert structure with `// Arrange`, `// Act`, `// Assert` comments
 

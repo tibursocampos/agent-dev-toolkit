@@ -78,11 +78,11 @@ Pointers only — do not paste style-guide / gist bodies. **angular.dev wins** a
 ## Build
 
 ```bash
-ng test
-ng build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-(or project-equivalent scripts)
+Inspect `angular.json`, the lockfile, and `package.json` scripts first; preserve the project's configured runner, package manager, and scripts. Use Angular CLI commands only when documented/configured for the project.
 
 - [ ] Targeted tests green for changed code
 - [ ] Production build succeeds when required by the task

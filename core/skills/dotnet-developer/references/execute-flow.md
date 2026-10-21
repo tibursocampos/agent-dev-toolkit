@@ -12,7 +12,7 @@ Confirm target repo (`*.sln` / `*.csproj`). Read `AGENTS.md` / `README.md`. Summ
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Confirm test stack: **xUnit**, **Moq**, **Shouldly**, `Should_<Result>_When_<Condition>`.
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Before changing tests, inspect project instructions, test projects, dependencies, and representative tests; use the established project test stack and conventions. Only when no baseline is verifiable, use applicable toolkit defaults from `dotnet-test-patterns.md` (xUnit, Moq, Shouldly, and `Should_<Result>_When_<Condition>` naming).
 
 ### 2. Branch (step 3)
 
