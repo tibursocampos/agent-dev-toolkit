@@ -17,7 +17,7 @@ Condensed reference for fundamental principles.
 | **YAGNI** | Speculative feature | Field/method without current requirement | Blocking | - |
 | **Encapsulation** | Related parameters | 4+ parameters (e.g. address fields) | Suggestion | Unrelated types |
 | **Encapsulation** | Over-broad variable scope | Loop variable used only inside loop | Suggestion | - |
-| **Structure/Quality** | Touched code vs toolkit defaults | Architecture mirror + style bar; magic literals; blank-spam; wrap-for-style; one type/file | Blocking | Documented project escape |
+| **Structure/Quality** | Touched code vs toolkit defaults | Operator order and established project style outrank the style bar; ask before restyling existing members; magic literals on new code only after that choice | Blocking when existing members are restyled without a yes, or new code follows neither pattern | Documented project escape; pre-existing project style left in place |
 
 ---
 

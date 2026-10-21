@@ -34,7 +34,7 @@ Names may be `src/features`, `modules`, `pages` + `components` — **mirror the 
 - When ARCH / CONTINUITY asks for FE structure, **load this hub** from the active UI pack; do not invent a second architecture essay inside React/Vue/Angular/RN/Blazor files.
 - Map framework terms to the same idea: React routes/pages, Vue/Nuxt pages + composables, Angular feature folders, Expo Router `app/` routes, Blazor `Pages` / feature components.
 - Identifiers always **English**; comments/docs/logs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins).
-- Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style — mirror folders/flows; apply toolkit style bar on touched code).
+- Cross-stack structure/quality: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style — mirror folders/flows; operator order and the established project style outrank the toolkit bar; ask before restyling existing members).
 
 | Concern | Lives in |
 |---------|----------|

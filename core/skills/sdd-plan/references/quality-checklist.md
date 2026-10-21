@@ -18,6 +18,7 @@
 - [ ] `validate-prd` and `validate-plan` exit 0 on the written paths
 - [ ] Step prose in pt-BR (unless English override)
 - [ ] No full implementation code blocks in the PLAN
+- [ ] When the established project style differs from the toolkit style bar, the PLAN records that difference and the open question (project vs toolkit). Implementation does not restyle existing members until the operator answers. An order to keep the project pattern closes the question
 - [ ] No full PRD / memory-bank dump in PLAN or handoff prompts
 - [ ] PLAN magro: SQL/DDL/JSON/OpenAPI omitted **only** if a canonical path already exists (bank phase 2 or `ARCH/` / `ANALYSIS/`); otherwise create that file first and cite the path
 - [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `{{TOOLKIT_ROOT}}/` outside `sdd/.../features/`)

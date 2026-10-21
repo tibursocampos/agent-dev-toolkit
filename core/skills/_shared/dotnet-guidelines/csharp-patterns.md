@@ -1,6 +1,6 @@
 # C# Best Practices
 
-> **Highest priority.** When this document conflicts with generic best practices, **always follow this document**.
+> **Highest priority among toolkit style notes.** When this document conflicts with generic best practices, **follow this document**. An explicit operator instruction for the current task outranks this style bar. An order to keep the project pattern means: do not restyle existing members. Record a toolkit divergence in the PLAN and ask project vs toolkit before any restyle. Silence is not approval.
 >
 > For .NET test naming, structure, fixtures, and assertions, load [`dotnet-test-patterns.md`](./dotnet-test-patterns.md) only when the task includes tests.
 
@@ -128,11 +128,12 @@ Before adding types, handlers, validators, or helpers, **discover how the reposi
 | Concern | Rule |
 |---------|------|
 | **Architecture (mirror)** | Match folder layout, namespaces, DI registration, and class/handler flows — discover first; no parallel path |
-| **Style (toolkit bar)** | On **touched** code, apply toolkit style defaults (constants, blank lines, signatures, one-type/file) — do **not** copy style violations from neighbors |
+| **Established project style** | Match the touched type and its neighbors. Adding a member does not authorize rewriting the rest of the type |
 | **Reuse consolidated patterns** | If the project uses FluentValidation, CQRS handlers, repository interfaces, etc., extend that pattern |
 | **Forbidden** | Parallel flows when a consolidated approach already exists (e.g. inline `if` validation when commands use `AbstractValidator`) |
 | **Class flow** | Reuse existing `private` methods in the same class before duplicating logic in a new helper or type |
-| **Review** | **Blocking** - reject PRs that introduce a second architectural path, or that leave touched code below the style bar |
+| **Toolkit style** | New code only, and only when the area has no local pattern or the operator explicitly chose the toolkit for this change |
+| **Review** | **Blocking** - reject a second architectural path, a restyle of existing members without an explicit yes, or new code that follows neither the project pattern nor an approved toolkit choice. Leaving the project's existing literals is not a failure |
 
 **Cross-reference:** Layer rules, mandatory Command/Handler/Validator flow, and FluentValidation-only validation are in `clean-architecture.md` (§ Mandatory implementation flow, § Validation). Cross-stack: `structure-and-quality.md` §1.
 
@@ -168,21 +169,24 @@ public decimal GetOrderSubtotal(IReadOnlyList<OrderLine> lines) =>
 
 Do not add architectural layers, projects, or folders without explicit user approval - extend what already exists.
 
-### Named constants (no magic literals) (required - blocking in review)
+### Named constants (no magic literals)
 
-Every **string and number** in **production code** must be a **named constant** with a clear English identifier (PRD CA6, RF06-RF08, RN05-RN07). Applies to error messages, log messages and templates, FluentValidation rules, configuration keys, HTTP status codes, query keys, templates, and exception text - not only “business” literals.
+For **new** code, when the operator chose the toolkit or the area has no local pattern, every **string and number** in production code must be a **named constant** with a clear English identifier (PRD CA6, RF06-RF08, RN05-RN07). That includes error messages, log messages and templates, FluentValidation rules, configuration keys, HTTP status codes, query keys, templates, and exception text.
+
+Existing literals stay until the operator approves extracting them. Touching a type to add a member is not that approval. A new constant in the type does not require extracting the other literals already there.
 
 | Rule | Detail |
 |------|--------|
-| **No magic literals** | No raw `"..."` or numeric literals with semantic meaning in production paths |
-| **Consistency in a type** | Do **not** mix inline log/error strings with `const` in the same type — extract all semantic strings in that type |
+| **No magic literals** | On new code under an approved toolkit choice, or where no local pattern exists: no raw `"..."` or numeric literals with semantic meaning |
+| **Existing members** | Leave the project's literals in place. Do not extract them as a side effect of editing the file |
+| **Consistency in a type** | Match the style that type already uses. Do not mix a new constant into a literal-style type, and do not sweep the type to constants, unless the operator chose the toolkit |
 | **Naming** | **PascalCase** for all `const` identifiers (production and tests). **Forbidden:** `UPPER_SNAKE_CASE` (CT8) |
 | **Reuse first** | Grep/search project `Constants`, message types, and domain files before adding a new constant |
 | **Location (local)** | `private const` in the owning class when the value is used in **one** type only (internal service message, local prop/route name, one-off template) - **do not** create a dedicated constants file for non-reusable values |
 | **Location (shared)** | Public/shared type (e.g. `Constants` **partial** under Models/Domain) only when the value is **reused or clearly intended for reuse** across classes (CT6, RN06) |
 | **Shared file size** | Watch growth of shared constants types; prefer **`partial class`** by responsibility and section grouping via **`#region`** or comment headers - avoid a single monolithic constants dump |
 | **No duplication** | Do not copy the same literal into multiple classes or constant files - one canonical definition |
-| **Review** | **Blocking** - request named extraction before merge (CT5); also flag unnecessary shared-file churn for one-off values |
+| **Review** | **Blocking** for new literals when the toolkit style was chosen or no local pattern exists (CT5). Do not demand extraction of pre-existing project literals unless the operator approved that restyle. Flag unnecessary shared-file churn for one-off values |
 
 **Allowed exception (CA6.1, CT7):** In an arithmetic expression, a **numeric multiplier factor** may stay inline when it is the only literal in that expression (e.g. unit conversion `bytes * 1024`). Other operands with business meaning (limits, thresholds, status codes) still require named constants.
 

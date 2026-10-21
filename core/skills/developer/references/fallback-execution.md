@@ -14,7 +14,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 2. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus any stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Write clean, maintainable code following universal best practices for the target language (e.g., HTML, Bash, Python script).
 
