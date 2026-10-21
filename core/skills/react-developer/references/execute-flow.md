@@ -24,22 +24,22 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Functional components, hooks, clean React architecture. Match existing patterns. Apply `react-guidelines/` while writing — do not paste full bodies into chat.
 
 ### 5. Tests
 
-Jest / React Testing Library for changed behavior.
+Use the project's configured test runner for changed behavior. Follow existing React Testing Library patterns when present; on a new project without a test baseline, Jest or Vitest with React Testing Library are suitable defaults.
 
 ### 6. Build and test
 
 ```bash
-npm test
-npm run build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-(or project-equivalent scripts)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager and run declared scripts. For monorepos, target the relevant package.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

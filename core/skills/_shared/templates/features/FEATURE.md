@@ -63,11 +63,11 @@ Omit the table when unknown — do not fabricate numbers (`product-evidence-lite
 
 ## Decisions
 
-| question_id | decision_id | Decision | Status |
-|-------------|-------------|----------|--------|
-| {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | resolved |
+| question_id | decision_id | Decision | Affected normative artifact/section (REQ/CA) | Status | Superseded by |
+|-------------|-------------|----------|---------------------------------------------|--------|--------------|
+| {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | {{PORTABLE_PATH_AND_SECTION; REQ-### / CA# WHEN APPLICABLE}} | resolved | — |
 
-One row per closed question. `question_id` and `decision_id` stay stable. Do not delete a prior decision when the file is updated; append history. Status token: `resolved` only for an explicit user answer or a cited portable evidence path.
+One row per closed question. `question_id` and `decision_id` stay stable. Link each decision to the portable path and section it changes or governs, including applicable `REQ-###` and `CA#` ids; use `n/a` only when no normative artifact or section is affected yet. Status is `resolved` only for an explicit user answer or a cited portable evidence path, or `superseded` when a later decision replaces it. Keep superseded rows and their original targets; record the replacing `decision_id` in **Superseded by**. Append history instead of deleting or rewriting prior decisions.
 
 ## Open questions
 

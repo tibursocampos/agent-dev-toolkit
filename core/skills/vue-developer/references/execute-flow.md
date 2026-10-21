@@ -24,23 +24,23 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 `<script setup>`, composables, clean Vue architecture. Match existing patterns (Options API only when maintaining legacy code). Apply `vue-guidelines/` while writing — do not paste full bodies into chat.
 
 ### 5. Tests
 
-Vitest + Vue Test Utils for changed behavior.
+Use the project's configured test runner for changed behavior. Preserve existing Vue test utilities and conventions; on a new project without a test baseline, prefer Vitest + Vue Test Utils.
 
 ### 6. Build and test
 
 ```bash
-npm test
-npm run build
-vue-tsc --noEmit
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
+<configured-package-manager> run <declared-typecheck-script>
 ```
 
-(or project-equivalent scripts)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager. Run typecheck only when the project declares/configures it.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

@@ -47,8 +47,8 @@ Extract shared setup to test utilities or fixtures - do not duplicate arrange lo
 Run the same commands locally before handoff:
 
 ```bash
-npm test
-npm run build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-Use project-specific scripts when they differ (`ng test`, `vitest run`, etc.).
+Inspect the lockfile and project scripts first; preserve the configured package manager. Use direct commands (`ng test`, `vitest run`, etc.) only when documented/configured or when no script exists.

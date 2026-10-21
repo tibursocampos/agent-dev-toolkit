@@ -39,8 +39,8 @@ Use before opening a pull request.
 
 - [ ] **One top-level type per file** (default); match project colocation escape when that feature already colocates
 - [ ] **Signatures and invocations:** inline only when ≤ 6 parameters and full line ≤ 160 characters; otherwise one parameter per line
-- [ ] **Architecture vs style:** mirror folders/DI/flows; apply toolkit style bar on touched code (do not copy neighbor style violations)
-- [ ] **Named constants** in production code - no magic strings/numbers; no mix of inline log strings + `const` in the same type; `const` names in **PascalCase**; shared Constants files only for reusable values; prefer `partial` / regions when shared files grow
+- [ ] **Architecture vs style:** mirror folders/DI/flows; match the established project style. Record a toolkit divergence and ask project vs toolkit before any restyle. Do not rewrite existing members without an explicit yes
+- [ ] **Named constants** for new code only when the operator chose the toolkit or the area has no local pattern. Do not extract pre-existing literals, and do not mix a new constant into a literal-style type, unless that restyle was approved. `const` names in **PascalCase**; shared Constants files only for reusable values
 - [ ] **Blank lines:** no blank-spam between every statement; blanks only between logical member groups
 - [ ] **Readable construction:** named locals when multi-arg `new` harms readability; builders only when reuse justifies
 - [ ] **Method ordering:** all public methods (alphabetical), then all private methods (alphabetical)
@@ -83,15 +83,13 @@ Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win au
 
 ---
 
-## Tests (new code)
+## Tests (new code; toolkit defaults only when no repository baseline exists)
 
-- [ ] xUnit (`[Fact]` / `[Theory]`)
-- [ ] Shouldly (`ShouldBe`, `ShouldNotBeNull`, …)
-- [ ] Moq for mocks
-- [ ] Names follow `Should_<Result>_When_<Condition>`
+- [ ] Existing test framework, assertion/mocking libraries, and naming conventions discovered and followed; use the toolkit defaults below only when no baseline is verifiable
+- [ ] When toolkit defaults apply: xUnit (`[Fact]` / `[Theory]`), Shouldly (`ShouldBe`, `ShouldNotBeNull`, …), and Moq when mocking is needed
+- [ ] When toolkit defaults apply: names follow `Should_<Result>_When_<Condition>`
 - [ ] English identifiers in tests
-- [ ] Mock variables suffixed with `Mock`
-- [ ] Arrange data built via `*Fake` classes (not inline domain objects)
+- [ ] When toolkit defaults apply: mock variables suffixed with `Mock`; arrange data uses `*Fake` classes when reusable test data is appropriate
 - [ ] One behavior per test
 - [ ] Arrange / Act / Assert structure with `// Arrange`, `// Act`, `// Assert` comments
 

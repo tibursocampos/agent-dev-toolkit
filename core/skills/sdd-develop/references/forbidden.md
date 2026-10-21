@@ -6,7 +6,7 @@
 | `feature/base/{parent}/{child}` | `feature/<slug>` or `feat/<id>-<slug>` only |
 | Portuguese implement skill / `PLANO_*` filenames | `sdd-develop`, `PLAN_*` |
 | Absolute “comments always English” | Mirror touched area or **ask** on greenfield (`structure-and-quality.md` §2); identifiers stay English |
-| NUnit-only bans in new tests | `dotnet-guidelines`, xUnit/Moq |
+| Override an established project test stack with toolkit defaults | Discover and follow the repository baseline first; use applicable `dotnet-guidelines` defaults only when none is verifiable |
 | Auto sync-commit with work item IDs | Optional `/commit` |
 | Auto PR analyzer + work-item links | User opens PR in GitHub UI / review skill |
 | Skip `plan-acquisition` / invent flat PLAN path | `references/plan-acquisition.md` |

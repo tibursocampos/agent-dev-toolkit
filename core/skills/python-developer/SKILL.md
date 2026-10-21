@@ -34,7 +34,7 @@ Invoke when the user asks for: `/python-developer`, `python fix`, `implement Fas
 
 ## Outcome
 
-Working **CPython host** code and tests in the open workspace: pytest (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Supports **FastAPI** and **Flask** — not a FastAPI-only skill. Does not replace SDD for multi-step or cross-repo features.
+Working **CPython host** code and tests in the open workspace: the repository's configured test runner (pytest only as a suitable fallback without a baseline) and project lint/type checks when configured, on a valid feature branch, with optional commit handoff. Supports **FastAPI** and **Flask** — not a FastAPI-only skill. Does not replace SDD for multi-step or cross-repo features.
 
 Host boundary: use this skill for CPython applications, host tools, and host tests, including tools that communicate with a board. Do not use it to recommend MicroPython device APIs, device-only modules, REPL procedures, or flashing/deployment steps.
 

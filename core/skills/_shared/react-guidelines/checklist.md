@@ -58,11 +58,11 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 ## Validate
 
 ```bash
-npm test
-npm run build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 ```
 
-(or project-equivalent scripts)
+Inspect the lockfile and `package.json` scripts first; use the project's configured package manager and declared scripts. For monorepos, target the relevant package as described below.
 
 - [ ] Failures in scope fixed before handoff
 - [ ] No secrets in client env or source

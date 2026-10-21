@@ -1,12 +1,12 @@
 # pytest defaults (Python)
 
-> Default test runner for `/python-developer`. Match the project's existing fixtures and layout; prefer **pytest** on greenfield.
+> Default for new greenfield Python projects without an established test runner. In existing projects, preserve the verified runner and its fixtures/layout; prefer **pytest** only when no baseline exists and it fits the task.
 
 ---
 
 ## MUST
 
-- Use **pytest** for new greenfield Python tests unless the repo already standardizes on unittest-only suites.
+- Preserve an existing test runner and its conventions. When no runner is established, prefer **pytest** for new greenfield Python tests.
 - Put shared fixtures in `conftest.py` or a dedicated test-support / `TestInfrastructure`-style package — do not copy-paste arrange blocks.
 - Structure each test with clear **Arrange / Act / Assert** (use `//`-style section comments only if the repo uses comments; otherwise keep the three phases obvious).
 - Name tests to describe behavior: `test_<result>_when_<condition>` or `Should_<Result>_When_<Condition>` matching repo style.
@@ -29,6 +29,7 @@
 ## MUST NOT
 
 - Introduce unittest-only suites for new greenfield work when pytest is available.
+- Replace an established project runner with pytest solely because pytest is the toolkit default.
 - Hide domain arrange builders as private helpers inside every test class — centralize fakes/fixtures.
 - Assert only that “lines ran” without checking observable behavior.
 - Depend on test order, shared mutable module state, or wall-clock `time.sleep` without project justification.

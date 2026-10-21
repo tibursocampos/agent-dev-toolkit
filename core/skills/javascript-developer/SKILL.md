@@ -34,7 +34,7 @@ Invoke when the user asks for: `/javascript-developer`, `js fix`, `node fix`, `i
 
 ## Outcome
 
-Working **JavaScript/TypeScript** code and tests in the open workspace: npm test/build (and project lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Covers **Node backend** (Express/Fastify; Nest recognized only) **and** existing DOM/`html-css` routes — Node backend is an extension, not a replacement. Does not replace SDD for multi-step or cross-repo features. There is **no** `node-developer` skill.
+Working **JavaScript/TypeScript** code and tests in the open workspace: configured project tests/build (and lint/type checks when configured) green, on a valid feature branch, with optional commit handoff. Covers **Node backend** (Express/Fastify; Nest recognized only) **and** existing DOM/`html-css` routes — Node backend is an extension, not a replacement. Does not replace SDD for multi-step or cross-repo features. There is **no** `node-developer` skill.
 
 ## Lazy-load (only when needed)
 

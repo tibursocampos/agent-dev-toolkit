@@ -49,12 +49,12 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 ## Build
 
 ```bash
-npm test
-npm run build
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
 vue-tsc --noEmit
 ```
 
-(or project-equivalent scripts)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager and use declared scripts.
 
 - [ ] Targeted tests green for changed code
 - [ ] Production build succeeds when required by the task
@@ -82,7 +82,7 @@ vue-tsc --noEmit
 - Priority A: keys + no `v-if`/`v-for` same node on touched lists
 - Pinia domain boundaries respected (no god store growth)
 - a11y keyboard pass on new interactive SFCs
-- `npm test` / typecheck / build as required by the task
+- Configured test / typecheck / build scripts as required by the task
 
 ---
 

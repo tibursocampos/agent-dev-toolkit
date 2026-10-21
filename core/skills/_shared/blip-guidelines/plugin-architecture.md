@@ -105,16 +105,18 @@ Never ship dev mocks behind a loose env check in production builds.
 
 ## Testing
 
-Use **Cypress component tests** (not Jest DOM) because:
+Use the repository's configured package manager and declared scripts for these checks. Use **Cypress component tests** (not Jest DOM) when this Blip Design System component test setup is present because:
 
 - JSDOM does not support BDS web components
 - Cypress renders real components with coverage via `@cypress/code-coverage` and `nyc`
 
 ```bash
-npm run test:cypress
-npm run test:coverage
-npm run build
+<configured-package-manager> run test:cypress
+<configured-package-manager> run test:coverage
+<configured-package-manager> run build
 ```
+
+Run only scripts declared by the target repository; preserve its lockfile-selected package manager.
 
 ## appsettings.json
 

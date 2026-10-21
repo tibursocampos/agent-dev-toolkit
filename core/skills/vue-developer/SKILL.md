@@ -1,6 +1,6 @@
 ---
 name: vue-developer
-description: Implement or fix small-to-medium Vue 3 features without full SDD (Composition API, Pinia, Vitest). Use for isolated Vue work or when invoking /vue-developer.
+description: Implement or fix small-to-medium Vue 3 features without full SDD (Composition API, Pinia, configured project test runner; Vitest is a fallback for new projects). Use for isolated Vue work or when invoking /vue-developer.
 ---
 
 ## STOP - Read before ANY tool call

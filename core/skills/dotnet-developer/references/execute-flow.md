@@ -12,7 +12,7 @@ Confirm target repo (`*.sln` / `*.csproj`). Read `AGENTS.md` / `README.md`. Summ
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Confirm test stack: **xUnit**, **Moq**, **Shouldly**, `Should_<Result>_When_<Condition>`.
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Before changing tests, inspect project instructions, test projects, dependencies, and representative tests; use the established project test stack and conventions. Only when no baseline is verifiable, use applicable toolkit defaults from `dotnet-test-patterns.md` (xUnit, Moq, Shouldly, and `Should_<Result>_When_<Condition>` naming).
 
 ### 2. Branch (step 3)
 
@@ -24,7 +24,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Match existing project patterns (Glob/Read similar types first).
 
