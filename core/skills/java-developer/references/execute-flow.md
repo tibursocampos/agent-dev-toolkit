@@ -24,7 +24,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Match existing project patterns (Glob/Read similar types first). Prefer Spring Boot idioms: controllers/REST, services, repositories, DTOs, validation.
 

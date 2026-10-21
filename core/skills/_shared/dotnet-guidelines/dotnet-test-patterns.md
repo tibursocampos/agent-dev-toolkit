@@ -2,9 +2,13 @@
 
 Load this guide when creating, changing, or reviewing .NET tests. For production C# conventions shared with test code (such as named constants), also load [`csharp-patterns.md`](./csharp-patterns.md) only when those conventions apply.
 
+## Authority and applicability
+
+In an existing repository, first inspect its instructions, test projects, dependencies, and representative tests. Follow the demonstrated project baseline for the test framework, mocking and assertion libraries, naming, fixtures, and test-data patterns. Do not replace or block that baseline to enforce this guide. The toolkit patterns below are defaults for a project with no verifiable baseline; select only the tools and patterns that fit the scenario.
+
 ## .NET test patterns
 
-### Required frameworks (new code)
+### Toolkit framework defaults (when no repository baseline exists)
 
 | Framework | Usage |
 |-----------|--------|
@@ -13,11 +17,9 @@ Load this guide when creating, changing, or reviewing .NET tests. For production
 | **Moq** | Mocks via `new Mock<T>()` / `Mock.Of<T>()` |
 | **WireMock.Net** | HTTP stubbing in integration/infrastructure tests (when needed) |
 
-Prefer **xUnit + Moq + Shouldly** for all new tests. Legacy NUnit/NSubstitute/FluentAssertions tests may remain; do not rewrite them unless asked - add new scenarios in new files following this stack.
+When no baseline exists, prefer **xUnit + Moq + Shouldly** for new tests when each library fits the scenario. In a repository with another established stack, continue using it for new scenarios; do not rewrite existing tests unless asked.
 
----
-
-### Test naming (required)
+### Toolkit test-naming default (when no repository baseline exists)
 
 ```
 Should_<ExpectedResult>_When_<Condition>
@@ -139,7 +141,7 @@ var orderRepositoryMock = new Mock<IOrderRepository>();
 
 ---
 
-### Fakes (required for arrange data)
+### Toolkit test-data default (when no repository baseline exists)
 
 **All DTOs, entities, and collections used in arrange belong in reusable static `*Fake` classes.**
 
@@ -251,9 +253,9 @@ public class OrderApiTests : IClassFixture<WebApplicationFactory<Program>>
 
 ---
 
-## Blocking test anti-patterns (review checklist)
+## Toolkit anti-pattern checks (review checklist)
 
-Any of the following in new `*Test*.cs` / `*Tests.cs` files should be fixed before merge:
+Apply these checks to new `*Test*.cs` / `*Tests.cs` files when the toolkit defaults apply or when they do not conflict with the established project baseline. Review genuine correctness or reliability issues independently; a different established framework or convention is not itself an anti-pattern.
 
 | # | Anti-pattern | Fix |
 |---|--------------|-----|
@@ -272,4 +274,4 @@ Any of the following in new `*Test*.cs` / `*Tests.cs` files should be fixed befo
 - Pure domain entity tests with no DI: `new OrderLine(...)` is fine when the type has no injectable dependencies - still use fakes for complex arrange data.
 - `[MemberData]` builders on the test class for xUnit data sources.
 
-Document exceptions in the PR when a rule truly does not apply.
+Document a deviation when choosing a toolkit default over another applicable option; do not treat the project's established baseline as an exception that needs justification.

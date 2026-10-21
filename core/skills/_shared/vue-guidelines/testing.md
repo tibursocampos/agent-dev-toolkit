@@ -1,6 +1,6 @@
 # Vue testing
 
-Vitest + Vue Test Utils unless the project uses Jest. Absorbs prior `vue-testing` stub. Follow `frontend-guidelines/frontend-testing.md` for cross-stack structure.
+Use the project's configured test runner and Vue Test Utils or its existing equivalent. Vitest + Vue Test Utils are defaults only when no baseline exists. Absorbs prior `vue-testing` stub. Follow `frontend-guidelines/frontend-testing.md` for cross-stack structure.
 
 ---
 
@@ -68,10 +68,12 @@ describe('UserCard', () => {
 ### Commands
 
 ```bash
-npm test
-npm run build
-vue-tsc --noEmit
+<configured-package-manager> run <declared-test-script>
+<configured-package-manager> run <declared-build-script>
+<configured-package-manager> run <declared-typecheck-script>
 ```
+
+Inspect the lockfile and project scripts first; run only configured scripts with the repository's package manager.
 
 ---
 

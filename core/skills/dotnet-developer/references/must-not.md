@@ -4,7 +4,7 @@
 - Spawn children for **trivial** work (keep **in-parent**)
 - Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
 - External work-item APIs, `repo-mappings.json`, or org-only pipeline/Key Vault mapping guides
-- Obsolete test stacks or naming conventions (use xUnit/Moq/`Should_When_` only)
+- Replace an established project test stack or naming convention with toolkit defaults; when no baseline exists, use only applicable defaults from `dotnet-test-patterns.md`
 - Obsolete guideline paths (use `dotnet-guidelines/` only)
 - Nested `feature/base/...` branches; commit on default integration branches
 - Speculative features outside stated acceptance (YAGNI)

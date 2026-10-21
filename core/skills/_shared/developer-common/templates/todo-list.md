@@ -25,8 +25,8 @@ For SDD, the PLAN file is the detailed control artifact - this list tracks Git w
 | Stack | Verify commands |
 |-------|-----------------|
 | .NET | `dotnet build`, `dotnet test` |
-| Node | `npm run build`, `npm test`, lint if configured |
-| Python | `pytest`, type/lint tools if configured |
+| Node | Configured package manager's declared build/test scripts; lint if configured |
+| Python | Repository's configured test command; type/lint tools if configured |
 
 ---
 

@@ -24,13 +24,13 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Razor components, parameters, `@bind`, lifecycle. Match existing patterns (code-behind vs inline per project).
 
 ### 5. Tests
 
-bUnit for component logic; Playwright for E2E when the project has E2E setup.
+Match the repository's test stack for component logic. Use bUnit when already referenced or when no test baseline exists and component tests are needed; use Playwright for E2E only when the project has E2E setup.
 
 ### 6. Validate
 

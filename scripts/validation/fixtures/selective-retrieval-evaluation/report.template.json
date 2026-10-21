@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "runMetadata": {
+    "host": "fill in host or unknown",
+    "retrievalGuidanceRevision": "fill in commit, version, or unknown",
+    "runLabel": "baseline or candidate"
+  },
+  "results": [
+    {
+      "caseId": "relevant-with-overlapping-decoy",
+      "outcome": "answered",
+      "consultedPaths": ["case-01/webhook-delivery.md"],
+      "citedPaths": ["case-01/webhook-delivery.md"],
+      "answerSummary": "The delivery service owns the retry policy.",
+      "semanticReview": "not-reviewed"
+    },
+    {
+      "caseId": "evidence-absent",
+      "outcome": "insufficient",
+      "consultedPaths": ["case-02/audit-export.md"],
+      "citedPaths": ["case-02/audit-export.md"],
+      "answerSummary": "The available sources do not specify a retention period.",
+      "semanticReview": "not-reviewed"
+    },
+    {
+      "caseId": "contradictory-sources",
+      "outcome": "conflict",
+      "consultedPaths": [
+        "case-03/billing-runbook.md",
+        "case-03/worker-config.md"
+      ],
+      "citedPaths": [
+        "case-03/billing-runbook.md",
+        "case-03/worker-config.md"
+      ],
+      "answerSummary": "The runbook and worker config name different queues.",
+      "semanticReview": "not-reviewed"
+    }
+  ],
+  "hostMetrics": {
+    "availability": "unavailable"
+  }
+}

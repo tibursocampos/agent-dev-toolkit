@@ -12,7 +12,7 @@ Confirm Python project (`pyproject.toml`, `requirements.txt`, `Pipfile`, `setup.
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `python-guidelines` files needed for this task. Confirm test stack: **pytest** (`pytest.md`). Load `fastapi.md` and/or `flask.md` when those frameworks apply; keep `principles.md` / `google-style.md` for style when useful.
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `python-guidelines` files needed for this task. Confirm the test runner from existing tests, configuration, project scripts, and CI; preserve that baseline. Use **pytest** (`pytest.md`) only when the project has no verifiable runner and pytest fits the task. Load `fastapi.md` and/or `flask.md` when those frameworks apply; keep `principles.md` / `google-style.md` for style when useful.
 
 ### 2. Branch (step 3)
 
@@ -24,7 +24,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 4. Implement
 
-Discover architectural patterns in the touched area first. Apply `structure-and-quality.md` plus the stack overlay to touched code — do not copy style violations from neighbors. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+Discover architectural patterns in the touched area first. Follow `structure-and-quality.md` §1: an operator order and the established project style outrank the toolkit style bar. Do not restyle existing members without an explicit yes. On greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Match existing project patterns (Glob/Read similar modules first). Use a virtual environment (`venv` or `uv`).
 
@@ -39,15 +39,15 @@ Apply the matching `python-guidelines` docs while writing - do not paste full bo
 
 ### 5. Tests
 
-Add or update tests for changed behavior. Prefer integration-style API tests when the project already uses them; unit tests for isolated logic. Default runner: **pytest**.
+Add or update tests for changed behavior. Prefer integration-style API tests when the project already uses them; unit tests for isolated logic. Use the project's configured runner; for a new project without a test baseline, prefer **pytest**.
 
 ### 6. Build and test
 
 ```bash
-pytest
+pytest  # when configured or when no runner exists and pytest fits the task
 ```
 
-Add lint/type steps if configured (`ruff`, `mypy`, etc.). Fix failures within scope. Ask before running the full suite if the repo is very large.
+Use configured project commands for tests, lint, and types (`ruff`, `mypy`, etc.). Fix failures within scope. Ask before running the full suite if the repo is very large.
 
 ### 7. Pre-commit (step 3.5) and handoff
 

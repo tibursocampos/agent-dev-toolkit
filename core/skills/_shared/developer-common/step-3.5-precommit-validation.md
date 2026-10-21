@@ -69,13 +69,15 @@ this flow for formatter, fix, update, suppression, or cleanup commands.
 
 ---
 
+Before using the command examples below, inspect the repository's documented tooling, lockfiles, project scripts, and CI. Prefer its configured wrapper/package manager and declared commands; these rows are fallbacks for the named stack, not permission to replace a verified baseline.
+
 ## 3.5.3. Build (blocking)
 
 | Stack | Command |
 |-------|---------|
 | .NET | `dotnet build --no-restore` (or full `dotnet build`) |
 | TypeScript | `npx tsc --noEmit` when `tsconfig.json` exists |
-| Node app | `npm run build` when defined in `package.json` |
+| Node app | The configured package manager's declared build script from `package.json`, when present |
 
 ---
 
@@ -84,7 +86,7 @@ this flow for formatter, fix, update, suppression, or cleanup commands.
 | Stack | Command |
 |-------|---------|
 | .NET | `dotnet test --filter "Category!=Integration&Category!=E2E" --no-build` or project-specific filter from PLAN |
-| Node | `npm test` with project’s unit-test scope |
+| Node | The configured package manager's declared test script with the project's unit-test scope |
 
 Use reasonable timeouts; report slow suites to the user.
 
@@ -95,7 +97,7 @@ Use reasonable timeouts; report slow suites to the user.
 | Stack | Command |
 |-------|---------|
 | .NET | `dotnet list package --vulnerable --include-transitive` |
-| Node | `npm audit --audit-level=high` |
+| Node | The configured package manager's read-only dependency audit command |
 
 Report findings without changing dependencies. Each available advisory must include
 package, version, severity, advisory identifier/link when emitted, scope, evidence,

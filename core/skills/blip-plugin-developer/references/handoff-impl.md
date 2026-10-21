@@ -2,7 +2,7 @@
 
 ### Phase 3 - Handoff (implementation)
 
-When scaffolded code or handoff notes touch source: discover architectural patterns; apply `structure-and-quality.md` plus Blip/React overlays to touched code — do not copy style violations; on greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
+When scaffolded code or handoff notes touch source: discover architectural patterns; follow `structure-and-quality.md` §1 (operator order and the established project style outrank the toolkit style bar; do not restyle existing members without an explicit yes) plus Blip/React overlays; on greenfield / no clear comment-language mirror, ask before writing narrative comments/docs (identifiers stay English).
 
 Ask **(pt-BR)** what to implement next. Route by scope:
 

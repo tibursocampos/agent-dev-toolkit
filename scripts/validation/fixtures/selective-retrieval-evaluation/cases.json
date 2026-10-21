@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "relevant-with-overlapping-decoy",
+      "question": "Which service owns retry policy for outbound webhook delivery?",
+      "expectedOutcome": "answered",
+      "availablePaths": [
+        "case-01/webhook-delivery.md",
+        "case-01/retry-decoy.md"
+      ],
+      "requiredConsultedPaths": ["case-01/webhook-delivery.md"],
+      "requiredCitedPaths": ["case-01/webhook-delivery.md"],
+      "forbiddenPaths": ["case-01/retry-decoy.md"]
+    },
+    {
+      "id": "evidence-absent",
+      "question": "What is the approved retention period for exported audit bundles?",
+      "expectedOutcome": "insufficient",
+      "availablePaths": ["case-02/audit-export.md"],
+      "requiredConsultedPaths": ["case-02/audit-export.md"],
+      "requiredCitedPaths": ["case-02/audit-export.md"],
+      "forbiddenPaths": []
+    },
+    {
+      "id": "contradictory-sources",
+      "question": "Which queue receives failed invoice reconciliation jobs?",
+      "expectedOutcome": "conflict",
+      "availablePaths": [
+        "case-03/billing-runbook.md",
+        "case-03/worker-config.md"
+      ],
+      "requiredConsultedPaths": [
+        "case-03/billing-runbook.md",
+        "case-03/worker-config.md"
+      ],
+      "requiredCitedPaths": [
+        "case-03/billing-runbook.md",
+        "case-03/worker-config.md"
+      ],
+      "forbiddenPaths": []
+    }
+  ]
+}

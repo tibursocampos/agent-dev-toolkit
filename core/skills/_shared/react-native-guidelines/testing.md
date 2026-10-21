@@ -70,8 +70,10 @@ test('should_submit_when_form_valid', async () => {
 ### Commands (project-equivalent)
 
 ```bash
-npm test
+<configured-package-manager> run <declared-test-script>
 ```
+
+Inspect the lockfile and project scripts first; run the configured test script with the repository's package manager.
 
 Add typecheck/lint only when configured (`tsc`, `expo lint`, ESLint). Prefer CI scripts already listed in `package.json`.
 

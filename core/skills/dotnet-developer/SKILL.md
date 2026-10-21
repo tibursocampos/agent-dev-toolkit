@@ -1,6 +1,6 @@
 ---
 name: dotnet-developer
-description: Implement or fix small-to-medium .NET features without full SDD (Clean Architecture, xUnit). Use for isolated C# work or when invoking /dotnet-developer.
+description: Implement or fix small-to-medium .NET features without full SDD (Clean Architecture, toolkit test defaults). Use for isolated C# work or when invoking /dotnet-developer.
 ---
 
 ## STOP - Read before ANY tool call

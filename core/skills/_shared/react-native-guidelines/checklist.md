@@ -57,10 +57,10 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 ## Validate
 
 ```bash
-npm test
+<configured-package-manager> run <declared-test-script>
 ```
 
-(or `yarn test` / Expo lint/typecheck scripts from `package.json`)
+Inspect the lockfile and `package.json` scripts first; preserve the configured package manager and test command. Use Expo lint/typecheck scripts only when declared by the project.
 
 - [ ] Failures in scope fixed before handoff
 - [ ] `/commit` offered — do not auto-commit
