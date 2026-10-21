@@ -30,19 +30,31 @@ Do **not** create `REFINE/` or `qa-history.md` at repo root. Paths in links/hand
 - **Severity:** B
 - **Question:** <sharp question>
 - **Answer:** <operator answer or "(open)">
-- **Status:** open \| answered
+- **Decision ID:** <stable decision ID or "(pending)">
+- **Resolution:** <decision taken, or "(pending)">
+- **Impact:** <portable artifact path>#<section>; REQ-...; CA-... (omit requirement/criterion IDs when not applicable)
+- **Status:** open \| answered (legacy) \| resolved \| superseded
+- **Supersedes:** <prior question/decision ID, or "(none)">
+- **Superseded by:** <new question/decision ID, or "(none)">
 
 ### 2026-09-24T12:10Z — Q2
 - **Severity:** I
 - **Question:** …
 - **Answer:** …
-- **Status:** answered
+- **Decision ID:** D-002
+- **Resolution:** …
+- **Impact:** features/NNN-slug/USnn/STORY.md#Acceptance criteria; REQ-003; CA2
+- **Status:** resolved
+- **Supersedes:** (none)
+- **Superseded by:** (none)
 ```
+
+`Question ID` is the entry heading. Keep existing IDs unchanged; otherwise allocate the next unused stable `Q-...` and `D-...` IDs. A resolved question links to exactly the decision that resolves it. Record the affected artifact and section using portable paths, plus REQ/CA identifiers when applicable. Keep the operator's answer and the resulting resolution as separate fields. An open question has no decision or impact yet. `answered` is accepted for older entries that predate this traceability shape; when enriching one, preserve its answer and set `resolved` only once a decision and impact are recorded. An answered entry without those links remains open for readiness. When a decision is replaced, retain the old entry as `superseded`, link both entries through `Supersedes` / `Superseded by`, and record the replacement as a new entry; do not rewrite or remove the prior answer, resolution, or impact.
 
 ## Flow rules
 
 1. When asking a clarification question, **append** an entry (`Status: open`) before waiting.
-2. When the operator answers, update that entry (`answered`) — do not delete prior text.
+2. When the operator answers, update that entry with the answer, stable decision ID, resolution, and impact (`resolved`) — do not delete prior text. If the answer does not resolve the question, retain `open` and leave decision/impact pending.
 3. Recompute envelope `status` from open **B**/**I** only (`readiness-severity.md`).
 4. Envelope `qa_history_ref` / `portable_paths.qa_history` must point at the portable history path once persisted.
 5. On handoff to `/sdd-spec`, `/orchestrate-analyze`, or `/split-story-checklist`, cite the history path in the typed handoff — do not paste the full history into the slash command (`SR-NO-FULL-DUMP`).
@@ -51,7 +63,8 @@ Do **not** create `REFINE/` or `qa-history.md` at repo root. Paths in links/hand
 
 - [ ] History path is portable and listed in the interaction envelope
 - [ ] Open B/I in history match envelope `open_questions`
-- [ ] Answered entries retain question + answer (audit trail)
+- [ ] Resolved entries link question ID → decision ID → affected artifact/section and applicable REQ/CA
+- [ ] Resolved and superseded entries retain question, answer, resolution, status, and supersession links (audit trail)
 - [ ] No OS absolute paths inside the history file
 
 ## Related

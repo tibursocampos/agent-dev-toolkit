@@ -69,7 +69,7 @@ Update `CONTINUITY.md` when:
 | **Memory-bank** | Resolved `bank_root` (`STORAGE.md`); never a feature-relative bank |
 | **Memory-bank status** | `fresh` \| `refreshed` \| `created` (from Step 0; **`refreshed`** after ARCH **sim** / point-promote) |
 | **Estado atual** | ≤10 lines; replace on update |
-| **Decisões** | Append; do not erase history |
+| **Decisões** | Short summary/pointer to `FEATURE.md` decision ids; the FEATURE table is the decision record. Append; do not erase history |
 | **Pendências** | Keep open items until done |
 | **Handoff tipado** | Exact `/…` with **portable path** (`STORAGE.md` § Portable path) |
 | **What not to write** | Full PRD/PLAN bodies, guideline dumps, application code, memory-bank body |
@@ -220,9 +220,9 @@ Refuse this process while `FEATURE.md` still has an open question (`open_questio
 3. Create N story folders (`USnn`, `TSnn`, or Bug) and the FEATURE **Histórias** table. Cap ≤4 and the rationale rule in `feature-altitude.md` still apply. Under each new story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true. `REFINE/` stays optional. Do **not** create `PRD/` / `PLAN/`.
 4. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
 
-**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
+**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For each resolved question, keep the stable `question_id` → `decision_id` link and name the affected normative artifact/section with applicable `REQ-###` / `CA#` ids. Preserve replaced rows as `superseded` and point to the replacing decision id. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
 
-**CONTINUITY.md** — phase `analyze`, decisions, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
+**CONTINUITY.md** — phase `analyze`, short decision summary/pointers to `FEATURE.md` decision ids, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Do not duplicate the full decision record or create another ledger. Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
 
 **STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
