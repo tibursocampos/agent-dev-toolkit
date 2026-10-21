@@ -56,7 +56,40 @@ if ($guideText -notmatch [regex]::Escape($ruleId)) {
 if ($guideText -notmatch 'Assert-SelectiveRetrieval') {
     Write-Fail -TestName 'Should_Pass_When_SelectiveRetrievalContractPresent' -Reason 'guide must name Assert-SelectiveRetrieval.ps1 as enforcement'
 }
+if ($guideText -notmatch 'Compare-SelectiveRetrieval\.ps1') {
+    Write-Fail -TestName 'Should_Pass_When_SelectiveRetrievalContractPresent' -Reason 'guide must point to bounded retrieval comparison'
+}
+$decisionMarkers = @(
+    '### Evidence decisions',
+    'Select relevant evidence',
+    'Establish a gap before returning',
+    'Surface contradictions',
+    'Stop at sufficient evidence'
+)
+foreach ($marker in $decisionMarkers) {
+    if ($guideText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_EvidenceDecisionGuidancePresent' -Reason ("guide is missing operational decision marker: {0}" -f $marker)
+    }
+}
+Write-Pass -TestName 'Should_Pass_When_EvidenceDecisionGuidancePresent'
+$evaluationRoot = Join-Path $scriptDir 'fixtures/selective-retrieval-evaluation'
+foreach ($evaluationFile in @(
+    (Join-Path $scriptDir 'Compare-SelectiveRetrieval.ps1'),
+    (Join-Path $evaluationRoot 'cases.json'),
+    (Join-Path $evaluationRoot 'report.template.json'),
+    (Join-Path $evaluationRoot 'reference-report.json'),
+    (Join-Path $evaluationRoot 'case-01/webhook-delivery.md'),
+    (Join-Path $evaluationRoot 'case-01/retry-decoy.md'),
+    (Join-Path $evaluationRoot 'case-02/audit-export.md'),
+    (Join-Path $evaluationRoot 'case-03/billing-runbook.md'),
+    (Join-Path $evaluationRoot 'case-03/worker-config.md')
+)) {
+    if (-not (Test-Path -LiteralPath $evaluationFile -PathType Leaf)) {
+        Write-Fail -TestName 'Should_Pass_When_RetrievalEvaluationFixturesPresent' -Reason ("missing evaluation input {0}" -f (Split-Path -Leaf $evaluationFile))
+    }
+}
 Write-Pass -TestName 'Should_Pass_When_SelectiveRetrievalContractPresent'
+Write-Pass -TestName 'Should_Pass_When_RetrievalEvaluationFixturesPresent'
 
 # Prescriptions that order a full dump (positive instruction). Lines that only forbid dumps are allowed.
 $dumpPrescriptionPatterns = @(
