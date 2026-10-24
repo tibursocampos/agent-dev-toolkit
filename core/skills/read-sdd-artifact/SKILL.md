@@ -14,7 +14,7 @@ Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/r
 ## Outcome
 
 - Happy path: one **`source_context`** envelope with artifact **identity** (kind, portable path, feature slug, story id when applicable, file name).
-- Fail path: **no** partial envelope — precise reject reason (`path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`).
+- Fail path: **no** partial envelope — precise reject reason (`path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`, or a named storage-manifest/root failure).
 - Consumers that already hold `source_context` for a path **skip** opaque re-read of that artifact (REQ-005).
 
 ## Lazy-load (only when needed)
@@ -23,6 +23,7 @@ Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/r
 |------|-------------------------|
 | Portable path / features layout | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
+| Direct vs orchestrated context | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Invocation handoff (orchestrated) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/read-sdd-artifact/reference.md` |
@@ -46,6 +47,10 @@ Invoke when the consumer asks for skill **`read-sdd-artifact`** (host forms: `/r
 ## Process
 
 Read `references/<section>.md` for procedural detail — **not** full `reference.md`.
+
+### 0. Resolve invocation context once
+
+Resolve `invocation_context` at the start from `INVOCATION-CONTEXTS.md`, after the read-only gate. Keep it for this invocation and report it when producing a handoff. Do not infer it from FEATURE/STORY/CONTINUITY/REFINE/tasks/Memory Bank or change it because a sibling is present.
 
 ### Caveman Mode
 **NEVER** — Ignore `caveman_mode`. Keep reject reasons and envelope fields exact. Do not load `CAVEMAN.md` for compression.

@@ -2,8 +2,8 @@
 
 - [ ] Only this step’s scope implemented
 - [ ] Step **Aceite** REQ-NNN / CA items verified and checked in PLAN
-- [ ] Tests added/updated per step and REQ/CA mapping
-- [ ] Targeted build/test commands run successfully
+- [ ] This step's behavior-level coverage disposition and evidence are verified against its REQ/CA; add or change tests only when the planned proof requires it
+- [ ] Applicable targeted build/test/contract checks pass; record justified `SKIPPED` checks and do not count deferred checks as acceptance evidence
 - [ ] Evidence-or-zero: if level ≥ `cheap`, `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` updated and `validate-evidence` exit 0 (`EVD-STATE-CONTRACT.md`)
 - [ ] Verifier ran sequentially in this session — **Verifier ≠ O3** (do not spawn Task/O3 parallel children as the evidence gate)
 - [ ] Living loop (when closing wave): `TRACE.jsonl` has converge → sync_current → archive; `validate-trace -RequireArchiveComplete` exit 0 (`TRACE-ARCHIVE-CONTRACT.md`)

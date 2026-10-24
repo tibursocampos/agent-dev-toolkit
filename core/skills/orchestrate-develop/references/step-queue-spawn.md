@@ -138,7 +138,7 @@ Child must:
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1`
 - Skip `Invoke-PlanLedgerClaim.ps1` because session helper already exited 0 (CT6)
 
-After the receipt has been validated, the PLAN checkpoint and progress table have been persisted and re-read, and the step ledger plus short result have been shown, the parent evaluates one next spawn. In `continuous`, `Test-ContinuousQueueStepAuthorization` from `core/policy/continuous-queue.ps1` allows only the first eligible pending step from that re-read queue snapshot; the authorization is consumed by that spawn and cannot cover a later spawn. Re-evaluate after each child return. In `step_by_step`, ask **sim** again or hand off to a new chat. Only as a separate parent synthesis/path handoff does the parent update `CONTINUITY.md`; that update never replaces the PLAN, short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
+After the receipt has been validated, the child's already-persisted PLAN checkpoint and progress table have been read and reconciled, and the step ledger plus short result have been shown, the parent evaluates one next spawn. The child `sdd-develop` session owns and writes its step row/evidence/checkpoint; the parent reads only and does not rewrite them. A missing or conflicting checkpoint blocks advancement and returns correction to the owner in a fresh invocation. In `continuous`, `Test-ContinuousQueueStepAuthorization` from `core/policy/continuous-queue.ps1` allows only the first eligible pending step from that re-read queue snapshot; the authorization is consumed by that spawn and cannot cover a later spawn. Re-evaluate after each child return. In `step_by_step`, ask **sim** again or hand off to a new chat. Only as a separate parent synthesis/path handoff does the parent update `CONTINUITY.md`; that update never replaces the PLAN, short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
 
 These artifacts remain distinct: the PLAN `Implementation progress` ledger and checkpoint are durable state and the operator-facing close; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another. Do not replace the step ledger with the stage-weight table.
 
@@ -152,8 +152,8 @@ See also § Task child prompt skeleton + § Anti-bypass checklist.
 
 Give each child:
 
-1. Exact PLAN path + step number/title + portable path of `REFINE/tasks.md` for that story
-2. Instruction: execute `/sdd-develop` contract for **this step only** — read that step block and its task boxes; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
+1. Explicit `invocation_context=orchestrated`; exact PLAN path + step number/title + portable path of `REFINE/tasks.md` for that story
+2. Instruction: run `sdd-develop` with `invocation_context=orchestrated` for **this step only** — read that step block and the supplied task rows; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
 4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
 5. Follow the step's declared test policy: when tests are declared, run them and persist/validate `tests_run`; when tests are explicitly deferred, keep it false and record deferred/skipped. Then update PLAN; reset gates through the canonical helper and stop after this step

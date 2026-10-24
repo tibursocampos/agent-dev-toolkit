@@ -6,6 +6,7 @@ Operator-facing result after a valid receipt:
 
 ```text
 Step: {step id}
+invocation_context: direct | orchestrated
 Status: done | blocked | failed
 Tests: {tests summary}
 ```
@@ -14,7 +15,7 @@ Do not add the stage-weight table, a redraw of that table, the `Develop:` heartb
 
 `done` only when the step acceptance and the step test passed (`plan-contract.md`). No duration.
 
-For an O3 child return, this result is emitted only after the receipt is validated and the PLAN checkpoint and progress table are persisted and re-read, and after the step ledger is shown. The short result does not replace the PLAN ledger/checkpoint, PLAN-LEDGER claim, or `CONTINUITY.md`. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step and cannot authorize a spawn. A missing, incomplete, inconsistent, blocked, or failed receipt keeps the step pending or blocked as applicable, pauses dependents, and cannot authorize a spawn.
+For an O3 child return, this result is emitted only after the parent validates the receipt and reads/reconciles the PLAN checkpoint already persisted by the child, and after the step ledger is shown. The child is the sole writer of its PLAN step row/checkpoint; the parent is read-only and does not repair it. The short result does not replace the PLAN ledger/checkpoint, PLAN-LEDGER claim, or `CONTINUITY.md`. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step and cannot authorize a spawn. A missing, incomplete, inconsistent, blocked, or failed receipt keeps the step pending or blocked as applicable, pauses dependents, and cannot authorize a spawn.
 
 When relaying a child receipt into this report, use only the canonical
 allowlisted projection (`planPath`, `step`, `status`, `files[]`,

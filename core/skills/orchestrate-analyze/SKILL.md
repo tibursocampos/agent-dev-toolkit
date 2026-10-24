@@ -60,6 +60,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
+| Evidence decisions, relevant sources, decoys, gaps, and conflicts (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Step 1 triage — intent classification (before Step 0 when not full O1) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/intent-classification.md` |
@@ -140,6 +141,8 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 ### 5. Collect description and triage
 Ask/reuse Prior context; promote cited non-feature `.md` per `PIPELINE.md`. Set complexity/nature/scope + `needs_*` via `ROSTER.md` (TE01 / RF01). Read `references/triage.md` (after intent from step 3).
 
+For each analysis question that can affect scope, story boundaries, architecture, security, or the O2 handoff, apply `SELECTIVE-RETRIEVAL.md` § Evidence decisions. Record the question/objective, relevant source-of-truth paths, rejected decoys with the scope reason, remaining gaps or conflicts, the decision and its source, and the next permitted gate in existing FEATURE / CONTINUITY sections. Keep this as traceable summary, not a second source of truth. If a gap or conflict can change scope or acceptance, keep it open and do not present the backlog as ready. Label operator reports and comparative material as such; do not promote them to independent implementation or runtime proof.
+
 ### 6. Trivial shortcut
 If `trivial`: offer shortcut (read `references/triage.md` § Process — Trivial shortcut). Continue O1 only if user chooses **2**.
 
@@ -159,7 +162,7 @@ Load `refine-story/references/feature-research.md`. Update only `FEATURE.md` and
 Run only when FEATURE has no open question. Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). Create story folders and merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). Each new STORY carries type, objective, and the FEATURE acceptance ids it covers. `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03). Any fail → keep `draft`; list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
 
 ### 10. Human backlog approval (RN01)
-Product artifact quality gates must have passed. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
+Before presenting the backlog, verify the evidence summary required in Step 5 is persisted in the existing FEATURE / CONTINUITY fields and identifies the next gate. Product artifact quality gates must have passed. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
 
 ### 11. Approve -> CONTINUITY + O2 handoff
 On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.
