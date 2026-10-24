@@ -50,6 +50,7 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
+| Decision-to-REQ/CA sufficiency (Step 5.5, when a material decision feeds the PRD) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | CHANGE brownfield / current specs (`CHANGE-CONTRACT`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
 | PRD document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PRD.md` |
@@ -62,7 +63,7 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 | Product depth challenge (Step 5.5) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md`, `invest-and-story-quality.md`, `gherkin-budget.md`, `clarify-depth.md`, `product-evidence-lite.md` |
 | Anti-task-shatter titles (only if task-shaped) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full sdd-plan/develop packs, all templates, or all `backlog-item-types/*`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load Product-depth norms only at Step 5.5 (or when FEATURE/STORY siblings are thin).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full sdd-plan/develop packs, all templates, or all `backlog-item-types/*`. Contract first (`PIPELINE` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Load Product-depth norms only at Step 5.5 (or when FEATURE/STORY siblings are thin), and semantic sufficiency only when a material decision is projected into PRD content.
 
 ## Process
 
@@ -120,6 +121,8 @@ Per existing skill intent: stay on the current branch. Do not show the branch an
 Before drafting: challenge vague goals/AC ("works correctly", "as expected", "funciona corretamente"). Require observable outcomes. Assign stable **REQ-NNN** IDs (required — at least one; strongly recommended for every functional behavior) mapped to CA; list explicit **OOS**; use **EARS** only when hybrid clarity helps (not universal). Details: `references/challenge-vagueness.md`, `references/req-tracking.md`, `templates/sdd/PRD.md`.
 
 **Product depth (lazy):** challenge FEATURE/STORY siblings and the PRD draft for mandatory depth — FEATURE Problem/Goals/Non-goals/Evidence; STORY Objective + Who/Job/Outcome (US) + AC budget happy/rule/failure; PRD **metrics**, **MoSCoW**, open questions with **Severity**. Cite norms via portable paths; ask what/outcome gaps only — **no how, no implementation code**. Load backlog norms from the Lazy-load table only in this step.
+
+**Decision projection (when applicable):** if a material decision or source feeds the PRD, load `SEMANTIC-SUFFICIENCY.md` before content approval and compare the actual §2 acceptance and §4 REQ/RNF wording (plus applicable OOS) with the current decision. IDs, links, or envelopes alone do not establish agreement. Keep superseded decisions historical and route contradictions to the existing decision owner. Until reconciled, treat the affected REQ/CA as insufficient and do not present that behavior as approved. A generic CA or missing material behavior/failure becomes a focused question; do not fill it as `agreed`. This check adds no sibling, checklist, or Memory Bank prerequisite in `direct`; preserve the existing `direct`/`orchestrated` rules and separate content approval, write authorization, and implementation authorization.
 
 Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agreed`; agent defaults / inferences → `invented` (Assumptions / open questions) until confirm. Invented must stay visibly labeled in the draft and must not be written as locked requirements.
 

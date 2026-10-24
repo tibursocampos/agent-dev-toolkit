@@ -35,6 +35,7 @@ Do **not** preload the whole `backlog-item-types/` folder. Load on trigger:
 
 | Trigger | Path |
 |---------|------|
+| Material behavior or decision carried into FEATURE/STORY | `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
 | Merge / split pass | `skills/_shared/backlog-item-types/story-sizing.md` |
 | Product intent for US | `skills/_shared/backlog-item-types/persona-context.md` |
 | Title / promotion pre-check | `skills/_shared/backlog-item-types/anti-task-shatter.md` |
@@ -102,6 +103,7 @@ Contract: `skills/_shared/backlog-item-types/story-sizing.md`. Apply **after** s
 |------|--------|
 | Load | Read `story-sizing.md` at synthesis (do not preload at triage) |
 | Outcome check | Each US/TS objective = one verifiable outcome (ideally one PR), not a file/layer list |
+| Behavior disposition | For each material behavior, compare the current decision and its normative destination with the proposed story outcome; keep its disposition in the existing FEATURE acceptance, Decisions, Open questions, and Histórias structures |
 | Merge | Combine stories that differ only by file or layer within same bounded context and consumer |
 | Split | When a story exceeds ~8 refine steps, spans independent consumers, or mixes unrelated outcomes |
 | Anti-task-shatter | Lazy-load `anti-task-shatter.md`; **Promotion gate** (§ below) — do **not** create US/TS for verb+file/class/script or layer-only titles |
@@ -120,6 +122,16 @@ Endpoint count alone is not a split criterion. Keep endpoints in one story when
 their value and delivery boundary are inseparable; split only for an
 independently deliverable consumer outcome.
 
+For a material behavior, show its disposition through the existing FEATURE
+records: map it to the promoted story or stories, preserve it unchanged, cite an
+explicitly approved exclusion, or leave it as an open question. Use the existing
+macro-acceptance ids and stable `question_id` / `decision_id` references; do not
+copy decision prose into a parallel list. Compare the current decision with the
+actual normative text and each candidate STORY acceptance body. A correct link
+to stale or contradictory text fails this check, and a superseded decision stays
+historical. Record a reason when a disposition does not apply. Do not set a fixed
+story count or use a score or marker as evidence of semantic sufficiency.
+
 ---
 
 ## Product artifact quality gates (before human backlog gate)
@@ -127,6 +139,12 @@ independently deliverable consumer outcome.
 **Hard gates** (REQ-004 / CA1 / CA2 / CA4). Run after merge policy, after draft FEATURE/STORY writes are ready for review, and **before** Step 10 human backlog approval. Any fail → status stays `draft`; **do not** present RN01 approval. No secrets/PII in gate messages (paths + field names only). Render gate messages in the user chat language (`LANGUAGE.md`). The samples below state the meaning.
 
 Order: **FEATURE depth (TE01)** → **Promotion (TE02)** → **Cap (RN03)** → field completeness (STORY/Evidence).
+
+Before human approval, also review material-behavior dispositions against the
+current decision and normative text using `SEMANTIC-SUFFICIENCY.md`. Reuse the
+existing FEATURE and STORY fields, and keep unresolved gaps or conflicts under
+the existing question gate. This review applies to material behaviors; it does
+not add a universal checklist or story-count target.
 
 ### Gate A — FEATURE depth (TE01 / CA1)
 
@@ -215,16 +233,16 @@ Template: `skills/_shared/templates/features/story/STORY.md`. Use `generate-stor
 
 Refuse this process while `FEATURE.md` still has an open question (`open_question`). Do not create story folders in that case.
 
-1. Lazy-load per § Lazy-load table (start with `story-sizing.md` + templates; load `anti-task-shatter.md` before promotion).
+1. Lazy-load per § Lazy-load table (start with `story-sizing.md` + templates; load `anti-task-shatter.md` before promotion; load `SEMANTIC-SUFFICIENCY.md` when a material behavior or decision is carried into FEATURE/STORY).
 2. Apply **Story sizing merge policy** (§ above) before writing final FEATURE story index.
 3. Create N story folders (`USnn`, `TSnn`, or Bug) and the FEATURE **Histórias** table. Cap ≤4 and the rationale rule in `feature-altitude.md` still apply. Under each new story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true. `REFINE/` stays optional. Do **not** create `PRD/` / `PLAN/`.
 4. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
 
-**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For each resolved question, keep the stable `question_id` → `decision_id` link and name the affected normative artifact/section with applicable `REQ-###` / `CA#` ids. Preserve replaced rows as `superseded` and point to the replacing decision id. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
+**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For each resolved question, keep the stable `question_id` → `decision_id` link and name the affected normative artifact/section with applicable `REQ-###` / `CA#` ids. Preserve replaced rows as `superseded` and point to the replacing decision id. For each material macro-acceptance behavior, use the existing acceptance and story-index fields to show its story coverage or unchanged, approved-exclusion, or open-question disposition; refer to the existing decision/question row instead of copying it. Compare the current decision with its actual normative destination; recency and valid links do not establish agreement. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
 
 **CONTINUITY.md** — phase `analyze`, short decision summary/pointers to `FEATURE.md` decision ids, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Do not duplicate the full decision record or create another ledger. Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
 
-**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
+**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. The actual acceptance text must preserve the mapped material behavior and reflect the current decision; ids and links alone are insufficient. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
 **Language guard:** folder names stay `ANALYSIS`, `ARCH`, `SEC`. Prose inside those files, and the file name the parent chooses, follow content-language (`LANGUAGE.md`). Specialist receipts stay en-US. The parent translates before Write. Do not save an English specialist note when the chat language is Portuguese.
 

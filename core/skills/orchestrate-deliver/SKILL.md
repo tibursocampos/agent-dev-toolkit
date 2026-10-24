@@ -66,6 +66,9 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | CONTINUITY / FEATURE templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/` |
 | Spec contract | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` as needed) |
 | Plan contract | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` (+ `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` as needed) |
+| Material output/dependency reconciliation (when consuming a story result or resuming O2) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md`, `ARTIFACT-OWNERSHIP.md`, and `CONTRACT-PROVENANCE.md` |
+| Supplied `source_context` identity and no-opaque-reread behavior | `{{TOOLKIT_ROOT}}/skills/read-sdd-artifact/references/envelope-schema.md` and `build-consume-report.md` |
+| Specialist result and receipt limits | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
 | CHANGE brownfield / current | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |
 | Clarification READY / B/I / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
 | Clarify depth (open-question severity) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |

@@ -110,15 +110,19 @@ Do not mark a required evidence row `PASS` based only on a plan to run a check.
 
 ## Current implementation evidence
 
-Only paths that were read. Portable paths. Do not invent a file.
+Record only evidence actually read, using portable paths and the relevant section or symbol. For each material behavior, state what the evidence demonstrates and its limit; distinguish current behavior from a proposal, inference, or gap. Apply `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` rather than copying its full criteria here. Trace source/producer, selection/route, receiver, and effect only when relevant. A receiver does not prove a publisher or integration; do not imply a messaging role where none applies. Record an unproven link as “not demonstrated,” not as absent unless the searched evidence supports that conclusion. Static evidence does not prove live activation or runtime.
+
+| REQ/CA or behavior | Source path searched + section/symbol read | Source role | What it demonstrates or gap | Limit |
+|--------------------|------------------------------------------|-------------|-----------------------------|-------|
+| {{REQ_CA_BEHAVIOR}} | {{PORTABLE_PATH_AND_ANCHOR}} | {{SOURCE_ROLE}} | {{DEMONSTRATED_BEHAVIOR_OR_GAP}} | {{PROOF_LIMIT}} |
 
 ## Impact map
 
-| Area | Current behavior | Planned impact |
-|------|------------------|----------------|
-| {{AREA}} | {{READ_BEHAVIOR}} | {{PLANNED_IMPACT}} |
+| Area | Current behavior and read evidence | Planned impact / disposition |
+|------|--------------------------------------|-----------------------------|
+| {{AREA}} | {{READ_BEHAVIOR_AND_PORTABLE_EVIDENCE}} | {{PLANNED_IMPACT_AND_DISPOSITION}} |
 
-An area that does not change still needs the justification that was read in the repo.
+An area that does not change still needs a repository-backed reason. Mark proposed changes as proposals; do not report them as current behavior.
 
 ## Artifacts and symbols
 
@@ -130,7 +134,7 @@ An existing path must have been read. A new path is labeled `proposed`. A valida
 
 ## Dependency and execution graph
 
-One Mermaid `flowchart`. This graph is step order only. It is not a class or file diagram. Every step id from `REFINE/tasks.md` appears once. Every blocking dependency is an arrow whose label is `blocks`. A step with dependency `none` has no incoming arrow. A diagram that only lists nodes and has no arrows is invalid when any step depends on another.
+One Mermaid `flowchart`. This graph is step order only. It is not a class or file diagram. In `orchestrated`, use every validated step id from `REFINE/tasks.md` once. In `direct`, use PLAN-native step ids unless an explicitly linked valid checklist was adopted; do not require or invent `REFINE/tasks.md` rows. Every blocking dependency demonstrated by the plan is an arrow labeled `blocks`; a step with dependency `none` has no incoming arrow. A diagram that only lists nodes and has no arrows is invalid when any step depends on another.
 
 ```mermaid
 flowchart TD
@@ -147,7 +151,7 @@ Persisted ledger. `sdd-develop` updates status and evidence after each step. `An
 
 ## Passos de implementação
 
-One block per step id from `REFINE/tasks.md`. Copy the id, title, and dependencies. Do not invent a step here. Do not write this file's step list if `REFINE/tasks.md` does not exist. Every step must have at least one `- [ ]` row in `tasks.md` with the same `STEP n`.
+One block per step. In `orchestrated`, copy the id, title, and dependencies from the validated `REFINE/tasks.md` owned by `split-story-checklist`. In `direct`, derive PLAN-native ids, titles, and dependencies from the approved PRD unless an explicitly linked valid checklist was adopted. A direct PLAN may be complex and have no task file; do not invent task rows or ids. O2 checklist requirements remain in force for `orchestrated`.
 
 Separate each step: a blank line, then the heading, then one field per line, then a `---` rule before the next step. Status glyphs match `LIVE-STAGE-TABLE.md`: `☐` pending, `◐` in progress, `☑` completed, `⊘` closed without success, `⚠` blocked. The status token stays English.
 
@@ -168,7 +172,7 @@ No duration. Do not paste a new method body. A contract signature and a short ex
 - **Anchor:** `path/File.cs:line` plus a short excerpt of current code, or `none`
 - **Tests:** positive, negative, and boundary when the criterion requires them
 - **Acceptance:** the REQ and CA text, not only the id. Where: `features/.../PRD/....md` §2 and §4
-- **Task boxes:** `S1` rows in `features/.../REFINE/tasks.md`
+- **Task boxes (orchestrated or adopted checklist only):** `S1` rows in `features/.../REFINE/tasks.md`; otherwise `not applicable (direct PLAN-native step)`
 - **Validation command:** command already present in the repo, or omit
 - **Step risk:** evidence path
 
@@ -189,7 +193,7 @@ No duration. Do not paste a new method body. A contract signature and a short ex
 - **Anchor:** `path/File.cs:line`, or `none`
 - **Tests:** the case that proves this step
 - **Acceptance:** REQ and CA text. Where: PRD path and section
-- **Task boxes:** `S2` rows in `REFINE/tasks.md`
+- **Task boxes (orchestrated or adopted checklist only):** `S2` rows in `REFINE/tasks.md`; otherwise `not applicable (direct PLAN-native step)`
 - **Validation command:** omit or the repo command
 - **Step risk:** evidence path
 

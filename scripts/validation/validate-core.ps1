@@ -258,6 +258,7 @@ $coreChecks = @(
     @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
     @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName },
     @{ Name = $selectiveRetrievalCheckName; Script = $selectiveRetrievalScriptName },
+    @{ Name = 'sdd-semantic-coverage'; Script = 'Assert-SddSemanticCoverage.ps1' },
     @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
     @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
     @{ Name = $orchestratorCharterPublishedCheckName; Script = $orchestratorCharterPublishedScriptName },

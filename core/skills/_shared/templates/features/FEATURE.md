@@ -33,11 +33,13 @@ Explicit out-of-altitude items (what this FEATURE will **not** solve). Empty Non
 
 Filled prose in this file follows the chat language (`LANGUAGE.md`). Ids and severity tokens stay English.
 
-| Id | Observable result | Condition | Failure |
-|----|-------------------|-----------|---------|
-| AC-01 | {{OBSERVABLE_RESULT}} | {{CONDITION}} | {{FAILURE}} |
+| Id | Observable result | Condition | Failure | Disposição / destino |
+|----|-------------------|-----------|---------|-----------------------|
+| AC-01 | {{OBSERVABLE_RESULT}} | {{CONDITION}} | {{FAILURE}} | {{STORY_IDS_OR_EXISTING_DECISION_OR_QUESTION}} |
 
 Each row needs an observable result, the condition under which it holds, and the failure when it does not. Do not leave a criterion that cannot be checked. Do not put a file checklist here.
+
+For each material behavior, use the last column to reference the promoted story ID(s), an unchanged preservation, an explicitly approved exclusion by existing `decision_id`, or an unresolved existing `question_id`. Record the decision only in **Decisions** and the question only in **Open questions**; do not create a second decision list. Compare the current decision with the actual normative text it governs. A link or ID alone does not prove agreement, and a superseded row remains historical. State why a disposition is not applicable when that is the case.
 
 ## Evidence
 
@@ -67,7 +69,7 @@ Omit the table when unknown — do not fabricate numbers (`product-evidence-lite
 |-------------|-------------|----------|---------------------------------------------|--------|--------------|
 | {{Q-001}} | {{D-001}} | {{DECISION_PROSE}} | {{PORTABLE_PATH_AND_SECTION; REQ-### / CA# WHEN APPLICABLE}} | resolved | — |
 
-One row per closed question. `question_id` and `decision_id` stay stable. Link each decision to the portable path and section it changes or governs, including applicable `REQ-###` and `CA#` ids; use `n/a` only when no normative artifact or section is affected yet. Status is `resolved` only for an explicit user answer or a cited portable evidence path, or `superseded` when a later decision replaces it. Keep superseded rows and their original targets; record the replacing `decision_id` in **Superseded by**. Append history instead of deleting or rewriting prior decisions.
+One row per closed question. `question_id` and `decision_id` stay stable. Link each decision to the portable path and section it changes or governs, including applicable `REQ-###` and `CA#` ids; use `n/a` only when no normative artifact or section is affected yet. Status is `resolved` only for an explicit user answer or a cited portable evidence path, or `superseded` when a later decision replaces it. Keep superseded rows and their original targets; record the replacing `decision_id` in **Superseded by**. Append history instead of deleting or rewriting prior decisions. When carrying a decision into a material behavior, inspect the current normative destination; a valid link does not establish that its text agrees, and an older decision does not become current by recency.
 
 ## Open questions
 
@@ -79,11 +81,13 @@ Severity tokens: `B`, `I`, `MINOR` (`readiness-severity.md` § Open-question gat
 
 ## Histórias
 
-| Id | Tipo | Título | Rationale | Product intent | Status |
-|----|------|--------|-----------|----------------|--------|
-| US01 | US | {{STORY_TITLE}} | {{WHY_THIS_STORY}} | {{WHO_JOB_OUTCOME_OR_N_A}} | draft |
+| Id | Tipo | Título | Rationale | Product intent | Macro AC / decision ids | Status |
+|----|------|--------|-----------|----------------|------------------------|--------|
+| US01 | US | {{STORY_TITLE}} | {{WHY_THIS_STORY}} | {{WHO_JOB_OUTCOME_OR_N_A}} | {{FEATURE_AC_AND_CURRENT_DECISION_IDS}} | draft |
 
 `Product intent` = Who / Job / Outcome (or `n/a` for pure TS/Bug). See `skills/_shared/backlog-item-types/persona-context.md`. `Rationale` = why this story is separate (sizing / anti-task-shatter). Cap ≤4 US/TS unless rationale is explicit (`feature-altitude.md`).
+
+List the existing macro-acceptance and applicable current decision ids carried by each story. The acceptance text in STORY must preserve the behavior those ids identify; the ids are a navigation aid, not proof of semantic agreement. Do not add story rows for an unresolved question or an unapproved exclusion.
 
 The table may stay empty until the open-question gate passes. Do not add story rows while an open question remains on this FEATURE.
 

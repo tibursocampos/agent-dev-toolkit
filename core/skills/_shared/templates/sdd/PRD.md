@@ -61,6 +61,8 @@ Mandatory clarify depth for PRD (ARCH / REQ-002). Prefer real signals; **omit > 
 
 Use BDD: **Dado** / **Quando** / **Então** / **E**. Cada CA deve ser **verificável** (teste, script, checklist ou observação objetiva). Proibido: "funciona corretamente", "como esperado", "de forma adequada".
 
+Quando um CA concretiza uma decisão vigente, o texto normativo deve refletir essa decisão; ID ou link válido, por si só, não prova concordância. Preserve decisões substituídas como histórico, não como regra ativa. Contradição não resolvida torna o REQ/CA afetado insuficiente até reconciliação pelo dono existente. Inclua apenas comportamentos aplicáveis; aceite genérico ou comportamento material desconhecido deve virar pergunta em §5.1, não preenchimento presumido.
+
 ### CA1 - [Nome descritivo]
 
 **Dado** [contexto inicial]
@@ -113,20 +115,24 @@ perguntas B, I ou MINOR sem resposta; ele não aprova o PLAN nem autoriza implem
 
 ## 4. Requisitos (REQ-IDs)
 
-IDs estáveis `REQ-NNN` (três dígitos). Todo REQ mapeia para ≥1 CA. Não renumerar após handoff para PLAN.
+IDs estáveis `REQ-NNN` (três dígitos). Todo REQ mapeia para ≥1 CA. Não renumerar após handoff para PLAN. Para cada REQ baseado em fonte ou decisão material, cite o caminho portátil/seção e a decisão vigente quando aplicável; essa referência dá rastreabilidade, não substitui a comparação do texto.
 
 ### 4.1 Funcionais
 
-| ID | Requisito | CA |
-|----|-----------|-----|
-| **REQ-001** | [Comportamento verificável] | CA1 |
-| **REQ-002** | [Comportamento verificável] | CA2 |
+| ID | Requisito | CA | Fonte/decisão vigente (quando aplicável) |
+|----|-----------|-----|-----------------------------------------|
+| **REQ-001** | [Comportamento verificável] | CA1 | [caminho portátil + seção; decisão atual, se houver] |
+| **REQ-002** | [Comportamento verificável] | CA2 | [caminho portátil + seção; decisão atual, se houver] |
+
+Confronte a redação efetiva dos REQ/CA com a fonte vigente. Registre regras, falhas, compatibilidade/preservação e limites de evidência que sejam materiais ao escopo; não exija categorias irrelevantes por formulário. Lacuna que possa mudar o comportamento fica em §5.1 com responsável e severidade, sem virar requisito `agreed` por inferência.
 
 ### 4.2 Não funcionais
 
 | ID | Requisito |
 |----|-----------|
 | **RNF-001** | [Performance, segurança, observabilidade, etc.] |
+
+Inclua somente requisitos não funcionais e limitações de evidência aplicáveis. Limite material ainda desconhecido deve ser uma pergunta em §5.1, não uma exigência inventada.
 
 ### 4.3 MoSCoW
 
@@ -153,6 +159,8 @@ Usar EARS (**While** / **When** / **If** / **The system shall**) só quando requ
 | Item | Motivo |
 |------|--------|
 | [Item] | [Por que fica de fora] |
+
+Confira se a exclusão aprovada não contradiz REQ/CA vigentes. Exclusão sugerida sem base confirmada permanece `invented`; conflito não resolvido fica com o dono da decisão em §5.1.
 
 ## 5.1 Perguntas em aberto
 

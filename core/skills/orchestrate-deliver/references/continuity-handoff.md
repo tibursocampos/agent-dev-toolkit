@@ -5,6 +5,7 @@ Update `CONTINUITY.md` when:
 - [ ] Mode série|paralelo chosen
 - [ ] Each story PRD+PLAN landed (or batch milestone)
 - [ ] Before / after human approval gate
+- [ ] Before advancing a story or emitting its handoff, reconcile its identified output, applicable approval, recorded validation outcome, and each dependent story boundary; record only affected-story blockers and their existing owner/gate
 - [ ] Final multi-path handoff emitted
 
 | Field | Rule |
@@ -12,10 +13,10 @@ Update `CONTINUITY.md` when:
 | **Phase** | `deliver` during/after O2 |
 | **Last agent** | `orchestrate-deliver` |
 | **Memory-bank** | Path + `fresh`\|`refreshed`\|`created` from Step 0; **not** `fresh` if style changed / ARCH approved this feature |
-| **Estado atual** | ≤10 lines; which stories done/pending |
-| **Decisões** | Append mode + approval scope |
-| **Pendências** | Stories still missing PRD/PLAN or approval |
-| **Handoff tipado** | Full `/…` lines with **portable paths** (`STORAGE.md` § Portable path) |
+| **Estado atual** | ≤10 lines; per-story done/pending state and only the affected branch blocked, with concise cause |
+| **Decisões** | Append mode + approval scope; cite material reconciliation and existing owner when it changes a decision |
+| **Pendências** | Affected story, missing output/approval/validation or incompatible boundary, existing owner, and next gate; keep independent stories eligible |
+| **Handoff tipado** | Full `/…` lines with **portable paths** (`STORAGE.md` § Portable path); identify the next owner/gate for a blocked branch |
 | **Related** | Refresh `## Related` on CONTINUITY (and FEATURE/STORY when touched) for on-disk PRD/PLAN siblings — omit-if-absent; paths only (`STORAGE.md` § Navigation block / REQ-009) |
 | **What not to write** | Full PRD/PLAN bodies, guideline dumps, app code, memory-bank body |
 

@@ -49,6 +49,7 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Contract provenance (`agreed` vs `invented`, `CP-AGREED-VS-INVENTED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CONTRACT-PROVENANCE.md` |
 | Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| Material behavior and evidence sufficiency (during repository discovery) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
 | PLAN-LEDGER atomic claim (`REQ-002` / CA2) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (+ `references/plan-ledger.md`) |
 | PLAN document template | `{{TOOLKIT_ROOT}}/skills/_shared/templates/sdd/PLAN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
@@ -111,10 +112,10 @@ sdd-plan resumes from checklist validation
 ```
 
 `trivial` uses one step and does not get a tasks file. Existing valid checklist: read and preserve IDs; do not regenerate it. `split-story-checklist` remains the only writer. Normal PRD review, open-question gates, confirm-before-write, structural validation, and PLAN preview still apply after resumption.
-2. Map every PRD **REQ-NNN** into **Mapa REQ → passo**. In `direct`, use PLAN-native step IDs unless a valid, explicitly linked checklist is adopted; preserve adopted IDs exactly. Challenge vague acceptance — `references/challenge-vagueness.md`. Acceptance stays the challenge surface. It is not a reason to invent a requirement or step.
+2. Map every PRD **REQ-NNN** and applicable **CA** to the responsible step and its planned validation or existing-coverage disposition. In `direct`, use PLAN-native step IDs unless a valid, explicitly linked checklist is adopted; preserve adopted IDs exactly. Challenge vague acceptance — `references/challenge-vagueness.md`. Acceptance stays the challenge surface. It is not a reason to invent a requirement or step.
 3. Show `LIVE-STAGE-TABLE.md` § sdd-plan while drafting. Do not save that table in the PLAN.
 4. Run `references/self-review.md`. Fix. Run it again. If the second pass fails, stop without writing.
-5. Glob/Grep/Read (selective bank paths only — **never dump** entire `memory-bank/`). Current repo evidence outranks the bank. When story `ARCH/` / `ANALYSIS/` exist, **cite** those portable paths (do not paste bodies).
+5. Glob/Grep/Read only the repository sources needed to ground the PLAN; **never dump** the entire `memory-bank/`. Current repository evidence outranks the bank. When story `ARCH/` / `ANALYSIS/` exist, cite their portable paths without pasting their bodies. For each material behavior, apply `SEMANTIC-SUFFICIENCY.md`: cite the portable path and section or symbol actually read, state the source's role, what it demonstrates, and its limit, and separate demonstrated behavior from proposals or gaps. When relevant, trace the source or producer, selection/route, receiver, and effect; state which links are unproven and why a role is not applicable when omitted. A receiver alone does not establish its publisher or an end-to-end integration, and do not imply a messaging publisher in flows that do not use messaging. Treat an unproven link as “not demonstrated,” not as absent unless the searched evidence supports that conclusion. Include a negative route when it materially bounds the behavior. Do not claim runtime or activation from static inspection.
 
 **sim** at step 5.75 is allowed only after both review passes succeed.
 
