@@ -399,7 +399,7 @@ try {
         @{ Text = $acquisition; Pattern = 'independent of.*orchestrator_mode' },
         @{ Text = $acquisition; Pattern = 'answer is returned.*observable' },
         @{ Text = $acquisition; Pattern = 'semantically equivalent replies' },
-        @{ Text = $developSkill; Pattern = 'direct invocation with PLAN \+ explicit step proceeds in this current session' },
+        @{ Text = $developSkill; Pattern = 'In `direct`, a canonical approved PLAN plus explicit step proceeds after its direct gates' },
         @{ Text = $pacing; Pattern = 'exactly one.*step this session' }
     )) {
         if ($required.Text -notmatch $required.Pattern) { throw ('S3 operator-flow contract missing: ' + $required.Pattern) }

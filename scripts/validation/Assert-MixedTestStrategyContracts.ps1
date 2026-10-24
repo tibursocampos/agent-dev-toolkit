@@ -28,9 +28,36 @@ function Assert-ContractText {
 $planTemplate = Read-Contract 'core/skills/_shared/templates/sdd/PLAN.md'
 $planUsage = Read-Contract 'core/skills/sdd-plan/references/template-usage.md'
 $planContract = Read-Contract 'core/skills/sdd-develop/references/plan-contract.md'
+$developQuality = Read-Contract 'core/skills/sdd-develop/references/quality-self-check.md'
 $evidenceContract = Read-Contract 'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
 $developEvidence = Read-Contract 'core/skills/sdd-develop/references/evidence-or-zero.md'
 $o3Queue = Read-Contract 'core/skills/orchestrate-develop/references/step-queue-spawn.md'
+
+Assert-ContractText -Case 'Should_RecordBehaviorCoverageDecision_When_Planning' -Text ($planTemplate + $planUsage) -Markers @(
+    'BDD describes observable behavior and acceptance',
+    'TDD is a selective',
+    'Existing coverage/evidence (or none)',
+    'Primary proof boundary',
+    'Disposition',
+    'Owner',
+    'Create/execute checkpoint',
+    'defer with reason, limit/dependency',
+    'a new test in every step',
+    'additional proof cites distinct behavior or composition value',
+    'do not repeat the same validation at',
+    'every layer;',
+    'cover lower layers for their own behavior',
+    'test composition when the combined',
+    'path adds distinct integration evidence'
+)
+Assert-ContractText -Case 'Should_UseSelectiveCoverage_When_Developing' -Text ($planContract + $developQuality) -Markers @(
+    'Use the PLAN''s behavior-level coverage decisions',
+    'Reuse existing',
+    'coverage when it still proves the current behavior',
+    'test lower-layer behavior when it is distinct',
+    'the combined path adds evidence',
+    'add or change tests only when the planned proof requires it'
+)
 
 Assert-ContractText -Case 'Should_NotApproveIntermediateStep_When_CheckIsDeferred' -Text $planContract -Markers @(
     'A deferred check is pending, never a pass',

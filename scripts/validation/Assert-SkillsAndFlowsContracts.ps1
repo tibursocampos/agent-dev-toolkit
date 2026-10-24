@@ -114,23 +114,22 @@ $changeContract = Get-RepoText -RelativePath $changeContractRelative
 $spawnContract = Get-RepoText -RelativePath $spawnContractRelative
 $perStoryContracts = Get-RepoText -RelativePath $perStoryContractsRelative
 
-# --- Should_CoordinateAndValidateMissingChecklist_BeforeResumingPlan (CT13 / REQ-010 / CA10) ---
-$ct13Name = 'Should_CoordinateAndValidateMissingChecklist_BeforeResumingPlan'
-Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'references/checklist-acquisition.md' -Reason 'sdd-plan routes missing-checklist behavior through its contract'
-Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'validate the completed artifact' -Reason 'sdd-plan validates owner output before resuming'
-Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'resume this same `sdd-plan` invocation' -Reason 'valid checklist output resumes the existing plan flow'
-Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'For missing-checklist behavior, follow `references/checklist-acquisition.md`' -Reason 'Must not delegates missing-checklist handling to the acquisition contract'
-if ($sddPlan.Contains('stop and hand off `/split-story-checklist`')) {
-    throw "[$ct13Name] Obsolete manual checklist handoff remains in sdd-plan Must not."
-}
+# --- Should_PreserveO2ChecklistRequirements_WhileAllowingClassicDirectPlanning (CT15-CT17 / REQ-013-015) ---
+$ct13Name = 'Should_PreserveO2ChecklistRequirements_WhileAllowingClassicDirectPlanning'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'references/checklist-acquisition.md' -Reason 'sdd-plan routes context-specific checklist behavior through its contract'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'validate the completed artifact' -Reason 'sdd-plan validates owner output before resuming O2 planning'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'resume this same `sdd-plan` invocation' -Reason 'valid O2 checklist output resumes the existing plan flow'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'In `orchestrated`, follow `references/checklist-acquisition.md`, preserve owner gates, validate output, and stop if acquisition fails or has unresolved questions.' -Reason 'O2 retains owner gates, validation, and stop behavior'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'In `direct`, do not acquire or require it.' -Reason 'Classic direct does not acquire or require a checklist'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'Apply O2-only FEATURE/STORY/checklist requirements to a `direct` invocation' -Reason 'direct and O2 requirements remain isolated'
 Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'When the host exposes effective `subagents=native`' -Reason 'missing checklist uses a specialist when native capability exists'
-Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'execute the `split-story-checklist` workflow in the current flow' -Reason 'no-subagent/unavailable capability uses inline owner workflow'
+Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'run the owner skill workflow inline' -Reason 'no-subagent/unavailable capability uses inline owner workflow'
 Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'sole author of `REFINE/tasks.md`' -Reason 'checklist authorship remains with its owner'
 Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'stop with `step_blocked`' -Reason 'failure or invalid output blocks plan resumption'
 Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'stop with `open_question`' -Reason 'unanswered checklist questions block resumption'
 Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'IDs are unique, positive, ordered as declared' -Reason 'returned IDs are validated before use'
-Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'do not add, remove, or renumber an ID' -Reason 'sdd-plan preserves checklist identifiers'
-Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'Normal PRD review, open-question gates, confirm-before-write, structural validation' -Reason 'normal review and approval gates remain active after resumption'
+Assert-Includes -TestName $ct13Name -Text $checklistAcquisition -Needle 'Preserve every ID exactly when building the PLAN.' -Reason 'sdd-plan preserves checklist identifiers'
+Assert-Includes -TestName $ct13Name -Text $sddPlan -Needle 'Normal PRD review, open-question gates, confirm-before-write, structural validation' -Reason 'normal review and approval gates remain active after resumption'
 Assert-Includes -TestName $ct13Name -Text $splitChecklist -Needle 'this skill remains the sole author' -Reason 'the owner skill remains sole checklist author'
 Assert-Includes -TestName $ct13Name -Text $splitChecklist -Needle 'preserve all applicable session/write gates and open questions' -Reason 'owner gates and questions remain active'
 Assert-Includes -TestName $ct13Name -Text $changeContract -Needle 'validates the canonical output, and resumes only on success' -Reason 'shared TASKS policy agrees on validated recovery'

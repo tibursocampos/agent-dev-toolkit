@@ -30,7 +30,14 @@ function Assert-ContractText {
 }
 
 $planContract = Read-Contract 'core/skills/sdd-develop/references/plan-contract.md'
+$developSkill = Read-Contract 'core/skills/sdd-develop/SKILL.md'
+$planAcquisition = Read-Contract 'core/skills/sdd-develop/references/plan-acquisition.md'
+$planUpdate = Read-Contract 'core/skills/sdd-develop/references/plan-update.md'
+$executionDisplay = Read-Contract 'core/skills/sdd-develop/references/execution-display.md'
 $directFlow = Read-Contract 'core/skills/sdd-develop/references/command.md'
+$orchestratedSkill = Read-Contract 'core/skills/orchestrate-develop/SKILL.md'
+$stepQueue = Read-Contract 'core/skills/orchestrate-develop/references/step-queue-spawn.md'
+$receiptContract = Read-Contract 'core/skills/_shared/agents/RECEIPT.md'
 $orchestratedFlow = Read-Contract 'core/skills/orchestrate-develop/references/preconditions.md'
 $reviewContract = Read-Contract 'core/skills/code-review/references/contracts.md'
 
@@ -71,6 +78,43 @@ Assert-ContractText -Case 'Should_BlockOrchestratedFlow_When_DoRIsIncomplete' -T
     'all spawns',
     'A green',
     'clarification `READY` does not pass this implementation gate'
+)
+
+# Direct execution treats the approved PLAN as the step unit without inferring
+# context from siblings; optional task rows are used only by explicit adoption.
+$directDevelopContract = $developSkill + "`n" + $planAcquisition + "`n" + $planUpdate + "`n" + $executionDisplay + "`n" + $planContract
+Assert-ContractText -Case 'Should_AllowDirectStep_WhenChecklistIsAbsent' -Text $directDevelopContract -Markers @(
+    'In `direct`, the approved PLAN step',
+    'do not read, require, or create `REFINE/tasks.md`',
+    'the canonical approved PLAN is sufficient',
+    'absence of a checklist is not a blocker',
+    'dependencies, and declared validations are sufficient execution inputs'
+)
+Assert-ContractText -Case 'Should_UseDirectChecklistOnly_WhenExplicitlyAdopted' -Text $directDevelopContract -Markers @(
+    'explicitly adopts a checklist',
+    'relationship to the PLAN is explicit and consistent',
+    'direct` does not read or write a checklist unless the invocation explicitly adopted'
+)
+
+# O3 remains parent-scoped: explicit orchestrated context, checklist and
+# preflight are required; an invalid receipt cannot claim persisted completion.
+$orchestratedDevelopContract = $orchestratedSkill + "`n" + $stepQueue + "`n" + $planAcquisition
+Assert-ContractText -Case 'Should_RequireO3ChecklistAndPreflight_WhenOrchestrated' -Text $orchestratedDevelopContract -Markers @(
+    'Set `invocation_context=orchestrated` explicitly in every child handoff',
+    'scoped checklist input required by the O3 contract',
+    'require the O3 parent''s explicit scoped checklist input',
+    'Preserve O3 preflight and claim gates',
+    'absent or inconsistent required rows block/return to O2'
+)
+Assert-ContractText -Case 'Should_BlockO3BeforeEffects_WhenPreflightIsMissing' -Text $orchestratedSkill -Markers @(
+    'Any nonzero result is `plan_stale` / blocked',
+    'do not create or update a session, claim, or specialist',
+    'Re-run after checkpoint/CONTINUITY reconciliation and immediately before every subsequent effect'
+)
+Assert-ContractText -Case 'Should_RejectCompletedAsO3ReceiptStatus' -Text ($receiptContract + "`n" + $planContract) -Markers @(
+    'One of `done`, `blocked`, or `failed`',
+    '`COMPLETED` is a persisted PLAN lifecycle state, never a receipt',
+    'without widening the O3 relay allowlist'
 )
 
 # A step cannot close on acceptance alone or without its required evidence.
