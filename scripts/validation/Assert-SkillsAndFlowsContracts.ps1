@@ -108,6 +108,11 @@ $sddSpec = Get-RepoText -RelativePath $sddSpecRelative
 $sddPlan = Get-RepoText -RelativePath $sddPlanRelative
 $orchestrateAnalyze = Get-RepoText -RelativePath $orchestrateAnalyzeRelative
 $orchestrateDeliver = Get-RepoText -RelativePath $orchestrateDeliverRelative
+$orchestrateDeliverPreconditions = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/preconditions.md'
+$orchestrateDeliverCommand = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/command.md'
+$orchestrateDeliverApprovals = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/approval-gates.md'
+$orchestrateDeliverContinuity = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/continuity-handoff.md'
+$liveStageTable = Get-RepoText -RelativePath 'core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
 $checklistAcquisition = Get-RepoText -RelativePath $checklistAcquisitionRelative
 $splitChecklist = Get-RepoText -RelativePath $splitChecklistRelative
 $changeContract = Get-RepoText -RelativePath $changeContractRelative
@@ -138,6 +143,35 @@ Assert-Includes -TestName $ct13Name -Text $spawnContract -Needle 'Execute the ow
 Assert-Includes -TestName $ct13Name -Text $perStoryContracts -Needle 'validates the canonical output, then resumes this same plan' -Reason 'O2 per-story contract permits validated same-plan recovery'
 Assert-Includes -TestName $ct13Name -Text $perStoryContracts -Needle 'sole writer of `REFINE/tasks.md`' -Reason 'O2 preserves checklist ownership'
 Write-Pass -TestName $ct13Name
+
+# --- Should_ShowO2ProgressAndContinueSeries_WithoutChangingDevelopBoundary ---
+$ct14Name = 'Should_ShowO2ProgressAndContinueSeries_WithoutChangingDevelopBoundary'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle 'This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode' -Reason 'the one-step stop is scoped to direct/develop execution'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle 'render and redraw the chat-only live stage table' -Reason 'O2 progress table is required throughout the run'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle '{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md' -Reason 'O2 resolves the shared table through the configured toolkit root'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverCommand -Needle 'Redraw the complete table after each stage and story-cycle checkpoint' -Reason 'O2 table cadence is explicit'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverCommand -Needle 'Do not ask an extra “continue?” between eligible stories in série mode.' -Reason 'series continues without an extra prompt'
+Assert-Includes -TestName $ct14Name -Text $perStoryContracts -Needle 'recompute the eligible queue from canonical feature/story artifacts and dependencies' -Reason 'next-story selection uses canonical current state'
+Assert-Includes -TestName $ct14Name -Text $perStoryContracts -Needle 'approval never authorizes the next story' -Reason 'approval remains scoped per story'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverApprovals -Needle 'This does not pre-approve that story' -Reason 'the next story retains independent approval gates'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverPreconditions -Needle 'next pending gate' -Reason 'existing stories resume at their first incomplete O2 gate'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverPreconditions -Needle 'Artifact presence alone does not mean that a story or gate is complete' -Reason 'artifact paths alone cannot satisfy an O2 gate'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverPreconditions -Needle 'Skip a story only when all required O2 work for that story is complete and accepted' -Reason 'skip requires complete accepted O2 work'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverPreconditions -Needle 'every applicable approval is recorded for the exact outputs' -Reason 'skip requires all applicable scoped approvals'
+if ($orchestrateDeliverPreconditions.IndexOf('Skip stories already having both PRD+PLAN', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+    Write-Fail -TestName $ct14Name -Reason 'presence-only PRD+PLAN skipping can bypass pending approvals'
+}
+Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverContinuity -Needle 'not the sole authority for the story roster or artifact state' -Reason 'stale CONTINUITY is reconciled against canonical artifacts'
+Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle '### orchestrate-deliver (O2)' -Reason 'shared live-table contract includes O2'
+Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle 'repeat the story-cycle rows for each eligible US/TS' -Reason 'O2 table exposes series continuation per story'
+Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle 'The PLAN progress table stays in the PLAN file.' -Reason 'the implementation progress ledger remains in the PLAN'
+$o3TableIndex = $liveStageTable.IndexOf('### sdd-develop / orchestrate-develop', [System.StringComparison]::Ordinal)
+if ($o3TableIndex -lt 0) {
+    Write-Fail -TestName $ct14Name -Reason 'O3 exclusion section is missing from the shared live-table contract'
+}
+$o3TableSection = $liveStageTable.Substring($o3TableIndex)
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Do not render these rows in the operator chat.' -Reason 'O3 remains excluded from the stage table'
+Write-Pass -TestName $ct14Name
 
 # --- Should_NotAskMemoryBankRefresh_When_CommitMessageUnconfirmed (CT1) ---
 $ct1Name = 'Should_NotAskMemoryBankRefresh_When_CommitMessageUnconfirmed'

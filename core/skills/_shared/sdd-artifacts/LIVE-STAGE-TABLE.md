@@ -63,6 +63,26 @@ Stop redraw when `open_question` fires. The blocked row is `⚠`. Do not continu
 
 Do not save this table in the PLAN.
 
+### orchestrate-deliver (O2)
+
+Render this table in the operator chat for the full O2 run, beginning before the first stage executes. After each stage and each story-cycle checkpoint, redraw the entire table with completed, current, and remaining rows. For série mode, repeat the story-cycle rows for each eligible US/TS in canonical dependency/order sequence; label each row with its story ID so the operator can see that the next story is continuing. Mark conditional checklist work completed with the evidence that it was required and run, or that the feature is `trivial` and the checklist is not applicable. Keep the same status glyph vocabulary defined above. The table is chat-only and is never written into `CONTINUITY.md`.
+
+| Stage | Analysis weight |
+|-------|-----------------|
+| Resolve memory-bank and feature context | Medium |
+| Reconcile canonical roster, required siblings, dependencies, and readiness | High |
+| Choose execution mode and build eligible queue | Low |
+| Per story: read STORY, required siblings, and relevant context | High |
+| Per story: sdd-spec, PRD contestation, and readiness | High |
+| Per story: checklist when required | Medium |
+| Per story: sdd-plan and plan validation | High |
+| Per story: present and process the applicable approval gate | Medium |
+| Per story: reconcile checkpoint and recompute next eligible story | Medium |
+| Cross-artifact analysis and PRD→PLAN→CHANGE preflight | High |
+| Emit final multi-path handoff | Low |
+
+In série mode, completing one story does not end O2. Reconcile `CONTINUITY.md` against canonical `FEATURE.md`, `STORY.md`, PRD/PLAN, required siblings, and dependencies; then read the next eligible US/TS context and continue its full O2 cycle. Do not ask an extra continue question. Stop only at a material blocker, a decision or approval gate that is due, or when every story is closed. Each story retains its own write and approval gates. `sdd-develop`'s one-step stop does not govern the O2 story queue.
+
 ### sdd-develop / orchestrate-develop
 
 Do not render these rows in the operator chat. Do not redraw them. The chat contract is `sdd-develop/references/execution-display.md`.

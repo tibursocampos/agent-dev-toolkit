@@ -8,6 +8,8 @@ Update `CONTINUITY.md` when:
 - [ ] Before advancing a story or emitting its handoff, reconcile its identified output, applicable approval, recorded validation outcome, and each dependent story boundary; record only affected-story blockers and their existing owner/gate
 - [ ] Final multi-path handoff emitted
 
+`CONTINUITY.md` is a resumable progress checkpoint, not the sole authority for the story roster or artifact state. On every resume and before advancing in série mode, reconcile it against canonical `FEATURE.md`, each candidate `STORY.md`, PRD/PLAN, required siblings, and declared dependencies. If the checkpoint is stale, correct it from those owner artifacts as part of the normal O2 update; do not let stale status hide an eligible story or override a material blocker. Keep the live stage table in chat only.
+
 | Field | Rule |
 |-------|------|
 | **Phase** | `deliver` during/after O2 |

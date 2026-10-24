@@ -34,6 +34,8 @@ Silence / emoji / “ok” without **sim** is **not** approval.
 
 **sim** does not close an open question and does not replace stop code `open_question`. Render these prompts in the user chat language (`LANGUAGE.md`).
 
+In série mode, once this story's named approval scope is satisfied and its checkpoint is reconciled, continue to the next eligible story without a separate “continue?” prompt. This does not pre-approve that story: present and honor its own required write and content-approval gates when due. If the current answer is pending, `ajustar`, or `cancelar`, do not advance dependent work; follow the table above. Batch approval authorizes only the paths explicitly listed in its approval table.
+
 ### Observable question and answer lifecycle (REQ-003 / CA3)
 
 Use these states for every blocking operator question:

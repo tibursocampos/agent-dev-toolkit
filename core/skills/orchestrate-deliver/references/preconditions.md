@@ -59,7 +59,9 @@ Backlog ainda não aprovado em `{feature-path}`.
 
 Only continue after explicit **sim** (then record in CONTINUITY) or O1 re-approval.
 
-Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build work list (id, title, path, deps from STORY if present). Skip stories already having both PRD+PLAN unless user asks to refresh.
+Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build the ordered work list (id, title, path, deps from STORY if present), then reconcile each story against its canonical artifacts and the required O2 gates. Resume an existing story at its **next pending gate**: story-file readiness, PRD/spec and contestation, required checklist, PLAN and its required validation, then applicable approval and checkpoint reconciliation. Artifact presence alone does not mean that a story or gate is complete; a draft, unaccepted output, missing required validation, or pending approval must resume at the owning gate.
+
+Skip a story only when all required O2 work for that story is complete and accepted under its owner contracts, required contestation/checklist/validation results are recorded, and every applicable approval is recorded for the exact outputs. Do not infer completion from PRD+PLAN paths, stale `CONTINUITY.md`, a prior story's approval, or an O3 implementation status. If a gate is unresolved, resume there; if it is blocked, preserve the blocker and keep independent eligible stories in the queue. Recompute the eligible queue from canonical feature/story artifacts and dependencies after each completed story. A refresh request follows the owning contracts for the named outputs.
 
 **Required siblings STOP (flag-gated):** If FEATURE `needs_*` is true (or nature is brownfield) and the story lacks the matching sibling folder/files (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md` / `PIPELINE.md` § Feature / story siblings): **STOP**. Return to O1. Do **not** Write PRD/PLAN. Max-3 gap questions do **not** replace this gate. Waive-deps remains for **story order**, not for missing SEC/ARCH/ANALYSIS.
 

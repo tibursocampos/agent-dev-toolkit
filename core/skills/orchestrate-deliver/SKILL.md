@@ -8,7 +8,7 @@ description: Orchestrated Delivery O2: per story, close story files, then PRD, t
 1. Read `{{GUARDRAILS_PATH}}`
 2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
 3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
+4. `sdd-develop` and direct one-step execution: after **ONE** PLAN step/task, **STOP** that execution session and hand off. This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode; O2 follows its per-story gates and continues through the eligible story queue.
 5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
 
 ### Step -1 - Gate check (report in chat before continuing)
@@ -58,6 +58,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
+| O2 live progress table and O1/O3 table boundaries | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
@@ -138,7 +139,10 @@ Present summary; **sim** / ajustar / cancelar (por história | lote). Read `refe
 Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Read `references/continuity-handoff.md`.
 
 ### 9. Durable progress checkpoint
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate. During O2, also render and redraw the chat-only live stage table from `LIVE-STAGE-TABLE.md` after each stage and story-cycle checkpoint. The table is not persisted in `CONTINUITY.md`.
+
+### Série continuation
+In série mode, after a story's required O2 work and its applicable approval gate are complete, reconcile the feature roster and current story state from canonical `FEATURE.md`, `STORY.md`, PRD, PLAN, and required siblings. Treat `CONTINUITY.md` as a resumable checkpoint and reconcile stale entries against those canonical story artifacts; it is not the sole authority for selecting the next story. Read the next eligible US/TS `STORY.md` and every required sibling before continuing its own full O2 cycle. Continue automatically in canonical dependency/order sequence without asking whether to continue. Stop only at a material blocker, a decision or approval gate that is actually due, or when every story is closed; keep unaffected independent stories eligible. Approval of one story never authorizes writing artifacts for another story.
 
 ## Must not
 
