@@ -18,4 +18,5 @@
 - [ ] A sibling surface is included only when the text says why the others do not serve
 - [ ] Type/method/API names in English where cited
 - [ ] Status **Pronto para planejamento** (or **Ready for planning** if EN override)
+- [ ] Persisted content-approval field records the explicit operator approval and date; it is not inferred from `write_confirmed`
 - [ ] Handoff: `/sdd-plan - <portable-prd-path>`

@@ -10,6 +10,8 @@ Step status tokens, English only:
 | `COMPLETED` | Acceptance and the step test passed |
 | `SKIPPED` | Explicitly skipped |
 
+`SKIPPED` is not a passing result and does not satisfy acceptance, a completed dependency, or overall PLAN closure. Resolve omitted work through the PLAN owner and an explicitly approved PLAN update; do not infer that its acceptance is unnecessary.
+
 Overall implementation status for a new PLAN: `NOT_STARTED`.
 
 Progress line: `0/N`. Prose around the token follows the chat language (`LANGUAGE.md`). Do not write the status word in another language. Do not use a duration.

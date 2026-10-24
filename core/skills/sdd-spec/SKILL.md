@@ -127,9 +127,13 @@ Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agr
 
 Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
 
-### 6.75 Confirm before write
+### 6.75 Approve PRD content
 
-Show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, bullets (incl. REQ-NNN count / OOS), remaining **`invented`** assumptions (if any), and status **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**. In Plan/Ask without **sim** in Agent: Phase A message only. On **sim**, listed bullets in that confirm become `agreed` for the Write (`CONTRACT-PROVENANCE.md`).
+Show the proposed PRD content summary, including remaining **`invented`** assumptions. Ask whether the operator approves the content (`aprovar` / `ajustar` / `cancelar`). This decision approves only the described PRD content and promotes only the listed assumptions to `agreed` (`CONTRACT-PROVENANCE.md`); it does not authorize a file write. In Plan/Ask, complete this content review but do not write.
+
+### 6.9 Confirm before write
+
+After content approval, show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, 3–5 content bullets and planned status **Pronto para planejamento**. Ask separately whether to write at that path (**sim** / **ajustar** / **cancelar**). Persist the content-approval field only with the approved write, including the operator and date. The write confirmation sets only `write_confirmed`; it cannot create or infer content approval.
 
 Record `artifact_language` from `preferences.json`, manifest, or user override (`LANGUAGE.md` — do not hard-code pt-BR).
 
@@ -137,7 +141,7 @@ Record `artifact_language` from `preferences.json`, manifest, or user override (
 
 1. Validate path per `PIPELINE.md` section Path validation - abort if non-canonical (**writes** only under `features/.../PRD/`).
 2. Repository mode: `.gitignore` per `STORAGE.md` and `features_versioned` in manifest (`references/storage-gitignore.md`). Global mode: do **not** edit `.gitignore`.
-3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `templates/sdd/PRD.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`); include **## Execution policy**.
+3. Path: `features/NNN-slug/US01/PRD/NNN_short_feature_slug.md` (adjust story id); body from `templates/sdd/PRD.md` (authoring: `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md`); include **## Execution policy**. On the approved Write, persist `Status: Pronto para planejamento` and the localized content-approval field (`Aprovação do conteúdo` / `Content approval`) with the operator and date. Do not persist the planning-ready status before explicit content approval. The approval field records the observed approval and is not inferred from `write_confirmed`.
 4. **Navigation `## Related` (REQ-009 / CA3):** Emit `## Related` per `STORAGE.md` § Navigation block (`NAV-RELATED` / `NAV-OMIT-ABSENT`). Classic: cite **PLAN** when the canonical PLAN path is known/on-disk (omit if absent — never stub PLAN only for a link); cite **STORY** / FEATURE / CONTINUITY / ARCH… only when on-disk. Paths portable only. Details: `references/template-usage.md`.
 5. **Brownfield CHANGE (REQ-004):** If FEATURE `Nature` is `brownfield` (or sibling FEATURE under `features/NNN-slug/` says brownfield), also Write `features/NNN-slug/CHANGE.md` from `templates/features/CHANGE.md` with **ADDED \| MODIFIED \| REMOVED** vs **current** (`memory-bank/` living docs — never `openspec/` / `.specs/` / `.specify/`). **Greenfield** must **not** force an empty CHANGE stub. Details: `CHANGE-CONTRACT.md` + `references/validate-change.md`.
 6. Product `docs/` in scope: ask doc language first (`references/product-docs-language.md`).
