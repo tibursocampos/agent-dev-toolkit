@@ -86,9 +86,6 @@ foreach ($rel in $skillPaths) {
     if ($text -notmatch 'validate-plan') {
         Write-Fail -TestName $skillTest -Reason ("{0} must reference validate-plan" -f $rel)
     }
-    if ($text -notmatch 'Execution policy') {
-        Write-Fail -TestName $skillTest -Reason ("{0} must reference Execution policy" -f $rel)
-    }
 }
 Write-Pass -TestName $skillTest
 

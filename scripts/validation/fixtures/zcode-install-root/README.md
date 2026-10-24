@@ -1,7 +1,9 @@
 # ZCode InstallRoot fixture (in-repo)
 
-Empty seed used by ZCode ADE adapter publish/smoke tests as a safe
-`InstallRoot` (layout equivalent to `~/.zcode`).
+Minimal seed used by ZCode ADE adapter publish/smoke tests as a safe
+`InstallRoot` (layout equivalent to `~/.zcode`). It retains only the five
+agent cards read by spawn-knob validation; the layout check clears and
+regenerates toolkit-owned surfaces.
 
 Paths resolve under the toolkit repo — never under `%USERPROFILE%` unless
 `-AllowUserHome` is set explicitly.

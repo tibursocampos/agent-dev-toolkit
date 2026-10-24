@@ -108,6 +108,12 @@ function Clear-CodexFixturePublishedArtifacts {
     Clear-CodexPublishedTreeContents -DirectoryPath (Join-Path $pluginRoot '.codex-plugin')
     Clear-CodexPublishedTreeContents -DirectoryPath $userSkillsRoot
 
+    # The seed contains an older published card. Remove it so the following
+    # assertion proves sync-agent recreates the managed output.
+    if (Test-Path -LiteralPath $customAgentSamplePath) {
+        Remove-Item -LiteralPath $customAgentSamplePath -Force
+    }
+
     if (Test-Path -LiteralPath $agentsPath) {
         Remove-Item -LiteralPath $agentsPath -Force
     }
@@ -189,7 +195,7 @@ if (-not (Test-Path -LiteralPath $agentsPath)) {
     Write-Fail -TestName $removeTest -Reason 'expected AGENTS.md after sync'
 }
 if (-not (Test-Path -LiteralPath $customAgentSamplePath)) {
-    Write-Fail -TestName $removeTest -Reason 'expected custom subagent file after sync'
+    Write-Fail -TestName $removeTest -Reason 'sync-agent must recreate the published subagent from a clean destination'
 }
 if (-not (Test-Path -LiteralPath $marketplacePath)) {
     Write-Fail -TestName $removeTest -Reason 'expected marketplace.json after sync'

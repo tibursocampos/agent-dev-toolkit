@@ -282,6 +282,118 @@ function Get-EphemeralSmokeTreeState {
     } | Sort-Object Path)
 }
 
+function Get-EphemeralSmokeFixtureSeedFiles {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string] $SeedFixtureRoot)
+
+    $repoRoot = Get-EphemeralSmokeRepoRoot -Path $SeedFixtureRoot
+    $seedRoot = [System.IO.Path]::GetFullPath($SeedFixtureRoot).TrimEnd([char[]]@('\', '/'))
+    $fixturesRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot ('scripts/validation/fixtures' -replace '/', [System.IO.Path]::DirectorySeparatorChar))).TrimEnd([char[]]@('\', '/'))
+    $comparison = [System.StringComparison]::OrdinalIgnoreCase
+    $fixturesPrefix = $fixturesRoot + [System.IO.Path]::DirectorySeparatorChar
+
+    if (-not [string]::Equals($seedRoot, $fixturesRoot, $comparison) -and -not $seedRoot.StartsWith($fixturesPrefix, $comparison)) {
+        return [PSCustomObject]@{ IsFixtureSeed = $false; Files = @() }
+    }
+
+    $repoPrefix = $repoRoot.TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $seedRoot.StartsWith($repoPrefix, $comparison)) {
+        throw ("Refusing fixture seed outside repository root: {0}" -f $SeedFixtureRoot)
+    }
+
+    $relativeSeedRoot = $seedRoot.Substring($repoPrefix.Length) -replace '\\', '/'
+    $gitArgs = @('-C', $repoRoot, '-c', 'core.quotePath=false', 'ls-files', '--full-name', '--', (':(literal)' + $relativeSeedRoot))
+    $gitOutput = @(& git @gitArgs 2>&1)
+    $gitExitCode = $LASTEXITCODE
+    if ($gitExitCode -ne 0) {
+        throw ("Could not query the Git index for fixture seed '{0}': {1}" -f $SeedFixtureRoot, ($gitOutput -join [Environment]::NewLine))
+    }
+
+    $files = @()
+    foreach ($repoRelativePath in $gitOutput) {
+        $repoRelativePath = [string]$repoRelativePath
+        if ([string]::IsNullOrWhiteSpace($repoRelativePath)) { continue }
+
+        $repoRelativePath = $repoRelativePath -replace '\\', '/'
+        $seedPathPrefix = $relativeSeedRoot.TrimEnd('/') + '/'
+        if (-not $repoRelativePath.StartsWith($seedPathPrefix, [System.StringComparison]::Ordinal)) {
+            throw ("Git returned a path outside fixture seed '{0}': {1}" -f $SeedFixtureRoot, $repoRelativePath)
+        }
+
+        $relativePath = $repoRelativePath.Substring($seedPathPrefix.Length)
+        if ([string]::IsNullOrWhiteSpace($relativePath) -or ($relativePath -split '/') -contains '..') {
+            throw ("Git returned an invalid fixture seed path: {0}" -f $repoRelativePath)
+        }
+
+        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $seedRoot ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+        # The index can still contain a path while its working-tree file has
+        # been deleted (for example, a large unstaged fixture cleanup). Use
+        # index membership as the allowlist, then intersect it with the live
+        # tree so generated/untracked files remain excluded without treating
+        # an intended working-tree deletion as a copy error.
+        if (-not (Test-Path -LiteralPath $fullPath)) {
+            continue
+        }
+        if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+            throw ("Tracked fixture source is not a file: {0}" -f $fullPath)
+        }
+
+        $files += [PSCustomObject]@{
+            RelativePath = $relativePath
+            FullPath = $fullPath
+        }
+    }
+
+    return [PSCustomObject]@{ IsFixtureSeed = $true; Files = @($files | Sort-Object RelativePath) }
+}
+
+function Get-EphemeralSmokeTrackedTreeState {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $Root,
+        [Parameter(Mandatory = $true)][string] $Role,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $TrackedFiles
+    )
+
+    $rootFull = [System.IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\', '/'))
+    $rootItem = Get-Item -LiteralPath $rootFull -Force -ErrorAction Stop
+    if (-not $rootItem.PSIsContainer -or ($rootItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        throw ("Refusing {0}: root is not a plain directory: {1}" -f $Role, $Root)
+    }
+
+    $itemsByPath = @{}
+    $itemsByPath[$rootItem.FullName] = $rootItem
+    $rootPrefix = $rootFull + [System.IO.Path]::DirectorySeparatorChar
+    foreach ($trackedFile in $TrackedFiles) {
+        $fileFull = [System.IO.Path]::GetFullPath($trackedFile)
+        if (-not $fileFull.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw ("Refusing {0}: Git-index path escaped seed root: {1}" -f $Role, $trackedFile)
+        }
+
+        $cursor = $fileFull
+        while (-not [string]::Equals($cursor, $rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $item = Get-Item -LiteralPath $cursor -Force -ErrorAction Stop
+            if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                throw ("Refusing {0}: tracked source is a reparse point: {1}" -f $Role, $cursor)
+            }
+            $itemsByPath[$item.FullName] = $item
+            $cursor = Split-Path -Parent $cursor
+            if ([string]::IsNullOrWhiteSpace($cursor) -or -not $cursor.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw ("Refusing {0}: tracked path has no safe parent under seed root: {1}" -f $Role, $trackedFile)
+            }
+        }
+    }
+
+    return @($itemsByPath.Values | Sort-Object FullName | ForEach-Object {
+        [PSCustomObject]@{
+            Path = [System.IO.Path]::GetFullPath($_.FullName)
+            Attributes = [int]$_.Attributes
+            Length = if ($_.PSIsContainer) { [int64]0 } else { [int64]$_.Length }
+            LastWriteTimeUtc = $_.LastWriteTimeUtc.Ticks
+        }
+    })
+}
+
 function Assert-EphemeralSmokeTreeStateUnchanged {
     param(
         [Parameter(Mandatory = $true)][object[]] $Before,
@@ -356,32 +468,58 @@ function Copy-EphemeralSmokeSeedTreeCore {
         [Parameter()][string[]] $ExcludeNames = @()
     )
 
-    # Snapshot each tree once for this logical copy phase. Per-file validation
-    # below is limited to the affected paths, avoiding O(n^2) rescans.
-    $seedBefore = Get-EphemeralSmokeTreeState -Root $SeedFixtureRoot -Role 'seed fixture'
-    $children = @(Get-ChildItem -LiteralPath $SeedFixtureRoot -Force -Recurse -ErrorAction Stop | Sort-Object @{ Expression = { $_.PSIsContainer }; Descending = $true }, FullName)
-    foreach ($child in $children) {
-        if ($ExcludeNames -contains $child.Name) { continue }
-        $relative = $child.FullName.Substring($SeedFixtureRoot.Length).TrimStart([char[]]@('\', '/'))
-        $destinationPath = Join-Path $WorkInstallRoot $relative
-        if ($child.PSIsContainer) {
-            $null = Assert-EphemeralSmokeContainedPath -Path $child.FullName -Role 'seed directory' -AllowCanonicalPath
-            $null = Assert-EphemeralSmokeContainedPath -Path $destinationPath -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
-            if ($child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
-                throw ("Refusing changed/reparse seed directory: {0}" -f $child.FullName)
-            }
-            New-Item -ItemType Directory -Path $destinationPath -Force -ErrorAction Stop | Out-Null
-            continue
+    # Fixture seeds use the Git index as their source of truth so ignored local
+    # outputs cannot enter smoke roots or perturb source mutation checks.
+    # Temporary seeds outside scripts/validation/fixtures retain full-tree copy.
+    $fixtureSeed = Get-EphemeralSmokeFixtureSeedFiles -SeedFixtureRoot $SeedFixtureRoot
+    if ($fixtureSeed.IsFixtureSeed) {
+        $trackedFiles = @($fixtureSeed.Files | Where-Object {
+            $segments = $_.RelativePath -split '[\\/]'
+            @($segments | Where-Object { $ExcludeNames -contains $_ }).Count -eq 0
+        })
+        $trackedPaths = @($trackedFiles | ForEach-Object { $_.FullPath })
+        $seedBefore = Get-EphemeralSmokeTrackedTreeState -Root $SeedFixtureRoot -Role 'seed fixture' -TrackedFiles $trackedPaths
+
+        foreach ($trackedFile in $trackedFiles) {
+            $sourcePath = $trackedFile.FullPath
+            $destinationPath = Join-Path $WorkInstallRoot ($trackedFile.RelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            $destinationDirectory = Split-Path -Parent $destinationPath
+            $null = Assert-EphemeralSmokeContainedPath -Path $destinationDirectory -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
+            New-Item -ItemType Directory -Path $destinationDirectory -Force -ErrorAction Stop | Out-Null
+            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $sourcePath -DestinationPath $destinationPath
+            Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force -ErrorAction Stop
         }
 
-        Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $child.FullName -DestinationPath $destinationPath
-        Copy-Item -LiteralPath $child.FullName -Destination $destinationPath -Force -ErrorAction Stop
+        $seedAfter = Get-EphemeralSmokeTrackedTreeState -Root $SeedFixtureRoot -Role 'seed fixture' -TrackedFiles $trackedPaths
+    }
+    else {
+        # Snapshot each tree once. Per-file validation stays limited to affected
+        # paths, avoiding O(n^2) rescans for external temporary seed roots.
+        $seedBefore = Get-EphemeralSmokeTreeState -Root $SeedFixtureRoot -Role 'seed fixture'
+        $children = @(Get-ChildItem -LiteralPath $SeedFixtureRoot -Force -Recurse -ErrorAction Stop | Sort-Object @{ Expression = { $_.PSIsContainer }; Descending = $true }, FullName)
+        foreach ($child in $children) {
+            if ($ExcludeNames -contains $child.Name) { continue }
+            $relative = $child.FullName.Substring($SeedFixtureRoot.Length).TrimStart([char[]]@('\', '/'))
+            $destinationPath = Join-Path $WorkInstallRoot $relative
+            if ($child.PSIsContainer) {
+                $null = Assert-EphemeralSmokeContainedPath -Path $child.FullName -Role 'seed directory' -AllowCanonicalPath
+                $null = Assert-EphemeralSmokeContainedPath -Path $destinationPath -Role 'seed destination directory' -AllowCanonicalPath -AllowMissing
+                if ($child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                    throw ("Refusing changed/reparse seed directory: {0}" -f $child.FullName)
+                }
+                New-Item -ItemType Directory -Path $destinationPath -Force -ErrorAction Stop | Out-Null
+                continue
+            }
+
+            Assert-EphemeralSmokeSeedWrite -SeedFixtureRoot $SeedFixtureRoot -WorkInstallRoot $WorkInstallRoot -SourcePath $child.FullName -DestinationPath $destinationPath
+            Copy-Item -LiteralPath $child.FullName -Destination $destinationPath -Force -ErrorAction Stop
+        }
+
+        $seedAfter = Get-EphemeralSmokeTreeState -Root $SeedFixtureRoot -Role 'seed fixture'
     }
 
-    # One post-copy source snapshot closes the phase-level mutation check. The
-    # work tree is intentionally changed by this phase and is validated by the
-    # affected-path checks above.
-    $seedAfter = Get-EphemeralSmokeTreeState -Root $SeedFixtureRoot -Role 'seed fixture'
+    # The work tree is intentionally changed by this phase and is validated by
+    # the affected-path checks above; compare the source snapshot once at end.
     Assert-EphemeralSmokeTreeStateUnchanged -Before $seedBefore -After $seedAfter -Role 'seed fixture'
 }
 

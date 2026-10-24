@@ -35,7 +35,6 @@ $script:ToolkitConstant = @{
     SmokeHarnessScriptName         = 'Invoke-SmokeHarness.ps1'
     SmokeHarnessMarkerFileName     = '.smoke-harness-marker'
     UserCursorProfileRelativePath  = '.cursor'
-    SkillFixtureMarkersFileName    = 'expected-markers.txt'
     ValidateCoreRelativePath       = 'scripts/validation/validate-core.ps1'
     NamedRemainingCheckRelativePaths = @(
         'scripts/validation/Assert-CiWorkflow.ps1'
@@ -468,10 +467,6 @@ $script:ToolkitConstant = @{
         'verify_mode'
     )
     ExecutionPolicyHeadingMarker                 = '## Execution policy'
-    ExecutionPolicyTemplateRelativePaths         = @(
-        'core/skills/_shared/templates/sdd/PLAN.md',
-        'core/skills/_shared/templates/sdd/PRD.md'
-    )
     ExecutionPolicySkillWiringRelativePaths      = @(
         'core/skills/sdd-plan/SKILL.md',
         'core/skills/sdd-spec/SKILL.md',

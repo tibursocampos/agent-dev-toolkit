@@ -107,6 +107,122 @@ if (-not (Test-Path -LiteralPath $fixtureReadme)) {
     Write-Fail -TestName 'Assert-SmokeHarnessSafetyPreconditions' -Reason ("fixture seed missing: {0}" -f $fixtureReadme)
 }
 
+# --- Should_CopyOnlyGitIndexedFiles_FromRepositoryFixtureSeeds ---
+$trackedSeedName = 'Should_CopyOnlyGitIndexedFiles_FromRepositoryFixtureSeeds'
+$trackedSeedRepo = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-smoke-seed-index-' + [Guid]::NewGuid().ToString('N'))
+$previousSmokeRepoRoot = $script:EphemeralSmokeRepoRoot
+try {
+    $seedRoot = Join-Path $trackedSeedRepo 'scripts/validation/fixtures/seed'
+    $externalSeedRoot = Join-Path $trackedSeedRepo 'external-seed'
+    New-Item -ItemType Directory -Path $seedRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path $externalSeedRoot -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $trackedSeedRepo '.gitignore') -Value '/scripts/validation/fixtures/seed/ignored.txt' -Encoding ASCII
+    [System.IO.File]::WriteAllText((Join-Path $seedRoot 'tracked.txt'), 'tracked-seed')
+    [System.IO.File]::WriteAllText((Join-Path $seedRoot 'deleted-unstaged.txt'), 'deleted-seed')
+
+    function Invoke-SmokeSafetyGit {
+        param([Parameter(Mandatory = $true)][string] $Path, [Parameter(Mandatory = $true)][string[]] $GitArgs)
+        $previousPreference = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $output = & git -C $Path @GitArgs 2>&1 | Out-String
+            $exitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previousPreference
+        }
+        if ($exitCode -ne 0) {
+            throw ("git {0} failed ({1}): {2}" -f ($GitArgs -join ' '), $exitCode, $output.Trim())
+        }
+        return $output
+    }
+
+    $null = Invoke-SmokeSafetyGit -Path $trackedSeedRepo -GitArgs @('init', '--quiet')
+    $null = Invoke-SmokeSafetyGit -Path $trackedSeedRepo -GitArgs @('add', '--', '.gitignore', 'scripts/validation/fixtures/seed/tracked.txt', 'scripts/validation/fixtures/seed/deleted-unstaged.txt')
+    $null = Invoke-SmokeSafetyGit -Path $trackedSeedRepo -GitArgs @('-c', 'user.name=Smoke Safety Test', '-c', 'user.email=smoke-safety@example.invalid', 'commit', '--quiet', '-m', 'seed')
+    $ignoredCheck = Invoke-SmokeSafetyGit -Path $trackedSeedRepo -GitArgs @('check-ignore', '--', 'scripts/validation/fixtures/seed/ignored.txt')
+    if ($ignoredCheck -notmatch 'ignored\.txt') {
+        Write-Fail -TestName $trackedSeedName -Reason 'temporary repository did not recognize the ignored seed file'
+    }
+
+    Set-Content -LiteralPath (Join-Path $seedRoot 'ignored.txt') -Value 'ignored' -Encoding ASCII
+    Set-Content -LiteralPath (Join-Path $seedRoot 'untracked.txt') -Value 'untracked' -Encoding ASCII
+    Remove-Item -LiteralPath (Join-Path $seedRoot 'deleted-unstaged.txt') -Force
+    $generatedOnlyDirectory = Join-Path $seedRoot 'generated-only/nested'
+    New-Item -ItemType Directory -Path $generatedOnlyDirectory -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $generatedOnlyDirectory 'output.txt') -Value 'generated' -Encoding ASCII
+
+    $script:EphemeralSmokeRepoRoot = [System.IO.Path]::GetFullPath($trackedSeedRepo)
+    $seedIndex = Get-EphemeralSmokeFixtureSeedFiles -SeedFixtureRoot $seedRoot
+    $indexPaths = @(Invoke-SmokeSafetyGit -Path $trackedSeedRepo -GitArgs @('ls-files', '--', 'scripts/validation/fixtures/seed')) -split "`r?`n"
+    if ($indexPaths -notcontains 'scripts/validation/fixtures/seed/deleted-unstaged.txt') {
+        Write-Fail -TestName $trackedSeedName -Reason 'test setup did not preserve the deleted file in the Git index'
+    }
+    if (-not $seedIndex.IsFixtureSeed -or @($seedIndex.Files).Count -ne 1 -or $seedIndex.Files[0].RelativePath -ne 'tracked.txt') {
+        Write-Fail -TestName $trackedSeedName -Reason ("expected only existing tracked.txt from the fixture index, got: {0}" -f (@($seedIndex.Files | ForEach-Object { $_.RelativePath }) -join ', '))
+    }
+
+    $snapshotBeforeGeneratedChange = Get-EphemeralSmokeTrackedTreeState -Root $seedRoot -Role 'safety test seed' -TrackedFiles @($seedIndex.Files | ForEach-Object { $_.FullPath })
+    Set-Content -LiteralPath (Join-Path $seedRoot 'ignored.txt') -Value 'ignored output changed after source snapshot' -Encoding ASCII
+    Set-Content -LiteralPath (Join-Path $generatedOnlyDirectory 'output.txt') -Value 'generated output changed after source snapshot' -Encoding ASCII
+    $snapshotAfterGeneratedChange = Get-EphemeralSmokeTrackedTreeState -Root $seedRoot -Role 'safety test seed' -TrackedFiles @($seedIndex.Files | ForEach-Object { $_.FullPath })
+    Assert-EphemeralSmokeTreeStateUnchanged -Before $snapshotBeforeGeneratedChange -After $snapshotAfterGeneratedChange -Role 'safety test seed'
+
+    $snapshotBeforeTrackedChange = Get-EphemeralSmokeTrackedTreeState -Root $seedRoot -Role 'safety test seed' -TrackedFiles @($seedIndex.Files | ForEach-Object { $_.FullPath })
+    [System.IO.File]::AppendAllText((Join-Path $seedRoot 'tracked.txt'), '-changed')
+    $snapshotAfterTrackedChange = Get-EphemeralSmokeTrackedTreeState -Root $seedRoot -Role 'safety test seed' -TrackedFiles @($seedIndex.Files | ForEach-Object { $_.FullPath })
+    $trackedMutationRejected = $false
+    try {
+        Assert-EphemeralSmokeTreeStateUnchanged -Before $snapshotBeforeTrackedChange -After $snapshotAfterTrackedChange -Role 'safety test seed'
+    }
+    catch {
+        if ($_.Exception.Message -notmatch '(?i)changed|final validation') {
+            throw
+        }
+        $trackedMutationRejected = $true
+    }
+    if (-not $trackedMutationRejected) {
+        Write-Fail -TestName $trackedSeedName -Reason 'accepted a changed tracked source file'
+    }
+    [System.IO.File]::WriteAllText((Join-Path $seedRoot 'tracked.txt'), 'tracked-seed')
+
+    $trackedWorkRoot = Join-Path $trackedSeedRepo 'tracked-work'
+    New-Item -ItemType Directory -Path $trackedWorkRoot -Force | Out-Null
+    Copy-EphemeralSmokeSeedTree -SeedFixtureRoot $seedRoot -WorkInstallRoot $trackedWorkRoot
+    if (-not (Test-Path -LiteralPath (Join-Path $trackedWorkRoot 'tracked.txt'))) {
+        Write-Fail -TestName $trackedSeedName -Reason 'tracked seed file was not copied'
+    }
+    foreach ($excludedPath in @(
+        (Join-Path $trackedWorkRoot 'ignored.txt'),
+        (Join-Path $trackedWorkRoot 'untracked.txt'),
+        (Join-Path $trackedWorkRoot 'generated-only')
+    )) {
+        if (Test-Path -LiteralPath $excludedPath) {
+            Write-Fail -TestName $trackedSeedName -Reason ("non-indexed seed content was copied: {0}" -f $excludedPath)
+        }
+    }
+
+    Set-Content -LiteralPath (Join-Path $externalSeedRoot 'tracked.txt') -Value 'external tracked' -Encoding ASCII
+    Set-Content -LiteralPath (Join-Path $externalSeedRoot 'untracked.txt') -Value 'external untracked' -Encoding ASCII
+    $externalWorkRoot = Join-Path $trackedSeedRepo 'external-work'
+    New-Item -ItemType Directory -Path $externalWorkRoot -Force | Out-Null
+    Copy-EphemeralSmokeSeedTree -SeedFixtureRoot $externalSeedRoot -WorkInstallRoot $externalWorkRoot
+    if (-not (Test-Path -LiteralPath (Join-Path $externalWorkRoot 'tracked.txt')) -or
+        -not (Test-Path -LiteralPath (Join-Path $externalWorkRoot 'untracked.txt'))) {
+        Write-Fail -TestName $trackedSeedName -Reason 'non-fixture source did not retain full-tree copy behavior'
+    }
+}
+catch {
+    Write-Fail -TestName $trackedSeedName -Reason $_.Exception.Message
+}
+finally {
+    $script:EphemeralSmokeRepoRoot = $previousSmokeRepoRoot
+    if (Test-Path -LiteralPath $trackedSeedRepo) {
+        Remove-Item -LiteralPath $trackedSeedRepo -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+Write-Pass -TestName $trackedSeedName
+
 # --- Should_Reject_UnsafeEphemeralFixturePaths ---
 $unsafePathsName = 'Should_Reject_UnsafeEphemeralFixturePaths'
 $unsafePathCases = @(
@@ -183,9 +299,15 @@ if ([string]::IsNullOrWhiteSpace($userProfile)) {
 
 $cursorProfilePath = Join-Path $userProfile $script:ToolkitConstant.UserCursorProfileRelativePath
 
+# Preserve a pre-existing ignored marker, and remove the marker generated by
+# this test when the shared fixture was clean before the run.
+$markerPath = Join-Path $fixtureInstallRoot $script:ToolkitConstant.SmokeHarnessMarkerFileName
+$markerWasPresent = Test-Path -LiteralPath $markerPath
+$previousMarkerBytes = if ($markerWasPresent) { [System.IO.File]::ReadAllBytes($markerPath) } else { $null }
+try {
 # --- Should_UseFixtureInstallRoot_When_SmokeHarnessRuns ---
 $useFixtureName = 'Should_UseFixtureInstallRoot_When_SmokeHarnessRuns'
-$useFixture = Invoke-ScriptCapture -ScriptPath $harnessScript
+$useFixture = Invoke-ScriptCapture -ScriptPath $harnessScript -ArgumentList @('-SkipAdapterSmoke')
 if ($useFixture.ExitCode -ne 0) {
     Write-Fail -TestName $useFixtureName -Reason ("harness exit {0}: {1}" -f $useFixture.ExitCode, $useFixture.Output.Trim())
 }
@@ -195,7 +317,6 @@ if ($useFixture.Output -notmatch [regex]::Escape($expectedFixtureFull) -and $use
     Write-Fail -TestName $useFixtureName -Reason ("expected fixture InstallRoot in output: {0}" -f $useFixture.Output.Trim())
 }
 
-$markerPath = Join-Path $fixtureInstallRoot $script:ToolkitConstant.SmokeHarnessMarkerFileName
 if (-not (Test-Path -LiteralPath $markerPath)) {
     Write-Fail -TestName $useFixtureName -Reason ("expected smoke marker under fixture: {0}" -f $markerPath)
 }
@@ -205,7 +326,7 @@ Write-Pass -TestName $useFixtureName
 # --- Should_NotWriteUserCursorProfile_When_SmokeHarnessRuns ---
 $noHomeName = 'Should_NotWriteUserCursorProfile_When_SmokeHarnessRuns'
 $cursorBefore = Get-DirectorySnapshotFingerprint -Path $cursorProfilePath
-$noHome = Invoke-ScriptCapture -ScriptPath $harnessScript
+$noHome = Invoke-ScriptCapture -ScriptPath $harnessScript -ArgumentList @('-SkipAdapterSmoke')
 if ($noHome.ExitCode -ne 0) {
     Write-Fail -TestName $noHomeName -Reason ("harness exit {0}: {1}" -f $noHome.ExitCode, $noHome.Output.Trim())
 }
@@ -220,6 +341,15 @@ if ($noHome.Output -notmatch 'unchanged' -and $noHome.Output -notmatch '\.cursor
 }
 
 Write-Pass -TestName $noHomeName
+}
+finally {
+    if ($markerWasPresent) {
+        [System.IO.File]::WriteAllBytes($markerPath, $previousMarkerBytes)
+    }
+    elseif (Test-Path -LiteralPath $markerPath) {
+        Remove-Item -LiteralPath $markerPath -Force -ErrorAction SilentlyContinue
+    }
+}
 
 # --- Should_Fail_When_InstallRootIsUserProfileWithoutAllow ---
 $failHomeName = 'Should_Fail_When_InstallRootIsUserProfileWithoutAllow'

@@ -4,6 +4,11 @@ Seed directory used by Codex sync/smoke as a safe `InstallRoot`.
 Paths resolve under the toolkit repo — never under `%USERPROFILE%` unless
 `-AllowUserHome` is set explicitly.
 
+The bundled `plugin/skills` snapshot is intentionally absent from the seed;
+sync tests publish it from the current source. The keyed-uninstall check clears
+its representative published agent before sync and verifies that sync creates
+it again.
+
 ## Layout (skeleton)
 
 ```

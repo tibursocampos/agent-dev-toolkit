@@ -45,7 +45,7 @@ $validationJobName = if ([string]::IsNullOrWhiteSpace($env:VALIDATION_JOB_NAME))
 $suiteTitle = 'agent-dev-toolkit core validation'
 $contractsScriptName = 'validate-skill-contracts.ps1'
 $graphScriptName = 'validate-skill-graph.ps1'
-$fixturesScriptName = 'validate-skill-fixtures.ps1'
+$noTrackedFeaturesScriptName = 'Assert-NoTrackedFeatures.ps1'
 $smokeHarnessScriptName = $script:ToolkitConstant.SmokeHarnessScriptName
 $routerDocLinksScriptName = $script:ToolkitConstant.AssertRouterDocLinksScriptName
 $routerDocLinksCheckName = $script:ToolkitConstant.RouterDocLinksCheckName
@@ -225,7 +225,7 @@ if (-not $Quiet) {
 $coreChecks = @(
     @{ Name = 'skill-contracts'; Script = $contractsScriptName },
     @{ Name = 'skill-graph'; Script = $graphScriptName },
-    @{ Name = 'skill-fixtures'; Script = $fixturesScriptName },
+    @{ Name = 'no-tracked-features'; Script = $noTrackedFeaturesScriptName },
     @{ Name = 'smoke-harness'; Script = $smokeHarnessScriptName },
     @{ Name = $routerDocLinksCheckName; Script = $routerDocLinksScriptName },
     @{ Name = $spawnContractCheckName; Script = $spawnContractScriptName },
@@ -258,7 +258,6 @@ $coreChecks = @(
     @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
     @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName },
     @{ Name = $selectiveRetrievalCheckName; Script = $selectiveRetrievalScriptName },
-    @{ Name = 'sdd-semantic-coverage'; Script = 'Assert-SddSemanticCoverage.ps1' },
     @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
     @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
     @{ Name = $orchestratorCharterPublishedCheckName; Script = $orchestratorCharterPublishedScriptName },

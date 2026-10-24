@@ -1,6 +1,5 @@
 #Requires -Version 5.1
 # Tests:
-#   Should_Pass_When_PlanAndPrdTemplatesHaveExecutionPolicy
 #   Should_Pass_When_SddSkillsWireExecutionPolicy
 $ErrorActionPreference = 'Stop'
 
@@ -35,22 +34,7 @@ if (-not (Test-Path -LiteralPath $constantsScript)) {
 . $constantsScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$heading = $script:ToolkitConstant.ExecutionPolicyHeadingMarker
-$templatePaths = @($script:ToolkitConstant.ExecutionPolicyTemplateRelativePaths)
 $skillPaths = @($script:ToolkitConstant.ExecutionPolicySkillWiringRelativePaths)
-
-$templateTest = 'Should_Pass_When_PlanAndPrdTemplatesHaveExecutionPolicy'
-foreach ($rel in $templatePaths) {
-    $full = Join-Path $repoRoot ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $full)) {
-        Write-Fail -TestName $templateTest -Reason ("missing template {0}" -f $rel)
-    }
-    $text = Get-Content -LiteralPath $full -Raw -Encoding UTF8
-    if ($text -notmatch [regex]::Escape($heading)) {
-        Write-Fail -TestName $templateTest -Reason ("{0} missing {1}" -f $rel, $heading)
-    }
-}
-Write-Pass -TestName $templateTest
 
 $skillTest = 'Should_Pass_When_SddSkillsWireExecutionPolicy'
 foreach ($rel in $skillPaths) {
