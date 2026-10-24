@@ -21,6 +21,8 @@ Use `{{SDD_ROOT}}/...` on macOS/Linux when expanding paths in tools.
 
 **Co-location:** `features/` and `memory-bank/` always share the same storage root (`$Cwd` or `<classic.path>`). Never place `memory-bank/` under `features/NNN-slug/`. Contract details: `MEMORY-BANK.md`.
 
+**Read/resume behavior:** `storage_mode` and `classic.path` select the feature root. `features_versioned` controls Git tracking only; it does not select a different root or make ignored files unavailable. Resolve the exact canonical path by direct filesystem access, not `git ls-files` or a listing that excludes ignored files. In global mode, a same-named repository-local artifact is a decoy, and the consumer repository `.gitignore` is not modified.
+
 **New writes (Classic SDD / preferred Backlog Refine / Orchestrated Delivery):** only under `features/NNN-slug/` (never loose `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, `PRD/`, or `PLAN/` at repo root).
 
 **No legacy root flow:** do **not** read, write, glob, or continue develop from repo-root / global-flat `PRD/` or `PLAN/`. Those patterns remain in `.gitignore` only as a safety net against accidental files.
@@ -254,6 +256,7 @@ When the task must choose or resolve repository/global storage, read [`STORAGE-R
 
 ## Integration
 
+- `ARTIFACT-OWNERSHIP.md` is a navigation/ownership index; specialized contracts below remain normative.
 - Pipeline guards: `_shared/sdd-artifacts/PIPELINE.md`
 - Session gates: `_shared/sdd-artifacts/SESSION.md`
 - Memory Bank Gate: `_shared/sdd-artifacts/MEMORY-BANK.md`

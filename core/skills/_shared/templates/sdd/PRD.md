@@ -7,6 +7,7 @@
 | **Versão** | 1 |
 | **Data** | AAAA-MM-DD |
 | **Status** | Pronto para planejamento |
+| **Aprovação do conteúdo** | [preencher somente após confirmação explícita: operador e data] |
 | **Prioridade** | Alta / Média / Baixa |
 | **Complexidade** | Baixa / Média / Alta |
 | **Repositório** | [nome na raiz do git] |

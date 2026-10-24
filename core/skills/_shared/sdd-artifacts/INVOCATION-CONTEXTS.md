@@ -36,12 +36,13 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 
 ## Detection (deterministic)
 
-Resolve context **once** at skill start (after gate check). Prefer explicit signal over inference:
+Resolve context **once** at skill start (after gate check). Prefer the explicit current invocation/handoff over execution-shape defaults:
 
-1. **Explicit** — handoff / Task prompt / CONTINUITY / parent receipt sets `invocation_context: orchestrated` or `direct`.
-2. **Spawn child** — running as Task subagent with a parent orchestrate skill → `orchestrated`.
-3. **Orchestrate skill body** — any `orchestrate-*` run → `orchestrated`.
-4. **Else** — `direct`.
+1. **Explicit current invocation** — a `invocation_context: direct|orchestrated` field supplied by the current caller/handoff wins and is recorded once for this skill run.
+2. **Orchestrated execution** — absent an explicit field, a Task child whose current parent handoff identifies an `orchestrate-*` stage, or execution of an `orchestrate-*` skill itself, resolves to `orchestrated`.
+3. **Default** — otherwise resolve to `direct`.
+
+Do not infer or change the resolved context from the presence, absence, freshness, completeness, path proximity, or contents of FEATURE, STORY, CONTINUITY, REFINE/tasks, Memory Bank, PRD, PLAN, or any other sibling artifact. A sibling may be used only when the active skill contract authorizes it as an input and its relationship/authority is explicit; it does not set invocation context. Host preference such as `orchestrator_mode` is not an invocation signal. Resolve once at skill start and keep that context for the run; a conflicting sibling is reported as a conflict, not used as a fallback.
 
 Record the resolved id in the session report / child receipt when one is produced (en-US field name: `invocation_context`).
 
@@ -66,6 +67,7 @@ Record the resolved id in the session report / child receipt when one is produce
 | CONTINUITY | Do **not** assume a parent CONTINUITY owner; update CONTINUITY only when this skill's contract says so |
 | Scope | Full skill Process for the invoked skill; do **not** silently start sibling orchestrate stages |
 | Handoff | After one skill outcome, stop; suggest next slash invoke (portable path) |
+| Bounded authorization | An explicit operator authorization in the current invocation may cover a finite, named sequence of eligible direct steps. Persist its source, scope, and limits in the PLAN when it must survive sessions; it does not waive dependencies, per-step `step_confirmed`, validation, or close gates. |
 
 ### `orchestrated`
 

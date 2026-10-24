@@ -17,6 +17,7 @@
 | Field | Value |
 |-------|--------|
 | **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `always`) |
+| **Bounded authorization** | `none` unless the operator explicitly authorizes a finite scope; when present, record source, actions, step IDs/range, and limits |
 | **Parent role** | Orchestrator only — delegate implementation to specialists |
 | **Child validation** | After file changes: child runs build + tests; reports `{ build, tests, summary }` |
 | **Handoff** | Scoped paths + receipt per `SPAWN.md` — no full PLAN/PRD dump into child prompts |
@@ -196,14 +197,38 @@ No duration. Do not paste a new method body. A contract signature and a short ex
 
 ## Test strategy
 
-Use a mixed strategy by default: run unit, contract, integration, or end-to-end
-checks in the implementation step when they provide timely, distinct feedback.
-The `Required` column identifies checks that gate that step. A deferred check is
-not a passing result and cannot satisfy or approve an intermediate step; record
-it as pending and assign it to the final test-consolidation step for this US.
-That final step reviews tests created or changed across the US, maps each
-applicable acceptance criterion to tests and recorded evidence, and runs the
-required consolidation checks before the US/PLAN DoD can close.
+BDD describes observable behavior and acceptance; it does not require one
+automated test per scenario or a new test in every PLAN step. TDD is a selective
+implementation technique: use test-first feedback when it gives timely,
+distinct evidence for the changed behavior, risk, or boundary. Choose checks
+from behavior and existing coverage, not from a blanket test-per-step rule.
+
+Before implementation, record one decision per behavior (or group behaviors
+only when they share the same existing evidence and proof boundary). The matrix
+records what coverage already exists, the primary proof boundary, disposition,
+owner, and when a check will be created or run. Link any additional proof to a
+distinct behavior or explain the composition value it adds.
+
+| REQ/CA and observable behavior | Existing coverage/evidence (or none) | Primary proof boundary | Disposition | Additional proof and distinct behavior/composition value | Owner | Create/execute checkpoint | Required/conditional |
+|-------------------------------|------------------------------------|------------------------|-------------|-----------------------------------------------------------|-------|---------------------------|----------------------|
+| {{REQ_CA_BEHAVIOR}} | {{COVERAGE_OR_NONE}} | {{PRIMARY_BOUNDARY}} | reuse existing \| add/change check \| defer with reason, limit/dependency \| no new check (not applicable, with reason) | {{NONE_OR_DISTINCT_VALUE}} | {{ROLE}} | {{STEP_OR_CHECKPOINT}} | required \| conditional |
+
+Use the disposition that matches the evidence: reuse when current coverage
+proves the behavior; add/change a check when a distinct proof is missing; defer
+only with a reason, owner, checkpoint, limit, and dependency; or record why another automated check is
+not applicable. A deferred check remains pending and cannot satisfy or approve
+an intermediate step. It may be assigned to the final test-consolidation step
+only when it does not gate that step's acceptance. The final step reviews tests
+created or changed across the US, maps each applicable acceptance criterion to tests and recorded evidence, and runs required consolidation checks before the US/PLAN DoD can close.
+
+The `Required` column identifies checks that gate that step. For a
+service-to-handler-to-consumer chain, choose one primary boundary for a repeated
+validation. Cover a lower layer when it has its own behavior, such as
+transformation, error mapping, or validation; test composition when the combined
+path adds distinct integration evidence. Follow the consumer's established
+runner, libraries, doubles/mocks, and test structure. Do not add a production
+interface in test code, a runner, a library, or broad restyling without a
+justified in-scope consumer.
 
 Consolidation may remove a test only when its behavior is covered elsewhere and
 it provides no unique acceptance, path, boundary, or failure-mode coverage.
