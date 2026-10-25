@@ -57,6 +57,7 @@ $guardrailsRelative = 'core/policy/guardrails.md'
 $executionDisplayRelative = 'core/skills/sdd-develop/references/execution-display.md'
 $orchestrateDevelopRelative = 'core/skills/orchestrate-develop/SKILL.md'
 $orchestrateMustNotRelative = 'core/skills/orchestrate-develop/references/must-not.md'
+$orchestrateStepQueueRelative = 'core/skills/orchestrate-develop/references/step-queue-spawn.md'
 $sddDevelopRelative = 'core/skills/sdd-develop/SKILL.md'
 $sddSpecRelative = 'core/skills/sdd-spec/SKILL.md'
 $sddPlanRelative = 'core/skills/sdd-plan/SKILL.md'
@@ -102,6 +103,8 @@ $syncAgent = Get-RepoText -RelativePath 'scripts/sync-agent.ps1'
 $guardrails = Get-RepoText -RelativePath $guardrailsRelative
 $executionDisplay = Get-RepoText -RelativePath $executionDisplayRelative
 $orchestrateDevelop = Get-RepoText -RelativePath $orchestrateDevelopRelative
+$orchestrateStepQueue = Get-RepoText -RelativePath $orchestrateStepQueueRelative
+$orchestrateDevelopContinuity = Get-RepoText -RelativePath 'core/skills/orchestrate-develop/references/continuity-handoff.md'
 $orchestrateMustNot = Get-RepoText -RelativePath $orchestrateMustNotRelative
 $sddDevelop = Get-RepoText -RelativePath $sddDevelopRelative
 $sddSpec = Get-RepoText -RelativePath $sddSpecRelative
@@ -145,7 +148,7 @@ Assert-Includes -TestName $ct13Name -Text $perStoryContracts -Needle 'sole write
 Write-Pass -TestName $ct13Name
 
 # --- Should_ShowO2ProgressAndContinueSeries_WithoutChangingDevelopBoundary ---
-$ct14Name = 'Should_ShowO2ProgressAndContinueSeries_WithoutChangingDevelopBoundary'
+$ct14Name = 'Should_ShowO2AndO3Progress_WithoutChangingDevelopBoundaries'
 Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle 'This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode' -Reason 'the one-step stop is scoped to direct/develop execution'
 Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle 'render and redraw the chat-only live stage table' -Reason 'O2 progress table is required throughout the run'
 Assert-Includes -TestName $ct14Name -Text $orchestrateDeliver -Needle '{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md' -Reason 'O2 resolves the shared table through the configured toolkit root'
@@ -165,13 +168,67 @@ Assert-Includes -TestName $ct14Name -Text $orchestrateDeliverContinuity -Needle 
 Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle '### orchestrate-deliver (O2)' -Reason 'shared live-table contract includes O2'
 Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle 'repeat the story-cycle rows for each eligible US/TS' -Reason 'O2 table exposes series continuation per story'
 Assert-Includes -TestName $ct14Name -Text $liveStageTable -Needle 'The PLAN progress table stays in the PLAN file.' -Reason 'the implementation progress ledger remains in the PLAN'
-$o3TableIndex = $liveStageTable.IndexOf('### sdd-develop / orchestrate-develop', [System.StringComparison]::Ordinal)
+$o3TableIndex = $liveStageTable.IndexOf('### orchestrate-develop (O3) — PLAN-step progress table', [System.StringComparison]::Ordinal)
 if ($o3TableIndex -lt 0) {
-    Write-Fail -TestName $ct14Name -Reason 'O3 exclusion section is missing from the shared live-table contract'
+    Write-Fail -TestName $ct14Name -Reason 'O3 PLAN-step progress table contract is missing'
 }
-$o3TableSection = $liveStageTable.Substring($o3TableIndex)
-Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Do not render these rows in the operator chat.' -Reason 'O3 remains excluded from the stage table'
+$o3TableSection = $liveStageTable.Substring($o3TableIndex, $liveStageTable.IndexOf('### sdd-develop (direct)', $o3TableIndex, [System.StringComparison]::Ordinal) - $o3TableIndex)
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'exactly one row for every PLAN step' -Reason 'O3 table contains a distinct row for every step'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Never combine multiple steps into a summary row.' -Reason 'O3 does not group consecutive PLAN steps'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'before the first spawn' -Reason 'O3 table is shown before work starts'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'after each child return' -Reason 'O3 table refresh follows returned work'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'before evaluating the next spawn' -Reason 'O3 table refresh precedes queue advancement'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Do not invent streaming' -Reason 'O3 does not invent host progress events'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'one row for every PLAN step' -Reason 'O3 skill requires the complete step table'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'redraw the complete table before evaluating the next spawn' -Reason 'O3 skill enforces refresh before advancement'
+$o3ProgressFixture = Get-RepoText -RelativePath 'scripts/validation/fixtures/o3-progress-table/seven-step-plan-and-projection.md'
+$fixtureProjectionIndex = $o3ProgressFixture.IndexOf('## O3 progress table', [System.StringComparison]::Ordinal)
+if ($fixtureProjectionIndex -lt 0) {
+    Write-Fail -TestName $ct14Name -Reason 'O3 progress-table fixture has no projection section'
+}
+$fixturePlanIds = [regex]::Matches($o3ProgressFixture.Substring(0, $fixtureProjectionIndex), '(?m)^\|\s*(S\d+)\s*\|') | ForEach-Object { $_.Groups[1].Value }
+$fixtureProjectionIds = [regex]::Matches($o3ProgressFixture.Substring($fixtureProjectionIndex), '(?m)^\|\s*(S\d+)\s*\|') | ForEach-Object { $_.Groups[1].Value }
+if (($fixturePlanIds -join ',') -ne ($fixtureProjectionIds -join ',') -or $fixtureProjectionIds.Count -ne 7) {
+    Write-Fail -TestName $ct14Name -Reason 'O3 projection fixture must have exactly one individual row for every PLAN step'
+}
+if (@('S3', 'S4', 'S5', 'S6', 'S7' | Where-Object { $_ -notin $fixtureProjectionIds }).Count -gt 0) {
+    Write-Fail -TestName $ct14Name -Reason 'O3 projection fixture must keep S3-S7 in individual rows'
+}
 Write-Pass -TestName $ct14Name
+
+# --- Should_TrackO3CloseoutSeparately_AndInvalidateStaleEvidence (REQ-003 / CA3) ---
+$ct15Name = 'Should_TrackO3CloseoutSeparately_AndInvalidateStaleEvidence'
+Assert-Includes -TestName $ct15Name -Text $o3TableSection -Needle '### O3 closeout progress' -Reason 'O3 has a distinct closeout progress projection'
+Assert-Includes -TestName $ct15Name -Text $o3TableSection -Needle '| Gate | Status | Owner | Evidence / next action |' -Reason 'closeout rows show status, owner, evidence, and next action'
+Assert-Includes -TestName $ct15Name -Text $o3TableSection -Needle 'after each observable gate result' -Reason 'closeout table refreshes after observable gate results'
+Assert-Includes -TestName $ct15Name -Text $o3TableSection -Needle 'return only affected rows to `PENDING`' -Reason 'later changes invalidate only affected gate evidence'
+Assert-Includes -TestName $ct15Name -Text $o3TableSection -Needle 'chat-only projection' -Reason 'closeout table does not become persistent state'
+Assert-Includes -TestName $ct15Name -Text $orchestrateDevelop -Needle 'separate O3 closeout table' -Reason 'O3 skill requires displaying closeout progress when close is requested'
+Assert-Includes -TestName $ct15Name -Text $orchestrateDevelopContinuity -Needle 'do not persist that table in `CONTINUITY.md`' -Reason 'CONTINUITY remains a handoff summary rather than closeout state'
+$o3CloseoutFixture = Get-RepoText -RelativePath 'scripts/validation/fixtures/o3-closeout/gate-transitions.md'
+Assert-Includes -TestName $ct15Name -Text $o3CloseoutFixture -Needle '## No review changes' -Reason 'fixture covers the no-rerun path'
+Assert-Includes -TestName $ct15Name -Text $o3CloseoutFixture -Needle '| post-review run-tests | SKIPPED |' -Reason 'no-change path records the justified skipped retest'
+Assert-Includes -TestName $ct15Name -Text $o3CloseoutFixture -Needle '## Review changes requested' -Reason 'fixture covers review corrections'
+Assert-Includes -TestName $ct15Name -Text $o3CloseoutFixture -Needle '## Evidence invalidation after change' -Reason 'fixture covers stale evidence after a later change'
+Assert-Includes -TestName $ct15Name -Text $o3CloseoutFixture -Needle '| security review | PENDING |' -Reason 'security stays pending until current-diff evidence exists'
+Write-Pass -TestName $ct15Name
+
+# --- Should_PropagateApprovedDecisions_WithSourceAndScope_WithoutChangingAcceptance (CT18 / REQ-009) ---
+$ct18Name = 'Should_PropagateApprovedDecisions_WithSourceAndScope_WithoutChangingAcceptance'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle '## Approved decisions in handoffs' -Reason 'handoff contract defines the decision envelope'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle '**Source**' -Reason 'decision source is explicit'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle '**Applies to**' -Reason 'decision scope identifies applicable step or acceptance'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle 'Omit decisions that do not apply.' -Reason 'unrelated decisions are not propagated'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle 'return the change to the PLAN owner' -Reason 'material acceptance change returns to its owner'
+Assert-Includes -TestName $ct18Name -Text $orchestrateDevelopContinuity -Needle 'it is not a second authority for requirements or acceptance' -Reason 'CONTINUITY does not override canonical acceptance'
+Assert-Includes -TestName $ct18Name -Text $orchestrateStepQueue -Needle 'include the compact approved-decision envelope' -Reason 'step handoff carries the applicable decision'
+Assert-Includes -TestName $ct18Name -Text $orchestrateStepQueue -Needle 'do not silently extend the child scope' -Reason 'child handoff cannot silently widen acceptance'
+$decisionHandoffFixture = Get-RepoText -RelativePath 'scripts/validation/fixtures/o3-approved-decision-handoff/decision-packets.md'
+Assert-Includes -TestName $ct18Name -Text $decisionHandoffFixture -Needle '## Implementation handoff' -Reason 'fixture covers implementation handoff'
+Assert-Includes -TestName $ct18Name -Text $decisionHandoffFixture -Needle '## Review handoff' -Reason 'fixture covers review handoff'
+Assert-Includes -TestName $ct18Name -Text $decisionHandoffFixture -Needle '## Material acceptance change' -Reason 'fixture covers return to PLAN owner'
+Assert-Includes -TestName $ct18Name -Text $decisionHandoffFixture -Needle '## Decision does not apply' -Reason 'fixture covers omission of unrelated decisions'
+Write-Pass -TestName $ct18Name
 
 # --- Should_NotAskMemoryBankRefresh_When_CommitMessageUnconfirmed (CT1) ---
 $ct1Name = 'Should_NotAskMemoryBankRefresh_When_CommitMessageUnconfirmed'

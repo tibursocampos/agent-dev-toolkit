@@ -209,7 +209,7 @@ if (Test-Path -LiteralPath $manifestPath) {
 }
 if ($Action -eq 'claim' -and $canonicalPlan) {
     $planTextForGate = Get-Content -LiteralPath $planResolved -Raw -Encoding UTF8
-    $planStatus = [regex]::Match($planTextForGate, '(?im)^\|\s*\*\*Status\*\*\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
+    $planStatus = [regex]::Match($planTextForGate, '(?im)^\|\s*(?:\*\*Status\*\*|Status)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
     if ($planStatus -cne 'approved') {
         Write-Error 'plan_not_explicitly_approved: claim creation is blocked until the canonical PLAN Status is exactly approved.'
         exit $exitUsage

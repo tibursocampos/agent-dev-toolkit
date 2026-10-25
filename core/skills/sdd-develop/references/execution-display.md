@@ -24,7 +24,9 @@ The progress table inside the PLAN file stays. Update it in the same edit that c
 
 ## Step ledger at close
 
-When a step closes, show the existing PLAN step ledger for every step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. In the user chat language those headers are Step ID, Passo, Dependências, Peso, Estado, Evidência. Do not replace that ledger with the stage-weight table.
+In direct `sdd-develop`, when a step closes, show the existing PLAN step ledger for every step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. In the user chat language those headers are Step ID, Passo, Dependências, Peso, Estado, Evidência. Do not replace that ledger with the stage-weight table.
+
+For O3, use the `orchestrate-develop (O3) — PLAN-step progress table` in `LIVE-STAGE-TABLE.md`. Render one row for every PLAN step at queue start and redraw the complete projection after each child return and checkpoint reconciliation, before evaluating another spawn. That projection at step close is the O3 operator-facing ledger; do not also dump the raw PLAN ledger or weighted stage table. Track O3 closeout gates separately. Keep the persisted PLAN progress table as the durable state.
 
 Show checklist rows only when applicable to the resolved invocation context. In `direct`, do not read or require `REFINE/tasks.md`; if the invocation explicitly adopted a related checklist, show only its rows for this step. In `orchestrated`, show only the scoped task rows supplied by the O3 parent; missing required rows remain a block/return to O2. When the step is `COMPLETED`, set the step glyph to `☑` and mark applicable rows `- [x]`. Analysis weight is qualitative. It is not effort and not a duration.
 

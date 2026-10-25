@@ -1,6 +1,7 @@
 # PRD: O3 preflight fixture
 
 | **Status** | Ready for planning |
+| **Content approval** | Approved by operator on 2026-10-24 |
 
 Feature `000`.
 FEATURE: `features/000-o3-preflight-fixture/FEATURE.md`

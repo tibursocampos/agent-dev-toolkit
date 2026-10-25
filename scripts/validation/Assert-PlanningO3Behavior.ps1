@@ -141,6 +141,119 @@ try {
     Assert-True ($LASTEXITCODE -eq 0 -and $allow -match 'preflight: ALLOW' -and $allow -match 'features_versioned=false') 'Consistent approved artifacts must pass and accurately report local-only storage.'
     Write-Host 'O3ArtifactPreflight: PASS (consistent artifact set and local-only report)'
 
+    $planText = Get-Content -LiteralPath $planPath -Raw -Encoding UTF8
+    $plainStatusPlan = $planText.Replace('| **Status** | approved |','| Status | approved |')
+    [IO.File]::WriteAllText($planPath,$plainStatusPlan,(New-Object Text.UTF8Encoding $false))
+    $plainStatusPreflight = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $plainStatusPreflight -match 'preflight: ALLOW') 'Plain PLAN Status label must pass the O3 preflight.'
+    $sessionGate = Join-Path $repoRoot 'scripts\session\Invoke-DevelopSessionGate.ps1'
+    $claimGate = Join-Path $repoRoot 'scripts\ledger\Invoke-PlanLedgerClaim.ps1'
+    $powerShellExe = if ($PSVersionTable.PSEdition -eq 'Core') { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'powershell.exe' }
+    $savedErrorPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $plainStatusSession = & $powerShellExe -NoProfile -File $sessionGate -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd -Step 1 -Action ensure 2>&1 | Out-String
+    $plainStatusSessionExit = $LASTEXITCODE
+    $plainStatusClaim = & $powerShellExe -NoProfile -File $claimGate -Action claim -PlanPath $planPath -Step 1 -Holder 'plain-status-test' -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    $plainStatusClaimExit = $LASTEXITCODE
+    $ErrorActionPreference = $savedErrorPreference
+    Assert-True ($plainStatusSessionExit -eq 0 -and $plainStatusSession -notmatch 'plan_not_explicitly_approved') 'Session gate must accept the same plain approved PLAN Status label.'
+    Assert-True ($plainStatusClaimExit -eq 0 -and $plainStatusClaim -notmatch 'plan_not_explicitly_approved') 'PLAN ledger claim must accept the same plain approved PLAN Status label.'
+    Write-Host 'O3ArtifactPreflight: PASS (plain Status label accepted consistently by preflight, session, and claim gates)'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+
+    $continuityBeforeEnglish = Get-Content -LiteralPath (Join-Path $tempFeature 'CONTINUITY.md') -Raw -Encoding UTF8
+    $englishPlan = $planText.Replace('**Progresso**','**Progress**').Replace('## Progresso da implementação','## Implementation progress')
+    [IO.File]::WriteAllText($planPath,$englishPlan,(New-Object Text.UTF8Encoding $false))
+    $continuityEnglish = $continuityBeforeEnglish
+    $continuityEnglish = $continuityEnglish.Replace('## Estado atual do O3','## Current O3 state').Replace('Progresso:','Progress:').Replace('Concluídos:','Completed:').Replace('Próximo:','Next:')
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$continuityEnglish,(New-Object Text.UTF8Encoding $false))
+    $englishArtifacts = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $englishArtifacts -match 'preflight: ALLOW') 'Equivalent English PLAN progress and CONTINUITY fields must pass the O3 preflight.'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$continuityBeforeEnglish,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (English and Portuguese progress contracts accepted equivalently)'
+
+    $featurePath = Join-Path $tempFeature 'FEATURE.md'
+    $featureText = Get-Content -LiteralPath $featurePath -Raw -Encoding UTF8
+    $prdPath = Join-Path $prdDir '000_o3_preflight.md'
+    $prdFixtureText = Get-Content -LiteralPath $prdPath -Raw -Encoding UTF8
+    $refinePath = Join-Path $refineDir 'tasks.md'
+    $refineOriginal = Get-Content -LiteralPath $refinePath -Raw -Encoding UTF8
+    $continuityFixtureText = Get-Content -LiteralPath (Join-Path $tempFeature 'CONTINUITY.md') -Raw -Encoding UTF8
+    $canonicalFeatureId = Split-Path $tempFeature -Leaf
+    $mismatchedFeatureId = $canonicalFeatureId -replace '^000-','000-other-'
+    [IO.File]::WriteAllText($featurePath,$featureText.Replace('| **Id** | `000` |',('| **Id** | `{0}` |' -f $canonicalFeatureId)),(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($prdPath,$prdFixtureText.Replace('Feature `000`',('Feature `{0}`' -f $canonicalFeatureId)),(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($refinePath,$refineOriginal.Replace('Feature `000`',('Feature `{0}`' -f $canonicalFeatureId)),(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$continuityFixtureText.Replace('Feature `000`',('Feature `{0}`' -f $canonicalFeatureId)),(New-Object Text.UTF8Encoding $false))
+    $canonicalFeatureId = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) { Write-Host $canonicalFeatureId }
+    Assert-True ($LASTEXITCODE -eq 0 -and $canonicalFeatureId -match 'preflight: ALLOW') 'Canonical NNN-slug FEATURE Id matching the feature folder must pass.'
+    [IO.File]::WriteAllText($featurePath,$featureText.Replace('| **Id** | `000` |',('| **Id** | `{0}` |' -f $mismatchedFeatureId)),(New-Object Text.UTF8Encoding $false))
+    $wrongFeatureSlug = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $wrongFeatureSlug -match 'feature_identity_unverifiable') 'Canonical FEATURE Id with a slug differing from the folder must remain blocked.'
+    [IO.File]::WriteAllText($featurePath,$featureText.Replace('| **Id** | `000` |','| **Id** | `001` |'),(New-Object Text.UTF8Encoding $false))
+    $wrongLegacyFeatureId = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $wrongLegacyFeatureId -match 'feature_identity_unverifiable') 'Legacy numeric FEATURE Id differing from the folder prefix must remain blocked.'
+    [IO.File]::WriteAllText($featurePath,$featureText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($prdPath,$prdFixtureText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($refinePath,$refineOriginal,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$continuityFixtureText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (legacy numeric and canonical NNN-slug FEATURE identities; mismatched identities blocked)'
+
+    [IO.File]::WriteAllText($planPath,$planText.Replace('### STEP ','### PASSO '),(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($refinePath,$refineOriginal.Replace('### STEP ','### PASSO '),(New-Object Text.UTF8Encoding $false))
+    $portugueseHeadings = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $portugueseHeadings -match 'preflight: ALLOW') 'Portuguese PASSO headings in PLAN and REFINE must pass without bypassing dependency/state checks.'
+    $malformedHeadingPlan = $planText.Replace('### STEP 1 —','### STEP 1 -').Replace('### STEP 2 —','### PASSO 2 -')
+    [IO.File]::WriteAllText($planPath,$malformedHeadingPlan,(New-Object Text.UTF8Encoding $false))
+    $malformedHeadingBlock = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    $malformedHeadingExit = $LASTEXITCODE
+    Assert-True ($malformedHeadingPlan -match '(?m)^### STEP 1 -' -and $malformedHeadingPlan -match '(?m)^### PASSO 2 -') 'Negative-control PLAN must include malformed English and Portuguese step headings.'
+    Assert-True ($malformedHeadingExit -eq 2 -and $malformedHeadingBlock -match 'plan_steps_missing') 'PLAN with malformed STEP and PASSO headings must block with plan_steps_missing.'
+    Write-Host 'O3ArtifactPreflight: PASS (malformed STEP and PASSO headings blocked as plan_steps_missing)'
+    Assert-True ($malformedHeadingBlock -notmatch 'plan_progress_total_mismatch') 'Missing parsed step headings must not create a dependent progress-total diagnostic.'
+    Write-Host 'O3ArtifactPreflight: PASS (dependent progress-total cascade excluded)'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($refinePath,$refineOriginal,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (STEP and PASSO headings accepted in PLAN and REFINE)'
+
+    # Localized aliases are deliberately narrow. Keep canonical step states in
+    # English and make unsupported state values fail with an actionable issue.
+    $unsupportedStatePlan = $planText.Replace('| `PENDING` |','| `CONCLUÍDO` |')
+    [IO.File]::WriteAllText($planPath,$unsupportedStatePlan,(New-Object Text.UTF8Encoding $false))
+    $unsupportedState = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $unsupportedState -match 'plan_step_state_invalid:S1' -and $unsupportedState -match 'field=.*Status' -and $unsupportedState -match 'observed=.*CONCLUÍDO' -and $unsupportedState -match 'expected=.*COMPLETED.*PENDING.*IN_PROGRESS.*BLOCKED.*SKIPPED' -and $unsupportedState -match 'next=') 'Unsupported localized step-state values must be rejected with field, observed value, expected canonical states, and next action.'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (unsupported localized step state rejected with actionable canonical-state guidance)'
+
+    $failedStatePlan = $planText.Replace('| S1 | Reconcile the saved O3 artifacts | none | Medium | `PENDING` | — |','| S1 | Reconcile the saved O3 artifacts | none | Medium | `FAILED` | failure |')
+    [IO.File]::WriteAllText($planPath,$failedStatePlan,(New-Object Text.UTF8Encoding $false))
+    $failedState = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $failedState -match 'plan_step_state_invalid:S1') 'FAILED must be rejected because it is not a canonical PLAN lifecycle token.'
+    $skippedPlan = $planText.Replace('| S1 | Reconcile the saved O3 artifacts | none | Medium | `PENDING` | — |','| S1 | Reconcile the saved O3 artifacts | none | Medium | `SKIPPED` | approved omission reason |')
+    [IO.File]::WriteAllText($planPath,$skippedPlan,(New-Object Text.UTF8Encoding $false))
+    $skippedContinuity = Get-Content -LiteralPath (Join-Path $tempFeature 'CONTINUITY.md') -Raw -Encoding UTF8
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$skippedContinuity.Replace('Próximo: S1 — Reconcile the saved O3 artifacts','Próximo: none'),(New-Object Text.UTF8Encoding $false))
+    $skippedStep = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $skippedStep -match 'preflight: ALLOW' -and $skippedStep -match 'completed=0') 'SKIPPED must be preserved as a distinct non-completed state and must not unlock its dependent step.'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $tempFeature 'CONTINUITY.md'),$continuityFixtureText,(New-Object Text.UTF8Encoding $false))
+
+    $storyDocPath = Join-Path $storyRoot 'STORY.md'
+    $storyDocOriginal = Get-Content -LiteralPath $storyDocPath -Raw -Encoding UTF8
+    $independentPlan = $planText.Replace('| **Status** | approved |','| **Status** | draft |').Replace('| **Progresso** | 0/2 |','| **Progresso** | 0/3 |')
+    [IO.File]::WriteAllText($planPath,$independentPlan,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($storyDocPath,$storyDocOriginal.Replace('PLAN_000_o3_preflight.md','PLAN_999_o3_preflight.md'),(New-Object Text.UTF8Encoding $false))
+    $independentIssues = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $independentIssues -match 'preflight: BLOCK - errors=3' -and $independentIssues -match 'plan_not_explicitly_approved' -and $independentIssues -match 'plan_progress_total_mismatch' -and $independentIssues -match 'story_prd_plan_navigation_mismatch') 'Independent approval, progress, and navigation issues must appear together while preflight blocks.'
+    Assert-True ($independentIssues -match 'artifact=.*; field=.*; observed=.*; expected=.*; owner=.*; next=') 'Every aggregated issue must expose artifact, field, observed, expected, owner, and next action.'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($storyDocPath,$storyDocOriginal,(New-Object Text.UTF8Encoding $false))
+    $revalidated = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $revalidated -match 'preflight: ALLOW') 'After repairing all reported issues, the complete preflight set must be rerun and pass.'
+    Write-Host 'O3ArtifactPreflight: PASS (independent issues aggregated, blocker retained, full revalidation allowed)'
+
     $mismatchedPlan = Join-Path $planDir 'PLAN_001_o3_preflight.md'
     Copy-Item $planPath $mismatchedPlan
     $planIdentityDrift = & $preflightPath -FeatureRoot $tempFeature -PlanPath $mismatchedPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
@@ -222,7 +335,8 @@ try {
     $ErrorActionPreference = $savedErrorPreference
     Write-Host 'O3ArtifactPreflight: PASS (global draft blocked by preflight, session, and claim)'
 
-    [IO.File]::WriteAllText($globalPlan,$globalPlanText.Replace('| **Progresso** | 0/2 |','| **Progresso** | 2/2 |').Replace('| `PENDING` |','| `COMPLETED` |'),(New-Object Text.UTF8Encoding $false))
+    $globalPlanText = $globalPlanText.Replace('| **Implementation status** | IN_PROGRESS |','| **Implementation status** | COMPLETED |').Replace('| **Progresso** | 0/2 |','| **Progresso** | 2/2 |').Replace('| `PENDING` |','| `COMPLETED` |')
+    [IO.File]::WriteAllText($globalPlan,$globalPlanText,(New-Object Text.UTF8Encoding $false))
     $globalRefinePath = Join-Path $globalRefineDir 'tasks.md'
     $globalRefineText = Get-Content -LiteralPath $globalRefinePath -Raw -Encoding UTF8
     [IO.File]::WriteAllText($globalRefinePath,$globalRefineText.Replace('☐ `PENDING`','☑ `COMPLETED`'),(New-Object Text.UTF8Encoding $false))
@@ -233,9 +347,80 @@ try {
     $globalContinuityText = Get-Content -LiteralPath $globalContinuityPath -Raw -Encoding UTF8
     $globalContinuityText = $globalContinuityText.Replace('Progresso: 0/2','Progresso: 2/2').Replace('Concluídos: none','Concluídos: S1, S2').Replace('Próximo: S1 — Reconcile the saved O3 artifacts','Próximo: none')
     [IO.File]::WriteAllText($globalContinuityPath,$globalContinuityText,(New-Object Text.UTF8Encoding $false))
+    $skippedCompletionPlan = $globalPlanText.Replace('| S1 | Reconcile the saved O3 artifacts | none | Medium | `COMPLETED` | — |','| S1 | Reconcile the saved O3 artifacts | none | Medium | `SKIPPED` | approved omission reason |').Replace('| **Progresso** | 2/2 |','| **Progresso** | 1/2 |')
+    [IO.File]::WriteAllText($globalPlan,$skippedCompletionPlan,(New-Object Text.UTF8Encoding $false))
+    $skippedCompletion = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $skippedCompletion -match 'terminal_transition_plan_not_closed') 'A skipped PLAN step must never satisfy overall PLAN closure or authorize the PRD transition.'
+    [IO.File]::WriteAllText($globalPlan,$globalPlanText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (SKIPPED remains distinct and prevents terminal closure)'
     $stalePrd = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
     Assert-True ($LASTEXITCODE -eq 2 -and $stalePrd -match 'completed_plan_prd_status_mismatch') 'Completed PLAN with a planning-ready PRD status must be blocked.'
     Write-Host 'O3ArtifactPreflight: PASS (completed PLAN requires Implementado/Implemented PRD status)'
+
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | [pending] |'),(New-Object Text.UTF8Encoding $false))
+    $missingApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $missingApproval -match 'terminal_transition_content_approval_missing') 'Transition mode must reject a missing persisted PRD content approval.'
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | [pending] |','| **Content approval** | Approved by operator on 2026-10-24 |'),(New-Object Text.UTF8Encoding $false))
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    $transitionReady = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $transitionReady -match 'preflight: TRANSITION_READY' -and $transitionReady -match 'source=Ready for planning; target=Implemented' -and $transitionReady -match 'no files changed') 'Authorized owner transition must report only the fixed localized destination without writing files.'
+    $negatedApprovalText = $globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | Not approved by operator on 2026-10-24 |')
+    [IO.File]::WriteAllText($globalPrdPath,$negatedApprovalText,(New-Object Text.UTF8Encoding $false))
+    $negatedTransitionApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $negatedTransitionApproval -match 'terminal_transition_content_approval_missing') 'Negated English approval text must not authorize the PRD transition.'
+    $revokedTransitionText = $globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | Approved by operator on 2026-10-24, but later revoked |')
+    [IO.File]::WriteAllText($globalPrdPath,$revokedTransitionText,(New-Object Text.UTF8Encoding $false))
+    $revokedTransitionApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $revokedTransitionApproval -match 'terminal_transition_content_approval_missing') 'A revoked approval record must not authorize the PRD transition.'
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (authorized PRD transition preconditions are narrow and read-only)'
+
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    $localizedPrdText = $globalPrdText.Replace('| **Status** | Ready for planning |','| **Status** | Pronto para planejamento |').Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Aprovação do conteúdo** | Aprovado pelo operador em 2026-10-24 |')
+    [IO.File]::WriteAllText($globalPrdPath,$localizedPrdText,(New-Object Text.UTF8Encoding $false))
+    $localizedTransitionReady = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $localizedTransitionReady -match 'preflight: TRANSITION_READY' -and $localizedTransitionReady -match 'source=Pronto para planejamento; target=Implementado' -and $localizedTransitionReady -match 'no files changed') ("Supported Portuguese PRD status, approval label, and approval value must produce the same transition decision as the English pair. Output: $localizedTransitionReady")
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText,(New-Object Text.UTF8Encoding $false))
+    $unsupportedPrdText = $globalPrdText.Replace('| **Status** | Ready for planning |','| **Status** | Em andamento |')
+    [IO.File]::WriteAllText($globalPrdPath,$unsupportedPrdText,(New-Object Text.UTF8Encoding $false))
+    $unsupportedPrdStatus = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $unsupportedPrdStatus -match 'terminal_transition_source_invalid' -and $unsupportedPrdStatus -match 'field=.*Status' -and $unsupportedPrdStatus -match 'observed=.*Em andamento' -and $unsupportedPrdStatus -match 'expected=.*Pronto para planejamento or Ready for planning' -and $unsupportedPrdStatus -match 'next=') 'Unsupported localized PRD status must be rejected with field, observed value, expected forms, and next action.'
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (paired English/Portuguese transition decision; unsupported localized PRD status rejected actionably)'
+
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Status** | Ready for planning |','| **Status** | Implemented |'),(New-Object Text.UTF8Encoding $false))
+    $postTransition = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $postTransition -match 'preflight: ALLOW' -and $postTransition -match 'completed=2') 'Standard preflight must accept the coherent terminal state after PRD transition.'
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Status** | Implemented |','| **Status** | Implementado |'),(New-Object Text.UTF8Encoding $false))
+    $localizedPostTransition = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $localizedPostTransition -match 'preflight: ALLOW' -and $localizedPostTransition -match 'completed=2') 'Supported Portuguese terminal PRD status must produce the same allow decision as Implemented.'
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText,(New-Object Text.UTF8Encoding $false))
+    $terminalNegatedText = $globalPrdText.Replace('| **Status** | Ready for planning |','| **Status** | Implemented |').Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | Approved but not approved by operator |')
+    [IO.File]::WriteAllText($globalPrdPath,$terminalNegatedText,(New-Object Text.UTF8Encoding $false))
+    $terminalNegatedApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $terminalNegatedApproval -match 'completed_plan_content_approval_missing') 'A positive approval token followed by a negation must not satisfy the terminal approval invariant.'
+    $terminalRevokedText = $globalPrdText.Replace('| **Status** | Ready for planning |','| **Status** | Implemented |').Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | Approved by operator on 2026-10-24, but later revoked |')
+    [IO.File]::WriteAllText($globalPrdPath,$terminalRevokedText,(New-Object Text.UTF8Encoding $false))
+    $terminalRevokedApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $terminalRevokedApproval -match 'completed_plan_content_approval_missing') 'A revoked approval record must not satisfy the terminal approval invariant.'
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText,(New-Object Text.UTF8Encoding $false))
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | [pending] |'),(New-Object Text.UTF8Encoding $false))
+    $terminalApprovalMissing = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $terminalApprovalMissing -match 'completed_plan_content_approval_missing') 'Post-transition invariants must retain the persisted PRD approval record.'
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | [pending] |','| **Content approval** | Approved by operator on 2026-10-24 |'),(New-Object Text.UTF8Encoding $false))
+    $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Status** | Implemented |','| **Status** | In progress |'),(New-Object Text.UTF8Encoding $false))
+    $wrongTransitionSource = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $wrongTransitionSource -match 'terminal_transition_source_invalid') 'Transition mode must reject a source state outside the two planning-ready statuses.'
+    $incompatibleTerminal = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $incompatibleTerminal -match 'completed_plan_prd_status_mismatch') 'Standard preflight must reject an incompatible PRD status after PLAN completion.'
+    Write-Host 'O3ArtifactPreflight: PASS (post-transition invariants accept coherent and reject incompatible states)'
 
     [IO.File]::WriteAllText((Join-Path $tempSdd 'manifest.json'),$repoManifest,(New-Object Text.UTF8Encoding $false))
     [IO.File]::WriteAllText($planPath, $planText, (New-Object Text.UTF8Encoding $false))

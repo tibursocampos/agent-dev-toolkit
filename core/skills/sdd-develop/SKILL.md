@@ -40,13 +40,13 @@ Before ending the develop scope, reset both gates with `-Action reset` (optional
 
 Treat every session-helper invocation, including reset, as a hard gate. A nonzero exit, denied write, or missing confirmation output stops the operation; return `blocked` or `failed` with the observed cause and do not continue or report success. Never bypass the helper or edit session JSON inline. If the canonical SDD root is unwritable, ask the operator to restore a writable root through the supported setup mechanism before retrying the helper.
 
-When a PLAN ledger claim is required (O3 / declared execution mode / parent handoff), **MUST** also call:
+For a direct invocation that requires a PLAN ledger claim, **MUST** also call once:
 
 ```powershell
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
 ```
 
-Prefer **one** Shell approve that chains both `-File` invocations when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still run the claim when the claim file is absent — session skip does **not** waive claim.
+For `invocation_context=orchestrated`, the O3 parent owns this acquisition; the child only checks the matching parent reservation with `-Action status` as specified below. Prefer **one** Shell approve that chains the session helper and direct claim for a direct invocation when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still ensure the required direct claim exists; for O3, the parent must ensure its claim exists once, while a child must never reacquire it.
 
 ---
 
@@ -167,11 +167,13 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
-Resolve `invocation_context` once from the explicit current invocation/handoff; `orchestrator_mode` and sibling artifacts do not select or change it. In `direct`, a canonical approved PLAN plus explicit step proceeds after its direct gates; absence of a checklist is not a blocker and the direct path must not fall through to O3 requirements. In `orchestrated`, preserve the parent's scoped inputs, O3 preflight, claim, and checklist requirements. If context or route is genuinely absent, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or a required claim. Execute one step only and stop after its report.
+Resolve `invocation_context` once from the explicit current invocation/handoff; `orchestrator_mode` and sibling artifacts do not select or change it. In `direct`, a canonical approved PLAN plus explicit step proceeds after its direct gates; absence of a checklist is not a blocker and the direct path must not fall through to O3 requirements. In `orchestrated`, preserve the parent's scoped inputs, O3 preflight, parent-held claim, and checklist requirements. Verify the claim using `Invoke-PlanLedgerClaim.ps1 -Action status`; proceed only when its holder matches the opaque `claim_holder` passed by the parent. The child must not reacquire or release the reservation. A direct invocation without an O3-held reservation retains its own claim lifecycle. If context or route is genuinely absent, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or a required claim. Execute one step only and stop after its report.
 
 After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
 
-**Orchestrated child preflight (before any session or claim effect):** when `invocation_context: orchestrated`, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1` with the resolved feature root, canonical PLAN path, repo root, and SDD root before creating/loading the develop session or claiming the step. Re-run immediately before any later effect if artifacts may have changed. Nonzero means stop with `plan_stale`; do not ensure session, claim, or implement. The parent runs this same read-only check before queue construction and before each spawn. `Status=approved` is required; `draft`, missing, or any other value blocks.
+**Orchestrated child preflight (before any session or claim-status effect):** when `invocation_context: orchestrated`, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O3ArtifactPreflight.ps1` with the resolved feature root, canonical PLAN path, repo root, and SDD root before creating/loading the develop session or checking the parent's claim. Re-run immediately before any later effect if artifacts may have changed. Nonzero means stop with `plan_stale`; do not ensure session, inspect claim, or implement. The parent runs this same read-only check before queue construction and before each spawn. `Status=approved` is required; `draft`, missing, or any other value blocks.
+
+For an orchestrated invocation, the parent is the only claim lifecycle owner. After the session gate, verify the parent's claim via `Invoke-PlanLedgerClaim.ps1 -Action status`; the returned status must be `claimed` and holder must equal the handoff's `claim_holder`. A missing, released, malformed, or mismatched claim blocks before implementation. Do not call `claim` or `release`; report the blocker to the parent. The parent retains the reservation until it has reconciled the return receipt with SESSION and the durable PLAN checkpoint, then releases using the same holder. Direct invocations without an O3 parent claim continue to acquire/release their own claim when required.
 
 ### 1. Validate step
 

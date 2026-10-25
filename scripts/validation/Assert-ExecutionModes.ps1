@@ -5,6 +5,7 @@
 #   Should_Fail_When_SerialModeRejectsParallelSpawn
 #   Should_Pass_When_ModeRejectWritesAudit
 #   Should_Pass_When_AllowedSpawnClaimsLedger
+#   Should_Pass_When_O3ParentOwnsSingleClaimLifecycle
 #
 # REQ-003 / CA3: execution modes honored; violations not silent; ledger integrated.
 $ErrorActionPreference = 'Stop'
@@ -92,6 +93,10 @@ if (-not (Test-Path -LiteralPath $skillBodyPath)) {
 
 $skillIndexText = Get-Content -LiteralPath $skillIndexPath -Raw -Encoding UTF8
 $skillBodyText = Get-Content -LiteralPath $skillBodyPath -Raw -Encoding UTF8
+$childSkillPath = Join-Path $repoRoot 'core/skills/sdd-develop/SKILL.md'
+$childSkillText = Get-Content -LiteralPath $childSkillPath -Raw -Encoding UTF8
+$queueSpawnPath = Join-Path $repoRoot 'core/skills/orchestrate-develop/references/step-queue-spawn.md'
+$queueSpawnText = Get-Content -LiteralPath $queueSpawnPath -Raw -Encoding UTF8
 
 if ($skillIndexText -notmatch 'execution-modes\.md') {
     Write-Fail -TestName 'Should_Pass_When_OrchestrateDevelopWiresExecutionModes' -Reason 'reference.md must index execution-modes.md'
@@ -100,6 +105,17 @@ if ($skillBodyText -notmatch 'execution-modes\.md') {
     Write-Fail -TestName 'Should_Pass_When_OrchestrateDevelopWiresExecutionModes' -Reason 'SKILL.md must lazy-load execution-modes.md'
 }
 Write-Pass -TestName 'Should_Pass_When_OrchestrateDevelopWiresExecutionModes'
+
+if ($modesText -notmatch 'single lifecycle owner' -or $modesText -notmatch 'must not invoke `claim` or `release`' -or $modesText -notmatch 'retain the reservation and block advancement' -or $modesText -notmatch 'await the operator''s return') {
+    Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'execution-modes must assign acquisition/release to the O3 parent, prohibit child reacquisition, and retain the claim on conflict'
+}
+if ($childSkillText -notmatch 'claim_holder' -or $childSkillText -notmatch 'Do not call `claim` or `release`') {
+    Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'sdd-develop must verify the handoff holder without claiming or releasing'
+}
+if ($queueSpawnText -notmatch 'Verify the matching parent-held claim with ledger `status`' -or $queueSpawnText -match 'Honor the canonical Shell boundary above after `sim` \(session helper \+ ledger claim via `-File`\)') {
+    Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'O3 child handoff must verify, not reacquire, the parent reservation'
+}
+Write-Pass -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle'
 
 $workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-execution-modes-{0}' -f [Guid]::NewGuid().ToString('N'))
 $fixturePlanPath = Join-Path $workRoot 'features/999-fixture/US01/PLAN/PLAN_999_fixture.md'
@@ -156,6 +172,37 @@ try {
     if ($claimText -notmatch [regex]::Escape($holder)) {
         Write-Fail -TestName 'Should_Pass_When_AllowedSpawnClaimsLedger' -Reason 'claim file must record holder'
     }
+
+    $statusOut = & $claimScriptPath -Action status -PlanPath $fixturePlanPath -Step $stepNumber -RepoPath $repoRoot -SessionsRoot $sessionsRoot 2>&1 | Out-String
+    $statusCode = $LASTEXITCODE
+    if ($null -eq $statusCode) { $statusCode = 0 }
+    if ($statusCode -ne [int]$script:ToolkitConstant.PlanLedgerExitClaimOk) {
+        Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason ("status expected exit 0, got {0}: {1}" -f $statusCode, $statusOut)
+    }
+    $statusObject = $statusOut | ConvertFrom-Json
+    if ($statusObject.status -ne 'claimed' -or $statusObject.holder -ne $holder) {
+        Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'child status check must observe the active parent holder'
+    }
+
+    $duplicateOut = & $claimScriptPath -Action claim -PlanPath $fixturePlanPath -Step $stepNumber -Holder 'child-must-not-reclaim' -RepoPath $repoRoot -SessionsRoot $sessionsRoot 2>&1 | Out-String
+    $duplicateCode = $LASTEXITCODE
+    if ($null -eq $duplicateCode) { $duplicateCode = 0 }
+    if ($duplicateCode -eq [int]$script:ToolkitConstant.PlanLedgerExitClaimOk -or $duplicateOut -notmatch 'step_already_claimed') {
+        Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'a second child acquisition must fail audibly while the parent claim is active'
+    }
+
+    $releaseOut = & $claimScriptPath -Action release -PlanPath $fixturePlanPath -Step $stepNumber -Holder $holder -RepoPath $repoRoot -SessionsRoot $sessionsRoot 2>&1 | Out-String
+    $releaseCode = $LASTEXITCODE
+    if ($null -eq $releaseCode) { $releaseCode = 0 }
+    if ($releaseCode -ne [int]$script:ToolkitConstant.PlanLedgerExitClaimOk) {
+        Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason ("parent release expected exit 0, got {0}: {1}" -f $releaseCode, $releaseOut)
+    }
+    $freeOut = & $claimScriptPath -Action status -PlanPath $fixturePlanPath -Step $stepNumber -RepoPath $repoRoot -SessionsRoot $sessionsRoot 2>&1 | Out-String
+    $freeObject = $freeOut | ConvertFrom-Json
+    if ($freeObject.status -ne 'free') {
+        Write-Fail -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle' -Reason 'parent release must make the reservation available'
+    }
+    Write-Pass -TestName 'Should_Pass_When_O3ParentOwnsSingleClaimLifecycle'
     Write-Pass -TestName 'Should_Pass_When_AllowedSpawnClaimsLedger'
 }
 finally {

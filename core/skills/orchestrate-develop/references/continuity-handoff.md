@@ -75,6 +75,23 @@ Scope closed. Next, in order:
 
 At scope close the order is required: `run-tests`, then `code-review`, then `run-tests` after review changes, then the security role/prompt review of the diff, then ask `/commit`, then ask `/push` separately. If the review makes no changes, record that the post-review test rerun was not required before security. The canonical security handoff is the `security` role/prompt at `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`; use only a documented host spawn mechanism or the bounded in-parent fallback. Do not invent or claim a `/security` command. Do not offer code-review versus commit in the middle of the steps. Render the prompt in the user chat language.
 
+For a requested O3 wave close, show the separate chat-only closeout table defined in `LIVE-STAGE-TABLE.md`. Its rows carry the applicable gate status, owner, current evidence, or next action; do not persist that table in `CONTINUITY.md`. If later changes affect a gate's evidence, mark only that gate's result stale/pending, retain unaffected evidence, and resume the required closeout order before advancing.
+
+## Approved decisions in handoffs
+
+Before an implementation or review handoff, include a compact decision envelope when an operator-approved decision applies to that step or review scope:
+
+| Field | Required content |
+|-------|------------------|
+| **Source** | Portable canonical PRD/PLAN path plus section and REQ/CA when the decision is recorded there; otherwise a concise reference to the operator approval in the active run. |
+| **Decision** | Short statement of the approved constraint or direction, without expanding its meaning. |
+| **Applies to** | Exact PLAN step, acceptance criterion, or review scope affected. |
+| **Required handling** | What the recipient must preserve or verify within the existing acceptance. |
+
+Include only decisions relevant to the recipient. Do not paste full chat, PRD, or PLAN bodies. Omit decisions that do not apply. A `CONTINUITY.md` note may point to the source, but it is not a second authority for requirements or acceptance.
+
+If a decision would materially change scope or acceptance, stop that handoff and return the change to the PLAN owner for an explicitly approved revision. A correction that remains within the approved acceptance can continue in its authorized step. Review handoffs carry the applicable decision and source so the reviewer can assess the current implementation against the agreed constraint.
+
 ### Before `/commit` from O3
 
 Step N already asked memory-bank **refresh-light** when app code changed. Still ask project docs when present (**sim** / **pular**), then `/commit`:

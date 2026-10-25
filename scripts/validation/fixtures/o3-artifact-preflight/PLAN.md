@@ -1,6 +1,7 @@
 # PLAN: O3 preflight fixture
 
 | **Status** | approved |
+| **Implementation status** | IN_PROGRESS |
 | **Progresso** | 0/2 |
 
 ## Grafo de dependências
