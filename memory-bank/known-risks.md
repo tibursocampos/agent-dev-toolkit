@@ -13,6 +13,8 @@
 | Hermes hook command is host-absolute at publish | Hermes | `config.yaml` `command` is a YAML single-quoted scalar because Hermes runs it with `shlex` and `shell=False`. The versioned fixture seed stays `~/.hermes/...`. A local publish rewrites that file with the fixture absolute path; do not commit that rewrite. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item (`fail_closed: true`). |
 | Review and survey read untrusted trees | Skills | `code-review` treats `.agent-validation-tools.json` as untrusted. Those commands stay unexecuted unless invoke confidence is explicit. `implementation-survey` may read staged and unstaged diffs and in-prefix neighbors. It must not open forbidden docs such as `SEC/`. |
 | OpenCode guard is the plugin | Hooks | Relative allowlisted paths can pass in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`. That allow/deny path is not `GuardCommon.ps1`. |
+| Classic external I/O is not proven at the provider boundary | SDD | Feature 020 S2/S3 are complete for this attempt based on contract/fixture tests, while actual host/provider enforcement, production I/O, isolation, and TOCTOU remain SKIPPED/deferred and non-blocking; overall Feature 020 is IN_PROGRESS. O3 receipt `files[]` identifies evidence and never grants Classic I/O. |
+| O3 path-guard review is not final | SDD | The last independent review found a drive-root normalization issue; the fix preserved rooted paths and passed focused receipt assertions on PowerShell Core/Desktop plus all 60 `validate-all.ps1` groups. The operator chose not to run another review. Real Windows case-sensitive-directory and host/provider execution fixtures remain SKIPPED. Do not describe the final code as independently approved. |
 
 ## Fragile areas
 
@@ -28,5 +30,5 @@
 
 ## Notes
 
-Facts from registry, spawn, language, CLI, and CI sources. Update when incidents or reviews find new footguns.
+Facts from registry, spawn, language, CLI, CI, focused validation, and final review. Update when incidents or reviews find new footguns.
 **No secrets** - describe classes of risk, not credentials.

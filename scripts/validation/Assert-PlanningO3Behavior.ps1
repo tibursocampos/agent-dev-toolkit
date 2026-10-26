@@ -3,11 +3,59 @@
 # as SKIPPED when this harness cannot invoke an observable host/model runner.
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\_lib\Get-ToolkitRelativePath.ps1')
+. (Join-Path $PSScriptRoot '..\_lib\Format-O3PlanProgressTable.ps1')
 
 function Assert-True {
     param([bool] $Condition, [string] $Message)
     if (-not $Condition) { throw $Message }
 }
+
+function Assert-Throws {
+    param([scriptblock] $Action, [string] $Message)
+    try { & $Action } catch { return }
+    throw $Message
+}
+
+$sixStepPlan = @(
+    [PSCustomObject]@{ Id='S1'; Name='Inspect scope' },
+    [PSCustomObject]@{ Id='S2'; Name='Implement core behavior' },
+    [PSCustomObject]@{ Id='S3'; Name='Add service integration' },
+    [PSCustomObject]@{ Id='S4'; Name='Add persistence behavior' },
+    [PSCustomObject]@{ Id='S5'; Name='Validate access paths' },
+    [PSCustomObject]@{ Id='S6'; Name='Reconcile closeout' }
+)
+$initialSixStepRows = @(
+    [PSCustomObject]@{ Id='S1'; Status='COMPLETED'; Dependencies='none'; Evidence='checkpoint S1' },
+    [PSCustomObject]@{ Id='S2'; Status='PENDING'; Dependencies='S1'; Evidence='not started' },
+    [PSCustomObject]@{ Id='S3'; Status='PENDING'; Dependencies='S2'; Evidence='not started' },
+    [PSCustomObject]@{ Id='S4'; Status='PENDING'; Dependencies='S3'; Evidence='not started' },
+    [PSCustomObject]@{ Id='S5'; Status='PENDING'; Dependencies='S4'; Evidence='not started' },
+    [PSCustomObject]@{ Id='S6'; Status='PENDING'; Dependencies='S5'; Evidence='not started' }
+)
+$initialTable = Format-O3PlanProgressTable -PlanSteps $sixStepPlan -StepRows $initialSixStepRows
+foreach ($step in $sixStepPlan) {
+    $rowMatches = [regex]::Matches($initialTable, ('(?m)^\|\s*{0}\s*\|' -f $step.Id))
+    Assert-True ($rowMatches.Count -eq 1) "Initial six-step summary must render $($step.Id) exactly once."
+    Assert-True ($initialTable -match ('(?m)^\|\s*{0}\s*\|[^\r\n]*\|\s*{1}\s*\|' -f $step.Id, $(if ($step.Id -eq 'S1') { 'COMPLETED' } else { 'PENDING' }))) "Initial six-step summary has the wrong status for $($step.Id)."
+}
+$mixedRows = @(
+    [PSCustomObject]@{ Id='S1'; Status='COMPLETED'; Dependencies='none'; Evidence='checkpoint S1' },
+    [PSCustomObject]@{ Id='S2'; Status='IN_PROGRESS'; Dependencies='S1'; Evidence='active claim S2' },
+    [PSCustomObject]@{ Id='S3'; Status='PENDING'; Dependencies='S2'; Evidence='awaiting dependency' },
+    [PSCustomObject]@{ Id='S4'; Status='BLOCKED'; Dependencies='S3'; Evidence='validated blocker' },
+    [PSCustomObject]@{ Id='S5'; Status='PENDING'; Dependencies='S4'; Evidence='not started' },
+    [PSCustomObject]@{ Id='S6'; Status='PENDING'; Dependencies='S5'; Evidence='not started' }
+)
+$mixedTable = Format-O3PlanProgressTable -PlanSteps $sixStepPlan -StepRows $mixedRows
+foreach ($step in $sixStepPlan) {
+    $expectedStatus = [string]($mixedRows | Where-Object Id -eq $step.Id | Select-Object -First 1).Status
+    $rowMatches = [regex]::Matches($mixedTable, ('(?m)^\|\s*{0}\s*\|[^\r\n]*\|\s*{1}\s*\|' -f $step.Id, $expectedStatus))
+    Assert-True ($rowMatches.Count -eq 1) "Mixed-state summary must render $($step.Id) exactly once with $expectedStatus."
+}
+Assert-Throws { Format-O3PlanProgressTable -PlanSteps $sixStepPlan -StepRows @($mixedRows | Where-Object Id -ne 'S6') } 'Formatter must reject a missing step-state row.'
+Assert-Throws { Format-O3PlanProgressTable -PlanSteps $sixStepPlan -StepRows (@($mixedRows) + @($mixedRows[0])) } 'Formatter must reject a duplicate step-state row.'
+Assert-Throws { Format-O3PlanProgressTable -PlanSteps $sixStepPlan -StepRows (@($mixedRows) + @([PSCustomObject]@{ Id='S7'; Status='PENDING'; Dependencies='S6'; Evidence='extra' })) } 'Formatter must reject a row outside the canonical PLAN.'
+Write-Host 'O3ProgressTableBehavior: PASS (six-step initial and mixed summaries; exact ID set enforced)'
 
 function Test-StorySplit {
     param([int] $EndpointCount, [bool] $IndependentValue, [bool] $IndependentDelivery)
@@ -114,6 +162,7 @@ $preflightPath = Join-Path $PSScriptRoot 'Invoke-O3ArtifactPreflight.ps1'
 $artifactFixture = Join-Path $PSScriptRoot 'fixtures\o3-artifact-preflight'
 Assert-True (Test-Path -LiteralPath $preflightPath) 'O3 artifact preflight script must exist.'
 $tempFeature = Join-Path $repoRoot ('features\000-o3-preflight-{0}' -f [Guid]::NewGuid().ToString('N'))
+$tempFeatureTs = Join-Path $repoRoot ('features\000-o3-preflight-ts-{0}' -f [Guid]::NewGuid().ToString('N'))
 $storyRoot = Join-Path $tempFeature 'US01'
 $planDir = Join-Path $storyRoot 'PLAN'
 $prdDir = Join-Path $storyRoot 'PRD'
@@ -130,7 +179,9 @@ try {
     $storyPath = Join-Path $storyRoot 'STORY.md'
     $storyFixtureText = Get-Content -LiteralPath (Join-Path $artifactFixture 'STORY.md') -Raw -Encoding UTF8
     [IO.File]::WriteAllText($storyPath, $storyFixtureText.Replace('features/000-o3-preflight-fixture',$tempFeatureRelative), (New-Object Text.UTF8Encoding $false))
-    Copy-Item (Join-Path $artifactFixture 'PRD.md') (Join-Path $prdDir '000_o3_preflight.md')
+    $prdPath = Join-Path $prdDir '000_o3_preflight.md'
+    $prdFixtureText = Get-Content -LiteralPath (Join-Path $artifactFixture 'PRD.md') -Raw -Encoding UTF8
+    [IO.File]::WriteAllText($prdPath,$prdFixtureText.Replace('features/000-o3-preflight-fixture',$tempFeatureRelative),(New-Object Text.UTF8Encoding $false))
     Copy-Item (Join-Path $artifactFixture 'tasks.md') (Join-Path $refineDir 'tasks.md')
     $planPath = Join-Path $planDir 'PLAN_000_o3_preflight.md'
     Copy-Item (Join-Path $artifactFixture 'PLAN.md') $planPath
@@ -140,6 +191,105 @@ try {
     if ($LASTEXITCODE -ne 0) { Write-Host $allow }
     Assert-True ($LASTEXITCODE -eq 0 -and $allow -match 'preflight: ALLOW' -and $allow -match 'features_versioned=false') 'Consistent approved artifacts must pass and accurately report local-only storage.'
     Write-Host 'O3ArtifactPreflight: PASS (consistent artifact set and local-only report)'
+    $renderedAllow = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd -EmitStepTable 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $renderedAllow -match '## O3 progress table') 'The preflight table option must emit a deterministic display projection.'
+    foreach ($stepId in @('S1','S2')) {
+        $renderedRows = [regex]::Matches($renderedAllow, ('(?m)^\|\s*{0}\s*\|' -f $stepId))
+        Assert-True ($renderedRows.Count -eq 1) "Preflight projection must render $stepId exactly once."
+        Assert-True ($renderedAllow -match ('(?m)^\|\s*{0}\s*\|[^\r\n]*\|\s*PENDING\s*\|' -f $stepId)) "Preflight projection must preserve $stepId's canonical PLAN status."
+    }
+    Write-Host 'O3ArtifactPreflight: PASS (complete table emitted from canonical PLAN rows)'
+    $stepStatusOverridesPath = Join-Path $tempSdd 'o3-step-state-projection.json'
+    $stepStatusOverrides = @(
+        [PSCustomObject]@{ Id='S1'; Status='PENDING'; Evidence='PLAN row remains pending' },
+        [PSCustomObject]@{ Id='S2'; Status='IN_PROGRESS'; Evidence='validated active claim and session' }
+    ) | ConvertTo-Json -Depth 4
+    [IO.File]::WriteAllText($stepStatusOverridesPath,$stepStatusOverrides,(New-Object Text.UTF8Encoding $false))
+    $overlaidAllow = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd -EmitStepTable -StepStateOverridesPath $stepStatusOverridesPath 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $overlaidAllow -match 'preflight: ALLOW') 'A validated complete operational status projection must remain a display-only overlay.'
+    Assert-True ($overlaidAllow -match '(?m)^\|\s*S2\s*\|[^\r\n]*\|\s*IN_PROGRESS\s*\|[^\r\n]*validated active claim and session') 'The complete O3 projection must show reconciled operational status and evidence.'
+    Assert-True ((Get-Content -LiteralPath $planPath -Raw -Encoding UTF8) -match '\| S2 \| Revalidate the saved O3 artifacts \| S1 \| Medium \| `PENDING`') 'Operational display overrides must not write to or replace durable PLAN status.'
+    [IO.File]::WriteAllText($stepStatusOverridesPath,'[]',(New-Object Text.UTF8Encoding $false))
+    $missingOverride = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd -EmitStepTable -StepStateOverridesPath $stepStatusOverridesPath 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $missingOverride -match 'Expected exactly one status projection') 'An empty override file must not silently fall back to PLAN-only display.'
+    Write-Host 'O3ArtifactPreflight: PASS (validated status overlay is display-only)'
+
+    # Semantic parser regression: presentation changes and story cross-links
+    # must not alter step identity, dependency comparison, or navigation.
+    $planText = Get-Content -LiteralPath $planPath -Raw -Encoding UTF8
+    $storyText = Get-Content -LiteralPath $storyPath -Raw -Encoding UTF8
+    $prdText = Get-Content -LiteralPath (Join-Path $prdDir '000_o3_preflight.md') -Raw -Encoding UTF8
+    $taskText = Get-Content -LiteralPath (Join-Path $refineDir 'tasks.md') -Raw -Encoding UTF8
+    $semanticPlan = $planText.Replace('| **Progresso** | 0/2 |','| 📊 Progresso | 0 / 2 |').Replace('## Progresso da implementação','## 📈 PROGRESSO   da implementação').Replace('### STEP 1 — S1:','### ✅ **passo 1** — **S1**:').Replace('### STEP 2 — S2:','### 🔧 step 2 - S2:').Replace('| S2 | Revalidate the saved O3 artifacts | S1 |','| S2 | Revalidate the saved O3 artifacts | S1, US01 |')
+    $semanticTasks = $taskText.Replace('### STEP 1 — S1:','### ✅ **passo 1** — **S1**:').Replace('### STEP 2 — S2:','### 🔧 step 2 - S2:').Replace('- **Depends on:** S1','- Depends on: S1, US02')
+    $semanticStory = $storyText.Replace('PLAN: `./PLAN/PLAN_000_o3_preflight.md`','Related PLAN: [Approved plan](./PLAN/PLAN_000_o3_preflight.md#step-1)')
+    $semanticPrd = $prdText.Replace('PLAN: `features/','🗂 **Plan**: [Canonical plan](features/')
+    $semanticPrd = $semanticPrd.Replace('/PLAN/PLAN_000_o3_preflight.md`','/PLAN/PLAN_000_o3_preflight.md "PLAN" )')
+    [IO.File]::WriteAllText($planPath,$semanticPlan,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($storyPath,$semanticStory,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $prdDir '000_o3_preflight.md'),$semanticPrd,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $refineDir 'tasks.md'),$semanticTasks,(New-Object Text.UTF8Encoding $false))
+    $semanticResult = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) { Write-Host $semanticResult }
+    Assert-True ($LASTEXITCODE -eq 0 -and $semanticResult -match 'preflight: ALLOW') 'Semantic labels, Markdown decoration, STEP/PASSO headings, anchor links, and US/TS references must preserve the valid preflight result.'
+    Write-Host 'O3ArtifactPreflight: PASS (semantic labels, heading variants, portable links, story references)'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText($storyPath,$storyText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $prdDir '000_o3_preflight.md'),$prdText,(New-Object Text.UTF8Encoding $false))
+    [IO.File]::WriteAllText((Join-Path $refineDir 'tasks.md'),$taskText,(New-Object Text.UTF8Encoding $false))
+
+    $escapingStoryPath = 'PLAN: [Escaping reference](../../{0}/US01/PLAN/PLAN_000_o3_preflight.md)' -f $tempFeatureRelative
+    $escapingStory = $storyText.Replace('PLAN: `./PLAN/PLAN_000_o3_preflight.md`',$escapingStoryPath)
+    [IO.File]::WriteAllText($storyPath,$escapingStory,(New-Object Text.UTF8Encoding $false))
+    $escapingPlanResult = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $escapingPlanResult -match 'story_prd_plan_navigation_mismatch') 'A relative traversal link that only looks canonical after stripping dot/slash characters must remain blocked.'
+    [IO.File]::WriteAllText($storyPath,$storyText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (traversal-like PLAN reference rejected)'
+
+    $missingStoryPlan = $storyText -replace '(?m)^PLAN:.*(?:\r?\n)?',''
+    [IO.File]::WriteAllText($storyPath,$missingStoryPlan,(New-Object Text.UTF8Encoding $false))
+    $missingPlanResult = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 2 -and $missingPlanResult -match 'story_prd_plan_navigation_mismatch') 'A genuinely missing canonical STORY PLAN reference must remain blocked.'
+    [IO.File]::WriteAllText($storyPath,$storyText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (genuinely missing canonical PLAN link remains blocked)'
+
+    # The canonical story contract supports both user and technical stories.
+    # Build a separate TS01 fixture so the existing US01 cases remain unchanged.
+    $tsStoryRoot = Join-Path $tempFeatureTs 'TS01'
+    $tsPlanDir = Join-Path $tsStoryRoot 'PLAN'
+    $tsPrdDir = Join-Path $tsStoryRoot 'PRD'
+    $tsRefineDir = Join-Path $tsStoryRoot 'REFINE'
+    New-Item -ItemType Directory -Path $tempFeatureTs,$tsPlanDir,$tsPrdDir,$tsRefineDir -Force | Out-Null
+    $tsFeatureRelative = (Get-ToolkitRelativePath -BasePath $repoRoot -TargetPath $tempFeatureTs).Replace('\','/')
+    $tsFeatureText = Get-Content -LiteralPath (Join-Path $artifactFixture 'FEATURE.md') -Raw -Encoding UTF8
+    $tsFeatureText = $tsFeatureText.Replace('features/000-o3-preflight-fixture',$tsFeatureRelative).Replace('/US01/STORY.md','/TS01/STORY.md')
+    [IO.File]::WriteAllText((Join-Path $tempFeatureTs 'FEATURE.md'),$tsFeatureText,(New-Object Text.UTF8Encoding $false))
+    $tsContinuityText = Get-Content -LiteralPath (Join-Path $artifactFixture 'CONTINUITY.md') -Raw -Encoding UTF8
+    $tsContinuityText = $tsContinuityText.Replace('features/000-o3-preflight-fixture',$tsFeatureRelative).Replace('/US01/PLAN/','/TS01/PLAN/')
+    [IO.File]::WriteAllText((Join-Path $tempFeatureTs 'CONTINUITY.md'),$tsContinuityText,(New-Object Text.UTF8Encoding $false))
+    $tsStoryText = Get-Content -LiteralPath (Join-Path $artifactFixture 'STORY.md') -Raw -Encoding UTF8
+    $tsStoryText = $tsStoryText.Replace('US01','TS01').Replace('features/000-o3-preflight-fixture',$tsFeatureRelative)
+    [IO.File]::WriteAllText((Join-Path $tsStoryRoot 'STORY.md'),$tsStoryText,(New-Object Text.UTF8Encoding $false))
+    $tsPrdText = Get-Content -LiteralPath (Join-Path $artifactFixture 'PRD.md') -Raw -Encoding UTF8
+    $tsPrdText = $tsPrdText.Replace('features/000-o3-preflight-fixture',$tsFeatureRelative).Replace('/US01/PLAN/','/TS01/PLAN/')
+    [IO.File]::WriteAllText((Join-Path $tsPrdDir '000_o3_preflight.md'),$tsPrdText,(New-Object Text.UTF8Encoding $false))
+    Copy-Item (Join-Path $artifactFixture 'tasks.md') (Join-Path $tsRefineDir 'tasks.md')
+    $tsPlanPath = Join-Path $tsPlanDir 'PLAN_000_o3_preflight.md'
+    Copy-Item (Join-Path $artifactFixture 'PLAN.md') $tsPlanPath
+    $tsAllow = & $preflightPath -FeatureRoot $tempFeatureTs -PlanPath $tsPlanPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) { Write-Host $tsAllow }
+    Assert-True ($LASTEXITCODE -eq 0 -and $tsAllow -match 'preflight: ALLOW') 'A canonical TS01 PLAN with matching story/feature artifacts must pass the O3 preflight.'
+    Write-Host 'O3ArtifactPreflight: PASS (canonical TS01 story accepted)'
+
+    foreach ($malformedStoryId in @('TS1','US001','XX01')) {
+        $malformedPlanDir = Join-Path (Join-Path $tempFeatureTs $malformedStoryId) 'PLAN'
+        New-Item -ItemType Directory -Path $malformedPlanDir -Force | Out-Null
+        $malformedPlanPath = Join-Path $malformedPlanDir 'PLAN_000_o3_preflight.md'
+        Copy-Item (Join-Path $artifactFixture 'PLAN.md') $malformedPlanPath
+        $malformedStoryPreflight = & $preflightPath -FeatureRoot $tempFeatureTs -PlanPath $malformedPlanPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+        Assert-True ($LASTEXITCODE -eq 2 -and $malformedStoryPreflight -match 'code=non_canonical_feature_or_plan_path') "Malformed story id '$malformedStoryId' must remain rejected by canonical path validation."
+    }
+    Write-Host 'O3ArtifactPreflight: PASS (malformed story ids rejected)'
 
     $planText = Get-Content -LiteralPath $planPath -Raw -Encoding UTF8
     $plainStatusPlan = $planText.Replace('| **Status** | approved |','| Status | approved |')
@@ -205,11 +355,11 @@ try {
     [IO.File]::WriteAllText($refinePath,$refineOriginal.Replace('### STEP ','### PASSO '),(New-Object Text.UTF8Encoding $false))
     $portugueseHeadings = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
     Assert-True ($LASTEXITCODE -eq 0 -and $portugueseHeadings -match 'preflight: ALLOW') 'Portuguese PASSO headings in PLAN and REFINE must pass without bypassing dependency/state checks.'
-    $malformedHeadingPlan = $planText.Replace('### STEP 1 —','### STEP 1 -').Replace('### STEP 2 —','### PASSO 2 -')
+    $malformedHeadingPlan = $planText.Replace('### STEP 1 — S1: Reconcile the saved O3 artifacts','### STEP 1 — Reconcile the saved O3 artifacts').Replace('### STEP 2 — S2: Revalidate the saved O3 artifacts','### PASSO 2 — S2')
     [IO.File]::WriteAllText($planPath,$malformedHeadingPlan,(New-Object Text.UTF8Encoding $false))
     $malformedHeadingBlock = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
     $malformedHeadingExit = $LASTEXITCODE
-    Assert-True ($malformedHeadingPlan -match '(?m)^### STEP 1 -' -and $malformedHeadingPlan -match '(?m)^### PASSO 2 -') 'Negative-control PLAN must include malformed English and Portuguese step headings.'
+    Assert-True ($malformedHeadingPlan -match '(?m)^### STEP 1 — Reconcile' -and $malformedHeadingPlan -match '(?m)^### PASSO 2 — S2\s*$') 'Negative-control PLAN must include malformed English and Portuguese step headings.'
     Assert-True ($malformedHeadingExit -eq 2 -and $malformedHeadingBlock -match 'plan_steps_missing') 'PLAN with malformed STEP and PASSO headings must block with plan_steps_missing.'
     Write-Host 'O3ArtifactPreflight: PASS (malformed STEP and PASSO headings blocked as plan_steps_missing)'
     Assert-True ($malformedHeadingBlock -notmatch 'plan_progress_total_mismatch') 'Missing parsed step headings must not create a dependent progress-total diagnostic.'
@@ -357,6 +507,57 @@ try {
     Assert-True ($LASTEXITCODE -eq 2 -and $stalePrd -match 'completed_plan_prd_status_mismatch') 'Completed PLAN with a planning-ready PRD status must be blocked.'
     Write-Host 'O3ArtifactPreflight: PASS (completed PLAN requires Implementado/Implemented PRD status)'
 
+    # Reproduce the closeout drift reported from the TS01 flow: PLAN says 6/6,
+    # CONTINUITY still says 5/6, and the PRD remains planning-ready. The
+    # preflight must reject the mismatched cross-artifact state, not reinterpret
+    # it as an ordinary pending step or allow terminal closeout.
+    $planBeforeSixOfSixDrift = Get-Content -LiteralPath $globalPlan -Raw -Encoding UTF8
+    $refineBeforeSixOfSixDrift = Get-Content -LiteralPath $globalRefinePath -Raw -Encoding UTF8
+    $prdBeforeSixOfSixDrift = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
+    $continuityBeforeSixOfSixDrift = Get-Content -LiteralPath $globalContinuityPath -Raw -Encoding UTF8
+    try {
+        $sixStepPlanText = [regex]::Replace($planBeforeSixOfSixDrift,'(?im)^\s*\|\s*\*\*Progresso\*\*\s*\|\s*2\s*/\s*2\s*\|\s*$', '| **Progresso** | 6/6 |', 1)
+        $stepRows = [System.Collections.Generic.List[string]]::new()
+        $stepHeadings = [System.Collections.Generic.List[string]]::new()
+        for ($stepNumber = 3; $stepNumber -le 6; $stepNumber++) {
+            $previousStep = $stepNumber - 1
+            $stepId = "S$stepNumber"
+            $stepName = "Verify closeout item $stepNumber"
+            $stepRows.Add("| $stepId | $stepName | S$previousStep | Medium | ``COMPLETED`` | checkpoint $stepId |")
+            $stepHeadings.Add("### STEP $stepNumber — ${stepId}: $stepName`n`n- **Depends on:** S$previousStep")
+        }
+        $lastBaseRow = '| S2 | Revalidate the saved O3 artifacts | S1 | Medium | `COMPLETED` | — |'
+        $sixStepPlanText = $sixStepPlanText.Replace($lastBaseRow, ($lastBaseRow + "`n" + ($stepRows -join "`n")))
+        $sixStepPlanText += "`n`n" + ($stepHeadings -join "`n`n") + "`n"
+        $sixStepPlanText = [regex]::Replace($sixStepPlanText,'(?im)^\s*\|\s*\*\*Implementation status\*\*\s*\|\s*[^|]+\|\s*$', '| **Implementation status** | COMPLETED |', 1)
+
+        $sixStepRefineText = $refineBeforeSixOfSixDrift
+        for ($stepNumber = 3; $stepNumber -le 6; $stepNumber++) {
+            $previousStep = $stepNumber - 1
+            $stepId = "S$stepNumber"
+            $stepName = "Verify closeout item $stepNumber"
+            $sixStepRefineText += "`n`n### STEP $stepNumber — ${stepId}: $stepName`n`n☑ ``COMPLETED```n- **Depends on:** S$previousStep`n${stepId} — $stepName"
+        }
+
+        $sixOfSixPrdText = [regex]::Replace($prdBeforeSixOfSixDrift,'(?im)^\s*\|\s*\*\*Status\*\*\s*\|\s*[^|]+\|\s*$', '| **Status** | Ready for planning |', 1)
+        $fiveOfSixContinuityText = [regex]::Replace($continuityBeforeSixOfSixDrift,'(?im)^\s*-\s*Progresso\s*:\s*.*$', '- Progresso: 5/6', 1)
+        $fiveOfSixContinuityText = [regex]::Replace($fiveOfSixContinuityText,'(?im)^\s*-\s*Concluídos\s*:\s*.*$', '- Concluídos: S1, S2, S3, S4, S5', 1)
+        $fiveOfSixContinuityText = [regex]::Replace($fiveOfSixContinuityText,'(?im)^\s*-\s*Próximo\s*:\s*.*$', '- Próximo: S6 — Verify closeout item 6', 1)
+
+        [IO.File]::WriteAllText($globalPlan,$sixStepPlanText,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalRefinePath,$sixStepRefineText,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalPrdPath,$sixOfSixPrdText,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalContinuityPath,$fiveOfSixContinuityText,(New-Object Text.UTF8Encoding $false))
+        $sixOfSixDrift = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+        Assert-True ($LASTEXITCODE -eq 2 -and $sixOfSixDrift -match 'preflight: BLOCK' -and $sixOfSixDrift -match 'completed_plan_prd_status_mismatch' -and $sixOfSixDrift -match 'continuity_plan_reconciliation_mismatch:progress' -and $sixOfSixDrift -match 'continuity_plan_reconciliation_mismatch:completed') 'A 6/6 completed PLAN with 5/6 CONTINUITY and a planning-ready PRD must remain blocked with the exact cross-artifact diagnostics.'
+        Write-Host 'O3ArtifactPreflight: PASS (6/6 PLAN vs 5/6 CONTINUITY and planning-ready PRD blocked)'
+    } finally {
+        [IO.File]::WriteAllText($globalPlan,$planBeforeSixOfSixDrift,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalRefinePath,$refineBeforeSixOfSixDrift,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalPrdPath,$prdBeforeSixOfSixDrift,(New-Object Text.UTF8Encoding $false))
+        [IO.File]::WriteAllText($globalContinuityPath,$continuityBeforeSixOfSixDrift,(New-Object Text.UTF8Encoding $false))
+    }
+
     $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
     [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | [pending] |'),(New-Object Text.UTF8Encoding $false))
     $missingApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
@@ -444,6 +645,7 @@ try {
 }
 finally {
     if (Test-Path -LiteralPath $tempFeature) { Remove-Item -LiteralPath $tempFeature -Recurse -Force }
+    if (Test-Path -LiteralPath $tempFeatureTs) { Remove-Item -LiteralPath $tempFeatureTs -Recurse -Force }
     if (Test-Path -LiteralPath $tempSdd) { Remove-Item -LiteralPath $tempSdd -Recurse -Force }
 }
 Write-Host 'Assert-PlanningO3Behavior: ALL PASS'

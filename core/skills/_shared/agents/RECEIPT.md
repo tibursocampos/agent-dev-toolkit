@@ -33,8 +33,8 @@ one step. Neither role changes PLAN, session-gate, or claim semantics.
 |-------|----------|------------------------------------|
 | `planPath` | always | Exact portable path of the invoked PLAN; normalize `\` to `/`, reject drive letters, UNC paths, `..`, query/fragment text, and paths outside the expected `features/.../PLAN/PLAN_*.md`. |
 | `step` | always | Producer emits a positive JSON integer. Before validation, parent normalizes either a positive JSON integer or the legacy textual alias `S<n>` (for example `S1`) to the same integer; reject zero, negatives, other strings, ranges, or a different step. |
-| `status` | always | One of `done`, `blocked`, or `failed`; `done` is eligible only after parent checks pass; `blocked`/`failed` never advance dependents. |
-| `files[]` | always | Array of portable repository paths only; normalize separators, reject absolute/local paths, traversal, duplicates, unknown or out-of-scope paths, secrets, PII, and transcript/log paths. Keep only paths needed to identify changed artifacts. |
+| `status` | always | Producer emits exactly `done`, `blocked`, or `failed`; use `done` for a successful PLAN step, never the PLAN row label `COMPLETED`. At intake, the runtime guard trims and case-folds the token and accepts only `complete` / `completed` as compatibility aliases for `done`; it returns a canonical receipt projection with `status: done`. Unknown values are rejected. `done` is eligible only after parent checks pass; `blocked`/`failed` never advance dependents. |
+| `files[]` | always | Array of portable paths; normalize one consistent separator style, reject absolute/local paths, traversal, ambiguous encodings, duplicates, unknown or out-of-scope paths, secrets, PII, and transcript/log paths. Internal paths remain repository-relative. An external artifact may use `external:<alias>/<relative-path>` only when the coordinator explicitly authorized that alias for the assignment. The receipt contains no absolute root. The coordinator supplies an explicit alias-to-root map to `Invoke-O3ReceiptValidation.ps1`; the guard resolves and checks every component against that root, including reparse points. |
 | `testsSummary` | always | Short factual summary, bounded to 500 characters and one line; identify focused checks and PASS/BLOCKED/FAIL, or explicitly say deferred/skipped when the PLAN step declares no tests. Never include raw output, logs, secrets, PII, or local absolute paths. `done` requires PASS and persisted/validated `tests_run` only when the step declares tests; otherwise `tests_run` stays false and the summary records deferred/skipped. |
 | `nextStep` | `done` only when present | Positive integer, if supplied, equal to the PLAN's next eligible step after re-read; omit when absent or not yet eligible. Never treat it as authorization to spawn. |
 | `blockedReason` | required for `blocked`/`failed`; absent for `done` | Short factual reason, bounded to 300 characters and one line; redact sensitive content and portable-normalize paths. It must name the missing/inconsistent gate or receipt condition without reproducing untrusted text. |
@@ -87,9 +87,13 @@ claim state before changing progress.
 checklist bullets are parent-owned context in CONTINUITY or STORY, as defined
 in `ROSTER.md`.
 
-The terminal values are not interchangeable: `done` is eligible for parent
-reconciliation, `blocked` records work stopped on an unmet prerequisite, and
-`failed` records an attempted operation that did not pass. Neither
+The producer's terminal values are `done`, `blocked`, and `failed`. For
+compatibility, the runtime guard normalizes only the trimmed, case-insensitive
+aliases `complete` and `completed` to `done`; every downstream consumer uses
+the returned canonical receipt projection, not the child's raw status token.
+The outcomes remain distinct: `done` is eligible for parent reconciliation,
+`blocked` records work stopped on an unmet prerequisite, and `failed` records
+an attempted operation that did not pass. Neither
 `blockedReason` nor `nextStep` is authorization to advance. For `sdd-develop`,
 the authoritative persisted state is the PLAN plus its scoped SESSION gates
 and PLAN-LEDGER claim; a receipt only reports the child's observation.
@@ -106,6 +110,13 @@ The previous tabular specialist receipt remains useful for findings, but it is
 not a relay authority and is not copied into chat, session reports, or
 `CONTINUITY.md` as a transcript. The parent extracts only the allowlisted
 projection.
+
+For O3 relay `files[]`, external aliases are opaque portable references, not
+paths that carry authority. The coordinator decides which aliases and path
+prefixes are in scope, passes the alias-to-absolute-root map separately to the
+runtime validator, and never accepts a root supplied by the child. Run
+`scripts/validation/Invoke-O3ReceiptValidation.ps1` before reconciling any O3
+receipt; a textual contract check does not replace this guard.
 
 Rules:
 

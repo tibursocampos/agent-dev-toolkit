@@ -5,13 +5,19 @@ param(
     [Parameter(Mandatory = $true)][string] $PlanPath,
     [string] $RepoPath = (Get-Location).Path,
     [string] $SddRoot,
-    [switch] $AuthorizeCompletedPlanPrdTransition
+    [switch] $AuthorizeCompletedPlanPrdTransition,
+    [switch] $EmitStepTable,
+    [string] $StepStateOverridesPath
 )
 
 $ErrorActionPreference = 'Stop'
 $script:StorageSummary = 'features_versioned=unknown'
 $script:PreflightIssues = [System.Collections.Generic.List[object]]::new()
+$script:PlanSteps = @()
+$script:PlanProgressRows = @()
+$script:PlanStates = @{}
 . (Join-Path $PSScriptRoot '..\_lib\Get-ToolkitRelativePath.ps1')
+. (Join-Path $PSScriptRoot '..\_lib\Format-O3PlanProgressTable.ps1')
 
 function Format-PreflightValue([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value)) { return 'unknown' }
@@ -21,6 +27,280 @@ function Format-PreflightValue([string]$Value) {
 function Test-PositiveContentApproval([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value) -or $Value -match '[\[\]]') { return $false }
     return $Value -match '(?i)^\s*(?:Approved by operator(?: in this conversation)? on \d{4}-\d{2}-\d{2}|Aprovad[oa] pelo operador(?: nesta conversa)? em \d{4}-\d{2}-\d{2})\s*$'
+}
+
+# Artifact prose is intentionally flexible. Normalize labels by meaning rather
+# than requiring a specific Markdown emphasis, emoji, whitespace, or casing.
+function ConvertTo-PreflightLabel([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    $decomposed = $Value.Normalize([Text.NormalizationForm]::FormD)
+    $withoutMarks = [regex]::Replace($decomposed,'\p{M}','')
+    return [regex]::Replace($withoutMarks.ToLowerInvariant(),'[^a-z0-9]','')
+}
+
+function Remove-PreflightDecoration([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    # PowerShell 5.1/.NET Framework sees many emoji as UTF-16 surrogate pairs,
+    # so remove those code units explicitly along with Unicode symbols.
+    $clean = [regex]::Replace($Value,'[\p{S}\p{Cf}\uD800-\uDFFF]','')
+    $clean = [regex]::Replace($clean,'(?<![\p{L}\p{N}])[*_~`]+|[*_~`]+(?![\p{L}\p{N}])','')
+    return $clean.Trim()
+}
+
+function Get-PreflightTableCells([string]$Line) {
+    if ([string]::IsNullOrWhiteSpace($Line) -or $Line.IndexOf('|') -lt 0) { return @() }
+    $cells = @($Line.Trim().Trim('|').Split('|') | ForEach-Object { (Remove-PreflightDecoration $_).Trim() })
+    return $cells
+}
+
+function Get-PreflightFieldValue([string]$Text,[string[]]$AcceptedLabels,[switch]$TopLevelOnly) {
+    $accepted = @($AcceptedLabels | ForEach-Object { ConvertTo-PreflightLabel $_ })
+    foreach ($line in [regex]::Split($Text,'\r?\n')) {
+        if ($TopLevelOnly -and $line -match '^\s*#{2,}\s+') { break }
+        $cells = @(Get-PreflightTableCells $line)
+        if ($cells.Count -ge 2 -and (ConvertTo-PreflightLabel $cells[0]) -in $accepted) {
+            return $cells[1].Trim()
+        }
+        $field = [regex]::Match($line,'^\s*(?:[-*+]\s*)?(?<label>[^:|]+?)\s*:\s*(?<value>.*?)\s*$')
+        if ($field.Success -and (ConvertTo-PreflightLabel $field.Groups['label'].Value) -in $accepted) {
+            return (Remove-PreflightDecoration $field.Groups['value'].Value)
+        }
+    }
+    return ''
+}
+
+function Get-PreflightSection([string]$Text,[string[]]$AcceptedHeadings) {
+    $accepted = @($AcceptedHeadings | ForEach-Object { ConvertTo-PreflightLabel $_ })
+    $lines = [regex]::Split($Text,'\r?\n')
+    $start = -1
+    $end = $lines.Count
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $heading = [regex]::Match($lines[$lineIndex],'^\s*#{2}\s*(?<label>.*?)\s*#*\s*$')
+        if (-not $heading.Success) { continue }
+        $normalized = ConvertTo-PreflightLabel $heading.Groups['label'].Value
+        if ($start -lt 0 -and $normalized -in $accepted) { $start = $lineIndex + 1; continue }
+        if ($start -ge 0) { $end = $lineIndex; break }
+    }
+    if ($start -lt 0) { return '' }
+    if ($end -le $start) { return '' }
+    return ($lines[$start..($end - 1)] -join "`n")
+}
+
+function Get-PreflightStepHeadings([string]$Text) {
+    $valid = [System.Collections.Generic.List[object]]::new()
+    $invalid = [System.Collections.Generic.List[string]]::new()
+    $lines = [regex]::Split($Text,'\r?\n')
+    $headingPattern = '^(?i)(?:STEP|PASSO)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $line = $lines[$lineIndex]
+        $heading = [regex]::Match($line,'^\s*#{3}\s*(?<value>.*?)\s*$')
+        if (-not $heading.Success) { continue }
+        $value = Remove-PreflightDecoration $heading.Groups['value'].Value
+        if ($value -notmatch '^(?i)(?:STEP|PASSO)\b') { continue }
+        $parsed = [regex]::Match($value,$headingPattern)
+        if (-not $parsed.Success) { $invalid.Add($line.Trim()); continue }
+        $valid.Add([PSCustomObject]@{
+            Number = [int]$parsed.Groups['ordinal'].Value
+            Id = $parsed.Groups['id'].Value.ToUpperInvariant()
+            Name = $parsed.Groups['name'].Value.Trim()
+            LineNumber = $lineIndex
+            Raw = $line.Trim()
+        })
+    }
+    return [PSCustomObject]@{ Valid=@($valid.ToArray()); Invalid=@($invalid.ToArray()) }
+}
+
+function Get-PreflightDependencyIds([string]$Value) {
+    $value = Remove-PreflightDecoration $Value
+    if ([string]::IsNullOrWhiteSpace($value) -or (ConvertTo-PreflightLabel $value) -in @('none','nenhum','nenhuma','naoaplicavel','notapplicable')) {
+        return [PSCustomObject]@{ Ids=@(); Invalid=@() }
+    }
+    $ids = [System.Collections.Generic.List[string]]::new()
+    $invalid = [System.Collections.Generic.List[string]]::new()
+    foreach ($token in [regex]::Split($value,'\s*(?:,|;|/|&|\+|\b(?:and|e)\b)\s*')) {
+        $clean = ($token.Trim() -replace '^[\s`*_~:()\[\]{}]+|[\s`*_~:()\[\]{}.!]+$','')
+        if ([string]::IsNullOrWhiteSpace($clean)) { continue }
+        $normalized = ConvertTo-PreflightLabel $clean
+        if ($normalized -in @('none','nenhum','nenhuma','naoaplicavel','notapplicable')) { continue }
+        # Story references are not PLAN step IDs. In particular, US01 must
+        # never be partially interpreted as S01 by dependency validation.
+        if ($clean -match '^(?i)(?:US|TS)\d{2}$') { continue }
+        if ($clean -match '^(?i)S\d+$') { $ids.Add($clean.ToUpperInvariant()) }
+        else { $invalid.Add($clean) }
+    }
+    return [PSCustomObject]@{ Ids=@($ids.ToArray() | Sort-Object -Unique); Invalid=@($invalid.ToArray()) }
+}
+
+function Get-PreflightReferencedStepIds([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value) -or (ConvertTo-PreflightLabel $Value) -in @('none','nenhum','nenhuma','naoaplicavel','notapplicable')) { return @() }
+    return @([regex]::Matches($Value,'(?i)(?<![A-Za-z0-9])S\d+(?![A-Za-z0-9])') | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object -Unique)
+}
+
+function Test-PreflightStepState([string]$Block,[string]$ExpectedState) {
+    foreach ($line in [regex]::Split($Block,'\r?\n')) {
+        $clean = Remove-PreflightDecoration $line
+        $clean = $clean -replace '^\s*[-*+]\s*',''
+        $match = [regex]::Match($clean,'^(?i)(?<state>COMPLETED|PENDING)\b')
+        if ($match.Success) { return [string]::Equals($match.Groups['state'].Value,$ExpectedState,[StringComparison]::OrdinalIgnoreCase) }
+    }
+    return $false
+}
+
+function Get-PreflightStepTableRow([string]$Section,[string]$StepId) {
+    $lines = [regex]::Split($Section,'\r?\n')
+    $header = $null
+    $index = @{}
+    foreach ($line in $lines) {
+        $cells = @(Get-PreflightTableCells $line)
+        if ($cells.Count -lt 2) { continue }
+        $labels = @($cells | ForEach-Object { ConvertTo-PreflightLabel $_ })
+        $stepColumn = -1; $dependencyColumn = -1; $statusColumn = -1
+        for ($i = 0; $i -lt $labels.Count; $i++) {
+            if ($labels[$i] -in @('stepid','idstep','etapaid','idetapa','idadaetapa','id')) { $stepColumn = $i }
+            if ($labels[$i] -in @('dependencies','dependency','dependencias','depends','dependson','dependede')) { $dependencyColumn = $i }
+            if ($labels[$i] -in @('status','state','estado')) { $statusColumn = $i }
+        }
+        if ($stepColumn -ge 0 -and $dependencyColumn -ge 0 -and $statusColumn -ge 0) {
+            $header = $cells; $index = @{ Step=$stepColumn; Dependencies=$dependencyColumn; Status=$statusColumn }; break
+        }
+    }
+    if ($null -eq $header) { return $null }
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $cells = @(Get-PreflightTableCells $lines[$lineIndex])
+        if ($cells.Count -le $index.Step -or $cells.Count -le $index.Dependencies -or $cells.Count -le $index.Status) { continue }
+        if ((Remove-PreflightDecoration $cells[$index.Step]).Trim().ToUpperInvariant() -eq $StepId.ToUpperInvariant()) {
+            return [PSCustomObject]@{ Cells=$cells; Dependencies=$cells[$index.Dependencies]; Status=$cells[$index.Status]; Line=$lines[$lineIndex] }
+        }
+    }
+    return $null
+}
+
+function Get-PreflightStepTableRows([string]$Section) {
+    $lines = [regex]::Split($Section,'\r?\n')
+    $columnIndex = $null
+    $headerLine = -1
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $cells = @(Get-PreflightTableCells $lines[$lineIndex])
+        if ($cells.Count -lt 2) { continue }
+        $labels = @($cells | ForEach-Object { ConvertTo-PreflightLabel $_ })
+        $stepColumn = -1; $nameColumn = -1; $dependencyColumn = -1; $statusColumn = -1; $evidenceColumn = -1
+        for ($cellIndex = 0; $cellIndex -lt $labels.Count; $cellIndex++) {
+            if ($labels[$cellIndex] -in @('stepid','idstep','etapaid','idetapa','idadaetapa','id')) { $stepColumn = $cellIndex }
+            if ($labels[$cellIndex] -in @('step','etapa','passo','name','nome')) { $nameColumn = $cellIndex }
+            if ($labels[$cellIndex] -in @('dependencies','dependency','dependencias','depends','dependson','dependede')) { $dependencyColumn = $cellIndex }
+            if ($labels[$cellIndex] -in @('status','state','estado')) { $statusColumn = $cellIndex }
+            if ($labels[$cellIndex] -in @('evidence','evidencia','checkpoint','checkpointevidence')) { $evidenceColumn = $cellIndex }
+        }
+        if ($stepColumn -ge 0 -and $dependencyColumn -ge 0 -and $statusColumn -ge 0) {
+            $columnIndex = [PSCustomObject]@{ Step=$stepColumn; Name=$nameColumn; Dependencies=$dependencyColumn; Status=$statusColumn; Evidence=$evidenceColumn }
+            $headerLine = $lineIndex
+            break
+        }
+    }
+    if ($null -eq $columnIndex) { return @() }
+
+    $rows = [System.Collections.Generic.List[object]]::new()
+    for ($lineIndex = $headerLine + 1; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $line = $lines[$lineIndex]
+        if ([string]::IsNullOrWhiteSpace($line)) { break }
+        if ($line.IndexOf('|') -lt 0) { break }
+        $cells = @(Get-PreflightTableCells $line)
+        if ($cells.Count -le $columnIndex.Step) { continue }
+        $stepId = (Remove-PreflightDecoration $cells[$columnIndex.Step]).Trim().ToUpperInvariant()
+        if ([string]::IsNullOrWhiteSpace($stepId) -or $stepId -match '^:?-+:?$') { continue }
+        $name = if ($columnIndex.Name -ge 0 -and $cells.Count -gt $columnIndex.Name) { $cells[$columnIndex.Name] } else { '' }
+        $evidence = if ($columnIndex.Evidence -ge 0 -and $cells.Count -gt $columnIndex.Evidence) { $cells[$columnIndex.Evidence] } else { '' }
+        $rows.Add([PSCustomObject]@{
+            Id = $stepId
+            Name = [string]$name
+            Dependencies = [string]$cells[$columnIndex.Dependencies]
+            Status = [string]$cells[$columnIndex.Status]
+            Evidence = [string]$evidence
+            Cells = $cells
+            Line = $line
+        })
+    }
+    return @($rows.ToArray())
+}
+
+function Write-PreflightStepTable {
+    if ($script:PlanSteps.Count -eq 0) {
+        Write-Output 'O3 progress table unavailable: no canonical PLAN step headings were parsed.'
+        return
+    }
+    $renderRows = [System.Collections.Generic.List[object]]::new()
+    $overrideRows = @()
+    $useOverrides = -not [string]::IsNullOrWhiteSpace($StepStateOverridesPath)
+    if ($useOverrides) {
+        if (-not (Test-Path -LiteralPath $StepStateOverridesPath -PathType Leaf)) { throw 'O3 step-state override file does not exist.' }
+        $overrideRows = @(Get-Content -LiteralPath $StepStateOverridesPath -Raw -Encoding UTF8 | ConvertFrom-Json)
+    }
+    foreach ($step in $script:PlanSteps) {
+        $matches = @($script:PlanProgressRows | Where-Object { [string]::Equals([string]$_.Id,[string]$step.Id,[StringComparison]::OrdinalIgnoreCase) })
+        if ($matches.Count -ne 1 -or -not $script:PlanStates.ContainsKey($step.Id)) {
+            $renderRows.Add([PSCustomObject]@{ Id=$step.Id; Status='UNVERIFIED'; Dependencies='unknown'; Evidence='PLAN row missing or duplicated' })
+            continue
+        }
+        $stepStatus = $script:PlanStates[$step.Id]
+        $stepEvidence = $matches[0].Evidence
+        if ($useOverrides) {
+            $statusOverrides = @($overrideRows | Where-Object { [string]::Equals([string]$_.Id,[string]$step.Id,[StringComparison]::OrdinalIgnoreCase) })
+            if ($statusOverrides.Count -ne 1) { throw "Expected exactly one status projection for PLAN step $($step.Id)." }
+            $stepStatus = ([string]$statusOverrides[0].Status).Trim().ToUpperInvariant()
+            if (-not [string]::IsNullOrWhiteSpace([string]$statusOverrides[0].Evidence)) { $stepEvidence = [string]$statusOverrides[0].Evidence }
+        }
+        $renderRows.Add([PSCustomObject]@{
+            Id = $step.Id
+            Status = $stepStatus
+            Dependencies = $matches[0].Dependencies
+            Evidence = $stepEvidence
+        })
+    }
+    if ($useOverrides -and $overrideRows.Count -ne $script:PlanSteps.Count) { throw 'O3 status projection must contain exactly one row for every PLAN step.' }
+    try {
+        Write-Output (Format-O3PlanProgressTable -PlanSteps $script:PlanSteps -StepRows @($renderRows.ToArray()))
+    } catch {
+        Write-Output ("O3 progress table unavailable: {0}" -f (Format-PreflightValue $_.Exception.Message))
+    }
+}
+
+function Get-PreflightPlanReferenceCandidates([string]$Text) {
+    $candidates = [System.Collections.Generic.List[string]]::new()
+    foreach ($line in [regex]::Split($Text,'\r?\n')) {
+        $candidateValues = [System.Collections.Generic.List[string]]::new()
+        $cells = @(Get-PreflightTableCells $line)
+        if ($cells.Count -ge 2 -and (ConvertTo-PreflightLabel $cells[0]) -in @('plan','relatedplan','planpath','canonicalplan','relatedplanpath')) { $candidateValues.Add($cells[1]) }
+        $field = [regex]::Match($line,'^\s*(?:[-*+]\s*)?(?<label>[^:|]+?)\s*:\s*(?<value>.*?)\s*$')
+        if ($field.Success -and (ConvertTo-PreflightLabel $field.Groups['label'].Value) -in @('plan','relatedplan','planpath','canonicalplan','relatedplanpath')) { $candidateValues.Add($field.Groups['value'].Value) }
+        foreach ($value in $candidateValues) {
+            foreach ($match in [regex]::Matches($value,'\[[^\]]*\]\((?<path>[^)\s]+)(?:\s+[^)]*)?\)|`(?<path>[^`]+)`')) {
+                $candidates.Add($match.Groups['path'].Value)
+            }
+            foreach ($match in [regex]::Matches($value,'(?i)(?:\.{1,2}/|features/|sdd/)[^\s|<>`]+\.md')) { $candidates.Add($match.Value.TrimEnd('.',',',';',')')) }
+        }
+    }
+    return @($candidates.ToArray())
+}
+
+function Test-CanonicalPlanReference([string]$Text,[string]$SourcePath,[string]$CanonicalPlanPath,[string]$CanonicalPortablePath,[string]$RepositoryRoot) {
+    $target = [IO.Path]::GetFullPath($CanonicalPlanPath)
+    foreach ($candidateValue in (Get-PreflightPlanReferenceCandidates $Text)) {
+        $candidate = $candidateValue.Trim().Trim('<','>','`').Replace('\','/')
+        $candidate = $candidate -replace '[?#].*$',''
+        if ([string]::IsNullOrWhiteSpace($candidate) -or [IO.Path]::IsPathRooted($candidate)) { continue }
+        # Compare portable repository-relative form only after removing exact
+        # current-directory prefixes. TrimStart('./') is unsafe: it treats the
+        # argument as a character set and can erase a leading ../../ traversal.
+        $portableCandidate = $candidate -replace '^(?:\./)+',''
+        if ([string]::Equals($portableCandidate,$CanonicalPortablePath,[StringComparison]::OrdinalIgnoreCase)) { return $true }
+        try {
+            $base = Split-Path -Parent $SourcePath
+            if ($portableCandidate.StartsWith('features/',[StringComparison]::OrdinalIgnoreCase)) { $base = $RepositoryRoot }
+            $resolved = [IO.Path]::GetFullPath((Join-Path $base ($portableCandidate.Replace('/',[IO.Path]::DirectorySeparatorChar))))
+            if ([string]::Equals($resolved,$target,[StringComparison]::OrdinalIgnoreCase)) { return $true }
+        } catch { }
+    }
+    return $false
 }
 
 function Add-PreflightIssue([string]$Code,[string]$Artifact,[string]$Field,[string]$Observed,[string]$Expected,[string]$Owner,[string]$NextAction) {
@@ -46,6 +326,10 @@ function Write-PreflightBlock {
     for ($issueIndex = 0; $issueIndex -lt $script:PreflightIssues.Count; $issueIndex++) {
         $issue = $script:PreflightIssues[$issueIndex]
         Write-Output ("  [{0}] code={1}; artifact={2}; field={3}; observed={4}; expected={5}; owner={6}; next={7}" -f ($issueIndex + 1),$issue.Code,$issue.Artifact,$issue.Field,$issue.Observed,$issue.Expected,$issue.Owner,$issue.NextAction)
+    }
+    if ($EmitStepTable) {
+        try { Write-PreflightStepTable }
+        catch { Write-Output ("O3 progress table unavailable: {0}" -f (Format-PreflightValue $_.Exception.Message)) }
     }
 }
 
@@ -96,7 +380,7 @@ try {
     $relativePlanInStorage = (Get-ToolkitRelativePath -BasePath $featureStorageAbsolute -TargetPath $plan).Replace('\','/')
     $relativePlan = $portablePrefix + 'features/' + $relativePlanInStorage
     $planFeatureSegment = ($relativePlanInStorage -split '/')[0]
-    if ($relativeFeature.StartsWith('../') -or $relativeFeature -match '^\.\.' -or $relativePlanInStorage -notmatch '^[^/]+/US\d{2}/PLAN/PLAN_\d{3}_[^/]+\.md$' -or $relativeFeature -ne $planFeatureSegment) {
+    if ($relativeFeature.StartsWith('../') -or $relativeFeature -match '^\.\.' -or $relativePlanInStorage -notmatch '^[^/]+/(?:US|TS)\d{2}/PLAN/PLAN_\d{3}_[^/]+\.md$' -or $relativeFeature -ne $planFeatureSegment) {
         Stop-Preflight 'non_canonical_feature_or_plan_path'
     }
     $storyRoot = Split-Path -Parent (Split-Path -Parent $plan)
@@ -117,8 +401,8 @@ try {
     if ($script:PreflightIssues.Count -gt 0) { Stop-Preflight 'required_artifact_set_invalid' }
     $prd = $prds[0].FullName
     $planText = Get-Content -LiteralPath $plan -Raw -Encoding UTF8
-    $status = [regex]::Match($planText,'(?im)^\|\s*(?:\*\*Status\*\*|Status)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
-    if ($status -cne 'approved') {
+    $status = Get-PreflightFieldValue $planText @('Status') -TopLevelOnly
+    if (-not [string]::Equals($status,'approved',[StringComparison]::OrdinalIgnoreCase)) {
         Add-PreflightIssue 'plan_not_explicitly_approved' (Get-PreflightArtifactRef $plan) 'Status' $status 'approved' 'PLAN owner' 'Obtain and persist PLAN approval before O3 effects.'
     }
 
@@ -127,7 +411,7 @@ try {
     $prdText = Get-Content -LiteralPath $prd -Raw -Encoding UTF8
     $refineText = Get-Content -LiteralPath $refine -Raw -Encoding UTF8
     $continuityText = Get-Content -LiteralPath $continuity -Raw -Encoding UTF8
-    $featureId = [regex]::Match($featureText,'(?im)^\|\s*\*\*Id\*\*\s*\|\s*`?([^`|]+)').Groups[1].Value.Trim()
+    $featureId = Get-PreflightFieldValue $featureText @('Id','Feature Id') -TopLevelOnly
     $folderIdentity = [regex]::Match($relativeFeature,'^(?<sequence>\d{3})-(?<slug>[a-z0-9]+(?:-[a-z0-9]+)*)$')
     $featureIdentity = [regex]::Match($featureId,'^(?<sequence>\d{3})(?:-(?<slug>[a-z0-9]+(?:-[a-z0-9]+)*))?$')
     if (-not $folderIdentity.Success -or -not $featureIdentity.Success) {
@@ -146,8 +430,8 @@ try {
         Add-PreflightIssue $identityCode (Get-PreflightArtifactRef $plan) 'feature/PLAN/PRD sequence' "feature=$($folderIdentity.Groups['sequence'].Value), plan=$planSequence, prd=$prdSequence" 'all three sequence values match' 'PLAN/PRD owner' 'Align PLAN and PRD filename sequences with the canonical feature folder, then rerun preflight.'
     }
     $storyId = Split-Path $storyRoot -Leaf
-    if ($storyId -notmatch '^US\d{2}$' -or $storyText -notmatch [regex]::Escape($storyId) -or $storyText -notmatch [regex]::Escape($relativeFeature)) {
-        Add-PreflightIssue 'story_identity_or_feature_scope_mismatch' (Get-PreflightArtifactRef $story) 'Feature/story identity' $storyId 'canonical USnn and matching feature path' 'story owner' 'Align the STORY identity and feature path with its folder.'
+    if ($storyId -notmatch '^(?:US|TS)\d{2}$' -or $storyText -notmatch [regex]::Escape($storyId) -or $storyText -notmatch [regex]::Escape($relativeFeature)) {
+        Add-PreflightIssue 'story_identity_or_feature_scope_mismatch' (Get-PreflightArtifactRef $story) 'Feature/story identity' $storyId 'canonical USnn or TSnn and matching feature path' 'story owner' 'Align the STORY identity and feature path with its folder.'
     }
     foreach ($pair in @(@($storyText,'STORY'),@($prdText,'PRD'),@($refineText,'REFINE'),@($continuityText,'CONTINUITY'))) {
         if (-not [string]::IsNullOrWhiteSpace($featureId) -and $pair[0] -notmatch [regex]::Escape($featureId)) {
@@ -156,65 +440,93 @@ try {
         }
     }
 
-    $steps = @([regex]::Matches($planText,'(?m)^###\s+[✅☐☑]*\s*(?:STEP|PASSO)\s+(\d+)\s+—\s+(S\d+)\s*:\s*(.+)$') | ForEach-Object {
-        [PSCustomObject]@{ Number=[int]$_.Groups[1].Value; Id=$_.Groups[2].Value; Name=$_.Groups[3].Value.Trim() }
-    })
+    $stepParse = Get-PreflightStepHeadings $planText
+    $steps = @($stepParse.Valid)
+    $script:PlanSteps = $steps
     if ($steps.Count -eq 0) {
         Add-PreflightIssue 'plan_steps_missing' (Get-PreflightArtifactRef $plan) 'step headings' 'none recognized' 'at least one canonical STEP/PASSO heading' 'PLAN owner' 'Restore valid PLAN step headings, then rerun preflight.'
     }
-    $progressSectionMatch = [regex]::Match($planText,'(?ms)^## (?:Progresso da implementação|Implementation progress)\s*\r?\n(?<section>.*?)(?=^## |\z)')
-    if (-not $progressSectionMatch.Success) {
+    if ($stepParse.Invalid.Count -gt 0) {
+        Add-PreflightIssue 'plan_step_heading_invalid' (Get-PreflightArtifactRef $plan) 'step headings' ($stepParse.Invalid -join ' / ') 'valid STEP/PASSO heading with ordinal, step ID, and title' 'PLAN owner' 'Normalize the malformed step heading(s) without changing their semantic IDs, then rerun preflight.'
+    }
+    $progressSection = Get-PreflightSection $planText @('Progresso da implementação','Implementation progress')
+    if ([string]::IsNullOrWhiteSpace($progressSection)) {
         Add-PreflightIssue 'plan_progress_section_missing' (Get-PreflightArtifactRef $plan) 'Implementation progress' 'section missing' 'a progress section containing one ledger row per PLAN step' 'PLAN owner' 'Restore the PLAN progress section, then rerun preflight.'
-        $progressSection = ''
-    } else { $progressSection = $progressSectionMatch.Groups['section'].Value }
-    $refineGroups = @([regex]::Matches($refineText,'(?m)^###\s+[✅☐☑]*\s*(?:STEP|PASSO)\s+\d+\s+—\s+(.+)$'))
+    }
+    $script:PlanProgressRows = @(Get-PreflightStepTableRows $progressSection)
+    $refineParse = Get-PreflightStepHeadings $refineText
+    $refineGroups = @($refineParse.Valid)
+    if ($refineParse.Invalid.Count -gt 0) {
+        Add-PreflightIssue 'refine_step_heading_invalid' (Get-PreflightArtifactRef $refine) 'step headings' ($refineParse.Invalid -join ' / ') 'valid STEP/PASSO headings with IDs matching PLAN' 'REFINE owner' 'Normalize malformed REFINE step headings and keep their IDs aligned with PLAN.'
+    }
+    $refineLines = [regex]::Split($refineText,'\r?\n')
     $planStates = @{}
     $dependenciesByStep = @{}
-    foreach ($step in $steps) {
-        $row = [regex]::Match($progressSection, ('(?m)^\|\s*{0}\s*\|[^\r\n]*\r?$' -f [regex]::Escape($step.Id)))
-        if (-not $row.Success) {
-            Add-PreflightIssue "plan_step_ledger_missing:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)" 'row missing' 'one ledger row with dependencies and status' 'PLAN owner' "Restore the progress row for $($step.Id), then rerun preflight."
-        }
-        $refineContainsStep = $refineText -match ('(?<![A-Za-z0-9]){0}(?!\d)' -f [regex]::Escape($step.Id))
-        if (-not $refineContainsStep) {
-            Add-PreflightIssue "plan_refine_step_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) 'step IDs' 'PLAN step absent from REFINE' $step.Id 'REFINE owner' "Reconcile the checklist row for $($step.Id), then rerun preflight."
-        }
-        if (-not $row.Success) { continue }
-        $cells = @($row.Value.Trim('|').Split('|') | ForEach-Object { $_.Trim() })
-        if ($cells.Count -lt 5) {
-            Add-PreflightIssue "plan_step_ledger_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)" ([string]$cells.Count) 'at least five ledger columns' 'PLAN owner' "Restore the required ledger columns for $($step.Id), then rerun preflight."
+    $planStepIdSet = @{}
+    foreach ($step in $steps) { $planStepIdSet[$step.Id.ToUpperInvariant()] = $true }
+    $rowCountsById = @{}
+    foreach ($progressRow in $script:PlanProgressRows) {
+        $rowId = ([string]$progressRow.Id).ToUpperInvariant()
+        if ($rowId -notmatch '^S\d+$' -or -not $planStepIdSet.ContainsKey($rowId)) {
+            Add-PreflightIssue "plan_step_ledger_extra:$rowId" (Get-PreflightArtifactRef $plan) 'Implementation progress/Step ID' $rowId 'an ID declared by a PLAN step heading' 'PLAN owner' 'Remove extra progress rows or reconcile their step headings, then rerun preflight.'
             continue
         }
-        $state = $cells[4].Trim('`')
+        if (-not $rowCountsById.ContainsKey($rowId)) { $rowCountsById[$rowId] = 0 }
+        $rowCountsById[$rowId]++
+        if ($rowCountsById[$rowId] -gt 1) {
+            Add-PreflightIssue "plan_step_ledger_duplicate:$rowId" (Get-PreflightArtifactRef $plan) "Implementation progress/$rowId" 'duplicate row' 'exactly one row per PLAN step' 'PLAN owner' 'Keep one progress row for this step, then rerun preflight.'
+        }
+    }
+    foreach ($step in $steps) {
+        $matchingPlanRows = @($script:PlanProgressRows | Where-Object { [string]::Equals([string]$_.Id,$step.Id,[StringComparison]::OrdinalIgnoreCase) })
+        if ($matchingPlanRows.Count -eq 0) {
+            Add-PreflightIssue "plan_step_ledger_missing:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)" 'row missing' 'one ledger row with dependencies and status' 'PLAN owner' "Restore the progress row for $($step.Id), then rerun preflight."
+        }
+        if ($matchingPlanRows.Count -gt 1) { $dependenciesByStep[$step.Id] = @(); continue }
+        $row = if ($matchingPlanRows.Count -eq 1) { $matchingPlanRows[0] } else { $null }
+        $refineHeading = $null
+        foreach ($candidateHeading in $refineGroups) {
+            if ([string]::Equals($candidateHeading.Id,$step.Id,[StringComparison]::OrdinalIgnoreCase)) { $refineHeading = $candidateHeading; break }
+        }
+        if ($null -eq $refineHeading) {
+            Add-PreflightIssue "plan_refine_step_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) 'step IDs' 'PLAN step absent from REFINE' $step.Id 'REFINE owner' "Reconcile the checklist row for $($step.Id), then rerun preflight."
+        }
+        $dependenciesByStep[$step.Id] = @()
+        if ($null -eq $row) { $dependenciesByStep[$step.Id] = @(); continue }
+        $state = (Remove-PreflightDecoration $row.Status).ToUpperInvariant()
         if ($state -notin @('COMPLETED','PENDING','IN_PROGRESS','BLOCKED','SKIPPED')) {
             Add-PreflightIssue "plan_step_state_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)/Status" $state 'COMPLETED, PENDING, IN_PROGRESS, BLOCKED, or SKIPPED' 'PLAN owner' "Set a supported state for $($step.Id), then rerun preflight."
         } else { $planStates[$step.Id] = $state }
-        $planDependencies = @([regex]::Matches($cells[2],'S\d+') | ForEach-Object { $_.Value } | Sort-Object -Unique)
+        $planDependencyResult = Get-PreflightDependencyIds $row.Dependencies
+        if ($planDependencyResult.Invalid.Count -gt 0) {
+            Add-PreflightIssue "plan_dependency_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)/Dependencies" ($planDependencyResult.Invalid -join ', ') 'existing PLAN step IDs or none' 'PLAN owner' "Replace non-step references in the dependency cell for $($step.Id) with actual PLAN step IDs."
+        }
+        $planDependencies = @($planDependencyResult.Ids)
         $dependenciesByStep[$step.Id] = $planDependencies
-        $refineHeading = $null
-        foreach ($group in $refineGroups) {
-            if ($group.Groups[1].Value -match ('(?<![A-Za-z0-9]){0}(?!\d)' -f [regex]::Escape($step.Id))) { $refineHeading = $group; break }
+        if ($null -eq $refineHeading) { continue }
+        $refineStartLine = $refineHeading.LineNumber
+        $refineEndLine = $refineLines.Count
+        foreach ($candidateHeading in $refineGroups) {
+            if ($candidateHeading.LineNumber -gt $refineStartLine -and $candidateHeading.LineNumber -lt $refineEndLine) { $refineEndLine = $candidateHeading.LineNumber }
         }
-        if ($null -eq $refineHeading) {
-            Add-PreflightIssue "refine_step_heading_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) "step heading/$($step.Id)" 'missing' 'one matching step heading' 'REFINE owner' "Restore the heading for $($step.Id), then rerun preflight."
-            continue
+        $refineBlock = if ($refineEndLine -gt $refineStartLine) { $refineLines[$refineStartLine..($refineEndLine - 1)] -join "`n" } else { $refineLines[$refineStartLine] }
+        $refineDependencyText = Get-PreflightFieldValue $refineBlock @('Depends on','Dependencies','Dependências','Depende de')
+        $refineDependencyResult = Get-PreflightDependencyIds $refineDependencyText
+        if ($refineDependencyResult.Invalid.Count -gt 0) {
+            Add-PreflightIssue "refine_dependency_invalid:$($step.Id)" (Get-PreflightArtifactRef $refine) "Depends on/$($step.Id)" ($refineDependencyResult.Invalid -join ', ') 'existing PLAN step IDs or none' 'REFINE owner' "Replace non-step references in the dependency field for $($step.Id) with actual PLAN step IDs."
         }
-        $refineStart = $refineHeading.Index
-        $refineEndMatch = [regex]::Match($refineText.Substring($refineStart + $refineHeading.Length),'(?m)^###\s+[✅☐☑]*\s*(?:STEP|PASSO)\s+')
-        $refineBlockLength = if ($refineEndMatch.Success) { $refineHeading.Length + $refineEndMatch.Index } else { $refineText.Length - $refineStart }
-        $refineBlock = $refineText.Substring($refineStart,$refineBlockLength)
-        $refineDependencyMatch = [regex]::Match($refineBlock,'(?im)Depends on:\*\*?\s*([^|\r\n]+)')
-        $refineDependencies = if ($refineDependencyMatch.Success) { @([regex]::Matches($refineDependencyMatch.Groups[1].Value,'S\d+') | ForEach-Object { $_.Value } | Sort-Object -Unique) } else { @() }
+        $refineDependencies = @($refineDependencyResult.Ids)
         if (($planDependencies -join ',') -ne ($refineDependencies -join ',')) {
             Add-PreflightIssue "plan_refine_dependency_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) "Depends on/$($step.Id)" ($refineDependencies -join ',') ($planDependencies -join ',') 'REFINE owner' "Reconcile dependencies for $($step.Id), then rerun preflight."
         }
-        if (($state -eq 'COMPLETED') -and $refineBlock -notmatch '(?m)^☑\s*`?COMPLETED') {
+        if (($state -eq 'COMPLETED') -and -not (Test-PreflightStepState $refineBlock 'COMPLETED')) {
             Add-PreflightIssue "refine_step_state_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) "Status/$($step.Id)" 'not COMPLETED' 'COMPLETED to match PLAN' 'REFINE owner' "Reconcile the checklist state for $($step.Id), then rerun preflight."
         }
-        if (($state -eq 'PENDING') -and $refineBlock -notmatch '(?m)^☐\s*`?PENDING') {
+        if (($state -eq 'PENDING') -and -not (Test-PreflightStepState $refineBlock 'PENDING')) {
             Add-PreflightIssue "refine_step_state_mismatch:$($step.Id)" (Get-PreflightArtifactRef $refine) "Status/$($step.Id)" 'not PENDING' 'PENDING to match PLAN' 'REFINE owner' "Reconcile the checklist state for $($step.Id), then rerun preflight."
         }
     }
+    $script:PlanStates = $planStates
     for ($index = 0; $index -lt $steps.Count; $index++) {
         foreach ($dependency in $dependenciesByStep[$steps[$index].Id]) {
             $dependencyIndex = -1
@@ -229,7 +541,9 @@ try {
             Add-PreflightIssue "plan_completion_order_invalid:$($steps[$index].Id)" (Get-PreflightArtifactRef $plan) "Status/$($steps[$index].Id)" 'COMPLETED before previous step' 'completed prefix follows PLAN order' 'PLAN owner' 'Reconcile step statuses to the completed prefix, then rerun preflight.'
         }
     }
-    if ($storyText -notmatch [regex]::Escape((Split-Path $plan -Leaf)) -or $prdText -notmatch [regex]::Escape((Split-Path $plan -Leaf))) {
+    $storyReferencesPlan = Test-CanonicalPlanReference $storyText $story $plan $relativePlan $repo
+    $prdReferencesPlan = Test-CanonicalPlanReference $prdText $prd $plan $relativePlan $repo
+    if (-not $storyReferencesPlan -or -not $prdReferencesPlan) {
         Add-PreflightIssue 'story_prd_plan_navigation_mismatch' (Get-PreflightArtifactRef $story) 'Related PLAN path' 'missing or different from canonical PLAN' (Split-Path $plan -Leaf) 'story/PRD owner' 'Align STORY and PRD navigation with the canonical PLAN.'
     }
     if ($storyText -notmatch [regex]::Escape((Split-Path $featureDoc -Leaf)) -or $storyText -notmatch [regex]::Escape((Split-Path $continuity -Leaf))) {
@@ -238,29 +552,30 @@ try {
     if ($prdText -notmatch [regex]::Escape((Split-Path $featureDoc -Leaf)) -or $prdText -notmatch [regex]::Escape((Split-Path $story -Leaf)) -or $prdText -notmatch [regex]::Escape((Split-Path $continuity -Leaf))) {
         Add-PreflightIssue 'prd_navigation_mismatch' (Get-PreflightArtifactRef $prd) 'Related paths' 'missing or different sibling paths' 'canonical FEATURE, STORY, and CONTINUITY paths' 'PRD owner' 'Align PRD navigation with canonical sibling paths.'
     }
-    $progress = [regex]::Match($planText,'(?im)^\|\s*\*\*(?:Progresso|Progress)\*\*\s*\|\s*(\d+)\s*/\s*(\d+)\s*\|')
+    $progressValue = Get-PreflightFieldValue $planText @('Progresso','Progress') -TopLevelOnly
+    $progress = [regex]::Match((Remove-PreflightDecoration $progressValue),'(?i)^\s*(?<completed>\d+)\s*/\s*(?<total>\d+)\b')
     if ($steps.Count -gt 0 -and -not $progress.Success) {
         Add-PreflightIssue 'plan_progress_total_mismatch' (Get-PreflightArtifactRef $plan) 'Progress' 'missing or malformed' ("N/{0}" -f $steps.Count) 'PLAN owner' 'Restore the progress count and rerun preflight.'
-    } elseif ($steps.Count -gt 0 -and [int]$progress.Groups[2].Value -ne $steps.Count) {
-        Add-PreflightIssue 'plan_progress_total_mismatch' (Get-PreflightArtifactRef $plan) 'Progress total' $progress.Groups[2].Value ([string]$steps.Count) 'PLAN owner' 'Set the progress total to the number of parsed PLAN steps, then rerun preflight.'
+    } elseif ($steps.Count -gt 0 -and [int]$progress.Groups['total'].Value -ne $steps.Count) {
+        Add-PreflightIssue 'plan_progress_total_mismatch' (Get-PreflightArtifactRef $plan) 'Progress total' $progress.Groups['total'].Value ([string]$steps.Count) 'PLAN owner' 'Set the progress total to the number of parsed PLAN steps, then rerun preflight.'
     }
     $completedIds = @($steps | Where-Object { $planStates.ContainsKey($_.Id) -and $planStates[$_.Id] -eq 'COMPLETED' } | ForEach-Object { $_.Id })
     $completed = $completedIds.Count
-    if ($progress.Success -and $planStates.Count -eq $steps.Count -and [int]$progress.Groups[1].Value -ne $completed) {
-        Add-PreflightIssue 'plan_progress_completed_mismatch' (Get-PreflightArtifactRef $plan) 'Progress completed' $progress.Groups[1].Value ([string]$completed) 'PLAN owner' 'Align the completed count with the persisted step states, then rerun preflight.'
+    if ($progress.Success -and $planStates.Count -eq $steps.Count -and [int]$progress.Groups['completed'].Value -ne $completed) {
+        Add-PreflightIssue 'plan_progress_completed_mismatch' (Get-PreflightArtifactRef $plan) 'Progress completed' $progress.Groups['completed'].Value ([string]$completed) 'PLAN owner' 'Align the completed count with the persisted step states, then rerun preflight.'
     }
-    $prdStatus = [regex]::Match($prdText,'(?im)^\|\s*\*\*Status\*\*\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
-    $planImplementationStatus = [regex]::Match($planText,'(?im)^\|\s*(?:\*\*Implementation status\*\*|\*\*Status da implementação\*\*)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
+    $prdStatus = Get-PreflightFieldValue $prdText @('Status') -TopLevelOnly
+    $planImplementationStatus = Get-PreflightFieldValue $planText @('Implementation status','Status da implementação') -TopLevelOnly
     $planIsComplete = $planStates.Count -eq $steps.Count -and $steps.Count -gt 0 -and $completed -eq $steps.Count
     $supportedTransitionSources = @('Pronto para planejamento','Ready for planning')
     if ($AuthorizeCompletedPlanPrdTransition) {
-        if (-not $planIsComplete -or $planImplementationStatus -cne 'COMPLETED') {
+        if (-not $planIsComplete -or -not [string]::Equals($planImplementationStatus,'COMPLETED',[StringComparison]::OrdinalIgnoreCase)) {
             Add-PreflightIssue 'terminal_transition_plan_not_closed' (Get-PreflightArtifactRef $plan) 'Implementation status/steps' "$planImplementationStatus; completed=$completed/$($steps.Count)" 'COMPLETED with every PLAN step COMPLETED' 'authorized sdd-develop owner' 'Complete and validate the entire PLAN before requesting the PRD status transition.'
         }
         if ($prdStatus -notin $supportedTransitionSources) {
             Add-PreflightIssue 'terminal_transition_source_invalid' (Get-PreflightArtifactRef $prd) 'Status' $prdStatus 'Pronto para planejamento or Ready for planning' 'authorized sdd-develop owner' 'Use the transition preflight only from the approved planning-ready PRD state.'
         } else {
-            $approval = [regex]::Match($prdText,'(?im)^\|\s*(?:\*\*Aprovação do conteúdo\*\*|\*\*Content approval\*\*)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
+            $approval = Get-PreflightFieldValue $prdText @('Aprovação do conteúdo','Content approval') -TopLevelOnly
             if (-not (Test-PositiveContentApproval $approval)) {
                 Add-PreflightIssue 'terminal_transition_content_approval_missing' (Get-PreflightArtifactRef $prd) 'Content approval' $approval 'persisted approved content record' 'PRD owner' 'Reconcile the canonical PRD content approval metadata before closeout.'
             }
@@ -269,7 +584,7 @@ try {
         Add-PreflightIssue "completed_plan_prd_status_mismatch:$prdStatus" (Get-PreflightArtifactRef $prd) 'Status' $prdStatus 'Implementado or Implemented after all PLAN steps complete' 'PRD owner' 'Reconcile the approved implementation closeout, then rerun preflight.'
     }
     if ($planIsComplete -and $prdStatus -in @('Implementado','Implemented')) {
-        $terminalApproval = [regex]::Match($prdText,'(?im)^\|\s*(?:\*\*Aprovação do conteúdo\*\*|\*\*Content approval\*\*)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
+        $terminalApproval = Get-PreflightFieldValue $prdText @('Aprovação do conteúdo','Content approval') -TopLevelOnly
         if (-not (Test-PositiveContentApproval $terminalApproval)) {
             Add-PreflightIssue 'completed_plan_content_approval_missing' (Get-PreflightArtifactRef $prd) 'Content approval' $terminalApproval 'persisted approved content record retained through closeout' 'PRD owner' 'Restore or reconcile the canonical PRD content approval metadata, then rerun preflight.'
         }
@@ -291,37 +606,43 @@ try {
             break
         }
     }
-    $continuityState = [regex]::Match($continuityText,'(?ms)^## (?:Estado atual do O3|Current O3 state|O3 current state)\s*\r?\n(?<state>.*?)(?=^## |\z)').Groups['state'].Value
+    $continuityState = Get-PreflightSection $continuityText @('Estado atual do O3','Current O3 state','O3 current state')
     if ([string]::IsNullOrWhiteSpace($continuityState)) {
         Add-PreflightIssue 'continuity_o3_state_missing' (Get-PreflightArtifactRef $continuity) 'Estado atual do O3' 'section missing or empty' 'PLAN, progress, completed steps, and next eligible step' 'feature owner' 'Restore the O3 reconciliation section in CONTINUITY, then rerun preflight.'
-    } elseif ($planStates.Count -eq $steps.Count -and $progress.Success -and [int]$progress.Groups[2].Value -eq $steps.Count) {
-        $continuityPlanPath = [regex]::Match($continuityState,'(?im)^- PLAN:\s*`?([^`\r\n]+)').Groups[1].Value.Trim()
-        $continuityProgressMatch = [regex]::Match($continuityState,'(?im)^- (?:Progresso|Progress):\s*(\d+)\s*/\s*(\d+)')
-        $continuityCompleted = [regex]::Match($continuityState,'(?im)^- (?:Concluídos|Completed):\s*(.*)$').Groups[1].Value.Trim()
-        $continuityNext = [regex]::Match($continuityState,'(?im)^- (?:Próximo|Next):\s*(.*)$').Groups[1].Value.Trim()
-        $expectedNext = if ($next.Count -gt 0) { "$($next[0].Id) — $($next[0].Name)" } else { 'none' }
+    } elseif ($planStates.Count -eq $steps.Count -and $progress.Success -and [int]$progress.Groups['total'].Value -eq $steps.Count) {
+        $continuityPlanPath = Get-PreflightFieldValue $continuityState @('PLAN')
+        $continuityProgressValue = Get-PreflightFieldValue $continuityState @('Progresso','Progress')
+        $continuityProgressMatch = [regex]::Match((Remove-PreflightDecoration $continuityProgressValue),'(?i)^\s*(?<completed>\d+)\s*/\s*(?<total>\d+)\b')
+        $continuityCompletedValue = Get-PreflightFieldValue $continuityState @('Concluídos','Completed')
+        $continuityNextValue = Get-PreflightFieldValue $continuityState @('Próximo','Next')
+        $continuityCompletedIds = @(Get-PreflightReferencedStepIds $continuityCompletedValue)
+        $continuityNextIds = @(Get-PreflightReferencedStepIds $continuityNextValue)
+        $expectedNextId = if ($next.Count -gt 0) { $next[0].Id } else { 'none' }
         $expectedCompleted = if ($completedIds.Count -gt 0) { $completedIds -join ', ' } else { 'none' }
-        if (-not [string]::Equals($continuityPlanPath, $relativePlan, [StringComparison]::Ordinal)) {
+        if (-not (Test-CanonicalPlanReference ("PLAN: $continuityPlanPath") $continuity $plan $relativePlan $repo)) {
             Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:plan' (Get-PreflightArtifactRef $continuity) 'PLAN' $continuityPlanPath $relativePlan 'feature owner' 'Update CONTINUITY to reference the canonical PLAN, then rerun preflight.'
         }
-        if (-not $continuityProgressMatch.Success -or [int]$continuityProgressMatch.Groups[1].Value -ne [int]$progress.Groups[1].Value -or [int]$continuityProgressMatch.Groups[2].Value -ne [int]$progress.Groups[2].Value) {
-            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:progress' (Get-PreflightArtifactRef $continuity) 'Progresso' $continuityProgressMatch.Value $progress.Value 'feature owner' 'Reconcile CONTINUITY progress with the PLAN, then rerun preflight.'
+        if (-not $continuityProgressMatch.Success -or [int]$continuityProgressMatch.Groups['completed'].Value -ne [int]$progress.Groups['completed'].Value -or [int]$continuityProgressMatch.Groups['total'].Value -ne [int]$progress.Groups['total'].Value) {
+            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:progress' (Get-PreflightArtifactRef $continuity) 'Progresso' $continuityProgressValue $progressValue 'feature owner' 'Reconcile CONTINUITY progress with the PLAN, then rerun preflight.'
         }
-        if (-not [string]::Equals($continuityCompleted, $expectedCompleted, [StringComparison]::Ordinal)) {
-            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:completed' (Get-PreflightArtifactRef $continuity) 'Completed' $continuityCompleted $expectedCompleted 'feature owner' 'Reconcile the completed-step list with the PLAN, then rerun preflight.'
+        if (($continuityCompletedIds -join ',') -ne ($completedIds -join ',')) {
+            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:completed' (Get-PreflightArtifactRef $continuity) 'Completed' $continuityCompletedValue $expectedCompleted 'feature owner' 'Reconcile the completed-step list with the PLAN, then rerun preflight.'
         }
-        if (-not [string]::Equals($continuityNext, $expectedNext, [StringComparison]::Ordinal)) {
-            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:next' (Get-PreflightArtifactRef $continuity) 'Next' $continuityNext $expectedNext 'feature owner' 'Reconcile the next eligible step with the PLAN, then rerun preflight.'
+        $actualNextId = if ($continuityNextIds.Count -gt 0) { $continuityNextIds[0] } else { 'none' }
+        if (-not [string]::Equals($actualNextId,$expectedNextId,[StringComparison]::OrdinalIgnoreCase) -or $continuityNextIds.Count -gt 1) {
+            Add-PreflightIssue 'continuity_plan_reconciliation_mismatch:next' (Get-PreflightArtifactRef $continuity) 'Next' $continuityNextValue $expectedNextId 'feature owner' 'Reconcile the next eligible step with the PLAN, then rerun preflight.'
         }
     }
     if ($script:PreflightIssues.Count -gt 0) { Write-PreflightBlock; exit 2 }
     $git = & git -C $repo status --short --untracked-files=no -- $relativeFeature 2>$null
     if ($AuthorizeCompletedPlanPrdTransition) {
-        $targetStatus = if ($prdStatus -ceq 'Pronto para planejamento') { 'Implementado' } else { 'Implemented' }
+        $targetStatus = if ([string]::Equals($prdStatus,'Pronto para planejamento',[StringComparison]::OrdinalIgnoreCase)) { 'Implementado' } else { 'Implemented' }
         Write-Output "preflight: TRANSITION_READY - plan=$relativePlan; source=$prdStatus; target=$targetStatus; owner=authorized sdd-develop closeout only; no files changed; rerun standard preflight after the PRD status write; $script:StorageSummary"
+        if ($EmitStepTable) { Write-PreflightStepTable }
         exit 0
     }
     Write-Output "preflight: ALLOW - plan=$relativePlan; status=approved; steps=$($steps.Count); completed=$completed; $script:StorageSummary; git_feature_status=$([string]::Join('',@($git)))"
+    if ($EmitStepTable) { Write-PreflightStepTable }
     exit 0
 }
 catch {

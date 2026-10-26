@@ -40,6 +40,14 @@ A complete **PRD** (agent `.md` artifact) in the **user chat language** (or `pre
 
 The PRD answers **what**, not **how**. No implementation code. Identifiers (types, APIs, paths) in **English**.
 
+### External read/write scope
+
+For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCESS.md`](../_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md): record a portable `external:<alias>/<relative-path>` destination, the requested `read` and/or `write` operations, and their observable outcome and limits. Do not reject the destination merely because it is outside the repository. Do not put the physical root, drive, UNC, or absolute path in the PRD; retain any root mapping only in trusted execution context. Keep an O3 `files[]` evidence reference separate from an implementation access grant.
+
+### External read/write scope
+
+For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCESS.md`](../_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md): record a portable `external:<alias>/<relative-path>` destination, the requested `read` and/or `write` operations, and their observable outcome and limits. Do not reject the destination merely because it is outside the repository. Do not put the physical root, drive, UNC, or absolute path in the PRD; retain any root mapping only in trusted execution context. Keep an O3 `files[]` evidence reference separate from an implementation access grant.
+
 ## Lazy-load (only when needed)
 
 | When | Path (after sync) |
@@ -125,6 +133,10 @@ Before drafting: challenge vague goals/AC ("works correctly", "as expected", "fu
 **Decision projection (when applicable):** if a material decision or source feeds the PRD, load `SEMANTIC-SUFFICIENCY.md` before content approval and compare the actual §2 acceptance and §4 REQ/RNF wording (plus applicable OOS) with the current decision. IDs, links, or envelopes alone do not establish agreement. Keep superseded decisions historical and route contradictions to the existing decision owner. Until reconciled, treat the affected REQ/CA as insufficient and do not present that behavior as approved. A generic CA or missing material behavior/failure becomes a focused question; do not fill it as `agreed`. This check adds no sibling, checklist, or Memory Bank prerequisite in `direct`; preserve the existing `direct`/`orchestrated` rules and separate content approval, write authorization, and implementation authorization.
 
 Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agreed`; agent defaults / inferences → `invented` (Assumptions / open questions) until confirm. Invented must stay visibly labeled in the draft and must not be written as locked requirements.
+
+When the operator requests external read/write access, only that explicit destination and those explicit operations become agreed scope. Missing operation, target, or material boundary remains an open question; never infer a wider grant from technical convenience.
+
+When the operator requests external read/write access, only that explicit destination and those explicit operations become agreed scope. Missing operation, target, or material boundary remains an open question; never infer a wider grant from technical convenience.
 
 ### 6. Context checkpoint
 

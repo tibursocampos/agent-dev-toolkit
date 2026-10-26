@@ -164,6 +164,12 @@ OK to show OS absolute in chat confirm UI / SESSION hashing / sync logs — **no
 
 Runtime: resolve `InstallRoot` + portable path → absolute **only** at Read/Write time.
 
+### External evidence references for O3
+
+An external source used as evidence may be cited in FEATURE / ANALYSIS / ARCH / PRD / PLAN text as `external:<alias>/<relative-path>` (for example, `external:Demandas/brief/source.md`). This is an evidence reference only; it is not a storage or navigation path. Never put the external root, drive, UNC path, or machine-specific location in an artifact. O1 records the portable reference with the evidence; O2 preserves the exact reference when carrying that evidence into PRD / PLAN and the O3 handoff. O1/O2 do not authorize aliases. Before O3 dispatch, the coordinator must explicitly authorize each alias and provide its root separately to `Invoke-O3ReceiptValidation.ps1`; O3 accepts the reference in `files[]` only when both its alias and path prefix are in coordinator scope. The receipt never carries the root. See `_shared/agents/RECEIPT.md` for the exact path and runtime validation contract.
+
+Classic SDD implementation access is a separate contract: see `CLASSIC-EXTERNAL-ACCESS.md` for user-requested destinations and read/write scope. The shared `external:` spelling does not merge the authority domains: an O3 `files[]` entry remains evidence-only and does not grant Classic read or write access.
+
 ## Navigation block (Related)
 
 **Rule IDs:** `NAV-RELATED` · `NAV-OMIT-ABSENT` · `NAV-PORTABLE` (REQ-007 / REQ-008 / RN05 / CA3)

@@ -62,6 +62,8 @@ On approval:
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.
 5. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings. Include CHANGE path when present.
 
+If a handed-off PLAN relies on external evidence, retain its exact `external:<alias>/<relative-path>` reference in the PLAN and identify the alias in the O3 handoff. Do not put the authorized root in CONTINUITY, PRD, PLAN, or the receipt. O2 does not grant access: before dispatch, the O3 coordinator authorizes alias and path prefix and supplies the alias-to-root JSON separately to `Invoke-O3ReceiptValidation.ps1` (`STORAGE.md` § External evidence references for O3; `_shared/agents/RECEIPT.md`).
+
 Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank (CA7). User picks one path per story/session.
 
 See also § CONTINUITY update checklist.

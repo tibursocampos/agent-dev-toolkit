@@ -29,6 +29,33 @@ function Assert-ContractText {
     Write-Host "$Case`: PASS"
 }
 
+function ConvertTo-SemanticContractText {
+    param([Parameter(Mandatory = $true)][string] $Text)
+
+    $normalized = $Text.ToLowerInvariant()
+    # Compare meaning-bearing words, not Markdown decoration, symbols, or layout.
+    $normalized = [System.Text.RegularExpressions.Regex]::Replace($normalized, '[`*_#>|]', ' ')
+    $normalized = [System.Text.RegularExpressions.Regex]::Replace($normalized, '[\p{P}\p{S}]', ' ')
+    return [System.Text.RegularExpressions.Regex]::Replace($normalized, '\s+', ' ').Trim()
+}
+
+function Assert-ContractSemanticTokens {
+    param(
+        [Parameter(Mandatory = $true)][string] $Case,
+        [Parameter(Mandatory = $true)][string] $Text,
+        [Parameter(Mandatory = $true)][string[]] $Tokens
+    )
+
+    $normalized = ConvertTo-SemanticContractText -Text $Text
+    foreach ($token in $Tokens) {
+        $escapedToken = [System.Text.RegularExpressions.Regex]::Escape($token.ToLowerInvariant())
+        if ($normalized -notmatch "(?<![\p{L}\p{N}])$escapedToken(?![\p{L}\p{N}])") {
+            throw "$Case failed; missing semantic token: $token"
+        }
+    }
+    Write-Host "$Case`: PASS"
+}
+
 $planContract = Read-Contract 'core/skills/sdd-develop/references/plan-contract.md'
 $developSkill = Read-Contract 'core/skills/sdd-develop/SKILL.md'
 $planAcquisition = Read-Contract 'core/skills/sdd-develop/references/plan-acquisition.md'
@@ -111,11 +138,16 @@ Assert-ContractText -Case 'Should_BlockO3BeforeEffects_WhenPreflightIsMissing' -
     'do not create or update a session, claim, or specialist',
     'Re-run after checkpoint/CONTINUITY reconciliation and immediately before every subsequent effect'
 )
-Assert-ContractText -Case 'Should_RejectCompletedAsO3ReceiptStatus' -Text ($receiptContract + "`n" + $planContract) -Markers @(
-    'One of `done`, `blocked`, or `failed`',
-    '`COMPLETED` is a persisted PLAN lifecycle state, never a receipt',
-    'without widening the O3 relay allowlist'
+$receiptStatusContract = $receiptContract + "`n" + $planContract
+$normalizedReceiptStatusContract = ConvertTo-SemanticContractText -Text $receiptStatusContract
+Assert-ContractSemanticTokens -Case 'Should_KeepCanonicalO3ReceiptStatusesDistinctFromPlanLifecycle' -Text $receiptStatusContract -Tokens @(
+    'done', 'blocked', 'failed', 'completed', 'receipt', 'plan', 'lifecycle', 'never'
 )
+if ($normalizedReceiptStatusContract -notmatch '\b(alias|aliases)\b' -or
+    $normalizedReceiptStatusContract -notmatch '\bnormaliz\w*\b' -or
+    $normalizedReceiptStatusContract -notmatch '\bunknown\b') {
+    throw 'Should_KeepCanonicalO3ReceiptStatusesDistinctFromPlanLifecycle failed; alias normalization and unknown-status rejection must remain documented.'
+}
 
 # A step cannot close on acceptance alone or without its required evidence.
 Assert-ContractText -Case 'Should_BlockCompletion_When_AcceptanceHasNoValidation' -Text $planContract -Markers @(

@@ -4,11 +4,12 @@
 
 | Area | Description | Evidence |
 |------|-------------|----------|
-| Skills catalog | 46 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. `implementation-survey` describes a change and is not a mode of `code-review`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
+| Skills catalog | 45 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. `implementation-survey` describes a change and is not a mode of `code-review`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Delivery path | Complete path is Orchestrated Delivery: Step 0 `memory-bank-init`, then `orchestrate-analyze`, `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story), `orchestrate-develop` (one `sdd-develop` child per PLAN step). Direct `sdd-spec` is the same contract when one story is already clear. `refine-story` is the O1 scorecard rubric plus a standalone invoke for one product item or open clarification B/I. | `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
 | Agent registry | 10 agents: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands. Capability `subagents` is `native` or `none`. | `adapters/registry.json` |
 | Spawn | Axes A (spawn vs in-parent), B (omit/inherit model), C (alternate model slug only after gate). Chat language follows the user. Spawn prompts and receipts are en-US. | `core/skills/_shared/agents/SPAWN.md`, `core/skills/_shared/agents/LANGUAGE.md` |
 | Install roots | Fixture-first publish. Manifest `storage_mode` is `repository` or `global`. This bank uses repository mode at `memory-bank/`. | `README.md`, `core/sdd/STORAGE.md` |
+| Classic external access | Feature 020 carries user-requested portable destinations and per-step read/write operations through PRD/PLAN and handoff; trusted root mapping stays outside portable artifacts. S2/S3 are complete for this attempt based on executable contract/fixture evidence. Actual host/provider enforcement, production I/O, isolation, TOCTOU, and the real Windows case-sensitive-directory fixture remain SKIPPED/deferred and non-blocking; Feature 020 remains IN_PROGRESS. O3 receipt `files[]` is evidence-only and grants no Classic I/O. | `features/020-classic-external-access/US01/PRD/020_classic_external_access.md`, `features/020-classic-external-access/US01/PLAN/PLAN_020_classic_external_access.md`, `core/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md` |
 
 ## Key terms
 

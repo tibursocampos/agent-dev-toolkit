@@ -49,6 +49,8 @@ For each material behavior, use the last column to reference the promoted story 
 
 **Rule: omit > fabricate.** Prefer portable paths or redacted snippets. If no real signal exists, use `omitted — none yet` — never invent quotes, metrics, or PII. See `skills/_shared/backlog-item-types/product-evidence-lite.md`. Scorecard must not force inventing Evidence.
 
+For an external source that may be needed during O3, cite `external:<alias>/<relative-path>` (for example, `external:Demandas/brief/source.md`) without its root. This records a portable evidence reference; it does not authorize O3 access. The O3 coordinator authorizes the alias and provides the alias-to-root map separately to the runtime guard (`STORAGE.md` § External evidence references for O3; `RECEIPT.md`).
+
 ## Resumo
 
 {{SUMMARY}}

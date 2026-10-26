@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory (10/15/2026 13:12:58; hash `818e33cce8656426b442dd2ee114a4125041807b01dc802be79e8e53a62aa7b6`)._
+_Entry points and layout hints from inventory (2026-10-26T01:43:59Z; hash `86d0316b57788110080724643c230019a22036dc0e35d000cae8d98ec9937399`)._
 
 | Signal | Path |
 |--------|------|
@@ -29,6 +29,7 @@ One agent-neutral core is published by per-agent adapters into each host install
 | Adapters | Map core into one agent install layout; registry capabilities | `adapters/<id>/`, `adapters/registry.json` |
 | CLI | Menu and `-Action` flags: Sync, Validate, SyncAndValidate, ValidateCore, ListAgents, Uninstall, Backup | `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1` |
 | Validation | In-repo contract asserts and fixture smokes | `scripts/validation/` |
+| Classic external access | PRD/PLAN carry portable, user-requested external destinations and per-step read/write scope. Feature 020 S2/S3 are complete for this attempt based on contract/fixture evidence; provider-wide production I/O enforcement is not established, and host execution remains deferred/non-blocking. O3 receipt `files[]` remains evidence-only. | `core/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md`, Feature 020 |
 
 ## Entry points
 

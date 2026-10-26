@@ -136,7 +136,7 @@ For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
-Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Read `references/continuity-handoff.md`.
+Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Preserve external evidence references from O1 verbatim as `external:<alias>/<relative-path>` in PRD / PLAN evidence citations and the handoff; do not add roots or authorize aliases. For O3, the coordinator separately authorizes alias + path prefixes and supplies the alias-to-root map to `Invoke-O3ReceiptValidation.ps1`. Read `references/continuity-handoff.md`.
 
 ### 9. Durable progress checkpoint
 Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate. During O2, also render and redraw the chat-only live stage table from `LIVE-STAGE-TABLE.md` after each stage and story-cycle checkpoint. The table is not persisted in `CONTINUITY.md`.

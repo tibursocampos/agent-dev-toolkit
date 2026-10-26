@@ -171,6 +171,8 @@ Also required before approval (same reject style if empty; Evidence uses omit > 
 
 Template: `skills/_shared/templates/features/FEATURE.md`.
 
+For an external source that may be needed by O3, keep its exact portable reference `external:<alias>/<relative-path>` in the existing FEATURE Evidence or relevant ANALYSIS / ARCH source note; do not include the absolute root. This reference is descriptive only: O1 does not authorize the alias. O3's coordinator must separately authorize it and provide the alias-to-root map to the runtime validator. See `STORAGE.md` § External evidence references for O3 and `_shared/agents/RECEIPT.md`.
+
 ### Gate B — Promotion anti-task-shatter (TE02 / CA2)
 
 Lazy-load `anti-task-shatter.md` (+ `feature-altitude.md` if altitude unclear). Evaluate **each candidate** title/objective **before** creating `USnn/` or `TSnn/`.

@@ -67,6 +67,8 @@ features/NNN-slug/{USnn|TSnn}/PLAN/PLAN_NNN_*.md
 
 **Input to contracts:** `STORY.md` + `REFINE/` when present (on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them + feature `FEATURE.md` / `CONTINUITY.md` + selective `memory-bank/` paths from Step 0 (Prior context - max 3 gap questions total per story if needed). Prefer promoted siblings/bank over re-asking.
 
+When external evidence is cited by O1 as `external:<alias>/<relative-path>`, preserve the exact alias and relative path in the PRD / PLAN evidence section and the O3 handoff wherever that evidence is needed for a PLAN step. Never substitute an absolute root or a repository-relative guess. This carries the reference only: O2 does not authorize aliases. Before O3 dispatch, its coordinator must authorize the alias and relevant path prefix and supply a separate alias-to-root map; O3's receipt guard accepts the alias only from that map plus the coordinator scope (`STORAGE.md` § External evidence references for O3; `RECEIPT.md`).
+
 **Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate.
 
 **Per-story readiness STOP:** any unanswered question on the required story files, including `MINOR`, stops that story with `open_question`. Do not write the PRD. Folder presence ≠ READY (**RN02**). The max-3 gap-question cap does not apply to this gate.

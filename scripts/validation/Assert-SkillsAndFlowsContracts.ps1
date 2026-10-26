@@ -7,7 +7,7 @@
 #   Should_BlockInText_When_HostHasNoInteractiveQuestion
 #   Should_ShowNarrativeAndShortResult_When_StepCloses
 #   Should_AnalyzeOnce_When_IntermediateStepStarts
-#   Should_BlockStep_When_ReceiptStatusIsCompleted
+#   Should_NormalizeReceiptStatusAliases
 #   Should_ResumeOrBlock_When_QuestionOrIntermediateSkillEnds
 #   Should_StayOnCurrentBranch_When_SpecPlanAnalyzeDeliver
 #   Should_ShowBranchGate_When_SddDevelopChangesCode
@@ -66,11 +66,9 @@ $orchestrateDeliverRelative = 'core/skills/orchestrate-deliver/SKILL.md'
 $checklistAcquisitionRelative = 'core/skills/sdd-plan/references/checklist-acquisition.md'
 $splitChecklistRelative = 'core/skills/split-story-checklist/SKILL.md'
 $changeContractRelative = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
+$receiptContractRelative = 'core/skills/_shared/agents/RECEIPT.md'
 $spawnContractRelative = 'core/skills/_shared/agents/SPAWN.md'
 $perStoryContractsRelative = 'core/skills/orchestrate-deliver/references/per-story-contracts.md'
-$receiptAllowPhrase = 'outside `done`, `blocked`, and `failed`'
-$allowedReceiptStatuses = @('done', 'blocked', 'failed')
-$completedReceiptStatus = 'COMPLETED'
 $publishedHookReaders = @(
     'adapters/cursor/assets/hooks/_hook-common.ps1',
     'adapters/claude/assets/hooks/_hook-common.ps1',
@@ -116,9 +114,13 @@ $orchestrateDeliverCommand = Get-RepoText -RelativePath 'core/skills/orchestrate
 $orchestrateDeliverApprovals = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/approval-gates.md'
 $orchestrateDeliverContinuity = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/continuity-handoff.md'
 $liveStageTable = Get-RepoText -RelativePath 'core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
+$o3PreflightRuntime = Get-RepoText -RelativePath 'scripts/validation/Invoke-O3ArtifactPreflight.ps1'
+$o3ProgressFormatter = Get-RepoText -RelativePath 'scripts/_lib/Format-O3PlanProgressTable.ps1'
+$runtimeManifest = Get-RepoText -RelativePath 'scripts/runtime/runtime-manifest.json'
 $checklistAcquisition = Get-RepoText -RelativePath $checklistAcquisitionRelative
 $splitChecklist = Get-RepoText -RelativePath $splitChecklistRelative
 $changeContract = Get-RepoText -RelativePath $changeContractRelative
+$receiptContract = Get-RepoText -RelativePath $receiptContractRelative
 $spawnContract = Get-RepoText -RelativePath $spawnContractRelative
 $perStoryContracts = Get-RepoText -RelativePath $perStoryContractsRelative
 
@@ -179,8 +181,21 @@ Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'before the fi
 Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'after each child return' -Reason 'O3 table refresh follows returned work'
 Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'before evaluating the next spawn' -Reason 'O3 table refresh precedes queue advancement'
 Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Do not invent streaming' -Reason 'O3 does not invent host progress events'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'Every user-facing O3 status summary and transition includes the complete table' -Reason 'every O3 summary and transition reports all PLAN steps'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'never supply the displayed row set' -Reason 'pending-only dispatch queue cannot truncate the summary'
+Assert-Includes -TestName $ct14Name -Text $o3TableSection -Needle 'overlay only validated receipt, checkpoint, session, or claim state' -Reason 'operational rows use reconciled evidence only'
 Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'one row for every PLAN step' -Reason 'O3 skill requires the complete step table'
 Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'redraw the complete table before evaluating the next spawn' -Reason 'O3 skill enforces refresh before advancement'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'Every O3 status message and transition' -Reason 'O3 skill requires complete table on all status messages'
+Assert-Includes -TestName $ct14Name -Text $orchestrateDevelop -Needle 'never supplies display rows' -Reason 'pending dispatch queue stays separate from display rows'
+Assert-Includes -TestName $ct14Name -Text $orchestrateStepQueue -Needle 'Every user-facing O3 status summary or transition includes the complete table' -Reason 'step-queue contract requires complete summaries at all transitions'
+Assert-Includes -TestName $ct14Name -Text $orchestrateStepQueue -Needle 'never derive display rows from the pending-only dispatch queue' -Reason 'step-queue contract keeps display independent of pending dispatch'
+Assert-Includes -TestName $ct14Name -Text $o3PreflightRuntime -Needle '[switch] $EmitStepTable' -Reason 'preflight exposes deterministic complete table output'
+Assert-Includes -TestName $ct14Name -Text $o3PreflightRuntime -Needle '[string] $StepStateOverridesPath' -Reason 'preflight accepts a complete operational status projection'
+Assert-Includes -TestName $ct14Name -Text $o3ProgressFormatter -Needle 'Duplicate step-state row' -Reason 'formatter rejects duplicate state rows'
+Assert-Includes -TestName $ct14Name -Text $o3ProgressFormatter -Needle 'Missing step-state row for PLAN step' -Reason 'formatter rejects missing state rows'
+Assert-Includes -TestName $ct14Name -Text $o3ProgressFormatter -Needle 'Step-state row is not present in PLAN' -Reason 'formatter rejects extra state rows'
+Assert-Includes -TestName $ct14Name -Text $runtimeManifest -Needle 'scripts/_lib/Format-O3PlanProgressTable.ps1' -Reason 'formatter is included in the published runtime manifest'
 $o3ProgressFixture = Get-RepoText -RelativePath 'scripts/validation/fixtures/o3-progress-table/seven-step-plan-and-projection.md'
 $fixtureProjectionIndex = $o3ProgressFixture.IndexOf('## O3 progress table', [System.StringComparison]::Ordinal)
 if ($fixtureProjectionIndex -lt 0) {
@@ -298,25 +313,15 @@ Assert-Includes -TestName $ct6Name -Text $analysisWindow -Needle 'before an inte
 Assert-Includes -TestName $ct6Name -Text $analysisWindow -Needle 'when code review is requested against that PLAN' -Reason 'the pass runs again at code review against the PLAN'
 Write-Pass -TestName $ct6Name
 
-# --- Should_BlockStep_When_ReceiptStatusIsCompleted (CT7) ---
-$ct7Name = 'Should_BlockStep_When_ReceiptStatusIsCompleted'
-foreach ($receiptSurface in @($executionDisplay, $orchestrateDevelop)) {
-    $receiptIndex = $receiptSurface.IndexOf($receiptAllowPhrase, [System.StringComparison]::Ordinal)
-    if ($receiptIndex -lt 0) {
-        Write-Fail -TestName $ct7Name -Reason 'receipt allow list must be done, blocked, and failed'
-    }
-    $receiptWindow = $receiptSurface.Substring($receiptIndex, [Math]::Min(700, $receiptSurface.Length - $receiptIndex))
-    Assert-Includes -TestName $ct7Name -Text $receiptWindow -Needle 'do not delegate the next step' -Reason 'a status outside the allow list does not delegate the next step'
-    Assert-Includes -TestName $ct7Name -Text $receiptWindow -Needle $completedReceiptStatus -Reason 'COMPLETED must be named as outside the receipt allow list'
-    $allowListEnd = $receiptWindow.IndexOf('failed', [System.StringComparison]::Ordinal)
-    if ($allowListEnd -lt 0) {
-        Write-Fail -TestName $ct7Name -Reason 'receipt allow list must name failed'
-    }
-    $allowListText = $receiptWindow.Substring(0, $allowListEnd)
-    if ($allowListText.IndexOf($completedReceiptStatus, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
-        Write-Fail -TestName $ct7Name -Reason 'COMPLETED must stay outside the receipt allow list'
-    }
-}
+# --- Should_NormalizeReceiptStatusAliases (CT7) ---
+$ct7Name = 'Should_NormalizeReceiptStatusAliases'
+Assert-Includes -TestName $ct7Name -Text $receiptContract -Needle 'Producer emits exactly `done`, `blocked`, or `failed`' -Reason 'producer has one canonical status vocabulary'
+Assert-Includes -TestName $ct7Name -Text $receiptContract -Needle 'accepts only `complete` / `completed` as compatibility aliases for `done`' -Reason 'consumer documents only the two supported success aliases'
+Assert-Includes -TestName $ct7Name -Text $receiptContract -Needle 'returns a canonical receipt projection with `status: done`' -Reason 'aliases are normalized before reconciliation'
+Assert-Includes -TestName $ct7Name -Text $receiptContract -Needle 'Unknown values are rejected.' -Reason 'unrecognized statuses remain invalid'
+Assert-Includes -TestName $ct7Name -Text $orchestrateDevelop -Needle 'child producer must emit relay `status: done`' -Reason 'O3 producer is told to emit the canonical success status'
+Assert-Includes -TestName $ct7Name -Text $orchestrateDevelop -Needle 'accepts only the trimmed, case-insensitive aliases `complete` and `completed` and normalizes them to canonical `done`' -Reason 'O3 runtime consumer and producer contract agree'
+Assert-Includes -TestName $ct7Name -Text $orchestrateDevelop -Needle 'any other status' -Reason 'unknown status continues to block reconciliation'
 Write-Pass -TestName $ct7Name
 
 # --- Should_ResumeOrBlock_When_QuestionOrIntermediateSkillEnds (CT8) ---

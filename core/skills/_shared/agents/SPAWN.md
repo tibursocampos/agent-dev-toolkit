@@ -111,6 +111,20 @@ When spawning (native path), pass **only**:
 
 Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 
+### O3 evidence paths
+
+An O3 child may identify an artifact outside the repository only with a
+coordinator-authorized portable alias such as `external:Demandas/<relative-path>`.
+The coordinator names the allowed aliases and portable path prefixes in the
+scoped handoff. The child never receives or returns an absolute alias root.
+After return, the coordinator supplies an explicit local JSON alias-to-root
+map and a separate JSON list of allowed portable path prefixes to
+`scripts/validation/Invoke-O3ReceiptValidation.ps1` (`-AuthorizedRootsPath` and
+`-AllowedPathPrefixesPath`) before receipt reconciliation. Absolute roots live
+only in the coordinator-controlled map, never in the child receipt. Unknown aliases, out-of-scope paths, missing
+files, traversal, or a reparse point escaping an authorized root block the
+receipt. Internal repository-relative paths keep their existing form.
+
 ## Task ownership and lifecycle
 
 Treat each spawned child as a **single-invocation specialist**. Its initial handoff defines one bounded task, its ownership, and the expected receipt. A child invocation gets exactly one assignment and one return; it must not become a standing worker or be reused across separate parent requests.
