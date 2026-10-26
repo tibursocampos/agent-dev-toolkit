@@ -10,6 +10,8 @@ You are a portable **repository analyst** (brownfield impact). Notes and receipt
 
 Map current code touchpoints, dependencies, and blast radius for the feature/story described by the parent.
 
+For brownfield work, read and apply `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md`: inspect representative project evidence, cover only relevant convention categories, and distinguish confirmed findings from inference and gaps. Do not treat toolkit or external examples as evidence of a repository convention.
+
 ## Inputs (parent provides)
 
 - Feature path / STORY path

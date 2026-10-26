@@ -23,7 +23,7 @@ features/NNN-slug/
 | Flag-gated `ANALYSIS/` / `ARCH/` / `SEC/` under the story at step 9; `REFINE/` on demand | App/test source files |
 | | Repo-root `REFINE|ANALYSIS|ARCH|SEC|PRD|PLAN` |
 
-Templates: `skills/_shared/templates/features/`.
+Templates: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/`.
 
 Artifact prose follows the user chat language (`LANGUAGE.md`). Identifiers and skill names stay English. `null` is not a locale.
 
@@ -35,16 +35,16 @@ Do **not** preload the whole `backlog-item-types/` folder. Load on trigger:
 
 | Trigger | Path |
 |---------|------|
-| Material behavior or decision carried into FEATURE/STORY | `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
-| Merge / split pass | `skills/_shared/backlog-item-types/story-sizing.md` |
-| Product intent for US | `skills/_shared/backlog-item-types/persona-context.md` |
-| Title / promotion pre-check | `skills/_shared/backlog-item-types/anti-task-shatter.md` |
-| STORY AC sections | `skills/_shared/backlog-item-types/gherkin-budget.md` |
-| FEATURE altitude / cap rationale | `skills/_shared/backlog-item-types/feature-altitude.md` |
-| Evidence fields | `skills/_shared/backlog-item-types/product-evidence-lite.md` |
-| Optional Valuable wording | `skills/_shared/backlog-item-types/invest-and-story-quality.md` |
-| Story draft patterns | `skills/_shared/agents/prompts/generate-story.md` |
-| Scorecard map /100 → 1–5 | `refine-story/references/scorecard-rubric.md` |
+| Material behavior or decision carried into FEATURE/STORY | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
+| Merge / split pass | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
+| Product intent for US | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
+| Title / promotion pre-check | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| STORY AC sections | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/gherkin-budget.md` |
+| FEATURE altitude / cap rationale | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
+| Evidence fields | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/product-evidence-lite.md` |
+| Optional Valuable wording | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/invest-and-story-quality.md` |
+| Story draft patterns | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/generate-story.md` |
+| Scorecard map /100 → 1–5 | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
 
 Leave `splitting.md` / `ost-lite.md` / `clarify-depth.md` unloaded unless a specific synthesis question needs them.
 
@@ -87,7 +87,7 @@ Update `CONTINUITY.md` when:
 
 ## Open-question gate (before step 9)
 
-Step 9 is the only step that creates story folders. Refuse to run it while `FEATURE.md` has any unanswered question, including `MINOR`. Stop code: `open_question` (`readiness-severity.md` § Open-question gate). Load `refine-story/references/feature-research.md` at step 8c and update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md` § orchestrate-analyze step 8c. Do not call step 9 when the stop code applies.
+Step 9 is the only step that creates story folders. Refuse to run it while `FEATURE.md` has any unanswered question, including `MINOR`. Stop code: `open_question` (`readiness-severity.md` § Open-question gate). Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` at step 8c and update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md` § orchestrate-analyze step 8c. Do not call step 9 when the stop code applies.
 
 A blocked feature does not leave partial `USnn` / `TSnn` / Bug folders behind.
 
@@ -97,7 +97,7 @@ See also § Feature tree layout.
 
 ## Story sizing merge policy
 
-Contract: `skills/_shared/backlog-item-types/story-sizing.md`. Apply **after** specialist merge, **before** human backlog approval (RN01).
+Contract: `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`. Apply **after** specialist merge, **before** human backlog approval (RN01).
 
 | Step | Action |
 |------|--------|
@@ -169,9 +169,9 @@ Also required before approval (same reject style if empty; Evidence uses omit > 
 | Evidence | Path, redacted snippet, or `omitted — none yet` — never fabricated PII |
 | Histórias table | Each **promoted** row has **Rationale** + **Product intent** (Who/Job/Outcome or `n/a`) |
 
-Template: `skills/_shared/templates/features/FEATURE.md`.
+Template: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/FEATURE.md`.
 
-For an external source that may be needed by O3, keep its exact portable reference `external:<alias>/<relative-path>` in the existing FEATURE Evidence or relevant ANALYSIS / ARCH source note; do not include the absolute root. This reference is descriptive only: O1 does not authorize the alias. O3's coordinator must separately authorize it and provide the alias-to-root map to the runtime validator. See `STORAGE.md` § External evidence references for O3 and `_shared/agents/RECEIPT.md`.
+For an external source that may be needed by O3, keep its exact portable reference `external:<alias>/<relative-path>` in the existing FEATURE Evidence or relevant ANALYSIS / ARCH source note; do not include the absolute root. This reference is descriptive only: O1 does not authorize the alias. O3's coordinator must separately authorize it and provide the alias-to-root map to the runtime validator. See `STORAGE.md` § External evidence references for O3 and `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md`.
 
 ### Gate B — Promotion anti-task-shatter (TE02 / CA2)
 
@@ -219,7 +219,7 @@ Cap maturidade: backlog tem {N} US/TS (máx 4) sem rationale explícito de split
 | Scorecard | Includes **Product depth** (1–5; placeholder OK until refine) |
 | Title | Already passed Gate B |
 
-Template: `skills/_shared/templates/features/story/STORY.md`. Use `generate-story` patterns for drafts. Incomplete AC budget → TE03 intent (list missing scenarios); block human gate until fixed or operator explicitly continues with documented debt (prefer fix).
+Template: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/story/STORY.md`. Use `generate-story` patterns for drafts. Incomplete AC budget → TE03 intent (list missing scenarios); block human gate until fixed or operator explicitly continues with documented debt (prefer fix).
 
 ### Happy path (mental)
 
@@ -244,7 +244,7 @@ Refuse this process while `FEATURE.md` still has an open question (`open_questio
 
 **CONTINUITY.md** — phase `analyze`, short decision summary/pointers to `FEATURE.md` decision ids, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Do not duplicate the full decision record or create another ledger. Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
 
-**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. The actual acceptance text must preserve the mapped material behavior and reflect the current decision; ids and links alone are insufficient. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
+**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. The actual acceptance text must preserve the mapped material behavior and reflect the current decision; ids and links alone are insufficient. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
 
 **Language guard:** folder names stay `ANALYSIS`, `ARCH`, `SEC`. Prose inside those files, and the file name the parent chooses, follow content-language (`LANGUAGE.md`). Specialist receipts stay en-US. The parent translates before Write. Do not save an English specialist note when the chat language is Portuguese.
 

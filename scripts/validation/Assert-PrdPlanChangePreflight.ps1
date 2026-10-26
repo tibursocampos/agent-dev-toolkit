@@ -100,6 +100,24 @@ function Find-FixturePlan {
     return $plans[0].FullName
 }
 
+# --- Classic SDD evidence wiring ---
+$classicSpecPath = Join-Path $repoRoot 'core/skills/sdd-spec/SKILL.md'
+$classicPlanPath = Join-Path $repoRoot 'core/skills/sdd-plan/SKILL.md'
+$classicAnalysisPath = Join-Path $repoRoot 'core/skills/sdd-develop/references/code-analysis.md'
+$classicSpecText = Get-Content -LiteralPath $classicSpecPath -Raw -Encoding UTF8
+$classicPlanText = Get-Content -LiteralPath $classicPlanPath -Raw -Encoding UTF8
+$classicAnalysisText = Get-Content -LiteralPath $classicAnalysisPath -Raw -Encoding UTF8
+foreach ($marker in @('CONFIRMED', 'INFERRED', 'GAP', 'portable paths', 'existing context/assumptions area', 'do not create a PRD requirement from an implementation pattern')) {
+    if ($classicSpecText -notmatch [regex]::Escape($marker)) { Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("sdd-spec missing evidence marker '{0}'" -f $marker) }
+}
+foreach ($marker in @('portable path + symbol/section', 'link each item to the step it informs', 'does not create product requirements', 'direct')) {
+    if ($classicPlanText -notmatch [regex]::Escape($marker)) { Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("sdd-plan missing evidence marker '{0}'" -f $marker) }
+}
+foreach ($marker in @('each** Classic SDD PLAN step', 're-read its target paths', 'portable evidence', 'before editing', 'does not require O1 artifacts')) {
+    if ($classicAnalysisText -notmatch [regex]::Escape($marker)) { Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("code-analysis reference missing marker '{0}'" -f $marker) }
+}
+Write-Pass -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence'
+
 # --- allow path ---
 $validRoot = Get-FixtureFeatureRoot -RelativeDir $script:ToolkitConstant.PrdPlanChangePreflightFixtureValidRelativeDir
 $validPlan = Find-FixturePlan -FeatureRootPath $validRoot
@@ -346,6 +364,34 @@ finally {
 }
 
 # --- skill wiring ---
+$classicSpecPath = Join-Path $repoRoot 'core/skills/sdd-spec/SKILL.md'
+$classicPlanPath = Join-Path $repoRoot 'core/skills/sdd-plan/SKILL.md'
+$classicAnalysisPath = Join-Path $repoRoot 'core/skills/sdd-develop/references/code-analysis.md'
+foreach ($classicPath in @($classicSpecPath, $classicPlanPath, $classicAnalysisPath)) {
+    if (-not (Test-Path -LiteralPath $classicPath)) {
+        Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("missing {0}" -f $classicPath)
+    }
+}
+$classicSpecText = Get-Content -LiteralPath $classicSpecPath -Raw -Encoding UTF8
+$classicPlanText = Get-Content -LiteralPath $classicPlanPath -Raw -Encoding UTF8
+$classicAnalysisText = Get-Content -LiteralPath $classicAnalysisPath -Raw -Encoding UTF8
+foreach ($marker in @('CONFIRMED', 'INFERRED', 'GAP', 'portable paths', 'existing context/assumptions area', 'do not create a PRD requirement from an implementation pattern')) {
+    if ($classicSpecText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("sdd-spec missing evidence marker '{0}'" -f $marker)
+    }
+}
+foreach ($marker in @('portable path + symbol/section', 'link each item to the step it informs', 'does not create product requirements', 'direct')) {
+    if ($classicPlanText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("sdd-plan missing evidence marker '{0}'" -f $marker)
+    }
+}
+foreach ($marker in @('each** Classic SDD PLAN step', 're-read its target paths', 'portable evidence', 'before editing', 'does not require O1 artifacts')) {
+    if ($classicAnalysisText -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence' -Reason ("code-analysis reference missing marker '{0}'" -f $marker)
+    }
+}
+Write-Pass -TestName 'Should_Pass_When_ClassicSddConsumesTraceableBrownfieldEvidence'
+
 if (-not (Test-Path -LiteralPath $deliverRefPath)) {
     Write-Fail -TestName 'Should_Pass_When_OrchestrateDeliverWiresPreflight' -Reason ("missing {0}" -f $deliverRefRel)
 }

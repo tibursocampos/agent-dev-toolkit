@@ -151,7 +151,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 ### -1. Pipeline and mode
 
 Load `STORAGE.md` and `PIPELINE.md`; when resolving repository/global storage, also load `STORAGE-RESOLUTION.md`. Use its schema v2 and dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
-Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless O3/parent handoff marks `orchestrated`. In Classic/direct, do not require or create `CONTINUITY.md`; use it only as optional prior context when present. In orchestrated execution, preserve the parent's CONTINUITY ownership and the child's one-PLAN-step scope; do not take on parent ownership.
+Resolve `invocation_context` once per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct`; use `orchestrated` only when the current invocation explicitly selects it or the active skill/parent handoff identifies an `orchestrate-*` stage. Generic parent coordination, `orchestrator_mode=always`, or an O3-targeted PLAN does not change a Classic/direct invocation. If explicit invocation/handoff context declarations conflict, stop with `invocation_context_conflict`. In Classic/direct, do not require or create `CONTINUITY.md`; use it only as optional prior context when present. In orchestrated execution, preserve the parent's CONTINUITY ownership and the child's one-PLAN-step scope; do not take on parent ownership.
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cited REQs as `agreed`; new mid-step gaps stay `invented` until operator confirm — do not silently encode them as requirements.
 **Agent mode** is required for code changes and PLAN updates. If the host is in Plan or Ask and this step requires an edit, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
 
@@ -238,6 +238,8 @@ When this edit sets PLAN **Implementation status** to `COMPLETED`, require expli
 
 ### 7. Report
 Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
+
+For a direct Classic step delegated by a parent, the parent owns the operator-facing relay after the child returns: re-read the persisted PLAN, reconcile the step checkpoint with the child report, then show the complete PLAN step ledger and next eligible step as defined in `references/execution-display.md`. A child receipt, partial summary, or child-rendered table does not satisfy the parent's relay. If the saved checkpoint cannot be reconciled, stop with `ledger_partial`; do not start the next direct step.
 
 ## Must not
 

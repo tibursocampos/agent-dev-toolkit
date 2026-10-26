@@ -65,6 +65,8 @@ Skip a story only when all required O2 work for that story is complete and accep
 
 **Required siblings STOP (flag-gated):** If FEATURE `needs_*` is true (or nature is brownfield) and the story lacks the matching sibling folder/files (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md` / `PIPELINE.md` § Feature / story siblings): **STOP**. Return to O1. Do **not** Write PRD/PLAN. Max-3 gap questions do **not** replace this gate. Waive-deps remains for **story order**, not for missing SEC/ARCH/ANALYSIS.
 
+**Brownfield sufficiency STOP:** For brownfield stories, inspect the required analysis content against `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` and the story's affected scope. Required artifacts must provide relevant repository-backed conventions/impacts, evidence paths, confidence, reuse/affected areas, and material gaps in the format owned by that artifact. Presence of `ANALYSIS/` or `ARCH/` alone does not pass. If evidence is inferred, conflicting, or a material technical gap could change the dependent PRD/PLAN, target more repository inspection when feasible; if still unresolved, **STOP** this story before PRD/PLAN and return the gap to O1. Do not turn a technical pattern lookup into a product clarification question when the product behavior is already clear. Product/contract decisions that remain unanswered continue to use `open_question` and existing readiness rules. Keep independent eligible stories moving; O2 consumes evidence and does not rewrite specialist-owned analysis.
+
 ```text
 Faltam pastas obrigatórias em `{story-path}` (FEATURE needs_* / brownfield).
 
@@ -80,7 +82,7 @@ See also § Preconditions checklist.
 
 ## Clarification readiness STOP (REQ-004 / REQ-005 / RN02 / TE01)
 
-After presence siblings pass, evaluate open questions on FEATURE / STORY / REFINE / Prior notes using `_shared/sdd-artifacts/readiness-severity.md` (+ `clarify-depth.md`):
+After presence siblings pass, evaluate open questions on FEATURE / STORY / REFINE / Prior notes using `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` (+ `clarify-depth.md`):
 
 | Outcome | Action |
 |---------|--------|

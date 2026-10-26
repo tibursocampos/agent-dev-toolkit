@@ -44,6 +44,8 @@ one step. Neither role changes PLAN, session-gate, or claim semantics.
 The relay above is only for an O3 `sdd-develop` step. It is not the receipt for
 stack `*-developer` children, finding specialists, or the optional verifier.
 
+These are consumer-specific output contracts, not one shared wire format. Name the expected result in the assignment: findings for human review remain Markdown/text, and machine handoffs keep the validated format declared for that role. A new serialization such as YAML requires a concrete consumer, defined validation, and compatibility rules before use.
+
 | Consumer | Contract | Validation owner |
 |----------|----------|-------------------|
 | `developer-child` (`*-developer` implementation) | Reduced object exactly `{ files[], testsSummary }`; MUST omit `planPath` and `step`. Build is omitted from per-step results; testsSummary states what ran or that validation was deferred. | Calling stack skill validates changed paths and requested checks; missing, malformed, out-of-scope, or contradictory receipt cannot succeed. |

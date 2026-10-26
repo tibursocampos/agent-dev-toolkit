@@ -280,6 +280,8 @@ $coreChecks = @(
     @{ Name = $invocationAxesCheckName; Script = $invocationAxesScriptName },
     @{ Name = $runtimeScriptPublishCheckName; Script = $runtimeScriptPublishScriptName },
     @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName },
+    @{ Name = 'implementation-readiness-contracts'; Script = 'Assert-ImplementationReadinessContracts.ps1' },
+    @{ Name = 'brownfield-discovery-contract'; Script = 'Assert-BrownfieldDiscoveryContract.ps1' },
     @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName },
     @{ Name = $authorizationPolicyCheckName; Script = $authorizationPolicyScriptName },
     @{ Name = $continuousQueueAuthorizationCheckName; Script = $continuousQueueAuthorizationScriptName }

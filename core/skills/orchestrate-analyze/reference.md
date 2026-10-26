@@ -1,6 +1,6 @@
 # orchestrate-analyze — reference index
 
-Extended detail for `skills/orchestrate-analyze/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+Extended detail for `SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
 Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 
@@ -12,13 +12,13 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 | Triage / collect / trivial shortcut / NuGet example | `references/triage.md` |
 | Flag → specialist mapping / spawn Task | `references/spawn-map.md` |
 | Architecture confirm gate / approval copy | `references/arch-confirm.md` |
-| Step 8c feature research (before story folders) | `refine-story/references/feature-research.md`; table: `../_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
+| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`; table: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |
 | Boundaries / canonical handoff strings | `references/boundaries-handoff.md` |
-| Refine envelopes / READY (pointer only) | `skills/refine-story/references/interaction-envelope.md` + `readiness-severity.md` (via boundaries-handoff) |
+| Refine envelopes / READY (pointer only) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/interaction-envelope.md` + `readiness-severity.md` (via boundaries-handoff) |
 | Caveman / resolve storage / backlog approval / context pressure | `references/process-common.md` |
 | Must not / exclusions | `references/must-not.md` |
 
-Scorecard rubric (reuse): `skills/refine-story/references/scorecard-rubric.md` (template: `skills/refine-story/references/scorecard-template.md`).
+Scorecard rubric (reuse): `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` (template: `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-template.md`).
 
-Story sizing contract (synthesis merge policy): `skills/_shared/backlog-item-types/story-sizing.md`.
+Story sizing contract (synthesis merge policy): `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`.

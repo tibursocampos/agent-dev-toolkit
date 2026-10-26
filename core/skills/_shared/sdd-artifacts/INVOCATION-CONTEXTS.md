@@ -17,7 +17,7 @@ Pipeline skills must apply **observable** behavior for two invocation contexts:
 | Context id | Meaning |
 |------------|---------|
 | `direct` | Consumer invokes the skill via slash / skill name in the operator session (Classic SDD or standalone). |
-| `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as a Task/spawn child with a scoped handoff. |
+| `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as a Task/spawn child whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage. A generic scoped Task handoff does not select this context. |
 
 Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` host session mode.
 
@@ -43,6 +43,8 @@ Resolve context **once** at skill start (after gate check). Prefer the explicit 
 3. **Default** — otherwise resolve to `direct`.
 
 Do not infer or change the resolved context from the presence, absence, freshness, completeness, path proximity, or contents of FEATURE, STORY, CONTINUITY, REFINE/tasks, Memory Bank, PRD, PLAN, or any other sibling artifact. A sibling may be used only when the active skill contract authorizes it as an input and its relationship/authority is explicit; it does not set invocation context. Host preference such as `orchestrator_mode` is not an invocation signal. Resolve once at skill start and keep that context for the run; a conflicting sibling is reported as a conflict, not used as a fallback.
+
+Generic parent coordination, a parent role named `orchestrator`, use of a Task for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is supplied. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
 
 Record the resolved id in the session report / child receipt when one is produced (en-US field name: `invocation_context`).
 

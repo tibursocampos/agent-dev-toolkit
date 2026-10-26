@@ -34,8 +34,8 @@ Artifact prose follows the user chat language (`LANGUAGE.md`). Identifiers and s
 
 | Stage | Load and follow | Output |
 |-------|-----------------|--------|
-| Spec | `skills/sdd-spec/SKILL.md` | Canonical PRD under story `PRD/` |
-| Plan | `skills/sdd-plan/SKILL.md` | Canonical PLAN under story `PLAN/` |
+| Spec | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` | Canonical PRD under story `PRD/` |
+| Plan | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` | Canonical PLAN under story `PLAN/` |
 
 ## Reconcile before advancing a story
 
@@ -73,10 +73,12 @@ When external evidence is cited by O1 as `external:<alias>/<relative-path>`, pre
 
 **Per-story readiness STOP:** any unanswered question on the required story files, including `MINOR`, stops that story with `open_question`. Do not write the PRD. Folder presence ≠ READY (**RN02**). The max-3 gap-question cap does not apply to this gate.
 
+**Brownfield analysis sufficiency:** before writing this story's PRD, inspect the required `ANALYSIS/` / `ARCH/` content against `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` and the affected scope. Confirm relevant conventions and impacts are backed by repository paths, confidence is stated, and reuse, affected areas, and material gaps are recorded using the artifact owner's format. Artifact/folder presence or unsupported generic defaults do not establish sufficiency. If a material evidence gap could change this story's contract or plan, request targeted repository investigation where feasible; if it remains unresolved, stop this story before PRD/PLAN and return the gap to O1. Technical pattern discovery is repository investigation, not a product question when behavior and acceptance are clear. Preserve the specialist's analysis ownership; O2 evaluates and consumes it without silently replacing it.
+
 Order per story. Do not jump from spec to plan.
 
-1. Check `STORY.md` and the `ANALYSIS/`, `ARCH/`, and `SEC/` folders required by `needs_*`. Run the same research as `refine-story/references/feature-research.md`. An open question in any of those files stops **this** story with `open_question`. Do not write the PRD. A stuck story does not erase the others and does not re-slice the feature.
-2. `sdd-spec` writes the PRD under `features/NNN-slug/{USnn|TSnn}/PRD/`. Then run the contestation in `refine-story/references/tech.md` § Story PRD contestation on that PRD. An open question means the PRD is not accepted. Do not call the plan.
+1. Check `STORY.md` and the `ANALYSIS/`, `ARCH/`, and `SEC/` folders required by `needs_*`. Run the same research as `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`. For brownfield, also apply the sufficiency check above to the required analysis content. An unanswered product/contract question stops **this** story with `open_question`; insufficient material technical evidence stops it for targeted investigation/return to O1, not by inventing a generic convention. Do not write the PRD. A stuck story does not erase the others and does not re-slice the feature.
+2. `sdd-spec` writes the PRD under `features/NNN-slug/{USnn|TSnn}/PRD/`. Then run the contestation in `{{TOOLKIT_ROOT}}/skills/refine-story/references/tech.md` § Story PRD contestation on that PRD. An open question means the PRD is not accepted. Do not call the plan.
 3. Only after that acceptance, the parent runs `split-story-checklist` when FEATURE complexity is `medium` or `complex`. That skill writes `REFINE/tasks.md`. `trivial` does not get the file. The parent does not ask `sdd-plan` to create it.
 4. Only then `sdd-plan`. It reads the checklist ids. If `medium` or `complex` and `REFINE/tasks.md` is missing, `sdd-plan` coordinates `split-story-checklist` (native specialist when available, owner workflow inline otherwise), validates the canonical output, then resumes this same plan. The owner skill remains the only checklist writer; its gates and open questions remain active. Failure or invalid output blocks this story. O2's normal route should still run the checklist before calling `sdd-plan`:
 

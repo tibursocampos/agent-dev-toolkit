@@ -6,6 +6,8 @@
 #   Should_Pass_When_LanguageMdAndEnUsSpawnPresent
 #   Should_Fail_When_RegistryMissingSubagents
 #   Should_Pass_When_AllRegisteredAdaptersDocumentSpawnLifecycle
+#   Should_Pass_When_SpecialistInputAndOutputContractsAreExplicit
+#   Should_Fail_When_SpecialistAssignmentOmitsExpectedResult
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -68,6 +70,21 @@ function Get-AgentsMissingSubagents {
         $value = [string]$caps.$CapabilityName
         if ([string]::IsNullOrWhiteSpace($value)) {
             $missing.Add($agentId)
+        }
+    }
+    return $missing.ToArray()
+}
+
+function Get-MissingContractMarkers {
+    param(
+        [Parameter(Mandatory = $true)][string] $Text,
+        [Parameter(Mandatory = $true)][string[]] $Markers
+    )
+
+    $missing = [System.Collections.Generic.List[string]]::new()
+    foreach ($marker in $Markers) {
+        if ($Text.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+            $missing.Add($marker)
         }
     }
     return $missing.ToArray()
@@ -157,6 +174,19 @@ if ($null -eq $registry.agents) {
 }
 
 $agents = @($registry.agents)
+$spawnMdPath = Join-Path $repoRoot ($spawnRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$rosterRel = 'core/skills/_shared/agents/ROSTER.md'
+$receiptRel = 'core/skills/_shared/agents/RECEIPT.md'
+$rosterPath = Join-Path $repoRoot ($rosterRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$receiptPath = Join-Path $repoRoot ($receiptRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+if (-not (Test-Path -LiteralPath $rosterPath)) {
+    Write-Fail -TestName 'Assert-SpawnContractPreconditions' -Reason ("missing {0}" -f $rosterRel)
+}
+if (-not (Test-Path -LiteralPath $receiptPath)) {
+    Write-Fail -TestName 'Assert-SpawnContractPreconditions' -Reason ("missing {0}" -f $receiptRel)
+}
+$rosterText = [System.IO.File]::ReadAllText($rosterPath)
+$receiptText = [System.IO.File]::ReadAllText($receiptPath)
 
 # --- Should_Fail_When_SpawnMdMissing ---
 $failSpawnName = 'Should_Fail_When_SpawnMdMissing'
@@ -184,6 +214,7 @@ $passName = 'Should_Pass_When_SpawnAndSubagentsPresent'
 if (-not (Test-SpawnMdPresent -RepoRoot $repoRoot -RelativePath $spawnRel)) {
     Write-Fail -TestName $passName -Reason ($script:ToolkitMessage.SpawnMdMissing -f $spawnRel)
 }
+$spawnText = [System.IO.File]::ReadAllText($spawnMdPath)
 
 $missingSubagents = @(Get-AgentsMissingSubagents -Agents $agents -CapabilityName $subagentsCapabilityName)
 if ($missingSubagents.Count -gt 0) {
@@ -208,8 +239,6 @@ if (-not (Test-SpawnMdPresent -RepoRoot $repoRoot -RelativePath $languageRel)) {
     Write-Fail -TestName $passLanguageName -Reason ($script:ToolkitMessage.LanguageMdMissing -f $languageRel)
 }
 
-$spawnMdPath = Join-Path $repoRoot ($spawnRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$spawnText = [System.IO.File]::ReadAllText($spawnMdPath)
 $enUsMarker = $script:ToolkitConstant.LanguageEnUsSpawnMarker
 if ($spawnText -notmatch [regex]::Escape('LANGUAGE.md') -or $spawnText -notmatch [regex]::Escape($enUsMarker)) {
     Write-Fail -TestName $passLanguageName -Reason $script:ToolkitMessage.SpawnMissingEnUsLanguageMarker
@@ -234,6 +263,48 @@ if (-not $canonicalHasLifecycle) {
 }
 
 Write-Pass -TestName $adapterLifecycleName
+
+# --- Should_Pass_When_SpecialistInputAndOutputContractsAreExplicit ---
+$specialistIoName = 'Should_Pass_When_SpecialistInputAndOutputContractsAreExplicit'
+$spawnInputMarkers = @(
+    '**Role**',
+    '**Objective**',
+    '**Scoped paths**',
+    '**Relevant references**',
+    '**Expected result**',
+    '**Receipt**'
+)
+$missingSpawnInput = @(Get-MissingContractMarkers -Text $spawnText -Markers $spawnInputMarkers)
+$missingRosterInput = @(Get-MissingContractMarkers -Text $rosterText -Markers @(
+    'Minimum assignment input',
+    'Question and affected repository paths',
+    'Approved task/PLAN excerpt'
+))
+$missingRoleOutputs = @(Get-MissingContractMarkers -Text $receiptText -Markers @(
+    'Role-specific contracts',
+    'consumer-specific output contracts',
+    'Markdown/text',
+    'JSON',
+    'concrete consumer',
+    'compatibility rules'
+))
+if ($missingSpawnInput.Count -gt 0 -or $missingRosterInput.Count -gt 0 -or $missingRoleOutputs.Count -gt 0) {
+    $problems = @()
+    if ($missingSpawnInput.Count -gt 0) { $problems += ('SPAWN.md missing ' + ($missingSpawnInput -join ', ')) }
+    if ($missingRosterInput.Count -gt 0) { $problems += ('ROSTER.md missing ' + ($missingRosterInput -join ', ')) }
+    if ($missingRoleOutputs.Count -gt 0) { $problems += ('RECEIPT.md missing ' + ($missingRoleOutputs -join ', ')) }
+    Write-Fail -TestName $specialistIoName -Reason ($problems -join '; ')
+}
+Write-Pass -TestName $specialistIoName
+
+# --- Should_Fail_When_SpecialistAssignmentOmitsExpectedResult ---
+$missingExpectedResultName = 'Should_Fail_When_SpecialistAssignmentOmitsExpectedResult'
+$syntheticIncompleteAssignment = '**Role** repo_analyst; **Objective** inspect impact; **Scoped paths** core/; **Relevant references** README; **Receipt** findings per RECEIPT.md.'
+$missingExpectedResult = @(Get-MissingContractMarkers -Text $syntheticIncompleteAssignment -Markers @('**Expected result**'))
+if ($missingExpectedResult.Count -ne 1) {
+    Write-Fail -TestName $missingExpectedResultName -Reason 'an assignment without the expected result must be detected as incomplete'
+}
+Write-Pass -TestName $missingExpectedResultName
 
 Write-Host 'Assert-SpawnContract: ALL PASS'
 exit 0

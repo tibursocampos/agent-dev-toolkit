@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# Static contract checks for CT1-CT12. Does not run a live host, write a home, or publish defaults.
+# Static contract checks for CT1-CT22. Does not run a live host, write a home, or publish defaults.
 # Tests:
 #   Should_NotAskMemoryBankRefresh_When_CommitMessageUnconfirmed
 #   Should_SeedOrchestratorModeAlways_When_FirstSync
@@ -12,6 +12,10 @@
 #   Should_StayOnCurrentBranch_When_SpecPlanAnalyzeDeliver
 #   Should_ShowBranchGate_When_SddDevelopChangesCode
 #   Should_ReadRedirectedStdin_When_PublishedPowerShellHook
+#   Should_RequireEvidenceBackedBrownfieldAnalysis_WithoutStackDefaults
+#   Should_RequireBrownfieldAnalysisInDeveloperFlow_BeforeFirstChange
+#   Should_ResolveCrossSkillReferences_FromToolkitRoot_AndKeepSameSkillReferencesRelative
+#   Should_RereadAndRenderCompleteClassicLedger_AfterDirectStepClose
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -44,6 +48,55 @@ function Assert-Includes {
     }
 }
 
+function Assert-Excludes {
+    param(
+        [Parameter(Mandatory = $true)][string] $TestName,
+        [Parameter(Mandatory = $true)][string] $Text,
+        [Parameter(Mandatory = $true)][string] $Needle,
+        [Parameter(Mandatory = $true)][string] $Reason
+    )
+    if ($Text.IndexOf($Needle, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+        Write-Fail -TestName $TestName -Reason ("{0} Unexpected: {1}" -f $Reason, $Needle)
+    }
+}
+
+function Test-ClassicLedgerProjection {
+    param(
+        [Parameter(Mandatory = $true)][string] $Text,
+        [Parameter(Mandatory = $true)][string[]] $ExpectedStepIds,
+        [Parameter(Mandatory = $true)][hashtable] $ExpectedStatuses,
+        [Parameter(Mandatory = $true)][string] $ExpectedNext
+    )
+
+    $tableLines = @($Text -split "`r?`n" | Where-Object { $_.TrimStart().StartsWith('|') })
+    if ($tableLines.Count -lt 3) { return $false }
+
+    $expectedHeaders = @('Step ID', 'Step', 'Dependencies', 'Analysis weight', 'Status', 'Evidence')
+    $headers = @($tableLines[0].Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+    if (($headers -join '|') -cne ($expectedHeaders -join '|')) { return $false }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    for ($index = 2; $index -lt $tableLines.Count; $index++) {
+        $cells = @($tableLines[$index].Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+        if ($cells.Count -ne $expectedHeaders.Count) { return $false }
+        if (@($cells | Where-Object { $_ -notmatch '^:?-{3,}:?$' }).Count -eq 0) { continue }
+        $rows.Add([pscustomobject]@{ StepId = $cells[0]; Status = $cells[4] })
+    }
+
+    if ($rows.Count -ne $ExpectedStepIds.Count) { return $false }
+    for ($index = 0; $index -lt $ExpectedStepIds.Count; $index++) {
+        $row = $rows[$index]
+        $stepId = $ExpectedStepIds[$index]
+        if ($row.StepId -cne $stepId) { return $false }
+        if (-not $ExpectedStatuses.ContainsKey($stepId)) { return $false }
+        if ($row.Status -cne [string]$ExpectedStatuses[$stepId]) { return $false }
+    }
+
+    $nextLine = [regex]::Match($Text, '(?im)^\*\*Next eligible step:\*\*\s*(.+)$')
+    if (-not $nextLine.Success -or $nextLine.Groups[1].Value.Trim() -cne $ExpectedNext) { return $false }
+    return $true
+}
+
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
     Write-Fail -TestName 'Assert-SkillsAndFlowsContractsPreconditions' -Reason ("missing {0}" -f $repoRootScript)
 }
@@ -68,6 +121,11 @@ $splitChecklistRelative = 'core/skills/split-story-checklist/SKILL.md'
 $changeContractRelative = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
 $receiptContractRelative = 'core/skills/_shared/agents/RECEIPT.md'
 $spawnContractRelative = 'core/skills/_shared/agents/SPAWN.md'
+$brownfieldAnalysisRelative = 'core/skills/_shared/agents/BROWNFIELD-ANALYSIS.md'
+$developerContextRelative = 'core/skills/_shared/developer-common/step-0-context.md'
+$developerFallbackRelative = 'core/skills/developer/references/fallback-execution.md'
+$repoAnalystPromptRelative = 'core/skills/_shared/agents/prompts/repo_analyst.md'
+$architectPromptRelative = 'core/skills/_shared/agents/prompts/architect.md'
 $perStoryContractsRelative = 'core/skills/orchestrate-deliver/references/per-story-contracts.md'
 $publishedHookReaders = @(
     'adapters/cursor/assets/hooks/_hook-common.ps1',
@@ -108,6 +166,9 @@ $sddDevelop = Get-RepoText -RelativePath $sddDevelopRelative
 $sddSpec = Get-RepoText -RelativePath $sddSpecRelative
 $sddPlan = Get-RepoText -RelativePath $sddPlanRelative
 $orchestrateAnalyze = Get-RepoText -RelativePath $orchestrateAnalyzeRelative
+$orchestrateAnalyzeStorySynthesis = Get-RepoText -RelativePath 'core/skills/orchestrate-analyze/references/story-synthesis.md'
+$orchestrateAnalyzeCommand = Get-RepoText -RelativePath 'core/skills/orchestrate-analyze/references/command.md'
+$orchestrateAnalyzeReference = Get-RepoText -RelativePath 'core/skills/orchestrate-analyze/reference.md'
 $orchestrateDeliver = Get-RepoText -RelativePath $orchestrateDeliverRelative
 $orchestrateDeliverPreconditions = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/preconditions.md'
 $orchestrateDeliverCommand = Get-RepoText -RelativePath 'core/skills/orchestrate-deliver/references/command.md'
@@ -122,6 +183,11 @@ $splitChecklist = Get-RepoText -RelativePath $splitChecklistRelative
 $changeContract = Get-RepoText -RelativePath $changeContractRelative
 $receiptContract = Get-RepoText -RelativePath $receiptContractRelative
 $spawnContract = Get-RepoText -RelativePath $spawnContractRelative
+$brownfieldAnalysis = Get-RepoText -RelativePath $brownfieldAnalysisRelative
+$developerContext = Get-RepoText -RelativePath $developerContextRelative
+$developerFallback = Get-RepoText -RelativePath $developerFallbackRelative
+$repoAnalystPrompt = Get-RepoText -RelativePath $repoAnalystPromptRelative
+$architectPrompt = Get-RepoText -RelativePath $architectPromptRelative
 $perStoryContracts = Get-RepoText -RelativePath $perStoryContractsRelative
 
 # --- Should_PreserveO2ChecklistRequirements_WhileAllowingClassicDirectPlanning (CT15-CT17 / REQ-013-015) ---
@@ -406,6 +472,118 @@ if ($openCodePipe.Count -gt 0) {
     Write-Fail -TestName $ct12Name -Reason 'OpenCode has no PowerShell hook pipe'
 }
 Write-Pass -TestName $ct12Name
+
+$ct19Name = 'Should_RequireEvidenceBackedBrownfieldAnalysis_WithoutStackDefaults'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'Treat existing project conventions as the technical reference.' -Reason 'brownfield decisions start from the observed project'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'Do not silently re-architect.' -Reason 'architecture changes require an evidenced reason'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'do not require an inventory of unrelated layers or tools' -Reason 'discovery remains proportional to impact'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'Project structure and architecture' -Reason 'relevant repository structure and architecture are covered'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'APIs and routing' -Reason 'relevant route conventions are covered'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'Formatting and commands' -Reason 'formatting and configured validation commands are covered'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'CONFIRMED' -Reason 'confirmed evidence is distinguished'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'INFERRED' -Reason 'inferred evidence is distinguished'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'GAP' -Reason 'missing evidence is distinguished'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'portable repository-relative path and symbol' -Reason 'local convention claims carry verifiable project evidence'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'components or tests that could be reused' -Reason 'analysis identifies existing implementation and test candidates'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'affected areas' -Reason 'analysis records the impact of the proposed change'
+Assert-Includes -TestName $ct19Name -Text $brownfieldAnalysis -Needle 'NO_CHANGE' -Reason 'examined areas with no required change can be recorded'
+Assert-Includes -TestName $ct19Name -Text $repoAnalystPrompt -Needle '{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md' -Reason 'repo analyst consumes the shared brownfield contract through the toolkit root'
+Assert-Includes -TestName $ct19Name -Text $architectPrompt -Needle '{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md' -Reason 'architect consumes the shared brownfield contract through the toolkit root'
+$unsupportedDefaultPattern = '(?im)^\s*(?:default(?:\s+to|\s*:)?|always\s+use|must\s+use)\s+(?:clean\s+architecture|cqrs|ef\s+core|react|angular|vertical[- ]slice)\b'
+if ([regex]::IsMatch($brownfieldAnalysis, $unsupportedDefaultPattern)) {
+    Write-Fail -TestName $ct19Name -Reason 'shared brownfield contract must not prescribe a stack or architecture default'
+}
+Write-Pass -TestName $ct19Name
+
+$ct20Name = 'Should_RequireBrownfieldAnalysisInDeveloperFlow_BeforeFirstChange'
+$sharedBrownfieldPath = '{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md'
+Assert-Includes -TestName $ct20Name -Text $developerContext -Needle $sharedBrownfieldPath -Reason 'shared developer context references the canonical brownfield contract'
+Assert-Includes -TestName $ct20Name -Text $developerContext -Needle 'before the first implementation change' -Reason 'common entry requires the analysis before implementation'
+Assert-Includes -TestName $ct20Name -Text $developerContext -Needle 'Reuse a parent-provided analysis only after confirming it is current and covers the target area' -Reason 'inherited context is checked against the implementation target'
+Assert-Includes -TestName $ct20Name -Text $developerFallback -Needle $sharedBrownfieldPath -Reason 'fallback developer references the canonical brownfield contract'
+Assert-Includes -TestName $ct20Name -Text $developerFallback -Needle 'before the first implementation change' -Reason 'fallback requires the analysis before implementation'
+Assert-Includes -TestName $ct20Name -Text $developerFallback -Needle 'Stack-specific skills retain ownership of their commands and conventions' -Reason 'stack-specific guidance is not duplicated or overridden'
+Write-Pass -TestName $ct20Name
+
+$ct21Name = 'Should_ResolveCrossSkillReferences_FromToolkitRoot_AndKeepSameSkillReferencesRelative'
+$crossSkillReferenceFiles = @(
+    @{ Path = 'orchestrate-analyze/SKILL.md'; Text = $orchestrateAnalyze; Required = @('{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md', '{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md'); SameSkill = @('references/command.md', 'references/story-synthesis.md'); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/' },
+    @{ Path = 'orchestrate-analyze/references/story-synthesis.md'; Text = $orchestrateAnalyzeStorySynthesis; Required = @('{{TOOLKIT_ROOT}}/skills/_shared/templates/features/', '{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md'); SameSkill = @('references/scorecard-rubric.md'); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/' },
+    @{ Path = 'orchestrate-analyze/references/command.md'; Text = $orchestrateAnalyzeCommand; Required = @('{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md'); SameSkill = @('references/process-common.md'); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/' },
+    @{ Path = 'orchestrate-analyze/reference.md'; Text = $orchestrateAnalyzeReference; Required = @('{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md', 'SKILL.md'); SameSkill = @('references/command.md', 'references/story-synthesis.md'); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/' },
+    @{ Path = 'orchestrate-deliver/references/per-story-contracts.md'; Text = $perStoryContracts; Required = @('{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md', '{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md', '{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md', '{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md'); SameSkill = @('references/tech.md'); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/' },
+    @{ Path = 'orchestrate-deliver/references/preconditions.md'; Text = $orchestrateDeliverPreconditions; Required = @('{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md'); SameSkill = @(); SameSkillRoot = '{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/' }
+)
+$unrootedCrossSkillPattern = '(?<!\{\{TOOLKIT_ROOT\}\}/)skills/[A-Za-z0-9._-]+/|(?<!\{\{TOOLKIT_ROOT\}\}/skills/)(?:_shared|refine-story|sdd-(?:spec|plan|develop))/'
+foreach ($referenceFile in $crossSkillReferenceFiles) {
+    foreach ($requiredReference in $referenceFile.Required) {
+        Assert-Includes -TestName $ct21Name -Text $referenceFile.Text -Needle $requiredReference -Reason ("{0} uses the toolkit root for cross-skill reference {1}" -f $referenceFile.Path, $requiredReference)
+    }
+    if ([regex]::IsMatch($referenceFile.Text, $unrootedCrossSkillPattern)) {
+        Write-Fail -TestName $ct21Name -Reason ("{0} contains an unrooted cross-skill path" -f $referenceFile.Path)
+    }
+    if ($referenceFile.Text.Contains($referenceFile.SameSkillRoot)) {
+        Write-Fail -TestName $ct21Name -Reason ("{0} prefixes same-skill references with TOOLKIT_ROOT" -f $referenceFile.Path)
+    }
+    foreach ($sameSkillReference in $referenceFile.SameSkill) {
+        Assert-Includes -TestName $ct21Name -Text $referenceFile.Text -Needle $sameSkillReference -Reason ("{0} keeps same-skill references relative" -f $referenceFile.Path)
+    }
+}
+Assert-Excludes -TestName $ct21Name -Text $orchestrateAnalyze -Needle '{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/' -Reason 'same-skill references in orchestrate-analyze remain relative'
+Assert-Excludes -TestName $ct21Name -Text $orchestrateAnalyzeReference -Needle 'skills/orchestrate-analyze/SKILL.md' -Reason 'the reference index points to its own skill with a relative path'
+Write-Pass -TestName $ct21Name
+
+$ct22Name = 'Should_RereadAndRenderCompleteClassicLedger_AfterDirectStepClose'
+$directLedgerMarker = '### Classic / direct'
+$o3LedgerMarker = '### Orchestrated / O3'
+$directLedgerStart = $executionDisplay.IndexOf($directLedgerMarker, [System.StringComparison]::Ordinal)
+$o3LedgerStart = $executionDisplay.IndexOf($o3LedgerMarker, [System.StringComparison]::Ordinal)
+if ($directLedgerStart -lt 0 -or $o3LedgerStart -le $directLedgerStart) {
+    Write-Fail -TestName $ct22Name -Reason 'execution display must separate the Classic direct ledger from the O3 projection'
+}
+$directLedgerSection = $executionDisplay.Substring($directLedgerStart, $o3LedgerStart - $directLedgerStart)
+foreach ($column in @('Step ID', 'Step', 'Dependencies', 'Analysis weight', 'Status', 'Evidence')) {
+    Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle $column -Reason ("Classic direct ledger declares column {0}" -f $column)
+}
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'After every direct Classic step closes' -Reason 'Classic requires a ledger update after every closed step'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'Re-read the persisted PLAN after the child returns' -Reason 'parent reads authoritative state after delegated work'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'a child-provided table or prose summary is not the source of truth' -Reason 'child output cannot replace persisted PLAN state'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'Do not omit unchanged steps, summarize consecutive steps, or show only the just-closed step' -Reason 'partial and current-step-only ledgers are forbidden'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'stop with `ledger_partial`' -Reason 'unreadable or conflicting checkpoint blocks advancement'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'Next eligible step:' -Reason 'the table is followed by the next eligible step or closeout state'
+Assert-Includes -TestName $ct22Name -Text $directLedgerSection -Needle 'applies in both `step_by_step` and `continuous`' -Reason 'pacing does not change the Classic ledger requirement'
+Assert-Includes -TestName $ct22Name -Text $sddDevelop -Needle 'the parent owns the operator-facing relay after the child returns' -Reason 'sdd-develop assigns relay ownership to the parent'
+Assert-Includes -TestName $ct22Name -Text $spawnContract -Needle 'Classic direct `sdd-develop` parent relay' -Reason 'spawn contract carries the Classic parent relay responsibility'
+Assert-Includes -TestName $ct22Name -Text $spawnContract -Needle 'The child receipt, child-rendered table, or a prose summary alone is not the parent relay' -Reason 'parent must reconcile and render authoritative progress'
+
+$expectedClassicStatuses = @{ S1 = 'COMPLETED'; S2 = 'PENDING' }
+$mixedStateClassicLedger = @'
+| Step ID | Step | Dependencies | Analysis weight | Status | Evidence |
+|---------|------|--------------|-----------------|--------|----------|
+| S1 | Resolve skill references | none | Medium | COMPLETED | focused validator — PASS |
+| S2 | Define evidence gate | S1 | High | PENDING | — |
+**Next eligible step:** S2 — Define evidence gate
+'@
+if (-not (Test-ClassicLedgerProjection -Text $mixedStateClassicLedger -ExpectedStepIds @('S1', 'S2') -ExpectedStatuses $expectedClassicStatuses -ExpectedNext 'S2 — Define evidence gate')) {
+    Write-Fail -TestName $ct22Name -Reason 'complete mixed-state ledger fixture with every row, column, status, and next step must pass'
+}
+$partialClassicLedger = $mixedStateClassicLedger -replace '(?m)^\| S2 \|.*(?:\r?\n)?', ''
+if (Test-ClassicLedgerProjection -Text $partialClassicLedger -ExpectedStepIds @('S1', 'S2') -ExpectedStatuses $expectedClassicStatuses -ExpectedNext 'S2 — Define evidence gate') {
+    Write-Fail -TestName $ct22Name -Reason 'ledger missing an unchanged PLAN row must fail'
+}
+$currentStepOnlyLedger = $mixedStateClassicLedger -replace '(?m)^\| S1 \|.*(?:\r?\n)?', ''
+if (Test-ClassicLedgerProjection -Text $currentStepOnlyLedger -ExpectedStepIds @('S1', 'S2') -ExpectedStatuses $expectedClassicStatuses -ExpectedNext 'S2 — Define evidence gate') {
+    Write-Fail -TestName $ct22Name -Reason 'ledger containing only the closed step must fail'
+}
+$staleClassicLedger = $mixedStateClassicLedger.Replace('| S1 | Resolve skill references | none | Medium | COMPLETED |', '| S1 | Resolve skill references | none | Medium | IN_PROGRESS |')
+if (Test-ClassicLedgerProjection -Text $staleClassicLedger -ExpectedStepIds @('S1', 'S2') -ExpectedStatuses $expectedClassicStatuses -ExpectedNext 'S2 — Define evidence gate') {
+    Write-Fail -TestName $ct22Name -Reason 'ledger with a stale step status must fail'
+}
+$missingEvidenceColumnLedger = $mixedStateClassicLedger.Replace('| Step ID | Step | Dependencies | Analysis weight | Status | Evidence |', '| Step ID | Step | Dependencies | Analysis weight | Status |')
+if (Test-ClassicLedgerProjection -Text $missingEvidenceColumnLedger -ExpectedStepIds @('S1', 'S2') -ExpectedStatuses $expectedClassicStatuses -ExpectedNext 'S2 — Define evidence gate') {
+    Write-Fail -TestName $ct22Name -Reason 'ledger missing a required column must fail'
+}
+Write-Pass -TestName $ct22Name
 
 Write-Host 'Assert-SkillsAndFlowsContracts: static files only; no live host'
 Write-Host 'Assert-SkillsAndFlowsContracts: ALL PASS'
