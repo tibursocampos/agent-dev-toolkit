@@ -59,7 +59,7 @@ Set on `FEATURE.md` during O1 triage. Spawn a Task specialist **only** when the 
 
 - `developer-child` uses its reduced receipt in `RECEIPT.md`; stack `*-developer` prompts remain responsible for their own implementation details and do not emit the O3 relay receipt.
 - Finding specialists (`repo_analyst`, `architect`, `security`, `database`) use the finding contract. Their severity labels are mapped in `RECEIPT.md` and must not be collapsed into readiness or terminal status.
-- The O3 implementer (`sdd-develop`) returns the canonical seven-field relay receipt. The parent validates it against PLAN, session, and claim before reconciliation.
+- The O3 implementer (`sdd-develop`) returns the canonical relay receipt defined in `RECEIPT.md`, including optional `deletedFiles[]` for removed paths. The parent validates it against PLAN, session, and claim before reconciliation.
 - The optional read-only verifier uses its verifier contract; it cannot implement, edit PLAN, or substitute for evidence validation.
 - `prompts/` is canonical. `core/agents/` files are thin discoverable wrappers; `shell-runner` and `developer-child` also have canonical prompt files because roster/workflow consumers call them.
 

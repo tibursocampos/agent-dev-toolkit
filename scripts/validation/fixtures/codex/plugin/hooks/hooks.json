@@ -1,19 +1,9 @@
 {
-  "description": "Codex plugin PreToolUse path/secrets guards for agent-dev-toolkit (files only; trust via /hooks is manual).",
+  "description": "Codex plugin PreToolUse catch-all authorization guard for agent-dev-toolkit (trust via /hooks is manual).",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "pwsh -NoProfile -File \"${PLUGIN_ROOT}/hooks/guard-pre-tool.ps1\"",
-            "statusMessage": "Checking path/secrets policy"
-          }
-        ]
-      },
-      {
-        "matcher": "apply_patch|Edit|Write",
+        "matcher": ".*",
         "hooks": [
           {
             "type": "command",

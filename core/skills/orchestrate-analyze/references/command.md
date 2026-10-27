@@ -22,3 +22,7 @@
 | 12 | Durable progress handoff | `references/process-common.md` § Durable progress handoff |
 
 **Must not (full):** `references/must-not.md`. Handoff strings: `references/boundaries-handoff.md`.
+
+## Cumulative O1 checkpoint
+
+At O1 start, render the cumulative O1/O2 checkpoint from `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`. Refresh it after each material evidence pass or decision, before/after an open-question or architecture/backlog approval gate, when blocked, and at handoff/close. The checkpoint shows current process, completed evidence, pending analysis/artifacts, decisions/questions, blockers and next action; keep prior relevant findings across redraws. Derive facts from canonical feature/story artifacts and confirmed conversation decisions. The checkpoint and stage table are chat-only; do not add a second persisted ledger to FEATURE or CONTINUITY. At O1 step 8c, render both the feature-research stage table and the cumulative checkpoint.

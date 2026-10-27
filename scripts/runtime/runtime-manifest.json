@@ -18,6 +18,8 @@
     { "source": "scripts/validation/validate-prd.ps1", "destination": "validation/validate-prd.ps1", "class": "runtime", "caller": "sdd-spec PRD structure gate" },
     { "source": "scripts/validation/validate-plan.ps1", "destination": "validation/validate-plan.ps1", "class": "runtime", "caller": "sdd-plan PLAN structure gate" },
     { "source": "scripts/validation/validate-change.ps1", "destination": "validation/validate-change.ps1", "class": "runtime", "caller": "sdd-spec and change artifact gate" },
+    { "source": "scripts/validation/validate-brownfield-analysis.ps1", "destination": "validation/validate-brownfield-analysis.ps1", "class": "runtime", "caller": "orchestrate-deliver brownfield sufficiency gate" },
+    { "source": "scripts/validation/Invoke-O2BrownfieldPreflight.ps1", "destination": "validation/Invoke-O2BrownfieldPreflight.ps1", "class": "runtime", "caller": "orchestrate-deliver deterministic brownfield preflight" },
     { "source": "scripts/validation/Invoke-PrdPlanChangePreflight.ps1", "destination": "validation/Invoke-PrdPlanChangePreflight.ps1", "class": "runtime", "caller": "orchestrate-deliver preflight" },
     { "source": "scripts/validation/Invoke-O3ArtifactPreflight.ps1", "destination": "validation/Invoke-O3ArtifactPreflight.ps1", "class": "runtime", "caller": "orchestrate-develop preflight" },
     { "source": "scripts/validation/Invoke-O3ReceiptValidation.ps1", "destination": "validation/Invoke-O3ReceiptValidation.ps1", "class": "runtime", "caller": "orchestrate-develop receipt reconciliation" },

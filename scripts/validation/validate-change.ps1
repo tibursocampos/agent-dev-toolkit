@@ -66,21 +66,31 @@ if ([string]::IsNullOrWhiteSpace($text)) {
 $sectionPattern = $script:ToolkitConstant.SddArtifactChangeSectionPattern
 $requiredSections = @('ADDED', 'MODIFIED', 'REMOVED')
 $found = @{}
+$recognizedAliases = [System.Collections.Generic.List[string]]::new()
 foreach ($name in $requiredSections) {
     $found[$name] = $false
 }
 
 foreach ($m in [regex]::Matches($text, $sectionPattern)) {
-    $label = $m.Groups[1].Value.ToUpperInvariant()
-    if ($found.ContainsKey($label)) {
-        $found[$label] = $true
+    $rawLabel = $m.Groups[1].Value.Trim()
+    $alias = Resolve-SddArtifactAlias -Domain 'change-section' -Value $rawLabel
+    if ($alias.Recognized -and $found.ContainsKey($alias.Canonical)) {
+        $found[$alias.Canonical] = $true
+        if ($rawLabel -cnotmatch '^(?i)(ADDED|MODIFIED|REMOVED)$') {
+            [void]$recognizedAliases.Add(("'{0}' => {1}" -f $rawLabel, $alias.Canonical))
+        }
     }
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()
 foreach ($name in $requiredSections) {
     if (-not $found[$name]) {
-        $failures.Add(("missing ## {0} section heading" -f $name))
+        $translation = switch ($name) {
+            'ADDED' { 'ADDED/ADICIONADO/INCLUÍDO' }
+            'MODIFIED' { 'MODIFIED/MODIFICADO/ALTERADO' }
+            'REMOVED' { 'REMOVED/REMOVIDO/EXCLUÍDO' }
+        }
+        $failures.Add(("missing ## {0} section heading (accepted aliases: {1})" -f $name, $translation))
     }
 }
 
@@ -97,5 +107,6 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-ValidatePass -Message 'ADDED, MODIFIED, and REMOVED sections present'
+$aliasSummary = if ($recognizedAliases.Count -gt 0) { "; normalized: {0}" -f ([string]::Join(', ', $recognizedAliases.ToArray())) } else { '' }
+Write-ValidatePass -Message ('ADDED, MODIFIED, and REMOVED sections present' + $aliasSummary)
 exit 0

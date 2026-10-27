@@ -6,6 +6,7 @@
 | **Total de passos** | 2 |
 | **Progresso** | 0/2 |
 | **Status** | approved |
+| **Implementation status** | `IN_PROGRESS` |
 
 ## Execution policy
 
@@ -20,6 +21,13 @@
 
 - [ ] O1: Cover both companion REQs
 
+## Progresso da implementação
+
+| Step ID | Status |
+|---------|--------|
+| S1 | PENDING |
+| S2 | PENDING |
+
 ## Mapa REQ → passo
 
 | REQ | Passo |
@@ -29,7 +37,7 @@
 
 ---
 
-### ⏳ PASSO 1: First
+### ⏳ PASSO 1 — S1: First
 
 **Status:** Pendente | **Deps:** nenhuma
 
@@ -39,7 +47,7 @@
 
 ---
 
-### ⏳ PASSO 2: Second
+### ⏳ PASSO 2 — S2: Second
 
 **Status:** Pendente | **Deps:** 1
 

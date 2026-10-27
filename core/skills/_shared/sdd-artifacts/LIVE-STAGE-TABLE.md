@@ -10,6 +10,36 @@ Do not write the **stage** table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md
 
 The **step ledger** is different. It lives in the PLAN under `Implementation progress`. At step close, direct `sdd-develop` shows that ledger. O3 uses the PLAN-step progress table below, which lists every step. The persisted ledger columns are Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Do not replace either operator-facing table with this weighted stage table. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
 
+## Cumulative O1/O2 checkpoint (chat-only)
+
+During O1 and O2, pair the stage table with a cumulative checkpoint in the operator chat. It is a concise projection of evidence already gathered and canonical artifacts already written; it is not a new persisted status source. Render it when the workflow starts, after each material evidence/decision pass, at each story-cycle boundary, before or after a question/approval gate, whenever blocked, and at handoff or close. When continuing later, rebuild it from current artifacts and the conversation's confirmed decisions.
+
+Use this table shape in the operator's chat language:
+
+| Campo | Estado acumulado |
+|-------|-------------------|
+| Processo atual | Fase, etapa/story e gate em andamento |
+| Concluído | Marcos concluídos com evidência ou caminho do artefato |
+| Pendente | Próximos marcos, artefatos ou gates ainda necessários |
+| Decisões / questões | Decisões confirmadas e questões abertas; escrever `nenhuma` quando não houver |
+| Bloqueios | Causa, escopo afetado e gate/owner responsável; escrever `nenhum` quando não houver |
+| Próxima ação | Ação concreta e responsável/gate seguinte |
+
+Keep entries cumulative across the current O1/O2 run: a new checkpoint adds the latest verified state without dropping still-relevant completed work, pending work, decisions, or blockers. Cite the owning FEATURE/STORY/ANALYSIS/ARCH/SEC/PRD/PLAN/CONTINUITY path or decision id instead of copying its full content. Mark unverified status as unknown or a gap; do not infer completion from a created file or from elapsed conversation. Do not turn a technical gap into a product question. The checkpoint is chat-only: do not copy this table into CONTINUITY, FEATURE, PRD, PLAN, or the O3 step ledger. O3 remains governed only by its separate PLAN-step progress table below.
+
+For example, a later checkpoint after a decision gate retains still-open inspection from the earlier checkpoint:
+
+| Campo | Estado acumulado |
+|-------|-------------------|
+| Processo atual | O2, US01, revisão do PLAN |
+| Concluído | O1 trace registrado em `ANALYSIS/`; decisão D-01 confirmada |
+| Pendente | Validar dependências do PLAN e aprovação desta história |
+| Decisões / questões | D-01 confirmada; questão Q-02 segue aberta |
+| Bloqueios | Q-02 bloqueia somente US01 |
+| Próxima ação | Retomar análise dirigida de Q-02; owner: O2 |
+
+This is illustrative only. In a real checkpoint, preserve the actual unresolved items and cite their canonical owner.
+
 ## Columns
 
 One table, this column order:

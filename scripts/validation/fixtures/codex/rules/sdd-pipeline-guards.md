@@ -46,16 +46,18 @@ Ask structured options in **pt-BR** before a dry handoff (`PIPELINE.md` § Missi
 
 ## Confirm before write
 
-For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask **"Posso gravar em `{path}`? (sim / ajustar / cancelar)"**. `Write` only after **sim**.
+For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask in the user chat language whether to write at `{path}` (**sim** / **ajustar** / **cancelar**). `Write` only after **sim**.
 
-## Cursor mode
+## Host session mode
 
-- **Plan / Ask:** Phase A - questions and draft in chat only. Do **not** claim files were saved without a successful `Write`.
-- **Agent:** Phase B - persist after confirmation; run `sdd-develop` and `test-coverage`.
+- **Plan / Ask:** Phase A. Questions and draft in chat only. Do not claim files were saved without a successful `Write`.
+- **Agent:** Phase B. Persist after confirmation. Run `sdd-develop`, `run-tests`, and `test-coverage` when that skill applies.
 
-When Phase A is done but persistence is pending, tell the user to switch to **Agent** and resend `/<name> - gravar`.
+When Phase A is done and persistence is still pending, tell the user, in the user chat language, to switch to the mode that can persist and resend the write command.
 
 ## Boundaries
+
+A canonical PLAN plus an explicit eligible step starts in the current session after dependency and confirmation gates; do not require a new session. If invocation omits the step or execution route, ask manual-per-invocation vs O3; keep that answer independent from `orchestrator_mode` and pacing. Stop after the one requested step.
 
 - `sdd-spec` / `sdd-plan`: no production or test code changes.
 - `sdd-develop`: **one PLAN step per develop session** (unchanged contract — do not weaken). Handoff to the next step cites the portable PLAN path + step id only. Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `E:/Source/Repos/agent-dev-toolkit/scripts/validation/fixtures/codex/sdd/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).

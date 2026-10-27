@@ -234,6 +234,7 @@ $coreChecks = @(
     @{ Name = 'classic-external-access-contract'; Script = 'Assert-ClassicExternalAccessContract.ps1' },
     @{ Name = 'classic-external-access-runtime-fixture'; Script = 'Assert-ClassicExternalAccessRuntime.ps1' },
     @{ Name = 'o3-receipt-validation'; Script = 'Assert-O3ReceiptValidation.ps1' },
+    @{ Name = 'o2-brownfield-preflight'; Script = 'Assert-O2BrownfieldPreflight.ps1' },
     @{ Name = $orchestrateSpawnFallbackCheckName; Script = $orchestrateSpawnFallbackScriptName },
     @{ Name = $hermesSpawnIsolationCheckName; Script = $hermesSpawnIsolationScriptName },
     @{ Name = $antigravitySubagentsProbeCheckName; Script = $antigravitySubagentsProbeScriptName },
@@ -282,6 +283,7 @@ $coreChecks = @(
     @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName },
     @{ Name = 'implementation-readiness-contracts'; Script = 'Assert-ImplementationReadinessContracts.ps1' },
     @{ Name = 'brownfield-discovery-contract'; Script = 'Assert-BrownfieldDiscoveryContract.ps1' },
+    @{ Name = 'brownfield-analysis-validation'; Script = 'Assert-BrownfieldAnalysisValidator.ps1' },
     @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName },
     @{ Name = $authorizationPolicyCheckName; Script = $authorizationPolicyScriptName },
     @{ Name = $continuousQueueAuthorizationCheckName; Script = $continuousQueueAuthorizationScriptName }

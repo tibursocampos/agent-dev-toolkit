@@ -30,7 +30,7 @@
 
 ---
 
-### ⏳ PASSO 1: First
+### ⏳ PASSO 1 — S1: First
 
 **Status:** Pendente | **Deps:** nenhuma
 
@@ -40,7 +40,7 @@
 
 ---
 
-### ⏳ PASSO 2: Second
+### ⏳ PASSO 2 — S2: Second
 
 **Status:** Pendente | **Deps:** 1
 
@@ -50,7 +50,7 @@
 
 ---
 
-### ⏳ PASSO 3: Orphan
+### ⏳ PASSO 3 — S3: Orphan
 
 **Status:** Pendente | **Deps:** 2
 

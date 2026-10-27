@@ -5,6 +5,9 @@ $guard = Join-Path $PSScriptRoot 'Invoke-O3ReceiptValidation.ps1'
 $fixture = Join-Path $PSScriptRoot ('fixtures\o3-receipt-validation-' + [guid]::NewGuid().ToString('N'))
 $repo = Join-Path $fixture 'repo'
 $external = Join-Path $fixture 'Demandas'
+$globalInstallRoot = Join-Path $fixture 'install-root'
+$globalSddRoot = Join-Path $globalInstallRoot 'sdd'
+$globalPlan = Join-Path $globalSddRoot 'Blip.Api.FlowsHandler\features\002-regional-offers-product-flow\TS02\PLAN\PLAN_002_ts02_regional_offers_consistency.md'
 $outside = Join-Path $fixture 'outside'
 $rootsPath = Join-Path $fixture 'authorized-roots.json'
 $scopePath = Join-Path $fixture 'authorized-scope.json'
@@ -28,22 +31,24 @@ function Assert-DocumentConcepts([string] $Text, [string] $Name, [string[]] $Req
         }
     }
 }
-function New-Receipt([string[]] $Files) {
+function New-Receipt([string[]] $Files, [string] $PortablePlan = 'features/000-receipt/US01/PLAN/PLAN_000_receipt.md') {
     return [ordered]@{
-        planPath = 'features/000-receipt/US01/PLAN/PLAN_000_receipt.md'
+        planPath = $PortablePlan
         step = 1
         status = 'done'
         files = $Files
         testsSummary = 'Focused receipt validation PASS'
     }
 }
-function Invoke-ReceiptGuard($Receipt, [string[]] $Allowed = $scope, [hashtable] $ExternalRoots = $roots) {
+function Invoke-ReceiptGuard($Receipt, [string[]] $Allowed = $scope, [hashtable] $ExternalRoots = $roots, [string] $ExpectedPlan = $plan, [string] $TrustedSddRoot = '') {
     $json = ConvertTo-Json -InputObject $Receipt -Depth 8 -Compress
     $jsonBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
     [IO.File]::WriteAllText($rootsPath, (ConvertTo-Json -InputObject $ExternalRoots -Compress), (New-Object Text.UTF8Encoding $false))
     [IO.File]::WriteAllText($scopePath, (ConvertTo-Json -InputObject $Allowed -Compress), (New-Object Text.UTF8Encoding $false))
     $powerShellExe = if ($PSVersionTable.PSEdition -eq 'Core') { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'powershell.exe' }
-    $output = @(& $powerShellExe -NoProfile -File $guard -ReceiptJsonBase64 $jsonBase64 -RepoRoot $repo -PlanPath $plan -Step 1 -AllowedPathPrefixesPath $scopePath -AuthorizedRootsPath $rootsPath 2>&1)
+    $arguments = @('-NoProfile','-File',$guard,'-ReceiptJsonBase64',$jsonBase64,'-RepoRoot',$repo,'-PlanPath',$ExpectedPlan,'-Step','1','-AllowedPathPrefixesPath',$scopePath,'-AuthorizedRootsPath',$rootsPath)
+    if (-not [string]::IsNullOrWhiteSpace($TrustedSddRoot)) { $arguments += @('-SddRoot',$TrustedSddRoot) }
+    $output = @(& $powerShellExe @arguments 2>&1)
     return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = ($output -join ' ') }
 }
 function Invoke-ContainmentPredicate([string] $Root, [string] $Target) {
@@ -63,13 +68,14 @@ function Get-CanonicalReceipt($Result) {
     if (-not $match.Success) { throw "Guard did not return a canonical receipt projection: $($Result.Output)" }
     return $match.Groups[1].Value | ConvertFrom-Json -ErrorAction Stop
 }
-function Assert-Rejected($Receipt, [string] $Case, [string[]] $Allowed = $scope, [hashtable] $ExternalRoots = $roots, [switch] $ForceCaseSensitiveScope) {
+function Assert-Rejected($Receipt, [string] $Case, [string[]] $Allowed = $scope, [hashtable] $ExternalRoots = $roots, [switch] $ForceCaseSensitiveScope, [string] $ExpectedPlan = $plan, [string] $TrustedSddRoot = '') {
     $json = ConvertTo-Json -InputObject $Receipt -Depth 8 -Compress
     $jsonBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
     [IO.File]::WriteAllText($rootsPath, (ConvertTo-Json -InputObject $ExternalRoots -Compress), (New-Object Text.UTF8Encoding $false))
     [IO.File]::WriteAllText($scopePath, (ConvertTo-Json -InputObject $Allowed -Compress), (New-Object Text.UTF8Encoding $false))
     $powerShellExe = if ($PSVersionTable.PSEdition -eq 'Core') { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'powershell.exe' }
-    $guardArguments = @('-NoProfile','-File',$guard,'-ReceiptJsonBase64',$jsonBase64,'-RepoRoot',$repo,'-PlanPath',$plan,'-Step','1','-AllowedPathPrefixesPath',$scopePath,'-AuthorizedRootsPath',$rootsPath)
+    $guardArguments = @('-NoProfile','-File',$guard,'-ReceiptJsonBase64',$jsonBase64,'-RepoRoot',$repo,'-PlanPath',$ExpectedPlan,'-Step','1','-AllowedPathPrefixesPath',$scopePath,'-AuthorizedRootsPath',$rootsPath)
+    if (-not [string]::IsNullOrWhiteSpace($TrustedSddRoot)) { $guardArguments += @('-SddRoot',$TrustedSddRoot) }
     if ($ForceCaseSensitiveScope) { $guardArguments += '-TestCaseSensitiveScope' }
     $output = @(& $powerShellExe @guardArguments 2>&1)
     $result = [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = ($output -join ' ') }
@@ -78,16 +84,136 @@ function Assert-Rejected($Receipt, [string] $Case, [string[]] $Allowed = $scope,
 }
 
 try {
-    New-Item -ItemType Directory -Path (Split-Path -Parent $plan),$external,$outside -Force | Out-Null
+    New-Item -ItemType Directory -Path (Split-Path -Parent $plan),(Split-Path -Parent $globalPlan),$external,$outside -Force | Out-Null
     [IO.File]::WriteAllText($plan, '# plan')
+    [IO.File]::WriteAllText($globalPlan, '# global plan')
     [IO.File]::WriteAllText((Join-Path $repo 'features\000-receipt\US01\changed.cs'), 'internal')
     [IO.File]::WriteAllText((Join-Path $external 'input.json'), '{}')
+    New-Item -ItemType Directory -Path (Join-Path $external 'allowed'),(Join-Path $external 'other') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $external 'allowed\input.json'), '{}')
+    [IO.File]::WriteAllText((Join-Path $external 'other\input.json'), '{}')
     [IO.File]::WriteAllText((Join-Path $outside 'secret.txt'), 'outside')
 
     $valid = Invoke-ReceiptGuard (New-Receipt @('features\000-receipt\US01\changed.cs','external:Demandas/input.json'))
     Assert-True ($valid.ExitCode -eq 0 -and $valid.Output -match 'receipt_validation: PASS') "Valid internal and authorized external paths should pass: $($valid.Output)"
     Assert-True ((Get-CanonicalReceipt $valid).status -ceq 'done') 'Canonical receipt projection must retain done.'
     Write-Host 'O3ReceiptValidation ValidInternalAndAuthorizedAlias: PASS'
+
+    $removedPath = 'features/000-receipt/US01/removed.cs'
+    $validRemoval = New-Receipt @('features/000-receipt/US01/changed.cs')
+    $validRemoval.deletedFiles = @($removedPath)
+    $validRemovalResult = Invoke-ReceiptGuard $validRemoval
+    Assert-True ($validRemovalResult.ExitCode -eq 0 -and $validRemovalResult.Output -match 'receipt_validation: PASS') "An absent in-scope repository path should pass as a removal: $($validRemovalResult.Output)"
+    Assert-True (@((Get-CanonicalReceipt $validRemovalResult).deletedFiles) -contains $removedPath) 'Canonical receipt projection must preserve deletedFiles.'
+    Write-Host 'O3ReceiptValidation ValidAbsentRepositoryRemoval: PASS'
+
+    $externalRemoval = New-Receipt @()
+    $externalRemoval.deletedFiles = @('external:Demandas/allowed/removed.json')
+    $externalRemovalResult = Invoke-ReceiptGuard $externalRemoval @('external:Demandas/allowed')
+    Assert-True ($externalRemovalResult.ExitCode -eq 0) "An absent authorized external path should pass as a removal: $($externalRemovalResult.Output)"
+    Write-Host 'O3ReceiptValidation ValidAbsentExternalRemoval: PASS'
+
+    $existingRemoval = New-Receipt @()
+    $existingRemoval.deletedFiles = @('features/000-receipt/US01/changed.cs')
+    Assert-Rejected $existingRemoval 'ExistingLeafRejectedAsRemoval'
+
+    $danglingRemovalLink = Join-Path $repo 'features\000-receipt\US01\dangling-removal.cs'
+    $danglingRemovalTarget = Join-Path $repo 'features\000-receipt\US01\missing-target.cs'
+    $danglingRemovalReady = $false
+    try {
+        New-Item -ItemType SymbolicLink -Path $danglingRemovalLink -Target $danglingRemovalTarget -ErrorAction Stop | Out-Null
+        $danglingItem = Get-Item -LiteralPath $danglingRemovalLink -Force -ErrorAction Stop
+        if (($danglingItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) {
+            throw 'Created dangling leaf did not report the ReparsePoint attribute.'
+        }
+        if (Test-Path -LiteralPath $danglingRemovalLink) {
+            throw 'Dangling leaf unexpectedly resolves as an existing target.'
+        }
+        $danglingRemovalReady = $true
+    } catch {
+        Write-Host ("O3ReceiptValidation DanglingLeafReparseRemoval: SKIPPED (filesystem could not create and report a dangling symlink: {0})" -f $_.Exception.GetType().Name)
+    }
+    if ($danglingRemovalReady) {
+        $danglingRemoval = New-Receipt @()
+        $danglingRemoval.deletedFiles = @('features/000-receipt/US01/dangling-removal.cs')
+        Assert-Rejected $danglingRemoval 'DanglingLeafReparseRejectedAsRemoval'
+        Remove-Item -LiteralPath $danglingRemovalLink -Force
+    }
+
+    $duplicateRemoval = New-Receipt @('features/000-receipt/US01/changed.cs')
+    $duplicateRemoval.deletedFiles = @('features/000-receipt/US01/changed.cs')
+    Assert-Rejected $duplicateRemoval 'FileAndRemovalDuplicate'
+
+    $traversalRemoval = New-Receipt @()
+    $traversalRemoval.deletedFiles = @('external:Demandas/../outside/missing.txt')
+    Assert-Rejected $traversalRemoval 'RemovalTraversal'
+
+    $outOfScopeRemoval = New-Receipt @()
+    $outOfScopeRemoval.deletedFiles = @('external:Demandas/other/input.json')
+    Assert-Rejected $outOfScopeRemoval 'RemovalOutsideAllowedPrefix' @('features/000-receipt/US01','external:Demandas/allowed')
+
+    $missingParentRemoval = New-Receipt @()
+    $missingParentRemoval.deletedFiles = @('features/000-receipt/US01/missing-parent/removed.cs')
+    Assert-Rejected $missingParentRemoval 'RemovalMissingParentDirectory'
+
+    $invalidRemovalArray = New-Receipt @()
+    $invalidRemovalArray.deletedFiles = $removedPath
+    Assert-Rejected $invalidRemovalArray 'RemovalFieldMustBeArray'
+
+    $globalPortablePlan = 'sdd/Blip.Api.FlowsHandler/features/002-regional-offers-product-flow/TS02/PLAN/PLAN_002_ts02_regional_offers_consistency.md'
+    $globalReceipt = New-Receipt @('external:Demandas/input.json') $globalPortablePlan
+    $globalResult = Invoke-ReceiptGuard $globalReceipt @('external:Demandas') $roots $globalPlan $globalSddRoot
+    Assert-True ($globalResult.ExitCode -eq 0 -and $globalResult.Output -match 'receipt_validation: PASS') "Global canonical PLAN under trusted SDD root should pass: $($globalResult.Output)"
+    Assert-True ((Get-CanonicalReceipt $globalResult).planPath -ceq $globalPortablePlan) 'Global PLAN path must retain canonical sdd/<repo-id>/... portable semantics.'
+    Write-Host 'O3ReceiptValidation GlobalPlanUnderTrustedSddRoot: PASS'
+
+    $globalPlanLink = Join-Path $globalSddRoot 'Blip.Api.FlowsHandler'
+    $globalPlanOutsideTarget = Join-Path $outside 'Blip.Api.FlowsHandler'
+    $globalPlanOutsideFile = Join-Path $globalPlanOutsideTarget 'features\002-regional-offers-product-flow\TS02\PLAN\PLAN_002_ts02_regional_offers_consistency.md'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $globalPlanOutsideFile) -Force | Out-Null
+    [IO.File]::WriteAllText($globalPlanOutsideFile, '# outside global plan')
+    Remove-Item -LiteralPath $globalPlanLink -Recurse -Force
+    $globalPlanReparseReady = $false
+    $globalPlanComparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    try {
+        if ($env:OS -eq 'Windows_NT') {
+            New-Item -ItemType Junction -Path $globalPlanLink -Target $globalPlanOutsideTarget -ErrorAction Stop | Out-Null
+        } elseif ([IO.Directory].GetMethod('CreateSymbolicLink', [type[]]@([string], [string]))) {
+            [IO.Directory]::CreateSymbolicLink($globalPlanLink, $globalPlanOutsideTarget) | Out-Null
+        } else {
+            New-Item -ItemType SymbolicLink -Path $globalPlanLink -Target $globalPlanOutsideTarget -ErrorAction Stop | Out-Null
+        }
+        $linkItem = Get-Item -LiteralPath $globalPlanLink -Force -ErrorAction Stop
+        if (($linkItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) {
+            throw 'Created link did not report the ReparsePoint attribute.'
+        }
+        $resolvedGlobalPlan = Invoke-FinalPathProbe $globalPlan
+        $resolvedMatch = [regex]::Match([string]$resolvedGlobalPlan.Output, '(?:^|\s)final_path:\s*(.+)$')
+        if ($resolvedGlobalPlan.ExitCode -ne 0 -or -not $resolvedMatch.Success -or
+            -not $resolvedMatch.Groups[1].Value.Trim().Equals([IO.Path]::GetFullPath($globalPlanOutsideFile), $globalPlanComparison)) {
+            throw "The validator host did not report the reparse target as the outside path: $($resolvedGlobalPlan.Output)"
+        }
+        $globalPlanReparseReady = $true
+    } catch {
+        Write-Host ("O3ReceiptValidation GlobalPlanReparseEscape: SKIPPED (filesystem could not create and report a reparse point resolving outside SddRoot: {0})" -f $_.Exception.Message)
+    }
+    if ($globalPlanReparseReady) {
+        Assert-Rejected $globalReceipt 'GlobalPlanReparseEscape' @('external:Demandas') $roots -ExpectedPlan $globalPlan -TrustedSddRoot $globalSddRoot
+    }
+    if (Test-Path -LiteralPath $globalPlanLink) { Remove-Item -LiteralPath $globalPlanLink -Force }
+    if (-not (Test-Path -LiteralPath $globalPlan)) {
+        New-Item -ItemType Directory -Path (Split-Path -Parent $globalPlan) -Force | Out-Null
+        [IO.File]::WriteAllText($globalPlan, '# restored global plan')
+    }
+
+    $scopedExternalReceipt = New-Receipt @('external:Demandas/allowed/input.json')
+    $scopedExternalResult = Invoke-ReceiptGuard $scopedExternalReceipt @('external:Demandas/allowed')
+    Assert-True ($scopedExternalResult.ExitCode -eq 0) "External alias file under coordinator-authorized prefix should pass: $($scopedExternalResult.Output)"
+    Assert-Rejected (New-Receipt @('external:Demandas/other/input.json')) 'ExternalAliasOutsideAllowedPrefix' @('external:Demandas/allowed')
+    Write-Host 'O3ReceiptValidation ExternalAliasAllowedPrefix: PASS'
+
+    $outsidePlanReceipt = New-Receipt @('external:Demandas/input.json') $globalPortablePlan
+    Assert-Rejected $outsidePlanReceipt 'GlobalPlanOutsideTrustedSddRoot' @('external:Demandas') $roots -ExpectedPlan $globalPlan -TrustedSddRoot $repo
 
     $expectedPathRoot = [IO.Path]::GetPathRoot([IO.Path]::GetFullPath($fixture))
     $finalPathProbe = Invoke-FinalPathProbe $expectedPathRoot
@@ -125,6 +251,15 @@ try {
     $failedResult = Invoke-ReceiptGuard $validFailed
     Assert-True ($failedResult.ExitCode -eq 0 -and (Get-CanonicalReceipt $failedResult).status -ceq 'failed') 'Failed status and reason must remain unchanged.'
     Write-Host 'O3ReceiptValidation BlockedAndFailedRemainCanonical: PASS'
+
+    $contradictoryDone = New-Receipt @('external:Demandas/input.json')
+    $contradictoryDone.testsSummary = 'Focused checks PASS; one required check FAIL'
+    Assert-Rejected $contradictoryDone 'DoneCannotReportFailedCheck'
+    $deferredDone = New-Receipt @('external:Demandas/input.json')
+    $deferredDone.testsSummary = 'Tests explicitly deferred by PLAN'
+    $deferredResult = Invoke-ReceiptGuard $deferredDone
+    Assert-True ($deferredResult.ExitCode -eq 0) "A declared deferred test disposition should be representable: $($deferredResult.Output)"
+    Write-Host 'O3ReceiptValidation DoneTestSummarySemantics: PASS'
 
     Assert-Rejected (New-Receipt @('external:Unknown/input.json')) 'UnknownAlias' @('external:Unknown')
     Assert-Rejected (New-Receipt @('external:Demandas/../outside/secret.txt')) 'Traversal'
@@ -237,6 +372,9 @@ public static class O3ReceiptCaseSensitiveDirectoryController {
         throw "Cannot establish the reparse-point escape fixture required by this Windows runtime test: $($_.Exception.Message)"
     }
     Assert-Rejected (New-Receipt @('external:Demandas/escape/secret.txt')) 'IntermediateReparseEscape'
+    $reparseRemoval = New-Receipt @()
+    $reparseRemoval.deletedFiles = @('external:Demandas/escape/deleted.txt')
+    Assert-Rejected $reparseRemoval 'RemovalIntermediateReparseEscape'
 
     $receiptContract = Get-Content -LiteralPath (Join-Path $repoRoot 'core\skills\_shared\agents\RECEIPT.md') -Raw -Encoding UTF8
     $spawnContract = Get-Content -LiteralPath (Join-Path $repoRoot 'core\skills\_shared\agents\SPAWN.md') -Raw -Encoding UTF8
@@ -251,6 +389,7 @@ public static class O3ReceiptCaseSensitiveDirectoryController {
     $manifest = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts\runtime\runtime-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     Assert-DocumentConcepts $receiptContract 'Receipt contract path policy' @('external alias relative path', 'no absolute root')
     Assert-DocumentConcepts $receiptContract 'Receipt contract status policy' @('producer exactly done blocked failed', 'complete completed compatibility aliases')
+    Assert-DocumentConcepts $receiptContract 'Receipt removal policy' @('deletedfiles', 'leaf entry itself to be absent', 'does not prove that an untracked path existed previously')
     Assert-True ($spawnContract -match 'Invoke-O3ReceiptValidation\.ps1') 'Spawn guidance must require the runtime guard.'
     Assert-True ($o3Skill -match 'Invoke-O3ReceiptValidation\.ps1') 'O3 flow must invoke the runtime guard before reconciliation.'
     Assert-DocumentConcepts $o3Skill 'O3 producer guidance' @('status done', 'canonical receipt')

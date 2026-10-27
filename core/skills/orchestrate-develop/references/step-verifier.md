@@ -13,12 +13,12 @@
 1. Read `preferences.json`; if `verify_mode` is not `true`, **skip** this step entirely.
 2. If implementer returned `status: blocked` or a test declared by the PLAN failed, **skip** verifier — keep step pending; do not spawn verifier on known failure. Explicit deferred/skipped tests are not failures when the PLAN defers execution.
 3. **SPAWN gate:** load `SPAWN.md`; prefer Task when `subagents=native`. If Task unavailable, parent records verifier skipped in CONTINUITY — do **not** hard-fail O3.
-4. Spawn **one read-only verifier child** per completed implementer return (never parallel with the implementer on the same step). Use the verifier result schema below; it is not the seven-field implementer relay receipt.
+4. Spawn **one read-only verifier child** per completed implementer return (never parallel with the implementer on the same step). Use the verifier result schema below; it is not the canonical implementer relay receipt.
 
 Verifier child must:
 
 1. **Read only** — no `Write`/`Edit` on app sources, tests, or PLAN (read PLAN + changed files + PRD path cited in PLAN header).
-2. Load lean context: PLAN path, positive integer step number, canonical implementer relay receipt `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`, and PRD portable path (not full PRD body). Build is not a per-step field; US-close build is out of this verifier pass.
+2. Load lean context: PLAN path, positive integer step number, canonical implementer relay receipt `{ planPath, step, status, files[], deletedFiles[]?, testsSummary, nextStep?, blockedReason? }`, and PRD portable path (not full PRD body). Build is not a per-step field; US-close build is out of this verifier pass.
 3. Verify:
    - Step **Aceite** REQ-NNN / CA claims match implementer scope (no unchecked REQ items marked done).
    - A tests summary is present when files changed; explicit deferred/skipped matches a PLAN step that defers tests.

@@ -6,7 +6,7 @@
 3. Ready set = pending steps whose deps are all completed.
 4. Default pick = first ready in PLAN order within current story.
 5. Present pick; wait for sim; spawn one child.
-6. On return, first normalize `step`: accept a positive JSON integer or the compatibility alias `S<n>` (for example `S1`) and convert it to an integer. Then validate the canonical relay receipt against the invoked PLAN and step. Require exact portable `planPath`, normalized positive integer `step`, known terminal `status`, portable in-scope `files[]`, and bounded one-line `testsSummary`; reject missing, extra, malformed, or inconsistent fields. The producer MUST emit an integer; alias support is input compatibility only. Apply conditional `tests_run` per the PLAN: required only for steps declaring tests; otherwise require explicit deferred/skipped and keep false. Use the role/stage meaning from `core/skills/_shared/agents/RECEIPT.md` rather than treating terminal values as synonyms.
+6. On return, first normalize `step`: accept a positive JSON integer or the compatibility alias `S<n>` (for example `S1`) and convert it to an integer. Then validate the canonical relay receipt against the invoked PLAN and step. Require exact portable `planPath`, normalized positive integer `step`, known terminal `status`, portable in-scope `files[]`, optional non-conflicting `deletedFiles[]`, and bounded one-line `testsSummary`; reject missing, extra, malformed, or inconsistent fields. The producer MUST emit an integer; alias support is input compatibility only. Apply conditional `tests_run` per the PLAN: required only for steps declaring tests; otherwise require explicit deferred/skipped and keep false. Use the role/stage meaning from `core/skills/_shared/agents/RECEIPT.md` rather than treating terminal values as synonyms.
 7. Persist the PLAN checkpoint and progress table and re-read them before presenting any reconciled result.
 8. Show the complete step ledger for every PLAN step exactly once and, for a valid receipt, the short result (step, `done` | `blocked` | `failed`, tests). Every user-facing O3 status summary or transition includes the complete table, including blocked/stopped states and transitions with no eligible dispatch. Reconstruct display rows from the freshly re-read canonical PLAN and overlay only validated receipt/session/claim/checkpoint state; never derive display rows from the pending-only dispatch queue. Use the deterministic O3 formatter and reject a projection with missing, duplicate, extra, or invalid rows. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger.
 9. Evaluate the next eligible spawn only after that result. For `continuous`, call `Test-ContinuousQueueStepAuthorization` from `core/policy/continuous-queue.ps1` with the validated receipt/session/claim state, the re-read queue snapshot, and the completed reconciliation flags. It can authorize only the first eligible pending step and that authorization is consumed by its single spawn; run the decision again after every child return. `step_by_step` requires a new sim.
@@ -15,11 +15,25 @@
 
 ### Receipt validation and safe relay
 
-Use the canonical seven-field allowlist in
+Use the canonical receipt allowlist in
 `core/skills/_shared/agents/RECEIPT.md`: `planPath`, `step`, `status`,
-`files[]`, `testsSummary`, optional `nextStep`, and conditional
+`files[]`, optional `deletedFiles[]`, `testsSummary`, optional `nextStep`, and conditional
 `blockedReason`. Reject unknown fields and values that fail that matrix;
 normalize portable paths before comparison and bound all summaries.
+
+Run `scripts/validation/Invoke-O3ReceiptValidation.ps1` with the trusted
+application `-RepoRoot`, expected PLAN and step, a coordinator-owned
+`-AllowedPathPrefixesPath`, and a separate coordinator-owned
+`-AuthorizedRootsPath` alias-to-absolute-root map. For a canonical PLAN under
+global SDD storage outside the application repository, additionally supply
+`-SddRoot <effective-sdd-root>` from coordinator context; omit `-SddRoot` for
+repo-local PLANs. Keep the receipt `planPath` portable as
+`sdd/<path-relative-to-SddRoot>` for a global PLAN. Before spawn, authorize the
+external alias and portable path prefixes in those separate coordinator
+inputs. Global SDD files reported in `files[]` must use
+`external:<alias>/<relative-path>`; application files remain repository-
+relative. Never obtain the SDD root, alias roots, or authorized prefixes from
+receipt data. Existing containment and scope checks still apply.
 
 Validation is a parent responsibility performed against the re-read PLAN, the
 PLAN+step session gates, and the PLAN-LEDGER claim. A child's `done` claim is
@@ -127,7 +141,7 @@ Child must:
 2. Receive **only** that PLAN path, step number, opaque `claim_holder`, `REFINE/tasks.md` path, and lean Prior paths (the step block, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memory-bank/` path**). Do not load the rest of the PRD. Do not paste full guideline dumps or the full bank body.
 3. Use **PLAN-scoped SESSION** per `SESSION.md` (`plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` when this spawn is parallel on the same PLAN)
 4. Verify the matching parent-held claim with ledger `status`; do not call `claim` or `release` for an orchestrated handoff. The parent owns the reservation lifecycle and releases only after return reconciliation.
-5. Return the canonical allowlisted projection: `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`; emit `step` as a positive JSON integer and do not add fields. `tests_run` follows the PLAN step: persist/validate true only after declared tests run; for deferred/skipped steps leave false and say so in `testsSummary`.
+5. Return the canonical allowlisted projection: `{ planPath, step, status, files[], deletedFiles[]?, testsSummary, nextStep?, blockedReason? }`; emit `step` as a positive JSON integer and do not add fields. Use `deletedFiles[]` only for paths reported as removed; it receives the same scope and containment checks as `files[]`, and its leaf must be absent. `tests_run` follows the PLAN step: persist/validate true only after declared tests run; for deferred/skipped steps leave false and say so in `testsSummary`.
 6. **STOP** after that step - must not start Step N+1 in the same child
 
 **Parent must not:**
@@ -166,7 +180,7 @@ Give each child:
 5b. When level ≥ `cheap`: update `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)
 5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)
 5d. When touching C#: honor `csharp-patterns.md` signatures/invocations on Write (≤6 params **and** ≤160 chars inline; else one param per line; re-inline if CSharpier wraps without need)
-6. Return the canonical allowlisted projection: `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }`; emit `step` as a positive JSON integer and do not add fields.
+6. Return the canonical allowlisted projection: `{ planPath, step, status, files[], deletedFiles[]?, testsSummary, nextStep?, blockedReason? }`; emit `step` as a positive JSON integer and do not add fields. `deletedFiles[]` is optional and identifies removed paths whose parent directories remain under the authorized root while the leaf is absent.
 7. Must not: other PLAN steps; weaken gates; disregard declared tests; auto-commit unless user asked inside that child session; write develop gates to the flat repo session when PLAN path is known; write under `memory-bank/` unless this child is explicitly running memory-bank-init (normal develop children: read-only); reacquire or release an O3 parent-held claim; treat SESSION as claim proof
 
 Parent: merge return -> CONTINUITY -> gate for next spawn.

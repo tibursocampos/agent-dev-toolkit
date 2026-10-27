@@ -30,7 +30,27 @@ If the user has **not** said **sim** to the current action, do **NOT** execute m
 - `git commit`, `git push`, `git merge`, `git rebase`
 - `git checkout -b` or other branch-creating commands
 
-**Allowed without confirmation:** read-only - `git status`, `git diff`, `git log`.
+**Allowed without confirmation:** read-only - `git status`, `git diff`, `git log`, `git branch --show-current`.
+
+### Working branch (development skills, before the first code change)
+
+The integration-branch stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`.
+
+Before those skills change code, run read-only `git status -sb` or `git branch --show-current` and show the branch name.
+
+If the current branch is `main`, `master`, or `develop`:
+
+1. Stop before writing code.
+2. Tell the user **(pt-BR)** the branch name. Integration branches are not a work branch for these skills.
+3. Propose `feature/<slug>` or `feat/<id>-<slug>` cut from that branch.
+4. Create the branch only after **sim**. `git checkout -b` stays blocked until that sim.
+5. Read-only work may continue while waiting.
+
+If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
+
+`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
+
+Exception: the user explicitly says to keep the current integration branch. That exception is only for the development skills listed above.
 
 Mutating git commands require explicit **sim** in the user's **immediately previous** message, or the user runs them manually.
 
@@ -42,6 +62,8 @@ Use `/commit` / `/push` after confirmation.
 
 ## 2. Write / delete (confirm before write)
 
+Technical authorization by effect and scope is a separate decision from the operator confirmation required for the current action. An `allow` result from a provider or shared policy does not satisfy the required `sim`; `continuous` is independently limited to its eligible O3 queue step.
+
 Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
 1. Show title, path, summary bullets.
@@ -50,7 +72,21 @@ Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
 **Exception:** updating an existing PLAN after an **already approved** develop step - no re-confirmation.
 
-Before editing production code or tests: confirm scope unless the user explicitly approved the current step/task.
+Before editing production code or tests: confirm scope unless the user explicitly approved the current step/task. A clear affirmative answer in the conversation language or an observable native confirmation selection satisfies the operator-answer contract; do not require literal `sim` when the semantic choice is unambiguous. Keep technical authorization, scope, and persisted session gates as separate checks.
+
+---
+
+## Open questions without a written deadline
+
+A question whose rule states no deadline stays open until the operator answers every pending question.
+
+After that question is sent, send no further agent message until those answers arrive. Silence, a timeout, and the end of the turn are not answers.
+
+A host that offers an interactive question uses that mechanism. Every other host asks in text. Both block the flow.
+
+After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes. It finishes the requested function or declares a blocker and states the cause. Native questions are usable only when the host returns the selected answer to the agent; otherwise use localized text with numbered options. Read repository-local instructions and explain precedence conflicts; do not silently let lower-priority local text override the operator's explicit request or toolkit gates.
+
+The required **sim** before writes in §2 stays in force. This section does not replace that confirm.
 
 ---
 
@@ -66,10 +102,7 @@ Cite the next handoff with a **portable** PLAN path only (e.g. `features/NNN-slu
 
 ## 4. Tests before marking done
 
-Before marking a develop step or task complete:
-
-- Run project tests (`dotnet test`, `npm test`, `pytest`, or per project constitution).
-- Do not mark complete if tests fail and cannot be fixed in scope.
+Before marking a develop step or task complete, run the checks specified for that step and applicable project checks required by the PLAN or repository instructions. Do not silently escalate a step-level plan to a full project suite when that suite is reserved for scope close; report close-only checks as pending. Do not mark complete if a required check fails and cannot be fixed in scope.
 
 ---
 
@@ -77,9 +110,10 @@ Before marking a develop step or task complete:
 
 | Context | Language |
 |---------|----------|
-| Chat replies to user | **pt-BR** |
+| Chat replies to user | Resolved conversation language per `agents/LANGUAGE.md` |
+| Host plans the operator reads (Cursor Plan / `CreatePlan` / `.cursor/plans/`) | Resolved conversation language. Skill bodies being English is not a reason to change it. |
 | `SKILL.md`, guidelines, rules | **English** |
-| PRD, PLAN (default) | **pt-BR** |
+| PRD, PLAN (default) | Resolved content language per `agents/LANGUAGE.md` |
 | Identifiers, tests naming, commits | **English** |
 | Comments / XML docs / narrative docs | **Mirror** touched area or **ask** on greenfield (`structure-and-quality.md` §2) |
 
@@ -87,9 +121,9 @@ If the user corrects language, fix the **artifact/code** - do not flip chat to E
 
 ---
 
-## 6. Context management
+## 6. Progress checkpoints
 
-See SoT `core/policy/context-management.md` (published host rules surface). At ≥40% context: pause with the Warning template and recommend a new session; at ≥80%: Critical stop (no override).
+Persist the existing workflow control artifact at its defined step boundaries. Host context or compaction signals may inform the operator's decision to checkpoint, but no usage percentage, model-cost estimate, or new-session recommendation is a global gate. Preserve the workflow's explicit confirmation, dependency, and one-step boundaries.
 
 ---
 

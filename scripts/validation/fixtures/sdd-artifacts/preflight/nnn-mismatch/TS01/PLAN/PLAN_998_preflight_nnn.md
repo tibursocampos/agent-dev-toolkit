@@ -28,7 +28,7 @@
 
 ---
 
-### ⏳ PASSO 1: Only
+### ⏳ PASSO 1 — S1: Only
 
 **Status:** Pendente | **Deps:** nenhuma
 

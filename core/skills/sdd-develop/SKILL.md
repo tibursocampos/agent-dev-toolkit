@@ -188,7 +188,7 @@ Feature branch per `branch-validation.mdc`. Read `references/git-checklist.md`.
 
 ### 3-4. Analyze and implement
 
-Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`. Code/tests in English. When this PLAN step is the O3 producer, return only the canonical relay receipt `{ planPath, step, status, files[], testsSummary, nextStep?, blockedReason? }` from `RECEIPT.md`; emit `step` as a positive JSON integer. Include build only in the US-close receipt when a build is applicable. When delegating nested stack `*-developer` work, require that role's reduced `{ files[], testsSummary }` receipt and validate it locally; do not require `planPath` or `step` from `developer-child`.
+Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-pointers.md`. Code/tests in English. When this PLAN step is the O3 producer, return only the canonical relay receipt from `RECEIPT.md` (`{ planPath, step, status, files[], deletedFiles[]?, testsSummary, nextStep?, blockedReason? }`); emit `step` as a positive JSON integer. Use `deletedFiles[]` only for explicitly removed paths and follow the shared path-containment rules. Include build only in the US-close receipt when a build is applicable. When delegating nested stack `*-developer` work, require that role's reduced `{ files[], testsSummary }` receipt and validate it locally; do not require `planPath` or `step` from `developer-child`.
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 

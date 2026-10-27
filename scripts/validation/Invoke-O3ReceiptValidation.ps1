@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory = $false)][string] $ReceiptJsonBase64,
     [Parameter(Mandatory = $true)][string] $RepoRoot,
     [Parameter(Mandatory = $true)][string] $PlanPath,
+    [Parameter(Mandatory = $false)][string] $SddRoot,
     [Parameter(Mandatory = $true)][ValidateRange(1, 2147483647)][int] $Step,
     [Parameter(Mandatory = $true)][string] $AllowedPathPrefixesPath,
     [Parameter(Mandatory = $true)][string] $AuthorizedRootsPath,
@@ -213,6 +214,40 @@ function Resolve-CheckedFile([string] $RootPath, [string] $RelativePath) {
     return $current
 }
 
+function Resolve-CheckedDeletedFile([string] $RootPath, [string] $RelativePath) {
+    # A removal receipt proves only that the named leaf is absent now. Keep all
+    # parent components present and resolve each one so a missing directory or
+    # a reparse point cannot be used to smuggle an out-of-root path.
+    $root = Get-FinalPath $RootPath
+    $current = $root
+    $segments = $RelativePath.Split('/')
+    if ($segments.Count -lt 1) { Fail 'deleted file path has no path segments' }
+    for ($index = 0; $index -lt ($segments.Count - 1); $index++) {
+        $current = Join-Path $current $segments[$index]
+        if (-not (Test-Path -LiteralPath $current -PathType Container)) { Fail "deleted file parent directory does not exist: $RelativePath" }
+        $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+        $final = Get-FinalPath $current
+        if (-not (Test-Within $root $final)) { Fail "path escapes its authorized root: $RelativePath" }
+        if (-not $item.PSIsContainer) { Fail "intermediate path component is not a directory: $RelativePath" }
+    }
+
+    $leaf = Join-Path $current $segments[$segments.Count - 1]
+    if (Test-Path -LiteralPath $leaf) { Fail "deleted file path still exists: $RelativePath" }
+
+    # Test-Path can report false for a dangling symbolic link. Enumerate the
+    # already-validated parent as well so the reparse-point entry itself must
+    # be absent, regardless of whether its target exists.
+    $parent = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+    $leafName = $segments[$segments.Count - 1]
+    $nameComparison = if (Test-DirectoryCaseSensitive $current) { [StringComparison]::Ordinal } else { [StringComparison]::OrdinalIgnoreCase }
+    foreach ($entry in $parent.GetFileSystemInfos()) {
+        if ($entry.Name.Equals($leafName, $nameComparison)) {
+            Fail "deleted file path still exists: $RelativePath"
+        }
+    }
+    return $leaf
+}
+
 if ($TestContainmentOnly) {
     if (-not $TestCaseSensitiveScope -or [string]::IsNullOrWhiteSpace($TestContainmentRoot) -or [string]::IsNullOrWhiteSpace($TestContainmentTarget)) {
         Fail 'containment test mode requires forced case sensitivity and both test paths'
@@ -256,14 +291,24 @@ try {
     if ($null -eq $receipt -or $receipt -is [Array] -or $receipt -is [string]) { Fail 'receipt must be a JSON object' }
     $keys = @($receipt.PSObject.Properties.Name)
     $required = @('planPath','step','status','files','testsSummary')
-    $optional = @('nextStep','blockedReason')
+    $optional = @('nextStep','blockedReason','deletedFiles')
     foreach ($key in $required) { if ($keys -notcontains $key) { Fail "missing field: $key" } }
     foreach ($key in $keys) { if (($required + $optional) -notcontains $key) { Fail "unknown field: $key" } }
 
     $repo = Get-FinalPath $RepoRoot
     $expectedPlan = Get-FinalPath $PlanPath
-    if (-not (Test-Within $repo $expectedPlan)) { Fail 'expected PLAN is outside repository root' }
-    $portablePlan = $expectedPlan.Substring($repo.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar).Replace('\','/')
+    if (Test-Within $repo $expectedPlan) {
+        $portablePlan = $expectedPlan.Substring($repo.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar).Replace('\','/')
+    } elseif (-not [string]::IsNullOrWhiteSpace($SddRoot)) {
+        # SddRoot is trusted coordinator context, never read from the receipt.
+        # Global SDD artifacts are portable from InstallRoot as sdd/<repo-id>/...;
+        # files[] continue to use the separate external alias contract below.
+        $sddRoot = Get-FinalPath $SddRoot
+        if (-not (Test-Within $sddRoot $expectedPlan)) { Fail 'expected PLAN is outside repository and authorized SDD roots' }
+        $sddRelativePlan = $expectedPlan.Substring($sddRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar).Replace('\','/')
+        if ([string]::IsNullOrWhiteSpace($sddRelativePlan)) { Fail 'expected PLAN must identify a file below the authorized SDD root' }
+        $portablePlan = 'sdd/' + $sddRelativePlan
+    } else { Fail 'expected PLAN is outside repository root' }
     $receivedPlan = Normalize-PortablePath ([string]$receipt.planPath) 'planPath'
     if (-not $receivedPlan.Equals($portablePlan, [StringComparison]::OrdinalIgnoreCase)) { Fail 'planPath does not match the expected PLAN' }
 
@@ -282,11 +327,15 @@ try {
     # vocabulary to downstream O3 reconciliation.
     $receipt.status = $canonicalStatus
     if ($receipt.files -isnot [Array]) { Fail 'files must be an array' }
+    if (($keys -contains 'deletedFiles') -and $receipt.deletedFiles -isnot [Array]) { Fail 'deletedFiles must be an array when supplied' }
     if ($receipt.testsSummary -isnot [string] -or $receipt.testsSummary.Length -gt 500 -or $receipt.testsSummary -match '[\r\n]') { Fail 'testsSummary must be one line of at most 500 characters' }
     if ($receipt.status -in @('blocked','failed')) {
         if (-not ($keys -contains 'blockedReason') -or [string]::IsNullOrWhiteSpace([string]$receipt.blockedReason) -or ([string]$receipt.blockedReason).Length -gt 300 -or ([string]$receipt.blockedReason) -match '[\r\n]') { Fail 'blocked/failed requires a bounded one-line blockedReason' }
     } elseif ($keys -contains 'blockedReason') { Fail 'done must omit blockedReason' }
-    if ($receipt.status -eq 'done' -and [string]$receipt.testsSummary -notmatch '(?i)\bPASS\b|\b(deferred|skipped)\b') { Fail 'done requires PASS or an explicit deferred/skipped test summary' }
+    if ($receipt.status -eq 'done') {
+        if ([string]$receipt.testsSummary -notmatch '(?i)\bPASS\b|\b(deferred|skipped)\b') { Fail 'done requires PASS or an explicit deferred/skipped test summary' }
+        if ([string]$receipt.testsSummary -match '(?i)\b(FAIL|FAILED|BLOCKED)\b') { Fail 'done testsSummary cannot report a failed or blocked check' }
+    }
     if ($keys -contains 'nextStep' -and $receipt.nextStep -isnot [int] -and [string]$receipt.nextStep -notmatch '^[1-9][0-9]*$') { Fail 'nextStep must be a positive integer' }
 
     # Receipt text is data, never trusted instructions or a place for local paths,
@@ -299,36 +348,43 @@ try {
 
     $prefixes = @($AllowedPathPrefixes | ForEach-Object { Normalize-ScopePrefix $_ })
     $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
-    foreach ($raw in $receipt.files) {
-        if ($raw -isnot [string]) { Fail 'files entries must be strings' }
-        $path = [string]$raw
-        # Check the raw entry before alias/path parsing so absolute POSIX paths
-        # are rejected as local paths even when they are embedded in a receipt.
-        Assert-RedactedText $path 'file path'
-        $external = $false
-        $alias = $null
-        $relative = $null
-        if ($path.StartsWith('external:', [StringComparison]::Ordinal)) {
-            if ($path -notmatch '^external:([A-Za-z][A-Za-z0-9_-]*)/(.+)$') { Fail 'external path must use external:<alias>/<relative-path>' }
-            $alias = $Matches[1]
-            $relative = Normalize-PortablePath $Matches[2] 'external relative path'
-            if (-not $AuthorizedExternalRoots.ContainsKey($alias)) { Fail "external alias is not authorized: $alias" }
-            $external = $true
-            $canonical = "external:$alias/$relative"
-        } else {
-            $relative = Normalize-PortablePath $path 'repository path'
-            $canonical = $relative
+    foreach ($pathKind in @('files','deletedFiles')) {
+        if ($pathKind -eq 'deletedFiles' -and $keys -notcontains 'deletedFiles') { continue }
+        foreach ($raw in $receipt.$pathKind) {
+            if ($raw -isnot [string]) { Fail "$pathKind entries must be strings" }
+            $path = [string]$raw
+            # Check the raw entry before alias/path parsing so absolute POSIX paths
+            # are rejected as local paths even when they are embedded in a receipt.
+            Assert-RedactedText $path 'file path'
+            $external = $false
+            $alias = $null
+            $relative = $null
+            if ($path.StartsWith('external:', [StringComparison]::Ordinal)) {
+                if ($path -notmatch '^external:([A-Za-z][A-Za-z0-9_-]*)/(.+)$') { Fail 'external path must use external:<alias>/<relative-path>' }
+                $alias = $Matches[1]
+                $relative = Normalize-PortablePath $Matches[2] 'external relative path'
+                if (-not $AuthorizedExternalRoots.ContainsKey($alias)) { Fail "external alias is not authorized: $alias" }
+                $external = $true
+                $canonical = "external:$alias/$relative"
+            } else {
+                $relative = Normalize-PortablePath $path 'repository path'
+                $canonical = $relative
+            }
+            Assert-PortableFilePathRedacted $canonical
+            if (-not $seen.Add($canonical)) { Fail "duplicate receipt path: $canonical" }
+            if ($external) { $rootPath = [string]$AuthorizedExternalRoots[$alias] } else { $rootPath = $repo }
+            $inScope = $false
+            foreach ($prefix in $prefixes) {
+                if (Test-ScopePrefix -Canonical $canonical -Prefix $prefix -RootPath $rootPath -RelativePath $relative) { $inScope = $true; break }
+            }
+            if (-not $inScope) { Fail "file is outside coordinator scope: $canonical" }
+            if (-not (Test-Path -LiteralPath $rootPath -PathType Container)) { Fail "authorized root does not exist or is not a directory: $alias" }
+            if ($pathKind -eq 'deletedFiles') {
+                [void](Resolve-CheckedDeletedFile -RootPath $rootPath -RelativePath $relative)
+            } else {
+                [void](Resolve-CheckedFile -RootPath $rootPath -RelativePath $relative)
+            }
         }
-        Assert-PortableFilePathRedacted $canonical
-        if (-not $seen.Add($canonical)) { Fail "duplicate file path: $canonical" }
-        if ($external) { $rootPath = [string]$AuthorizedExternalRoots[$alias] } else { $rootPath = $repo }
-        $inScope = $false
-        foreach ($prefix in $prefixes) {
-            if (Test-ScopePrefix -Canonical $canonical -Prefix $prefix -RootPath $rootPath -RelativePath $relative) { $inScope = $true; break }
-        }
-        if (-not $inScope) { Fail "file is outside coordinator scope: $canonical" }
-        if (-not (Test-Path -LiteralPath $rootPath -PathType Container)) { Fail "authorized root does not exist or is not a directory: $alias" }
-        [void](Resolve-CheckedFile -RootPath $rootPath -RelativePath $relative)
     }
     $canonicalReceiptJson = ConvertTo-Json -InputObject $receipt -Depth 8 -Compress
     Write-Output 'receipt_validation: PASS'

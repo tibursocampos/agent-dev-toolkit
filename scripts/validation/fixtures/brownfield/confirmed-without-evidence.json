@@ -1,0 +1,19 @@
+{
+  "scenario": "negative regression: unsupported behavior and reuse were incorrectly called confirmed",
+  "flowLinks": [
+    {
+      "name": "producer-to-receiver",
+      "evidence": null,
+      "confidence": "CONFIRMED"
+    }
+  ],
+  "reuse": {
+    "candidate": "new abstraction",
+    "evidence": null,
+    "disposition": "CREATE"
+  },
+  "recommendation": {
+    "status": "CONFIRMED",
+    "reason": "Unsupported claim; test harness must reject it."
+  }
+}

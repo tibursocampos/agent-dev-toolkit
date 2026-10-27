@@ -80,13 +80,13 @@ $sectionChecks = @(
     @{ Label = 'PRD title'; Pattern = '(?im)^#\s+PRD:\s*\S+' },
     @{ Label = 'metadata table'; Pattern = '(?im)^\|\s*(Campo|Field)\s*\|\s*(Valor|Value)\s*\|' },
     @{ Label = 'metadata sequence'; Pattern = '(?im)^\|\s*\*{0,2}(Sequência|Sequence)\*{0,2}\s*\|' },
-    @{ Label = 'metadata status'; Pattern = '(?im)^\|\s*\*{0,2}(Status)\*{0,2}\s*\|' },
+    @{ Label = 'metadata status'; Pattern = '(?im)^\|\s*\*{0,2}(Status|Estado|Situação)\*{0,2}\s*\|' },
     @{ Label = 'metadata priority'; Pattern = '(?im)^\|\s*\*{0,2}(Prioridade|Priority)\*{0,2}\s*\|' },
     @{ Label = 'metadata complexity'; Pattern = '(?im)^\|\s*\*{0,2}(Complexidade|Complexity)\*{0,2}\s*\|' },
     @{ Label = 'metadata repository'; Pattern = '(?im)^\|\s*\*{0,2}(Repositório|Repository)\*{0,2}\s*\|' },
     @{ Label = 'metadata stack'; Pattern = '(?im)^\|\s*\*{0,2}Stack\*{0,2}\s*\|' },
     @{ Label = 'Execution policy'; Pattern = $script:ToolkitConstant.SddArtifactPrdExecutionPolicyPattern },
-    @{ Label = 'Related navigation section'; Pattern = '(?im)^##\s+Related\s*$' },
+    @{ Label = 'Related navigation section'; Pattern = '(?im)^##\s+(Related|Relacionado|Relacionados|Relações|Referências relacionadas)\s*$' },
     @{ Label = 'overview section'; Pattern = '(?im)^##\s+1\.\s+(Visão geral|Overview)\s*$' },
     @{ Label = 'context subsection'; Pattern = '(?im)^###\s+1\.1\s+(Contexto|Context)\s*$' },
     @{ Label = 'objective subsection'; Pattern = '(?im)^###\s+1\.2\s+(Objetivo|Objective)\s*$' },
@@ -141,8 +141,8 @@ if ($text -match '(?im)\b(GET|POST|PUT|PATCH|DELETE)\s+/[A-Za-z0-9_./{}:-]+|/api
 
 # Related rows are optional when siblings are unavailable; if rows are given,
 # require portable feature paths and reject machine-local absolute paths.
-if ($text -match '(?im)^##\s+Related\s*$') {
-    $relatedText = [regex]::Match($text, '(?ims)^##\s+Related\s*\r?\n(.*?)(?=^##\s|\z)').Groups[1].Value
+if ($text -match '(?im)^##\s+(?:Related|Relacionado|Relacionados|Relações|Referências relacionadas)\s*$') {
+    $relatedText = [regex]::Match($text, '(?ims)^##\s+(?:Related|Relacionado|Relacionados|Relações|Referências relacionadas)\s*\r?\n(.*?)(?=^##\s|\z)').Groups[1].Value
     if ($relatedText -match '(?i)([A-Z]:\\|/Users/|/home/|file://)') {
         $failures.Add('Related links must use portable paths')
     }
@@ -155,5 +155,5 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-ValidatePass -Message ("{0} REQ id(s), {1} CA heading(s)" -f $reqIds.Count, $acMatches.Count)
+Write-ValidatePass -Message ("{0} REQ id(s), {1} CA heading(s); PT/EN aliases normalized in memory" -f $reqIds.Count, $acMatches.Count)
 exit 0

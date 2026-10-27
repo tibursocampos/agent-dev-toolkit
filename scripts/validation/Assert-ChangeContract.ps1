@@ -123,6 +123,13 @@ if ($validResult.ExitCode -ne 0) {
 }
 Write-Pass -TestName 'Should_Pass_When_ValidChangeFixture'
 
+$validPortugueseChange = Get-FixturePath -RelativeUnderFixtures 'change/valid-pt-br.md'
+$validPortugueseResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ Path = $validPortugueseChange }
+if ($validPortugueseResult.ExitCode -ne 0) {
+    Write-Fail -TestName 'Should_Pass_When_PortugueseChangeAliases' -Reason ("expected explicit Portuguese headings to normalize, got exit {0}. {1}" -f $validPortugueseResult.ExitCode, $validPortugueseResult.Output.Trim())
+}
+Write-Pass -TestName 'Should_Pass_When_PortugueseChangeAliases'
+
 $invalidChange = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidateChangeFixtureInvalidNoSectionsRelativePath
 $invalidResult = Invoke-Validator -ScriptPath $validatePath -Arguments @{ Path = $invalidChange }
 if ($invalidResult.ExitCode -eq 0) {

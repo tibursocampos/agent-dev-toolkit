@@ -370,12 +370,19 @@ try {
 
     # Localized aliases are deliberately narrow. Keep canonical step states in
     # English and make unsupported state values fail with an actionable issue.
-    $unsupportedStatePlan = $planText.Replace('| `PENDING` |','| `CONCLUÍDO` |')
+    $unsupportedStatePlan = $planText.Replace('| `PENDING` |','| `CONCLUÍDO AGORA` |')
     [IO.File]::WriteAllText($planPath,$unsupportedStatePlan,(New-Object Text.UTF8Encoding $false))
     $unsupportedState = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
-    Assert-True ($LASTEXITCODE -eq 2 -and $unsupportedState -match 'plan_step_state_invalid:S1' -and $unsupportedState -match 'field=.*Status' -and $unsupportedState -match 'observed=.*CONCLUÍDO' -and $unsupportedState -match 'expected=.*COMPLETED.*PENDING.*IN_PROGRESS.*BLOCKED.*SKIPPED' -and $unsupportedState -match 'next=') 'Unsupported localized step-state values must be rejected with field, observed value, expected canonical states, and next action.'
+    Assert-True ($LASTEXITCODE -eq 2 -and $unsupportedState -match 'plan_step_state_invalid:S1' -and $unsupportedState -match 'field=.*Status' -and $unsupportedState -match 'observed=.*CONCLUÍDO AGORA' -and $unsupportedState -match 'expected=.*COMPLETED.*PENDING.*IN_PROGRESS.*BLOCKED.*SKIPPED' -and $unsupportedState -match 'next=') 'Unsupported near-match localized step-state values must be rejected with field, observed value, expected canonical states, and next action.'
     [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
     Write-Host 'O3ArtifactPreflight: PASS (unsupported localized step state rejected with actionable canonical-state guidance)'
+
+    $localizedStatePlan = $planText.Replace('| `PENDING` |','| `PENDENTE` |')
+    [IO.File]::WriteAllText($planPath,$localizedStatePlan,(New-Object Text.UTF8Encoding $false))
+    $localizedState = & $preflightPath -FeatureRoot $tempFeature -PlanPath $planPath -RepoPath $repoRoot -SddRoot $tempSdd 2>&1 | Out-String
+    Assert-True ($LASTEXITCODE -eq 0 -and $localizedState -match 'preflight: NORMALIZED' -and $localizedState -match 'input=''PENDENTE'' canonical=PENDING' -and $localizedState -match 'preflight: ALLOW') 'An explicit Portuguese step status must normalize to the same canonical status as English.'
+    [IO.File]::WriteAllText($planPath,$planText,(New-Object Text.UTF8Encoding $false))
+    Write-Host 'O3ArtifactPreflight: PASS (Portuguese step status normalizes to canonical PENDING)'
 
     $failedStatePlan = $planText.Replace('| S1 | Reconcile the saved O3 artifacts | none | Medium | `PENDING` | — |','| S1 | Reconcile the saved O3 artifacts | none | Medium | `FAILED` | failure |')
     [IO.File]::WriteAllText($planPath,$failedStatePlan,(New-Object Text.UTF8Encoding $false))
@@ -566,7 +573,7 @@ try {
     [IO.File]::WriteAllText($globalPrdPath,$globalPrdText.Replace('| **Content approval** | [pending] |','| **Content approval** | Approved by operator on 2026-10-24 |'),(New-Object Text.UTF8Encoding $false))
     $globalPrdText = Get-Content -LiteralPath $globalPrdPath -Raw -Encoding UTF8
     $transitionReady = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String
-    Assert-True ($LASTEXITCODE -eq 0 -and $transitionReady -match 'preflight: TRANSITION_READY' -and $transitionReady -match 'source=Ready for planning; target=Implemented' -and $transitionReady -match 'no files changed') 'Authorized owner transition must report only the fixed localized destination without writing files.'
+    Assert-True ($LASTEXITCODE -eq 0 -and $transitionReady -match 'preflight: TRANSITION_READY' -and $transitionReady -match 'source=Ready for planning; target=Implemented' -and $transitionReady -match 'no files changed') ("Authorized owner transition must report only the fixed localized destination without writing files. Output: $transitionReady")
     $negatedApprovalText = $globalPrdText.Replace('| **Content approval** | Approved by operator on 2026-10-24 |','| **Content approval** | Not approved by operator on 2026-10-24 |')
     [IO.File]::WriteAllText($globalPrdPath,$negatedApprovalText,(New-Object Text.UTF8Encoding $false))
     $negatedTransitionApproval = & $preflightPath -FeatureRoot $globalFeature -PlanPath $globalPlan -RepoPath $repoRoot -SddRoot $tempSdd -AuthorizeCompletedPlanPrdTransition 2>&1 | Out-String

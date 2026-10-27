@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Named constants for toolkit scripts (_lib).
@@ -169,7 +169,7 @@ $script:ToolkitConstant = @{
     ChangeContractCheckName            = 'change-contract'
     ChangeContractGuideRelativePath    = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
     ChangeTemplateRelativePath         = 'core/skills/_shared/templates/features/CHANGE.md'
-    SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|MODIFIED|REMOVED)\b'
+    SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|ADICIONAD[OA]S?|INCLU[IÍ]D[OA]S?|MODIFIED|MODIFICAD[OA]S?|ALTERAD[OA]S?|REMOVED|REMOVID[OA]S?|EXCLU[IÍ]D[OA]S?)\b'
     SddArtifactChangeForbiddenCurrentPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
     ValidateChangeFixtureValidRelativePath = 'change/valid.md'
     ValidateChangeFixtureInvalidNoSectionsRelativePath = 'change/invalid-no-sections.md'
@@ -257,12 +257,12 @@ $script:ToolkitConstant = @{
         'core/skills/sdd-plan/SKILL.md',
         'core/skills/sdd-plan/reference.md'
     )
-    SddArtifactPrdExecutionPolicyPattern         = '(?im)^##\s+Execution policy\s*$'
+    SddArtifactPrdExecutionPolicyPattern         = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
     SddArtifactPrdAcceptanceSectionPattern       = '(?im)^##\s+2\.\s+(Critérios de aceite|Acceptance criteria)\s*$'
     SddArtifactPrdRequirementsSectionPattern     = '(?im)^##\s+4\.\s+(Requisitos \(REQ-IDs\)|Requirements \(REQ-IDs\))\s*$'
     SddArtifactPrdOosSectionPattern              = '(?im)^##\s+5\.\s+(Fora de escopo|Out of scope)\b'
-    SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+Execution policy\s*$'
-    SddArtifactPlanStepHeadingPattern            = '(?im)^#{2,3}\s*(⏳|🔄|✅|❌)?\s*(PASSO|STEP)\s+\d+'
+    SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
+    SddArtifactPlanStepHeadingPattern            = '^(?i)(?:STEP|PASSO|ETAPA)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
     AssertStorySizingContractScriptName          = 'Assert-StorySizingContract.ps1'
     StorySizingContractCheckName                 = 'story-sizing-contract'
     StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
@@ -953,4 +953,142 @@ Backup (-Action Backup) is not implemented (fail-closed unless -ForceStub).
     EphemeralSmokeSyncFailed           = 'FAIL sync exit {0}: {1}'
     EphemeralSmokeValidateFailed       = 'FAIL validate exit {0}: {1}'
     EphemeralSmokeMarkerMissing        = 'FAIL validate output missing marker ''{0}'''
+}
+
+# Explicit aliases for user-authored SDD language. Keys are normalized only
+# for deterministic lookup; the source artifact is never rewritten.
+$script:SddArtifactAliasDefinitions = @{
+    'progress-heading' = @{
+        'implementationprogress' = 'IMPLEMENTATION_PROGRESS'
+        'progressodaimplementacao' = 'IMPLEMENTATION_PROGRESS'
+        'progressodeimplementacao' = 'IMPLEMENTATION_PROGRESS'
+    }
+    'execution-policy-heading' = @{
+        'executionpolicy' = 'EXECUTION_POLICY'
+        'politicadeexecucao' = 'EXECUTION_POLICY'
+    }
+    'related-heading' = @{
+        'related' = 'RELATED'
+        'relacionado' = 'RELATED'
+        'relacionados' = 'RELATED'
+        'relacoes' = 'RELATED'
+        'referenciasrelacionadas' = 'RELATED'
+    }
+    'metadata-status-column' = @{
+        'status' = 'STATUS'
+        'state' = 'STATUS'
+        'estado' = 'STATUS'
+        'situacao' = 'STATUS'
+    }
+    'table-column' = @{
+        'stepid' = 'STEP_ID'; 'idstep' = 'STEP_ID'; 'etapaid' = 'STEP_ID'; 'idetapa' = 'STEP_ID'; 'idadaetapa' = 'STEP_ID'; 'iddaetapa' = 'STEP_ID'; 'idpasso' = 'STEP_ID'; 'iddopasso' = 'STEP_ID'; 'id' = 'STEP_ID'
+        'step' = 'STEP_NAME'; 'stepname' = 'STEP_NAME'; 'etapa' = 'STEP_NAME'; 'nomeetapa' = 'STEP_NAME'; 'passo' = 'STEP_NAME'; 'nomedopasso' = 'STEP_NAME'; 'name' = 'STEP_NAME'; 'nome' = 'STEP_NAME'
+        'dependencies' = 'DEPENDENCIES'; 'dependency' = 'DEPENDENCIES'; 'dependencias' = 'DEPENDENCIES'; 'dependenciasdaetapa' = 'DEPENDENCIES'; 'dependenciasdopasso' = 'DEPENDENCIES'; 'depends' = 'DEPENDENCIES'; 'dependson' = 'DEPENDENCIES'; 'dependede' = 'DEPENDENCIES'
+        'status' = 'STATUS'; 'state' = 'STATUS'; 'estado' = 'STATUS'; 'situacao' = 'STATUS'; 'statusdaetapa' = 'STATUS'; 'statusdopasso' = 'STATUS'; 'executionstatus' = 'STATUS'; 'estadodeexecucao' = 'STATUS'
+        'evidence' = 'EVIDENCE'; 'evidencia' = 'EVIDENCE'; 'evidencias' = 'EVIDENCE'; 'checkpoint' = 'EVIDENCE'; 'checkpointevidence' = 'EVIDENCE'
+        'classification' = 'CLASSIFICATION'; 'classificacao' = 'CLASSIFICATION'; 'evidenceclassification' = 'CLASSIFICATION'; 'classificacaodeevidencia' = 'CLASSIFICATION'; 'classificacaodaevidencia' = 'CLASSIFICATION'; 'classevidence' = 'CLASSIFICATION'; 'classevidencia' = 'CLASSIFICATION'
+        'item' = 'ITEM'; 'claim' = 'ITEM'; 'finding' = 'ITEM'; 'topic' = 'ITEM'; 'achado' = 'ITEM'; 'afirmacao' = 'ITEM'; 'tema' = 'ITEM'; 'ponto' = 'ITEM'
+        'limitation' = 'LIMITATION'; 'limitacao' = 'LIMITATION'; 'limite' = 'LIMITATION'; 'gapreason' = 'LIMITATION'; 'justificativadalacuna' = 'LIMITATION'
+    }
+    'execution-status' = @{
+        'completed' = 'COMPLETED'; 'concluido' = 'COMPLETED'; 'concluida' = 'COMPLETED'; 'concluidos' = 'COMPLETED'; 'concluidas' = 'COMPLETED'
+        'pending' = 'PENDING'; 'pendente' = 'PENDING'; 'pendentes' = 'PENDING'
+        'inprogress' = 'IN_PROGRESS'; 'emandamento' = 'IN_PROGRESS'; 'emprogresso' = 'IN_PROGRESS'
+        'notstarted' = 'NOT_STARTED'; 'naoiniciado' = 'NOT_STARTED'; 'naoiniciada' = 'NOT_STARTED'
+        'blocked' = 'BLOCKED'; 'bloqueado' = 'BLOCKED'; 'bloqueada' = 'BLOCKED'; 'bloqueados' = 'BLOCKED'; 'bloqueadas' = 'BLOCKED'
+        'skipped' = 'SKIPPED'; 'ignorado' = 'SKIPPED'; 'ignorada' = 'SKIPPED'; 'ignorados' = 'SKIPPED'; 'ignoradas' = 'SKIPPED'; 'pulado' = 'SKIPPED'; 'pulada' = 'SKIPPED'
+    }
+    'prd-status' = @{
+        'readyforplanning' = 'READY_FOR_PLANNING'; 'prontoparaplanejamento' = 'READY_FOR_PLANNING'
+        'implemented' = 'IMPLEMENTED'; 'implementado' = 'IMPLEMENTED'; 'implementada' = 'IMPLEMENTED'
+        'approved' = 'APPROVED'; 'aprovado' = 'APPROVED'; 'aprovada' = 'APPROVED'
+        'draft' = 'DRAFT'; 'rascunho' = 'DRAFT'
+    }
+    'plan-status' = @{
+        'approved' = 'APPROVED'; 'aprovado' = 'APPROVED'; 'aprovada' = 'APPROVED'
+        'draft' = 'DRAFT'; 'rascunho' = 'DRAFT'
+    }
+    'change-section' = @{
+        'added' = 'ADDED'; 'adicionado' = 'ADDED'; 'adicionada' = 'ADDED'; 'adicionados' = 'ADDED'; 'adicionadas' = 'ADDED'; 'incluido' = 'ADDED'; 'incluida' = 'ADDED'
+        'modified' = 'MODIFIED'; 'modificado' = 'MODIFIED'; 'modificada' = 'MODIFIED'; 'modificados' = 'MODIFIED'; 'modificadas' = 'MODIFIED'; 'alterado' = 'MODIFIED'; 'alterada' = 'MODIFIED'; 'alterados' = 'MODIFIED'; 'alteradas' = 'MODIFIED'
+        'removed' = 'REMOVED'; 'removido' = 'REMOVED'; 'removida' = 'REMOVED'; 'removidos' = 'REMOVED'; 'removidas' = 'REMOVED'; 'excluido' = 'REMOVED'; 'excluida' = 'REMOVED'; 'excluidos' = 'REMOVED'; 'excluidas' = 'REMOVED'
+    }
+    'evidence-classification' = @{
+        'confirmed' = 'CONFIRMED'; 'confirmado' = 'CONFIRMED'; 'confirmada' = 'CONFIRMED'
+        'inferred' = 'INFERRED'; 'inferido' = 'INFERRED'; 'inferida' = 'INFERRED'
+        'gap' = 'GAP'; 'lacuna' = 'GAP'; 'naodemonstrado' = 'GAP'; 'naodemonstrada' = 'GAP'
+        'proposalonly' = 'PROPOSAL_ONLY'; 'somenteproposta' = 'PROPOSAL_ONLY'; 'apenasproposta' = 'PROPOSAL_ONLY'
+    }
+}
+
+function ConvertTo-SddArtifactAliasKey {
+    param([AllowNull()][string] $Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    $decomposed = $Value.Normalize([Text.NormalizationForm]::FormD)
+    $withoutMarks = [regex]::Replace($decomposed, '\p{M}', '')
+    return [regex]::Replace($withoutMarks.ToLowerInvariant(), '[^a-z0-9]', '')
+}
+
+function Remove-SddArtifactDecoration {
+    param([AllowNull()][string] $Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    $clean = [regex]::Replace($Value, '[\p{S}\p{Cf}\uD800-\uDFFF]', '')
+    return ([regex]::Replace($clean, '(?<![\p{L}\p{N}])[*_~`]+|[*_~`]+(?![\p{L}\p{N}])', '')).Trim()
+}
+
+function Resolve-SddArtifactAlias {
+    param(
+        [Parameter(Mandatory = $true)][string] $Domain,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
+    )
+    $key = ConvertTo-SddArtifactAliasKey $Value
+    $map = $script:SddArtifactAliasDefinitions[$Domain]
+    if ($null -ne $map -and $map.ContainsKey($key)) {
+        return [PSCustomObject]@{ Recognized = $true; Canonical = [string]$map[$key]; Input = $Value; Key = $key }
+    }
+    $allowed = if ($null -ne $map) { @($map.Values | Sort-Object -Unique) -join ', ' } else { '' }
+    return [PSCustomObject]@{ Recognized = $false; Canonical = ''; Input = $Value; Key = $key; Allowed = $allowed }
+}
+
+function Get-SddArtifactPlanStepHeadings {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text)
+
+    $valid = [System.Collections.Generic.List[object]]::new()
+    $invalid = [System.Collections.Generic.List[string]]::new()
+    $lines = [regex]::Split($Text, '\r?\n')
+    $candidatePattern = '^(?i)(?:STEP|PASSO|ETAPA)\b'
+    $stepPattern = [string]$script:ToolkitConstant.SddArtifactPlanStepHeadingPattern
+
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $line = $lines[$lineIndex]
+        $heading = [regex]::Match($line, '^\s*(?<level>#{1,6})\s*(?<value>.*?)\s*$')
+        if (-not $heading.Success) { continue }
+        $value = Remove-SddArtifactDecoration $heading.Groups['value'].Value
+        if ($value -notmatch $candidatePattern) { continue }
+
+        $parsed = [regex]::Match($value, $stepPattern)
+        if ($heading.Groups['level'].Value.Length -ne 3 -or -not $parsed.Success) {
+            $invalid.Add(('line {0}: {1}' -f ($lineIndex + 1), $line.Trim()))
+            continue
+        }
+
+        $ordinal = [int]$parsed.Groups['ordinal'].Value
+        $id = $parsed.Groups['id'].Value.ToUpperInvariant()
+        $idNumber = [int]([regex]::Match($id, '\d+').Value)
+        $name = $parsed.Groups['name'].Value.Trim()
+        if ($ordinal -ne $idNumber -or [string]::IsNullOrWhiteSpace($name)) {
+            $invalid.Add(('line {0}: {1}' -f ($lineIndex + 1), $line.Trim()))
+            continue
+        }
+
+        $valid.Add([PSCustomObject]@{
+            Number = $ordinal
+            Id = $id
+            Name = $name
+            LineNumber = $lineIndex
+            Raw = $line.Trim()
+        })
+    }
+
+    return [PSCustomObject]@{ Valid = @($valid.ToArray()); Invalid = @($invalid.ToArray()) }
 }

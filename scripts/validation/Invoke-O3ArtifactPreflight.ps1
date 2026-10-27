@@ -17,6 +17,7 @@ $script:PlanSteps = @()
 $script:PlanProgressRows = @()
 $script:PlanStates = @{}
 . (Join-Path $PSScriptRoot '..\_lib\Get-ToolkitRelativePath.ps1')
+. (Join-Path $PSScriptRoot '..\_lib\ToolkitConstants.ps1')
 . (Join-Path $PSScriptRoot '..\_lib\Format-O3PlanProgressTable.ps1')
 
 function Format-PreflightValue([string]$Value) {
@@ -32,10 +33,7 @@ function Test-PositiveContentApproval([string]$Value) {
 # Artifact prose is intentionally flexible. Normalize labels by meaning rather
 # than requiring a specific Markdown emphasis, emoji, whitespace, or casing.
 function ConvertTo-PreflightLabel([string]$Value) {
-    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
-    $decomposed = $Value.Normalize([Text.NormalizationForm]::FormD)
-    $withoutMarks = [regex]::Replace($decomposed,'\p{M}','')
-    return [regex]::Replace($withoutMarks.ToLowerInvariant(),'[^a-z0-9]','')
+    return ConvertTo-SddArtifactAliasKey $Value
 }
 
 function Remove-PreflightDecoration([string]$Value) {
@@ -87,27 +85,7 @@ function Get-PreflightSection([string]$Text,[string[]]$AcceptedHeadings) {
 }
 
 function Get-PreflightStepHeadings([string]$Text) {
-    $valid = [System.Collections.Generic.List[object]]::new()
-    $invalid = [System.Collections.Generic.List[string]]::new()
-    $lines = [regex]::Split($Text,'\r?\n')
-    $headingPattern = '^(?i)(?:STEP|PASSO)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
-    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
-        $line = $lines[$lineIndex]
-        $heading = [regex]::Match($line,'^\s*#{3}\s*(?<value>.*?)\s*$')
-        if (-not $heading.Success) { continue }
-        $value = Remove-PreflightDecoration $heading.Groups['value'].Value
-        if ($value -notmatch '^(?i)(?:STEP|PASSO)\b') { continue }
-        $parsed = [regex]::Match($value,$headingPattern)
-        if (-not $parsed.Success) { $invalid.Add($line.Trim()); continue }
-        $valid.Add([PSCustomObject]@{
-            Number = [int]$parsed.Groups['ordinal'].Value
-            Id = $parsed.Groups['id'].Value.ToUpperInvariant()
-            Name = $parsed.Groups['name'].Value.Trim()
-            LineNumber = $lineIndex
-            Raw = $line.Trim()
-        })
-    }
-    return [PSCustomObject]@{ Valid=@($valid.ToArray()); Invalid=@($invalid.ToArray()) }
+    return Get-SddArtifactPlanStepHeadings -Text $Text
 }
 
 function Get-PreflightDependencyIds([string]$Value) {
@@ -140,8 +118,13 @@ function Test-PreflightStepState([string]$Block,[string]$ExpectedState) {
     foreach ($line in [regex]::Split($Block,'\r?\n')) {
         $clean = Remove-PreflightDecoration $line
         $clean = $clean -replace '^\s*[-*+]\s*',''
-        $match = [regex]::Match($clean,'^(?i)(?<state>COMPLETED|PENDING)\b')
-        if ($match.Success) { return [string]::Equals($match.Groups['state'].Value,$ExpectedState,[StringComparison]::OrdinalIgnoreCase) }
+        $match = [regex]::Match($clean,'^(?<state>[^\s|]+)\b')
+        if ($match.Success) {
+            $alias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value $match.Groups['state'].Value
+            if ($alias.Recognized -and $alias.Canonical -in @('COMPLETED','PENDING')) {
+                return [string]::Equals($alias.Canonical,$ExpectedState,[StringComparison]::OrdinalIgnoreCase)
+            }
+        }
     }
     return $false
 }
@@ -156,9 +139,11 @@ function Get-PreflightStepTableRow([string]$Section,[string]$StepId) {
         $labels = @($cells | ForEach-Object { ConvertTo-PreflightLabel $_ })
         $stepColumn = -1; $dependencyColumn = -1; $statusColumn = -1
         for ($i = 0; $i -lt $labels.Count; $i++) {
-            if ($labels[$i] -in @('stepid','idstep','etapaid','idetapa','idadaetapa','id')) { $stepColumn = $i }
-            if ($labels[$i] -in @('dependencies','dependency','dependencias','depends','dependson','dependede')) { $dependencyColumn = $i }
-            if ($labels[$i] -in @('status','state','estado')) { $statusColumn = $i }
+            $alias = Resolve-SddArtifactAlias -Domain 'table-column' -Value $cells[$i]
+            if (-not $alias.Recognized) { continue }
+            if ($alias.Canonical -eq 'STEP_ID') { $stepColumn = $i }
+            if ($alias.Canonical -eq 'DEPENDENCIES') { $dependencyColumn = $i }
+            if ($alias.Canonical -eq 'STATUS') { $statusColumn = $i }
         }
         if ($stepColumn -ge 0 -and $dependencyColumn -ge 0 -and $statusColumn -ge 0) {
             $header = $cells; $index = @{ Step=$stepColumn; Dependencies=$dependencyColumn; Status=$statusColumn }; break
@@ -183,16 +168,26 @@ function Get-PreflightStepTableRows([string]$Section) {
         $cells = @(Get-PreflightTableCells $lines[$lineIndex])
         if ($cells.Count -lt 2) { continue }
         $labels = @($cells | ForEach-Object { ConvertTo-PreflightLabel $_ })
-        $stepColumn = -1; $nameColumn = -1; $dependencyColumn = -1; $statusColumn = -1; $evidenceColumn = -1
-        for ($cellIndex = 0; $cellIndex -lt $labels.Count; $cellIndex++) {
-            if ($labels[$cellIndex] -in @('stepid','idstep','etapaid','idetapa','idadaetapa','id')) { $stepColumn = $cellIndex }
-            if ($labels[$cellIndex] -in @('step','etapa','passo','name','nome')) { $nameColumn = $cellIndex }
-            if ($labels[$cellIndex] -in @('dependencies','dependency','dependencias','depends','dependson','dependede')) { $dependencyColumn = $cellIndex }
-            if ($labels[$cellIndex] -in @('status','state','estado')) { $statusColumn = $cellIndex }
-            if ($labels[$cellIndex] -in @('evidence','evidencia','checkpoint','checkpointevidence')) { $evidenceColumn = $cellIndex }
+        $columns = @{
+            STEP_ID = [System.Collections.Generic.List[int]]::new()
+            STEP_NAME = [System.Collections.Generic.List[int]]::new()
+            DEPENDENCIES = [System.Collections.Generic.List[int]]::new()
+            STATUS = [System.Collections.Generic.List[int]]::new()
+            EVIDENCE = [System.Collections.Generic.List[int]]::new()
         }
-        if ($stepColumn -ge 0 -and $dependencyColumn -ge 0 -and $statusColumn -ge 0) {
-            $columnIndex = [PSCustomObject]@{ Step=$stepColumn; Name=$nameColumn; Dependencies=$dependencyColumn; Status=$statusColumn; Evidence=$evidenceColumn }
+        for ($cellIndex = 0; $cellIndex -lt $labels.Count; $cellIndex++) {
+            $alias = Resolve-SddArtifactAlias -Domain 'table-column' -Value $cells[$cellIndex]
+            if ($alias.Recognized -and $columns.ContainsKey($alias.Canonical)) { $columns[$alias.Canonical].Add($cellIndex) }
+        }
+        if ($columns.STEP_ID.Count -gt 0 -and $columns.DEPENDENCIES.Count -gt 0 -and $columns.STATUS.Count -gt 0) {
+            $columnIndex = [PSCustomObject]@{
+                Step = $columns.STEP_ID[0]
+                Name = if ($columns.STEP_NAME.Count -gt 0) { $columns.STEP_NAME[0] } else { -1 }
+                Dependencies = $columns.DEPENDENCIES[0]
+                Status = $columns.STATUS[0]
+                Evidence = if ($columns.EVIDENCE.Count -gt 0) { $columns.EVIDENCE[0] } else { -1 }
+                Columns = $columns
+            }
             $headerLine = $lineIndex
             break
         }
@@ -210,11 +205,39 @@ function Get-PreflightStepTableRows([string]$Section) {
         if ([string]::IsNullOrWhiteSpace($stepId) -or $stepId -match '^:?-+:?$') { continue }
         $name = if ($columnIndex.Name -ge 0 -and $cells.Count -gt $columnIndex.Name) { $cells[$columnIndex.Name] } else { '' }
         $evidence = if ($columnIndex.Evidence -ge 0 -and $cells.Count -gt $columnIndex.Evidence) { $cells[$columnIndex.Evidence] } else { '' }
+        $dependencyValue = if ($cells.Count -gt $columnIndex.Dependencies) { [string]$cells[$columnIndex.Dependencies] } else { '' }
+        $statusValue = if ($cells.Count -gt $columnIndex.Status) { [string]$cells[$columnIndex.Status] } else { '' }
+        $conflicts = [System.Collections.Generic.List[string]]::new()
+        foreach ($field in @('STEP_ID','DEPENDENCIES','STATUS')) {
+            $fieldIndexes = @($columnIndex.Columns[$field])
+            if ($fieldIndexes.Count -lt 2) { continue }
+            $canonicalValues = [System.Collections.Generic.List[string]]::new()
+            foreach ($fieldIndex in $fieldIndexes) {
+                if ($cells.Count -le $fieldIndex) { $canonicalValues.Add('<missing>'); continue }
+                $rawValue = (Remove-PreflightDecoration $cells[$fieldIndex]).Trim()
+                if ($field -eq 'STATUS') {
+                    $fieldAlias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value $rawValue
+                    $canonicalValues.Add($(if ($fieldAlias.Recognized) { $fieldAlias.Canonical } else { '<unknown:' + $rawValue + '>' }))
+                } elseif ($field -eq 'STEP_ID') {
+                    $canonicalValues.Add($rawValue.ToUpperInvariant())
+                } else {
+                    $dependencyResult = Get-PreflightDependencyIds $rawValue
+                    $canonicalValues.Add(($dependencyResult.Ids -join ','))
+                }
+            }
+            if (@($canonicalValues | Select-Object -Unique).Count -gt 1) {
+                $conflicts.Add(("{0}: {1}" -f $field, ($canonicalValues -join ' vs ')))
+            }
+        }
+        $statusAlias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value $statusValue
         $rows.Add([PSCustomObject]@{
             Id = $stepId
             Name = [string]$name
-            Dependencies = [string]$cells[$columnIndex.Dependencies]
-            Status = [string]$cells[$columnIndex.Status]
+            Dependencies = $dependencyValue
+            Status = $statusValue
+            StatusCanonical = if ($statusAlias.Recognized) { $statusAlias.Canonical } else { '' }
+            Conflicts = @($conflicts.ToArray())
+            LineNumber = $lineIndex + 1
             Evidence = [string]$evidence
             Cells = $cells
             Line = $line
@@ -449,7 +472,7 @@ try {
     if ($stepParse.Invalid.Count -gt 0) {
         Add-PreflightIssue 'plan_step_heading_invalid' (Get-PreflightArtifactRef $plan) 'step headings' ($stepParse.Invalid -join ' / ') 'valid STEP/PASSO heading with ordinal, step ID, and title' 'PLAN owner' 'Normalize the malformed step heading(s) without changing their semantic IDs, then rerun preflight.'
     }
-    $progressSection = Get-PreflightSection $planText @('Progresso da implementação','Implementation progress')
+    $progressSection = Get-PreflightSection $planText @('Progresso da implementação','Progresso de implementação','Implementation progress')
     if ([string]::IsNullOrWhiteSpace($progressSection)) {
         Add-PreflightIssue 'plan_progress_section_missing' (Get-PreflightArtifactRef $plan) 'Implementation progress' 'section missing' 'a progress section containing one ledger row per PLAN step' 'PLAN owner' 'Restore the PLAN progress section, then rerun preflight.'
     }
@@ -493,10 +516,20 @@ try {
         }
         $dependenciesByStep[$step.Id] = @()
         if ($null -eq $row) { $dependenciesByStep[$step.Id] = @(); continue }
-        $state = (Remove-PreflightDecoration $row.Status).ToUpperInvariant()
-        if ($state -notin @('COMPLETED','PENDING','IN_PROGRESS','BLOCKED','SKIPPED')) {
-            Add-PreflightIssue "plan_step_state_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)/Status" $state 'COMPLETED, PENDING, IN_PROGRESS, BLOCKED, or SKIPPED' 'PLAN owner' "Set a supported state for $($step.Id), then rerun preflight."
-        } else { $planStates[$step.Id] = $state }
+        foreach ($conflict in @($row.Conflicts)) {
+            Add-PreflightIssue "plan_step_ledger_alias_conflict:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)" $conflict 'one unambiguous value for each semantic column' 'PLAN owner' "Remove the conflicting duplicate alias column or make its values semantically identical at ledger row $($row.LineNumber), then rerun preflight."
+        }
+        $stateAlias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value $row.Status
+        $state = if ($stateAlias.Recognized) { $stateAlias.Canonical } else { '' }
+        if (-not $stateAlias.Recognized -or $state -notin @('COMPLETED','PENDING','IN_PROGRESS','BLOCKED','SKIPPED')) {
+            $displayState = if ([string]::IsNullOrWhiteSpace($row.Status)) { '<empty>' } else { $row.Status }
+            Add-PreflightIssue "plan_step_state_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)/Status (line $($row.LineNumber))" $displayState 'COMPLETED/PENDING/IN_PROGRESS/BLOCKED/SKIPPED or explicit Portuguese equivalents' 'PLAN owner' "Use an explicit supported status alias for $($step.Id); the validator does not guess or rewrite values."
+        } else {
+            $planStates[$step.Id] = $state
+            if ($row.Status -notmatch '^(?i)(COMPLETED|PENDING|IN_PROGRESS|BLOCKED|SKIPPED)$') {
+                Write-Output ("preflight: NORMALIZED field=Implementation progress/{0}/Status input='{1}' canonical={2}" -f $step.Id, $row.Status, $state)
+            }
+        }
         $planDependencyResult = Get-PreflightDependencyIds $row.Dependencies
         if ($planDependencyResult.Invalid.Count -gt 0) {
             Add-PreflightIssue "plan_dependency_invalid:$($step.Id)" (Get-PreflightArtifactRef $plan) "Implementation progress/$($step.Id)/Dependencies" ($planDependencyResult.Invalid -join ', ') 'existing PLAN step IDs or none' 'PLAN owner' "Replace non-step references in the dependency cell for $($step.Id) with actual PLAN step IDs."
@@ -564,26 +597,40 @@ try {
     if ($progress.Success -and $planStates.Count -eq $steps.Count -and [int]$progress.Groups['completed'].Value -ne $completed) {
         Add-PreflightIssue 'plan_progress_completed_mismatch' (Get-PreflightArtifactRef $plan) 'Progress completed' $progress.Groups['completed'].Value ([string]$completed) 'PLAN owner' 'Align the completed count with the persisted step states, then rerun preflight.'
     }
-    $prdStatus = Get-PreflightFieldValue $prdText @('Status') -TopLevelOnly
-    $planImplementationStatus = Get-PreflightFieldValue $planText @('Implementation status','Status da implementação') -TopLevelOnly
+    $prdStatusRaw = Get-PreflightFieldValue $prdText @('Status','Estado','Situação') -TopLevelOnly
+    $planImplementationStatusRaw = Get-PreflightFieldValue $planText @('Implementation status','Status da implementação') -TopLevelOnly
+    $prdStatusAlias = Resolve-SddArtifactAlias -Domain 'prd-status' -Value (Remove-PreflightDecoration $prdStatusRaw)
+    $planImplementationStatusAlias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value (Remove-PreflightDecoration $planImplementationStatusRaw)
+    $prdStatus = if ($prdStatusAlias.Recognized) { $prdStatusAlias.Canonical } else { $prdStatusRaw }
+    $planImplementationStatus = if ($planImplementationStatusAlias.Recognized) { $planImplementationStatusAlias.Canonical } else { $planImplementationStatusRaw }
+    if (-not $prdStatusAlias.Recognized) {
+        $shown = if ([string]::IsNullOrWhiteSpace($prdStatusRaw)) { '<missing>' } else { $prdStatusRaw }
+        Add-PreflightIssue 'prd_status_invalid' (Get-PreflightArtifactRef $prd) 'Status' $shown 'DRAFT, APPROVED, READY_FOR_PLANNING, IMPLEMENTED or explicit Portuguese equivalents' 'PRD owner' 'Set a recognized PRD lifecycle status; the validator does not guess or rewrite status values.'
+    }
+    if (-not $planImplementationStatusAlias.Recognized) {
+        $shown = if ([string]::IsNullOrWhiteSpace($planImplementationStatusRaw)) { '<missing>' } else { $planImplementationStatusRaw }
+        Add-PreflightIssue 'plan_implementation_status_invalid' (Get-PreflightArtifactRef $plan) 'Implementation status' $shown 'NOT_STARTED, IN_PROGRESS, BLOCKED, COMPLETED or explicit Portuguese equivalents' 'PLAN owner' 'Set a recognized implementation status; the validator does not guess or rewrite status values.'
+    } elseif ($planImplementationStatus -eq 'SKIPPED') {
+        Add-PreflightIssue 'plan_implementation_status_invalid' (Get-PreflightArtifactRef $plan) 'Implementation status' $planImplementationStatusRaw 'NOT_STARTED, IN_PROGRESS, BLOCKED, or COMPLETED; SKIPPED applies to individual steps' 'PLAN owner' 'Use a plan lifecycle status; reserve SKIPPED for a step whose omission has approved evidence.'
+    }
     $planIsComplete = $planStates.Count -eq $steps.Count -and $steps.Count -gt 0 -and $completed -eq $steps.Count
-    $supportedTransitionSources = @('Pronto para planejamento','Ready for planning')
+    $supportedTransitionSources = @('READY_FOR_PLANNING')
     if ($AuthorizeCompletedPlanPrdTransition) {
         if (-not $planIsComplete -or -not [string]::Equals($planImplementationStatus,'COMPLETED',[StringComparison]::OrdinalIgnoreCase)) {
-            Add-PreflightIssue 'terminal_transition_plan_not_closed' (Get-PreflightArtifactRef $plan) 'Implementation status/steps' "$planImplementationStatus; completed=$completed/$($steps.Count)" 'COMPLETED with every PLAN step COMPLETED' 'authorized sdd-develop owner' 'Complete and validate the entire PLAN before requesting the PRD status transition.'
+            Add-PreflightIssue 'terminal_transition_plan_not_closed' (Get-PreflightArtifactRef $plan) 'Implementation status/steps' "$planImplementationStatusRaw; completed=$completed/$($steps.Count)" 'COMPLETED/Concluído with every PLAN step completed' 'authorized sdd-develop owner' 'Complete and validate the entire PLAN before requesting the PRD status transition.'
         }
         if ($prdStatus -notin $supportedTransitionSources) {
-            Add-PreflightIssue 'terminal_transition_source_invalid' (Get-PreflightArtifactRef $prd) 'Status' $prdStatus 'Pronto para planejamento or Ready for planning' 'authorized sdd-develop owner' 'Use the transition preflight only from the approved planning-ready PRD state.'
+            Add-PreflightIssue 'terminal_transition_source_invalid' (Get-PreflightArtifactRef $prd) 'Status' $prdStatusRaw 'Pronto para planejamento or Ready for planning' 'authorized sdd-develop owner' 'Use the transition preflight only from the approved planning-ready PRD state.'
         } else {
             $approval = Get-PreflightFieldValue $prdText @('Aprovação do conteúdo','Content approval') -TopLevelOnly
             if (-not (Test-PositiveContentApproval $approval)) {
                 Add-PreflightIssue 'terminal_transition_content_approval_missing' (Get-PreflightArtifactRef $prd) 'Content approval' $approval 'persisted approved content record' 'PRD owner' 'Reconcile the canonical PRD content approval metadata before closeout.'
             }
         }
-    } elseif ($planIsComplete -and $prdStatus -notin @('Implementado','Implemented')) {
-        Add-PreflightIssue "completed_plan_prd_status_mismatch:$prdStatus" (Get-PreflightArtifactRef $prd) 'Status' $prdStatus 'Implementado or Implemented after all PLAN steps complete' 'PRD owner' 'Reconcile the approved implementation closeout, then rerun preflight.'
+    } elseif ($planIsComplete -and $prdStatus -ne 'IMPLEMENTED') {
+        Add-PreflightIssue "completed_plan_prd_status_mismatch:$prdStatusRaw" (Get-PreflightArtifactRef $prd) 'Status' $prdStatusRaw 'Implementado or Implemented after all PLAN steps complete' 'PRD owner' 'Reconcile the approved implementation closeout, then rerun preflight.'
     }
-    if ($planIsComplete -and $prdStatus -in @('Implementado','Implemented')) {
+    if ($planIsComplete -and $prdStatus -eq 'IMPLEMENTED') {
         $terminalApproval = Get-PreflightFieldValue $prdText @('Aprovação do conteúdo','Content approval') -TopLevelOnly
         if (-not (Test-PositiveContentApproval $terminalApproval)) {
             Add-PreflightIssue 'completed_plan_content_approval_missing' (Get-PreflightArtifactRef $prd) 'Content approval' $terminalApproval 'persisted approved content record retained through closeout' 'PRD owner' 'Restore or reconcile the canonical PRD content approval metadata, then rerun preflight.'
@@ -636,8 +683,8 @@ try {
     if ($script:PreflightIssues.Count -gt 0) { Write-PreflightBlock; exit 2 }
     $git = & git -C $repo status --short --untracked-files=no -- $relativeFeature 2>$null
     if ($AuthorizeCompletedPlanPrdTransition) {
-        $targetStatus = if ([string]::Equals($prdStatus,'Pronto para planejamento',[StringComparison]::OrdinalIgnoreCase)) { 'Implementado' } else { 'Implemented' }
-        Write-Output "preflight: TRANSITION_READY - plan=$relativePlan; source=$prdStatus; target=$targetStatus; owner=authorized sdd-develop closeout only; no files changed; rerun standard preflight after the PRD status write; $script:StorageSummary"
+        $targetStatus = if ((ConvertTo-SddArtifactAliasKey $prdStatusRaw) -eq 'prontoparaplanejamento') { 'Implementado' } else { 'Implemented' }
+        Write-Output "preflight: TRANSITION_READY - plan=$relativePlan; source=$prdStatusRaw; target=$targetStatus; owner=authorized sdd-develop closeout only; no files changed; rerun standard preflight after the PRD status write; $script:StorageSummary"
         if ($EmitStepTable) { Write-PreflightStepTable }
         exit 0
     }
