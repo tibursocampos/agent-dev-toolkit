@@ -32,3 +32,6 @@ if ($preconditions -notmatch 'Invoke-O2BrownfieldPreflight\.ps1\s+-AnalysisPath'
 }
 
 Write-Host 'O2BrownfieldPreflight: PASS (O2 gate ALLOW for PT/EN/mixed/equal-alias fixtures; BLOCK for semantic failures, conflicting duplicate columns, and missing analysis)' -ForegroundColor Green
+# The negative-fixture child processes above intentionally return nonzero. Clear
+# that stale native-process status only after every assertion in this script passed.
+$global:LASTEXITCODE = 0

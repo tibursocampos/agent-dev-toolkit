@@ -19,3 +19,6 @@ foreach ($name in @('invalid-execution-status.md', 'invalid-missing-evidence.md'
 }
 
 Write-Host 'BrownfieldAnalysisValidator: PASS (PT/EN/mixed and equal aliases accepted; invalid classifications, missing evidence, and conflicting semantic columns rejected)'
+# The invalid fixtures above intentionally make the child validator return
+# nonzero. Clear that stale native-process status only after every assertion passed.
+$global:LASTEXITCODE = 0
