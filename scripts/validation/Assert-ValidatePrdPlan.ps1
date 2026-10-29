@@ -33,7 +33,7 @@ function Invoke-Validator {
         [Parameter(Mandatory = $true)][string] $ScriptPath,
         [Parameter(Mandatory = $true)][hashtable] $Arguments
     )
-    $output = & $ScriptPath @Arguments 2>&1 | Out-String
+    $output = & $ScriptPath @Arguments *>&1 | Out-String
     $code = $LASTEXITCODE
     if ($null -eq $code) {
         $code = 0
@@ -97,6 +97,25 @@ if ($noReqResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_PrdMissingReq' -Reason 'expected non-zero exit for PRD without REQ ids'
 }
 Write-Pass -TestName 'Should_Fail_When_PrdMissingReq'
+
+$nonCanonicalApiPrd = Join-Path ([System.IO.Path]::GetTempPath()) ('validate-prd-api-heading-{0}.md' -f [guid]::NewGuid().ToString('N'))
+$apiPrdText = Get-Content -LiteralPath $validPrd -Raw -Encoding UTF8
+$apiPrdText += "`r`n`r`nGET /api/items`r`n`r`n### 7.3 Contrato observável da integração de preço`r`n"
+Set-Content -LiteralPath $nonCanonicalApiPrd -Value $apiPrdText -Encoding UTF8
+try {
+    $apiHeadingResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $nonCanonicalApiPrd }
+    if ($apiHeadingResult.ExitCode -eq 0) {
+        Write-Fail -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical' -Reason 'expected nonzero exit for a noncanonical API contract heading'
+    }
+    if ($apiHeadingResult.Output -notmatch [regex]::Escape('### 7.3 Contrato observável de API') -or
+        $apiHeadingResult.Output -notmatch [regex]::Escape('### 7.3 Observable API contract')) {
+        Write-Fail -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical' -Reason ("failure must name both accepted headings; got: {0}" -f $apiHeadingResult.Output.Trim())
+    }
+}
+finally {
+    Remove-Item -LiteralPath $nonCanonicalApiPrd -Force -ErrorAction SilentlyContinue
+}
+Write-Pass -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical'
 
 # --- PLAN fixtures ---
 

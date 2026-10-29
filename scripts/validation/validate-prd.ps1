@@ -132,7 +132,7 @@ foreach ($sectionCheck in $sectionChecks) {
 # requires the observable API contract subsection. Other integrations do not.
 if ($text -match '(?im)\b(GET|POST|PUT|PATCH|DELETE)\s+/[A-Za-z0-9_./{}:-]+|/api/[A-Za-z0-9_./{}:-]+' -and
     $text -notmatch '(?im)^###\s+7\.3\s+(Contrato observável de API|Observable API contract)\b') {
-    $failures.Add('missing applicable section: observable API contract (an API route is described)')
+    $failures.Add('missing applicable section: observable API contract (an API route is described); add heading "### 7.3 Contrato observável de API" or "### 7.3 Observable API contract" as defined by the PRD template')
 }
 if ($text -match '(?im)\b(GET|POST|PUT|PATCH|DELETE)\s+/[A-Za-z0-9_./{}:-]+|/api/[A-Za-z0-9_./{}:-]+' -and
     $text -notmatch '(?im)^##\s+7\.\s+(Integrações|Integrations)') {

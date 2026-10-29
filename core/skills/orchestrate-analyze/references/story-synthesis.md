@@ -249,7 +249,14 @@ Refuse this process while `FEATURE.md` still has an open question (`open_questio
 **Language guard:** folder names stay `ANALYSIS`, `ARCH`, `SEC`. Prose inside those files, and the file name the parent chooses, follow content-language (`LANGUAGE.md`). Specialist receipts stay en-US. The parent translates before Write. Do not save an English specialist note when the chat language is Portuguese.
 
 5. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
-6. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
+6. For every required brownfield `ANALYSIS/` document, run the deterministic validator before the backlog approval gate:
+
+```powershell
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-brownfield-analysis.ps1" -Path <analysis-path>
+```
+
+Require exit code 0 and `validate-brownfield-analysis: PASS`. On failure, keep the backlog in `draft`, inspect the diagnostic and the validator's matching contract, and correct the ANALYSIS before asking for backlog approval. If a `repo_analyst` child already returned, its one-shot invocation cannot be reused: when native subagents are available, start a fresh bounded `repo_analyst` invocation with the canonical path, exact diagnostics, relevant cited sources, and the correction scope; otherwise O1 performs the permitted ANALYSIS correction in-parent. Do not ask the operator to relay routine validator output or make a correction supported by available evidence. Re-run the validator after each correction and continue O1 when it passes. Ask the operator only when correction needs missing evidence/access or an unresolved product decision; keep that blocker scoped and do not invent evidence. Do not weaken or replace O2's independent `Invoke-O2BrownfieldPreflight.ps1` gate; this O1 check catches an invalid handoff before asking for backlog approval.
+7. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
 
 PLAN magro (O2): bodies stay in bank/ARCH/ANALYSIS; PLAN cites the canonical path — if that path is missing, create the canonical file first.
 

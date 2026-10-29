@@ -2269,6 +2269,7 @@ $invocationContexts = Read-Contract 'core/skills/_shared/sdd-artifacts/INVOCATIO
 $reviewContract = Read-Contract 'core/skills/code-review/references/contracts.md'
 $brownfieldContract = Read-Contract 'core/skills/_shared/agents/BROWNFIELD-ANALYSIS.md'
 $o1Analysis = Read-Contract 'core/skills/orchestrate-analyze/SKILL.md'
+$o1StorySynthesis = Read-Contract 'core/skills/orchestrate-analyze/references/story-synthesis.md'
 $o2Preconditions = Read-Contract 'core/skills/orchestrate-deliver/references/preconditions.md'
 $o2PerStory = Read-Contract 'core/skills/orchestrate-deliver/references/per-story-contracts.md'
 $classicSpec = Read-Contract 'core/skills/sdd-spec/SKILL.md'
@@ -2435,6 +2436,12 @@ Assert-ContractText -Case 'Should_PassBrownfieldReadiness_When_ApplicableEvidenc
     'affected areas',
     'material gaps',
     'sufficient analysis'
+)
+Assert-ContractText -Case 'Should_ValidateBrownfieldAnalysisBeforeO1BacklogApproval' -Text ($o1Analysis + "`n" + $o1StorySynthesis) -Markers @(
+    '**Before** Step 10',
+    'deterministic evidence validation',
+    'validate-brownfield-analysis.ps1',
+    'O2 retains its independent brownfield validation gate'
 )
 Assert-ContractText -Case 'Should_BlockO1O2_When_BrownfieldArtifactsExistButEvidenceIsInsufficient' -Text ($o1Analysis + "`n" + $o2Preconditions + "`n" + $o2PerStory) -Markers @(
     'Folder or artifact presence alone is not evidence of sufficient analysis',

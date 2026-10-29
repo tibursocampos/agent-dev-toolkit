@@ -16,8 +16,8 @@
 | 8 | Spawn Task specialists (SPAWN; omit model). Return notes to the parent. Do not create story folders until step 9 | `references/spawn-map.md`; `SPAWN.md` |
 | 8b | Architecture confirm gate. Return the ARCH draft to the parent until step 9 | `references/arch-confirm.md` |
 | 8c | Feature research on `FEATURE.md` only. Show `LIVE-STAGE-TABLE.md`. If `open_question`, stop. Do not run step 9 | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`; `readiness-severity.md` § Open-question gate; `LIVE-STAGE-TABLE.md` |
-| 9 | Synthesize story folders only when FEATURE has no open question. Then FEATURE / CONTINUITY / STORY and product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4) | `references/story-synthesis.md`; lazy `anti-task-shatter.md` / `feature-altitude.md` |
-| 10 | Human backlog approval (**sim**) — only if gates passed | `references/process-common.md` § Backlog approval |
+| 9 | Synthesize story folders only when FEATURE has no open question. Then FEATURE / CONTINUITY / STORY, product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4), and brownfield ANALYSIS validation | `references/story-synthesis.md`; `validate-brownfield-analysis.ps1` |
+| 10 | Human backlog approval (**sim**) — only if all gates passed, including required brownfield ANALYSIS validation | `references/process-common.md` § Backlog approval |
 | 11 | Approve → CONTINUITY + O2 handoff | `references/boundaries-handoff.md` |
 | 12 | Durable progress handoff | `references/process-common.md` § Durable progress handoff |
 
