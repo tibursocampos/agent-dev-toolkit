@@ -11,7 +11,7 @@
 | 3 | Step 0 Memory Bank Gate (`auto`) | `references/preconditions.md` § Step 0; `MEMORY-BANK.md` |
 | 4 | Preconditions (approved backlog; required siblings) | `references/preconditions.md` |
 | 5 | Choose mode série vs paralelo (ask; SPAWN) | `references/mode-selection.md`; `SPAWN.md` |
-| 6 | Per story: story-file gate, `sdd-spec`, PRD contestation, `split-story-checklist` when medium or complex, then `sdd-plan`. An open question stops that story. | `references/per-story-contracts.md` |
+| 6 | Per story: story-file gate, `sdd-spec`, PRD contestation, `split-story-checklist` when medium or complex, then `sdd-plan` in this same O2 run after the checklist output validates. Pause only at a named human gate or a genuine blocker; an open question stops that story. | `references/per-story-contracts.md` |
 | 7 | Approval per story or batch (**sim**) | `references/approval-gates.md` |
 | 8 | CONTINUITY + multi-path handoff (CHANGE cross-check) | `references/continuity-handoff.md` |
 | 9 | Durable progress handoff | `references/process-common.md` § Durable progress handoff |
