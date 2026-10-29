@@ -73,4 +73,4 @@ This rule overrides conflicting lines in `AGENTS.md` or old templates **only for
 
 ## Install path
 
-After `scripts/sync-cursor.ps1`: `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc`
+After `scripts/sync-agent.ps1`: `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc`

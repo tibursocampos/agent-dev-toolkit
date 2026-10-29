@@ -976,7 +976,7 @@ function Invoke-ToolkitValidationLab {
             Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitInvalidMenuOptionRetry
             continue
         }
-        $null = Invoke-ToolkitScript -RelativePath $matched[0].RelativePath -ArgumentTable @{ Quiet = $true }
+        $null = Invoke-ToolkitScript -RelativePath $matched[0].RelativePath -ArgumentTable @{ Adapter = $matched[0].Adapter; Quiet = $true }
         Pause-Toolkit
     }
 }

@@ -81,6 +81,14 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched in notes, resume in a new chat with the same step number.
 
+#### Partial reopen
+
+- A `COMPLETED` step reopened for material rework returns to `IN_PROGRESS` (or `BLOCKED` with evidence) and records the reason in its notes.
+- Reconcile the evidence that depends on the reopened step: mark dependent acceptance and evidence as pending until re-proven.
+- Preserve evidence that stays independent of the reopened step and remains applicable.
+- Dependent steps that already passed stay `COMPLETED` only if their own acceptance still holds; otherwise set them to `PENDING` with the cause.
+- Completing one step never closes the PLAN while any later step is `PENDING` or `BLOCKED`.
+
 ### 9. Single edit
 
 The `sdd-develop` session that executes a step is the sole writer of that step's `Implementation progress` row, status/evidence, checkpoint, and permitted related boxes. In O3, the parent validates the child's persisted checkpoint read-only and never rewrites the same step; it may update its separately owned `CONTINUITY.md` synthesis. One edit covers the owned PLAN fields and only checklist fields applicable to the resolved invocation context: `direct` does not read or write a checklist unless the invocation explicitly adopted a consistently related checklist; `orchestrated` preserves the O3 parent's required scoped inputs and updates only this step's applicable rows. Do not create task rows or a checklist as a fallback. In `step_by_step`, the chat before the edit is the narrative summary, what the PLAN says to do, and the blocking question (`execution-display.md`). When the step closes, show that ledger for every step and applicable task rows only. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
@@ -99,4 +107,14 @@ When this edit sets the PLAN header **Implementation status** to `COMPLETED` (ev
 
 `/code-review` and `/commit` do not write this status. A review that finds PLAN `COMPLETED` with PRD still `Pronto para planejamento` / `Ready for planning` flags the drift and hands the close back here.
 
+
+## Write-consistency rules (SDDW)
+
+Rule ids `SDDW-NN` are contract text only; no repository script validates them. Apply each rule in the same edit that changes the fields it names, then run its reconciliation check before reporting the step or PLAN done.
+
+- **SDDW-02 (PLAN status agreement):** One edit sets the header `Implementation status`, the header `Progresso` (`N/M`, where `N` counts `COMPLETED` step headers and `M` counts step headers), each step `**Status:**`, the sequence rows, the Progresso table row, and the checkpoint. Reconciliation: each table row status equals its step header status; a row is never `PENDING` while its header is `COMPLETED`.
+- **SDDW-04 (boxes under COMPLETED steps):** Set a step to `COMPLETED` only after every checklist box that the step acceptance covers is `[x]`. A `COMPLETED` step block keeps no unchecked `- [ ]` box. Boxes owned by later steps stay `[ ]` and do not block the step.
+- **SDDW-03 (status rows after PLAN close):** When the PLAN `Implementation status` becomes `COMPLETED`, no PLAN row may still show `IN_PROGRESS` (checkpoint global state, portability row, or any other status row). Set each one to its final value in the same edit.
+- **SDDW-01 (REFINE summary):** When a step status changes in `REFINE/tasks.md`, the same edit updates the step header, the group Status cell of the summary table, and the `Progresso` counter (`N/M grupos`). Reconciliation: counter `N` equals the COMPLETED step headers, `M` equals the step count, and each summary row equals its step header and the PLAN step status.
+- **SDDW-07 (PRD version):** The companion PRD close (section 10) sets the PRD header `Versão` to the version of the history row it appends, in the same edit. Reconciliation: the header `Versão` equals the last row of `Histórico de alterações`. Criterion, scope, and requirement text stay unchanged in that edit.
 ---

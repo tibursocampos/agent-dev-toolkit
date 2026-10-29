@@ -20,6 +20,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\_lib\ToolkitConstants.ps1')
 
+$emDash = [string][char]0x2014
+$circumflexE = [string][char]0x00EA
+$cedilla = [string][char]0x00E7
+$tildeA = [string][char]0x00E3
+$emptyMarkerPattern = '^(?:' + $emDash + '|-|n/?a)$'
+
 function Write-AnalysisFail([string]$Message) {
     Write-Host ("validate-brownfield-analysis: FAIL - {0}" -f $Message) -ForegroundColor Red
 }
@@ -104,8 +110,8 @@ while ($lineIndex -lt $lines.Count) {
         }
     }
     if ($itemIndexes.Count -eq 0) { $issues.Add(('line {0}: classification table is missing an Item/Achado column' -f ($lineIndex + 1))) }
-    if ($evidenceIndexes.Count -eq 0) { $issues.Add(('line {0}: classification table is missing an Evidence/Evidência reference column' -f ($lineIndex + 1))) }
-    if ($limitationIndexes.Count -eq 0) { $issues.Add(('line {0}: classification table is missing a Limitation/Limitação column' -f ($lineIndex + 1))) }
+    if ($evidenceIndexes.Count -eq 0) { $issues.Add((('line {0}: classification table is missing an Evidence/Evid' + $circumflexE + 'ncia reference column') -f ($lineIndex + 1))) }
+    if ($limitationIndexes.Count -eq 0) { $issues.Add((('line {0}: classification table is missing a Limitation/Limita' + $cedilla + $tildeA + 'o column') -f ($lineIndex + 1))) }
 
     $dataIndex = $lineIndex + 2
     while ($dataIndex -lt $lines.Count) {
@@ -113,7 +119,7 @@ while ($lineIndex -lt $lines.Count) {
         if ($cells.Count -eq 0) { break }
         $rowCount++
         $item = Get-ConsistentColumnValue -Indexes $itemIndexes -Cells $cells -FieldName 'Item/Achado' -LineNumber ($dataIndex + 1) -Issues $issues
-        if ([string]::IsNullOrWhiteSpace($item) -or $item -match '^(?:—|-|n/?a)$') {
+        if ([string]::IsNullOrWhiteSpace($item) -or $item -match $emptyMarkerPattern) {
             $issues.Add(('line {0}: Item/Achado is required for each classification row' -f ($dataIndex + 1)))
         }
 
@@ -135,8 +141,8 @@ while ($lineIndex -lt $lines.Count) {
             else {
                 $classification = $canonicalValues[0]
                 $normalized.Add(("line {0}: {1} -> {2}" -f ($dataIndex + 1), ($classAliases[0].Input), $classification))
-                $evidence = Get-ConsistentColumnValue -Indexes $evidenceIndexes -Cells $cells -FieldName 'Evidence/Evidência' -LineNumber ($dataIndex + 1) -Issues $issues
-                $limitation = Get-ConsistentColumnValue -Indexes $limitationIndexes -Cells $cells -FieldName 'Limitation/Limitação' -LineNumber ($dataIndex + 1) -Issues $issues
+                $evidence = Get-ConsistentColumnValue -Indexes $evidenceIndexes -Cells $cells -FieldName ('Evidence/Evid' + $circumflexE + 'ncia') -LineNumber ($dataIndex + 1) -Issues $issues
+                $limitation = Get-ConsistentColumnValue -Indexes $limitationIndexes -Cells $cells -FieldName ('Limitation/Limita' + $cedilla + $tildeA + 'o') -LineNumber ($dataIndex + 1) -Issues $issues
                 $hasPortableReference = $evidence -match '^[^:\s|]+(?:/[^:\s|]+)*:[A-Za-z_][A-Za-z0-9_.$#/-]*$' -and $evidence -notmatch '^[A-Za-z]:[\\/]'
                 switch ($classification) {
                     'CONFIRMED' {
@@ -144,10 +150,10 @@ while ($lineIndex -lt $lines.Count) {
                     }
                     'INFERRED' {
                         if (-not $hasPortableReference) { $issues.Add(('line {0}: INFERRED requires a portable path:symbol Evidence reference' -f ($dataIndex + 1))) }
-                        if ([string]::IsNullOrWhiteSpace($limitation) -or $limitation -match '^(?:—|-|n/?a)$') { $issues.Add(('line {0}: INFERRED requires a Limitation explaining the indirect evidence' -f ($dataIndex + 1))) }
+                        if ([string]::IsNullOrWhiteSpace($limitation) -or $limitation -match $emptyMarkerPattern) { $issues.Add(('line {0}: INFERRED requires a Limitation explaining the indirect evidence' -f ($dataIndex + 1))) }
                     }
                     'GAP' {
-                        if ([string]::IsNullOrWhiteSpace($limitation) -or $limitation -match '^(?:—|-|n/?a)$') { $issues.Add(('line {0}: GAP requires a Limitation explaining what evidence is missing or unresolved' -f ($dataIndex + 1))) }
+                        if ([string]::IsNullOrWhiteSpace($limitation) -or $limitation -match $emptyMarkerPattern) { $issues.Add(('line {0}: GAP requires a Limitation explaining what evidence is missing or unresolved' -f ($dataIndex + 1))) }
                     }
                     'PROPOSAL_ONLY' {
                         if ($hasPortableReference -and $evidence -notmatch '(?i)proposal|proposta') { $issues.Add(('line {0}: PROPOSAL_ONLY must not present an evidence reference as proof; move it to a separately classified row' -f ($dataIndex + 1))) }

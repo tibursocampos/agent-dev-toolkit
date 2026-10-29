@@ -16,7 +16,7 @@ Policy context: [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md).
 
 ## Core suite
 
-Validates contracts, skill graph, fixtures, and the smoke harness wiring — **no** `%USERPROFILE%` deploy:
+Runs the critical checks only (about 24, target 3 to 5 minutes locally): skill contracts and graph, `Assert-CoreContracts` (consolidated core/skill/flow contract assertions), `Assert-AdapterContract` (generic adapter checks driven by `adapters/registry.json`), path and install-root safety, SDD runtime scripts (ledger, session gate, O2/O3 preflight and receipts), memory-bank inventory, and publish ownership — **no** `%USERPROFILE%` deploy. Checks run in one process; a few run in a child `pwsh`. The run prints one line per check with seconds and a total.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
@@ -25,16 +25,10 @@ pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
 pwsh -NoProfile -File .\scripts\validation\validate-all.ps1
 ```
 
-Quiet mode (CI):
+Quiet mode (failures and summary only), single check, or skip:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
-```
-
-Smoke harness alone (fixture `InstallRoot` under the repo):
-
-```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-SmokeHarness.ps1
 ```
 
 `validate-core` wires structural PRD / PLAN / CHANGE validation and focused toolkit contract checks. It does not run acceptance fixtures for individual US/FEATURE artifacts. These are scripts, not LLM validators, and do not introduce a second toolkit CLI or SQLite/FTS.
@@ -51,8 +45,6 @@ Planning checks also cover outcome-based story sizing and observable API-contrac
 |-----------------|------|
 | `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |
 | `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Idempotent develop `step_confirmed` helper + skill MUST `-File` (WS10) |
-| `Assert-InvocationAxes.ps1` | Spawn Axis B omit/inherit prose + harness wiring (WS1) |
-| `Assert-PublishSpawnKnobs.ps1` | Publish honesty depth/threads/inherit (no child≠parent pin) |
 | `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
 | `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
 | `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
@@ -73,8 +65,6 @@ Run against a **consumer** feature / bank when closing a wave or before O3 — n
 
 Suggested order: **inventory → preflight → develop (session gate + claim) → TRACE harvest**. Emitter honesty (which hosts actually wire TRACE): [adapters.md](domains/adapters.md#trace-emitter-honesty).
 
-`Assert-HermesSpawnIsolation.ps1` (check name `hermes-spawn-isolation`) keeps Hermes `delegate_task` out of core policy/router/skills (SPAWN host-map allowlist only) and proves the Hermes AGENTS spawn bridge does not leak into other adapters’ published `AGENTS.md` / rules.
-
 ## Per-agent validate
 
 Runs `validate-core`, then the adapter’s `Invoke-SmokeValidate` against a fixture InstallRoot (default from the registry / adapter):
@@ -90,30 +80,11 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode repo
 
 These mirror [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Prefer them locally when you want the same ephemeral-copy behavior as Actions.
 
-| Script | What it covers |
-|--------|----------------|
-| `Invoke-CursorCiSmoke.ps1` | Cursor sync+validate on ephemeral copy of Cursor fixture |
-| `Invoke-AntigravityCiSmoke.ps1` | Antigravity sync+validate on ephemeral Antigravity fixture |
-| `Invoke-ClaudeCiSmoke.ps1` | Claude sync+validate on ephemeral Claude fixture |
-| `Invoke-CodexCiSmoke.ps1` | Codex sync+validate on ephemeral Codex fixture |
-| `Invoke-CopilotCiSmokeSuite.ps1` | Copilot Mode `user` + Mode `repo` + home guard |
-| `Invoke-OpenCodeCiSmoke.ps1` | OpenCode filesystem sync+validate on ephemeral fixture (**not** product runtime) |
-| `Invoke-GrokCiSmoke.ps1` | Grok sync+validate on ephemeral Grok fixture |
-| `Invoke-ZCodeCiSmoke.ps1` | ZCode ADE fixture InstallRoot |
-| `Invoke-HermesCiSmoke.ps1` | Hermes sync+validate on ephemeral Hermes fixture (models `~/.hermes`) |
-| `Invoke-OpenHandsCiSmoke.ps1` | OpenHands filesystem sync+validate on ephemeral project fixture |
+Generic smoke for every registry adapter (replaces the former per-adapter `Invoke-*CiSmoke` wrappers). The InstallRoot is seeded from `scripts/validation/fixtures/seed-user-root/` under `.adt-work/`, published once, and validated; operator files must survive. Copilot runs in user and repo mode.
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CodexCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor
+# ids: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands
 ```
 
 ### Manual fixture sync (same idea)
@@ -141,35 +112,25 @@ CI harnesses often copy a fixture to an ephemeral work root so the versioned see
 
 ## What CI runs
 
-Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `develop` only (no `push`, and no pull request into `master` or `main`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green. The wide suite `validate-core.ps1` and the keyed-uninstall matrix are not jobs on this path.
+Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `develop` only (no `push`, and no pull request into `master` or `main`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green. The wide suite `validate-core.ps1` is not a job on this path.
 
 **Jobs (all must be green before merge into `develop`):**
 
-| Job | Runner | Role |
-|-----|--------|------|
-| `validate` | `windows-latest` | Named remaining checks plus `Assert-SyncAllowUserHomeForward` |
-| `validate-windows-adapter-smoke` | `windows-latest` matrix | 10 adapter CI smokes, after `validate` |
-| `validate-ubuntu` | `ubuntu-latest` | The same named remaining checks |
-| `validate-ubuntu-adapter-smoke` | `ubuntu-latest` matrix | 10 adapter CI smokes, after `validate-ubuntu` |
+| `validate-core` | `windows-latest` | `validate-core.ps1`, then `Assert-SyncAllowUserHomeForward` as its own step |
+| `adapter-smoke` | `ubuntu-latest` matrix | 10 registry adapters through `Invoke-AdapterCiSmoke.ps1 -Adapter <id> -Quiet`, after `validate-core` |
+| `adapter-smoke-windows` | `windows-latest` | One smoke (codex) to cover PowerShell path semantics on Windows, after `validate-core` |
 | `docs-strict` | `ubuntu-latest` | Strict MkDocs build; required by `ci-ok` |
-| `ci-ok` | `ubuntu-latest` | Required gate with `needs` on the five jobs above |
+| `ci-ok` | `ubuntu-latest` | Required gate with `needs` on every job above |
 
-### Job `validate` (Windows base)
+### Job `validate-core`
 
-Named remaining checks, each in its own process:
+Runs `validate-core.ps1` in one process. Each check is isolated by try/catch, exit-code capture, and environment/location restore; the few checks that mutate process-wide state run in a child `pwsh`. The run prints one line per check with its duration and a total, and exits non-zero when any check fails. See [Core suite](#core-suite).
 
-1. `Assert-CiWorkflow.ps1`
-2. `Assert-GuardShellCanonicalPaths.ps1`
-3. `Assert-TraceEmitterFailOpen.ps1`
-4. `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe; not a live-home sync for green)
+The adapter-smoke jobs use `fail-fast: false`. Each smoke seeds a throwaway root under `.adt-work/` (ignored by git), publishes once with `sync-agent.ps1`, validates with `validate-agent -SkipCore`, and checks that unrelated operator files survive. Copilot is smoked in both user and repo mode.
 
-The adapter-smoke matrices are separate jobs. Each uses `fail-fast: false`, `max-parallel: 4`, and the same ten adapters. Adapter smoke runs `Invoke-*-CiSmoke.ps1 -Quiet` (Copilot is a suite).
+`docs-strict` is the single strict MkDocs build for pull requests into `develop` and is an explicit `ci-ok` dependency. The Pages workflow is intentionally not triggered by pull requests, so the same change does not build documentation twice.
 
-`validate-ubuntu` runs the same three named remaining checks and does not run `Assert-SyncAllowUserHomeForward`. `validate-ubuntu-adapter-smoke` is a separate ten-entry matrix that depends on `validate-ubuntu`.
-
-`docs-strict` is the single strict MkDocs build for pull requests into `develop` and is an explicit `ci-ok` dependency. The Pages workflow is intentionally not triggered by pull requests, so the same change does not build documentation twice. Documentation failures still block merge into `develop` through `ci-ok`.
-
-`ci-ok` depends on `validate`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict`. Do **not** merge into `develop` with any required job red. Auto-merge must wait for `ci-ok`.
+`ci-ok` depends on every job above. Do **not** merge into `develop` with any required job red. Auto-merge must wait for `ci-ok`.
 
 ### Other workflows
 
@@ -187,46 +148,26 @@ The release workflow's concurrency group serializes runs, and each release job c
 
 | Tier | Trigger | Coverage and gate policy |
 |------|---------|--------------------------|
-| PR into `develop` | `pull_request` to `develop` | Named remaining checks, adapter-smoke matrices, `Assert-SyncAllowUserHomeForward` on Windows, and `docs-strict`; `ci-ok` is the required merge check. |
+| PR into `develop` | `pull_request` to `develop` | `validate-core`, `Assert-SyncAllowUserHomeForward` on Windows, adapter smoke matrix on Ubuntu plus one Windows smoke (codex), and `docs-strict`; `ci-ok` is the required merge check. |
 | Release PR | `pull_request` to `master` or `main` | `enforce-release-source.yml`: head must be `develop`; opt-in and SemVer metadata must validate. |
 | Release publish | Merged opt-in release PR; or manual recovery dispatch | `release.yml` tags the promoted commit and calls `publish-release-bootstrap.yml` to package and upload fixed assets. |
 | Branch reconciliation | After every merged release PR | `release.yml` opens a normal merge PR into develop using the scoped repository App token; required checks run before the PR is merged. |
 
 ### Local parity
 
-Mirrors the workflow topology: run the Windows named checks, then the adapter-smoke matrix; separately run the Ubuntu named checks, then its adapter-smoke matrix; run the strict MkDocs build. `ci-ok` covers those five jobs.
+Mirrors the workflow topology: `validate-core.ps1` (plus `Assert-SyncAllowUserHomeForward`), the adapter smoke matrix, and the strict MkDocs build. `ci-ok` covers all of those jobs.
 
-`validate-core.ps1` remains the local wide suite. It is not a default CI job. The adapter smoke matrices stay on both runners. Windows-only `Assert-SyncAllowUserHomeForward` stays on the `validate` job.
+`validate-core.ps1` is the single local suite and the same command CI runs. Run one check with `-Only <name>` or drop checks with `-Skip <name>`.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
-
-pwsh -NoProfile -File .\scripts\validation\Assert-ClaudeKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-CopilotKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-CodexKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-OpenCodeKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-AntigravityKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-GrokKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-CursorKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-ZcodeKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-HermesKeyedUninstall.ps1
-pwsh -NoProfile -File .\scripts\validation\Assert-OpenHandsKeyedUninstall.ps1
 
 pwsh -NoProfile -File .\scripts\validation\Assert-SyncAllowUserHomeForward.ps1
 
 python -m pip install -r docs-site/requirements-docs.txt
 mkdocs build --strict -f docs-site/mkdocs.yml
 
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-AntigravityCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-CodexCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenCodeCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-GrokCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1 -Quiet
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1 -Quiet
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor -Quiet   # any registry id
 ```
 
 ## Safety rules

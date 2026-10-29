@@ -8,7 +8,7 @@
       "id": "cursor",
       "publisherRoot": "adapters/cursor/Publish-*.ps1",
       "uninstaller": "adapters/cursor/Uninstall-CursorToolkit.ps1",
-      "assertion": "scripts/validation/Assert-CursorKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -46,7 +46,7 @@
       "id": "antigravity",
       "publisherRoot": "adapters/antigravity/Publish-*.ps1",
       "uninstaller": "adapters/antigravity/Uninstall-AntigravityToolkit.ps1",
-      "assertion": "scripts/validation/Assert-AntigravityKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -79,7 +79,7 @@
       "id": "claude",
       "publisherRoot": "adapters/claude/Publish-*.ps1",
       "uninstaller": "adapters/claude/Uninstall-ClaudeToolkit.ps1",
-      "assertion": "scripts/validation/Assert-ClaudeKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -113,7 +113,7 @@
       "id": "codex",
       "publisherRoot": "adapters/codex/Publish-*.ps1",
       "uninstaller": "adapters/codex/Uninstall-CodexToolkit.ps1",
-      "assertion": "scripts/validation/Assert-CodexKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -153,7 +153,7 @@
       "id": "copilot",
       "publisherRoot": "adapters/copilot/Publish-*.ps1",
       "uninstaller": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
-      "assertion": "scripts/validation/Assert-CopilotKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -186,7 +186,7 @@
       "id": "opencode",
       "publisherRoot": "adapters/opencode/Publish-*.ps1",
       "uninstaller": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-      "assertion": "scripts/validation/Assert-OpenCodeKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": false,
@@ -220,7 +220,7 @@
       "id": "grok",
       "publisherRoot": "adapters/grok/Publish-*.ps1",
       "uninstaller": "adapters/grok/Uninstall-GrokToolkit.ps1",
-      "assertion": "scripts/validation/Assert-GrokKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -259,7 +259,7 @@
       "id": "zcode",
       "publisherRoot": "adapters/zcode/Publish-*.ps1",
       "uninstaller": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
-      "assertion": "scripts/validation/Assert-ZcodeKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": false,
@@ -294,7 +294,7 @@
       "id": "hermes",
       "publisherRoot": "adapters/hermes/Publish-*.ps1",
       "uninstaller": "adapters/hermes/Uninstall-HermesToolkit.ps1",
-      "assertion": "scripts/validation/Assert-HermesKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,
@@ -338,7 +338,7 @@
       "id": "openhands",
       "publisherRoot": "adapters/openhands/Publish-*.ps1",
       "uninstaller": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-      "assertion": "scripts/validation/Assert-OpenHandsKeyedUninstall.ps1",
+      "assertion": "scripts/validation/Assert-AdapterPublish.ps1",
       "capabilities": {
         "skills": true,
         "rules": true,

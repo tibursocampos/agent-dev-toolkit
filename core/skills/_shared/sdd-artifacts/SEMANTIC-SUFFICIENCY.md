@@ -18,6 +18,35 @@ For each material question, provide enough information to establish these five t
 
 Do not demand all five as a fixed form when a question is immaterial or a field does not apply. For a material decision, explain non-applicability rather than silently omitting the source role, consumer, evidence, or limit. Do not fill a gap with an unconfirmed assumption; follow `CONTRACT-PROVENANCE.md` for `agreed` versus `invented` and `SELECTIVE-RETRIEVAL.md` for relevant, absent, and conflicting evidence.
 
+When an explicit material operator request or correction is carried into implementation or review, preserve its source and context, disposition (`covered`, `preserved`, `excluded` only with approval, or `open`), mapped REQ/CA or unresolved question, responsible owner, consuming artifact, and result evidence with limits. Reuse the existing PRD/PLAN decision, step notes, and evidence artifacts; do not create a parallel ledger. An `open` item blocks only the acceptance and dependents it affects. If resolving it would change approved scope or acceptance, return it to the owning artifact instead of silently promoting it.
+
+## Resource and journey proof
+
+Apply this block only when a change alters a resource, screen, transition, or external response. Scope without such a change does not receive this gate. The consumer project supplies the proof; the toolkit requires it and reconciles it. For each material acceptance, provide each item below with its source, or record the missing item as a GAP:
+
+| Item | What to establish |
+|------|-------------------|
+| **Reference** | The approved reference (portable path and section) for expected content, layout, and material fields. |
+| **Resource/version** | The resource or configuration and version actually consumed, not only declared. |
+| **Entry** | The condition that reaches the path. |
+| **Route** | The route or transition exercised, including the negative paths. |
+| **Transferred data** | The fields or state passed between producer and consumer, compared by key, value, or state. |
+| **Observed output** | The observed output (content, layout, material fields) compared with the reference. |
+| **Level** | The level executed (static, fixture/local, integration, or host), with command, environment, result, and limit. |
+
+Rules:
+
+- A declared resource without an observed route is not journey proof.
+- Valid JSON or matching keys alone do not replace the observed output comparison.
+- A disconnected fixture or a prior version proves only what it executed; it is not current consumer evidence.
+- A level not executed is never PASS. Host unavailability keeps the dependent acceptance as a GAP and does not invalidate local proof.
+- A missing link between reference, resource/version, route, and output is a GAP, never an inferred PASS.
+- A material change to a resource, route, transition, or output reopens the journey proof of each affected acceptance: current proof items are required for them. Evidence for an unaffected element is kept only when its applicability to the changed element is demonstrated.
+- A missing, incompatible, stale, unavailable, or failed item is recorded as FAIL, GAP, or BLOCKED with its cause and next action. It blocks only the dependent acceptance and its closure; independent work stays eligible.
+- Privacy checks in journey evidence use synthetic or redacted values. Secrets, tokens, authorization headers, and personal data do not appear in payloads, logs, receipts, or fixtures.
+- Compatibility of old and new formats, malformed input, defaults, cache, and authorization are checked only when material to the journey and backed by a current decision. A missing or conflicting decision is a GAP; a check outside the journey scope is not required.
+- A category disabled within the journey scope produces no lookup. Evidence that shows such a lookup is FAIL for the dependent acceptance.
+
 ## Normative content and current decisions
 
 A decision ID, portable link, or section identity establishes a traceable relationship. It does not establish that the consumer's normative text matches the decision.

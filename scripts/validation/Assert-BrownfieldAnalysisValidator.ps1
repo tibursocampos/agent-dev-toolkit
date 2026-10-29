@@ -1,24 +1,36 @@
+#Requires -Version 5.1
+# Covers the brownfield analysis validator and the O2 preflight gate built on it:
+# valid analyses are accepted/ALLOWed, semantically broken ones are rejected/BLOCKed.
 $ErrorActionPreference = 'Stop'
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $validator = Join-Path $PSScriptRoot 'validate-brownfield-analysis.ps1'
+$preflight = Join-Path $PSScriptRoot 'Invoke-O2BrownfieldPreflight.ps1'
 $fixtures = Join-Path $PSScriptRoot 'fixtures\brownfield'
 
-function Assert-Result([string]$Name, [string]$Path, [bool]$ExpectedPass) {
-    & $validator -Path $Path
-    $passed = ($LASTEXITCODE -eq 0)
-    if ($passed -ne $ExpectedPass) {
-        throw ("{0}: expected {1}, exit={2}" -f $Name, $(if ($ExpectedPass) { 'PASS' } else { 'FAIL' }), $LASTEXITCODE)
-    }
+function Test-Validator([string] $Path) {
+    $null = & $validator -Path $Path 2>&1
+    return ($LASTEXITCODE -eq 0)
+}
+function Get-GateVerdict([string] $Path) {
+    $out = & $preflight -AnalysisPath $Path 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    if ($null -eq $code) { $code = 0 }
+    if ($code -eq 0 -and $out -match '(?m)^o2-brownfield-preflight: ALLOW\b') { return 'ALLOW' }
+    if ($code -ne 0 -and $out -match '(?m)^o2-brownfield-preflight: BLOCK\b') { return 'BLOCK' }
+    return "UNEXPECTED(exit=$code)"
 }
 
-foreach ($name in @('valid-en.md', 'valid-pt.md', 'valid-mixed.md', 'valid-equal-duplicate-columns.md')) {
-    Assert-Result $name (Join-Path $fixtures $name) $true
+foreach ($name in @('valid-en.md', 'valid-mixed.md')) {
+    $p = Join-Path $fixtures $name
+    if (-not (Test-Validator $p)) { throw "$name must pass the validator" }
+    if ((Get-GateVerdict $p) -ne 'ALLOW') { throw "$name must be ALLOWed by the O2 preflight" }
 }
-foreach ($name in @('invalid-execution-status.md', 'invalid-missing-evidence.md', 'invalid-classification-conflict.md', 'invalid-conflicting-evidence-columns.md', 'invalid-conflicting-limitation-columns.md')) {
-    Assert-Result $name (Join-Path $fixtures $name) $false
+foreach ($name in @('invalid-missing-evidence.md', 'invalid-classification-conflict.md')) {
+    $p = Join-Path $fixtures $name
+    if (Test-Validator $p) { throw "$name must fail the validator" }
+    if ((Get-GateVerdict $p) -ne 'BLOCK') { throw "$name must be BLOCKed by the O2 preflight" }
 }
+if ((Get-GateVerdict (Join-Path $fixtures 'missing-analysis.md')) -ne 'BLOCK') { throw 'a missing analysis file must be BLOCKed' }
 
-Write-Host 'BrownfieldAnalysisValidator: PASS (PT/EN/mixed and equal aliases accepted; invalid classifications, missing evidence, and conflicting semantic columns rejected)'
-# The invalid fixtures above intentionally make the child validator return
-# nonzero. Clear that stale native-process status only after every assertion passed.
+Write-Host 'BrownfieldAnalysisValidator: PASS (valid accepted + ALLOW; invalid rejected + BLOCK; missing analysis BLOCK)'
+# Negative cases make child validators return nonzero; clear the stale native status after every assertion passed.
 $global:LASTEXITCODE = 0

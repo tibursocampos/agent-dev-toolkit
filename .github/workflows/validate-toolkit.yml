@@ -11,271 +11,68 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  validate-core:
+    name: Validate core
     runs-on: windows-latest
     env:
-      VALIDATION_JOB_NAME: validate-windows
+      VALIDATION_JOB_NAME: validate-core
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Start validation telemetry
+      - name: Run core validation
         shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      # Named remaining checks for default-wide-suite. No sync to a real user home.
-      # Child pwsh keeps each script exit inside that process. Writes stay in repository fixtures.
-      # Keyed uninstall asserts run separately and use validate-agent -SkipCore.
-      - name: Run named remaining checks
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName 'assert-ci-workflow' `
-            -ScriptPath './scripts/validation/Assert-CiWorkflow.ps1' `
-            -Action {
-              foreach ($relativePath in @(
-                  './scripts/validation/Assert-CiWorkflow.ps1',
-                  './scripts/validation/Assert-GuardShellCanonicalPaths.ps1',
-                  './scripts/validation/Assert-TraceEmitterFailOpen.ps1'
-                )) {
-                & pwsh -NoProfile -File $relativePath
-                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-              }
-            }
-          if ($exitCode -ne 0) { exit $exitCode }
+        run: ./scripts/validation/validate-core.ps1
         working-directory: ${{ github.workspace }}
-      # Disposable USERPROFILE probes (not TEMP — guard only applies under USERPROFILE).
-      # Cleanup is handled by the assertion's try/finally and registered-probe sweep.
+      # Disposable USERPROFILE probes (not TEMP: the guard only applies under USERPROFILE).
+      # Kept out of validate-core so that suite stays fixture-only.
       - name: Run AllowUserHome forward assert
         shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName 'allow-user-home-forward' `
-            -ScriptPath './scripts/validation/Assert-SyncAllowUserHomeForward.ps1' `
-            -Action { & ./scripts/validation/Assert-SyncAllowUserHomeForward.ps1 }
-          if ($exitCode -ne 0) { exit $exitCode }
+        run: ./scripts/validation/Assert-SyncAllowUserHomeForward.ps1
         working-directory: ${{ github.workspace }}
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn
 
-  validate-windows-adapter-smoke:
-    name: Windows adapter smoke (${{ matrix.adapter }})
-    needs: validate
+  adapter-smoke:
+    name: Adapter smoke (${{ matrix.adapter }}, ubuntu)
+    needs: validate-core
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        adapter:
+          - cursor
+          - antigravity
+          - claude
+          - codex
+          - copilot
+          - opencode
+          - grok
+          - zcode
+          - hermes
+          - openhands
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Run adapter smoke
+        shell: pwsh
+        run: ./scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter ${{ matrix.adapter }} -Quiet
+        working-directory: ${{ github.workspace }}
+
+  adapter-smoke-windows:
+    name: Adapter smoke (codex, windows)
+    needs: validate-core
     runs-on: windows-latest
-    env:
-      VALIDATION_JOB_NAME: validate-windows-adapter-smoke-${{ matrix.adapter }}
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include:
-          - { adapter: Cursor, script: Invoke-CursorCiSmoke.ps1 }
-          - { adapter: Antigravity, script: Invoke-AntigravityCiSmoke.ps1 }
-          - { adapter: Claude, script: Invoke-ClaudeCiSmoke.ps1 }
-          - { adapter: Codex, script: Invoke-CodexCiSmoke.ps1 }
-          - { adapter: Copilot, script: Invoke-CopilotCiSmokeSuite.ps1 }
-          - { adapter: OpenCode, script: Invoke-OpenCodeCiSmoke.ps1 }
-          - { adapter: Grok, script: Invoke-GrokCiSmoke.ps1 }
-          - { adapter: ZCode, script: Invoke-ZCodeCiSmoke.ps1 }
-          - { adapter: Hermes, script: Invoke-HermesCiSmoke.ps1 }
-          - { adapter: OpenHands, script: Invoke-OpenHandsCiSmoke.ps1 }
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Start validation telemetry
-        shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: Run adapter smoke
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-            Write-Host "Running: $scriptPath"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName '${{ matrix.adapter }}' `
-              -ScriptPath $scriptPath `
-              -Action { & $scriptPath -Quiet }
-          if ($exitCode -ne 0) { exit $exitCode }
+        run: ./scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter codex -Quiet
         working-directory: ${{ github.workspace }}
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}-${{ matrix.adapter }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn
-
-  validate-ubuntu:
-    runs-on: ubuntu-latest
-    env:
-      VALIDATION_JOB_NAME: validate-ubuntu
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - name: Start validation telemetry
-        shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      # Named remaining checks for default-wide-suite. No sync to a real user home.
-      # Child pwsh keeps each script exit inside that process. Writes stay in repository fixtures.
-      - name: Run named remaining checks
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName 'assert-ci-workflow' `
-            -ScriptPath './scripts/validation/Assert-CiWorkflow.ps1' `
-            -Action {
-              foreach ($relativePath in @(
-                  './scripts/validation/Assert-CiWorkflow.ps1',
-                  './scripts/validation/Assert-GuardShellCanonicalPaths.ps1',
-                  './scripts/validation/Assert-TraceEmitterFailOpen.ps1'
-                )) {
-                & pwsh -NoProfile -File $relativePath
-                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-              }
-            }
-          if ($exitCode -ne 0) { exit $exitCode }
-        working-directory: ${{ github.workspace }}
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn
-
-  validate-ubuntu-adapter-smoke:
-    name: Ubuntu adapter smoke (${{ matrix.adapter }})
-    needs: validate-ubuntu
-    runs-on: ubuntu-latest
-    env:
-      VALIDATION_JOB_NAME: validate-ubuntu-adapter-smoke-${{ matrix.adapter }}
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include:
-          - { adapter: Cursor, script: Invoke-CursorCiSmoke.ps1 }
-          - { adapter: Antigravity, script: Invoke-AntigravityCiSmoke.ps1 }
-          - { adapter: Claude, script: Invoke-ClaudeCiSmoke.ps1 }
-          - { adapter: Codex, script: Invoke-CodexCiSmoke.ps1 }
-          - { adapter: Copilot, script: Invoke-CopilotCiSmokeSuite.ps1 }
-          - { adapter: OpenCode, script: Invoke-OpenCodeCiSmoke.ps1 }
-          - { adapter: Grok, script: Invoke-GrokCiSmoke.ps1 }
-          - { adapter: ZCode, script: Invoke-ZCodeCiSmoke.ps1 }
-          - { adapter: Hermes, script: Invoke-HermesCiSmoke.ps1 }
-          - { adapter: OpenHands, script: Invoke-OpenHandsCiSmoke.ps1 }
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - name: Start validation telemetry
-        shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
-      - name: Run adapter smoke
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-            $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/validation/${{ matrix.script }}'
-            Write-Host "Running: $scriptPath"
-          $exitCode = Invoke-ValidationCheckWithTelemetry `
-            -Path $env:VALIDATION_RESULTS_PATH `
-            -JobName $env:VALIDATION_JOB_NAME `
-            -CheckName '${{ matrix.adapter }}' `
-              -ScriptPath $scriptPath `
-              -Action { & $scriptPath -Quiet }
-          if ($exitCode -ne 0) { exit $exitCode }
-        working-directory: ${{ github.workspace }}
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}-${{ matrix.adapter }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn
 
   docs-strict:
     name: Docs strict build
@@ -298,49 +95,27 @@ jobs:
         run: mkdocs build --strict -f docs-site/mkdocs.yml
         working-directory: ${{ github.workspace }}
 
-  # Single required gate: every setup/core, docs, and matrix job must succeed.
-  # Branch protection should require this check name (ci-ok), not only validate.
+  # Single required gate: every job must succeed.
+  # Branch protection should require this check name (ci-ok).
   ci-ok:
     if: always()
     needs:
-      - validate
-      - validate-windows-adapter-smoke
-      - validate-ubuntu
-      - validate-ubuntu-adapter-smoke
+      - validate-core
+      - adapter-smoke
+      - adapter-smoke-windows
       - docs-strict
     runs-on: ubuntu-latest
-    env:
-      VALIDATION_JOB_NAME: ci-ok
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - name: Start validation telemetry
-        shell: pwsh
-        run: |
-          $validationResultsPath = Join-Path $env:RUNNER_TEMP 'validation-results.jsonl'
-          "VALIDATION_RESULTS_PATH=$validationResultsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $startedAt = [DateTimeOffset]::UtcNow
-          $startedAt.ToString('o') | Set-Content -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt" -Encoding UTF8
       - name: All validate jobs green
         env:
           REQUIRED_DEPENDENCY_RESULTS: ${{ toJSON(needs) }}
         shell: pwsh
         run: |
-          $requiredDependencies = @(
-            'validate'
-            'validate-windows-adapter-smoke'
-            'validate-ubuntu'
-            'validate-ubuntu-adapter-smoke'
-            'docs-strict'
-          )
           $dependencyResults = $env:REQUIRED_DEPENDENCY_RESULTS | ConvertFrom-Json
           $failedDependencies = @(
-            foreach ($dependency in $requiredDependencies) {
-              $result = $dependencyResults.$dependency.result
-              if ($result -ne 'success') {
-                '{0}={1}' -f $dependency, $result
+            foreach ($property in $dependencyResults.PSObject.Properties) {
+              if ($property.Value.result -ne 'success') {
+                '{0}={1}' -f $property.Name, $property.Value.result
               }
             }
           )
@@ -348,21 +123,3 @@ jobs:
             throw "Required validation dependencies did not all succeed: $($failedDependencies -join ', ')"
           }
           Write-Host 'All required validation dependencies succeeded.'
-      - name: Complete validation telemetry
-        if: always()
-        env:
-          VALIDATION_JOB_STATUS: ${{ job.status }}
-        shell: pwsh
-        run: |
-          . "$env:GITHUB_WORKSPACE/scripts/_lib/Invoke-ValidationTelemetry.ps1"
-          $startedAt = Get-Content -Raw -LiteralPath "$env:RUNNER_TEMP/validation-started-at.txt"
-          $finishedAt = [DateTimeOffset]::UtcNow
-          $duration = ($finishedAt - [DateTimeOffset]::Parse($startedAt.Trim())).TotalMilliseconds
-          Write-ValidationTelemetryJob -Path $env:VALIDATION_RESULTS_PATH -JobName $env:VALIDATION_JOB_NAME -Status $env:VALIDATION_JOB_STATUS -DurationMs $duration -StartedAtUtc $startedAt.Trim() -FinishedAtUtc $finishedAt.ToString('o')
-      - name: Upload validation results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: validation-results-${{ github.job }}
-          path: ${{ runner.temp }}/validation-results.jsonl
-          if-no-files-found: warn

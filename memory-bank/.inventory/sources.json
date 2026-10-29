@@ -3,18 +3,18 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-26T01:43:59.3476960Z",
+  "generated_at": "2026-10-28T22:36:26.8642400Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "86d0316b57788110080724643c230019a22036dc0e35d000cae8d98ec9937399",
+  "inventory_hash": "9afc54e5805074e66f30f5708ee4f057fc145d1ef961deba769ac2dc9a751d09",
   "inventory_summary": "135 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
   "skill_count": 45,
-  "assert_script_count": 95,
+  "assert_script_count": 102,
   "sources": [
     {
       "path": ".github/workflows/docs.yml",
@@ -536,9 +536,9 @@
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-10-25T11:44:59.6857816Z",
-      "length": 15740,
-      "hash": "da14ff280c314f8f70eb34ec0c333471c6c65a357d034f3a83494a0b25a7bd19",
+      "last_write_utc": "2026-10-26T05:11:24.2136833Z",
+      "length": 17344,
+      "hash": "e46fe8ebedebf78385742a6429fb4f0e0707d70a5b87715d9e14b9f6e2dcb6a1",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
@@ -843,13 +843,6 @@
       "summary": "#Requires -Version 5.1"
     },
     {
-      "path": "scripts/_lib/Invoke-EphemeralFixtureSmoke.ps1",
-      "last_write_utc": "2026-10-24T18:16:22.9589249Z",
-      "length": 39630,
-      "hash": "48776536a38f25fe921dbc95a975a931ab04e7af32e314a0d701a5bb07909b02",
-      "summary": "Windows Defender / indexer can transiently lock files immediately after a bulk"
-    },
-    {
       "path": "scripts/_lib/Invoke-PathSecretsGuardHarness.ps1",
       "last_write_utc": "2026-10-21T16:56:06.5985207Z",
       "length": 4146,
@@ -900,9 +893,9 @@
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-24T13:13:09.0847565Z",
-      "length": 67233,
-      "hash": "37194dfd99aba9cdd918fcc39a4e3f1b07076be6b2798192c64a5144d32e8a5a",
+      "last_write_utc": "2026-10-27T08:26:01.6000591Z",
+      "length": 75662,
+      "hash": "1ab559a46c56b108abd9e96e4c1224bfd2fa63d55a5612233bf439dc0e562fa2",
       "summary": "Fixture-local keyed uninstall asserts (no live-home write). Kept out of"
     },
     {
@@ -949,9 +942,9 @@
     },
     {
       "path": "scripts/validation/validate-core.ps1",
-      "last_write_utc": "2026-10-25T20:00:16.3699321Z",
-      "length": 19818,
-      "hash": "5504b38b7cc837894d14b4694d0c504dd916f1a77ccf4b7e99009844e8b28328",
+      "last_write_utc": "2026-10-27T02:10:08.8186099Z",
+      "length": 20221,
+      "hash": "da440422690494ffecf5c5b6a520e2698d32c56b07eea4a6309816062bd875bd",
       "summary": "Assertion scripts may emit success-stream objects through helper calls."
     },
     {

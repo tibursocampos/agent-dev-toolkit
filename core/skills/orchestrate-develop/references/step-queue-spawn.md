@@ -135,6 +135,8 @@ Operators may **opt-in** allowlist the two portable script paths above (cwd = re
 
 Before the handoff, include the compact approved-decision envelope from `continuity-handoff.md` when a decision applies to the assigned step. Include its source, concise approved decision, applicable step/acceptance, and required handling. Omit unrelated decisions and full artifact/chat bodies. If the decision materially changes acceptance, stop and return it to the PLAN owner; do not silently extend the child scope.
 
+Also carry each explicit material operator request or correction that applies to the step, with a concise source/context, disposition, REQ/CA or open-question link, owner/consumer, and expected evidence. Reuse existing PLAN notes and evidence; do not create a parallel ledger or paste full chat text. An unresolved item that changes accepted behavior or scope stops dispatch to the PLAN owner; an `open` item otherwise blocks only its affected dependent acceptance.
+
 Child must:
 
 1. Load and follow `sdd-develop/SKILL.md` (gates, validate step, git branch, implement, tests, update PLAN, report)

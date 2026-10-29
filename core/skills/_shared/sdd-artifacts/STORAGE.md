@@ -118,7 +118,6 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
 
 4. Report: patterns added, migrated, or all already present. If `/memory-bank/` is already present from an older policy, do **not** re-add it; the human may remove it so the bank can be versioned. If the human removed `/features/` manually and manifest has no `features_versioned` yet, ask once and persist the choice.
 
-**CI note:** `Assert-NoFeaturesDocLinks.ps1` assumes `features/` is gitignored by default. When `features_versioned` is `true`, links from published `docs/` to `features/**` are valid.
 
 **Global mode:** do **not** modify project `.gitignore`. Do **not** add or require `/features/`, `/PRD/`, `/PLAN/`, or related patterns - those artifacts live under `<classic.path>/` outside the consumer git tree. Skills must not suggest appending the SDD block when `storage_mode` is `global`.
 

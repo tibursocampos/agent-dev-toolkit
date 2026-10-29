@@ -70,13 +70,20 @@ $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'ToolkitConstants.ps1')
 . (Join-Path $libDir 'Get-ToolkitRelativePath.ps1')
 . (Join-Path $libDir 'Resolve-EffectiveSddRoot.ps1')
+. (Join-Path $libDir 'Test-ToolkitFileReadback.ps1')
 
 $exitOk = [int]$script:ToolkitConstant.DevelopSessionGateExitOk
 $exitUsage = [int]$script:ToolkitConstant.DevelopSessionGateExitUsage
+# Local code: session write failures and readback mismatches; 0/1/2 are owned by ToolkitConstants.
+$exitSessionWriteFailed = 3
 $sessionsFolderName = [string]$script:ToolkitConstant.PlanLedgerSessionsFolderName
 $gateStepConfirmed = [string]$script:ToolkitConstant.DevelopSessionGateNameStepConfirmed
 $gateTestsRun = 'tests_run'
 $phaseDevelop = [string]$script:ToolkitConstant.DevelopSessionGatePhaseDevelop
+
+class SessionReadbackMismatchException : System.InvalidOperationException {
+    SessionReadbackMismatchException([string] $message) : base($message) {}
+}
 
 function Get-Utf8NoBomEncoding {
     return (New-Object System.Text.UTF8Encoding $false)
@@ -287,7 +294,19 @@ function Write-DevelopSessionFile {
     }
     $json = ($SessionObject | ConvertTo-Json -Depth 6)
     $encoding = Get-Utf8NoBomEncoding
-    [System.IO.File]::WriteAllText($Path, $json, $encoding)
+    $tempPath = '{0}.{1}.tmp' -f $Path, [Guid]::NewGuid().ToString('N')
+    try {
+        [System.IO.File]::WriteAllText($tempPath, $json, $encoding)
+        Move-Item -LiteralPath $tempPath -Destination $Path -Force
+    }
+    finally {
+        if (Test-Path -LiteralPath $tempPath) {
+            Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue
+        }
+    }
+    if (-not (Test-ToolkitFileReadback -Path $Path -ExpectedText $json)) {
+        throw [SessionReadbackMismatchException]::new('session_readback_mismatch: persisted session does not match the written gate state; do not treat the gate as set. Re-run the gate action after reconciling the session file.')
+    }
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoPath)) {
@@ -361,7 +380,7 @@ if ($Action -eq 'ensure' -and $canonicalPlan) {
     $planTextForGate = Get-Content -LiteralPath $planResolved -Raw -Encoding UTF8
     $planStatus = [regex]::Match($planTextForGate, '(?im)^\|\s*(?:\*\*Status\*\*|Status)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
     if ($planStatus -cne 'approved') {
-        Write-Error 'plan_not_explicitly_approved: session creation is blocked until the canonical PLAN Status is exactly approved.'
+        Write-Error 'plan_not_explicitly_approved: session creation (ensure) is blocked for a classic-repo PLAN under features/<feature>/(US|TS)NN/PLAN/PLAN_NNN_*.md until its Status is exactly approved.'
         exit $exitUsage
     }
 }
@@ -374,6 +393,7 @@ $Step = Resolve-ResetStepScope -RepoSessionsDir $repoSessionsDir -PlanHash $plan
 $sessionPath = Get-DevelopSessionFilePath -RepoSessionsDir $repoSessionsDir -PlanHash $planHash -StepNumber $Step
 $sessionPathPortable = ($sessionPath -replace '\\', '/')
 
+try {
 switch ($Action) {
     'status' {
         if (-not (Test-Path -LiteralPath $sessionPath)) {
@@ -522,6 +542,22 @@ switch ($Action) {
         }
         exit $exitOk
     }
+}
+}
+catch [System.IO.IOException], [System.UnauthorizedAccessException], [System.InvalidOperationException] {
+    $isReadbackMismatch = $_.Exception -is [SessionReadbackMismatchException]
+    if ($_.Exception -is [System.InvalidOperationException] -and -not $isReadbackMismatch) {
+        throw
+    }
+    $failureCode = if ($isReadbackMismatch) { 'session_readback_mismatch' } else { 'session_write_failed' }
+    Write-JsonResult -Object @{
+        ok             = $false
+        error          = $failureCode
+        action         = $Action
+        session_path   = $sessionPathPortable
+        message        = $_.Exception.Message
+    }
+    exit $exitSessionWriteFailed
 }
 
 Write-Error $script:ToolkitConstant.DevelopSessionGateUnknownAction

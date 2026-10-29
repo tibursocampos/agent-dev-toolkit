@@ -175,7 +175,7 @@ When `CHANGE.md` was written (brownfield), also run:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
-(Toolkit consumers: same script names under the synced InstallRoot validation folder when present.) Exit ≠ 0 → **STOP**; fix REQ-IDs / CA headings / CHANGE sections; re-run until exit 0. Do **not** advance to `/sdd-plan` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`, `Assert-ChangeContract.ps1`.
+(Toolkit consumers: same script names under the synced InstallRoot validation folder when present.) Exit ≠ 0 → **STOP**; fix REQ-IDs / CA headings / CHANGE sections; re-run until exit 0. Do **not** advance to `/sdd-plan` on failure. Enforcement smoke: `Assert-ValidatePrdPlan.ps1`, `Assert-CoreContracts.ps1` (ChangeContract section).
 
 Report path, storage, language, `.gitignore` changes. After `validate-prd` (and `validate-change` when brownfield) exit 0, run `refine-story/references/tech.md` § Story PRD contestation on the written PRD. An open question stops with `open_question`. Do not hand off to plan or checklist. When contestation finds no open question, hand off with portable paths:
 

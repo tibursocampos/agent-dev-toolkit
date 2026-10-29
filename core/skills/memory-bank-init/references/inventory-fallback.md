@@ -47,7 +47,7 @@ Write `sources.json` as:
 ### Cap / bloated reset
 
 - Soft cap: **200** source paths.
-- If existing `sources.json` has **> 200** paths (or looks like a full-tree dump): **RESET** to curated allowlist discovery only; set `status_reason` to note `bloated_reset: existing source count exceeded 200; reset to curated discovery` (still `ready` when curated index succeeds).
+- If existing `sources.json` has **> 200** paths (or looks like a full-tree dump): drift is compared against the **full** prior snapshot first, then **RESET** to curated allowlist discovery only; set `status_reason` to note `bloated_reset: existing source count exceeded 200; reset to curated discovery`. A changed or missing kept source (`source_drift`) makes the run `not-ready`; a reset with no drift stays `ready`. A prior `sources.json` that is empty, `null`, or has no non-empty `sources` array is `not-ready` with `prior_snapshot_invalid`.
 - When existing count ≤ 200 and uses `sources`: re-hash those paths **plus** curated discovery (do not follow `..`).
 
 ### Other writes

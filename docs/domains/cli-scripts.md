@@ -11,14 +11,17 @@ Operator entry points under `scripts/`.
 | `scripts/bootstrap/bootstrap.ps1` (+ `.bat` / `.sh`) | Option 0 Release bootstrap: HTTPS zip → SHA256 → extract → `toolkit.ps1` (fixed assets `agent-dev-toolkit.zip` / `.sha256` — [INSTALL § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)) |
 | `scripts/validate-agent.ps1` | Runs `validate-core` by default, then adapter `Invoke-SmokeValidate`; skips core only with `-SkipCore` |
 | `scripts/validation/validate-core.ps1` | Core contract suite (alias `validate-all.ps1`) |
-| `scripts/validation/Invoke-*CiSmoke.ps1` | CI-parity smoke harnesses |
+| `scripts/validation/Invoke-AdapterCiSmoke.ps1` | CI-parity smoke for one registry adapter |
+| `scripts/validation/Assert-AdapterPublish.ps1` | Adapter static checks plus one real publish (`-Adapter <id>`, `-All`); work under `.adt-work/` |
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Read-only bank inventory (`ready` \| `not-ready`) |
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | PRD → PLAN → CHANGE preflight before O3 |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
 | `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship git-notes (default off; never TRACE SoT) — [guide 09](../guides/09-authorship-git-notes.md) |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | PLAN-LEDGER claim / status / release |
+| `scripts/ledger/Invoke-PlanStepStateWrite.ps1` | Owner-side PLAN/REFINE step-state write with readback; dev-only, not published (no skill caller) |
 | `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` for `sdd-develop`, `orchestrate-develop`, and `document-implement` (WS10) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |
+| `scripts/_lib/Test-ToolkitFileReadback.ps1` | Shared write-then-readback helper; published as support for the session gate and PLAN ledger claim scripts |
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
 
@@ -37,9 +40,10 @@ Every executable script path referenced from `core/skills/**/*.md` is classified
 | `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/validate-prd.ps1`, `validate-plan.ps1`, `validate-change.ps1` | `sdd-spec`, `sdd-plan`, and change artifact structural gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | `orchestrate-deliver` preflight | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
-| `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-EffectiveSddRoot.ps1`, `Resolve-InstallRoot.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (these four files only) |
-| `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, `scripts/validation/Invoke-*CiSmoke.ps1` | fixture, contract, and CI validation references in skills | internal | not published |
-| `scripts/validation/fixtures/**`, `scripts/validation/contracts/**` | validator fixtures and toolkit contract data | internal | not published |
+| `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-EffectiveSddRoot.ps1`, `Resolve-InstallRoot.ps1`, `Test-ToolkitFileReadback.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (manifest-listed files only) |
+| `scripts/validation/Assert-*.ps1` (including `Assert-CoreContracts`, `Assert-AdapterContract`, `Assert-RuntimeCopyDrift`, `Assert-LedgerReadback`, `Assert-DevelopSessionGate`), `scripts/validation/validate-core.ps1` (in-process runner with `-Only` / `-Skip`), `scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter <id>` | contract and CI validation of toolkit sources; none reads a `features/` tree | internal | not published |
+| `scripts/ledger/Invoke-PlanStepStateWrite.ps1` | dev-only tool; no skill calls it | internal | not published |
+| `scripts/validation/fixtures/**`, `scripts/validation/contracts/**` | validator fixtures and toolkit contract data; self-test scratch roots live under `<repo>/.adt-work/` (git-ignored) or the system temp folder | internal | not published |
 | `scripts/sync-agent.ps1`, `scripts/toolkit.ps1`, bootstrap, uninstall/publish scripts, remaining `scripts/_lib/**` | toolkit installation and maintenance instructions | internal | not published |
 
 Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references in skills. The inventory script requires `-RepoPath`; it does not search for or depend on an open toolkit checkout. Sync fails with the source path and calling skill when a manifest entry is missing.

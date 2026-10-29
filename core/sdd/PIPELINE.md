@@ -169,7 +169,7 @@ When the thread already has requirements, review findings, or refined backlog:
 - Provide a structured summary + **at most 3** gap questions.
 - Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
 - Prefer **promoted** siblings and memory-bank over re-asking. A citation of a non-feature `.md` is not Prior context until § Promote has copied rich content.
-- **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-SelectiveRetrieval.ps1`.
+- **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
 
 ### Feature / story siblings (Classic SDD / Orchestrated Delivery)
 

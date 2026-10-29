@@ -84,6 +84,24 @@ function Get-PreflightSection([string]$Text,[string[]]$AcceptedHeadings) {
     return ($lines[$start..($end - 1)] -join "`n")
 }
 
+# One O3 block per PLAN: every "## Estado atual do O3" heading opens a block that
+# ends at the next level-1/2 heading. Level-3 sub-headings stay inside the block.
+function Get-PreflightO3Blocks([string]$Text) {
+    $lines = [regex]::Split($Text,'\r?\n')
+    $accepted = @('Estado atual do O3','Current O3 state','O3 current state') | ForEach-Object { ConvertTo-PreflightLabel $_ }
+    $blocks = [System.Collections.Generic.List[object]]::new()
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $heading = [regex]::Match($lines[$lineIndex],'^\s*##(?!#)\s*(?<label>.*?)\s*#*\s*$')
+        if (-not $heading.Success -or (ConvertTo-PreflightLabel $heading.Groups['label'].Value) -notin $accepted) { continue }
+        $end = $lineIndex + 1
+        while ($end -lt $lines.Count -and -not [regex]::IsMatch($lines[$end],'^\s*#{1,2}(?!#)\s')) { $end++ }
+        $blockText = if ($end -gt ($lineIndex + 1)) { $lines[($lineIndex + 1)..($end - 1)] -join "`n" } else { '' }
+        $blocks.Add([PSCustomObject]@{ Line = $lineIndex + 1; PlanValue = (Get-PreflightFieldValue $blockText @('PLAN') -TopLevelOnly); Text = $blockText })
+        $lineIndex = $end - 1
+    }
+    return @($blocks.ToArray())
+}
+
 function Get-PreflightStepHeadings([string]$Text) {
     return Get-SddArtifactPlanStepHeadings -Text $Text
 }
@@ -111,7 +129,8 @@ function Get-PreflightDependencyIds([string]$Value) {
 
 function Get-PreflightReferencedStepIds([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value) -or (ConvertTo-PreflightLabel $Value) -in @('none','nenhum','nenhuma','naoaplicavel','notapplicable')) { return @() }
-    return @([regex]::Matches($Value,'(?i)(?<![A-Za-z0-9])S\d+(?![A-Za-z0-9])') | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object -Unique)
+    $ids = @([regex]::Matches($Value,'(?i)(?<![A-Za-z0-9])S\d+(?![A-Za-z0-9])') | ForEach-Object { $_.Value.ToUpperInvariant() })
+    return @($ids | Sort-Object { [int]$_.Substring(1) })
 }
 
 function Test-PreflightStepState([string]$Block,[string]$ExpectedState) {
@@ -570,8 +589,14 @@ try {
                 Add-PreflightIssue "plan_dependency_order_invalid:$($steps[$index].Id):$dependency" (Get-PreflightArtifactRef $plan) "dependencies/$($steps[$index].Id)" $dependency 'an earlier existing step ID' 'PLAN owner' "Correct the dependency reference for $($steps[$index].Id), then rerun preflight."
             }
         }
-        if ($planStates.ContainsKey($steps[$index].Id) -and $index -gt 0 -and $planStates[$steps[$index].Id] -eq 'COMPLETED' -and $planStates.ContainsKey($steps[$index - 1].Id) -and $planStates[$steps[$index - 1].Id] -ne 'COMPLETED') {
-            Add-PreflightIssue "plan_completion_order_invalid:$($steps[$index].Id)" (Get-PreflightArtifactRef $plan) "Status/$($steps[$index].Id)" 'COMPLETED before previous step' 'completed prefix follows PLAN order' 'PLAN owner' 'Reconcile step statuses to the completed prefix, then rerun preflight.'
+        if ($planStates.ContainsKey($steps[$index].Id) -and $planStates[$steps[$index].Id] -eq 'COMPLETED') {
+            foreach ($dependency in $dependenciesByStep[$steps[$index].Id]) {
+                if (-not $planStates.ContainsKey($dependency) -or $planStates[$dependency] -ne 'COMPLETED') {
+                    $dependencyState = if ($planStates.ContainsKey($dependency)) { $planStates[$dependency] } else { 'missing' }
+                    Add-PreflightIssue "plan_completion_order_invalid:$($steps[$index].Id)" (Get-PreflightArtifactRef $plan) "Status/$($steps[$index].Id)" "COMPLETED while dependency $dependency is $dependencyState" 'every declared dependency COMPLETED' 'PLAN owner' "Reconcile $($steps[$index].Id) with the state of its dependency $dependency, then rerun preflight."
+                    break
+                }
+            }
         }
     }
     $storyReferencesPlan = Test-CanonicalPlanReference $storyText $story $plan $relativePlan $repo
@@ -653,9 +678,15 @@ try {
             break
         }
     }
-    $continuityState = Get-PreflightSection $continuityText @('Estado atual do O3','Current O3 state','O3 current state')
-    if ([string]::IsNullOrWhiteSpace($continuityState)) {
-        Add-PreflightIssue 'continuity_o3_state_missing' (Get-PreflightArtifactRef $continuity) 'Estado atual do O3' 'section missing or empty' 'PLAN, progress, completed steps, and next eligible step' 'feature owner' 'Restore the O3 reconciliation section in CONTINUITY, then rerun preflight.'
+    $continuityBlocks = @(Get-PreflightO3Blocks $continuityText)
+    $continuityPlanBlocks = @($continuityBlocks | Where-Object { -not [string]::IsNullOrWhiteSpace($_.PlanValue) -and (Test-CanonicalPlanReference ("PLAN: $($_.PlanValue)") $continuity $plan $relativePlan $repo) })
+    $continuityState = if ($continuityPlanBlocks.Count -eq 1) { $continuityPlanBlocks[0].Text } else { '' }
+    if ($continuityBlocks.Count -eq 0) {
+        Add-PreflightIssue 'continuity_o3_state_missing' (Get-PreflightArtifactRef $continuity) 'Estado atual do O3' 'no O3 block in CONTINUITY' 'one Estado atual do O3 block per PLAN' 'feature owner' 'Restore the per-PLAN O3 reconciliation blocks in CONTINUITY, then rerun preflight.'
+    } elseif ($continuityPlanBlocks.Count -eq 0) {
+        Add-PreflightIssue 'continuity_o3_block_missing' (Get-PreflightArtifactRef $continuity) 'Estado atual do O3 PLAN' 'no block keyed by the validated PLAN path' $relativePlan 'feature owner' "Add the Estado atual do O3 block for $relativePlan to CONTINUITY, then rerun preflight."
+    } elseif ($continuityPlanBlocks.Count -gt 1) {
+        Add-PreflightIssue 'continuity_o3_block_duplicate' (Get-PreflightArtifactRef $continuity) 'Estado atual do O3 PLAN' 'more than one block for the validated PLAN path' $relativePlan 'feature owner' "Keep exactly one Estado atual do O3 block for $relativePlan, then rerun preflight."
     } elseif ($planStates.Count -eq $steps.Count -and $progress.Success -and [int]$progress.Groups['total'].Value -eq $steps.Count) {
         $continuityPlanPath = Get-PreflightFieldValue $continuityState @('PLAN')
         $continuityProgressValue = Get-PreflightFieldValue $continuityState @('Progresso','Progress')

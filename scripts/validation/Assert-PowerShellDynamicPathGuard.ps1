@@ -1,53 +1,229 @@
 #Requires -Version 5.1
+# Tests:
+#   Should_Pass_When_GuardCommonShimPresent
+#   Should_Detect_When_ShimDeniesValidInput
+#   Should_Detect_When_MalformedInputIsAllowed
+#   Should_Not_Flag_When_ShimReturnsHostAuthorization
+#   Should_Verify_HostAuthorization_When_EnvPathExpandsInsideWorkspace
+#   Should_Verify_HostAuthorization_When_EnvPathExpandsOutsideWorkspace
+#   Should_Verify_HostAuthorization_When_PercentPathIsDynamic
+#   Should_Verify_HostAuthorization_When_EnvVariableIsUnset
+#   Should_Verify_HostAuthorization_When_PathExpressionIsUnsupported
+#   Should_Allow_When_HookForwardsDynamicPathToHostAuthorization
+#   Should_Deny_When_MalformedJsonInput
+#   Should_Deny_When_EmptyInput
+#   Should_Deny_When_HookIdentityMissing
+#
+# Host-owned contract (same as the Codex and Copilot path guards):
+#   - adapters/_shared/GuardCommon.ps1 is a compatibility shim. Get-ToolkitPathSecretsGuardVerdict
+#     returns allow / host_authorization for every input, including dynamic paths. The provider host
+#     owns path authorization; the shim carries no deny logic and is not a sandbox.
+#   - Malformed or identity-less hook input is denied fail-closed by the Codex PreToolUse hook.
+#   - A detector self-test proves the contract check flags a shim that denies valid input and a hook
+#     that allows malformed input, and does not flag the host-owned shim result.
+#   - This script verifies the host-owned contract only. It is a contract check (host-owned shim),
+#     not an enforcement gate: it does not prove that any host blocks dynamic paths.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $repoRoot = (Get-Item (Join-Path $scriptDir '..\..')).FullName
 $guardCommon = Join-Path $repoRoot 'adapters\_shared\GuardCommon.ps1'
-if (-not (Test-Path -LiteralPath $guardCommon -PathType Leaf)) {
-    throw "missing GuardCommon.ps1: $guardCommon"
+$codexHook = Join-Path $repoRoot 'adapters\codex\assets\hooks\guard-pre-tool.ps1'
+
+foreach ($required in @($guardCommon, $codexHook)) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
+        throw "missing required file: $required"
+    }
 }
+
 . $guardCommon
 
-function Assert-PathDecision {
+function Write-Pass {
+    param([Parameter(Mandatory = $true)][string] $TestName)
+    Write-Host ("{0}: PASS" -f $TestName)
+}
+
+function Write-Fail {
     param(
-        [string] $Name,
-        [string] $Path,
-        [string] $ExpectedDecision,
-        [string] $ExpectedReason = ''
+        [Parameter(Mandatory = $true)][string] $TestName,
+        [Parameter(Mandatory = $true)][string] $Reason
+    )
+    Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
+    exit 1
+}
+
+function Get-HostOwnedContractViolations {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][object[]] $Observations
     )
 
-    $verdict = Get-ToolkitPathSecretsGuardVerdict -ToolName 'Write' -ToolInput ([pscustomobject]@{
-        path = $Path
-        content = 'class Ct12Fixture {}'
-    }) -WorkspaceRoot $repoRoot
-    if ([string]$verdict.Decision -ne $ExpectedDecision) {
-        throw "$Name expected $ExpectedDecision, got $($verdict.Decision): $($verdict.Reason)"
+    $violations = New-Object System.Collections.Generic.List[string]
+    foreach ($observation in $Observations) {
+        $decision = [string]$observation.Decision
+        $reason = [string]$observation.Reason
+        switch ([string]$observation.Kind) {
+            'ShimValidInput' {
+                if ($decision -ne 'allow' -or $reason -ne 'host_authorization') {
+                    $violations.Add(("{0}: shim must return allow/host_authorization for input the host owns; got {1}/{2}" -f $observation.Name, $decision, $reason))
+                }
+            }
+            'HookValidInput' {
+                if ($decision -ne 'allow') {
+                    $violations.Add(("{0}: hook must allow input the host owns; got '{1}'" -f $observation.Name, $decision))
+                }
+            }
+            'HookMalformedInput' {
+                if ($decision -ne 'deny') {
+                    $violations.Add(("{0}: hook must deny malformed or identity-less input fail-closed; got '{1}'" -f $observation.Name, $decision))
+                }
+            }
+            default {
+                $violations.Add(("{0}: unknown observation kind '{1}'" -f $observation.Name, $observation.Kind))
+            }
+        }
     }
-    if (-not [string]::IsNullOrWhiteSpace($ExpectedReason) -and [string]$verdict.Reason -ne $ExpectedReason) {
-        throw "$Name expected reason $ExpectedReason, got $($verdict.Reason)"
-    }
-    Write-Host "${Name}: PASS"
+    return $violations.ToArray()
 }
 
-$insideRoot = Join-Path $repoRoot 'features\014-improve-and-fix-disagreements\US01\EVD'
-$outsideRoot = Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-ct12-outside'
-$variableName = 'ADT_CT12_GUARD_ROOT'
-$savedValue = [Environment]::GetEnvironmentVariable($variableName, 'Process')
+function Invoke-HookRawInput {
+    [CmdletBinding()]
+    param(
+        [AllowEmptyString()][Parameter(Mandatory = $true)][string] $RawInput,
+        [Parameter(Mandatory = $true)][string] $HookPath
+    )
+
+    $hostCommand = Get-Command pwsh -ErrorAction SilentlyContinue
+    if ($null -eq $hostCommand) {
+        $hostCommand = Get-Command powershell -ErrorAction SilentlyContinue
+    }
+    if ($null -eq $hostCommand) {
+        throw 'PowerShell host is unavailable for the hook harness.'
+    }
+    return ($RawInput | & $hostCommand.Source -NoProfile -File $HookPath 2>&1 | Out-String)
+}
+
+function Get-HookPermissionDecision {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $HookOutput)
+
+    $parsed = $null
+    try {
+        $parsed = $HookOutput.Trim() | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        $parsed = $null
+    }
+    if ($null -ne $parsed -and $null -ne $parsed.hookSpecificOutput) {
+        return [string]$parsed.hookSpecificOutput.permissionDecision
+    }
+    return ''
+}
+
+# Detector self-test: the contract check must flag contract breaks and must not flag the host-owned result.
+$selfTests = @(
+    @{ TestName = 'Should_Detect_When_ShimDeniesValidInput'; Observation = [pscustomobject]@{ Name = 'synthetic-shim-deny'; Kind = 'ShimValidInput'; Decision = 'deny'; Reason = 'outside_workspace' }; ExpectViolation = $true },
+    @{ TestName = 'Should_Detect_When_MalformedInputIsAllowed'; Observation = [pscustomobject]@{ Name = 'synthetic-hook-allow'; Kind = 'HookMalformedInput'; Decision = 'allow'; Reason = '' }; ExpectViolation = $true },
+    @{ TestName = 'Should_Not_Flag_When_ShimReturnsHostAuthorization'; Observation = [pscustomobject]@{ Name = 'synthetic-shim-allow'; Kind = 'ShimValidInput'; Decision = 'allow'; Reason = 'host_authorization' }; ExpectViolation = $false }
+)
+foreach ($selfTest in $selfTests) {
+    $found = @(Get-HostOwnedContractViolations -Observations @($selfTest.Observation))
+    $flagged = $found.Count -gt 0
+    if ($flagged -ne [bool]$selfTest.ExpectViolation) {
+        Write-Fail -TestName $selfTest.TestName -Reason ("detector self-test expected violation={0}, got violation={1}" -f $selfTest.ExpectViolation, $flagged)
+    }
+    Write-Pass -TestName $selfTest.TestName
+}
+
+if (-not (Get-Command -Name Get-ToolkitPathSecretsGuardVerdict -ErrorAction SilentlyContinue)) {
+    Write-Fail -TestName 'Should_Pass_When_GuardCommonShimPresent' -Reason 'Get-ToolkitPathSecretsGuardVerdict not loaded from GuardCommon.ps1'
+}
+Write-Pass -TestName 'Should_Pass_When_GuardCommonShimPresent'
+
+$shimObservations = New-Object System.Collections.Generic.List[object]
+$hookObservations = New-Object System.Collections.Generic.List[object]
+
+$shimCases = @(
+    @{ TestName = 'Should_Verify_HostAuthorization_When_EnvPathExpandsInsideWorkspace'; Path = '$env:ADT_DYN_GUARD_ROOT\inside.md'; EnvRoot = (Join-Path $repoRoot 'scripts\validation') },
+    @{ TestName = 'Should_Verify_HostAuthorization_When_EnvPathExpandsOutsideWorkspace'; Path = '$env:ADT_DYN_GUARD_ROOT\outside.md'; EnvRoot = (Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-dyn-guard-outside') },
+    @{ TestName = 'Should_Verify_HostAuthorization_When_PercentPathIsDynamic'; Path = '%ADT_DYN_GUARD_ROOT%\percent.md'; EnvRoot = (Join-Path ([System.IO.Path]::GetTempPath()) 'agent-dev-toolkit-dyn-guard-outside') },
+    @{ TestName = 'Should_Verify_HostAuthorization_When_EnvVariableIsUnset'; Path = '$env:ADT_DYN_GUARD_UNSET_FIXTURE\missing.md'; EnvRoot = $null },
+    @{ TestName = 'Should_Verify_HostAuthorization_When_PathExpressionIsUnsupported'; Path = '$($env:ADT_DYN_GUARD_ROOT)\expression.md'; EnvRoot = (Join-Path $repoRoot 'scripts\validation') }
+)
+
+$savedRoot = [Environment]::GetEnvironmentVariable('ADT_DYN_GUARD_ROOT', 'Process')
+$savedUnset = [Environment]::GetEnvironmentVariable('ADT_DYN_GUARD_UNSET_FIXTURE', 'Process')
 try {
-    [Environment]::SetEnvironmentVariable($variableName, $insideRoot, 'Process')
-    Assert-PathDecision -Name 'Should_Allow_When_EnvPathExpandsInsideWorkspace' -Path '$env:ADT_CT12_GUARD_ROOT\inside.md' -ExpectedDecision 'allow'
-    Assert-PathDecision -Name 'Should_Allow_When_PercentPathExpandsInsideWorkspace' -Path '%ADT_CT12_GUARD_ROOT%\percent.md' -ExpectedDecision 'allow'
-
-    [Environment]::SetEnvironmentVariable($variableName, $outsideRoot, 'Process')
-    Assert-PathDecision -Name 'Should_Deny_When_EnvPathExpandsOutsideWorkspace' -Path '$env:ADT_CT12_GUARD_ROOT\outside.md' -ExpectedDecision 'deny' -ExpectedReason 'outside_workspace'
-
-    Assert-PathDecision -Name 'Should_Deny_When_PathExpressionIsUnsupported' -Path '$($env:ADT_CT12_GUARD_ROOT)\expression.md' -ExpectedDecision 'deny' -ExpectedReason 'unsupported_path_expression'
-    [Environment]::SetEnvironmentVariable('ADT_CT12_CT12_UNSET', $null, 'Process')
-    Assert-PathDecision -Name 'Should_Deny_When_EnvPathIsUnset' -Path '$env:ADT_CT12_CT12_UNSET\missing.md' -ExpectedDecision 'deny' -ExpectedReason 'environment_variable_unset:ADT_CT12_CT12_UNSET'
+    [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_UNSET_FIXTURE', $null, 'Process')
+    foreach ($case in $shimCases) {
+        [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_ROOT', $case.EnvRoot, 'Process')
+        $verdict = Get-ToolkitPathSecretsGuardVerdict -ToolName 'Write' -ToolInput ([pscustomobject]@{
+            path = $case.Path
+            content = 'dynamic path fixture'
+        }) -WorkspaceRoot $repoRoot
+        $shimObservations.Add([pscustomobject]@{
+            Name = $case.TestName
+            Kind = 'ShimValidInput'
+            Decision = [string]$verdict.Decision
+            Reason = [string]$verdict.Reason
+        })
+    }
 }
 finally {
-    [Environment]::SetEnvironmentVariable($variableName, $savedValue, 'Process')
+    [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_ROOT', $savedRoot, 'Process')
+    [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_UNSET_FIXTURE', $savedUnset, 'Process')
 }
 
+$hookAllowPayload = @{
+    hook_event_name = 'PreToolUse'
+    tool_name = 'Write'
+    tool_input = @{ path = '$env:ADT_DYN_GUARD_ROOT\hook-outside.md'; content = 'dynamic path fixture' }
+    cwd = $repoRoot
+}
+$hookAllowOutput = Invoke-HookRawInput -RawInput ($hookAllowPayload | ConvertTo-Json -Compress -Depth 6) -HookPath $codexHook
+$hookObservations.Add([pscustomobject]@{
+    Name = 'Should_Allow_When_HookForwardsDynamicPathToHostAuthorization'
+    Kind = 'HookValidInput'
+    Decision = Get-HookPermissionDecision -HookOutput $hookAllowOutput
+    Reason = ''
+})
+
+$malformedCases = @(
+    @{ TestName = 'Should_Deny_When_MalformedJsonInput'; RawInput = '{not-json' },
+    @{ TestName = 'Should_Deny_When_EmptyInput'; RawInput = '' }
+)
+foreach ($case in $malformedCases) {
+    $output = Invoke-HookRawInput -RawInput $case.RawInput -HookPath $codexHook
+    $hookObservations.Add([pscustomobject]@{
+        Name = $case.TestName
+        Kind = 'HookMalformedInput'
+        Decision = Get-HookPermissionDecision -HookOutput $output
+        Reason = ''
+    })
+}
+
+$identityPayload = @{
+    tool_name = 'Write'
+    tool_input = @{ path = '$env:ADT_DYN_GUARD_ROOT\missing-identity.md'; content = 'dynamic path fixture' }
+    cwd = $repoRoot
+}
+$identityOutput = Invoke-HookRawInput -RawInput ($identityPayload | ConvertTo-Json -Compress -Depth 6) -HookPath $codexHook
+$hookObservations.Add([pscustomobject]@{
+    Name = 'Should_Deny_When_HookIdentityMissing'
+    Kind = 'HookMalformedInput'
+    Decision = Get-HookPermissionDecision -HookOutput $identityOutput
+    Reason = ''
+})
+
+$allObservations = @($shimObservations.ToArray()) + @($hookObservations.ToArray())
+foreach ($observation in $allObservations) {
+    $violations = @(Get-HostOwnedContractViolations -Observations @($observation))
+    if ($violations.Count -gt 0) {
+        Write-Fail -TestName $observation.Name -Reason $violations[0]
+    }
+    Write-Pass -TestName $observation.Name
+}
+
+Write-Host 'Assert-PowerShellDynamicPathGuard: contract check (host-owned shim); not an enforcement gate'
 Write-Host 'Assert-PowerShellDynamicPathGuard: ALL PASS'
+exit 0

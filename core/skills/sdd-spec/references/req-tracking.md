@@ -11,3 +11,5 @@
 | PLAN/develop | REQ-NNN is the cross-artifact tracking key — do not rename after `/sdd-plan` |
 
 `validate-prd` exit 0 requires at least one REQ-NNN plus required structural sections (Execution policy, acceptance, requirements, OOS).
+
+- **SDDW-10 (criterion text change):** Changing the text of a CA, REQ, or CT requires one dated row in the PRD `## Histórico de alterações` (or `Change history`) that names the changed id and records the operator approval (`operador` or `operator`). Without that row the approved text stays as it is. Reconciliation: list each changed id against the history rows before reporting the PRD changed.

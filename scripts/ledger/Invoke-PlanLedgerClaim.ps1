@@ -66,6 +66,7 @@ $libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
 . (Join-Path $libDir 'ToolkitConstants.ps1')
 . (Join-Path $libDir 'Get-ToolkitRelativePath.ps1')
 . (Join-Path $libDir 'Resolve-EffectiveSddRoot.ps1')
+. (Join-Path $libDir 'Test-ToolkitFileReadback.ps1')
 
 $exitClaimOk = [int]$script:ToolkitConstant.PlanLedgerExitClaimOk
 $exitClaimRejected = [int]$script:ToolkitConstant.PlanLedgerExitClaimRejected
@@ -77,6 +78,9 @@ $reasonAlreadyClaimed = [string]$script:ToolkitConstant.PlanLedgerReasonStepAlre
 $reasonHolderRequired = [string]$script:ToolkitConstant.PlanLedgerReasonHolderRequired
 $reasonReleaseForbidden = [string]$script:ToolkitConstant.PlanLedgerReasonReleaseForbidden
 $reasonNotClaimed = [string]$script:ToolkitConstant.PlanLedgerReasonNotClaimed
+# Local reason: ToolkitConstants is not extended for this audit-only code.
+$reasonReadbackMismatch = 'claim_readback_mismatch'
+$exitReadbackMismatch = 3
 $eventClaimRejected = [string]$script:ToolkitConstant.PlanLedgerEventClaimRejected
 $ledgerDirName = [string]$script:ToolkitConstant.PlanLedgerDirectoryName
 
@@ -211,7 +215,7 @@ if ($Action -eq 'claim' -and $canonicalPlan) {
     $planTextForGate = Get-Content -LiteralPath $planResolved -Raw -Encoding UTF8
     $planStatus = [regex]::Match($planTextForGate, '(?im)^\|\s*(?:\*\*Status\*\*|Status)\s*\|\s*([^|]+)\|').Groups[1].Value.Trim()
     if ($planStatus -cne 'approved') {
-        Write-Error 'plan_not_explicitly_approved: claim creation is blocked until the canonical PLAN Status is exactly approved.'
+        Write-Error 'plan_not_explicitly_approved: claim creation is blocked for a classic-repo PLAN under features/<feature>/(US|TS)NN/PLAN/PLAN_NNN_*.md until its Status is exactly approved.'
         exit $exitUsage
     }
 }
@@ -235,6 +239,30 @@ function Read-ClaimObject {
     return ($raw | ConvertFrom-Json)
 }
 
+function Read-ClaimObjectOrReport {
+    param([Parameter(Mandatory = $true)][string] $Path)
+    $parsed = $null
+    try {
+        $parsed = Read-ClaimObject -Path $Path
+    }
+    catch {
+        $parsed = $null
+    }
+    if ($null -eq $parsed) {
+        $claimDisplayPath = $Path -replace '\\', '/'
+        Write-JsonResult -Object @{
+            ok         = $false
+            code       = 'claim_unreadable'
+            plan_path  = $portablePlan
+            step       = $Step
+            claim_path = $claimDisplayPath
+            message    = ("claim_unreadable: claim file '{0}' cannot be parsed. Inspect it; remove it only after confirming its holder, then retry." -f $claimDisplayPath)
+        }
+        exit $exitClaimRejected
+    }
+    return $parsed
+}
+
 switch ($Action) {
     'status' {
         if (-not (Test-Path -LiteralPath $claimPath)) {
@@ -248,7 +276,7 @@ switch ($Action) {
             exit $exitClaimOk
         }
 
-        $existing = Read-ClaimObject -Path $claimPath
+        $existing = Read-ClaimObjectOrReport -Path $claimPath
         Write-JsonResult -Object @{
             ok        = $true
             free      = $false
@@ -271,7 +299,7 @@ switch ($Action) {
             exit $exitClaimRejected
         }
 
-        $existing = Read-ClaimObject -Path $claimPath
+        $existing = Read-ClaimObjectOrReport -Path $claimPath
         if ([string]$existing.holder -ne $Holder) {
             Write-AuditLine -AuditPath $auditPath -Payload @{
                 at               = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -357,6 +385,38 @@ switch ($Action) {
             Write-Output $human
             [Console]::Error.WriteLine($human)
             exit $exitClaimRejected
+        }
+
+        if (-not (Test-ToolkitFileReadback -Path $claimPath -ExpectedText $jsonBody)) {
+            $persistedHolder = 'unreadable'
+            try {
+                $persistedHolder = [string](Read-ClaimObject -Path $claimPath).holder
+            }
+            catch {
+                $persistedHolder = 'unreadable'
+            }
+
+            Write-AuditLine -AuditPath $auditPath -Payload @{
+                at               = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+                event            = $eventClaimRejected
+                reason           = $reasonReadbackMismatch
+                plan_path        = $portablePlan
+                step             = $Step
+                attempted_holder = $Holder
+                existing_holder  = $persistedHolder
+            }
+            Write-JsonResult -Object @{
+                ok               = $false
+                claimed          = $false
+                code             = $reasonReadbackMismatch
+                plan_path        = $portablePlan
+                step             = $Step
+                attempted_holder = $Holder
+                persisted_holder = $persistedHolder
+                claim_path       = ($claimPath -replace '\\', '/')
+                message          = 'persisted claim does not match the written claim; do not treat the step as claimed. Inspect the claim file and release it through its holder before retrying.'
+            }
+            exit $exitReadbackMismatch
         }
 
         Write-JsonResult -Object @{

@@ -28,6 +28,7 @@
     { "source": "scripts/_lib/Resolve-EffectiveSddRoot.ps1", "destination": "_lib/Resolve-EffectiveSddRoot.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
     { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "preflight runtime script above" },
     { "source": "scripts/_lib/Get-ToolkitRelativePath.ps1", "destination": "_lib/Get-ToolkitRelativePath.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
+    { "source": "scripts/_lib/Test-ToolkitFileReadback.ps1", "destination": "_lib/Test-ToolkitFileReadback.ps1", "class": "support", "caller": "session gate and PLAN ledger claim runtime scripts above" },
     { "source": "scripts/_lib/Format-O3PlanProgressTable.ps1", "destination": "_lib/Format-O3PlanProgressTable.ps1", "class": "support", "caller": "O3 artifact preflight complete-step status table" }
   ]
 }

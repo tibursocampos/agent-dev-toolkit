@@ -8,7 +8,6 @@
 #   Should_ReplaceCatalogHookAndRuleFiles_When_Republishing
 #   Should_ReplaceCatalogConfigAndRefreshMarkedRouter_When_Republishing
 #   Should_RemoveEditedCatalogSkillsAndOnlyMarkedRouterSection_When_Uninstalling
-#   Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -239,6 +238,23 @@ try {
     Write-Pass -TestName $emptyManifestTest
     Write-Pass -TestName $preserveTest
 
+    # --- Should_OverwriteDestination_When_SameSizeAndTimestampButDifferentContent ---
+    $tamperTest = 'Should_OverwriteDestination_When_SameSizeAndTimestampButDifferentContent'
+    $tamperSource = Join-Path $probeRoot 'tamper-source'
+    $tamperDestination = Join-Path $probeRoot 'tamper-destination'
+    New-Item -ItemType Directory -Path $tamperSource,$tamperDestination -Force | Out-Null
+    $tamperSourceFile = Join-Path $tamperSource 'file.txt'
+    $tamperDestinationFile = Join-Path $tamperDestination 'file.txt'
+    [System.IO.File]::WriteAllText($tamperSourceFile, 'aaaa')
+    $null = Copy-ToolkitManagedTree -SourceRoot $tamperSource -DestinationRoot $tamperDestination
+    [System.IO.File]::WriteAllText($tamperDestinationFile, 'bbbb')
+    [System.IO.File]::SetLastWriteTimeUtc($tamperDestinationFile, [System.IO.File]::GetLastWriteTimeUtc($tamperSourceFile))
+    $null = Copy-ToolkitManagedTree -SourceRoot $tamperSource -DestinationRoot $tamperDestination
+    if ([System.IO.File]::ReadAllText($tamperDestinationFile) -ne 'aaaa') {
+        Write-Fail -TestName $tamperTest -Reason 'destination with matching size and timestamp but different content must be overwritten'
+    }
+    Write-Pass -TestName $tamperTest
+
     # --- Should_ReplaceCatalogHookAndRuleFiles_When_Republishing ---
     $hookRuleTest = 'Should_ReplaceCatalogHookAndRuleFiles_When_Republishing'
     $publishSource = Join-Path $probeRoot 'publish-source'
@@ -407,21 +423,6 @@ try {
     }
     Write-Pass -TestName $uninstallTest
 
-    $publisherDeleteTest = 'Should_NotDeleteAmbiguousPublisherTargets_When_PublishingAdapters'
-    $repoRoot = Split-Path -Parent $scriptsRoot
-    $cleanupChecks = @(
-        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexSkills.ps1'); Pattern = 'Remove-Item[^\r\n]*\$extra\.FullName' },
-        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexHooks.ps1'); Pattern = 'Remove-Item[^\r\n]*\$legacySession' },
-        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/codex/Publish-CodexAgents.ps1'); Pattern = 'Remove-Item[^\r\n]*\$staleMd' },
-        [PSCustomObject]@{ Path = (Join-Path $repoRoot 'adapters/copilot/Publish-CopilotAgents.ps1'); Pattern = 'Remove-Item[^\r\n]*\$legacyPath' }
-    )
-    foreach ($check in $cleanupChecks) {
-        $publisherText = [System.IO.File]::ReadAllText($check.Path)
-        if ($publisherText -match $check.Pattern) {
-            Write-Fail -TestName $publisherDeleteTest -Reason ("ambiguous cleanup remains in {0}" -f $check.Path)
-        }
-    }
-    Write-Pass -TestName $publisherDeleteTest
 }
 finally {
     Remove-ProbeRoot

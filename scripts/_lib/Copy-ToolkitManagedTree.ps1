@@ -466,12 +466,25 @@ function Assert-ToolkitManagedWriteDestination {
     }
 }
 
+function Get-ToolkitFileSha256Hex {
+    param([Parameter(Mandatory = $true)][string] $Path)
+
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try { return [BitConverter]::ToString($hasher.ComputeHash($stream)).Replace('-', '') }
+        finally { $stream.Dispose() }
+    }
+    finally { $hasher.Dispose() }
+}
+
 function Update-ToolkitManagedCopyInventory {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $InstallRoot,
         [Parameter()][string[]] $Paths,
-        [Parameter()][hashtable] $InventoryEntries
+        [Parameter()][hashtable] $InventoryEntries,
+        [Parameter()][hashtable] $SourceHashes
     )
 
     . (Join-Path $PSScriptRoot 'ToolkitManagedPublishInventory.ps1')
@@ -479,11 +492,19 @@ function Update-ToolkitManagedCopyInventory {
     $pathsToRecord = if ($null -eq $Paths) { $script:ToolkitLastManagedCopyPaths } else { $Paths }
     $updates = @{}
     foreach ($managedPath in $pathsToRecord) {
-        if (-not (Test-Path -LiteralPath $managedPath -PathType Leaf)) { continue }
+        if (-not [System.IO.File]::Exists($managedPath)) { continue }
         $relativeInventoryPath = $managedPath.Substring($inventoryRoot.Length)
         $entry = @{}
         $entry[$script:ToolkitConstant.ManagedPublishInventoryKindProperty] = 'tree-file'
-        $entry[$script:ToolkitConstant.ManagedPublishInventorySha256Property] = Get-ToolkitFileContentSha256 -Path $managedPath
+        $recordedHash = if ($null -ne $SourceHashes -and $SourceHashes.ContainsKey($managedPath)) { [string]$SourceHashes[$managedPath] } else { Get-ToolkitFileSha256Hex -Path $managedPath }
+        $entry[$script:ToolkitConstant.ManagedPublishInventorySha256Property] = $recordedHash
+        # Unchanged entries (inventory already holds the same kind and hash) need no rewrite.
+        $known = if ($null -ne $InventoryEntries) { $InventoryEntries[($relativeInventoryPath -replace "\\", "/")] } else { $null }
+        if ($null -ne $known -and
+            [string]$known[$script:ToolkitConstant.ManagedPublishInventoryKindProperty] -eq 'tree-file' -and
+            [string]::Equals([string]$known[$script:ToolkitConstant.ManagedPublishInventorySha256Property], [string]$entry[$script:ToolkitConstant.ManagedPublishInventorySha256Property], [System.StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
         $updates[$relativeInventoryPath] = $entry
     }
     if ($updates.Count -gt 0) {
@@ -539,47 +560,106 @@ function Copy-ToolkitManagedTreeCore {
     } else {
         $null
     }
+    # Containment is verified once per directory (resolved through reparse
+    # points); per file only the leaf is inspected for reparse points.
+    $verifiedSourceDirs = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $verifiedDestDirs = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $reparseFlag = [System.IO.FileAttributes]::ReparsePoint
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    $copiedPaths = $script:ToolkitLastManagedCopyPaths
+    $sourceHashes = @{}
     foreach ($file in $sourceFiles) {
-        Assert-ToolkitManagedPathContained `
-            -CandidatePath $file.FullName `
-            -RootPath $sourceRootFull `
-            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+        $sourcePath = $file.FullName
+        $sourceDir = [System.IO.Path]::GetDirectoryName($sourcePath)
+        if ($verifiedSourceDirs.Add($sourceDir)) {
+            Assert-ToolkitManagedPathContained `
+                -CandidatePath $sourceDir `
+                -RootPath $sourceRootFull `
+                -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+        }
+        if (($file.Attributes -band $reparseFlag) -ne 0) {
+            Assert-ToolkitManagedPathContained `
+                -CandidatePath $sourcePath `
+                -RootPath $sourceRootFull `
+                -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+        }
 
-        $relative = $file.FullName.Substring($sourceRootFull.Length).TrimStart('\', '/')
+        $relative = $sourcePath.Substring($sourceRootFull.Length).TrimStart('\', '/')
         if (Test-ToolkitManagedRelativeHasParentSegment -RelativePath $relative) {
             throw ($script:ToolkitMessage.ManagedCopyRelativePathInvalid -f $relative)
         }
 
-        $destinationPath = Join-Path $destinationRootFull $relative
-        Assert-ToolkitManagedPathContained `
-            -CandidatePath $destinationPath `
-            -RootPath $destinationRootFull `
-            -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
-        if ($hasInstallRoot) {
+        $destinationPath = $destinationRootFull.TrimEnd('\', '/') + $sep + $relative
+        $destinationDir = [System.IO.Path]::GetDirectoryName($destinationPath)
+        $destDirIsLink = [System.IO.Directory]::Exists($destinationDir) -and (([System.IO.File]::GetAttributes($destinationDir) -band $reparseFlag) -ne 0)
+        if ($destDirIsLink -or -not $verifiedDestDirs.Contains($destinationDir)) {
             Assert-ToolkitManagedPathContained `
                 -CandidatePath $destinationPath `
-                -RootPath $InstallRoot `
-                -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
-                -RequireStrictChild
-        }
-
-        $destinationDir = Split-Path -Parent $destinationPath
-        if (-not (Test-Path -LiteralPath $destinationDir)) {
+                -RootPath $destinationRootFull `
+                -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+            if ($hasInstallRoot) {
+                Assert-ToolkitManagedPathContained `
+                    -CandidatePath $destinationPath `
+                    -RootPath $InstallRoot `
+                    -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+                    -RequireStrictChild
+            }
+            if (-not [System.IO.Directory]::Exists($destinationDir)) {
+                if ($hasInstallRoot) {
+                    Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
+                }
+                New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+            }
             if ($hasInstallRoot) {
                 Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
             }
-            New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+            else {
+                Assert-ToolkitManagedPathContained `
+                    -CandidatePath $destinationDir `
+                    -RootPath $destinationRootFull `
+                    -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+            }
+            [void]$verifiedDestDirs.Add($destinationDir)
         }
 
-        if ($hasInstallRoot) {
-            Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
+        $destInfo = [System.IO.FileInfo]::new($destinationPath)
+        $needsCopy = $true
+        $sourceHash = $null
+        if ($destInfo.Exists) {
+            if (($destInfo.Attributes -band $reparseFlag) -ne 0) {
+                # A reparse leaf is resolved and re-checked exactly as before.
+                Assert-ToolkitManagedPathContained `
+                    -CandidatePath $destinationPath `
+                    -RootPath $destinationRootFull `
+                    -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot
+                if ($hasInstallRoot) {
+                    Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
+                }
+            }
+            elseif ($destInfo.Length -eq $file.Length -and $destInfo.LastWriteTimeUtc -eq $file.LastWriteTimeUtc) {
+                $sourceHash = Get-ToolkitFileSha256Hex -Path $sourcePath
+                if ($sourceHash -eq (Get-ToolkitFileSha256Hex -Path $destinationPath)) {
+                    $needsCopy = $false
+                }
+            }
         }
-        Copy-Item -LiteralPath $file.FullName -Destination $destinationPath -Force
-        $script:ToolkitLastManagedCopyPaths.Add([System.IO.Path]::GetFullPath($destinationPath)) | Out-Null
+        if ($hasInstallRoot -and $null -eq $sourceHash) { $sourceHash = Get-ToolkitFileSha256Hex -Path $sourcePath }
+        if ($hasInstallRoot) { $sourceHashes[$destinationPath] = $sourceHash }
+        if ($needsCopy) {
+            try {
+                [System.IO.File]::Copy($sourcePath, $destinationPath, $true)
+            }
+            catch [System.UnauthorizedAccessException] {
+                if (-not $destInfo.Exists) { throw }
+                [System.IO.File]::SetAttributes($destinationPath, [System.IO.FileAttributes]::Normal)
+                [System.IO.File]::Copy($sourcePath, $destinationPath, $true)
+            }
+        }
+        $copiedPaths.Add($destinationPath) | Out-Null
         $filesCopied++
     }
 
-    if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries }
+    if ($hasInstallRoot) { Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -InventoryEntries $inventoryEntries -SourceHashes $sourceHashes }
 
     return $filesCopied
 }

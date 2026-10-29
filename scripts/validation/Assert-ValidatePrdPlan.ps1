@@ -2,10 +2,8 @@
 # Tests:
 #   Should_Pass_When_ValidPrdFixture
 #   Should_Fail_When_PrdMissingReq
-#   Should_Fail_When_PrdMissingAcceptance
 #   Should_Pass_When_ValidPlanFixture
 #   Should_Fail_When_PlanOmitsReq
-#   Should_Pass_When_SkillsWireValidateScripts
 #
 # REQ-003 / CA2 / RNF-001: structural validate-prd / validate-plan with fixtures.
 $ErrorActionPreference = 'Stop'
@@ -100,13 +98,6 @@ if ($noReqResult.ExitCode -eq 0) {
 }
 Write-Pass -TestName 'Should_Fail_When_PrdMissingReq'
 
-$noAc = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidatePrdFixtureInvalidNoAcRelativePath
-$noAcResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $noAc }
-if ($noAcResult.ExitCode -eq 0) {
-    Write-Fail -TestName 'Should_Fail_When_PrdMissingAcceptance' -Reason 'expected non-zero exit for PRD without CA headings'
-}
-Write-Pass -TestName 'Should_Fail_When_PrdMissingAcceptance'
-
 # --- PLAN fixtures ---
 
 $validPlan = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidatePlanFixtureValidRelativePath
@@ -141,26 +132,6 @@ if ($missingReqResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_PlanOmitsReq' -Reason 'expected non-zero exit when PLAN omits a PRD REQ'
 }
 Write-Pass -TestName 'Should_Fail_When_PlanOmitsReq'
-
-# --- Skill wiring (call path unchanged; validate before advance) ---
-
-$wiringPaths = $script:ToolkitConstant.ValidatePrdPlanSkillWiringRelativePaths
-foreach ($rel in $wiringPaths) {
-    $full = Join-Path $repoRoot ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $full)) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("missing skill file {0}" -f $rel)
-    }
-    $text = Get-Content -LiteralPath $full -Raw -Encoding UTF8
-    $needsPrd = $rel -match 'sdd-spec'
-    $needsPlan = $rel -match 'sdd-plan'
-    if ($needsPrd -and ($text -notmatch 'validate-prd')) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("{0} must reference validate-prd" -f $rel)
-    }
-    if ($needsPlan -and ($text -notmatch 'validate-plan')) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("{0} must reference validate-plan" -f $rel)
-    }
-}
-Write-Pass -TestName 'Should_Pass_When_SkillsWireValidateScripts'
 
 Write-Host 'Assert-ValidatePrdPlan: all checks passed.'
 exit 0

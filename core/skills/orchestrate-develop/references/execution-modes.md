@@ -138,10 +138,9 @@ Stdout/stderr **must** include `reason`, `mode`, and `intent` so operators can v
 
 ```text
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-ExecutionModeGate.ps1" -Mode serial -Intent parallel-spawn -PlanPath <path> -Step N -SessionsRoot <temp>
-.\scripts\validation\Assert-ExecutionModes.ps1
 ```
 
-`Assert-ExecutionModes.ps1` must prove: this ref present + `orchestrate-develop` wire, serial rejects parallel intent with audit, and allowed spawn path integrates PLAN-LEDGER claim.
+Expected behavior: serial mode rejects parallel intent with an audit record, and an allowed spawn path integrates the PLAN-LEDGER claim.
 
 ## Skill wiring
 

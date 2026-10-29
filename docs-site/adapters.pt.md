@@ -137,10 +137,10 @@ Esses três scripts resolvem um agente no registro e chamam o módulo. O passo a
 $cursorFixture = Join-Path $PWD 'scripts\validation\fixtures\cursor-install-root'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot $cursorFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor -InstallRoot $cursorFixture
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor
 ```
 
-Uninstall remove skills, regras, hooks e `AGENTS.md` do toolkit, e desfaz o merge dos handlers geridos em `hooks.json`. CI: `Assert-CursorKeyedUninstall.ps1`.
+Uninstall remove skills, regras, hooks e `AGENTS.md` do toolkit, e desfaz o merge dos handlers geridos em `hooks.json`. Verificado por `Assert-AdapterPublish.ps1`.
 
 ## Antigravity
 
@@ -153,7 +153,7 @@ Uninstall remove skills, regras, hooks e `AGENTS.md` do toolkit, e desfaz o merg
 | `Publish-Agents` | No-op. O spawn do host é `invoke_subagent` |
 | `Publish-Hooks` | `config/hooks/hooks.json` mais `guard-pre-tool.ps1` |
 
-A ponte legada `antigravity-ide/plugins` não é um gate de CI nem de smoke padrão. Knowledge Items ao vivo e a UI de confiança da IDE ficam fora de escopo. Fixture: `scripts/validation/fixtures/antigravity-install-root`. Smoke: `Invoke-AntigravityCiSmoke.ps1`.
+A ponte legada `antigravity-ide/plugins` não é um gate de CI nem de smoke padrão. Knowledge Items ao vivo e a UI de confiança da IDE ficam fora de escopo. Fixture: `scripts/validation/fixtures/antigravity-install-root`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter antigravity`.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent antigravity
@@ -178,7 +178,7 @@ Os assets de hook publicados são material de compatibilidade; o matcher gerido 
 $claudeFixture = Join-Path $PWD 'scripts\validation\fixtures\claude'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude -InstallRoot $claudeFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude -InstallRoot $claudeFixture
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter claude
 ```
 
 ## Codex
@@ -218,7 +218,7 @@ $copilotRepo = Join-Path $PWD 'scripts\validation\fixtures\copilot\repo'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode user -InstallRoot $copilotUser
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode user -InstallRoot $copilotUser
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode repo -InstallRoot $copilotRepo
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter copilot
 ```
 
 ## OpenCode
@@ -248,7 +248,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent opencode -InstallRoot 
 | Capacidades | `skills`, `hooks`, `router`, `agents` true. `rules` e `plugin` false |
 | `Publish-Policy` | No-op |
 
-Só filesystem ADE. GLM Coding Plan (endpoint, base URL, MCP) fica fora de escopo. Não use o id de agente `zcode` para esse setup. Uninstall desfaz o merge de `cli/config.json` e `hooks/hooks.json`. CI: `Assert-ZcodeKeyedUninstall.ps1` e `Invoke-ZCodeCiSmoke.ps1`.
+Só filesystem ADE. GLM Coding Plan (endpoint, base URL, MCP) fica fora de escopo. Não use o id de agente `zcode` para esse setup. Uninstall desfaz o merge de `cli/config.json` e `hooks/hooks.json`. CI: `Assert-AdapterPublish.ps1` e `Invoke-AdapterCiSmoke.ps1 -Adapter zcode`.
 
 ```powershell
 $zcodeFixture = Join-Path $PWD 'scripts\validation\fixtures\zcode-install-root'
@@ -292,7 +292,7 @@ Fora de escopo: tokens de gateway, cron, Kanban, voz e YAML `delegation.*`.
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent hermes
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent hermes `
   -InstallRoot "$env:LOCALAPPDATA\hermes" -AllowUserHome
-pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter hermes
 ```
 
 ## OpenHands
@@ -315,7 +315,7 @@ $openhandsFixture = Join-Path $PWD 'scripts\validation\fixtures\openhands'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent openhands -InstallRoot $openhandsFixture
 pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent openhands `
   -InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter openhands
 ```
 
 ## Restrições
