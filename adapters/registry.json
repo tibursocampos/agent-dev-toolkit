@@ -57,7 +57,7 @@
         "wholeFileRouter": ["CLAUDE.md"]
       },
       "publish": {},
-      "pathGuard": { "mode": "host", "forbiddenAssets": ["adapters/claude/assets/hooks/guard-pre-tool.ps1"], "requiredAssets": ["adapters/claude/assets/hooks/context-before-prompt.ps1", "adapters/claude/assets/hooks/plan-after-edit.ps1", "adapters/claude/assets/hooks/emit-trace.ps1"] }
+      "pathGuard": { "mode": "host", "forbiddenAssets": ["adapters/claude/assets/hooks/guard-pre-tool.ps1"], "requiredAssets": ["adapters/claude/assets/hooks/track-sdd-invocation.ps1", "adapters/claude/assets/hooks/plan-after-edit.ps1", "adapters/claude/assets/hooks/emit-trace.ps1"] }
     },
     {
       "id": "codex",

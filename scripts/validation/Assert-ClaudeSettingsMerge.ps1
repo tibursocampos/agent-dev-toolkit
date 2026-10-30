@@ -54,7 +54,7 @@ try {
     if (-not ($after.permissions.deny -contains 'Bash(rm -rf *)')) { Write-Fail $n 'permissions.deny lost' }
     $upj = $after.hooks.UserPromptSubmit | ConvertTo-Json -Compress -Depth 10
     if ($upj -notmatch [regex]::Escape($colocatedMarker)) { Write-Fail $n 'colocated alien handler lost' }
-    if (@([regex]::Matches($upj, [regex]::Escape('context-before-prompt.ps1'))).Count -ne 1) { Write-Fail $n 'toolkit handler must appear exactly once after two merges' }
+    if (@([regex]::Matches($upj, [regex]::Escape('track-sdd-invocation.ps1'))).Count -ne 1) { Write-Fail $n 'toolkit handler must appear exactly once after two merges' }
     if ($after.hooks.PSObject.Properties.Name -contains 'PreCompact') { Write-Fail $n 'legacy toolkit event must be removed' }
     $allow = @($after.permissions.allow)
     if (-not ($allow -contains $userAllow)) { Write-Fail $n 'user allow entry lost' }
@@ -72,7 +72,7 @@ try {
     $un = Read-Json $sp
     $upj = $un.hooks.UserPromptSubmit | ConvertTo-Json -Compress -Depth 10
     if ($upj -notmatch [regex]::Escape($colocatedMarker)) { Write-Fail $n 'alien handler must survive uninstall' }
-    if ($upj -match [regex]::Escape('context-before-prompt.ps1')) { Write-Fail $n 'toolkit handler must be removed' }
+    if ($upj -match [regex]::Escape('track-sdd-invocation.ps1')) { Write-Fail $n 'toolkit handler must be removed' }
     if ($un.hooks.PSObject.Properties.Name -contains 'PostToolUse') { Write-Fail $n 'toolkit-only event must be removed' }
     if ($un.$alienKey -ne $alienValue -or [string]$un.hooks.Notification[0].hooks[0].command -ne $alienMarker) { Write-Fail $n 'user keys/hooks lost on uninstall' }
     $allow = @($un.permissions.allow)

@@ -132,7 +132,7 @@ scripts/validation/fixtures/**/.toolkit-managed-publish.lock
 # Claude sync-uninstall: keep tracked aliens/seeds; ignore republished surfaces
 scripts/validation/fixtures/claude-sync-uninstall/CLAUDE.md
 scripts/validation/fixtures/claude-sync-uninstall/hooks/_hook-common.ps1
-scripts/validation/fixtures/claude-sync-uninstall/hooks/context-before-prompt.ps1
+scripts/validation/fixtures/claude-sync-uninstall/hooks/track-sdd-invocation.ps1
 scripts/validation/fixtures/claude-sync-uninstall/hooks/context-pre-compact.ps1
 scripts/validation/fixtures/claude-sync-uninstall/hooks/plan-after-edit.ps1
 scripts/validation/fixtures/claude-sync-uninstall/rules/*.md
