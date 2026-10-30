@@ -55,6 +55,8 @@ Displayed headers and state labels follow the user chat language (`LANGUAGE.md`)
 | `owner` | Responsável | Owner |
 | `group` | Grupo | Group |
 | `wave` | Onda | Wave |
+| `id` | ID | ID |
+| `severity` | Severidade | Severity |
 | `question` | Pergunta | Question |
 | `criterion` | Critério | Criterion |
 | `pending` | `[ ]` pendente | `[ ]` pending |
@@ -228,7 +230,7 @@ Render the applicable rows when closeout begins and update them after each obser
 
 ### requirement-review: open questions
 
-Columns: `question`, `status`, `evidence` (source or owner of the answer). One row per question. Resolved items stay in the Q&A history, not in the table once closed by the operator; `pending` and `blocked` questions always appear. Render the full table at every stop and at close.
+Columns: `id`, `severity`, `owner`, `question`, matching the skill and the report template. One row per question. Resolved items stay in the Q&A history, not in the table once closed by the operator; `pending` and `blocked` questions always appear. Render the full table at every stop and at close.
 
 ### refine-story (feature, tech, split): stage table
 
