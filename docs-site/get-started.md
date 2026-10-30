@@ -79,6 +79,19 @@ The menu, every `-Action`, sync, validate, and uninstall live on [CLI](cli.md).
 
 Open the application repo in the agent, then [First use](first-use.md). A feature path is [Orchestrated Delivery](orchestrated-delivery.md).
 
+## Which flow?
+
+Not sure which flow fits your work? Pick one before you start:
+
+| Flow | Use it when | Entry skill |
+|------|-------------|-------------|
+| Orchestrated Delivery | Feature with several stories, brownfield code, or specialists | `orchestrate-analyze` |
+| Classic SDD | One story already clear, no specialists needed | `sdd-spec` |
+| Refine backlog item | Informal item (bug, user story, technical story) before SDD | `refine-story` |
+| Requirement review | Challenge acceptance criteria or contracts before SDD | `requirement-review` |
+
+The flows are not prerequisites for one another. See the full decision guide: [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |

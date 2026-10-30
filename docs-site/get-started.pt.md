@@ -79,6 +79,19 @@ O menu, cada `-Action`, sync, validação e desinstalação estão em [CLI](cli.
 
 Abra o repositório da aplicação no agente e siga para [Primeiro uso](first-use.md). O caminho de uma feature é [Entrega orquestrada](orchestrated-delivery.md).
 
+## Qual fluxo escolher?
+
+Não sabe qual fluxo se encaixa no seu trabalho? Escolha antes de começar:
+
+| Fluxo | Use quando | Skill de entrada |
+|-------|------------|------------------|
+| Entrega orquestrada | Feature com várias histórias, código brownfield ou especialistas | `orchestrate-analyze` |
+| SDD clássico | Uma história já clara, sem necessidade de especialistas | `sdd-spec` |
+| Refinar item do backlog | Item informal (bug, história de usuário, história técnica) antes do SDD | `refine-story` |
+| Revisão de requisito | Questionar critérios de aceitação ou contratos antes do SDD | `requirement-review` |
+
+Os fluxos não são pré-requisitos uns dos outros. Veja o guia de decisão completo (ainda só em inglês): [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
+
 ## Solução de problemas
 
 | Sintoma | Causa provável | Correção |
