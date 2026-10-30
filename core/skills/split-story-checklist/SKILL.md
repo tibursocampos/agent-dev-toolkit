@@ -150,7 +150,7 @@ Do **not** inject fixed corporate tasks (AI tags, manual sign-off checklist, Son
 
 ### 4. Summarize in chat
 
-Show group names, dependency waves, output path, and suggested next skills.
+After the Write, you must show in chat a table with every group row, never collapsed: Group, Steps, Wave, Status (labels by user chat language per `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; state keys and glyphs `[ ]` `[~]` `[x]` `[!]` `[-]`). Redraw it in full at each point where the checklist is summarized. Also show the dependency waves, output path, and suggested next skills. The table is a chat projection of the file's Summary table.
 
 ### 5. Handoff
 
