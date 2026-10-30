@@ -18,7 +18,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `always`) |
+| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `adaptive`) |
 | **Parent role** | Orchestrator only — delegate implementation to specialists |
 | **Child validation** | After file changes: child runs build + tests; reports `{ build, tests, summary }` |
 | **Handoff** | Scoped paths + receipt per `SPAWN.md` — no full PRD dump into child prompts |

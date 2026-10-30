@@ -14,6 +14,45 @@ $_claudeSpawnKnobsPath = Join-Path (
 . $_claudeSpawnKnobsPath
 Remove-Variable -Name _claudeSpawnKnobsPath -ErrorAction SilentlyContinue
 
+function Add-ClaudeAgentDisallowedToolsFrontmatter {
+    <#
+    .SYNOPSIS
+      Add `disallowedTools: Agent` after `model: inherit` in each published Claude agent so a child cannot spawn subagents.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AgentsRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    $modelLinePattern = '(?m)^model:[ \t]*inherit[ \t]*(\r?\n)'
+    $disallowedLinePattern = '(?m)^disallowedTools:[ \t]*Agent[ \t]*\r?$'
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $changedPaths = New-Object System.Collections.Generic.List[string]
+    foreach ($file in @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md')) {
+        $text = [System.IO.File]::ReadAllText($file.FullName)
+        if ($text -match $disallowedLinePattern) { continue }
+        if ($text -notmatch $modelLinePattern) {
+            throw ("Claude agent {0} has no 'model: inherit' frontmatter line; cannot add disallowedTools" -f $file.Name)
+        }
+        $updated = [regex]::Replace($text, $modelLinePattern, '$0disallowedTools: Agent$1', 1)
+        [System.IO.File]::WriteAllText($file.FullName, $updated, $utf8NoBom)
+        $changedPaths.Add([System.IO.Path]::GetFullPath($file.FullName)) | Out-Null
+    }
+
+    if ($changedPaths.Count -gt 0) {
+        Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        try {
+            Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -Paths @($changedPaths.ToArray())
+        }
+        finally {
+            Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        }
+    }
+}
 function Invoke-ClaudePublishAgents {
     <#
     .SYNOPSIS
@@ -75,6 +114,8 @@ function Invoke-ClaudePublishAgents {
         -UnresolvedTokens (Get-ClaudeUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ClaudePublishMessage.PlaceholderUnresolved
 
+    $null = Invoke-ClaudeManagedReferenceRewrite -ManagedPaths @($script:ToolkitLastManagedCopyPaths.ToArray()) -RepoRoot $repoRoot -PlaceholderMap $placeholderMap
+    Add-ClaudeAgentDisallowedToolsFrontmatter -AgentsRoot $destAgentsRoot -InstallRoot $resolvedInstallRoot
     Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'claude-agents'
 
     return [PSCustomObject]@{

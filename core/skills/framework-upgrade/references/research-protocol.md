@@ -51,7 +51,7 @@ Auxiliary catalog rows = curated leads only — never sole evidence for migrate 
 
 ## STOP conditions (also)
 
-- Research would require ADO mutate, `JARVIS_*`, or Athena-branded corpora → refuse (Skip D); use public official docs only.
+- Research would require tracker mutate, org-only prefixed tokens, or branded external corpora → refuse (Skip D); use public official docs only.
 - Pack id unresolved → finish `detect.md` (TE03) before research.
 
 ---

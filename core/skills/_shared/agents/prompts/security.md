@@ -20,7 +20,7 @@ When the parent is `/code-review` at closeout, this prompt is the pass after the
 - Input validation / injection (SQL, command, template, path)
 - Secrets and PII handling
 - Dangerous defaults in new endpoints or jobs
-- Supply chain (package feeds, CI secrets, NuGet/npm tokens) only when the diff touches packaging or deploy
+- Software supply chain (package feeds, CI secrets, NuGet/npm tokens) only when the diff touches packaging or deploy
 
 ## Secrets / PII hygiene
 

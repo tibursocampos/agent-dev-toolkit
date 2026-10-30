@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_hook-common.ps1"
 
 $inputJson = Read-HookInputJson
-$filePath = if ($inputJson -and $inputJson.file_path) { [string]$inputJson.file_path } else { '' }
+$filePath = Get-HookToolFilePath -InputJson $inputJson
 
 if (Test-PlanFilePath $filePath) {
     Set-PlanEditState $filePath

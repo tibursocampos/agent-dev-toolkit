@@ -7,26 +7,10 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   Helpers for Claude Publish-Router (core/router -> InstallRoot/CLAUDE.md).
 
 .DESCRIPTION
-  Mapping: core/router/AGENTS.md -> <InstallRoot>/CLAUDE.md (neutral core router; not Athena).
+  Mapping: core/router/AGENTS.md -> <InstallRoot>/CLAUDE.md (neutral core router).
   After placeholder resolve, rewrite rules/*.mdc path refs to *.md to match Publish-Policy layout.
   Re-publish overwrites CLAUDE.md; does not wipe unrelated InstallRoot files.
 #>
-
-function Convert-ClaudeRouterMdcReferencesToMd {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $Text
-    )
-
-    $mdcExtension = $script:ClaudePathConstant.CursorRuleExtension
-    $mdExtension = $script:ClaudePathConstant.MarkdownExtension
-    if ([string]::IsNullOrEmpty($mdcExtension) -or [string]::IsNullOrEmpty($mdExtension)) {
-        return $Text
-    }
-
-    return $Text.Replace($mdcExtension, $mdExtension)
-}
 
 function Get-ClaudeRouterPublishContent {
     [CmdletBinding()]
@@ -63,7 +47,7 @@ function Get-ClaudeRouterPublishContent {
         }
     }
 
-    $updated = Convert-ClaudeRouterMdcReferencesToMd -Text $updated
+    $updated = Convert-ClaudeMdcReferencesToMd -Text $updated
     return $updated
 }
 

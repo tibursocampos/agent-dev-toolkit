@@ -134,7 +134,7 @@ Report: stack detected, paths touched, how to run locally, open risks (idempoten
 
 ## Must not
 
-- Ship or copy hardcoded consumer templates from ai-prompts or internal org repos into the toolkit
+- Ship or copy hardcoded consumer templates from external prompt collections or internal org repos into the toolkit
 - Assume a specific organization or proprietary observability tools
 - Generate code before requirements are collected and the user confirms the plan
 - Preload entire `dotnet-guidelines/` tree beyond clean-architecture and csharp-patterns when coding

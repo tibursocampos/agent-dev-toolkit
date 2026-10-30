@@ -150,7 +150,7 @@ Finish with a usable handoff, not only a summary that the plan was created.
 
 ## Must not
 
-- Embed MES, Athena, or organization-specific product context
+- Embed MES or organization-specific product context
 - Require external wiki APIs, or fixed .NET/Angular versions without detection
 - Stage plan contents or commit `docs/documentation-plan/plan.md`; it must be ignored by the target repository's root `.gitignore` and remain untracked
 - Write `docs/` before the language question is answered

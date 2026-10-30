@@ -10,3 +10,5 @@ Canonical role and prompt: `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/shell
 
 Spawn conditions and scope: `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md`.
 Spawn capability and safety: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`.
+
+Children cannot spawn subagents. Only the main session spawns; report any need for another specialist in the receipt.

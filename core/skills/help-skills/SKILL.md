@@ -1,6 +1,7 @@
 ---
 name: help-skills
-description: "Present the installed static skills catalog (CATALOG.md + OPERATOR.md) without loading every SKILL.md. Use when listing skills or invoking help-skills (host: /help-skills, $help-skills, use skill help-skills, or OpenCode skill tool)."
+description: >-
+  Present the installed static skills catalog (CATALOG.md + OPERATOR.md) without loading every SKILL.md. Use when listing skills or invoking help-skills (host: /help-skills, $help-skills, use skill help-skills, or OpenCode skill tool).
 ---
 
 

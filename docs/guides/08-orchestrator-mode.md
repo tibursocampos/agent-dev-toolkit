@@ -8,13 +8,13 @@ Spawn/handoff: `core/skills/_shared/agents/SPAWN.md`
 
 ## Default
 
-**`orchestrator_mode: "always"`**. If `preferences.json` is missing, agents and `toolkit.ps1` create:
+**`orchestrator_mode: "adaptive"`**. If `preferences.json` is missing, agents and `toolkit.ps1` create:
 
 ```json
 {
   "caveman_mode": false,
   "caveman_level": "full",
-  "orchestrator_mode": "always",
+  "orchestrator_mode": "adaptive",
   "artifact_language": null,
   "verify_mode": false
 }
@@ -25,8 +25,8 @@ Location: `{{SDD_ROOT}}/preferences.json` (under the agent's published SDD root 
 Interactive first sync (`toolkit.ps1` → Sync agent) prompts when the file is missing:
 
 ```text
-[1] Always orchestrate (default)
-[2] Adaptive
+[1] Adaptive (recommended default)
+[2] Always orchestrate
 ```
 
 ## ORCHESTRATOR CHARTER (summary)
@@ -52,8 +52,8 @@ When active, agents show once per session:
 
 | Mode | Behavior |
 |------|----------|
-| **always** (default) | Strict parent orchestrator; spawn for non-trivial work per `SPAWN.md` |
-| **adaptive** | Same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent |
+| **adaptive** (default) | Same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent |
+| **always** | Strict parent orchestrator; spawn for non-trivial work per `SPAWN.md` |
 
 Both modes honor spawn caps, fallback when `subagents=none`, and Caveman-scoped child I/O.
 

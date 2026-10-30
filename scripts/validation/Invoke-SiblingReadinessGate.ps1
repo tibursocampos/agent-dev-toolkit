@@ -7,7 +7,7 @@
   Deterministic machine check for REQ-006 / CA2 / CT3. Scans markdown under a
   feature/story root for stable markers only (Status: READY|NEEDS_CLARIFICATION;
   open-question table severity cells; -[B]/-[I] list rows). Does not parse free-form
-  prose. No Jarvis / ADO / Python. Read-only.
+  prose. No tracker or runtime dependency. Read-only.
 
 .PARAMETER FeatureRoot
   Absolute or repo-relative root containing STORY/FEATURE/REFINE markdown fixtures.

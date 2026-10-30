@@ -17,6 +17,7 @@ $script:OpenCodeRouterModuleDirectory = $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($script:OpenCodeRouterModuleDirectory)) {
     $script:OpenCodeRouterModuleDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
+. (Join-Path $script:OpenCodeRouterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 
 function Get-OpenCodeRouterRepoRoot {
     [CmdletBinding()]
@@ -63,7 +64,10 @@ function Get-OpenCodeRouterPublishContent {
         }
     }
 
-    return (Convert-OpenCodeRouterDanglingRulesPointers -Text $updated)
+    $updated = Convert-OpenCodeRouterDanglingRulesPointers -Text $updated
+    return (Convert-MdcReferencesToMd -Text $updated `
+            -SourceExtension $script:OpenCodePathConstant.CursorRuleExtension `
+            -TargetExtension $script:OpenCodePathConstant.MarkdownExtension)
 }
 
 function Convert-OpenCodeRouterDanglingRulesPointers {

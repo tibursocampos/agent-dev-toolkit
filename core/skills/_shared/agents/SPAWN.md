@@ -18,7 +18,7 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 
-**First sync does not change this tree.** Missing `preferences.json` is seeded with `orchestrator_mode` `always` and does not ask the orchestration-mode question (`core/policy/orchestrator-session.md`). Work this contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays. The in-session `orchestrator adaptive` command stays.
+**First sync does not change this tree.** Missing `preferences.json` is seeded with `orchestrator_mode` `adaptive` and does not ask the orchestration-mode question (`core/policy/orchestrator-session.md`). Work this contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays. The in-session `orchestrator adaptive` command stays.
 
 **Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
 
@@ -134,11 +134,11 @@ receipt. Internal repository-relative paths keep their existing form.
 
 ## Task ownership and lifecycle
 
-Treat each spawned child as a **single-invocation specialist**. Its initial handoff defines one bounded task, its ownership, and the expected receipt. A child invocation gets exactly one assignment and one return; it must not become a standing worker or be reused across separate parent requests.
+Treat each spawned child as a **single-invocation specialist**. Its initial handoff defines one bounded task, its ownership, and the expected receipt. A child invocation starts with one assignment and returns a receipt; it must not become a standing worker. Continuation is limited as described below.
 
 - Batch closely related questions or actions for the same specialist into one well-scoped assignment before spawning. Do not spawn for trivial lookups or split one coherent task into many tiny delegations; keep the thin-trivial in-parent rule above.
 - A running child may receive a concise clarification only to resolve ambiguity inside its original scope, before it returns. Do not add deliverables, widen paths, or assign another phase while it is running; split expanded work into a new assignment.
-- Once a child returns, its invocation is over. Never follow up, reopen, resume, wake, or reuse that child, even to correct, complete, or validate its prior result. If the result is incomplete, blocked, or needs correction/review, give the remaining work to a **fresh child invocation** with a concise receipt, relevant excerpt, scoped paths, and a clear bounded assignment. This applies even when the work is a continuation of the same feature or review.
+- Once a child returns, its invocation is idle. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; never reuse a completed child for a different topic, a different scope, or an already large context. Those go to a **fresh child invocation** with a concise receipt, relevant excerpt, scoped paths, and a clear bounded assignment. A child cannot spawn subagents; only the main session spawns.
 - Where the current host provides a documented close/kill/terminate control for completed child threads, use it after receipt and synthesis. Where only a user-facing control exists, describe the close action to the user only if useful; do not claim to have invoked it.
 - If the host exposes no close/terminate control to the agent, stop routing work to the completed child and let the host manage its idle thread. Do not claim a process was killed or that its context was erased. Host-managed threads, logs, and context retention remain outside this portable contract.
 - Never interrupt/kill a child that is still doing useful work merely to enforce one-shot semantics. For an abandoned assignment, use the host's supported cancellation control when available and record the cancellation in the parent summary.
@@ -191,7 +191,7 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 - Mint `native` in registry without host Task/equivalent
 - Paste `_shared/*-guidelines/`, rules, or pipeline bodies into child prompts
 - Exceed developer ≤2 or orchestrate ≤4 caps without user-approved wave/série
-- Follow up, reopen, resume, or reuse a child invocation after it has returned, including for a correction or continuation; claim a child process/context was terminated without a host-supported action
+- Reuse a completed child invocation for a different topic, a different scope, or an already large context; claim a child process/context was terminated without a host-supported action
 - Create repeated tiny delegations when related work can be batched into one specialist assignment
 - Replace ROSTER / RECEIPT / SUBAGENT-MODEL — **load them** when needed
 - Edit twins (`cursor-dev-toolkit` / `antigravity-dev-toolkit`)

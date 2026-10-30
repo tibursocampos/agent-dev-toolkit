@@ -56,6 +56,13 @@ try {
     if ($upj -notmatch [regex]::Escape($colocatedMarker)) { Write-Fail $n 'colocated alien handler lost' }
     if (@([regex]::Matches($upj, [regex]::Escape('track-sdd-invocation.ps1'))).Count -ne 1) { Write-Fail $n 'toolkit handler must appear exactly once after two merges' }
     if ($after.hooks.PSObject.Properties.Name -contains 'PreCompact') { Write-Fail $n 'legacy toolkit event must be removed' }
+    foreach ($eventProperty in $after.hooks.PSObject.Properties) {
+        $eventValue = $eventProperty.Value
+        if ($eventValue -isnot [System.Array]) { Write-Fail $n ("hooks.{0} must be an array" -f $eventProperty.Name) }
+        foreach ($item in $eventValue) {
+            if ($item -is [System.Array] -or $item -isnot [System.Management.Automation.PSCustomObject]) { Write-Fail $n ("hooks.{0} items must be matcher-group objects, not nested arrays" -f $eventProperty.Name) }
+        }
+    }
     $allow = @($after.permissions.allow)
     if (-not ($allow -contains $userAllow)) { Write-Fail $n 'user allow entry lost' }
     foreach ($l in $legacyBroad) { if ($allow -contains $l) { Write-Fail $n "legacy allow '$l' must be stripped" } }

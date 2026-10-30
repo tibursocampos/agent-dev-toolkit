@@ -58,7 +58,7 @@ A primeira escrita da feature pergunta se os artefatos SDD ficam **local (reposi
 
 Use caminhos portáteis nos artefatos e nos handoffs (`features/NNN-slug/US01/PRD/...`). No modo **repository** o agente pode acrescentar `/features/` ao `.gitignore` quando `features_versioned` é false (o padrão). Não há `PRD/` nem `PLAN/` soltos na raiz do repositório. Essas pastas ficam em `features/NNN-slug/USnn|TSnn/`.
 
-No primeiro sync interativo, se `preferences.json` não existir, o assistente pergunta **Always orchestrate** (padrão) ou **Adaptive** e depois se a compressão Caveman fica ligada (padrão) ou desligada. O primeiro sync não interativo usa `always` e Caveman ligado. Preferências existentes são preservadas.
+No primeiro sync interativo, se `preferences.json` não existir, o assistente pergunta **Adaptive** (padrão) ou **Always orchestrate** e depois se a compressão Caveman fica ligada (padrão) ou desligada. O primeiro sync não interativo usa `always` e Caveman ligado. Preferências existentes são preservadas.
 
 ## Passo 0 — memory bank
 

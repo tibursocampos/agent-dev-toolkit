@@ -17,6 +17,7 @@ $script:OpenCodePathConstant = @{
     SddDirectoryName          = 'sdd'
     GuardrailsFileName        = 'guardrails.md'
     CursorRuleExtension       = '.mdc'
+    MarkdownExtension         = '.md'
     OrchestratorSessionMdcFileName = 'orchestrator-session.mdc'
     OrchestratorSessionMdFileName = 'orchestrator-session.md'
     GuardrailsMdcFileName     = 'guardrails.mdc'

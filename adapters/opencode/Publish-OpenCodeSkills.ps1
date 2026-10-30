@@ -22,6 +22,7 @@ $_opencodeToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:OpenCodeAdapterModuleDirectory)
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_opencodeToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $script:OpenCodeAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 Remove-Variable -Name _opencodeToolkitLibDirectory -ErrorAction SilentlyContinue
 
 function Get-OpenCodePublishAdapterRepoRoot {
@@ -198,6 +199,8 @@ function Invoke-OpenCodePublishSkills {
         -TextFileExtensionPattern $script:OpenCodePathConstant.TextFileExtensionPattern `
         -UnresolvedTokens (Get-OpenCodeUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:OpenCodePublishMessage.PlaceholderUnresolved
+
+    $null = Invoke-ToolkitManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot -SourceExtension $script:OpenCodePathConstant.CursorRuleExtension -TargetExtension $script:OpenCodePathConstant.MarkdownExtension
 
     return [PSCustomObject]@{
         Success     = $true

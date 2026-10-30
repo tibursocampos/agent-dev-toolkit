@@ -255,10 +255,6 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 
 ---
 
-## Dynamic storage resolution
-
-When the task must choose or resolve repository/global storage, read [`STORAGE-RESOLUTION.md`](./STORAGE-RESOLUTION.md). This resource owns the manifest, effective SDD root, preferences, and dynamic path algorithm. Load it just in time; artifact naming, portable paths, navigation, and feature-tree rules remain here.
-
 ## Integration
 
 - `ARTIFACT-OWNERSHIP.md` is a navigation/ownership index; specialized contracts below remain normative.

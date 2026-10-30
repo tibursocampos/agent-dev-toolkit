@@ -261,7 +261,7 @@ Idioma do artefato, uma vez por escrita: override da invocação, senão `artifa
 
 ### Orquestrador pai
 
-O padrão de `orchestrator_mode` é `always`. O pai guarda metas, gates, caminhos e recibos. Especialistas escrevem notas ou código. Comandos: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` e `parent`).
+O padrão de `orchestrator_mode` é `adaptive`. O pai guarda metas, gates, caminhos e recibos. Especialistas escrevem notas ou código. Comandos: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` e `parent`).
 
 `adaptive` pode manter no pai uma pergunta de um caminho só ou uma edição de um arquivo. Qualquer mudança mais larga é spawn. Se o host tem `subagents=none`, o mesmo trabalho fica no pai. A sessão não falha porque Task está ausente.
 
@@ -279,7 +279,7 @@ Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 
 | Chave | Padrão | Efeito |
 |-------|--------|--------|
-| `orchestrator_mode` | `always` | O pai permanece orquestrador |
+| `orchestrator_mode` | `adaptive` | O pai orquestra; trabalho trivial pode ficar no pai |
 | `caveman_mode` | `true` no primeiro sync | Compressão do chat ligada; o sync interativo pode desligá-la |
 | `caveman_level` | `full` | Intensidade se a compressão for ligada |
 | `artifact_language` | `null` | Sem override de locale |

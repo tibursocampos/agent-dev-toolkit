@@ -266,7 +266,7 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `agents` = true; `plugin` = false |
 | Key artifacts | `skills/`, `rules/*.md`, `hooks/*.ps1`, `CLAUDE.md`, `agents/*.md`, merged `settings.json` |
-| Content source | `core/` only (packaging layout may follow Claude / ai-prompts docs as **reference** — never copy Athena content) |
+| Content source | `core/` only (packaging layout may follow Claude docs as **reference** — never copy content from other products) |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent claude` — **no** Claude trust UI, **no** live `~/.claude` writes in CI |
 
 ### Publish layout (under InstallRoot)

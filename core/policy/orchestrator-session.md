@@ -34,7 +34,7 @@ Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `par
 ## Preference check (every session / task start)
 
 1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow. Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `always` and Caveman on. Existing choices are preserved.
+2. If missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow. Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `adaptive` and Caveman on. Existing choices are preserved.
 3. If `orchestrator_mode` is missing: default `"adaptive"`.
 4. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
 5. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
@@ -97,7 +97,8 @@ Caps, host table, and child payload rules live in SPAWN.md — use the **Read** 
 
 - Batch related, bounded work into the initial handoff. Do not launch a child for each tiny lookup or keep expanding its assignment after launch.
 - A running child may receive only a concise clarification that stays inside its original scope. Added deliverables, phases, or paths require a new assignment.
-- When a child returns, never follow up, reopen, resume, or reuse that invocation, even for a correction, completion, or review of the same work. Submit the remaining work as a fresh child invocation with a compact receipt/excerpt, scoped paths, and a bounded request.
+- When a child returns, its invocation is idle. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; never reuse a completed child for a different topic, a different scope, or an already large context. Those go to a fresh child invocation with a compact receipt/excerpt, scoped paths, and a bounded request.
+- Children cannot spawn subagents. Only the main session spawns; a child reports any need for another specialist in its receipt.
 - Treat the child return as final even if the host UI labels or retains the thread differently. Use host close/terminate controls only when documented and available; never promise process termination or context erasure otherwise.
 - Preserve SPAWN.md's thin-trivial in-parent exception and host concurrency caps.
 

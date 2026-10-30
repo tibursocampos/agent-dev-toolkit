@@ -32,7 +32,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 {
   "caveman_mode": true,
   "caveman_level": "full",
-  "orchestrator_mode": "always",
+  "orchestrator_mode": "adaptive",
   "artifact_language": null,
   "verify_mode": false
 }
@@ -40,14 +40,14 @@ conversational filler, preambles, and polite wrapper text — while preserving
 
 - `caveman_mode` — master switch (bool).
 - `caveman_level` — `lite` | `full` | `ultra` (default `full` when mode is ON). Skill participation may *cap* intensity (e.g. planning skills use Lite rules even if prefs say `ultra`).
-- `orchestrator_mode` — `always` | `adaptive` (default `always`). See `core/policy/orchestrator-session.md`.
+- `orchestrator_mode` — `always` | `adaptive` (default `adaptive`). See `core/policy/orchestrator-session.md`.
 - `artifact_language` — optional override (`pt-BR`, `en`, …); when `null`, match user chat per `LANGUAGE.md`.
 - `verify_mode` — optional O3 post-implement verifier (`false` default). When `true`, parent spawns read-only verifier after implementer returns (`orchestrate-develop` Step 5.5).
 
 **Resolution algorithm (run by always-on rule `caveman-mode` and at Step -1 of participating skills):**
 
 ```
-1. If preferences.json is missing, use { "caveman_mode": true, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }. An interactive first sync may explicitly save `caveman_mode: false`; otherwise the default mode is ON.
+1. If preferences.json is missing, use { "caveman_mode": true, "caveman_level": "full", "orchestrator_mode": "adaptive", "artifact_language": null, "verify_mode": false }. An interactive first sync may explicitly save `caveman_mode: false`; otherwise the default mode is ON.
 2. Read caveman_mode / caveman_level (missing level => "full").
 3. If caveman_mode false: Mode = OFF — skip compression rules.
 4. If true: Mode = ON — apply intensity (see Levels), show activation notice once per session.

@@ -58,7 +58,7 @@ The first feature write asks whether to store SDD artifacts **local (repository)
 
 Use portable paths in artifacts and handoffs (`features/NNN-slug/US01/PRD/...`). In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (the default). There is no flat `PRD/` or `PLAN/` at the repo root. Those folders live under `features/NNN-slug/USnn|TSnn/`.
 
-On the first interactive sync, if `preferences.json` is missing, the wizard asks for **Always orchestrate** (default) or **Adaptive**, then asks whether Caveman response compression is on (default) or off. Non-interactive first sync uses `always` and Caveman on. Existing preferences are preserved.
+On the first interactive sync, if `preferences.json` is missing, the wizard asks for **Adaptive** (default) or **Always orchestrate**, then asks whether Caveman response compression is on (default) or off. Non-interactive first sync uses `always` and Caveman on. Existing preferences are preserved.
 
 ## Step 0 — memory bank
 

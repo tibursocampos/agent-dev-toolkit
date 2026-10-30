@@ -88,7 +88,7 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first skill |
 | [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
 | [session-behavior.md](session-behavior.md) | Chat language, parent orchestrator, optional compression |
-| [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default always, charter, commands |
+| [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default adaptive, charter, commands |
 | [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
 
 Related:
@@ -117,4 +117,4 @@ Chat language, parent orchestrator, and optional response compression (`caveman`
 
 ## Orchestrator mode
 
-Parent stays lean; specialists do heavy work. **Default `always`.** Commands: `orchestrator always` / `adaptive` / `status`. Full guide: [08-orchestrator-mode.md](08-orchestrator-mode.md).
+Parent stays lean; specialists do heavy work. **Default `adaptive`.** Commands: `orchestrator always` / `adaptive` / `status`. Full guide: [08-orchestrator-mode.md](08-orchestrator-mode.md).

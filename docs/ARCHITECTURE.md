@@ -233,7 +233,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 ## Shared publish rules
 
-Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `always`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
+Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `adaptive`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
 
 ## CI
 

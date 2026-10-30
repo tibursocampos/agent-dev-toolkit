@@ -17,7 +17,7 @@ Before **any** tool call (`Read`, `Write`, `Shell`, etc.):
 
 1. Read this rule (`{{GUARDRAILS_PATH}}`).
 2. Read `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`.
-3. Read `{{TOOLKIT_ROOT}}/AGENTS.md` § Git and language when mutating git or writing code.
+3. Read § 1 (Git) of this file and `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` (language surfaces) when mutating git or writing code.
 
 If the user has **not** said **sim** to the current action, do **NOT** execute mutating git or file writes.
 

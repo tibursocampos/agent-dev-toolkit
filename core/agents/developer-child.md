@@ -9,3 +9,5 @@ model: inherit
 Canonical role and prompt: `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/developer-child.md`.
 
 Spawn conditions and reduced receipt: `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` and `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md`.
+
+Children cannot spawn subagents. Only the main session spawns; report any need for another specialist in the receipt.

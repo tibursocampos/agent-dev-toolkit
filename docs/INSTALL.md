@@ -247,7 +247,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 
 Every sync also prepares `<InstallRoot>/sdd/` (`sessions/` + `manifest.json`) via `Get-SddRoot -Prepare`.
 
-When `preferences.json` is missing, interactive first sync asks for parent orchestration mode and Caveman mode (both default to the first choice: `always` and `on`). Direct or other non-interactive sync seeds defaults without prompting; existing preferences remain intact. The preferences are stored under that install's `<InstallRoot>/sdd/`.
+When `preferences.json` is missing, interactive first sync asks for parent orchestration mode and Caveman mode (both default to the first choice: `adaptive` and `on`). Direct or other non-interactive sync seeds defaults without prompting; existing preferences remain intact. The preferences are stored under that install's `<InstallRoot>/sdd/`.
 
 ### Storage (SDD artifacts)
 

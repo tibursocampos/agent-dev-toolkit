@@ -121,7 +121,7 @@ Files written, step completed, progress `N/M`, suggested handoff. Manual validat
 
 - Run without `docs/documentation-plan/plan.md` (unless user gives an explicit alternate plan path)
 - Use flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when the doc plan path is known - always PLAN-scoped develop session
-- Assume MES/Athena or fixed stack versions
+- Assume MES or fixed stack versions
 - Write product `docs/` before doc language is known
 - Complete multiple **Kind: new** plan steps in one session when context is high - prefer one new-doc step per session
 - Hard-fail when Task/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)

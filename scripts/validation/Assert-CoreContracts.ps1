@@ -846,7 +846,7 @@ function Set-PreferenceTestAnswers {
 
 try {
     $interactiveRoot = Join-Path $fixtureRoot 'interactive'
-    Set-PreferenceTestAnswers -Answers @('2', '2')
+    Set-PreferenceTestAnswers -Answers @('1', '2')
     $interactiveOutput = Invoke-ToolkitEnsurePreferences -SddRoot $interactiveRoot -Interactive *>&1 | Out-String
     $interactivePath = Join-Path $interactiveRoot 'preferences.json'
     $interactivePreferences = Get-Content -LiteralPath $interactivePath -Raw | ConvertFrom-Json
@@ -863,8 +863,8 @@ try {
     Set-PreferenceTestAnswers -Answers @()
     $null = Invoke-ToolkitEnsurePreferences -SddRoot $nonInteractiveRoot
     $nonInteractivePreferences = Get-Content -LiteralPath (Join-Path $nonInteractiveRoot 'preferences.json') -Raw | ConvertFrom-Json
-    if ($nonInteractivePreferences.orchestrator_mode -ne 'always' -or $nonInteractivePreferences.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 0) {
-        Write-Fail -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync' -Reason 'non-interactive first sync must default to always / Caveman on without prompting'
+    if ($nonInteractivePreferences.orchestrator_mode -ne 'adaptive' -or $nonInteractivePreferences.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 0) {
+        Write-Fail -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync' -Reason 'non-interactive first sync must default to adaptive / Caveman on without prompting'
     }
     Write-Pass -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync'
 
@@ -872,8 +872,8 @@ try {
     Set-PreferenceTestAnswers -Answers @('', '')
     $null = Invoke-ToolkitEnsurePreferences -SddRoot $interactiveDefaultRoot -Interactive
     $interactiveDefaults = Get-Content -LiteralPath (Join-Path $interactiveDefaultRoot 'preferences.json') -Raw | ConvertFrom-Json
-    if ($interactiveDefaults.orchestrator_mode -ne 'always' -or $interactiveDefaults.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 2) {
-        Write-Fail -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank' -Reason 'blank interactive choices must select always / Caveman on'
+    if ($interactiveDefaults.orchestrator_mode -ne 'adaptive' -or $interactiveDefaults.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 2) {
+        Write-Fail -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank' -Reason 'blank interactive choices must select adaptive / Caveman on'
     }
     Write-Pass -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank'
 
@@ -1726,7 +1726,7 @@ $sections['ContinuousQueueAuthorization'] = {
 #   Should_Deny_When_ReconciliationIsIncomplete
 #   Should_Deny_When_RequestIsOutsideQueue
 
-$policyPath = Join-Path $repoRoot 'core\policy\continuous-queue.ps1'
+$policyPath = Join-Path $repoRoot 'scripts\ledger\continuous-queue.ps1'
 if (-not (Test-Path -LiteralPath $policyPath)) {
     throw "Missing queue authorization policy: $policyPath"
 }

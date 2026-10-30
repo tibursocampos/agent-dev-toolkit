@@ -17,7 +17,7 @@ description: Generic framework upgrade orchestrator (audit|plan|migrate|validate
 Gate check:
 [ ] guardrails.mdc read
 [ ] SESSION.md read; session-state loaded
-[ ] Skip D policy loaded (references/skip-policy.md) — ADO mutate / JARVIS_* / Athena brand / duration estimates forbidden
+[ ] Skip D policy loaded (references/skip-policy.md) — tracker mutate / org-only prefixed tokens / external brand / duration estimates forbidden
 [ ] User confirmed current action (sim) — silence ≠ approval for migrate
 -> If any unchecked: STOP
 ```
@@ -144,9 +144,9 @@ Summarize mode, pack, versions, decisions, evidence level, and next mode or stop
 
 - Rename skill id to a major-pinned id (`dotnet10-upgrade`, `angular-v*-upgrade`, `framework-upgrade-vN`)
 - Enter `migrate` on silence, implied consent, or plan-only chat (RN02 / TE05)
-- ADO work-item mutate, `JARVIS_*` contracts, Athena (or other external product) brand in this skill/packs (Skip **D** / RN05)
+- tracker work-item mutate, org-only prefixed contracts, external product brand in this skill/packs (Skip **D** / RN05)
 - Duration / effort / story-point checkpoints (RN04 / REQ-015)
-- Dump wholesale Supply / pack / guideline corpora into context (RNF-004 / SR-NO-FULL-DUMP)
+- Dump wholesale pack / guideline corpora into context (RNF-004 / SR-NO-FULL-DUMP)
 - Invent pack deltas for majors outside `supported_range` (TE04) — research protocol + pack PR only; no in-session invented support
 - Assume `framework_id` when 0 or >1 detect candidates (TE03)
 - Treat blogs/gists or offline snapshots as SoT when they conflict with official docs (RN08 — official wins; see `sources-catalog.md` + research checklist)

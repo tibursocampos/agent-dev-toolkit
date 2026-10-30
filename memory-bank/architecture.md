@@ -37,7 +37,7 @@ The toolkit maintains an agent-neutral core and publishes host-specific layouts 
 - `scripts/toolkit.ps1` dispatches command-line validation scripts in child PowerShell processes so their top-level `exit` codes return to the menu rather than terminating it. Standalone scripts retain their normal exit-code behavior.
 - Install roots are fixture-first. Profile writes require `-AllowUserHome`; local fixtures do not prove behavior in a live host.
 - Copilot publishing supports `-Mode user|repo`. Codex user-scope skill mirroring is optional and off by default.
-- Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `always`.
+- Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `adaptive`.
 - The SDD storage source of truth is `core/skills/_shared/sdd-artifacts/STORAGE.md`; feature and Memory Bank storage share the resolved root.
 
 ## CI and release flow

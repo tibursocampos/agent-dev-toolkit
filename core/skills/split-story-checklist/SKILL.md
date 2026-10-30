@@ -67,7 +67,7 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 
 **type_classification (REQ-012 / CA4):** Resolve Bug \| User Story \| Technical Story once; persist the **exact-set** (**Tipo** / `item_type`) **only** on `STORY.md`. Do **not** fork that set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, PRD, or trackers. Details: `references/type-classification.md`.
 
-**Skip D (REQ-013):** no Azure Boards / ADO mutate, no Reversa, no SpecKit constitution. Skill id and slash `/split-story-checklist` stay stable (RN03).
+**Skip D (REQ-013):** no tracker mutate, no external spec-tool constitution. Skill id and slash `/split-story-checklist` stay stable (RN03).
 
 ## Lazy-load
 
@@ -130,7 +130,7 @@ Load `references/type-classification.md`:
 1. Resolve **item_type**: Bug \| User Story \| Technical Story (ask once if ambiguous).
 2. When under `features/NNN-slug/USnn/`, Write the **exact-set** only to that story’s `STORY.md` (**Tipo** / type fields). Map US↔User Story, TS↔Technical Story.
 3. Do **not** embed the exact-set in the checklist file, FEATURE, CONTINUITY, PLAN, PRD, or any tracker.
-4. **Skip D:** never create/update Azure Boards work items from this step.
+4. **Skip D:** never create/update tracker work items from this step.
 5. If type stays unresolved → **STOP** (`type_unresolved`); do not Write checklist.
 
 ### 1. Documentation language (blocker before Write)
@@ -185,8 +185,8 @@ Show group names, dependency waves, output path, and suggested next skills.
 
 Also enforce `references/exclusions.md`. Handoff boundary: `references/sdd-handoff.md`. PLAN path: `references/plan-resolution.md`.
 
-- Create or update external tracker cards via external work-item APIs (**Skip D / REQ-013:** no ADO / Azure Boards mutate)
-- Introduce Reversa trees or SpecKit constitution / uv / specify (Skip D / REQ-013)
+- Create or update external tracker cards via external work-item APIs (**Skip D / REQ-013:** no tracker mutate)
+- Introduce external spec-tool trees or constitution / installers (Skip D / REQ-013)
 - Scatter type_classification exact-set outside `STORY.md` (REQ-012) — not into tasks.md, FEATURE, CONTINUITY, PLAN, or PRD
 - Rename skill id or slash away from `split-story-checklist` / `/split-story-checklist` (RN03)
 - Add fixed "workflow" tasks (manual sign-off checklist, Datadog, SDD/DevAI tags) unless the user explicitly requests a custom section

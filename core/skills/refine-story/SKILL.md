@@ -170,10 +170,10 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Product voice: `references/product-persona.md`. Split handoff: `references/split-handoff.md`.
 
 - Call tracker REST APIs, MCP work-item integrations, or PAT scripts for external trackers
-- Create or update Azure DevOps Work Items (or any remote board) — file-based persistence only
+- Create or update tracker work items (or any remote board) — file-based persistence only
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards
 - Preload unused mode playbooks (`feature` / `tech` / `split` other than the chosen one) — REQ-004
-- Create a new clarify / `feature-refinement` skill folder or clone Supply clarify as a parallel skill — REQ-007; enrich **this** skill only
+- Create a new clarify / `feature-refinement` skill folder or clone a clarify skill as a parallel skill — REQ-007; enrich **this** skill only
 - Write OS absolute paths or InstallRoot embeds into envelopes, Q&A history, or handoffs — portable only (REQ-006 / RNF-002)
 - Write `docs/backlog/` before the language question when choosing shortcut
 - Duplicate full PRD/PLAN templates - hand off to `sdd-spec` / `sdd-plan` or O1

@@ -23,6 +23,7 @@ $_codexSpawnKnobsPath = Join-Path (
 ) 'adapters\_shared\SpawnPublishKnobs.ps1'
 . $_codexSpawnKnobsPath
 Remove-Variable -Name _codexSpawnKnobsPath -ErrorAction SilentlyContinue
+. (Join-Path $script:CodexAdapterAgentsModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 
 function ConvertTo-CodexTomlSingleQuotedString {
     param([Parameter(Mandatory = $true)][string] $Value)
@@ -159,6 +160,9 @@ function Invoke-CodexPublishAgents {
         foreach ($key in @($placeholderMap.Keys)) {
             $raw = $raw.Replace([string]$key, [string]$placeholderMap[$key])
         }
+        $raw = Convert-MdcReferencesToMd -Text $raw `
+            -SourceExtension $script:CodexPathConstant.CursorRuleExtension `
+            -TargetExtension $script:CodexPathConstant.MarkdownExtension
         $toml = Convert-CodexAgentMarkdownToToml -MarkdownText $raw -SourcePath $mdFile.FullName
         $destName = [System.IO.Path]::ChangeExtension($mdFile.Name, $script:CodexPathConstant.CustomAgentTomlExtension)
         $destPath = Join-Path $destAgentsRoot $destName

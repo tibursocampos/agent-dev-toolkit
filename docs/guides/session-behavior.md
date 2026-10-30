@@ -22,7 +22,7 @@ Child handoffs carry a path and a short excerpt. They do not paste a full PRD, P
 
 ## Parent orchestrator
 
-Default `orchestrator_mode` is `always`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
+Default `orchestrator_mode` is `adaptive`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
 
 `adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
 
@@ -44,7 +44,7 @@ Created with the defaults object when the file is missing:
 
 | Key | Default | Effect |
 |-----|---------|--------|
-| `orchestrator_mode` | `always` | Parent stays orchestrator |
+| `orchestrator_mode` | `adaptive` | Parent orchestrates; thin trivial work may stay in-parent |
 | `caveman_mode` | `true` | Chat compression on (interactive first sync can choose off) |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |
