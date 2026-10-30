@@ -177,7 +177,7 @@ When the working path is under `features/NNN-slug/` (or the user names that feat
 
 1. `Read` `FEATURE.md` and `CONTINUITY.md` at the feature root when present.
 2. `Read` sibling story files under the same feature: `STORY.md`; `REFINE/` when present (**optional / on demand**); `ANALYSIS/`, `ARCH/`, `SEC/` when FEATURE `needs_*` or brownfield requires them (**not** optional in that case); and existing `PRD/` / `PLAN/` for that story.
-3. Prefer sibling content and promoted bank files over re-asking. Max **3** gap questions. That cap does **not** apply to `open_question`.
+3. Prefer sibling content and promoted bank files over re-asking. Ask all necessary gap questions, in blocks of at most 5. The block limit does **not** apply to `open_question`.
 4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies; do not dump entire `memory-bank/` or full PRD bodies.
 5. **Required siblings** (`INVOCATION-CONTEXTS.md`):
    - **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. Max-3 gap questions do **not** replace this gate.
