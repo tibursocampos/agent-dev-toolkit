@@ -178,6 +178,7 @@ Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `mo
 - Child I/O is Caveman-scoped: prompts, style, and returns honor Caveman when ON; end with receipt rows (Caveman ON: required; OFF: still prefer receipt / tight bullets).
 - Parent synthesizes into CONTINUITY / chat — **facts and paths only**.
 - Do not dump full specialist transcripts into CONTINUITY.
+- A child's return never replaces the owning flow's progress table. After reconciling the receipt with the canonical state, the parent renders the flow's complete table per `sdd-artifacts/LIVE-STAGE-TABLE.md`.
 
 ## Must not
 
