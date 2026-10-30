@@ -86,10 +86,10 @@ Align with US02: do **not** redefine spawn policy in the skill body. Point + sho
 ```
 ### Subagent-first (before implement)
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
+Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Agent unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
 ```
 
-**Must not (echo markers):** paste guideline packs into child prompts; spawn for **trivial**; hard-fail when `subagents` is `none` or Task unavailable (use **fallback** **in-parent**).
+**Must not (echo markers):** paste guideline packs into child prompts; spawn for **trivial**; hard-fail when `subagents` is `none` or Agent unavailable (use **fallback** **in-parent**).
 
 Stable assert markers (exact substrings): `SPAWN.md`, `subagents`, `in-parent`, `fallback`, `receipt`, `paths` — see `subagent-first.md`.
 

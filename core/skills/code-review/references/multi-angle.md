@@ -40,9 +40,9 @@ Bare `/code-review` -> ask mode (1 single / 2 multi-ângulo). Subset allowed, e.
 - [ ] Dangerous defaults - hint source: `_shared/agents/prompts/security.md`
 - [ ] Evidence-based findings only; state what to verify if data is missing
 
-### Merging Task outputs into the report
+### Merging Agent outputs into the report
 
-1. Load `SPAWN.md`; consult capability `subagents`. When `native`: spawn one Task per requested angle (parallel, ≤3); when `none` or Task unavailable → **fallback** sequential **in-parent** angles (never hard-fail). Parent keeps the default flow for build/test/coverage.
+1. Load `SPAWN.md`; consult capability `subagents`. When `native`: spawn one Agent per requested angle (parallel, ≤3); when `none` or Agent unavailable → **fallback** sequential **in-parent** angles (never hard-fail). Parent keeps the default flow for build/test/coverage.
 2. Deduplicate overlapping findings; keep the strongest severity and clearest `path:line`.
 3. Map into the existing template sections. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Do not use a Portuguese label as a band name.
    - Blocking bugs / security / broken PRD scope -> `critical`

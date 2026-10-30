@@ -1,4 +1,4 @@
-# Task prompt: architect
+# Agent prompt: architect
 
 ## Caveman / receipt
 

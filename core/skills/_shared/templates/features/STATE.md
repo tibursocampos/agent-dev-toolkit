@@ -30,4 +30,4 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1
 
 ## Verifier note
 
-Evidence verification runs **sequentially** in `sdd-develop` (script gate). Do **not** use O3 Task parallelism as the verifier.
+Evidence verification runs **sequentially** in `sdd-develop` (script gate). Do **not** use O3 Agent parallelism as the verifier.

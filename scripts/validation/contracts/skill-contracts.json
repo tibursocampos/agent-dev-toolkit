@@ -145,19 +145,19 @@
       "id": "orchestrate-analyze-spawn-fallback",
       "skill": "orchestrate-analyze",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "orchestrate-deliver-spawn-fallback",
       "skill": "orchestrate-deliver",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "orchestrate-develop-spawn-fallback",
       "skill": "orchestrate-develop",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-develop",

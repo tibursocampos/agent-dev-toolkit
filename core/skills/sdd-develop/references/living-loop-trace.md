@@ -25,4 +25,4 @@ Mid-feature: optional trail events; TRACE may be absent until close. At archive:
 3. Ensure TRACE includes ordered living-loop events `converge`, `sync_current`, `archive`.
 4. Run the structural gate above with `-RequireArchiveComplete` (deterministic — never LLM-as-validator). Exit ≠ 0 → **STOP**; do not declare archive done.
 
-**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Task/O3 parallelism as the archive gate.
+**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Agent/O3 parallelism as the archive gate.

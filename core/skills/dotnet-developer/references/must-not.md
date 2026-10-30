@@ -2,7 +2,7 @@
 
 - Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
 - Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
+- Hard-fail when capability `subagents` is `none` or Agent is unavailable (use **fallback** **in-parent**)
 - External work-item APIs, `repo-mappings.json`, or org-only pipeline/Key Vault mapping guides
 - Replace an established project test stack or naming convention with toolkit defaults; when no baseline exists, use only applicable defaults from `dotnet-test-patterns.md`
 - Obsolete guideline paths (use `dotnet-guidelines/` only)

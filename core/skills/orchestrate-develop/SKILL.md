@@ -1,7 +1,7 @@
 ---
 name: orchestrate-develop
 description: >-
-  Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
+  Orchestrated Delivery O3: one Agent subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -21,7 +21,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Outcome
 
-1. Pending PLAN step(s) executed via Task children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
+1. Pending PLAN step(s) executed via Agent children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Agent unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
 3. When the operator asked to close the wave, handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted). When the operator did not ask, do not start that validation or specialist loop; hand off only the next step / next story
 
@@ -35,7 +35,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Mental map (ids unchanged):** O3 ≈ **apply** (implement PLAN steps via `sdd-develop`). O1 ≈ explore; O2 ≈ FEATURE+PRD+CHANGE. See `CHANGE-CONTRACT.md`.
 
-**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Task parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
+**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Agent parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
 
 **Living loop / TRACE (REQ-006 / CA5):** at feature-wave close, children (or the final develop child) append `features/NNN-slug/TRACE.jsonl` and run **converge → sync current → archive**, then `validate-trace -RequireArchiveComplete`. Parent must **not** use O3 parallelism as the archive verifier. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
@@ -63,7 +63,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
 | O3 paired baseline and delta/risk review (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/step-queue-spawn.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
@@ -78,11 +78,11 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Gate / Orchestrated Delivery | `PIPELINE.md` |
 | Feature / PLAN / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
-| Before Task / fallback to manual develop | `SPAWN.md` |
+| Before Agent / fallback to manual develop | `SPAWN.md` |
 | Child implement contract | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` |
 | Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
 | Anti-bypass checklist (CA5) | `references/anti-bypass.md` |
-| Step queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
+| Step queue / spawn child / Agent skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism | `references/parallelism.md` |
 | Execution modes (serial/parallel/manual + ledger) | `references/execution-modes.md` |
@@ -152,7 +152,7 @@ Read `references/anti-bypass.md` before every spawn and before marking any step 
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Agent unavailable (fallback `/sdd-develop`); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

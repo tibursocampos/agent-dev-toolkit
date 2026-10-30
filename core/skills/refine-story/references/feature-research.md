@@ -13,7 +13,7 @@ Companion: `finding-format.md`, `readiness-severity.md` § Open-question gate, `
 1. Read `FEATURE.md`. Read `memory-bank/` only when that bank exists. Do not dump the bank (`SELECTIVE-RETRIEVAL.md`).
 2. Call specialists only as `orchestrate-analyze/references/spawn-map.md` maps `needs_*`. Do not invent extra roles. Take specialist returns in the parent. Do not create story folders in this cycle.
 3. First findings pass. Record each finding with `finding-format.md`.
-4. Second pass, isolated from the first. When a Task tool is available, the two passes do not see each other's notes until both finish. When Task is unavailable, finish pass one, then run pass two in the same context and say that the passes were not isolated.
+4. Second pass, isolated from the first. When an Agent tool is available, the two passes do not see each other's notes until both finish. When Agent is unavailable, finish pass one, then run pass two in the same context and say that the passes were not isolated.
 5. Close a finding only when it has a portable evidence path or an explicit user answer. `no-evidence` stays open.
 6. Ask every remaining open question in one batch. Include `MINOR`. Do not ask only `B` and `I`.
 7. Stop when no open question remains, or after two critique rounds, whichever comes first. If any question is still unanswered when the round ceiling is hit, stop with `open_question`. That is not a clean finish.

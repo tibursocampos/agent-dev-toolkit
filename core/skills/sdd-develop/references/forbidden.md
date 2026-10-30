@@ -28,7 +28,7 @@
 - Skip `scripts/ledger/Invoke-PlanLedgerClaim.ps1` when claim is required and absent because session helper already exited 0 (CT6)
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
-- Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
+- Use O3 / Agent parallelism as the evidence verifier (Verifier ≠ O3)
 - Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
 - Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
 - Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / 006 REQ-009)

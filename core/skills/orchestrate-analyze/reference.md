@@ -10,7 +10,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
 | Step 1 intent classification (triage entry) | `references/intent-classification.md` |
 | Step 0 Memory Bank Gate | `references/memory-bank-gate.md` |
 | Triage / collect / trivial shortcut / NuGet example | `references/triage.md` |
-| Flag → specialist mapping / spawn Task | `references/spawn-map.md` |
+| Flag → specialist mapping / spawn Agent | `references/spawn-map.md` |
 | Architecture confirm gate / approval copy | `references/arch-confirm.md` |
 | Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`; table: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 | Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |

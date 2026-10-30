@@ -30,7 +30,7 @@ Step 5 inventory (sources.json v3)
 | Specialist synthesis | Portable `bank_root` + named bank paths + inventory governance + **short** source summaries | Receipts: facts for architecture / domain / risks / phase-2 |
 | Merge | Specialist receipts | GENERATED blocks, `gaps.md` (preserve `BLOCKING:`), phase-2 stubs when relevant |
 
-**Thin trivial:** single obvious stack with no domain/schema/auth signals → synthesize **in-skill** from inventory + README/AGENTS (no Task). Any multi-file uncertainty, persistence, auth/PII, or architecture ambiguity → spawn specialists.
+**Thin trivial:** single obvious stack with no domain/schema/auth signals → synthesize **in-skill** from inventory + README/AGENTS (no Agent). Any multi-file uncertainty, persistence, auth/PII, or architecture ambiguity → spawn specialists.
 
 ## Signal → specialist map
 
@@ -42,9 +42,9 @@ Use **ROSTER** role ids (`ROSTER.md`) — stable toolkit ids only (do **not** in
 | Greenfield / no established style / domain boundaries | `architect` | `architecture.md`, `domain-knowledge.md` |
 | Persistence / DDL / migrations / DbContext | `database` | `database-schema.md` (phase 2 **BLOCKING** when DDL cited), `gaps.md` |
 | Auth / secrets / PII / supply-chain tokens | `security` | `known-risks.md`, `gaps.md` (env **names** only) |
-| Stack / lockfile / tooling only (no domain ambiguity) | *(in-skill — no Task)* | `tech-stack.json`, `conventions.md` GENERATED from `stack_hints` |
+| Stack / lockfile / tooling only (no domain ambiguity) | *(in-skill — no Agent)* | `tech-stack.json`, `conventions.md` GENERATED from `stack_hints` |
 
-Spawn **in parallel** within SPAWN ≤4 cap when independent. Parent stays lean: goals, paths, receipts — **no** app code from specialists. Do **not** spawn `qa_checklist` as a Task.
+Spawn **in parallel** within SPAWN ≤4 cap when independent. Parent stays lean: goals, paths, receipts — **no** app code from specialists. Do **not** spawn `qa_checklist` as an Agent.
 
 ## Child prompt contract (actionable)
 

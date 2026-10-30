@@ -2,7 +2,7 @@
 
 - Paste guideline packs into child prompts (pass scoped **paths** + require **receipt** only)
 - Spawn children for **trivial** work (keep **in-parent**)
-- Hard-fail when capability `subagents` is `none` or Task is unavailable (use **fallback** **in-parent**)
+- Hard-fail when capability `subagents` is `none` or Agent is unavailable (use **fallback** **in-parent**)
 - Create or route to a separate `node-developer` skill (Node backend stays here)
 - Treat Nest as a default skill or guidelines pack (recognition only)
 - Drop DOM/`html-css` support in favor of backend-only routing

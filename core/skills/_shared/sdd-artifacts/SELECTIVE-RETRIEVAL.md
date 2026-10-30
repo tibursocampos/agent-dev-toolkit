@@ -53,7 +53,7 @@ Fail the assert → fix the skill/guide text before marking CA1 / REQ-002 done.
 
 1. Prefer **paths + short summaries** over bodies.
 2. `memory-bank/`: read only named files needed for the step (e.g. `architecture.md`, `tech-stack.json`); never recurse-load the whole tree into the prompt.
-3. PRD: `Read` for authoring/planning; do **not** paste the full PRD into CONTINUITY, child Task prompts, or PLAN bodies — cite the **portable path**.
+3. PRD: `Read` for authoring/planning; do **not** paste the full PRD into CONTINUITY, child Agent prompts, or PLAN bodies — cite the **portable path**.
 4. Prior context: structured summary + all necessary gap questions, in blocks of at most **5** (`PIPELINE.md`).
 5. Challenge vague acceptance language before writing REQ/AC (see `sdd-spec` / `refine-story`).
 

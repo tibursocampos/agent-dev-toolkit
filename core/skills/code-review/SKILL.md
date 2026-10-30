@@ -207,7 +207,7 @@ An open `critical` stays blocking until a new review shows the fix. Offer at mos
 Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. When the operator passed a pull-request URL and the review identified that range, cite the URL and that range. Finding bands are only `critical`, `important`, and `nice-to-have`. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed.
 
 ## Multi-angle mode (when chosen)
-Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Task when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
+Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Agent when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
 ## Must not
 
 - Write or update PRD/PLAN files (hand off to `/sdd-spec` / `/sdd-plan`)
@@ -221,9 +221,9 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 - Create an implementation-survey skill
 - Tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI. A pull-request URL is used only when the operator passed it
 - Ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`
-- Add a reviewer roster. `architect`, `database`, `security`, and `repo-analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without a Task and without a new prompt
-- Hard-fail multi-angle when `subagents` is `none` or Task is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
-- Paste guideline packs into Task child prompts
+- Add a reviewer roster. `architect`, `database`, `security`, and `repo-analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without an Agent and without a new prompt
+- Hard-fail multi-angle when `subagents` is `none` or Agent is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
+- Paste guideline packs into Agent child prompts
 - Create `framework-upgrade` or any new product skill folder from this skill (WS16b OOS — needs a separate approved feature)
 - **AI co-author trailers** - in any form. Under NO circumstances should you include `Co-authored-by: Cursor <cursoragent@cursor.com>`, `Co-authored-by: Antigravity`, or any other AI agent attribution in commit messages or PR descriptions.
 

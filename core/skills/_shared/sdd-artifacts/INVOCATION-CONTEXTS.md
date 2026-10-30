@@ -17,7 +17,7 @@ Pipeline skills must apply **observable** behavior for two invocation contexts:
 | Context id | Meaning |
 |------------|---------|
 | `direct` | Consumer invokes the skill via slash / skill name in the operator session (Classic SDD or standalone). |
-| `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as a Task/spawn child whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage. A generic scoped Task handoff does not select this context. |
+| `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as an Agent/spawn child whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage. A generic scoped Agent handoff does not select this context. |
 
 Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` host session mode.
 
@@ -40,12 +40,12 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 Resolve context **once** at skill start (after gate check). Prefer the explicit current invocation/handoff over execution-shape defaults:
 
 1. **Explicit current invocation** — a `invocation_context: direct|orchestrated` field provided by the current caller/handoff wins and is recorded once for this skill run.
-2. **Orchestrated execution** — absent an explicit field, a Task child whose current parent handoff identifies an `orchestrate-*` stage, or execution of an `orchestrate-*` skill itself, resolves to `orchestrated`.
+2. **Orchestrated execution** — absent an explicit field, an Agent child whose current parent handoff identifies an `orchestrate-*` stage, or execution of an `orchestrate-*` skill itself, resolves to `orchestrated`.
 3. **Default** — otherwise resolve to `direct`.
 
 Do not infer or change the resolved context from the presence, absence, freshness, completeness, path proximity, or contents of FEATURE, STORY, CONTINUITY, REFINE/tasks, Memory Bank, PRD, PLAN, or any other sibling artifact. A sibling may be used only when the active skill contract authorizes it as an input and its relationship/authority is explicit; it does not set invocation context. Host preference such as `orchestrator_mode` is not an invocation signal. Resolve once at skill start and keep that context for the run; a conflicting sibling is reported as a conflict, not used as a fallback.
 
-Generic parent coordination, a parent role named `orchestrator`, use of a Task for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is provided. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
+Generic parent coordination, a parent role named `orchestrator`, use of an Agent for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is provided. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
 
 Record the resolved id in the session report / child receipt when one is produced (en-US field name: `invocation_context`).
 
@@ -80,7 +80,7 @@ Record the resolved id in the session report / child receipt when one is produce
 | Child scope | One PLAN step / one story stage / one bank mode per child — never multi-step in one child |
 | Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
 | No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration, re-approve the feature backlog, or rewrite parent CONTINUITY beyond the child's allowed receipt fields |
-| Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Task summaries stay **en-US** (`LANGUAGE.md`) |
+| Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Agent summaries stay **en-US** (`LANGUAGE.md`) |
 | Spawn (Eixo A) | Parent decides spawn vs in-parent per `SPAWN.md`; children do not flip that policy |
 
 ## Examples (no secrets)
@@ -107,7 +107,7 @@ User: /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profi
 ### Orchestrated child (shape)
 
 ```text
-Parent O3 Task prompt includes:
+Parent O3 Agent prompt includes:
   invocation_context: orchestrated
   plan_path: features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md
   step: 2
@@ -135,7 +135,7 @@ Automated Assert may be added later; missing wire → do not mark REQ-001 / CA1 
 ## Must not
 
 - Collapse `direct` and `orchestrated` into identical Process when the tables differ
-- Dump this contract body into child Task prompts (cite portable path + context id only)
+- Dump this contract body into child Agent prompts (cite portable path + context id only)
 - Put real API tokens, passwords, or private keys in examples
 - Use invocation context to remove Eixo A spawn vs in-parent choice
 - Treat Plan/Ask vs Agent as `direct` / `orchestrated`
