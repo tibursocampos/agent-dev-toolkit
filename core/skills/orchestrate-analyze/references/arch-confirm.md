@@ -11,7 +11,7 @@ ARCH draft (4 sections) → operator sim / ajustar / cancelar → ARCH approved
 | Step | Rule |
 |------|------|
 | Draft | Architect proposes via `architecture-selection` + `prompts/architect.md`; optional scaffold `templates/features/story/ARCH/architecture-decision.md` |
-| Confirm | Parent asks pt-BR (SKILL §7b). Silence ≠ approval. Receipt stays `needs-confirm.` until **sim** |
+| Confirm | Parent asks in the user chat language (`LANGUAGE.md`) (SKILL §7b). Silence ≠ approval. Receipt stays `needs-confirm.` until **sim** |
 | Approved | Persist final ARCH with style id; CONTINUITY notes decision; **point-promote** `memory-bank/architecture.md` (if not already) so it is not left draft / `needs-confirm`; Memory-bank status `refreshed`; implementers load **one** `principles/architecture/<style>.md` + matching stack overlay C |
 | Brownfield | Skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write mirror ARCH (layers, DDL, EF vs Dapper or equivalent, pipeline). ARCH is **not** optional when `needs_domain` or brownfield. |
 

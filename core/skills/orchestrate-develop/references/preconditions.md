@@ -77,6 +77,6 @@ shared `delivery-baseline` in `sdd-develop/references/plan-contract.md`.
 |-------|------|
 | Trigger | At least one child changed app files this O3 run |
 | Mode | `memory-bank-init` **`refresh-light`** only (not full prose rewrite) |
-| Confirm | pt-BR `sim` / `pular` / `cancelar` before write |
+| Confirm | `sim` / `pular` / `cancelar`, localized to the user chat language (`LANGUAGE.md`), before write |
 | Skip | No code changes, or user chose `pular` |
 | CONTINUITY | Status `refreshed` when Step N ran |

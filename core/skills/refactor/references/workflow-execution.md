@@ -5,7 +5,7 @@
 * Present the summary of identified code smells and debt.
 * Stop and ask the user to choose the workflow execution path based on the scope:
   * **Option A - Direct Developer Skill (`/developer`):** For straightforward local refactoring edits.
-  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For complex structural refactorings requiring a formal specification (PRD) and a step-by-step checklist (PLAN) in Portuguese.
+  * **Option B - Classic SDD (`/sdd-spec` -> `sdd-plan` -> `sdd-develop`):** For complex structural refactorings requiring a formal specification (PRD) and a step-by-step checklist (PLAN) in the resolved artifact language (`LANGUAGE.md`).
   * **Option D - Plain Chat Plan:** Establish a simple task list directly in the chat, executing steps one by one without extra file creations.
 * **Wait for explicit user choice** before writing code or initializing another workflow.
 

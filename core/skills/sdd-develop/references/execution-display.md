@@ -29,7 +29,7 @@ The progress table inside the PLAN file stays. Update it in the same edit that c
 After every direct Classic step closes—whether it ran in the parent or a delegated specialist—the parent MUST:
 
 1. Re-read the persisted PLAN after the child returns. Reconcile the completed step row and checkpoint against the child's report; a child-provided table or prose summary is not the source of truth.
-2. Render the complete current PLAN step ledger to the operator, including every step row and all columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. In Portuguese, use Step ID, Passo, Dependências, Peso, Estado, Evidência.
+2. Render the complete current PLAN step ledger to the operator, including every step row and all columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Label the columns in the user chat language (`LANGUAGE.md`); for example, in Portuguese: Step ID, Passo, Dependências, Peso, Estado, Evidência.
 3. State `Next eligible step: <step id and title>` or `Next eligible step: none — <closeout or blocker>` from the re-read PLAN.
 4. Only after this table may a parent in `continuous` start the next direct step. This applies in both `step_by_step` and `continuous`; pacing never changes the ledger requirement.
 
