@@ -10,7 +10,7 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 1. This skill does not implement code and does not take a plan step
 When the parent is `orchestrate-develop` at scope close, the scope **sim** already authorizes the test command. Do not ask for a second **sim** only for that command.
 
-Plan mode or Ask: do not run a shell. Say that Agent mode is required.
+Read-only modes (plan mode or ask): do not run a shell. Say that an edit mode is required.
 
 ### Step -1b - Caveman Mode (Full cap)
 

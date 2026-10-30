@@ -162,21 +162,21 @@
       "id": "axis-b-omit-model-orchestrate-develop",
       "skill": "orchestrate-develop",
       "files": ["references/step-queue-spawn.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-analyze",
       "skill": "orchestrate-analyze",
       "files": ["references/spawn-map.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-deliver",
       "skill": "orchestrate-deliver",
       "files": ["references/mode-selection.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {

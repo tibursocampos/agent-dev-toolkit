@@ -8,7 +8,7 @@ O2 em `{feature-path}` - {N} histórias.
 Modo de execução?
 
 1) série - uma história por vez (spec -> plan -> aprovação)
-2) paralelo - Task por história (filho só rascunha PRD/PLAN; Write só no pai após sim); agregação e aprovação no pai
+2) paralelo - Agent por história (filho só rascunha PRD/PLAN; Write só no pai após sim); agregação e aprovação no pai
 3) cancelar
 ```
 
@@ -28,7 +28,7 @@ Posso marcar como aprovados?
 | **Por história** | User wants tight control; série default after each story |
 | **Lote** | N > 1 and user chose batch after parallel (or after all série drafts). One **sim** authorizes **only** paths listed in the approval table; clear/reset `write_confirmed` after the batch (do not reuse stale gate for unlisted paths) |
 
-Parallel Task cap: **≤4** concurrent story drafts per `SPAWN.md`; wave or prefer série when N>4. If `subagents=none` or Task unavailable → **fallback** série **in-parent** (never hard-fail).
+Parallel Agent cap: **≤4** concurrent story drafts per `SPAWN.md`; wave or prefer série when N>4. If `subagents=none` or Agent unavailable → **fallback** série **in-parent** (never hard-fail).
 
 Silence / emoji / “ok” without **sim** is **not** approval.
 

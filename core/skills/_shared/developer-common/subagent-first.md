@@ -4,7 +4,7 @@ Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here o
 
 **Mandatory:** read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
-**Task `model` (Axis B):** when spawning, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` — **omit** the Task `model` parameter by default so the child uses the **same model as the parent session**. Do **not** conflate with Cursor Auto model or Memory Bank policy `auto`. Premium / alternate slug only after that contract’s gate + explicit user **sim**.
+**Agent `model` (Axis B):** when spawning, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` — **omit** the Agent `model` parameter by default so the child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Premium / alternate slug only after that contract’s gate + explicit user **sim**.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`
 
@@ -14,11 +14,11 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subag
 
 | Complexity | Action | Notes |
 |------------|--------|-------|
-| **trivial** | **in-parent** only | Always (RN02). No Task / children. |
+| **trivial** | **in-parent** only | Always (RN02). No Agent / children. |
 | **medium** / **complex** | Prefer up to **2** children when `subagents=native` | Scoped **paths** + end-of-pass **receipt** (`RECEIPT.md`). No guideline paste (RN03). |
-| **medium** / **complex** + `subagents=none` (or Task unavailable) | Same outcome **in-parent** (or documented handoff) | Safe **fallback** — never hard-fail (RN04). |
+| **medium** / **complex** + `subagents=none` (or Agent unavailable) | Same outcome **in-parent** (or documented handoff) | Safe **fallback** — never hard-fail (RN04). |
 
-Subagent-first = **preference + fallback**, never hard-require Task (RN01 / SPAWN).
+Subagent-first = **preference + fallback**, never hard-require Agent (RN01 / SPAWN).
 
 ---
 
@@ -28,9 +28,9 @@ Subagent-first = **preference + fallback**, never hard-require Task (RN01 / SPAW
 Classify task complexity
   ├─ trivial              → in-parent
   ├─ medium/complex
-  │    ├─ subagents=native and Task (or host equivalent) available
+  │    ├─ subagents=native and Agent (or host equivalent) available
   │    │    → spawn ≤2 children (paths + receipt); parent synthesizes
-  │    └─ else (subagents=none / no Task)
+  │    └─ else (subagents=none / no Agent)
   │         → fallback: in-parent (or handoff note) — same deliverable
   └─ always               → lazy-load SPAWN.md; do not paste guidelines into child prompts
 ```
@@ -62,7 +62,7 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C gate |
 | `subagents` | Capability name |
 | `in-parent` | Trivial path + fallback path |
-| `fallback` | Degrade when none / no Task |
+| `fallback` | Degrade when none / no Agent |
 | `receipt` | Child end-of-pass requirement |
 | `paths` | Scoped child payload |
 | `LANGUAGE.md` | Two surfaces; en-US spawn |
@@ -73,7 +73,7 @@ Canonical spawn contract (limits, enum honesty, orchestrate caps): `SPAWN.md` �
 
 ## Must not
 
-- Hard-fail when `subagents` is `none` or Task is missing
+- Hard-fail when `subagents` is `none` or Agent is missing
 - Spawn for **trivial** work
 - Exceed **2** developer children without user-approved wave
 - Paste guideline packs into child prompts

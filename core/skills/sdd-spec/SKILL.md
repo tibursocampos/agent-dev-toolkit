@@ -79,7 +79,7 @@ Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.m
 
 **Prior context** (chat, code-review, backlog, **feature siblings**, **promoted bank**): structured summary + max **3** gap questions - skip full questionnaire (`PIPELINE.md` section Prior context + Feature / story siblings). Apply **selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste a full PRD into prompts/handoffs — paths + short summaries only.
 
-**Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including `.cursor/plans/`), follow `PIPELINE.md` § **Classic PRD/PLAN promote** (`invocation_context=direct`): **Read** → synthesize PRD → confirm → `Write` under `features/.../PRD/`. Do **not** require `orchestrate-analyze` first. Prefer **promoted siblings and memory-bank** over re-asking.
+**Resolve-PRD / cited `.md`:** If the user cited a non-feature `.md` (including a host plan file), follow `PIPELINE.md` § **Classic PRD/PLAN promote** (`invocation_context=direct`): **Read** → synthesize PRD → confirm → `Write` under `features/.../PRD/`. Do **not** require `orchestrate-analyze` first. Prefer **promoted siblings and memory-bank** over re-asking.
 
 When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true. Prefer sibling/bank content over re-asking; still max **3** gap questions. Bank reads = named files only (never recurse-load the whole tree into context).
 

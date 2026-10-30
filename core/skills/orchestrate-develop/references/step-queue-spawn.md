@@ -97,11 +97,11 @@ Silence ≠ approval (RN01). See also § Step queue algorithm.
 
 ## Process — Spawn one step child (CA5)
 
-**SPAWN first:** load `SPAWN.md`; consult capability `subagents`. Prefer Task when `native`. If `subagents=none` or Task unavailable → **fallback** handoff to `/sdd-develop - <portable-plan-path> - Step N` (note in CONTINUITY / chat) — never hard-fail; parent still must not write app code.
+**SPAWN first:** load `SPAWN.md`; consult capability `subagents`. Prefer Agent when `native`. If `subagents=none` or Agent unavailable → **fallback** handoff to `/sdd-develop - <portable-plan-path> - Step N` (note in CONTINUITY / chat) — never hard-fail; parent still must not write app code.
 
-**Hard rule (native path):** one Task = one PLAN step = full `sdd-develop` contract.
+**Hard rule (native path):** one Agent = one PLAN step = full `sdd-develop` contract.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Task `model` by default — child uses the **same model as the parent session**. Do **not** conflate with Cursor Auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard PLAN steps per that contract; on **não** / silence, spawn without `model`. Never pick a costlier model alone.
+**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard PLAN steps per that contract; on **não** / silence, spawn without `model`. Never pick a costlier model alone.
 
 ### Canonical Shell boundary (REQ-012 / CA4 / CT6)
 
@@ -162,13 +162,13 @@ After the receipt has been validated, the child's already-persisted PLAN checkpo
 
 These artifacts remain distinct: the PLAN `Implementation progress` ledger and checkpoint are durable state and the operator-facing close; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another. Do not replace the step ledger with the stage-weight table.
 
-See also § Task child prompt skeleton + § Anti-bypass checklist.
+See also § Agent child prompt skeleton + § Anti-bypass checklist.
 
 ---
 
-## Task child prompt skeleton
+## Agent child prompt skeleton
 
-**SPAWN gate:** spawn Task only when `subagents=native`. Else **fallback** handoff — skip this skeleton.
+**SPAWN gate:** spawn Agent only when `subagents=native`. Else **fallback** handoff — skip this skeleton.
 
 Give each child:
 
@@ -179,7 +179,7 @@ Give each child:
 5. Follow the step's declared test policy: when tests are declared, run them and persist/validate `tests_run`; when tests are explicitly deferred, keep it false and record deferred/skipped. Then update PLAN; reset gates through the canonical helper and stop after this step
 5e. Apply the PLAN's mixed strategy and shared `sdd-develop/references/plan-contract.md`: deferred checks never count as passed or approve an intermediate step. A check may move to the final US consolidation step only when it does not gate the current step's acceptance. The final step maps acceptance criteria to tests/evidence, preserves unique coverage and valid STATE/EVD history, and runs evidence validation at the configured level before US/PLAN DoD.
 5a. After **sim**, the parent calls `Invoke-DevelopSessionGate.ps1` and obtains the one claim via the mode gate / ledger helper; the child verifies `status=claimed` and a matching opaque holder. No child reacquisition. **MUST NOT** inline session JSON mutators.
-5b. When level ≥ `cheap`: update `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Task children for verification)
+5b. When level ≥ `cheap`: update `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Agent children for verification)
 5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)
 5d. When touching C#: honor `csharp-patterns.md` signatures/invocations on Write (≤6 params **and** ≤160 chars inline; else one param per line; re-inline if CSharpier wraps without need)
 6. Return the canonical allowlisted projection: `{ planPath, step, status, files[], deletedFiles[]?, testsSummary, nextStep?, blockedReason? }`; emit `step` as a positive JSON integer and do not add fields. `deletedFiles[]` is optional and identifies removed paths whose parent directories remain under the authorized root while the leaf is absent.

@@ -41,13 +41,13 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Change the `sdd-develop` one-step-per-session contract
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Assume série vs paralelo without asking
-- Let parallel Task children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
+- Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Require memory-bank for Classic SDD / manual `sdd-*` (CA7 - gate is Orchestrated Delivery `orchestrate-*` only)
-- Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
-- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
-- Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
-- Paste guideline packs into Task child prompts
+- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
+- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
+- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
+- Paste guideline packs into Agent child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
 

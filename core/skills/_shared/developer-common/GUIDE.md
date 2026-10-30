@@ -75,7 +75,7 @@ SDD skills (`sdd-spec`, `sdd-plan`, `sdd-develop`) embed parts of this flow inli
 
 ---
 
-## Mapping to Cursor rules
+## Mapping to always-on rules
 
 | Step | Rule / skill |
 |------|----------------|

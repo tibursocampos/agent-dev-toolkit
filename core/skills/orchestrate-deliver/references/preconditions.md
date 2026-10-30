@@ -33,7 +33,7 @@ Same contract as O1 (`MEMORY-BANK.md`). Run after feature resolve, **before** mo
 | Missing/stale | Confirm -> create/refresh; status `created`/`refreshed` |
 | Gitignore | Repository only; global = no `.gitignore` edit |
 | CONTINUITY | Path + status only; phase/handoff still CONTINUITY-owned |
-| Children | Parallel draft Tasks get `memoryBankPath` read-only |
+| Children | Parallel draft Agent calls get `memoryBankPath` read-only |
 | Classic SDD | Memory-bank **not** required (CA7) |
 | End refresh | **No** full inventory (O2 does not change app code). Do **not** exit `fresh` if style changed / ARCH approved this feature |
 

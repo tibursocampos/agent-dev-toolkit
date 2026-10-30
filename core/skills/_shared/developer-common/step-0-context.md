@@ -40,7 +40,7 @@ Stack-specific commands and conventions remain with the routed stack skill. Do n
 
 ## 0.3. High-level task list
 
-Create a short tracked list (Cursor todos or equivalent) at the start:
+Create a short tracked list (host todo list or equivalent) at the start:
 
 1. Read `AGENTS.md` / `README.md` - `in_progress`
 2. Review guidelines (step 0.5)

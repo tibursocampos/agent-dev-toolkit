@@ -58,7 +58,7 @@ These are consumer-specific output contracts, not one shared wire format. Name t
 | O3 implementer relay (`sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks PLAN, session gates, and claim before reconciliation. |
 
 The finding, verifier, command, reduced developer-child, and O3 relay receipts
-are distinct contracts. A Task's terminal outcome (`done`, `blocked`, or
+are distinct contracts. An Agent's terminal outcome (`done`, `blocked`, or
 `failed`) is execution state, not a substitute for any receipt schema. Finding
 specialists must not wrap their finding blocks in the O3 relay allowlist.
 
@@ -72,7 +72,7 @@ specialists must not wrap their finding blocks in the O3 relay allowlist.
 | Relay `status: done|blocked|failed` | Execution outcome of an assigned stage | Validate independently from finding severity. |
 | Verifier `verifierStatus: pass|fail|skip` | Read-only verification outcome | Validate independently; `fail` blocks parent reconciliation, `skip` is not `pass`. |
 
-### Task outcome meaning by specialist role
+### Agent outcome meaning by specialist role
 
 The fields above are the complete top-level relay allowlist. Role and
 stage semantics are expressed through their values and the scoped assignment;
@@ -88,7 +88,7 @@ claim state before changing progress.
 | `database` / data design | The assigned database slice or migration work was delivered as scoped. | Required schema, vendor, or dependency input is unavailable. | The assigned work failed; state the cause. | Parent checks the step acceptance and applicable migration/build/test evidence. |
 | `sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, applicable scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
 
-`qa_checklist` is not a Task role and does not emit this relay receipt. Its
+`qa_checklist` is not an Agent role and does not emit this relay receipt. Its
 checklist bullets are parent-owned context in CONTINUITY or STORY, as defined
 in `ROSTER.md`.
 

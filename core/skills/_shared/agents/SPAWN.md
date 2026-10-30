@@ -1,6 +1,6 @@
 # Portable spawn contract (Orchestrated Delivery + developers)
 
-Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **Task model** (`SUBAGENT-MODEL.md`).
+Canonical contract for **when** and **how** to spawn specialist children across supported hosts. Orthogonal to **which** roles (`ROSTER.md`), **receipt shape** (`RECEIPT.md`), and **subagent model** (`SUBAGENT-MODEL.md`).
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
@@ -20,7 +20,7 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 
 **First sync does not change this tree.** Missing `preferences.json` is seeded with `orchestrator_mode` `adaptive` and does not ask the orchestration-mode question (`core/policy/orchestrator-session.md`). Work this contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays. The in-session `orchestrator adaptive` command stays.
 
-**Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
+**Mandatory Read:** the parent **must Read this file** before drafting a plan (plan mode or host plan file) that promises orchestration, Agent calls, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Agent calls/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
 
 Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file).
 
@@ -30,8 +30,8 @@ Read from `adapters/registry.json` (declared) and adapter `Get-Capabilities` (ef
 
 | Value | Meaning |
 |-------|---------|
-| `native` | Host exposes Cursor **Task** or a documented equivalent spawn API |
-| `none` | No Task/equivalent — use fallback paths below |
+| `native` | Host exposes a native subagent tool (for example **Agent**) or a documented equivalent spawn API |
+| `none` | No Agent/equivalent — use fallback paths below |
 
 - Type is a **string enum** (`native` \| `none`), not a boolean.
 - Missing key or unknown value → treat as `none` (safe degrade).
@@ -57,7 +57,7 @@ Prefer the host-native mechanism when effective `subagents` is `native`. Product
 
 ### Use only the current host row
 
-When spawning, use **only** the mechanism in the table row for the **current** host agent id. Never invoke another host’s spawn API (example: Cursor must not call `delegate_task`; Hermes must not call Cursor **Task**). Other rows exist for the portable map and honesty matrix only.
+When spawning, use **only** the mechanism in the table row for the **current** host agent id. Never invoke another host’s spawn API (example: Hermes must not call another host’s subagent tool). Other rows exist for the portable map and honesty matrix only.
 
 ### Antigravity effective capability
 
@@ -77,8 +77,8 @@ Need specialist work?
   │  (always; no spawn for noise)
   ├─ analysis spans multiple files / one-file might extend / any doubt /
   │  script-batch / long build-test / deep investigation / non-trivial planning
-  │    ├─ subagents == native → prefer Task / host equivalent (table above)
-  │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Task is absent
+  │    ├─ subagents == native → prefer Agent / host equivalent (table above)
+  │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Agent is absent
   │                             O1 flags: in-parent ANALYSIS/ARCH/SEC work (never CONTINUITY substitute)
   │                             O3: manual `/sdd-develop` handoff; parent stops and does not implement
   └─ *-developer trivial path → in-parent (always)
@@ -86,17 +86,17 @@ Need specialist work?
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `orchestrate-analyze` | Task (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
-| `orchestrate-deliver` | Task (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
+| `orchestrate-analyze` | Agent (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
+| `orchestrate-deliver` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
 | `sdd-plan` required-checklist acquisition | One bounded `split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
-| `orchestrate-develop` (O3) | Task (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
-| `code-review` multi-angle | Parallel specialist Tasks / host equivalents | Sequential in-parent angles |
+| `orchestrate-develop` (O3) | Agent (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
+| `code-review` multi-angle | Parallel specialist Agent calls / host equivalents | Sequential in-parent angles |
 | `*-developer` medium/complex | Up to **2** children | Same outcome in-parent |
-| Parent general chat (analysis / multi-file / long build-test) | Specialist Task when independent work is heavy | Same work in-parent |
+| Parent general chat (analysis / multi-file / long build-test) | Specialist Agent when independent work is heavy | Same work in-parent |
 
-`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Task, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
+`needs_frontend` / `needs_devops` stay CONTINUITY-only (no Agent, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
 
-**RN:** Subagent-first = **preference + fallback**, never hard-require Task. Parent stays orchestrator per `orchestrator-session` policy.
+**RN:** Subagent-first = **preference + fallback**, never hard-require Agent. Parent stays orchestrator per `orchestrator-session` policy.
 
 ## Minimal handoff payload (parent → child)
 
@@ -154,7 +154,7 @@ When spawning (native path):
 3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
 4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
-6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
+6. Agent `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).
 
 ## Post-change validation (child → parent)
@@ -174,10 +174,10 @@ Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not d
 | Context | Cap |
 |---------|-----|
 | `*-developer` children | **≤ 2** concurrent / per task wave |
-| `orchestrate-*` parallel Tasks | **≤ 4** concurrent (existing skill caps; wave if more) |
-| `qa_checklist` | **No** Task — CONTINUITY/STORY only (`ROSTER.md`) |
+| `orchestrate-*` parallel Agent calls | **≤ 4** concurrent (existing skill caps; wave if more) |
+| `qa_checklist` | **No** Agent — CONTINUITY/STORY only (`ROSTER.md`) |
 
-Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**; not Cursor Auto / not Memory Bank `auto`). Publish-layer `model: inherit` / omit-key is adapter honesty — orthogonal to this Task omit rule.
+Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `model` by default — **same model as parent session**; not a host auto model / not Memory Bank `auto`). Publish-layer `model: inherit` / omit-key is adapter honesty — orthogonal to this Agent omit rule.
 
 ## Receipt and synthesis
 
@@ -187,8 +187,8 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 
 ## Must not
 
-- Hard-fail when `subagents` is `none` or Task tool is unavailable
-- Mint `native` in registry without host Task/equivalent
+- Hard-fail when `subagents` is `none` or Agent tool is unavailable
+- Mint `native` in registry without host Agent/equivalent
 - Paste `_shared/*-guidelines/`, rules, or pipeline bodies into child prompts
 - Exceed developer ≤2 or orchestrate ≤4 caps without user-approved wave/série
 - Reuse a completed child invocation for a different topic, a different scope, or an already large context; claim a child process/context was terminated without a host-supported action
@@ -203,7 +203,7 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 | `core/policy/orchestrator-session.md` | Always-on parent/orchestrator policy |
 | `ROSTER.md` | Which specialist roles / `needs_*` |
 | `RECEIPT.md` | Receipt schema + refusal tokens (Caveman-scoped child returns) |
-| `SUBAGENT-MODEL.md` | Task `model` parameter policy (default = parent session model) |
+| `SUBAGENT-MODEL.md` | Agent `model` parameter policy (default = parent session model) |
 | `ROUTING.md` | Stack → `*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
 | `LANGUAGE.md` | Normative language matrix; en-US spawn; content-language resolution; no hard-coded artifact locale |
@@ -213,5 +213,5 @@ Model selection on Cursor Task: follow `SUBAGENT-MODEL.md` (omit `model` by defa
 
 | PRD | Covered here |
 |-----|----------------|
-| CA1 | Native vs fallback for orchestrate / code-review; no Task hard-fail |
+| CA1 | Native vs fallback for orchestrate / code-review; no Agent hard-fail |
 | CA2 | Developer ≤2; paths + receipt; no guideline paste; trivial in-parent; O3 `none` → manual `/sdd-develop` handoff |

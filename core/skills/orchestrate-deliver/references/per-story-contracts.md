@@ -102,15 +102,15 @@ The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask e
 
 **Série:** for each story S, run its story-file gate, spec, contestation, checklist when required, plan, and applicable approval gate in that order. **sim** does not skip an open question, contestation, or another story's gate. After the current story's applicable approval is recorded, recompute the eligible queue from canonical feature/story artifacts and dependencies; do not rely on a possibly stale `CONTINUITY.md` alone. Read the next eligible US/TS `STORY.md`, required siblings, and relevant feature context before starting its complete O2 cycle. Continue automatically without an extra “continue?” question. Stop for a material blocker, a decision or approval gate actually due, or when every story is closed. A previous story's approval never authorizes the next story's artifact writes; all per-story owner and write gates remain in force. A blocker affects only its dependent branch when other stories remain eligible.
 
-**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question or that has not passed contestation. Do not draft the plan before `REFINE/tasks.md` exists when the feature is medium or complex. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Task is unavailable, run série in-parent. Do not hard-fail.
+**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question or that has not passed contestation. Do not draft the plan before `REFINE/tasks.md` exists when the feature is medium or complex. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Agent is unavailable, run série in-parent. Do not hard-fail.
 
 Respect story **deps**: do not parallelize a story before its dependency stories have PRD+PLAN (or user explicitly waives). Waive-deps is for **story order** only — not for missing `SEC/` / `ARCH/` / `ANALYSIS`.
 
-See also § Contract reuse + § Task child prompt skeleton + § Per-story path layout.
+See also § Contract reuse + § Agent child prompt skeleton + § Per-story path layout.
 
 ---
 
-## Task child prompt skeleton (paralelo)
+## Agent child prompt skeleton (paralelo)
 
 Give each child:
 

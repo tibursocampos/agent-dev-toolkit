@@ -58,7 +58,7 @@ Load `ROSTER.md` + `spawn-map.md` when any row applies. Spawn **before** step 8 
 | **Problem / Need** + persistence / migration / schema | `database` | DDL and migration boundaries before TS split |
 | **Idea** → promoted to O1 after refine | Same as **New Feature** once intent reclassified | Specialists run only after scope is no longer "idea-only" |
 
-Optional (CONTINUITY note only, no Task): `needs_frontend`, `needs_devops`. Do **not** spawn stack `*-developer` agents in O1.
+Optional (CONTINUITY note only, no Agent): `needs_frontend`, `needs_devops`. Do **not** spawn stack `*-developer` agents in O1.
 
 ---
 
