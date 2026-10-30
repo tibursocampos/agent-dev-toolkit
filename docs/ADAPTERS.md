@@ -97,14 +97,14 @@ Rules: [`adapters/_shared/guard-rules.md`](../adapters/_shared/guard-rules.md) �
 
 | Agent | Wiring |
 |-------|--------|
-| Cursor | `preToolUse` Write/Edit/Shell/Delete + `beforeShellExecution`; `failClosed`; GuardCommon |
+| Cursor | None published. `preToolUse` and `beforeShellExecution` are empty arrays in the shipped `hooks.json`; `guard-pre-tool.ps1` is retired |
 | Claude | None. The adapter publishes no PreToolUse guard hook. Enforcement is the host permission model (`permissions.allow` / `permissions.ask`, sandbox), written by the settings merge |
 | Codex | PreToolUse + `agents/*.toml` |
 | Copilot | hooks `version:1` `preToolUse` |
 | OpenHands | `pre_tool_use` + `guard_pre_tool.sh` (fail-closed) |
 | ZCode | PreToolUse |
 | Grok | PreToolUse; `agents=true` → `InstallRoot/agents/` |
-| OpenCode | JS `tool.execute.before` throw; `agents=true` → `InstallRoot/agents/` |
+| OpenCode | None published. Marker plugin only; no `tool.execute.before` hook is installed. Host owns permissions; `agents=true` → `InstallRoot/agents/` |
 | Antigravity | `hooks=true`; `config/hooks` PreToolUse |
 | Hermes | `hooks=true` + `plugin=true`; plugin `agent-dev-toolkit-guard` + `agent-hooks`; keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call`; **never** SOUL / tokens / gateway |
 
@@ -124,7 +124,7 @@ Most adapters declare `subagents: native` (host product docs), including **Antig
 | Key artifacts | `skills/`, `rules/*.mdc`, `AGENTS.md`, `agents/*.md`, `hooks/*.ps1`, `hooks.json`, `sdd/sessions`, `sdd/manifest.json` |
 | Content source | `core/` only |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent cursor` — **no** Cursor trust UI, **no** live `~/.cursor` writes in CI |
-| Path/secrets guard | `preToolUse` (`Write\|StrReplace\|Delete\|Shell`) + `beforeShellExecution` → `guard-pre-tool.ps1` (`failClosed`); shared rules in `adapters/_shared/` |
+| Path/secrets guard | None published. `preToolUse` and `beforeShellExecution` are empty arrays in the shipped `hooks.json`; `guard-pre-tool.ps1` is retired. See [HOOKS.md](HOOKS.md) |
 
 ### Publish layout (under InstallRoot)
 
@@ -134,8 +134,8 @@ Most adapters declare `subagents: native` (host product docs), including **Antig
 | `rules/*.mdc` | `Publish-Policy` from `core/policy/` (`.md` → `.mdc`; no orphan `.md` rules) |
 | `AGENTS.md` | `Publish-Router` from `core/router/AGENTS.md` |
 | `agents/*.md` | `Publish-Agents` from `core/agents/` (roster: repo-analyst, architect, database, security, shell-runner) |
-| `hooks/*.ps1` | `Publish-Hooks` from `adapters/cursor/assets/hooks/` (includes `guard-pre-tool.ps1` + published `GuardCommon.ps1`) |
-| `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`; invalid JSON fail-closed). Wires path/secrets `preToolUse` + `beforeShellExecution` |
+| `hooks/*.ps1` | `Publish-Hooks` from `adapters/cursor/assets/hooks/` (trace, context, and plan hooks; no guard script) |
+| `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`; invalid JSON fail-closed). Wires `postToolUse` and `subagentStop` (`emit-trace.ps1`), `beforeSubmitPrompt` (`context-before-prompt.ps1`), and `afterFileEdit` (`plan-after-edit.ps1`); `preToolUse` and `beforeShellExecution` stay empty |
 | `sdd/sessions/` + `sdd/manifest.json` | `Get-SddRoot -Prepare` (seed manifest only when absent) |
 
 ### Sync / validate (CI-safe)
@@ -168,7 +168,7 @@ Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merg
 | Fixture override | `-InstallRoot <path>` (in-repo fixture for CI; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true; `agents` = false |
 | Key artifacts | kebab skills + `skills.json`, GUARDRAILS / `dev_persona` from core, managed `AGENTS.md` / `GEMINI.md`, `config/hooks` PreToolUse guard |
-| `Publish-Hooks` | Writes `config/hooks/hooks.json` + `guard-pre-tool.ps1` (matcher `write_to_file\|replace_file_content\|multi_replace_file_content\|run_command` → `{ decision, reason }`). Legacy bridge untouched. Sidecars/Automations OOS. |
+| `Publish-Hooks` | Writes `config/hooks/hooks.json` + `guard-pre-tool.ps1` (matcher `.*`; the script decides per tool name → `{ decision, reason }`). Legacy bridge untouched. Sidecars/Automations OOS. |
 | `Publish-Agents` | **No-op** (`agents=false`): Success/Implemented. Host spawn is `invoke_subagent` only — no custom agent markdown files. |
 | `Invoke-SmokeValidate` | Filesystem-only under InstallRoot (kebab skills, `skills.json`, GUARDRAILS, `dev_persona`, managed AGENTS/GEMINI, hooks when capable). Legacy bridge not gated. |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (core skill folders, `dev_persona`, managed plugin dir, managed `skills.json` entry, managed markdown blocks, toolkit `config/hooks` files). Preserves alien skills / legacy bridge. Preserves `sdd/sessions` + `sdd/manifest.json`. |
