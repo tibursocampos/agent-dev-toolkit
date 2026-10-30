@@ -7,11 +7,12 @@
 | -1b | Caveman Lite when active | `CAVEMAN.md` |
 | -1 | Pipeline + STORAGE; `invocation_context`; load provenance | `PIPELINE.md`, `STORAGE.md`, `INVOCATION-CONTEXTS.md`, `CONTRACT-PROVENANCE.md` |
 | 0 | Workspace; detect stack; resolve NNN / US01 default | `STORAGE.md` |
-| 1 | Requirements (Prior ≤3 gaps; selective retrieval; required siblings STOP) | `SELECTIVE-RETRIEVAL.md`; `PIPELINE.md` § Prior |
-| 2–5 | Confirm repo, explore, clarify ≤5, technical analysis | — |
+| 1 | Requirements (gap questions in question blocks of ≤5; selective retrieval; required siblings STOP) | `SELECTIVE-RETRIEVAL.md`; `PIPELINE.md` § Prior |
+| 2–5 | Confirm repo, explore, clarify (question blocks of ≤5), technical analysis | — |
 | 5.5 | Challenge vagueness + **product depth** + REQ (`agreed` vs `invented`); no how/code | `references/challenge-vagueness.md`, `references/req-tracking.md`; lazy `feature-altitude.md`, `invest-and-story-quality.md`, `gherkin-budget.md`, `clarify-depth.md`, `product-evidence-lite.md`; `anti-task-shatter.md` only if titles task-shaped; `CONTRACT-PROVENANCE.md` |
-| 6.75 | Confirm before write (**sim**). **sim** does not close `open_question` | `PIPELINE.md` |
-| 6.9 | Open-question gate on story siblings (STORY, required ANALYSIS / ARCH / SEC). Ask every open question. The cap of 3 gap questions does not apply | `readiness-severity.md` § Open-question gate |
+| 6.75 | Approve PRD content (`aprovar` / `ajustar` / `cancelar`). Approval does not authorize a write | `PIPELINE.md` |
+| 6.8 | Open-question gate on story siblings (STORY, required ANALYSIS / ARCH / SEC). Ask every open question in question blocks of ≤5. **sim** does not close `open_question` | `readiness-severity.md` § Open-question gate |
+| 6.9 | Confirm before write (**sim**) | `PIPELINE.md` |
 | 7 | Write PRD only when step 6.9 is clear (Agent + sim); portable paths | `references/template-usage.md`, `references/filename-numbering.md`, `references/storage-gitignore.md` |
 | 7.5 | Structural validate (`validate-prd`; CHANGE when brownfield) | `references/validate-prd.md`, `references/validate-change.md` |
 
