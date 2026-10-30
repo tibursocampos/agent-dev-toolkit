@@ -62,7 +62,7 @@ Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo d
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 45 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 46 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/sdd/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.

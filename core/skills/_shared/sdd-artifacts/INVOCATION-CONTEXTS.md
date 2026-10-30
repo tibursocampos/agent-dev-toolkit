@@ -32,6 +32,7 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 | `sdd-plan` | `direct` unless parent handoff marks `orchestrated` |
 | `sdd-develop` | `direct` unless O3 child / plan-scoped develop session from orchestrator |
 | `refine-story` | `direct` unless parent handoff marks `orchestrated` |
+| `requirement-review` | `direct` unless parent handoff marks `orchestrated` |
 | `memory-bank-init` | `direct` unless Step 0 / Step N gate from `orchestrate-*` |
 
 ## Detection (deterministic)

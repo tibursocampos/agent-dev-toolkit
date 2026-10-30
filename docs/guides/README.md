@@ -71,6 +71,8 @@ Orchestrated Delivery is the complete path. O2 loads `sdd-spec` then `sdd-plan`.
 
 A direct `/sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/refine-story` remains valid for a single product item, or when O2 stops on open clarification B/I. Those are exits from the complete path, not a second equal product.
 
+`/requirement-review` checks a feature or story before `sdd-spec`, with `--feature` or `--tech`. It is a check, not a separate product path.
+
 | Path | When | Page |
 |------|------|------|
 | Orchestrated Delivery | Feature, specialists, several stories | [sessions/01](../sessions/01-orchestrated-delivery.md) |

@@ -32,7 +32,7 @@
 
 If guardrails fail, ask for missing detail - do not publish incomplete docs.
 
-**Clarification readiness (REQ-004–006):** open questions carry **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`). Any open **B**/**I** → status `NEEDS_CLARIFICATION`; do not hand off as ready-for-PRD. Presence ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed` / PLAN Complete (REQ-006).
+**Clarification readiness (REQ-004–006):** open questions carry **B** \| **I** \| **MINOR** (`clarify-depth.md` / `readiness-severity.md`). Status follows `readiness-severity.md`; do not hand off as ready-for-PRD while any question is unanswered. Presence ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed` / PLAN Complete (REQ-006).
 
 **Mode isolation (REQ-004):** only the active mode playbook loaded; envelope `mode` matches (`mode-isolation.md`).
 

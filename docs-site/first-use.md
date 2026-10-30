@@ -29,6 +29,7 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `sdd-develop` | Exactly one PLAN step | `/sdd-develop - features/NNN-slug/US01/PLAN/PLAN_001_slug.md - Step 1` |
 | `read-sdd-artifact` | One FEATURE, STORY, PRD, or PLAN path into `source_context` | `/read-sdd-artifact - features/NNN-slug/FEATURE.md` |
 | `refine-story` | One bug, user story, or technical story | `/refine-story` |
+| `requirement-review` | Challenge one feature or story before SDD: `--feature` or `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | A dependency checklist under an existing story | `/split-story-checklist` |
 
 ## Implementation

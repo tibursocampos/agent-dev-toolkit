@@ -1,6 +1,6 @@
 # 03 — Backlog shape
 
-Two skills shape a backlog item. Orchestrated Delivery already performs the product rules **inside** [O1](01-orchestrated-delivery.md) without invoking these skills. Standalone use is for someone who is writing tasks or one story and is not running a feature through O1–O3.
+Three skills shape a backlog item: `refine-story`, `requirement-review`, and `split-story-checklist`. Orchestrated Delivery already performs the product rules **inside** [O1](01-orchestrated-delivery.md) without invoking these skills. Standalone use is for someone who is writing tasks or one story and is not running a feature through O1–O3.
 
 ## What O1 already does
 
@@ -20,6 +20,7 @@ O1 does not ask “feature, tech, or split?”. That question belongs only to a 
 |-----------|--------|
 | Product person shaping one bug, user story, or technical story, no feature delivery | `/refine-story` |
 | That item needs a dependency checklist | `/split-story-checklist` |
+| A feature or story has open questions before SDD, or a technical story must be checked against the repository | `/requirement-review --feature` or `--tech` |
 | O2 stopped because clarification **B** or **I** is still open | `/refine-story` (and/or return to O1). Do not write PRD/PLAN until READY |
 | O1 intent classified the input as one informal item or an idea | Early handoff to `/refine-story`, then re-enter O1 only if the result is multi-story or needs specialists |
 | Normal feature through analyze → deliver → develop | Neither skill is required |
@@ -56,6 +57,23 @@ While **B** or **I** remain, do not hand off to `sdd-spec`.
 /orchestrate-analyze - features/NNN-slug
 /sdd-spec - features/NNN-slug/US01/STORY.md
 ```
+
+## `requirement-review`
+
+Trigger: `/requirement-review`, or `requirement-review --feature` / `--tech`.
+
+**Mode is mandatory and exactly one per run.** If the invoke names neither mode or both, the skill asks once and loads no playbook.
+
+| Mode | Invoke | Checks |
+|------|--------|--------|
+| `--feature` | `--feature`, `feature`, `1` | Actor, flow, rules, error and permission cases, data ownership, states, rollout; acceptance criteria split into atoms (`CA-002.a`) |
+| `--tech` | `--tech`, `tech`, `2` | Named contracts, endpoints, events, and data flows searched in the repository; API standards applied by reference; technical follow-ups for `sdd-spec` |
+
+Outcome: a review report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, open questions with severity (B, I, MINOR) and one decision owner each, and Q&A entries. Persistence: `features/NNN-slug/USnn/REFINE/requirement-review-<mode>.md` beside the story, with the Q&A history in `REFINE/qa-history.md`; shortcut `docs/backlog/<slug>-requirement-review-<mode>.md` when no story folder exists. Writes wait for `sim`.
+
+`refine-story` runs this review at step 4a before it hands off to `sdd-spec`: `--feature`, then `--tech` when the story touches a repository. Standalone use is the same.
+
+The skill never writes code and never decides a product question by assumption.
 
 ## `split-story-checklist`
 

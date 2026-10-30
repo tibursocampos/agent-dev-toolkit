@@ -316,6 +316,42 @@
       ]
     },
     {
+      "id": "requirement-review-shared-base",
+      "skill": "requirement-review",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "--feature",
+        "--tech",
+        "Status:",
+        "NEEDS_CLARIFICATION",
+        "readiness-severity.md",
+        "qa-history.md",
+        "REFINE/",
+        "skill-boilerplate.md",
+        "Must not",
+        "Never by default"
+      ]
+    },
+    {
+      "id": "requirement-review-feature-playbook",
+      "skill": "requirement-review",
+      "files": ["references/feature.md"],
+      "mustContain": ["Load only when mode", "ACCEPTANCE_GAP", "CA-002.a", "Product", "Engineering", "UX"]
+    },
+    {
+      "id": "requirement-review-tech-playbook",
+      "skill": "requirement-review",
+      "files": ["references/tech.md"],
+      "mustContain": ["Load only when mode", "not-found", "api-standards", "non-blocking"]
+    },
+    {
+      "id": "req-refine-step-requirement-review",
+      "skill": "refine-story",
+      "files": ["SKILL.md", "references/command.md"],
+      "match": "any-file",
+      "mustContain": ["requirement-review", "4a"]
+    },
+    {
       "id": "req-009-sdd-spec-related-write",
       "skill": "sdd-spec",
       "files": ["SKILL.md", "references/template-usage.md"],

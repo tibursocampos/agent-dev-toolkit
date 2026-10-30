@@ -173,6 +173,15 @@ split-story-checklist - <story-or-backlog-path>
 
 Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it and the skill asks once. It does not assume `feature`. Detail: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
+### Challenge a requirement (`requirement-review`)
+
+Run it before SDD when a feature or story has open questions. Mode is mandatory: `--feature` (functional gaps and acceptance criteria) or `--tech` (contracts and flows checked against the repository). Output: a report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, and Q&A entries under `REFINE/`. Detail: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
+
+```text
+requirement-review --feature - features/NNN-slug/US01/STORY.md
+requirement-review --tech - features/NNN-slug/US01/STORY.md
+```
+
 ### API standards vs typed clients
 
 ```text

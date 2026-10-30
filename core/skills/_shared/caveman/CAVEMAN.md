@@ -118,7 +118,7 @@ Resume caveman after the clear part is done.
 | `help-skills`, `commit`, `push`, `open-github-pr` | **NEVER** — excluded regardless of setting |
 | `sdd-spec`, `sdd-plan` | **LITE** |
 | `orchestrate-analyze`, `orchestrate-deliver` | **LITE** |
-| `document-plan`, `refine-story`, `memory-bank-init` | **LITE** |
+| `document-plan`, `refine-story`, `requirement-review`, `memory-bank-init` | **LITE** |
 | `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
 | `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage`, `run-tests` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |

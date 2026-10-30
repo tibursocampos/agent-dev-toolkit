@@ -62,6 +62,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 | `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
 | `read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
 | `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
+| `requirement-review` | Exactly one mode: `--feature` or `--tech`; asks once when missing (no silent default). Report and Q&A writes only after `sim`. Never edits code. `--tech` searches the repository and does not guess. |
 | `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
 | `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
 | `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |

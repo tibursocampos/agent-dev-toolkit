@@ -71,6 +71,7 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 | Complete feature path | `orchestrate-analyze` → `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story) → `orchestrate-develop` (one `sdd-develop` step per child) |
 | One story already clear | `sdd-spec` → `sdd-plan` → `sdd-develop` (same contracts, without the orchestrator) |
 | One backlog item only | `refine-story` (mode required). Feature analysis applies that scorecard itself |
+| Challenge a feature or story before SDD | `requirement-review` (`--feature` or `--tech`, mode required) |
 | Catalog | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
 | Small stack change | `developer` or `dotnet-developer` / `react-developer` / … |
 | Review | `code-review` (asks single vs multi-angle) |
@@ -101,7 +102,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `ada
 | Group | Examples |
 |-------|----------|
 | Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| Backlog Refine | `refine-story`, `split-story-checklist` |
+| Backlog Refine | `refine-story`, `requirement-review`, `split-story-checklist` |
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Docs RAG | `document-plan`, `document-implement` |

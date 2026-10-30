@@ -38,7 +38,7 @@
       "The toolkit runtime is PowerShell and agent-neutral Markdown/policy; YAML is used for GitHub Actions configuration.",
       "MkDocs Material and mkdocs-static-i18n are limited to docs-site; install through docs-site/requirements-docs.txt.",
       "Validation is PowerShell assertions and fixture smokes; validate-core.ps1 is the local core suite.",
-      "The registry contains 10 host adapters and the canonical skills catalog contains 45 invocable skills.",
+      "The registry contains 10 host adapters and the canonical skills catalog contains 46 invocable skills.",
       "No SQL schema, OpenAPI/Swagger specification, or UI component map was detected in the reviewed inventory."
     ]
   }

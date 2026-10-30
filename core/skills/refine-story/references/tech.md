@@ -2,7 +2,7 @@
 
 **Load only when refine mode = `tech`.** Do not load `feature.md` or `split.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine for technical work. **Do not** create a parallel clarify skill (REQ-007).
+Mode playbook: local markdown refine for technical work, no remote tracker. Repository-grounded technical challenge is owned by `requirement-review --tech`, which runs at step 4a.
 
 ## Scope
 
@@ -42,7 +42,7 @@ Follow `technical-story.md` **Output template** and **Writing guidelines**.
 
 Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms at score time. For Technical Story, Who/Job/Outcome is **`n/a`** — still score Product depth via Valuable + AC budget (`invest-and-story-quality.md`). Evidence omit OK (`product-evidence-lite.md`).
 
-Refresh envelope `status` from open B/I (`interaction-envelope.md` + `readiness-severity.md`).
+Refresh envelope `status` per `readiness-severity.md` (envelope shape: `interaction-envelope.md`).
 
 ### 5. Validation (chat-only)
 

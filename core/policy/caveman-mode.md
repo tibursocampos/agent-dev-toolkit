@@ -40,7 +40,7 @@ Also accept `stop caveman` / `normal mode` as off.
 
 **Tokenizer hygiene:** no invented abbrevs (`cfg`/`impl`/`req`/`res`/`fn`); no prose `→`; keep real tech terms exact.
 
-**Lite** (planning skills: `sdd-spec`, `sdd-plan`, orchestrate analyze/deliver, document-plan, refine-story, memory-bank-init): strip framing only; keep questions, drafts, headers.
+**Lite** (planning skills: `sdd-spec`, `sdd-plan`, orchestrate analyze/deliver, document-plan, refine-story, requirement-review, memory-bank-init): strip framing only; keep questions, drafts, headers.
 
 **Full / Ultra** (develop, review, ops, stack developers, general chat): telegraphic fragments; pattern `[thing] [action] [reason]. [next].`; no preambles/pleasantries/tool narration. Ultra = max terseness when unambiguous.
 

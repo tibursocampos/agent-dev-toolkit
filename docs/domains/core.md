@@ -29,7 +29,7 @@ Top-level folders:
 | Group | Folders |
 |-------|---------|
 | SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| Backlog shape | `refine-story`, `split-story-checklist` |
+| Backlog shape | `refine-story`, `requirement-review`, `split-story-checklist` |
 | Orchestration | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer` |
 | Product / design | `blip-plugin-developer` |
@@ -176,7 +176,7 @@ Contract: [`INVOCATION-CONTEXTS.md`](../../core/skills/_shared/sdd-artifacts/INV
 
 Do **not** invent a third context. Host IDE mode (Agent/Plan/Ask) is **not** an invocation context.
 
-**Defaults when slash-invoked:** `orchestrate-*` → `orchestrated`; `sdd-spec` / `sdd-plan` / `sdd-develop` / `refine-story` / `memory-bank-init` → `direct` unless a parent handoff marks `orchestrated`.
+**Defaults when slash-invoked:** `orchestrate-*` → `orchestrated`; `sdd-spec` / `sdd-plan` / `sdd-develop` / `refine-story` / `requirement-review` / `memory-bank-init` → `direct` unless a parent handoff marks `orchestrated`.
 
 **Detection (prefer explicit):** handoff/`invocation_context` field → spawn child of orchestrate → any `orchestrate-*` body → else `direct`. Record `invocation_context` on receipts when produced.
 
@@ -249,6 +249,10 @@ When procedural detail outgrows a thin skill body:
 
 **FAIL** if invocable skill lacks Lazy-load / Never-by-default, or if `reference.md` is **>150** lines without a `references/` or `reference/` split. Agents must not glob all section files at skill start. Thin skills may keep a short unsplit `reference.md` (≤150 lines).
 
+#### `requirement-review` modes (`--feature` / `--tech`)
+
+Folder: `core/skills/requirement-review/`. Shared base in `SKILL.md`; one mode playbook per run (`references/feature.md` or `references/tech.md`). Output: `REFINE/requirement-review-<mode>.md` beside the story, Q&A in `REFINE/qa-history.md`, status `READY` or `NEEDS_CLARIFICATION` per `readiness-severity.md`. `--tech` applies `api-standards` by reference and never writes code. Called by `refine-story` at step 4a. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
+
 #### `refine-story` modes (`feature` / `tech` / `split`)
 
 Folder: `core/skills/refine-story/`. Modes are mandatory playbooks for a **standalone** invoke (one product item, or open clarification B/I). O1 applies the scorecard rubric without asking for a mode. See [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
@@ -295,6 +299,7 @@ Item templates (one at a time): `user-story.md`, `technical-story.md`, `bug.md`;
 |-------|-----------------|-----------------|
 | `orchestrate-analyze` | Synthesis (`references/story-synthesis.md`) | Gates A–C: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4; fail → keep `draft`, no human **sim** |
 | `refine-story` | Scorecard Step 4 (+ mode playbook) | Product depth band + AC budget; outcome-shaped titles |
+| `requirement-review` | Atomized criteria (`--feature`); repository grounding and API standards by reference (`--tech`) | Open questions carry B/I/MINOR and one decision owner; technical follow-ups never block READY |
 | `split-story-checklist` | Before Write when titles task-shaped | Emit **SMART tasks** only — never US-per-file (`anti-task-shatter` RN01) |
 | `sdd-spec` | Step 5.5 `references/challenge-vagueness.md` | Product depth on FEATURE/STORY siblings + PRD metrics/MoSCoW/Severity; lazy norms; no how/code |
 | `sdd-plan` | Steps 2–4 when titles task-shaped | Anti file-named PLAN steps (`story-sizing` / `anti-task-shatter`) |

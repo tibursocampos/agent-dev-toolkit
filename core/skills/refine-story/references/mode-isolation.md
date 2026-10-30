@@ -1,6 +1,6 @@
 # Mode isolation (feature | tech | split)
 
-**REQ-004 / CA2 / CT2.** Load **exactly one** mode playbook after Step 0.5. Never preload the other two. Do **not** invent a fourth product mode or a parallel `clarify` / `feature-refinement` skill (REQ-007).
+**REQ-004 / CA2 / CT2.** Load **exactly one** mode playbook after Step 0.5. Never preload the other two. Do **not** invent a fourth product mode or a parallel requirement-challenge skill; challenge work stays in `requirement-review`.
 
 ## Isolation matrix (observável)
 
@@ -28,7 +28,7 @@ Pick any two of `{feature, tech, split}` and verify:
 - [ ] Each invocation loads **only** its playbook path
 - [ ] Prompt prefix / envelope `mode` differ between the two
 - [ ] Type-template set does not overlap incorrectly (e.g. tech never loads `user-story.md`)
-- [ ] No `core/skills/clarify/` or `feature-refinement.md` created
+- [ ] No second requirement-challenge skill folder and no `feature-refinement.md` created
 
 ## Pointers
 

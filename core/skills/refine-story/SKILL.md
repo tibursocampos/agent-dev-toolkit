@@ -72,6 +72,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Anti-task-shatter (outcome-shaped titles) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Clarify depth + severity B/I/MINOR | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |
 | Readiness READY / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
+| Requirement review before handoff (step 4a; owned by `requirement-review`) | `{{TOOLKIT_ROOT}}/skills/requirement-review/SKILL.md` |
 | Finding format (id, severity, type, evidence, recommendation) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refine-story/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/<section>.md` |
@@ -142,6 +143,7 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 | Step | Section |
 |------|---------|
 | Quality scorecard (Product depth + AC budget) | `references/scorecard-rubric.md` + `references/scorecard-template.md`; lazy `gherkin-budget.md`, `invest-and-story-quality.md`, `product-evidence-lite.md` |
+| Requirement review (step 4a, before handoff) | `requirement-review` skill: `--feature`, then `--tech` when the story touches a repository. Pointer only; the review owns its playbooks |
 | Envelope + Q&A + READY | `references/interaction-envelope.md`; `references/qa-history.md`; consume `readiness-severity.md` (dual-plane; do not rewrite taxonomy) |
 | Validation | `references/guardrails.md` |
 | Optional persistence | `references/persistence.md` (+ Q&A history path) |
@@ -157,7 +159,7 @@ Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Pro
 - Create or update tracker work items (or any remote board) — file-based persistence only
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards
 - Preload unused mode playbooks (`feature` / `tech` / `split` other than the chosen one) — REQ-004
-- Create a new clarify / `feature-refinement` skill folder or clone a clarify skill as a parallel skill — REQ-007; enrich **this** skill only
+- Add a second requirement-challenge skill beside `requirement-review`; challenge work is owned there (one skill, two modes). Extend that skill instead
 - Write OS absolute paths or InstallRoot embeds into envelopes, Q&A history, or handoffs — portable only (REQ-006 / RNF-002)
 - Write `docs/backlog/` before the language question when choosing shortcut
 - Duplicate full PRD/PLAN templates - hand off to `sdd-spec` / `sdd-plan` or O1
