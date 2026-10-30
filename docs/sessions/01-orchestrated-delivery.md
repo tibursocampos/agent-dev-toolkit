@@ -169,7 +169,7 @@ Step 0 memory bank runs again, then preconditions:
 
 - Discover `US*/STORY.md` and `TS*/STORY.md`. Skip a story that already has both PRD and PLAN unless the operator asks to refresh.
 - **Stop writing** if a required `ANALYSIS`, `ARCH`, or `SEC` folder is missing. Return to O1. A few gap questions do not replace that stop.
-- **Stop that story** if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. Outside those gates, **MINOR** may stay as a recorded assumption. **sim** does not close a question. Folder presence is not “ready”. Readiness is not the same flag as `step_confirmed`. A stuck story does not erase the others.
+- **Stop that story** if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. **MINOR** does not proceed on an assumption at any gate (see [core readiness](../domains/core.md#clarification-readiness-b--i--minor)). **sim** does not close a question. Folder presence is not “ready”. Readiness is not the same flag as `step_confirmed`. A stuck story does not erase the others.
 
 Open B/I is `NEEDS_CLARIFICATION`. The handoff is `/refine-story` and/or `/orchestrate-analyze` on the feature path. The operator answers the question and re-enters O2. That is the case where standalone refine is pulled back in: a blocking question, not the normal way to start a feature.
 

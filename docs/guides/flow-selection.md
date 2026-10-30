@@ -36,8 +36,8 @@ An open **B** (blocker), **I** (important), or **MINOR** item keeps the status a
 
 ## Write limits
 
-- Without a `features/NNN-slug/` folder, the canonical flow does not exist. Do not create artifacts outside the `features/` tree.
-- `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
+- Canonical PRD and PLAN paths live under `features/NNN-slug/`. Do not create artifacts outside the `features/` tree.
+- Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
 - `docs/backlog/` is a write shortcut for `refine-story`, `requirement-review`, and `split-story-checklist`. It is not a canonical source for PRD or PLAN.
 
 ## Sessions and gates

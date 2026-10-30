@@ -31,7 +31,7 @@ After sync, the published router (`core/router/AGENTS.md`) prefers **parallel sp
 
 ## Internal contracts
 
-REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B/I), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
+REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B, I, MINOR), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
 
 ## Prerequisites
 
@@ -147,7 +147,7 @@ Analyze classifies the request, asks, sets `needs_*`, calls specialists when fla
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You answer **sim** before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
 
-Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). Outside those gates, open **B** or **I** stops PRD/PLAN writes (`NEEDS_CLARIFICATION`) and **MINOR** may remain. Readiness is not `step_confirmed`. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`. Rule owner: [core readiness](../domains/core.md#clarification-readiness-b--i--minor). Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
 
 Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
 
@@ -227,7 +227,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**45** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**46** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

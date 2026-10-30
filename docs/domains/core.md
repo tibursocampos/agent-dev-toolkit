@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 45 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 46 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -118,14 +118,14 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 |----------|---------------|
 | **B** (Blocker) | Yes |
 | **I** (Important) | Yes |
-| **MINOR** | No (may remain with a recorded assumption) |
+| **MINOR** | Yes |
 
 | Status | Meaning |
 |--------|---------|
-| **READY** | No open **B** or **I** |
-| **NEEDS_CLARIFICATION** | Open **B** or **I** at a handoff boundary → **STOP** Write; typed handoff |
+| **READY** | No unanswered **B**, **I**, or **MINOR** question |
+| **NEEDS_CLARIFICATION** | Any unanswered **B**, **I**, or **MINOR** question at a handoff boundary → **STOP** Write; typed handoff |
 
-**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper treats open **B**/**I** as `NEEDS_CLARIFICATION`. It does not change the table above.
+**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper treats open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`. It does not change the table above.
 
 Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. **sim** does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
 

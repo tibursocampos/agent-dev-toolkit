@@ -7,11 +7,11 @@ This guide describes the backlog refinement flow: how an informal product item b
 1. `refine-story` writes the item: `STORY.md` with BDD criteria and a quality note.
 2. In step 4a, `refine-story` calls `requirement-review` before the handoff. `requirement-review` challenges the item, asks the open questions, and writes only after `sim`.
 3. `split-story-checklist` breaks the story into a task checklist (backend, frontend, tests).
-4. `sdd-plan` calls `split-story-checklist` on its own for a feature of medium or complex size. A trivial feature does not generate a task file.
+4. In an O2 run, `sdd-plan` coordinates `split-story-checklist` for a feature of medium or complex size when `REFINE/tasks.md` is missing. A trivial feature does not generate a task file.
 
 `orchestrate-analyze` also uses the feature research of `refine-story` internally, in step 8c. For that reason, the orchestrated path does not need `refine-story` to be called beforehand.
 
-While a **B** or **I** item is open, do not hand off to `sdd-spec`. See the readiness rule in [flow-selection.md](flow-selection.md).
+While any **B**, **I**, or **MINOR** question is open, do not hand off to `sdd-spec`. See the readiness rule in [flow-selection.md](flow-selection.md).
 
 ## Where it writes
 

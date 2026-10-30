@@ -6,7 +6,7 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **45** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **46** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
 O roteamento depende do adaptador: o Copilot tem `router=false`, então a orientação de `core/router/AGENTS.md` fica embutida no `copilot-instructions.md` gerado; isso não é um id de skill separado nem prova de execução no host ao vivo.
 
@@ -51,7 +51,7 @@ Analyze classifica, pergunta, define `needs_*`, chama especialistas quando as fl
 
 Quando o analyze define greenfield ou `needs_domain` e não há estilo de ARCH, o papel de roster **architect** devolve um rascunho. Você responde **sim** antes de o estilo ser aprovado. Brownfield espelha o estilo existente. O pai permanece coordenador.
 
-Nos quatro gates de pergunta aberta, qualquer pergunta sem resposta, inclusive **MINOR**, impede o próximo artefato (`open_question`). Fora desses gates, clarificação aberta **B** ou **I** impede a escrita de PRD e PLAN (`NEEDS_CLARIFICATION`) e **MINOR** pode permanecer. Prontidão não é `step_confirmed`.
+Nos quatro gates de pergunta aberta, qualquer pergunta sem resposta, inclusive **MINOR**, impede o próximo artefato (`open_question`). READY exige nenhuma pergunta sem resposta de **B**, **I** ou **MINOR** em qualquer handoff. Prontidão não é `step_confirmed`.
 
 ### Classic SDD direto
 
@@ -115,7 +115,7 @@ A revisão grava um relatório e acrescenta ao histórico de perguntas em `REFIN
 
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
 
-Enquanto houver pergunta aberta no gate da feature, dos arquivos da story, do PRD ou do PLAN, inclusive **MINOR**, não faça handoff para `sdd-spec`. Fora desses gates, **MINOR** pode permanecer. Pronto para spec não é `step_confirmed`.
+Enquanto houver pergunta aberta no gate da feature, dos arquivos da story, do PRD ou do PLAN, inclusive **MINOR**, não faça handoff para `sdd-spec`. Enquanto houver pergunta sem resposta de **B**, **I** ou **MINOR**, não faça handoff para `sdd-spec`. Pronto para spec não é `step_confirmed`.
 
 `split-story-checklist` precisa de **Steps** estruturados já existentes, salvo quando `sdd-plan` a chama com `source=prd`. Aí ela monta grupos a partir do PRD. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Uma invocação direta pergunta o idioma da documentação uma vez, no idioma do chat, antes de escrever. Uma chamada orquestrada não pergunta. Uma feature `trivial` não ganha arquivo de tarefas só para satisfazer um gate, salvo quando quem chama é `sdd-plan`, que ainda recebe um passo. `medium` e `complex` precisam do checklist antes do handoff.
 

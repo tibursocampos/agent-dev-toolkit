@@ -194,7 +194,7 @@ O Passo 0 roda de novo, e então:
 
 - Descobre `US*/STORY.md` e `TS*/STORY.md`. Pula uma story que já tem PRD e PLAN, salvo se você pedir refresh.
 - Para de escrever se uma pasta obrigatória `ANALYSIS`, `ARCH` ou `SEC` faltar. Volta ao O1.
-- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. Fora desses gates, **MINOR** pode ficar. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
+- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. **MINOR** não procede por suposição em nenhum gate. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
 
 B/I aberto é `NEEDS_CLARIFICATION`. O handoff é `/refine-story` e/ou `/orchestrate-analyze` no caminho da feature. Você responde a pergunta e volta ao O2. O refine avulso volta aqui para uma pergunta bloqueante. Não é assim que uma feature começa no caso comum.
 

@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **45** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **46** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
@@ -51,7 +51,7 @@ Analyze classifies, asks, sets `needs_*`, calls specialists when flags require t
 
 When analyze sets greenfield or `needs_domain` and no ARCH style exists, the **architect** roster role returns a draft. You answer **sim** before the style is approved. Brownfield mirrors the existing style. The parent stays coordinator.
 
-On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). Outside those gates, open clarification **B** or **I** stops PRD and PLAN writes (`NEEDS_CLARIFICATION`) and **MINOR** may remain. Readiness is not `step_confirmed`.
+On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`.
 
 ### Direct Classic SDD
 
@@ -115,7 +115,7 @@ The review writes a report and appends to the question history under `REFINE/` b
 
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
 
-While an open question remains at the feature, story-file, PRD, or PLAN gate, including **MINOR**, do not hand off to `sdd-spec`. Outside those gates, **MINOR** may remain. Ready for a spec is not `step_confirmed`.
+While any unanswered **B**, **I**, or **MINOR** question remains, do not hand off to `sdd-spec`. Ready for a spec is not `step_confirmed`.
 
 `split-story-checklist` needs structured **Steps** already, unless `sdd-plan` calls it with `source=prd`. Then it builds groups from the PRD. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. A direct invoke asks documentation language once, in the chat language, before write. An orchestrated call does not ask. A `trivial` feature does not get a tasks file only to satisfy a gate, except when the caller is `sdd-plan`, which still gets one step. `medium` and `complex` need the checklist before handoff.
 

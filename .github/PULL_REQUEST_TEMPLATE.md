@@ -21,7 +21,7 @@ Parity with `.github/workflows/validate-toolkit.yml` (as applicable to the chang
 - [ ] `.\scripts\validation\Assert-SyncAllowUserHomeForward.ps1` (when sync/home-guard paths change)
 - [ ] CI smokes relevant to the change pass locally:
   - [ ] `Invoke-AdapterCiSmoke -Adapter <id>` for each adapter touched
-- [ ] New/renamed skills appear in `docs/SKILLS.md` and README Skills table (**36** skills)
+- [ ] New/renamed skills appear in `docs/SKILLS.md`
 - [ ] No secrets or org-only credentials in the diff
 - [ ] No new links to `features/**` story paths in public docs (SPAWN: `docs/SPAWN.md` / `core/skills/_shared/agents/SPAWN.md`)
 
