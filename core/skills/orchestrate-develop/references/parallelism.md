@@ -48,6 +48,8 @@ Ask in the user chat language before any parallel spawn — copy in § Safe para
 
 Child prompt **must** include: `planPath`, `step`, `tasksPath`, `memoryBankPath` (read-only), Prior-context paths including `ARCH|SEC|ANALYSIS` when present, and “load develop SESSION scoped per SESSION.md (PLAN or PLAN+step)”. Do not attach the full PRD.
 
+Before each parallel spawn, the parent writes that child's receipt allowlist inputs to the run scratch folder (never the repository); location and schema are in `step-queue-spawn.md` § Receipt validation and safe relay.
+
 If unsure about file independence -> **série**. Concurrent parallel Agent cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Agent unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
 
 **Same-PLAN scope rule:** if any `plan-{planHash}-step-*.json` exists for the PLAN, every spawn for that PLAN (including later serial ones) **must** use PLAN+step session files - do not mix with `plan-{planHash}.json`.

@@ -21,6 +21,10 @@ Use the canonical receipt allowlist in
 `blockedReason`. Reject unknown fields and values that fail that matrix;
 normalize portable paths before comparison and bound all summaries.
 
+The parent writes both allowlist inputs to the run's scratch folder (a per-run folder under the host temp directory). Never write them inside the repository or `features/`.
+- `-AllowedPathPrefixesPath`: JSON array of strings; portable path prefixes and `external:<alias>` entries.
+- `-AuthorizedRootsPath`: JSON object; keys are alias names, values are fully qualified absolute roots.
+
 Run `scripts/validation/Invoke-O3ReceiptValidation.ps1` with the trusted
 application `-RepoRoot`, expected PLAN and step, a coordinator-owned
 `-AllowedPathPrefixesPath`, and a separate coordinator-owned
