@@ -196,6 +196,17 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action Sync -Agent claude `
   -InstallRoot "$env:USERPROFILE\.claude" -AllowUserHome
 ```
 
+The Claude sync writes:
+
+- `skills/<id>/SKILL.md`, with Claude-only frontmatter from `adapters/claude/skill-frontmatter.json`.
+- `rules/*.md`, from `core/policy/`. `model-cost-awareness.md` is not published.
+- `CLAUDE.md`, from `core/router/AGENTS.md`.
+- `agents/*.md`, from `core/agents/`.
+- `hooks/*.ps1`, from `adapters/claude/assets/hooks/`.
+- `settings.json` keys: `hooks` (managed `UserPromptSubmit`, `SessionStart`, `PostToolUse`, `SubagentStop` handlers), `permissions.allow` (narrow hook entries and read-only git), `permissions.ask` (`git commit`, `push`, `merge`, `rebase`, `checkout -b`), and `attribution` (`commit` and `pr` set to empty strings). Other keys are preserved, and `settings.json.bak` is written before each change.
+
+No PreToolUse guard hook is installed for Claude. Review `settings.json` after the first sync. Hook behavior is in [HOOKS.md](HOOKS.md#claude-event-table).
+
 #### GitHub Copilot — Mode `user` | `repo`
 
 `-Mode` is **required** for Copilot.
@@ -235,7 +246,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | Agent | Typical artifacts under InstallRoot |
 |-------|-------------------------------------|
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
-| Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `hooks/`, merged `settings.json` |
+| Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `agents/*.md`, `hooks/`, merged `settings.json` |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
 | Codex | `plugin/` (+ marketplace), `skills/` (`$` mirror), `rules/*.md`, materialized `AGENTS.md`; optional `.agents/skills` with `-UserScope` |
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
