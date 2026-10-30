@@ -1,47 +1,47 @@
-# Escolher o fluxo
+# Choosing the flow
 
-Este guia ajuda a escolher, antes de começar, qual fluxo do toolkit usar: Orchestrated Delivery, SDD clássico, refinamento de backlog ou revisão de requisito. A escolha define a skill de entrada e os artefatos que serão gravados. Os detalhes de cada fluxo estão nos guias linkados na tabela.
+This guide helps you choose which toolkit flow to use before you start: Orchestrated Delivery, Classic SDD, backlog refinement, or requirement review. The choice sets the entry skill and the artifacts that will be written. The details of each flow are in the guides linked from the table.
 
-## Árvore de decisão
+## Decision tree
 
 ```mermaid
 flowchart TD
-  Start([Trabalho novo]) --> Q{Qual é a situação?}
-  Q -->|Feature com vários stories, brownfield ou especialistas| ORCH["orchestrate-analyze → orchestrate-deliver → orchestrate-develop ou sdd-develop"]
-  Q -->|Um story já claro, sem especialistas| SDD["sdd-spec → sdd-plan → sdd-develop"]
-  Q -->|Item informal de produto| REF["refine-story → split-story-checklist"]
-  Q -->|Requisito precisa ser contestado antes do SDD| REV["requirement-review --feature ou --tech"]
+  Start([New work]) --> Q{What is the situation?}
+  Q -->|Feature with several stories, brownfield, or specialists| ORCH["orchestrate-analyze → orchestrate-deliver → orchestrate-develop or sdd-develop"]
+  Q -->|One story already clear, no specialists| SDD["sdd-spec → sdd-plan → sdd-develop"]
+  Q -->|Informal product item| REF["refine-story → split-story-checklist"]
+  Q -->|Requirement must be challenged before SDD| REV["requirement-review --feature or --tech"]
   REF --> SDD
   REV --> SDD
-  ORCH --> Done([Código, testes e commit])
+  ORCH --> Done([Code, tests and commit])
   SDD --> Done
 ```
 
-Os fluxos não são pré-requisitos uns dos outros. Classic SDD pode começar direto, sem `orchestrate-analyze`. Sugira o orquestrado só quando houver vários stories, complexidade brownfield ou pastas de especialistas.
+The flows are not prerequisites for one another. Classic SDD can start directly, without `orchestrate-analyze`. Suggest the orchestrated path only when there are several stories, brownfield complexity, or specialist folders.
 
-## Tabela de fluxos
+## Flow table
 
-| Fluxo | Quando usar | Ponto de entrada | Guia ou doc |
-|-------|-------------|------------------|-------------|
-| Orchestrated Delivery | Feature com vários stories, brownfield ou que precise de especialistas | `/orchestrate-analyze` | [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
-| SDD clássico | Um story já claro, sem necessidade de especialistas | `/sdd-spec` | [../sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md) |
-| Refinar item de backlog | Item informal de produto (bug, user story ou história técnica) antes do SDD | `/refine-story` | [backlog-refine.md](backlog-refine.md) e [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
-| Revisar requisito | Conferir critérios de aceite ou contratos antes do SDD | `/requirement-review --feature` ou `--tech` | [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
+| Flow | When to use | Entry point | Guide or doc |
+|------|-------------|-------------|--------------|
+| Orchestrated Delivery | Feature with several stories, brownfield, or that needs specialists | `/orchestrate-analyze` | [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
+| Classic SDD | One story already clear, no need for specialists | `/sdd-spec` | [../sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md) |
+| Refine backlog item | Informal product item (bug, user story, or technical story) before SDD | `/refine-story` | [backlog-refine.md](backlog-refine.md) and [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
+| Review requirement | Check acceptance criteria or contracts before SDD | `/requirement-review --feature` or `--tech` | [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
 
-Para um arquivo trivial, use `/developer` ou a skill do stack, se o operador escolher esse atalho.
+For a trivial single file, use `/developer` or the stack skill, if the operator chooses that shortcut.
 
-## Regra de pronto
+## Readiness rule
 
-Um item **B** (blocker), **I** (importante) ou **MINOR** em aberto mantém o status em `NEEDS_CLARIFICATION`. Só `READY` libera a gravação do próximo artefato (PRD, PLAN ou story). Essa regra vale em cada gate, inclusive para MINOR. Fonte: [readiness-severity.md](../../core/skills/_shared/sdd-artifacts/readiness-severity.md).
+An open **B** (blocker), **I** (important), or **MINOR** item keeps the status at `NEEDS_CLARIFICATION`. Only `READY` releases the write of the next artifact (PRD, PLAN, or story). This rule applies at every gate, including MINOR. Source: [readiness-severity.md](../../core/skills/_shared/sdd-artifacts/readiness-severity.md).
 
-## Limites de escrita
+## Write limits
 
-- Sem pasta `features/NNN-slug/`, o fluxo canônico não existe. Não crie artefatos fora da árvore `features/`.
-- `sdd-spec` não lê `docs/backlog/` sozinho. Um `.md` de `docs/backlog/` só entra quando o operador cita o caminho (promote no modo `direct`, ver [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) ou quando o conteúdo é colado no chat.
-- `docs/backlog/` é atalho de escrita de `refine-story`, `requirement-review` e `split-story-checklist`. Não é fonte canônica de PRD nem de PLAN.
+- Without a `features/NNN-slug/` folder, the canonical flow does not exist. Do not create artifacts outside the `features/` tree.
+- `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
+- `docs/backlog/` is a write shortcut for `refine-story`, `requirement-review`, and `split-story-checklist`. It is not a canonical source for PRD or PLAN.
 
-## Sessões e gates
+## Sessions and gates
 
-- `sdd-spec` escreve só o PRD nesta sessão. `sdd-plan` escreve só o PLAN.
-- `sdd-develop` executa **um** passo do PLAN por sessão. Ao terminar, pare. O próximo passo começa em outra sessão.
-- Antes de qualquer gravação de artefato novo, a skill mostra o caminho e um resumo e pergunta: `sim`, `ajustar` ou `cancelar`. A escrita só acontece após `sim`.
+- `sdd-spec` writes only the PRD in this session. `sdd-plan` writes only the PLAN.
+- `sdd-develop` executes **one** PLAN step per session. When it finishes, stop. The next step starts in another session.
+- Before any new artifact is written, the skill shows the path and a summary and asks: `sim` (yes), `ajustar` (adjust), or `cancelar` (cancel). Writing happens only after `sim`.

@@ -1,22 +1,22 @@
-# Exemplo: endpoint novo em .NET
+# Example: new .NET endpoint
 
-> Exemplo ilustrativo do formato de camadas. Não é código gerado no repositório deste toolkit. Os nomes (`Orders`, `Payments`) são fictícios. Adapte ao padrão do projeto real, que tem precedência.
+> Illustrative example of the layer format. This is not code generated in this toolkit repository. The names (`Orders`, `Payments`) are fictional. Adapt to the real project's pattern, which takes precedence.
 
-Este exemplo mostra um endpoint `POST /orders` que cria um pedido e consulta um serviço de pagamento externo. Ele segue a separação em camadas usada em [core/skills/_shared/dotnet-guidelines](../../core/skills/_shared/dotnet-guidelines/). Os trechos são curtos e mostram só o essencial.
+This example shows a new `POST /orders` endpoint that creates an order and calls an external payment service. It follows the layer separation used in [core/skills/_shared/dotnet-guidelines](../../core/skills/_shared/dotnet-guidelines/). The snippets are short and show only the essentials.
 
-## Caminho de chamada
+## Call path
 
 ```
 HTTP POST /orders
-  └─ OrdersController           (entrada HTTP, validação de contrato)
-       └─ OrderFacade           (orquestra a operação, traduz DTOs)
-            └─ OrderService     (regra de aplicação, transação)
-                 ├─ Order       (entidade de domínio, invariantes)
+  └─ OrdersController           (HTTP entry, contract validation)
+       └─ OrderFacade           (orchestrates the operation, maps DTOs)
+            └─ OrderService     (application rule, transaction)
+                 ├─ Order       (domain entity, invariants)
                  └─ IPaymentGatewayClient
-                      └─ HttpClient criado por IHttpClientFactory
+                      └─ HttpClient created by IHttpClientFactory
 ```
 
-Regra de dependência: o controller conhece o facade. O facade conhece os serviços. Os serviços conhecem as entidades e as interfaces de saída. Nada da camada externa aparece no domínio.
+Dependency rule: the controller knows the facade. The facade knows the services. The services know the entities and the outbound interfaces. Nothing from the outer layers appears in the domain.
 
 ## Controller
 
@@ -47,9 +47,9 @@ public class OrderFacade(IOrderService orderService) : IOrderFacade
 }
 ```
 
-O facade não contém regra de negócio. Ele converte o contrato HTTP em comando de aplicação e devolve o DTO de resposta.
+The facade contains no business rule. It converts the HTTP contract into an application command and returns the response DTO.
 
-## Serviço de aplicação
+## Application service
 
 ```csharp
 public class OrderService(IOrderRepository repository, IPaymentGatewayClient payments) : IOrderService
@@ -64,7 +64,7 @@ public class OrderService(IOrderRepository repository, IPaymentGatewayClient pay
 }
 ```
 
-## Entidade
+## Entity
 
 ```csharp
 public class Order
@@ -83,11 +83,11 @@ public class Order
 }
 ```
 
-Invariantes ficam na entidade, não no controller.
+Invariants live in the entity, not in the controller.
 
-## Cliente externo com HttpClientFactory
+## External client with HttpClientFactory
 
-Registro:
+Registration:
 
 ```csharp
 builder.Services.AddHttpClient<IPaymentGatewayClient, PaymentGatewayClient>(client =>
@@ -96,7 +96,7 @@ builder.Services.AddHttpClient<IPaymentGatewayClient, PaymentGatewayClient>(clie
 });
 ```
 
-Cliente:
+Client:
 
 ```csharp
 public class PaymentGatewayClient(HttpClient httpClient) : IPaymentGatewayClient
@@ -109,13 +109,13 @@ public class PaymentGatewayClient(HttpClient httpClient) : IPaymentGatewayClient
 }
 ```
 
-`IHttpClientFactory` gerencia o ciclo de vida dos handlers e evita o esgotamento de sockets. Se o time usar **RestEase**, a interface vira um contrato declarativo e a implementação é gerada. Os testes e a camada de aplicação não mudam.
+`IHttpClientFactory` manages the handler lifecycle and avoids socket exhaustion. If the team uses **RestEase** instead, the interface becomes a declarative contract and the implementation is generated. The tests and the application layer do not change.
 
-## Testes
+## Tests
 
-Use o padrão do projeto. O toolkit usa xUnit e Moq em `dotnet-test-patterns.md`.
+Use the project's pattern. The toolkit uses xUnit and Moq, see `dotnet-test-patterns.md`.
 
-Teste unitário do facade, com o serviço mockado:
+Facade unit test, with the service mocked:
 
 ```csharp
 [Fact]
@@ -132,7 +132,7 @@ public async Task CreateAsync_ShouldReturnResponse_WhenServiceCreatesOrder()
 }
 ```
 
-Teste unitário do serviço, com repositório e gateway mockados. Verifique a chamada ao gateway e a persistência:
+Service unit test, with the repository and gateway mocked. Verify the gateway call and the persistence:
 
 ```csharp
 [Fact]
@@ -149,7 +149,7 @@ public async Task CreateAsync_ShouldAuthorizePayment_BeforePersisting()
 }
 ```
 
-Teste de controller, com o facade mockado. Verifique o status HTTP e o contrato de resposta:
+Controller test, with the facade mocked. Verify the HTTP status and the response contract:
 
 ```csharp
 [Fact]
@@ -166,4 +166,4 @@ public async Task Create_ShouldReturnCreated_WhenFacadeSucceeds()
 }
 ```
 
-Teste de integração do cliente externo (opcional) pode usar `HttpMessageHandler` falso, sem chamar o serviço real.
+An optional integration test of the external client can use a fake `HttpMessageHandler`, without calling the real service.

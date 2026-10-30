@@ -1,54 +1,54 @@
-# Refinar itens de backlog
+# Refining backlog items
 
-Este guia descreve o fluxo de refinamento de backlog: como um item informal de produto vira um story pronto para o SDD, quais skills participam e onde cada uma grava.
+This guide describes the backlog refinement flow: how an informal product item becomes a story ready for SDD, which skills take part, and where each one writes.
 
-## Fluxo
+## Flow
 
-1. `refine-story` escreve o item: `STORY.md` com critérios BDD e uma nota de qualidade.
-2. No passo 4a, `refine-story` chama `requirement-review` antes do handoff. `requirement-review` contesta o item, faz as perguntas em aberto e só grava após `sim`.
-3. `split-story-checklist` quebra o story em um checklist de tarefas (backend, frontend, testes).
-4. `sdd-plan` chama `split-story-checklist` por conta própria para feature de complexidade média ou complexa. Feature trivial não gera arquivo de tarefas.
+1. `refine-story` writes the item: `STORY.md` with BDD criteria and a quality note.
+2. In step 4a, `refine-story` calls `requirement-review` before the handoff. `requirement-review` challenges the item, asks the open questions, and writes only after `sim`.
+3. `split-story-checklist` breaks the story into a task checklist (backend, frontend, tests).
+4. `sdd-plan` calls `split-story-checklist` on its own for a feature of medium or complex size. A trivial feature does not generate a task file.
 
-`orchestrate-analyze` também usa a pesquisa de funcionalidade de `refine-story` internamente, no passo 8c. Por isso o orquestrado não precisa chamar `refine-story` antes.
+`orchestrate-analyze` also uses the feature research of `refine-story` internally, in step 8c. For that reason, the orchestrated path does not need `refine-story` to be called beforehand.
 
-Enquanto houver item **B** ou **I** em aberto, não faça handoff para `sdd-spec`. Veja a regra de pronto em [flow-selection.md](flow-selection.md).
+While a **B** or **I** item is open, do not hand off to `sdd-spec`. See the readiness rule in [flow-selection.md](flow-selection.md).
 
-## Onde grava
+## Where it writes
 
-| Artefato | Caminho com story | Caminho sem story (atalho) |
-|----------|-------------------|----------------------------|
-| Story | `features/NNN-slug/USnn/STORY.md` (ou `TSnn`) | `docs/backlog/<slug>.md` |
-| Revisão de requisito | `features/NNN-slug/USnn/REFINE/requirement-review-feature.md` (ou `-tech.md`) | `docs/backlog/<slug>-requirement-review-<modo>.md` |
-| Histórico de Q&A | `features/NNN-slug/USnn/REFINE/qa-history.md` | `docs/backlog/<slug>-qa-history.md` |
-| Checklist de tarefas | `features/NNN-slug/USnn/REFINE/tasks.md` | `docs/implementation-tasks/<slug>.md` |
+| Artifact | Path with a story | Path without a story (shortcut) |
+|----------|-------------------|----------------------------------|
+| Story | `features/NNN-slug/USnn/STORY.md` (or `TSnn`) | `docs/backlog/<slug>.md` |
+| Requirement review | `features/NNN-slug/USnn/REFINE/requirement-review-feature.md` (or `-tech.md`) | `docs/backlog/<slug>-requirement-review-<mode>.md` |
+| Q&A history | `features/NNN-slug/USnn/REFINE/qa-history.md` | `docs/backlog/<slug>-qa-history.md` |
+| Task checklist | `features/NNN-slug/USnn/REFINE/tasks.md` | `docs/implementation-tasks/<slug>.md` |
 
-Com texto colado no chat e sem caminho de arquivo, o relatório fica no chat. Nada é gravado até o operador indicar um caminho e confirmar.
+With text pasted into the chat and no file path, the report stays in the chat. Nothing is written until the operator gives a path and confirms.
 
 ## Skills
 
 ### refine-story
 
-- **Lê:** o caminho ou o texto informado pelo operador. Procura PRDs em `features/**/PRD/`, não em uma pasta `PRD/` na raiz.
-- **Grava:** `STORY.md` (ou `TSnn/STORY.md`) e `REFINE/qa-history.md`. Atalho: `docs/backlog/<slug>.md`, depois de pergunta sobre o idioma do documento.
-- **Onde:** [core/skills/refine-story/SKILL.md](../../core/skills/refine-story/SKILL.md).
-- **Quando usar:** item de produto (bug, user story ou história técnica) que ainda não é uma entrega de feature completa. O modo é obrigatório: `feature`, `tech` ou `split`. Sem modo, a skill pergunta.
+- **Reads:** the path or text the operator provides. It looks for PRDs under `features/**/PRD/`, not a `PRD/` folder at the root.
+- **Writes:** `STORY.md` (or `TSnn/STORY.md`) and `REFINE/qa-history.md`. Shortcut: `docs/backlog/<slug>.md`, after a question about the document language.
+- **Where:** [core/skills/refine-story/SKILL.md](../../core/skills/refine-story/SKILL.md).
+- **When to use:** a product item (bug, user story, or technical story) that is not yet a full feature delivery. The mode is mandatory: `feature`, `tech`, or `split`. Without a mode, the skill asks.
 
 ### requirement-review
 
-- **Lê:** `STORY.md`, `FEATURE.md`, `REFINE/refine.md` ao lado do story, ou texto colado. Antes de perguntar, lê `REFINE/qa-history.md` para não repetir uma pergunta já resolvida. No modo `--tech`, também lê o repositório.
-- **Grava:** o relatório da revisão e o histórico de Q&A, após `sim`. Sem pasta de story, o relatório fica no chat, a menos que o operador indique uma pasta de story ou o atalho `docs/backlog/`.
-- **Onde:** [core/skills/requirement-review/SKILL.md](../../core/skills/requirement-review/SKILL.md).
-- **Quando usar:** conferir critérios de aceite (`--feature`) ou contratos e fluxos no código (`--tech`) antes do SDD. Exatamente um modo por execução. Sem modo, a skill pergunta.
+- **Reads:** `STORY.md`, `FEATURE.md`, `REFINE/refine.md` beside the story, or pasted text. Before asking, it reads `REFINE/qa-history.md` so it does not repeat a resolved question. In `--tech` mode, it also reads the repository.
+- **Writes:** the review report and the Q&A history, after `sim`. Without a story folder, the report stays in the chat, unless the operator names a story folder or the `docs/backlog/` shortcut.
+- **Where:** [core/skills/requirement-review/SKILL.md](../../core/skills/requirement-review/SKILL.md).
+- **When to use:** check acceptance criteria (`--feature`) or contracts and flows in the code (`--tech`) before SDD. Exactly one mode per run. Without a mode, the skill asks.
 
 ### split-story-checklist
 
-- **Lê:** `STORY.md` com a seção **Steps** preenchida (ou a **Suggested fix** em bug). Quando chamado pelo `sdd-plan`, lê o PRD e os `REQ` do story.
-- **Grava:** `REFINE/tasks.md`. Atualiza esse arquivo se ele já existir e não cria `TASKS.md` duplicado. Atalho: `docs/implementation-tasks/<slug>.md`. Não cria pastas `USnn` ou `TSnn` novas.
-- **Onde:** [core/skills/split-story-checklist/SKILL.md](../../core/skills/split-story-checklist/SKILL.md).
-- **Quando usar:** feature de complexidade média ou complexa, ou quando o operador quer o checklist antes do plano. Para complexidade trivial, a skill não grava o arquivo.
+- **Reads:** `STORY.md` with the **Steps** section filled in (or the **Suggested fix** for a bug). When called by `sdd-plan`, it reads the PRD and the story's `REQ` rows.
+- **Writes:** `REFINE/tasks.md`. It updates that file if it already exists and does not create a duplicate `TASKS.md`. Shortcut: `docs/implementation-tasks/<slug>.md`. It does not create new `USnn` or `TSnn` folders.
+- **Where:** [core/skills/split-story-checklist/SKILL.md](../../core/skills/split-story-checklist/SKILL.md).
+- **When to use:** a feature of medium or complex size, or when the operator wants the checklist before the plan. For trivial complexity, the skill does not write the file.
 
-## Veja também
+## See also
 
-- [flow-selection.md](flow-selection.md): escolha do fluxo.
-- [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md): regras de scorecard e de story dentro da análise.
-- [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md): o caminho completo de feature.
+- [flow-selection.md](flow-selection.md): choosing the flow.
+- [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md): scorecard and story rules inside analysis.
+- [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md): the full feature path.
