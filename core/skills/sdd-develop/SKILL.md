@@ -9,29 +9,7 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 
 ### Canonical scripts after sim (REQ-012 / CA4 / CT6)
 
-After the user says **sim** for this step, **MUST** persist develop `step_confirmed` via `-File` (cwd = repo root) — **MUST NOT** paste inline PowerShell that mutates session JSON under `sessions/`:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
-```
-
-After targeted tests execute and their results are ready to report, persist the tests gate through the same canonical helper:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -Action tests-run -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
-```
-
-Before ending the develop scope, reset both gates with `-Action reset` (optionally pass `-CurrentStep N+1`). Never mutate the session JSON inline. `tests-run` fails unless `step_confirmed` is already true.
-
-Treat every session-helper invocation, including reset, as a hard gate. A nonzero exit, denied write, or missing confirmation output stops the operation; return `blocked` or `failed` with the observed cause and do not continue or report success. Never bypass the helper or edit session JSON inline. If the canonical SDD root is unwritable, ask the operator to restore a writable root through the supported setup mechanism before retrying the helper.
-
-For a direct invocation that requires a PLAN ledger claim, **MUST** also call once:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
-```
-
-For `invocation_context=orchestrated`, the O3 parent owns this acquisition; the child only checks the matching parent reservation with `-Action status` as specified below. Prefer **one** Shell approve that chains the session helper and direct claim for a direct invocation when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still ensure the required direct claim exists; for O3, the parent must ensure its claim exists once, while a child must never reacquire it.
+Before any session or ledger write, read `references/canonical-scripts.md` and run the exact commands listed there.
 
 ---
 
@@ -105,22 +83,8 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 
 ## Reference routing
 
-| Situation | Path |
-|-----------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| plan-acquisition (canonical PLAN) | `references/plan-acquisition.md` |
-| Develop modes `continuous` \| `step_by_step` | `references/develop-modes.md` |
-| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
-| PLAN update protocol | `references/plan-update.md` |
-| Git preparation | `references/git-checklist.md` |
-| Pre-implementation analysis | `references/code-analysis.md` |
-| Stack pointers | `references/stack-pointers.md` |
-| Session report / checkpoint | `references/session-report.md` |
-| Evidence-or-zero | `references/evidence-or-zero.md` |
-| Living loop + TRACE | `references/living-loop-trace.md` |
-| Quality self-check | `references/quality-self-check.md` |
-| Optional flows | `references/optional-flows.md` |
-| Forbidden | `references/forbidden.md` |
+Routing table for the `references/` sections: `reference.md`.
+
 ## Process
 
 After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for the current step only.
@@ -137,7 +101,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 Load `STORAGE.md` and `PIPELINE.md`; when resolving repository/global storage, also load `STORAGE-RESOLUTION.md`. Use its schema v2 and dynamic storage resolution algorithm with parameter `$Workflow = classic`. Resolve `storage_mode` and `path` for the active repository. If this is the first run for the repository, execute storage mode selection and persist it in `manifest.json`.
 Resolve `invocation_context` once per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct`; use `orchestrated` only when the current invocation explicitly selects it or the active skill/parent handoff identifies an `orchestrate-*` stage. Generic parent coordination, `orchestrator_mode=always`, or an O3-targeted PLAN does not change a Classic/direct invocation. If explicit invocation/handoff context declarations conflict, stop with `invocation_context_conflict`. In Classic/direct, do not require or create `CONTINUITY.md`; use it only as optional prior context when present. In orchestrated execution, preserve the parent's CONTINUITY ownership and the child's one-PLAN-step scope; do not take on parent ownership.
 Honor `CONTRACT-PROVENANCE.md` (`CP-AGREED-VS-INVENTED`): implement Aceite / cited REQs as `agreed`; new mid-step gaps stay `invented` until operator confirm — do not silently encode them as requirements.
-**Agent mode** is required for code changes and PLAN updates. If the host is in Plan or Ask and this step requires an edit, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
+An **edit mode** is required for code changes and PLAN updates. If the host is in a read-only mode (plan or ask) and this step requires an edit, pause and explicitly ask the operator to switch to an edit mode; do not attempt the edit or silently change mode. If the user asks for PRD (`sdd-spec`) or PLAN (`sdd-plan`), route using `PIPELINE.md` section Missing artifacts; do not create PRD/PLAN in this skill.
 
 ### 0. Workspace (plan-acquisition)
 
@@ -176,49 +140,18 @@ Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-p
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 
-Read `references/evidence-or-zero.md`. When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
-
-1. Create/update `features/NNN-slug/{USnn|TSnn}/EVD/` and `features/NNN-slug/{USnn|TSnn}/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`; detail: `references/evidence-or-zero.md`).
-2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
-3. Run structural gate (deterministic — never LLM-as-validator):
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot <features/NNN-slug/{USnn|TSnn}> [-Level cheap]
-```
-
-Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
-
-**Verifier ≠ O3:** evidence verification runs **sequentially** in this develop session via `validate-evidence`. Do **not** use O3 / Task parallelism as the verifier mechanism.
+Read `references/evidence-or-zero.md` when the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`) and follow it: EVD/STATE, AC matrix, `validate-evidence` gate.
 
 ### 4c. Living loop + TRACE (REQ-006 / CA5)
 
-Read `references/living-loop-trace.md`. When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
-
-1. Append events to `features/NNN-slug/TRACE.jsonl` (template: `templates/features/TRACE.jsonl`; contract: `TRACE-ARCHIVE-CONTRACT.md`).
-2. Run **converge → sync current → archive**: selective updates to living docs (`memory-bank/` / named `docs/`); do **not** dump full bank/PRD (`SR-NO-FULL-DUMP`).
-3. Ensure TRACE includes ordered living-loop events `converge`, `sync_current`, `archive`.
-4. Run structural gate (deterministic — never LLM-as-validator):
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
-```
-
-Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, optional trail events may be appended; missing TRACE is OK until archive-complete.
-
-**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Task/O3 parallelism as the archive gate.
+Read `references/living-loop-trace.md` when CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive) and follow its procedure.
 
 ### 5. Commit (optional)
 
 Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the requested function finishes or this skill declares a blocker with the cause. Keep the memory-bank and docs asks. The required **sim** before writes stays.
 
 ### 6. Update PLAN + checkpoint
-Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
-
-`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Persist at the end of the step before handoff. **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
-
-When this edit sets PLAN **Implementation status** to `COMPLETED`, require explicit whole-PLAN close authorization and all closure conditions in `references/plan-update.md`; then set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit. If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once only when the persisted close authorization is present. It is not a restart.
-
-**Terminal gate lifecycle (strict order):** finish every implementation/artifact edit, re-read the final artifacts, and complete all required validations first. Only after their results are ready, call `tests-run` once and update the PLAN/task status and evidence while the gate is still active. Then call `reset` as the final operation in this develop scope. Reset clears both gates and is terminal: after a successful reset, do not call any session helper, validator, or make any further file/artifact edit in this scope. If a post-reset correction is necessary, stop and begin a fresh, explicitly authorized develop scope/session with its gate confirmed; never repeat `tests-run` against cleared gates. A failed helper remains a hard stop under the rule above.
+Read `references/plan-contract.md` and `references/plan-update.md` at this step, before the PLAN edit; they hold the PLAN update protocol, navigation rules, companion PRD close, and terminal gate order (`tests-run` then `reset`).
 
 ### 7. Report
 Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
@@ -227,25 +160,7 @@ For a direct Classic step delegated by a parent, the parent owns the operator-fa
 
 ## Must not
 
-Also enforce `references/forbidden.md`. Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
-
-- Break C# method signatures/invocations for style when ≤6 parameters and the full line is ≤160 characters (`csharp-patterns.md`) — multiline only when **more than 6** parameters **or** line **> 160**; do not let CSharpier leave a style-only wrap that still fits the inline MUST
-- Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged — including when develop mode is `continuous`)
-- Skip `plan-acquisition` or mark Complete without **delivery-baseline** (`references/plan-contract.md`); add duration/effort estimates to checkpoints (REQ-010)
-- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
-- Do not ignore `CP-AGREED-VS-INVENTED` — do not encode mid-step invented gaps as agreed requirements (`CONTRACT-PROVENANCE.md`)
-- Create PRD/PLAN; skip PLAN save; skip the companion PRD status close when **Implementation status** becomes `COMPLETED`; modify `.gitignore`
-- Implement in Plan/Ask without Agent
-- Bypass one-step via orchestrator parent implementing code
-- Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
-- Inline-mutate develop session JSON (`ConvertFrom-Json` / `ConvertTo-Json` / `Set-Content` gate blobs) instead of `scripts/session/Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
-- Skip `scripts/ledger/Invoke-PlanLedgerClaim.ps1` when claim is required and absent because session helper already exited 0 (CT6)
-- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
-- Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
-- Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
-- Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
-- Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
-- Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / 006 REQ-009)
+Also enforce `references/forbidden.md` (§ Must not (develop scope) holds the full list). Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
 
 ## Handoff
 

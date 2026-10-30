@@ -7,9 +7,10 @@
   Convert-ClaudeMdcReferencesToMd: Cursor rule names `<name>.mdc` become `<name>.md`.
   Delegates to the shared implementation in adapters/_shared/MdcReferenceRewrite.ps1.
 
-  Convert-ClaudeRepoSourcePathReferences: repo-source paths `core/skills/<path>` and
-  `core/policy/<name>.md` become `{{TOOLKIT_ROOT}}/skills/<path>` and
-  `{{TOOLKIT_ROOT}}/rules/<name>.md`, using the resolved toolkit root from the placeholder map.
+  Convert-ClaudeRepoSourcePathReferences: repo-source paths `core/skills/<path>`,
+  `core/agents/<path>` and `core/policy/<name>.md` become `{{TOOLKIT_ROOT}}/skills/<path>`,
+  `{{TOOLKIT_ROOT}}/agents/<path>` and `{{TOOLKIT_ROOT}}/rules/<name>.md`, using the resolved
+  toolkit root from the placeholder map.
   A path is rewritten only when its repo source exists and is published under that mapping.
   Other occurrences (missing paths, non-markdown policy files) are left unchanged.
 #>
@@ -44,7 +45,7 @@ function Convert-ClaudeRepoSourcePathReferences {
     )
 
     $toolkitRoot = [string]$PlaceholderMap[$script:ClaudePathConstant.PlaceholderToolkitRoot]
-    $pattern = '(?<![A-Za-z0-9_\-./])core/(skills|policy)/([A-Za-z0-9_\-./]*[A-Za-z0-9_\-])'
+    $pattern = '(?<![A-Za-z0-9_\-./])core/(skills|policy|agents)/([A-Za-z0-9_\-./]*[A-Za-z0-9_\-])'
     $builder = New-Object System.Text.StringBuilder
     $position = 0
 
@@ -58,6 +59,9 @@ function Convert-ClaudeRepoSourcePathReferences {
         if (Test-Path -LiteralPath $repoPath) {
             if ($section -eq 'skills') {
                 $replacement = "$toolkitRoot/skills/$relative"
+            }
+            elseif ($section -eq 'agents') {
+                $replacement = "$toolkitRoot/agents/$relative"
             }
             elseif ($relative.EndsWith('.md', [System.StringComparison]::Ordinal)) {
                 $replacement = "$toolkitRoot/rules/$relative"

@@ -9,7 +9,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
 | Command playbook (step discovery) | `references/command.md` |
 | Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
 | Anti-bypass checklist | `references/anti-bypass.md` |
-| Step queue / build queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
+| Step queue / build queue / spawn child / Agent skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism rules + process | `references/parallelism.md` |
 | Execution modes (serial/parallel/manual; queue/claim) | `references/execution-modes.md` |

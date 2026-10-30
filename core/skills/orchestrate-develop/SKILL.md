@@ -1,7 +1,7 @@
 ---
 name: orchestrate-develop
 description: >-
-  Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
+  Orchestrated Delivery O3: one Agent subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -21,7 +21,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 ## Outcome
 
-1. Pending PLAN step(s) executed via Task children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
+1. Pending PLAN step(s) executed via Agent children when `subagents=native` (`SPAWN.md`), each following the **`sdd-develop` contract** (one PLAN step per child / invocation); when `subagents=none` or Agent unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code; never hard-fail)
 2. Feature `CONTINUITY.md` updated (phase `develop`, progress, typed next invoke, **Memory-bank** path + status)
 3. When the operator asked to close the wave, handoff to `code-review` (`- single` or `- multi-angle`; skill asks if omitted). When the operator did not ask, do not start that validation or specialist loop; hand off only the next step / next story
 
@@ -35,7 +35,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Mental map (ids unchanged):** O3 ≈ **apply** (implement PLAN steps via `sdd-develop`). O1 ≈ explore; O2 ≈ FEATURE+PRD+CHANGE. See `CHANGE-CONTRACT.md`.
 
-**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Task parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
+**Evidence verifier (REQ-005 / CA4):** children record `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` inside `sdd-develop`. **Verifier ≠ O3** — do **not** use O3 / Agent parallelism as the evidence verifier mechanism (sequential script gate only). Levels: `off` \| `cheap` \| `standard` \| `strict`. Contract: `EVD-STATE-CONTRACT.md`.
 
 **Living loop / TRACE (REQ-006 / CA5):** at feature-wave close, children (or the final develop child) append `features/NNN-slug/TRACE.jsonl` and run **converge → sync current → archive**, then `validate-trace -RequireArchiveComplete`. Parent must **not** use O3 parallelism as the archive verifier. Contract: `TRACE-ARCHIVE-CONTRACT.md`.
 
@@ -63,7 +63,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | plan-contract + delivery-baseline (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/plan-contract.md` |
 | O3 paired baseline and delta/risk review (REQ-010) | `{{TOOLKIT_ROOT}}/skills/orchestrate-develop/references/step-queue-spawn.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Code review (ask mode) | `{{TOOLKIT_ROOT}}/skills/code-review/SKILL.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload `sdd-develop` + all developer guideline packs into the parent, or paste guideline bodies into develop children. Parent loads contracts and SPAWN; children load `sdd-develop` for their one step.
@@ -78,11 +78,11 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 | Gate / Orchestrated Delivery | `PIPELINE.md` |
 | Feature / PLAN / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
-| Before Task / fallback to manual develop | `SPAWN.md` |
+| Before Agent / fallback to manual develop | `SPAWN.md` |
 | Child implement contract | `{{TOOLKIT_ROOT}}/skills/sdd-develop/SKILL.md` |
 | Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
 | Anti-bypass checklist (CA5) | `references/anti-bypass.md` |
-| Step queue / spawn child / Task skeleton | `references/step-queue-spawn.md` |
+| Step queue / spawn child / Agent skeleton | `references/step-queue-spawn.md` |
 | Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
 | Safe parallelism | `references/parallelism.md` |
 | Execution modes (serial/parallel/manual + ledger) | `references/execution-modes.md` |
@@ -124,23 +124,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Parse pending steps; respect Deps; resolve **execution mode** (`serial` default) and **develop pacing** (`step_by_step` default \| `continuous`); present the pending-only dispatch queue separately from the complete PLAN-step table; wait for **sim**. Every user-facing O3 status summary or transition must show the complete table for every PLAN step exactly once, including when no step is eligible or a blocker stops the queue. Never derive the displayed rows from the pending-only dispatch queue. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the queued step finishes or this skill declares a blocker with the cause. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/plan-contract.md`, and `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-Load `sdd-develop/references/execution-display.md` before the first spawn and after each receipt. Before the first spawn, render the complete O3 PLAN-step progress table from `LIVE-STAGE-TABLE.md`, with one row for every PLAN step. Use `Invoke-O3ArtifactPreflight.ps1 -EmitStepTable` to render the deterministic table from the freshly re-read canonical PLAN. When current validated receipt, checkpoint, session, or claim evidence changes an operational status, build a complete JSON array with one `{ Id, Status, Evidence }` object for every canonical PLAN step and pass it using `-StepStateOverridesPath`; use the re-read PLAN status for unchanged steps and overlay only values supported by reconciled evidence. The formatter rejects missing, duplicate, extra, or invalid rows. This projection changes display only; never use it to alter PLAN validation or dispatch eligibility. Keep the pending-only dispatch queue separate; it never provides display rows. After each child return, validate the receipt and reconcile the persisted PLAN checkpoint, then redraw the complete table before evaluating the next spawn. Update the affected row when a blocker, failure, or other advancement gate becomes observable. Every O3 status message and transition, including blocked, stopped, approval, and dispatch summaries, includes the full table. If the host exposes no intermediate event, keep the last verifiable state; do not invent streaming or a heartbeat. A valid receipt also gets a short result naming the step, status (`done`, `blocked`, or `failed`), and tests. Do not put the weighted stage table, the `Develop:` heartbeat, or a raw ledger dump in the chat. The O3 progress table is the operator-facing step ledger at close; the persisted PLAN progress table remains durable state. Track closeout gates separately.
-
-Use `ROSTER.md` as the spawn source of truth: call `repo_analyst` for brownfield/impact uncertainty or `needs_api`; call `architect` for `needs_domain`, greenfield, or brownfield mirror; call `database` only for `needs_database` or persistence in scope. Evaluate those conditions once before the first PLAN step, not before every intermediate step. Do not repeat that impact, architecture, and persistence pass before an intermediate step. Run the same pass again when code review is requested against that PLAN. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. When fallback work requires editing and the host is in Plan/Ask, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
-
-Before the first child of a brownfield or impact-uncertain PLAN, load the applicable O1 `ANALYSIS/` and `ARCH/` artifacts and compare their evidenced areas with the first eligible step's declared artifacts and affected components. Pass their portable paths and only the relevant evidence summary to that child. The child reads the cited analysis and checks that its current target area is covered before editing; a step target outside the analysis, contradictory current evidence, or an unresolved material gap blocks that first spawn for a focused analysis refresh. If the context establishes that no brownfield analysis applies, record the reason. Do not repeat this repository-level check for later steps unless material drift changes the affected area; each step still performs its own scoped pre-implementation analysis under `sdd-develop`.
-
-Before a child changes code, show the current branch and apply the integration-branch gate. That gate belongs to this skill, `sdd-develop`, `developer`, and `*-developer` (`core/policy/guardrails.md`).
-
-Immediately before invoking each child, re-run `Invoke-O3ArtifactPreflight.ps1`; then perform SESSION and PLAN-LEDGER checks. The preflight is read-only and must pass before those effects. O3 parent is the single claim lifecycle owner: acquire exactly once before spawn/handoff (the mode gate already acquires for serial/parallel), pass `claim_holder`, retain it while execution may continue, and release only after receipt, SESSION, and durable PLAN checkpoint reconcile. Confirmed pre-execution dispatch failure or confirmed cancellation may release after checkpoint verification; uncertain execution or source conflict retains the claim and blocks advancement. Record the release confirmation or retention reason in the parent reconciliation summary. Set `invocation_context=orchestrated` explicitly in every child handoff and provide the scoped checklist input required by the O3 contract. A stale/missing/inconsistent artifact pauses the queue for reconciliation; do not silently use CONTINUITY as a substitute queue. The child's direct PLAN fallback never waives O3 preflight, parent-claim status verification, or checklist requirements.
-
-Each child invocation is idle after its single PLAN step returns. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; a new request, a different scope, or an already-large context uses a fresh invocation with a bounded handoff. After a child returns, the parent runs `scripts/validation/Invoke-O3ReceiptValidation.ps1` against the returned JSON before reconciliation, supplying the expected repo/PLAN/step, `-AllowedPathPrefixesPath` to the coordinator's JSON list of portable path prefixes, and `-AuthorizedRootsPath` to its separate coordinator-controlled JSON object mapping aliases to absolute roots. External alias roots come only from the coordinator's trusted local context and are never read from the receipt. Then validate the receipt against the PLAN acceptance, session gates, and claim; read and reconcile the checkpoint the child already persisted; show the step ledger and short result; release the claim with the same `claim_holder` only after execution is complete and sources agree; then evaluate the next spawn. The child `sdd-develop` session is the sole writer of that step's PLAN row, evidence, and checkpoint; the parent is read-only for those fields and never repairs them by a second write. If the checkpoint is incomplete, execution may still be active, or sources conflict with the receipt, keep the step blocked and retain the claim; return the correction to its owner in a fresh invocation only when safe. The PLAN ledger/checkpoint is durable step state; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is communication; and `CONTINUITY.md` is the parent's separate synthesis/path handoff. None substitutes for another.
-
-Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`: `done` permits evaluation of the next step only after reconciliation; `blocked` keeps dependents stopped and names the missing prerequisite/input; `failed` reports evidence and a bounded recovery action. An unanswered user question is `open_question` and remains blocked. Do not repeat a spawn, prompt, or state transition without new user input or changed evidence and revalidation. A handoff suggestion alone never advances the queue.
-
-The child producer must emit relay `status: done` for a successful PLAN step; do not copy the PLAN row label `COMPLETED` into the receipt. For interoperability, `Invoke-O3ReceiptValidation.ps1` accepts only the trimmed, case-insensitive aliases `complete` and `completed` and normalizes them to canonical `done`. After validation, reconcile using the guard's `canonical_receipt` projection, never the child's raw status token. `blocked` and `failed` remain distinct; any other status or an implementation outside the PLAN acceptance blocks the step. Do not delegate the next step. Do not invent a fix. Do not rewrite the PLAN. If receipt validation is missing, incomplete, inconsistent, blocked, or failed, pause the step and all dependents; do not persist a successful completion or spawn the dependent. In `continuous`, use `Test-ContinuousQueueStepAuthorization` after the checkpoint and progress table have been re-read and the step ledger and short result have been shown; its authorization covers only the first eligible next step and is consumed by that spawn. Re-evaluate after every child return. `step_by_step` still requires confirmation for each spawn.
-
-For a canonical PLAN stored under global SDD storage outside the application repository, also pass `-SddRoot <effective-sdd-root>` from trusted coordinator context; keep `-RepoRoot` pointed at the application repository. Omit `-SddRoot` for repo-local PLANs. The receipt's `planPath` remains portable as `sdd/<path-relative-to-SddRoot>`. Before spawn, the coordinator must authorize the external artifact alias and portable path prefixes in its separate inputs. In `files[]`, global SDD files use `external:<alias>/<relative-path>`; application files remain repository-relative. Optional `deletedFiles[]` uses the same portable scope and alias rules for removed paths; the validator checks the authorized parent path and requires the leaf entry to be absent. Never derive `SddRoot`, alias roots, or authorized prefixes from child receipt data. Existing containment and scope checks still apply.
+Read `references/step-queue-spawn.md` § Step 5 - spawn exactly one step child at this step (display ledger, roster spawn conditions, claim lifecycle, receipt reconciliation).
 
 ### 5.5 Post-implement verifier (opt-in)
 When `preferences.json` has `verify_mode: true`, spawn a **read-only verifier child** after a successful implementer return and **before** CONTINUITY update / next spawn. Default `verify_mode` is `false` — skip when unset. The verifier uses its separate result contract in `references/step-verifier.md`; do not validate it as an implementer relay. Read that reference.
@@ -164,11 +148,11 @@ When the operator asked to close the wave, use this required order: `run-tests` 
 
 ## Anti-bypass checklist (must enforce)
 
-Parent and children **must not** bypass CA5. Enforce the full table in `references/anti-bypass.md` before every spawn and before marking any step done. Critical: parent writes **no** app code; one child = one PLAN step; **sim** before next spawn; PLAN-scoped SESSION files for parallel children.
+Read `references/anti-bypass.md` before every spawn and before marking any step done; it holds the full CA5 table.
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Task unavailable (fallback `/sdd-develop`); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/must-not.md`. Critical always-on: no parent app code; no multi-step children; no hard-fail when Agent unavailable (fallback `/sdd-develop`); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

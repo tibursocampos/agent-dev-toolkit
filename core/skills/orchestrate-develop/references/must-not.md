@@ -5,7 +5,7 @@
 - Parent writes application/production code or tests
 - Invent a fix or rewrite the PLAN when a receipt `status` is outside `done`, `blocked`, and `failed`, or when the implementation is outside the PLAN acceptance. Block the step, ask the deviation, and do not delegate the next step
 - Repeat impact, architecture, and persistence analysis before an intermediate PLAN step. Run that pass once before the first step and again when code review is requested against that PLAN
-- Merge N PLAN steps into one Task / one session context
+- Merge N PLAN steps into one Agent / one session context
 - Bypass or weaken `sdd-develop` one-step-per-session contract (including under develop mode `continuous`)
 - Skip child/parent `plan-acquisition` or accept Complete without **delivery-baseline** (`references/plan-contract.md`)
 - Add duration/effort estimates as queue or Complete gates (REQ-010 / RN04)
@@ -19,14 +19,14 @@
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
 - Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / 006 REQ-009)
 - Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
-- Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
-- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
-- Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
-- Paste guideline packs into Task child prompts
+- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
+- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
+- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
+- Paste guideline packs into Agent child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
-- Use O3 / Task parallelism as the evidence verifier (**Verifier ≠ O3**; evidence-or-zero is sequential `validate-evidence` in `sdd-develop`)
+- Use O3 / Agent parallelism as the evidence verifier (**Verifier ≠ O3**; evidence-or-zero is sequential `validate-evidence` in `sdd-develop`)
 - Mark develop children done at level ≥ `cheap` without passing `validate-evidence` (`EVD-STATE-CONTRACT.md`)
-- Use O3 / Task parallelism as the archive / TRACE verifier (**Verifier ≠ O3**; living loop is sequential `validate-trace`)
+- Use O3 / Agent parallelism as the archive / TRACE verifier (**Verifier ≠ O3**; living loop is sequential `validate-trace`)
 - Declare feature archive done without `validate-trace -RequireArchiveComplete` (`TRACE-ARCHIVE-CONTRACT.md`)
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
 

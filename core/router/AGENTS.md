@@ -23,13 +23,13 @@ Full text, in-session commands, and the preference check: `{{TOOLKIT_ROOT}}/rule
 
 ## Parallel specialists (default)
 
-Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent. This section is the always-on copy for hosts without a rules tree; `orchestrator-session` is the source.
+Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent.
 
-- **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before drafting any plan that cites Task, subagents, or orchestration, and before the first spawn-or-in-parent decision on non-trivial work.
-- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Task `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
+- **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before drafting any plan that cites Agent, subagents, or orchestration, and before the first spawn-or-in-parent decision on non-trivial work.
+- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Agent `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
 - **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, a one-file change might extend to others, or there is any doubt → spawn.
 - **Child lifecycle:** batch related bounded work into one child assignment. A returned child is idle; continue it only for the same topic and scope. Children cannot spawn subagents. Do not claim process or context termination without host support. Full rules: `orchestrator-session` § Child invocation lifecycle.
-- **Child prompts and returns:** Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`). Honor SPAWN (`subagents` native → spawn; `none` or Task unavailable → fallback in-parent, never hard-fail; concurrent caps).
+- **Child prompts and returns:** Caveman-scoped; omit Agent `model` by default (`SUBAGENT-MODEL.md`). Honor SPAWN (`subagents` native → spawn; `none` or Agent unavailable → fallback in-parent, never hard-fail; concurrent caps).
 
 ## Language
 
@@ -89,12 +89,12 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Roster / `needs_*` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
-| Task `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Stack → `*-developer` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
 
 ## Rules (always-on)
 
-Published per host from `core/policy/` by sync-agent. Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
+Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
 
 ## Skills catalog
 

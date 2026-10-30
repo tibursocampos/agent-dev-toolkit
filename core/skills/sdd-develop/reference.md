@@ -6,6 +6,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Evidence-or-zero: `EVD/` + `STATE.md` 
 
 | Section | Path |
 |---------|------|
+| Canonical scripts after sim (session / ledger helpers) | `references/canonical-scripts.md` |
 | Command playbook (step discovery) | `references/command.md` |
 | plan-acquisition | `references/plan-acquisition.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |

@@ -120,7 +120,7 @@ Keep Arduino Cloud guidance limited to firmware integration. Do not include dash
 - Presume a universal Arduino IDE, CLI, PlatformIO, board revision, core version, pin map, TLS behavior, or OTA capability.
 - Put secrets, real credentials, or private keys in examples, logs, fixtures, or evidence.
 - Expand Arduino Cloud into dashboards or administration.
-- Paste guideline packs into child prompts, spawn for trivial work, or hard-fail when `subagents` is `none` or Task is unavailable; use scoped paths, receipt, and fallback in-parent behavior.
+- Paste guideline packs into child prompts, spawn for trivial work, or hard-fail when `subagents` is `none` or Agent is unavailable; use scoped paths, receipt, and fallback in-parent behavior.
 - Auto-commit, auto-push, or claim hardware validation that was not exercised.
 
 ## Handoff

@@ -1,7 +1,7 @@
 ---
 name: orchestrate-analyze
 description: >-
-  Orchestrated Delivery O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
+  Orchestrated Delivery O1: triage a feature, spawn conditional Agent specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
 ---
 
 ## STOP - Read before ANY tool call
@@ -54,7 +54,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | Roster, `needs_*`, triage table | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Stack routing (implement later) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
 | Specialist prompts | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` — **one file per spawned specialist** |
@@ -69,9 +69,9 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
 | Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
 
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Task child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Agent child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
 
-**Progressive load:** contracts first (`PIPELINE.md` + `STORAGE.md`); after gates load `references/command.md` for step discovery; fan-out only on trigger (`MEMORY-BANK.md` at Step 0, `ROSTER.md` when setting `needs_*`, `SPAWN.md` before Task, **one** prompt per spawn, **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Progressive load:** contracts first (`PIPELINE.md` + `STORAGE.md`); after gates load `references/command.md` for step discovery; fan-out only on trigger (`MEMORY-BANK.md` at Step 0, `ROSTER.md` when setting `needs_*`, `SPAWN.md` before Agent, **one** prompt per spawn, **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 ## Reference routing
 
@@ -82,8 +82,8 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Feature root / bank root / portable paths | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Set `needs_*` / brownfield spawn rules | `ROSTER.md` |
-| Before any Task / fallback | `SPAWN.md` |
-| Premium Task `model` gate (rare) | `SUBAGENT-MODEL.md` |
+| Before any Agent / fallback | `SPAWN.md` |
+| Premium Agent `model` gate (rare) | `SUBAGENT-MODEL.md` |
 | Implement-later stack hint | `ROUTING.md` |
 | Step 1 intent classification (triage entry) | `references/intent-classification.md` |
 | Step 0 Memory Bank detail | `references/memory-bank-gate.md` |
@@ -139,8 +139,8 @@ If `trivial`: offer shortcut (read `references/triage.md` § Process — Trivial
 ### 7. Allocate NNN-slug and scaffold tree
 Glob next NNN; confirm portable path; scaffold `FEATURE.md` and `CONTINUITY.md` only. Do not create story folders. Read `references/story-synthesis.md`.
 
-### 8. Spawn Task specialists (conditional, parallel)
-SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4; omit Task `model` by default. Read `references/spawn-map.md`.
+### 8. Spawn Agent specialists (conditional, parallel)
+SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4; omit Agent `model` by default. Read `references/spawn-map.md`.
 
 ### 8b. Architecture confirm gate (greenfield / `needs_domain`)
 ARCH draft → operator **sim** / ajustar / cancelar → approved + point-promote. Brownfield: skip style re-pick only; still write mirror ARCH. Read `references/arch-confirm.md`.
@@ -162,7 +162,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no app code; no PRD/PLAN; no skip Step 0 / backlog **sim** / ARCH confirm; no missing `ANALYSIS|ARCH|SEC` when flags require them; no hard-fail when Task unavailable (fallback in-parent write); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`); do not present human backlog approval when FEATURE depth / promotion / cap gates fail; do not promote task-shaped or layer-only titles to US/TS.
+Enforce the full list in `references/must-not.md`. Critical always-on: no app code; no PRD/PLAN; no skip Step 0 / backlog **sim** / ARCH confirm; no missing `ANALYSIS|ARCH|SEC` when flags require them; no hard-fail when Agent unavailable (fallback in-parent write); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`); do not present human backlog approval when FEATURE depth / promotion / cap gates fail; do not promote task-shaped or layer-only titles to US/TS.
 
 ## Handoff
 

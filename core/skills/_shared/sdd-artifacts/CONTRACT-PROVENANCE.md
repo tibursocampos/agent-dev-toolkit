@@ -108,7 +108,7 @@ PRD lists "Assumptions (invented)" → do not map into Aceite as Completed crite
 
 1. **`sdd-spec` (required):** Cite this file in Lazy-load; apply `CP-AGREED-VS-INVENTED` during requirements authoring and before Write; restate in Must-not.
 2. **`sdd-plan` / `sdd-develop` (minimal):** Cite this file in Lazy-load and Must-not so consumers do not re-label invented as agreed.
-3. Pointers only — do **not** paste this body into `SKILL.md` or child Task prompts.
+3. Pointers only — do **not** paste this body into `SKILL.md` or child Agent prompts.
 
 ## Enforcement
 
@@ -124,7 +124,7 @@ Automated Assert may be added later; missing `sdd-spec` wire → do not mark REQ
 - Present agent guesses as operator-agreed requirements
 - Collapse `agreed` and `invented` into one unlabeled blob in PRD Write
 - Put real API tokens, passwords, or private keys in examples
-- Dump this contract body into child Task prompts (cite portable path + rule id only)
+- Dump this contract body into child Agent prompts (cite portable path + rule id only)
 - Use provenance labels to skip confirm-before-write gates
 
 ## Change class

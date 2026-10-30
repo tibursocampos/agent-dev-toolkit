@@ -16,7 +16,7 @@ function Write-Pass { param([string] $TestName) Write-Host ("{0}: PASS" -f $Test
 function Write-Fail { param([string] $TestName, [string] $Reason) Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason); exit 1 }
 
 # Script files that are helpers loaded by other hooks rather than entry points.
-$helperScriptNames = @('TraceEmitCommon.ps1')
+$helperScriptNames = @('TraceEmitCommon.ps1', 'GuardCommon.ps1')
 
 function Get-HookScriptPathsFromCommand {
     param([string] $Command)

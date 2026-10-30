@@ -140,7 +140,9 @@ function Get-ClaudeSmokeManagedHookScriptNames {
         $script:ClaudeSettingsJsonConstant.HookScriptSessionStart,
         $script:ClaudeSettingsJsonConstant.HookScriptPreferencesCommand,
         '_hook-common.ps1',
-        $script:ClaudeSettingsJsonConstant.SharedTraceEmitCommonFileName
+        $script:ClaudeSettingsJsonConstant.SharedTraceEmitCommonFileName,
+        $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName,
+        $script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName
     )
 }
 

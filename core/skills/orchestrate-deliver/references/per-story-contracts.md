@@ -48,7 +48,7 @@ Before treating a story output as accepted, resuming it, or emitting its O2 hand
 
 Keep these findings in the existing story result, approval, and O2 handoff. Do not add a hash/tag, workflow status, receipt field, ledger, or parallel state source. O2 remains `orchestrated`; this check does not change the `direct` fallback or any source owner's write/dependency gate.
 
-Prior context for each story: `STORY.md` + `REFINE/` when present (optional / on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them (**not** optional in that case) + feature `FEATURE.md` / `CONTINUITY.md`. Prefer promoted siblings/bank over re-asking. Max **3** gap questions if Prior context incomplete (`PIPELINE.md`). Max-3 gap questions do **not** replace the required-siblings STOP: missing `ANALYSIS/` / `ARCH/` / `SEC/` when flags require them → **STOP** / return to O1; do **not** Write PRD/PLAN. Open **B**/**I** on Prior/STORY/REFINE → **STOP** Write; `NEEDS_CLARIFICATION` (`readiness-severity.md`); presence ≠ READY (**RN02**).
+Prior context for each story: `STORY.md` + `REFINE/` when present (optional / on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them (**not** optional in that case) + feature `FEATURE.md` / `CONTINUITY.md`. Prefer promoted siblings/bank over re-asking. Ask all necessary gap questions if Prior context incomplete, in blocks of at most 5 (`PIPELINE.md`). The block limit does **not** replace the required-siblings STOP: missing `ANALYSIS/` / `ARCH/` / `SEC/` when flags require them → **STOP** / return to O1; do **not** Write PRD/PLAN. Open **B**/**I** on Prior/STORY/REFINE → **STOP** Write; `NEEDS_CLARIFICATION` (`readiness-severity.md`); presence ≠ READY (**RN02**).
 
 Parent must **not** invent a shorter “PRD lite” process that skips confirm-before-write or acceptance sections required by those skills.
 
@@ -65,13 +65,13 @@ features/NNN-slug/{USnn|TSnn}/PRD/NNN_*.md
 features/NNN-slug/{USnn|TSnn}/PLAN/PLAN_NNN_*.md
 ```
 
-**Input to contracts:** `STORY.md` + `REFINE/` when present (on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them + feature `FEATURE.md` / `CONTINUITY.md` + selective `memory-bank/` paths from Step 0 (Prior context - max 3 gap questions total per story if needed). Prefer promoted siblings/bank over re-asking.
+**Input to contracts:** `STORY.md` + `REFINE/` when present (on demand) + `ANALYSIS|ARCH|SEC` when FEATURE flags (or brownfield) require them + feature `FEATURE.md` / `CONTINUITY.md` + selective `memory-bank/` paths from Step 0 (Prior context - all necessary gap questions per story, in blocks of at most 5, if needed). Prefer promoted siblings/bank over re-asking.
 
 When external evidence is cited by O1 as `external:<alias>/<relative-path>`, preserve the exact alias and relative path in the PRD / PLAN evidence section and the O3 handoff wherever that evidence is needed for a PLAN step. Never substitute an absolute root or a repository-relative guess. This carries the reference only: O2 does not authorize aliases. Before O3 dispatch, its coordinator must authorize the alias and relevant path prefix and provide a separate alias-to-root map; O3's receipt guard accepts the alias only from that map plus the coordinator scope (`STORAGE.md` § External evidence references for O3; `RECEIPT.md`).
 
-**Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. Max-3 gap questions do **not** replace this gate.
+**Per-story STOP:** if this story still lacks a flag-gated required sibling (`ANALYSIS/` / `ARCH/` / `SEC/`): **STOP** that story — do **not** Write PRD/PLAN; return to O1. The block limit does **not** replace this gate.
 
-**Per-story readiness STOP:** any unanswered question on the required story files, including `MINOR`, stops that story with `open_question`. Do not write the PRD. Folder presence ≠ READY (**RN02**). The max-3 gap-question cap does not apply to this gate.
+**Per-story readiness STOP:** any unanswered question on the required story files, including `MINOR`, stops that story with `open_question`. Do not write the PRD. Folder presence ≠ READY (**RN02**). The block limit does not apply to this gate.
 
 **Brownfield analysis sufficiency:** before writing this story's PRD, inspect the required `ANALYSIS/` / `ARCH/` content against `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` and the affected scope. Confirm relevant conventions and impacts are backed by repository paths, confidence is stated, and reuse, affected areas, and material gaps are recorded using the artifact owner's format. Artifact/folder presence or unsupported generic defaults do not establish sufficiency. If a material evidence gap could change this story's contract or plan, request targeted repository investigation where feasible; if it remains unresolved, stop this story before PRD/PLAN and return the gap to O1. Technical pattern discovery is repository investigation, not a product question when behavior and acceptance are clear. Preserve the specialist's analysis ownership; O2 evaluates and consumes it without silently replacing it.
 
@@ -89,7 +89,7 @@ Order per story. Do not jump from spec to plan.
 
 `trivial` features do not get a tasks file.
 
-The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask every open question.
+The PIPELINE block limit does **not** apply to `open_question`. Ask every open question.
 
 | Stage | Contract | Must follow |
 |-------|----------|-------------|
@@ -102,15 +102,15 @@ The PIPELINE cap of 3 gap questions does **not** apply to `open_question`. Ask e
 
 **Série:** for each story S, run its story-file gate, spec, contestation, checklist when required, plan, and applicable approval gate in that order. **sim** does not skip an open question, contestation, or another story's gate. After the current story's applicable approval is recorded, recompute the eligible queue from canonical feature/story artifacts and dependencies; do not rely on a possibly stale `CONTINUITY.md` alone. Read the next eligible US/TS `STORY.md`, required siblings, and relevant feature context before starting its complete O2 cycle. Continue automatically without an extra “continue?” question. Stop for a material blocker, a decision or approval gate actually due, or when every story is closed. A previous story's approval never authorizes the next story's artifact writes; all per-story owner and write gates remain in force. A blocker affects only its dependent branch when other stories remain eligible.
 
-**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question or that has not passed contestation. Do not draft the plan before `REFINE/tasks.md` exists when the feature is medium or complex. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Task is unavailable, run série in-parent. Do not hard-fail.
+**Paralelo (native only):** one gate per wave. Do not draft a PLAN in the same return as a PRD that still has an open question or that has not passed contestation. Do not draft the plan before `REFINE/tasks.md` exists when the feature is medium or complex. Child returns notes or a draft only. Child must **not** `Write` PRD/PLAN to disk. Parent writes after the gate for that artifact is clear. If Agent is unavailable, run série in-parent. Do not hard-fail.
 
 Respect story **deps**: do not parallelize a story before its dependency stories have PRD+PLAN (or user explicitly waives). Waive-deps is for **story order** only — not for missing `SEC/` / `ARCH/` / `ANALYSIS`.
 
-See also § Contract reuse + § Task child prompt skeleton + § Per-story path layout.
+See also § Contract reuse + § Agent child prompt skeleton + § Per-story path layout.
 
 ---
 
-## Task child prompt skeleton (paralelo)
+## Agent child prompt skeleton (paralelo)
 
 Give each child:
 

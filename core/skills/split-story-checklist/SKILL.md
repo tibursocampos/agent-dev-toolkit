@@ -14,7 +14,7 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 ## Trigger
 **Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
-Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, `/split-story-checklist`, or after `refine-story`.
+Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, or after `refine-story`.
 
 **Input (one of):**
 
@@ -101,9 +101,7 @@ If no steps found and `source` is not `prd`, stop and suggest `/refine-story`.
 
 If `source=prd` and the STORY has no step list, do not suggest `/refine-story`. Build groups from the closed PRD `REQ` rows (`references/parsing.md`).
 
-If Complexity is `trivial` (small) and the caller is not `sdd-plan`: **STOP Write** of TASKS — tell the operator, in the user chat language, that TASKS is not required for trivial/small; offer an optional checklist only if they insist.
-
-If the caller is `sdd-plan`, a trivial story still returns a one-step breakdown. Do not refuse the write.
+If Complexity is `trivial` (small): **do not** Write TASKS / `REFINE/tasks.md`, for any caller. Tell the operator, in the user chat language, that a checklist file is not required for trivial/small. If the caller is `sdd-plan`, return the one-step breakdown in the chat only; no tasks file is written. Only an explicit operator request for a file changes this, and then the Persistence rules and write gates apply.
 
 If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
 

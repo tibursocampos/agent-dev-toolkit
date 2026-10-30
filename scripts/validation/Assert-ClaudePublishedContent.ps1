@@ -29,13 +29,10 @@ function Write-Fail { param([string] $TestName, [string] $Reason) Write-Error ("
 $forbiddenPattern = '(?<![\w.-])core[/\\](skills|policy|router|agents|sdd|adapters|scripts)[/\\]|\.mdc\b'
 
 $allowedProseHits = [ordered]@{
-    'CLAUDE.md'                                                 = 1
-    'skills/_shared/agents/LANGUAGE.md'                         = 1
     'skills/_shared/agents/ROSTER.md'                           = 1
-    'skills/_shared/agents/SPAWN.md'                            = 2
+    'skills/_shared/agents/SPAWN.md'                            = 1
     'skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md' = 1
     'skills/code-review/references/policy.md'                   = 2
-    'skills/memory-bank-init/references/inventory-fallback.md'  = 1
 }
 
 $n = 'Should_NotReferenceMdcOrCorePaths_When_ClaudePublished'

@@ -1,4 +1,4 @@
-# Task prompt: security (subset)
+# Agent prompt: security (subset)
 
 ## Caveman / receipt
 

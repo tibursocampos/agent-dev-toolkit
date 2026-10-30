@@ -77,4 +77,4 @@ Then run one contestation pass, isolated from the first:
 - A recommendation that would break an existing contract or duplicate a surface.
 - A contradiction between two of the four areas that the first pass missed.
 
-An open question after contestation means the PRD is not accepted. Stop code `open_question`. Do not call `sdd-plan`. Ask every open question. The cap of 3 gap questions does not apply.
+An open question after contestation means the PRD is not accepted. Stop code `open_question`. Do not call `sdd-plan`. Ask every open question. The block limit does not apply.

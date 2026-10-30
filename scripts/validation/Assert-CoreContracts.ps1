@@ -2199,7 +2199,7 @@ function Resolve-ContractInvocationContext {
     if ($explicit.Count -eq 1) { return $explicit[0] }
     if ($CurrentSkill -match '^orchestrate-' -or $ParentStage -match '^orchestrate-') { return 'orchestrated' }
 
-    # Host pacing, a generic scoped Task handoff, parent role/delegation, and PLAN scope are deliberately non-authoritative.
+    # Host pacing, a generic scoped Agent handoff, parent role/delegation, and PLAN scope are deliberately non-authoritative.
     return 'direct'
 }
 
@@ -2335,9 +2335,9 @@ Assert-ContractText -Case 'Should_KeepDirectClassic_WhenParentCoordinatesAndPlan
 )
 Assert-ContractText -Case 'Should_RequireExplicitOrchestratedHandoffForOrchestratedContext' -Text $invocationContexts -Markers @(
     'whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage',
-    'A generic scoped Task handoff does not select this context.'
+    'A generic scoped Agent handoff does not select this context.'
 )
-if ($invocationContexts -match '(?im)^\| `orchestrated` \|[^\r\n]*as a Task/spawn child with a scoped handoff\.') {
+if ($invocationContexts -match '(?im)^\| `orchestrated` \|[^\r\n]*as an Agent/spawn child with a scoped handoff\.') {
     throw 'Should_RequireExplicitOrchestratedHandoffForOrchestratedContext failed; a generic scoped handoff cannot select orchestrated.'
 }
 Assert-ContractText -Case 'Should_NotApplyO3OnlyGates_ToDirectInvocation' -Text ($developSkill + "`n" + $planAcquisition) -Markers @(
@@ -2497,7 +2497,7 @@ Assert-ContractText -Case 'Should_BlockMaterialProductQuestions_WithoutInventing
 
 # O3 consumes evidence-backed brownfield analysis before the first child,
 # without repeating the repository-level pass before every intermediate step.
-Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $orchestratedFlow) -Markers @(
+Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $stepQueue + "`n" + $orchestratedFlow) -Markers @(
     'Before the first child of a brownfield or impact-uncertain PLAN',
     'compare their evidenced areas with the first eligible step',
     'portable paths and only the relevant evidence summary',

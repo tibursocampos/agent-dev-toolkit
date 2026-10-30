@@ -4,7 +4,7 @@
 |--------|--------------------------------|---------------------------|----------------------------|
 | Purpose | One informal item + scorecard + mode envelope/Q&A | Multi-agent triage + US/TS backlog | Full PRD one story | PRD+PLAN per approved story |
 | Output | STORY or `docs/backlog/` + envelope / `REFINE/qa-history.md` | FEATURE + CONTINUITY + STORY×N after the open-question gate | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
-| Specialists | None | Conditional Task (`needs_*`) | None | sdd contracts per story |
+| Specialists | None | Conditional Agent (`needs_*`) | None | sdd contracts per story |
 | App code | No | No | No | No |
 | When | Informal single item | Complex / multi-story / brownfield | Ready for one PRD and no open question | After O1 **sim**, with a closed FEATURE and story folders already created |
 

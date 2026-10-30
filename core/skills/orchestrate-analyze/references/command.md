@@ -13,7 +13,7 @@
 | 5 | Collect description and triage (`needs_*`) | `references/triage.md`; `ROSTER.md` |
 | 6 | Trivial shortcut (optional exit) | `references/triage.md` § Trivial |
 | 7 | Allocate NNN-slug; scaffold `FEATURE.md` and `CONTINUITY.md` only (no story folders) | `references/story-synthesis.md` |
-| 8 | Spawn Task specialists (SPAWN; omit model). Return notes to the parent. Do not create story folders until step 9 | `references/spawn-map.md`; `SPAWN.md` |
+| 8 | Spawn Agent specialists (SPAWN; omit model). Return notes to the parent. Do not create story folders until step 9 | `references/spawn-map.md`; `SPAWN.md` |
 | 8b | Architecture confirm gate. Return the ARCH draft to the parent until step 9 | `references/arch-confirm.md` |
 | 8c | Feature research on `FEATURE.md` only. Show `LIVE-STAGE-TABLE.md`. If `open_question`, stop. Do not run step 9 | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`; `readiness-severity.md` § Open-question gate; `LIVE-STAGE-TABLE.md` |
 | 9 | Synthesize story folders only when FEATURE has no open question. Then FEATURE / CONTINUITY / STORY, product artifact quality gates (FEATURE depth TE01, promotion TE02, cap ≤4), and brownfield ANALYSIS validation | `references/story-synthesis.md`; `validate-brownfield-analysis.ps1` |

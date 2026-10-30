@@ -73,7 +73,7 @@ Evidence verification is a **sequential** gate inside the same `sdd-develop` ses
 
 | Allowed | Forbidden |
 |---------|-----------|
-| Run `validate-evidence.ps1` in the develop child after tests | Spawn Task / O3 parallel children **as the verifier mechanism** |
+| Run `validate-evidence.ps1` in the develop child after tests | Spawn Agent / O3 parallel children **as the verifier mechanism** |
 | Parent asks child to include evidence before marking done | Treat `orchestrate-develop` parallelism as “proof” that ACs passed |
 | Serial re-run of validate after fixing EVD/STATE | Parallel “verify” wave that replaces STATE/EVD |
 
@@ -126,7 +126,7 @@ Rule ids `SDDW-NN` are contract text only; no repository script validates them o
 - **SDDW-09 (defined GAP and DEF ids):** Every `GAP-NN` or `DEF-NN` cited by `STATE.md`, `EVD/`, or PRD acceptance text is defined in the PRD by a line that starts with that id (list item or table row). A cited id without a definition blocks the step done. Reconciliation: each cited id resolves to a PRD definition line.
 ## Must not
 
-- Use O3 / Task parallelism as the evidence verifier
+- Use O3 / Agent parallelism as the evidence verifier
 - Mark step done at level ≥ `cheap` with empty `EVD/` or missing matrix
 - Treat SQLite / OpenSpec / `.specs/` as evidence SoT
 - Dump full memory-bank or PRD into EVD files

@@ -63,7 +63,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Task subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
 
@@ -77,13 +77,13 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Gate / Orchestrated Delivery / siblings STOP | `PIPELINE.md` |
 | Feature / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
-| Before paralelo Task wave | `SPAWN.md` |
+| Before paralelo Agent wave | `SPAWN.md` |
 | Write PRD (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` |
 | Write PLAN (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` |
 | Preconditions / Step 0 / siblings STOP | `references/preconditions.md` |
 | Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` |
 | Mode série vs paralelo | `references/mode-selection.md` |
-| Per-story contracts / Task child skeleton | `references/per-story-contracts.md` |
+| Per-story contracts / Agent child skeleton | `references/per-story-contracts.md` |
 | Approval gates / answers | `references/approval-gates.md` |
 | CONTINUITY / handoff / cross-artifact | `references/continuity-handoff.md` |
 | Preflight PRD→PLAN→CHANGE before O3 | `references/preflight-prd-plan-change.md` |
@@ -101,7 +101,7 @@ Apply Lite caveman prefs when active. Read `references/process-common.md` § Pro
 Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Stay on the current branch. Do not show the branch and do not ask for a branch switch, including when the branch is `main`, `master`, or `develop`.
 
 ### 1b. Resolve invocation context
-Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into per-story `sdd-spec` / `sdd-plan` runs and Task drafts (path cite only).
+Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into per-story `sdd-spec` / `sdd-plan` runs and Agent drafts (path cite only).
 
 ### 2. Resolve feature and storage
 Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEATURE/CONTINUITY missing. Read `references/process-common.md` § Process — Resolve feature and storage.
@@ -113,7 +113,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
-Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Task `model` by default. Read `references/mode-selection.md`.
+Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Agent `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
 For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine-story/references/tech.md` § Story PRD contestation). An open question stops that story with `open_question`. Do not write the next artifact. When the PRD is accepted, run `split-story-checklist` for `medium` or `complex` (it writes `REFINE/tasks.md`; `trivial` skips that file), then `sdd-plan` (it reads those ids and does not call the checklist again). Read `references/per-story-contracts.md`.
@@ -132,7 +132,7 @@ In série mode, after a story's required O2 work and its applicable approval gat
 
 ## Must not
 
-Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN at an O2 write gate with any unanswered question, including **MINOR** (`open_question`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Task unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN at an O2 write gate with any unanswered question, including **MINOR** (`open_question`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Agent unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

@@ -75,7 +75,7 @@ Follow the step's **Tasks** in the plan (`references/writing-guidelines.md`):
 - Use **doc language** from plan; keep file paths and type names in English
 - No secrets, tokens, or internal-only URLs in markdown
 
-**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Task `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Task unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
+**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Agent `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Agent unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
 
 ### 3. Update plan
 
@@ -108,7 +108,7 @@ Files written, step completed, progress `N/M`, suggested handoff. Manual validat
 - Assume MES or fixed stack versions
 - Write product `docs/` before doc language is known
 - Complete multiple **Kind: new** plan steps in one session when context is high - prefer one new-doc step per session
-- Hard-fail when Task/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
+- Hard-fail when Agent/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
 - Require external wiki or work-item APIs
 
 ## Handoff

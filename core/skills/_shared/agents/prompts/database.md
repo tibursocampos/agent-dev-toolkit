@@ -1,4 +1,4 @@
-# Task prompt: database (subset)
+# Agent prompt: database (subset)
 
 ## Caveman / receipt
 
@@ -24,7 +24,7 @@ When the parent is `orchestrate-analyze` before step 9, return the DB note to th
 
 - Follow existing EF/ORM/SQL patterns in the repo.
 - No vendor lock-in lectures; no corporate DBA checklists.
-- No schema changes in this Task - analysis only.
+- No schema changes in this Agent - analysis only.
 - Unresolved product/schema forks stay in `ANALYSIS/` (CONTINUITY may pointer only).
 - Call out a predicate and its sort. Tie an index to selectivity. Do not propose a non-concurrent index on a hot table. Drop only after writes to that object have stopped. Do not add `NOT NULL` without a backfill. Mark an N+1 query when the read path shows one.
 

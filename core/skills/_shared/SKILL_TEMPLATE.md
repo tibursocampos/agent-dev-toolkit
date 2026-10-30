@@ -20,7 +20,7 @@ description: >-
 | Field | Rules |
 |-------|--------|
 | `name` | kebab-case; max 64 chars; equals folder name |
-| `description` | English, third person; **WHAT + WHEN**; soft target **~180-280** chars; hard max **1024** (Cursor). Always include the skill **id** matching `name`. Host prefixes (`/`, `$`, `use skill`) are examples — canonical form is the id. Prefer id readability over listing every stack detail. |
+| `description` | English, third person; **WHAT + WHEN**; soft target **~180-280** chars; hard max **1024** (host limit). Always include the skill **id** matching `name`. Host prefixes (`/`, `$`, `use skill`) are examples — canonical form is the id. Prefer id readability over listing every stack detail. |
 
 **Invoke (canonical in docs / handoffs / Trigger):** skill id `` `<name> - <args>` ``  
 **Host examples:** `/<name>`, `$<name>` (Codex/ZCode), `use skill <name>` (Antigravity / compat), OpenCode `skill({ name: "<name>" })`.  
@@ -62,7 +62,7 @@ Lazy-load row when applicable: `| Caveman Mode (if active) | {{TOOLKIT_ROOT}}/sk
 
 The STOP pointer above is 3 lines and does not count toward editorial budget.
 
-**Size:** hard limit **500 lines** total per `SKILL.md` (Cursor / Agent Skills). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
+**Size:** hard limit **500 lines** total per `SKILL.md` (Agent Skills convention). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
 
 - **Trigger** - lead with skill **id** `<name>`; note host forms (`/<name>`, `$<name>`, `use skill <name>`, OpenCode `skill` tool) briefly
 - **Outcome**
@@ -86,10 +86,10 @@ Align with US02: do **not** redefine spawn policy in the skill body. Point + sho
 ```
 ### Subagent-first (before implement)
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
+Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Agent unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
 ```
 
-**Must not (echo markers):** paste guideline packs into child prompts; spawn for **trivial**; hard-fail when `subagents` is `none` or Task unavailable (use **fallback** **in-parent**).
+**Must not (echo markers):** paste guideline packs into child prompts; spawn for **trivial**; hard-fail when `subagents` is `none` or Agent unavailable (use **fallback** **in-parent**).
 
 Stable assert markers (exact substrings): `SPAWN.md`, `subagents`, `in-parent`, `fallback`, `receipt`, `paths` — see `subagent-first.md`.
 
