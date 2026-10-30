@@ -159,13 +159,7 @@ When spawning (native path):
 
 ## Post-change validation (child → parent)
 
-When the child **changes files**, the end receipt (or final summary when receipt schema is relaxed) **must** include:
-
-| Field | Content |
-|-------|---------|
-| **build** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
-| **tests** | `pass` \| `fail` \| `skipped` + command run (if applicable) |
-| **summary** | One-line outcome for parent synthesis |
+When the child **changes files**, its end receipt follows `RECEIPT.md` for that child's role and **must** report the changed `files[]`, the test result, and a one-line summary (`testsSummary`: checks run with PASS / BLOCKED / FAIL, or explicitly deferred or skipped). Report build status only when `RECEIPT.md` assigns it to that role.
 
 Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not dump full child transcripts.
 

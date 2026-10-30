@@ -1,4 +1,4 @@
-# Task prompt: repo_analyst
+# Task prompt: repo-analyst
 
 ## Caveman / receipt
 

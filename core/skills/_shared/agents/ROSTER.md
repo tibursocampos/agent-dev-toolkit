@@ -14,7 +14,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
 | Role id | When to spawn | Minimum assignment input | Writes (under feature/story) | Expected result / receipt meaning | Must not |
 |---------|---------------|-------------------------|------------------------------|----------------------------------|----------|
-| `repo_analyst` | Brownfield / impact unclear / `needs_api` | Question and affected repository paths; local instructions and representative evidence to inspect | `ANALYSIS/` notes (**folder on disk**) | Findings use the finding contract in `RECEIPT.md`; Agent outcome is separate. Parent checks the assigned artifact. | App code; invent APIs; CONTINUITY-only substitute |
+| `repo-analyst` | Brownfield / impact unclear / `needs_api` | Question and affected repository paths; local instructions and representative evidence to inspect | `ANALYSIS/` notes (**folder on disk**) | Findings use the finding contract in `RECEIPT.md`; Agent outcome is separate. Parent checks the assigned artifact. | App code; invent APIs; CONTINUITY-only substitute |
 | `architect` | `needs_domain`, cross-cutting design, **greenfield**, or **brownfield** (mirror) | Problem, scope, constraints, relevant repository evidence, and the design decision or mirror analysis needed | `ARCH/` notes (**folder on disk**; draft until confirm on greenfield) | `done`: scoped design result delivered; `blocked`: decision/confirmation/input missing; `failed`: design attempt failed. `done` does not bypass an applicable approval gate. | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield; skip ARCH on brownfield |
 | `security` | `needs_security` | Threat surface, assets/trust boundaries, and affected paths or components | `SEC/` notes (**folder on disk**) | `done`: scoped review delivered; `blocked`: required evidence/scope missing; `failed`: review attempt failed. Parent checks the assigned review scope. | compliance theater; route findings to CONTINUITY instead of `SEC/` |
 | `database` | `needs_database` or brownfield with persistence | Persistence scope, relevant schema/data contracts, and affected paths | `ARCH/` DB slice (**folder on disk**) | `done`: assigned data design/migration result delivered; `blocked`: required schema/input unavailable; `failed`: assigned work failed. Parent checks step acceptance and required validation. | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
@@ -46,8 +46,8 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 
 | Flag | Spawn when true | Specialist / action | Prompt |
 |------|-----------------|---------------------|--------|
-| `needs_api` | API / package / integration surface | `repo_analyst` (+ `architect` if contract-heavy); **write `ANALYSIS/`** | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
-| (brownfield / impact unclear) | Nature `brownfield` or impact unclear | `repo_analyst` **and** `architect` (discover / **mirror ARCH**; skip style re-pick only) + `database` when persistence is in scope; folders on disk | `prompts/repo_analyst.md`, `prompts/architect.md`, `prompts/database.md` |
+| `needs_api` | API / package / integration surface | `repo-analyst` (+ `architect` if contract-heavy); **write `ANALYSIS/`** | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
+| (brownfield / impact unclear) | Nature `brownfield` or impact unclear | `repo-analyst` **and** `architect` (discover / **mirror ARCH**; skip style re-pick only) + `database` when persistence is in scope; folders on disk | `prompts/repo_analyst.md`, `prompts/architect.md`, `prompts/database.md` |
 | (greenfield / no established style) | Nature `greenfield` **or** no in-repo architecture style | `architect` → **architecture-selection** propose + operator **confirm** before final ARCH; **write `ARCH/`** | `prompts/architect.md` + `code-guidelines/principles/architecture-selection.md` |
 | `needs_domain` | Domain / cross-cutting design | `architect` (same confirm gate when style is not yet established); **write `ARCH/`** | `prompts/architect.md` |
 | `needs_database` | Persistence / schema | `database`; **write `ARCH/` DB slice** | `prompts/database.md` |
@@ -58,7 +58,7 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 ### Implementer, finding, verifier, and relay contracts
 
 - `developer-child` uses its reduced receipt in `RECEIPT.md`; stack `*-developer` prompts remain responsible for their own implementation details and do not emit the O3 relay receipt.
-- Finding specialists (`repo_analyst`, `architect`, `security`, `database`) use the finding contract. Their severity labels are mapped in `RECEIPT.md` and must not be collapsed into readiness or terminal status.
+- Finding specialists (`repo-analyst`, `architect`, `security`, `database`) use the finding contract. Their severity labels are mapped in `RECEIPT.md` and must not be collapsed into readiness or terminal status.
 - The O3 implementer (`sdd-develop`) returns the canonical relay receipt defined in `RECEIPT.md`, including optional `deletedFiles[]` for removed paths. The parent validates it against PLAN, session, and claim before reconciliation.
 - The optional read-only verifier uses its verifier contract; it cannot implement, edit PLAN, or substitute for evidence validation.
 - `prompts/` is canonical. `core/agents/` files are thin discoverable wrappers; `shell-runner` and `developer-child` also have canonical prompt files because roster/workflow consumers call them.
@@ -87,7 +87,7 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 
 | File | Use |
 |------|-----|
-| `prompts/repo_analyst.md` | Impact / brownfield map |
+| `prompts/repo_analyst.md` | Impact / brownfield map (role `repo-analyst`) |
 | `prompts/architect.md` | Solution shape; greenfield → architecture-selection + user confirm |
 | `prompts/security.md` | Security subset review |
 | `prompts/database.md` | Data model / migration risks |
