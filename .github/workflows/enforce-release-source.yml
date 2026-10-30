@@ -24,19 +24,24 @@ jobs:
           }
           echo "OK: head is develop"
 
-      - name: Require release-sync App credentials
+      - name: Check release-sync App credentials
+        id: app-creds
         env:
           APP_ID: ${{ secrets.RELEASE_SYNC_APP_ID }}
           APP_PRIVATE_KEY: ${{ secrets.RELEASE_SYNC_APP_PRIVATE_KEY }}
         shell: bash
         run: |
           set -euo pipefail
-          [[ -n "${APP_ID}" && -n "${APP_PRIVATE_KEY}" ]] || {
-            echo "Release-sync GitHub App credentials are required before merging a release PR. Configure RELEASE_SYNC_APP_ID and RELEASE_SYNC_APP_PRIVATE_KEY." >&2
-            exit 1
-          }
+          if [[ -z "${APP_ID}" || -z "${APP_PRIVATE_KEY}" ]]; then
+            echo "Warning: RELEASE_SYNC_APP_ID or RELEASE_SYNC_APP_PRIVATE_KEY not configured." \
+              "The post-merge reconcile-develop job will be skipped. Configure these secrets to enable automatic develop sync after release." >&2
+            echo "has_creds=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "has_creds=true" >> "${GITHUB_OUTPUT}"
+          fi
 
       - name: Verify release-sync App installation and permissions
+        if: steps.app-creds.outputs.has_creds == 'true'
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
         with:
           app-id: ${{ secrets.RELEASE_SYNC_APP_ID }}
