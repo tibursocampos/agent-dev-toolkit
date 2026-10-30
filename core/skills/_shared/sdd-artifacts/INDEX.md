@@ -12,7 +12,7 @@ Load this index first. Read only the rows that match the current action. Guardra
 | `ARTIFACT-OWNERSHIP-MATRIX.md` | Looking up the authority, writer, and consumers of one artifact type (the full matrix). | 16 KB |
 | `INVOCATION-CONTEXTS.md` | Deciding `direct` vs `orchestrated` invocation, or the `IC-DIRECT-ORCHESTRATED` rules. | 9 KB |
 | `MEMORY-BANK.md` | Orchestrated Delivery Step 0 or Step N, or any `memory-bank-init` run. | 14 KB |
-| `LIVE-STAGE-TABLE.md` | Rendering the cumulative O1/O2 stage table in chat. | 12 KB |
+| `LIVE-STAGE-TABLE.md` | Progress-table standard (structure, label map, display points, completeness); governs O1, O2, O3, sdd-spec, sdd-plan, sdd-develop and Backlog Refine. | 14 KB |
 | `CHANGE-CONTRACT.md` | Brownfield work that changes current specs (`CHANGE.md`). | 6 KB |
 | `CONTRACT-PROVENANCE.md` | Labelling a contract or assumption as `agreed` or `invented`, or while authoring a PRD with contract claims. | 7 KB |
 | `EVD-STATE-CONTRACT.md` | Evidence levels or the evidence-or-zero rule, when a skill reports evidence or state. | 8 KB |
