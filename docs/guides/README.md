@@ -83,7 +83,7 @@ Related:
 
 ## Session behavior
 
-Chat language, parent orchestrator, and optional response compression (`caveman` default off) are one page: [session-behavior.md](session-behavior.md). Compression does not change skill steps.
+Chat language, parent orchestrator, and optional response compression (`caveman` default on) are one page: [session-behavior.md](session-behavior.md). Compression does not change skill steps.
 
 ## Orchestrator mode
 

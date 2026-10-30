@@ -12,7 +12,7 @@ Encurtar a prosa do chat segue [JuliusBrussee/caveman](https://github.com/Julius
 
 O que este repositório entrega é uma integração de preferências: `core/skills/_shared/caveman/`, política `caveman-mode` e comandos de chat `caveman on|off|…`. A compactação opcional de continuidade é `COMPACT.md`. O `caveman-compress` de origem permanece naquele projeto. Isto é um recorte da ideia, não uma cópia do repositório.
 
-A compressão é uma preferência de sessão e começa desligada. Os comandos, e o texto que permanece em prosa completa: [Usando skills](using-skills.md#session-behavior).
+A compressão é uma preferência de sessão e começa ligada. Os comandos, e o texto que permanece em prosa completa: [Usando skills](using-skills.md#session-behavior).
 
 ## frontend-design da Anthropic
 
