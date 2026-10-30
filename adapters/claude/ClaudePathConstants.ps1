@@ -18,6 +18,7 @@ $script:ClaudePathConstant = @{
     SddDirectoryName               = 'sdd'
     GuardrailsFileName             = 'guardrails.md'
     SkillManifestFileName          = 'SKILL.md'
+    SkillFrontmatterOverlayFileName = 'skill-frontmatter.json'
     SharedSkillsDirectoryName      = '_shared'
     RouterSourceFileName           = 'AGENTS.md'
     ClaudeMdFileName               = 'CLAUDE.md'
@@ -72,6 +73,14 @@ $script:ClaudeSettingsJsonConstant = @{
     SharedTraceEmitCommonFileName  = 'TraceEmitCommon.ps1'
 }
 
+# Claude-only SKILL.md frontmatter fields merged at publish time (core/skills stays neutral).
+$script:ClaudeSkillFrontmatterAllowedKeys = @(
+    'name',
+    'disable-model-invocation',
+    'allowed-tools',
+    'argument-hint'
+)
+
 # Legacy broad allow entries (uninstall + re-sync strip only; never re-added by default).
 $script:ClaudeLegacyBroadPermissionsAllow = @(
     'Bash(pwsh *)',
@@ -80,6 +89,11 @@ $script:ClaudeLegacyBroadPermissionsAllow = @(
 
 $script:ClaudePublishMessage = @{
     CoreSkillsMissing       = 'Claude Publish-Skills: core skills source is missing: {0}'
+    SkillFrontmatterOverlayMissing = 'Claude Publish-Skills: frontmatter overlay is missing: {0}'
+    SkillFrontmatterOverlayInvalid = 'Claude Publish-Skills: frontmatter overlay invalid at {0}: {1}'
+    SkillFrontmatterSkillMissing   = 'Claude Publish-Skills: overlay names skill "{0}" which is not published at {1}'
+    SkillFrontmatterMissing        = 'Claude Publish-Skills: SKILL.md for "{0}" has no leading YAML frontmatter block'
+    SkillFrontmatterInvalid        = 'Claude Publish-Skills: merged frontmatter for "{0}" is invalid: {1}'
     PublishedOk             = 'Claude Publish-Skills: published {0} file(s) from core/skills to {1}'
     WhatIfOk                = 'Claude Publish-Skills: WhatIf - would publish core/skills to {0}'
     CorePolicyMissing       = 'Claude Publish-Policy: core policy source is missing: {0}'
