@@ -118,8 +118,6 @@ Apply `CP-AGREED-VS-INVENTED`: operator answers and cited Prior context → `agr
 
 When the operator requests external read/write access, only that explicit destination and those explicit operations become agreed scope. Missing operation, target, or material boundary remains an open question; never infer a wider grant from technical convenience.
 
-When the operator requests external read/write access, only that explicit destination and those explicit operations become agreed scope. Missing operation, target, or material boundary remains an open question; never infer a wider grant from technical convenience.
-
 ### 6. Context checkpoint
 
 Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.

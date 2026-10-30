@@ -14,7 +14,7 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 ## Trigger
 **Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
-Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, `/split-story-checklist`, or after `refine-story`.
+Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, or after `refine-story`.
 
 **Input (one of):**
 
