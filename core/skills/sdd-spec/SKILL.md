@@ -57,6 +57,8 @@ For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCES
 
 After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for authoring tables — **not** full `reference.md`.
 
+**Stage table:** you must render the full stage table (`LIVE-STAGE-TABLE.md` § sdd-spec; detail in `references/command.md`) in chat when the flow starts, before each gate, after each gate answer, on each row state change, on a blocker, and at close. Always show every row. Do not save it in the PRD.
+
 **Question blocks:** ask every necessary question. There is no global cap on the total number of questions. Group questions in blocks of at most **5** per block, and wait for the answers before the next block.
 
 ### Step -1b - Caveman Mode (Lite cap)
@@ -124,7 +126,7 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 6.75 Approve PRD content
 
-Show the proposed PRD content summary, including remaining **`invented`** assumptions. Ask whether the operator approves the content (`aprovar` / `ajustar` / `cancelar`). This decision approves only the described PRD content and promotes only the listed assumptions to `agreed` (`CONTRACT-PROVENANCE.md`); it does not authorize a file write. In Plan/Ask, complete this content review but do not write.
+Show the proposed PRD content summary, including remaining **`invented`** assumptions. Ask whether the operator approves the content (**sim** / **ajustar** / **cancelar**). This decision approves only the described PRD content and promotes only the listed assumptions to `agreed` (`CONTRACT-PROVENANCE.md`); it does not authorize a file write. In Plan/Ask, complete this content review but do not write.
 
 ### 6.8 Open-question gate
 
