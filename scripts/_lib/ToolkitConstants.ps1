@@ -32,77 +32,32 @@ $script:ToolkitConstant = @{
     RegistryFileName               = 'registry.json'
     DefaultFixtureInstallRootRel   = 'scripts/validation/fixtures/install-root'
     InstallRootFixtureDirectoryName = 'install-root'
-    SmokeHarnessScriptName         = 'Invoke-SmokeHarness.ps1'
-    SmokeHarnessMarkerFileName     = '.smoke-harness-marker'
     UserCursorProfileRelativePath  = '.cursor'
-    SkillFixtureMarkersFileName    = 'expected-markers.txt'
     ValidateCoreRelativePath       = 'scripts/validation/validate-core.ps1'
     NamedRemainingCheckRelativePaths = @(
-        'scripts/validation/Assert-CiWorkflow.ps1'
         'scripts/validation/Assert-GuardShellCanonicalPaths.ps1'
         'scripts/validation/Assert-TraceEmitterFailOpen.ps1'
     )
-    AssertRouterDocLinksScriptName = 'Assert-RouterDocLinks.ps1'
     RouterAgentsRelativePath       = 'core/router/AGENTS.md'
-    RouterDocLinksCheckName        = 'router-doc-links'
     RouterPathLiteralPattern       = '`(docs|core)/([^`]+)`'
     InventedMissingRouterDocRel    = 'docs/__invented_missing_router_target__.md'
-    AssertSpawnContractScriptName  = 'Assert-SpawnContract.ps1'
     AssertAdapterContractScriptName = 'Assert-AdapterContract.ps1'
-    AssertOrchestrateSpawnFallbackScriptName = 'Assert-OrchestrateSpawnFallback.ps1'
-    AssertHermesSpawnIsolationScriptName = 'Assert-HermesSpawnIsolation.ps1'
-    AssertAntigravityOfficialLayoutScriptName = 'Assert-AntigravityOfficialLayout.ps1'
-    AssertJavaDeveloperRoutingScriptName = 'Assert-JavaDeveloperRouting.ps1'
-    SpawnContractCheckName         = 'spawn-contract'
+    AssertCoreContractsScriptName = 'Assert-CoreContracts.ps1'
+    CoreContractsCheckName = 'core-contracts'
+    AssertAdapterPublishScriptName = 'Assert-AdapterPublish.ps1'
+    AdapterPublishCheckName = 'adapter-publish'
     AdapterContractCheckName       = 'adapter-contract'
-    OrchestrateSpawnFallbackCheckName = 'orchestrate-spawn-fallback'
-    HermesSpawnIsolationCheckName  = 'hermes-spawn-isolation'
-    AntigravitySubagentsProbeCheckName = 'antigravity-subagents-probe'
-    JavaDeveloperRoutingCheckName  = 'java-developer-routing'
     AssertInstallRootSafetyScriptName = 'Assert-InstallRootSafety.ps1'
     InstallRootSafetyCheckName     = 'install-root-safety'
-    AssertSmokeHarnessSafetyScriptName = 'Assert-SmokeHarnessSafety.ps1'
-    SmokeHarnessSafetyCheckName    = 'smoke-harness-safety'
     AssertClaudeSettingsMergeScriptName = 'Assert-ClaudeSettingsMerge.ps1'
     ClaudeSettingsMergeCheckName   = 'claude-settings-merge'
     AssertCursorHooksMergeScriptName = 'Assert-CursorHooksMerge.ps1'
     CursorHooksMergeCheckName      = 'cursor-hooks-merge'
-    AssertCursorPathSecretsGuardScriptName = 'Assert-CursorPathSecretsGuard.ps1'
-    CursorPathSecretsGuardCheckName = 'cursor-path-secrets-guard'
-    AssertClaudePathSecretsGuardScriptName = 'Assert-ClaudePathSecretsGuard.ps1'
-    ClaudePathSecretsGuardCheckName = 'claude-path-secrets-guard'
-    AssertCodexPathSecretsGuardScriptName = 'Assert-CodexPathSecretsGuard.ps1'
-    CodexPathSecretsGuardCheckName = 'codex-path-secrets-guard'
-    AssertCopilotPathSecretsGuardScriptName = 'Assert-CopilotPathSecretsGuard.ps1'
-    CopilotPathSecretsGuardCheckName = 'copilot-path-secrets-guard'
-    AssertOpenHandsPathSecretsGuardScriptName = 'Assert-OpenHandsPathSecretsGuard.ps1'
-    OpenHandsPathSecretsGuardCheckName = 'openhands-path-secrets-guard'
-    AssertZcodePathSecretsGuardScriptName = 'Assert-ZcodePathSecretsGuard.ps1'
-    ZcodePathSecretsGuardCheckName = 'zcode-path-secrets-guard'
-    AssertGrokPathSecretsGuardScriptName = 'Assert-GrokPathSecretsGuard.ps1'
-    GrokPathSecretsGuardCheckName = 'grok-path-secrets-guard'
-    AssertOpenCodePathSecretsGuardScriptName = 'Assert-OpenCodePathSecretsGuard.ps1'
-    OpenCodePathSecretsGuardCheckName = 'opencode-path-secrets-guard'
-    AssertAntigravityPathSecretsGuardScriptName = 'Assert-AntigravityPathSecretsGuard.ps1'
-    AntigravityPathSecretsGuardCheckName = 'antigravity-path-secrets-guard'
-    AssertHermesPathSecretsGuardScriptName = 'Assert-HermesPathSecretsGuard.ps1'
-    HermesPathSecretsGuardCheckName = 'hermes-path-secrets-guard'
+    AssertPowerShellDynamicPathGuardScriptName = 'Assert-PowerShellDynamicPathGuard.ps1'
+    PowerShellDynamicPathGuardCheckName = 'powershell-dynamic-path-guard'
     CursorHooksAssetsRelativePath  = 'adapters/cursor/assets/hooks'
-    AssertCanonicalCloneUrlScriptName = 'Assert-CanonicalCloneUrl.ps1'
-    CanonicalCloneUrlCheckName     = 'canonical-clone-url'
-    AssertTier1AdapterReadmesScriptName = 'Assert-Tier1AdapterReadmes.ps1'
-    Tier1AdapterReadmesCheckName   = 'adapter-readmes'
     AssertSyncAllowUserHomeForwardScriptName = 'Assert-SyncAllowUserHomeForward.ps1'
     SyncAllowUserHomeForwardCheckName = 'sync-allow-user-home-forward'
-    AssertCiWorkflowScriptName         = 'Assert-CiWorkflow.ps1'
-    CiWorkflowCheckName                = 'ci-workflow'
-    AssertNoFeaturesDocLinksScriptName = 'Assert-NoFeaturesDocLinks.ps1'
-    NoFeaturesDocLinksCheckName        = 'no-features-doc-links'
-    NoFeaturesDocLinksSpawnMatrixPattern = 'SPAWN_MATRIX'
-    NoFeaturesDocLinksFeatureFolderPattern = 'features/\d{3}-'
-    NoFeaturesDocLinksSyntheticForbiddenSample = 'See features/002-example/US02/ARCH/SPAWN_MATRIX.md'
-    AssertNoFormaAliasScriptName       = 'Assert-NoFormaAlias.ps1'
-    NoFormaAliasCheckName              = 'no-forma-alias'
     NoFormaAliasFormaLetterPattern    = '\bForma [ABC]\b'
     NoFormaAliasFormerlyPattern        = 'formerly Forma'
     NoFormaAliasFormerlyTrackAliasPattern = 'formerly Classic SDD/B/C'
@@ -116,8 +71,6 @@ $script:ToolkitConstant = @{
     UninstallPathSafetyCheckName       = 'uninstall-path-safety'
     AssertSddRootPrepareIdempotentScriptName = 'Assert-SddRootPrepareIdempotent.ps1'
     SddRootPrepareIdempotentCheckName  = 'sdd-root-prepare-idempotent'
-    AssertSelectiveRetrievalScriptName = 'Assert-SelectiveRetrieval.ps1'
-    SelectiveRetrievalCheckName        = 'selective-retrieval'
     SelectiveRetrievalRuleId           = 'SR-NO-FULL-DUMP'
     SelectiveRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md'
     SelectiveRetrievalInScopeRelativePaths = @(
@@ -132,8 +85,6 @@ $script:ToolkitConstant = @{
         'core/skills/refine-story/references/boundary.md',
         'core/skills/refine-story/references/guardrails.md'
     )
-    AssertSkillLazyLoadScriptName      = 'Assert-SkillLazyLoad.ps1'
-    SkillLazyLoadCheckName             = 'skill-lazy-load'
     SkillReferenceRetrievalRuleId      = 'SR-LAZY-REFERENCE'
     SkillReferenceRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md'
     CoreSkillsRootRelativePath         = 'core/skills'
@@ -166,11 +117,9 @@ $script:ToolkitConstant = @{
     ValidatePlanFixtureInvalidMissingReqRelativePath = 'plan/invalid-missing-req.md'
     ValidatePlanFixtureCompanionPrdRelativePath = 'plan/companion-prd.md'
     ValidateChangeScriptName           = 'validate-change.ps1'
-    AssertChangeContractScriptName     = 'Assert-ChangeContract.ps1'
-    ChangeContractCheckName            = 'change-contract'
     ChangeContractGuideRelativePath    = 'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
     ChangeTemplateRelativePath         = 'core/skills/_shared/templates/features/CHANGE.md'
-    SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|MODIFIED|REMOVED)\b'
+    SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|ADICIONAD[OA]S?|INCLU[IÍ]D[OA]S?|MODIFIED|MODIFICAD[OA]S?|ALTERAD[OA]S?|REMOVED|REMOVID[OA]S?|EXCLU[IÍ]D[OA]S?)\b'
     SddArtifactChangeForbiddenCurrentPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
     ValidateChangeFixtureValidRelativePath = 'change/valid.md'
     ValidateChangeFixtureInvalidNoSectionsRelativePath = 'change/invalid-no-sections.md'
@@ -225,55 +174,17 @@ $script:ToolkitConstant = @{
     SddArtifactTraceFeaturePathPattern = '(?i)^features/[0-9]{3}-[a-z0-9][a-z0-9\-]*$'
     SddArtifactTraceAllowedTargetPattern = '(?i)^(memory-bank/|docs/)'
     SddArtifactTraceForbiddenTargetPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
-    AssertOrchestratorCharterPublishedScriptName = 'Assert-OrchestratorCharterPublished.ps1'
-    OrchestratorCharterPublishedCheckName        = 'orchestrator-charter-published'
-    AssertOrchestratorCommandsScriptName         = 'Assert-OrchestratorCommands.ps1'
-    OrchestratorCommandsCheckName                = 'orchestrator-commands'
-    AssertPreferencesSchemaScriptName            = 'Assert-PreferencesSchema.ps1'
-    PreferencesSchemaCheckName                   = 'preferences-schema'
-    AssertPlanExecutionPolicyScriptName          = 'Assert-PlanExecutionPolicy.ps1'
-    PlanExecutionPolicyCheckName                 = 'plan-execution-policy'
-    AssertPrdStructureScriptName                 = 'Assert-PrdStructure.ps1'
-    PrdStructureCheckName                        = 'prd-structure'
-    AssertPlanStructureScriptName                = 'Assert-PlanStructure.ps1'
-    PlanStructureCheckName                       = 'plan-structure'
-    PrdStructureTemplateRelativePath             = 'core/skills/_shared/templates/sdd/PRD.md'
-    PlanStructureTemplateRelativePath            = 'core/skills/_shared/templates/sdd/PLAN.md'
-    PrdRequiredSectionMarkers                    = @(
-        '## Execution policy',
-        '## 2. Critérios de aceite',
-        '## 4. Requisitos (REQ-IDs)',
-        '## 5. Fora de escopo (OOS)'
-    )
-    PlanRequiredSectionMarkers                   = @(
-        '## Execution policy',
-        '## Mapa REQ → passo',
-        '## Passos de implementação'
-    )
-    PrdStructureSkillWiringRelativePaths         = @(
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md'
-    )
-    PlanStructureSkillWiringRelativePaths        = @(
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-plan/reference.md'
-    )
-    SddArtifactPrdExecutionPolicyPattern         = '(?im)^##\s+Execution policy\s*$'
+    SddArtifactPrdExecutionPolicyPattern         = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
     SddArtifactPrdAcceptanceSectionPattern       = '(?im)^##\s+2\.\s+(Critérios de aceite|Acceptance criteria)\s*$'
     SddArtifactPrdRequirementsSectionPattern     = '(?im)^##\s+4\.\s+(Requisitos \(REQ-IDs\)|Requirements \(REQ-IDs\))\s*$'
     SddArtifactPrdOosSectionPattern              = '(?im)^##\s+5\.\s+(Fora de escopo|Out of scope)\b'
-    SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+Execution policy\s*$'
-    SddArtifactPlanStepHeadingPattern            = '(?im)^#{2,3}\s*(⏳|🔄|✅|❌)?\s*(PASSO|STEP)\s+\d+'
-    AssertStorySizingContractScriptName          = 'Assert-StorySizingContract.ps1'
-    StorySizingContractCheckName                 = 'story-sizing-contract'
+    SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
+    SddArtifactPlanStepHeadingPattern            = '^(?i)(?:STEP|PASSO|ETAPA)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
     StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
-    AssertIntentClassificationScriptName         = 'Assert-IntentClassification.ps1'
-    IntentClassificationCheckName                = 'intent-classification'
     IntentClassificationContractRelativePath   = 'core/skills/orchestrate-analyze/references/intent-classification.md'
     InvokeMemoryBankInventoryScriptRelativePath  = 'scripts/inventory/Invoke-MemoryBankInventory.ps1'
     AssertMemoryBankInventoryScriptName          = 'Assert-MemoryBankInventory.ps1'
     MemoryBankInventoryCheckName                 = 'memory-bank-inventory'
-    MemoryBankInventoryFixtureRelativeDir        = 'scripts/validation/fixtures/memory-bank-inventory-work'
     InvokeDevelopSessionGateScriptRelativePath   = 'scripts/session/Invoke-DevelopSessionGate.ps1'
     InvokePlanLedgerClaimScriptRelativePath      = 'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
     PlanLedgerFixtureHolderA                     = 'holder-A'
@@ -344,10 +255,8 @@ $script:ToolkitConstant = @{
     SpawnPublishKnobsRelativePath                = 'adapters/_shared/SpawnPublishKnobs.ps1'
     SpawnPublishHonestyRelativePath              = 'adapters/_shared/spawn-publish-honesty.md'
     SpawnPublishCoreAgentsRelativeDir            = 'core/agents'
-    AssertPublishSpawnKnobsScriptName            = 'Assert-PublishSpawnKnobs.ps1'
-    PublishSpawnKnobsCheckName                   = 'publish-spawn-knobs'
-    AssertInvocationAxesScriptName               = 'Assert-InvocationAxes.ps1'
-    InvocationAxesCheckName                      = 'invocation-axes'
+    AssertRuntimeCopyDriftScriptName             = 'Assert-RuntimeCopyDrift.ps1'
+    RuntimeCopyDriftCheckName                    = 'runtime-copy-drift'
     InvokeSiblingReadinessGateScriptRelativePath = 'scripts/validation/Invoke-SiblingReadinessGate.ps1'
     SiblingReadinessContractRelativePath         = 'core/skills/_shared/sdd-artifacts/readiness-severity.md'
     SiblingReadinessFixtureReadyRelativeDir      = 'readiness/ready'
@@ -385,12 +294,7 @@ $script:ToolkitConstant = @{
     PlanLedgerReasonReleaseForbidden             = 'release_forbidden'
     PlanLedgerReasonNotClaimed                   = 'step_not_claimed'
     PlanLedgerEventClaimRejected                 = 'claim_rejected'
-    ExecutionModesReferenceRelativePath          = 'core/skills/orchestrate-develop/references/execution-modes.md'
-    ExecutionModesSkillIndexRelativePath         = 'core/skills/orchestrate-develop/reference.md'
-    ExecutionModesSkillBodyRelativePath          = 'core/skills/orchestrate-develop/SKILL.md'
     InvokeExecutionModeGateScriptRelativePath    = 'scripts/ledger/Invoke-ExecutionModeGate.ps1'
-    AssertExecutionModesScriptName               = 'Assert-ExecutionModes.ps1'
-    ExecutionModesCheckName                      = 'execution-modes'
     ExecutionModeGateSchemaId                    = 'execution-mode-gate/v1'
     ExecutionModeAllowedIds                      = @('serial', 'parallel', 'manual')
     ExecutionModeAuditFileName                   = 'execution-mode.audit.jsonl'
@@ -468,10 +372,6 @@ $script:ToolkitConstant = @{
         'verify_mode'
     )
     ExecutionPolicyHeadingMarker                 = '## Execution policy'
-    ExecutionPolicyTemplateRelativePaths         = @(
-        'core/skills/_shared/templates/sdd/PLAN.md',
-        'core/skills/_shared/templates/sdd/PRD.md'
-    )
     ExecutionPolicySkillWiringRelativePaths      = @(
         'core/skills/sdd-plan/SKILL.md',
         'core/skills/sdd-spec/SKILL.md',
@@ -479,21 +379,6 @@ $script:ToolkitConstant = @{
     )
     ToolkitOrchestratorInstallMenuChoices        = @('1', '2')
     PreferencesFileName                          = 'preferences.json'
-    # Fixture-local keyed uninstall asserts (no live-home write). Kept out of
-    # validate-core because they call validate-agent which re-enters validate-core.
-    # CI runs them via a dedicated workflow step (inline loop over this list).
-    KeyedUninstallCiAsserts            = @(
-        @{ CheckName = 'claude-keyed-uninstall'; ScriptName = 'Assert-ClaudeKeyedUninstall.ps1' },
-        @{ CheckName = 'copilot-keyed-uninstall'; ScriptName = 'Assert-CopilotKeyedUninstall.ps1' },
-        @{ CheckName = 'codex-keyed-uninstall'; ScriptName = 'Assert-CodexKeyedUninstall.ps1' },
-        @{ CheckName = 'opencode-keyed-uninstall'; ScriptName = 'Assert-OpenCodeKeyedUninstall.ps1' },
-        @{ CheckName = 'antigravity-keyed-uninstall'; ScriptName = 'Assert-AntigravityKeyedUninstall.ps1' },
-        @{ CheckName = 'grok-keyed-uninstall'; ScriptName = 'Assert-GrokKeyedUninstall.ps1' },
-        @{ CheckName = 'cursor-keyed-uninstall'; ScriptName = 'Assert-CursorKeyedUninstall.ps1' },
-        @{ CheckName = 'zcode-keyed-uninstall'; ScriptName = 'Assert-ZcodeKeyedUninstall.ps1' },
-        @{ CheckName = 'hermes-keyed-uninstall'; ScriptName = 'Assert-HermesKeyedUninstall.ps1' },
-        @{ CheckName = 'openhands-keyed-uninstall'; ScriptName = 'Assert-OpenHandsKeyedUninstall.ps1' }
-    )
     AllowUserHomeProbeNamePrefix       = '.agent-dev-toolkit-allowuserhome-probe-'
     RelativeParentPathSegment          = '..'
     CurrentDirectoryPathSegment        = '.'
@@ -521,7 +406,6 @@ $script:ToolkitConstant = @{
     SpawnTaskCitationMarker        = 'Task'
     SpawnContractMarker            = 'SPAWN'
     HermesDelegateTaskNeedle       = 'delegate_task'
-    HermesSpawnBridgeSectionHeading = '## Hermes spawn bridge (this host only)'
     SpawnUseOwnHostRowHeading      = 'Use only the current host row'
     SpawnFallbackMarker            = 'fallback'
     SpawnInParentMarker            = 'in-parent'
@@ -530,7 +414,6 @@ $script:ToolkitConstant = @{
     SubagentsNoneValue             = 'none'
     RegistryAgentsPropertyName     = 'agents'
     RegistryCapabilitiesPropertyName = 'capabilities'
-    CiWorkflowRelativePath         = '.github/workflows/validate-toolkit.yml'
     SyncAgentRelativePath          = 'scripts/sync-agent.ps1'
     ValidateAgentRelativePath      = 'scripts/validate-agent.ps1'
     ToolkitActionSync              = 'Sync'
@@ -631,16 +514,16 @@ $script:ToolkitConstant = @{
     OfficialUserRootPathProperty   = 'OfficialUserRootPath'
     OfficialUserRootRelativeProperty = 'OfficialUserRootRelativePath'
     CiSmokeScripts                 = @(
-        @{ Id = '1'; Label = 'Cursor CI smoke'; RelativePath = 'scripts/validation/Invoke-CursorCiSmoke.ps1' },
-        @{ Id = '2'; Label = 'Antigravity CI smoke'; RelativePath = 'scripts/validation/Invoke-AntigravityCiSmoke.ps1' },
-        @{ Id = '3'; Label = 'Claude CI smoke'; RelativePath = 'scripts/validation/Invoke-ClaudeCiSmoke.ps1' },
-        @{ Id = '4'; Label = 'Codex CI smoke'; RelativePath = 'scripts/validation/Invoke-CodexCiSmoke.ps1' },
-        @{ Id = '5'; Label = 'Copilot CI smoke suite'; RelativePath = 'scripts/validation/Invoke-CopilotCiSmokeSuite.ps1' },
-        @{ Id = '6'; Label = 'OpenCode CI smoke'; RelativePath = 'scripts/validation/Invoke-OpenCodeCiSmoke.ps1' },
-        @{ Id = '7'; Label = 'Grok CI smoke'; RelativePath = 'scripts/validation/Invoke-GrokCiSmoke.ps1' },
-        @{ Id = '8'; Label = 'ZCode CI smoke'; RelativePath = 'scripts/validation/Invoke-ZCodeCiSmoke.ps1' },
-        @{ Id = '9'; Label = 'Hermes CI smoke'; RelativePath = 'scripts/validation/Invoke-HermesCiSmoke.ps1' },
-        @{ Id = '10'; Label = 'OpenHands CI smoke'; RelativePath = 'scripts/validation/Invoke-OpenHandsCiSmoke.ps1' }
+        @{ Id = '1'; Label = 'Cursor CI smoke'; Adapter = 'cursor'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '2'; Label = 'Antigravity CI smoke'; Adapter = 'antigravity'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '3'; Label = 'Claude CI smoke'; Adapter = 'claude'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '4'; Label = 'Codex CI smoke'; Adapter = 'codex'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '5'; Label = 'Copilot CI smoke'; Adapter = 'copilot'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '6'; Label = 'OpenCode CI smoke'; Adapter = 'opencode'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '7'; Label = 'Grok CI smoke'; Adapter = 'grok'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '8'; Label = 'ZCode CI smoke'; Adapter = 'zcode'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '9'; Label = 'Hermes CI smoke'; Adapter = 'hermes'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' },
+        @{ Id = '10'; Label = 'OpenHands CI smoke'; Adapter = 'openhands'; RelativePath = 'scripts/validation/Invoke-AdapterCiSmoke.ps1' }
     )
 }
 
@@ -750,9 +633,6 @@ $script:ToolkitMessage = @{
     RouterDocLinksNoLiterals           = 'no docs/ or core/ path literals found in router'
     RouterDocLinksForbiddenGuides      = 'forbidden guide refs still present: {0}'
     RouterDocLinksNegativeExpectedFail = 'invented missing path did not fail existence check: {0}'
-    NoFeaturesDocLinksNegativeExpectedFail = 'synthetic features story path / SPAWN_MATRIX sample did not match forbidden patterns'
-    NoFeaturesDocLinksNoScanTargets    = 'no versioned markdown scan targets found (docs/, root README/CONTRIBUTING/SECURITY, adapters/*/README.md)'
-    NoFeaturesDocLinksViolations       = 'published docs must not reference gitignored features/ story artifacts (use docs/SPAWN.md or core SPAWN.md): {0}'
     NoFormaAliasNegativeExpectedFail   = 'synthetic Forma alias sample did not match forbidden patterns'
     NoFormaAliasNoScanTargets          = 'no markdown scan targets found (core/, docs/, docs-site/, memory-bank/, README.md, PRODUCT.md)'
     NoFormaAliasViolations             = 'Forma A/B/C aliases must use work-track names only: {0}'
@@ -793,15 +673,6 @@ $script:ToolkitMessage = @{
     JavaDeveloperNotRouted             = 'java-developer present on disk but not fully routed across catalog/routes'
     SmokeSkippedNotImplemented         = 'Invoke-SmokeValidate skipped (adapter not implemented / no-op). Core validation still applies.'
     SmokeFailed                        = 'Invoke-SmokeValidate failed for agent ''{0}'': {1}'
-    SmokeHarnessTitle                  = 'agent-dev-toolkit smoke harness'
-    SmokeHarnessFixtureMissing         = 'Smoke fixture InstallRoot is missing: {0}'
-    SmokeHarnessInstallRootOk          = 'InstallRoot (fixture): {0}'
-    SmokeHarnessMarkerWritten          = 'Smoke marker written under fixture: {0}'
-    SmokeHarnessCursorUnchanged        = 'USERPROFILE .cursor snapshot unchanged (no home writes).'
-    SmokeHarnessCursorChanged          = 'USERPROFILE .cursor changed during smoke harness. Refuse home writes. Before={0} After={1}'
-    SmokeHarnessAdapterNoOp            = 'Adapter Invoke-SmokeValidate: not-implemented no-op (expected when adapter is stubbed).'
-    SmokeHarnessPassed                 = 'Smoke harness PASSED.'
-    SmokeHarnessFailed                 = 'Smoke harness FAILED.'
     ToolkitBannerTitle                 = 'Agent Dev Toolkit - Smart Manager'
     ToolkitAvailableAgentsHeader       = 'Available agents (registry):'
     ToolkitAgentListLine               = '  [{0}] {1} ({2})'
@@ -825,9 +696,9 @@ $script:ToolkitMessage = @{
     ToolkitYesNoHintDefaultYes         = '[Y/n]'
     ToolkitYesNoHintDefaultNo          = '[y/N]'
     ToolkitMenuSyncLine                = '[1] Sync agent            Publish skills/policy/hooks (opens agent + target wizard)'
-    ToolkitMenuValidateLine            = '[2] Validate agent        Assert-CiWorkflow, Assert-GuardShellCanonicalPaths, Assert-TraceEmitterFailOpen, then adapter smoke for one agent'
+    ToolkitMenuValidateLine            = '[2] Validate agent        Assert-GuardShellCanonicalPaths, Assert-TraceEmitterFailOpen, then adapter smoke for one agent'
     ToolkitMenuSyncValidateLine        = '[3] Sync then validate    Sync, then smoke that agent'
-    ToolkitMenuValidateCoreLine        = '[4] Validate core only    Assert-CiWorkflow, Assert-GuardShellCanonicalPaths, and Assert-TraceEmitterFailOpen; no agent home write'
+    ToolkitMenuValidateCoreLine        = '[4] Validate core only    Assert-GuardShellCanonicalPaths and Assert-TraceEmitterFailOpen; no agent home write'
     ToolkitMenuValidationLabLine       = '[5] Validation lab        Run core or a CI smoke script'
     ToolkitMenuUninstallLine           = '[6] Uninstall agent       Keyed removal of toolkit files and SDD runtime state'
     ToolkitMenuHelpLine                = '[7] Help and docs         What each action does + equivalent flags'
@@ -910,7 +781,7 @@ Menu actions
 Validate core vs Validate agent
 -------------------------------
 Validate core
-  Assert-CiWorkflow.ps1, Assert-GuardShellCanonicalPaths.ps1, and Assert-TraceEmitterFailOpen.ps1
+  Assert-GuardShellCanonicalPaths.ps1 and Assert-TraceEmitterFailOpen.ps1
   Named remaining checks. Safe: no live home deploy. The wide suite is the validation lab entry.
 
 Validate agent
@@ -953,9 +824,142 @@ Backup (-Action Backup) is not implemented (fail-closed unless -ForceStub).
     ToolkitLiveHomeUnavailable         = 'Could not resolve official live home for agent ''{0}''. Use custom path or fixture.'
     CopilotModeRequired                = 'Agent ''{0}'' requires -Mode. Valid modes: {1}. Example: .\scripts\sync-agent.ps1 -Agent {2} -Mode user'
     CopilotModeInvalid                 = 'Invalid -Mode ''{0}'' for agent ''{1}''. Valid modes: {2}. Example: .\scripts\sync-agent.ps1 -Agent {3} -Mode user'
-    EphemeralSmokePreconditionMissing  = 'FAIL preconditions: missing {0}'
-    EphemeralSmokeRunning              = 'Running: {0} sync+validate (InstallRoot={1})'
-    EphemeralSmokeSyncFailed           = 'FAIL sync exit {0}: {1}'
-    EphemeralSmokeValidateFailed       = 'FAIL validate exit {0}: {1}'
-    EphemeralSmokeMarkerMissing        = 'FAIL validate output missing marker ''{0}'''
+}
+
+# Explicit aliases for user-authored SDD language. Keys are normalized only
+# for deterministic lookup; the source artifact is never rewritten.
+$script:SddArtifactAliasDefinitions = @{
+    'progress-heading' = @{
+        'implementationprogress' = 'IMPLEMENTATION_PROGRESS'
+        'progressodaimplementacao' = 'IMPLEMENTATION_PROGRESS'
+        'progressodeimplementacao' = 'IMPLEMENTATION_PROGRESS'
+    }
+    'execution-policy-heading' = @{
+        'executionpolicy' = 'EXECUTION_POLICY'
+        'politicadeexecucao' = 'EXECUTION_POLICY'
+    }
+    'related-heading' = @{
+        'related' = 'RELATED'
+        'relacionado' = 'RELATED'
+        'relacionados' = 'RELATED'
+        'relacoes' = 'RELATED'
+        'referenciasrelacionadas' = 'RELATED'
+    }
+    'metadata-status-column' = @{
+        'status' = 'STATUS'
+        'state' = 'STATUS'
+        'estado' = 'STATUS'
+        'situacao' = 'STATUS'
+    }
+    'table-column' = @{
+        'stepid' = 'STEP_ID'; 'idstep' = 'STEP_ID'; 'etapaid' = 'STEP_ID'; 'idetapa' = 'STEP_ID'; 'idadaetapa' = 'STEP_ID'; 'iddaetapa' = 'STEP_ID'; 'idpasso' = 'STEP_ID'; 'iddopasso' = 'STEP_ID'; 'id' = 'STEP_ID'
+        'step' = 'STEP_NAME'; 'stepname' = 'STEP_NAME'; 'etapa' = 'STEP_NAME'; 'nomeetapa' = 'STEP_NAME'; 'passo' = 'STEP_NAME'; 'nomedopasso' = 'STEP_NAME'; 'name' = 'STEP_NAME'; 'nome' = 'STEP_NAME'
+        'dependencies' = 'DEPENDENCIES'; 'dependency' = 'DEPENDENCIES'; 'dependencias' = 'DEPENDENCIES'; 'dependenciasdaetapa' = 'DEPENDENCIES'; 'dependenciasdopasso' = 'DEPENDENCIES'; 'depends' = 'DEPENDENCIES'; 'dependson' = 'DEPENDENCIES'; 'dependede' = 'DEPENDENCIES'
+        'status' = 'STATUS'; 'state' = 'STATUS'; 'estado' = 'STATUS'; 'situacao' = 'STATUS'; 'statusdaetapa' = 'STATUS'; 'statusdopasso' = 'STATUS'; 'executionstatus' = 'STATUS'; 'estadodeexecucao' = 'STATUS'
+        'evidence' = 'EVIDENCE'; 'evidencia' = 'EVIDENCE'; 'evidencias' = 'EVIDENCE'; 'checkpoint' = 'EVIDENCE'; 'checkpointevidence' = 'EVIDENCE'
+        'classification' = 'CLASSIFICATION'; 'classificacao' = 'CLASSIFICATION'; 'evidenceclassification' = 'CLASSIFICATION'; 'classificacaodeevidencia' = 'CLASSIFICATION'; 'classificacaodaevidencia' = 'CLASSIFICATION'; 'classevidence' = 'CLASSIFICATION'; 'classevidencia' = 'CLASSIFICATION'
+        'item' = 'ITEM'; 'claim' = 'ITEM'; 'finding' = 'ITEM'; 'topic' = 'ITEM'; 'achado' = 'ITEM'; 'afirmacao' = 'ITEM'; 'tema' = 'ITEM'; 'ponto' = 'ITEM'
+        'limitation' = 'LIMITATION'; 'limitacao' = 'LIMITATION'; 'limite' = 'LIMITATION'; 'gapreason' = 'LIMITATION'; 'justificativadalacuna' = 'LIMITATION'
+    }
+    'execution-status' = @{
+        'completed' = 'COMPLETED'; 'concluido' = 'COMPLETED'; 'concluida' = 'COMPLETED'; 'concluidos' = 'COMPLETED'; 'concluidas' = 'COMPLETED'
+        'pending' = 'PENDING'; 'pendente' = 'PENDING'; 'pendentes' = 'PENDING'
+        'inprogress' = 'IN_PROGRESS'; 'emandamento' = 'IN_PROGRESS'; 'emprogresso' = 'IN_PROGRESS'
+        'notstarted' = 'NOT_STARTED'; 'naoiniciado' = 'NOT_STARTED'; 'naoiniciada' = 'NOT_STARTED'
+        'blocked' = 'BLOCKED'; 'bloqueado' = 'BLOCKED'; 'bloqueada' = 'BLOCKED'; 'bloqueados' = 'BLOCKED'; 'bloqueadas' = 'BLOCKED'
+        'skipped' = 'SKIPPED'; 'ignorado' = 'SKIPPED'; 'ignorada' = 'SKIPPED'; 'ignorados' = 'SKIPPED'; 'ignoradas' = 'SKIPPED'; 'pulado' = 'SKIPPED'; 'pulada' = 'SKIPPED'
+    }
+    'prd-status' = @{
+        'readyforplanning' = 'READY_FOR_PLANNING'; 'prontoparaplanejamento' = 'READY_FOR_PLANNING'
+        'implemented' = 'IMPLEMENTED'; 'implementado' = 'IMPLEMENTED'; 'implementada' = 'IMPLEMENTED'
+        'approved' = 'APPROVED'; 'aprovado' = 'APPROVED'; 'aprovada' = 'APPROVED'
+        'draft' = 'DRAFT'; 'rascunho' = 'DRAFT'
+    }
+    'plan-status' = @{
+        'approved' = 'APPROVED'; 'aprovado' = 'APPROVED'; 'aprovada' = 'APPROVED'
+        'draft' = 'DRAFT'; 'rascunho' = 'DRAFT'
+    }
+    'change-section' = @{
+        'added' = 'ADDED'; 'adicionado' = 'ADDED'; 'adicionada' = 'ADDED'; 'adicionados' = 'ADDED'; 'adicionadas' = 'ADDED'; 'incluido' = 'ADDED'; 'incluida' = 'ADDED'
+        'modified' = 'MODIFIED'; 'modificado' = 'MODIFIED'; 'modificada' = 'MODIFIED'; 'modificados' = 'MODIFIED'; 'modificadas' = 'MODIFIED'; 'alterado' = 'MODIFIED'; 'alterada' = 'MODIFIED'; 'alterados' = 'MODIFIED'; 'alteradas' = 'MODIFIED'
+        'removed' = 'REMOVED'; 'removido' = 'REMOVED'; 'removida' = 'REMOVED'; 'removidos' = 'REMOVED'; 'removidas' = 'REMOVED'; 'excluido' = 'REMOVED'; 'excluida' = 'REMOVED'; 'excluidos' = 'REMOVED'; 'excluidas' = 'REMOVED'
+    }
+    'evidence-classification' = @{
+        'confirmed' = 'CONFIRMED'; 'confirmado' = 'CONFIRMED'; 'confirmada' = 'CONFIRMED'
+        'inferred' = 'INFERRED'; 'inferido' = 'INFERRED'; 'inferida' = 'INFERRED'
+        'gap' = 'GAP'; 'lacuna' = 'GAP'; 'naodemonstrado' = 'GAP'; 'naodemonstrada' = 'GAP'
+        'proposalonly' = 'PROPOSAL_ONLY'; 'somenteproposta' = 'PROPOSAL_ONLY'; 'apenasproposta' = 'PROPOSAL_ONLY'
+    }
+}
+
+function ConvertTo-SddArtifactAliasKey {
+    param([AllowNull()][string] $Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    $decomposed = $Value.Normalize([Text.NormalizationForm]::FormD)
+    $withoutMarks = [regex]::Replace($decomposed, '\p{M}', '')
+    return [regex]::Replace($withoutMarks.ToLowerInvariant(), '[^a-z0-9]', '')
+}
+
+function Remove-SddArtifactDecoration {
+    param([AllowNull()][string] $Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+    $clean = [regex]::Replace($Value, '[\p{S}\p{Cf}\uD800-\uDFFF]', '')
+    return ([regex]::Replace($clean, '(?<![\p{L}\p{N}])[*_~`]+|[*_~`]+(?![\p{L}\p{N}])', '')).Trim()
+}
+
+function Resolve-SddArtifactAlias {
+    param(
+        [Parameter(Mandatory = $true)][string] $Domain,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
+    )
+    $key = ConvertTo-SddArtifactAliasKey $Value
+    $map = $script:SddArtifactAliasDefinitions[$Domain]
+    if ($null -ne $map -and $map.ContainsKey($key)) {
+        return [PSCustomObject]@{ Recognized = $true; Canonical = [string]$map[$key]; Input = $Value; Key = $key }
+    }
+    $allowed = if ($null -ne $map) { @($map.Values | Sort-Object -Unique) -join ', ' } else { '' }
+    return [PSCustomObject]@{ Recognized = $false; Canonical = ''; Input = $Value; Key = $key; Allowed = $allowed }
+}
+
+function Get-SddArtifactPlanStepHeadings {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text)
+
+    $valid = [System.Collections.Generic.List[object]]::new()
+    $invalid = [System.Collections.Generic.List[string]]::new()
+    $lines = [regex]::Split($Text, '\r?\n')
+    $candidatePattern = '^(?i)(?:STEP|PASSO|ETAPA)\b'
+    $stepPattern = [string]$script:ToolkitConstant.SddArtifactPlanStepHeadingPattern
+
+    for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+        $line = $lines[$lineIndex]
+        $heading = [regex]::Match($line, '^\s*(?<level>#{1,6})\s*(?<value>.*?)\s*$')
+        if (-not $heading.Success) { continue }
+        $value = Remove-SddArtifactDecoration $heading.Groups['value'].Value
+        if ($value -notmatch $candidatePattern) { continue }
+
+        $parsed = [regex]::Match($value, $stepPattern)
+        if ($heading.Groups['level'].Value.Length -ne 3 -or -not $parsed.Success) {
+            $invalid.Add(('line {0}: {1}' -f ($lineIndex + 1), $line.Trim()))
+            continue
+        }
+
+        $ordinal = [int]$parsed.Groups['ordinal'].Value
+        $id = $parsed.Groups['id'].Value.ToUpperInvariant()
+        $idNumber = [int]([regex]::Match($id, '\d+').Value)
+        $name = $parsed.Groups['name'].Value.Trim()
+        if ($ordinal -ne $idNumber -or [string]::IsNullOrWhiteSpace($name)) {
+            $invalid.Add(('line {0}: {1}' -f ($lineIndex + 1), $line.Trim()))
+            continue
+        }
+
+        $valid.Add([PSCustomObject]@{
+            Number = $ordinal
+            Id = $id
+            Name = $name
+            LineNumber = $lineIndex
+            Raw = $line.Trim()
+        })
+    }
+
+    return [PSCustomObject]@{ Valid = @($valid.ToArray()); Invalid = @($invalid.ToArray()) }
 }

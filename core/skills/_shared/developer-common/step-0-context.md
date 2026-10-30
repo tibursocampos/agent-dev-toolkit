@@ -17,6 +17,17 @@ If the repository has `AGENTS.md` or `README.md` at the root, read the sections 
 
 Do not preload entire `{{TOOLKIT_ROOT}}/skills/_shared/` trees.
 
+## Existing-repository conventions (before first implementation change)
+
+When changing an existing repository, or when impact and local conventions are unclear, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` before the first implementation change.
+
+- Reuse a parent-provided analysis only after confirming it is current and covers the target area; re-check changed or uncovered target paths.
+- Inspect representative files and tests only for convention categories relevant to the change, and record concise path/symbol evidence with confidence or gaps.
+- Treat current repository instructions and examples as the technical reference. Do not turn toolkit or external examples into project defaults.
+- Record non-applicability when a category is outside the scope. Surface evidence gaps that could change behavior, security, or validation instead of inventing a pattern.
+
+Stack-specific commands and conventions remain with the routed stack skill. Do not copy the full discovery checklist into every stack skill.
+
 ---
 
 ## 0.2. Confirm workspace
@@ -51,5 +62,6 @@ Template: `templates/todo-list.md`.
 
 - [ ] `AGENTS.md` or `README.md` reviewed when present
 - [ ] Project conventions understood
+- [ ] Applicable brownfield conventions and target-area evidence recorded, or non-applicability justified
 - [ ] High-level task list created
 - [ ] First item marked in progress

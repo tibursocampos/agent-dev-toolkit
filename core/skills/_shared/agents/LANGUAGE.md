@@ -50,12 +50,16 @@ Record the resolved value when skills persist manifests (`sdd-spec` / storage st
 
 | In scope | Out of scope (other rules) |
 |----------|----------------------------|
-| FEATURE / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / memory-bank body prose | Folder names `ANALYSIS` / `ARCH` / `SEC` / `REFINE` (English). File names inside those folders follow content-language. Path segments, REQ-IDs, skill ids, status tokens (`PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`, `NOT_STARTED`, `approved`) stay English |
+| FEATURE / STORY / PRD / PLAN / ANALYSIS / ARCH / SEC / memory-bank body prose | Folder names `ANALYSIS` / `ARCH` / `SEC` / `REFINE` (English). File names inside those folders follow content-language. Path segments, REQ-IDs, skill ids, and persisted canonical status tokens (`PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, `SKIPPED`, `NOT_STARTED`, `approved`) stay English; validators accept only explicit allowlisted Portuguese/English structural aliases and normalize them in memory without rewriting the source artifact |
 | CONTINUITY / CHANGE narrative when written as feature prose | `SKILL.md` / shared guideline / agent / internal prompt bodies (**en-US**) |
 | EVD / STATE / TRACE **summary prose** when authored as SDD narrative | Source, tests, commit messages (always English) |
 | Operator-facing confirm drafts that will be persisted as artifacts | Spawn child prompts, specialist contexts, agent receipts (**always en-US**) |
 
 Product `docs/` / README / ADRs follow **project convention**; if no mirror evidence, ask once during **planning** (not a mid-Write locale quiz for SDD artifacts).
+
+### Structural headings consumed by PLAN validators
+
+PLAN prose language follows the resolution above, but a heading used to locate a parser-owned section is a structural alias and must be accepted by every consumer that reads that section. For the implementation progress ledger, the supported level-two headings are exactly `## Implementation progress`, `## Progresso da implementação`, and `## Progresso de implementação` (case and Markdown closing hashes may vary). Validators accept explicit aliases only, normalize recognized values in memory to canonical semantic values, and report the input and canonical form; they do not silently rewrite artifacts. Unknown values, conflicting duplicate semantic columns, missing required data, and unsupported near-matches fail with an actionable diagnostic. This allowlist does not constrain other prose or imply that every English template heading is valid in a localized PLAN.
 
 ### Alignment with chat vs spawn
 

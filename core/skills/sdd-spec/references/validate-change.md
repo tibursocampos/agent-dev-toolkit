@@ -6,4 +6,4 @@ When FEATURE **Nature** is **brownfield**, also Write `features/NNN-slug/CHANGE.
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
-**Greenfield** must **not** force an empty CHANGE stub. Contract: `CHANGE-CONTRACT.md`. Smoke: `Assert-ChangeContract.ps1`.
+**Greenfield** must **not** force an empty CHANGE stub. Contract: `CHANGE-CONTRACT.md`. Smoke: `Assert-CoreContracts.ps1` (ChangeContract section).

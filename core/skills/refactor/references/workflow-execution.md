@@ -15,7 +15,8 @@
   * Apply the minimum diff modification.
   * Run compiler checks (e.g. `dotnet build`, `npm run build`, `mypy` or build/typecheck commands).
   * Run the unit test suite (e.g. `dotnet test`, `npm test`, `pytest`).
-  * If validation fails: revert the current step immediately; explain the failure and discuss alternatives.
+  * Before any recovery, record the working tree state (staged, unstaged, untracked, and concurrent changes) and treat it as pre-existing work to preserve.
+  * If validation fails: preserve pre-existing and concurrent changes. Roll back only changes demonstrably made by this step and reversible. If authorship of any change is uncertain, stop and report it instead of rolling back automatically. Explain the failure and discuss alternatives.
   * If validation passes, proceed to the next step.
 
 ### Code formatting

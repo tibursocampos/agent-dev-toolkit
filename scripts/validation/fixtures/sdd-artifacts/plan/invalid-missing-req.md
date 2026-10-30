@@ -19,7 +19,7 @@
 
 ---
 
-### ⏳ PASSO 1: Incomplete coverage
+### ⏳ PASSO 1 — S1: Incomplete coverage
 
 **Status:** Pendente | **Deps:** nenhuma
 

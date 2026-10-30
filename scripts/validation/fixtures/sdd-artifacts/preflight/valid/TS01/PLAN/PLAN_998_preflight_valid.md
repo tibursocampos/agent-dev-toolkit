@@ -6,6 +6,7 @@
 | **Total de passos** | 2 |
 | **Progresso** | 0/2 |
 | **Status** | approved |
+| **Implementation status** | `NOT_STARTED` |
 
 ## Execution policy
 
@@ -20,6 +21,13 @@
 
 - [ ] O1: Cover both fixture REQs
 
+## Progresso da implementação
+
+| Step ID | Dependências | Status |
+|---------|--------------|--------|
+| S1 | none | PENDENTE |
+| S2 | S1 | PENDENTE |
+
 ## Mapa REQ → passo
 
 | REQ | Passo |
@@ -29,7 +37,7 @@
 
 ---
 
-### ⏳ PASSO 1: First
+### ⏳ PASSO 1 — S1: First
 
 **Status:** Pendente | **Deps:** nenhuma
 
@@ -39,7 +47,7 @@
 
 ---
 
-### ⏳ PASSO 2: Second
+### ⏳ PASSO 2 — S2: Second
 
 **Status:** Pendente | **Deps:** 1
 

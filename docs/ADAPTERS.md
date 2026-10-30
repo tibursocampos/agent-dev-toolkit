@@ -145,14 +145,14 @@ $cursorFixture = Join-Path $PWD 'scripts\validation\fixtures\cursor-install-root
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot $cursorFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent cursor -InstallRoot $cursorFixture
 # CI / local harness (ephemeral work root; keeps versioned seed intact):
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor
 ```
 
 CI uses the in-repo fixture (or ephemeral copy) only. Do not sync to a live `~/.cursor` for green CI. Live home sync requires `-AllowUserHome` and stays **outside** CI.
 
 ### Uninstall
 
-Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merge of managed `hooks.json` handlers. Preserves `sdd/sessions/` and `sdd/manifest.json`. Alien files stay. WhatIf supported. CI: `Assert-CursorKeyedUninstall.ps1`.
+Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merge of managed `hooks.json` handlers. Preserves `sdd/sessions/` and `sdd/manifest.json`. Alien files stay. WhatIf supported. Checked by `Assert-AdapterPublish.ps1`.
 
 ## Antigravity (`antigravity`) — capabilities + InstallRoots
 
@@ -175,7 +175,7 @@ Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merg
 
 Default smoke/CI targets the **official** `config/*` layout under InstallRoot (kebab skills only — no underscore rename). The path `antigravity-ide/plugins` remains a **legacy bridge** only — documentation / opt-in / **read-only** (not a CI or default-smoke gate).
 
-**Out of scope:** live Knowledge Items (KI) injection; IDE trust UI / interactive prompts. CI covers Antigravity via `Invoke-AntigravityCiSmoke.ps1` (ephemeral fixture filesystem sync+validate — no live `~/.gemini`).
+**Out of scope:** live Knowledge Items (KI) injection; IDE trust UI / interactive prompts. CI covers Antigravity via `Invoke-AdapterCiSmoke.ps1 -Adapter antigravity` (ephemeral fixture filesystem sync+validate — no live `~/.gemini`).
 
 `Publish-Skills` / `Publish-Policy` / `Publish-Router` / `Publish-Agents` (no-op) / `Publish-Hooks` / `Invoke-SmokeValidate` / `Uninstall-Toolkit` are implemented. Operator E2E:
 
@@ -240,7 +240,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode user -In
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent copilot -Mode repo -InstallRoot $copilotRepo
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent copilot -Mode repo -InstallRoot $copilotRepo
 # matrix (both modes + home guard):
-pwsh -NoProfile -File .\scripts\validation\Invoke-CopilotCiSmokeSuite.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter copilot
 ```
 
 CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runtime, or GitHub login. Live home sync requires `-AllowUserHome` and stays **outside** CI.
@@ -301,7 +301,7 @@ $claudeFixture = Join-Path $PWD 'scripts\validation\fixtures\claude'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent claude -InstallRoot $claudeFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent claude -InstallRoot $claudeFixture
 # CI / local harness (ephemeral work root; keeps versioned seed intact):
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter claude
 ```
 
 CI uses the in-repo fixture (or ephemeral copy) only. Do not sync to a live `~/.claude` for green CI.
@@ -408,7 +408,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent codex -InstallRoot $co
 | Key artifacts | `skills/<kebab-id>/SKILL.md`, `AGENTS.md`, `agents/*.md`, `plugins/agent-dev-toolkit-marker.js` |
 | `Publish-Policy` | Documented **no-op** (`rules=false`; no dedicated OpenCode policy surface) |
 | `Publish-Agents` | Copies `core/agents/` → `InstallRoot/agents/` (`agents=true`) |
-| Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent opencode` / `Invoke-OpenCodeCiSmoke.ps1` — **no** OpenCode product runtime, **no** real `~/.config/opencode` writes in CI |
+| Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent opencode` / `Invoke-AdapterCiSmoke.ps1 -Adapter opencode` — **no** OpenCode product runtime, **no** real `~/.config/opencode` writes in CI |
 | Uninstall | Keyed removal of toolkit skills, `AGENTS.md`, and the marker plugin only (RN07 — no wholesale wipe). Preserves `sdd/sessions` + `sdd/manifest.json` |
 
 ### Publish layout (under InstallRoot)
@@ -466,14 +466,14 @@ $zcodeFixture = Join-Path $PWD 'scripts\validation\fixtures\zcode-install-root'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent zcode -InstallRoot $zcodeFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent zcode -InstallRoot $zcodeFixture
 # CI / local harness (fixture only; never AllowUserHome):
-pwsh -NoProfile -File .\scripts\validation\Invoke-ZCodeCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter zcode
 ```
 
-Default smoke never writes under `%USERPROFILE%\.zcode` unless `-AllowUserHome` is set. CI runs `Invoke-ZCodeCiSmoke.ps1` on the in-repo fixture only (CA3).
+Default smoke never writes under `%USERPROFILE%\.zcode` unless `-AllowUserHome` is set. CI runs `Invoke-AdapterCiSmoke.ps1 -Adapter zcode` on the in-repo fixture only (CA3).
 
 ### Uninstall
 
-`Uninstall-Toolkit` performs keyed removal (core skill folders, `AGENTS.md`) plus reverse-merge of `cli/config.json` / `hooks/hooks.json`. Preserves alien files and `sdd/sessions` / `sdd/manifest.json`. Does **not** wipe InstallRoot. CI: `Assert-ZcodeKeyedUninstall.ps1`.
+`Uninstall-Toolkit` performs keyed removal (core skill folders, `AGENTS.md`) plus reverse-merge of `cli/config.json` / `hooks/hooks.json`. Preserves alien files and `sdd/sessions` / `sdd/manifest.json`. Does **not** wipe InstallRoot. Checked by `Assert-AdapterPublish.ps1`.
 
 ### Not GLM Coding Plan (CA5 / RN04)
 
@@ -587,7 +587,7 @@ $hermesFixture = Join-Path $PWD 'scripts\validation\fixtures\hermes'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent hermes -InstallRoot $hermesFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent hermes -InstallRoot $hermesFixture
 # CI / local harness (ephemeral work root; keeps versioned seed intact):
-pwsh -NoProfile -File .\scripts\validation\Invoke-HermesCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter hermes
 ```
 
 Live home (`$HERMES_HOME/skills`, Windows example `%LOCALAPPDATA%\hermes\skills`):
@@ -659,7 +659,7 @@ $openhandsFixture = Join-Path $PWD 'scripts\validation\fixtures\openhands'
 pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent openhands -InstallRoot $openhandsFixture
 pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent openhands -InstallRoot $openhandsFixture
 # CI / local harness (ephemeral work root; keeps versioned seed intact):
-pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter openhands
 ```
 
 Live user skills home:

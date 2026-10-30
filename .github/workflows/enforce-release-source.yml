@@ -24,9 +24,32 @@ jobs:
           }
           echo "OK: head is develop"
 
-  release-metadata:
-    runs-on: ubuntu-latest
-    steps:
+      - name: Check release-sync App credentials
+        id: app-creds
+        env:
+          APP_ID: ${{ secrets.RELEASE_SYNC_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.RELEASE_SYNC_APP_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${APP_ID}" || -z "${APP_PRIVATE_KEY}" ]]; then
+            echo "Warning: RELEASE_SYNC_APP_ID or RELEASE_SYNC_APP_PRIVATE_KEY not configured." \
+              "The post-merge reconcile-develop job will be skipped. Configure these secrets to enable automatic develop sync after release." >&2
+            echo "has_creds=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "has_creds=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Verify release-sync App installation and permissions
+        if: steps.app-creds.outputs.has_creds == 'true'
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          app-id: ${{ secrets.RELEASE_SYNC_APP_ID }}
+          private-key: ${{ secrets.RELEASE_SYNC_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Checkout tags for SemVer validation
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:

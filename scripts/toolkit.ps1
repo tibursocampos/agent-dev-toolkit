@@ -111,6 +111,7 @@ $libDir = Join-Path $scriptDir '_lib'
 . (Join-Path $libDir 'Assert-CopilotAgentMode.ps1')
 . (Join-Path $libDir 'Initialize-SddRootLayout.ps1')
 . (Join-Path $libDir 'Initialize-SddPreferences.ps1')
+. (Join-Path $libDir 'Invoke-ToolkitChildScript.ps1')
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
@@ -548,13 +549,8 @@ function Invoke-ToolkitScript {
         Write-Host ("`n>>> Running: {0} {1}" -f $RelativePath, $argDisplay) -ForegroundColor Yellow
     }
 
-    $exitCode = 0
     try {
-        & $fullPath @ArgumentTable
-        $exitCode = $LASTEXITCODE
-        if ($null -eq $exitCode) {
-            $exitCode = 0
-        }
+        $exitCode = Invoke-ToolkitChildScript -ScriptPath $fullPath -ArgumentTable $ArgumentTable
     }
     catch {
         Write-ToolkitError -Message (">>> Error: {0}" -f $_.Exception.Message)
@@ -976,7 +972,7 @@ function Invoke-ToolkitValidationLab {
             Write-ToolkitWarn -Message $script:ToolkitMessage.ToolkitInvalidMenuOptionRetry
             continue
         }
-        $null = Invoke-ToolkitScript -RelativePath $matched[0].RelativePath -ArgumentTable @{ Quiet = $true }
+        $null = Invoke-ToolkitScript -RelativePath $matched[0].RelativePath -ArgumentTable @{ Adapter = $matched[0].Adapter; Quiet = $true }
         Pause-Toolkit
     }
 }

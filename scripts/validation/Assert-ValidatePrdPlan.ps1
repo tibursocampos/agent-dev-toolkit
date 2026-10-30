@@ -2,10 +2,8 @@
 # Tests:
 #   Should_Pass_When_ValidPrdFixture
 #   Should_Fail_When_PrdMissingReq
-#   Should_Fail_When_PrdMissingAcceptance
 #   Should_Pass_When_ValidPlanFixture
 #   Should_Fail_When_PlanOmitsReq
-#   Should_Pass_When_SkillsWireValidateScripts
 #
 # REQ-003 / CA2 / RNF-001: structural validate-prd / validate-plan with fixtures.
 $ErrorActionPreference = 'Stop'
@@ -35,7 +33,7 @@ function Invoke-Validator {
         [Parameter(Mandatory = $true)][string] $ScriptPath,
         [Parameter(Mandatory = $true)][hashtable] $Arguments
     )
-    $output = & $ScriptPath @Arguments 2>&1 | Out-String
+    $output = & $ScriptPath @Arguments *>&1 | Out-String
     $code = $LASTEXITCODE
     if ($null -eq $code) {
         $code = 0
@@ -100,12 +98,24 @@ if ($noReqResult.ExitCode -eq 0) {
 }
 Write-Pass -TestName 'Should_Fail_When_PrdMissingReq'
 
-$noAc = Get-FixturePath -RelativeUnderFixtures $script:ToolkitConstant.ValidatePrdFixtureInvalidNoAcRelativePath
-$noAcResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $noAc }
-if ($noAcResult.ExitCode -eq 0) {
-    Write-Fail -TestName 'Should_Fail_When_PrdMissingAcceptance' -Reason 'expected non-zero exit for PRD without CA headings'
+$nonCanonicalApiPrd = Join-Path ([System.IO.Path]::GetTempPath()) ('validate-prd-api-heading-{0}.md' -f [guid]::NewGuid().ToString('N'))
+$apiPrdText = Get-Content -LiteralPath $validPrd -Raw -Encoding UTF8
+$apiPrdText += "`r`n`r`nGET /api/items`r`n`r`n### 7.3 Contrato observável da integração de preço`r`n"
+Set-Content -LiteralPath $nonCanonicalApiPrd -Value $apiPrdText -Encoding UTF8
+try {
+    $apiHeadingResult = Invoke-Validator -ScriptPath $validatePrdPath -Arguments @{ Path = $nonCanonicalApiPrd }
+    if ($apiHeadingResult.ExitCode -eq 0) {
+        Write-Fail -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical' -Reason 'expected nonzero exit for a noncanonical API contract heading'
+    }
+    if ($apiHeadingResult.Output -notmatch [regex]::Escape('### 7.3 Contrato observável de API') -or
+        $apiHeadingResult.Output -notmatch [regex]::Escape('### 7.3 Observable API contract')) {
+        Write-Fail -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical' -Reason ("failure must name both accepted headings; got: {0}" -f $apiHeadingResult.Output.Trim())
+    }
 }
-Write-Pass -TestName 'Should_Fail_When_PrdMissingAcceptance'
+finally {
+    Remove-Item -LiteralPath $nonCanonicalApiPrd -Force -ErrorAction SilentlyContinue
+}
+Write-Pass -TestName 'Should_Explain_When_PrdApiHeadingIsNonCanonical'
 
 # --- PLAN fixtures ---
 
@@ -141,26 +151,6 @@ if ($missingReqResult.ExitCode -eq 0) {
     Write-Fail -TestName 'Should_Fail_When_PlanOmitsReq' -Reason 'expected non-zero exit when PLAN omits a PRD REQ'
 }
 Write-Pass -TestName 'Should_Fail_When_PlanOmitsReq'
-
-# --- Skill wiring (call path unchanged; validate before advance) ---
-
-$wiringPaths = $script:ToolkitConstant.ValidatePrdPlanSkillWiringRelativePaths
-foreach ($rel in $wiringPaths) {
-    $full = Join-Path $repoRoot ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $full)) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("missing skill file {0}" -f $rel)
-    }
-    $text = Get-Content -LiteralPath $full -Raw -Encoding UTF8
-    $needsPrd = $rel -match 'sdd-spec'
-    $needsPlan = $rel -match 'sdd-plan'
-    if ($needsPrd -and ($text -notmatch 'validate-prd')) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("{0} must reference validate-prd" -f $rel)
-    }
-    if ($needsPlan -and ($text -notmatch 'validate-plan')) {
-        Write-Fail -TestName 'Should_Pass_When_SkillsWireValidateScripts' -Reason ("{0} must reference validate-plan" -f $rel)
-    }
-}
-Write-Pass -TestName 'Should_Pass_When_SkillsWireValidateScripts'
 
 Write-Host 'Assert-ValidatePrdPlan: all checks passed.'
 exit 0

@@ -24,8 +24,11 @@ adapters/      módulos por agente, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          documentação de operador no repositório
 .github/workflows/validate-toolkit.yml
-.github/workflows/publish-release-bootstrap.yml
+.github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
+.github/workflows/release.yml
+.github/workflows/publish-release-bootstrap.yml
+.github/workflows/docs.yml
 ```
 
 ## Camadas
@@ -36,7 +39,7 @@ docs/          documentação de operador no repositório
 | Adaptadores | Publicam skills, política, roteador, hooks e agents no layout do host. O smoke usa um InstallRoot de fixture |
 | CLI | `scripts/toolkit.ps1` escolhe o agente para sync, validação e desinstalação |
 | Install root | Destino. O alvo padrão do sync é um fixture no repositório. Um caminho no perfil do usuário precisa de `-AllowUserHome` |
-| CI | `validate-toolkit.yml` em `pull_request` para `master`, `main`, `develop`. Uma execução verde não sincroniza um home ao vivo |
+| CI e release | `validate-toolkit.yml` em `pull_request` para `develop` emite os checks agregadores `validate` e `ci-ok` após os jobs de core, adapter-smoke e docs estrita. PRs de release para `master` / `main` emitem `ci-ok` para a direção da branch e `release-source` para origem, metadados e prontidão do App; eles não repetem a suíte completa. Uma execução verde não sincroniza um home ao vivo |
 
 Comandos estáveis do adaptador: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills`, `Publish-Policy`, `Publish-Router`, `Publish-Agents`, `Publish-Hooks`, `Get-SddRoot`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`.
 
@@ -89,16 +92,7 @@ Agulhas `mustNotContain`: `scripts/validation/contracts/must-not-contain-ide.jso
 - `scripts/validate-agent.ps1`
 - `scripts/validation/validate-core.ps1`
 - `scripts/validation/Assert-SyncAllowUserHomeForward.ps1`
-- `scripts/validation/Invoke-CursorCiSmoke.ps1`
-- `scripts/validation/Invoke-AntigravityCiSmoke.ps1`
-- `scripts/validation/Invoke-ClaudeCiSmoke.ps1`
-- `scripts/validation/Invoke-CodexCiSmoke.ps1`
-- `scripts/validation/Invoke-CopilotCiSmokeSuite.ps1`
-- `scripts/validation/Invoke-OpenCodeCiSmoke.ps1`
-- `scripts/validation/Invoke-GrokCiSmoke.ps1`
-- `scripts/validation/Invoke-ZCodeCiSmoke.ps1`
-- `scripts/validation/Invoke-HermesCiSmoke.ps1`
-- `scripts/validation/Invoke-OpenHandsCiSmoke.ps1`
+- `scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter <id>` (ids from `adapters/registry.json`: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands)
 - `.github/workflows/validate-toolkit.yml`
 - `.github/workflows/publish-release-bootstrap.yml`
 - `.github/workflows/enforce-release-source.yml`
@@ -118,7 +112,7 @@ O InstallRoot modela `~/.cursor`.
 | `sdd/sessions/` | Sessões (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Semente quando ausente. Nunca sobrescreve um arquivo existente |
 
-Fixture: `scripts/validation/fixtures/cursor-install-root`. Smoke: `Invoke-CursorCiSmoke.ps1` em uma cópia efêmera. A CI não escreve um `~/.cursor` ao vivo e não dirige a UI de confiança de hooks.
+Fixture: `scripts/validation/fixtures/cursor-install-root`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter cursor` em uma cópia efêmera. A CI não escreve um `~/.cursor` ao vivo e não dirige a UI de confiança de hooks.
 
 ## Antigravity
 
@@ -131,7 +125,7 @@ O InstallRoot modela `~/.gemini`.
 | `config/hooks` | Configuração de hooks do provider; sem decisão de autorização do Toolkit |
 | `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` | Descoberta e markdown gerido |
 
-`antigravity-ide/plugins` é uma ponte legada, só documentação e opt-in. Não é um gate de CI. Knowledge Items ao vivo e a UI de confiança da IDE ficam fora de escopo. Smoke: `Invoke-AntigravityCiSmoke.ps1`. O `subagents` do registro é `native`. O valor efetivo vem de `Get-Capabilities` (sonda fail-closed).
+`antigravity-ide/plugins` é uma ponte legada, só documentação e opt-in. Não é um gate de CI. Knowledge Items ao vivo e a UI de confiança da IDE ficam fora de escopo. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter antigravity`. O `subagents` do registro é `native`. O valor efetivo vem de `Get-Capabilities` (sonda fail-closed).
 
 ## Codex
 
@@ -162,7 +156,7 @@ O InstallRoot modela `~/.claude` ou `.claude` do projeto.
 | `hooks/*.ps1` | De `adapters/claude/assets/hooks/` |
 | `settings.json` | Upsert chaveado de hooks mais `permissions.allow` aditivo. UTF-8 sem BOM. Backup `.bak` |
 
-Fixture: `scripts/validation/fixtures/claude`. Smoke: `Invoke-ClaudeCiSmoke.ps1`.
+Fixture: `scripts/validation/fixtures/claude`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter claude`.
 
 ## OpenCode
 
@@ -175,7 +169,7 @@ O InstallRoot modela `~/.config/opencode`.
 | `agents/*.md` | `Publish-Agents` |
 | `plugins/*.js` | Plugins JS. O marcador de compatibilidade não instala hook de autorização |
 
-Hooks são só plugin. Smoke: `Invoke-OpenCodeCiSmoke.ps1` (só filesystem).
+Hooks são só plugin. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter opencode` (só filesystem).
 
 ## ZCode
 
@@ -189,7 +183,7 @@ O InstallRoot modela `~/.zcode` (filesystem ADE, não GLM Coding Plan).
 | `cli/config.json` | Config de hooks |
 | `hooks/hooks.json` | Configuração PreToolUse; o Toolkit não decide autorização |
 
-Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCodeCiSmoke.ps1`.
+Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter zcode`.
 
 ## GitHub Copilot
 
@@ -208,7 +202,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-ZCode
 | `hooks/*` | Hooks `version:1` `preToolUse`; sem decisão de autorização do Toolkit |
 | `agents/nome.agent.md` | Um arquivo de agente do catálogo no modo repo. O modo user não publica agentes |
 
-Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-CopilotCiSmokeSuite.ps1`.
+Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter copilot`.
 
 ## Grok Build
 
@@ -236,7 +230,7 @@ O InstallRoot é o home do Hermes. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.
 | `memories/MEMORY.md` | Semeado uma vez se faltar |
 | `SOUL.md` | Nunca criado nem sobrescrito |
 
-`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e substitui o item inteiro de `pre_tool_call` do toolkit. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e substitui o item inteiro de `pre_tool_call` do toolkit. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
 
 ## OpenHands
 
@@ -250,22 +244,21 @@ O InstallRoot de projeto é uma árvore de repositório.
 | `.openhands/hooks.json` e `.openhands/hooks/*.sh` | Hooks de shell, incluindo `guard_pre_tool.sh` |
 | `.plugin/plugin.json` | Metadados do plugin. As skills funcionam sem o plugin |
 
-Skills de usuário ao vivo: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publica `skills/` sob esse home. `subagents=none`. Fixture: `scripts/validation/fixtures/openhands`. Smoke: `Invoke-OpenHandsCiSmoke.ps1`.
+Skills de usuário ao vivo: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publica `skills/` sob esse home. `subagents=none`. Fixture: `scripts/validation/fixtures/openhands`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter openhands`.
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `master`, `main` e `develop`. A topologia é `validate` (`windows-latest`) → matrizes `validate-windows-keyed-uninstall` e `validate-windows-adapter-smoke`; separadamente, `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; em paralelo, `docs-strict` (`ubuntu-latest`) faz o build estrito do MkDocs; por fim, `ci-ok` (`ubuntu-latest`) depende dos seis jobs de validação.
+`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`. A topologia é `validate-core` (`windows-latest`) → `adapter-smoke` (matriz `ubuntu-latest` com os 10 adaptadores) e `adapter-smoke-windows` (só codex); em paralelo, `docs-strict` faz o build estrito do MkDocs. O check agregador `validate` depende de todos os jobs de validação; `ci-ok` depende desses jobs e de `validate`.
 
-O job `validate` no Windows:
+O job `validate-core` roda `validate-core.ps1` e depois `Assert-SyncAllowUserHomeForward.ps1`. O smoke de adaptador é o genérico `Invoke-AdapterCiSmoke.ps1 -Adapter <id>`, com raiz descartável em `.adt-work/`.
 
-1. `validate-core.ps1 -Quiet`
-2. Asserts de desinstalação chaveada para Claude, Copilot, Codex, OpenCode, Antigravity, Grok, Cursor, ZCode, Hermes e OpenHands
-3. `Assert-SyncAllowUserHomeForward.ps1`
-4. Dez smokes de agente (Copilot é uma suíte): Cursor, Antigravity, Claude, Codex, suíte Copilot, OpenCode, Grok, ZCode, Hermes, OpenHands
+`docs-strict` instala `docs-site/requirements-docs.txt` e roda `mkdocs build --strict -f docs-site/mkdocs.yml`.
 
-`validate-ubuntu` roda `Assert-InstallRootSafety.ps1` e `validate-core.ps1 -Quiet`; sua matriz separada de adapter-smoke roda os mesmos dez smokes de fixture da matriz Windows. `docs-strict` instala `docs-site/requirements-docs.txt` e roda `mkdocs build --strict -f docs-site/mkdocs.yml`.
+`master-release-ci.yml` emite `ci-ok` em pull requests para `master`/`main` depois de verificar que a origem é `develop`. `enforce-release-source.yml` emite `release-source`; ele valida a origem, os metadados de release e as credenciais e permissões do App de sincronização.
 
-`release.yml` é um disparo manual. Informe `MAJOR.MINOR.PATCH`. Ele avança `master` em fast-forward até `develop` quando `master` já é ancestral, e publica a tag `vVERSION`. `publish-release-bootstrap.yml` envia o zip, o SHA256 e os entrypoints de bootstrap em `release` published e em `workflow_dispatch`. `enforce-release-source.yml` falha salvo se um pull request para `master` ou `main` vier de `develop`.
+O fluxo normal de release começa quando um PR opt-in de `develop` → `master`/`main` é integrado. `release.yml` verifica as credenciais do App, cria a tag e o release no commit promovido, chama `publish-release-bootstrap.yml` para enviar o zip, o SHA256 e os entrypoints de bootstrap, e solicita um PR normal de reconciliação para `develop`. A reconciliação ocorre após cada PR de release integrado. Se a publicação funcionou, mas a reconciliação falhou, execute `release.yml` a partir do commit promovido em `master`/`main` com `reconcile_only=true` e a versão em branco; isso tenta a reconciliação novamente sem criar outra tag. Falhas apenas no upload dos assets podem ser repetidas por `publish-release-bootstrap.yml` usando a tag existente.
+
+Os workflows emitem checks; rulesets e proteções de branch do GitHub definem quais são obrigatórios. Na verificação de 2026-10-29, `protect-develop` exige `validate`, a proteção legada também exige `ci-ok`, e `protect-release` exige `release-source`. Confira as configurações remotas novamente antes de confiar neste registro.
 
 `.github/workflows/docs.yml` publica este site. É um workflow separado.
 

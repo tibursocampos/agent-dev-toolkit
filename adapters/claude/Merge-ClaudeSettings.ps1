@@ -268,18 +268,9 @@ function Get-ClaudeManagedPermissionsAllowEntries {
         [switch] $AllowBroadShellPermissions
     )
 
-    $c = $script:ClaudeSettingsJsonConstant
-    $format = $c.PermissionsAllowBashFormat
+    # Hook scripts run as `command` type hooks — not through the Bash permission system.
+    # Bash(...) allow entries for hook commands have no effect and are intentionally omitted.
     $entries = New-Object System.Collections.Generic.List[string]
-
-    foreach ($scriptFileName in @(
-            $c.HookScriptUserPromptSubmit,
-            $c.HookScriptPostToolUse,
-            $c.HookScriptTraceEmit
-        )) {
-        $command = Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $scriptFileName
-        $entries.Add(($format -f $command)) | Out-Null
-    }
 
     if ($AllowBroadShellPermissions.IsPresent) {
         foreach ($legacy in @($script:ClaudeLegacyBroadPermissionsAllow)) {
@@ -684,6 +675,85 @@ function Merge-ClaudePermissionsAllowAdditive {
     $permissions[$allowKey] = @($existingAllow.ToArray())
 }
 
+function Get-ClaudeGitPermissionsAskEntries {
+    <#
+    .SYNOPSIS
+      Mutant git commands that require operator confirmation (permissions.ask).
+    #>
+    [CmdletBinding()]
+    param()
+
+    return [string[]]@(
+        'Bash(git commit:*)',
+        'Bash(git push:*)',
+        'Bash(git merge:*)',
+        'Bash(git rebase:*)',
+        'Bash(git checkout -b:*)'
+    )
+}
+
+function Get-ClaudeGitPermissionsAllowEntries {
+    <#
+    .SYNOPSIS
+      Read-only git commands that are pre-approved (permissions.allow).
+    #>
+    [CmdletBinding()]
+    param()
+
+    return [string[]]@(
+        'Bash(git status:*)',
+        'Bash(git diff:*)',
+        'Bash(git log:*)',
+        'Bash(git branch --show-current:*)'
+    )
+}
+
+function Merge-ClaudePermissionsAskAdditive {
+    <#
+    .SYNOPSIS
+      Idempotent additive merge for permissions.ask entries.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary] $Settings,
+
+        [Parameter(Mandatory = $true)]
+        [string[]] $ManagedAskEntries
+    )
+
+    $permissionsKey = $script:ClaudeSettingsJsonConstant.PermissionsPropertyName
+    $askKey = $script:ClaudeSettingsJsonConstant.AskPropertyName
+
+    if (-not $Settings.Contains($permissionsKey) -or $null -eq $Settings[$permissionsKey]) {
+        $Settings[$permissionsKey] = [ordered]@{}
+    }
+    elseif (-not ($Settings[$permissionsKey] -is [System.Collections.IDictionary])) {
+        throw $script:ClaudePublishMessage.SettingsPermissionsNotObject
+    }
+    else {
+        $Settings[$permissionsKey] = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$permissionsKey]
+    }
+
+    $permissions = $Settings[$permissionsKey]
+    $existingAsk = [System.Collections.Generic.List[string]]::new()
+    if ($permissions.Contains($askKey) -and $null -ne $permissions[$askKey]) {
+        foreach ($entry in @($permissions[$askKey])) {
+            if ($null -ne $entry) {
+                $existingAsk.Add([string]$entry)
+            }
+        }
+    }
+
+    foreach ($managedEntry in $ManagedAskEntries) {
+        if (-not $existingAsk.Contains($managedEntry)) {
+            $existingAsk.Add($managedEntry)
+        }
+    }
+
+    $permissions[$askKey] = @($existingAsk.ToArray())
+}
+
 function Read-ClaudeSettingsObject {
     [CmdletBinding()]
     param(
@@ -843,7 +913,11 @@ function Invoke-ClaudeMergeSettings {
             [void](Remove-ClaudePermissionsAllowEntriesByEquality -Settings $settings -EntriesToRemove @($script:ClaudeLegacyBroadPermissionsAllow))
         }
         $managedAllow = @(Get-ClaudeManagedPermissionsAllowEntries -InstallRoot $resolvedInstallRoot -AllowBroadShellPermissions:$AllowBroadShellPermissions)
+        $managedAllow += @(Get-ClaudeGitPermissionsAllowEntries)
         Merge-ClaudePermissionsAllowAdditive -Settings $settings -ManagedAllowEntries $managedAllow
+
+        $managedAsk = @(Get-ClaudeGitPermissionsAskEntries)
+        Merge-ClaudePermissionsAskAdditive -Settings $settings -ManagedAskEntries $managedAsk
     }
     catch {
         return [PSCustomObject]@{

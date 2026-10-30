@@ -5,7 +5,8 @@
 | **PRD** | scripts/validation/fixtures/sdd-artifacts/preflight/orphan-req/TS01/PRD/998_preflight_orphan.md |
 | **Total de passos** | 3 |
 | **Progresso** | 0/3 |
-| **Status** | draft |
+| **Status** | approved |
+| **Implementation status** | `NOT_STARTED` |
 
 ## Execution policy
 
@@ -20,6 +21,14 @@
 
 - [ ] O1: Include orphan REQ on purpose
 
+## Progresso da implementação
+
+| Step ID | Dependências | Status |
+|---------|--------------|--------|
+| S1 | none | PENDENTE |
+| S2 | S1 | PENDENTE |
+| S3 | S2 | PENDENTE |
+
 ## Mapa REQ → passo
 
 | REQ | Passo |
@@ -30,7 +39,7 @@
 
 ---
 
-### ⏳ PASSO 1: First
+### ⏳ PASSO 1 — S1: First
 
 **Status:** Pendente | **Deps:** nenhuma
 
@@ -40,7 +49,7 @@
 
 ---
 
-### ⏳ PASSO 2: Second
+### ⏳ PASSO 2 — S2: Second
 
 **Status:** Pendente | **Deps:** 1
 
@@ -50,7 +59,7 @@
 
 ---
 
-### ⏳ PASSO 3: Orphan
+### ⏳ PASSO 3 — S3: Orphan
 
 **Status:** Pendente | **Deps:** 2
 

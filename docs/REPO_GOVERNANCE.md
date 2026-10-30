@@ -10,7 +10,7 @@ Public OSS policy for **agent-dev-toolkit**: who the docs are for, what visitors
 |----------|--------|------------|
 | **Visitor** | Understand the toolkit, clone/fork, read policy | [README.md](../README.md), [INSTALL.md](INSTALL.md), [guides/01-getting-started.md](guides/01-getting-started.md), [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | **Operator** | Sync skills to an agent home, run validation | [INSTALL.md](INSTALL.md), [VALIDATION.md](VALIDATION.md), [ADAPTERS.md](ADAPTERS.md), [SKILLS.md](SKILLS.md) |
-| **Maintainer** | Change this repository (write access / collaborators) | [CONTRIBUTING.md](../CONTRIBUTING.md) (Maintainers only), [VALIDATION.md](VALIDATION.md). Required check **`ci-ok`** on `pull_request` to `develop` (`.github/workflows/validate-toolkit.yml`). Release pull requests into `master` or `main` require **`release-source`** (`.github/workflows/enforce-release-source.yml`) and do not rerun the full suite. |
+| **Maintainer** | Change this repository (write access / collaborators) | [CONTRIBUTING.md](../CONTRIBUTING.md) (Maintainers only), [VALIDATION.md](VALIDATION.md). See the CI and release policy below; required checks are configured remotely and can change independently of these docs. |
 
 ## Policy pointers
 
@@ -37,6 +37,12 @@ GitHub Issues are for **defect reports only** (broken sync, validation failures,
 Anyone may **clone** or **fork** and customize a local or forked copy. **Do not** open pull requests expecting review or merge into this repository.
 
 Internal development (collaborators with write access) uses the maintainer Git flow described in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## CI and release policy
+
+Feature and fix PRs target `develop`. `.github/workflows/validate-toolkit.yml` emits the full validation suite plus aggregate checks `validate` and `ci-ok`. As checked on 2026-10-29, the active `protect-develop` ruleset requires `validate`, while legacy branch protection also requires `ci-ok`. Release PRs target `master` or `main`; `master-release-ci.yml` emits `ci-ok` for branch direction and `enforce-release-source.yml` emits `release-source` for source, release metadata, and release-sync App readiness. The active `protect-release` ruleset requires `release-source`.
+
+The normal release starts when an opted-in `develop` → `master`/`main` PR merges. `release.yml` creates the tag/release and assets, then requests a normal reconciliation PR to `develop`. Use `reconcile_only=true` to retry reconciliation without creating another tag. See [VALIDATION.md](VALIDATION.md) for operational recovery details. Check GitHub rulesets and branch protection before each release; repository files do not control that remote configuration.
 
 ## Related
 

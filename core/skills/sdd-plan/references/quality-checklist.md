@@ -3,6 +3,8 @@
 - [ ] User confirmed **sim** on canonical PLAN path (`PIPELINE.md` § Confirm before write)
 - [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
 - [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
+- [ ] `direct`: persisted approved PRD is sufficient; steps map PRD behavior/REQ/CA with PLAN-native IDs and no fabricated checklist rows. `orchestrated`: required O2 backlog/approval/checklist gates remain enforced.
+- [ ] Optional direct STORY/checklist is explicitly linked or supplied and does not conflict with PRD scope, acceptance, or dependencies; conflict blocks for operator resolution.
 - [ ] `## Related` present; PRD↔PLAN mutual cite when both exist; omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
 - [ ] Every PRD REQ and acceptance criterion appears in some step
 - [ ] Implementation DoR is reviewable before the first step: every REQ→CA→step has a named planned validation, scope/OOS and dependencies are explicit, and unresolved implementation-affecting decisions block start

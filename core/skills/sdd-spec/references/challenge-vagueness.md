@@ -12,9 +12,11 @@ Before drafting the PRD, challenge Prior context and operator answers for **dept
 |----------|--------------------------|-----------------|
 | FEATURE (sibling) | Problem, Goals, Non-goals, Evidence (omit > fabricate); story table Rationale + Product intent | `feature-altitude.md`, `product-evidence-lite.md`, `templates/features/FEATURE.md` |
 | STORY (sibling) | Objective; Who/Job/Outcome when US; OOS; AC budget **happy + rule/edge + failure** with observable Then | `gherkin-budget.md`, `invest-and-story-quality.md`, `templates/features/story/STORY.md` |
-| PRD (this Write) | Success **metrics** (§1.3); **MoSCoW** (§4.3); open questions with **Severity** (§5.1) when unknowns remain | `clarify-depth.md`, `templates/sdd/PRD.md` |
+| PRD (this Write) | Success **metrics** (§1.3); **MoSCoW** (§4.3); open questions with **Severity** (§5.1) when unknowns remain; when a material decision applies, verify the actual REQ/CA wording reflects it, not only its ID/link | `clarify-depth.md`, `templates/sdd/PRD.md` |
 
 **What / not how:** depth challenges ask for observable outcomes, beneficiaries, and success signals — **never** implementation code, class design, or step-by-step how. Identifiers (types, APIs, paths) stay English when cited.
+
+For decision-backed PRD content, use `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` rather than duplicating its criteria. Cover rules, failures, compatibility, preservation, OOS, and evidence limits only when material and applicable. A generic acceptance or missing material behavior/failure is a focused gap question, not an agent-authored `agreed` requirement. Keep superseded decisions historical; an unresolved contradiction makes the affected REQ/CA insufficient until the existing decision owner reconciles it.
 
 If FEATURE/STORY siblings are thin: ask ≤3 gap questions targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield: **`orchestrated`** → STOP per SKILL; **`direct`** → ask (create inline / proceed / optional orchestrate) — do not hard-block.
 

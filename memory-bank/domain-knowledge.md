@@ -1,43 +1,37 @@
 # Domain knowledge
 
-## Bounded contexts / areas
+## Bounded contexts
 
 | Area | Description | Evidence |
 |------|-------------|----------|
-| Skills catalog | 46 invocable skills under `core/skills/*/SKILL.md`. `help-skills` loads `CATALOG.md` and `OPERATOR.md`. `implementation-survey` describes a change and is not a mode of `code-review`. | `core/skills/_shared/skills-catalog/CATALOG.md` |
-| Delivery path | Complete path is Orchestrated Delivery: Step 0 `memory-bank-init`, then `orchestrate-analyze`, `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story), `orchestrate-develop` (one `sdd-develop` child per PLAN step). Direct `sdd-spec` is the same contract when one story is already clear. `refine-story` is the O1 scorecard rubric plus a standalone invoke for one product item or open clarification B/I. | `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
-| Agent registry | 10 agents: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands. Capability `subagents` is `native` or `none`. | `adapters/registry.json` |
-| Spawn | Axes A (spawn vs in-parent), B (omit/inherit model), C (alternate model slug only after gate). Chat language follows the user. Spawn prompts and receipts are en-US. | `core/skills/_shared/agents/SPAWN.md`, `core/skills/_shared/agents/LANGUAGE.md` |
-| Install roots | Fixture-first publish. Manifest `storage_mode` is `repository` or `global`. This bank uses repository mode at `memory-bank/`. | `README.md`, `core/sdd/STORAGE.md` |
+| Skills catalog | The toolkit has 45 invocable skills. `help-skills` presents the canonical catalog and operator notes; parity validation checks source skill IDs against the human and docs-site catalogs. | `core/skills/_shared/skills-catalog/CATALOG.md`, `core/skills/help-skills/references/present-catalog.md`, `scripts/validation/Assert-SkillCatalogParity.ps1` |
+| Delivery workflows | Classic SDD handles a clear feature directly. Orchestrated Delivery uses O1 analyze, O2 deliver per story, then O3 develop; `memory-bank-init` supports the workspace context. Human approval gates remain separate from validation and implementation. | `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `core/skills/orchestrate-analyze/SKILL.md`, `core/skills/orchestrate-deliver/SKILL.md`, `core/skills/orchestrate-develop/SKILL.md` |
+| Agent registry and adapters | Ten registered host adapters publish the shared core. `subagents` is declared as `native` or `none`; Antigravity uses a runtime capability probe, and fallback behavior is part of the contract. | `adapters/registry.json`, `adapters/`, `core/skills/_shared/agents/SPAWN.md` |
+| Storage and install | `InstallRoot` defaults to an in-repository fixture. Live user-home writes require `-AllowUserHome`. Manifest `storage_mode` selects repository or global SDD storage; feature artifacts and `memory-bank/` share the resolved root. | `README.md`, `core/skills/_shared/sdd-artifacts/STORAGE.md`, `scripts/toolkit.ps1` |
+| External-access evidence | Feature 020 remains `IN_PROGRESS`. Contract and fixture checks establish scoped local behavior; they do not establish provider/host enforcement, production I/O, isolation, or TOCTOU behavior. O3 receipt paths are evidence-only, not Classic access grants. | `features/020-classic-external-access/US01/PLAN/PLAN_020_classic_external_access.md`, `core/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md` |
 
 ## Key terms
 
 | Term | Meaning |
 |------|---------|
-| Core | Agent-neutral skills, policy, router, and SDD contracts. |
-| Adapter | Publisher that maps core into one host install layout. |
-| InstallRoot | Destination tree for publish. Default is an in-repo fixture. |
-| `-AllowUserHome` | Opt-in that allows a resolved `InstallRoot` under the user profile. |
-| `subagents=native` | Host has a Task-equivalent spawn API. |
-| `subagents=none` | No Task equivalent. Work falls back in-parent. OpenHands registry value is `none`. |
-| Antigravity effective `subagents` | Probed at runtime (`ADT_ANTIGRAVITY_SUBAGENTS`, then product version). Registry value alone is not the effective value. |
-| Keyed uninstall | Removes toolkit-owned files, including catalog files the operator edited. Alien files and `sdd/sessions` stay. Mixed `AGENTS.md`, `CLAUDE.md`, and a marked router block lose only the toolkit span. |
-| Content-language | Language of written SDD artifact prose. Resolution: invocation, then `preferences.json` `artifact_language`, then manifest, else chat. |
-| Hook evidence status | `confirmado`, `descartado`, `comportamento do provider`, or `hipótese pendente`. `GuardCommon.ps1` changes only for a proven shared defect. |
-| Catalog republish | Replaces the toolkit catalog after the adapter's native transform. A hash delta is a defect only when source revision and that transform are known. |
-| `code-review` bands | Findings are `critical`, `important`, or `nice-to-have`. Decisions stay `Approved`, `Approved with reservations`, and `Changes required`. `advisory` is not a finding band. |
-| `implementation-survey` | Separate skill. It reports what changed and does not issue a review verdict. |
+| Core | Agent-neutral skills, policies, router, catalog, and SDD contracts. |
+| Adapter | Host-specific publisher that maps the core into an install layout. |
+| InstallRoot | Resolved destination for a publish; fixture-first, with profile writes gated by `-AllowUserHome`. |
+| `subagents=native` / `none` | Whether a host exposes a documented Task-equivalent; `none` uses the contract's in-parent fallback. |
+| O1 / O2 / O3 | Analyze, per-story specification/planning, and step-based development stages in Orchestrated Delivery. |
+| Content-language | SDD prose language resolved from invocation, preferences, manifest, then chat language. |
+| `external:<alias>/<path>` | Portable evidence citation; it does not authorize a filesystem root or read/write access. |
+| Catalog parity | Exact equality of invocable skill IDs across source and exhaustive human/docs-site listings; descriptive README previews are not exhaustive catalogs. |
 
-## Invariants / rules
+## Invariants
 
-- One `sdd-develop` session executes one PLAN step, then stops.
-- `subagents=none` (and Antigravity when the probe is not native) uses the in-parent fallback. Spawn is preference plus fallback, not a hard requirement.
-- Chat output mirrors the user. Spawn prompts, receipts, and skill bodies stay en-US (`LANGUAGE.md`).
-- `preferences.json` keys used by the runtime include `caveman_mode`, `caveman_level`, `orchestrator_mode`, `artifact_language`, and `verify_mode` (default false; when true, orchestrated develop spawns a read-only verifier after the implementer).
-- Spec Kit, uv, and specify are not runtime dependencies. SQLite/FTS is out of scope.
+- A direct `sdd-develop` session executes one PLAN step and then stops. O3 has its own bounded queue and receipt contracts.
+- `subagents=none` is a fallback condition, not a reason to hard-fail or invent a host capability.
+- Chat follows the user's language; skill bodies and specialist prompts/receipts stay en-US; SDD artifact prose follows the content-language resolver.
+- Local fixtures and assertions do not prove live host, provider, publication, or production integration behavior.
+- GitHub release synchronization uses an App token with narrow contents and pull-request permissions; secret values stay in GitHub Actions, never in the repository or Memory Bank.
+- SQL/database, OpenAPI/Swagger, and UI component-map contracts are not indicated by the current inventory; phase-2 Memory Bank files are therefore not required.
 
 ## Notes
 
-Do not invent domain names without evidence (code, README, docs).
-Unknowns -> `.inventory/gaps.md`.
-**No secrets / PII.**
+Do not infer product domain names beyond the toolkit's documented agent workflow, adapters, install behavior, and SDD contracts. Record unresolved behavior in `.inventory/gaps.md`.

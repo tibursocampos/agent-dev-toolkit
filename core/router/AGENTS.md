@@ -19,13 +19,13 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
 3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
 
-Mode and in-session commands: `core/policy/orchestrator-session.md` + `{{SDD_ROOT}}/preferences.json` (`orchestrator_mode`: `always` default | `adaptive`).
+Mode and in-session commands: `{{TOOLKIT_ROOT}}/rules/orchestrator-session` + `{{SDD_ROOT}}/preferences.json` (`orchestrator_mode`: `adaptive` default | `always`).
 
 ## Parallel specialists (default)
 
 **This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
 
-Always-on policy source: `core/policy/orchestrator-session.md`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
+Always-on policy source: `{{TOOLKIT_ROOT}}/rules/orchestrator-session`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
 
 **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Task `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
 

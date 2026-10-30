@@ -45,7 +45,7 @@ Skills and guides in scope **must not** prescribe a full dump of:
 | Check | How |
 |-------|-----|
 | Documented | This file + skill Must-not / Process bullets |
-| Automated smoke | `scripts/validation/Assert-SelectiveRetrieval.ps1` (exit ≠ 0 if a dump prescription is found, or required anti-dump markers are missing) |
+| Automated smoke | `scripts/validation/Assert-CoreContracts.ps1` (exit ≠ 0 if a dump prescription is found, or required anti-dump markers are missing) |
 
 Fail the assert → fix the skill/guide text before marking CA1 / REQ-002 done.
 
@@ -77,7 +77,7 @@ The comparison checks reported outcome (`answered`, `insufficient`, or `conflict
 - [ ] No in-scope skill instructs dumping all of `memory-bank/`
 - [ ] No in-scope skill instructs pasting the entire PRD into prompts/handoffs
 - [ ] Each in-scope skill cites this file or restates `SR-NO-FULL-DUMP`
-- [ ] `Assert-SelectiveRetrieval.ps1` exits 0
+- [ ] `Assert-CoreContracts.ps1` (SelectiveRetrieval section) exits 0
 
 ## Must not
 

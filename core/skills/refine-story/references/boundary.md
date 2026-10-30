@@ -30,7 +30,7 @@ Open questions use severity **B** \| **I** \| **MINOR** (`clarify-depth.md` + `r
 
 **No new clarify skill (REQ-007):** do not create `clarify` / `feature-refinement` skill folders.
 
-**Selective retrieval:** `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP` — **must not** dump entire `memory-bank/` or paste full PRD into refine output/handoffs. Smoke: `Assert-SelectiveRetrieval.ps1`.
+**Selective retrieval:** `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP` — **must not** dump entire `memory-bank/` or paste full PRD into refine output/handoffs. Smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
 
 Do **not** expand refine into a full PRD inline.
 

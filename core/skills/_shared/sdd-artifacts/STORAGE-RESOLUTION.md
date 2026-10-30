@@ -129,6 +129,14 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 
 `<path>` = `repositories[$Cwd].classic.path`
 
+### Read, resume, and portable-path resolution
+
+- `features_versioned` controls Git tracking/ignore policy only. It never changes the selected feature root and never controls whether a file is readable. To resume or read an artifact, test/read the exact canonical filesystem path; do not use `git ls-files`, tracked-file enumerations, or any listing that omits ignored files.
+- In `repository` mode, a portable artifact path begins with `features/` and resolves under `$Cwd/features/`, whether or not `/features/` is ignored by Git.
+- In `global` mode, resolve `classic.path` under `effective_SDD_ROOT`, then resolve the artifact under `<classic.path>/features/`. Its portable cite is relative to InstallRoot (for example, `sdd/<repo-id>/features/...`); map only the prefix corresponding to this configured `classic.path` to the resolved directory. A same-named local `$Cwd/features/` file is a decoy and is not a fallback.
+- For both modes, reject traversal and any PRD/PLAN outside the canonical feature/story layout. If the manifest is absent, invalid, has no active-repository entry, or specifies an unsupported mode/path, stop and reconcile storage; do not infer a root from nearby siblings, Git state, a preference, or whichever copy is newest/complete.
+- Do not edit the consumer repository `.gitignore` in global mode. Repository-mode ignore guidance is governed by `features_versioned`; reads do not mutate it.
+
 ### Resolution checklist (repository vs global)
 
 | Check | repository | global |

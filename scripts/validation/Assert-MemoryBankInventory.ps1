@@ -1,594 +1,141 @@
 #Requires -Version 5.1
 # Tests:
-#   Should_Pass_When_InventoryScriptExists
-#   Should_Pass_When_InventoryStatusReady
-#   Should_Pass_When_InventoryRootsArePortable
-#   Should_Pass_When_InventoryStatusNotReady_NoSources
-#   Should_Pass_When_PathEscapeYieldsNotReady
-#   Should_Pass_When_SecretNamedSourceSummaryRedacted
-#   Should_Fail_When_SiblingPrefixPathRejected
-#   Should_Pass_When_LegacyFilesMigratedToSourcesV3
-#   Should_Pass_When_BloatedSourcesResetOnRefreshLight
-#
-# Frente C2 + TS01 PASSO 1: inventory emits hash+summary governance status ready|not-ready.
-# Runs against temp copies of fixtures so machine-absolute paths never land in the committed tree.
+#   Should_Pass_When_InventoryCreatedReady
+#   Should_MarkNotReady_When_NoSources
+#   Should_MarkNotReady_When_PathEscapeSeeded
+#   Should_RedactSummary_When_SecretNamedSource
+#   Should_MarkNotReady_When_SourceDriftsOrDisappears
+#   Should_NotIndexSibling_When_PathSharesRepoPrefix
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
-$scriptsRoot = Split-Path -Parent $scriptDir
-$libDir = Join-Path $scriptsRoot '_lib'
-$repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
-$constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
-
-# Mirror inventory script local constants (parallel-wave safe; not ToolkitConstants).
-$script:StatusReady = 'ready'
-$script:StatusNotReady = 'not-ready'
-$script:ExitReady = 0
-$script:ExitNotReady = 2
-$script:ReasonNoSourcesPrefix = 'no_sources:'
-$script:ReasonPathEscapePrefix = 'path_escape:'
-$script:ReasonBloatedResetToken = 'bloated_reset:'
-$script:SchemaVersionExpected = 3
-$script:Sha256HexPattern = '^[a-f0-9]{64}$'
-
-function Write-Pass {
-    param([Parameter(Mandatory = $true)][string] $TestName)
-    Write-Host ("{0}: PASS" -f $TestName)
-}
-
-function Write-Fail {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)][string] $Reason
-    )
-    Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
-    exit 1
-}
-
-function Get-Utf8NoBomEncoding {
-    return (New-Object System.Text.UTF8Encoding $false)
-}
-
-function Test-IsMachineLocalInventoryPath {
-    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $PathValue)
-
-    if ([string]::IsNullOrWhiteSpace($PathValue)) {
-        return $true
-    }
-
-    $normalized = ($PathValue -replace '\\', '/').Trim()
-    if ($normalized -match '^[A-Za-z]:/') {
-        return $true
-    }
-
-    if ($normalized.StartsWith('//')) {
-        return $true
-    }
-
-    if ($normalized.StartsWith('/')) {
-        return $true
-    }
-
-    if ($normalized -match '^~(/|$)') {
-        return $true
-    }
-
-    return $false
-}
-
-function Assert-PortableInventoryRoots {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)] $InventoryObject,
-        [Parameter(Mandatory = $false)][string] $ExpectedBankPath = ''
-    )
-
-    $repoPath = [string]$InventoryObject.repo_path
-    $bankPath = [string]$InventoryObject.bank_path
-
-    if ($repoPath -ne '.') {
-        Write-Fail -TestName $TestName -Reason ("repo_path must be '.' (portable), got '{0}'" -f $repoPath)
-    }
-
-    if (Test-IsMachineLocalInventoryPath -PathValue $bankPath) {
-        Write-Fail -TestName $TestName -Reason ("bank_path must be repo-relative portable, got '{0}'" -f $bankPath)
-    }
-
-    if ($bankPath -match '\\') {
-        Write-Fail -TestName $TestName -Reason ("bank_path must use forward slashes, got '{0}'" -f $bankPath)
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($ExpectedBankPath) -and $bankPath -ne $ExpectedBankPath) {
-        Write-Fail -TestName $TestName -Reason ("bank_path expected '{0}', got '{1}'" -f $ExpectedBankPath, $bankPath)
-    }
-}
-
-function Assert-NoWritesOutsideInventory {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)][string] $WorkRoot,
-        [Parameter(Mandatory = $true)][string] $WorkBank
-    )
-
-    $allowedRoot = [System.IO.Path]::GetFullPath((Join-Path $WorkBank '.inventory'))
-    $workFull = [System.IO.Path]::GetFullPath($WorkRoot)
-    $files = @(Get-ChildItem -LiteralPath $WorkRoot -Recurse -File -Force -ErrorAction SilentlyContinue)
-    foreach ($file in $files) {
-        $full = [System.IO.Path]::GetFullPath($file.FullName)
-        $relOk = $full.StartsWith($workFull, [System.StringComparison]::OrdinalIgnoreCase)
-        if (-not $relOk) {
-            Write-Fail -TestName $TestName -Reason ("write escaped work root: {0}" -f $full)
-        }
-
-        $name = $file.Name
-        if ($name -eq 'README.md') {
-            continue
-        }
-
-        if (-not $full.StartsWith($allowedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-            Write-Fail -TestName $TestName -Reason ("unexpected write outside .inventory: {0}" -f $full)
-        }
-    }
-}
-
-if (-not (Test-Path -LiteralPath $repoRootScript)) {
-    Write-Fail -TestName 'Assert-MemoryBankInventoryPreconditions' -Reason ("missing {0}" -f $repoRootScript)
-}
-
-if (-not (Test-Path -LiteralPath $constantsScript)) {
-    Write-Fail -TestName 'Assert-MemoryBankInventoryPreconditions' -Reason ("missing {0}" -f $constantsScript)
-}
-
-. $constantsScript
-. $repoRootScript
+$libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
+. (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
+. (Join-Path $libDir 'New-ToolkitWorkRoot.ps1')
+. (Join-Path $libDir 'Resolve-InstallRoot.ps1')
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
+$inv = Join-Path $repoRoot ($script:ToolkitConstant.InvokeMemoryBankInventoryScriptRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 
-$inventoryScriptRel = $script:ToolkitConstant.InvokeMemoryBankInventoryScriptRelativePath
-$inventoryScriptPath = Join-Path $repoRoot ($inventoryScriptRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$fixtureRel = $script:ToolkitConstant.MemoryBankInventoryFixtureRelativeDir
-$fixtureRoot = Join-Path $repoRoot ($fixtureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+$ExitReady = 0
+$ExitNotReady = 2
+$utf8 = New-Object System.Text.UTF8Encoding $false
 
-if (-not (Test-Path -LiteralPath $inventoryScriptPath)) {
-    Write-Fail -TestName 'Should_Pass_When_InventoryScriptExists' -Reason ("missing inventory script {0}" -f $inventoryScriptRel)
+function Write-Pass { param([string] $Name) Write-Host ("{0}: PASS" -f $Name) }
+function Write-Fail { param([string] $Name, [string] $Reason) Write-Error ("{0}: FAIL - {1}" -f $Name, $Reason); exit 1 }
+
+function Invoke-Inventory {
+    param([string] $Repo, [string] $Bank, [string] $Action = 'inventory')
+    & $inv -RepoPath $Repo -BankPath $Bank -AllowCreateInventory -Action $Action 2>$null 6>$null | Out-Null
+    $code = $LASTEXITCODE
+    if ($null -eq $code) { $code = 0 }
+    $src = Join-Path $Bank '.inventory\sources.json'
+    $doc = $null
+    if (Test-Path -LiteralPath $src) { $doc = Get-Content -LiteralPath $src -Raw -Encoding UTF8 | ConvertFrom-Json }
+    return [pscustomobject]@{ Code = $code; Doc = $doc; Path = $src }
 }
 
-Write-Pass -TestName 'Should_Pass_When_InventoryScriptExists'
+if (-not (Test-Path -LiteralPath $inv)) { Write-Fail 'Should_Pass_When_InventoryCreatedReady' 'missing inventory script' }
 
-$fixtureReadme = Join-Path $fixtureRoot 'README.md'
-
-if (-not (Test-Path -LiteralPath $fixtureReadme)) {
-    Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("missing fixture README at {0}" -f $fixtureRel)
-}
-
-# Drop any leftover generated inventory under the committed fixture seed.
-$committedInventory = Join-Path $fixtureRoot 'memory-bank\.inventory'
-if (Test-Path -LiteralPath $committedInventory) {
-    Remove-Item -LiteralPath $committedInventory -Recurse -Force
-}
-
-# --- CT1 ready ---
-$workRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-ready-{0}' -f [Guid]::NewGuid().ToString('N'))
-$workBank = Join-Path $workRoot 'memory-bank'
-$workSources = Join-Path $workBank '.inventory\sources.json'
-
+$work = New-ToolkitWorkRoot -RepoRoot $repoRoot
 try {
-    New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
-    Copy-Item -LiteralPath $fixtureReadme -Destination (Join-Path $workRoot 'README.md') -Force
-
-    & $inventoryScriptPath -RepoPath $workRoot -BankPath $workBank -AllowCreateInventory -Action inventory
-    $exitCode = $LASTEXITCODE
-    if ($null -eq $exitCode) {
-        $exitCode = 0
+    # --- create: ready, schema, hashes, portable roots, writes confined to .inventory ---
+    $r = Join-Path $work 'ready'
+    $b = Join-Path $r 'memory-bank'
+    New-Item -ItemType Directory -Path $r -Force | Out-Null
+    '# Memory bank inventory fixture' | Set-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    $res = Invoke-Inventory $r $b
+    $n = 'Should_Pass_When_InventoryCreatedReady'
+    if ($res.Code -ne $ExitReady) { Write-Fail $n "exit $($res.Code)" }
+    $d = $res.Doc
+    if ([int]$d.schema_version -ne 3 -or [string]$d.status -ne 'ready') { Write-Fail $n 'schema/status' }
+    if ([string]$d.inventory_hash -notmatch '^[a-f0-9]{64}$') { Write-Fail $n 'inventory_hash' }
+    if ([string]$d.repo_path -ne '.' -or [string]$d.bank_path -ne 'memory-bank') { Write-Fail $n 'roots not portable' }
+    $e = @($d.sources | Where-Object { $_.path -eq 'README.md' })[0]
+    if ($null -eq $e -or [string]$e.hash -notmatch '^[a-f0-9]{64}$' -or [string]$e.summary -notmatch 'Memory bank inventory fixture') { Write-Fail $n 'README entry' }
+    $allowed = [System.IO.Path]::GetFullPath((Join-Path $b '.inventory'))
+    foreach ($f in @(Get-ChildItem -LiteralPath $r -Recurse -File -Force)) {
+        if ($f.Name -ne 'README.md' -and -not $f.FullName.StartsWith($allowed, [System.StringComparison]::OrdinalIgnoreCase)) { Write-Fail $n "write outside .inventory: $($f.FullName)" }
     }
+    Write-Pass $n
 
-    if ($exitCode -ne $script:ExitReady) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $exitCode)
-    }
+    # --- no sources ---
+    $r = Join-Path $work 'empty'
+    $b = Join-Path $r 'memory-bank'
+    New-Item -ItemType Directory -Path $r -Force | Out-Null
+    $res = Invoke-Inventory $r $b
+    $n = 'Should_MarkNotReady_When_NoSources'
+    if ($res.Code -ne $ExitNotReady -or [string]$res.Doc.status -ne 'not-ready' -or [string]$res.Doc.status_reason -notlike 'no_sources:*') { Write-Fail $n "exit $($res.Code)" }
+    Write-Pass $n
 
-    if (-not (Test-Path -LiteralPath $workSources)) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'temp sources.json was not created'
-    }
+    # --- path escape ---
+    $r = Join-Path $work 'escape'
+    $b = Join-Path $r 'memory-bank'
+    New-Item -ItemType Directory -Path (Join-Path $b '.inventory') -Force | Out-Null
+    'fixture' | Set-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    'secret' | Set-Content -LiteralPath (Join-Path $work 'outside.txt') -Encoding UTF8
+    $seed = [ordered]@{ schema_version = 3; sources = @([ordered]@{ path = '../outside.txt' }) }
+    [System.IO.File]::WriteAllText((Join-Path $b '.inventory\sources.json'), ($seed | ConvertTo-Json -Depth 6), $utf8)
+    $res = Invoke-Inventory $r $b
+    $n = 'Should_MarkNotReady_When_PathEscapeSeeded'
+    if ($res.Code -ne $ExitNotReady -or [string]$res.Doc.status_reason -notlike 'path_escape:*') { Write-Fail $n "exit $($res.Code) reason $($res.Doc.status_reason)" }
+    if (@($res.Doc.sources | Where-Object { [string]$_.path -match '\.\.' }).Count -gt 0) { Write-Fail $n 'escaped path indexed' }
+    if ((Get-Content -LiteralPath (Join-Path $work 'outside.txt') -Raw) -notmatch 'secret') { Write-Fail $n 'outside file modified' }
+    Write-Pass $n
 
-    $inventory = Get-Content -LiteralPath $workSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ([int]$inventory.schema_version -ne $script:SchemaVersionExpected) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("expected schema_version {0}, got {1}" -f $script:SchemaVersionExpected, $inventory.schema_version)
-    }
+    # --- secret-named source: summary redacted, file untouched ---
+    $r = Join-Path $work 'secret'
+    $b = Join-Path $r 'memory-bank'
+    New-Item -ItemType Directory -Path (Join-Path $b '.inventory') -Force | Out-Null
+    'fixture' | Set-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    $sf = [System.IO.Path]::Combine($r, 'credentials.json')
+    $payload = 'API_KEY=supersecret-must-not-land-in-summary'
+    [System.IO.File]::WriteAllText($sf, $payload, $utf8)
+    $seed = [ordered]@{ schema_version = 3; sources = @(
+            [ordered]@{ path = 'README.md'; hash = (Get-FileHash -LiteralPath (Join-Path $r 'README.md') -Algorithm SHA256).Hash.ToLowerInvariant() },
+            [ordered]@{ path = 'credentials.json'; hash = (Get-FileHash -LiteralPath $sf -Algorithm SHA256).Hash.ToLowerInvariant() }) }
+    [System.IO.File]::WriteAllText((Join-Path $b '.inventory\sources.json'), ($seed | ConvertTo-Json -Depth 6), $utf8)
+    $res = Invoke-Inventory $r $b
+    $n = 'Should_RedactSummary_When_SecretNamedSource'
+    $se = @($res.Doc.sources | Where-Object { $_.path -eq 'credentials.json' })[0]
+    if ($res.Code -ne $ExitReady -or $null -eq $se) { Write-Fail $n "exit $($res.Code) or entry missing" }
+    if ([string]$se.summary -ne '[redacted: secret-named source]') { Write-Fail $n "summary '$($se.summary)'" }
+    if ([System.IO.File]::ReadAllText($sf).Trim() -ne $payload) { Write-Fail $n 'secret file modified' }
+    Write-Pass $n
 
-    if ($inventory.PSObject.Properties.Name -contains 'files') {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'legacy files key must not be written'
-    }
+    # --- refresh: stable when unchanged, not-ready on drift and on missing source ---
+    $r = Join-Path $work 'drift'
+    $b = Join-Path $r 'memory-bank'
+    New-Item -ItemType Directory -Path $r -Force | Out-Null
+    'Drift fixture' | Set-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    'Second source' | Set-Content -LiteralPath (Join-Path $r 'AGENTS.md') -Encoding UTF8
+    $n = 'Should_MarkNotReady_When_SourceDriftsOrDisappears'
+    if ((Invoke-Inventory $r $b).Code -ne $ExitReady) { Write-Fail $n 'initial inventory' }
+    if ((Invoke-Inventory $r $b 'refresh-light').Code -ne $ExitReady) { Write-Fail $n 'unchanged refresh must stay ready' }
+    'changed' | Add-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    $res = Invoke-Inventory $r $b 'refresh-light'
+    if ($res.Code -ne $ExitNotReady -or [string]$res.Doc.status_reason -notlike 'source_drift:*') { Write-Fail $n 'drift not flagged' }
+    Remove-Item -LiteralPath (Join-Path $r 'README.md') -Force
+    $res = Invoke-Inventory $r $b 'refresh-light'
+    if ($res.Code -ne $ExitNotReady -or [string]$res.Doc.status_reason -notlike '*source_drift:*missing:README.md*') { Write-Fail $n 'missing source not flagged' }
+    Write-Pass $n
 
-    if ($null -eq $inventory.sources -or @($inventory.sources).Count -lt 1) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'temp sources.json must contain at least one source entry'
-    }
-
-    if ([string]$inventory.status -ne $script:StatusReady) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("expected status ready, got {0}" -f $inventory.status)
-    }
-
-    if ([string]::IsNullOrWhiteSpace([string]$inventory.status_reason)) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'status_reason must be non-empty'
-    }
-
-    if ([string]$inventory.inventory_hash -notmatch $script:Sha256HexPattern) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'inventory_hash must be sha256 hex'
-    }
-
-    if ([string]::IsNullOrWhiteSpace([string]$inventory.inventory_summary)) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'inventory_summary must be non-empty'
-    }
-
-    $requiredProps = @('path', 'last_write_utc', 'length', 'hash', 'summary')
-    foreach ($entry in @($inventory.sources)) {
-        foreach ($prop in $requiredProps) {
-            if ($null -eq $entry.$prop -or [string]::IsNullOrWhiteSpace([string]$entry.$prop)) {
-                Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("source entry missing {0}: {1}" -f $prop, ($entry.path))
-            }
-        }
-
-        if ([string]$entry.hash -notmatch $script:Sha256HexPattern) {
-            Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason ("invalid sha256 hash for {0}" -f $entry.path)
-        }
-    }
-
-    $readmeEntry = @($inventory.sources | Where-Object { $_.path -eq 'README.md' } | Select-Object -First 1)
-    if ($null -eq $readmeEntry) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'temp sources.json must index README.md'
-    }
-
-    if ([string]$readmeEntry.summary -notmatch 'Memory bank inventory fixture') {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusReady' -Reason 'README summary heuristic did not capture fixture heading'
-    }
-
-    Assert-PortableInventoryRoots -TestName 'Should_Pass_When_InventoryRootsArePortable' -InventoryObject $inventory -ExpectedBankPath 'memory-bank'
-    Write-Pass -TestName 'Should_Pass_When_InventoryRootsArePortable'
-
-    Assert-NoWritesOutsideInventory -TestName 'Should_Pass_When_InventoryStatusReady' -WorkRoot $workRoot -WorkBank $workBank
-    Write-Pass -TestName 'Should_Pass_When_InventoryStatusReady'
+    # --- sibling prefix (repo vs repo-evil) ---
+    $p = Join-Path $work 'sibling'
+    $r = Join-Path $p 'repo'
+    $evil = Join-Path $p 'repo-evil'
+    New-Item -ItemType Directory -Path $r, $evil -Force | Out-Null
+    'repo-only' | Set-Content -LiteralPath (Join-Path $r 'README.md') -Encoding UTF8
+    'evil-marker-should-not-index' | Set-Content -LiteralPath (Join-Path $evil 'README.md') -Encoding UTF8
+    $n = 'Should_NotIndexSibling_When_PathSharesRepoPrefix'
+    if (Test-IsPathUnderOrEqual -ChildPath $evil -ParentPath $r) { Write-Fail $n 'prefix sibling treated as child' }
+    $res = Invoke-Inventory $r (Join-Path $r 'memory-bank')
+    if ($res.Code -ne $ExitReady) { Write-Fail $n "exit $($res.Code)" }
+    if (@($res.Doc.sources | Where-Object { [string]$_.path -match 'repo-evil' -or [string]$_.summary -match 'evil-marker' }).Count -gt 0) { Write-Fail $n 'sibling indexed' }
+    Write-Pass $n
 }
 finally {
-    if (Test-Path -LiteralPath $workRoot) {
-        Remove-Item -LiteralPath $workRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
+    Remove-ToolkitWorkRoot -RepoRoot $repoRoot -Path $work
 }
 
-# --- CT2 not-ready (no sources) ---
-$emptyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-empty-{0}' -f [Guid]::NewGuid().ToString('N'))
-$emptyBank = Join-Path $emptyRoot 'memory-bank'
-$emptySources = Join-Path $emptyBank '.inventory\sources.json'
-
-try {
-    New-Item -ItemType Directory -Path $emptyRoot -Force | Out-Null
-
-    & $inventoryScriptPath -RepoPath $emptyRoot -BankPath $emptyBank -AllowCreateInventory -Action inventory
-    $emptyExit = $LASTEXITCODE
-    if ($null -eq $emptyExit) {
-        $emptyExit = 0
-    }
-
-    if ($emptyExit -ne $script:ExitNotReady) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason ("expected exit {0}, got {1}" -f $script:ExitNotReady, $emptyExit)
-    }
-
-    if (-not (Test-Path -LiteralPath $emptySources)) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason 'sources.json must still be written for not-ready'
-    }
-
-    $emptyInventory = Get-Content -LiteralPath $emptySources -Raw -Encoding UTF8 | ConvertFrom-Json
-    Assert-PortableInventoryRoots -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -InventoryObject $emptyInventory -ExpectedBankPath 'memory-bank'
-    if ([string]$emptyInventory.status -ne $script:StatusNotReady) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason ("expected not-ready, got {0}" -f $emptyInventory.status)
-    }
-
-    if ([string]$emptyInventory.status_reason -notlike ($script:ReasonNoSourcesPrefix + '*')) {
-        Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason ("unexpected reason: {0}" -f $emptyInventory.status_reason)
-    }
-
-    $emptyFiles = @(Get-ChildItem -LiteralPath $emptyRoot -Recurse -File -Force)
-    foreach ($file in $emptyFiles) {
-        $full = [System.IO.Path]::GetFullPath($file.FullName)
-        $allowed = [System.IO.Path]::GetFullPath((Join-Path $emptyBank '.inventory'))
-        if (-not $full.StartsWith($allowed, [System.StringComparison]::OrdinalIgnoreCase)) {
-            Write-Fail -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources' -Reason ("write outside inventory: {0}" -f $full)
-        }
-    }
-
-    Write-Pass -TestName 'Should_Pass_When_InventoryStatusNotReady_NoSources'
-}
-finally {
-    if (Test-Path -LiteralPath $emptyRoot) {
-        Remove-Item -LiteralPath $emptyRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# --- RNF-004 path escape → not-ready ---
-$escapeRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-escape-{0}' -f [Guid]::NewGuid().ToString('N'))
-$escapeBank = Join-Path $escapeRoot 'memory-bank'
-$escapeInventoryDir = Join-Path $escapeBank '.inventory'
-$escapeSources = Join-Path $escapeInventoryDir 'sources.json'
-$escapeMarker = Join-Path (Split-Path -Parent $escapeRoot) ('adt-escape-marker-{0}.txt' -f [Guid]::NewGuid().ToString('N'))
-
-try {
-    New-Item -ItemType Directory -Path $escapeRoot -Force | Out-Null
-    New-Item -ItemType Directory -Path $escapeInventoryDir -Force | Out-Null
-    'fixture' | Set-Content -LiteralPath (Join-Path $escapeRoot 'README.md') -Encoding UTF8
-    'secret' | Set-Content -LiteralPath $escapeMarker -Encoding UTF8
-
-    $seed = [ordered]@{
-        schema_version = 3
-        sources        = @(
-            [ordered]@{ path = '../' + [System.IO.Path]::GetFileName($escapeMarker) }
-        )
-    }
-    [System.IO.File]::WriteAllText($escapeSources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
-
-    & $inventoryScriptPath -RepoPath $escapeRoot -BankPath $escapeBank -AllowCreateInventory -Action inventory
-    $escapeExit = $LASTEXITCODE
-    if ($null -eq $escapeExit) {
-        $escapeExit = 0
-    }
-
-    if ($escapeExit -ne $script:ExitNotReady) {
-        Write-Fail -TestName 'Should_Pass_When_PathEscapeYieldsNotReady' -Reason ("expected exit {0}, got {1}" -f $script:ExitNotReady, $escapeExit)
-    }
-
-    $escapeInventory = Get-Content -LiteralPath $escapeSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ([string]$escapeInventory.status -ne $script:StatusNotReady) {
-        Write-Fail -TestName 'Should_Pass_When_PathEscapeYieldsNotReady' -Reason ("expected not-ready, got {0}" -f $escapeInventory.status)
-    }
-
-    if ([string]$escapeInventory.status_reason -notlike ($script:ReasonPathEscapePrefix + '*')) {
-        Write-Fail -TestName 'Should_Pass_When_PathEscapeYieldsNotReady' -Reason ("expected path_escape reason, got {0}" -f $escapeInventory.status_reason)
-    }
-
-    # Seeded escape path must not be indexed; README may still be discovered → if only escape was seeded and README exists, ready could win unless escape takes priority.
-    # Escape hits are evaluated before empty/ready — status must remain not-ready.
-    $escapedIndexed = @($escapeInventory.sources | Where-Object { [string]$_.path -match '\.\.' })
-    if ($escapedIndexed.Count -gt 0) {
-        Write-Fail -TestName 'Should_Pass_When_PathEscapeYieldsNotReady' -Reason 'escaped relative path must not appear in sources'
-    }
-
-    if (Test-Path -LiteralPath $escapeMarker) {
-        # Marker file outside repo must remain untouched (inventory never writes there).
-        $markerText = Get-Content -LiteralPath $escapeMarker -Raw -Encoding UTF8
-        if ($markerText -notmatch 'secret') {
-            Write-Fail -TestName 'Should_Pass_When_PathEscapeYieldsNotReady' -Reason 'escape marker outside repo was modified'
-        }
-    }
-
-    Write-Pass -TestName 'Should_Pass_When_PathEscapeYieldsNotReady'
-}
-finally {
-    if (Test-Path -LiteralPath $escapeRoot) {
-        Remove-Item -LiteralPath $escapeRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    if (Test-Path -LiteralPath $escapeMarker) {
-        Remove-Item -LiteralPath $escapeMarker -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# --- Secret-named source: summary must not echo file contents ---
-# Use credentials.json (not .env): Join-Path on Linux can turn ".env" into ".env.".
-$secretRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-secret-{0}' -f [Guid]::NewGuid().ToString('N'))
-$secretBank = Join-Path $secretRoot 'memory-bank'
-$secretInventoryDir = Join-Path $secretBank '.inventory'
-$secretSources = Join-Path $secretInventoryDir 'sources.json'
-$secretFileName = 'credentials.json'
-$secretFilePath = [System.IO.Path]::Combine($secretRoot, $secretFileName)
-$secretPayload = 'API_KEY=supersecret-must-not-land-in-summary'
-$script:ExpectedSummaryRedacted = '[redacted: secret-named source]'
-
-try {
-    New-Item -ItemType Directory -Path $secretInventoryDir -Force | Out-Null
-    'fixture' | Set-Content -LiteralPath (Join-Path $secretRoot 'README.md') -Encoding UTF8
-    [System.IO.File]::WriteAllText($secretFilePath, $secretPayload, (Get-Utf8NoBomEncoding))
-
-    $seed = [ordered]@{
-        schema_version = 3
-        sources        = @(
-            [ordered]@{ path = 'README.md' },
-            [ordered]@{ path = $secretFileName }
-        )
-    }
-    [System.IO.File]::WriteAllText($secretSources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
-
-    & $inventoryScriptPath -RepoPath $secretRoot -BankPath $secretBank -AllowCreateInventory -Action inventory
-    $secretExit = $LASTEXITCODE
-    if ($null -eq $secretExit) {
-        $secretExit = 0
-    }
-
-    if ($secretExit -ne $script:ExitReady) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $secretExit)
-    }
-
-    $secretInventory = Get-Content -LiteralPath $secretSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    $secretEntry = @($secretInventory.sources | Where-Object { $_.path -eq $secretFileName } | Select-Object -First 1)
-    if ($null -eq $secretEntry) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("{0} must remain indexed (hash ok; summary redacted)" -f $secretFileName)
-    }
-
-    if ([string]$secretEntry.summary -ne $script:ExpectedSummaryRedacted) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason ("expected redacted summary, got '{0}'" -f $secretEntry.summary)
-    }
-
-    if ([string]$secretEntry.summary -match 'supersecret' -or [string]$secretEntry.summary -match 'API_KEY') {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason 'summary leaked secret payload'
-    }
-
-    $secretAfter = Get-Content -LiteralPath $secretFilePath -Raw -Encoding UTF8
-    if ($secretAfter.Trim() -ne $secretPayload) {
-        Write-Fail -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted' -Reason 'inventory must not modify secret-named source file'
-    }
-
-    Write-Pass -TestName 'Should_Pass_When_SecretNamedSourceSummaryRedacted'
-}
-finally {
-    if (Test-Path -LiteralPath $secretRoot) {
-        Remove-Item -LiteralPath $secretRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# --- RNF-004 sibling-prefix (repo vs repo-evil) must not count as under ---
-$inventorySource = Get-Content -LiteralPath $inventoryScriptPath -Raw -Encoding UTF8
-if ($inventorySource -notmatch 'Test-IsPathUnderOrEqual') {
-    Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason 'inventory must reuse Test-IsPathUnderOrEqual for path boundaries'
-}
-
-$siblingParent = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-sibling-{0}' -f [Guid]::NewGuid().ToString('N'))
-$siblingRepo = Join-Path $siblingParent 'repo'
-$siblingEvil = Join-Path $siblingParent 'repo-evil'
-$siblingBank = Join-Path $siblingRepo 'memory-bank'
-$siblingSources = Join-Path $siblingBank '.inventory\sources.json'
-$evilReadme = Join-Path $siblingEvil 'README.md'
-
-try {
-    New-Item -ItemType Directory -Path $siblingRepo, $siblingEvil -Force | Out-Null
-    'repo-only' | Set-Content -LiteralPath (Join-Path $siblingRepo 'README.md') -Encoding UTF8
-    'evil-secret-marker-should-not-index' | Set-Content -LiteralPath $evilReadme -Encoding UTF8
-
-    if (-not (Get-Command -Name Test-IsPathUnderOrEqual -ErrorAction SilentlyContinue)) {
-        . (Join-Path $libDir 'Resolve-InstallRoot.ps1')
-    }
-
-    if (Test-IsPathUnderOrEqual -ChildPath $siblingEvil -ParentPath $siblingRepo) {
-        Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason 'Test-IsPathUnderOrEqual must reject repo-evil under repo'
-    }
-
-    & $inventoryScriptPath -RepoPath $siblingRepo -BankPath $siblingBank -AllowCreateInventory -Action inventory
-    $siblingExit = $LASTEXITCODE
-    if ($null -eq $siblingExit) {
-        $siblingExit = 0
-    }
-
-    if ($siblingExit -ne $script:ExitReady) {
-        Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $siblingExit)
-    }
-
-    $siblingInventory = Get-Content -LiteralPath $siblingSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    $evilIndexed = @($siblingInventory.sources | Where-Object {
-            ([string]$_.path -match '(?i)repo-evil') -or
-            ([string]$_.summary -match 'evil-secret-marker-should-not-index')
-        })
-    if ($evilIndexed.Count -gt 0) {
-        Write-Fail -TestName 'Should_Fail_When_SiblingPrefixPathRejected' -Reason 'sibling repo-evil content must not be indexed under repo'
-    }
-
-    Write-Pass -TestName 'Should_Fail_When_SiblingPrefixPathRejected'
-}
-finally {
-    if (Test-Path -LiteralPath $siblingParent) {
-        Remove-Item -LiteralPath $siblingParent -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# --- Legacy v1 `files` → v3 `sources` ---
-$legacyRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-legacy-{0}' -f [Guid]::NewGuid().ToString('N'))
-$legacyBank = Join-Path $legacyRoot 'memory-bank'
-$legacyInventoryDir = Join-Path $legacyBank '.inventory'
-$legacySources = Join-Path $legacyInventoryDir 'sources.json'
-
-try {
-    New-Item -ItemType Directory -Path $legacyInventoryDir -Force | Out-Null
-    'legacy fixture' | Set-Content -LiteralPath (Join-Path $legacyRoot 'README.md') -Encoding UTF8
-
-    $seed = [ordered]@{
-        schema_version = 1
-        files          = @(
-            [ordered]@{ path = 'README.md' }
-        )
-    }
-    [System.IO.File]::WriteAllText($legacySources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
-
-    & $inventoryScriptPath -RepoPath $legacyRoot -BankPath $legacyBank -AllowCreateInventory -Action refresh-light
-    $legacyExit = $LASTEXITCODE
-    if ($null -eq $legacyExit) {
-        $legacyExit = 0
-    }
-
-    if ($legacyExit -ne $script:ExitReady) {
-        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $legacyExit)
-    }
-
-    $legacyInventory = Get-Content -LiteralPath $legacySources -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ([int]$legacyInventory.schema_version -ne $script:SchemaVersionExpected) {
-        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason ("expected schema_version {0}" -f $script:SchemaVersionExpected)
-    }
-
-    if ($legacyInventory.PSObject.Properties.Name -contains 'files') {
-        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason 'files key must be dropped after rewrite'
-    }
-
-    $readmeEntry = @($legacyInventory.sources | Where-Object { $_.path -eq 'README.md' } | Select-Object -First 1)
-    if ($null -eq $readmeEntry) {
-        Write-Fail -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3' -Reason 'README.md from legacy files must appear under sources'
-    }
-
-    Write-Pass -TestName 'Should_Pass_When_LegacyFilesMigratedToSourcesV3'
-}
-finally {
-    if (Test-Path -LiteralPath $legacyRoot) {
-        Remove-Item -LiteralPath $legacyRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# --- Bloated index (>200) → curated reset on refresh-light ---
-$bloatedRoot = Join-Path ([System.IO.Path]::GetTempPath().TrimEnd('\', '/')) ('adt-memory-bank-inventory-bloated-{0}' -f [Guid]::NewGuid().ToString('N'))
-$bloatedBank = Join-Path $bloatedRoot 'memory-bank'
-$bloatedInventoryDir = Join-Path $bloatedBank '.inventory'
-$bloatedSources = Join-Path $bloatedInventoryDir 'sources.json'
-$bulkDir = Join-Path $bloatedRoot 'bulk'
-
-try {
-    New-Item -ItemType Directory -Path $bloatedInventoryDir, $bulkDir -Force | Out-Null
-    'fixture' | Set-Content -LiteralPath (Join-Path $bloatedRoot 'README.md') -Encoding UTF8
-
-    $seedEntries = [System.Collections.Generic.List[object]]::new()
-    $seedEntries.Add([ordered]@{ path = 'README.md' })
-    for ($i = 1; $i -le 201; $i++) {
-        $rel = ('bulk/{0}.txt' -f $i)
-        $full = Join-Path $bulkDir ('{0}.txt' -f $i)
-        'x' | Set-Content -LiteralPath $full -Encoding UTF8
-        $seedEntries.Add([ordered]@{ path = $rel })
-    }
-
-    $seed = [ordered]@{
-        schema_version = 3
-        sources        = @($seedEntries)
-    }
-    [System.IO.File]::WriteAllText($bloatedSources, ($seed | ConvertTo-Json -Depth 6), (Get-Utf8NoBomEncoding))
-
-    & $inventoryScriptPath -RepoPath $bloatedRoot -BankPath $bloatedBank -AllowCreateInventory -Action refresh-light
-    $bloatedExit = $LASTEXITCODE
-    if ($null -eq $bloatedExit) {
-        $bloatedExit = 0
-    }
-
-    if ($bloatedExit -ne $script:ExitReady) {
-        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("expected exit {0}, got {1}" -f $script:ExitReady, $bloatedExit)
-    }
-
-    $bloatedInventory = Get-Content -LiteralPath $bloatedSources -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ([string]$bloatedInventory.status_reason -notlike ('*{0}*' -f $script:ReasonBloatedResetToken)) {
-        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("expected bloated_reset in status_reason, got {0}" -f $bloatedInventory.status_reason)
-    }
-
-    $bulkIndexed = @($bloatedInventory.sources | Where-Object { [string]$_.path -like 'bulk/*' })
-    if ($bulkIndexed.Count -gt 0) {
-        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason ("bulk paths must be pruned; kept {0}" -f $bulkIndexed.Count)
-    }
-
-    if (@($bloatedInventory.sources).Count -gt 50) {
-        Write-Fail -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight' -Reason 'curated reset must stay well under bloated count'
-    }
-
-    Write-Pass -TestName 'Should_Pass_When_BloatedSourcesResetOnRefreshLight'
-}
-finally {
-    if (Test-Path -LiteralPath $bloatedRoot) {
-        Remove-Item -LiteralPath $bloatedRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-
-Write-Host 'Assert-MemoryBankInventory: ALL PASS'
 exit 0

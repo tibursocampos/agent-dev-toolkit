@@ -138,7 +138,7 @@ Live home:
 - [ADAPTERS.md](../../docs/ADAPTERS.md) â€” Claude layout, merge rules, fixture
 - [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) â€” InstallRoot tree
 - [INSTALL.md](../../docs/INSTALL.md) â€” operator sync
-- [VALIDATION.md](../../docs/VALIDATION.md) â€” `Invoke-ClaudeCiSmoke.ps1`
+- [VALIDATION.md](../../docs/VALIDATION.md) â€” `Invoke-AdapterCiSmoke.ps1 -Adapter claude`
 
 ## Official docs (Anthropic)
 
@@ -150,7 +150,7 @@ Live home:
 - [Steering: skills, hooks, rules, subagents](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more)
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-ClaudeCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter claude
 ```
 
 Workflow step: `.github/workflows/validate-toolkit.yml` â†’ **Run Claude CI smoke** (no secrets; no home sync).

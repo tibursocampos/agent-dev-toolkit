@@ -17,6 +17,6 @@ The adapter entrypoints, event names, payloads, merge rules, and cleanup remain 
 
 ## Validation limits
 
-`Assert-AuthorizationPolicy.ps1` exercises the shared compatibility evaluator with an outside/temporary path, an unknown tool, and secret-shaped content. `Assert-OpenCodePathSecretsGuard.ps1` exercises the native JS evaluator. These checks establish source-level behavior only; they do not prove that a live host delivered a hook or that a host permission setting allows a particular operation.
+`Assert-CoreContracts.ps1` and `Assert-AdapterContract.ps1` (run by `validate-core.ps1`) exercise the shared compatibility evaluator and the per-adapter guard evaluators generically across the registry, including an outside/temporary path, an unknown tool, and secret-shaped content. These checks establish source-level behavior only; they do not prove that a live host delivered a hook or that a host permission setting allows a particular operation.
 
 Secret scanning is not an authorization gate. The Toolkit does not surface matched values. SDD checkpoints, dependencies, confirmation gates, and recovery remain governed by the core workflow contracts.

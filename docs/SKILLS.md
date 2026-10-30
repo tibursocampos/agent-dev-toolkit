@@ -18,7 +18,7 @@ Credits for Caveman / Spec Kit inspiration: [CREDITS.md](CREDITS.md).
 
 ## Lazy-load (invocable skills)
 
-Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enforced by `Assert-SkillLazyLoad.ps1`).
+Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enforced by `Assert-CoreContracts.ps1`).
 
 | Piece | Role |
 |-------|------|

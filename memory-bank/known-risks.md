@@ -1,32 +1,29 @@
 # Known risks
 
-| Risk | Area | Mitigation / note |
-|------|------|-------------------|
-| Live home writes are opt-in | Install | Default destination is an in-repo fixture. Profile writes require `-AllowUserHome`. |
-| `subagents=none` cannot spawn children | Spawn | Fallback is in-parent. OpenHands registry value is `none`. Antigravity effective value is the runtime probe (`ADT_ANTIGRAVITY_SUBAGENTS` / product version), not the registry string alone. |
-| Develop session scope | SDD | `sdd-develop` executes one PLAN step per session, including `continuous` mode. |
-| Language source of truth is split | Policy | Surface resolution is `core/skills/_shared/agents/LANGUAGE.md`. `core/policy/user-language-pt-br.md` and `core/policy/sdd-artifact-language-pt-br.md` are pt-BR install defaults and do not override that matrix when chat or preferences differ. |
-| CI does not prove a live agent home | Validation | `.github/workflows/validate-toolkit.yml` runs on pull requests to `develop`. The default `validate` job runs `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, `Assert-TraceEmitterFailOpen.ps1`, and `Assert-SyncAllowUserHomeForward.ps1` (disposable profile). Adapter smoke jobs and `docs-strict` remain. `validate-core` and keyed-uninstall are not steps of that workflow. It does not sync a real user home. |
-| Backup is a stub | CLI | `-Action Backup` is fail-closed unless a test passes `-ForceStub`. It does not snapshot an install. |
-| Uninstall is keyed | Adapters | Toolkit-owned files are removed. Alien operator files and `sdd/sessions` stay. Re-sync is update-in-place, not uninstall-then-install. |
-| Path guard is not the installed copy | Hooks | `adapters/_shared/GuardCommon.ps1` allows writes inside the workspace (outside `.git` and legacy root `PRD/` / `PLAN/`) and under user adapter homes. Secrets and paths outside both stay denied. The copy under the live agent home changes only after sync. |
-| Hermes hook command is host-absolute at publish | Hermes | `config.yaml` `command` is a YAML single-quoted scalar because Hermes runs it with `shlex` and `shell=False`. The versioned fixture seed stays `~/.hermes/...`. A local publish rewrites that file with the fixture absolute path; do not commit that rewrite. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item (`fail_closed: true`). |
-| Review and survey read untrusted trees | Skills | `code-review` treats `.agent-validation-tools.json` as untrusted. Those commands stay unexecuted unless invoke confidence is explicit. `implementation-survey` may read staged and unstaged diffs and in-prefix neighbors. It must not open forbidden docs such as `SEC/`. |
-| OpenCode guard is the plugin | Hooks | Relative allowlisted paths can pass in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`. That allow/deny path is not `GuardCommon.ps1`. |
+| Risk | Area | Mitigation / evidence |
+|------|------|----------------------|
+| Live-home behavior is not covered by fixture-only CI | Install / adapters | Default destinations are in-repository fixtures; real profile writes require `-AllowUserHome`. Treat fixture smokes as local contract evidence, not live-host proof. |
+| GitHub release sync credentials are unavailable in the current repository context | Release | `release-source` and the release workflow preflight require `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY`. A live release/reconciliation cannot pass until an administrator configures the App with contents and pull-request write permissions and no branch-rule bypass. |
+| Current local CI changes have not been verified by a GitHub PR run | CI | `validate-core.ps1` and the strict docs build passed locally, but the workflow runs on PRs to `develop`; a pushed branch without a PR has no remote check evidence. Confirm `validate` and `ci-ok` on the final PR SHA. |
+| Release reconciliation can be superseded when multiple runs are pending | Release | GitHub concurrency permits only one pending run per group. Reconciliation of the latest promoted `master`/`main` commit includes its ancestors; avoid queuing overlapping release runs and verify the final ancestry. |
+| External-access fixtures do not prove production provider/host enforcement | SDD | Feature 020 remains `IN_PROGRESS`; production I/O, provider enforcement, isolation/TOCTOU, and true Windows case-sensitive-directory behavior remain deferred or unverified. Keep claims scoped to contract and fixture evidence. |
+| Registry capability and runtime capability can differ | Spawn / adapters | Use the effective Antigravity probe (`ADT_ANTIGRAVITY_SUBAGENTS`, then product version); treat missing/unknown `subagents` as `none`. |
+| Toolkit menu must isolate CLI scripts that use top-level `exit` | CLI / validation | `scripts/toolkit.ps1` now runs dispatched scripts through `scripts/_lib/Invoke-ToolkitChildScript.ps1`; `Assert-ToolkitScriptIsolation.ps1` covers success/failure codes and argument quoting. Keep new menu dispatches on this boundary. |
+| Repository rulesets are external configuration | Git / CI | The current remote requires `validate` and `ci-ok` for `develop`; source changes emit both, but only a PR run confirms the integration. GitHub rules/secrets are not changed by local validation. |
 
 ## Fragile areas
 
-- `adapters/registry.json` capability `subagents` versus Antigravity `Get-Capabilities` effective value.
-- `core/skills/_shared/agents/LANGUAGE.md` versus `core/policy/*language-pt-br.md`.
-- `InstallRoot` resolution (`-AllowUserHome`, Copilot `-Mode user|repo`, Codex optional `-UserScope`).
+- `adapters/registry.json` declarations versus effective host capability probes.
+- `core/skills/_shared/agents/LANGUAGE.md` versus published pt-BR defaults.
+- `InstallRoot` resolution and its `-AllowUserHome`, Copilot `-Mode user|repo`, and optional Codex `-UserScope` gates.
+- GitHub Actions release preflight, required-check names, App permissions, and ancestry reconciliation.
+- Skill catalog mirrors; exact ID parity is checked by `scripts/validation/Assert-SkillCatalogParity.ps1`.
 
-## Operational gotchas
+## Operational notes
 
-- Missing or unknown `subagents` is treated as `none`.
-- `verify_mode` defaults to false. A read-only post-implement verifier runs only when preferences set it true.
-- Manifest `storage_mode` is `repository` or `global`. A global bank lives outside this repo tree.
+- `-Action Backup` is fail-closed unless the explicit stub override is used; it does not snapshot an install.
+- Uninstall removes toolkit-owned files but preserves alien files and `sdd/sessions`; sync is update-in-place.
+- `verify_mode` defaults to false; read-only verification after implementation runs only when enabled.
+- Use environment variable names only in docs and this bank. Never copy tokens, private keys, connection strings, or raw `.env` data.
 
-## Notes
-
-Facts from registry, spawn, language, CLI, and CI sources. Update when incidents or reviews find new footguns.
-**No secrets** - describe classes of risk, not credentials.
+Update this file when new incidents or reviews change the evidence. Unknown external behavior belongs in `.inventory/gaps.md`.

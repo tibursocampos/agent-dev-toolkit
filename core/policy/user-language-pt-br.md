@@ -32,7 +32,7 @@ Write **user-facing** replies in the language resolved for the current conversat
 
 ## Install path
 
-After `scripts/sync-cursor.ps1`: `{{TOOLKIT_ROOT}}/rules/user-language-pt-br.mdc` (see `docs/INSTALL.md`)
+After `scripts/sync-agent.ps1`: `{{TOOLKIT_ROOT}}/rules/user-language-pt-br.mdc` (see `docs/INSTALL.md`)
 
 ## Relation to AGENTS.md
 

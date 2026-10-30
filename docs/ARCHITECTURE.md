@@ -10,8 +10,10 @@ adapters/      # per-agent modules + registry.json + _contract
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public documentation
 .github/workflows/validate-toolkit.yml
-.github/workflows/publish-release-bootstrap.yml
+.github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
+.github/workflows/release.yml
+.github/workflows/publish-release-bootstrap.yml
 ```
 
 ## Layers
@@ -21,7 +23,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
-| CI | `validate-toolkit.yml` on `pull_request` to `develop` only: named remaining checks, adapter-smoke matrices, strict MkDocs build, then gate `ci-ok`. Release pull requests into `master` or `main` run `enforce-release-source.yml` only |
+| CI and release | `validate-toolkit.yml` on `pull_request` to `develop` runs core validation, adapter smokes and strict MkDocs, then emits aggregate checks `validate` and `ci-ok`. Release PRs to `master` / `main` also emit `ci-ok` from `master-release-ci.yml` and `release-source` from `enforce-release-source.yml`; they do not rerun the full suite. |
 
 ## Application architecture selection
 
@@ -71,19 +73,13 @@ Prepared `mustNotContain` needles: `scripts/validation/contracts/must-not-contai
 - `scripts/validate-agent.ps1`
 - `scripts/validation/validate-core.ps1`
 - `scripts/validation/Assert-SyncAllowUserHomeForward.ps1`
-- `scripts/validation/Invoke-CursorCiSmoke.ps1`
-- `scripts/validation/Invoke-AntigravityCiSmoke.ps1`
-- `scripts/validation/Invoke-ClaudeCiSmoke.ps1`
-- `scripts/validation/Invoke-CodexCiSmoke.ps1`
-- `scripts/validation/Invoke-CopilotCiSmokeSuite.ps1`
-- `scripts/validation/Invoke-OpenCodeCiSmoke.ps1`
-- `scripts/validation/Invoke-GrokCiSmoke.ps1`
-- `scripts/validation/Invoke-ZCodeCiSmoke.ps1`
-- `scripts/validation/Invoke-HermesCiSmoke.ps1`
-- `scripts/validation/Invoke-OpenHandsCiSmoke.ps1`
+- `scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter <id>` (ids from `adapters/registry.json`: cursor, antigravity, claude, codex, copilot, opencode, grok, zcode, hermes, openhands)
 - `.github/workflows/validate-toolkit.yml`
-- `.github/workflows/publish-release-bootstrap.yml`
+- `.github/workflows/master-release-ci.yml`
 - `.github/workflows/enforce-release-source.yml`
+- `.github/workflows/release.yml`
+- `.github/workflows/publish-release-bootstrap.yml`
+- `.github/workflows/docs.yml`
 
 ## Cursor install layout
 
@@ -100,7 +96,7 @@ InstallRoot models `~/.cursor`. Default publish/smoke targets:
 | `sdd/sessions/` | SDD sessions directory (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Minimal seed when absent; never overwrite existing |
 
-Smoke/CI: fixture `scripts/validation/fixtures/cursor-install-root`; `Invoke-CursorCiSmoke.ps1` uses an ephemeral work copy. No Cursor hooks trust UI; no live `~/.cursor` in CI. See [ADAPTERS.md](ADAPTERS.md).
+Smoke/CI: fixture `scripts/validation/fixtures/cursor-install-root`; `Invoke-AdapterCiSmoke.ps1 -Adapter cursor` uses an ephemeral work copy. No Cursor hooks trust UI; no live `~/.cursor` in CI. See [ADAPTERS.md](ADAPTERS.md).
 
 ## Antigravity install layout
 
@@ -115,7 +111,7 @@ InstallRoot models `~/.gemini`. Official tree:
 
 **Legacy bridge** `antigravity-ide/plugins` is documentation / opt-in only — **not** a CI or default-smoke gate.
 
-**Out of scope:** live Knowledge Items (KI); IDE trust UI. CI covers Antigravity via `Invoke-AntigravityCiSmoke.ps1` (filesystem sync+validate on an ephemeral fixture copy — no live `~/.gemini`). Skills stay **kebab-case** under `config/skills`.
+**Out of scope:** live Knowledge Items (KI); IDE trust UI. CI covers Antigravity via `Invoke-AdapterCiSmoke.ps1 -Adapter antigravity` (filesystem sync+validate on an ephemeral fixture copy — no live `~/.gemini`). Skills stay **kebab-case** under `config/skills`.
 
 ## Codex install layout
 
@@ -146,7 +142,7 @@ InstallRoot models `~/.claude` / project `.claude`:
 | `hooks/*.ps1` | From `adapters/claude/assets/hooks/` |
 | `settings.json` | Safe merge: hooks keyed upsert + additive `permissions.allow`; UTF-8 without BOM; backup `.bak` |
 
-Smoke/CI: `scripts/validation/fixtures/claude`; `Invoke-ClaudeCiSmoke.ps1` ephemeral copy. No Claude trust UI; no live `~/.claude` in CI.
+Smoke/CI: `scripts/validation/fixtures/claude`; `Invoke-AdapterCiSmoke.ps1 -Adapter claude` ephemeral copy. No Claude trust UI; no live `~/.claude` in CI.
 
 ## OpenCode install layout
 
@@ -159,7 +155,7 @@ InstallRoot models `~/.config/opencode` ([docs](https://opencode.ai/docs/config/
 | `agents/*.md` | `Publish-Agents` from `core/agents/` (`agents=true`) |
 | `plugins/*.js` | OpenCode JS plugins (`tool.execute.before` path/secrets throw) |
 
-Hooks are **plugin-only** (no shell/PS1 parity). CI smoke (`Invoke-OpenCodeCiSmoke.ps1`) is **filesystem-only** sync+validate against an ephemeral fixture — **not** an OpenCode product runtime.
+Hooks are **plugin-only** (no shell/PS1 parity). CI smoke (`Invoke-AdapterCiSmoke.ps1 -Adapter opencode`) is **filesystem-only** sync+validate against an ephemeral fixture — **not** an OpenCode product runtime.
 
 ## ZCode ADE install layout
 
@@ -173,7 +169,7 @@ InstallRoot models `~/.zcode` (ADE filesystem — **not** GLM Coding Plan):
 | `cli/config.json` | Hooks config |
 | `hooks/hooks.json` | User-level hooks merge (PreToolUse path/secrets) |
 
-Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiSmoke.ps1`.
+Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter zcode`.
 
 ## GitHub Copilot install layout
 
@@ -191,7 +187,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-ZCodeCiS
 | `copilot-instructions.md` | Always-on instructions with the router source embedded; Copilot has no dedicated router surface (`router=false`) |
 | `hooks/*` | Adapter hooks when `hooks=true` (`version:1` `preToolUse` path/secrets) |
 
-**Out of scope:** JetBrains and Eclipse Copilot IDE layouts. CI: `Invoke-CopilotCiSmokeSuite.ps1`.
+**Out of scope:** JetBrains and Eclipse Copilot IDE layouts. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter copilot`.
 
 ## Grok Build install layout
 
@@ -219,7 +215,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `memories/MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
-`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-HermesCiSmoke.ps1`.
+`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
 
 ## OpenHands install layout
 
@@ -233,7 +229,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks incl. `guard_pre_tool.sh` for `pre_tool_use` path/secrets (never `.ps1`) |
 | `.plugin/plugin.json` | Plugin metadata (skills still work without the plugin) |
 
-**Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-OpenHandsCiSmoke.ps1`.
+**Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter openhands`.
 
 ## Shared publish rules
 
@@ -241,13 +237,17 @@ Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` firs
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate` (`windows-latest`) → `validate-windows-adapter-smoke`; separately `validate-ubuntu` (`ubuntu-latest`) → `validate-ubuntu-adapter-smoke`; alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly; finally `ci-ok` (`ubuntu-latest`) depends on those five jobs. The Windows `validate` job does not deploy to USERPROFILE for a green run. It runs `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, `Assert-TraceEmitterFailOpen.ps1`, and `Assert-SyncAllowUserHomeForward.ps1` (disposable USERPROFILE probe). It does not run `validate-core.ps1` or a keyed-uninstall matrix.
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate-core` (`windows-latest`, runs `validate-core.ps1` and `Assert-SyncAllowUserHomeForward.ps1`) -> `adapter-smoke` (`ubuntu-latest` matrix over the 10 registry adapters) and `adapter-smoke-windows` (one codex smoke for PowerShell path semantics); alongside them `docs-strict` (`ubuntu-latest`) builds MkDocs strictly. The `validate` aggregate depends on all validation jobs; `ci-ok` depends on those same jobs plus `validate`.
 
-`validate-windows-adapter-smoke` runs the ten adapter CI smokes (Copilot is a suite). `validate-ubuntu` runs the same three named checks without `Assert-SyncAllowUserHomeForward`. The Ubuntu adapter-smoke matrix runs the same ten fixture smokes. `docs-strict` installs `docs-site/requirements-docs.txt` and runs `mkdocs build --strict -f docs-site/mkdocs.yml`. `ci-ok` is the required gate for merge into `develop` only after every base, matrix, and docs job succeeds. Pull requests into `master` or `main` do not run this workflow.
+Adapter smoke is the generic `Invoke-AdapterCiSmoke.ps1 -Adapter <id>`: it seeds a throwaway root under `.adt-work/`, publishes once, validates with `-SkipCore`, and checks that unrelated operator files survive.
 
-`enforce-release-source.yml` requires release PRs into `master`/`main` to come from `develop` and validates the release opt-in, SemVer version, and bullet-only highlights. After an opted-in PR merges, `release.yml` serializes and revalidates the version, tags the promoted commit, creates release notes from `.github/RELEASE_TEMPLATE.md` plus PRs associated with commits in the actual previous-tag-to-promoted-commit range, and calls `publish-release-bootstrap.yml` as a reusable workflow so assets upload in the same run. Manual dispatch remains for release recovery; asset-only failures can be retried by dispatching `publish-release-bootstrap.yml` with the existing tag. After every merged release PR, the workflow opens a normal reconciliation PR into `develop`: it uses an `ours` merge only when promoted and develop trees are identical, otherwise it performs a real content merge and lets conflicts fail for review. A repository-scoped GitHub App token with contents and pull-request write permissions is required to open that PR and request auto-merge; it does not need branch-rule bypass. The auto-merge request waits for `ci-ok` and applies ordinary branch rules, including for an ancestry-only PR with no file diff. `develop` must allow merge commits and must not require linear history, because a rebase or squash would not record the promoted commit as an ancestor. The workflow fails if auto-merge cannot be enabled or is not queued.
+`master-release-ci.yml` emits `ci-ok` on pull requests to `master` or `main` after checking that the head is `develop`. `enforce-release-source.yml` emits `release-source`; it requires `develop` as the source, validates the release opt-in, SemVer version, and bullet-only highlights, and checks release-sync App credentials and permissions. These are separate from the full `develop` suite.
 
-`.github/workflows/docs.yml` exists and is not part of this guide.
+After an opted-in `develop` → `master`/`main` PR merges, `release.yml` preflights the release-sync App, serializes and revalidates the version, tags the promoted commit, creates release notes from `.github/RELEASE_TEMPLATE.md` plus PRs associated with commits in the actual previous-tag-to-promoted-commit range, and calls `publish-release-bootstrap.yml` as a reusable workflow so assets upload in the same run. After every merged release PR (including one that did not opt into a version), the workflow opens a normal reconciliation PR into `develop`: it uses an `ours` merge only when promoted and develop trees are identical; otherwise it performs a real content merge and lets conflicts fail for review. A repository-scoped GitHub App token with contents and pull-request write permissions is required to open that PR and request auto-merge; it does not need branch-rule bypass. Auto-merge waits for normal required checks. `develop` must allow merge commits and must not require linear history, because a rebase or squash would not record the promoted commit as an ancestor.
+
+If publication succeeds but reconciliation fails, dispatch `release.yml` from the promoted `master`/`main` commit with `reconcile_only=true` and a blank version. This retries reconciliation without creating a tag or release. If asset upload alone fails, dispatch `publish-release-bootstrap.yml` with the existing tag. GitHub rulesets and branch protection are external configuration; as checked on 2026-10-29, `protect-develop` requires `validate`, legacy protection also requires `ci-ok`, and `protect-release` requires `release-source`.
+
+`.github/workflows/docs.yml` builds on pushes to `master`, `main`, or `develop`, and on manual dispatch. It deploys GitHub Pages only from pushes to `master` or `main`; pull request documentation acceptance is owned by `docs-strict` in `validate-toolkit.yml`.
 
 OpenCode and peer smokes assert published files on fixtures only — they do **not** launch product runtimes. CI detail: [docs/VALIDATION.md](VALIDATION.md).
 

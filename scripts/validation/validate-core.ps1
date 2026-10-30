@@ -4,23 +4,36 @@
   Runs the agent-dev-toolkit core validation suite (in-repo, no home deploy).
 
 .DESCRIPTION
-  Orchestrates skill contracts, graph, fixtures, and the in-repo smoke harness
-  against core/skills + fixture InstallRoot.
+  Runs the critical in-repo checks: skill contracts and graph, core contracts, adapter contract,
+  path and install-root safety, SDD runtime scripts, and publish ownership.
+  Checks run in this process with per-check exit-code isolation (try/catch plus environment and
+  location restore). A few checks that mutate process-wide state run in a child pwsh.
   Does not sync or validate under USERPROFILE. No -AllowUserHome required.
 
 .PARAMETER FailFast
   Stop on first failing check.
 
 .PARAMETER Quiet
-  Suppress per-check banners; print summary only.
+  Print only failures and the final summary.
+
+.PARAMETER Only
+  Run only the named checks (names as printed, for example core-contracts).
+
+.PARAMETER Skip
+  Skip the named checks.
 
 .EXAMPLE
   .\scripts\validation\validate-core.ps1
+
+.EXAMPLE
+  .\scripts\validation\validate-core.ps1 -Only core-contracts,skill-graph
 #>
 [CmdletBinding()]
 param(
     [switch] $FailFast,
-    [switch] $Quiet
+    [switch] $Quiet,
+    [string[]] $Only = @(),
+    [string[]] $Skip = @()
 )
 
 Set-StrictMode -Version Latest
@@ -43,282 +56,180 @@ $validationJobName = if ([string]::IsNullOrWhiteSpace($env:VALIDATION_JOB_NAME))
 }
 
 $suiteTitle = 'agent-dev-toolkit core validation'
-$contractsScriptName = 'validate-skill-contracts.ps1'
-$graphScriptName = 'validate-skill-graph.ps1'
-$fixturesScriptName = 'validate-skill-fixtures.ps1'
-$smokeHarnessScriptName = $script:ToolkitConstant.SmokeHarnessScriptName
-$routerDocLinksScriptName = $script:ToolkitConstant.AssertRouterDocLinksScriptName
-$routerDocLinksCheckName = $script:ToolkitConstant.RouterDocLinksCheckName
-$spawnContractScriptName = $script:ToolkitConstant.AssertSpawnContractScriptName
-$spawnContractCheckName = $script:ToolkitConstant.SpawnContractCheckName
-$adapterContractScriptName = $script:ToolkitConstant.AssertAdapterContractScriptName
-$adapterContractCheckName = $script:ToolkitConstant.AdapterContractCheckName
-$orchestrateSpawnFallbackScriptName = $script:ToolkitConstant.AssertOrchestrateSpawnFallbackScriptName
-$orchestrateSpawnFallbackCheckName = $script:ToolkitConstant.OrchestrateSpawnFallbackCheckName
-$hermesSpawnIsolationScriptName = $script:ToolkitConstant.AssertHermesSpawnIsolationScriptName
-$hermesSpawnIsolationCheckName = $script:ToolkitConstant.HermesSpawnIsolationCheckName
-$antigravitySubagentsProbeScriptName = $script:ToolkitConstant.AssertAntigravityOfficialLayoutScriptName
-$antigravitySubagentsProbeCheckName = $script:ToolkitConstant.AntigravitySubagentsProbeCheckName
-$javaDeveloperRoutingScriptName = $script:ToolkitConstant.AssertJavaDeveloperRoutingScriptName
-$javaDeveloperRoutingCheckName = $script:ToolkitConstant.JavaDeveloperRoutingCheckName
-$installRootSafetyScriptName = $script:ToolkitConstant.AssertInstallRootSafetyScriptName
-$installRootSafetyCheckName = $script:ToolkitConstant.InstallRootSafetyCheckName
-$smokeHarnessSafetyScriptName = $script:ToolkitConstant.AssertSmokeHarnessSafetyScriptName
-$smokeHarnessSafetyCheckName = $script:ToolkitConstant.SmokeHarnessSafetyCheckName
-$claudeSettingsMergeScriptName = $script:ToolkitConstant.AssertClaudeSettingsMergeScriptName
-$claudeSettingsMergeCheckName = $script:ToolkitConstant.ClaudeSettingsMergeCheckName
-$cursorHooksMergeScriptName = $script:ToolkitConstant.AssertCursorHooksMergeScriptName
-$cursorHooksMergeCheckName = $script:ToolkitConstant.CursorHooksMergeCheckName
-$cursorPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCursorPathSecretsGuardScriptName
-$cursorPathSecretsGuardCheckName = $script:ToolkitConstant.CursorPathSecretsGuardCheckName
-$claudePathSecretsGuardScriptName = $script:ToolkitConstant.AssertClaudePathSecretsGuardScriptName
-$claudePathSecretsGuardCheckName = $script:ToolkitConstant.ClaudePathSecretsGuardCheckName
-$codexPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCodexPathSecretsGuardScriptName
-$codexPathSecretsGuardCheckName = $script:ToolkitConstant.CodexPathSecretsGuardCheckName
-$copilotPathSecretsGuardScriptName = $script:ToolkitConstant.AssertCopilotPathSecretsGuardScriptName
-$copilotPathSecretsGuardCheckName = $script:ToolkitConstant.CopilotPathSecretsGuardCheckName
-$openHandsPathSecretsGuardScriptName = $script:ToolkitConstant.AssertOpenHandsPathSecretsGuardScriptName
-$openHandsPathSecretsGuardCheckName = $script:ToolkitConstant.OpenHandsPathSecretsGuardCheckName
-$zcodePathSecretsGuardScriptName = $script:ToolkitConstant.AssertZcodePathSecretsGuardScriptName
-$zcodePathSecretsGuardCheckName = $script:ToolkitConstant.ZcodePathSecretsGuardCheckName
-$grokPathSecretsGuardScriptName = $script:ToolkitConstant.AssertGrokPathSecretsGuardScriptName
-$grokPathSecretsGuardCheckName = $script:ToolkitConstant.GrokPathSecretsGuardCheckName
-$openCodePathSecretsGuardScriptName = $script:ToolkitConstant.AssertOpenCodePathSecretsGuardScriptName
-$openCodePathSecretsGuardCheckName = $script:ToolkitConstant.OpenCodePathSecretsGuardCheckName
-$antigravityPathSecretsGuardScriptName = $script:ToolkitConstant.AssertAntigravityPathSecretsGuardScriptName
-$antigravityPathSecretsGuardCheckName = $script:ToolkitConstant.AntigravityPathSecretsGuardCheckName
-$hermesPathSecretsGuardScriptName = $script:ToolkitConstant.AssertHermesPathSecretsGuardScriptName
-$hermesPathSecretsGuardCheckName = $script:ToolkitConstant.HermesPathSecretsGuardCheckName
-$canonicalCloneUrlScriptName = $script:ToolkitConstant.AssertCanonicalCloneUrlScriptName
-$canonicalCloneUrlCheckName = $script:ToolkitConstant.CanonicalCloneUrlCheckName
-$tier1AdapterReadmesScriptName = $script:ToolkitConstant.AssertTier1AdapterReadmesScriptName
-$tier1AdapterReadmesCheckName = $script:ToolkitConstant.Tier1AdapterReadmesCheckName
-$ciWorkflowScriptName = $script:ToolkitConstant.AssertCiWorkflowScriptName
-$ciWorkflowCheckName = $script:ToolkitConstant.CiWorkflowCheckName
-$noFeaturesDocLinksScriptName = $script:ToolkitConstant.AssertNoFeaturesDocLinksScriptName
-$noFeaturesDocLinksCheckName = $script:ToolkitConstant.NoFeaturesDocLinksCheckName
-$noFormaAliasScriptName = $script:ToolkitConstant.AssertNoFormaAliasScriptName
-$noFormaAliasCheckName = $script:ToolkitConstant.NoFormaAliasCheckName
-$managedSkillsPathSafetyScriptName = $script:ToolkitConstant.AssertManagedSkillsPathSafetyScriptName
-$managedSkillsPathSafetyCheckName = $script:ToolkitConstant.ManagedSkillsPathSafetyCheckName
-$uninstallPathSafetyScriptName = $script:ToolkitConstant.AssertUninstallPathSafetyScriptName
-$uninstallPathSafetyCheckName = $script:ToolkitConstant.UninstallPathSafetyCheckName
-$sddRootPrepareIdempotentScriptName = $script:ToolkitConstant.AssertSddRootPrepareIdempotentScriptName
-$sddRootPrepareIdempotentCheckName = $script:ToolkitConstant.SddRootPrepareIdempotentCheckName
-$selectiveRetrievalScriptName = $script:ToolkitConstant.AssertSelectiveRetrievalScriptName
-$selectiveRetrievalCheckName = $script:ToolkitConstant.SelectiveRetrievalCheckName
-$validatePrdPlanScriptName = $script:ToolkitConstant.AssertValidatePrdPlanScriptName
-$validatePrdPlanCheckName = $script:ToolkitConstant.ValidatePrdPlanCheckName
-$changeContractScriptName = $script:ToolkitConstant.AssertChangeContractScriptName
-$changeContractCheckName = $script:ToolkitConstant.ChangeContractCheckName
-$orchestratorCharterPublishedScriptName = $script:ToolkitConstant.AssertOrchestratorCharterPublishedScriptName
-$orchestratorCharterPublishedCheckName = $script:ToolkitConstant.OrchestratorCharterPublishedCheckName
-$orchestratorCommandsScriptName = $script:ToolkitConstant.AssertOrchestratorCommandsScriptName
-$orchestratorCommandsCheckName = $script:ToolkitConstant.OrchestratorCommandsCheckName
-$preferencesSchemaScriptName = $script:ToolkitConstant.AssertPreferencesSchemaScriptName
-$preferencesSchemaCheckName = $script:ToolkitConstant.PreferencesSchemaCheckName
-$planExecutionPolicyScriptName = $script:ToolkitConstant.AssertPlanExecutionPolicyScriptName
-$planExecutionPolicyCheckName = $script:ToolkitConstant.PlanExecutionPolicyCheckName
-$prdStructureScriptName = $script:ToolkitConstant.AssertPrdStructureScriptName
-$prdStructureCheckName = $script:ToolkitConstant.PrdStructureCheckName
-$planStructureScriptName = $script:ToolkitConstant.AssertPlanStructureScriptName
-$planStructureCheckName = $script:ToolkitConstant.PlanStructureCheckName
-$skillLazyLoadScriptName = $script:ToolkitConstant.AssertSkillLazyLoadScriptName
-$skillLazyLoadCheckName = $script:ToolkitConstant.SkillLazyLoadCheckName
-$storySizingContractScriptName = $script:ToolkitConstant.AssertStorySizingContractScriptName
-$storySizingContractCheckName = $script:ToolkitConstant.StorySizingContractCheckName
-$intentClassificationScriptName = $script:ToolkitConstant.AssertIntentClassificationScriptName
-$intentClassificationCheckName = $script:ToolkitConstant.IntentClassificationCheckName
-$memoryBankInventoryScriptName = $script:ToolkitConstant.AssertMemoryBankInventoryScriptName
-$memoryBankInventoryCheckName = $script:ToolkitConstant.MemoryBankInventoryCheckName
-$developSessionGateScriptName = $script:ToolkitConstant.AssertDevelopSessionGateScriptName
-$developSessionGateCheckName = $script:ToolkitConstant.DevelopSessionGateCheckName
-$traceEmitterFailOpenScriptName = $script:ToolkitConstant.AssertTraceEmitterFailOpenScriptName
-$traceEmitterFailOpenCheckName = $script:ToolkitConstant.TraceEmitterFailOpenCheckName
-$executionModesScriptName = $script:ToolkitConstant.AssertExecutionModesScriptName
-$executionModesCheckName = $script:ToolkitConstant.ExecutionModesCheckName
-$publishSpawnKnobsScriptName = $script:ToolkitConstant.AssertPublishSpawnKnobsScriptName
-$publishSpawnKnobsCheckName = $script:ToolkitConstant.PublishSpawnKnobsCheckName
-$invocationAxesScriptName = $script:ToolkitConstant.AssertInvocationAxesScriptName
-$invocationAxesCheckName = $script:ToolkitConstant.InvocationAxesCheckName
-$runtimeScriptPublishScriptName = 'Assert-RuntimeScriptPublish.ps1'
-$runtimeScriptPublishCheckName = 'runtime-script-publish'
-$skillsAndFlowsContractsScriptName = 'Assert-SkillsAndFlowsContracts.ps1'
-$skillsAndFlowsContractsCheckName = 'skills-and-flows-contracts'
-$publishOwnershipContractsScriptName = 'Assert-PublishOwnershipContracts.ps1'
-$publishOwnershipContractsCheckName = 'publish-ownership-contracts'
-$authorizationPolicyScriptName = 'Assert-AuthorizationPolicy.ps1'
-$authorizationPolicyCheckName = 'authorization-policy'
-$continuousQueueAuthorizationScriptName = 'Assert-ContinuousQueueAuthorization.ps1'
-$continuousQueueAuthorizationCheckName = 'continuous-queue-authorization'
+$constant = $script:ToolkitConstant
 
-function Write-Banner([string] $Message) {
-    if (-not $Quiet) {
-        Write-Host $Message -ForegroundColor Cyan
+# Isolated = fresh child pwsh (script mutates process environment or must not share session state).
+$coreChecks = @(
+    @{ Name = 'skill-contracts'; Script = 'validate-skill-contracts.ps1' },
+    @{ Name = 'skill-graph'; Script = 'validate-skill-graph.ps1' },
+    @{ Name = 'skill-catalog-parity'; Script = 'Assert-SkillCatalogParity.ps1' },
+    @{ Name = 'toolkit-script-isolation'; Script = 'Assert-ToolkitScriptIsolation.ps1'; Isolated = $true },
+    @{ Name = $constant.CoreContractsCheckName; Script = $constant.AssertCoreContractsScriptName },
+    @{ Name = $constant.AdapterContractCheckName; Script = $constant.AssertAdapterContractScriptName; Isolated = $true },
+    @{ Name = 'classic-external-access-runtime'; Script = 'Assert-ClassicExternalAccessRuntime.ps1'; Isolated = $true },
+    @{ Name = 'o3-receipt-validation'; Script = 'Assert-O3ReceiptValidation.ps1' },
+    @{ Name = $constant.InstallRootSafetyCheckName; Script = $constant.AssertInstallRootSafetyScriptName; Isolated = $true },
+    @{ Name = $constant.ClaudeSettingsMergeCheckName; Script = $constant.AssertClaudeSettingsMergeScriptName },
+    @{ Name = $constant.CursorHooksMergeCheckName; Script = $constant.AssertCursorHooksMergeScriptName },
+    @{ Name = $constant.PowerShellDynamicPathGuardCheckName; Script = $constant.AssertPowerShellDynamicPathGuardScriptName; Isolated = $true },
+    @{ Name = 'guard-shell-canonical-paths'; Script = 'Assert-GuardShellCanonicalPaths.ps1' },
+    @{ Name = $constant.ManagedSkillsPathSafetyCheckName; Script = $constant.AssertManagedSkillsPathSafetyScriptName },
+    @{ Name = $constant.UninstallPathSafetyCheckName; Script = $constant.AssertUninstallPathSafetyScriptName },
+    @{ Name = $constant.SddRootPrepareIdempotentCheckName; Script = $constant.AssertSddRootPrepareIdempotentScriptName },
+    @{ Name = $constant.ValidatePrdPlanCheckName; Script = $constant.AssertValidatePrdPlanScriptName },
+    @{ Name = 'release-workflow-contracts'; Script = 'Assert-ReleaseWorkflow.ps1' },
+    @{ Name = $constant.MemoryBankInventoryCheckName; Script = $constant.AssertMemoryBankInventoryScriptName },
+    @{ Name = $constant.DevelopSessionGateCheckName; Script = $constant.AssertDevelopSessionGateScriptName },
+    @{ Name = $constant.TraceEmitterFailOpenCheckName; Script = $constant.AssertTraceEmitterFailOpenScriptName },
+    @{ Name = $constant.RuntimeCopyDriftCheckName; Script = $constant.AssertRuntimeCopyDriftScriptName },
+    @{ Name = 'brownfield-analysis-validation'; Script = 'Assert-BrownfieldAnalysisValidator.ps1'; Isolated = $true },
+    @{ Name = 'publish-ownership-contracts'; Script = 'Assert-PublishOwnershipContracts.ps1' },
+    @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
+    @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
+)
+
+# Kept out on purpose:
+#  - Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe; CI runs it as its own step.
+#  - Invoke-AdapterCiSmoke.ps1 calls validate-agent and would recurse.
+
+$allCheckNames = @($coreChecks | ForEach-Object { $_.Name })
+if ($Only.Count -gt 0) {
+    $knownNames = @($coreChecks | ForEach-Object { $_.Name })
+    $unknown = @($Only | Where-Object { $knownNames -notcontains $_ })
+    if ($unknown.Count -gt 0) {
+        Write-Host ("Unknown check name(s) in -Only: {0}" -f ($unknown -join ', ')) -ForegroundColor Red
+        exit 2
     }
+    $coreChecks = @($coreChecks | Where-Object { $Only -contains $_.Name })
 }
+if ($Skip.Count -gt 0) {
+    $knownSkipNames = $allCheckNames
+    $unknownSkip = @($Skip | Where-Object { $knownSkipNames -notcontains $_ })
+    if ($unknownSkip.Count -gt 0) {
+        Write-Host ("Unknown check name(s) in -Skip: {0}" -f ($unknownSkip -join ', ')) -ForegroundColor Red
+        exit 2
+    }
+    $coreChecks = @($coreChecks | Where-Object { $Skip -notcontains $_.Name })
+}
+
+$pwshPath = (Get-Process -Id $PID).Path
 
 function Invoke-ValidationCheck {
     param(
-        [string] $Name,
-        [string] $ScriptPath
+        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $true)][string] $ScriptPath,
+        [switch] $Isolated
     )
 
-    Write-Banner "Running: $Name"
     $startedAt = [DateTimeOffset]::UtcNow
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
     $exitCode = 1
-    $checkOutput = @()
-    # Assertion scripts may emit success-stream objects through helper calls.
-    # Capture and render them here so they cannot be mistaken for this check's
-    # structured result by the caller's `$result = Invoke-ValidationCheck`.
+    $captured = @()
+    $savedLocation = (Get-Location).Path
+    $savedDirectory = [Environment]::CurrentDirectory
+    $savedEnv = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+    foreach ($entry in [Environment]::GetEnvironmentVariables('Process').GetEnumerator()) {
+        $savedEnv[[string]$entry.Key] = [string]$entry.Value
+    }
+
     try {
-        $checkOutput = @(& $ScriptPath)
+        if (-not (Test-Path -LiteralPath $ScriptPath)) {
+            throw "Check script not found: $ScriptPath"
+        }
+        $global:LASTEXITCODE = $null
+        if ($Isolated) {
+            $captured = @(& $pwshPath -NoProfile -File $ScriptPath *>&1)
+        }
+        else {
+            $captured = @(& $ScriptPath *>&1)
+        }
         $exitCode = $LASTEXITCODE
         if ($null -eq $exitCode) {
-            $exitCode = 0
-        }
-
-        foreach ($outputItem in $checkOutput) {
-            $renderedOutput = ($outputItem | Out-String).TrimEnd()
-            if (-not [string]::IsNullOrWhiteSpace($renderedOutput)) {
-                Write-Host $renderedOutput
+            # An in-process script that ends without calling exit reports nothing; that is success only
+            # when it also wrote nothing to the error stream.
+            if ($Isolated) { $exitCode = 1; $captured += 'Child process reported no exit code.' }
+            else {
+                $errorOutput = @($captured | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] })
+                $exitCode = if ($errorOutput.Count -gt 0) { 1 } else { 0 }
             }
+        }
+        elseif ($exitCode -eq 0 -and -not $Isolated -and @($captured | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] }).Count -gt 0) {
+            $exitCode = 1
         }
     }
     catch {
-        # A terminating assertion failure is still a check result. Keep the
-        # suite fail-closed while ensuring its telemetry is emitted below.
         $exitCode = 1
-        Write-Host (($_ | Out-String).TrimEnd()) -ForegroundColor Red
+        $captured += $_
     }
     finally {
+        Set-Location -LiteralPath $savedLocation
+        [Environment]::CurrentDirectory = $savedDirectory
+        foreach ($key in @([Environment]::GetEnvironmentVariables('Process').Keys)) {
+            if (-not $savedEnv.ContainsKey([string]$key)) {
+                [Environment]::SetEnvironmentVariable([string]$key, $null, 'Process')
+            }
+        }
+        foreach ($key in $savedEnv.Keys) {
+            if ([Environment]::GetEnvironmentVariable($key, 'Process') -ne $savedEnv[$key]) {
+                [Environment]::SetEnvironmentVariable($key, $savedEnv[$key], 'Process')
+            }
+        }
         $timer.Stop()
-        $finishedAt = [DateTimeOffset]::UtcNow
-        $status = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
-        Write-ValidationTelemetryCheck `
-            -Path $validationResultsPath `
-            -JobName $validationJobName `
-            -CheckName $Name `
-            -Status $status `
-            -ExitCode $exitCode `
-            -DurationMs $timer.Elapsed.TotalMilliseconds `
-            -StartedAtUtc $startedAt.ToString('o') `
-            -FinishedAtUtc $finishedAt.ToString('o') `
-            -ScriptPath $ScriptPath
     }
 
-    return [PSCustomObject]@{
-        Name     = $Name
-        Status   = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
-        ExitCode = $exitCode
+    $status = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
+    $color = if ($status -eq 'PASS') { [ConsoleColor]::Green } else { [ConsoleColor]::Red }
+    if ($status -eq 'FAIL' -or -not $Quiet) {
+        Write-Host ("{0,-4} {1,-38} {2,6:N1}s" -f $status, $Name, $timer.Elapsed.TotalSeconds) -ForegroundColor $color
     }
+    if ($status -eq 'FAIL') {
+        foreach ($item in $captured) {
+            $text = ($item | Out-String).TrimEnd()
+            if (-not [string]::IsNullOrWhiteSpace($text)) { Write-Host ('     ' + ($text -replace "`n", "`n     ")) }
+        }
+    }
+
+    Write-ValidationTelemetryCheck `
+        -Path $validationResultsPath `
+        -JobName $validationJobName `
+        -CheckName $Name `
+        -Status $status `
+        -ExitCode $exitCode `
+        -DurationMs $timer.Elapsed.TotalMilliseconds `
+        -StartedAtUtc $startedAt.ToString('o') `
+        -FinishedAtUtc ([DateTimeOffset]::UtcNow).ToString('o') `
+        -ScriptPath $ScriptPath
+
+    return [PSCustomObject]@{ Name = $Name; Status = $status; ExitCode = $exitCode }
 }
 
 if (-not $Quiet) {
     Write-Host ''
     Write-Host $suiteTitle -ForegroundColor Cyan
     Write-Host ('=' * $suiteTitle.Length) -ForegroundColor Cyan
-    Write-Host ''
 }
 
-$coreChecks = @(
-    @{ Name = 'skill-contracts'; Script = $contractsScriptName },
-    @{ Name = 'skill-graph'; Script = $graphScriptName },
-    @{ Name = 'skill-fixtures'; Script = $fixturesScriptName },
-    @{ Name = 'smoke-harness'; Script = $smokeHarnessScriptName },
-    @{ Name = $routerDocLinksCheckName; Script = $routerDocLinksScriptName },
-    @{ Name = $spawnContractCheckName; Script = $spawnContractScriptName },
-    @{ Name = $adapterContractCheckName; Script = $adapterContractScriptName },
-    @{ Name = 'core-sdd-contracts'; Script = 'Assert-CoreSddContracts.ps1' },
-    @{ Name = $orchestrateSpawnFallbackCheckName; Script = $orchestrateSpawnFallbackScriptName },
-    @{ Name = $hermesSpawnIsolationCheckName; Script = $hermesSpawnIsolationScriptName },
-    @{ Name = $antigravitySubagentsProbeCheckName; Script = $antigravitySubagentsProbeScriptName },
-    @{ Name = $javaDeveloperRoutingCheckName; Script = $javaDeveloperRoutingScriptName },
-    @{ Name = $installRootSafetyCheckName; Script = $installRootSafetyScriptName },
-    @{ Name = $smokeHarnessSafetyCheckName; Script = $smokeHarnessSafetyScriptName },
-    @{ Name = $claudeSettingsMergeCheckName; Script = $claudeSettingsMergeScriptName },
-    @{ Name = $cursorHooksMergeCheckName; Script = $cursorHooksMergeScriptName },
-    @{ Name = $cursorPathSecretsGuardCheckName; Script = $cursorPathSecretsGuardScriptName },
-    @{ Name = $claudePathSecretsGuardCheckName; Script = $claudePathSecretsGuardScriptName },
-    @{ Name = $codexPathSecretsGuardCheckName; Script = $codexPathSecretsGuardScriptName },
-    @{ Name = $copilotPathSecretsGuardCheckName; Script = $copilotPathSecretsGuardScriptName },
-    @{ Name = $openHandsPathSecretsGuardCheckName; Script = $openHandsPathSecretsGuardScriptName },
-    @{ Name = $zcodePathSecretsGuardCheckName; Script = $zcodePathSecretsGuardScriptName },
-    @{ Name = $grokPathSecretsGuardCheckName; Script = $grokPathSecretsGuardScriptName },
-    @{ Name = $openCodePathSecretsGuardCheckName; Script = $openCodePathSecretsGuardScriptName },
-    @{ Name = $antigravityPathSecretsGuardCheckName; Script = $antigravityPathSecretsGuardScriptName },
-    @{ Name = $hermesPathSecretsGuardCheckName; Script = $hermesPathSecretsGuardScriptName },
-    @{ Name = $canonicalCloneUrlCheckName; Script = $canonicalCloneUrlScriptName },
-    @{ Name = $tier1AdapterReadmesCheckName; Script = $tier1AdapterReadmesScriptName },
-    @{ Name = $ciWorkflowCheckName; Script = $ciWorkflowScriptName },
-    @{ Name = $noFeaturesDocLinksCheckName; Script = $noFeaturesDocLinksScriptName },
-    @{ Name = $noFormaAliasCheckName; Script = $noFormaAliasScriptName },
-    @{ Name = $managedSkillsPathSafetyCheckName; Script = $managedSkillsPathSafetyScriptName },
-    @{ Name = $uninstallPathSafetyCheckName; Script = $uninstallPathSafetyScriptName },
-    @{ Name = $sddRootPrepareIdempotentCheckName; Script = $sddRootPrepareIdempotentScriptName },
-    @{ Name = $selectiveRetrievalCheckName; Script = $selectiveRetrievalScriptName },
-    @{ Name = $validatePrdPlanCheckName; Script = $validatePrdPlanScriptName },
-    @{ Name = $changeContractCheckName; Script = $changeContractScriptName },
-    @{ Name = $orchestratorCharterPublishedCheckName; Script = $orchestratorCharterPublishedScriptName },
-    @{ Name = $orchestratorCommandsCheckName; Script = $orchestratorCommandsScriptName },
-    @{ Name = $preferencesSchemaCheckName; Script = $preferencesSchemaScriptName },
-    @{ Name = $planExecutionPolicyCheckName; Script = $planExecutionPolicyScriptName },
-    @{ Name = $prdStructureCheckName; Script = $prdStructureScriptName },
-    @{ Name = $planStructureCheckName; Script = $planStructureScriptName },
-    @{ Name = $storySizingContractCheckName; Script = $storySizingContractScriptName },
-    @{ Name = $intentClassificationCheckName; Script = $intentClassificationScriptName },
-    @{ Name = $skillLazyLoadCheckName; Script = $skillLazyLoadScriptName },
-    @{ Name = $memoryBankInventoryCheckName; Script = $memoryBankInventoryScriptName },
-    @{ Name = $developSessionGateCheckName; Script = $developSessionGateScriptName },
-    @{ Name = $executionModesCheckName; Script = $executionModesScriptName },
-    @{ Name = $traceEmitterFailOpenCheckName; Script = $traceEmitterFailOpenScriptName },
-    @{ Name = $publishSpawnKnobsCheckName; Script = $publishSpawnKnobsScriptName },
-    @{ Name = $invocationAxesCheckName; Script = $invocationAxesScriptName },
-    @{ Name = $runtimeScriptPublishCheckName; Script = $runtimeScriptPublishScriptName },
-    @{ Name = $skillsAndFlowsContractsCheckName; Script = $skillsAndFlowsContractsScriptName },
-    @{ Name = $publishOwnershipContractsCheckName; Script = $publishOwnershipContractsScriptName },
-    @{ Name = $authorizationPolicyCheckName; Script = $authorizationPolicyScriptName },
-    @{ Name = $continuousQueueAuthorizationCheckName; Script = $continuousQueueAuthorizationScriptName }
-)
-
-# Assert-SyncAllowUserHomeForward publishes under a disposable USERPROFILE probe.
-# Keep it out of validate-core so validate-agent (and nested CI smokes with -SkipCore)
-# stay fixture-only and fast. CI runs that assert once as a dedicated workflow step.
-# Keyed uninstall asserts also stay out: they call validate-agent (which runs
-# validate-core) and would recurse. CI runs them as a dedicated workflow step.
-# Assert-ToolkitCli / Assert-Orchestrators stay out: they nest sync/validate and would
-# recurse or re-run the full suite from inside validate-core.
-
+$suiteTimer = [System.Diagnostics.Stopwatch]::StartNew()
 $results = New-Object 'System.Collections.Generic.List[object]'
 foreach ($check in $coreChecks) {
-    $result = Invoke-ValidationCheck -Name $check.Name -ScriptPath (Join-Path $scriptDir $check.Script)
+    $isolated = $check.ContainsKey('Isolated') -and [bool]$check.Isolated
+    $result = Invoke-ValidationCheck -Name $check.Name -ScriptPath (Join-Path $scriptDir $check.Script) -Isolated:$isolated
     [void]$results.Add($result)
-
-    if ($FailFast -and $result.Status -eq 'FAIL') {
-        break
-    }
+    if ($FailFast -and $result.Status -eq 'FAIL') { break }
 }
+$suiteTimer.Stop()
 
-Write-Host ''
-Write-Host 'Core validation summary' -ForegroundColor Cyan
-Write-Host '-----------------------' -ForegroundColor Cyan
-foreach ($result in $results) {
-    $color = switch ($result.Status) {
-        'PASS' { [ConsoleColor]::Green }
-        'FAIL' { [ConsoleColor]::Red }
-        default { [ConsoleColor]::Gray }
-    }
-    Write-Host ("{0,-20} {1}" -f $result.Name, $result.Status) -ForegroundColor $color
-}
-
-$failed = @($results | Where-Object { $_.Status -eq 'FAIL' })
-if ($failed.Count -gt 0) {
-    Write-Host ''
-    Write-Host "Core validation FAILED ($($failed.Count) check(s))." -ForegroundColor Red
+if ($results.Count -eq 0) {
+    Write-Host 'Core validation FAILED: no checks ran.' -ForegroundColor Red
     exit 1
 }
 
+$failed = @($results | Where-Object { $_.Status -eq 'FAIL' })
 Write-Host ''
-Write-Host 'Core validation PASSED.' -ForegroundColor Green
+if ($failed.Count -gt 0) {
+    Write-Host ("Core validation FAILED: {0} of {1} check(s) in {2:N1}s ({3})." -f $failed.Count, $results.Count, $suiteTimer.Elapsed.TotalSeconds, (($failed | ForEach-Object { $_.Name }) -join ', ')) -ForegroundColor Red
+    exit 1
+}
+
+Write-Host ("Core validation PASSED: {0} check(s) in {1:N1}s." -f $results.Count, $suiteTimer.Elapsed.TotalSeconds) -ForegroundColor Green
 exit 0

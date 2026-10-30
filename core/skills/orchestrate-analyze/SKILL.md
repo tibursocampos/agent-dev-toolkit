@@ -1,12 +1,12 @@
 ---
 name: orchestrate-analyze
-description: Orchestrated Delivery O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
+description: "Orchestrated Delivery O1: triage a feature, spawn conditional Task specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze."
 ---
 
 ## STOP - Read before ANY tool call
 
 1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
+2. Read `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
 3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
 4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
 5. This skill body is **English**; user-facing prompts follow the **user chat language** (`LANGUAGE.md`)
@@ -56,13 +56,15 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
-| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/command.md` |
+| Command playbook (step discovery after gates) | `references/command.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
 | Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
+| Evidence decisions, relevant sources, decoys, gaps, and conflicts (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| Material behavior or decision carried into FEATURE/STORY (Steps 5 and 9 only) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
 | Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
-| Step 1 triage — intent classification (before Step 0 when not full O1) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/intent-classification.md` |
+| Step 1 triage — intent classification (before Step 0 when not full O1) | `references/intent-classification.md` |
 | Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | Roster, `needs_*`, triage table | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
@@ -71,8 +73,8 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Stack routing (implement later) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
 | Specialist prompts | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` — **one file per spawned specialist** |
-| Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/reference.md` |
-| Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-analyze/references/<section>.md` |
+| Reference index (routing only) | `reference.md` |
+| Process step detail (lazy) | `references/<section>.md` |
 | Scorecard rubric (reuse) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
 | Scorecard template (optional shape) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-template.md` |
 | Story sizing (synthesis / merge policy) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
@@ -140,6 +142,12 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 ### 5. Collect description and triage
 Ask/reuse Prior context; promote cited non-feature `.md` per `PIPELINE.md`. Set complexity/nature/scope + `needs_*` via `ROSTER.md` (TE01 / RF01). Read `references/triage.md` (after intent from step 3).
 
+For each analysis question that can affect scope, story boundaries, architecture, security, or the O2 handoff, apply `SELECTIVE-RETRIEVAL.md` § Evidence decisions. Record the question/objective, relevant source-of-truth paths, rejected decoys with the scope reason, remaining gaps or conflicts, the decision and its source, and the next permitted gate in existing FEATURE / CONTINUITY sections. Keep this as traceable summary, not a second source of truth. If a gap or conflict can change scope or acceptance, keep it open and do not present the backlog as ready. Label operator reports and comparative material as such; do not promote them to independent implementation or runtime proof. For external evidence intended to be reachable during O3, record the exact `external:<alias>/<relative-path>` reference in the existing evidence/source note, with no root or absolute path (`STORAGE.md` § External evidence references for O3). This captures a reference only; O1 does not authorize its alias.
+
+For brownfield work, apply `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` proportionally to the affected scope. O1 synthesis must check that applicable conventions and impacts have repository evidence, confidence, reuse/affected areas, and material gaps recorded in the existing analysis/architecture artifacts. Folder or artifact presence alone is not evidence of sufficient analysis. Keep technical pattern investigation (targeted repository inspection) distinct from product questions: only unresolved decisions about behavior, scope, acceptance, security, ownership, or validation become operator questions. If a material technical evidence gap remains after feasible inspection, record it and do not present dependent stories/backlog as ready; preserve O1 ownership of FEATURE/CONTINUITY and specialist-owned findings.
+
+When that investigation will shape a material story boundary or downstream acceptance, also apply `SEMANTIC-SUFFICIENCY.md` to the specific content consumed. Resolve the current decision and compare its actual normative destination before carrying a historical source forward; record the disposition in existing FEATURE fields rather than a second decision list.
+
 ### 6. Trivial shortcut
 If `trivial`: offer shortcut (read `references/triage.md` § Process — Trivial shortcut). Continue O1 only if user chooses **2**.
 
@@ -153,13 +161,13 @@ SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4;
 ARCH draft → operator **sim** / ajustar / cancelar → approved + point-promote. Brownfield: skip style re-pick only; still write mirror ARCH. Read `references/arch-confirm.md`.
 
 ### 8c. Feature research before story folders
-Load `refine-story/references/feature-research.md`. Update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md`. If any open question remains, stop with `open_question`. Do not run step 9.
+Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`. Update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md`. If any open question remains, stop with `open_question`. Do not run step 9.
 
 ### 9. Synthesize artifacts + product artifact quality gates
-Run only when FEATURE has no open question. Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). Create story folders and merge into FEATURE / CONTINUITY / STORY (scorecard via `refine-story/references/scorecard-rubric.md`). Each new STORY carries type, objective, and the FEATURE acceptance ids it covers. `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03). Any fail → keep `draft`; list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
+Run only when FEATURE has no open question and any required brownfield analysis is sufficient for the dependent story scope. Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). For each material behavior, apply `SEMANTIC-SUFFICIENCY.md` before promotion: compare the current decision with its actual normative destination and the candidate story acceptance text. Reuse existing macro-acceptance, Decisions, Open questions, and story-index fields to show whether the behavior is covered, preserved unchanged, explicitly excluded, or still a question; valid links or IDs alone do not pass this check. Create story folders and merge into FEATURE / CONTINUITY / STORY (scorecard via `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md`). Each new STORY carries type, objective, and the FEATURE acceptance ids it covers. `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03), and the deterministic evidence validation for every required brownfield `ANALYSIS/` document. Any fail → keep `draft`; return invalid analysis to its owner for correction, list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
 
 ### 10. Human backlog approval (RN01)
-Product artifact quality gates must have passed. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
+Before presenting the backlog, verify the evidence summary required in Step 5 is persisted in the existing FEATURE / CONTINUITY fields and identifies the next gate. Product artifact quality gates must have passed. For each required brownfield `ANALYSIS/`, verify the Step 9 validator returned `PASS`; folder presence alone is insufficient. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). O2 retains its independent brownfield validation gate. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
 
 ### 11. Approve -> CONTINUITY + O2 handoff
 On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.

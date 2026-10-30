@@ -29,6 +29,8 @@ Title **must** be `## Related` (`STORAGE.md` § Navigation block; RN05). Portabl
 
 ## Estado atual do O3
 
+One block per PLAN, keyed by its portable PLAN path: repeat this whole `## Estado atual do O3` block for each PLAN of the feature. A write updates only the block of the PLAN it wrote. GAP and DEF lines belong to the block of the PLAN that owns them.
+
 - PLAN: `{{PORTABLE_PLAN_PATH}}`
 - Progresso: {{COMPLETED}}/{{TOTAL}}
 - Concluídos: {{COMPLETED_STEP_IDS_OR_NONE}}

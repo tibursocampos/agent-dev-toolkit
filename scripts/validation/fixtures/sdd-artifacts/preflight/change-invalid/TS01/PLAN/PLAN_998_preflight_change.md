@@ -5,7 +5,8 @@
 | **PRD** | scripts/validation/fixtures/sdd-artifacts/preflight/change-invalid/TS01/PRD/998_preflight_change.md |
 | **Total de passos** | 1 |
 | **Progresso** | 0/1 |
-| **Status** | draft |
+| **Status** | approved |
+| **Implementation status** | `NOT_STARTED` |
 
 ## Execution policy
 
@@ -20,6 +21,12 @@
 
 - [ ] O1: Valid plan with invalid CHANGE
 
+## Progresso da implementação
+
+| Step ID | Dependências | Status |
+|---------|--------------|--------|
+| S1 | none | PENDENTE |
+
 ## Mapa REQ → passo
 
 | REQ | Passo |
@@ -28,7 +35,7 @@
 
 ---
 
-### ⏳ PASSO 1: Only
+### ⏳ PASSO 1 — S1: Only
 
 **Status:** Pendente | **Deps:** nenhuma
 

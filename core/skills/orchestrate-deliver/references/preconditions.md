@@ -59,9 +59,13 @@ Backlog ainda não aprovado em `{feature-path}`.
 
 Only continue after explicit **sim** (then record in CONTINUITY) or O1 re-approval.
 
-Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build work list (id, title, path, deps from STORY if present). Skip stories already having both PRD+PLAN unless user asks to refresh.
+Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build the ordered work list (id, title, path, deps from STORY if present), then reconcile each story against its canonical artifacts and the required O2 gates. Resume an existing story at its **next pending gate**: story-file readiness, PRD/spec and contestation, required checklist, PLAN and its required validation, then applicable approval and checkpoint reconciliation. Artifact presence alone does not mean that a story or gate is complete; a draft, unaccepted output, missing required validation, or pending approval must resume at the owning gate.
+
+Skip a story only when all required O2 work for that story is complete and accepted under its owner contracts, required contestation/checklist/validation results are recorded, and every applicable approval is recorded for the exact outputs. Do not infer completion from PRD+PLAN paths, stale `CONTINUITY.md`, a prior story's approval, or an O3 implementation status. If a gate is unresolved, resume there; if it is blocked, preserve the blocker and keep independent eligible stories in the queue. Recompute the eligible queue from canonical feature/story artifacts and dependencies after each completed story. A refresh request follows the owning contracts for the named outputs.
 
 **Required siblings STOP (flag-gated):** If FEATURE `needs_*` is true (or nature is brownfield) and the story lacks the matching sibling folder/files (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md` / `PIPELINE.md` § Feature / story siblings): **STOP**. Return to O1. Do **not** Write PRD/PLAN. Max-3 gap questions do **not** replace this gate. Waive-deps remains for **story order**, not for missing SEC/ARCH/ANALYSIS.
+
+**Brownfield sufficiency STOP:** For brownfield stories, inspect the required analysis content against `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` and the story's affected scope. Before accepting a brownfield analysis artifact, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O2BrownfieldPreflight.ps1 -AnalysisPath <portable-analysis-path>` on the artifact used for sufficiency. The command returns `ALLOW` only when the document-level validator passes; `BLOCK` or a nonzero exit blocks this story and names the table field/line and supported correction. The preflight and validator only normalize recognized aliases in memory and never edit the artifact. Required artifacts must provide relevant repository-backed conventions/impacts, evidence paths, confidence, a trace of each material current behavior through its applicable flow links, a comparison of local reuse/extension against the proposal, affected areas, and material gaps in the format owned by that artifact. A flow link or reuse claim without supporting evidence remains `GAP`; a receiver alone does not demonstrate its producer, and static inspection does not demonstrate runtime activation. Presence of `ANALYSIS/` or `ARCH/` alone does not pass. If evidence is inferred, conflicting, or a material technical gap could change the dependent PRD/PLAN, target more repository inspection when feasible; if still unresolved, **STOP** this story before PRD/PLAN and return the technical gap to O1 for targeted analysis. Do not turn a technical pattern lookup into a product clarification question when the product behavior is already clear. Product/contract decisions that remain unanswered continue to use `open_question` and existing readiness rules. Keep independent eligible stories moving; O2 consumes evidence and does not rewrite specialist-owned analysis. This is a relevance-based sufficiency gate, not a fixed number of files or layers to scan.
 
 ```text
 Faltam pastas obrigatórias em `{story-path}` (FEATURE needs_* / brownfield).
@@ -78,7 +82,7 @@ See also § Preconditions checklist.
 
 ## Clarification readiness STOP (REQ-004 / REQ-005 / RN02 / TE01)
 
-After presence siblings pass, evaluate open questions on FEATURE / STORY / REFINE / Prior notes using `_shared/sdd-artifacts/readiness-severity.md` (+ `clarify-depth.md`):
+After presence siblings pass, evaluate open questions on FEATURE / STORY / REFINE / Prior notes using `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` (+ `clarify-depth.md`):
 
 | Outcome | Action |
 |---------|--------|

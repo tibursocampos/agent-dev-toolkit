@@ -12,7 +12,7 @@ Companion: `SESSION.md` (repo vs develop gates), `SELECTIVE-RETRIEVAL.md` (`SR-N
 
 Guarantee **at most one active holder** per PLAN step. When two agents race to claim the same step, **one claim prevails** and the other **fails audibly** (structured reason + audit trail).
 
-This contract is **operator governance** for O3 / parallel `sdd-develop` children. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`).
+This contract is **operator governance** for O3 / parallel `sdd-develop` children. For O3, the parent is the sole lifecycle owner: it acquires one claim before dispatch, keeps it active while the child may run, reconciles the returned receipt against SESSION and the durable PLAN checkpoint, then releases it. The child verifies the matching parent claim with `status` and never reacquires or releases it. Direct invocations without a parent-held claim retain their own lifecycle. This contract does **not** replace SESSION gates (`step_confirmed` / `tests_run`).
 
 ## Scope
 
@@ -57,7 +57,7 @@ Prefer portable PLAN paths in claim payloads (`features/.../PLAN/PLAN_*.md`). Co
 | `schema` | Exact `plan-ledger-claim/v1` |
 | `plan_path` | Portable when possible |
 | `step` | Positive integer |
-| `holder` | Non-empty opaque id (spawn id, session id, or operator tag) |
+| `holder` | Non-empty opaque id (O3 parent lifecycle id or direct invocation id); the O3 parent passes it to the child as `claim_holder` |
 | `claimed_at` | UTC ISO-8601 |
 | `status` | `claimed` \| `released` (active hold = file exists with `claimed`) |
 
@@ -95,16 +95,17 @@ Stdout/stderr **must** include a human-readable line with `reason`, `existing_ho
 
 | Action | Behavior |
 |--------|----------|
-| `claim` | Atomic create; reject if held |
-| `status` | Report free / held + holder (exit 0 even when held) |
-| `release` | Only the **current holder** may release; strangers fail audibly |
+| `claim` | Atomic create; O3 parent calls exactly once; reject if held |
+| `status` | Report free / held + holder (exit 0 even when held); O3 child uses it to validate parent ownership |
+| `release` | Only the **current holder** may release; O3 parent releases after reconciliation and records the helper confirmation (or the reason for retaining the claim) in its reconciliation summary; strangers/children fail audibly |
 
 ## Skill wiring
 
 | Consumer | Load |
 |----------|------|
 | `sdd-plan` | `references/plan-ledger.md` (cite this contract; do not paste schema into PLAN bodies) |
-| `sdd-develop` / O3 children | Optional claim before implement when parent requires ledger hold |
+| `sdd-develop` direct invocation | Optional claim before implement when that invocation requires ledger hold; direct invocation owns its lifecycle |
+| O3 child | Verify matching parent-held claim with `status`; never acquire or release |
 | `orchestrate-develop` | Honors ledger when execution modes land (separate step) |
 
 PLAN documents stay **magro**: cite this path; do not embed claim JSON in PLAN markdown.

@@ -68,7 +68,7 @@ function Write-ValidationTelemetryCheck {
     )
 
     if ([string]::IsNullOrWhiteSpace($Path)) {
-        Write-ValidationTelemetryUnavailable -Reason 'no output path was configured.'
+        # Telemetry is opt-in; without an output path there is nothing to report.
         return
     }
 
@@ -104,7 +104,7 @@ function Write-ValidationTelemetryJob {
     )
 
     if ([string]::IsNullOrWhiteSpace($Path)) {
-        Write-ValidationTelemetryUnavailable -Reason 'no output path was configured.'
+        # Telemetry is opt-in; without an output path there is nothing to report.
         return
     }
 
