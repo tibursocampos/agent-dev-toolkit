@@ -140,19 +140,7 @@ Glob/Grep/Read scope. Read `references/code-analysis.md` and `references/stack-p
 
 ### 4b. Evidence-or-zero (REQ-005 / CA4)
 
-Read `references/evidence-or-zero.md`. When the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`):
-
-1. Create/update `features/NNN-slug/{USnn|TSnn}/EVD/` and `features/NNN-slug/{USnn|TSnn}/STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`; detail: `references/evidence-or-zero.md`).
-2. Fill the **AC → evidence matrix**; levels: `off` \| `cheap` \| `standard` \| `strict` (default verify = **`cheap`**).
-3. Run structural gate (deterministic — never LLM-as-validator):
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot <features/NNN-slug/{USnn|TSnn}> [-Level cheap]
-```
-
-Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
-
-**Verifier ≠ O3:** evidence verification runs **sequentially** in this develop session via `validate-evidence`. Do **not** use O3 / Task parallelism as the verifier mechanism.
+Read `references/evidence-or-zero.md` when the step claims AC coverage (or CONTINUITY / operator sets a level ≥ `cheap`) and follow it: EVD/STATE, AC matrix, `validate-evidence` gate.
 
 ### 4c. Living loop + TRACE (REQ-006 / CA5)
 
