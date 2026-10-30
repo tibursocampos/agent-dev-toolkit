@@ -2497,7 +2497,7 @@ Assert-ContractText -Case 'Should_BlockMaterialProductQuestions_WithoutInventing
 
 # O3 consumes evidence-backed brownfield analysis before the first child,
 # without repeating the repository-level pass before every intermediate step.
-Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $orchestratedFlow) -Markers @(
+Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $stepQueue + "`n" + $orchestratedFlow) -Markers @(
     'Before the first child of a brownfield or impact-uncertain PLAN',
     'compare their evidenced areas with the first eligible step',
     'portable paths and only the relevant evidence summary',

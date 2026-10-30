@@ -2,7 +2,7 @@
 
 Mark `IN_PROGRESS` and re-read the PLAN before editing code. On failure, set `BLOCKED` with the evidence and leave dependents `PENDING`. Resume `BLOCKED` only when that evidence is no longer in the file. `COMPLETED` only with this step's acceptance and tests. No duration.
 
-After the step’s code and targeted tests pass, edit the PLAN file in place (repo or global path).
+After the step’s code and targeted tests pass, edit the PLAN file in place (repo or global path). Persist at the end of the step before handoff.
 
 ### 1. Step block
 
@@ -103,9 +103,13 @@ When this edit sets the PLAN header **Implementation status** to `COMPLETED` (ev
 2. Set that PRD metadata **Status** to `Implementado` when the PRD prose is pt-BR, or `Implemented` when it is English. Leave acceptance criteria, scope, and requirements unchanged.
 3. In `## Definição de pronto` or `## Definition of done`, check only the boxes whose text is implementation alignment, tests or fixtures, and build or structural validation. Leave spec-quality boxes (REQ coverage, explicit OOS) as they already are.
 4. If `## Histórico de alterações` or `## Change history` exists, append one row: today's date, the next version number, `sdd-develop`, and that the PLAN **Implementation status** reached `COMPLETED`.
-5. If the PLAN is already `COMPLETED` and the PRD status is still `Pronto para planejamento` or `Ready for planning`, apply this close once. That repair is not a restart of implementation.
+5. If the PLAN is already `COMPLETED` and the PRD status is still `Pronto para planejamento` or `Ready for planning`, apply this close once, only when the persisted close authorization is present. That repair is not a restart of implementation.
 
 `/code-review` and `/commit` do not write this status. A review that finds PLAN `COMPLETED` with PRD still `Pronto para planejamento` / `Ready for planning` flags the drift and hands the close back here.
+
+### 11. Terminal gate lifecycle (strict order)
+
+Finish every implementation/artifact edit, re-read the final artifacts, and complete all required validations first. Only after their results are ready, call `tests-run` once and update the PLAN/task status and evidence while the gate is still active. Then call `reset` as the final operation in this develop scope. Reset clears both gates and is terminal: after a successful reset, do not call any session helper, validator, or make any further file/artifact edit in this scope. If a post-reset correction is necessary, stop and begin a fresh, explicitly authorized develop scope/session with its gate confirmed; never repeat `tests-run` against cleared gates. A failed helper remains a hard stop under the session-helper rule in `SKILL.md` (STOP block).
 
 
 ## Write-consistency rules (SDDW)

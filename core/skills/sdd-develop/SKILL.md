@@ -212,13 +212,7 @@ Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, 
 Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the user leans commit, first run the **sim/pular** asks for memory-bank + project docs when those trees exist (`references/optional-flows.md`). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, or after an intermediate skill the operator already authorized, resume this skill until the requested function finishes or this skill declares a blocker with the cause. Keep the memory-bank and docs asks. The required **sim** before writes stays.
 
 ### 6. Update PLAN + checkpoint
-Load `references/plan-contract.md` and `references/plan-update.md`. Mark `IN_PROGRESS` and re-read before the edit. `COMPLETED` only with this step's acceptance and tests. No duration.
-
-`references/plan-update.md` + **delivery-baseline** (`references/plan-contract.md`): mark step done, progress, next step. Check **Aceite** items only when the step's cited **REQ-NNN** / CA are verifiably met. **No** duration/effort estimates. Persist at the end of the step before handoff. **Navigation (`## Related` / 006 REQ-009):** do **not** strip or rename `## Related` on PLAN (or PRD if touched); when both PRD and PLAN exist, keep/refresh mutual portable-path cites; omit-if-absent for other siblings (`STORAGE.md` § Navigation block). Do **not** confuse with develop pacing **007 REQ-009** (`continuous` \| `step_by_step`).
-
-When this edit sets PLAN **Implementation status** to `COMPLETED`, require explicit whole-PLAN close authorization and all closure conditions in `references/plan-update.md`; then set the cited PRD metadata **Status** to `Implementado` (pt-BR) or `Implemented` (English) in the same edit. If the PLAN is already `COMPLETED` and the PRD is still **Pronto para planejamento** / **Ready for planning**, apply that close once only when the persisted close authorization is present. It is not a restart.
-
-**Terminal gate lifecycle (strict order):** finish every implementation/artifact edit, re-read the final artifacts, and complete all required validations first. Only after their results are ready, call `tests-run` once and update the PLAN/task status and evidence while the gate is still active. Then call `reset` as the final operation in this develop scope. Reset clears both gates and is terminal: after a successful reset, do not call any session helper, validator, or make any further file/artifact edit in this scope. If a post-reset correction is necessary, stop and begin a fresh, explicitly authorized develop scope/session with its gate confirmed; never repeat `tests-run` against cleared gates. A failed helper remains a hard stop under the rule above.
+Read `references/plan-contract.md` and `references/plan-update.md` at this step, before the PLAN edit; they hold the PLAN update protocol, navigation rules, companion PRD close, and terminal gate order (`tests-run` then `reset`).
 
 ### 7. Report
 Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
@@ -227,25 +221,7 @@ For a direct Classic step delegated by a parent, the parent owns the operator-fa
 
 ## Must not
 
-Also enforce `references/forbidden.md`. Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
-
-- Break C# method signatures/invocations for style when ≤6 parameters and the full line is ≤160 characters (`csharp-patterns.md`) — multiline only when **more than 6** parameters **or** line **> 160**; do not let CSharpier leave a style-only wrap that still fits the inline MUST
-- Portuguese application code; **multiple PLAN steps per develop session scope** (contract unchanged — including when develop mode is `continuous`)
-- Skip `plan-acquisition` or mark Complete without **delivery-baseline** (`references/plan-contract.md`); add duration/effort estimates to checkpoints (REQ-010)
-- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
-- Do not ignore `CP-AGREED-VS-INVENTED` — do not encode mid-step invented gaps as agreed requirements (`CONTRACT-PROVENANCE.md`)
-- Create PRD/PLAN; skip PLAN save; skip the companion PRD status close when **Implementation status** becomes `COMPLETED`; modify `.gitignore`
-- Implement in Plan/Ask without Agent
-- Bypass one-step via orchestrator parent implementing code
-- Use the flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when a PLAN path is known - always use the PLAN-scoped file (or PLAN+step); create scoped with gates false if missing
-- Inline-mutate develop session JSON (`ConvertFrom-Json` / `ConvertTo-Json` / `Set-Content` gate blobs) instead of `scripts/session/Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)
-- Skip `scripts/ledger/Invoke-PlanLedgerClaim.ps1` when claim is required and absent because session helper already exited 0 (CT6)
-- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
-- Mark a step Completed at evidence level ≥ `cheap` when `validate-evidence` fails or EVD/STATE are missing
-- Use O3 / Task parallelism as the evidence verifier (Verifier ≠ O3)
-- Declare archive done when `validate-trace -RequireArchiveComplete` fails or living-loop events are missing
-- Use OpenSpec / `.specs/` / SQLite as TRACE or living-spec SoT
-- Strip / rename `## Related` on PLAN (or PRD if touched), break PRD↔PLAN mutual cite when both exist, or stub absent siblings only for links (`STORAGE.md` § Navigation block / 006 REQ-009)
+Also enforce `references/forbidden.md` (§ Must not (develop scope) holds the full list). Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
 
 ## Handoff
 

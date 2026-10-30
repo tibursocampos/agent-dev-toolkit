@@ -38,6 +38,7 @@
       "id": "sdd-develop-prd-status-on-plan-complete",
       "skill": "sdd-develop",
       "files": ["SKILL.md", "references/plan-update.md"],
+      "match": "any-file",
       "mustContain": ["Implementation status", "Implementado", "Implemented", "Pronto para planejamento"]
     },
     {
