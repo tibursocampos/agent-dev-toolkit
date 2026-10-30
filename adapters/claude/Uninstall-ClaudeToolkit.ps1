@@ -124,6 +124,7 @@ function Get-ClaudeManagedHookEventNames {
 
     $c = $script:ClaudeSettingsJsonConstant
     return @(
+        $c.HookEventSessionStart,
         $c.HookEventUserPromptSubmit,
         $c.HookEventPreCompact,
         $c.HookEventPostToolUse,

@@ -87,6 +87,7 @@ $coreChecks = @(
     @{ Name = 'claude-skill-frontmatter'; Script = 'Assert-ClaudeSkillFrontmatter.ps1'; Isolated = $true },
     @{ Name = 'claude-agent-tools'; Script = 'Assert-ClaudeAgentTools.ps1'; Isolated = $true },
     @{ Name = 'claude-policy-rules'; Script = 'Assert-ClaudePolicyRules.ps1'; Isolated = $true },
+    @{ Name = 'claude-hook-smoke'; Script = 'Assert-ClaudeHookSmoke.ps1'; Isolated = $true },
     @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )

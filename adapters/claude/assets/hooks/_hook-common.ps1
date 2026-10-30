@@ -188,9 +188,133 @@ function Test-PlanFilePath([string] $FilePath) {
     return $false
 }
 
+$script:ToolkitSddSkillNameAlternatives = 'sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|requirement-review|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager'
+
+$script:ToolkitPreferencesDefaults = [ordered]@{
+    caveman_mode      = $true
+    caveman_level     = 'full'
+    orchestrator_mode = 'always'
+    artifact_language = $null
+    verify_mode       = $false
+}
+
+function Get-HookPromptText {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        $InputJson
+    )
+
+    if ($null -eq $InputJson) {
+        return ''
+    }
+
+    $promptProperty = $InputJson.PSObject.Properties['prompt']
+    if ($null -eq $promptProperty -or $null -eq $promptProperty.Value) {
+        return ''
+    }
+
+    return [string]$promptProperty.Value
+}
+
 function Test-SddSkillPrompt([string] $Prompt) {
     if ([string]::IsNullOrWhiteSpace($Prompt)) {
         return $false
     }
-    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|requirement-review|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
+    return $Prompt -match ('(?i)(?:use\s+skill\s+|^\s*/)(?:{0})(?![\w-])' -f $script:ToolkitSddSkillNameAlternatives)
 }
+
+function Get-SddSkillNameFromPrompt([string] $Prompt) {
+    if ([string]::IsNullOrWhiteSpace($Prompt)) {
+        return ''
+    }
+    if ($Prompt -match ('(?i)(?:use\s+skill\s+|^\s*/)({0})(?![\w-])' -f $script:ToolkitSddSkillNameAlternatives)) {
+        return $Matches[1].ToLowerInvariant()
+    }
+    return ''
+}
+
+function Get-ClaudeHookUserHome {
+    $userHome = $env:USERPROFILE
+    if ([string]::IsNullOrWhiteSpace($userHome)) {
+        $userHome = $env:HOME
+    }
+    if ([string]::IsNullOrWhiteSpace($userHome)) {
+        $userHome = [Environment]::GetFolderPath('UserProfile')
+    }
+    return $userHome
+}
+
+function Get-ClaudePreferencesPath {
+    return (Join-Path (Join-Path (Join-Path (Get-ClaudeHookUserHome) '.claude') 'sdd') 'preferences.json')
+}
+
+function Read-ClaudePreferences {
+    <#
+    .SYNOPSIS
+      Preferences with defaults applied; unknown keys in the file are kept.
+    #>
+    $values = [ordered]@{}
+    foreach ($key in $script:ToolkitPreferencesDefaults.Keys) {
+        $values[$key] = $script:ToolkitPreferencesDefaults[$key]
+    }
+
+    $path = Get-ClaudePreferencesPath
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        return [PSCustomObject]@{ Values = $values; Readable = $true; Path = $path }
+    }
+
+    try {
+        $parsed = [System.IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        return [PSCustomObject]@{ Values = $values; Readable = $false; Path = $path }
+    }
+
+    if ($null -eq $parsed -or -not ($parsed -is [PSCustomObject])) {
+        return [PSCustomObject]@{ Values = $values; Readable = $false; Path = $path }
+    }
+
+    foreach ($property in $parsed.PSObject.Properties) {
+        $values[$property.Name] = $property.Value
+    }
+    return [PSCustomObject]@{ Values = $values; Readable = $true; Path = $path }
+}
+
+function Write-ClaudePreferences {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary] $Values
+    )
+
+    $path = Get-ClaudePreferencesPath
+    $directory = Split-Path -Parent $path
+    if (-not (Test-Path -LiteralPath $directory -PathType Container)) {
+        New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    }
+
+    $json = $Values | ConvertTo-Json -Depth 5
+    [System.IO.File]::WriteAllText($path, $json, (New-Object System.Text.UTF8Encoding $false))
+}
+
+function Format-ClaudePreferencesStateLine {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject] $Preferences
+    )
+
+    if (-not $Preferences.Readable) {
+        return ('[Toolkit] Preferences file is unreadable ({0}); defaults apply until it is fixed.' -f $Preferences.Path)
+    }
+
+    $values = $Preferences.Values
+    $caveman = 'off'
+    if ([bool]$values['caveman_mode']) {
+        $caveman = 'on'
+    }
+    return ('[Toolkit] orchestrator_mode={0}; caveman={1} (level={2}).' -f $values['orchestrator_mode'], $caveman, $values['caveman_level'])
+}
+
