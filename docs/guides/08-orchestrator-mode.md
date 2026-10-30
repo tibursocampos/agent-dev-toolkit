@@ -8,17 +8,19 @@ Spawn/handoff: `core/skills/_shared/agents/SPAWN.md`
 
 ## Default
 
-**`orchestrator_mode: "adaptive"`**. If `preferences.json` is missing, agents and `toolkit.ps1` create:
+**`orchestrator_mode: "adaptive"`** is the default for every adapter. When `preferences.json` is missing, sync creates it with:
 
 ```json
 {
-  "caveman_mode": false,
+  "caveman_mode": true,
   "caveman_level": "full",
   "orchestrator_mode": "adaptive",
   "artifact_language": null,
   "verify_mode": false
 }
 ```
+
+An existing `preferences.json` keeps its values; sync only seeds a missing file.
 
 Location: `{{SDD_ROOT}}/preferences.json` (under the agent's published SDD root after sync). Resolve via host-aware `effective_SDD_ROOT` (`STORAGE.md`).
 
@@ -28,6 +30,8 @@ Interactive first sync (`toolkit.ps1` → Sync agent) prompts when the file is m
 [1] Adaptive (recommended default)
 [2] Always orchestrate
 ```
+
+Known gap: on Claude, the hooks use `always` as the fallback when the file is absent at runtime (`adapters/claude/assets/hooks/_hook-common.ps1`). Sync seeds `adaptive`, so the fallback applies only when the file was deleted after sync. Run `orchestrator status` after a fresh install to confirm the stored value.
 
 ## ORCHESTRATOR CHARTER (summary)
 
@@ -43,7 +47,9 @@ Interactive first sync (`toolkit.ps1` → Sync agent) prompts when the file is m
 | `orchestrator adaptive` | Set `orchestrator_mode: "adaptive"` |
 | `orchestrator status` | Report current mode |
 
-Aliases: `orchestrate always`, `parent always`, `orchestrate adaptive`, `parent adaptive`, `orchestrate status`.
+Aliases: `orchestrate always`, `parent always`, `orchestrate adaptive`, `parent adaptive`, `orchestrate status`, `parent status`.
+
+On Claude, the `UserPromptSubmit` hook `preferences-command.ps1` handles these commands and the Caveman commands (`caveman on|off|status|lite|full|ultra`, plus `stop caveman` and `normal mode`), and writes `sdd/preferences.json`. Other adapters apply the same commands through the always-on policy rule.
 
 When active, agents show once per session:  
 `[Orchestrator] Mode active: always. Type orchestrator status to review.` (mode varies)
