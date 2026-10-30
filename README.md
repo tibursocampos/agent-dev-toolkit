@@ -1,51 +1,28 @@
 # Agent Dev Toolkit
 
-Unified multi-agent skills **core** with per-agent **adapters**. Sync the same SDD workflows, stack skills, and policy into Cursor, Claude Code, Codex, GitHub Copilot, Antigravity, OpenCode, Grok Build, ZCode ADE, Hermes, and OpenHands.
+Unified multi-agent skills core with per-agent adapters. It syncs the same SDD workflows, stack skills, and policy into ten coding agents, listed below.
 
-**Public** — clone and fork freely; **no upstream contributions**; GitHub Issues are **bugs only** (see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/REPO_GOVERNANCE.md](docs/REPO_GOVERNANCE.md)). Security: [SECURITY.md](SECURITY.md).
+**Public:** clone and fork freely; **no upstream contributions**; GitHub Issues are **bugs only**. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
-## Prerequisites
+## Install
 
-Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **macOS**.
+Prerequisites and full steps: [docs/INSTALL.md](docs/INSTALL.md).
 
-| Requirement | Notes |
-|-------------|--------|
-| **PowerShell** | **Windows:** PowerShell **5.1+** or **pwsh 7+** (recommended). **Linux / macOS:** **pwsh 7+ only** (Windows PowerShell 5.1 is not available on those OS). [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) |
-| **Git** | Optional — only if you prefer cloning instead of Option 0 bootstrap |
-| **Target agent** | At least one supported agent (see table below) |
-
-Full install steps: **[docs/INSTALL.md](docs/INSTALL.md)** (including **Option 0 — Release bootstrap**: HTTPS zip → SHA256 → extract → `toolkit.ps1`).
-
-## What this is
-
-| Layer | Role |
-|-------|------|
-| **Core** | Agent Skills (`core/skills/`), policy, router, SDD contracts — agent-neutral |
-| **Adapters** | Publish core into each agent’s install layout (`~/.cursor`, `~/.claude`, …) |
-| **CLI** | `toolkit.ps1`, `sync-agent.ps1`, `validate-agent.ps1` |
-| **Validation** | In-repo fixtures + CI smokes — no live home write required for green |
-
-## Quick start
-
-Pick the commands for **your** operating system. Downloading the file does not install the toolkit; you run the launcher from a terminal. The first line only downloads it. The second runs it. The zip is the same on every OS. The launcher checks SHA256 and opens the Smart Manager (`toolkit.ps1`). On Windows, use `bootstrap.bat`; it clears the browser download mark and starts PowerShell with `-ExecutionPolicy Bypass`. The PowerShell entrypoint also works from a PowerShell terminal, but should not be double-clicked. No clone.
-
-**Windows only** (`.bat` does not run on Linux or macOS):
+**Windows:**
 
 ```bat
 curl.exe -fsSL -o bootstrap.bat https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat
 bootstrap.bat
 ```
 
-**Linux and macOS only** (needs [pwsh 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)):
+**Linux and macOS** (needs [pwsh 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)):
 
 ```bash
 curl -fsSL -o bootstrap.ps1 https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1
 pwsh -NoProfile -File ./bootstrap.ps1
 ```
 
-Windows PowerShell terminal users can use `curl.exe` to download `bootstrap.ps1` and run `pwsh -NoProfile -File .\bootstrap.ps1`. A browser-downloaded `.ps1` may be blocked by `RemoteSigned`; use the `.bat` launcher or review and unblock the script before running it.
-
-**Alternative — clone**, then run the same menu from the repo:
+**Or clone the repository:**
 
 ```powershell
 git clone https://github.com/tibursocampos/agent-dev-toolkit.git agent-dev-toolkit
@@ -53,33 +30,7 @@ cd agent-dev-toolkit
 pwsh -NoProfile -File .\scripts\toolkit.ps1
 ```
 
-In the menu:
-
-1. **Sync agent** — pick an agent, then **live agent home** (Enter = default; writes under your profile after confirm), **in-repo fixture** (safe), or **custom** path.
-2. **Validate core only** — `Assert-GuardShellCanonicalPaths.ps1` and `Assert-TraceEmitterFailOpen.ps1`; repo checks with no home write. The full local suite is `scripts/validation/validate-core.ps1`.
-3. **Help and docs** — what each action does and equivalent `-Action` flags.
-
-Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-AdapterCiSmoke -Adapter cursor`, `Invoke-AdapterCiSmoke -Adapter claude`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.
-First use end-to-end: **[docs/guides/01-getting-started.md](docs/guides/01-getting-started.md)**.
-
-### Use skills (after sync)
-
-Open a consumer project in your agent and invoke skills by **id** (slash `/` when the host supports it):
-
-| Workflow | Invoke |
-|----------|--------|
-| Complete feature path | `orchestrate-analyze` → `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story) → `orchestrate-develop` (one `sdd-develop` step per child) |
-| One story already clear | `sdd-spec` → `sdd-plan` → `sdd-develop` (same contracts, without the orchestrator) |
-| Backlog item before SDD | `refine-story` (mode required), then `requirement-review`. See [Choosing the flow](docs/guides/flow-selection.md) and [Refining backlog items](docs/guides/backlog-refine.md) |
-| Catalog | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
-| Small stack change | `developer` or `dotnet-developer` / `react-developer` / … |
-| Review | `code-review` (asks single vs multi-angle) |
-
-Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness B/I, develop session gate) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
-
-Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). How the skills call each other: **[docs/sessions/README.md](docs/sessions/README.md)**. Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily entry: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
-
-### Which flow?
+## Which flow?
 
 ```mermaid
 flowchart TD
@@ -90,94 +41,32 @@ flowchart TD
   Q -->|"Feature or story to challenge"| REV["requirement-review"]
 ```
 
-| Flow | When to use | Entry skill | Details |
-|------|-------------|-------------|---------|
-| Orchestrated Delivery | Several stories, brownfield, or specialists | `orchestrate-analyze` | [01-orchestrated-delivery](docs/sessions/01-orchestrated-delivery.md) |
-| Classic SDD | One story already clear | `sdd-spec` | [02-classic-sdd](docs/sessions/02-classic-sdd.md) |
-| Backlog Refine | Informal item before SDD | `refine-story` | [backlog-refine](docs/guides/backlog-refine.md), [03-backlog-shape](docs/sessions/03-backlog-shape.md) |
-| Requirement review | Challenge a feature or story before SDD | `requirement-review` | [backlog-refine](docs/guides/backlog-refine.md), [03-backlog-shape](docs/sessions/03-backlog-shape.md) |
-
-Full decision guide: [Choosing the flow](docs/guides/flow-selection.md).
-
-**Backlog Refine at a glance**
-
-| Role | Skill | Output |
-|------|-------|--------|
-| Writes the item | `refine-story` | `STORY.md` with BDD criteria and a quality note |
-| Challenges it | `requirement-review` (step 4a, before handoff) | Review report, written only after "sim" |
+Decision guide and entry points: [Choosing the flow](docs/guides/flow-selection.md).
 
 ## Supported agents
 
-| id | Display name | Typical live root | Notes |
-|----|--------------|-------------------|--------|
-| `cursor` | Cursor | `~/.cursor` | Skills, `.mdc` rules, hooks; path/secrets `preToolUse` + `beforeShellExecution` (`failClosed`, GuardCommon); `agents/` |
-| `antigravity` | Antigravity | `~/.gemini` | Official `config/*`; PreToolUse path/secrets under `config/hooks` |
-| `claude` | Claude Code | `~/.claude` | Skills, rules `.md`, `CLAUDE.md`, settings merge; PreToolUse path/secrets deny |
-| `codex` | Codex | `~/.codex` | Dual-root plugin + rules; PreToolUse path/secrets; `agents/*.toml`; optional `-UserScope`; default **plugin-only** |
-| `copilot` | GitHub Copilot | `~/.copilot` or `.github` | `-Mode user\|repo`; hooks `version:1` `preToolUse` path/secrets |
-| `opencode` | OpenCode | `~/.config/opencode` | Hooks = JS `tool.execute.before` path/secrets throw; `agents=true` → `InstallRoot/agents/` |
-| `grok` | Grok Build | `~/.grok` | Native publish; PreToolUse path/secrets; `agents=true` → `InstallRoot/agents/` |
-| `zcode` | ZCode (Z.ai ADE) | `~/.zcode` | ADE filesystem; PreToolUse path/secrets; not GLM Coding Plan |
-| `hermes` | Hermes | `$HERMES_HOME` | Plugin + shell `agent-hooks` path/secrets; keyed `config.yaml` only; never SOUL/tokens/gateway |
-| `openhands` | OpenHands | Project tree; user `~/.agents` | Shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
+- Cursor (`cursor`)
+- Antigravity (`antigravity`)
+- Claude Code (`claude`)
+- Codex (`codex`)
+- GitHub Copilot (`copilot`)
+- OpenCode (`opencode`)
+- Grok Build (`grok`)
+- ZCode (`zcode`)
+- Hermes (`hermes`)
+- OpenHands (`openhands`)
 
-Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
-
-## Skills preview
-
-| Group | Examples |
-|-------|----------|
-| Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| Backlog Refine | `refine-story`, `requirement-review`, `split-story-checklist` ([guide](docs/guides/backlog-refine.md)) |
-| Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
-| Docs RAG | `document-plan`, `document-implement` |
-| Ops | `help-skills`, `code-review`, `implementation-survey`, `commit`, `push`, `open-github-pr`, `framework-upgrade`, `test-coverage`, `repair-dotnet-build`, … |
-
-Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`.
+Live roots, publish layouts, and notes per agent: [docs/ADAPTERS.md](docs/ADAPTERS.md).
 
 ## Documentation
 
-| Doc | Content |
-|-----|---------|
-| [docs/README.md](docs/README.md) | Documentation index / TOC |
-| [docs/overview.md](docs/overview.md) | Architecture overview (RAG-friendly) |
-| [docs/INSTALL.md](docs/INSTALL.md) | Release bootstrap (option 0), clone, sync, live home, uninstall |
-| [docs/VALIDATION.md](docs/VALIDATION.md) | validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes |
+| Document | Content |
+|----------|---------|
+| [docs/README.md](docs/README.md) | Documentation index |
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
-| [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Spec Kit) |
-| [docs/guides/session-behavior.md](docs/guides/session-behavior.md) | Session behavior, language surfaces, and Caveman controls |
-| [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` (default `adaptive`) and chat commands |
-| [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers and install layouts |
-| [docs/ADAPTERS.md](docs/ADAPTERS.md) | Adapter registry and per-agent publish |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Clone/fork OK; no upstream PRs; Issues = bugs only |
-| [docs/REPO_GOVERNANCE.md](docs/REPO_GOVERNANCE.md) | OSS audiences + policy pointers |
-| [SECURITY.md](SECURITY.md) | Vulnerability reporting (no invented private email) |
-
-### Domains
-
-| Domain | Content |
-|--------|---------|
-| [docs/domains/core.md](docs/domains/core.md) | Skills, policy, router, SDD |
-| [docs/domains/adapters.md](docs/domains/adapters.md) | Registry + adapters |
-| [docs/domains/cli-scripts.md](docs/domains/cli-scripts.md) | toolkit / sync / validate |
-| [docs/VALIDATION.md](docs/VALIDATION.md) | Fixtures, CI workflow, and validation evidence boundaries |
-
-## Repository layout
-
-```text
-agent-dev-toolkit/
-  core/                 # skills, policy, router, SDD contracts
-  adapters/             # registry.json + per-agent modules
-  scripts/              # toolkit.ps1, sync-agent, validate-agent, validation/
-  docs/                 # public documentation
-  memory-bank/          # durable workspace map (Orchestrated Delivery Step 0)
-  .github/workflows/    # CI, docs, release PR checks, tag/publish/reconciliation
-  README.md
-  CONTRIBUTING.md
-  SECURITY.md
-```
+| [docs/INSTALL.md](docs/INSTALL.md) | Install, sync, uninstall |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Validation and CI |
+| [docs/guides/README.md](docs/guides/README.md) | Guides and decision tree |
 
 ## Safety
 
@@ -185,10 +74,6 @@ agent-dev-toolkit/
 - Live agent home requires **`-AllowUserHome`**.
 - Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-The full suite in `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only (not `push`, and not release pull requests). Its `validate` and `ci-ok` jobs aggregate `validate-core`, both adapter-smoke jobs, and `docs-strict`. As checked on 2026-10-29, the active `protect-develop` ruleset requires `validate` and legacy branch protection also requires `ci-ok`; remote GitHub policy can change independently of this repository. Release PRs to `master` or `main` emit `ci-ok` from `master-release-ci.yml` for branch direction and `release-source` from `enforce-release-source.yml` for source, metadata, and release-sync App readiness; the active `protect-release` ruleset requires `release-source`. These PR workflows do not rerun the full suite.
-
-The normal release path is an opted-in, merged `develop` → `master`/`main` PR. `release.yml` publishes the tag, release, and assets, then prepares a normal reconciliation PR back to `develop`. If publication already succeeded but reconciliation failed, `workflow_dispatch` with `reconcile_only=true` retries reconciliation without creating another tag. See [Validation and CI](docs/VALIDATION.md) for checks, recovery, and evidence boundaries.
-
 ## License
 
-[MIT](LICENSE) © 2026 Raphael Campos. See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution policy (clone/fork OK; no community PRs).
+[MIT](LICENSE) © 2026 Raphael Campos. See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution policy.

@@ -9,11 +9,13 @@ core/          # skills (kebab), policy, router, sdd contracts
 adapters/      # per-agent modules + registry.json + _contract
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public documentation
+memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
 .github/workflows/release.yml
 .github/workflows/publish-release-bootstrap.yml
+README.md  CONTRIBUTING.md  SECURITY.md   # root entry and policy
 ```
 
 ## Layers
@@ -23,6 +25,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
+| Validation | In-repo fixtures and CI smokes; a green run needs no live home write |
 | CI and release | `validate-toolkit.yml` on `pull_request` to `develop` runs core validation, adapter smokes and strict MkDocs, then emits aggregate checks `validate` and `ci-ok`. Release PRs to `master` / `main` also emit `ci-ok` from `master-release-ci.yml` and `release-source` from `enforce-release-source.yml`; they do not rerun the full suite. |
 
 ## Application architecture selection

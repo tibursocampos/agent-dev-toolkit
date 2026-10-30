@@ -23,11 +23,15 @@ After any agent sync, invoke **`help-skills`** for the installed static catalog 
 
 ## Parallel specialists (default)
 
-After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. **Thin trivial exception:** single-path Q&A or a one-file edit with no spread risk stays in-parent; if analysis spans multiple files, a one-file change might extend, or there is any doubt → spawn. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**). Child prompts and agent receipts are **always en-US**; do not dump a full user-language PLAN — paths + excerpt (`LANGUAGE.md`).
+After sync, the published router (`core/router/AGENTS.md`) prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. **Thin trivial exception:** single-path Q&A or a one-file edit with no spread risk stays in-parent; if analysis spans multiple files, a one-file change might extend, or there is any doubt → spawn. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**). Child prompts and agent receipts are **always en-US**; do not dump a full user-language PLAN — paths + excerpt (`LANGUAGE.md`).
 
 - **`needs_*` → specialist:** O1 spawn map lives in `ROSTER.md` (`Flags (needs_*)`) — point there; do not paste the roster.
 - **Task `model`:** omit by default (inherit parent); premium/alternate only with `SUBAGENT-MODEL.md` gate + user **sim**.
 - **Orchestrate parents:** coordinate / receipts / synthesis — **must not** implement application code.
+
+## Internal contracts
+
+REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B/I), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
 
 ## Prerequisites
 
@@ -203,7 +207,7 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review          # optional; after the report ask fix / re-review only (sim/pular)
+code-review          # optional; asks single vs multi-angle when omitted; after the report, fix / re-review only (sim/pular)
 implementation-survey  # describe the change; not a code-review mode
 commit               # message confirmation only; no memory-bank or docs question
 push
