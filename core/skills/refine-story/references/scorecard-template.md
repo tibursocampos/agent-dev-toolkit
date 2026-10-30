@@ -31,7 +31,7 @@
 ---
 ```
 
-Rules: notes must be specific (not "OK"); improvements name exact gaps; incomplete user input reflected honestly.
+Chat display (feature, tech, split): render the total, every criterion row, strengths, and improvements in chat right after the markdown. The full scorecard is chat-only and is never persisted; only the short summary below is. Rules: notes must be specific (not "OK"); improvements name exact gaps; incomplete user input reflected honestly.
 
 **AC budget:** Acceptance criteria notes must state whether **happy**, **rule/edge**, and **failure** slots are present with observable Then (`gherkin-budget.md`). Cap Product depth at **6** if any slot is missing.
 

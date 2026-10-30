@@ -52,7 +52,7 @@ This mode does **not** call `split-story-checklist` internals — it prepares in
 
 ### 4. Quality scorecard
 
-Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms. Emphasize **Implementation steps** and **Story scope** notes for checklist readiness. Product depth wiring preserved (US03).
+Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms. Emphasize **Implementation steps** and **Story scope** notes for checklist readiness. Product depth wiring preserved (US03). Show in chat the total / 100, ALL criteria rows, strengths, and improvements immediately after the markdown. The full scorecard is chat-only; persistence keeps only the short summary.
 
 Refresh envelope `status` per `readiness-severity.md`; set `handoff_candidate: split-story-checklist` when steps are checklist-ready.
 
