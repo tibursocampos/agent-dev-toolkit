@@ -84,6 +84,11 @@ $script:ClaudeSkillFrontmatterAllowedKeys = @(
     'argument-hint'
 )
 
+# Core policy files that are retired placeholders and must not be published as Claude rules.
+$script:ClaudeUnpublishedPolicyFileNames = @(
+    'model-cost-awareness.md'
+)
+
 # Legacy broad allow entries (uninstall + re-sync strip only; never re-added by default).
 $script:ClaudeLegacyBroadPermissionsAllow = @(
     'Bash(pwsh *)',
