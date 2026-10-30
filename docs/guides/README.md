@@ -92,6 +92,9 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [session-behavior.md](session-behavior.md) | Chat language, parent orchestrator, optional compression |
 | [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default adaptive, charter, commands |
 | [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
+| [flow-selection.md](flow-selection.md) | Choosing the flow: decision tree, entry points, readiness rule, write limits |
+| [backlog-refine.md](backlog-refine.md) | Backlog refine flow: refine-story, requirement-review, split-story-checklist, write locations |
+| [new-endpoint-example.md](new-endpoint-example.md) | Illustrative .NET endpoint across controller, facade, service, entity, HTTP client and tests |
 
 Related:
 
