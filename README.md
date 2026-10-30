@@ -70,8 +70,7 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 |----------|--------|
 | Complete feature path | `orchestrate-analyze` → `orchestrate-deliver` (runs `sdd-spec` then `sdd-plan` per story) → `orchestrate-develop` (one `sdd-develop` step per child) |
 | One story already clear | `sdd-spec` → `sdd-plan` → `sdd-develop` (same contracts, without the orchestrator) |
-| One backlog item only | `refine-story` (mode required). Feature analysis applies that scorecard itself |
-| Challenge a feature or story before SDD | `requirement-review` (`--feature` or `--tech`, mode required) |
+| Backlog item before SDD | `refine-story` (mode required), then `requirement-review`. See [Choosing the flow](docs/guides/flow-selection.md) and [Refining backlog items](docs/guides/backlog-refine.md) |
 | Catalog | `help-skills` → static `CATALOG.md` + `OPERATOR.md` |
 | Small stack change | `developer` or `dotnet-developer` / `react-developer` / … |
 | Review | `code-review` (asks single vs multi-angle) |
@@ -79,6 +78,33 @@ Open a consumer project in your agent and invoke skills by **id** (slash `/` whe
 Same skill call flow; internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness B/I, develop session gate) are gates/artifacts inside those skills — not new slash skills or a second toolkit. SQLite/FTS is out of scope as a deliverable.
 
 Parallel specialists for multi-facet work are the **router default** after sync (see `core/router/AGENTS.md`). Chat and persisted artifacts follow the user chat language; spawn prompts stay **en-US** (`core/skills/_shared/agents/LANGUAGE.md`). How the skills call each other: **[docs/sessions/README.md](docs/sessions/README.md)**. Catalog: **[docs/SKILLS.md](docs/SKILLS.md)**. Daily entry: **[docs/guides/README.md](docs/guides/README.md)**. Credits: **[docs/CREDITS.md](docs/CREDITS.md)**.
+
+### Which flow?
+
+```mermaid
+flowchart TD
+  Start(["New work"]) --> Q{"What do you have?"}
+  Q -->|"Several stories, brownfield, or specialists"| ORCH["Orchestrated Delivery"]
+  Q -->|"One story already clear"| SDD["Classic SDD"]
+  Q -->|"Informal backlog item"| REF["refine-story"]
+  Q -->|"Feature or story to challenge"| REV["requirement-review"]
+```
+
+| Flow | When to use | Entry skill | Details |
+|------|-------------|-------------|---------|
+| Orchestrated Delivery | Several stories, brownfield, or specialists | `orchestrate-analyze` | [01-orchestrated-delivery](docs/sessions/01-orchestrated-delivery.md) |
+| Classic SDD | One story already clear | `sdd-spec` | [02-classic-sdd](docs/sessions/02-classic-sdd.md) |
+| Backlog Refine | Informal item before SDD | `refine-story` | [backlog-refine](docs/guides/backlog-refine.md), [03-backlog-shape](docs/sessions/03-backlog-shape.md) |
+| Requirement review | Challenge a feature or story before SDD | `requirement-review` | [backlog-refine](docs/guides/backlog-refine.md), [03-backlog-shape](docs/sessions/03-backlog-shape.md) |
+
+Full decision guide: [Choosing the flow](docs/guides/flow-selection.md).
+
+**Backlog Refine at a glance**
+
+| Role | Skill | Output |
+|------|-------|--------|
+| Writes the item | `refine-story` | `STORY.md` with BDD criteria and a quality note |
+| Challenges it | `requirement-review` (step 4a, before handoff) | Review report, written only after "sim" |
 
 ## Supported agents
 
@@ -102,7 +128,7 @@ Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `ada
 | Group | Examples |
 |-------|----------|
 | Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
-| Backlog Refine | `refine-story`, `requirement-review`, `split-story-checklist` |
+| Backlog Refine | `refine-story`, `requirement-review`, `split-story-checklist` ([guide](docs/guides/backlog-refine.md)) |
 | Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
 | Stack | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `angular-developer`, `vue-developer`, … |
 | Docs RAG | `document-plan`, `document-implement` |
