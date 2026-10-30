@@ -1,33 +1,45 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-10-26T01:43:59.347696Z",
+  "generated_at": "2026-10-30T00:32:30.7618397Z",
   "languages": [
     "powershell",
-    "markdown"
+    "markdown",
+    "yaml"
   ],
-  "frameworks": [],
-  "package_managers": [],
-  "test_runners": [],
+  "frameworks": [
+    "MkDocs Material (documentation site only)",
+    "mkdocs-static-i18n (documentation site only)"
+  ],
+  "package_managers": [
+    "pip (documentation site only; docs-site/requirements-docs.txt)"
+  ],
+  "test_runners": [
+    "PowerShell assertions and fixture smokes via scripts/validation/validate-core.ps1"
+  ],
   "entry_points": [
     "scripts/toolkit.ps1",
     "scripts/sync-agent.ps1",
     "scripts/validate-agent.ps1",
-    "scripts/validation/validate-core.ps1"
+    "scripts/validation/validate-core.ps1",
+    "scripts/inventory/Invoke-MemoryBankInventory.ps1"
   ],
   "signals": {
     "files": [
+      "README.md",
       "adapters/registry.json",
       "core/skills/_shared/skills-catalog/CATALOG.md",
-      "README.md",
-      ".github/workflows/validate-toolkit.yml"
+      ".github/workflows/validate-toolkit.yml",
+      "docs-site/requirements-docs.txt"
     ],
     "notes": [
-      "Inventory stack_hints: 135 sources; markdown, powershell.",
-      "PowerShell 5.1+ or pwsh 7+ on Windows; pwsh 7+ on Linux and macOS (README).",
-      "Validation is scripts/validation Assert scripts plus fixture smokes, not a package-manager test runner.",
-      "45 skill definitions and 95 validation assert scripts in the current tree.",
-      "No npm, .NET, Python, or Rust lockfile in stack_hints."
+      "Inventory summary: 138 sources; stack hints are markdown and powershell.",
+      "PowerShell 5.1+ on Windows or pwsh 7+; non-Windows workflows use pwsh 7+.",
+      "The toolkit runtime is PowerShell and agent-neutral Markdown/policy; YAML is used for GitHub Actions configuration.",
+      "MkDocs Material and mkdocs-static-i18n are limited to docs-site; install through docs-site/requirements-docs.txt.",
+      "Validation is PowerShell assertions and fixture smokes; validate-core.ps1 is the local core suite.",
+      "The registry contains 10 host adapters and the canonical skills catalog contains 45 invocable skills.",
+      "No SQL schema, OpenAPI/Swagger specification, or UI component map was detected in the reviewed inventory."
     ]
   }
 }

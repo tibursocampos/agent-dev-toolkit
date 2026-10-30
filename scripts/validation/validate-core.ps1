@@ -62,6 +62,8 @@ $constant = $script:ToolkitConstant
 $coreChecks = @(
     @{ Name = 'skill-contracts'; Script = 'validate-skill-contracts.ps1' },
     @{ Name = 'skill-graph'; Script = 'validate-skill-graph.ps1' },
+    @{ Name = 'skill-catalog-parity'; Script = 'Assert-SkillCatalogParity.ps1' },
+    @{ Name = 'toolkit-script-isolation'; Script = 'Assert-ToolkitScriptIsolation.ps1'; Isolated = $true },
     @{ Name = $constant.CoreContractsCheckName; Script = $constant.AssertCoreContractsScriptName },
     @{ Name = $constant.AdapterContractCheckName; Script = $constant.AssertAdapterContractScriptName; Isolated = $true },
     @{ Name = 'classic-external-access-runtime'; Script = 'Assert-ClassicExternalAccessRuntime.ps1'; Isolated = $true },
@@ -75,6 +77,7 @@ $coreChecks = @(
     @{ Name = $constant.UninstallPathSafetyCheckName; Script = $constant.AssertUninstallPathSafetyScriptName },
     @{ Name = $constant.SddRootPrepareIdempotentCheckName; Script = $constant.AssertSddRootPrepareIdempotentScriptName },
     @{ Name = $constant.ValidatePrdPlanCheckName; Script = $constant.AssertValidatePrdPlanScriptName },
+    @{ Name = 'release-workflow-contracts'; Script = 'Assert-ReleaseWorkflow.ps1' },
     @{ Name = $constant.MemoryBankInventoryCheckName; Script = $constant.AssertMemoryBankInventoryScriptName },
     @{ Name = $constant.DevelopSessionGateCheckName; Script = $constant.AssertDevelopSessionGateScriptName },
     @{ Name = $constant.TraceEmitterFailOpenCheckName; Script = $constant.AssertTraceEmitterFailOpenScriptName },

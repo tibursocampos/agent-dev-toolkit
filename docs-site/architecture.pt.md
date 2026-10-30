@@ -24,8 +24,11 @@ adapters/      módulos por agente, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          documentação de operador no repositório
 .github/workflows/validate-toolkit.yml
-.github/workflows/publish-release-bootstrap.yml
+.github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
+.github/workflows/release.yml
+.github/workflows/publish-release-bootstrap.yml
+.github/workflows/docs.yml
 ```
 
 ## Camadas
@@ -36,7 +39,7 @@ docs/          documentação de operador no repositório
 | Adaptadores | Publicam skills, política, roteador, hooks e agents no layout do host. O smoke usa um InstallRoot de fixture |
 | CLI | `scripts/toolkit.ps1` escolhe o agente para sync, validação e desinstalação |
 | Install root | Destino. O alvo padrão do sync é um fixture no repositório. Um caminho no perfil do usuário precisa de `-AllowUserHome` |
-| CI | `validate-toolkit.yml` em `pull_request` para `master`, `main`, `develop`. Uma execução verde não sincroniza um home ao vivo |
+| CI e release | `validate-toolkit.yml` em `pull_request` para `develop` emite os checks agregadores `validate` e `ci-ok` após os jobs de core, adapter-smoke e docs estrita. PRs de release para `master` / `main` emitem `ci-ok` para a direção da branch e `release-source` para origem, metadados e prontidão do App; eles não repetem a suíte completa. Uma execução verde não sincroniza um home ao vivo |
 
 Comandos estáveis do adaptador: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills`, `Publish-Policy`, `Publish-Router`, `Publish-Agents`, `Publish-Hooks`, `Get-SddRoot`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`.
 
@@ -245,13 +248,17 @@ Skills de usuário ao vivo: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserH
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`. A topologia é `validate-core` (`windows-latest`) → `adapter-smoke` (matriz `ubuntu-latest` com os 10 adaptadores) e `adapter-smoke-windows` (só codex); em paralelo, `docs-strict` faz o build estrito do MkDocs; `ci-ok` depende de todos os jobs.
+`.github/workflows/validate-toolkit.yml` roda em `pull_request` para `develop`. A topologia é `validate-core` (`windows-latest`) → `adapter-smoke` (matriz `ubuntu-latest` com os 10 adaptadores) e `adapter-smoke-windows` (só codex); em paralelo, `docs-strict` faz o build estrito do MkDocs. O check agregador `validate` depende de todos os jobs de validação; `ci-ok` depende desses jobs e de `validate`.
 
 O job `validate-core` roda `validate-core.ps1` e depois `Assert-SyncAllowUserHomeForward.ps1`. O smoke de adaptador é o genérico `Invoke-AdapterCiSmoke.ps1 -Adapter <id>`, com raiz descartável em `.adt-work/`.
 
 `docs-strict` instala `docs-site/requirements-docs.txt` e roda `mkdocs build --strict -f docs-site/mkdocs.yml`.
 
-`release.yml` é um disparo manual. Informe `MAJOR.MINOR.PATCH`. Ele avança `master` em fast-forward até `develop` quando `master` já é ancestral, e publica a tag `vVERSION`. `publish-release-bootstrap.yml` envia o zip, o SHA256 e os entrypoints de bootstrap em `release` published e em `workflow_dispatch`. `enforce-release-source.yml` falha salvo se um pull request para `master` ou `main` vier de `develop`.
+`master-release-ci.yml` emite `ci-ok` em pull requests para `master`/`main` depois de verificar que a origem é `develop`. `enforce-release-source.yml` emite `release-source`; ele valida a origem, os metadados de release e as credenciais e permissões do App de sincronização.
+
+O fluxo normal de release começa quando um PR opt-in de `develop` → `master`/`main` é integrado. `release.yml` verifica as credenciais do App, cria a tag e o release no commit promovido, chama `publish-release-bootstrap.yml` para enviar o zip, o SHA256 e os entrypoints de bootstrap, e solicita um PR normal de reconciliação para `develop`. A reconciliação ocorre após cada PR de release integrado. Se a publicação funcionou, mas a reconciliação falhou, execute `release.yml` a partir do commit promovido em `master`/`main` com `reconcile_only=true` e a versão em branco; isso tenta a reconciliação novamente sem criar outra tag. Falhas apenas no upload dos assets podem ser repetidas por `publish-release-bootstrap.yml` usando a tag existente.
+
+Os workflows emitem checks; rulesets e proteções de branch do GitHub definem quais são obrigatórios. Na verificação de 2026-10-29, `protect-develop` exige `validate`, a proteção legada também exige `ci-ok`, e `protect-release` exige `release-source`. Confira as configurações remotas novamente antes de confiar neste registro.
 
 `.github/workflows/docs.yml` publica este site. É um workflow separado.
 

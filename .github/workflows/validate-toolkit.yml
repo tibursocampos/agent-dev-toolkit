@@ -95,8 +95,37 @@ jobs:
         run: mkdocs build --strict -f docs-site/mkdocs.yml
         working-directory: ${{ github.workspace }}
 
-  # Single required gate: every job must succeed.
-  # Branch protection should require this check name (ci-ok).
+  # Canonical ruleset check: every validation job must succeed.
+  # Legacy branch protection also requires ci-ok, so it is emitted below as an alias.
+  validate:
+    name: validate
+    if: always()
+    needs:
+      - validate-core
+      - adapter-smoke
+      - adapter-smoke-windows
+      - docs-strict
+    runs-on: ubuntu-latest
+    steps:
+      - name: All validation jobs green
+        env:
+          REQUIRED_DEPENDENCY_RESULTS: ${{ toJSON(needs) }}
+        shell: pwsh
+        run: |
+          $dependencyResults = $env:REQUIRED_DEPENDENCY_RESULTS | ConvertFrom-Json
+          $failedDependencies = @(
+            foreach ($property in $dependencyResults.PSObject.Properties) {
+              if ($property.Value.result -ne 'success') {
+                '{0}={1}' -f $property.Name, $property.Value.result
+              }
+            }
+          )
+          if ($failedDependencies.Count -gt 0) {
+            throw "Required validation dependencies did not all succeed: $($failedDependencies -join ', ')"
+          }
+          Write-Host 'All required validation dependencies succeeded.'
+
+  # Compatibility alias required by legacy branch protection.
   ci-ok:
     if: always()
     needs:
@@ -104,6 +133,7 @@ jobs:
       - adapter-smoke
       - adapter-smoke-windows
       - docs-strict
+      - validate
     runs-on: ubuntu-latest
     steps:
       - name: All validate jobs green

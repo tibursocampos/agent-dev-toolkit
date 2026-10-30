@@ -24,8 +24,11 @@ adapters/      per-agent modules, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          operator documentation in the repository
 .github/workflows/validate-toolkit.yml
-.github/workflows/publish-release-bootstrap.yml
+.github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
+.github/workflows/release.yml
+.github/workflows/publish-release-bootstrap.yml
+.github/workflows/docs.yml
 ```
 
 ## Layers
@@ -36,7 +39,7 @@ docs/          operator documentation in the repository
 | Adapters | Publish skills, policy, router, hooks, and agents into the host layout. Smoke uses a fixture InstallRoot |
 | CLI | `scripts/toolkit.ps1` chooses the agent for sync, validate, and uninstall |
 | Install root | Destination. Default sync target is an in-repo fixture. A user-profile path needs `-AllowUserHome` |
-| CI | `validate-toolkit.yml` on `pull_request` to `develop` only. A green run does not sync a live home |
+| CI and release | `validate-toolkit.yml` on `pull_request` to `develop` emits aggregate checks `validate` and `ci-ok` after core, adapter-smoke, and strict docs jobs. Release PRs to `master` / `main` emit `ci-ok` for branch direction and `release-source` for source, metadata, and App readiness; they do not rerun the full suite. A green run does not sync a live home |
 
 Stable adapter commands: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills`, `Publish-Policy`, `Publish-Router`, `Publish-Agents`, `Publish-Hooks`, `Get-SddRoot`, `Invoke-SmokeValidate`, `Uninstall-Toolkit`.
 
@@ -245,13 +248,17 @@ Live user skills: `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publi
 
 ## CI
 
-`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate-core` (`windows-latest`) -> `adapter-smoke` (`ubuntu-latest` matrix over the 10 adapters) and `adapter-smoke-windows` (codex only); alongside them `docs-strict` builds MkDocs strictly; `ci-ok` depends on every job.
+`.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only. Its topology is `validate-core` (`windows-latest`) -> `adapter-smoke` (`ubuntu-latest` matrix over the 10 adapters) and `adapter-smoke-windows` (codex only); alongside them `docs-strict` builds MkDocs strictly. Aggregate check `validate` depends on every validation job; `ci-ok` depends on those jobs and `validate`.
 
 The Windows `validate-core` job runs `validate-core.ps1` and `Assert-SyncAllowUserHomeForward.ps1`. Adapter smoke runs on an Ubuntu matrix (10 adapters) plus one Windows smoke (codex).
 
 Adapter smoke is the generic `Invoke-AdapterCiSmoke.ps1 -Adapter <id>`, seeded under `.adt-work/`.
 
-`release.yml` is a manual dispatch. Pass `MAJOR.MINOR.PATCH`. It fast-forwards `master` to `develop` when `master` is already an ancestor, then publishes tag `vVERSION`. `publish-release-bootstrap.yml` uploads the zip, SHA256, and bootstrap entrypoints on `release` published and on `workflow_dispatch`. `enforce-release-source.yml` fails unless a pull request into `master` or `main` comes from `develop`.
+`master-release-ci.yml` emits `ci-ok` on pull requests into `master`/`main` after checking that the head is `develop`. `enforce-release-source.yml` emits `release-source`; it validates source direction, release metadata, and release-sync App credentials and permissions.
+
+The normal release flow begins when an opted-in `develop` → `master`/`main` PR merges. `release.yml` preflights App credentials, creates a tag and release for the promoted commit, calls `publish-release-bootstrap.yml` to upload the zip, SHA256, and bootstrap entrypoints, and requests a normal reconciliation PR back to `develop`. Reconciliation runs after each merged release PR. If publication succeeded but reconciliation failed, run `release.yml` from the promoted commit on `master`/`main` with `reconcile_only=true` and a blank version; it retries reconciliation without creating another tag. Asset-only failures can be retried by dispatching `publish-release-bootstrap.yml` with the existing tag.
+
+Workflows emit checks; GitHub rulesets and branch protection decide which are required. As checked on 2026-10-29, `protect-develop` requires `validate`, legacy branch protection also requires `ci-ok`, and `protect-release` requires `release-source`. Recheck the remote settings before relying on this snapshot.
 
 `.github/workflows/docs.yml` publishes this site. It is a separate workflow.
 

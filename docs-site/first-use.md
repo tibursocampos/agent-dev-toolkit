@@ -50,13 +50,13 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `electron-developer` | Small or medium Electron | `/electron-developer` |
 | `blip-plugin-developer` | Scaffold a new Blip React plugin | `/blip-plugin-developer` |
 | `micropython-developer` | MicroPython device firmware | `/micropython-developer` |
-| `*-developer` | UI design and implementation guidance | `/react-developer`, `/angular-developer`, or another stack skill |
 
 ## Review, platform, git
 
 | Skill | What it does | Example |
 |-------|----------------|---------|
 | `code-review` | Review a branch. Does not edit code | `/code-review` |
+| `implementation-survey` | Describe what changed and how it appears to work; not a review | `/implementation-survey` |
 | `test-coverage` | .NET Coverlet. Default 80% | `/test-coverage` |
 | `run-tests` | Detected-stack tests. Does not edit code | `/run-tests` |
 | `repair-dotnet-build` | Local build or test, or a pasted log | `/repair-dotnet-build` |
@@ -76,4 +76,4 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `document-plan` | `docs/overview.md` and the documentation plan | `/document-plan` |
 | `document-implement` | One pending documentation step | `/document-implement` |
 
-That is 10 + 16 + 19 = 45. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).
+That is 10 delivery skills, 15 implementation skills, and 20 review/platform/git skills: 45 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).

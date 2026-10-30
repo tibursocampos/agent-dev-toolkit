@@ -2894,6 +2894,70 @@ Write-Pass -TestName 'Should_Pass_When_PlanTemplateMapsReqToStep'
 }
 
 
+$sections['DocumentPlanIgnoreContract'] = {
+# Tests:
+#   Should_Pass_When_DocumentPlanIsIgnoredAndUntracked
+#   Should_Pass_When_DocumentPlanNeverStagesPlanContent
+
+$skillPath = Join-Path $repoRoot 'core/skills/document-plan/SKILL.md'
+$skillText = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
+foreach ($requiredText in @(
+    'ls-files --error-unmatch -- docs/documentation-plan/plan.md',
+    'check-ignore --no-index --quiet -- docs/documentation-plan/plan.md',
+    'rm --cached -- docs/documentation-plan/plan.md',
+    'repository''s root `.gitignore`'
+)) {
+    if ($skillText -notmatch [regex]::Escape($requiredText)) {
+        Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason ("document-plan contract is missing: {0}" -f $requiredText)
+    }
+}
+
+if ($skillText -match 'Create `docs/documentation-plan/` inside \*\*this toolkit repo\*\*') {
+    Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason 'skill still forbids the explicitly selected toolkit repository as target'
+}
+
+$ignoreRule = @(& git -C $repoRoot check-ignore -v --no-index -- docs/documentation-plan/plan.md 2>$null)
+if ($LASTEXITCODE -ne 0 -or ($ignoreRule -join "`n") -notmatch '(^|[/\\])\.gitignore:') {
+    Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason 'documentation plan must be ignored by the repository .gitignore, not only global excludes'
+}
+
+$trackedPlan = @(& git -C $repoRoot ls-files --error-unmatch -- docs/documentation-plan/plan.md 2>$null)
+if ($LASTEXITCODE -eq 0) {
+    Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason 'documentation plan must not be tracked'
+}
+Write-Pass -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked'
+
+if ($skillText -notmatch '(?i)never stage plan contents or commit the plan' -or
+    $skillText -notmatch '(?i)only permitted index mutation is an explicitly confirmed `git rm --cached`') {
+    Write-Fail -TestName 'Should_Pass_When_DocumentPlanNeverStagesPlanContent' -Reason 'skill must explicitly forbid staging/committing plan content'
+}
+Write-Pass -TestName 'Should_Pass_When_DocumentPlanNeverStagesPlanContent'
+}
+
+$sections['DocumentPlanHandoffContract'] = {
+# Tests:
+#   Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs
+# This checks the skill's written contract only; it cannot validate model-generated final prose.
+
+$skillPath = Join-Path $repoRoot 'core/skills/document-plan/SKILL.md'
+$skillText = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
+foreach ($requiredText in @(
+    'canonical plan path',
+    'document language',
+    'progress (`completed/total` steps)',
+    'first pending STEP id and title',
+    'concise scope and acceptance summary',
+    'exact next command `/document-implement`',
+    'explicitly state that there is no next step',
+    'Do not end with a generic plan-created summary without the applicable handoff above.'
+)) {
+    if ($skillText -notmatch [regex]::Escape($requiredText)) {
+        Write-Fail -TestName 'Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs' -Reason ("document-plan handoff contract is missing: {0}" -f $requiredText)
+    }
+}
+Write-Pass -TestName 'Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs'
+}
+
 $sections['WorkflowHardening'] = {
 # Tests:
 #   Should_Pass_When_WorkflowActionsPinnedAndPermissionsDeclared

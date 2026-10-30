@@ -14,7 +14,7 @@ Licença: MIT © 2026 Raphael Campos.
 |---------|----------|--------|
 | **Visitante** | Entender o toolkit, clonar ou fazer fork, ler a política | [Início](index.md), [Começar](get-started.md), esta página |
 | **Operador** | Sincronizar skills no home de um agente, rodar validação | [Começar](get-started.md), [Adaptadores](adapters.md), [Usando skills](using-skills.md) |
-| **Mantenedor** | Mudar este repositório (acesso de escrita) | A seção abaixo. Check obrigatório **`ci-ok`** em `pull_request` para `develop` (`.github/workflows/validate-toolkit.yml`). Pull requests de release exigem **`release-source`** (`.github/workflows/enforce-release-source.yml`) e não rodam a suíte completa de novo. |
+| **Mantenedor** | Mudar este repositório (acesso de escrita) | A seção abaixo. Veja os checks de CI e release nela; os checks obrigatórios são configurados no GitHub e podem mudar independentemente dos workflows. |
 
 | Tema | Onde |
 |------|------|
@@ -67,7 +67,9 @@ O desenvolvimento interno usa Git em branches com acesso de escrita.
 | `develop` | Integração |
 | `master` / `main` | Release estável |
 
-Pull requests são só de colaboradores. Prefira `/open-github-pr` (depois de `/commit` / `/push`), ou use `.github/PULL_REQUEST_TEMPLATE.md` na UI web. Trabalho de feature e correção aponta para **`develop`**. PRs de release são **`develop` → `master` ou `main`**, impostos por `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` roda só em `pull_request` para `develop`. O check obrigatório nessa base é **`ci-ok`**, que espera os jobs-base de Windows e Ubuntu, suas matrizes de adapter-smoke e `docs-strict`. A proteção de `develop` precisa exigir `ci-ok`, e não só o nome de job `validate`. Pull requests de release exigem `release-source` e não repetem essa suíte.
+Pull requests são só de colaboradores. Prefira `/open-github-pr` (depois de `/commit` / `/push`), ou use `.github/PULL_REQUEST_TEMPLATE.md` na UI web. Trabalho de feature e correção aponta para **`develop`**. PRs de release são **`develop` → `master` ou `main`**, impostos por `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` roda só em `pull_request` para `develop` e emite os checks agregadores `validate` e `ci-ok`. Na verificação de 2026-10-29, o ruleset ativo `protect-develop` exige `validate` e a proteção legada também exige `ci-ok`. PRs de release emitem `ci-ok` de `master-release-ci.yml` para a direção da branch e `release-source` de `enforce-release-source.yml` para origem, metadados e prontidão do App; `protect-release` exige `release-source`. Esses checks de PR de release não repetem a suíte completa.
+
+O fluxo normal de release é um PR opt-in integrado de `develop` → `master`/`main`. `release.yml` publica a tag e os assets e depois solicita um PR de reconciliação para `develop`. Use `reconcile_only=true` para tentar a reconciliação novamente sem criar outra tag. Confira os rulesets remotos antes de cada release, pois eles podem mudar independentemente deste site.
 
 ## Reportar uma vulnerabilidade
 

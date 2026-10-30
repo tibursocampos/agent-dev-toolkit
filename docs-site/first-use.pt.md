@@ -50,13 +50,13 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `electron-developer` | Electron pequeno ou médio | `/electron-developer` |
 | `blip-plugin-developer` | Andaime de um plugin Blip React novo | `/blip-plugin-developer` |
 | `micropython-developer` | Firmware de dispositivo MicroPython | `/micropython-developer` |
-| `*-developer` | Orientação de design e implementação de UI | `/react-developer`, `/angular-developer` ou outra skill de stack |
 
 ## Revisão, plataforma, git
 
 | Skill | O que faz | Exemplo |
 |-------|-----------|---------|
 | `code-review` | Revisa um branch. Não edita código | `/code-review` |
+| `implementation-survey` | Descreve o que mudou e como a implementação parece funcionar; não é uma revisão | `/implementation-survey` |
 | `test-coverage` | Coverlet .NET. Padrão 80% | `/test-coverage` |
 | `run-tests` | Testes da stack detectada. Não edita código | `/run-tests` |
 | `repair-dotnet-build` | Build ou teste local, ou um log colado | `/repair-dotnet-build` |
@@ -76,4 +76,4 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 10 + 16 + 19 = 45. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 10 skills de entrega, 15 de implementação e 20 de revisão/plataforma/git: 45 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
