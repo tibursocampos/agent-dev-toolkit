@@ -52,6 +52,27 @@ implementation step, name the exact missing artifact/row, and leave the step
 clarification questions; it never substitutes for this DoR. See the shared
 check in `orchestrate-develop/references/preconditions.md`.
 
+The PLAN DoR is shared, but context-specific inputs remain distinct:
+
+- `direct`: the approved canonical PLAN and its REQ/CA-bound acceptance,
+  dependencies, and declared validations are sufficient execution inputs.
+  `REFINE/tasks.md` is not required or created. A checklist is considered only
+  when the current invocation explicitly adopts it and its PLAN relationship is
+  explicit and consistent.
+- `orchestrated`: O3 must pass its preflight and retain the O1/O2-owned
+  artifacts and checklist inputs required by its parent contract. The child
+  uses only the parent's scoped paths/rows; missing or inconsistent required
+  inputs block or return to O2. The direct rule is not a fallback for O3.
+
+Both contexts keep the same approval, dependency, acceptance, session, and
+validation meaning. `orchestrator_mode` and sibling files never change the
+resolved `invocation_context`.
+
+O3 relay receipts retain the canonical `done` | `blocked` | `failed` outcome
+vocabulary. `COMPLETED` is a persisted PLAN lifecycle state, never a receipt
+status; direct operator-facing reports identify their resolved
+`invocation_context` without widening the O3 relay allowlist.
+
 ### Step and PLAN Definition of Done (DoD)
 
 A step may be marked **`COMPLETED`** only when **all** hold:
@@ -70,15 +91,35 @@ requirement or blocking review finding remains. Record skipped or
 non-applicable checks with their rationale; never infer success from `READY`,
 an empty finding list, or an acceptance statement alone.
 
-Use the PLAN's mixed test strategy. A deferred check is pending, never a pass,
-and cannot satisfy an intermediate step's acceptance or approve that step. It
-may be assigned to the final test-consolidation step only when it does not gate
-the current step's acceptance; that final step must map applicable acceptance
-criteria to tests and evidence and run all required consolidation checks before
-US/PLAN DoD. Remove tests only when they add no unique coverage, and retain
-valid evidence unless a newer equivalent or stronger result for the same
-criterion on the current implementation explicitly supersedes it. Record the
-supersession reason and replacement; keep the old artifact.
+### Validation and closure states
+
+Keep these result tokens separate from PLAN/step lifecycle and human approval:
+
+| Result | Meaning | Closure effect |
+|--------|---------|----------------|
+| `PLANNED` | Check named for future execution | No evidence; cannot pass acceptance or close a step |
+| `PASS` | Applicable check executed/reviewed against the current target and evidence recorded | May satisfy only the mapped criterion and boundary |
+| `FAIL` | Applicable check executed and failed | Blocks the mapped criterion and its dependent closure |
+| `SKIPPED` | Check not run, explicitly deferred, or declared non-applicable with a reason | Never equals `PASS`; a required or deferred check remains pending. A declared non-applicable check is non-blocking only when the PLAN permits it and acceptance has sufficient distinct evidence |
+| unknown / conflict | No authoritative result, or persisted records disagree | Blocks the owner transition until reconciled |
+
+`COMPLETED` requires every acceptance item plus a recorded `PASS` for each
+applicable required validation. A step marked `SKIPPED` cannot count as a
+completed step or as evidence for overall PLAN closure. A new or changed PLAN
+may map its acceptance elsewhere only through its owner and explicit approval;
+do not rewrite historical status in bulk.
+
+Use the PLAN's behavior-level coverage decisions to select validation for this
+step. BDD describes observable acceptance; it does not impose a new automated
+test in every step. Apply TDD selectively when test-first feedback adds timely,
+distinct evidence for a changed behavior, risk, or boundary. Reuse existing
+coverage when it still proves the current behavior, and add or change a check
+only when the planned primary proof is missing or stale. Follow the consumer's
+runner, libraries, doubles/mocks, and test structure. Do not repeat the same
+validation at every layer: test lower-layer behavior when it is distinct and
+test composition when the combined path adds evidence.
+
+A deferred check is pending, never a pass, and cannot satisfy an intermediate step's acceptance or approve that step. Its owner and checkpoint must be recorded. It may be assigned to the final test-consolidation step only when it does not gate the current step's acceptance; final consolidation maps applicable acceptance criteria to tests/evidence and runs all required checks before US/PLAN DoD. A check declared non-applicable needs a reason and enough distinct evidence to support acceptance. Do not remove tests without proving they add no unique coverage, and retain valid evidence unless a newer equivalent or stronger result for the same criterion on the current implementation explicitly supersedes it. Record the supersession reason and replacement; keep the old artifact.
 
 No duration.
 

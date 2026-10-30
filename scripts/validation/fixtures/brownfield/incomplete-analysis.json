@@ -1,0 +1,24 @@
+{
+  "scenario": "receiver observed without producer trace or local reuse evidence",
+  "flowLinks": [
+    {
+      "name": "producer-to-receiver",
+      "evidence": null,
+      "confidence": "GAP"
+    },
+    {
+      "name": "runtime-activation",
+      "evidence": null,
+      "confidence": "GAP"
+    }
+  ],
+  "reuse": {
+    "candidate": "unknown",
+    "evidence": null,
+    "disposition": "GAP"
+  },
+  "recommendation": {
+    "status": "PROPOSAL_ONLY",
+    "reason": "Do not present a new abstraction as a repository-backed recommendation until the gaps are resolved."
+  }
+}

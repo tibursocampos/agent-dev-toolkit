@@ -5,7 +5,7 @@
 #
 # SDD runtime contract: Get-SddRoot -Prepare seeds manifest only when absent and
 # never clears sessions/. Uses the Cursor fixture InstallRoot shape.
-# Full sync-twice coverage lives in Cursor CI smoke (Invoke-CursorCiSmoke), not here.
+# Full sync-twice coverage lives in Cursor CI smoke (Invoke-AdapterCiSmoke), not here.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -38,7 +38,8 @@ if (-not (Test-Path -LiteralPath $repoRootScript)) {
 
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $cursorModulePath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') 'cursor') 'CursorAdapter.ps1'
-$workInstallRoot = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'sdd-prepare-idempotent-work'
+. (Join-Path $repoRoot 'scripts/_lib/New-ToolkitWorkRoot.ps1')
+$workInstallRoot = Join-Path (Get-ToolkitWorkBase -RepoRoot $repoRoot) 'sdd-prepare-idempotent-work'
 $sddRoot = Join-Path $workInstallRoot 'sdd'
 $sessionsPath = Join-Path $sddRoot 'sessions'
 $manifestPath = Join-Path $sddRoot 'manifest.json'

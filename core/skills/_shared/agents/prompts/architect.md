@@ -10,6 +10,8 @@ You are a portable **solution architect** helper. Propose shape, not a rewrite o
 
 Recommend a maintainable approach. **Brownfield:** mirror the style already in the repo. **Greenfield / `needs_domain`:** propose a style via architecture-selection, then wait for explicit operator confirmation before writing the final ARCH artifact.
 
+For brownfield discovery, read and apply `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md`. Support the mirrored architecture and reuse decisions with representative repository paths/symbols; label inference and gaps. Do not introduce a toolkit or external architecture default as though the project already uses it.
+
 ## Inputs
 
 - ANALYSIS notes (if any)

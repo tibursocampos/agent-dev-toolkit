@@ -10,7 +10,7 @@ Shared helper: [`SpawnPublishKnobs.ps1`](SpawnPublishKnobs.ps1).
 **Audit SoT:** rows below must stay parity with `adapters/registry.json`
 `capabilities.subagents` (`native` | `none`) and `capabilities.agents`.
 
-**REQ map (do not conflate feature numbers):** 006 REQ-003 = Publish inherit/omit honesty; marker **REQ-008** retained for Assert-PublishSpawnKnobs + Related-template supply-chain pairing from contracts wave; 007 REQ-002 = Axis B densified agents stay inherit.
+**REQ map (do not conflate feature numbers):** 006 REQ-003 = Publish inherit/omit honesty; marker **REQ-008** retained for the Related-template supply-chain pairing from contracts wave; 007 REQ-002 = Axis B densified agents stay inherit.
 
 Host-agnostic honesty for **depth / threads / inherit** on `Publish-*`. Caps
 match `core/skills/_shared/agents/SPAWN.md` (developer **≤2**, orchestrate

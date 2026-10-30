@@ -117,7 +117,7 @@ Invoke-SmokeValidate -InstallRoot $work
 Uninstall-Toolkit -InstallRoot $work
 ```
 
-Or: `pwsh -NoProfile -File .\scripts\validation\Invoke-OpenHandsCiSmoke.ps1`
+Or: `pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter openhands`
 
 ## Uninstall (keyed)
 

@@ -64,7 +64,7 @@ Examples that use the split: `orchestrate-analyze`, `orchestrate-deliver`, `orch
 | Check | How |
 |-------|-----|
 | Documented | This file + skill Lazy-load (and Reference routing when present) |
-| Automated | `scripts/validation/Assert-SkillLazyLoad.ps1` |
+| Automated | `scripts/validation/Assert-CoreContracts.ps1` |
 
 Fail conditions (blocking):
 

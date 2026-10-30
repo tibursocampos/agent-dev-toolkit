@@ -21,6 +21,8 @@ Use `{{SDD_ROOT}}/...` on macOS/Linux when expanding paths in tools.
 
 **Co-location:** `features/` and `memory-bank/` always share the same storage root (`$Cwd` or `<classic.path>`). Never place `memory-bank/` under `features/NNN-slug/`. Contract details: `MEMORY-BANK.md`.
 
+**Read/resume behavior:** `storage_mode` and `classic.path` select the feature root. `features_versioned` controls Git tracking only; it does not select a different root or make ignored files unavailable. Resolve the exact canonical path by direct filesystem access, not `git ls-files` or a listing that excludes ignored files. In global mode, a same-named repository-local artifact is a decoy, and the consumer repository `.gitignore` is not modified.
+
 **New writes (Classic SDD / preferred Backlog Refine / Orchestrated Delivery):** only under `features/NNN-slug/` (never loose `REFINE/`, `ANALYSIS/`, `ARCH/`, `SEC/`, `PRD/`, or `PLAN/` at repo root).
 
 **No legacy root flow:** do **not** read, write, glob, or continue develop from repo-root / global-flat `PRD/` or `PLAN/`. Those patterns remain in `.gitignore` only as a safety net against accidental files.
@@ -116,7 +118,6 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
 
 4. Report: patterns added, migrated, or all already present. If `/memory-bank/` is already present from an older policy, do **not** re-add it; the human may remove it so the bank can be versioned. If the human removed `/features/` manually and manifest has no `features_versioned` yet, ask once and persist the choice.
 
-**CI note:** `Assert-NoFeaturesDocLinks.ps1` assumes `features/` is gitignored by default. When `features_versioned` is `true`, links from published `docs/` to `features/**` are valid.
 
 **Global mode:** do **not** modify project `.gitignore`. Do **not** add or require `/features/`, `/PRD/`, `/PLAN/`, or related patterns - those artifacts live under `<classic.path>/` outside the consumer git tree. Skills must not suggest appending the SDD block when `storage_mode` is `global`.
 
@@ -161,6 +162,12 @@ Do **not** scan repo-root `PRD/` / `PLAN/` or global-flat `PRD/` / `PLAN/` for n
 OK to show OS absolute in chat confirm UI / SESSION hashing / sync logs — **not** in written SDD artifact bodies.
 
 Runtime: resolve `InstallRoot` + portable path → absolute **only** at Read/Write time.
+
+### External evidence references for O3
+
+An external source used as evidence may be cited in FEATURE / ANALYSIS / ARCH / PRD / PLAN text as `external:<alias>/<relative-path>` (for example, `external:Demandas/brief/source.md`). This is an evidence reference only; it is not a storage or navigation path. Never put the external root, drive, UNC path, or machine-specific location in an artifact. O1 records the portable reference with the evidence; O2 preserves the exact reference when carrying that evidence into PRD / PLAN and the O3 handoff. O1/O2 do not authorize aliases. Before O3 dispatch, the coordinator must explicitly authorize each alias and provide its root separately to `Invoke-O3ReceiptValidation.ps1`; O3 accepts the reference in `files[]` only when both its alias and path prefix are in coordinator scope. The receipt never carries the root. See `_shared/agents/RECEIPT.md` for the exact path and runtime validation contract.
+
+Classic SDD implementation access is a separate contract: see `CLASSIC-EXTERNAL-ACCESS.md` for user-requested destinations and read/write scope. The shared `external:` spelling does not merge the authority domains: an O3 `files[]` entry remains evidence-only and does not grant Classic read or write access.
 
 ## Navigation block (Related)
 
@@ -254,6 +261,7 @@ When the task must choose or resolve repository/global storage, read [`STORAGE-R
 
 ## Integration
 
+- `ARTIFACT-OWNERSHIP.md` is a navigation/ownership index; specialized contracts below remain normative.
 - Pipeline guards: `_shared/sdd-artifacts/PIPELINE.md`
 - Session gates: `_shared/sdd-artifacts/SESSION.md`
 - Memory Bank Gate: `_shared/sdd-artifacts/MEMORY-BANK.md`

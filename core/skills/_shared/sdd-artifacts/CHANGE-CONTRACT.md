@@ -90,8 +90,13 @@ Before emitting develop handoff, verify:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
-Exit 0 = required sections present. Exit ≠ 0 = fix before plan/develop. Smoke: `Assert-ChangeContract.ps1`. Deterministic only (RNF-001) — never LLM-as-validator.
+Exit 0 = required sections present. Exit ≠ 0 = fix before plan/develop. Smoke: `Assert-CoreContracts.ps1` (ChangeContract section). Deterministic only (RNF-001) — never LLM-as-validator.
 
+## Write-consistency rules (SDDW)
+
+Rule ids `SDDW-NN` are contract text only; no repository script validates them or inspects feature artifacts.
+
+- **SDDW-11 (CHANGE status after delivery):** When every story PRD of the feature is `Implementado` or `Implemented`, the CHANGE `Status` row and the body describe delivered results. Status text such as `approved-for-handoff`, `draft`, or planned-result wording is stale and must be updated in the same edit that closes the last PRD. Reconciliation: compare the CHANGE status with each story PRD status before reporting the feature closed.
 ## Must not
 
 - Require empty CHANGE for greenfield

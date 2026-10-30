@@ -6,7 +6,7 @@ Return **only** after path validation succeeds and the file exists:
 source_context:
   schema: RSA-SOURCE-CONTEXT/v1
   artifact_kind: FEATURE | STORY | PRD | PLAN
-  portable_path: features/NNN-slug/...   # portable only — never OS absolute
+  portable_path: features/NNN-slug/... | sdd/<repo-id>/features/NNN-slug/... # selected by manifest mode
   identity:
     feature_slug: NNN-slug
     story_id: USnn | TSnn | null         # null for FEATURE.md at feature root

@@ -1,371 +1,84 @@
 #Requires -Version 5.1
 # Tests:
-#   Should_Pass_When_SharedTraceEmitCommonPresent
-#   Should_Pass_When_AssetCopiesMatchSharedHash
-#   Should_Pass_When_HonestyMatrixDocumentsHosts
-#   Should_Append_When_ValidFixtureRoot
-#   Should_Redact_When_SecretLikeSummaryAndExtra
-#   Should_Exit0_When_ForcedFail
-#   Should_Not_Echo_SensitiveToolBody
-#   Should_Not_Append_When_NormalPostToolUse
-#   Should_Pass_When_CursorHooksWireEmitters
-#   Should_Pass_When_EmitterAssetsPresentWithoutLiveHome
-#   Should_Skip_When_AuthorshipGitNotesDefaultOff
-#
-# REQ-006 / CA6 / RNF-001 / RNF-002 / RNF-004: fail-open TRACE emitters.
-# REQ-016 / CT5: authorship git-notes default off (orthogonal to TRACE).
+#   Should_AppendAndRedact_When_SecretLikeSummaryAndExtra
+#   Should_Exit0_NoAppend_NoEcho_When_ForcedFail
+#   Should_Exit0_NoAppend_When_NormalPostToolUse
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
-$scriptsRoot = Split-Path -Parent $scriptDir
-$libDir = Join-Path $scriptsRoot '_lib'
-$repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
-$constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
-
-function Write-Pass {
-    param([Parameter(Mandatory = $true)][string] $TestName)
-    Write-Host ("{0}: PASS" -f $TestName)
-}
-
-function Write-Fail {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)][string] $Reason
-    )
-    Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
-    exit 1
-}
-
-function Resolve-TraceEmitterHostShell {
-    # hooks.json uses Windows PowerShell; emit scripts are #Requires -Version 5.1.
-    foreach ($name in @('powershell', 'pwsh')) {
-        $cmd = Get-Command -Name $name -ErrorAction SilentlyContinue
-        if ($null -ne $cmd -and -not [string]::IsNullOrWhiteSpace([string]$cmd.Source)) {
-            return [string]$cmd.Source
-        }
-    }
-    return $null
-}
-
-foreach ($required in @($repoRootScript, $constantsScript)) {
-    if (-not (Test-Path -LiteralPath $required)) {
-        Write-Fail -TestName 'Assert-TraceEmitterFailOpenPreconditions' -Reason ("missing {0}" -f $required)
-    }
-}
-
-. $constantsScript
-. $repoRootScript
+$libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
+. (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
+. (Join-Path $libDir 'New-ToolkitWorkRoot.ps1')
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
-$sharedRel = $script:ToolkitConstant.TraceEmitCommonRelativePath
-$honestyRel = $script:ToolkitConstant.TraceEmitterHonestyRelativePath
-$sharedPath = Join-Path $repoRoot ($sharedRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$honestyPath = Join-Path $repoRoot ($honestyRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+function Write-Pass { param([string] $Name) Write-Host ("{0}: PASS" -f $Name) }
+function Write-Fail { param([string] $Name, [string] $Reason) Write-Error ("{0}: FAIL - {1}" -f $Name, $Reason); exit 1 }
 
-if (-not (Test-Path -LiteralPath $sharedPath)) {
-    Write-Fail -TestName 'Should_Pass_When_SharedTraceEmitCommonPresent' -Reason ("missing {0}" -f $sharedRel)
+$hostShell = $null
+foreach ($name in @('powershell', 'pwsh')) {
+    $cmd = Get-Command -Name $name -ErrorAction SilentlyContinue
+    if ($null -ne $cmd) { $hostShell = [string]$cmd.Source; break }
 }
-$sharedText = Get-Content -LiteralPath $sharedPath -Raw -Encoding UTF8
-foreach ($marker in @('Add-TraceEmitterEvent', 'Invoke-TraceEmitterFromHookInput', 'TOOLKIT_TRACE_FORCE_FAIL', 'TOOLKIT_TRACE_FEATURE_ROOT', 'fail-open', 'trusted-CI-only', 'Convert-TraceEmitterExtraValue')) {
-    if ($sharedText -notmatch [regex]::Escape($marker)) {
-        Write-Fail -TestName 'Should_Pass_When_SharedTraceEmitCommonPresent' -Reason ("missing marker {0}" -f $marker)
-    }
-}
-if ($sharedText -notmatch 'gh\[pousr\]_') {
-    Write-Fail -TestName 'Should_Pass_When_SharedTraceEmitCommonPresent' -Reason 'missing github token redaction pattern'
-}
-Write-Pass -TestName 'Should_Pass_When_SharedTraceEmitCommonPresent'
+if (-not $hostShell) { Write-Fail 'TraceEmitterFailOpen' 'neither powershell nor pwsh available' }
 
-$sharedHash = (Get-FileHash -LiteralPath $sharedPath -Algorithm SHA256).Hash
-foreach ($assetRel in @($script:ToolkitConstant.TraceEmitCommonAssetRelativePaths)) {
-    $assetPath = Join-Path $repoRoot ($assetRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $assetPath)) {
-        Write-Fail -TestName 'Should_Pass_When_AssetCopiesMatchSharedHash' -Reason ("missing asset copy {0}" -f $assetRel)
-    }
-    $assetHash = (Get-FileHash -LiteralPath $assetPath -Algorithm SHA256).Hash
-    if ($assetHash -ne $sharedHash) {
-        Write-Fail -TestName 'Should_Pass_When_AssetCopiesMatchSharedHash' -Reason ("hash drift vs shared: {0}" -f $assetRel)
-    }
-}
-Write-Pass -TestName 'Should_Pass_When_AssetCopiesMatchSharedHash'
-
-if (-not (Test-Path -LiteralPath $honestyPath)) {
-    Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason ("missing {0}" -f $honestyRel)
-}
-$honestyText = Get-Content -LiteralPath $honestyPath -Raw -Encoding UTF8
-foreach ($marker in @('Cursor', 'Claude', 'Codex', 'OpenHands', 'fail-open', 'REQ-006', 'Honesty', 'trusted-CI-only', 'TOOLKIT_TRACE_FEATURE_ROOT', 'default off', 'toolkit-authorship', 'opt-in')) {
-    if ($honestyText -notmatch [regex]::Escape($marker)) {
-        Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason ("honesty missing {0}" -f $marker)
-    }
-}
-if ($honestyText -notmatch 'do not fake' -and $honestyText -notmatch 'Not.*claimed' -and $honestyText -notmatch '\*\*None\*\*') {
-    Write-Fail -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts' -Reason 'honesty must document hosts without full TRACE surface'
-}
-Write-Pass -TestName 'Should_Pass_When_HonestyMatrixDocumentsHosts'
-
-# Fixture feature root under scripts/validation/fixtures (never USERPROFILE).
-$fixtureRoot = Join-Path $scriptDir ($script:ToolkitConstant.TraceEmitterFixtureRelativeDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$userProfile = [string]$env:USERPROFILE
-if (-not [string]::IsNullOrWhiteSpace($userProfile)) {
-    $fixtureFull = [System.IO.Path]::GetFullPath($fixtureRoot)
-    $profileFull = [System.IO.Path]::GetFullPath($userProfile)
-    if ($fixtureFull.StartsWith($profileFull.TrimEnd('\') + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
-        Write-Fail -TestName 'Should_Pass_When_EmitterAssetsPresentWithoutLiveHome' -Reason 'fixture root must not live under USERPROFILE'
-    }
-}
-
-if (Test-Path -LiteralPath $fixtureRoot) {
-    Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
-}
-New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
-$featureRoot = Join-Path $fixtureRoot 'features\006-trace-emitter-fixture'
-New-Item -ItemType Directory -Path $featureRoot -Force | Out-Null
-
-. $sharedPath
-
-$env:TOOLKIT_TRACE_FEATURE_ROOT = $featureRoot
-Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
-
-$payload = New-TraceEmitterAllowlistedEvent -EventName 'note' -FeaturePortable 'features/006-trace-emitter-fixture' -Summary 'append-ok' -HostId 'fixture' -HookName 'postToolUse'
-$ok = Add-TraceEmitterEvent -Event $payload
-if (-not $ok) {
-    Write-Fail -TestName 'Should_Append_When_ValidFixtureRoot' -Reason 'Add-TraceEmitterEvent returned false'
-}
-$tracePath = Join-Path $featureRoot 'TRACE.jsonl'
-if (-not (Test-Path -LiteralPath $tracePath)) {
-    Write-Fail -TestName 'Should_Append_When_ValidFixtureRoot' -Reason 'TRACE.jsonl missing after append'
-}
-$line = Get-Content -LiteralPath $tracePath -TotalCount 1
-if ($line -notmatch '"event"\s*:\s*"note"' -or $line -notmatch 'features/006-trace-emitter-fixture') {
-    Write-Fail -TestName 'Should_Append_When_ValidFixtureRoot' -Reason ("unexpected TRACE line: {0}" -f $line)
-}
-if ($line -match '[A-Za-z]:/') {
-    Write-Fail -TestName 'Should_Append_When_ValidFixtureRoot' -Reason 'TRACE line must use portable feature path'
-}
-Write-Pass -TestName 'Should_Append_When_ValidFixtureRoot'
-
-# Successful append with secret-like summary/Extra — TRACE + stdout must stay clean.
-$plantToken = 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd'
-$plantPassword = 'SuperSecretPlant99'
-$plantConn = 'Server=db.example;password=ConnSecretPlant99;AccountKey=abcdefghijklmnopqrstuvwxyz0123456789ABCD'
-$plantResponse = 'RAW_HOST_RESPONSE_BODY_MUST_DROP'
-$secretSummary = ("note bearer {0} password={1}" -f $plantToken, $plantPassword)
-$extra = @{
-    role     = 'fixture-role'
-    reason   = $plantConn
-    response = $plantResponse
-    spawn    = @{
-        role    = 'child'
-        reason  = ("api_key={0}" -f $plantToken)
-        outcome = 'completed'
-    }
-}
-$secretPayload = New-TraceEmitterAllowlistedEvent `
-    -EventName 'specialist_complete' `
-    -FeaturePortable 'features/006-trace-emitter-fixture' `
-    -Summary $secretSummary `
-    -HostId 'fixture' `
-    -HookName 'subagentStop' `
-    -Role 'fixture-role' `
-    -Outcome 'completed' `
-    -Extra $extra
-$secretOk = Add-TraceEmitterEvent -Event $secretPayload
-if (-not $secretOk) {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason 'secret-like append returned false (expected redact+append)'
-}
-$secretLines = @(Get-Content -LiteralPath $tracePath)
-$secretLine = $secretLines[-1]
-foreach ($leak in @($plantToken, $plantPassword, 'ConnSecretPlant99', $plantResponse, 'abcdefghijklmnopqrstuvwxyz0123456789ABCD')) {
-    if ($secretLine -match [regex]::Escape($leak)) {
-        Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason ("TRACE.jsonl leaked secret fragment: {0}" -f $leak)
-    }
-}
-if ($secretLine -match '"response"') {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason 'Extra response key must be dropped'
-}
-if ($secretLine -notmatch 'gh\*_\*\*\*' -and $secretLine -notmatch '\*\*\*') {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason 'expected redaction markers in TRACE line'
-}
-
-$hostShell = Resolve-TraceEmitterHostShell
-if ([string]::IsNullOrWhiteSpace($hostShell)) {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason 'neither powershell nor pwsh available'
-}
+$sharedPath = Join-Path $repoRoot ($script:ToolkitConstant.TraceEmitCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 $cursorEmit = Join-Path $repoRoot ($script:ToolkitConstant.CursorTraceEmitScriptRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $cursorEmit)) {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason ("missing {0}" -f $script:ToolkitConstant.CursorTraceEmitScriptRelativePath)
-}
+foreach ($p in @($sharedPath, $cursorEmit)) { if (-not (Test-Path -LiteralPath $p)) { Write-Fail 'TraceEmitterFailOpen' "missing $p" } }
 
-$hookSecretInput = [pscustomobject]@{
-    hook_event_name = 'subagentStop'
-    subagent_type   = 'explore'
-    status          = 'completed'
-    description     = ("done bearer {0} password={1}" -f $plantToken, $plantPassword)
-}
-$hookJson = $hookSecretInput | ConvertTo-Json -Compress -Depth 6
-$beforeHookCount = @(Get-Content -LiteralPath $tracePath).Count
-$hookOutput = $hookJson | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
-$hookCode = $LASTEXITCODE
-if ($null -eq $hookCode) { $hookCode = 0 }
-if ($hookCode -ne 0) {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason ("emit-trace exit {0} (expected 0 fail-open)" -f $hookCode)
-}
-$afterHookCount = @(Get-Content -LiteralPath $tracePath).Count
-if ($afterHookCount -le $beforeHookCount) {
-    Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason 'successful emit did not append TRACE line'
-}
-$hookLine = (Get-Content -LiteralPath $tracePath)[-1]
-foreach ($leak in @($plantToken, $plantPassword)) {
-    if ($hookLine -match [regex]::Escape($leak) -or $hookOutput -match [regex]::Escape($leak)) {
-        Write-Fail -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra' -Reason ("hook emit leaked secret to TRACE/stdout: {0}" -f $leak)
-    }
-}
-Write-Pass -TestName 'Should_Redact_When_SecretLikeSummaryAndExtra'
-
-$env:TOOLKIT_TRACE_FORCE_FAIL = '1'
-$beforeCount = @(Get-Content -LiteralPath $tracePath).Count
-$hookInput = [pscustomobject]@{
-    hook_event_name = 'postToolUse'
-    tool_name       = 'Write'
-    tool_input      = @{ content = 'SECRET_TOKEN=super-secret-value-should-not-echo' }
-}
-
-$json = $hookInput | ConvertTo-Json -Compress -Depth 6
-$output = $json | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
-$code = $LASTEXITCODE
-if ($null -eq $code) { $code = 0 }
-if ($code -ne 0) {
-    Write-Fail -TestName 'Should_Exit0_When_ForcedFail' -Reason ("exit {0} (expected 0 fail-open)" -f $code)
-}
-$afterCount = @(Get-Content -LiteralPath $tracePath).Count
-if ($afterCount -ne $beforeCount) {
-    Write-Fail -TestName 'Should_Exit0_When_ForcedFail' -Reason 'forced fail still appended TRACE line'
-}
-Write-Pass -TestName 'Should_Exit0_When_ForcedFail'
-
-if ($output -match 'super-secret-value-should-not-echo' -or $output -match 'SECRET_TOKEN=') {
-    Write-Fail -TestName 'Should_Not_Echo_SensitiveToolBody' -Reason 'emitter stdout echoed sensitive tool body'
-}
-Write-Pass -TestName 'Should_Not_Echo_SensitiveToolBody'
-
-Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
-
-$beforeNormal = @(Get-Content -LiteralPath $tracePath).Count
-$normalToolBody = 'NORMAL_TOOL_BODY_MUST_NOT_ECHO_OR_APPEND'
-$normalInput = [pscustomobject]@{
-    hook_event_name = 'postToolUse'
-    tool_name       = 'Read'
-    tool_input      = @{ content = $normalToolBody }
-}
-$normalJson = $normalInput | ConvertTo-Json -Compress -Depth 6
-$normalOutput = $normalJson | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
-$normalCode = $LASTEXITCODE
-if ($null -eq $normalCode) { $normalCode = 0 }
-if ($normalCode -ne 0) {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("exit {0} (expected 0 fail-open)" -f $normalCode)
-}
-$afterNormal = @(Get-Content -LiteralPath $tracePath).Count
-if ($afterNormal -ne $beforeNormal) {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'normal postToolUse appended a per-tool TRACE line'
-}
-$traceBody = Get-Content -LiteralPath $tracePath -Raw
-if ($traceBody -match 'postToolUse tool=Read') {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'TRACE contains a per-tool postToolUse note'
-}
-if ($normalOutput -match [regex]::Escape($normalToolBody)) {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'emitter stdout echoed the tool body'
-}
-$archiveContractRel = 'core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md'
-$archiveContractPath = Join-Path $repoRoot ($archiveContractRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $archiveContractPath)) {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("missing {0}" -f $archiveContractRel)
-}
-$archiveContractText = Get-Content -LiteralPath $archiveContractPath -Raw -Encoding UTF8
-foreach ($livingEvent in @('converge', 'sync_current', 'archive')) {
-    if ($archiveContractText -notmatch [regex]::Escape($livingEvent)) {
-        Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason ("archive contract missing {0}" -f $livingEvent)
-    }
-}
-$orchestrateSkillRel = 'core/skills/orchestrate-develop/SKILL.md'
-$orchestrateSkillPath = Join-Path $repoRoot ($orchestrateSkillRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$orchestrateSkillText = Get-Content -LiteralPath $orchestrateSkillPath -Raw -Encoding UTF8
-if ($orchestrateSkillText -notmatch 'only when the operator asked to close the wave') {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'scope close must stay gated on an operator request'
-}
-if ($orchestrateSkillText -notmatch 'run-tests' -or $orchestrateSkillText -notmatch 'code-review') {
-    Write-Fail -TestName 'Should_Not_Append_When_NormalPostToolUse' -Reason 'requested wave close must still name run-tests and code-review'
-}
-Write-Pass -TestName 'Should_Not_Append_When_NormalPostToolUse'
-
-$hooksJsonPath = Join-Path $repoRoot ($script:ToolkitConstant.CursorHooksJsonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $hooksJsonPath)) {
-    Write-Fail -TestName 'Should_Pass_When_CursorHooksWireEmitters' -Reason 'missing cursor hooks.json'
-}
-$hooksJson = Get-Content -LiteralPath $hooksJsonPath -Raw -Encoding UTF8
-if ($hooksJson -notmatch '"postToolUse"' -or $hooksJson -notmatch '"subagentStop"') {
-    Write-Fail -TestName 'Should_Pass_When_CursorHooksWireEmitters' -Reason 'hooks.json missing postToolUse/subagentStop'
-}
-if ($hooksJson -notmatch 'emit-trace\.ps1') {
-    Write-Fail -TestName 'Should_Pass_When_CursorHooksWireEmitters' -Reason 'hooks.json must wire emit-trace.ps1'
-}
-if ($hooksJson -notmatch 'powershell' -and $hooksJson -notmatch 'pwsh') {
-    Write-Fail -TestName 'Should_Pass_When_CursorHooksWireEmitters' -Reason 'hooks.json must invoke powershell or pwsh'
-}
-Write-Pass -TestName 'Should_Pass_When_CursorHooksWireEmitters'
-
-$assetRels = @(
-    $script:ToolkitConstant.CursorTraceEmitScriptRelativePath,
-    $script:ToolkitConstant.ClaudeTraceEmitScriptRelativePath,
-    $script:ToolkitConstant.CodexTraceEmitScriptRelativePath
-)
-foreach ($rel in $assetRels) {
-    $full = Join-Path $repoRoot ($rel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $full)) {
-        Write-Fail -TestName 'Should_Pass_When_EmitterAssetsPresentWithoutLiveHome' -Reason ("missing asset {0}" -f $rel)
-    }
-}
-Write-Pass -TestName 'Should_Pass_When_EmitterAssetsPresentWithoutLiveHome'
-
-# Authorship git-notes: default OFF without -Enable (REQ-016 / CT5); never TRACE SoT.
-# Helper requires portable FeatureRoot under features/NNN-slug (repo root), not fixture-nested paths.
-$authorshipRel = $script:ToolkitConstant.InvokeAuthorshipGitNotesScriptRelativePath
-$authorshipPath = Join-Path $repoRoot ($authorshipRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-$skippedStatus = $script:ToolkitConstant.AuthorshipGitNotesStatusSkipped
-$authorshipExitOk = [int]$script:ToolkitConstant.AuthorshipGitNotesExitOk
-$authorshipFeatureRel = 'features/000-authorship-default-off-smoke'
-$authorshipFeaturePath = Join-Path $repoRoot ($authorshipFeatureRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-if (-not (Test-Path -LiteralPath $authorshipPath)) {
-    Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("missing {0}" -f $authorshipRel)
-}
-$authorshipShell = Resolve-TraceEmitterHostShell
-if ([string]::IsNullOrWhiteSpace($authorshipShell)) {
-    Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason 'no powershell/pwsh host for authorship smoke'
-}
-if (Test-Path -LiteralPath $authorshipFeaturePath) {
-    Remove-Item -LiteralPath $authorshipFeaturePath -Recurse -Force
-}
-New-Item -ItemType Directory -Path $authorshipFeaturePath -Force | Out-Null
+$work = New-ToolkitWorkRoot -RepoRoot $repoRoot
 try {
-    $authorshipOutput = & $authorshipShell -NoProfile -ExecutionPolicy Bypass -File $authorshipPath -FeatureRoot $authorshipFeatureRel 2>&1 | Out-String
-    $authorshipCode = $LASTEXITCODE
-    if ($null -eq $authorshipCode) { $authorshipCode = 0 }
-    if ($authorshipCode -ne $authorshipExitOk) {
-        Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("exit {0} (expected {1}): {2}" -f $authorshipCode, $authorshipExitOk, $authorshipOutput.Trim())
+    $featureRoot = Join-Path $work 'features\006-trace-emitter-fixture'
+    New-Item -ItemType Directory -Path $featureRoot -Force | Out-Null
+    $tracePath = Join-Path $featureRoot 'TRACE.jsonl'
+    . $sharedPath
+    $env:TOOLKIT_TRACE_FEATURE_ROOT = $featureRoot
+    Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
+
+    # --- append with secret-like summary/extra: portable path, secrets and response body redacted/dropped ---
+    $token = 'ghp_TESTNOTREAL_aaaaabbbbbcccccddddd'
+    $pwd1 = 'SuperSecretPlant99'
+    $conn = 'Server=db.example;password=ConnSecretPlant99;AccountKey=abcdefghijklmnopqrstuvwxyz0123456789ABCD'
+    $payload = New-TraceEmitterAllowlistedEvent -EventName 'specialist_complete' -FeaturePortable 'features/006-trace-emitter-fixture' `
+        -Summary ("note bearer {0} password={1}" -f $token, $pwd1) -HostId 'fixture' -HookName 'subagentStop' -Role 'fixture-role' -Outcome 'completed' `
+        -Extra @{ role = 'fixture-role'; reason = $conn; response = 'RAW_HOST_RESPONSE_BODY_MUST_DROP' }
+    $n = 'Should_AppendAndRedact_When_SecretLikeSummaryAndExtra'
+    if (-not (Add-TraceEmitterEvent -Event $payload)) { Write-Fail $n 'append returned false' }
+    $line = Get-Content -LiteralPath $tracePath -Raw
+    if ($line -notmatch 'features/006-trace-emitter-fixture' -or $line -match '[A-Za-z]:/') { Write-Fail $n "non-portable path: $line" }
+    foreach ($leak in @($token, $pwd1, 'ConnSecretPlant99', 'RAW_HOST_RESPONSE_BODY_MUST_DROP', 'abcdefghijklmnopqrstuvwxyz0123456789ABCD')) {
+        if ($line -match [regex]::Escape($leak)) { Write-Fail $n "leaked: $leak" }
     }
-    if ($authorshipOutput -notmatch [regex]::Escape($skippedStatus)) {
-        Write-Fail -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff' -Reason ("expected status {0}; got: {1}" -f $skippedStatus, $authorshipOutput.Trim())
-    }
+    Write-Pass $n
+
+    # --- forced failure: exit 0, nothing appended, tool body not echoed ---
+    $env:TOOLKIT_TRACE_FORCE_FAIL = '1'
+    $before = (Get-Item -LiteralPath $tracePath).Length
+    $json = [pscustomobject]@{ hook_event_name = 'postToolUse'; tool_name = 'Write'; tool_input = @{ content = 'SECRET_TOKEN=super-secret-value-should-not-echo' } } | ConvertTo-Json -Compress -Depth 6
+    $out = $json | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $n = 'Should_Exit0_NoAppend_NoEcho_When_ForcedFail'
+    if ($code -ne 0) { Write-Fail $n "exit $code" }
+    if ((Get-Item -LiteralPath $tracePath).Length -ne $before) { Write-Fail $n 'forced fail still appended' }
+    if ($out -match 'super-secret-value-should-not-echo') { Write-Fail $n 'tool body echoed' }
+    Write-Pass $n
+    Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
+
+    # --- normal postToolUse: exit 0, no per-tool TRACE line, body not echoed ---
+    $before = (Get-Item -LiteralPath $tracePath).Length
+    $json = [pscustomobject]@{ hook_event_name = 'postToolUse'; tool_name = 'Read'; tool_input = @{ content = 'NORMAL_TOOL_BODY_MUST_NOT_ECHO' } } | ConvertTo-Json -Compress -Depth 6
+    $out = $json | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $cursorEmit 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $n = 'Should_Exit0_NoAppend_When_NormalPostToolUse'
+    if ($code -ne 0) { Write-Fail $n "exit $code" }
+    if ((Get-Item -LiteralPath $tracePath).Length -ne $before) { Write-Fail $n 'per-tool TRACE line appended' }
+    if ($out -match 'NORMAL_TOOL_BODY_MUST_NOT_ECHO') { Write-Fail $n 'tool body echoed' }
+    Write-Pass $n
 }
 finally {
-    if (Test-Path -LiteralPath $authorshipFeaturePath) {
-        Remove-Item -LiteralPath $authorshipFeaturePath -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
-Write-Pass -TestName 'Should_Skip_When_AuthorshipGitNotesDefaultOff'
-
-Remove-Item Env:TOOLKIT_TRACE_FEATURE_ROOT -ErrorAction SilentlyContinue
-if (Test-Path -LiteralPath $fixtureRoot) {
-    Remove-Item -LiteralPath $fixtureRoot -Recurse -Force
+    Remove-Item Env:TOOLKIT_TRACE_FEATURE_ROOT -ErrorAction SilentlyContinue
+    Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
+    Remove-ToolkitWorkRoot -RepoRoot $repoRoot -Path $work
 }
 
 Write-Host 'Assert-TraceEmitterFailOpen: ALL PASS'

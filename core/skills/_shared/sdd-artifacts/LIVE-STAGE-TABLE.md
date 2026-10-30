@@ -6,9 +6,39 @@ Weight tokens stay English: `Low`, `Medium`, `High`, `Very high`, or `—`. Weig
 
 Do not write the **stage** table into `PLAN.md`, `FEATURE.md`, or `CONTINUITY.md`.
 
-`sdd-develop` and `orchestrate-develop` do not render this stage table, do not redraw it, and do not emit a `Develop:` heartbeat. Their operator chat follows `sdd-develop/references/execution-display.md`. The PLAN progress table stays in the PLAN file.
+`sdd-develop` and `orchestrate-develop` do not render or redraw this weighted stage table, and do not emit a `Develop:` heartbeat. Direct `sdd-develop` follows `sdd-develop/references/execution-display.md`. O3 uses the separate PLAN-step progress table defined below. The PLAN progress table stays in the PLAN file.
 
-The **step ledger** is different. It lives in the PLAN under `Implementation progress`. At step close, `sdd-develop` / `orchestrate-develop` show that ledger for every step. Columns: Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Do not replace it with this stage table. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
+The **step ledger** is different. It lives in the PLAN under `Implementation progress`. At step close, direct `sdd-develop` shows that ledger. O3 uses the PLAN-step progress table below, which lists every step. The persisted ledger columns are Step ID, Step, Dependencies, Analysis weight, Status, Evidence. Do not replace either operator-facing table with this weighted stage table. Weight tokens stay `Low`, `Medium`, `High`, `Very high`. They are not duration or story points.
+
+## Cumulative O1/O2 checkpoint (chat-only)
+
+During O1 and O2, pair the stage table with a cumulative checkpoint in the operator chat. It is a concise projection of evidence already gathered and canonical artifacts already written; it is not a new persisted status source. Render it when the workflow starts, after each material evidence/decision pass, at each story-cycle boundary, before or after a question/approval gate, whenever blocked, and at handoff or close. When continuing later, rebuild it from current artifacts and the conversation's confirmed decisions.
+
+Use this table shape in the operator's chat language:
+
+| Campo | Estado acumulado |
+|-------|-------------------|
+| Processo atual | Fase, etapa/story e gate em andamento |
+| Concluído | Marcos concluídos com evidência ou caminho do artefato |
+| Pendente | Próximos marcos, artefatos ou gates ainda necessários |
+| Decisões / questões | Decisões confirmadas e questões abertas; escrever `nenhuma` quando não houver |
+| Bloqueios | Causa, escopo afetado e gate/owner responsável; escrever `nenhum` quando não houver |
+| Próxima ação | Ação concreta e responsável/gate seguinte |
+
+Keep entries cumulative across the current O1/O2 run: a new checkpoint adds the latest verified state without dropping still-relevant completed work, pending work, decisions, or blockers. Cite the owning FEATURE/STORY/ANALYSIS/ARCH/SEC/PRD/PLAN/CONTINUITY path or decision id instead of copying its full content. Mark unverified status as unknown or a gap; do not infer completion from a created file or from elapsed conversation. Do not turn a technical gap into a product question. The checkpoint is chat-only: do not copy this table into CONTINUITY, FEATURE, PRD, PLAN, or the O3 step ledger. O3 remains governed only by its separate PLAN-step progress table below.
+
+For example, a later checkpoint after a decision gate retains still-open inspection from the earlier checkpoint:
+
+| Campo | Estado acumulado |
+|-------|-------------------|
+| Processo atual | O2, US01, revisão do PLAN |
+| Concluído | O1 trace registrado em `ANALYSIS/`; decisão D-01 confirmada |
+| Pendente | Validar dependências do PLAN e aprovação desta história |
+| Decisões / questões | D-01 confirmada; questão Q-02 segue aberta |
+| Bloqueios | Q-02 bloqueia somente US01 |
+| Próxima ação | Retomar análise dirigida de Q-02; owner: O2 |
+
+This is illustrative only. In a real checkpoint, preserve the actual unresolved items and cite their canonical owner.
 
 ## Columns
 
@@ -63,9 +93,55 @@ Stop redraw when `open_question` fires. The blocked row is `⚠`. Do not continu
 
 Do not save this table in the PLAN.
 
-### sdd-develop / orchestrate-develop
+### orchestrate-deliver (O2)
 
-Do not render these rows in the operator chat. Do not redraw them. The chat contract is `sdd-develop/references/execution-display.md`.
+Render this table in the operator chat for the full O2 run, beginning before the first stage executes. After each stage and each story-cycle checkpoint, redraw the entire table with completed, current, and remaining rows. For série mode, repeat the story-cycle rows for each eligible US/TS in canonical dependency/order sequence; label each row with its story ID so the operator can see that the next story is continuing. Mark conditional checklist work completed with the evidence that it was required and run, or that the feature is `trivial` and the checklist is not applicable. Keep the same status glyph vocabulary defined above. The table is chat-only and is never written into `CONTINUITY.md`.
+
+| Stage | Analysis weight |
+|-------|-----------------|
+| Resolve memory-bank and feature context | Medium |
+| Reconcile canonical roster, required siblings, dependencies, and readiness | High |
+| Choose execution mode and build eligible queue | Low |
+| Per story: read STORY, required siblings, and relevant context | High |
+| Per story: sdd-spec, PRD contestation, and readiness | High |
+| Per story: checklist when required | Medium |
+| Per story: sdd-plan and plan validation | High |
+| Per story: present and process the applicable approval gate | Medium |
+| Per story: reconcile checkpoint and recompute next eligible story | Medium |
+| Cross-artifact analysis and PRD→PLAN→CHANGE preflight | High |
+| Emit final multi-path handoff | Low |
+
+In série mode, completing one story does not end O2. Reconcile `CONTINUITY.md` against canonical `FEATURE.md`, `STORY.md`, PRD/PLAN, required siblings, and dependencies; then read the next eligible US/TS context and continue its full O2 cycle. Do not ask an extra continue question. Stop only at a material blocker, a decision or approval gate that is due, or when every story is closed. Each story retains its own write and approval gates. `sdd-develop`'s one-step stop does not govern the O2 story queue.
+
+### orchestrate-develop (O3) — PLAN-step progress table
+
+O3 renders this table in the operator chat as a read-only projection of the approved PLAN's `Implementation progress` rows. It is separate from the weighted stage table above and from the durable PLAN ledger.
+
+| Step ID | Step | Dependencies | Status | Checkpoint / evidence | Next action / owner |
+|---------|------|--------------|--------|----------------------|---------------------|
+
+Render exactly one row for every PLAN step, including consecutive steps such as S3–S7. Never combine multiple steps into a summary row. Use the canonical PLAN status token for each row; localize the remaining text and headers to the operator chat language. Keep pending, in-progress, completed, blocked, and skipped states distinct. Do not infer completion from a receipt without its persisted, reconciled checkpoint. The pending-only dispatch queue is separate and must never supply the displayed row set. Every user-facing O3 status summary and transition includes the complete table, even when dispatch is blocked, no step is eligible, or the workflow stops. Start from the re-read PLAN and overlay only validated receipt, checkpoint, session, or claim state. Use `Invoke-O3ArtifactPreflight.ps1 -EmitStepTable` for the canonical PLAN projection; supply a complete `-StepStateOverridesPath` projection when validated operational state differs. The formatter rejects missing, duplicate, extra, and invalid step-state rows.
+
+Render the complete table before the first spawn. After each child return, validate its receipt, read and reconcile the persisted PLAN checkpoint, then redraw the complete table before evaluating the next spawn. Redraw the affected row when a blocker, failure, or other advancement gate becomes observable. The table at step close serves as the operator-facing step ledger; do not add a raw ledger dump or duplicate stage-weight table.
+
+When the host provides no intermediate event, preserve the last verifiable table until control returns. Do not invent streaming, heartbeat cadence, or retrospective progress. O3 closeout activities are tracked separately from PLAN-step rows.
+
+### O3 closeout progress
+
+When the operator requests wave close, render a separate closeout table; do not add closeout activities as PLAN steps or combine them with the PLAN-step progress table.
+
+| Gate | Status | Owner | Evidence / next action |
+|------|--------|-------|------------------------|
+
+Include each applicable gate in the order defined by `orchestrate-develop/SKILL.md`: `run-tests`, `code-review`, review corrections when findings require changes, post-review `run-tests` when changes require it (otherwise `SKIPPED` with the no-rerun reason), security review, and any applicable build or operator-requested commit/push handoff. Do not imply that optional or not-yet-requested gates have run.
+
+Use the PLAN closeout status tokens `PENDING`, `IN_PROGRESS`, `COMPLETED`, `BLOCKED`, and `SKIPPED`. `SKIPPED` requires a reason and evidence that the gate is not required. `COMPLETED` requires current evidence for the gate. `BLOCKED` names the owner and next action.
+
+Render the applicable rows when closeout begins and update them after each observable gate result and after later changes that affect gate evidence. Associate each result with the reviewed/tested revision or changed scope when available. When a later change invalidates evidence, return only affected rows to `PENDING`, preserve unaffected evidence, identify the superseded evidence and next action, and do not advance past required gates with stale evidence. This table is a chat-only projection; it does not create persistent closeout state in `PLAN.md` or `CONTINUITY.md`.
+
+### sdd-develop (direct)
+
+Do not render the weighted stage table above. Follow `sdd-develop/references/execution-display.md` and show the PLAN step ledger at step close.
 
 | Stage | Analysis weight |
 |-------|-----------------|

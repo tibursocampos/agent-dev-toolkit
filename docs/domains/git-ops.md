@@ -71,7 +71,11 @@ User **sim** (or explicit approve) is required for mutating Git and for PR creat
 | **Feature** (default) | current `feature/*` or `feat/*` → `develop` (override only if user/PLAN says otherwise) | Day-to-day after push |
 | **Release** | `develop` → `master` or `main` (detect which exists on `origin`) | Release train — never feature → release |
 
-Release PRs into `master`/`main` must come from `develop` (CI: [`.github/workflows/enforce-release-source.yml`](../../.github/workflows/enforce-release-source.yml)). Required check for this repo: **validate** ([`validate-toolkit.yml`](../../.github/workflows/validate-toolkit.yml)).
+Release PRs into `master`/`main` must come from `develop` (CI: [`.github/workflows/enforce-release-source.yml`](../../.github/workflows/enforce-release-source.yml)). [`validate-toolkit.yml`](../../.github/workflows/validate-toolkit.yml) emits `validate` and `ci-ok` aggregate checks on PRs into `develop`. As checked on 2026-10-29, `protect-develop` requires `validate` and legacy branch protection also requires `ci-ok`; `protect-release` requires `release-source`. These rules are configured on GitHub and must be rechecked there because this repository cannot guarantee they stay unchanged.
+
+### Release lifecycle
+
+The normal flow is a release PR from `develop` into `master` or `main`. `master-release-ci.yml` emits `ci-ok` for branch direction; `enforce-release-source.yml` emits `release-source` for source, release metadata, and App credential readiness. When the PR merges with release creation opted in, `release.yml` creates the tag/release/assets and opens a normal reconciliation PR to `develop`. If reconciliation fails after publication, dispatch `release.yml` from the promoted commit with `reconcile_only=true` and a blank version; this does not create another tag. Asset-only retry uses `publish-release-bootstrap.yml` with the existing tag. Full behavior and recovery conditions: [`docs/VALIDATION.md`](../VALIDATION.md).
 
 ### Merge methods (mandatory with auto-merge)
 

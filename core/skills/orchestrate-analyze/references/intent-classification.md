@@ -2,7 +2,7 @@
 
 Normative **first-pass** routing before full triage (`triage.md`) and before Step 0 Memory Bank Gate when the chosen path is not Orchestrated Delivery O1. Extends O1 — not a separate workflow.
 
-Enforcement smoke: `Assert-IntentClassification.ps1`.
+Contract text only; covered by `Assert-CoreContracts.ps1`.
 
 ---
 

@@ -11,10 +11,10 @@ Resolve `invocation_context` once per run (`INVOCATION-CONTEXTS.md`):
 
 The direct risk choice is not silent permission to invent a contract: record the missing path, the assumption/risk, and the follow-up owner in the PLAN or its cited `ANALYSIS/ARCH` note. If the operator does not choose inline or risk, stop and ask again.
 
-### Direct complexity fallback
+### Direct context
 
-For a direct `medium` or `complex` story, a missing `REFINE/tasks.md` remains a sizing/checklist issue, not an O1 sibling failure. Hand off to `/split-story-checklist` and resume `sdd-plan` after the stable task ids exist. Do not create, rename, or silently replace the checklist in `sdd-plan`. A direct `trivial` story may use its single PLAN step without that file.
+In `direct`, an approved canonical PRD is sufficient; absent O1/O2 siblings do not trigger acquisition or an operator-risk choice. Normalize complexity from the persisted PRD field using `checklist-acquisition.md`; derive PLAN-native steps from approved behavior/REQ/CA without checklist IDs. STORY/checklist may supplement only when explicitly linked or supplied, and cannot override the PRD. Keep this distinct from the PLAN-magro rule above: if an omitted technical body has no canonical source, use the documented direct operator choice.
 
-The compact rule is: orchestrated mode requires canonical bodies and required siblings before PLAN; direct mode asks for an inline choice or an explicit risk, while preserving magro paths, provenance, and the existing complexity checklist contract.
+In `orchestrated`, O1/O2 must supply the canonical bodies and required siblings before PLAN. O2's FEATURE/STORY, approvals, analysis, and checklist requirements remain in force; do not use the direct fallback.
 
 ---

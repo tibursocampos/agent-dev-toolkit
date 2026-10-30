@@ -16,7 +16,7 @@
 
 ---
 
-### ⏳ PASSO 1: Combined (missing Execution policy section)
+### ⏳ PASSO 1 — S1: Combined (missing Execution policy section)
 
 **Status:** Pendente | **Deps:** nenhuma
 

@@ -56,10 +56,10 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 In the menu:
 
 1. **Sync agent** — pick an agent, then **live agent home** (Enter = default; writes under your profile after confirm), **in-repo fixture** (safe), or **custom** path.
-2. **Validate core only** — `Assert-CiWorkflow.ps1`, `Assert-GuardShellCanonicalPaths.ps1`, and `Assert-TraceEmitterFailOpen.ps1`; repo checks with no home write.
+2. **Validate core only** — `Assert-GuardShellCanonicalPaths.ps1` and `Assert-TraceEmitterFailOpen.ps1`; repo checks with no home write. The full local suite is `scripts/validation/validate-core.ps1`.
 3. **Help and docs** — what each action does and equivalent `-Action` flags.
 
-Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-CursorCiSmoke`, `Invoke-ClaudeCiSmoke`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.
+Advanced / scripting flags (`-Action`, `-Agent`, `-InstallRoot`, `-AllowUserHome`, `-Mode`) and CI smokes (`Invoke-AdapterCiSmoke -Adapter cursor`, `Invoke-AdapterCiSmoke -Adapter claude`, …): **[docs/INSTALL.md](docs/INSTALL.md)**, **[docs/VALIDATION.md](docs/VALIDATION.md)**. Reliability evidence boundaries (published helpers, session identity, local instructions, diagnostics, and `PASS` / `FOUND` / `SKIPPED`) are documented in **[docs/overview.md](docs/overview.md)** and **[docs/VALIDATION.md](docs/VALIDATION.md)**.
 First use end-to-end: **[docs/guides/01-getting-started.md](docs/guides/01-getting-started.md)**.
 
 ### Use skills (after sync)
@@ -96,7 +96,7 @@ Parallel specialists for multi-facet work are the **router default** after sync 
 
 Per-agent contract: **[docs/ADAPTERS.md](docs/ADAPTERS.md)**. Shared guard: `adapters/_shared/guard-rules.md` + `GuardCommon.ps1`.
 
-## Skills preview (45)
+## Skills preview
 
 | Group | Examples |
 |-------|----------|
@@ -146,7 +146,7 @@ agent-dev-toolkit/
   scripts/              # toolkit.ps1, sync-agent, validate-agent, validation/
   docs/                 # public documentation
   memory-bank/          # durable workspace map (Orchestrated Delivery Step 0)
-  .github/workflows/    # validate-toolkit.yml (+ enforce-release-source.yml)
+  .github/workflows/    # CI, docs, release PR checks, tag/publish/reconciliation
   README.md
   CONTRIBUTING.md
   SECURITY.md
@@ -158,7 +158,9 @@ agent-dev-toolkit/
 - Live agent home requires **`-AllowUserHome`**.
 - Uninstall is **keyed** (toolkit artifacts only) for all adapters — **not** a wholesale home wipe. Preserves `sdd/sessions` and `sdd/manifest.json`.
 
-The full suite in `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only (not `push`, and not release pull requests). Jobs `validate` and `validate-ubuntu` run the named remaining checks; adapter-smoke matrices and `docs-strict` feed the required check `ci-ok`. `validate-core` and the keyed-uninstall matrix stay off that path. Release pull requests into `master` or `main` must come from `develop` (`enforce-release-source.yml`) and do not rerun this suite.
+The full suite in `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only (not `push`, and not release pull requests). Its `validate` and `ci-ok` jobs aggregate `validate-core`, both adapter-smoke jobs, and `docs-strict`. As checked on 2026-10-29, the active `protect-develop` ruleset requires `validate` and legacy branch protection also requires `ci-ok`; remote GitHub policy can change independently of this repository. Release PRs to `master` or `main` emit `ci-ok` from `master-release-ci.yml` for branch direction and `release-source` from `enforce-release-source.yml` for source, metadata, and release-sync App readiness; the active `protect-release` ruleset requires `release-source`. These PR workflows do not rerun the full suite.
+
+The normal release path is an opted-in, merged `develop` → `master`/`main` PR. `release.yml` publishes the tag, release, and assets, then prepares a normal reconciliation PR back to `develop`. If publication already succeeded but reconciliation failed, `workflow_dispatch` with `reconcile_only=true` retries reconciliation without creating another tag. See [Validation and CI](docs/VALIDATION.md) for checks, recovery, and evidence boundaries.
 
 ## License
 

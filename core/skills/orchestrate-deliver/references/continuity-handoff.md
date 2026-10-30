@@ -5,17 +5,20 @@ Update `CONTINUITY.md` when:
 - [ ] Mode série|paralelo chosen
 - [ ] Each story PRD+PLAN landed (or batch milestone)
 - [ ] Before / after human approval gate
+- [ ] Before advancing a story or emitting its handoff, reconcile its identified output, applicable approval, recorded validation outcome, and each dependent story boundary; record only affected-story blockers and their existing owner/gate
 - [ ] Final multi-path handoff emitted
+
+`CONTINUITY.md` is a resumable progress checkpoint, not the sole authority for the story roster or artifact state. On every resume and before advancing in série mode, reconcile it against canonical `FEATURE.md`, each candidate `STORY.md`, PRD/PLAN, required siblings, and declared dependencies. If the checkpoint is stale, correct it from those owner artifacts as part of the normal O2 update; do not let stale status hide an eligible story or override a material blocker. Keep the live stage table in chat only.
 
 | Field | Rule |
 |-------|------|
 | **Phase** | `deliver` during/after O2 |
 | **Last agent** | `orchestrate-deliver` |
 | **Memory-bank** | Path + `fresh`\|`refreshed`\|`created` from Step 0; **not** `fresh` if style changed / ARCH approved this feature |
-| **Estado atual** | ≤10 lines; which stories done/pending |
-| **Decisões** | Append mode + approval scope |
-| **Pendências** | Stories still missing PRD/PLAN or approval |
-| **Handoff tipado** | Full `/…` lines with **portable paths** (`STORAGE.md` § Portable path) |
+| **Estado atual** | ≤10 lines; per-story done/pending state and only the affected branch blocked, with concise cause |
+| **Decisões** | Append mode + approval scope; cite material reconciliation and existing owner when it changes a decision |
+| **Pendências** | Affected story, missing output/approval/validation or incompatible boundary, existing owner, and next gate; keep independent stories eligible |
+| **Handoff tipado** | Full `/…` lines with **portable paths** (`STORAGE.md` § Portable path); identify the next owner/gate for a blocked branch |
 | **Related** | Refresh `## Related` on CONTINUITY (and FEATURE/STORY when touched) for on-disk PRD/PLAN siblings — omit-if-absent; paths only (`STORAGE.md` § Navigation block / REQ-009) |
 | **What not to write** | Full PRD/PLAN bodies, guideline dumps, app code, memory-bank body |
 
@@ -58,6 +61,8 @@ On approval:
 3. Run **cross-artifact analyze** (§ Cross-artifact analyze) — brownfield must have `CHANGE.md`; greenfield must not force an empty CHANGE stub.
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.
 5. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings. Include CHANGE path when present.
+
+If a handed-off PLAN relies on external evidence, retain its exact `external:<alias>/<relative-path>` reference in the PLAN and identify the alias in the O3 handoff. Do not put the authorized root in CONTINUITY, PRD, PLAN, or the receipt. O2 does not grant access: before dispatch, the O3 coordinator authorizes alias and path prefix and supplies the alias-to-root JSON separately to `Invoke-O3ReceiptValidation.ps1` (`STORAGE.md` § External evidence references for O3; `_shared/agents/RECEIPT.md`).
 
 Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank (CA7). User picks one path per story/session.
 

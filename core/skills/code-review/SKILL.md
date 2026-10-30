@@ -180,6 +180,7 @@ Skip this section only when step 0.5 found no PRD/PLAN (document limitation - do
 - PLAN progress bar and step statuses match completed work
 - Each **Completed** / **Concluido** step has deliverables checked; no **Pending** steps with code already merged
 - PRD acceptance criteria mapped to implementation and tests
+- Explicit material operator requests/corrections carried in the approved decision context or PLAN step notes reconciled against the reviewed diff, with source/context, disposition, REQ/CA or open question, owner/consumer, and result evidence/limits. Missing or conflicting evidence remains `GAP`/`open`; do not infer that a correction was applied from a checklist or status.
 - When PLAN **Implementation status** is `COMPLETED`, PRD metadata **Status** is `Implementado` or `Implemented`. `Pronto para planejamento` / `Ready for planning` on a completed PLAN is **important** drift. Do not write the PRD here; hand the close to `/sdd-develop` (`sdd-develop/references/plan-update.md` § Companion PRD)
 
 Flag PLAN/PRD drift as **important** (not necessarily blocking if scope is otherwise correct).

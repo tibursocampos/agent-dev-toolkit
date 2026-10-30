@@ -68,7 +68,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1 -Action ValidateCore
 Optional — same smokes CI runs (menu **Validation lab**, or):
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor
 ```
 
 ## 4. Sync your agent

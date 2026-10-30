@@ -127,7 +127,7 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke: `Assert-SelectiveRetrieval.ps1`.
+6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
 7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md` (REQ-011). Skip D: no ADO mutate, Reversa, SpecKit constitution (REQ-013).
 
 ### Modes (`memory-bank-init`)
@@ -206,11 +206,10 @@ Prefer toolkit script when resolved:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
 ```
 
-Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths) resets to curated discovery.
-
+Use `-Action refresh-light` for O3 Step N. Bloated existing index (> ~200 paths) resets to curated discovery, after drift is compared against the prior snapshot. A prior `sources.json` that is empty, `null`, or whose `sources` is not a non-empty array is not a baseline: the run is `not-ready` with reason `prior_snapshot_invalid`. A source path that is or passes through a reparse point (symlink or junction) is never read or hashed: the run is `not-ready` with reason `path_reparse_point`.
 - **Read-only** over consumer source tree (`-RepoPath` = `$Cwd`).
 - **Writes only** under `<bank_root>/.inventory/` (`-BankPath` may be `$Cwd/memory-bank` or `<classic.path>/memory-bank`).
-- Output: `sources.json` (v3 + `sources[]`), updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh.
+- Output: `sources.json` (v3 + `sources[]`), updates `gaps.md` stubs when stack signals rich contracts, appends `refresh-history.jsonl`. Preserve `- [ ] BLOCKING:` lines in `gaps.md` on every refresh; the text after the prefix passes the same sensitive-content redaction as other human notes.
 - **Portable roots (required):** `sources.json` top-level `repo_path` MUST be `.` and `bank_path` MUST be a repo-relative forward-slash path (usually `memory-bank`). **Never** write OS absolute / drive-letter / user-home machine paths — the file is versioned under `memory-bank/`. `refresh-history.jsonl` `repo` field uses the repo leaf name or `.`, never an absolute path.
 
 ---

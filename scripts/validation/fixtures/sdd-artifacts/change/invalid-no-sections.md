@@ -1,6 +1,6 @@
 # CHANGE: fixture-invalid-no-sections
 
-Missing required delta headings on purpose for Assert-ChangeContract.
+Missing required delta headings on purpose for Assert-CoreContracts.
 
 ## Summary
 

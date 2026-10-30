@@ -145,4 +145,4 @@ skill-id/
 
 **Process intro (required):** After gates, **Read `references/command.md`** for ordered step discovery; load **one** `references/<section>.md` per step. Do **not** preload `command.md` before Step -1 gates. Full composable thin-router split of remaining Process bodies is US02 — this packing is discovery + wire only.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Enforcement: `scripts/validation/Assert-SkillLazyLoad.ps1`.
+Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.

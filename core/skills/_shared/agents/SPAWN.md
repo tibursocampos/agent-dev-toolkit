@@ -100,16 +100,37 @@ Need specialist work?
 
 ## Minimal handoff payload (parent → child)
 
-When spawning (native path), pass **only**:
+When spawning (native path), pass the following bounded assignment context:
 
 | Field | Content |
 |-------|---------|
 | **Role** | Specialist id or roster role (e.g. `dotnet-developer`, `repo-analyst`) |
+| **Objective** | One bounded outcome the specialist is responsible for delivering |
 | **Scoped paths** | Files/dirs the child may read/write |
-| **Receipt** | Require end-of-pass receipt per `RECEIPT.md` |
+| **Relevant references** | Repository instructions, representative files/symbols, and portable artifact paths needed for this assignment |
+| **Expected result** | The artifact, findings, decision, or validation result the parent needs; identify the role-specific output contract in `RECEIPT.md` |
+| **Receipt** | Require the role-specific end-of-pass result per `RECEIPT.md` |
 | **Excerpt** | Short pointer or excerpt of user-language artifacts — **not** full PLAN/PRD bodies |
 
-Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+This is semantic assignment context, not a new serialized payload or universal receipt schema. Include only references relevant to the objective and scope. Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
+
+### Classic direct `sdd-develop` parent relay
+
+When a parent delegates one approved Classic/direct PLAN step to a specialist, the child owns that step's implementation and persisted PLAN checkpoint. After the child returns, the parent MUST re-read the canonical PLAN, reconcile its step row and checkpoint with the child report, and show the operator the complete current PLAN ledger (every step and every ledger column) plus the next eligible step, following `sdd-develop/references/execution-display.md`. The child receipt, child-rendered table, or a prose summary alone is not the parent relay. Never show only the closed step or stale rows. If the persisted checkpoint is unavailable or conflicts with the report, stop with `ledger_partial` and do not delegate another direct step. This display responsibility preserves the direct Classic session and claim contract; it does not activate the O3 queue or replace O3's separate progress table.
+
+### O3 evidence paths
+
+An O3 child may identify an artifact outside the repository only with a
+coordinator-authorized portable alias such as `external:Demandas/<relative-path>`.
+The coordinator names the allowed aliases and portable path prefixes in the
+scoped handoff. The child never receives or returns an absolute alias root.
+After return, the coordinator supplies an explicit local JSON alias-to-root
+map and a separate JSON list of allowed portable path prefixes to
+`scripts/validation/Invoke-O3ReceiptValidation.ps1` (`-AuthorizedRootsPath` and
+`-AllowedPathPrefixesPath`) before receipt reconciliation. Absolute roots live
+only in the coordinator-controlled map, never in the child receipt. Unknown aliases, out-of-scope paths, missing
+files, traversal, or a reparse point escaping an authorized root block the
+receipt. Internal repository-relative paths keep their existing form.
 
 ## Task ownership and lifecycle
 
@@ -131,7 +152,7 @@ When spawning (native path):
 1. Pass **scoped paths** (files/dirs the child may read/write).
 2. Require end-of-pass **receipt** per `RECEIPT.md` (lazy-load that file — do not paste its body). Prefer receipt even when Caveman OFF.
 3. Point to role prompt under `skills/_shared/agents/prompts/` when Orchestrated Delivery roster applies.
-4. Pass **role + receipt requirement + scoped paths** only. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
+4. Pass the **role, one bounded objective, scoped paths, relevant references, expected result, and receipt requirement**. Child prompts, execution style, and returns are **Caveman-scoped** (inherit parent intensity from `{{SDD_ROOT}}/preferences.json`; contract: `skills/_shared/caveman/CAVEMAN.md`). Expand context only when the task truly needs richer detail (security dumps, ambiguous architecture, user asked for full detail) — Auto-Clarity / never-compress still apply.
 5. **Do not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 6. Task `model`: omit by default (same as parent session) — `SUBAGENT-MODEL.md`.
 7. **Language:** child prompts, specialist context, and agent receipts are **always en-US**. Do not dump a full user-language PLAN/PRD — **paths + excerpt** only. Contract: `LANGUAGE.md` (lazy-load).

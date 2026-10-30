@@ -65,7 +65,7 @@ Receipt (en-US): role, target paths, ≤5 bullets of evidenced facts, open gaps 
 | Read named bank files needed for the merge | Paste full `sources.json` bodies into parent/child chat |
 | Point to `SELECTIVE-RETRIEVAL.md` | Wholesale Supply / Reversa dump into refs |
 
-Normative: `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP`. Smoke: `Assert-SelectiveRetrieval.ps1` when in-scope.
+Normative: `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP`. Smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section) when in-scope.
 
 ## Skip D (REQ-013 / CA4) — explicit
 

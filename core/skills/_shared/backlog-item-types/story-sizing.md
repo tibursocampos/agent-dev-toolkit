@@ -2,7 +2,7 @@
 
 Normative rules for **how many stories** a feature needs and **how large** each story should be. Used by `orchestrate-analyze` (O1 synthesis) and `refine-story` (scorecard). Not a backlog item type — a cross-cutting contract.
 
-Enforcement smoke: `Assert-StorySizingContract.ps1`.
+Enforcement smoke: `Assert-CoreContracts.ps1` (StorySizing section).
 
 ---
 

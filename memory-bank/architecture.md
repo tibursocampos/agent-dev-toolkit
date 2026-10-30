@@ -1,56 +1,58 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory (10/15/2026 13:12:58; hash `818e33cce8656426b442dd2ee114a4125041807b01dc802be79e8e53a62aa7b6`)._
+_Entry points and layout from the current inventory (2026-10-30T00:32:30Z; hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3`)._
 
 | Signal | Path |
 |--------|------|
-| CLI menu | `scripts/toolkit.ps1` |
+| Operator CLI | `scripts/toolkit.ps1` |
 | Sync orchestrator | `scripts/sync-agent.ps1` |
-| Validate orchestrator | `scripts/validate-agent.ps1` |
-| Core contract suite | `scripts/validation/validate-core.ps1` |
+| Agent validator | `scripts/validate-agent.ps1` |
+| Core validation suite | `scripts/validation/validate-core.ps1` |
+| Memory Bank inventory | `scripts/inventory/Invoke-MemoryBankInventory.ps1` |
 | Agent registry | `adapters/registry.json` |
-| Skills | `core/skills/*/SKILL.md` |
-| Policy | `core/policy/` |
+| Skills catalog | `core/skills/_shared/skills-catalog/CATALOG.md` |
+| Shared SDD contracts | `core/skills/_shared/sdd-artifacts/` |
 | Router index | `core/router/AGENTS.md` |
-| SDD storage contract | `core/sdd/STORAGE.md` |
-| Shared path guard | `adapters/_shared/GuardCommon.ps1` |
+| Adapter path guard | `adapters/_shared/GuardCommon.ps1` |
 <!-- END GENERATED: inventory-summary -->
 
 ## Overview
 
-One agent-neutral core is published by per-agent adapters into each host install layout. The CLI (`scripts/toolkit.ps1`) is the operator entry for sync, validate, and uninstall. Default `InstallRoot` is an in-repo fixture. A live user-home write is opt-in via `-AllowUserHome`.
+The toolkit maintains an agent-neutral core and publishes host-specific layouts through adapters. The PowerShell CLI provides sync, validation, list, and uninstall operations. It defaults to an in-repository fixture; writes under a real user profile require `-AllowUserHome`.
 
-## Layers / modules
+## Layers
 
-| Layer | Responsibility | Path hints |
+| Layer | Responsibility | Main paths |
 |-------|----------------|------------|
-| Core | Skills, policy, router, SDD contracts | `core/skills/`, `core/policy/`, `core/router/`, `core/sdd/` |
-| Adapters | Map core into one agent install layout; registry capabilities | `adapters/<id>/`, `adapters/registry.json` |
-| CLI | Menu and `-Action` flags: Sync, Validate, SyncAndValidate, ValidateCore, ListAgents, Uninstall, Backup | `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1` |
-| Validation | In-repo contract asserts and fixture smokes | `scripts/validation/` |
+| Core | Skills, policy, router, SDD contracts, catalog | `core/skills/`, `core/policy/`, `core/router/` |
+| Adapters | Transform and publish core assets for each supported host | `adapters/<id>/`, `adapters/registry.json` |
+| CLI | Operator menu and scripted actions | `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1` |
+| Validation | Assertions, fixtures, lab smokes, inventory and preflight checks | `scripts/validation/`, `scripts/inventory/` |
+| Delivery automation | CI, docs build, release publication and ancestry reconciliation | `.github/workflows/` |
 
-## Entry points
+## Runtime and integration boundaries
 
-- `scripts/toolkit.ps1` — Smart Manager and scripted `-Action`.
-- `scripts/sync-agent.ps1` — publish core for one registry agent.
-- `scripts/validate-agent.ps1` — fixture smoke when `InstallRoot` is available.
-- `scripts/validation/validate-core.ps1` — core suite with no user-home sync.
+- Adapter capabilities and supported hosts are declared in `adapters/registry.json`; host-specific behavior is implemented by each adapter.
+- `scripts/toolkit.ps1` dispatches command-line validation scripts in child PowerShell processes so their top-level `exit` codes return to the menu rather than terminating it. Standalone scripts retain their normal exit-code behavior.
+- Install roots are fixture-first. Profile writes require `-AllowUserHome`; local fixtures do not prove behavior in a live host.
+- Copilot publishing supports `-Mode user|repo`. Codex user-scope skill mirroring is optional and off by default.
+- Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `always`.
+- The SDD storage source of truth is `core/skills/_shared/sdd-artifacts/STORAGE.md`; feature and Memory Bank storage share the resolved root.
 
-## Integration points
+## CI and release flow
 
-- Host install roots resolved per adapter. Live profile paths require `-AllowUserHome`.
-- Copilot publish takes `-Mode user` or `-Mode repo`.
-- Codex publish accepts optional `-UserScope` (mirrors skills under the user skills root; off by default).
-- Release bootstrap reads env names only: `TOOLKIT_RELEASE_OWNER`, `TOOLKIT_RELEASE_REPO`, `TOOLKIT_RELEASE_ZIP_ASSET`, `TOOLKIT_RELEASE_CHECKSUM_ASSET`, `TOOLKIT_SYNC_AGENT`.
-- Hermes home override name: `HERMES_HOME`.
-- Antigravity subagent probe names: `ADT_ANTIGRAVITY_SUBAGENTS`, `ADT_ANTIGRAVITY_PRODUCT_VERSION`.
-- Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty (`adapters/cursor/assets/hooks/_hook-common.ps1` and the same pattern on the other hook assets).
-- Copilot agent publish keeps one `nome.agent.md` per catalog agent and drops the parallel `nome.md` (`adapters/copilot/Publish-CopilotAgents.ps1`).
-- A missing `preferences.json` is created on first sync with `orchestrator_mode` `always` (`scripts/_lib/Initialize-SddPreferences.ps1`).
-- Required pull-request check `ci-ok` needs `validate`, `validate-windows-adapter-smoke`, `validate-ubuntu`, `validate-ubuntu-adapter-smoke`, and `docs-strict` (`.github/workflows/validate-toolkit.yml`).
+- GitHub CI runs for pull requests to `develop`. The current source defines `validate` and `ci-ok` aggregate checks, adapter smokes, and `docs-strict`; the current local changes passed `validate-core.ps1` and a strict MkDocs build. A pushed feature branch without a PR has no run from this PR-triggered workflow.
+- The intended release path is a `develop` to `master`/`main` PR. Required `release-source` validates source, metadata, and release-sync App readiness before merge. The release workflow publishes the tag/assets and opens or reuses a reconciliation PR to bring the promoted commit into `develop`.
+- Recovery uses `workflow_dispatch` on `master`/`main` with `reconcile_only=true` and no version input. It reconciles the current promoted commit without creating another release. The GitHub App credential names are `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY`; the current repository has no usable values, so live reconciliation remains blocked until an administrator configures them.
+- Release and CI branch rules are configured in GitHub, not fully represented by files in this repository. Validate the actual required checks on a PR before treating a new workflow as remotely verified.
+
+## External behavior and evidence limits
+
+- `TOOLKIT_RELEASE_OWNER`, `TOOLKIT_RELEASE_REPO`, `TOOLKIT_RELEASE_ZIP_ASSET`, `TOOLKIT_RELEASE_CHECKSUM_ASSET`, and `TOOLKIT_SYNC_AGENT` are release-bootstrap environment variable names; never store their values here.
+- `HERMES_HOME`, `ADT_ANTIGRAVITY_SUBAGENTS`, and `ADT_ANTIGRAVITY_PRODUCT_VERSION` are supported environment override/probe names.
+- Classic external-access contracts and fixture tests establish local authorization rules, not provider-wide production I/O or host isolation. O3 receipt `files[]` is evidence-only and grants no Classic read/write access.
 
 ## Notes
 
-Evidence-based only. Mark unknowns in `.inventory/gaps.md`.
-**No secrets.**
+Use `.inventory/gaps.md` for unresolved evidence and external dependencies. Do not infer live-host behavior from fixture validation.

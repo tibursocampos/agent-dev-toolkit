@@ -92,11 +92,14 @@ GitHub Actions:
 
 | Workflow | Role |
 |----------|------|
-| `.github/workflows/validate-toolkit.yml` | `pull_request` to `develop` only. Windows and Ubuntu validation, ten Windows adapter-smoke jobs, and documentation checks feed `ci-ok`. Release pull requests do not run this workflow. |
-| `.github/workflows/publish-release-bootstrap.yml` | Release zip `agent-dev-toolkit.zip` plus SHA256 sidecar and bootstrap entrypoints. |
-| `.github/workflows/enforce-release-source.yml` | Pull requests into `master` / `main` must come from `develop`. |
+| `.github/workflows/validate-toolkit.yml` | Runs on pull requests to `develop`; emits `validate` and `ci-ok` aggregate checks, ten Ubuntu adapter smokes, one Windows Codex smoke, and `docs-strict`. A pushed feature branch without a PR does not run this workflow. |
+| `.github/workflows/master-release-ci.yml` | Runs on pull requests to `master` / `main` and emits `ci-ok` after checking the release branch direction. |
+| `.github/workflows/enforce-release-source.yml` | Runs on release pull requests; emits `release-source` to validate the `develop` source, release metadata, and release-sync App readiness. |
+| `.github/workflows/release.yml` | After a merged `develop` → `master`/`main` pull request, opens or reuses a reconciliation pull request to `develop`. It creates the tag/release and assets only when publication was opted in. `workflow_dispatch` with `reconcile_only=true` retries reconciliation without creating another tag. |
+| `.github/workflows/publish-release-bootstrap.yml` | Publishes the release zip `agent-dev-toolkit.zip` plus SHA256 sidecar and bootstrap entrypoints. |
+| `.github/workflows/docs.yml` | Builds the public MkDocs site on pushes to `master`, `main`, and `develop`, or by manual dispatch. |
 
-`.github/workflows/docs.yml` is a separate site workflow. Operator docs in this folder do not describe or change that site.
+The workflows emit check names; GitHub rulesets and branch-protection settings determine which checks are required. As checked on 2026-10-29, `protect-develop` requires `validate` and legacy branch protection also requires `ci-ok`; `protect-release` requires `release-source`. Verify remote requirements again before treating this snapshot as current.
 
 ## Repository map
 
@@ -105,7 +108,7 @@ core/                 skills, policy, router, sdd, agents
 adapters/             registry.json, _contract, per-agent modules
 scripts/              toolkit.ps1, sync-agent.ps1, validate-agent.ps1, bootstrap/, validation/, _lib/
 docs/                 this documentation
-.github/workflows/    validate, release bootstrap, release-source gate
+.github/workflows/    CI, docs, release PR checks, release/tag/publish/reconciliation, bootstrap
 ```
 
 ## Where to read next

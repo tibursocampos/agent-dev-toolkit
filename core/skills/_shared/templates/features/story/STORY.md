@@ -58,6 +58,10 @@ Explicit exclusions for this story. Use `N/A` / empty table only when truly none
 
 Minimum budget (`gherkin-budget.md`): **happy** + **rule/edge** + **failure**, each with an **observable Then**. One stub alone is not enough.
 
+**FEATURE macro-acceptance ids:** {{FEATURE_MACRO_AC_IDS}}
+
+List the existing FEATURE ids covered by this story. The actual acceptance text below must preserve each mapped material behavior and agree with its current normative decision. A link or id alone is not evidence of agreement. Keep unchanged behavior, approved exclusions, and unresolved questions in their existing FEATURE disposition; do not create a decision list in STORY. This budget applies to the story outcome and does not require a fixed number of stories or one repeated scenario set per source.
+
 ### Happy
 
 ```gherkin

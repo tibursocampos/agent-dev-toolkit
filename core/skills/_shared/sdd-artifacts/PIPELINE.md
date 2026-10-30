@@ -157,6 +157,8 @@ Always before the first `Write` of a **new** PRD or PLAN (and when replacing an 
 3. `Write` only after explicit **sim**.
 4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
 
+This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never supplies content approval.
+
 `sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
 
 ## Prior context (chat, Plan, code-review, feature tree)
@@ -167,7 +169,7 @@ When the thread already has requirements, review findings, or refined backlog:
 - Provide a structured summary + **at most 3** gap questions.
 - Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
 - Prefer **promoted** siblings and memory-bank over re-asking. A citation of a non-feature `.md` is not Prior context until § Promote has copied rich content.
-- **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-SelectiveRetrieval.ps1`.
+- **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
 
 ### Feature / story siblings (Classic SDD / Orchestrated Delivery)
 

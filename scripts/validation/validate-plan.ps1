@@ -139,8 +139,40 @@ if ($planText -notmatch $script:ToolkitConstant.SddArtifactPlanExecutionPolicyPa
     exit 1
 }
 
-if ($planText -notmatch $script:ToolkitConstant.SddArtifactPlanStepHeadingPattern) {
-    Write-ValidateFail -Message 'missing implementation step headings (expected PASSO N or STEP N)'
+$stepHeadingParse = Get-SddArtifactPlanStepHeadings -Text $planText
+if ($stepHeadingParse.Valid.Count -eq 0) {
+    Write-ValidateFail -Message 'missing implementation step headings (expected ### STEP/PASSO/ETAPA N — S<N>: title)'
+    exit 1
+}
+if ($stepHeadingParse.Invalid.Count -gt 0) {
+    Write-ValidateFail -Message ("malformed implementation step heading(s): {0}; use level-3 STEP/PASSO/ETAPA N — S<N>: title with matching ordinal and ID" -f ($stepHeadingParse.Invalid -join '; '))
+    exit 1
+}
+
+$progressHeadingPattern = '(?im)^\s*##\s*(?:Implementation progress|Progresso da implementação|Progresso de implementação)\s*#*\s*$'
+if ($planText -notmatch $progressHeadingPattern) {
+    Write-ValidateFail -Message 'missing supported implementation progress section (expected Implementation progress, Progresso da implementação, or Progresso de implementação)'
+    exit 1
+}
+
+$planStatusField = [regex]::Match($planText, '(?im)^\|\s*\*{0,2}(?:Status|Estado|Situação)\*{0,2}\s*\|\s*([^|]+)\|')
+$implementationStatusField = [regex]::Match($planText, '(?im)^\|\s*\*{0,2}(?:Implementation status|Status da implementação)\*{0,2}\s*\|\s*`?([^|`]+)`?\s*\|')
+if (-not $planStatusField.Success) {
+    Write-ValidateFail -Message 'missing PLAN status field (expected Status, Estado, or Situação in the metadata table)'
+    exit 1
+}
+if (-not $implementationStatusField.Success) {
+    Write-ValidateFail -Message 'missing implementation status field (expected Implementation status or Status da implementação)'
+    exit 1
+}
+$planStatusAlias = Resolve-SddArtifactAlias -Domain 'plan-status' -Value (Remove-SddArtifactDecoration $planStatusField.Groups[1].Value)
+if (-not $planStatusAlias.Recognized) {
+    Write-ValidateFail -Message ("unsupported PLAN status '{0}' at metadata line {1}; expected approved/aprovado or draft/rascunho" -f $planStatusField.Groups[1].Value.Trim(), (($planText.Substring(0, $planStatusField.Index) -split "`n").Count))
+    exit 1
+}
+$implementationStatusAlias = Resolve-SddArtifactAlias -Domain 'execution-status' -Value (Remove-SddArtifactDecoration $implementationStatusField.Groups[1].Value)
+if (-not $implementationStatusAlias.Recognized) {
+    Write-ValidateFail -Message ("unsupported implementation status '{0}' at metadata line {1}; expected a canonical English status or its explicit Portuguese alias" -f $implementationStatusField.Groups[1].Value.Trim(), (($planText.Substring(0, $implementationStatusField.Index) -split "`n").Count))
     exit 1
 }
 
@@ -187,5 +219,17 @@ if ($missing.Count -gt 0) {
     exit 1
 }
 
-Write-ValidatePass -Message ("REQ map covers {0} PRD REQ id(s)" -f $prdReqIds.Count)
+$normalizedLabels = [System.Collections.Generic.List[string]]::new()
+foreach ($line in [regex]::Split($planText, '\r?\n')) {
+    if ($line -match '^\s*##\s*(?<heading>.*?)\s*#*\s*$') {
+        $headingAlias = Resolve-SddArtifactAlias -Domain 'progress-heading' -Value $Matches['heading']
+        if ($headingAlias.Recognized -and $headingAlias.Canonical -eq 'IMPLEMENTATION_PROGRESS') {
+            [void]$normalizedLabels.Add(("'{0}' => IMPLEMENTATION_PROGRESS" -f $Matches['heading']))
+        }
+    }
+}
+$normalizedLabels.Add(("'{0}' => {1}" -f $planStatusField.Groups[1].Value.Trim(), $planStatusAlias.Canonical))
+$normalizedLabels.Add(("'{0}' => {1}" -f $implementationStatusField.Groups[1].Value.Trim(), $implementationStatusAlias.Canonical))
+$aliasSummary = if ($normalizedLabels.Count -gt 0) { "; normalized: {0}" -f ([string]::Join(', ', $normalizedLabels.ToArray())) } else { '' }
+Write-ValidatePass -Message (("REQ map covers {0} PRD REQ id(s)" -f $prdReqIds.Count) + $aliasSummary)
 exit 0

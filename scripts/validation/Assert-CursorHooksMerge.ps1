@@ -47,7 +47,8 @@ if (-not (Test-Path -LiteralPath $toolkitHooksPath)) {
 
 $alienHookMarker = "powershell -NoProfile -Command Write-Output 'cursor-alien-hook-marker'"
 $staleBeforeSubmit = 'powershell -NoProfile -File ./hooks/context-before-prompt.ps1 -StaleToolkitFlag'
-$hooksMergeHarness = Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'cursor-hooks-merge-harness'
+. (Join-Path $repoRoot 'scripts/_lib/New-ToolkitWorkRoot.ps1')
+$hooksMergeHarness = Join-Path (Get-ToolkitWorkBase -RepoRoot $repoRoot) 'cursor-hooks-merge-harness'
 
 function Reset-HooksMergeHarness {
     if (Test-Path -LiteralPath $hooksMergeHarness) {

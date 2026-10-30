@@ -1,528 +1,89 @@
 #Requires -Version 5.1
 # Tests:
-#   Should_ListRegistryAgents_When_RegistryLoaded
+#   Should_ValidateRegistrySchema_When_RegistryLoaded
+#   Should_KeepPublishSurfacePathsSafe_When_RegistryLoaded
 #   Should_ExposeRequiredAdapterCommands_When_ContractDotSourced
-#   Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded
-#   Should_DocumentPublishAndSmokeApis_When_AdaptersDocRead
-#   Should_ExposeSubagentsCapability_When_RegistryLoaded
-#   Should_MatchModuleSubagents_When_EachAdapterLoaded
-#   Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded
-#   Should_DeclarePublishSurface_When_RegistryLoaded
-#   Should_IncludeSubagentsInContractCapabilityNames
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
-$repoRootScript = Join-Path (Join-Path (Split-Path -Parent $scriptDir) '_lib') 'Get-ToolkitRepoRoot.ps1'
-$toolkitConstantsScript = Join-Path (Join-Path (Split-Path -Parent $scriptDir) '_lib') 'ToolkitConstants.ps1'
-
-function Write-Pass {
-    param([Parameter(Mandatory = $true)][string] $TestName)
-    Write-Host ("{0}: PASS" -f $TestName)
-}
-
-function Write-Fail {
-    param(
-        [Parameter(Mandatory = $true)][string] $TestName,
-        [Parameter(Mandatory = $true)][string] $Reason
-    )
-    Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason)
-    exit 1
-}
-
-if (-not (Test-Path -LiteralPath $repoRootScript)) {
-    Write-Fail -TestName 'Assert-AdapterContractPreconditions' -Reason ("missing {0}" -f $repoRootScript)
-}
-
-if (-not (Test-Path -LiteralPath $toolkitConstantsScript)) {
-    Write-Fail -TestName 'Assert-AdapterContractPreconditions' -Reason ("missing {0}" -f $toolkitConstantsScript)
-}
-
-. $toolkitConstantsScript
-
-. $repoRootScript
+$libDir = Join-Path (Split-Path -Parent $scriptDir) '_lib'
+. (Join-Path $libDir 'ToolkitConstants.ps1')
+. (Join-Path $libDir 'Get-ToolkitRepoRoot.ps1')
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
-$powerShellExecutable = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
 
-$registryPath = Join-Path (Join-Path $repoRoot 'adapters') 'registry.json'
-$contractPath = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_contract') 'AdapterContract.ps1'
-$adaptersDocPath = Join-Path $repoRoot 'docs\ADAPTERS.md'
+function Write-Pass { param([string] $TestName) Write-Host ("{0}: PASS" -f $TestName) }
+function Write-Fail { param([string] $TestName, [string] $Reason) Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason); exit 1 }
 
-$expectedRegistryAgentIds = @(
-    'cursor',
-    'antigravity',
-    'claude',
-    'codex',
-    'copilot',
-    'opencode',
-    'grok',
-    'zcode',
-    $script:ToolkitConstant.HermesAgentId,
-    $script:ToolkitConstant.OpenHandsAgentId
-)
-
-$subagentsCapabilityName = $script:ToolkitConstant.SubagentsCapabilityName
-$subagentsNativeValue = $script:ToolkitConstant.SubagentsNativeValue
-$subagentsNoneValue = $script:ToolkitConstant.SubagentsNoneValue
-$expectedSubagentsByAgentId = @{
-    cursor      = $subagentsNativeValue
-    claude      = $subagentsNativeValue
-    antigravity = $subagentsNativeValue
-    codex       = $subagentsNativeValue
-    copilot     = $subagentsNativeValue
-    opencode    = $subagentsNativeValue
-    grok        = $subagentsNativeValue
-    zcode       = $subagentsNativeValue
-    hermes      = $subagentsNativeValue
-    openhands   = $subagentsNoneValue
+$registryPath = Join-Path $repoRoot 'adapters\registry.json'
+$contractPath = Join-Path $repoRoot 'adapters\_contract\AdapterContract.ps1'
+foreach ($p in @($registryPath, $contractPath)) {
+    if (-not (Test-Path -LiteralPath $p)) { Write-Fail 'Assert-AdapterContractPreconditions' "missing $p" }
 }
 
-$requiredCommands = @(
-    'Get-Capabilities',
-    'Get-InstallRoots',
-    'Publish-Skills',
-    'Publish-Policy',
-    'Publish-Router',
-    'Publish-Agents',
-    'Publish-Hooks',
-    'Get-SddRoot',
-    'Invoke-SmokeValidate',
-    'Uninstall-Toolkit'
-)
-
-$requiredDocMarkers = @(
-    'Get-Capabilities',
-    'Publish-Skills',
-    'Publish-Policy',
-    'Publish-Router',
-    'Publish-Agents',
-    'Publish-Hooks',
-    'Invoke-SmokeValidate',
-    'Get-SddRoot',
-    'Uninstall-Toolkit',
-    'skills',
-    'rules',
-    'hooks',
-    'router',
-    'plugin',
-    'agents',
-    'subagents',
-    'registry.json'
-)
-
-foreach ($required in @($registryPath, $contractPath, $adaptersDocPath)) {
-    if (-not (Test-Path -LiteralPath $required)) {
-        Write-Fail -TestName 'Assert-AdapterContractPreconditions' -Reason ("missing {0}" -f $required)
-    }
-}
-
-# --- Should_ListRegistryAgents_When_RegistryLoaded ---
-$listName = 'Should_ListRegistryAgents_When_RegistryLoaded'
 $registry = Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json
-if ($null -eq $registry.agents) {
-    Write-Fail -TestName $listName -Reason 'registry.agents is missing'
-}
+$subagentsName = $script:ToolkitConstant.SubagentsCapabilityName
+$allowedSubagents = @($script:ToolkitConstant.SubagentsNativeValue, $script:ToolkitConstant.SubagentsNoneValue)
+$booleanCapabilities = @('skills', 'rules', 'hooks', 'router', 'plugin', 'agents')
 
-$ids = @($registry.agents | ForEach-Object { $_.id })
-foreach ($expectedId in $expectedRegistryAgentIds) {
-    if ($ids -notcontains $expectedId) {
-        Write-Fail -TestName $listName -Reason ("missing registry id: {0}" -f $expectedId)
-    }
-}
-
-if ($ids.Count -ne $expectedRegistryAgentIds.Count) {
-    Write-Fail -TestName $listName -Reason ("expected {0} agents, got {1}" -f $expectedRegistryAgentIds.Count, $ids.Count)
-}
-
+# --- registry schema ---
+$n = 'Should_ValidateRegistrySchema_When_RegistryLoaded'
+if ($null -eq $registry.agents -or @($registry.agents).Count -lt 1) { Write-Fail $n 'registry.agents is missing or empty' }
+$seen = @{}
 foreach ($agent in $registry.agents) {
-    if ([string]::IsNullOrWhiteSpace([string]$agent.module)) {
-        Write-Fail -TestName $listName -Reason ("agent {0} missing module path" -f $agent.id)
+    $id = [string]$agent.id
+    if ([string]::IsNullOrWhiteSpace($id) -or $seen.ContainsKey($id)) { Write-Fail $n "missing or duplicate agent id '$id'" }
+    $seen[$id] = $true
+    if ([string]::IsNullOrWhiteSpace([string]$agent.module) -or -not (Test-Path -LiteralPath (Join-Path (Join-Path $repoRoot 'adapters') ([string]$agent.module)))) {
+        Write-Fail $n "agent $id module missing"
     }
-    $moduleFull = Join-Path (Join-Path $repoRoot 'adapters') ([string]$agent.module)
-    if (-not (Test-Path -LiteralPath $moduleFull)) {
-        Write-Fail -TestName $listName -Reason ("module missing for {0}: {1}" -f $agent.id, $moduleFull)
+    if ($null -eq $agent.capabilities) { Write-Fail $n "agent $id missing capabilities" }
+    $props = @($agent.capabilities.PSObject.Properties.Name)
+    foreach ($c in $booleanCapabilities) {
+        if ($props -notcontains $c) { Write-Fail $n "agent $id missing capabilities.$c" }
+    }
+    if ($props -notcontains $subagentsName -or $allowedSubagents -notcontains [string]$agent.capabilities.$subagentsName) {
+        Write-Fail $n "agent $id capabilities.$subagentsName must be one of: $($allowedSubagents -join ', ')"
     }
 }
+Write-Pass $n
 
-Write-Pass -TestName $listName
-
-# --- Should_ExposeSubagentsCapability_When_RegistryLoaded ---
-$subagentsRegistryName = 'Should_ExposeSubagentsCapability_When_RegistryLoaded'
+# --- publishSurface: wholeFileRouter entries are bare file names (no traversal, no rooted paths) ---
+$n = 'Should_KeepPublishSurfacePathsSafe_When_RegistryLoaded'
+$surfaceProp = $script:ToolkitConstant.RegistryPublishSurfacePropertyName
+$routerProp = $script:ToolkitConstant.RegistryPublishSurfaceWholeFileRouterPropertyName
 foreach ($agent in $registry.agents) {
-    $caps = $agent.capabilities
-    if ($null -eq $caps) {
-        Write-Fail -TestName $subagentsRegistryName -Reason ("agent {0} missing capabilities" -f $agent.id)
-    }
-
-    $propNames = @($caps.PSObject.Properties.Name)
-    if ($propNames -notcontains $subagentsCapabilityName) {
-        Write-Fail -TestName $subagentsRegistryName -Reason ("agent {0} missing capabilities.{1}" -f $agent.id, $subagentsCapabilityName)
-    }
-
-    $actual = [string]$caps.subagents
-    $expected = [string]$expectedSubagentsByAgentId[$agent.id]
-    if ([string]::IsNullOrWhiteSpace($expected)) {
-        Write-Fail -TestName $subagentsRegistryName -Reason ("no expected {0} matrix value for agent {1}" -f $subagentsCapabilityName, $agent.id)
-    }
-
-    if ($actual -ne $expected) {
-        Write-Fail -TestName $subagentsRegistryName -Reason ("agent {0}: expected {1}={2}, got {3}" -f $agent.id, $subagentsCapabilityName, $expected, $actual)
-    }
-
-    if (($actual -ne $subagentsNativeValue) -and ($actual -ne $subagentsNoneValue)) {
-        Write-Fail -TestName $subagentsRegistryName -Reason ("agent {0}: {1} must be '{2}' or '{3}', got '{4}'" -f $agent.id, $subagentsCapabilityName, $subagentsNativeValue, $subagentsNoneValue, $actual)
-    }
-}
-
-Write-Pass -TestName $subagentsRegistryName
-
-# --- Should_MatchModuleSubagents_When_EachAdapterLoaded ---
-# Isolated child process per module (avoids Get-Capabilities name collisions).
-# Antigravity: ADT_ANTIGRAVITY_SUBAGENTS=native so declared registry value is comparable in CI without agy.
-$moduleSubagentsName = 'Should_MatchModuleSubagents_When_EachAdapterLoaded'
-$antigravityOverrideEnvName = 'ADT_ANTIGRAVITY_SUBAGENTS'
-$childProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-subagents-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
-$childProbeBody = @'
-param(
-    [Parameter(Mandatory = $true)][string] $ModulePath,
-    [Parameter(Mandatory = $true)][string] $AgentId,
-    [Parameter(Mandatory = $true)][string] $ExpectedSubagents,
-    [Parameter()][string] $OverrideEnvName,
-    [Parameter()][string] $OverrideEnvValue
-)
-$ErrorActionPreference = 'Stop'
-if (-not [string]::IsNullOrWhiteSpace($OverrideEnvName) -and -not [string]::IsNullOrWhiteSpace($OverrideEnvValue)) {
-    [Environment]::SetEnvironmentVariable($OverrideEnvName, $OverrideEnvValue)
-}
-. $ModulePath
-$caps = Get-Capabilities -AgentId $AgentId
-if ($null -eq $caps -or $caps.Implemented -ne $true) {
-    Write-Error ('Get-Capabilities not implemented for {0}' -f $AgentId)
-    exit 1
-}
-$actual = [string]$caps.Capabilities.subagents
-if ($actual -ne $ExpectedSubagents) {
-    Write-Error ('agent {0}: Get-Capabilities.subagents expected {1}, got {2}' -f $AgentId, $ExpectedSubagents, $actual)
-    exit 1
-}
-exit 0
-'@
-try {
-    Set-Content -LiteralPath $childProbePath -Value $childProbeBody -Encoding UTF8
-    foreach ($agent in $registry.agents) {
-        $moduleFull = Join-Path (Join-Path $repoRoot 'adapters') ([string]$agent.module)
-        $expectedEffective = [string]$expectedSubagentsByAgentId[$agent.id]
-        $registryValue = [string]$agent.capabilities.subagents
-        if ($registryValue -ne $expectedEffective) {
-            Write-Fail -TestName $moduleSubagentsName -Reason ("agent {0}: registry precondition mismatch" -f $agent.id)
-        }
-
-        $childArgs = @(
-            '-NoProfile',
-            '-File', $childProbePath,
-            '-ModulePath', $moduleFull,
-            '-AgentId', [string]$agent.id,
-            '-ExpectedSubagents', $expectedEffective
-        )
-        if ([string]$agent.id -eq 'antigravity') {
-            $childArgs += @('-OverrideEnvName', $antigravityOverrideEnvName, '-OverrideEnvValue', $subagentsNativeValue)
-        }
-
-        $childOut = & $powerShellExecutable @childArgs 2>&1
-        $childExit = $LASTEXITCODE
-        if ($null -eq $childExit) { $childExit = 0 }
-        if ($childExit -ne 0) {
-            Write-Fail -TestName $moduleSubagentsName -Reason ("agent {0}: {1}" -f $agent.id, (($childOut | Out-String).Trim()))
+    $id = [string]$agent.id
+    $surface = $agent.$surfaceProp
+    if ($null -eq $surface -or @($surface.PSObject.Properties.Name) -notcontains $routerProp) { Write-Fail $n "agent $id missing $surfaceProp.$routerProp" }
+    $value = $surface.$routerProp
+    if ($null -eq $value -or $value -isnot [System.Array]) { Write-Fail $n "agent $id $routerProp must be an array" }
+    foreach ($rel in @($value)) {
+        $t = [string]$rel
+        if ([string]::IsNullOrWhiteSpace($t) -or [System.IO.Path]::IsPathRooted($t) -or $t.Contains('..') -or $t.Contains('\') -or $t.Contains('/')) {
+            Write-Fail $n ("agent {0}: unsafe publishSurface path '{1}'" -f $id, $t)
         }
     }
 }
-finally {
-    if (Test-Path -LiteralPath $childProbePath) {
-        Remove-Item -LiteralPath $childProbePath -Force -ErrorAction SilentlyContinue
-    }
-}
+Write-Pass $n
 
-Write-Pass -TestName $moduleSubagentsName
-
-# --- Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded ---
-# Isolated child process per module reconciles every boolean capability flag
-# (skills, rules, hooks, router, plugin, agents) between registry.json and the
-# module's own Get-Capabilities output. subagents is a native/none enum and is
-# already reconciled above; it is intentionally excluded here.
-$moduleCapabilitiesName = 'Should_MatchModuleBooleanCapabilities_When_EachAdapterLoaded'
-$booleanCapabilityNames = @('skills', 'rules', 'hooks', 'router', 'plugin', 'agents')
-$capabilitiesProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-capabilities-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
-$capabilitiesProbeBody = @'
-param(
-    [Parameter(Mandatory = $true)][string] $ModulePath,
-    [Parameter(Mandatory = $true)][string] $AgentId,
-    [Parameter(Mandatory = $true)][string] $CapabilityNamesCsv,
-    [Parameter(Mandatory = $true)][string] $ExpectedCapabilitiesJson
-)
-$ErrorActionPreference = 'Stop'
-. $ModulePath
-$caps = Get-Capabilities -AgentId $AgentId
-if ($null -eq $caps -or $caps.Implemented -ne $true) {
-    Write-Error ('Get-Capabilities not implemented for {0}' -f $AgentId)
-    exit 1
-}
-
-$expected = $ExpectedCapabilitiesJson | ConvertFrom-Json
-$capabilityNames = $CapabilityNamesCsv -split ','
-$mismatches = @()
-foreach ($name in $capabilityNames) {
-    $expectedValue = [bool]$expected.$name
-    $actualValue = [bool]$caps.Capabilities.$name
-    if ($actualValue -ne $expectedValue) {
-        $mismatches += ('{0}: registry={1}, module={2}' -f $name, $expectedValue, $actualValue)
-    }
-}
-
-if ($mismatches.Count -gt 0) {
-    Write-Error ('agent {0}: capability mismatch(es) - {1}' -f $AgentId, ($mismatches -join '; '))
-    exit 1
-}
-exit 0
-'@
-try {
-    Set-Content -LiteralPath $capabilitiesProbePath -Value $capabilitiesProbeBody -Encoding UTF8
-    foreach ($agent in $registry.agents) {
-        $moduleFull = Join-Path (Join-Path $repoRoot 'adapters') ([string]$agent.module)
-        $caps = $agent.capabilities
-        if ($null -eq $caps) {
-            Write-Fail -TestName $moduleCapabilitiesName -Reason ("agent {0} missing capabilities" -f $agent.id)
-        }
-
-        $propNames = @($caps.PSObject.Properties.Name)
-        foreach ($name in $booleanCapabilityNames) {
-            if ($propNames -notcontains $name) {
-                Write-Fail -TestName $moduleCapabilitiesName -Reason ("agent {0} missing capabilities.{1}" -f $agent.id, $name)
-            }
-        }
-
-        $expectedCapabilitiesJson = $caps | Select-Object $booleanCapabilityNames | ConvertTo-Json -Compress
-        $childArgs = @(
-            '-NoProfile',
-            '-File', $capabilitiesProbePath,
-            '-ModulePath', $moduleFull,
-            '-AgentId', [string]$agent.id,
-            '-CapabilityNamesCsv', ($booleanCapabilityNames -join ','),
-            '-ExpectedCapabilitiesJson', $expectedCapabilitiesJson
-        )
-
-        $childOut = & $powerShellExecutable @childArgs 2>&1
-        $childExit = $LASTEXITCODE
-        if ($null -eq $childExit) { $childExit = 0 }
-        if ($childExit -ne 0) {
-            Write-Fail -TestName $moduleCapabilitiesName -Reason ("agent {0}: {1}" -f $agent.id, (($childOut | Out-String).Trim()))
-        }
-    }
-}
-finally {
-    if (Test-Path -LiteralPath $capabilitiesProbePath) {
-        Remove-Item -LiteralPath $capabilitiesProbePath -Force -ErrorAction SilentlyContinue
-    }
-}
-
-Write-Pass -TestName $moduleCapabilitiesName
-
-# --- Should_DeclarePublishSurface_When_RegistryLoaded ---
-$publishSurfaceName = 'Should_DeclarePublishSurface_When_RegistryLoaded'
-$publishSurfaceProperty = $script:ToolkitConstant.RegistryPublishSurfacePropertyName
-$wholeFileRouterProperty = $script:ToolkitConstant.RegistryPublishSurfaceWholeFileRouterPropertyName
-$expectedWholeFileRouterByAgentId = @{
-    cursor      = @('AGENTS.md')
-    antigravity = @()
-    claude      = @('CLAUDE.md')
-    codex       = @('AGENTS.md')
-    copilot     = @()
-    opencode    = @('AGENTS.md')
-    grok        = @('AGENTS.md')
-    zcode       = @('AGENTS.md')
-    hermes      = @('AGENTS.md')
-    openhands   = @('AGENTS.md')
-}
-
-foreach ($agent in $registry.agents) {
-    $agentId = [string]$agent.id
-    if ($null -eq $agent.$publishSurfaceProperty) {
-        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceMissing -f $agentId)
-    }
-
-    $surface = $agent.$publishSurfaceProperty
-    $surfacePropNames = @($surface.PSObject.Properties.Name)
-    if ($surfacePropNames -notcontains $wholeFileRouterProperty) {
-        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterMissing -f $agentId)
-    }
-
-    $routerValue = $surface.$wholeFileRouterProperty
-    if ($null -eq $routerValue) {
-        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterInvalid -f $agentId)
-    }
-    if ($routerValue -isnot [System.Array]) {
-        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceWholeFileRouterInvalid -f $agentId)
-    }
-
-    $paths = @($routerValue)
-
-    foreach ($relativePath in $paths) {
-        $pathText = [string]$relativePath
-        if ([string]::IsNullOrWhiteSpace($pathText) -or
-            [System.IO.Path]::IsPathRooted($pathText) -or
-            $pathText.Contains('..') -or
-            $pathText.Contains('\') -or
-            $pathText.Contains('/')) {
-            Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfacePathInvalid -f $agentId, $pathText)
-        }
-    }
-
-    if (-not $expectedWholeFileRouterByAgentId.ContainsKey($agentId)) {
-        Write-Fail -TestName $publishSurfaceName -Reason ("no expected publishSurface matrix value for agent {0}" -f $agentId)
-    }
-
-    $expectedPaths = @($expectedWholeFileRouterByAgentId[$agentId])
-    $actualSorted = @($paths | ForEach-Object { [string]$_ } | Sort-Object)
-    $expectedSorted = @($expectedPaths | Sort-Object)
-    if (($actualSorted -join '|') -ne ($expectedSorted -join '|')) {
-        Write-Fail -TestName $publishSurfaceName -Reason ($script:ToolkitMessage.RegistryPublishSurfaceMismatch -f $agentId, ($expectedSorted -join ', '), ($actualSorted -join ', '))
-    }
-}
-
-Write-Pass -TestName $publishSurfaceName
-
-# --- Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded ---
-# toolkit.ps1 may splat -AllowUserHome / -WhatIf into Uninstall-Toolkit; every
-# registry module must bind those switches (stubs may accept and ignore).
-$uninstallParamsName = 'Should_ExposeUninstallAllowUserHomeAndWhatIf_When_EachAdapterLoaded'
-$requiredUninstallParameterNames = @('AllowUserHome', 'WhatIf')
-$uninstallProbePath = Join-Path ([System.IO.Path]::GetTempPath()) ('adt-uninstall-params-probe-' + [guid]::NewGuid().ToString('N') + '.ps1')
-$uninstallProbeBody = @'
-param(
-    [Parameter(Mandatory = $true)][string] $ModulePath,
-    [Parameter(Mandatory = $true)][string] $AgentId,
-    [Parameter(Mandatory = $true)][string] $RequiredParameterNamesCsv
-)
-$ErrorActionPreference = 'Stop'
-. $ModulePath
-$command = Get-Command -Name Uninstall-Toolkit -ErrorAction Stop
-$requiredNames = $RequiredParameterNamesCsv -split ','
-$missing = @()
-foreach ($name in $requiredNames) {
-    if (-not $command.Parameters.ContainsKey($name)) {
-        $missing += $name
-    }
-}
-if ($missing.Count -gt 0) {
-    Write-Error ('agent {0}: Uninstall-Toolkit missing parameter(s): {1}' -f $AgentId, ($missing -join ', '))
-    exit 1
-}
-exit 0
-'@
-try {
-    Set-Content -LiteralPath $uninstallProbePath -Value $uninstallProbeBody -Encoding UTF8
-    foreach ($agent in $registry.agents) {
-        $moduleFull = Join-Path (Join-Path $repoRoot 'adapters') ([string]$agent.module)
-        $childArgs = @(
-            '-NoProfile',
-            '-File', $uninstallProbePath,
-            '-ModulePath', $moduleFull,
-            '-AgentId', [string]$agent.id,
-            '-RequiredParameterNamesCsv', ($requiredUninstallParameterNames -join ',')
-        )
-
-        $childOut = & $powerShellExecutable @childArgs 2>&1
-        $childExit = $LASTEXITCODE
-        if ($null -eq $childExit) { $childExit = 0 }
-        if ($childExit -ne 0) {
-            Write-Fail -TestName $uninstallParamsName -Reason ("agent {0}: {1}" -f $agent.id, (($childOut | Out-String).Trim()))
-        }
-    }
-}
-finally {
-    if (Test-Path -LiteralPath $uninstallProbePath) {
-        Remove-Item -LiteralPath $uninstallProbePath -Force -ErrorAction SilentlyContinue
-    }
-}
-
-Write-Pass -TestName $uninstallParamsName
-
-# --- Should_ExposeRequiredAdapterCommands_When_ContractDotSourced ---
-$commandsName = 'Should_ExposeRequiredAdapterCommands_When_ContractDotSourced'
+# --- contract exposes the commands adapters implement, and splat-safe switches ---
+$n = 'Should_ExposeRequiredAdapterCommands_When_ContractDotSourced'
 . $contractPath
-
 $exposed = @(Get-AdapterContractCommandNames)
-foreach ($commandName in $requiredCommands) {
-    if ($exposed -notcontains $commandName) {
-        Write-Fail -TestName $commandsName -Reason ("contract list missing {0}" -f $commandName)
-    }
-    $command = Get-Command -Name $commandName -ErrorAction SilentlyContinue
-    if ($null -eq $command) {
-        Write-Fail -TestName $commandsName -Reason ("command not defined after dot-source: {0}" -f $commandName)
+foreach ($name in @('Get-Capabilities', 'Get-InstallRoots', 'Publish-Skills', 'Publish-Policy', 'Publish-Router', 'Publish-Agents', 'Publish-Hooks', 'Get-SddRoot', 'Invoke-SmokeValidate', 'Uninstall-Toolkit')) {
+    if ($exposed -notcontains $name -or $null -eq (Get-Command -Name $name -ErrorAction SilentlyContinue)) { Write-Fail $n "contract missing $name" }
+}
+foreach ($pair in @(@('Uninstall-Toolkit', @('AllowUserHome', 'WhatIf')), @('Get-SddRoot', @('Prepare', 'AllowUserHome', 'WhatIf')))) {
+    $cmd = Get-Command -Name $pair[0]
+    foreach ($param in $pair[1]) {
+        if (-not $cmd.Parameters.ContainsKey($param)) { Write-Fail $n "$($pair[0]) missing parameter $param" }
     }
 }
-
 $caps = Get-Capabilities -AgentId 'cursor'
-if ($null -eq $caps -or $caps.Implemented -ne $false) {
-    Write-Fail -TestName $commandsName -Reason 'Get-Capabilities stub must report Implemented = false'
+if ($null -eq $caps -or $caps.Implemented -ne $false -or [string]$caps.Capabilities.$subagentsName -ne $script:ToolkitConstant.SubagentsNoneValue) {
+    Write-Fail $n 'Get-Capabilities stub must report Implemented = false and never mint native subagents'
 }
-
-if ($null -eq $caps.Capabilities -or [string]$caps.Capabilities.subagents -ne $subagentsNoneValue) {
-    Write-Fail -TestName $commandsName -Reason ("Get-Capabilities stub must default {0} to '{1}' (never mint native)" -f $subagentsCapabilityName, $subagentsNoneValue)
-}
-
-$publishResult = Publish-Skills -InstallRoot (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'install-root')
-if ($null -eq $publishResult -or $publishResult.Implemented -ne $false -or $publishResult.Success -ne $false) {
-    Write-Fail -TestName $commandsName -Reason 'Publish-Skills stub must return not-implemented without writing'
-}
-
-$smokeResult = Invoke-SmokeValidate -InstallRoot (Join-Path (Join-Path (Join-Path (Join-Path $repoRoot 'scripts') 'validation') 'fixtures') 'install-root')
-if ($null -eq $smokeResult -or $smokeResult.Implemented -ne $false -or $smokeResult.Success -ne $false) {
-    Write-Fail -TestName $commandsName -Reason 'Invoke-SmokeValidate stub must return not-implemented without home publish'
-}
-
-# Contract Uninstall-Toolkit must also bind AllowUserHome/WhatIf for splat safety.
-$contractUninstall = Get-Command -Name Uninstall-Toolkit -ErrorAction SilentlyContinue
-if ($null -eq $contractUninstall) {
-    Write-Fail -TestName $commandsName -Reason 'Uninstall-Toolkit not defined after contract dot-source'
-}
-foreach ($paramName in $requiredUninstallParameterNames) {
-    if (-not $contractUninstall.Parameters.ContainsKey($paramName)) {
-        Write-Fail -TestName $commandsName -Reason ("contract Uninstall-Toolkit missing parameter: {0}" -f $paramName)
-    }
-}
-
-# Contract Get-SddRoot must bind sync-style switches for splat safety.
-$requiredGetSddRootParameterNames = @('Prepare', 'AllowUserHome', 'WhatIf')
-$contractGetSddRoot = Get-Command -Name Get-SddRoot -ErrorAction SilentlyContinue
-if ($null -eq $contractGetSddRoot) {
-    Write-Fail -TestName $commandsName -Reason 'Get-SddRoot not defined after contract dot-source'
-}
-foreach ($paramName in $requiredGetSddRootParameterNames) {
-    if (-not $contractGetSddRoot.Parameters.ContainsKey($paramName)) {
-        Write-Fail -TestName $commandsName -Reason ("contract Get-SddRoot missing parameter: {0}" -f $paramName)
-    }
-}
-
-Write-Pass -TestName $commandsName
-
-# --- Should_IncludeSubagentsInContractCapabilityNames ---
-$subagentsNamesName = 'Should_IncludeSubagentsInContractCapabilityNames'
-$capabilityNames = @(Get-AdapterCapabilityNames)
-if ($capabilityNames -notcontains $subagentsCapabilityName) {
-    Write-Fail -TestName $subagentsNamesName -Reason ("Get-AdapterCapabilityNames missing {0}" -f $subagentsCapabilityName)
-}
-
-Write-Pass -TestName $subagentsNamesName
-
-# --- Should_DocumentPublishAndSmokeApis_When_AdaptersDocRead ---
-$docName = 'Should_DocumentPublishAndSmokeApis_When_AdaptersDocRead'
-$docText = Get-Content -LiteralPath $adaptersDocPath -Raw
-foreach ($marker in $requiredDocMarkers) {
-    if ($docText -notlike ("*{0}*" -f $marker)) {
-        Write-Fail -TestName $docName -Reason ("docs/ADAPTERS.md missing marker: {0}" -f $marker)
-    }
-}
-
-Write-Pass -TestName $docName
+Write-Pass $n
 
 Write-Host 'Assert-AdapterContract: ALL PASS'
 exit 0

@@ -63,7 +63,7 @@ Sync, Validate e Uninstall exigem `-Agent` quando você pula o menu.
 Smoke opcional, no estilo da CI, a partir de um clone:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\validation\Invoke-CursorCiSmoke.ps1
+pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter cursor
 ```
 
 ## Sync

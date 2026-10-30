@@ -117,6 +117,13 @@ Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Determ
 | Level `off` | Optional artifacts; no gate |
 | Before PLAN step **Completed** when level ≥ `cheap` | Gate must pass |
 
+## Write-consistency rules (SDDW)
+
+Rule ids `SDDW-NN` are contract text only; no repository script validates them or inspects feature artifacts. Run the reconciliation check named in each rule before reporting the step done.
+
+- **SDDW-06 (one STATE row per CA):** `STATE.md` has exactly one matrix row per PRD acceptance criterion `CA<n>`. A newer result replaces that row in place. A second row for the same CA is allowed only when its Notes name the superseded result and the reason (`supersedes` / `substitui`), per the final consolidation rule above. Reconciliation: every PRD `CA<n>` has a row, and no CA has two rows with different Result values without that note.
+- **SDDW-08 (PRD marker for GAP or deferral):** When a CA, REQ, or CT has a `GAP` or deferred authoritative result in the `STATE.md` Result column (notes in `STATE.md`, `EVD/`, or `PLAN` are not judged), the same edit places its `GAP-NN` or `DEF-NN` marker inside that CA, REQ, or CT section of the PRD. The PRD must not state that no criterion changed while its change history records a change. Reconciliation: each GAP or deferred outcome has a marker in the PRD section.
+- **SDDW-09 (defined GAP and DEF ids):** Every `GAP-NN` or `DEF-NN` cited by `STATE.md`, `EVD/`, or PRD acceptance text is defined in the PRD by a line that starts with that id (list item or table row). A cited id without a definition blocks the step done. Reconciliation: each cited id resolves to a PRD definition line.
 ## Must not
 
 - Use O3 / Task parallelism as the evidence verifier

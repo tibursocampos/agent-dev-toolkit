@@ -299,7 +299,7 @@ See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-
 
 Uninstall is **keyed** for every registered adapter: removes toolkit-managed skills, policy/rules, router files, and hooks — not the entire agent home. It **preserves** `sdd/sessions/` and `sdd/manifest.json` (operator runtime state).
 
-CI keyed-uninstall asserts cover all adapters, including Hermes and OpenHands.
+`Assert-AdapterPublish.ps1 -All` covers keyed uninstall for all adapters, including Hermes and OpenHands.
 
 Use menu **Uninstall agent** (same wizard as Sync for target), or:
 

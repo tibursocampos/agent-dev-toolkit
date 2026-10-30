@@ -65,4 +65,4 @@ BREAKING CHANGE: /login endpoint removed
 
 ## Install path
 
-After `scripts/sync-cursor.ps1`: `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` (see `docs/INSTALL.md`)
+After `scripts/sync-agent.ps1`: `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` (see `docs/INSTALL.md`)
