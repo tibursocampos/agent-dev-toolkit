@@ -207,13 +207,14 @@ function Get-ClaudeManagedHookOwnedScriptMap {
     param()
 
     $c = $script:ClaudeSettingsJsonConstant
+    $legacy = @($script:ClaudeLegacyManagedHookScriptFileNames)
     return [ordered]@{
-        $c.HookEventSessionStart     = @($c.HookScriptSessionStart)
-        $c.HookEventUserPromptSubmit = @($c.HookScriptUserPromptSubmit, $c.HookScriptPreferencesCommand)
-        $c.HookEventPreCompact       = @($c.HookScriptPreCompact)
-        $c.HookEventPostToolUse      = @($c.HookScriptPostToolUse, $c.HookScriptTraceEmit)
-        $c.HookEventPreToolUse       = @($c.HookScriptPreToolUse)
-        $c.HookEventSubagentStop     = @($c.HookScriptTraceEmit)
+        $c.HookEventSessionStart     = @($c.HookScriptSessionStart) + $legacy
+        $c.HookEventUserPromptSubmit = @($c.HookScriptUserPromptSubmit, $c.HookScriptPreferencesCommand) + $legacy
+        $c.HookEventPreCompact       = $legacy
+        $c.HookEventPostToolUse      = @($c.HookScriptPostToolUse, $c.HookScriptTraceEmit) + $legacy
+        $c.HookEventPreToolUse       = $legacy
+        $c.HookEventSubagentStop     = @($c.HookScriptTraceEmit) + $legacy
     }
 }
 

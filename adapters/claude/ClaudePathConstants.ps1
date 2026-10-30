@@ -61,9 +61,7 @@ $script:ClaudeSettingsJsonConstant = @{
     HookEventPreToolUse            = 'PreToolUse'
     HookEventSubagentStop          = 'SubagentStop'
     HookScriptUserPromptSubmit     = 'track-sdd-invocation.ps1'
-    HookScriptPreCompact           = 'context-pre-compact.ps1'
     HookScriptPostToolUse          = 'plan-after-edit.ps1'
-    HookScriptPreToolUse           = 'guard-pre-tool.ps1'
     HookScriptTraceEmit            = 'emit-trace.ps1'
     HookEventSessionStart          = 'SessionStart'
     HookScriptSessionStart         = 'session-start-context.ps1'
@@ -96,6 +94,13 @@ $script:ClaudeUnpublishedPolicyFileNames = @(
 $script:ClaudeLegacyBroadPermissionsAllow = @(
     'Bash(pwsh *)',
     'Bash(powershell *)'
+)
+
+# Retired toolkit hook scripts (identity only). Stripped from managed events on every merge and uninstall.
+$script:ClaudeLegacyManagedHookScriptFileNames = @(
+    'context-before-prompt.ps1',
+    'context-pre-compact.ps1',
+    'guard-pre-tool.ps1'
 )
 
 $script:ClaudePublishMessage = @{

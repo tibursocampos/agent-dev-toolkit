@@ -4,13 +4,18 @@
 #Requires -Version 5.1
 $ErrorActionPreference = 'Stop'
 
-. "$PSScriptRoot\_hook-common.ps1"
+try {
+    . "$PSScriptRoot\_hook-common.ps1"
 
-$inputJson = Read-HookInputJson
-$filePath = Get-HookToolFilePath -InputJson $inputJson
+    $inputJson = Read-HookInputJson
+    $filePath = Get-HookToolFilePath -InputJson $inputJson
 
-if (Test-PlanFilePath $filePath) {
-    Set-PlanEditState $filePath
+    if (Test-PlanFilePath $filePath) {
+        Set-PlanEditState $filePath
+    }
+}
+catch {
+    # Fail-open: checkpoint aid must never block the host.
 }
 
 exit 0

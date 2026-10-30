@@ -28,14 +28,17 @@ foreach ($_guardCandidate in $_guardCommonCandidates) {
         continue
     }
     if (Test-Path -LiteralPath $_guardFull) {
-        . $_guardFull
-        $_guardCommonLoaded = $true
+        try {
+            . $_guardFull
+            $_guardCommonLoaded = $true
+        }
+        catch {
+            $_guardCommonLoaded = $false
+        }
         break
     }
 }
-if (-not $_guardCommonLoaded) {
-    throw "GuardCommon.ps1 not found relative to $PSScriptRoot (expected sibling or adapters/_shared)."
-}
+# Fail-open: a missing GuardCommon.ps1 must never block the session; hooks here do not call its helpers.
 Remove-Variable -Name _guardCommonCandidates, _guardCommonLoaded, _guardCandidate, _guardFull -ErrorAction SilentlyContinue
 
 function Ensure-HooksStateDir {
