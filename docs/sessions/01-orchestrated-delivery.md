@@ -159,8 +159,6 @@ The human gate (**sim** / **ajustar** / **cancelar**) runs only after those gate
 /orchestrate-deliver - features/NNN-slug/
 ```
 
-At about 40% context the skill saves `CONTINUITY.md` and the next chat resumes the same path.
-
 ## O2 — `orchestrate-deliver`
 
 Requires an approved backlog (`FEATURE` status approved, or `CONTINUITY` recording that **sim**). A still-draft feature stops. The skill does not invent approval.

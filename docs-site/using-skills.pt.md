@@ -28,6 +28,8 @@ O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode 
 
 ## Qual skill
 
+Escolha o fluxo antes com [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md) (guia ainda só em inglês).
+
 ```text
 Feature
   └─ orchestrate-analyze
@@ -73,7 +75,7 @@ sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
 read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera **sim** / **ajustar** / **cancelar**. Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão.
+`sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera **sim** / **ajustar** / **cancelar**. Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão. Sem a pasta `features/NNN-slug/`, o `sdd-spec` não lê `docs/backlog/` por conta própria; cite o caminho ou cole o texto.
 
 `sdd-plan` exige um PRD canônico cujo status está pronto para planejamento. O número do PLAN bate com o do PRD e vive na mesma pasta da story. Cada passo é uma invocação de `sdd-develop`. Um PLAN canônico e um passo elegível explícito podem começar na sessão atual depois dos gates de dependência e confirmação; se o passo ou a rota de execução não forem informados, a skill pergunta entre execução manual e O3. SQL, DDL, JSON e OpenAPI ficam em um arquivo canônico. O PLAN cita esse caminho. **sim** antes de escrever. `validate-plan` precisa passar antes de `/sdd-develop`.
 
@@ -111,13 +113,13 @@ requirement-review --feature - features/NNN-slug/US01/STORY.md
 requirement-review --tech - features/NNN-slug/US01/STORY.md
 ```
 
-A revisão grava um relatório e acrescenta ao histórico de perguntas em `REFINE/`, ao lado da story. O status é `READY` ou `NEEDS_CLARIFICATION`. O `refine-story` roda essa revisão antes de passar para o `sdd-spec`.
+Depois de um **sim** explícito, a revisão grava um relatório e acrescenta ao histórico de perguntas em `REFINE/`, ao lado da story. O status é `READY` ou `NEEDS_CLARIFICATION`. O `refine-story` chama essa revisão no passo 4a, antes de passar para o `sdd-spec`.
 
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
 
 Enquanto houver pergunta aberta no gate da feature, dos arquivos da story, do PRD ou do PLAN, inclusive **MINOR**, não faça handoff para `sdd-spec`. Enquanto houver pergunta sem resposta de **B**, **I** ou **MINOR**, não faça handoff para `sdd-spec`. Pronto para spec não é `step_confirmed`.
 
-`split-story-checklist` precisa de **Steps** estruturados já existentes, salvo quando `sdd-plan` a chama com `source=prd`. Aí ela monta grupos a partir do PRD. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Uma invocação direta pergunta o idioma da documentação uma vez, no idioma do chat, antes de escrever. Uma chamada orquestrada não pergunta. Uma feature `trivial` não ganha arquivo de tarefas só para satisfazer um gate, salvo quando quem chama é `sdd-plan`, que ainda recebe um passo. `medium` e `complex` precisam do checklist antes do handoff.
+`split-story-checklist` precisa de **Steps** estruturados já existentes, salvo quando `sdd-plan` a chama com `source=prd`, o que ocorre só em features `medium` ou `complex`. Aí ela monta grupos a partir do PRD. Ela escreve tarefas SMART sob a story existente (`REFINE/tasks.md` por padrão). Ela não cria pastas novas `USnn` ou `TSnn`. No máximo cinco grupos de implementação. Uma invocação direta pergunta o idioma da documentação uma vez, no idioma do chat, antes de escrever. Uma chamada orquestrada não pergunta. Uma feature `trivial` não ganha arquivo de tarefas, para nenhum chamador. Quando `sdd-plan` a chama, o detalhamento de um passo fica no chat. `medium` e `complex` precisam do checklist antes do handoff.
 
 ### Mudança pequena de stack
 

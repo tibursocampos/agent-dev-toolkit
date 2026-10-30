@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**45** skills), `adapters/registry.json` (**10** agents).
+**agent-dev-toolkit** is one agent-neutral core, published by adapters into each host install root. Operators sync with a PowerShell CLI, then invoke the same skill ids in the host. Evidence: `core/skills/*/SKILL.md` (**46** skills), `adapters/registry.json` (**10** agents).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -23,6 +23,7 @@ core/          skills, policy, router, sdd contracts, agents
 adapters/      per-agent modules, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          operator documentation in the repository
+memory-bank/   durable workspace map (Orchestrated Delivery Step 0)
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml

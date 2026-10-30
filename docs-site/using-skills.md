@@ -28,6 +28,8 @@ The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode 
 
 ## Which skill
 
+Choose the flow first: [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
+
 ```text
 Feature
   └─ orchestrate-analyze
@@ -73,7 +75,7 @@ sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
 read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session.
+`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session. Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own; cite the path or paste the text.
 
 `sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one `sdd-develop` invocation. A canonical PLAN plus an explicit eligible step can start in the current session after dependency and confirmation gates; if the step or execution route is omitted, the skill asks whether to run manually or use O3. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
 
@@ -111,13 +113,13 @@ requirement-review --feature - features/NNN-slug/US01/STORY.md
 requirement-review --tech - features/NNN-slug/US01/STORY.md
 ```
 
-The review writes a report and appends to the question history under `REFINE/` beside the story. The status is `READY` or `NEEDS_CLARIFICATION`. `refine-story` runs this review before it hands off to `sdd-spec`.
+After an explicit **sim**, the review writes a report and appends to the question history under `REFINE/` beside the story. The status is `READY` or `NEEDS_CLARIFICATION`. `refine-story` calls this review at step 4a, before it hands off to `sdd-spec`.
 
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
 
 While any unanswered **B**, **I**, or **MINOR** question remains, do not hand off to `sdd-spec`. Ready for a spec is not `step_confirmed`.
 
-`split-story-checklist` needs structured **Steps** already, unless `sdd-plan` calls it with `source=prd`. Then it builds groups from the PRD. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. A direct invoke asks documentation language once, in the chat language, before write. An orchestrated call does not ask. A `trivial` feature does not get a tasks file only to satisfy a gate, except when the caller is `sdd-plan`, which still gets one step. `medium` and `complex` need the checklist before handoff.
+`split-story-checklist` needs structured **Steps** already, unless `sdd-plan` calls it with `source=prd`, which it does only for `medium` or `complex` features. Then it builds groups from the PRD. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. A direct invoke asks documentation language once, in the chat language, before write. An orchestrated call does not ask. A `trivial` feature does not get a tasks file, for any caller. When `sdd-plan` calls it, the one-step breakdown stays in chat. `medium` and `complex` need the checklist before handoff.
 
 ### Small stack change
 
