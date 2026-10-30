@@ -42,29 +42,6 @@ function Copy-ClaudeCorePolicyTree {
     return $filesCopied
 }
 
-function Convert-ClaudePolicyMdcReferencesToMd {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $RulesRoot
-    )
-
-    $mdcExtension = $script:ClaudePathConstant.CursorRuleExtension
-    $mdExtension = $script:ClaudePathConstant.MarkdownExtension
-    if ([string]::IsNullOrEmpty($mdcExtension) -or [string]::IsNullOrEmpty($mdExtension)) {
-        return
-    }
-
-    $mdFiles = Get-ChildItem -LiteralPath $RulesRoot -Recurse -File -Filter *.md
-    foreach ($file in $mdFiles) {
-        $content = [System.IO.File]::ReadAllText($file.FullName)
-        if ($content.Contains($mdcExtension)) {
-            $updated = $content.Replace($mdcExtension, $mdExtension)
-            [System.IO.File]::WriteAllText($file.FullName, $updated, [System.Text.Encoding]::UTF8)
-        }
-    }
-}
-
 function Invoke-ClaudePublishPolicy {
     [CmdletBinding()]
     param(
@@ -115,7 +92,8 @@ function Invoke-ClaudePublishPolicy {
     $filesCopied = Copy-ClaudeCorePolicyTree -SourcePolicyRoot $sourcePolicyRoot -DestinationRulesRoot $destinationRulesRoot
     $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-ClaudePlaceholdersInTree -RootPath $destinationRulesRoot -PlaceholderMap $placeholderMap
-    Convert-ClaudePolicyMdcReferencesToMd -RulesRoot $destinationRulesRoot
+    $markdownRules = @(Get-ChildItem -LiteralPath $destinationRulesRoot -Recurse -File -Filter *.md | ForEach-Object { $_.FullName })
+    $null = Convert-ClaudeMdcReferencesInFiles -Files $markdownRules
     Assert-ClaudePlaceholdersResolved -RootPath $destinationRulesRoot
 
     return [PSCustomObject]@{

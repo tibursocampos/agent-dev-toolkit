@@ -13,6 +13,7 @@ $_openHandsToolkitLibDirectory = Join-Path (
     Split-Path -Parent (Split-Path -Parent $script:OpenHandsAdapterModuleDirectory)
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_openHandsToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $script:OpenHandsAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 Remove-Variable -Name _openHandsToolkitLibDirectory -ErrorAction SilentlyContinue
 
 function Get-OpenHandsAdapterRepoRoot {
@@ -277,6 +278,7 @@ function Invoke-OpenHandsPublishSkills {
         -UnresolvedTokens @(Get-OpenHandsSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:OpenHandsAdapterMessage.PlaceholderUnresolved
 
+    $null = Invoke-ToolkitManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot -SourceExtension $script:OpenHandsAdapterConstant.CursorRuleExtension -TargetExtension $script:OpenHandsAdapterConstant.MarkdownExtension
     $pluginPath = Write-OpenHandsPluginManifest -InstallRoot $resolvedInstallRoot -MappedPaths $mapped
     if (-not (Test-Path -LiteralPath $pluginPath)) {
         throw ($script:OpenHandsAdapterMessage.PluginManifestMissing -f $pluginPath)

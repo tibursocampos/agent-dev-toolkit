@@ -4,6 +4,8 @@
   Helpers for Hermes Publish-Policy (core/policy folded into InstallRoot/AGENTS.md).
 #>
 
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
+
 function Convert-HermesMdcReferencesToMd {
     [CmdletBinding()]
     param(
@@ -18,7 +20,7 @@ function Convert-HermesMdcReferencesToMd {
         return $Text
     }
 
-    return $Text.Replace($mdcExtension, $mdExtension)
+    return Convert-MdcReferencesToMd -Text $Text -SourceExtension $mdcExtension -TargetExtension $mdExtension
 }
 
 function Convert-HermesRulesPathReferencesToAgentsMd {

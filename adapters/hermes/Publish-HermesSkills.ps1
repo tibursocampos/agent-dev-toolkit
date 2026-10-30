@@ -14,6 +14,7 @@ $_hermesToolkitLibDirectory = Join-Path (
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_hermesToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _hermesToolkitLibDirectory -ErrorAction SilentlyContinue
+. (Join-Path $script:HermesAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 
 function Get-HermesAdapterRepoRoot {
     [CmdletBinding()]
@@ -442,6 +443,7 @@ function Invoke-HermesPublishSkills {
         -UnresolvedTokens @(Get-HermesSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:HermesAdapterMessage.PlaceholderUnresolved
 
+    $null = Invoke-ToolkitManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot -SourceExtension $script:HermesAdapterConstant.CursorRuleExtension -TargetExtension $script:HermesAdapterConstant.MarkdownExtension
     $null = Initialize-HermesMemoryFileIfMissing -ResolvedInstallRoot $resolvedInstallRoot
     $trustResult = Invoke-HermesProjectSkillsTrust -ResolvedInstallRoot $resolvedInstallRoot
 

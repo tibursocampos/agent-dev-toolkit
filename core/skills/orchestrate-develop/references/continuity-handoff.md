@@ -118,7 +118,7 @@ Stop spawning and emit handoff when any of:
 | Child blocked / tests fail | Do not mark step done; report; wait for user |
 | User **cancelar** | Leave CONTINUITY with pending next step |
 
-Each child invocation owns exactly one PLAN step and is closed when its receipt is returned. Never reopen, resume, or reuse a returned child invocation; any remaining or corrective work starts as a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
+Each child invocation owns exactly one PLAN step and is idle when its receipt is returned. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; a new request, a different scope, or an already-large context starts a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
 
 Resume strings: `references/contract-boundaries.md` § Canonical invoke strings.
 

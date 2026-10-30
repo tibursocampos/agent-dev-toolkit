@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
 
 <#
 .SYNOPSIS
@@ -22,7 +23,7 @@ function Copy-GrokCorePolicyTree {
     }
 
     $filesCopied = 0
-    $sourceFiles = Get-ChildItem -LiteralPath $SourcePolicyRoot -Recurse -File
+    $sourceFiles = Get-ChildItem -LiteralPath $SourcePolicyRoot -File -Filter *.md
     foreach ($file in $sourceFiles) {
         $relative = $file.FullName.Substring($SourcePolicyRoot.Length).TrimStart('\', '/')
         $destinationPath = Join-Path $DestinationRulesRoot $relative
@@ -91,6 +92,8 @@ function Invoke-GrokPublishPolicy {
     $destinationRulesRoot = $mapped.FixtureRulesPath
 
     $filesCopied = Copy-GrokCorePolicyTree -SourcePolicyRoot $sourcePolicyRoot -DestinationRulesRoot $destinationRulesRoot
+    $policyRulePaths = @(Get-ChildItem -LiteralPath $sourcePolicyRoot -File -Filter *.md | ForEach-Object { Join-Path $destinationRulesRoot $_.Name })
+    $null = Convert-MdcReferencesInFiles -Files $policyRulePaths -SourceExtension $script:GrokAdapterConstant.CursorRuleExtension -TargetExtension $script:GrokAdapterConstant.MarkdownExtension
     $placeholderMap = Get-GrokPlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-GrokPlaceholdersInTree -RootPath $destinationRulesRoot -PlaceholderMap $placeholderMap
     Assert-GrokPlaceholdersResolved -RootPath $destinationRulesRoot

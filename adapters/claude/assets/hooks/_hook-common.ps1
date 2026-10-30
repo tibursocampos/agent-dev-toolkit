@@ -73,6 +73,38 @@ function Read-HookInputJson {
     }
 }
 
+function Get-HookToolFilePath {
+    <#
+    .SYNOPSIS
+      Claude tool payload file path: tool_input.file_path, falling back to top-level file_path.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        $InputJson
+    )
+
+    if ($null -eq $InputJson) {
+        return ''
+    }
+
+    $toolInput = $InputJson.PSObject.Properties['tool_input']
+    if ($null -ne $toolInput -and $null -ne $toolInput.Value) {
+        $nested = $toolInput.Value.PSObject.Properties['file_path']
+        if ($null -ne $nested -and -not [string]::IsNullOrWhiteSpace([string]$nested.Value)) {
+            return [string]$nested.Value
+        }
+    }
+
+    $topLevel = $InputJson.PSObject.Properties['file_path']
+    if ($null -ne $topLevel) {
+        return [string]$topLevel.Value
+    }
+
+    return ''
+}
+
 function Write-HookJson([hashtable] $Payload) {
     $json = $Payload | ConvertTo-Json -Compress -Depth 5
     Write-Output $json

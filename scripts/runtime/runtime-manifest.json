@@ -11,6 +11,7 @@
     { "source": "scripts/session/Invoke-DevelopSessionGate.ps1", "destination": "session/Invoke-DevelopSessionGate.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
     { "source": "scripts/ledger/Invoke-PlanLedgerClaim.ps1", "destination": "ledger/Invoke-PlanLedgerClaim.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
     { "source": "scripts/ledger/Invoke-ExecutionModeGate.ps1", "destination": "ledger/Invoke-ExecutionModeGate.ps1", "class": "runtime", "caller": "orchestrate-develop" },
+    { "source": "scripts/ledger/continuous-queue.ps1", "destination": "ledger/continuous-queue.ps1", "class": "runtime", "caller": "orchestrate-develop O3 continuous queue (Test-ContinuousQueueStepAuthorization)" },
     { "source": "scripts/validation/Invoke-SiblingReadinessGate.ps1", "destination": "validation/Invoke-SiblingReadinessGate.ps1", "class": "runtime", "caller": "shared readiness-severity contract" },
     { "source": "scripts/validation/validate-session-gates.ps1", "destination": "validation/validate-session-gates.ps1", "class": "runtime", "caller": "shared SDD session contract" },
     { "source": "scripts/validation/validate-evidence.ps1", "destination": "validation/validate-evidence.ps1", "class": "runtime", "caller": "sdd-develop evidence gate" },

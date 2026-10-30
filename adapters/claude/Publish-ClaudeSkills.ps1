@@ -193,6 +193,19 @@ function Invoke-ClaudePublishSkills {
         -UnresolvedTokens (Get-ClaudeUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ClaudePublishMessage.PlaceholderUnresolved
 
+    $inventoryLibDir = Join-Path $repoRoot (Join-Path 'scripts' '_lib')
+    . (Join-Path $inventoryLibDir 'ToolkitManagedPublishInventory.ps1')
+    Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $rewrittenPaths = @(Invoke-ClaudeManagedReferenceRewrite -ManagedPaths @($script:ToolkitLastManagedCopyPaths.ToArray()) -RepoRoot $repoRoot -PlaceholderMap $placeholderMap)
+        if ($rewrittenPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $resolvedInstallRoot -Paths $rewrittenPaths
+        }
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
+
     return [PSCustomObject]@{
         Success     = $true
         Implemented = $true

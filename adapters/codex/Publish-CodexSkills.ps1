@@ -16,6 +16,7 @@ $_codexToolkitLibDirectory = Join-Path (
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_codexToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _codexToolkitLibDirectory -ErrorAction SilentlyContinue
+. (Join-Path $script:CodexAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 
 function Get-CodexPublishAdapterRepoRoot {
     [CmdletBinding()]
@@ -192,6 +193,37 @@ function Copy-CodexCoreSkillsTree {
 
     Initialize-CodexToolkitManagedTreeLib
     return (Copy-ToolkitManagedTree -SourceRoot $SourceSkillsRoot -DestinationRoot $DestinationSkillsRoot)
+}
+
+function Invoke-CodexManagedMdcReferenceRewrite {
+    <#
+    .SYNOPSIS
+      Rewrite Cursor rule references (.mdc) to Codex Markdown rule references (.md) in the files
+      copied by the last managed skills publish, and refresh their inventory hashes.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $InstallRoot
+    )
+
+    if ($null -eq $script:ToolkitLastManagedCopyPaths -or $script:ToolkitLastManagedCopyPaths.Count -eq 0) {
+        return
+    }
+
+    Enter-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    try {
+        $changedPaths = @(Convert-MdcReferencesInFiles `
+                -Files @($script:ToolkitLastManagedCopyPaths.ToArray()) `
+                -SourceExtension $script:CodexPathConstant.CursorRuleExtension `
+                -TargetExtension $script:CodexPathConstant.MarkdownExtension)
+        if ($changedPaths.Count -gt 0) {
+            Update-ToolkitManagedCopyInventory -InstallRoot $InstallRoot -Paths $changedPaths
+        }
+    }
+    finally {
+        Exit-ToolkitFilesystemGate -RootPath $InstallRoot -LockFileName '.toolkit-managed-publish.lock'
+    }
 }
 
 function Resolve-CodexPlaceholdersInTree {
@@ -484,6 +516,7 @@ function Invoke-CodexPublishSkills {
         -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
     $filesCopied = $publishResult.FilesCopied
+    Invoke-CodexManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot
     $writtenMarketplace = Write-CodexMarketplaceCatalog -InstallRoot $resolvedInstallRoot -PluginRoot $pluginRoot
 
     $homePlaceholderMap = Get-CodexPlaceholderMap -InstallRoot $resolvedInstallRoot -PublishedSkillsRoot $homeSkillsRoot
@@ -496,6 +529,7 @@ function Invoke-CodexPublishSkills {
         -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
     $homeSkillsFilesCopied = $homePublishResult.FilesCopied
+    Invoke-CodexManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot
 
     $userSkillsFilesCopied = 0
     $publishedUserSkillsRoot = $null
@@ -515,6 +549,7 @@ function Invoke-CodexPublishSkills {
             -UnresolvedTokens (Get-CodexUnresolvedPlaceholderTokens) `
             -UnresolvedMessageFormat $script:CodexPublishMessage.PlaceholderUnresolved
         $userSkillsFilesCopied = $userPublishResult.FilesCopied
+        Invoke-CodexManagedMdcReferenceRewrite -InstallRoot $userSkillsContainmentRoot
         $publishedUserSkillsRoot = $userSkillsRoot
     }
     else {

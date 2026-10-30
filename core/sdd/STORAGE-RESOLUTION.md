@@ -63,7 +63,7 @@ Toolkit-wide runtime preferences (Caveman Mode, parent orchestrator mode, option
 {
   "caveman_mode": true,
   "caveman_level": "full",
-  "orchestrator_mode": "always",
+  "orchestrator_mode": "adaptive",
   "artifact_language": null,
   "verify_mode": false
 }
@@ -73,7 +73,7 @@ Toolkit-wide runtime preferences (Caveman Mode, parent orchestrator mode, option
 |-----|------|---------|---------|
 | `caveman_mode` | bool | `true` | Response compression master switch (`caveman-mode` policy); interactive first-install may choose off |
 | `caveman_level` | string | `"full"` | `lite` \| `full` \| `ultra` when mode ON |
-| `orchestrator_mode` | string | `"always"` | `always` \| `adaptive` — parent orchestrator policy (`orchestrator-session`) |
+| `orchestrator_mode` | string | `"adaptive"` | `always` \| `adaptive` — parent orchestrator policy (`orchestrator-session`) |
 | `artifact_language` | string \| null | `null` | Optional SDD artifact language override; when `null`, match user chat per `LANGUAGE.md` |
 | `verify_mode` | bool | `false` | When `true`, O3 spawns a read-only verifier child after each implementer returns (`orchestrate-develop` Step 5.5) |
 

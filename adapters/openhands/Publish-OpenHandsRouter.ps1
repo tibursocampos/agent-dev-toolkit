@@ -4,6 +4,8 @@
   Helpers for OpenHands Publish-Router (core/router/AGENTS.md + folded core/policy).
 #>
 
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
+
 function Convert-OpenHandsRouterMdcReferencesToMd {
     [CmdletBinding()]
     param(
@@ -17,7 +19,7 @@ function Convert-OpenHandsRouterMdcReferencesToMd {
         return $Text
     }
 
-    return $Text.Replace($mdcExtension, $mdExtension)
+    return Convert-MdcReferencesToMd -Text $Text -SourceExtension $mdcExtension -TargetExtension $mdExtension
 }
 
 function Convert-OpenHandsRouterDanglingRulesPointers {
@@ -75,7 +77,7 @@ function Get-OpenHandsFoldedPolicySection {
     [void]$builder.AppendLine($script:OpenHandsAdapterConstant.RulesFoldIntro.TrimEnd())
     [void]$builder.AppendLine()
 
-    $policyFiles = @(Get-ChildItem -LiteralPath $SourcePolicyRoot -File | Sort-Object Name)
+    $policyFiles = @(Get-ChildItem -LiteralPath $SourcePolicyRoot -File -Filter *.md | Sort-Object Name)
     foreach ($file in $policyFiles) {
         [void]$builder.AppendLine(('### {0}' -f $file.BaseName))
         [void]$builder.AppendLine()

@@ -178,7 +178,7 @@ If script path unavailable after the resolution order above, run `references/inv
 Load `references/inventory-specialist-synthesis.md`. Map inventory signals → roster specialists (or thin in-skill fill); merge receipts into bank targets **before** / as the first pass of Step 6.
 
 - **Selective retrieval:** pass portable `bank_root` + named paths + `inventory_summary` / capped source summaries — **never** dump integral `memory-bank/` into specialist or parent prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
-- **Skip D (REQ-013):** no ADO mutate, no Reversa, no SpecKit constitution / uv / specify (Credits may mention Spec Kit inspiration; this skill does **not** adopt it).
+- **Skip D (REQ-013):** no tracker mutate, no external spec-tool constitution or installers (Credits may mention inspiration; this skill does **not** adopt it).
 
 ### 6. Scaffold or refresh files
 
@@ -212,8 +212,8 @@ Handoff examples:
 
 - Write application / test source
 - Create bank under `features/NNN-slug/`
-- Require external CLI tooling (uv, specify, Spec Kit installers) or adopt **SpecKit constitution** (Skip D / REQ-013)
-- Introduce **ADO mutate** / Azure Boards WI side effects, or **Reversa** trees (Skip D / REQ-013)
+- Require external spec-tool CLI tooling (installers) or adopt an **external spec-tool constitution** (Skip D / REQ-013)
+- Introduce **tracker mutate** / work-item side effects, or **external spec-tool** trees (Skip D / REQ-013)
 - Skip confirm-before-write
 - Dump entire bank into orchestrator parent / specialist prompts (`SR-NO-FULL-DUMP` / `SELECTIVE-RETRIEVAL.md`)
 - Skip Step 5b when inventory signals domain / schema / auth ambiguity (thin-trivial stack-only may stay in-skill)

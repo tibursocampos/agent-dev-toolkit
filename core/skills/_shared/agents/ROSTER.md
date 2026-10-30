@@ -24,7 +24,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
 ## qa_checklist (HIGH — in-parent only)
 
-`qa_checklist` is a **role**, not a Task specialist. Parent (or refine/O1 handoff) writes checklist bullets into CONTINUITY or STORY. It does not return a Task receipt and cannot set persisted step state. Do **not** create `prompts/qa*.md`. Do **not** emit Jarvis lifecycle-tags / `JARVIS_*`.
+`qa_checklist` is a **role**, not a Task specialist. Parent (or refine/O1 handoff) writes checklist bullets into CONTINUITY or STORY. It does not return a Task receipt and cannot set persisted step state. Do **not** create `prompts/qa*.md`. Do **not** emit org-only lifecycle-tags / org-prefixed tokens.
 
 Minimum HIGH checklist before handoff / review (adapt to story; keep portable paths):
 

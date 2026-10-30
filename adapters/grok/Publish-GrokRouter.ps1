@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
 
 <#
 .SYNOPSIS
@@ -20,78 +21,7 @@ function Convert-GrokRouterMdcReferencesToMd {
         return $Text
     }
 
-    return $Text.Replace($mdcExtension, $mdExtension)
-}
-
-function Invoke-GrokPublishPolicy {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $InstallRoot,
-
-        [Parameter()]
-        [switch] $AllowUserHome,
-
-        [Parameter()]
-        [switch] $WhatIf
-    )
-
-    if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
-        throw $script:GrokAdapterMessage.InstallRootRequired
-    }
-
-    $repoRoot = Get-GrokAdapterRepoRoot
-    $resolveScript = Join-Path $repoRoot ($script:GrokAdapterConstant.ResolveInstallRootRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $resolveScript)) {
-        throw ($script:GrokAdapterMessage.ResolveInstallRootMissing -f $resolveScript)
-    }
-
-    . $resolveScript
-    $resolvedInstallRoot = Resolve-InstallRoot -InstallRoot $InstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-    $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
-    $sourcePolicyRoot = Join-Path (Join-Path $repoRoot $script:GrokAdapterConstant.CoreDirectoryName) $script:GrokAdapterConstant.PolicyDirectoryName
-    $destinationRulesRoot = $mapped.FixtureRulesPath
-
-    if (-not (Test-Path -LiteralPath $sourcePolicyRoot)) {
-        throw ($script:GrokAdapterMessage.CorePolicyMissing -f $sourcePolicyRoot)
-    }
-
-    if ($WhatIf.IsPresent) {
-        return [PSCustomObject]@{
-            Success     = $true
-            Implemented = $true
-            CommandName = 'Publish-Policy'
-            WhatIf      = $true
-            InstallRoot = $resolvedInstallRoot
-            RulesRoot   = $destinationRulesRoot
-            SourceRoot  = $sourcePolicyRoot
-            FilesCopied = 0
-            Message     = ($script:GrokAdapterMessage.PolicyWhatIfOk -f $destinationRulesRoot)
-            ExitCode    = 0
-        }
-    }
-
-    $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
-    $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
-    $destinationRulesRoot = $mapped.FixtureRulesPath
-
-    $filesCopied = Copy-GrokCorePolicyTree -SourcePolicyRoot $sourcePolicyRoot -DestinationRulesRoot $destinationRulesRoot
-    $placeholderMap = Get-GrokPlaceholderMap -InstallRoot $resolvedInstallRoot
-    Resolve-GrokPlaceholdersInTree -RootPath $destinationRulesRoot -PlaceholderMap $placeholderMap
-    Assert-GrokPlaceholdersResolved -RootPath $destinationRulesRoot
-
-    return [PSCustomObject]@{
-        Success     = $true
-        Implemented = $true
-        CommandName = 'Publish-Policy'
-        WhatIf      = $false
-        InstallRoot = $resolvedInstallRoot
-        RulesRoot   = $destinationRulesRoot
-        SourceRoot  = $sourcePolicyRoot
-        FilesCopied = $filesCopied
-        Message     = ($script:GrokAdapterMessage.PolicyPublishedOk -f $filesCopied, $destinationRulesRoot)
-        ExitCode    = 0
-    }
+    return Convert-MdcReferencesToMd -Text $Text -SourceExtension $mdcExtension -TargetExtension $mdExtension
 }
 
 function Get-GrokRouterPublishContent {

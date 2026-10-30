@@ -16,7 +16,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `always`) |
+| **Orchestrator mode** | `always` / `adaptive` (from `{{SDD_ROOT}}/preferences.json`; default `adaptive`) |
 | **Bounded authorization** | `none` unless the operator explicitly authorizes a finite scope; when present, record source, actions, step IDs/range, and limits |
 | **Parent role** | Orchestrator only — delegate implementation to specialists |
 | **Child validation** | After file changes: child runs build + tests; reports `{ build, tests, summary }` |

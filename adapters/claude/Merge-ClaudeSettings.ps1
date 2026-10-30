@@ -124,7 +124,7 @@ function New-ClaudeManagedHookEventEntries {
     $entry[$handlersProperty] = @(
         (New-ClaudeManagedHookHandler -Command $Command)
     )
-    return , @($entry)
+    return $entry
 }
 
 function Get-ClaudeManagedHookCommand {
@@ -154,9 +154,9 @@ function Get-ClaudeManagedHooksObject {
     $c = $script:ClaudeSettingsJsonConstant
     $hooks = [ordered]@{}
 
-    $hooks[$c.HookEventUserPromptSubmit] = New-ClaudeManagedHookEventEntries -Command (
+    $hooks[$c.HookEventUserPromptSubmit] = @(New-ClaudeManagedHookEventEntries -Command (
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptUserPromptSubmit
-    )
+    ))
 
     # PreCompact context-usage pressure hook was removed; keep the script identity
     # in the managed event map below so incremental merge can strip the old entry.
@@ -177,9 +177,9 @@ function Get-ClaudeManagedHooksObject {
 
     # Toolkit authorization hooks no longer participate in provider decisions.
 
-    $hooks[$c.HookEventSubagentStop] = New-ClaudeManagedHookEventEntries -Command (
+    $hooks[$c.HookEventSubagentStop] = @(New-ClaudeManagedHookEventEntries -Command (
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptTraceEmit
-    )
+    ))
 
     # Empty managed projections let keyed merge remove legacy Toolkit entries
     # without touching handlers owned by the user or another integration.

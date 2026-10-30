@@ -44,10 +44,6 @@ The PRD answers **what**, not **how**. No implementation code. Identifiers (type
 
 For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCESS.md`](../_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md): record a portable `external:<alias>/<relative-path>` destination, the requested `read` and/or `write` operations, and their observable outcome and limits. Do not reject the destination merely because it is outside the repository. Do not put the physical root, drive, UNC, or absolute path in the PRD; retain any root mapping only in trusted execution context. Keep an O3 `files[]` evidence reference separate from an implementation access grant.
 
-### External read/write scope
-
-For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCESS.md`](../_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md): record a portable `external:<alias>/<relative-path>` destination, the requested `read` and/or `write` operations, and their observable outcome and limits. Do not reject the destination merely because it is outside the repository. Do not put the physical root, drive, UNC, or absolute path in the PRD; retain any root mapping only in trusted execution context. Keep an O3 `files[]` evidence reference separate from an implementation access grant.
-
 ## Lazy-load (only when needed)
 
 | When | Path (after sync) |
@@ -78,7 +74,7 @@ For a user-requested path outside the repository, apply [`CLASSIC-EXTERNAL-ACCES
 After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for authoring tables — **not** full `reference.md`.
 
 ### Step -1b - Caveman Mode (Lite cap)
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null }` if missing).
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "adaptive", "artifact_language": null }` if missing).
 2. If `caveman_mode` is false: continue without compression.
 3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
