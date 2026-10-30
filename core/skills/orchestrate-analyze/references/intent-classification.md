@@ -16,7 +16,7 @@ Contract text only; covered by `Assert-CoreContracts.ps1`.
 | **Problem / Need** | Pain, defect, regression, ops friction; often one symptom | "Login fails on Safari"; "CI publish step is flaky" |
 | **Idea** | Exploratory, hypothesis, no acceptance yet | "What if we used event sourcing for orders?"; "Maybe MCP for GitHub" |
 
-If ambiguous, ask ≤3 high-cost questions in the user chat language. Do **not** invent scope or architecture in the parent orchestrator.
+If ambiguous, ask the necessary high-cost questions, in blocks of at most 5, in the user chat language. Do **not** invent scope or architecture in the parent orchestrator.
 
 ---
 

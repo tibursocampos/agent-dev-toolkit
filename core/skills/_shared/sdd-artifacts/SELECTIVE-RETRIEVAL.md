@@ -23,7 +23,7 @@ Skills and guides in scope **must not** prescribe a full dump of:
 | `memory-bank/` | "dump entire memory-bank", "paste all bank files", "load every file under memory-bank/" |
 | PRD | "paste the full PRD into the prompt", "include the entire PRD body in context" |
 
-**Allowed (and required):** selective path lists, summaries, portable path cites, "never dump" / "must not dump" prohibitions, max gap-question caps.
+**Allowed (and required):** selective path lists, summaries, portable path cites, "never dump" / "must not dump" prohibitions, gap-question block limits.
 
 ### In-scope files (US 005 PASSO 1+)
 
@@ -54,7 +54,7 @@ Fail the assert → fix the skill/guide text before marking CA1 / REQ-002 done.
 1. Prefer **paths + short summaries** over bodies.
 2. `memory-bank/`: read only named files needed for the step (e.g. `architecture.md`, `tech-stack.json`); never recurse-load the whole tree into the prompt.
 3. PRD: `Read` for authoring/planning; do **not** paste the full PRD into CONTINUITY, child Task prompts, or PLAN bodies — cite the **portable path**.
-4. Prior context: structured summary + **at most 3** gap questions (`PIPELINE.md`).
+4. Prior context: structured summary + all necessary gap questions, in blocks of at most **5** (`PIPELINE.md`).
 5. Challenge vague acceptance language before writing REQ/AC (see `sdd-spec` / `refine-story`).
 
 ### Evidence decisions

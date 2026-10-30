@@ -20,7 +20,7 @@
 | `medium` | Classic SDD (`sdd-spec` -> …) **or** O1 if multi-US/TS |
 | `complex` | Full Orchestrated Delivery O1 -> approval -> O2 |
 
-If nature or any `needs_*` is unclear after a short Prior-context pass, ask ≤3 high-cost questions. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
+If nature or any `needs_*` is unclear after a short Prior-context pass, ask the necessary high-cost questions, in blocks of at most 5. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
 
 ---
 

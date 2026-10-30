@@ -30,7 +30,7 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Skip human approval or treat silence as `sim`
 - Advance develop handoff when brownfield lacks `features/NNN-slug/CHANGE.md`, or when greenfield was forced an empty CHANGE stub
 - Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without operator **sim** deferral
-- Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; max-3 gap questions do not replace this gate
+- Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; the block limit does not replace this gate
 - Write PRD/PLAN when any unanswered clarification **B**, **I**, or **MINOR** remains — **STOP**; emit `NEEDS_CLARIFICATION` + portable paths (`readiness-severity.md` / REQ-005 / TE01); sibling folder presence ≠ READY (**RN02**)
 - Treat readiness READY as SESSION `step_confirmed` / PLAN step Complete (dual plane — readiness ≠ implementation)
 - Omit `## Related` on PRD/PLAN (or upward FEATURE/CONTINUITY/STORY) Writes, skip PRD↔PLAN mutual cite when both exist, use `## See also`, stub absent siblings only for links (`STORAGE.md` § Navigation block / REQ-009)
