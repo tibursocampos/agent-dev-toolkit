@@ -35,6 +35,13 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 
 **Session scoping:** After the PLAN path is resolved, load/create the develop session file per `SESSION.md` (`sessions/{repo-hash}/plan-{plan-hash}.json`). When spawned as an O3 parallel child on the same PLAN, use `plan-{plan-hash}-step-{N}.json`. Gates `step_confirmed` / `tests_run` apply only to that scoped file - never share one flat repo JSON across parallel children. Repo session still owns `storage_confirmed` / `write_confirmed`.
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** one PLAN step from `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`.
+- **Writes:** the code and tests for that step, and the step status in the PLAN.
+- **Where:** the repository source and tests, plus the PLAN file. One PLAN step per session; then stop.
+- **When to use:** implement one PLAN step. Gates: `sim` / `ajustar` / `cancelar`. Flow choice: [flow selection guide](../../../docs/guides/flow-selection.md).
+
 ## Language
 
 | Deliverable | Language |

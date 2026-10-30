@@ -50,6 +50,15 @@ Structured **markdown** in chat (BDD acceptance criteria + implementation steps)
 
 Does **not** create or update cards in external work-item trackers (see `references/exclusions.md`).
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** the item the operator pastes, or a `STORY.md` or `docs/backlog/` path.
+- **Writes:** `STORY.md` with BDD criteria and a quality note; optional `REFINE/` notes beside it.
+- **Where:** `features/NNN-slug/USnn/` (preferred) or shortcut `docs/backlog/<slug>.md`.
+- **When to use:** an informal backlog item before SDD. Calls `requirement-review` at step 4a before the handoff.
+
+Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
+
 ## Lazy-load
 
 | When | Path |

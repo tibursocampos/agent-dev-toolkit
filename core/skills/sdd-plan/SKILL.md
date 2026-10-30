@@ -22,6 +22,13 @@ A **PLAN** in the **user chat language** (or `preferences.json` / manifest `arti
 
 **PLAN magro:** do not paste SQL/DDL/JSON/OpenAPI into the PLAN. Refuse to omit those bodies from PLAN **unless** the canonical path already exists (bank phase 2 `database-schema.md` / `api-contracts.md` / `component-catalog.md`, or story `ARCH/` / `ANALYSIS/`). If missing, O1/O2 must create the canonical file first; PLAN only **cites the path**.
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** one PRD under `features/NNN-slug/USnn/PRD/`.
+- **Writes:** one PLAN only, under `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`. For a medium or complex feature, the task file is written by `split-story-checklist`, not by this skill.
+- **Gates:** `sim` / `ajustar` / `cancelar` before any write.
+- **When to use:** a PRD exists and needs baby steps. Flow choice: [flow selection guide](../../../docs/guides/flow-selection.md).
+
 ## Lazy-load (only when needed)
 
 | When | Path |

@@ -53,6 +53,15 @@ If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.m
 
 **Skip D:** no tracker mutate, no external spec-tool constitution. Skill id and slash `/split-story-checklist` stay stable.
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** `STORY.md`, a `docs/backlog/` path, the Steps pasted in chat, or the current session's refined markdown.
+- **Writes:** the grouped task checklist (backend, frontend, tests) at `REFINE/tasks.md`; chat only when the source is pasted.
+- **Where:** `features/NNN-slug/USnn/REFINE/tasks.md` (preferred); shortcut `docs/implementation-tasks/<slug>.md`.
+- **When to use:** break a refined story into backend, frontend and test tasks. A trivial feature does not need this file.
+
+Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
+
 ## Lazy-load
 
 | When | Path |
