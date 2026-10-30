@@ -42,8 +42,13 @@ try {
     Write-Pass $n
 
     $n = 'Should_UpdatePreferencesAndReportState_When_ClaudeHookCommandsSent'
+    $absent = (Invoke-HookScript -ScriptName 'session-start-context.ps1' -Payload '{"hook_event_name":"SessionStart","source":"startup"}' | ConvertFrom-Json).hookSpecificOutput
+    if ($absent.additionalContext -notmatch 'orchestrator_mode=missing') { Write-Fail $n 'absent preferences must report missing, not a hook-side default' }
+
+    . (Join-Path $scriptsRoot '_lib\Initialize-SddPreferences.ps1')
+    $null = Invoke-ToolkitEnsurePreferences -SddRoot (Split-Path -Parent $prefsPath)
     $start = (Invoke-HookScript -ScriptName 'session-start-context.ps1' -Payload '{"hook_event_name":"SessionStart","source":"startup"}' | ConvertFrom-Json).hookSpecificOutput
-    if ($start.hookEventName -ne 'SessionStart' -or $start.additionalContext -notmatch 'orchestrator_mode=always') { Write-Fail $n 'SessionStart must report default state' }
+    if ($start.hookEventName -ne 'SessionStart' -or $start.additionalContext -notmatch 'orchestrator_mode=adaptive') { Write-Fail $n 'SessionStart must report the seeded default state' }
 
     $adaptive = (Invoke-HookScript -ScriptName 'preferences-command.ps1' -Payload '{"prompt":"orchestrator adaptive"}' | ConvertFrom-Json).hookSpecificOutput
     if ($adaptive.hookEventName -ne 'UserPromptSubmit' -or $adaptive.additionalContext -notmatch 'adaptive') { Write-Fail $n 'orchestrator adaptive must confirm' }

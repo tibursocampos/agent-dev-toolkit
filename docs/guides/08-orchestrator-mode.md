@@ -31,7 +31,7 @@ Interactive first sync (`toolkit.ps1` → Sync agent) prompts when the file is m
 [2] Always orchestrate
 ```
 
-Known gap: on Claude, the hooks use `always` as the fallback when the file is absent at runtime (`adapters/claude/assets/hooks/_hook-common.ps1`). Sync seeds `adaptive`, so the fallback applies only when the file was deleted after sync. Run `orchestrator status` after a fresh install to confirm the stored value.
+The Claude hooks do not carry their own default for `orchestrator_mode`. Sync seeds `adaptive` into a missing file. If the file is deleted after sync, the Claude session-start state line and `orchestrator status` report `missing`, and the parent applies the policy default `adaptive` until the next sync reseeds the file. Run `orchestrator status` after a fresh install to confirm the stored value.
 
 ## ORCHESTRATOR CHARTER (summary)
 

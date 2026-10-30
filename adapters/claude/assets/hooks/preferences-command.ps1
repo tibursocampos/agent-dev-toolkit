@@ -30,7 +30,11 @@ function Invoke-ClaudePreferenceCommand {
     if ($orchestratorMatch.Success) {
         $mode = $orchestratorMatch.Groups[2].Value
         if ($mode -eq 'status') {
-            return ('[Orchestrator] Mode active: {0}. Type orchestrator status to review.' -f $values['orchestrator_mode'])
+            $current = [string]$values['orchestrator_mode']
+            if ([string]::IsNullOrWhiteSpace($current)) {
+                $current = 'missing'
+            }
+            return ('[Orchestrator] Mode active: {0}. Type orchestrator status to review.' -f $current)
         }
         $values['orchestrator_mode'] = $mode
         Write-ClaudePreferences -Values $values

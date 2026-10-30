@@ -193,7 +193,6 @@ $script:ToolkitSddSkillNameAlternatives = 'sdd-spec|sdd-plan|sdd-develop|orchest
 $script:ToolkitPreferencesDefaults = [ordered]@{
     caveman_mode      = $true
     caveman_level     = 'full'
-    orchestrator_mode = 'always'
     artifact_language = $null
     verify_mode       = $false
 }
@@ -315,6 +314,10 @@ function Format-ClaudePreferencesStateLine {
     if ([bool]$values['caveman_mode']) {
         $caveman = 'on'
     }
-    return ('[Toolkit] orchestrator_mode={0}; caveman={1} (level={2}).' -f $values['orchestrator_mode'], $caveman, $values['caveman_level'])
+    $orchestrator = [string]$values['orchestrator_mode']
+    if ([string]::IsNullOrWhiteSpace($orchestrator)) {
+        $orchestrator = 'missing'
+    }
+    return ('[Toolkit] orchestrator_mode={0}; caveman={1} (level={2}).' -f $orchestrator, $caveman, $values['caveman_level'])
 }
 
