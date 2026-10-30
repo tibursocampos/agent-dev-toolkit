@@ -30,7 +30,7 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check (SESSION.md is mandatory at turn 1; PIPELINE.md is conditional, see `_shared/sdd-artifacts/INDEX.md`; `orchestrate-*` always read PIPELINE.md), and the user chat language rule. Do not copy those rules into the skill. Add only skill-specific gate lines after this pointer.
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the silent gate check (verified without printing a checklist; report in chat only the failing items; SESSION.md is mandatory at turn 1; PIPELINE.md is conditional, see `_shared/sdd-artifacts/INDEX.md`; `orchestrate-*` always read PIPELINE.md), and the user chat language rule. Do not copy those rules into the skill. Add only skill-specific gate lines after this pointer.
 
 ### Caveman (participating skills)
 
