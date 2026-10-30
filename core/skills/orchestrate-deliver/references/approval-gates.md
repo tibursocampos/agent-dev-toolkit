@@ -57,6 +57,8 @@ Adapters may provide a native prompt, visible approval control, or textual choic
 
 After drafts exist (or after each story in série), present summary table (id, PRD path, PLAN path, 3 bullets). Ask in the user chat language — copy in § Approval gates.
 
+The per-story approval table is governed by `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` (O2 caller section): columns `gate`, `status`, `owner`, `evidence`, one row per story with the story ID in the gate cell, state keys and ASCII glyphs from that file, labels in the user chat language. You must redraw the full table at each gate and again after each answer (`sim` / `ajustar` / `cancelar`); always show every story row, never a summary or only the changed row.
+
 Offer **por história** vs **lote** when N > 1.
 
 | Answer | Action |
