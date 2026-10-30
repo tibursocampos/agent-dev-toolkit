@@ -74,6 +74,7 @@ scripts/validation/fixtures/**/skills/**
 !scripts/validation/fixtures/**/skills/.gitkeep
 !scripts/validation/fixtures/claude-sync-uninstall/skills/.toolkit-managed-skills.json
 !scripts/validation/fixtures/seed-user-root/skills/.toolkit-managed-skills.json
+!scripts/validation/fixtures/seed-user-root/skills/user-own-skill/SKILL.md
 !scripts/validation/fixtures/codex/plugin/skills/.toolkit-managed-skills.json
 !scripts/validation/fixtures/copilot/repo/skills/.toolkit-managed-skills.json
 !scripts/validation/fixtures/copilot/user/skills/.toolkit-managed-skills.json
