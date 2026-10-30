@@ -1,6 +1,6 @@
 ---
 name: orchestrate-develop
-description: Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop.
+description: "Orchestrated Delivery O3: one Task subagent per PLAN step (sdd-develop contract); parent never writes app code. Updates CONTINUITY. Scope close starts run-tests and review only when the operator asked to close the wave. Use when invoking /orchestrate-develop."
 ---
 
 ## STOP - Read before ANY tool call

@@ -1,6 +1,6 @@
 ---
 name: orchestrate-deliver
-description: Orchestrated Delivery O2: per story, close story files, then PRD, then PLAN; human-approve; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver.
+description: "Orchestrated Delivery O2: per story, close story files, then PRD, then PLAN; human-approve; emit multi-path handoff. No app code. Use when invoking /orchestrate-deliver."
 ---
 
 ## STOP - Read before ANY tool call

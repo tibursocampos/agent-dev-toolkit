@@ -159,6 +159,33 @@ if ($doc.PSObject.Properties.Name -contains 'mustNotContain' -and $doc.mustNotCo
     }
 }
 
+# CA7 — YAML frontmatter description quoting check
+# Find all SKILL.md files under skillsRoot and verify that any description value
+# containing ': ' is wrapped in quotes, to prevent YAML parser failures.
+$skillFiles = @(Get-ToolkitValidationFiles -Root $skillsRoot -Recurse -Extensions @('.md') |
+    Where-Object { $_.Name -eq 'SKILL.md' })
+foreach ($sf in $skillFiles) {
+    $lines = (Read-ToolkitValidationText -Path $sf.FullName) -split "`n"
+    $inFrontmatter = $false
+    $frontmatterCount = 0
+    foreach ($line in $lines) {
+        $trimmed = $line.TrimEnd()
+        if ($trimmed -eq '---') {
+            $frontmatterCount++
+            if ($frontmatterCount -eq 1) { $inFrontmatter = $true; continue }
+            if ($frontmatterCount -eq 2) { $inFrontmatter = $false; break }
+        }
+        if ($inFrontmatter -and $trimmed -match '^description:\s+(.+)$') {
+            $val = $Matches[1]
+            # If value contains ': ' and is not already quoted (starts with " or ')
+            if ($val -match ':\s' -and $val -notmatch '^["'']') {
+                $rel = $sf.FullName.Substring($skillsRoot.Length).TrimStart('\', '/')
+                $failures.Add("CA7: $rel has unquoted description value containing ': ' — wrap in double quotes")
+            }
+        }
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Host 'Skill contracts validation FAILED:' -ForegroundColor Red
     $failures | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
