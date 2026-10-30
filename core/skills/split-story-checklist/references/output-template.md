@@ -21,9 +21,11 @@ Do **not** put `item_type`, **Tipo**, or type exact-set enums in this file. Clas
 
 | Group | Steps | Wave | Status |
 |-------|-------|------|--------|
-| Implement [Group 1] | 1-3 | 0 | Pending |
-| Implement [Group 2] | 4-5 | 1 | Pending |
-| Tests - Backend | 6 | 2 | Pending |
+| Implement [Group 1] | 1-3 | 0 | `[ ]` pending |
+| Implement [Group 2] | 4-5 | 1 | `[ ]` pending |
+| Tests - Backend | 6 | 2 | `[ ]` pending |
+
+Status cells use the standard state keys and glyphs of `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` (`[ ]` pending, `[~]` in progress, `[x]` completed, `[!]` blocked, `[-]` skipped). The step line tokens (`PENDING`, `COMPLETED`, ...) stay as the persisted tokens.
 
 ---
 
@@ -33,7 +35,7 @@ Each group is one PLAN step. Do not add a step id the plan will not copy. Do not
 
 ### STEP 1 — S1: [outcome title]
 
-☐ `PENDING` | **Wave:** 0 | **Parallel-safe with:** none
+`[ ]` `PENDING` | **Wave:** 0 | **Parallel-safe with:** none
 
 - [ ] **Action title**
   - Path: `existing/or/Proposed.cs` (`existing` or `proposed`)
@@ -48,7 +50,7 @@ Each group is one PLAN step. Do not add a step id the plan will not copy. Do not
 
 ### STEP 2 — S2: [next outcome]
 
-☐ `PENDING` | **Wave:** 1 | **Depends on:** S1
+`[ ]` `PENDING` | **Wave:** 1 | **Depends on:** S1
 
 - [ ] **Action title**
   - Path: `...`
@@ -57,7 +59,7 @@ Each group is one PLAN step. Do not add a step id the plan will not copy. Do not
 
 ---
 
-When `sdd-develop` completes the step, mark that step's boxes `- [x]` and set the glyph to `☑`.
+When `sdd-develop` completes the step, mark that step's boxes `- [x]` and set the line to `[x]` `COMPLETED`.
 
 ---
 

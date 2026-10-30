@@ -24,4 +24,6 @@
 
 **Requirement challenge (step 4a):** feature and tech challenge live in `requirement-review`. This skill calls it and reads its status; it does not copy its playbooks. Never a monolithic `feature-refinement.md`.
 
+**Stage table (must):** render the Backlog Refine stage table from `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` (section refine-story) in the user chat language, with the Status column and the standard state keys and glyphs. Rows: Workspace and mode; Mode playbook; Clarify (question blocks); Quality scorecard; Requirement review; Envelope status refresh; Validation; Persistence (when requested); Handoff. You must show it at: start; before each gate; after each gate answer; on each row state change; on a blocker or `NEEDS_CLARIFICATION` (stop the redraw at `blocked`); and at close. Always render every row; never summarize rows or show only the changed one. Do not persist the table in `STORY.md` or the envelope. At close also render the scorecard with every criterion in all three modes.
+
 **Must not:** see `SKILL.md` § Must not + `references/exclusions.md` (no Azure WI / external trackers).

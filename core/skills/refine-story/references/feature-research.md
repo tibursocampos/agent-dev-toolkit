@@ -20,6 +20,8 @@ Companion: `finding-format.md`, `readiness-severity.md` § Open-question gate, `
 
 A critique round is one pair of isolated passes plus the single question batch that follows. Do not invent a finding to force another round. Two rounds is the ceiling.
 
+When O1 step 8c runs, the stage table from `LIVE-STAGE-TABLE.md` must be shown for both rounds. A second round adds no row: it returns the rows `First findings pass` through `One question batch` to `in_progress` one at a time, and notes `round 2` in `what_happened`. Redraw the full table at each change.
+
 ## Inspection list
 
 Check the FEATURE for:

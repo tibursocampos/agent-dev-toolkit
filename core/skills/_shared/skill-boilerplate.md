@@ -10,18 +10,16 @@ Every skill loads this file before its first tool call. The skill body adds only
 4. SDD and develop skills: after **ONE** step or task, **STOP** the develop scope. Hand off only.
 5. The skill body is **English**. User-facing prompts follow the **user chat language** (`_shared/agents/LANGUAGE.md`).
 
-### Step -1 - Gate check (report in chat before continuing)
+### Step -1 - Gate check (silent)
 
-Report only the items that apply to the current action:
+Verify silently, before continuing, the items that apply to the current action:
 
-```
-Gate check:
-[ ] guardrails read
-[ ] SESSION.md loaded (mandatory; gate sections per sdd-artifacts/INDEX.md)
-[ ] PIPELINE.md read, only when sdd-artifacts/INDEX.md requires it (SDD skills; required for orchestrate-*)
-[ ] User confirmed current action (sim), when the action writes or runs a gated step
--> If any applicable item is unchecked: STOP
-```
+- guardrails read
+- SESSION.md loaded (mandatory; gate sections per sdd-artifacts/INDEX.md)
+- PIPELINE.md read, only when sdd-artifacts/INDEX.md requires it (SDD skills; required for orchestrate-*)
+- User confirmed current action (sim), when the action writes or runs a gated step
+
+Do not print a checklist. Report in chat only when a check fails: list only the failing items and STOP.
 
 ## Negative signal
 

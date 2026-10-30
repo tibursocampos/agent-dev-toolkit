@@ -11,7 +11,7 @@ Status: done | blocked | failed
 Tests: {tests summary}
 ```
 
-Do not add the stage-weight table, a redraw of that table, the `Develop:` heartbeat, an implement-weight line, or a ledger dump. The PLAN progress table remains in the file. The step ledger at close is the PLAN `Implementation progress` table, not this short result.
+Do not add the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or an implement-weight line. Do not paste the raw persisted PLAN table or a claim payload. The persisted PLAN progress table remains in the file. The PLAN-step table (`execution-display.md`) is shown with this short result at close; this result does not replace it.
 
 `done` only when the step acceptance and the step test passed (`plan-contract.md`). No duration.
 

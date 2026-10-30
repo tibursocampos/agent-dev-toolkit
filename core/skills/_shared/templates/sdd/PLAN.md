@@ -153,7 +153,7 @@ Persisted ledger. `sdd-develop` updates status and evidence after each step. `An
 
 One block per step. In `orchestrated`, copy the id, title, and dependencies from the validated `REFINE/tasks.md` owned by `split-story-checklist`. In `direct`, derive PLAN-native ids, titles, and dependencies from the approved PRD unless an explicitly linked valid checklist was adopted. A direct PLAN may be complex and have no task file; do not invent task rows or ids. O2 checklist requirements remain in force for `orchestrated`.
 
-Separate each step: a blank line, then the heading, then one field per line, then a `---` rule before the next step. Status glyphs match `LIVE-STAGE-TABLE.md`: `☐` pending, `◐` in progress, `☑` completed, `⊘` closed without success, `⚠` blocked. The status token stays English.
+Separate each step: a blank line, then the heading, then one field per line, then a `---` rule before the next step. The status token stays English. Chat tables use the ASCII glyphs from `LIVE-STAGE-TABLE.md` and are not written here.
 
 No duration. Do not paste a new method body. A contract signature and a short excerpt of code that already exists (path and line) are anchors, not the implementation.
 

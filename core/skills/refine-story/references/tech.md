@@ -40,7 +40,7 @@ Follow `technical-story.md` **Output template** and **Writing guidelines**.
 
 ### 4. Quality scorecard
 
-Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms at score time. For Technical Story, Who/Job/Outcome is **`n/a`** — still score Product depth via Valuable + AC budget (`invest-and-story-quality.md`). Evidence omit OK (`product-evidence-lite.md`).
+Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms at score time. For Technical Story, Who/Job/Outcome is **`n/a`** — still score Product depth via Valuable + AC budget (`invest-and-story-quality.md`). Evidence omit OK (`product-evidence-lite.md`). Show in chat the total / 100, ALL criteria rows, strengths, and improvements immediately after the markdown. The full scorecard is chat-only; persistence keeps only the short summary.
 
 Refresh envelope `status` per `readiness-severity.md` (envelope shape: `interaction-envelope.md`).
 

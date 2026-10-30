@@ -151,6 +151,10 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 
 **Selective retrieval:** do **not** dump entire `memory-bank/` or paste a full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Paths + short summaries only.
 
+## Stage table
+
+You must render the stage table (`_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`, refine-story section) at start, before and after each gate, on each row change, on a blocker, and at close, always with every row. Detail: `references/command.md`.
+
 ## Must not
 
 Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Product voice: `references/product-persona.md`. Split handoff: `references/split-handoff.md`.
