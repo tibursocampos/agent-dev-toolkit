@@ -220,7 +220,8 @@
     {
       "id": "req-012-canonical-scripts-sdd-develop",
       "skill": "sdd-develop",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/canonical-scripts.md"],
+      "match": "any-file",
       "mustContain": [
         "Invoke-DevelopSessionGate.ps1",
         "Invoke-PlanLedgerClaim.ps1",

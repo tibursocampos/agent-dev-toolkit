@@ -2,8 +2,8 @@
 # Tests:
 #   Should_KeepEverySkillManifestUnderCeiling_When_CoreSkillsChanged
 #
-# Ceiling: 31325 bytes per core/skills/**/SKILL.md. It is the current largest manifest
-# (core/skills/sdd-develop/SKILL.md, 28477 bytes) plus a 10 percent margin, rounded up.
+# Ceiling: 31325 bytes per core/skills/**/SKILL.md. It was derived from the largest manifest at the time
+# (core/skills/sdd-develop/SKILL.md, 28477 bytes at the time, now 20541 bytes) plus a 10 percent margin, rounded up.
 # The check reads the core source, so it does not depend on the install root path. Published Claude
 # copies are larger because placeholders resolve to absolute paths and the frontmatter overlay adds keys.
 $ErrorActionPreference = 'Stop'

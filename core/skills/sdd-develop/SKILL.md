@@ -9,29 +9,7 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 
 ### Canonical scripts after sim (REQ-012 / CA4 / CT6)
 
-After the user says **sim** for this step, **MUST** persist develop `step_confirmed` via `-File` (cwd = repo root) — **MUST NOT** paste inline PowerShell that mutates session JSON under `sessions/`:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
-```
-
-After targeted tests execute and their results are ready to report, persist the tests gate through the same canonical helper:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1" -Action tests-run -PlanPath <plan> -RepoPath . -SddRoot <sdd-root> [-Step N]
-```
-
-Before ending the develop scope, reset both gates with `-Action reset` (optionally pass `-CurrentStep N+1`). Never mutate the session JSON inline. `tests-run` fails unless `step_confirmed` is already true.
-
-Treat every session-helper invocation, including reset, as a hard gate. A nonzero exit, denied write, or missing confirmation output stops the operation; return `blocked` or `failed` with the observed cause and do not continue or report success. Never bypass the helper or edit session JSON inline. If the canonical SDD root is unwritable, ask the operator to restore a writable root through the supported setup mechanism before retrying the helper.
-
-For a direct invocation that requires a PLAN ledger claim, **MUST** also call once:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1" -Action claim -PlanPath <plan> -Step N -Holder <holder> -RepoPath . -SddRoot <sdd-root>
-```
-
-For `invocation_context=orchestrated`, the O3 parent owns this acquisition; the child only checks the matching parent reservation with `-Action status` as specified below. Prefer **one** Shell approve that chains the session helper and direct claim for a direct invocation when the host allows. **CT6:** if the session helper skips rewrite because `step_confirmed` is already true, still ensure the required direct claim exists; for O3, the parent must ensure its claim exists once, while a child must never reacquire it.
+Before any session or ledger write, read `references/canonical-scripts.md` and run the exact commands listed there.
 
 ---
 
@@ -105,22 +83,8 @@ Do not re-ask SDD storage or change artifact language mid-PLAN unless requested.
 
 ## Reference routing
 
-| Situation | Path |
-|-----------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| plan-acquisition (canonical PLAN) | `references/plan-acquisition.md` |
-| Develop modes `continuous` \| `step_by_step` | `references/develop-modes.md` |
-| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
-| PLAN update protocol | `references/plan-update.md` |
-| Git preparation | `references/git-checklist.md` |
-| Pre-implementation analysis | `references/code-analysis.md` |
-| Stack pointers | `references/stack-pointers.md` |
-| Session report / checkpoint | `references/session-report.md` |
-| Evidence-or-zero | `references/evidence-or-zero.md` |
-| Living loop + TRACE | `references/living-loop-trace.md` |
-| Quality self-check | `references/quality-self-check.md` |
-| Optional flows | `references/optional-flows.md` |
-| Forbidden | `references/forbidden.md` |
+Routing table for the `references/` sections: `reference.md`.
+
 ## Process
 
 After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for the current step only.
@@ -192,20 +156,7 @@ Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
 
 ### 4c. Living loop + TRACE (REQ-006 / CA5)
 
-Read `references/living-loop-trace.md`. When CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive):
-
-1. Append events to `features/NNN-slug/TRACE.jsonl` (template: `templates/features/TRACE.jsonl`; contract: `TRACE-ARCHIVE-CONTRACT.md`).
-2. Run **converge → sync current → archive**: selective updates to living docs (`memory-bank/` / named `docs/`); do **not** dump full bank/PRD (`SR-NO-FULL-DUMP`).
-3. Ensure TRACE includes ordered living-loop events `converge`, `sync_current`, `archive`.
-4. Run structural gate (deterministic — never LLM-as-validator):
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-trace.ps1" -FeatureRoot <features/NNN-slug> -RequireArchiveComplete
-```
-
-Exit ≠ 0 → **STOP**; do not declare archive done. During mid-feature steps, optional trail events may be appended; missing TRACE is OK until archive-complete.
-
-**Verifier ≠ O3:** archive/TRACE validation is sequential in this session — do not use Task/O3 parallelism as the archive gate.
+Read `references/living-loop-trace.md` when CONTINUITY / operator closes the feature wave (or the PLAN’s last implement step before P-DOC / archive) and follow its procedure.
 
 ### 5. Commit (optional)
 
