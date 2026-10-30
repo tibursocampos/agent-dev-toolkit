@@ -154,9 +154,9 @@ Offer `/commit`; do not auto-commit. When the PLAN is **fully done** and the use
 Read `references/plan-contract.md` and `references/plan-update.md` at this step, before the PLAN edit; they hold the PLAN update protocol, navigation rules, companion PRD close, and terminal gate order (`tests-run` then `reset`).
 
 ### 7. Report
-Load `references/execution-display.md` and `references/session-report.md`. Emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
+Load `references/execution-display.md` and `references/session-report.md`. Show the full PLAN-step table, then emit the short result (step, status `done` | `blocked` | `failed`, tests). Do not emit the stage-weight table or the `Develop:` heartbeat. Phrases follow the user chat language.
 
-For a direct Classic step delegated by a parent, the parent owns the operator-facing relay after the child returns: re-read the persisted PLAN, reconcile the step checkpoint with the child report, then show the complete PLAN step ledger and next eligible step as defined in `references/execution-display.md`. A child receipt, partial summary, or child-rendered table does not satisfy the parent's relay. If the saved checkpoint cannot be reconciled, stop with `ledger_partial`; do not start the next direct step.
+For a direct Classic step delegated by a parent, the parent owns the operator-facing relay after the child returns: re-read the persisted PLAN, reconcile the step checkpoint with the child report, then show the complete PLAN-step table and next eligible step as defined in `references/execution-display.md`. A child receipt, partial summary, or child-rendered table does not satisfy the parent's relay. If the saved checkpoint cannot be reconciled, stop with `ledger_partial`; do not start the next direct step.
 
 ## Must not
 

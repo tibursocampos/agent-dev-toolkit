@@ -4,7 +4,7 @@
 
 **Language:** English mode ids. Operator chat follows the user chat language (`LANGUAGE.md`).
 
-Portability: `LOCAL_ONLY` until commit and push both exist. `SHARED` only after both. Default pacing remains `step_by_step`. In `continuous`, the parent still shows the live table and the step summary for each step. It does not go silent between steps. The child still executes one step. The parent is who starts the next step.
+Portability: `LOCAL_ONLY` until commit and push both exist. `SHARED` only after both. Default pacing remains `step_by_step`. In `continuous`, the parent still shows the live table and the step summary for each step (the step summary is the full PLAN-step table plus the short result). It does not go silent between steps. The child still executes one step. The parent is who starts the next step.
 
 Companions: `references/plan-acquisition.md`, `references/plan-contract.md`, `SESSION.md`, `PLAN-LEDGER-CONTRACT.md`.
 
@@ -24,7 +24,7 @@ Resolve the execution route before pacing. A canonical PLAN plus an explicit ste
 | Mode id | Default? | Direct `/sdd-develop` | O3 parent (`orchestrate-develop`) |
 |---------|----------|----------------------|-----------------------------------|
 | `step_by_step` | **Yes** | Explicitly requested eligible step → execute now, mark Complete → **STOP**; handoff invoke for Step N+1 only | Present queue; require **sim** before **each** spawn |
-| `continuous` | No (opt-in) | Explicitly requested eligible step → execute now, still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md` and the step summary. It does not go silent between steps. **each** child still one step |
+| `continuous` | No (opt-in) | Explicitly requested eligible step → execute now, still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md`: the full PLAN-step table plus the short result. It does not go silent between steps. **each** child still one step |
 
 Unknown mode id → treat as `step_by_step` (document the fallback; do not invent silent third pacing mode).
 
