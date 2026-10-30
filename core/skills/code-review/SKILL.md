@@ -221,7 +221,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 - Create an implementation-survey skill
 - Tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI. A pull-request URL is used only when the operator passed it
 - Ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`
-- Add a reviewer roster. `architect`, `database`, `security`, and `repo_analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without a Task and without a new prompt
+- Add a reviewer roster. `architect`, `database`, `security`, and `repo-analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without a Task and without a new prompt
 - Hard-fail multi-angle when `subagents` is `none` or Task is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
 - Paste guideline packs into Task child prompts
 - Create `framework-upgrade` or any new product skill folder from this skill (WS16b OOS — needs a separate approved feature)
@@ -240,7 +240,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 ### Closeout
 
-`architect`, `database`, `security`, and `repo_analyst` appear only as read-only consultation. They do not write application code. There is no new roster. `qa_checklist` stays in-parent. This skill does not create an implementation-survey skill and does not create a blind-reviewer skill.
+`architect`, `database`, `security`, and `repo-analyst` appear only as read-only consultation. They do not write application code. There is no new roster. `qa_checklist` stays in-parent. This skill does not create an implementation-survey skill and does not create a blind-reviewer skill.
 
 An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 

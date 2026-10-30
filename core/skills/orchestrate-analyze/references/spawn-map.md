@@ -2,7 +2,7 @@
 
 **Canonical source:** `skills/_shared/agents/ROSTER.md` (`needs_*` table). Keep this section as a short pointer - edit ROSTER when the map changes.
 
-Spawn Agent **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`). If `subagents=none` or Agent unavailable → **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` (never skip; never CONTINUITY substitute for those flags). Parallelize when multiple specialists apply; concurrent Agent cap **≤4** per `SPAWN.md`. Brownfield / impact-unclear -> `repo_analyst` **and** `architect` (mirror ARCH; skip style re-pick only) + `database` when persistence is in scope. Greenfield / no established style -> spawn `architect` and run **Architecture confirm gate**. ARCH is **not** optional when `needs_domain` or brownfield. Optional stage notes: `impact` / `risk` / `generate-story` prompts.
+Spawn Agent **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`). If `subagents=none` or Agent unavailable → **fallback** **in-parent write** to `ANALYSIS/` / `ARCH/` / `SEC/` (never skip; never CONTINUITY substitute for those flags). Parallelize when multiple specialists apply; concurrent Agent cap **≤4** per `SPAWN.md`. Brownfield / impact-unclear -> `repo-analyst` **and** `architect` (mirror ARCH; skip style re-pick only) + `database` when persistence is in scope. Greenfield / no established style -> spawn `architect` and run **Architecture confirm gate**. ARCH is **not** optional when `needs_domain` or brownfield. Optional stage notes: `impact` / `risk` / `generate-story` prompts.
 
 **Stacks are not roster roles** - do not spawn `react`/`dotnet` agents in O1. Route implementation later via `ROUTING.md`.
 
@@ -20,7 +20,7 @@ Spawn an Agent subagent **only** when `subagents=native` **and** `ROSTER.md` can
 
 | Signal (see ROSTER) | Specialist | Prompt |
 |---------------------|------------|--------|
-| `needs_api` or brownfield / impact unclear | `repo_analyst` → `ANALYSIS/` | `prompts/repo_analyst.md` |
+| `needs_api` or brownfield / impact unclear | `repo-analyst` → `ANALYSIS/` | `prompts/repo_analyst.md` |
 | `needs_domain`, contract-heavy API, **greenfield**, or **brownfield** (mirror; skip style re-pick only) | `architect` → `ARCH/` | `prompts/architect.md` |
 | `needs_database` or brownfield with persistence | `database` → `ARCH/` DB slice | `prompts/database.md` |
 | `needs_security` | `security` → `SEC/` | `prompts/security.md` |

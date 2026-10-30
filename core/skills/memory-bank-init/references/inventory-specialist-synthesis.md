@@ -38,7 +38,7 @@ Use **ROSTER** role ids (`ROSTER.md`) — stable toolkit ids only (do **not** in
 
 | Inventory / Prior signal | Specialist (ROSTER id) | Bank targets (selective) |
 |--------------------------|------------------------|--------------------------|
-| Multi-module / brownfield blast radius unclear | `repo_analyst` | `project-context.md`, `architecture.md` (layers), `gaps.md` |
+| Multi-module / brownfield blast radius unclear | `repo-analyst` | `project-context.md`, `architecture.md` (layers), `gaps.md` |
 | Greenfield / no established style / domain boundaries | `architect` | `architecture.md`, `domain-knowledge.md` |
 | Persistence / DDL / migrations / DbContext | `database` | `database-schema.md` (phase 2 **BLOCKING** when DDL cited), `gaps.md` |
 | Auth / secrets / PII / supply-chain tokens | `security` | `known-risks.md`, `gaps.md` (env **names** only) |

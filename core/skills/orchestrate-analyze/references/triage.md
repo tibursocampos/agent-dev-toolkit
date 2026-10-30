@@ -66,7 +66,7 @@ Only continue to allocate/scaffold if the user explicitly chooses **2**. Choosin
 | needs_security | `true` (package feed / secrets / provide chain) |
 | needs_devops | `true` (CI publish - CONTINUITY note only) |
 
-**Spawn (parallel):** `repo_analyst`, `architect`, `security`.  
+**Spawn (parallel):** `repo-analyst`, `architect`, `security`.  
 **Stories (example):**
 
 | Id | Tipo | Título | Rationale | Product intent |

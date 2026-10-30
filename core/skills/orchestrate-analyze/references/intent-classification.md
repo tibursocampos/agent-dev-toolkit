@@ -51,9 +51,9 @@ Load `ROSTER.md` + `spawn-map.md` when any row applies. Spawn **before** step 8 
 
 | Trigger | Spawn (parallel within SPAWN ≤4 cap) | Why before synthesis |
 |---------|-------------------------------------|----------------------|
-| **Existing Feature** + brownfield + new stories touch unknown modules | `repo_analyst` | Map blast radius before story split |
+| **Existing Feature** + brownfield + new stories touch unknown modules | `repo-analyst` | Map blast radius before story split |
 | **New Feature** + `needs_domain` or greenfield without established style | `architect` → ARCH confirm gate (`arch-confirm.md`) | Style + boundaries before US/TS sizing |
-| **Product Initiative** + multiple bounded contexts or APIs | `architect`; add `repo_analyst` if brownfield | Decompose initiative without inventing architecture in parent |
+| **Product Initiative** + multiple bounded contexts or APIs | `architect`; add `repo-analyst` if brownfield | Decompose initiative without inventing architecture in parent |
 | **Problem / Need** + auth / secrets / PII / feed-token / supply-chain | `security` | Do not defer `needs_security` to synthesis |
 | **Problem / Need** + persistence / migration / schema | `database` | DDL and migration boundaries before TS split |
 | **Idea** → promoted to O1 after refine | Same as **New Feature** once intent reclassified | Specialists run only after scope is no longer "idea-only" |
