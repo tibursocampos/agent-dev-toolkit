@@ -23,7 +23,7 @@ Full text, in-session commands, and the preference check: `{{TOOLKIT_ROOT}}/rule
 
 ## Parallel specialists (default)
 
-Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent. This section is the always-on copy for hosts without a rules tree; `orchestrator-session` is the source.
+Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent.
 
 - **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before drafting any plan that cites Agent, subagents, or orchestration, and before the first spawn-or-in-parent decision on non-trivial work.
 - **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Agent `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
@@ -94,7 +94,7 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 
 ## Rules (always-on)
 
-Published per host from the policy source by sync-agent. Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
+Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
 
 ## Skills catalog
 
