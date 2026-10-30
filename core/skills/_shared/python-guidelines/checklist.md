@@ -2,7 +2,7 @@
 
 Index only — open linked docs for detail. Cross-stack defaults: [structure-and-quality.md](../code-guidelines/principles/structure-and-quality.md).
 
-**RN08:** Official language docs (PEP 8) win auxiliary gists/blogs when they conflict. Pointers only — do not paste PEP / gist bodies (`RNF-004`).
+Official language docs (PEP 8) win auxiliary gists/blogs when they conflict. Pointers only — do not paste PEP / gist bodies.
 
 ---
 

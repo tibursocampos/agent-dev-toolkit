@@ -10,9 +10,9 @@ Normative source for this toolkit: feature ANALYSIS anti-task-shatter list (US03
 
 1. **Title = verb + file/class/script/path** → do **not** create US/TS. Keep as PLAN/refine step.
 2. **Layer-only** title (e.g. "Domain types", "Infrastructure") → **merge** into a vertical / outcome story.
-3. **Maturity cap** → Product Initiative backlog ≤ **4** US/TS unless FEATURE rationale explicitly justifies extra split (RN03).
+3. **Maturity cap** → Product Initiative backlog ≤ **4** US/TS unless FEATURE rationale explicitly justifies extra split.
 4. **`split-story-checklist` output** → SMART **tasks**, never one US per file.
-5. **Valuable** → US must name beneficiary + observable progress; pure TS may use `n/a` for Product intent (RN04).
+5. **Valuable** → US must name beneficiary + observable progress; pure TS may use `n/a` for Product intent.
 
 ---
 

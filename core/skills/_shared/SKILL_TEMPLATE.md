@@ -2,7 +2,7 @@
 
 Copy the block below immediately after YAML frontmatter in every `SKILL.md`.
 
-Skill body (process, guardrails, handoff) must be **English**. User-facing prompts: **Ask user (pt-BR):** …
+Skill body (process, guardrails, handoff) must be **English**. User-facing prompts follow the **user chat language** (`_shared/agents/LANGUAGE.md`).
 
 ---
 
@@ -30,28 +30,11 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
-
-For **`orchestrate-analyze` / `orchestrate-deliver` / `orchestrate-develop`**, change the PIPELINE line to: `PIPELINE.md read (required for orchestrate-*)`.
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check (SESSION.md is mandatory at turn 1; PIPELINE.md is conditional, see `_shared/sdd-artifacts/INDEX.md`; `orchestrate-*` always read PIPELINE.md), and the user chat language rule. Do not copy those rules into the skill. Add only skill-specific gate lines after this pointer.
 
 ### Caveman (participating skills)
 
-Add under **Process** (after gate check). Cap = `Lite` | `Full` | `Never` per `_shared/caveman/CAVEMAN.md` participation table. Always-on rule `caveman-mode.mdc` also reads prefs; skills still run Step -1b for cap.
+Add under **Process** (after the STOP pointer). Cap = `Lite` | `Full` | `Never` per `_shared/caveman/CAVEMAN.md` participation table. Always-on rule `caveman-mode.mdc` also reads prefs; skills still run Step -1b for cap.
 
 **Lite / Full:**
 
@@ -77,7 +60,7 @@ Lazy-load row when applicable: `| Caveman Mode (if active) | {{TOOLKIT_ROOT}}/sk
 
 ## Skill-specific sections (below the header)
 
-The STOP block above is ~27 lines and does not count toward editorial budget.
+The STOP pointer above is 3 lines and does not count toward editorial budget.
 
 **Size:** hard limit **500 lines** total per `SKILL.md` (Cursor / Agent Skills). Soft targets: workflow skills 150-300 lines after the gate; atomic skills (`push`) may be shorter. Put long templates in `reference.md` but keep decision tables and must-not inline.
 
@@ -120,11 +103,11 @@ Gold-bar reference: `dotnet-developer/SKILL.md` (gate, SDD table, developer-comm
 - Show test results (if applicable)
 - Update PLAN/tasks/plan.md
 - Reset session-state gates to false
-- Ask user (pt-BR): "Passo concluído. Inicie nova conversa para o próximo passo."
+- Ask the user (user chat language): step done; start a new conversation for the next step.
 - DO NOT proceed to next step
 ```
 
-### Pipeline skills — `references/command.md` packing (REQ-006 / CA3)
+### Pipeline skills — `references/command.md` packing
 
 Pipeline skills (`orchestrate-*`, `sdd-spec`, `sdd-plan`, `sdd-develop`, `refine-story`, `memory-bank-init`) **must** ship:
 
@@ -145,4 +128,4 @@ skill-id/
 
 **Process intro (required):** After gates, **Read `references/command.md`** for ordered step discovery; load **one** `references/<section>.md` per step. Do **not** preload `command.md` before Step -1 gates. Full composable thin-router split of remaining Process bodies is US02 — this packing is discovery + wire only.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.

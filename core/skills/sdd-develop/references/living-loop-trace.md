@@ -1,4 +1,4 @@
-## Living loop + TRACE (REQ-006 / CA5)
+## Living loop + TRACE
 
 Canonical path: `features/NNN-slug/TRACE.jsonl`.
 

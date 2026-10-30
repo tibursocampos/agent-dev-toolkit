@@ -12,7 +12,7 @@ Documents the PRD content checklist against the canonical template at `templates
 
 **Executable structure:** `validate-prd.ps1` requires the PRD title and core metadata rows; Execution policy and Related headings; numbered sections 1–5 and 8–14; overview/context/objective; technical scope subsections 3.1–3.4; requirement subsections 4.1–4.4; at least one `REQ-NNN`, one `CA` heading, and a use-case block. It accepts the Portuguese canonical headings and the corresponding English headings where defined by the English override. It does not check heading order or prose quality.
 
-**Conditional content:** sections 1.3 (success metrics), 1.4 (blast radius), 6 (database migrations), and 7 (integrations) may be omitted when they have no applicable content; the gate does not infer applicability from prose. The `### 4.5 EARS` subsection is optional; omit it when EARS adds no clarity. `## 5.1 Perguntas em aberto` is optional and should be omitted when there are no open questions. Within `## Related`, sibling rows are optional when the corresponding artifacts are unavailable; supplied paths must be portable. An API route described requires `### 7.3 Contrato observável de API`; other integrations do not.
+**Conditional content:** sections 1.3 (success metrics), 1.4 (blast radius), 6 (database migrations), and 7 (integrations) may be omitted when they have no applicable content; the gate does not infer applicability from prose. The `### 4.5 EARS` subsection is optional; omit it when EARS adds no clarity. `## 5.1 Perguntas em aberto` is optional and should be omitted when there are no open questions. Within `## Related`, sibling rows are optional when the corresponding artifacts are unavailable; provided paths must be portable. An API route described requires `### 7.3 Contrato observável de API`; other integrations do not.
 
 ### Level 1: Structure - English override
 
@@ -58,7 +58,7 @@ When `artifact_language` is `en` or user requested English in invocation:
 ## Output example
 
 ```text
-Validating PRD format (pt-BR)...
+Validating PRD format...
 
 PRD does not fully match template:
   ## 2. Critérios de aceite: only one CA block found

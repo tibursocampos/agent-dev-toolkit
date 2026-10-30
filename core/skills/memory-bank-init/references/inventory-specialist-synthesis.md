@@ -1,10 +1,10 @@
 # inventory → specialist synthesis
 
-**REQ-011 / CA4 / CT4.** Contract id: `inventory-specialist-synthesis`. Load **after** Step 5 inventory and **before** (or as the first pass of) Step 6 scaffold/refresh fills. Applies to `/memory-bank-init` create | refresh | refresh-light.
+Contract id: `inventory-specialist-synthesis`. Load **after** Step 5 inventory and **before** (or as the first pass of) Step 6 scaffold/refresh fills. Applies to `/memory-bank-init` create | refresh | refresh-light.
 
 **Language:** English identifiers and reason codes. Operator chat follows session language (`LANGUAGE.md`). Portable paths only (`STORAGE.md` § Portable path).
 
-Companions: `MEMORY-BANK.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `_shared/agents/SPAWN.md`, `_shared/agents/ROSTER.md`, `references/inventory-fallback.md`, `references/template-map.md`.
+Companions: `MEMORY-BANK.md`, `SELECTIVE-RETRIEVAL.md`, `_shared/agents/SPAWN.md`, `_shared/agents/ROSTER.md`, `references/inventory-fallback.md`, `references/template-map.md`.
 
 ---
 
@@ -57,7 +57,7 @@ Pass **only**:
 
 Receipt (en-US): role, target paths, ≤5 bullets of evidenced facts, open gaps (`BLOCKING:` when Prior already has DDL/OpenAPI/UI map). Parent merges; specialists **must not** Write app/test source.
 
-## Selective retrieval (`SR-NO-FULL-DUMP` / RNF-004)
+## Selective retrieval
 
 | Do | Do not |
 |----|--------|
@@ -67,7 +67,7 @@ Receipt (en-US): role, target paths, ≤5 bullets of evidenced facts, open gaps 
 
 Normative: `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP`. Smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section) when in-scope.
 
-## Skip D (REQ-013 / CA4) — explicit
+## Skip D — explicit
 
 This skill **must not** introduce or invoke:
 
@@ -99,7 +99,7 @@ Also forbidden: inventing `framework-upgrade`, org-only prefixed names, or new s
 ## Must not
 
 - Skip synthesis when inventory signals domain/schema/auth ambiguity (thin-trivial only)
-- Dump integral `memory-bank/` or paste full PRD into prompts (`SR-NO-FULL-DUMP`)
+- Dump integral `memory-bank/` or paste full PRD into prompts
 - tracker mutate, external spec-tool constitution (Skip D / REQ-013)
 - Write application or test source; place bank under `features/NNN-slug/`
 - Create a parallel clarify/init skill folder

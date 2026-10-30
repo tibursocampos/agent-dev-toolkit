@@ -1,4 +1,4 @@
-## Anti-bypass checklist (CA5) - copy into enforcement
+## Anti-bypass checklist - copy into enforcement
 
 Use before every spawn and before marking any step done.
 

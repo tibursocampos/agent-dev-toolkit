@@ -8,6 +8,6 @@
 | Schema tweak | `Alter<Entity>` | `AlterInvoice` |
 | Seed data | `<Entity>Seed` or `<Description>Seed` | `PermissionsSeed` |
 
-Infer from `git diff` / `git status` when the user does not supply a name.
+Infer from `git diff` / `git status` when the user does not provide a name.
 
 ---

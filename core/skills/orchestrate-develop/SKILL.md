@@ -6,30 +6,14 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (required for orchestrate-*)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: orchestrate-develop
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/orchestrate-develop`, `orchestrate develop`, `/orchestrate-develop`, or Orchestrated Delivery O3 after O2 handoff.
 
@@ -43,7 +27,7 @@ Required: full feature path **or** a specific `PLAN/PLAN_NNN_*.md` path under a 
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** building the step queue / spawning children. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md`. CONTINUITY stays the feature phase/handoff source.
 
-**Step N (after code changes):** when at least one develop child succeeded with app file changes, run `memory-bank-init` mode **`refresh-light`** at `bank_root` before final handoff (`MEMORY-BANK.md` Step N). Confirm (pt-BR) first.
+**Step N (after code changes):** when at least one develop child succeeded with app file changes, run `memory-bank-init` mode **`refresh-light`** at `bank_root` before final handoff (`MEMORY-BANK.md` Step N). Confirm in the user chat language first.
 
 **Parent orchestrator never** writes application code, never marks multiple PLAN steps done in one child, and never bypasses `sdd-develop` gates (`step_confirmed`, tests before complete).
 
@@ -140,7 +124,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Parse pending steps; respect Deps; resolve **execution mode** (`serial` default) and **develop pacing** (`step_by_step` default \| `continuous`); present the pending-only dispatch queue separately from the complete PLAN-step table; wait for **sim**. Every user-facing O3 status summary or transition must show the complete table for every PLAN step exactly once, including when no step is eligible or a blocker stops the queue. Never derive the displayed rows from the pending-only dispatch queue. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the queued step finishes or this skill declares a blocker with the cause. Read `references/execution-modes.md`, `references/develop-modes.md`, `references/plan-contract.md`, and `references/step-queue-spawn.md`.
 
 ### 5. Spawn exactly one step child (CA5)
-Load `sdd-develop/references/execution-display.md` before the first spawn and after each receipt. Before the first spawn, render the complete O3 PLAN-step progress table from `LIVE-STAGE-TABLE.md`, with one row for every PLAN step. Use `Invoke-O3ArtifactPreflight.ps1 -EmitStepTable` to render the deterministic table from the freshly re-read canonical PLAN. When current validated receipt, checkpoint, session, or claim evidence changes an operational status, build a complete JSON array with one `{ Id, Status, Evidence }` object for every canonical PLAN step and pass it using `-StepStateOverridesPath`; use the re-read PLAN status for unchanged steps and overlay only values supported by reconciled evidence. The formatter rejects missing, duplicate, extra, or invalid rows. This projection changes display only; never use it to alter PLAN validation or dispatch eligibility. Keep the pending-only dispatch queue separate; it never supplies display rows. After each child return, validate the receipt and reconcile the persisted PLAN checkpoint, then redraw the complete table before evaluating the next spawn. Update the affected row when a blocker, failure, or other advancement gate becomes observable. Every O3 status message and transition, including blocked, stopped, approval, and dispatch summaries, includes the full table. If the host exposes no intermediate event, keep the last verifiable state; do not invent streaming or a heartbeat. A valid receipt also gets a short result naming the step, status (`done`, `blocked`, or `failed`), and tests. Do not put the weighted stage table, the `Develop:` heartbeat, or a raw ledger dump in the chat. The O3 progress table is the operator-facing step ledger at close; the persisted PLAN progress table remains durable state. Track closeout gates separately.
+Load `sdd-develop/references/execution-display.md` before the first spawn and after each receipt. Before the first spawn, render the complete O3 PLAN-step progress table from `LIVE-STAGE-TABLE.md`, with one row for every PLAN step. Use `Invoke-O3ArtifactPreflight.ps1 -EmitStepTable` to render the deterministic table from the freshly re-read canonical PLAN. When current validated receipt, checkpoint, session, or claim evidence changes an operational status, build a complete JSON array with one `{ Id, Status, Evidence }` object for every canonical PLAN step and pass it using `-StepStateOverridesPath`; use the re-read PLAN status for unchanged steps and overlay only values supported by reconciled evidence. The formatter rejects missing, duplicate, extra, or invalid rows. This projection changes display only; never use it to alter PLAN validation or dispatch eligibility. Keep the pending-only dispatch queue separate; it never provides display rows. After each child return, validate the receipt and reconcile the persisted PLAN checkpoint, then redraw the complete table before evaluating the next spawn. Update the affected row when a blocker, failure, or other advancement gate becomes observable. Every O3 status message and transition, including blocked, stopped, approval, and dispatch summaries, includes the full table. If the host exposes no intermediate event, keep the last verifiable state; do not invent streaming or a heartbeat. A valid receipt also gets a short result naming the step, status (`done`, `blocked`, or `failed`), and tests. Do not put the weighted stage table, the `Develop:` heartbeat, or a raw ledger dump in the chat. The O3 progress table is the operator-facing step ledger at close; the persisted PLAN progress table remains durable state. Track closeout gates separately.
 
 Use `ROSTER.md` as the spawn source of truth: call `repo_analyst` for brownfield/impact uncertainty or `needs_api`; call `architect` for `needs_domain`, greenfield, or brownfield mirror; call `database` only for `needs_database` or persistence in scope. Evaluate those conditions once before the first PLAN step, not before every intermediate step. Do not repeat that impact, architecture, and persistence pass before an intermediate step. Run the same pass again when code review is requested against that PLAN. Drift in contract, order, or acceptance stops with `plan_stale` and returns to `sdd-plan`. Do not rewrite the graph. Honor the ledger claim. One Task = one PLAN step. Omit Task `model` by default. If Task is unavailable, hand off to manual `/sdd-develop`. When fallback work requires editing and the host is in Plan/Ask, pause and explicitly ask the operator to switch to Agent; do not attempt the edit or silently change mode. Read `references/step-queue-spawn.md` and `references/anti-bypass.md`.
 

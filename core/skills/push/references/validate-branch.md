@@ -5,7 +5,7 @@
 
 ### -1. Re-check guardrails and session
 
-If missing, ask user (pt-BR):
+If missing, ask user in the user chat language:
 
 ```text
 Antes do push, confirme:

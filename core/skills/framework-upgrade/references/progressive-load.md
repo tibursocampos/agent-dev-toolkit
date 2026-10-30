@@ -1,6 +1,6 @@
 # Progressive load — framework-upgrade
 
-Aligns with `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`) and `SKILL-REFERENCE-RETRIEVAL.md`.
+Aligns with `SELECTIVE-RETRIEVAL.md` and `SKILL-REFERENCE-RETRIEVAL.md`.
 
 ## Rule
 

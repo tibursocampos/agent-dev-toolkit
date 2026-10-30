@@ -6,30 +6,15 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. `sdd-develop` and direct one-step execution: after **ONE** PLAN step/task, **STOP** that execution session and hand off. This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode; O2 follows its per-story gates and continues through the eligible story queue.
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (required for orchestrate-*)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
-
+1. `sdd-develop` and direct one-step execution: after **ONE** PLAN step/task, **STOP** that execution session and hand off. This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode; O2 follows its per-story gates and continues through the eligible story queue.
 ---
 
 # Skill: orchestrate-deliver
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/orchestrate-deliver`, `orchestrate deliver`, `/orchestrate-deliver`, or Orchestrated Delivery O2 after an approved O1 backlog.
 
@@ -137,7 +122,7 @@ For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine
 Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
-Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Preserve external evidence references from O1 verbatim as `external:<alias>/<relative-path>` in PRD / PLAN evidence citations and the handoff; do not add roots or authorize aliases. For O3, the coordinator separately authorizes alias + path prefixes and supplies the alias-to-root map to `Invoke-O3ReceiptValidation.ps1`. Read `references/continuity-handoff.md`.
+Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Preserve external evidence references from O1 verbatim as `external:<alias>/<relative-path>` in PRD / PLAN evidence citations and the handoff; do not add roots or authorize aliases. For O3, the coordinator separately authorizes alias + path prefixes and provides the alias-to-root map to `Invoke-O3ReceiptValidation.ps1`. Read `references/continuity-handoff.md`.
 
 ### 9. Durable progress checkpoint
 Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate. During O2, also render and redraw the chat-only live stage table from `LIVE-STAGE-TABLE.md` after each stage and story-cycle checkpoint. The table is not persisted in `CONTINUITY.md`.

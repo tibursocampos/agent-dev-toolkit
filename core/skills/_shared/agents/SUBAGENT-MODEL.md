@@ -43,7 +43,7 @@ Ask only if **at least two** signals match, **or** one obvious hard-stop:
 
 Simple STORY draft, ordinary PRD/PLAN, CRUD, wiring, mechanical tests, CONTINUITY-only updates, single low-ambiguity specialists.
 
-### Prompt (pt-BR) — only when the gate fires
+### Prompt (user chat language) — only when the gate fires
 
 **Must** get explicit user approval before passing any non-default `model`. Offer all three options:
 

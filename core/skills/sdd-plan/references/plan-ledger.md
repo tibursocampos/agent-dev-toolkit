@@ -1,4 +1,4 @@
-## PLAN-LEDGER (REQ-002 / CA2)
+## PLAN-LEDGER
 
 The session ledger (`claimed`, `released`) is not the step status. Do not merge the two. Step status stays `PENDING`, `IN_PROGRESS`, `BLOCKED`, `COMPLETED`, or `SKIPPED` (`status-legend.md`).
 
@@ -12,4 +12,4 @@ When authoring or updating a PLAN that will run under parallel O3 / multi-child 
 
 Do **not** invent a second claim SoT under `features/` or `.agent-trace/`. Ledger files live under the SDD sessions tree per the contract.
 
-Selective retrieval: cite portable paths only; never dump full PRD or full `memory-bank/` (`SR-NO-FULL-DUMP`).
+Selective retrieval: cite portable paths only; never dump full PRD or full `memory-bank/`.

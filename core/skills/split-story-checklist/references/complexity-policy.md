@@ -1,4 +1,4 @@
-## TASKS complexity policy (REQ-004)
+## TASKS complexity policy
 
 | FEATURE **Complexity** | Behavior |
 |------------------------|----------|

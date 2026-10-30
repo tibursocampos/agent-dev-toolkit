@@ -1,6 +1,6 @@
 # sdd-develop — command playbook
 
-**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process (REQ-006 / CA3). One PLAN step per session. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process. One PLAN step per session. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|

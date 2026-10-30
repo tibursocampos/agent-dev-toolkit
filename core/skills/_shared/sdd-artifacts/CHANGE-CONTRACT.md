@@ -4,11 +4,11 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CHANGE-C
 
 **Language:** This guideline is **English**. Agent artifact prose for `CHANGE.md` follows **content-language** (`LANGUAGE.md`; no hard-coded locale). Identifiers and paths stay **English**.
 
-Companion: `STORAGE.md` (canonical paths), `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`.
+Companion: `STORAGE.md` (canonical paths), `SELECTIVE-RETRIEVAL.md`, `PIPELINE.md`.
 
 ---
 
-## Purpose (REQ-004 / CA3)
+## Purpose
 
 For **brownfield** features, close specification with a delta file:
 
@@ -32,7 +32,7 @@ Do **not** invent `openspec/`, `.specs/`, or `.specify/` trees.
 | `memory-bank/conventions.md` | Conventions baseline |
 | Other **named** bank / docs files | Only when the delta truly touches them |
 
-CHANGE cites those baselines selectively (paths + short notes). It does **not** dump entire `memory-bank/` (`SR-NO-FULL-DUMP`).
+CHANGE cites those baselines selectively (paths + short notes). It does **not** dump entire `memory-bank/`.
 
 Template: `skills/_shared/templates/features/CHANGE.md`.
 
@@ -90,7 +90,7 @@ Before emitting develop handoff, verify:
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
 ```
 
-Exit 0 = required sections present. Exit ≠ 0 = fix before plan/develop. Smoke: `Assert-CoreContracts.ps1` (ChangeContract section). Deterministic only (RNF-001) — never LLM-as-validator.
+Exit 0 = required sections present. Exit ≠ 0 = fix before plan/develop. Smoke: `Assert-CoreContracts.ps1` (ChangeContract section). Deterministic only — never LLM-as-validator.
 
 ## Write-consistency rules (SDDW)
 

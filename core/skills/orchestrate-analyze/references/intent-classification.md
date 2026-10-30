@@ -16,11 +16,11 @@ Contract text only; covered by `Assert-CoreContracts.ps1`.
 | **Problem / Need** | Pain, defect, regression, ops friction; often one symptom | "Login fails on Safari"; "CI publish step is flaky" |
 | **Idea** | Exploratory, hypothesis, no acceptance yet | "What if we used event sourcing for orders?"; "Maybe MCP for GitHub" |
 
-If ambiguous, ask ≤3 high-cost questions (pt-BR). Do **not** invent scope or architecture in the parent orchestrator.
+If ambiguous, ask ≤3 high-cost questions in the user chat language. Do **not** invent scope or architecture in the parent orchestrator.
 
 ---
 
-## Map intent → track (RF01 extension)
+## Map intent → track (extension)
 
 | Intent | Default path | Full O1 (`orchestrate-analyze` continues) |
 |--------|--------------|-------------------------------------------|
@@ -32,7 +32,7 @@ If ambiguous, ask ≤3 high-cost questions (pt-BR). Do **not** invent scope or a
 
 ### Early handoff (stop O1 parent flow)
 
-When the mapped path is **not** full O1, present choice (pt-BR) and hand off — do **not** allocate NNN-slug or run Step 0 Memory Bank Gate unless the operator insists on O1 anyway:
+When the mapped path is **not** full O1, present the choice in the user chat language and hand off — do **not** allocate NNN-slug or run Step 0 Memory Bank Gate unless the operator insists on O1 anyway:
 
 | Path | Handoff |
 |------|---------|

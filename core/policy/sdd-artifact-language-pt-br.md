@@ -15,11 +15,11 @@ alwaysApply: true
 
 This rule does **not** change code language. It does **not** default project documentation to pt-BR.
 
-**Host plans** the operator reads (Cursor Plan mode, `CreatePlan`, `.cursor/plans/`) are **user-facing chat**, not this SDD PLAN path and not `SKILL.md`. They follow `user-language-pt-br.md` / `LANGUAGE.md` chat output. Do not write them in English because guidelines are English.
+**Host planning output** (the host's plan view or plan files) is **user-facing chat**, not this SDD PLAN path and not `SKILL.md`. It follows `user-language-pt-br.md` / `LANGUAGE.md` chat output. Do not write it in English because guidelines are English.
 
 ## SDD artifacts - resolve content language
 
-Write **section titles**, **metadata labels**, **prose**, **acceptance criteria**, **PLAN steps**, and **implementation notes** in the resolved content language from `skills/_shared/agents/LANGUAGE.md` (invocation override, preferences, manifest, then conversation language).
+Content language for SDD artifact bodies (section titles, labels, prose, acceptance criteria, PLAN steps, implementation notes) is resolved by `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` (CL-CONTENT-LANGUAGE).
 
 - Use templates in `{{TOOLKIT_ROOT}}/skills/sdd-spec/reference.md` and `{{TOOLKIT_ROOT}}/skills/sdd-plan/reference.md` matching the resolved content language.
 - Do **not** hard-code pt-BR when the resolved content language is another language.

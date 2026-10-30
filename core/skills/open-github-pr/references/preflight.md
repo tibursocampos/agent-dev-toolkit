@@ -9,7 +9,7 @@
 2. Run `gh auth status` (or equivalent with the resolved absolute path)
 3. If `gh` is unavailable or not authenticated:
    - Note (optional): an MCP GitHub server may work as a **fallback** for create/list when configured in the host — prefer `gh` for this skill
-   - If neither `gh` (authenticated) nor a working MCP GitHub fallback is available: **STOP** and help the user (pt-BR):
+   - If neither `gh` (authenticated) nor a working MCP GitHub fallback is available: **STOP** and help the user in the user chat language:
 
 ```text
 GitHub CLI (gh) não encontrado ou sem login.

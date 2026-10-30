@@ -5,24 +5,9 @@ description: Create or refresh workspace memory-bank/ (MVP contract + read-only 
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. After create **or** refresh / refresh-light completes: **STOP** - handoff only (do not start O1/O2/O3 in this skill)
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] MEMORY-BANK.md read
-[ ] STORAGE.md read (bank_root resolution)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
-
+1. After create **or** refresh / refresh-light completes: **STOP** - handoff only (do not start O1/O2/O3 in this skill)
 ---
 
 # Skill: memory-bank-init
@@ -30,8 +15,7 @@ Gate check:
 Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.com/github/spec-kit); this skill does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/memory-bank-init`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
 
@@ -80,13 +64,13 @@ MVP files are always required. Phase 2 files: write from templates when Prior/ci
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
 | Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
-| inventory → specialist synthesis (REQ-011 / CA4) | `skills/memory-bank-init/references/inventory-specialist-synthesis.md` |
-| Selective retrieval (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| inventory → specialist synthesis | `skills/memory-bank-init/references/inventory-specialist-synthesis.md` |
+| Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
 | Reference index (routing only) | `skills/memory-bank-init/reference.md` |
 | Process step detail (lazy) | `skills/memory-bank-init/references/<section>.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts (`SR-NO-FULL-DUMP`).
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts.
 
 ## Process
 
@@ -167,18 +151,18 @@ Output in `<bank_root>/.inventory/sources.json` (schema_version **3**):
 | Roots (portable) | `repo_path` MUST be `.`; `bank_path` MUST be repo-relative forward-slash (usually `memory-bank`) — **never** OS absolute / drive-letter / user-home |
 | Governance | `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash`, `inventory_summary` |
 
-Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason (TE01). Bloated existing index (> ~200 paths) → reset to curated discovery + note in `status_reason`.
+Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason. Bloated existing index (> ~200 paths) → reset to curated discovery + note in `status_reason`.
 
 **Observable wire (required):** after the script (or fallback) runs, read `status`, `status_reason`, `inventory_hash`, and `inventory_summary` from `sources.json` and include them in the Step 7 report. Do **not** treat `not-ready` as silent success — surface the reason before create/refresh file fills. Re-runs merge existing `sources` (cap) plus curated discovery; legacy `files` migrates to `sources` once.
 
 If script path unavailable after the resolution order above, run `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same v3 governance fields).
 
-### 5b. Inventory → specialist synthesis (REQ-011)
+### 5b. Inventory → specialist synthesis
 
 Load `references/inventory-specialist-synthesis.md`. Map inventory signals → roster specialists (or thin in-skill fill); merge receipts into bank targets **before** / as the first pass of Step 6.
 
 - **Selective retrieval:** pass portable `bank_root` + named paths + `inventory_summary` / capped source summaries — **never** dump integral `memory-bank/` into specialist or parent prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
-- **Skip D (REQ-013):** no tracker mutate, no external spec-tool constitution or installers (Credits may mention inspiration; this skill does **not** adopt it).
+- **Skip D:** no tracker mutate, no external spec-tool constitution or installers (Credits may mention inspiration; this skill does **not** adopt it).
 
 ### 6. Scaffold or refresh files
 

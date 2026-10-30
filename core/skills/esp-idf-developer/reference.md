@@ -9,4 +9,4 @@ Extended detail for `skills/esp-idf-developer/SKILL.md`. Load one section only w
 | Validation boundaries and safe reporting | `references/validation-and-safety.md` |
 | Forbidden assumptions and framework boundary | `references/must-not.md` |
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`.

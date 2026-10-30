@@ -119,7 +119,7 @@ Operator-facing STOP / confirm prompts use the **user chat language** (`LANGUAGE
 | `step_confirmed` | Develop (PLAN or PLAN+step) | User said **sim** to implement current step/task | `sdd-develop`, `document-implement` (hash `docs/documentation-plan/plan.md`) |
 | `tests_run` | Develop (PLAN or PLAN+step) | Tests executed and reported | Before marking step/task done (`document-implement`: doc write verified / reported - no `dotnet test` required) |
 
-**HIGH companions (WS14):** language surfaces → `agents/LANGUAGE.md`; agreed vs invented → `CONTRACT-PROVENANCE.md`. Do not hard-code artifact locale in gate prompts.
+**HIGH companions:** language surfaces → `agents/LANGUAGE.md`; agreed vs invented → `CONTRACT-PROVENANCE.md`. Do not hard-code artifact locale in gate prompts.
 
 ## State, approval, validation, and reconciliation
 
@@ -153,14 +153,14 @@ These records describe different dimensions. A reader must resolve each claim fr
 
 ### Bounded authorization and recovery
 
-- A sequential authorization is reusable only when its source, authorized action, finite step range/identifiers, and explicit limits are persisted in the current PLAN execution policy or supplied in the current invocation. An omitted bound, ambiguous source, or conflict is not authorization. It may prevent repeated step prompts only within that bound; the session helper still records each step's `step_confirmed` gate.
+- A sequential authorization is reusable only when its source, authorized action, finite step range/identifiers, and explicit limits are persisted in the current PLAN execution policy or provided in the current invocation. An omitted bound, ambiguous source, or conflict is not authorization. It may prevent repeated step prompts only within that bound; the session helper still records each step's `step_confirmed` gate.
 - Content approval, PRD/PLAN writing, PLAN content approval, step implementation, and whole-PLAN closure remain separate actions and gates. No gate implies another, and no approval alone satisfies a validation or closure condition.
 - Recover from the persisted owner record for the dimension in question, not from chat history, host preference, or a stale receipt. Re-read the canonical PRD/PLAN and the correctly scoped SESSION/claim/evidence records. A disagreement is reported to the owner; do not repair another owner's transition, infer a winner, bulk-edit historical statuses, or advance dependents while the disagreement remains.
 - `COMPLETED` requires the step's acceptance plus every applicable required validation recorded as `PASS` with evidence. A justified `SKIPPED` check may be non-blocking only when the PLAN declares it non-applicable or deferred and the acceptance has other sufficient evidence; it never becomes `PASS`. A step marked `SKIPPED`, or any `PLANNED`, unknown, conflicting, or failed required result, cannot by itself contribute to overall PLAN closure.
 
 ## Before Write or mutating Shell
 
-### Persisted identity is a precondition to mutation (REQ-005 / CA5)
+### Persisted identity is a precondition to mutation
 
 Before any existing PLAN-scoped develop session action (`ensure`, `tests-run`, or `reset`), the helper resolves the active repository and PLAN to absolute paths, normalizes separators and trailing separators, and compares them case-insensitively with persisted `repo` and `plan_path`. Both fields must match. A mismatch fails closed, reports the resolved expected and persisted identities, and leaves the session bytes unchanged. `status` also reports the mismatch instead of presenting a gate from another context. Do not repair, rewrite, or migrate a mismatched session automatically; investigate the path/context and use the correct session scope.
 
@@ -177,11 +177,11 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 ```
 
 - Creates the PLAN-scoped develop session schema when missing; sets `gates.step_confirmed = true`.
-- **Idempotent (REQ-011 / CT5):** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
+- **Idempotent:** if `step_confirmed` is already `true`, exit 0 and **do not rewrite** the file.
 - `-Action tests-run` requires `step_confirmed = true`, records tests only after execution/reporting, and skips rewriting if already true.
 - `-Action reset` clears both develop gates and sets `phase = idle` after step close; it skips rewriting when both are already false.
 - Every helper invocation is a required gate: a nonzero exit, denied write, or missing confirmation output stops the current operation. Report `blocked` or `failed` with the helper's cause; do not continue to claim, spawn, implement, validate completion, or report success. Never bypass the helper or mutate session JSON inline. If the canonical SDD root is not writable, ask the operator to restore a writable root through the supported setup mechanism, then retry the same helper only after that condition changes.
-- **RN04 / CT6 (REQ-012):** does **not** claim the PLAN ledger — still **MUST** call `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
+- does **not** claim the PLAN ledger — still **MUST** call `{{TOOLKIT_ROOT}}/scripts/ledger/Invoke-PlanLedgerClaim.ps1` separately when a claim is required (skip of session write does **not** skip a missing claim). Prefer one Shell approve chaining both `-File` calls when the host allows.
 4. Repo gates (`storage_confirmed` / `write_confirmed`) remain on the flat `{repo-hash}.json` (helper above is develop-scope only).
 
 ## After develop step completes (mandatory)
@@ -215,7 +215,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gate
 
 Exit 0 = gate approved; exit 1 = blocked.
 
-Canonical scripts (REQ-014):
+Canonical scripts:
 
 | Script | Role |
 |--------|------|
@@ -228,5 +228,5 @@ Canonical scripts (REQ-014):
 | Consumer | Use |
 |----------|-----|
 | All skills | Step -1 gate check before Write/Shell |
-| `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step); **MUST** call `Invoke-DevelopSessionGate.ps1` after **sim** (REQ-012); claim still required when absent (CT6) |
+| `sdd-develop` / `document-implement` / O3 children | Develop session scoped by plan path (or PLAN+step); **MUST** call `Invoke-DevelopSessionGate.ps1` after **sim**; claim still required when absent |
 | `rules/guardrails.mdc` | References this file |

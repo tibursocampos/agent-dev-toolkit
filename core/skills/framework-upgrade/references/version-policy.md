@@ -8,9 +8,9 @@ Always `framework-upgrade`. Version majors **never** enter the skill id or slash
 
 ## Resolve order
 
-1. **`framework_id`** — load `references/detect.md` (REQ-010 / TE03). Pack signals in `packs/<id>/PACK.md`.
+1. **`framework_id`** — load `references/detect.md`. Pack signals in `packs/<id>/PACK.md`.
 2. **Versions** — validate pair below.
-3. **Range** — compare to pack `supported_range`; out of range → `references/research-protocol.md` (REQ-012 / TE04).
+3. **Range** — compare to pack `supported_range`; out of range → `references/research-protocol.md`.
 
 ## Inputs
 
@@ -27,7 +27,7 @@ Always `framework-upgrade`. Version majors **never** enter the skill id or slash
 - Do **not** hardcode a single pair (e.g. “only 8→10”) in this orchestrator.
 - Practice / partial / out bands are pack-owned; treat **missing hop majors** as out of range even if endpoints are listed.
 
-## Out of range (TE04)
+## Out of range
 
 - Load `references/research-protocol.md` (reuses `sources-catalog.md` — official first).
 - **Forbidden:** invent local deltas / widen `supported_range` without research + pack PR.
@@ -42,6 +42,6 @@ Always `framework-upgrade`. Version majors **never** enter the skill id or slash
 - `migrate` **STOP** if no pack `PACK.md` is available for the resolved id.
 - `audit` / `plan` may record “pack not on disk” gaps without inventing deltas.
 
-## Migrate gate (TE05)
+## Migrate gate
 
 Out-of-range research does **not** authorize mutate. `migrate` still requires explicit operator **sim**; silence ≠ approval.

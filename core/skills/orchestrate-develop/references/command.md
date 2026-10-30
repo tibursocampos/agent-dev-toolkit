@@ -1,6 +1,6 @@
 # orchestrate-develop — command playbook
 
-**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process (REQ-006 / CA3). Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`). Parent never writes app code.
+**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`). Parent never writes app code.
 
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|

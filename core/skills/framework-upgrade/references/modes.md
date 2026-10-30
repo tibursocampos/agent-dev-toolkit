@@ -6,7 +6,7 @@ Four modes only. Skill id remains `framework-upgrade` in every mode.
 |------|-----------------|---------------|--------------|
 | `audit` | No | Optional confirm to start | progressive-load, version-policy |
 | `plan` | No (docs/register only if operator asked to persist plan artifacts) | Confirm scope | decision-register, progressive-load |
-| `migrate` | Yes | **Explicit sim required** — silence ≠ approval (RN02 / TE05) | decision-register, evidence, pack deltas |
+| `migrate` | Yes | **Explicit sim required** — silence ≠ approval | decision-register, evidence, pack deltas |
 | `validate` | No (except test/fix logs if project requires) | Confirm scope | evidence, pack validation |
 
 ## Contracts

@@ -5,22 +5,7 @@ description: Execute one PLAN baby step (identifiers English; comments/docs mirr
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load **repo** session for `$Cwd`, then after PLAN path is known load **develop** session scoped by PLAN (or PLAN+step) - see `SESSION.md`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** that develop scope - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; repo + develop (PLAN-scoped) session loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ### Canonical scripts after sim (REQ-012 / CA4 / CT6)
 
@@ -53,8 +38,7 @@ For `invocation_context=orchestrated`, the O3 parent owns this acquisition; the 
 # Skill: sdd-develop
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
@@ -161,7 +145,7 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 
 | Situation | Action |
 |-----------|--------|
-| Canonical PLAN path given (`features/.../PLAN/` or global `.../features/.../PLAN/`) | Read the active step block only. In `direct`, the approved PLAN step, its REQ/CA acceptance, dependencies, and declared validation are the execution unit; do not read, require, or create `REFINE/tasks.md`. Use task rows only when the direct invocation explicitly adopts a checklist and its relationship to the PLAN is explicit. In `orchestrated`, use only the checklist path and scoped rows supplied by the O3 parent; missing or inconsistent required task rows block/return to O2. Do not load the rest of the PRD. Update the PLAN and only applicable checklist rows in place |
+| Canonical PLAN path given (`features/.../PLAN/` or global `.../features/.../PLAN/`) | Read the active step block only. In `direct`, the approved PLAN step, its REQ/CA acceptance, dependencies, and declared validation are the execution unit; do not read, require, or create `REFINE/tasks.md`. Use task rows only when the direct invocation explicitly adopts a checklist and its relationship to the PLAN is explicit. In `orchestrated`, use only the checklist path and scoped rows provided by the O3 parent; missing or inconsistent required task rows block/return to O2. Do not load the rest of the PRD. Update the PLAN and only applicable checklist rows in place |
 | Root/flat `PLAN/` or other non-canonical path | **STOP** - ask user to migrate under `features/.../PLAN/` via `sdd-plan`; do not execute |
 | No canonical PLAN path | Glob `features/**/PLAN/PLAN_*.md` only (workspace + global feature root); if not found, use `PIPELINE.md` section `sdd-develop` without PLAN (options 1-3) |
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |

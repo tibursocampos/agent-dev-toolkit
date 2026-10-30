@@ -12,55 +12,65 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   - core/router/AGENTS.md -> InstallRoot/copilot-instructions.md
   Mode user: InstallRoot models ~/.copilot. Mode repo: InstallRoot models .github.
   Placeholders resolved after copy. Re-publish overwrites managed files; does not delete aliens.
-  Cursor alwaysApply: true in policy frontmatter is rewritten to Copilot-native applyTo: "**".
+  Policy frontmatter is mapped to Copilot applyTo: alwaysApply: true -> applyTo "**"; a globs
+  value -> applyTo; on-demand rules get no applyTo. Rule references (`<name>.mdc`, `rules/`) are
+  rewritten through Get-CopilotRuleReferenceMap in Publish-CopilotSkills.ps1.
   Smoke is filesystem-only - Copilot IDE extension is out of scope.
   Mode repo must target a fixture InstallRoot - never the toolkit working-tree .github by default.
 #>
 
-function Convert-CopilotAlwaysApplyFrontmatterToApplyTo {
+function Convert-CopilotPolicyFrontmatterToApplyTo {
+    <#
+    .SYNOPSIS
+      Maps a Cursor-style policy frontmatter block to Copilot instructions frontmatter.
+
+    .DESCRIPTION
+      alwaysApply: true -> applyTo: "**". Otherwise a globs value, when present, becomes
+      applyTo. A rule with neither stays on demand and carries no applyTo, because Copilot
+      applies path-specific instructions only when applyTo matches. The alwaysApply key is
+      dropped from the published file.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [string] $Text
     )
 
-    $alwaysApplyToken = $script:CopilotPathConstant.AlwaysApplyFrontmatterToken
-    $applyToToken = $script:CopilotPathConstant.ApplyToAllFrontmatterToken
-    if ([string]::IsNullOrEmpty($alwaysApplyToken) -or [string]::IsNullOrEmpty($applyToToken)) {
-        return $Text
-    }
-    if (-not $Text.Contains($alwaysApplyToken)) {
-        return $Text
+    $body = if ($Text.Length -gt 0 -and [int][char]$Text[0] -eq 0xFEFF) { $Text.Substring(1) } else { $Text }
+    $match = [regex]::Match($body, '\A---\r?\n(?<frontmatter>.*?)\r?\n---[ \t]*\r?\n', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+    if (-not $match.Success) {
+        return $body
     }
 
-    return $Text.Replace($alwaysApplyToken, $applyToToken)
-}
-
-function Convert-CopilotRouterMdcReferencesToInstructions {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $Text
-    )
-
-    $mdcExtension = $script:CopilotPathConstant.CursorRuleExtension
-    $instructionsExtension = $script:CopilotPathConstant.InstructionsFileExtension
-    $sep = $script:CopilotPathConstant.PathSeparatorForwardSlash
-    $toolkitRoot = $script:CopilotPathConstant.PlaceholderToolkitRoot
-    $rulesDir = $script:CopilotPathConstant.CursorRulesDirectoryName
-    $instructionsDir = $script:CopilotPathConstant.InstructionsDirectoryName
-    if ([string]::IsNullOrEmpty($mdcExtension) -or [string]::IsNullOrEmpty($instructionsExtension)) {
-        return $Text
+    $description = $null
+    $alwaysApply = $false
+    $globs = $null
+    foreach ($line in ($match.Groups['frontmatter'].Value -split '\r?\n')) {
+        if ($line -match '^description:\s*(.*)$') {
+            $description = $Matches[1]
+        }
+        elseif ($line -match '^alwaysApply:\s*(true|false)\s*$') {
+            $alwaysApply = ($Matches[1] -eq 'true')
+        }
+        elseif ($line -match '^globs:\s*(.*)$') {
+            $globs = $Matches[1].Trim().Trim('"', "'")
+        }
     }
 
-    $updated = $Text
-    $toolkitRulesPrefix = $toolkitRoot + $sep + $rulesDir + $sep
-    $toolkitInstructionsPrefix = $toolkitRoot + $sep + $instructionsDir + $sep
-    if (-not [string]::IsNullOrEmpty($toolkitRoot) -and -not [string]::IsNullOrEmpty($rulesDir) -and $updated.Contains($toolkitRulesPrefix)) {
-        $updated = $updated.Replace($toolkitRulesPrefix, $toolkitInstructionsPrefix)
+    $lines = [System.Collections.Generic.List[string]]::new()
+    $lines.Add('---')
+    if (-not [string]::IsNullOrEmpty($description)) {
+        $lines.Add('description: ' + $description)
     }
+    if ($alwaysApply) {
+        $lines.Add($script:CopilotPathConstant.ApplyToAllFrontmatterToken)
+    }
+    elseif (-not [string]::IsNullOrEmpty($globs)) {
+        $lines.Add('applyTo: "' + $globs + '"')
+    }
+    $lines.Add('---')
 
-    return $updated.Replace($mdcExtension, $instructionsExtension)
+    return (($lines -join "`n") + "`n" + $body.Substring($match.Length))
 }
 
 function Convert-CopilotHomeAgentsPathToInstructionsFile {
@@ -169,7 +179,7 @@ function Copy-CopilotCorePolicyAsInstructions {
         $destinationPath = Join-Path $DestinationInstructionsRoot $destinationName
         Assert-ToolkitManagedWriteDestination -DestinationPath $destinationPath -InstallRoot $InstallRoot
         $raw = [System.IO.File]::ReadAllText($file.FullName)
-        $converted = Convert-CopilotAlwaysApplyFrontmatterToApplyTo -Text $raw
+        $converted = Convert-CopilotPolicyFrontmatterToApplyTo -Text $raw
         $converted = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $converted -InstallRoot $InstallRoot
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
         $relativeInventoryPath = ('instructions/{0}' -f $destinationName)
@@ -209,8 +219,7 @@ function Publish-CopilotRouterAsInstructionsFile {
     Assert-ToolkitManagedWriteDestination -DestinationPath $DestinationInstructionsFile -InstallRoot $InstallRoot
 
     $raw = [System.IO.File]::ReadAllText($SourceRouterFile)
-    $updated = Convert-CopilotRouterMdcReferencesToInstructions -Text $raw
-    $updated = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $updated -InstallRoot $InstallRoot
+    $updated = Convert-CopilotHomeAgentsPathToInstructionsFile -Text $raw -InstallRoot $InstallRoot
     foreach ($key in $PlaceholderMap.Keys) {
         if ($updated.Contains([string]$key)) {
             $updated = $updated.Replace([string]$key, [string]$PlaceholderMap[$key])

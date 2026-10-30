@@ -1,10 +1,10 @@
-# Review contracts refs (WS16a / REQ-016)
+# Review contracts refs
 
 **Family:** `contracts`. Load during Process §2–4 when the diff touches SDD artifacts, skill contracts, CHANGE/FEATURE shape, evidence/TRACE, API schemas, or plan markers.
 
 **Language:** English identifiers and checklist labels. Report prose follows session language.
 
-**Contract:** cite portable paths; **do not** dump full contract files into the report (`SR-NO-FULL-DUMP` / RNF-004). Honor `CONTRACT-PROVENANCE.md` (`agreed` vs `invented`) — do not treat reviewer inventions as PRD requirements.
+**Contract:** cite portable paths; **do not** dump full contract files into the report. Honor `CONTRACT-PROVENANCE.md` (`agreed` vs `invented`) — do not treat reviewer inventions as PRD requirements.
 
 Companions: `references/sdd-resolution.md`, `references/policy.md`, `references/verification.md`.
 
@@ -40,17 +40,17 @@ Sibling feature contracts (do **not** reopen CI asserts from enrich-only reviews
 - [ ] When a PLAN/PRD is in scope, implementation DoR is evidenced before the first step (approved canonical pair; REQ→CA→step/acceptance mapping; declared validations; dependencies; scope/OOS; unresolved decisions; readiness review evidence). `READY` alone never passes this gate.
 - [ ] A step or PLAN marked `COMPLETED` has acceptance met, declared validations passed, and results/evidence recorded. Acceptance without a validation result, missing required evidence, an uncovered mandatory REQ/CA, or an unresolved blocking review finding is a mandatory gap: report it as **Changes required** and do not accept the completion claim.
 - [ ] PLAN/US closeout reconciles every required REQ/CA to implementation and test evidence, reports applicable final checks, and resolves mandatory failures/findings; retain `PENDING`/`BLOCKED` for incomplete work.
-- [ ] SESSION / ledger / path-secret guards not weakened (RNF-003)
+- [ ] SESSION / ledger / path-secret guards not weakened
 - [ ] API/schema diffs: naming/versioning consistent with project or `api-standards` pointers — no proprietary contract dump
 - [ ] Reviewer findings that are **not** in PRD/PLAN are labeled invented/suggestion — not claimed as failed REQ
 
 **Severity hint:** finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Portable-path / gate / SoT regressions → `critical` or `important`; missing Related cite → often `important`; style-only contract prose → `nice-to-have`.
 
-## OOS (WS16b) — explicit
+## OOS — explicit
 
 This family does **not** authorize creating `core/skills/framework-upgrade/` or any new product skill folder. Flag such additions as **out of scope** / **Changes required** unless a separate approved feature exists.
 
-## CT6 marker (contracts)
+## Marker (contracts)
 
 - [ ] This file is reachable from `code-review` Reference routing / Process §2–4
 - [ ] Three-family surface complete with `policy.md` + `n-plus-one.md`

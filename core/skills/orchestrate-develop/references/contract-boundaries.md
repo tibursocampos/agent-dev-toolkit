@@ -1,4 +1,4 @@
-## Contract reuse (RN05)
+## Contract reuse
 
 | Concern | Source of truth |
 |---------|-----------------|

@@ -108,14 +108,7 @@ Before marking a develop step or task complete, run the checks specified for tha
 
 ## 5. Language
 
-| Context | Language |
-|---------|----------|
-| Chat replies to user | Resolved conversation language per `agents/LANGUAGE.md` |
-| Host plans the operator reads (Cursor Plan / `CreatePlan` / `.cursor/plans/`) | Resolved conversation language. Skill bodies being English is not a reason to change it. |
-| `SKILL.md`, guidelines, rules | **English** |
-| PRD, PLAN (default) | Resolved content language per `agents/LANGUAGE.md` |
-| Identifiers, tests naming, commits | **English** |
-| Comments / XML docs / narrative docs | **Mirror** touched area or **ask** on greenfield (`structure-and-quality.md` §2) |
+Language surfaces (chat, host plans, SDD artifacts, code, identifiers) are defined once in `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`.
 
 If the user corrects language, fix the **artifact/code** - do not flip chat to English unless asked.
 

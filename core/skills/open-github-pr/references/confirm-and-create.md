@@ -6,7 +6,7 @@ Detect whether the repo allows auto-merge:
 gh api repos/{owner}/{repo} --jq .allow_auto_merge
 ```
 
-Present title, base, head, full body, template source path, and auto-merge availability. Ask (pt-BR):
+Present title, base, head, full body, template source path, and auto-merge availability. Ask in the user chat language:
 
 ```text
 Conteúdo do PR acima está ok?

@@ -51,7 +51,7 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 
 ---
 
-## Official sources (normative — RN08)
+## Official sources (normative)
 
 Pointers only — do not paste style-guide / gist bodies. **angular.dev wins** auxiliary gists/Medium.
 

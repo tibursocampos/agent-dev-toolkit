@@ -5,22 +5,9 @@ description: Run the workspace test command for each detected stack and return p
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
-4. This skill does not implement code and does not take a plan step
-5. This skill body is **English**. The report follows the user chat language (`LANGUAGE.md`)
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] User confirmed current action (sim) when invocation is direct
--> If any unchecked: STOP
-```
-
+1. This skill does not implement code and does not take a plan step
 When the parent is `orchestrate-develop` at scope close, the scope **sim** already authorizes the test command. Do not ask for a second **sim** only for that command.
 
 Plan mode or Ask: do not run a shell. Say that Agent mode is required.
@@ -34,8 +21,7 @@ When caveman is on, load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` an
 # Skill: run-tests
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 `/run-tests`, or `orchestrate-develop` closing a story scope.
 

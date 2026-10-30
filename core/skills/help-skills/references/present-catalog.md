@@ -1,17 +1,17 @@
 ## Present static catalog
 
 ### Caveman Mode
-**NEVER** — This skill ignores `caveman_mode`. Present the catalog in clear prose (pt-BR for the user). Do not load `CAVEMAN.md` for chat compression.
+**NEVER** — This skill ignores `caveman_mode`. Present the catalog in clear prose (in the user chat language). Do not load `CAVEMAN.md` for chat compression.
 
 ### 0. No mutating gates
 
-This skill is **read-only**. Do **not** require guardrails/SESSION/`sim` to show the catalog. Do not invent skill names.
+This skill is **read-only**. Read guardrails and `SESSION.md` at turn 1 as always (mandatory), but do **not** require a `sim` or a SESSION gate approval to show the catalog. Do not invent skill names.
 
 ### 1. Read static files (required)
 
 1. **Read** `CATALOG.md` at `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (fallback: `_shared/skills-catalog/CATALOG.md`).
 2. **Read** `OPERATOR.md` when the user asks about confirmations, options, quirks, Caveman, or “what will I be asked?” — or when presenting a full help response that should include operator expectations. For a bare “list skills”, CATALOG alone is enough; still mention that `OPERATOR.md` exists for nuances.
-3. If either required file for the answer is missing, **STOP** and tell the user (pt-BR) the catalog is not installed — suggest re-running agent sync. Do **not** invent a skill list from memory.
+3. If either required file for the answer is missing, **STOP** and tell the user (in the user chat language) the catalog is not installed — suggest re-running agent sync. Do **not** invent a skill list from memory.
 
 ### 2. Present (do not rewrite)
 

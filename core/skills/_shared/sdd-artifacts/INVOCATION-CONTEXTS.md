@@ -4,13 +4,13 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATI
 
 **Language:** This guideline is **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`). Child prompts / receipts stay **en-US**.
 
-Companion: `PIPELINE.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `SESSION.md`, `SPAWN.md`, `STORAGE.md` § Portable path.
+Companion: `PIPELINE.md`, `SELECTIVE-RETRIEVAL.md`, `SESSION.md`, `SPAWN.md`, `STORAGE.md` § Portable path.
 
 **Rule ID:** `IC-DIRECT-ORCHESTRATED`
 
 ---
 
-## Purpose (REQ-001 / CA1)
+## Purpose
 
 Pipeline skills must apply **observable** behavior for two invocation contexts:
 
@@ -38,13 +38,13 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 
 Resolve context **once** at skill start (after gate check). Prefer the explicit current invocation/handoff over execution-shape defaults:
 
-1. **Explicit current invocation** — a `invocation_context: direct|orchestrated` field supplied by the current caller/handoff wins and is recorded once for this skill run.
+1. **Explicit current invocation** — a `invocation_context: direct|orchestrated` field provided by the current caller/handoff wins and is recorded once for this skill run.
 2. **Orchestrated execution** — absent an explicit field, a Task child whose current parent handoff identifies an `orchestrate-*` stage, or execution of an `orchestrate-*` skill itself, resolves to `orchestrated`.
 3. **Default** — otherwise resolve to `direct`.
 
 Do not infer or change the resolved context from the presence, absence, freshness, completeness, path proximity, or contents of FEATURE, STORY, CONTINUITY, REFINE/tasks, Memory Bank, PRD, PLAN, or any other sibling artifact. A sibling may be used only when the active skill contract authorizes it as an input and its relationship/authority is explicit; it does not set invocation context. Host preference such as `orchestrator_mode` is not an invocation signal. Resolve once at skill start and keep that context for the run; a conflicting sibling is reported as a conflict, not used as a fallback.
 
-Generic parent coordination, a parent role named `orchestrator`, use of a Task for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is supplied. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
+Generic parent coordination, a parent role named `orchestrator`, use of a Task for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is provided. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
 
 Record the resolved id in the session report / child receipt when one is produced (en-US field name: `invocation_context`).
 
@@ -54,9 +54,9 @@ Record the resolved id in the session report / child receipt when one is produce
 
 | Rule | Behavior |
 |------|----------|
-| Selective retrieval | Paths + short summaries only; **must not** dump entire `memory-bank/` or paste full PRD (`SR-NO-FULL-DUMP`) |
+| Selective retrieval | Paths + short summaries only; **must not** dump entire `memory-bank/` or paste full PRD |
 | Portable paths | Artifact cross-refs use portable paths (`STORAGE.md`); no OS absolute / InstallRoot embeds in written artifacts |
-| Secrets in examples | Env var **names** or `***` only — never real tokens (RNF-002) |
+| Secrets in examples | Env var **names** or `***` only — never real tokens |
 | Gates | Honor `SESSION.md` gates before Write / mutating Shell |
 | Model on spawn | Omit `model` by default (same as parent); no alternate slug without gate (`SUBAGENT-MODEL.md`) |
 
@@ -84,7 +84,7 @@ Record the resolved id in the session report / child receipt when one is produce
 
 ## Examples (no secrets)
 
-### Env / redaction (RNF-002)
+### Env / redaction
 
 ```text
 # OK — env var name only

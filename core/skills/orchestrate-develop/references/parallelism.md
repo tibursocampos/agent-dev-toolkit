@@ -39,7 +39,7 @@ Parallel Task children **when all** of:
 | User explicitly chose parallel after being asked | Yes |
 | **Distinct develop session files** (PLAN-scoped, or PLAN+step when same PLAN) | Yes |
 
-Ask (pt-BR) before any parallel spawn — copy in § Safe parallelism rules.
+Ask in the user chat language before any parallel spawn — copy in § Safe parallelism rules.
 
 | Parallel case | Session file per child (`SESSION.md`) |
 |---------------|----------------------------------------|

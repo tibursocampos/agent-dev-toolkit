@@ -5,30 +5,14 @@ description: Create a baby-step PLAN from an existing PRD (agent PLAN .md; langu
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: sdd-plan
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/sdd-plan`, `create plan`, `execution plan`.
 
@@ -94,7 +78,7 @@ Glob canonical PRDs under `features/**/PRD/` only (workspace + global feature ro
 | No canonical PRD | `PIPELINE.md` section `sdd-plan` without PRD - options 1 or 2; then collect text or file path |
 | "Criar PRD" | Choice **1** -> hand off to `sdd-spec` inputs; do not write PLAN until PRD exists (unless user chose **2**) |
 | Non-canonical `.md` (root `PRD/`, `docs/PRD/`, etc.) | Promote under `features/...` via `sdd-spec` or ask for a canonical feature path |
-| PRD under feature story | `direct`: use the canonical PRD; consult only explicitly linked or operator-supplied optional siblings. `orchestrated`: load required O2 backlog/story siblings (`PIPELINE.md` § Feature / story siblings) |
+| PRD under feature story | `direct`: use the canonical PRD; consult only explicitly linked or operator-provided optional siblings. `orchestrated`: load required O2 backlog/story siblings (`PIPELINE.md` § Feature / story siblings) |
 
 Summarize PRD (**cite portable path** — **must not** paste the full PRD body into chat dumps, PLAN, or child prompts; `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Ask to proceed.
 
@@ -102,7 +86,7 @@ Summarize PRD (**cite portable path** — **must not** paste the full PRD body i
 
 Do not invent steps. Do not assign a duration. Apply the resolved `invocation_context` once; sibling presence must not change it.
 
-1. Load `references/checklist-acquisition.md` and follow its context table. In `direct`, a canonical PRD with persisted content approval and a planning-ready status is sufficient. FEATURE, STORY, CONTINUITY, Memory Bank, and `REFINE/tasks.md` are optional and must not be created, acquired, or required to plan. Normalize PRD complexity only by the documented PRD-to-Core mapping; by default derive PLAN-native steps from approved behavior, REQ, and CA, grouping related outcomes and dependencies. An optional STORY/checklist may add context only when the PRD's `## Related` explicitly links it (or the operator supplies its canonical path); when a valid linked checklist is adopted, preserve its IDs/dependencies exactly. Optional material never overrides the PRD, and a conflict affecting scope, acceptance, or dependencies is an `open_question` for the operator. In `orchestrated`, retain O2's canonical FEATURE/STORY/backlog, approval, analysis, and checklist-owner requirements; a missing, invalid, or unapproved required input blocks planning. Do not fall back between contexts.
+1. Load `references/checklist-acquisition.md` and follow its context table. In `direct`, a canonical PRD with persisted content approval and a planning-ready status is sufficient. FEATURE, STORY, CONTINUITY, Memory Bank, and `REFINE/tasks.md` are optional and must not be created, acquired, or required to plan. Normalize PRD complexity only by the documented PRD-to-Core mapping; by default derive PLAN-native steps from approved behavior, REQ, and CA, grouping related outcomes and dependencies. An optional STORY/checklist may add context only when the PRD's `## Related` explicitly links it (or the operator provides its canonical path); when a valid linked checklist is adopted, preserve its IDs/dependencies exactly. Optional material never overrides the PRD, and a conflict affecting scope, acceptance, or dependencies is an `open_question` for the operator. In `orchestrated`, retain O2's canonical FEATURE/STORY/backlog, approval, analysis, and checklist-owner requirements; a missing, invalid, or unapproved required input blocks planning. Do not fall back between contexts.
 
    For O2, if FEATURE complexity is `medium` or `complex` and `REFINE/tasks.md` is missing, coordinate its owner skill before continuing. Never invent or rewrite checklist IDs. With an available native specialist, delegate exactly the `split-story-checklist` work using its canonical STORY path and require its receipt. Without subagents, execute that skill's workflow in the current flow; do not hard-fail or ask for a manual handoff. Keep authorship with `split-story-checklist` in either route. Validate the completed artifact and its IDs as specified by the reference; on failure or an open question, stop with the cause and do not resume the PLAN. After valid output, resume this same `sdd-plan` invocation at the normal exploration/review flow:
 

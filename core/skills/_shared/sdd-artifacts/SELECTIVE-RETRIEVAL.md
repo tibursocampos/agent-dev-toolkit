@@ -12,7 +12,7 @@ Companion: `PIPELINE.md` § Prior context and `MEMORY-BANK.md` § Selective read
 
 Keep token use low and context lean for Classic SDD / Backlog Refine / Orchestrated Delivery **without** a second SoT (no SQLite/FTS in this contract). Agents load **only** the paths needed for the current skill step.
 
-## Verifiable rule (CT5 / REQ-002)
+## Verifiable rule
 
 **Rule ID:** `SR-NO-FULL-DUMP`
 

@@ -46,6 +46,18 @@ The sync path is `core/skills/**` → `Publish-CopilotSkills.ps1` → `Invoke-To
 
 The CI smoke compares every generated skill file with its canonical source after those three expansions, checks each discoverable top-level skill has a matching lowercase/hyphen `name` plus a non-empty `description`, and separately reports host execution as `SKIPPED`. GitHub documents the required `SKILL.md` directory/frontmatter and the user/repository discovery roots in [Adding agent skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) and the [CLI configuration directory reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference).
 
+### Policy and rule mapping
+
+`Publish-Policy` writes each `core/policy/<name>.md` as `<InstallRoot>/instructions/<name>.instructions.md`, and the router as `<InstallRoot>/copilot-instructions.md`. Frontmatter maps from the policy's activation:
+
+| Policy frontmatter | Published `.instructions.md` | Activation |
+|--------------------|------------------------------|------------|
+| `alwaysApply: true` | `applyTo: "**"` (the `alwaysApply` key is dropped) | Applies to every file |
+| `alwaysApply: false` with `globs: <list>` | `applyTo: "<list>"` | Applies to matching paths |
+| `alwaysApply: false`, no `globs` | no `applyTo` | On demand; no path-based activation (live host behavior not verified) |
+
+Skill text and the router cite rules by Cursor name. Publish rewrites those references to the published names: `{{TOOLKIT_ROOT}}/rules/<name>.mdc` becomes `{{TOOLKIT_ROOT}}/instructions/<name>.instructions.md`, `rules/<name>.mdc` becomes `instructions/<name>.instructions.md`, and a bare `<name>.mdc` becomes `<name>.instructions.md`. Prose that names the extension alone is left as written. The map is built from `core/policy/` at publish time (`Get-CopilotRuleReferenceMap`).
+
 ### Copilot-specific materialization findings
 
 The format audit found material differences beyond byte-for-byte copy fidelity. Copilot CLI documents personal agents in `~/.copilot/agents`, so user-mode publication is supported; the earlier no-op skipped a real discovery scope. VS Code custom agents use `.agent.md` profiles under `.github/agents`, while Copilot CLI accepts both `.md` and `.agent.md`; publication now emits one `.agent.md` profile for the shared CLI/VS Code ID. See [Using custom agents in your IDE](https://docs.github.com/en/copilot/how-tos/copilot-in-your-ide/use-copilot-agents/use-custom-agents), [Invoking custom agents in Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/invoke-custom-agents), and [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration).

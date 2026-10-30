@@ -30,7 +30,6 @@ $script:CopilotPathConstant = @{
     ModeRepo                          = 'repo'
     CursorRuleExtension               = '.mdc'
     CursorRulesDirectoryName          = 'rules'
-    AlwaysApplyFrontmatterToken       = 'alwaysApply: true'
     ApplyToAllFrontmatterToken        = 'applyTo: "**"'
     PlaceholderToolkitRoot            = '{{TOOLKIT_ROOT}}'
     PlaceholderSddRoot                = '{{SDD_ROOT}}'
@@ -41,6 +40,7 @@ $script:CopilotPathConstant = @{
     SmokeExpectedSkillFolders         = @('commit', 'sdd-develop')
     SmokeExpectedSharedSkillsFolder   = '_shared'
     SmokeExpectedInstructionBases     = @('guardrails', 'ai-stealth', 'sdd-pipeline-guards', 'orchestrator-session')
+    SmokeAlwaysApplyFrontmatterKey    = 'alwaysApply:'
     SmokeExpectedHookFileNames        = @('hooks.json', 'guard-pre-tool.ps1', '_hook-common.ps1', 'GuardCommon.ps1', 'authorization-contract.json')
     SharedGuardCommonRelativePath     = 'adapters/_shared/GuardCommon.ps1'
     SharedGuardCommonFileName         = 'GuardCommon.ps1'
@@ -79,6 +79,8 @@ $script:CopilotSmokeMessage = @{
     ArtifactMissing          = 'TE03: Agent copilot Mode={0}: expected artifact missing: {1}'
     CustomAgentsMissing      = 'TE03: Agent copilot Mode={0}: custom agent profile missing or invalid: {1}'
     HooksMissing             = 'TE04: Agent copilot Mode={0}: hooks capable but expected hook file missing: {1}'
+    InstructionApplyToMissing = 'TE03: Agent copilot Mode={0}: always-on instruction lacks applyTo "**": {1}'
+    InstructionAlwaysApplyLeft = 'TE03: Agent copilot Mode={0}: instruction still carries Cursor alwaysApply frontmatter: {1}'
     HooksJsonInvalid         = 'TE04: Agent copilot Mode={0}: hooks.json is missing or not valid JSON: {1}'
     SkillManifestEmpty       = 'TE03: Agent copilot Mode={0}: SKILL.md is empty: {1}'
     ExcludedIdePathFound     = 'CA7: Agent copilot Mode={0}: excluded IDE path token "{1}" found under InstallRoot: {2}'

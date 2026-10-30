@@ -5,7 +5,7 @@
 
 ### -1. Re-check guardrails and session
 
-If missing, ask user (pt-BR):
+If missing, ask user in the user chat language:
 
 ```text
 Antes de abrir o PR, confirme:
@@ -24,7 +24,7 @@ Modes:
 | `feature` | Feature/fix PR into integration | `develop` (or user override) | current `feature/*` or `feat/*` | **squash** — one general commit message on `develop` |
 | `release` | Promote develop to release | `master` or `main` | `develop` | **rebase** (FF-compatible / linear) — keep organized develop commits |
 
-Detect from args (`feature` / `release`, aliases `feat`, `release-pr`). If omitted, ask once (pt-BR) and wait — default is **feature** only when the user accepts the default or says nothing after you present it:
+Detect from args (`feature` / `release`, aliases `feat`, `release-pr`). If omitted, ask once in the user chat language and wait — default is **feature** only when the user accepts the default or says nothing after you present it:
 
 ```text
 Modo do PR?

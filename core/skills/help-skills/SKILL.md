@@ -8,7 +8,7 @@ description: >-
 # Skill: help-skills
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 
 Invoke when the user asks for skill **`help-skills`** (host forms: `/help-skills`, `$help-skills`, `use skill help-skills`, OpenCode `skill({ name: "help-skills" })`), or phrases: `list skills`, `skill catalog`, `which skills`, `mapa de skills`, or operator expectations / confirmations for a skill.
