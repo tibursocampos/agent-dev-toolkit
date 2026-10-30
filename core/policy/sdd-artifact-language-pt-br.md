@@ -69,8 +69,6 @@ Set `artifact_language` to `"en"` in `{{SDD_ROOT}}/<repo-id>/manifest.json` when
 | `sdd-plan` | New PLAN -> resolved content language; read existing PRD in any language |
 | `sdd-develop` | Code -> English; update PLAN in **existing file language** |
 
-This rule overrides conflicting lines in `AGENTS.md` or old templates **only for SDD agent `.md` files** listed above.
-
 ## Install path
 
 After `scripts/sync-agent.ps1`: `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc`
