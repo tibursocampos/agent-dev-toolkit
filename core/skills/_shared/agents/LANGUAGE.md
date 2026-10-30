@@ -4,8 +4,6 @@ Host-agnostic contract for **which language** to use on which surface. Orthogona
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`
 
-**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only).
-
 **Rule ID:** `CL-CONTENT-LANGUAGE`
 
 Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md`, `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.

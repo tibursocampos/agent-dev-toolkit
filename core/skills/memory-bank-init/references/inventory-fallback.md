@@ -30,7 +30,7 @@ Exists-only checks under `$Cwd` (reject `..` / path escape → `not-ready`):
 | Root docs | `README.md`, `SECURITY.md`, `CONTRIBUTING.md`, `LICENSE`, `.gitignore`, `AGENTS.md`, `CLAUDE.md` |
 | Lockfiles | `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lockb`, `Directory.Packages.props`, `packages.lock.json`, `Cargo.lock`, `poetry.lock`, `uv.lock`, `go.sum`, `Gemfile.lock`, `composer.lock` |
 | Manifests | `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, `composer.json` |
-| Toolkit-ish | `adapters/registry.json`; `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`, `scripts/validation/validate-core.ps1`; `core/skills/_shared/agents/SPAWN.md`; `core/router/AGENTS.md` |
+| Toolkit-ish | `adapters/registry.json`; `scripts/toolkit.ps1`, `scripts/sync-agent.ps1`, `scripts/validate-agent.ps1`, `scripts/validation/validate-core.ps1`; `core/skills/_shared/agents/SPAWN.md`; `CLAUDE.md` |
 | Scoped globs (non-recursive except noted) | `*.sln` under repo root; `scripts/_lib/*.ps1`; `docs/**/*.md`; `.github/workflows/*.yml`; `adapters/*Adapter.ps1`, `adapters/Publish-*.ps1`, `adapters/Uninstall-*.ps1` |
 
 Do **not** invent additional trees (`src/**`, `node_modules/**`, etc.).

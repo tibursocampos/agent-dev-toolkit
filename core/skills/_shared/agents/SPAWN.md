@@ -4,7 +4,7 @@ Canonical contract for **when** and **how** to spawn specialist children across 
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
-**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only). Human host matrix: `docs/SPAWN.md`.
+Human host matrix: `docs/SPAWN.md`.
 
 ## Invocation axes (A ≠ B ≠ C)
 
@@ -22,7 +22,7 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 
 **Mandatory Read:** the parent **must Read this file** before `CreatePlan` / any plan that promises orchestration, Task, or subagents, and before the first non-trivial spawn vs in-parent decision in a chat. A plan that cites orchestration/Task/subagents without that Read = checklist fail. Thin trivial work may skip the Read.
 
-Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file). Router index: `core/router/AGENTS.md` → Parallel specialists.
+Always-on policy: `core/policy/orchestrator-session.md`. Cursor publishes `.mdc`; other hosts use native always-on (CLAUDE.md / AGENTS.md / copilot-instructions / GUARDRAILS). OpenCode/ZCode get the router Parallel specialists body only (no rules file).
 
 ## Capability `subagents`
 

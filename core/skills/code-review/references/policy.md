@@ -14,7 +14,7 @@ Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/v
 
 | Topic | Portable path (after sync) | When to load |
 |-------|----------------------------|--------------|
-| Guardrails (git / write / one-step / tests) | `{{GUARDRAILS_PATH}}` or `core/policy/guardrails.md` | Any review that judges agent/skill diffs or mutating git advice |
+| Guardrails (git / write / one-step / tests) | `core/policy/guardrails.md` | Any review that judges agent/skill diffs or mutating git advice |
 | SDD pipeline guards | `core/policy/sdd-pipeline-guards.md` | Diffs under `features/`, SDD skills, PRD/PLAN boundaries |
 | Branch naming | `core/policy/branch-validation.md` | Branch/PR naming in scope |
 | Commit message shape | `core/policy/conventional-commits.md` | Commit/PR title hygiene in scope |
@@ -26,7 +26,7 @@ Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/v
 | SDD artifact language | `core/policy/sdd-artifact-language-pt-br.md` | PRD/PLAN language policy diffs (install default; honor `LANGUAGE.md` matrix) |
 | Language surfaces SoT | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` | Any chat vs spawn vs SDD-locale surface change |
 
-Repo source of truth for the toolkit tree: `core/policy/`. Installed hosts may mirror as rules (`.mdc`) — same **ids/topics**; do not invent a second policy SoT.
+Repo source of truth for the toolkit tree: `core/policy/`. Installed hosts may mirror as rules — same **ids/topics**; do not invent a second policy SoT.
 
 ---
 

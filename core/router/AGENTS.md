@@ -94,7 +94,7 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 
 ## Rules (always-on)
 
-Published per host from `core/policy/` by sync-agent. Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
+Published per host from the policy source by sync-agent. Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
 
 ## Skills catalog
 
