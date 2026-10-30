@@ -8,7 +8,7 @@ Do **not** introduce:
 - Remote PATCH of work items
 - PAT scripts, service connections, or organization-specific AI tags for trackers
 - Porting remote “clarify → WI” tracker flows — refine stays **file-based** (`STORY.md` / `REFINE/` / `docs/backlog/` shortcut only)
-- A new skill folder `clarify`, `feature-refinement`, or clarify clone (REQ-007) — enrich **`refine-story`** (+ O1 light pointers) only
+- A second requirement-challenge skill folder, a `feature-refinement` folder, or a clone of another challenge skill — challenge work is **`requirement-review`** (feature and tech modes); extend it instead
 - Monolithic `feature-refinement.md` as a parallel product skill (OOS / WS7 decision)
 - OS absolute paths or InstallRoot embeds in envelopes, Q&A history, or handoffs (REQ-006 / RNF-002)
 

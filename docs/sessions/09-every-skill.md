@@ -42,6 +42,10 @@ Read-only. Turns one FEATURE, STORY, PRD, or PLAN path under `features/` into `s
 
 Standalone shaping of one bug, user story, or technical story. On a direct invoke, mode `feature`, `tech`, or `split` is asked in the chat language. An orchestrated call receives `mode=feature` or `mode=tech` and does not ask. Writes chat markdown, a scorecard, and optionally `STORY.md` or `docs/backlog/<slug>.md`. O1 uses the scorecard rubric file without calling this skill. O2 calls this skill when a question is still open. Detail: [03](03-backlog-shape.md).
 
+### `requirement-review`
+
+Challenges one feature or story before SDD. `--feature` checks the functional structure, splits acceptance criteria into atoms, and asks questions with a decision owner. `--tech` grounds named contracts and flows in the repository and records technical follow-ups for `sdd-spec`. Writes a review report and Q&A history under `REFINE/` after confirmation. `refine-story` calls it at step 4a. Detail: [03](03-backlog-shape.md).
+
 ### `split-story-checklist`
 
 Turns a story into a dependency checklist (`REFINE/tasks.md`). When `sdd-plan` calls it with `source=prd`, groups come from the PRD even if no steps exist yet, and a trivial story still returns one step. A direct invoke with no steps returns to `/refine-story`. Does not create new story folders. At most five groups. Asks documentation language only on a direct invoke. Detail: [03](03-backlog-shape.md).

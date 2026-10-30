@@ -102,6 +102,17 @@ refine-story - split
 split-story-checklist - features/NNN-slug/US01/STORY.md
 ```
 
+### Desafiar um requisito
+
+Rode `requirement-review` antes do SDD quando uma feature ou story ainda tem perguntas abertas, ou quando uma story técnica precisa ser conferida contra o repositório. O modo é obrigatório: `--feature` confere lacunas funcionais e critérios de aceite; `--tech` confere contratos e fluxos contra o repositório. A skill pergunta uma vez se você omitir o modo.
+
+```text
+requirement-review --feature - features/NNN-slug/US01/STORY.md
+requirement-review --tech - features/NNN-slug/US01/STORY.md
+```
+
+A revisão grava um relatório e acrescenta ao histórico de perguntas em `REFINE/`, ao lado da story. O status é `READY` ou `NEEDS_CLARIFICATION`. O `refine-story` roda essa revisão antes de passar para o `sdd-spec`.
+
 Persistência, nesta ordem: `features/NNN-slug/USnn/STORY.md` ou `TSnn/STORY.md`, `REFINE/` opcional (incluindo `REFINE/qa-history.md`), ou o atalho `docs/backlog/<slug>.md` depois de uma pergunta de idioma da documentação. A skill não cria cartões de tracker.
 
 Enquanto houver pergunta aberta no gate da feature, dos arquivos da story, do PRD ou do PLAN, inclusive **MINOR**, não faça handoff para `sdd-spec`. Fora desses gates, **MINOR** pode permanecer. Pronto para spec não é `step_confirmed`.

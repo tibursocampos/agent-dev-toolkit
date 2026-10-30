@@ -4,7 +4,7 @@ When `invocation_context=orchestrated`, do not ask the mode and load `references
 
 **Load only when refine mode = `feature`.** Do not load `tech.md` or `split.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — local markdown refine. **Do not** create a parallel clarify skill (REQ-007).
+Mode playbook: local markdown refine, no remote tracker. Requirement challenge for feature items is owned by `requirement-review --feature`, which runs at step 4a; do not duplicate it here.
 
 ## Scope
 

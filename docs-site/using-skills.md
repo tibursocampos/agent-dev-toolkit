@@ -102,6 +102,17 @@ refine-story - split
 split-story-checklist - features/NNN-slug/US01/STORY.md
 ```
 
+### Challenge a requirement
+
+Run `requirement-review` before SDD when a feature or story still has open questions, or when a technical story must be checked against the repository. Mode is mandatory: `--feature` checks functional gaps and acceptance criteria; `--tech` checks contracts and flows against the repository. The skill asks once if you omit the mode.
+
+```text
+requirement-review --feature - features/NNN-slug/US01/STORY.md
+requirement-review --tech - features/NNN-slug/US01/STORY.md
+```
+
+The review writes a report and appends to the question history under `REFINE/` beside the story. The status is `READY` or `NEEDS_CLARIFICATION`. `refine-story` runs this review before it hands off to `sdd-spec`.
+
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
 
 While an open question remains at the feature, story-file, PRD, or PLAN gate, including **MINOR**, do not hand off to `sdd-spec`. Outside those gates, **MINOR** may remain. Ready for a spec is not `step_confirmed`.

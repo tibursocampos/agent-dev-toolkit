@@ -22,7 +22,7 @@ When receiving a refine handoff or routing early to `/refine-story`, consume —
 | Interaction envelope + Q&A history | `skills/refine-story/references/interaction-envelope.md`, `qa-history.md` |
 | READY / NEEDS_CLARIFICATION dual-plane | `skills/_shared/sdd-artifacts/readiness-severity.md` (006 SoT; do not rewrite Assert PS1) |
 
-Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Do **not** create a parallel clarify skill.
+Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Requirement challenge stays in `requirement-review`; do not add a parallel skill.
 
 Do **not** write PRD/PLAN inside O1. Do **not** claim `sdd-develop` one-step contract changed.
 

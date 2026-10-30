@@ -20,6 +20,7 @@ Scorecard includes **Story scope**, **Product depth**, and AC budget happy/rule/
 | Q&A history (REQ-005) | `references/qa-history.md` |
 | Boundary vs O1 / sdd-spec | `references/boundary.md` |
 | Clarification READY / NEEDS_CLARIFICATION | `readiness-severity.md` + `clarify-depth.md` + `references/boundary.md` § Clarification STOP |
+| Requirement review (step 4a, sibling skill) | `requirement-review/SKILL.md` |
 | Scorecard rubric | `references/scorecard-rubric.md` |
 | Scorecard template | `references/scorecard-template.md` |
 | Guardrails | `references/guardrails.md` |

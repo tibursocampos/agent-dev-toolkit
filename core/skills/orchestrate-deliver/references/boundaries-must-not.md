@@ -12,7 +12,7 @@ Escalate **to Classic SDD alone** when only one story and user skips O2 batching
 
 Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
 
-Escalate **to `refine-story` / O1** when clarification status is `NEEDS_CLARIFICATION` (open **B**/**I**) — do **not** Write PRD/PLAN (`readiness-severity.md` / REQ-005).
+Escalate **to `refine-story` / O1** when clarification status is `NEEDS_CLARIFICATION` (any unanswered **B**, **I**, or **MINOR**) — do **not** Write PRD/PLAN (`readiness-severity.md` / REQ-005).
 
 Do **not** claim `sdd-develop` one-step contract changed.
 
