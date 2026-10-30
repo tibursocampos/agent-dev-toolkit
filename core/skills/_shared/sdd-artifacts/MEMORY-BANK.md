@@ -21,7 +21,7 @@ Companion skill: `memory-bank-init`. Inventory script: `scripts/inventory/Invoke
 
 **Must not:** place `memory-bank/` under `features/NNN-slug/`. CONTINUITY must not duplicate bank body.
 
-**Classic SDD:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop` (**CA7**). Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery (`orchestrate-*`) and to promote; Classic SDD does not require the bank.
+**Classic SDD:** memory-bank is **optional** - not required for `sdd-spec` / `sdd-plan` / `sdd-develop`. Phase 2 BLOCKING / ARCH point-promote apply to Orchestrated Delivery (`orchestrate-*`) and to promote; Classic SDD does not require the bank.
 
 ---
 
@@ -127,8 +127,8 @@ Agents may write non-blocking notes as `- [ ] …`. Only `- [ ] BLOCKING: …` f
 ```
 
 Human prose outside markers is preserved on refresh when practical.
-6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`); smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
-7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md` (REQ-011). Skip D: no tracker mutate, no external spec-tool constitution (REQ-013).
+6. **Selective read** - orchestrator parents load only the bank files needed for the current decision; never dump the entire bank into the parent prompt. Normative rule: `SELECTIVE-RETRIEVAL.md`; smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
+7. **Inventory → specialist synthesis** - after inventory, `memory-bank-init` runs the signal→specialist flow in `skills/memory-bank-init/references/inventory-specialist-synthesis.md`. Skip D: no tracker mutate, no external spec-tool constitution.
 
 ### Modes (`memory-bank-init`)
 

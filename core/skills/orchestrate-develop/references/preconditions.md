@@ -22,7 +22,7 @@ clarification `READY` does not pass this implementation gate. Direct
 `sdd-develop` uses the same checklist before its first implementation step;
 per-step dependency and acceptance gates remain active throughout the queue.
 
-## First-step brownfield evidence (REQ-006 / CA6)
+## First-step brownfield evidence
 
 Before spawning the first implementer for a brownfield or impact-uncertain
 PLAN, read the applicable O1 `ANALYSIS/` and `ARCH/` artifacts required by
@@ -60,7 +60,7 @@ complete while any required row is unvalidated, evidence is missing, or a
 mandatory requirement/blocking review finding remains unresolved. Use the
 shared `delivery-baseline` in `sdd-develop/references/plan-contract.md`.
 
-## Step 0 - Memory Bank Gate (CA4 / CT3)
+## Step 0 - Memory Bank Gate
 
 | Check | Pass |
 |-------|------|

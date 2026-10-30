@@ -1,4 +1,4 @@
-## Report template (pt-BR)
+## Report template (user chat language)
 
 ```markdown
 # Relatório de cobertura - [nome da feature ou branch]

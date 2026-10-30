@@ -2,7 +2,7 @@
 
 
 
-Progressive load: cite the path and load **one** guideline file when needed. Do **not** paste guideline bodies into the upgrade session (`RNF-004` / `SR-NO-FULL-DUMP`).
+Progressive load: cite the path and load **one** guideline file when needed. Do **not** paste guideline bodies into the upgrade session.
 
 
 
@@ -10,7 +10,7 @@ Progressive load: cite the path and load **one** guideline file when needed. Do 
 
 
 
-`_shared/dotnet-guidelines/` are a **post-upgrade quality gate** for modes `audit` / `validate` (and selective migrate checks). They do **not** substitute pack hop / TFM version-deltas. Official Microsoft Learn / .NET blog wins auxiliary blogs/gists (**RN08** — see skill `references/sources-catalog.md`).
+`_shared/dotnet-guidelines/` are a **post-upgrade quality gate** for modes `audit` / `validate` (and selective migrate checks). They do **not** substitute pack hop / TFM version-deltas. Official Microsoft Learn / .NET blog wins auxiliary blogs/gists (— see skill `references/sources-catalog.md`).
 
 
 

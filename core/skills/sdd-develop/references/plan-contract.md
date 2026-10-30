@@ -1,6 +1,6 @@
 # Plan-contract markers + delivery-baseline
 
-**REQ-010 / CA3 / CT3.** Contract ids: **`plan-contract`** (markers) and **`delivery-baseline`** (observable done). **RN04:** zero duration / effort / story-point estimates in develop checkpoints and ledger.
+Contract ids: **`plan-contract`** (markers) and **`delivery-baseline`** (observable done). zero duration / effort / story-point estimates in develop checkpoints and ledger.
 
 **Language:** English marker keys where cited in contracts; PLAN body language follows the PLAN file.
 
@@ -123,7 +123,7 @@ A deferred check is pending, never a pass, and cannot satisfy an intermediate st
 
 No duration.
 
-**Out of baseline (forbidden as Complete gates):** elapsed minutes, ideal hours, story points, “quick win”, or any duration/effort estimate (`REQ-010` / RN04 / CA7).
+**Out of baseline (forbidden as Complete gates):** elapsed minutes, ideal hours, story points, “quick win”, or any duration/effort estimate.
 
 ## Forbidden estimate patterns (grep-friendly)
 
@@ -142,9 +142,9 @@ Planning prose already present in a PLAN **Notas** from `sdd-plan` is not rewrit
 | `sdd-develop` | Before marking Completed (with `plan-update.md`) |
 | `orchestrate-develop` | When presenting queue / accepting child receipt — judge Complete via delivery-baseline, not clocks |
 
-## CT3 checklist
+## Checklist
 
 - [ ] Markers table present
 - [ ] `delivery-baseline` named and conditions listed
-- [ ] Explicit zero-estimates rule (RN04)
+- [ ] Explicit zero-estimates rule
 - [ ] No weakening of one-step / SESSION / ledger

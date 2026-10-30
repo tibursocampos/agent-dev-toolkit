@@ -1,10 +1,10 @@
-# Review policy refs (WS16a / REQ-016)
+# Review policy refs
 
 **Family:** `policy`. Load during Process §3–4 when the diff touches skills, rules, agents, Publish adapters, git flow, or toolkit always-on behavior. Prefer project `docs/standards/` / `AGENTS.md` when reviewing a **consumer** repo.
 
 **Language:** English identifiers and checklist labels. Report prose follows session language (`LANGUAGE.md`).
 
-**Contract:** pointers only — **do not** paste full policy bodies into the review report (`SR-NO-FULL-DUMP` / RNF-004).
+**Contract:** pointers only — **do not** paste full policy bodies into the review report.
 
 Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/verification.md`.
 
@@ -45,7 +45,7 @@ Run on the **changed** surface only; skip rows that do not apply.
 
 **Severity hint:** finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Weakened gates / silent PRD writes / auto-merge → `critical` or `important`; cosmetic policy prose → `nice-to-have`.
 
-## CT6 marker (policy)
+## Marker (policy)
 
 - [ ] This file is reachable from `code-review` Reference routing / Process §3–4
 - [ ] Checklist above is actionable without pasting full `core/policy/*` bodies

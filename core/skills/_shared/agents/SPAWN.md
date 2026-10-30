@@ -12,7 +12,7 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 
 | Axis | Owns | Rule |
 |------|------|------|
-| **A** | This file | Spawn vs in-parent decision. **Thin trivial exception intact** (RN01) — never remove spawn choice. |
+| **A** | This file | Spawn vs in-parent decision. **Thin trivial exception intact** — never remove spawn choice. |
 | **B** | `SUBAGENT-MODEL.md` | Omit/inherit `model` (same as parent session). SPAWN does **not** pin child ≠ parent. |
 | **C** | `SUBAGENT-MODEL.md` | Alternate slug only after gate + explicit approval. SPAWN does **not** invent model escapes. |
 
@@ -124,7 +124,7 @@ An O3 child may identify an artifact outside the repository only with a
 coordinator-authorized portable alias such as `external:Demandas/<relative-path>`.
 The coordinator names the allowed aliases and portable path prefixes in the
 scoped handoff. The child never receives or returns an absolute alias root.
-After return, the coordinator supplies an explicit local JSON alias-to-root
+After return, the coordinator provides an explicit local JSON alias-to-root
 map and a separate JSON list of allowed portable path prefixes to
 `scripts/validation/Invoke-O3ReceiptValidation.ps1` (`-AuthorizedRootsPath` and
 `-AllowedPathPrefixesPath`) before receipt reconciliation. Absolute roots live

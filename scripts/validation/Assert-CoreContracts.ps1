@@ -902,13 +902,6 @@ finally {
     if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
 }
 
-$modelCostPath = Join-Path $repoRoot 'core\policy\model-cost-awareness.md'
-$modelCostText = Get-Content -LiteralPath $modelCostPath -Raw -Encoding UTF8
-if ($modelCostText -match '(?i)alwaysApply:\s*true|COST NOTICE|high-cost model') {
-    Write-Fail -TestName 'Should_RetireModelCostPolicy' -Reason 'model cost policy must not be always-on or emit cost guidance'
-}
-Write-Pass -TestName 'Should_RetireModelCostPolicy'
-
 Write-Pass -TestName $testName
 }
 

@@ -1,12 +1,12 @@
 # Sources catalog — framework-upgrade
 
-Short catalog of **normative** vs **auxiliary** sources for packs and `_shared/*-guidelines`. **Pointers + when to load only** — never paste full articles, gists, or PEPs (`RNF-004` / `SR-NO-FULL-DUMP`).
+Short catalog of **normative** vs **auxiliary** sources for packs and `_shared/*-guidelines`. **Pointers + when to load only** — never paste full articles, gists, or PEPs.
 
 Companion: `research-protocol.md` (out-of-range research), pack `knowledge-index.md` files (post-upgrade quality gates).
 
 ---
 
-## RN08 — Official wins auxiliary
+## Official wins auxiliary
 
 When an official framework/language source conflicts with a blog, gist, Medium post, or offline snapshot on a **breaking change or practice gate**, the **official source wins**. Auxiliary links are curated leads only — never SoT for migrate decisions or checklist Must gates.
 
@@ -25,7 +25,7 @@ When an official framework/language source conflicts with a blog, gist, Medium p
 
 ## .NET
 
-### Normative (Must — official)
+### .NET normative (Must — official)
 
 | Topic | URL | Aligns to |
 |-------|-----|-----------|
@@ -35,14 +35,14 @@ When an official framework/language source conflicts with a blog, gist, Medium p
 
 Local overlay: `skills/_shared/dotnet-guidelines/checklist.md`, `performance-aspnet.md`, `csharp-patterns.md`.
 
-### Auxiliary (curated leads — not SoT)
+### .NET auxiliary (curated leads — not SoT)
 
 | Topic | URL | Use |
 |-------|-----|-----|
 | Perf tips roundup | https://dev.to/unhacked/25-dicas-de-performance-com-net-10-368p | Optional audit leads; discard if conflicts with Learn |
 | Reference guide (articles/videos) | https://renatogroffe.medium.com/net-10-guia-de-refer%C3%AAncia-artigos-dicas-v%C3%ADdeos-e-exemplos-de-utiliza%C3%A7%C3%A3o-0621fda1e498 | Discovery only |
 
-### Gate bullets (existing guards only)
+### .NET gate bullets (existing guards only)
 
 - Prefer DI lifetime correct for scope (e.g. scoped services not captive in singletons) — mirror repo DI / `csharp-patterns`
 - `IHttpClientFactory` for `HttpClient` (checklist)
@@ -53,7 +53,7 @@ Local overlay: `skills/_shared/dotnet-guidelines/checklist.md`, `performance-asp
 
 ## Angular
 
-### Normative (Must — official)
+### Angular normative (Must — official)
 
 | Topic | URL | Aligns to |
 |-------|-----|-----------|
@@ -62,14 +62,14 @@ Local overlay: `skills/_shared/dotnet-guidelines/checklist.md`, `performance-asp
 
 Local overlay: `skills/_shared/angular-guidelines/checklist.md`, `style-and-structure.md`, `signals-and-state.md`, `testing.md`.
 
-### Auxiliary (curated leads — not SoT)
+### Angular auxiliary (curated leads — not SoT)
 
 | Topic | URL | Use |
 |-------|-----|-----|
 | Angular practices gist | https://gist.github.com/Rubanrubi/c708b3b5725da983cbfd079796fb488d | Leads only; **official wins** |
 | Maintenance Medium | https://medium.com/@ramajonnada/angular-21-project-maintenance-and-best-practices-9b4d1fefe34d | Discovery; maj ≥20 still out of pack range until curated |
 
-### Gate bullets (existing guards only)
+### Angular gate bullets (existing guards only)
 
 - Style / structure + `[class]`/`[style]` (checklist / style-and-structure)
 - Signals + `computed` over misuse of `effect` (signals-and-state)
@@ -80,7 +80,7 @@ Local overlay: `skills/_shared/angular-guidelines/checklist.md`, `style-and-stru
 
 ## Python
 
-### Normative (Must — official)
+### Python normative (Must — official)
 
 | Topic | URL | Aligns to |
 |-------|-----|-----------|
@@ -88,14 +88,14 @@ Local overlay: `skills/_shared/angular-guidelines/checklist.md`, `style-and-stru
 
 Local overlay: `skills/_shared/python-guidelines/checklist.md`, `google-style.md`, `principles.md`. Pack `python` remains **Could** (REGISTRY slot).
 
-### Auxiliary (curated leads — not SoT)
+### Python auxiliary (curated leads — not SoT)
 
 | Topic | URL | Use |
 |-------|-----|-----|
 | IST best-practices gist | https://gist.github.com/ruimaranhao/4e18cbe3dad6f68040c32ed6709090a3 | Leads only; do not paste body |
 | Real Python best practices | https://realpython.com/tutorials/best-practices/ | Discovery |
 
-### Gate bullets (existing guards only)
+### Python gate bullets (existing guards only)
 
 - Naming / imports / docstrings — `google-style.md` + PEP 8 pointer
 - Principles / trust boundaries — `principles.md`

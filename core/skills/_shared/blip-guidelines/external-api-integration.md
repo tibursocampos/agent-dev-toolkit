@@ -107,7 +107,7 @@ try {
 
 ```javascript
 try {
-  const data = await api.search();
+  const data = await api.search;
   setRows(data);
 } catch (error) {
   Toast.Error(error.message || t('errors.searchFailed'));

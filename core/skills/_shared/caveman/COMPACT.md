@@ -26,7 +26,7 @@ Load only when the user asks to compact continuity/memory, or when `memory-bank-
 ## Process
 
 1. Confirm target path(s). Show approximate size (lines/chars).
-2. **Ask user (pt-BR):** `Posso compactar prosa em '{path}'? Backup .original.md sera criado. (sim / ajustar / cancelar)`
+2. **Ask the user (user chat language):** `Posso compactar prosa em '{path}'? Backup .original.md sera criado. (sim / ajustar / cancelar)`
 3. On **sim** only:
    - Copy current file to `{filename}.original.md` beside it (do not overwrite an existing `.original.md` without asking).
    - Rewrite: shorten prose; keep facts; prefer bullets; no filler.

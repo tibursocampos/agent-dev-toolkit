@@ -51,7 +51,7 @@ plan-acquisition: ok
 next: STOP | emit /sdd-develop ... Step N+1 (do not execute)
 ```
 
-## CT3 checklist (manual)
+## Checklist (manual)
 
 - [ ] Both mode ids appear in this ref and are cited from `sdd-develop` + `orchestrate-develop` indexes
 - [ ] `continuous` text does **not** authorize multi-step `sdd-develop`

@@ -1,6 +1,6 @@
 # Plan-contract markers + delivery-baseline — O3
 
-**REQ-010 / CA3 / CT3.** Contract ids: **`plan-contract`** + **`delivery-baseline`**. Zero duration/effort estimates (RN04).
+Contract ids: **`plan-contract`** + **`delivery-baseline`**. Zero duration/effort estimates.
 
 Canonical tables: `skills/sdd-develop/references/plan-contract.md`.
 

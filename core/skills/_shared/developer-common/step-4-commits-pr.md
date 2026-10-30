@@ -88,7 +88,7 @@ Default integration base is **`develop`**. Release PRs are **`develop` → `mast
 | **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
 | **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
 
-After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** (pt-BR) whether to open a PR; on **sim**, load `/open-github-pr`.
+After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** in the user chat language whether to open a PR; on **sim**, load `/open-github-pr`.
 
 **Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
 

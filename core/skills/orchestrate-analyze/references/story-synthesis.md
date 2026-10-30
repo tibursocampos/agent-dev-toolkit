@@ -154,7 +154,7 @@ not add a universal checklist or story-count target.
 | Goals | ≥1 non-empty bullet |
 | Non-goals | ≥1 non-empty bullet |
 
-**On fail:** reject synthesis for human approval. Message intent (pt-BR chat OK):
+**On fail:** reject synthesis for human approval. Message intent (user chat language OK):
 
 ```text
 FEATURE rejeitada: campos obrigatórios ausentes: {Problem|Goals|Non-goals…}

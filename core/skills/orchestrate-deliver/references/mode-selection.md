@@ -15,7 +15,7 @@ Document choice under CONTINUITY **Decisões**.
 
 ## Process — Choose mode (RF03)
 
-Ask (pt-BR) - never assume. Only after the required-siblings STOP has passed — copy in `references/approval-gates.md` § Approval gates (mode selection).
+Ask in the user chat language - never assume. Only after the required-siblings STOP has passed — copy in `references/approval-gates.md` § Approval gates (mode selection).
 
 | Choice | Behavior |
 |--------|----------|

@@ -1,4 +1,4 @@
-## Evidence-or-zero (REQ-005 / CA4)
+## Evidence-or-zero
 
 Canonical paths: `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md`.
 

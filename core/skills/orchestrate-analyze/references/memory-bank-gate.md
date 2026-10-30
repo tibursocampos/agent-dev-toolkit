@@ -1,4 +1,4 @@
-## Step 0 - Memory Bank Gate (CT2 / CA3)
+## Step 0 - Memory Bank Gate
 
 Run **before** triage (SKILL §3). Contract: `MEMORY-BANK.md`. Skill: `memory-bank-init`.
 
@@ -12,4 +12,4 @@ Run **before** triage (SKILL §3). Contract: `MEMORY-BANK.md`. Skill: `memory-ba
 | CONTINUITY | Path + status only - no bank body dump |
 | Parent context | Lean - do not load entire bank |
 
-**CA6:** memory-bank = repo map; CONTINUITY = feature handoff. Parallel scopes.
+memory-bank = repo map; CONTINUITY = feature handoff. Parallel scopes.

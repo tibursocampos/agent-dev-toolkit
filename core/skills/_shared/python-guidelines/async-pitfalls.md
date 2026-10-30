@@ -60,7 +60,7 @@ async def handler() -> None:
     asyncio.run(other())  # RuntimeError / deadlock risk
 
 # Prefer — await directly
-async def handler() -> None:
+async def handler -> None:
     await other()
 ```
 

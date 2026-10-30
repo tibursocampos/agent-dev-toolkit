@@ -8,7 +8,7 @@ Do not write a draft that still has an open question. When nothing is open, the 
 
 ## Checklist
 
-- One approved canonical PRD scope. Consult a STORY or checklist only when the context contract makes it required or direct planning explicitly adopts a linked/supplied optional sibling.
+- One approved canonical PRD scope. Consult a STORY or checklist only when the context contract makes it required or direct planning explicitly adopts a linked/provided optional sibling.
 - `AGENTS.md`: when missing, record `not_found` and continue. Absence does not block.
 - Current repository evidence outranks `memory-bank` when they disagree.
 - Every PRD acceptance criterion maps to a step and a proportional validation or existing-coverage disposition. A criterion with no sufficient evidence is `BLOCKED`; do not invent a redundant test to fill the matrix. Any `BLOCKED` row blocks the write.

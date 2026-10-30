@@ -6,7 +6,7 @@ After a successful push, decide:
 
 → **STOP** `/push` and **immediately** load `{{TOOLKIT_ROOT}}/skills/open-github-pr/SKILL.md`. Follow it end-to-end (mode, template, body confirmation, **mandatory auto-merge ask**). Do not create the PR inside `/push`.
 
-**B) No prior PR intent** — **ask** (pt-BR); do **not** create the pull request inside `/push`.
+**B) No prior PR intent** — **ask** in the user chat language; do **not** create the pull request inside `/push`.
 
 ```text
 Push concluído.

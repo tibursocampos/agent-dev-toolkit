@@ -4,7 +4,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SKILL-RE
 
 **Language:** This guideline is **English**. Chat prompts to the operator mirror the **user chat language** (`LANGUAGE.md`).
 
-Companion: `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), skill `SKILL.md` Lazy-load tables, `reference.md` indexes under `references/` (or `reference/` for skills that use that folder).
+Companion: `SELECTIVE-RETRIEVAL.md`, skill `SKILL.md` Lazy-load tables, `reference.md` indexes under `references/` (or `reference/` for skills that use that folder).
 
 ---
 

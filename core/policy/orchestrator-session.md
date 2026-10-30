@@ -68,7 +68,7 @@ Prefer specialist subagents (parallel when independent) for analysis, multi-file
 
 ## Read SPAWN before decide
 
-- Before `CreatePlan` / any plan that cites Task, subagents, or orchestration: **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` first.
+- Before drafting any plan that cites Task, subagents, or orchestration: **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` first.
 - Before the first spawn vs in-parent decision in a chat when work is **not** thin-trivial: **Read** SPAWN.md.
 - Multi-file analysis / non-trivial planning → spawn specialists; this chat stays parent/orchestrator.
 - Citing Task/orchestration in a plan without having Read SPAWN = failed checklist.

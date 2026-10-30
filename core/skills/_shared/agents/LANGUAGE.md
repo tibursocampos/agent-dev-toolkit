@@ -8,9 +8,9 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`
 
 **Rule ID:** `CL-CONTENT-LANGUAGE`
 
-Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
+Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md`, `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
 
-## Normative matrix (RNF-001 / REQ-014)
+## Normative matrix
 
 | Surface | Language |
 |---------|----------|
@@ -67,7 +67,7 @@ PLAN prose language follows the resolution above, but a heading used to locate a
 |---------|------|
 | Chat replies | Mirror session user language (may differ from content-language only when explaining an override) |
 | Artifact Write | Content-language from resolution above |
-| Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` (`SR-NO-FULL-DUMP` / CT6) |
+| Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` |
 | Parent synthesis | Parent writes user-facing chat and artifacts in content-language. A specialist receipt stays en-US. The parent translates that receipt before writing `ANALYSIS/`, `ARCH/`, or `SEC/`. Folder names stay English. |
 | Gate STOP / confirm-before-write prompts | User chat language (same as chat output); accept semantically equivalent localized answers rather than requiring a fixed-language token |
 

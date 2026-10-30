@@ -3,33 +3,16 @@ name: api-standards
 description: Apply agnostic HTTP/API design standards (REST shape, versioning, errors, naming) without company contracts. Use when designing or reviewing APIs or invoking /api-standards.
 ---
 
-
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: api-standards
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user requests: `/api-standards`, `api standards`, `REST conventions`, or asks for agnostic HTTP/API design guidance (not typed client generation).
 
@@ -86,13 +69,13 @@ After gates: **Read `references/command.md`** for ordered step discovery. Then l
 
 ### -1. Re-check guardrails and session
 
-Confirm `guardrails.mdc` and `SESSION.md` are loaded. If missing, ask **(pt-BR)** before continuing.
+Confirm `guardrails.mdc` and `SESSION.md` are loaded. If missing, ask in the **user chat language** before continuing.
 
 ### 0. Scope and focus
 
 * Confirm the ask is **standards / design review**, not typed client generation (that is `api-integrate`).
 * If the user named a focus area, load only that playbook; otherwise ask once which areas matter (max three).
-* Apply selective retrieval (`SR-NO-FULL-DUMP`): paths + short excerpts only.
+* Apply selective retrieval: paths + short excerpts only.
 
 ### 1. Inspect current surface (optional)
 

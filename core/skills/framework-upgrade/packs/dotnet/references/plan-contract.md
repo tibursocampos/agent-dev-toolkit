@@ -10,7 +10,7 @@ Define how `plan` / `migrate` resolve version pairs for pack `dotnet` without pi
 |-------|------------|
 | `framework_id` | `dotnet` |
 | `currentVersion` | Integer major (from TFM / SDK); required when versions apply |
-| `targetVersion` | Integer major; **must** be `>` `currentVersion` (RN07) |
+| `targetVersion` | Integer major; **must** be `>` `currentVersion` |
 | Skill id | `framework-upgrade` only |
 
 Reject equal or downgrade targets. Ask once if either version is missing or ambiguous (multiple TFMs).

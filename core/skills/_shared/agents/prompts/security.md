@@ -12,7 +12,7 @@ List concrete security risks and mitigations relevant to the change.
 
 ## Code-review closeout
 
-When the parent is `/code-review` at closeout, this prompt is the pass after the post-review `/run-tests`, including when the review was single. Return blocks `B`, `I`, or `MINOR`. Cover supply chain only when the diff touches packaging or deploy. Do not write `SEC/` on this pass. The multi-angle security checklist does not waive this pass, and this pass does not waive that checklist. One pass does not waive the other.
+When the parent is `/code-review` at closeout, this prompt is the pass after the post-review `/run-tests`, including when the review was single. Return blocks `B`, `I`, or `MINOR`. Cover provide chain only when the diff touches packaging or deploy. Do not write `SEC/` on this pass. The multi-angle security checklist does not waive this pass, and this pass does not waive that checklist. One pass does not waive the other.
 
 ## Focus areas (portable)
 
@@ -20,7 +20,7 @@ When the parent is `/code-review` at closeout, this prompt is the pass after the
 - Input validation / injection (SQL, command, template, path)
 - Secrets and PII handling
 - Dangerous defaults in new endpoints or jobs
-- Software supply chain (package feeds, CI secrets, NuGet/npm tokens) only when the diff touches packaging or deploy
+- Software provide chain (package feeds, CI secrets, NuGet/npm tokens) only when the diff touches packaging or deploy
 
 ## Secrets / PII hygiene
 

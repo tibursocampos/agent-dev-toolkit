@@ -1,6 +1,6 @@
 # type_classification + exact-set → STORY only
 
-**REQ-012 / CA4 / CT4.** Contract id: `type_classification`. Load **after** Step 0 source parse and **before** checklist Write (Step 3). Applies to `/split-story-checklist` when the source is (or resolves to) a feature story folder.
+Contract id: `type_classification`. Load **after** Step 0 source parse and **before** checklist Write (Step 3). Applies to `/split-story-checklist` when the source is (or resolves to) a feature story folder.
 
 **Language:** English identifiers and reason codes. Operator chat follows session language (`LANGUAGE.md`). Portable paths only (`STORAGE.md` § Portable path).
 
@@ -57,7 +57,7 @@ Step 0 parse Steps / Suggested fix
 
 Map: `US` → User Story; `TS` → Technical Story; `Bug` → Bug.
 
-## Skip D (REQ-013 / CA4) — explicit
+## Skip D — explicit
 
 This skill **must not** introduce or invoke:
 
@@ -86,7 +86,7 @@ Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN
 | `refine-story` handoff | Points here via `/split-story-checklist - <portable-STORY>` — refine does not own checklist exact-set Write |
 | O2 / O3 | Consume STORY **Tipo**; do not re-classify into PLAN/PRD |
 
-## CT4 checklist (manual — split half)
+## Checklist (manual — split half)
 
 - [ ] Contract file present: `references/type-classification.md` with markers `type_classification`, `exact-set`, `STORY only`
 - [ ] SKILL Process loads this ref before checklist Write
@@ -96,7 +96,7 @@ Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN
 
 ## Must not
 
-- Scatter exact-set outside STORY (REQ-012)
+- Scatter exact-set outside STORY
 - tracker mutate, external spec-tool constitution (Skip D / REQ-013)
-- Create a new skill folder or rename this skill (RN03)
+- Create a new skill folder or rename this skill
 - Emit one US/TS per file from type labels (`anti-task-shatter.md` / RN01)

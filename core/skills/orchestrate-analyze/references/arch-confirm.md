@@ -17,7 +17,7 @@ ARCH draft (4 sections) → operator sim / ajustar / cancelar → ARCH approved
 
 **Must not:** silent vertical-slice (or any) default; final ARCH before **sim**; glob all architecture overlays in O1.
 
-Copy (pt-BR) — see SKILL §7b.
+Copy in the user chat language — see SKILL §7b.
 
 ---
 
@@ -26,7 +26,7 @@ Copy (pt-BR) — see SKILL §7b.
 When nature is **`greenfield`** **or** `needs_domain=true` **and** no established in-repo / approved ARCH style:
 
 1. Architect returns an ARCH **draft** only (four sections per `prompts/architect.md`; may use `templates/features/story/ARCH/architecture-decision.md`).
-2. Parent presents the draft and asks (pt-BR) — copy in § Approval gate copy.
+2. Parent presents the draft and asks in the user chat language — copy in § Approval gate copy.
 3. Act on the answer:
 
 | Answer | Action |
@@ -42,9 +42,9 @@ See also § Architecture confirm gate.
 
 ---
 
-## Approval gate copy (pt-BR)
+## Approval gate copy (user chat language)
 
-### Backlog (RN01)
+### Backlog
 
 ```text
 Backlog O1 pronto em `{feature-path}`.

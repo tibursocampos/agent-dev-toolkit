@@ -8,7 +8,7 @@
 
 ## Detect signals
 
-Prefer positive hits; if 0 or >1 framework packs also match, ask once (TE03). Orchestrator flow: skill `references/detect.md`.
+Prefer positive hits; if 0 or >1 framework packs also match, ask once. Orchestrator flow: skill `references/detect.md`.
 
 | Signal | Weight |
 |--------|--------|
@@ -20,7 +20,7 @@ Prefer positive hits; if 0 or >1 framework packs also match, ask once (TE03). Or
 
 Do **not** treat a lone `package.json` or Python/`requirements.txt` as .NET.
 
-## Version inputs (parametric — REQ-011 / RN07)
+## Version inputs (parametric)
 
 | Input | Rule |
 |-------|------|

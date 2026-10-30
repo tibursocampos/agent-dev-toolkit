@@ -30,7 +30,7 @@ Verifier child must:
 
 - Do **not** mark step done in CONTINUITY.
 - Keep PLAN step **Pendente** (implementer may have prematurely marked Completed — parent must not endorse).
-- Report findings (pt-BR); ask user **sim** to re-spawn implementer or adjust.
+- Report findings in the user chat language; ask user **sim** to re-spawn implementer or adjust.
 
 **Parent on verifier `pass`:**
 

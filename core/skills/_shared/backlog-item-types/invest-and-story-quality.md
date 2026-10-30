@@ -8,7 +8,7 @@ External ideas (paraphrase only; do not vendor third-party bodies): classic INVE
 
 ---
 
-## Valuable (RN04)
+## Valuable
 
 | Item type | Rule |
 |-----------|------|

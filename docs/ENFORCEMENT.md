@@ -26,7 +26,6 @@ Do not put Copilot repository instructions in the user tree, or user instruction
 ## Always-on policy semantics
 
 - Auto-Clarity temporarily suspends Caveman compression for security warnings, irreversible confirmations, ordered multi-step instructions, ambiguity, and requests to clarify. It restores the selected compression level afterward.
-- Model-cost awareness is informational only. On the first turn, when the host exposes a reliable model/capacity signal and the task is simple, it may show one cost notice. It never blocks work, maintains no vendor model allowlist, and does not repeat the notice in the same session.
 - `qa_checklist` is an in-parent checklist role. It is not a spawnable specialist, does not receive a Task, and does not create a specialist folder. Its checklist evidence belongs with the story/continuity record.
 
 ## Language resolution

@@ -168,7 +168,7 @@ public static class OrderFake
 ### Moq usage
 
 ```csharp
-var orderRepositoryMock = new Mock<IOrderRepository>();
+var orderRepositoryMock = new Mock<IOrderRepository>;
 
 orderRepositoryMock
     .Setup(r => r.GetByIdAsync(It.Is<int>(id => id == OrderFake.DefaultId), It.IsAny<CancellationToken>()))

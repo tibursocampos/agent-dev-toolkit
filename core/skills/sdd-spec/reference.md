@@ -2,7 +2,7 @@
 
 Extended detail for `skills/sdd-spec/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Brownfield CHANGE gate: `CHANGE.md` / `CHANGE-CONTRACT.md` (`references/validate-change.md`). **Greenfield** must **not** force an empty CHANGE stub. Structural gate: REQ-NNN + `validate-prd` (`references/validate-prd.md`). Selective retrieval: `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`. Product depth challenge (metrics/MoSCoW/Severity; FEATURE/STORY siblings): `references/challenge-vagueness.md` + lazy `backlog-item-types/` (no preload).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Brownfield CHANGE gate: `CHANGE.md` / `CHANGE-CONTRACT.md` (`references/validate-change.md`). **Greenfield** must **not** force an empty CHANGE stub. Structural gate: REQ-NNN + `validate-prd` (`references/validate-prd.md`). Selective retrieval: `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`. Product depth challenge (metrics/MoSCoW/Severity; FEATURE/STORY siblings): `references/challenge-vagueness.md` + lazy `backlog-item-types/` (no preload).
 
 | Section | Path |
 |---------|------|

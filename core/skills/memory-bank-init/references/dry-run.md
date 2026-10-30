@@ -1,4 +1,4 @@
-## Dry-run mental tests (CA5)
+## Dry-run mental tests
 
 | Situation | Expected |
 |-----------|----------|

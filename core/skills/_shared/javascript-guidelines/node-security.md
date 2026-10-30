@@ -23,7 +23,7 @@
 - Expose stack traces or internal error details to clients in production (see central error handler).
 - Commit `.env` files with real secrets; commit only `.env.example` with placeholders when that is the project pattern.
 - Use `eval`, `Function()`, or unsanitized dynamic `require`/`import` on user input.
-- Trust client-supplied roles/user ids without server-side authorization checks.
+- Trust client-provided roles/user ids without server-side authorization checks.
 - Leave default framework secrets (`express-session` secret, JWT secret) as well-known placeholders in deployed envs.
 - Ignore transitive CVEs on dependencies you add without documenting an accepted risk.
 

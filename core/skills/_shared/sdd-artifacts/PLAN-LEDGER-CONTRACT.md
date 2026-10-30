@@ -4,11 +4,11 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LED
 
 **Language:** This guideline is **English**. Identifiers, paths, field names, and event reasons stay **English**. Operator chat mirrors the **user chat language** (`LANGUAGE.md`).
 
-Companion: `SESSION.md` (repo vs develop gates), `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`. Skill wire: `skills/sdd-plan/references/plan-ledger.md`.
+Companion: `SESSION.md` (repo vs develop gates), `SELECTIVE-RETRIEVAL.md`, `PIPELINE.md`. Skill wire: `skills/sdd-plan/references/plan-ledger.md`.
 
 ---
 
-## Purpose (REQ-002 / CA2)
+## Purpose
 
 Guarantee **at most one active holder** per PLAN step. When two agents race to claim the same step, **one claim prevails** and the other **fails audibly** (structured reason + audit trail).
 
@@ -122,5 +122,5 @@ The claim helper returns an auditable rejection when another holder already owns
 
 - Silently overwrite an existing claim
 - Treat SESSION develop gates as a substitute for ledger hold
-- Dump full PRD / full `memory-bank/` into claim or audit payloads (`SR-NO-FULL-DUMP`)
+- Dump full PRD / full `memory-bank/` into claim or audit payloads
 - Write OS absolute InstallRoot embeds into PLAN / FEATURE / STORY artifacts when citing this contract — use portable paths

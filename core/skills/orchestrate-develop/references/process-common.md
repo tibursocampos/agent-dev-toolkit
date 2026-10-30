@@ -30,4 +30,4 @@ Não encontrei PLAN sob `{path}`.
 3) cancelar
 ```
 
-`Read` `FEATURE.md` + `CONTINUITY.md` when under a feature. Prefer O2-approved stories; if PLAN exists but approval unclear, ask once (pt-BR) before spawning.
+`Read` `FEATURE.md` + `CONTINUITY.md` when under a feature. Prefer O2-approved stories; if PLAN exists but approval unclear, ask once in the user chat language before spawning.

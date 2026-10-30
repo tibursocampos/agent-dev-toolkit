@@ -52,7 +52,7 @@ An explicit operator instruction for the current task outranks this style bar. A
 
 ---
 
-## 5. Layout (anti-IA)
+## 5. Layout
 
 | Forbidden | Allowed |
 |-----------|---------|

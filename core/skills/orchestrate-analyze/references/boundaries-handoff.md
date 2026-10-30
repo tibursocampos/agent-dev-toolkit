@@ -12,7 +12,7 @@ Escalate **to O1** from refine when: multiple stories, unclear `needs_*`, brownf
 
 Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching **and** no question is open, including `MINOR` (`open_question`).
 
-### Refine envelopes / READY (O1 light — WS11 / REQ-005–006)
+### Refine envelopes / READY (O1 light)
 
 When receiving a refine handoff or routing early to `/refine-story`, consume — do **not** duplicate taxonomy:
 
@@ -30,7 +30,7 @@ Scorecard: reuse `skills/refine-story/references/scorecard-rubric.md` (universal
 
 Story sizing: `skills/_shared/backlog-item-types/story-sizing.md` — load at synthesis; merge/split before human gate; FEATURE table **Rationale** column required.
 
-Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until those gates pass, the FEATURE has **no** open question (`open_question`, including `MINOR`), story folders already exist, and backlog **sim**.
+Product artifact quality gates: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until those gates pass, the FEATURE has **no** open question (`open_question`, including `MINOR`), story folders already exist, and backlog **sim**.
 
 O2 handoff requires a closed FEATURE and stories already created. A feature that stopped at step 8c is not an O2 handoff.
 

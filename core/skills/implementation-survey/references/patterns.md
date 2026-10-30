@@ -12,7 +12,7 @@ Name a pattern only when the opened structure shows that pattern. When no row be
 | One type presents a single entry and forwards to several collaborators | Facade |
 | One type hides construction of a family of related objects | Abstract Factory |
 | One type assembles another through ordered steps on a builder | Builder |
-| A caller depends on an abstraction while a separate type supplies the concrete object | Dependency Injection |
+| A caller depends on an abstraction while a separate type provides the concrete object | Dependency Injection |
 | One type holds the steps of a procedure and leaves a step to a subtype | Template Method |
 
 An observed name cites `path:line` for the structure that shows the row. An inferred name states what was not in the diff. A partial resemblance is not a match: write that the pattern is not visible.

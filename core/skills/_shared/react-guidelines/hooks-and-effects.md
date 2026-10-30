@@ -32,7 +32,7 @@ const fullName = `${firstName} ${lastName}`;
 
 ```tsx
 // Wrong - Effect after click flag
-useEffect(() => {
+useEffect( => {
   if (submitted) postForm(data);
 }, [submitted, data]);
 

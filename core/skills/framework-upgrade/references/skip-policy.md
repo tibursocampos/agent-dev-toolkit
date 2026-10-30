@@ -1,6 +1,6 @@
 # Skip policy (Skip D) — framework-upgrade
 
-**REQ-015 / RN04 / RN05.** Explicit denial list for this skill and its future packs.
+Explicit denial list for this skill and its future packs.
 
 ## Skip D (do not implement / do not import)
 
@@ -9,7 +9,7 @@
 | **Tracker mutate** | No create/update/transition of tracker work items from this skill |
 | **Org-only prefixed tokens** | No org-branded contracts, env vars, skill ids, or prompt packs |
 | **External brand** | No external product branding in skill/pack text or paths |
-| **Duration estimates** | No duration / effort / story-point / “ETA” checkpoints in reports or registers (RN04) |
+| **Duration estimates** | No duration / effort / story-point / “ETA” checkpoints in reports or registers |
 | **Model pins** | No hard-coded premium model requirements for routine hops |
 | **Major-pinned skill ids** | No `dotnet10-upgrade`, `angular-v*-upgrade`, `framework-upgrade-vN` |
 

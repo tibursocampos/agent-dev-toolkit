@@ -25,7 +25,7 @@ Run `scripts/validation/Invoke-O3ReceiptValidation.ps1` with the trusted
 application `-RepoRoot`, expected PLAN and step, a coordinator-owned
 `-AllowedPathPrefixesPath`, and a separate coordinator-owned
 `-AuthorizedRootsPath` alias-to-absolute-root map. For a canonical PLAN under
-global SDD storage outside the application repository, additionally supply
+global SDD storage outside the application repository, additionally provide
 `-SddRoot <effective-sdd-root>` from coordinator context; omit `-SddRoot` for
 repo-local PLANs. Keep the receipt `planPath` portable as
 `sdd/<path-relative-to-SddRoot>` for a global PLAN. Before spawn, authorize the
@@ -82,7 +82,7 @@ For each PLAN:
 2. Respect **Deps:** only enqueue a step when dependency steps are **Concluídos** / **Completed**.
 3. Default order: one story at a time (finish story A before story B) unless user asks otherwise **and** stories are independent.
 
-Present queue summary (pt-BR): story, PLAN path, next step id/title, deps. Confirm:
+Present queue summary in the user chat language: story, PLAN path, next step id/title, deps. Confirm:
 
 ```text
 Fila O3: próximo = `{plan-path}` Step {N} - {title}.
@@ -173,7 +173,7 @@ See also § Task child prompt skeleton + § Anti-bypass checklist.
 Give each child:
 
 1. Explicit `invocation_context=orchestrated`; exact PLAN path + step number/title + opaque `claim_holder` + portable path of `REFINE/tasks.md` for that story
-2. Instruction: run `sdd-develop` with `invocation_context=orchestrated` for **this step only** — read that step block and the supplied task rows; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
+2. Instruction: run `sdd-develop` with `invocation_context=orchestrated` for **this step only** — read that step block and the provided task rows; do not load the rest of the PRD. Load `sdd-develop/SKILL.md`
 3. Instruction: load develop SESSION scoped per `SESSION.md` - `plan-{planHash}.json`, or `plan-{planHash}-step-{N}.json` if this is a same-PLAN parallel spawn
 4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
 5. Follow the step's declared test policy: when tests are declared, run them and persist/validate `tests_run`; when tests are explicitly deferred, keep it false and record deferred/skipped. Then update PLAN; reset gates through the canonical helper and stop after this step

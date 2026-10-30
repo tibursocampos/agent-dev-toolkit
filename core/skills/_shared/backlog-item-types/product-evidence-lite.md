@@ -2,7 +2,7 @@
 
 Rules for **Evidence** fields on FEATURE/STORY/PRD so operators never fabricate facts or paste secrets.
 
-Aligned with SEC verify-if-missing: scorecard must **not** force inventing evidence (RN05).
+Aligned with SEC verify-if-missing: scorecard must **not** force inventing evidence.
 
 ---
 
@@ -28,7 +28,7 @@ Aligned with SEC verify-if-missing: scorecard must **not** force inventing evide
 
 - Production secrets, connection strings, raw customer data
 - Fabricated user quotes or invented incident numbers
-- Golden fixtures with real client data (RNF-001)
+- Golden fixtures with real client data
 
 ---
 

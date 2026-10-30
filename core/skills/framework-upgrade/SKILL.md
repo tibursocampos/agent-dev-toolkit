@@ -5,23 +5,9 @@ description: Generic framework upgrade orchestrator (audit|plan|migrate|validate
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. After **ONE** upgrade session outcome (or explicit stop): **STOP** - handoff only; do not chain unrelated skills
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] Skip D policy loaded (references/skip-policy.md) — tracker mutate / org-only prefixed tokens / external brand / duration estimates forbidden
-[ ] User confirmed current action (sim) — silence ≠ approval for migrate
--> If any unchecked: STOP
-```
-
+1. After **ONE** upgrade session outcome (or explicit stop): **STOP** - handoff only; do not chain unrelated skills
 ---
 
 # Skill: framework-upgrade
@@ -37,8 +23,7 @@ Gate check:
 Version targets are **parameters** of the resolved pack (`currentVersion` → `targetVersion`), not part of this skill id.
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgrade Angular/.NET/…`, or an explicit mode (`audit` / `plan` / `migrate` / `validate`).
 
@@ -50,18 +35,18 @@ Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgra
 4. Progressive-load shared + pack refs (never wholesale dump).
 5. Record decisions in the decision register when planning or migrating.
 6. Apply evidence gates before claiming migrate/validate done.
-7. Honor Skip **D** and **silence ≠ approval** for migrate (RN02 / TE05).
+7. Honor Skip **D** and **silence ≠ approval** for migrate.
 
-**Packs** live under `packs/` (`REGISTRY.md` + `packs/<id>/PACK.md`). Must packs `angular` and `dotnet` are on-disk. This skill orchestrates; packs supply detect, `supported_range`, and curated deltas.
+**Packs** live under `packs/` (`REGISTRY.md` + `packs/<id>/PACK.md`). Must packs `angular` and `dotnet` are on-disk. This skill orchestrates; packs provide detect, `supported_range`, and curated deltas.
 
 ## Required input
 
 | Input | Rule |
 |-------|------|
 | Mode | Explicit or ask once: `audit` \| `plan` \| `migrate` \| `validate` — default ask; never silent `migrate` |
-| `framework_id` | `references/detect.md` — detect or ask if 0 / >1 candidates (TE03); pack signals in `PACK.md` |
-| `currentVersion` / `targetVersion` | Semantic per pack; `target > current`; outside `supported_range` → research (TE04) |
-| Operator **sim** | **Required** before any file-mutating migrate step; silence ≠ approval (TE05) |
+| `framework_id` | `references/detect.md` — detect or ask if 0 / >1 candidates; pack signals in `PACK.md` |
+| `currentVersion` / `targetVersion` | Semantic per pack; `target > current`; outside `supported_range` → research |
+| Operator **sim** | **Required** before any file-mutating migrate step; silence ≠ approval |
 
 ## Lazy-load (only when needed)
 
@@ -72,7 +57,7 @@ Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgra
 | Progressive load / SR-NO-FULL-DUMP | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/progressive-load.md` |
 | Decision register | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/decision-register.md` |
 | Evidence gates | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/evidence.md` |
-| Detect / `framework_id` (TE03) | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/detect.md` |
+| Detect / `framework_id` | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/detect.md` |
 | Version policy | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/version-policy.md` |
 | Research protocol (out of range / TE04) | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/research-protocol.md` |
 | Sources catalog (normative vs auxiliary; RN08) | `{{TOOLKIT_ROOT}}/skills/framework-upgrade/references/sources-catalog.md` |
@@ -94,10 +79,10 @@ Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgra
 | What to load next | `references/progressive-load.md` |
 | Record / show decisions | `references/decision-register.md` |
 | Before claiming done | `references/evidence.md` |
-| Detect / ambiguous framework (TE03) | `references/detect.md` |
+| Detect / ambiguous framework | `references/detect.md` |
 | Version pair / range | `references/version-policy.md` |
-| Target outside `supported_range` (TE04) | `references/research-protocol.md` |
-| Official vs auxiliary sources (RN08) | `references/sources-catalog.md` |
+| Target outside `supported_range` | `references/research-protocol.md` |
+| Official vs auxiliary sources | `references/sources-catalog.md` |
 | OOS / Skip D / duration ban | `references/skip-policy.md` |
 | Pack resolve | `packs/REGISTRY.md` → `packs/<id>/PACK.md` |
 
@@ -111,7 +96,7 @@ Apply Full caveman prefs when active.
 
 ### 1. Resolve mode
 
-Load `references/modes.md`. If mode omitted: ask once. If caller implies implement/migrate without **sim**: stay in `audit` or `plan` (TE05).
+Load `references/modes.md`. If mode omitted: ask once. If caller implies implement/migrate without **sim**: stay in `audit` or `plan`.
 
 ### 2. Resolve pack + versions
 
@@ -143,14 +128,14 @@ Summarize mode, pack, versions, decisions, evidence level, and next mode or stop
 ## Must not
 
 - Rename skill id to a major-pinned id (`dotnet10-upgrade`, `angular-v*-upgrade`, `framework-upgrade-vN`)
-- Enter `migrate` on silence, implied consent, or plan-only chat (RN02 / TE05)
+- Enter `migrate` on silence, implied consent, or plan-only chat
 - tracker work-item mutate, org-only prefixed contracts, external product brand in this skill/packs (Skip **D** / RN05)
-- Duration / effort / story-point checkpoints (RN04 / REQ-015)
-- Dump wholesale pack / guideline corpora into context (RNF-004 / SR-NO-FULL-DUMP)
-- Invent pack deltas for majors outside `supported_range` (TE04) — research protocol + pack PR only; no in-session invented support
-- Assume `framework_id` when 0 or >1 detect candidates (TE03)
+- Duration / effort / story-point checkpoints
+- Dump wholesale pack / guideline corpora into context
+- Invent pack deltas for majors outside `supported_range` — research protocol + pack PR only; no in-session invented support
+- Assume `framework_id` when 0 or >1 detect candidates
 - Treat blogs/gists or offline snapshots as SoT when they conflict with official docs (RN08 — official wins; see `sources-catalog.md` + research checklist)
-- Create sibling skills per framework — new frameworks = new **packs** only (RN09)
+- Create sibling skills per framework — new frameworks = new **packs** only
 
 ## Handoff
 

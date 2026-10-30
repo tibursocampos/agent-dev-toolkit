@@ -151,7 +151,7 @@ See also § CONTINUITY checklist.
 When this O3 run had at least one successful develop child that changed application files, **before** the final review handoff:
 
 1. Resolve `bank_root` (same as Step 0).
-2. Ask (pt-BR): `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular / cancelar)`
+2. Ask (user chat language): `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular / cancelar)`
 3. On **sim**: follow `memory-bank-init` mode **`refresh-light`** (inventory + GENERATED + `tech-stack.json` only).
 4. Update CONTINUITY Memory-bank status to `refreshed` (or note skipped).
 5. On **pular**: log and continue handoff without bank write.

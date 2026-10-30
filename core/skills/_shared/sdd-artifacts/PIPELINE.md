@@ -157,7 +157,7 @@ Always before the first `Write` of a **new** PRD or PLAN (and when replacing an 
 3. `Write` only after explicit **sim**.
 4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
 
-This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never supplies content approval.
+This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never provides content approval.
 
 `sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
 

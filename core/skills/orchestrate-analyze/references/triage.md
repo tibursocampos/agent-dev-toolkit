@@ -14,13 +14,13 @@
 | | `complex` | Multi-story, unclear blast radius, or several `needs_*` true |
 | **Scope** | `backend` / `frontend` / `fullstack` | Primary delivery surface |
 
-| Complexity | Suggested path (RF01) |
+| Complexity | Suggested path |
 |------------|------------------------|
 | `trivial` | `developer` / `*-developer` - skip full O1 unless user insists |
 | `medium` | Classic SDD (`sdd-spec` -> …) **or** O1 if multi-US/TS |
 | `complex` | Full Orchestrated Delivery O1 -> approval -> O2 |
 
-**TE01:** If nature or any `needs_*` is unclear after a short Prior-context pass, ask ≤3 high-cost questions. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
+If nature or any `needs_*` is unclear after a short Prior-context pass, ask ≤3 high-cost questions. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
 
 ---
 
@@ -32,7 +32,7 @@ If the user cites a `.md` **outside** `features/` (including Cursor `.cursor/pla
 
 Set complexity / nature / scope and `needs_*` per **Triage decision table** above and **canonical** `ROSTER.md` (do not fork a second mapping). Optional NuGet/examples: § Example: NuGet brownfield triage.
 
-**TE01 - ambiguous flags:** ask at most a few high-cost questions (pt-BR). Do **not** invent architecture in the orchestrator. Prefer `false` until evidence or user confirms - **except** auth / secrets / PII / feed-token / supply-chain signals -> ask explicitly or set `needs_security=true`.
+**Ambiguous flags:** ask at most a few high-cost questions in the user chat language. Do **not** invent architecture in the orchestrator. Prefer `false` until evidence or user confirms - **except** auth / secrets / PII / feed-token / supply-chain signals -> ask explicitly or set `needs_security=true`.
 
 ---
 
@@ -63,7 +63,7 @@ Only continue to allocate/scaffold if the user explicitly chooses **2**. Choosin
 | needs_domain | `true` (bounded context of shared types) |
 | needs_database | `false` (unless shared persistence) |
 | needs_frontend | `false` |
-| needs_security | `true` (package feed / secrets / supply chain) |
+| needs_security | `true` (package feed / secrets / provide chain) |
 | needs_devops | `true` (CI publish - CONTINUITY note only) |
 
 **Spawn (parallel):** `repo_analyst`, `architect`, `security`.  

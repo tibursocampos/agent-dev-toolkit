@@ -1,6 +1,6 @@
 # plan-acquisition (O3 parent + child)
 
-**REQ-008 / CA3 / CT3.** Contract id: `plan-acquisition`. Parent resolves the PLAN set; **every** implement child re-validates the canonical path before code mutations.
+Contract id: `plan-acquisition`. Parent resolves the PLAN set; **every** implement child re-validates the canonical path before code mutations.
 
 Canonical detail for the develop child: `skills/sdd-develop/references/plan-acquisition.md` (same contract id — do not fork rules).
 

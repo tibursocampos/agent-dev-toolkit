@@ -23,7 +23,7 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 | `parallel` | Prefer `step_by_step` confirm per wave; `continuous` does **not** waive independence + **sim** + distinct SESSION files |
 | `manual` | Pacing documents handoff cadence only; no Task spawn |
 
-## Hard preserves (RNF-003)
+## Hard preserves
 
 - One-step-per-child / per develop session
 - SESSION + PLAN-LEDGER remain SoT

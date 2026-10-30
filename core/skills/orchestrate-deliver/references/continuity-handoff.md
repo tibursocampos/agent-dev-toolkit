@@ -24,7 +24,7 @@ Update `CONTINUITY.md` when:
 
 ---
 
-## Example handoff - 2 stories (CA4 / RF04)
+## Example handoff - 2 stories
 
 Feature: `features/004-nuget-extract/`  
 Stories approved in O1: `TS01` (package extract), `TS02` (App A consumer).  
@@ -52,25 +52,25 @@ Global storage: same pattern with InstallRoot-relative portable paths (`sdd/<rep
 
 ---
 
-## Process — CONTINUITY + multi-path handoff (RF04)
+## Process — CONTINUITY + multi-path handoff
 
 On approval:
 
-1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path); refresh `## Related` for landed PRD/PLAN (+ STORY/FEATURE when on-disk) — omit-if-absent (REQ-009).
+1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path); refresh `## Related` for landed PRD/PLAN (+ STORY/FEATURE when on-disk) — omit-if-absent.
 2. Optionally update `FEATURE.md` / story statuses to reflect deliver done.
 3. Run **cross-artifact analyze** (§ Cross-artifact analyze) — brownfield must have `CHANGE.md`; greenfield must not force an empty CHANGE stub.
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.
 5. Emit handoff block listing every PLAN (and PRD) path — § Example handoff + § Canonical invoke strings. Include CHANGE path when present.
 
-If a handed-off PLAN relies on external evidence, retain its exact `external:<alias>/<relative-path>` reference in the PLAN and identify the alias in the O3 handoff. Do not put the authorized root in CONTINUITY, PRD, PLAN, or the receipt. O2 does not grant access: before dispatch, the O3 coordinator authorizes alias and path prefix and supplies the alias-to-root JSON separately to `Invoke-O3ReceiptValidation.ps1` (`STORAGE.md` § External evidence references for O3; `_shared/agents/RECEIPT.md`).
+If a handed-off PLAN relies on external evidence, retain its exact `external:<alias>/<relative-path>` reference in the PLAN and identify the alias in the O3 handoff. Do not put the authorized root in CONTINUITY, PRD, PLAN, or the receipt. O2 does not grant access: before dispatch, the O3 coordinator authorizes alias and path prefix and provides the alias-to-root JSON separately to `Invoke-O3ReceiptValidation.ps1` (`STORAGE.md` § External evidence references for O3; `_shared/agents/RECEIPT.md`).
 
-Remind (pt-BR): O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank (CA7). User picks one path per story/session.
+Remind in the user chat language: O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank. User picks one path per story/session.
 
 See also § CONTINUITY update checklist.
 
 ---
 
-## Cross-artifact analyze (O2 handoff / REQ-004)
+## Cross-artifact analyze (O2 handoff)
 
 Before develop handoff, verify against `CHANGE-CONTRACT.md`:
 

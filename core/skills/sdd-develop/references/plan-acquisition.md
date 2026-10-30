@@ -1,6 +1,6 @@
 # plan-acquisition (canonical PLAN obtain + validate)
 
-**REQ-008 / CA3 / CT3.** Contract id: `plan-acquisition`. Load **before** mutating application code or marking a PLAN step Completed. Applies to direct `/sdd-develop` and to every O3 child that implements a step.
+Contract id: `plan-acquisition`. Load **before** mutating application code or marking a PLAN step Completed. Applies to direct `/sdd-develop` and to every O3 child that implements a step.
 
 **Language:** English identifiers and reason codes. Operator chat may be pt-BR. Portable paths only (`STORAGE.md` § Portable path).
 
@@ -27,7 +27,7 @@ Obtain and validate the **canonical PLAN** path and step before implement. Rejec
 3. **Validate shape** — must match canonical table above. Flat/root PLAN → **STOP**; ask migrate via `/sdd-plan`.
 4. **Read** that file in place (update **that** path only).
 5. **Resolve step** (`Step N` / `PASSO N`). Confirm step heading exists; deps are **Completed** / **Concluídos**. When `invocation_context=direct` is explicit, the canonical approved PLAN is sufficient: do not inspect siblings to infer context, require/create `REFINE/tasks.md`, or ask the operator to select O3. A checklist may affect direct execution only when the invocation explicitly adopts it and its relationship to the PLAN is explicit and consistent; otherwise the PLAN remains the sole execution unit. When `invocation_context=orchestrated`, require the O3 parent's explicit scoped checklist input and validate its applicable task rows/IDs against this step; absent or inconsistent required rows block/return to O2. Preserve O3 preflight and claim gates; never use the direct fallback to bypass them. If the invocation genuinely omits both step or route/context, ask whether the operator wants manual execution (one explicit invocation per step) or Orchestrated Delivery O3. Present localized labels and map clear semantic answers to stable ids `manual` and `orchestrated`. This per-invocation route is independent of `preferences.json` `orchestrator_mode` (`always` | `adaptive`) and pacing (`continuous` | `step_by_step`). Do not infer a route or implement before the answer.
-6. **Resolve Classic external access scope**, when the active step declares it, per `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md`: preserve the approved portable target and operation set. A supported host boundary must accept the alias-to-root mapping only from trusted invocation context, separate from PRD/PLAN/receipt. Do not treat O3 `files[]` as a grant. The validation-only fixture `{{TOOLKIT_ROOT}}/scripts/validation/fixtures/Invoke-ClassicExternalAccessFixture.ps1` is never a production authorization boundary and must not be used for implementation I/O. Because no host-controlled boundary currently supplies trusted per-step grants and intercepts all filesystem and shell operations, block before external access (`BLOCKED`); do not substitute structural checks, fixture calls, or direct filesystem operations for enforcement.
+6. **Resolve Classic external access scope**, when the active step declares it, per `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md`: preserve the approved portable target and operation set. A supported host boundary must accept the alias-to-root mapping only from trusted invocation context, separate from PRD/PLAN/receipt. Do not treat O3 `files[]` as a grant. The validation-only fixture `{{TOOLKIT_ROOT}}/scripts/validation/fixtures/Invoke-ClassicExternalAccessFixture.ps1` is never a production authorization boundary and must not be used for implementation I/O. Because no host-controlled boundary currently provides trusted per-step grants and intercepts all filesystem and shell operations, block before external access (`BLOCKED`); do not substitute structural checks, fixture calls, or direct filesystem operations for enforcement.
 7. **Load develop SESSION** scoped by PLAN (or PLAN+step) per `SESSION.md` — never use flat repo JSON for `step_confirmed` / `tests_run`.
 8. **Honor develop mode** (`continuous` \| `step_by_step`) from `references/develop-modes.md` — does **not** waive one-step-per-session.
 9. Only then: analyze / implement / tests. Execute only the resolved step in the current session; after reporting it, stop and hand off without auto-advancing.
@@ -59,5 +59,5 @@ If path missing: Glob `features/**/PLAN/PLAN_*.md` (workspace + global feature r
 ## Must not
 
 - Bypass acquisition and mutate code from memory of an old PLAN path
-- Weaken SESSION / PLAN-LEDGER (`RNF-003`)
+- Weaken SESSION / PLAN-LEDGER
 - Embed duration/effort estimates while acquiring (`REQ-010` / `plan-contract.md`)

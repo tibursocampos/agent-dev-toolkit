@@ -2,7 +2,7 @@
 
 Extended detail for `skills/split-story-checklist/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). TASKS policy (`references/complexity-policy.md`): **trivial**/**small** → do not require TASKS; **medium** or complex → require TASKS checklist. Output altitude: SMART tasks only — never US-per-file (`anti-task-shatter.md` / RN01). **type_classification** + exact-set→STORY only (`references/type-classification.md` / REQ-012). Skip D: no tracker mutate / external spec-tool (REQ-013).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. TASKS policy (`references/complexity-policy.md`): **trivial**/**small** → do not require TASKS; **medium** or complex → require TASKS checklist. Output altitude: SMART tasks only — never US-per-file (`anti-task-shatter.md` / RN01). **type_classification** + exact-set→STORY only (`references/type-classification.md` / REQ-012). Skip D: no tracker mutate / external spec-tool.
 
 | Section | Path |
 |---------|------|

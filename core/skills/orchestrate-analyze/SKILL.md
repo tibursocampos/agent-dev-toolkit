@@ -6,30 +6,14 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts follow the **user chat language** (`LANGUAGE.md`)
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (required for orchestrate-*)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: orchestrate-analyze
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Orchestrated Delivery analysis for a complex / multi-story / brownfield feature.
 
@@ -135,7 +119,7 @@ Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT
 Load `STORAGE.md` (`$Workflow = classic`); resolve feature + bank roots; path sanitize; gitignore per STORAGE. Read `references/process-common.md` § Process — Resolve storage.
 
 ### 3. Intent classification (Step 1 triage entry)
-Load `references/intent-classification.md`. Classify input (Existing Feature \| New Feature \| Product Initiative \| Problem/Need \| Idea); map to Classic SDD vs Backlog Refine vs full O1. On early handoff (`/refine-story`, `/sdd-spec`, `/developer`), confirm (pt-BR) and **STOP** — skip Step 0 unless operator chooses to continue O1 anyway. Record intent when continuing full O1.
+Load `references/intent-classification.md`. Classify input (Existing Feature \| New Feature \| Product Initiative \| Problem/Need \| Idea); map to Classic SDD vs Backlog Refine vs full O1. On early handoff (`/refine-story`, `/sdd-spec`, `/developer`), confirm in the user chat language and **STOP** — skip Step 0 unless operator chooses to continue O1 anyway. Record intent when continuing full O1.
 
 ### 4. Step 0 - Memory Bank Gate
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` — **never** under `features/NNN-slug/`. Confirm before bank write; healthy → selective read only. Record path + status for CONTINUITY; after ARCH **sim** point-promote `architecture.md` and set `refreshed`. Read `references/memory-bank-gate.md`.
