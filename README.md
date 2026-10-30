@@ -121,7 +121,7 @@ Full list: **[docs/SKILLS.md](docs/SKILLS.md)** · agent SoT: `help-skills` → 
 | [docs/SKILLS.md](docs/SKILLS.md) | Skill catalog |
 | [docs/CREDITS.md](docs/CREDITS.md) | Third-party inspiration (Caveman, Spec Kit) |
 | [docs/guides/session-behavior.md](docs/guides/session-behavior.md) | Session behavior, language surfaces, and Caveman controls |
-| [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` |
+| [docs/guides/08-orchestrator-mode.md](docs/guides/08-orchestrator-mode.md) | Orchestrator charter, `orchestrator_mode` (default `adaptive`) and chat commands |
 | [docs/guides/README.md](docs/guides/README.md) | Decision tree + guides |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers and install layouts |
 | [docs/ADAPTERS.md](docs/ADAPTERS.md) | Adapter registry and per-agent publish |

@@ -82,7 +82,7 @@ Honesty matrix (**registry** publish surfaces — do not claim unsupported ones)
 |-------|--------|-------|-------|--------|--------|--------|-----------|-------|
 | `cursor` | true | true | true | true | false | true | `native` | `Publish-Agents` → `InstallRoot/agents/` |
 | `antigravity` | true | true | true | true | true | false | `native` | Declared `native`. PreToolUse path/secrets under `config/hooks`; `Publish-Agents` no-op; Sidecars/Automations OOS. Effective value may be `none` (probe below) |
-| `claude` | true | true | true | true | false | true | `native` | Hooks smoke = files only; trust UI out of scope; PreToolUse path/secrets deny wired |
+| `claude` | true | true | true | true | false | true | `native` | Hooks smoke = files and settings wiring; trust UI out of scope. No provider PreToolUse guard; enforcement through `permissions` and settings |
 | `codex` | true | true | true | true | true | true | `native` | Dual-root; PreToolUse path/secrets; `Publish-Agents` → `agents/*.toml`; `/hooks` trust manual |
 | `copilot` | true | true | true | false | false | true | `native` | `Publish-Router` no-op; hooks `version:1` + `preToolUse` guard; Mode repo agents |
 | `opencode` | true | false | true | true | true | true | `native` | `agents: true`. `HooksSemantics=plugin-only` (JS `tool.execute.before` path/secrets throw); `Publish-Agents` → `InstallRoot/agents/` |
@@ -97,14 +97,14 @@ Rules: [`adapters/_shared/guard-rules.md`](../adapters/_shared/guard-rules.md) �
 
 | Agent | Wiring |
 |-------|--------|
-| Cursor | `preToolUse` Write/Edit/Shell/Delete + `beforeShellExecution`; `failClosed`; GuardCommon |
-| Claude | PreToolUse `Write\|Edit\|Bash\|PowerShell` → `permissionDecision` deny |
+| Cursor | None published. `preToolUse` and `beforeShellExecution` are empty arrays in the shipped `hooks.json`; `guard-pre-tool.ps1` is retired |
+| Claude | None. The adapter publishes no PreToolUse guard hook. Enforcement is the host permission model (`permissions.allow` / `permissions.ask`, sandbox), written by the settings merge |
 | Codex | PreToolUse + `agents/*.toml` |
 | Copilot | hooks `version:1` `preToolUse` |
 | OpenHands | `pre_tool_use` + `guard_pre_tool.sh` (fail-closed) |
 | ZCode | PreToolUse |
 | Grok | PreToolUse; `agents=true` → `InstallRoot/agents/` |
-| OpenCode | JS `tool.execute.before` throw; `agents=true` → `InstallRoot/agents/` |
+| OpenCode | None published. Marker plugin only; no `tool.execute.before` hook is installed. Host owns permissions; `agents=true` → `InstallRoot/agents/` |
 | Antigravity | `hooks=true`; `config/hooks` PreToolUse |
 | Hermes | `hooks=true` + `plugin=true`; plugin `agent-dev-toolkit-guard` + `agent-hooks`; keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call`; **never** SOUL / tokens / gateway |
 
@@ -124,7 +124,7 @@ Most adapters declare `subagents: native` (host product docs), including **Antig
 | Key artifacts | `skills/`, `rules/*.mdc`, `AGENTS.md`, `agents/*.md`, `hooks/*.ps1`, `hooks.json`, `sdd/sessions`, `sdd/manifest.json` |
 | Content source | `core/` only |
 | Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent cursor` — **no** Cursor trust UI, **no** live `~/.cursor` writes in CI |
-| Path/secrets guard | `preToolUse` (`Write\|StrReplace\|Delete\|Shell`) + `beforeShellExecution` → `guard-pre-tool.ps1` (`failClosed`); shared rules in `adapters/_shared/` |
+| Path/secrets guard | None published. `preToolUse` and `beforeShellExecution` are empty arrays in the shipped `hooks.json`; `guard-pre-tool.ps1` is retired. See [HOOKS.md](HOOKS.md) |
 
 ### Publish layout (under InstallRoot)
 
@@ -134,8 +134,8 @@ Most adapters declare `subagents: native` (host product docs), including **Antig
 | `rules/*.mdc` | `Publish-Policy` from `core/policy/` (`.md` → `.mdc`; no orphan `.md` rules) |
 | `AGENTS.md` | `Publish-Router` from `core/router/AGENTS.md` |
 | `agents/*.md` | `Publish-Agents` from `core/agents/` (roster: repo-analyst, architect, database, security, shell-runner) |
-| `hooks/*.ps1` | `Publish-Hooks` from `adapters/cursor/assets/hooks/` (includes `guard-pre-tool.ps1` + published `GuardCommon.ps1`) |
-| `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`; invalid JSON fail-closed). Wires path/secrets `preToolUse` + `beforeShellExecution` |
+| `hooks/*.ps1` | `Publish-Hooks` from `adapters/cursor/assets/hooks/` (trace, context, and plan hooks; no guard script) |
+| `hooks.json` | Merge at InstallRoot root (user entries preserved by `command`; invalid JSON fail-closed). Wires `postToolUse` and `subagentStop` (`emit-trace.ps1`), `beforeSubmitPrompt` (`context-before-prompt.ps1`), and `afterFileEdit` (`plan-after-edit.ps1`); `preToolUse` and `beforeShellExecution` stay empty |
 | `sdd/sessions/` + `sdd/manifest.json` | `Get-SddRoot -Prepare` (seed manifest only when absent) |
 
 ### Sync / validate (CI-safe)
@@ -168,7 +168,7 @@ Keyed removal of toolkit skills / rules / hooks / `AGENTS.md`, plus reverse-merg
 | Fixture override | `-InstallRoot <path>` (in-repo fixture for CI; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true; `agents` = false |
 | Key artifacts | kebab skills + `skills.json`, GUARDRAILS / `dev_persona` from core, managed `AGENTS.md` / `GEMINI.md`, `config/hooks` PreToolUse guard |
-| `Publish-Hooks` | Writes `config/hooks/hooks.json` + `guard-pre-tool.ps1` (matcher `write_to_file\|replace_file_content\|multi_replace_file_content\|run_command` → `{ decision, reason }`). Legacy bridge untouched. Sidecars/Automations OOS. |
+| `Publish-Hooks` | Writes `config/hooks/hooks.json` + `guard-pre-tool.ps1` (matcher `.*`; the script decides per tool name → `{ decision, reason }`). Legacy bridge untouched. Sidecars/Automations OOS. |
 | `Publish-Agents` | **No-op** (`agents=false`): Success/Implemented. Host spawn is `invoke_subagent` only — no custom agent markdown files. |
 | `Invoke-SmokeValidate` | Filesystem-only under InstallRoot (kebab skills, `skills.json`, GUARDRAILS, `dev_persona`, managed AGENTS/GEMINI, hooks when capable). Legacy bridge not gated. |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (core skill folders, `dev_persona`, managed plugin dir, managed `skills.json` entry, managed markdown blocks, toolkit `config/hooks` files). Preserves alien skills / legacy bridge. Preserves `sdd/sessions` + `sdd/manifest.json`. |
@@ -267,16 +267,16 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `agents` = true; `plugin` = false |
 | Key artifacts | `skills/`, `rules/*.md`, `hooks/*.ps1`, `CLAUDE.md`, `agents/*.md`, merged `settings.json` |
 | Content source | `core/` only (packaging layout may follow Claude docs as **reference** — never copy content from other products) |
-| Smoke | Filesystem-only via `Invoke-SmokeValidate` / `validate-agent -Agent claude` — **no** Claude trust UI, **no** live `~/.claude` writes in CI |
+| Smoke | Filesystem plus settings wiring via `Invoke-SmokeValidate` / `validate-agent -Agent claude` — **no** Claude trust UI, **no** live `~/.claude` writes in CI |
 
 ### Publish layout (under InstallRoot)
 
 | Relative path | Source / role |
 |---------------|---------------|
-| `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved) |
-| `rules/*.md` | `Publish-Policy` from `core/policy/` (keep `.md`; not Cursor `.mdc`) |
+| `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved; Claude-only frontmatter from `adapters/claude/skill-frontmatter.json`) |
+| `rules/*.md` | `Publish-Policy` from `core/policy/` (keep `.md`; not Cursor `.mdc`; `alwaysApply` dropped, `globs` mapped to `paths`; `model-cost-awareness.md` not published) |
 | `CLAUDE.md` | `Publish-Router` from `core/router/AGENTS.md` (`.mdc` refs rewritten to `.md`) |
-| `agents/*.md` | `Publish-Agents` from `core/agents/` |
+| `agents/*.md` | `Publish-Agents` from `core/agents/` (`model: inherit`, per-role `tools:`, `disallowedTools: Agent`) |
 | `hooks/*.ps1` | `Publish-Hooks` from `adapters/claude/assets/hooks/` |
 | `settings.json` | Merge after hooks publish (see below) |
 
@@ -284,15 +284,17 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 
 | Rule | Behavior |
 |------|----------|
-| Backup | Write `settings.json.bak` before overwrite |
-| Hooks | Keyed upsert for managed events (`UserPromptSubmit`, `PreCompact`, `PostToolUse`, `PreToolUse`); alien events preserved |
-| `permissions.allow` | Additive **narrow** toolkit entries — one `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook; no duplicates on re-sync; user allows preserved. Re-sync **strips** legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions` |
+| Backup | Write `settings.json.bak` before overwrite (plus a timestamped copy) |
+| Hooks | Keyed upsert for managed events: `UserPromptSubmit` (`track-sdd-invocation.ps1`, `preferences-command.ps1`), `SessionStart` (`session-start-context.ps1`), `PostToolUse` (`plan-after-edit.ps1` on `Write\|Edit`; `emit-trace.ps1` on `Write\|Edit\|Bash\|PowerShell`), `SubagentStop` (`emit-trace.ps1`). `PreCompact` and `PreToolUse` are projected as empty so re-sync strips old toolkit handlers. Alien events and co-located alien handlers preserved |
+| `permissions.allow` | Additive **narrow** toolkit entries — one `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook — plus read-only git (`status`, `diff`, `log`, `branch --show-current`); no duplicates on re-sync; user allows preserved. Re-sync **strips** legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions` |
+| `permissions.ask` | Additive: `Bash(git commit:*)`, `Bash(git push:*)`, `Bash(git merge:*)`, `Bash(git rebase:*)`, `Bash(git checkout -b:*)`. State-changing git requires operator confirmation in the host |
+| `attribution` | `commit` and `pr` set to empty strings (commit and PR attribution hidden); other attribution keys preserved |
 | Other keys | Preserved as-is (no wholesale replace) |
 | Encoding | UTF-8 **without BOM** |
 | Invalid JSON | Abort; do not overwrite (TE01) |
 | Backup failure | Abort; no write (TE02) |
 
-`PreToolUse` matcher `Write|Edit|Bash|PowerShell` runs `guard-pre-tool.ps1` and returns Claude `hookSpecificOutput.permissionDecision` deny/allow (path + secrets). Hook **trust UI** remains out of smoke/CI scope — green means files + merge completeness only.
+No PreToolUse guard hook is published for Claude. Hook **trust UI** remains out of smoke/CI scope — green means files, settings wiring, and merge completeness only. Hook behavior: [HOOKS.md](HOOKS.md#claude-event-table). Enforcement model: [ENFORCEMENT.md](ENFORCEMENT.md).
 
 ### Sync / validate (CI-safe)
 
@@ -308,7 +310,7 @@ CI uses the in-repo fixture (or ephemeral copy) only. Do not sync to a live `~/.
 
 ### Uninstall
 
-Keyed removal of toolkit skills / rules / hooks / `CLAUDE.md`, plus reverse-merge of managed hooks events and toolkit `permissions.allow` entries. Alien files and unrelated settings keys stay. Preserves `sdd/sessions` + `sdd/manifest.json`. WhatIf supported. Module notes: `adapters/claude/README.md`.
+Keyed removal of toolkit skills / rules / agents / hooks / `CLAUDE.md`, plus reverse-merge of managed hook handlers, toolkit `permissions.allow` and `permissions.ask` entries, and the hidden `attribution` values. Alien files and unrelated settings keys stay. Preserves `sdd/sessions` + `sdd/manifest.json`. WhatIf supported. Module notes: `adapters/claude/README.md`.
 
 ## Codex (`codex`) — plugin + smoke
 
@@ -720,7 +722,7 @@ Source: [`adapters/_shared/trace-emitter-honesty.md`](../adapters/_shared/trace-
 
 | Claim | Hosts |
 |-------|--------|
-| **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (PostToolUse / SubagentStop) |
+| **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (`PostToolUse` matcher `Write\|Edit\|Bash\|PowerShell` and `SubagentStop`, settings merge) |
 | **Asset only** — not live PostToolUse wire | Codex (`Publish-Hooks` still PreToolUse guard) |
 | **Not claimed** | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
 

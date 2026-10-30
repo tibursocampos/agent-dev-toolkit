@@ -19,7 +19,7 @@ Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/v
 | Branch naming | `core/policy/branch-validation.md` | Branch/PR naming in scope |
 | Commit message shape | `core/policy/conventional-commits.md` | Commit/PR title hygiene in scope |
 | Orchestrator / parent role | `core/policy/orchestrator-session.md` | O3 / spawn / parent-vs-child diffs |
-| Progress checkpoints | `core/policy/context-management.md` | Skills that change durable step/checkpoint behavior; this reference defines no context threshold |
+| Progress checkpoints | `core/policy/guardrails.md` section "Progress checkpoints" | Skills that change durable step/checkpoint behavior; this reference defines no context threshold |
 | Caveman | `core/policy/caveman-mode.md` | Caveman / compact prose skill changes |
 | AI stealth trailers | `core/policy/ai-stealth.md` | Commit/PR co-author trailer policy |
 | Chat language | `core/policy/user-language-pt-br.md` | Language-surface skill changes (install default; honor `LANGUAGE.md` matrix) |

@@ -18,6 +18,7 @@ $script:ClaudePathConstant = @{
     SddDirectoryName               = 'sdd'
     GuardrailsFileName             = 'guardrails.md'
     SkillManifestFileName          = 'SKILL.md'
+    SkillFrontmatterOverlayFileName = 'skill-frontmatter.json'
     SharedSkillsDirectoryName      = '_shared'
     RouterSourceFileName           = 'AGENTS.md'
     ClaudeMdFileName               = 'CLAUDE.md'
@@ -41,6 +42,9 @@ $script:ClaudePathConstant = @{
 $script:ClaudeSettingsJsonConstant = @{
     HooksPropertyName              = 'hooks'
     PermissionsPropertyName        = 'permissions'
+    AttributionPropertyName        = 'attribution'
+    AttributionCommitPropertyName  = 'commit'
+    AttributionPrPropertyName      = 'pr'
     AllowPropertyName              = 'allow'
     AskPropertyName                = 'ask'
     HookHandlerTypePropertyName    = 'type'
@@ -61,6 +65,9 @@ $script:ClaudeSettingsJsonConstant = @{
     HookScriptPostToolUse          = 'plan-after-edit.ps1'
     HookScriptPreToolUse           = 'guard-pre-tool.ps1'
     HookScriptTraceEmit            = 'emit-trace.ps1'
+    HookEventSessionStart          = 'SessionStart'
+    HookScriptSessionStart         = 'session-start-context.ps1'
+    HookScriptPreferencesCommand   = 'preferences-command.ps1'
     HookMatcherPostToolUse         = 'Write|Edit'
     HookMatcherPreToolUse          = '*'
     HookMatcherTracePostToolUse    = 'Write|Edit|Bash|PowerShell'
@@ -72,6 +79,19 @@ $script:ClaudeSettingsJsonConstant = @{
     SharedTraceEmitCommonFileName  = 'TraceEmitCommon.ps1'
 }
 
+# Claude-only SKILL.md frontmatter fields merged at publish time (core/skills stays neutral).
+$script:ClaudeSkillFrontmatterAllowedKeys = @(
+    'name',
+    'disable-model-invocation',
+    'allowed-tools',
+    'argument-hint'
+)
+
+# Core policy files that are retired placeholders and must not be published as Claude rules.
+$script:ClaudeUnpublishedPolicyFileNames = @(
+    'model-cost-awareness.md'
+)
+
 # Legacy broad allow entries (uninstall + re-sync strip only; never re-added by default).
 $script:ClaudeLegacyBroadPermissionsAllow = @(
     'Bash(pwsh *)',
@@ -80,6 +100,11 @@ $script:ClaudeLegacyBroadPermissionsAllow = @(
 
 $script:ClaudePublishMessage = @{
     CoreSkillsMissing       = 'Claude Publish-Skills: core skills source is missing: {0}'
+    SkillFrontmatterOverlayMissing = 'Claude Publish-Skills: frontmatter overlay is missing: {0}'
+    SkillFrontmatterOverlayInvalid = 'Claude Publish-Skills: frontmatter overlay invalid at {0}: {1}'
+    SkillFrontmatterSkillMissing   = 'Claude Publish-Skills: overlay names skill "{0}" which is not published at {1}'
+    SkillFrontmatterMissing        = 'Claude Publish-Skills: SKILL.md for "{0}" has no leading YAML frontmatter block'
+    SkillFrontmatterInvalid        = 'Claude Publish-Skills: merged frontmatter for "{0}" is invalid: {1}'
     PublishedOk             = 'Claude Publish-Skills: published {0} file(s) from core/skills to {1}'
     WhatIfOk                = 'Claude Publish-Skills: WhatIf - would publish core/skills to {0}'
     CorePolicyMissing       = 'Claude Publish-Policy: core policy source is missing: {0}'
@@ -99,6 +124,7 @@ $script:ClaudePublishMessage = @{
     SettingsInvalidJson     = 'Claude settings merge: invalid JSON at {0}: {1}. Fix manually; file was not overwritten.'
     SettingsHooksNotObject       = 'Claude settings merge: hooks must be a JSON object; non-object hooks were left unchanged. Fix manually; file was not overwritten.'
     SettingsPermissionsNotObject = 'Claude settings merge: permissions must be a JSON object; non-object permissions were left unchanged. Fix manually; file was not overwritten.'
+    SettingsAttributionNotObject = 'Claude settings merge: attribution must be a JSON object; non-object attribution was left unchanged. Fix manually; file was not overwritten.'
     SettingsBackupFailed         = 'Claude settings merge: backup failed for {0} -> {1}: {2}. settings.json was not modified.'
     SettingsWriteFailed     = 'Claude settings merge: write failed for {0}: {1}'
     InstallRootRequired     = 'InstallRoot is required.'

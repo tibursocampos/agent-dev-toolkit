@@ -84,6 +84,13 @@ $coreChecks = @(
     @{ Name = $constant.RuntimeCopyDriftCheckName; Script = $constant.AssertRuntimeCopyDriftScriptName },
     @{ Name = 'brownfield-analysis-validation'; Script = 'Assert-BrownfieldAnalysisValidator.ps1'; Isolated = $true },
     @{ Name = 'publish-ownership-contracts'; Script = 'Assert-PublishOwnershipContracts.ps1' },
+    @{ Name = 'claude-skill-frontmatter'; Script = 'Assert-ClaudeSkillFrontmatter.ps1'; Isolated = $true },
+    @{ Name = 'claude-agent-tools'; Script = 'Assert-ClaudeAgentTools.ps1'; Isolated = $true },
+    @{ Name = 'claude-policy-rules'; Script = 'Assert-ClaudePolicyRules.ps1'; Isolated = $true },
+    @{ Name = 'claude-hook-smoke'; Script = 'Assert-ClaudeHookSmoke.ps1'; Isolated = $true },
+    @{ Name = 'claude-published-content'; Script = 'Assert-ClaudePublishedContent.ps1'; Isolated = $true },
+    @{ Name = 'claude-hook-wiring'; Script = 'Assert-ClaudeHookWiring.ps1'; Isolated = $true },
+    @{ Name = 'claude-skill-size'; Script = 'Assert-ClaudeSkillSize.ps1'; Isolated = $true },
     @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )

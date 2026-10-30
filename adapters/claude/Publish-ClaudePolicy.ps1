@@ -11,6 +11,69 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   Placeholders resolved after copy. Re-publish overwrites managed rule files; does not delete alien files.
 #>
 
+function ConvertTo-ClaudeRuleFrontmatterText {
+    <#
+    .SYNOPSIS
+      Shape one rule's frontmatter for Claude: drop Cursor-only alwaysApply; map globs to paths.
+
+    .DESCRIPTION
+      Rules without globs load unconditionally in Claude, so only path-scoped rules keep a
+      paths: key. Body text is untouched. Text without a leading frontmatter block is returned as-is.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $RuleText
+    )
+
+    $frontmatterMatch = [regex]::Match(
+        $RuleText,
+        '\A---\r?\n(?<frontmatter>.*?)\r?\n---[ \t]*(\r?\n|\z)',
+        [System.Text.RegularExpressions.RegexOptions]::Singleline)
+    if (-not $frontmatterMatch.Success) {
+        return $RuleText
+    }
+
+    $newline = if ($RuleText.Contains("`r`n")) { "`r`n" } else { "`n" }
+    $kept = [System.Collections.Generic.List[string]]::new()
+    foreach ($line in @($frontmatterMatch.Groups['frontmatter'].Value -split '\r?\n')) {
+        if ($line -match '^alwaysApply:') {
+            continue
+        }
+        if ($line -match '^globs:(?<value>.*)$') {
+            $kept.Add('paths:' + $Matches['value'])
+            continue
+        }
+        $kept.Add($line)
+    }
+
+    $body = $RuleText.Substring($frontmatterMatch.Length)
+    return ('---' + $newline + ($kept -join $newline) + $newline + '---' + $newline + $body)
+}
+
+function Convert-ClaudeRuleFrontmatterInFiles {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $Files
+    )
+
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $changed = [System.Collections.Generic.List[string]]::new()
+    foreach ($file in $Files) {
+        $text = [System.IO.File]::ReadAllText($file)
+        $converted = ConvertTo-ClaudeRuleFrontmatterText -RuleText $text
+        if ($converted -cne $text) {
+            [System.IO.File]::WriteAllText($file, $converted, $utf8NoBom)
+            $changed.Add([System.IO.Path]::GetFullPath($file)) | Out-Null
+        }
+    }
+
+    return [string[]]$changed.ToArray()
+}
+
 function Copy-ClaudeCorePolicyTree {
     [CmdletBinding()]
     param(
@@ -28,6 +91,9 @@ function Copy-ClaudeCorePolicyTree {
     $filesCopied = 0
     $sourceFiles = Get-ChildItem -LiteralPath $SourcePolicyRoot -Recurse -File -Filter *.md
     foreach ($file in $sourceFiles) {
+        if ($script:ClaudeUnpublishedPolicyFileNames -contains $file.Name) {
+            continue
+        }
         $relative = $file.FullName.Substring($SourcePolicyRoot.Length).TrimStart('\', '/')
         $destinationPath = Join-Path $DestinationRulesRoot $relative
         $destinationDir = Split-Path -Parent $destinationPath
@@ -90,11 +156,21 @@ function Invoke-ClaudePublishPolicy {
     $destinationRulesRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.RulesDirectoryName
 
     $filesCopied = Copy-ClaudeCorePolicyTree -SourcePolicyRoot $sourcePolicyRoot -DestinationRulesRoot $destinationRulesRoot
+    $null = Convert-ClaudeRuleFrontmatterInFiles -Files @(Get-ChildItem -LiteralPath $destinationRulesRoot -Recurse -File -Filter *.md | ForEach-Object { $_.FullName })
     $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-ClaudePlaceholdersInTree -RootPath $destinationRulesRoot -PlaceholderMap $placeholderMap
     $markdownRules = @(Get-ChildItem -LiteralPath $destinationRulesRoot -Recurse -File -Filter *.md | ForEach-Object { $_.FullName })
     $null = Convert-ClaudeMdcReferencesInFiles -Files $markdownRules
     Assert-ClaudePlaceholdersResolved -RootPath $destinationRulesRoot
+    if ($markdownRules.Count -gt 0) {
+        Enter-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        try {
+            Update-ToolkitManagedCopyInventory -InstallRoot $resolvedInstallRoot -Paths $markdownRules
+        }
+        finally {
+            Exit-ToolkitFilesystemGate -RootPath $resolvedInstallRoot -LockFileName '.toolkit-managed-publish.lock'
+        }
+    }
 
     return [PSCustomObject]@{
         Success     = $true
