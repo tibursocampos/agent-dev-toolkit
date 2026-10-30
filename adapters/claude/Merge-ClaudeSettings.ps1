@@ -310,7 +310,7 @@ function Get-ClaudePermissionsAllowEntriesForRemoval {
 function Remove-ClaudePermissionsAllowEntriesByEquality {
     <#
     .SYNOPSIS
-      Drop permissions.allow entries that exactly match EntriesToRemove; preserve others.
+      Drop entries from permissions.<ListKey> that exactly match EntriesToRemove; preserve others.
     #>
     [CmdletBinding()]
     param(
@@ -318,25 +318,28 @@ function Remove-ClaudePermissionsAllowEntriesByEquality {
         [System.Collections.IDictionary] $Settings,
 
         [Parameter(Mandatory = $true)]
-        [string[]] $EntriesToRemove
+        [string[]] $EntriesToRemove,
+
+        [Parameter()]
+        [string] $ListKey = 'allow'
     )
 
     $permissionsKey = $script:ClaudeSettingsJsonConstant.PermissionsPropertyName
-    $allowKey = $script:ClaudeSettingsJsonConstant.AllowPropertyName
+    $listKey = $ListKey
 
     if (-not $Settings.Contains($permissionsKey) -or -not ($Settings[$permissionsKey] -is [System.Collections.IDictionary])) {
         return $false
     }
 
     $permissions = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$permissionsKey]
-    if (-not $permissions.Contains($allowKey) -or $null -eq $permissions[$allowKey]) {
+    if (-not $permissions.Contains($listKey) -or $null -eq $permissions[$listKey]) {
         $Settings[$permissionsKey] = $permissions
         return $false
     }
 
     $changed = $false
     $remaining = New-Object System.Collections.Generic.List[string]
-    foreach ($entry in @($permissions[$allowKey])) {
+    foreach ($entry in @($permissions[$listKey])) {
         if ($null -eq $entry) { continue }
         $entryText = [string]$entry
         $isTarget = $false
@@ -354,9 +357,75 @@ function Remove-ClaudePermissionsAllowEntriesByEquality {
         }
     }
 
-    $permissions[$allowKey] = @($remaining.ToArray())
+    $permissions[$listKey] = @($remaining.ToArray())
     $Settings[$permissionsKey] = $permissions
     return $changed
+}
+
+function Merge-ClaudeAttributionHidden {
+    <#
+    .SYNOPSIS
+      Hide commit and pull request attribution (empty strings); other attribution keys are kept.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary] $Settings
+    )
+
+    $attributionKey = $script:ClaudeSettingsJsonConstant.AttributionPropertyName
+    if (-not $Settings.Contains($attributionKey) -or $null -eq $Settings[$attributionKey]) {
+        $Settings[$attributionKey] = [ordered]@{}
+    }
+    elseif (-not ($Settings[$attributionKey] -is [System.Collections.IDictionary])) {
+        # Fail closed: never replace alien non-object attribution with {}.
+        throw $script:ClaudePublishMessage.SettingsAttributionNotObject
+    }
+    else {
+        $Settings[$attributionKey] = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$attributionKey]
+    }
+
+    $attribution = $Settings[$attributionKey]
+    $attribution[$script:ClaudeSettingsJsonConstant.AttributionCommitPropertyName] = ''
+    $attribution[$script:ClaudeSettingsJsonConstant.AttributionPrPropertyName] = ''
+}
+
+function Remove-ClaudeAttributionHidden {
+    <#
+    .SYNOPSIS
+      Reverse of Merge-ClaudeAttributionHidden: drop commit/pr only while they are empty; keep other keys.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary] $Settings
+    )
+
+    $attributionKey = $script:ClaudeSettingsJsonConstant.AttributionPropertyName
+    if (-not $Settings.Contains($attributionKey) -or -not ($Settings[$attributionKey] -is [System.Collections.IDictionary])) {
+        return $false
+    }
+
+    $attribution = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$attributionKey]
+    $changed = $false
+    foreach ($name in @($script:ClaudeSettingsJsonConstant.AttributionCommitPropertyName, $script:ClaudeSettingsJsonConstant.AttributionPrPropertyName)) {
+        if ($attribution.Contains($name) -and [string]$attribution[$name] -eq '') {
+            $attribution.Remove($name)
+            $changed = $true
+        }
+    }
+
+    if (-not $changed) {
+        return $false
+    }
+
+    if ($attribution.Count -eq 0) {
+        $Settings.Remove($attributionKey)
+    }
+    else {
+        $Settings[$attributionKey] = $attribution
+    }
+    return $true
 }
 
 function Merge-ClaudeHookEventEntries {
@@ -678,7 +747,7 @@ function Merge-ClaudePermissionsAllowAdditive {
 function Get-ClaudeGitPermissionsAskEntries {
     <#
     .SYNOPSIS
-      Mutant git commands that require operator confirmation (permissions.ask).
+      State-changing git commands that require operator confirmation (permissions.ask).
     #>
     [CmdletBinding()]
     param()
@@ -918,6 +987,8 @@ function Invoke-ClaudeMergeSettings {
 
         $managedAsk = @(Get-ClaudeGitPermissionsAskEntries)
         Merge-ClaudePermissionsAskAdditive -Settings $settings -ManagedAskEntries $managedAsk
+
+        Merge-ClaudeAttributionHidden -Settings $settings
     }
     catch {
         return [PSCustomObject]@{
