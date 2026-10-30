@@ -29,7 +29,7 @@ Canonical form is the skill **id**.
 |------|-------|
 | Capability | `hooks=true` |
 | Publish | `config/hooks/hooks.json` + `guard-pre-tool.ps1` (+ `_hook-common.ps1`, `GuardCommon.ps1`) |
-| Matcher | `write_to_file\|replace_file_content\|multi_replace_file_content\|run_command` |
+| Matcher | `.*` |
 | Deny shape | `{ "decision": "deny", "reason": "…" }` |
 | Out of scope | Sidecars / Automations; legacy `antigravity-ide/plugins` bridge |
 
