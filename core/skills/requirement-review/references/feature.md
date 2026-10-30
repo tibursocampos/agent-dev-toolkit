@@ -49,7 +49,7 @@ A criterion that fails a check is an `ACCEPTANCE_GAP` finding (evidence: the cri
 
 ### F4. Atomize
 
-Apply the atomization rules in `SKILL.md` section 4. Report as a table:
+Apply the atomization rules in `SKILL.md` section 4. Report as a table that lists every criterion and every atom, with no row omitted or summarized:
 
 | Parent | Atom | Given / When / Then | Observable Then | Status |
 |--------|------|---------------------|-----------------|--------|

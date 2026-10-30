@@ -139,6 +139,8 @@ Status: READY | NEEDS_CLARIFICATION
 
 (Open items only. Resolved and superseded items live in the Q&A history.)
 
+At every `open_question` stop and at close, you must show this full table in chat with every open question row (ID, Severity, Owner, Question), localized per `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`. Never show only the changed row or summarize rows. A question the operator has resolved leaves the table and stays only in the Q&A history.
+
 ## Findings
 
 [FND-001 | I | GAP] <section heading>
