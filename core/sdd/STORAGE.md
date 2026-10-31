@@ -57,7 +57,7 @@ features/NNN-slug/
 | `CHANGE.md` | Feature-root brownfield delta vs **current** (`memory-bank/` living docs). Required when FEATURE Nature is `brownfield`. Greenfield must not force an empty stub. Contract: `CHANGE-CONTRACT.md`. |
 | `EVD/` | Story-root evidence folder for post-implementation verify. Required when evidence level ≥ `cheap`. Contract: `EVD-STATE-CONTRACT.md`. Historical feature-root evidence is preserved and not bulk-migrated. |
 | `STATE.md` | Story-root AC → evidence matrix + **Evidence level** (`off` \| `cheap` \| `standard` \| `strict`). Gate via `validate-evidence.ps1`. **Verifier ≠ O3**. |
-| `TRACE.jsonl` | Feature-root append-only JSONL trail. Living loop **converge → sync current → archive** (REQ-006 / CA5). Gate via `validate-trace.ps1` (`-RequireArchiveComplete` at close). Contract: `TRACE-ARCHIVE-CONTRACT.md`. |
+| `TRACE.jsonl` | Feature-root append-only JSONL trail. Living loop **converge → sync current → archive**. Gate via `validate-trace.ps1` (`-RequireArchiveComplete` at close). Contract: `TRACE-ARCHIVE-CONTRACT.md`. |
 | Story subfolders | `REFINE/` optional / on demand (`tasks.md` when complexity ≥ medium). `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
 
 **Classic SDD (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
@@ -171,13 +171,13 @@ Classic SDD implementation access is a separate contract: see `CLASSIC-EXTERNAL-
 
 ## Navigation block (Related)
 
-**Rule IDs:** `NAV-RELATED` · `NAV-OMIT-ABSENT` · `NAV-PORTABLE` (REQ-007 / REQ-008 / RN05 / CA3)
+**Rule IDs:** `NAV-RELATED` · `NAV-OMIT-ABSENT` · `NAV-PORTABLE`
 
 Canonical cross-artifact navigation for FEATURE / CONTINUITY / STORY / PRD / PLAN (and on-disk ANALYSIS / ARCH / SEC pointers). Companion pipeline summary: `PIPELINE.md` § Navigation block.
 
 | Rule | Contract |
 |------|----------|
-| **Section title** | Exactly `## Related` — **never** `## See also` (RN05) |
+| **Section title** | Exactly `## Related` — **never** `## See also` |
 | **Paths** | Portable paths only (§ Portable path) — no OS absolute / InstallRoot embeds |
 | **Omit-if-absent** | Include a row/bullet **only** when the sibling exists on disk (or is known for the Write in flight). **Do not** create empty stubs solely to satisfy a link |
 | **No monolith** | Do **not** invent `feature-refinement.md` as a navigation SoT |

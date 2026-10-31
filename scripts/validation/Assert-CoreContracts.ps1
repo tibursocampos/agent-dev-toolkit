@@ -3032,6 +3032,35 @@ Write-Pass -TestName 'Should_Pass_When_WorkflowActionsPinnedAndPermissionsDeclar
 
 }
 
+$sections['SddContractMirrorIdentity'] = {
+# Tests:
+#   Should_Pass_When_SddContractMirrorsByteIdentical
+
+$sddSourceRelDir = 'core/skills/_shared/sdd-artifacts'
+$sddMirrorRelDir = 'core/sdd'
+$sddMirrorFiles = @('PIPELINE.md', 'MEMORY-BANK.md', 'STORAGE.md', 'STORAGE-RESOLUTION.md', 'SESSION.md')
+$identityName = 'Should_Pass_When_SddContractMirrorsByteIdentical'
+$sddMismatches = [System.Collections.Generic.List[string]]::new()
+foreach ($mirrorFile in $sddMirrorFiles) {
+    $sourcePath = Join-Path (Join-Path $repoRoot ($sddSourceRelDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)) $mirrorFile
+    $mirrorPath = Join-Path (Join-Path $repoRoot ($sddMirrorRelDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)) $mirrorFile
+    if (-not (Test-Path -LiteralPath $sourcePath) -or -not (Test-Path -LiteralPath $mirrorPath)) {
+        $sddMismatches.Add(("{0} (source or mirror missing)" -f $mirrorFile))
+        continue
+    }
+    $sourceHash = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash
+    $mirrorHash = (Get-FileHash -LiteralPath $mirrorPath -Algorithm SHA256).Hash
+    if ($sourceHash -ne $mirrorHash) {
+        $sddMismatches.Add($mirrorFile)
+    }
+}
+if ($sddMismatches.Count -gt 0) {
+    Write-Fail -TestName $identityName -Reason ("core/sdd mirror differs from {0}: {1}" -f $sddSourceRelDir, ($sddMismatches -join ', '))
+}
+Write-Pass -TestName $identityName
+
+}
+
 $failures = [System.Collections.Generic.List[string]]::new()
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
 foreach ($name in $sections.Keys) {

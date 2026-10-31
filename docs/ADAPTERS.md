@@ -686,7 +686,7 @@ Module: `adapters/_contract/AdapterContract.ps1` (shared stub). Concrete modules
 | `Publish-Router` | Publish router into `InstallRoot` | Not-implemented result; **no** filesystem writes |
 | `Publish-Agents` | Publish roster custom subagent markdown from `core/agents/` | Not-implemented result; **no** filesystem writes |
 | `Publish-Hooks` | Publish hooks into `InstallRoot` | Not-implemented result; **no** filesystem writes |
-| `Get-SddRoot` | Resolve / prepare `<InstallRoot>/sdd` runtime root | Contract stub returns not-implemented; concrete adapters implement; source of truth for contracts remains `core/sdd/` |
+| `Get-SddRoot` | Resolve / prepare `<InstallRoot>/sdd` runtime root | Contract stub returns not-implemented; concrete adapters implement; source of truth for contracts is `core/skills/_shared/sdd-artifacts/`; `core/sdd/` is an identical mirror |
 | `Invoke-SmokeValidate` | Smoke against fixture `InstallRoot` | Not-implemented result; must not require live user-profile sync |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts | Contract stub returns not-implemented; all adapters implement keyed uninstall (preserves `sdd/sessions` + `sdd/manifest.json`; **no** InstallRoot wipe) |
 
@@ -742,7 +742,7 @@ Stubs **must not** write under `%USERPROFILE%` (or equivalent). Future smoke use
 
 ## SDD contracts (`Get-SddRoot`)
 
-- Canonical core path: `core/sdd/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`).
+- Source path: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`); `core/sdd/` is an identical mirror.
 - Public state file name: `manifest.json` only (RN04 — do not brand the public file with a version suffix).
 - Shared helper for the InstallRoot state layout: `scripts/_lib/Initialize-SddRootLayout.ps1` (`Invoke-ToolkitGetSddRoot`).
 
@@ -756,7 +756,7 @@ Stubs **must not** write under `%USERPROFILE%` (or equivalent). Future smoke use
 | Uninstall | Keyed uninstall **must not** remove `sdd/sessions/` or `sdd/manifest.json` |
 | Guard | Prepare writes respect `Resolve-InstallRoot` (`-AllowUserHome` required under USERPROFILE) |
 
-Core contracts under `core/sdd/` remain the source of truth for contract text. `Get-SddRoot -Prepare` creates the **runtime state root** (sessions + manifest), not a full copy of contract markdown. Placeholders `{{TOOLKIT_ROOT}}` / `{{SDD_ROOT}}` / `{{GUARDRAILS_PATH}}` resolve in published skills, rules, and router files at the destination only (`core/` on disk keeps placeholders).
+The contract source of truth is `core/skills/_shared/sdd-artifacts/`; `core/sdd/` is an identical mirror. `Get-SddRoot -Prepare` creates the **runtime state root** (sessions + manifest), not a full copy of contract markdown. Placeholders `{{TOOLKIT_ROOT}}` / `{{SDD_ROOT}}` / `{{GUARDRAILS_PATH}}` resolve in published skills, rules, and router files at the destination only (`core/` on disk keeps placeholders).
 
 ## Placeholders (publish-time)
 
