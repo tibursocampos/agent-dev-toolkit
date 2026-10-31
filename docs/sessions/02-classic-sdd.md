@@ -11,7 +11,7 @@ Classic SDD is three contracts plus a path reader. Orchestrated Delivery **loads
 
 Default story folder when unspecified is `US01` (or `TSnn` for a technical story). Root-level `PRD/` or `PLAN/` folders are invalid. Global storage uses the SDD root’s `features/` tree for that repo id (`core/sdd/STORAGE.md`).
 
-Plan/Ask mode drafts in chat. Files are written in Agent mode after **sim**.
+Plan/Ask mode drafts in chat. Files are written in Agent mode after `confirm`.
 
 Invocation context defaults to `direct` unless a parent passes `orchestrated`. That difference matters for missing specialist folders (below). Memory bank is **not** required on this direct path.
 
@@ -29,8 +29,8 @@ Process:
 4. **Direct** and a missing specialist folder: ask (create inline, proceed at operator risk, or `/orchestrate-analyze`). Do not hard-stop.
 5. **Orchestrated** (this skill called from O2) and a missing specialist folder: stop and return to [O1](01-orchestrated-delivery.md).
 6. Collect feature, current behavior, expected behavior, context, and a stable `REQ-NNN` (an external issue id can map onto a REQ). At most a few gap questions, then up to about five clarify questions.
-7. Challenge vague acceptance (“works correctly”). Require observable outcomes, explicit out of scope, metrics, MoSCoW, and severity on remaining open questions. Label inferences as invented until **sim** turns them into agreed.
-8. Show title, number, portable path, REQ count, and status **Ready for planning** / **Pronto para planejamento**. Wait for **sim** / **ajustar** / **cancelar**.
+7. Challenge vague acceptance (“works correctly”). Require observable outcomes, explicit out of scope, metrics, MoSCoW, and severity on remaining open questions. Label inferences as invented until `confirm` turns them into agreed.
+8. Show title, number, portable path, REQ count, and status **Ready for planning** / **Pronto para planejamento**. Wait for `confirm` / `adjust` / `cancel`.
 9. Write the PRD. Run `scripts/validation/validate-prd.ps1`. Non-zero exit stops the handoff.
 10. Brownfield: also write `features/NNN-slug/CHANGE.md` and run `validate-change.ps1`. Greenfield does not get an empty CHANGE stub.
 
@@ -55,7 +55,7 @@ Process:
 1. Find the PRD under `features/**/PRD/` only. No PRD: either hand off to `sdd-spec`, or the operator explicitly supplies the spec text (pipeline choice 2). A non-canonical markdown file is promoted through `sdd-spec`, not planned in place.
 2. Summarize by path. Do not paste the whole PRD back.
 3. Call `split-story-checklist` with `source=prd`. Read `REFINE/tasks.md`. Copy each step id, title, dependency, and wave. Map every `REQ-NNN` to one of those steps. Each step acceptance cites a REQ or acceptance id and an observable outcome. Step titles are not only a file, class, or script name.
-4. Review the draft, fix it, and review it again. A second failure stops without writing. Then confirm path and step count. **sim** before write.
+4. Review the draft, fix it, and review it again. A second failure stops without writing. Then confirm path and step count. `confirm` before write.
 5. Write steps as `PENDING`, progress `0/N`, refresh `## Related` so PRD and PLAN cite each other. The open-decisions section stays empty.
 6. Run `validate-plan` (and `validate-prd` on the source). That check does not replace the two reviews. Failure blocks `/sdd-develop`.
 
@@ -71,7 +71,7 @@ Trigger: `/sdd-develop`, “implement step”, “execute step”.
 
 Required: the canonical PLAN path and a step id. One session completes one step, including when pacing is `continuous`. The next step is a new chat.
 
-After **sim**, persist `step_confirmed` with `scripts/session/Invoke-DevelopSessionGate.ps1` on `sessions/{repo-hash}/plan-{plan-hash}.json` (or `plan-{plan-hash}-step-{N}.json` when several children share one PLAN). When a ledger claim is required, also `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Do not hand-edit session JSON in a one-liner.
+After `confirm`, persist `step_confirmed` with `scripts/session/Invoke-DevelopSessionGate.ps1` on `sessions/{repo-hash}/plan-{plan-hash}.json` (or `plan-{plan-hash}-step-{N}.json` when several children share one PLAN). When a ledger claim is required, also `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Do not hand-edit session JSON in a one-liner.
 
 Process:
 
@@ -91,7 +91,7 @@ Handoff when the PLAN is finished: `/code-review`, then `/run-tests`, then the `
 
 ## `read-sdd-artifact`
 
-Read-only. No **sim** gate and no caveman compression of the result.
+Read-only. No `confirm` gate and no caveman compression of the result.
 
 It turns one portable path under `features/` into `source_context`: kind, path, feature slug, story id when the path has one, file name. Kinds allowed: FEATURE, STORY, PRD, PLAN. CONTINUITY, ANALYSIS, ARCH, SEC, CHANGE, and memory-bank paths are rejected.
 
@@ -103,8 +103,8 @@ A later child that already holds `source_context` for that path does not re-read
 
 | Caller | What it adds around the contract |
 |--------|----------------------------------|
-| `orchestrate-deliver` series | For each story: story files, then spec, then a contest of that PRD, then plan. Parent writes after **sim** |
-| `orchestrate-deliver` parallel | Children return drafts only. Parent writes after **sim** using the same contracts |
+| `orchestrate-deliver` series | For each story: story files, then spec, then a contest of that PRD, then plan. Parent writes after `confirm` |
+| `orchestrate-deliver` parallel | Children return drafts only. Parent writes after `confirm` using the same contracts |
 | `orchestrate-develop` | Child runs this develop contract for exactly one step |
 | Direct `/sdd-spec` | No memory-bank gate. Missing specialist folders are a question |
 

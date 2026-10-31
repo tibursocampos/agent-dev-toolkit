@@ -39,8 +39,8 @@ These three skills run with invocation context `orchestrated`. A direct `/sdd-sp
 ```mermaid
 flowchart TD
   step0["memory-bank-init<br/>Step 0, policy auto"]
-  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, sim"]
-  o2["orchestrate-deliver<br/>story files, sdd-spec, contest the PRD,<br/>sdd-plan, sim, preflight"]
+  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, confirm"]
+  o2["orchestrate-deliver<br/>story files, sdd-spec, contest the PRD,<br/>sdd-plan, confirm, preflight"]
   o3["orchestrate-develop<br/>one sdd-develop child per PLAN step;<br/>close review and security when requested"]
   step0 --> o1 --> o2 --> o3
 ```
@@ -78,9 +78,9 @@ Before triage, mode selection, or a step queue, the skill runs the Memory Bank G
 | `refresh` | You asked, or Step 0 marked the bank stale |
 | `refresh-light` | O3 Step N after application files changed. Updates generated regions and `tech-stack.json`. Keeps human prose |
 
-MVP files: `project-context.md`, `tech-stack.json`, `architecture.md`, `domain-knowledge.md`, `conventions.md`, `known-risks.md`, plus `.inventory/`. Phase 2 files (`database-schema.md`, `api-contracts.md`, `component-catalog.md`) are written when the repo already has DDL, OpenAPI, or a UI map. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Confirm before the first write: `sim` / `ajustar` / `cancelar`.
+MVP files: `project-context.md`, `tech-stack.json`, `architecture.md`, `domain-knowledge.md`, `conventions.md`, `known-risks.md`, plus `.inventory/`. Phase 2 files (`database-schema.md`, `api-contracts.md`, `component-catalog.md`) are written when the repo already has DDL, OpenAPI, or a UI map. Inventory script: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Confirm before the first write: `confirm` / `adjust` / `cancel`. Labels are localized.
 
-After a greenfield architecture **sim**, O1 point-promotes `memory-bank/architecture.md` and sets bank status `refreshed`.
+After a greenfield architecture `confirm`, O1 point-promotes `memory-bank/architecture.md` and sets bank status `refreshed`.
 
 O3 passes `bank_path` into every develop child as read-only context. Classic SDD alone does not require a bank.
 
@@ -161,7 +161,7 @@ Spawn when `subagents=native` and the roster says so. Otherwise the same notes s
 
 Brownfield always includes analyst and architect (mirror the existing style). Greenfield or `needs_domain` without an established style: the architect returns a **draft** only.
 
-Architect draft, in order: boundaries; one recommended style and why; at most two alternatives; at most five open questions; `needs-confirm`. Style selection is Layer A in `core/skills/_shared/code-guidelines/principles/architecture-selection.md` (vertical slice, concentric, DDD tactical on concentric, event-driven overlay, or a frontend hub). Vertical slice is a proposal. You answer **sim** / **ajustar** / **cancelar**. The final ARCH is written only after **sim**.
+Architect draft, in order: boundaries; one recommended style and why; at most two alternatives; at most five open questions; `needs-confirm`. Style selection is Layer A in `core/skills/_shared/code-guidelines/principles/architecture-selection.md` (vertical slice, concentric, DDD tactical on concentric, event-driven overlay, or a frontend hub). Vertical slice is a proposal. You answer `confirm` / `adjust` / `cancel`. The final ARCH is written only after `confirm`.
 
 Optional stage notes: `impact`, `risk`, `generate-story`. They do not add roster roles.
 
@@ -178,7 +178,7 @@ After specialist notes are merged:
 5. **FEATURE depth.** Problem (prose), at least one goal, at least one non-goal, and evidence (path, redacted snippet, or an explicit omit). Empty fields keep status `draft`. The human approval prompt is withheld until those fields are filled.
 6. **Story file.** Type, objective, which feature acceptance criteria this story covers, out of scope, acceptance in three bands (happy path, rule or edge, failure) with an observable Then, dependencies, and a scorecard mapped from the refine rubric (/100 down to 1–5, including product depth).
 
-The human gate (**sim** / **ajustar** / **cancelar**) runs only after those gates pass and required folders exist. On **sim**, `CONTINUITY.md` records:
+The human gate (`confirm` / `adjust` / `cancel`) runs only after those gates pass and required folders exist. On `confirm`, `CONTINUITY.md` records:
 
 ```text
 /orchestrate-deliver - features/NNN-slug/
@@ -186,13 +186,13 @@ The human gate (**sim** / **ajustar** / **cancelar**) runs only after those gate
 
 ## O2 — `orchestrate-deliver`
 
-Requires an approved backlog (`FEATURE` status approved, or `CONTINUITY` recording **sim**). A still-draft feature stops. The skill does not invent approval.
+Requires an approved backlog (`FEATURE` status approved, or `CONTINUITY` recording `confirm`). A still-draft feature stops. The skill does not invent approval.
 
 Step 0 runs again, then:
 
 - Discover `US*/STORY.md` and `TS*/STORY.md`. Skip a story that already has both PRD and PLAN unless you ask to refresh.
 - Stop writing if a required `ANALYSIS`, `ARCH`, or `SEC` folder is missing. Return to O1.
-- Stop that story if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. **MINOR** does not proceed on an assumption at any gate. **sim** does not close a question. Folder presence is not readiness. Readiness is not `step_confirmed`. A stuck story does not erase the others.
+- Stop that story if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. **MINOR** does not proceed on an assumption at any gate. `confirm` does not close a question. Folder presence is not readiness. Readiness is not `step_confirmed`. A stuck story does not erase the others.
 
 An open **B**, **I**, or **MINOR** question gives `NEEDS_CLARIFICATION`. The handoff is `/refine-story` and/or `/orchestrate-analyze` on the feature path. You answer the question and re-enter O2. Standalone refine comes back here for a blocking question. It is not how a feature normally starts.
 
@@ -202,8 +202,8 @@ The skill asks.
 
 | Choice | What happens |
 |--------|----------------|
-| Series | For each story: story files, then `sdd-spec`, then a contest of that PRD, then `sdd-plan`. Disk write only after that gate is clear and **sim** |
-| Parallel | One child per story, draft only, one gate per wave, when `subagents=native`. Cap four. A PLAN is not drafted while that PRD still has an open question. The parent is the only writer, after **sim** |
+| Series | For each story: story files, then `sdd-spec`, then a contest of that PRD, then `sdd-plan`. Disk write only after that gate is clear and `confirm` |
+| Parallel | One child per story, draft only, one gate per wave, when `subagents=native`. Cap four. A PLAN is not drafted while that PRD still has an open question. The parent is the only writer, after `confirm` |
 | Stop | No writes |
 
 If Task is unavailable, parallel falls back to series. Finish stories that others depend on first, unless you waive **story order**. Missing `ANALYSIS` / `ARCH` / `SEC` cannot be waived.
@@ -214,7 +214,7 @@ Brownfield nature also writes `features/NNN-slug/CHANGE.md` (added, modified, re
 
 ### Approval and preflight
 
-Per story or as a batch: **sim** / **ajustar** / **cancelar**. Then:
+Per story or as a batch: `confirm` / `adjust` / `cancel`. Then:
 
 - Nature must match CHANGE (brownfield has CHANGE; greenfield does not force one).
 - `scripts` preflight `Invoke-PrdPlanChangePreflight.ps1` must allow the handoff.
@@ -245,9 +245,9 @@ Step 0 runs before the queue. Every child receives `bank_path` read-only and `in
 
 `orchestrator_mode` in preferences is the parent role. It is separate from this table.
 
-`serial` forbids a parallel wave. `parallel` needs an explicit **sim**, independent steps, and a distinct session file per child, cap four. `manual` does not spawn; it prints `/sdd-develop` lines only.
+`serial` forbids a parallel wave. `parallel` needs an explicit `confirm`, independent steps, and a distinct session file per child, cap four. `manual` does not spawn; it prints `/sdd-develop` lines only.
 
-`step_by_step` asks **sim** before each spawn. `continuous` may take the next ready step after the first queue **sim**, still claims the ledger, and still runs one step per child. The parent still shows each step’s summary. It does not stay silent between steps.
+`step_by_step` asks `confirm` before each spawn. `continuous` may take the next ready step after the first queue `confirm`, still claims the ledger, and still runs one step per child. The parent still shows each step’s summary. It does not stay silent between steps.
 
 ### One child, one PLAN step
 
@@ -284,7 +284,7 @@ or a stack skill such as `dotnet-developer` or `react-developer`.
 
 | Other skill | How Orchestrated Delivery uses it |
 |-------------|-----------------------------------|
-| `sdd-spec` | O2, per story, after **sim** |
+| `sdd-spec` | O2, per story, after `confirm` |
 | `sdd-plan` | O2, after that story’s PRD has no open question. Copies step ids from `split-story-checklist` |
 | `sdd-develop` | O3 child, one PLAN step; or the manual line when Task is off |
 | `refine-story` rubric file | O1 scorecard on `STORY.md`. The refine skill’s mode question is not asked |
@@ -298,16 +298,22 @@ or a stack skill such as `dotnet-developer` or `react-developer`.
 
 ## Confirmations
 
+Question contract: [Questions and confirmations](questions.md).
+
+In a pt-BR install the labels are `sim` / `ajustar` / `cancelar`; answer in your language, any clear yes / adjust / cancel works.
+
+Gate legend: `confirm` = sim, `adjust` = ajustar, `cancel` = cancelar, `skip` = pular, `decline` = não.
+
 | Moment | Answers |
 |--------|---------|
-| Start the skill | **sim** |
-| Write the feature tree | **sim** / **ajustar** / **cancelar** |
-| Approve architecture (greenfield) | **sim** / **ajustar** / **cancelar** |
-| Approve the backlog | **sim** / **ajustar** / **cancelar** |
-| Write each PRD and PLAN | **sim** |
-| Spawn the next implementer | **sim** (every step in `step_by_step`; queue **sim** then per-step claim in `continuous`) |
-| Memory-bank write or refresh-light | **sim** |
+| Start the skill | `confirm` |
+| Write the feature tree | `confirm` / `adjust` / `cancel` |
+| Approve architecture (greenfield) | `confirm` / `adjust` / `cancel` |
+| Approve the backlog | `confirm` / `adjust` / `cancel` |
+| Write each PRD and PLAN | `confirm` |
+| Spawn the next implementer | `confirm` (every step in `step_by_step`; queue `confirm` then per-step claim in `continuous`) |
+| Memory-bank write or refresh-light | `confirm` |
 
-Silence, “ok”, or an emoji is not **sim**.
+Silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is.
 
 Next: [Using skills](using-skills.md).

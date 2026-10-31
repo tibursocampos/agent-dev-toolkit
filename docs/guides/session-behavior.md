@@ -36,7 +36,7 @@ Task `model` is omitted so the child uses the parent session model (`core/skills
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off. On Claude, the `UserPromptSubmit` hook (`preferences-command.ps1`) handles these commands together with the orchestrator commands, and writes `sdd/preferences.json`.
 
-`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and `(sim / ajustar / cancelar)` stay clear. Credit for the idea: [CREDITS.md](../CREDITS.md). Policy file: `core/policy/caveman-mode.md`.
+`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and gate labels stay clear. Labels are localized; answers are matched by meaning, not by a fixed word (see `core/skills/_shared/agents/QUESTIONS.md`). Credit for the idea: [CREDITS.md](../CREDITS.md). Policy file: `core/policy/caveman-mode.md`.
 
 ## Other preference keys
 

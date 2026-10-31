@@ -39,8 +39,8 @@ Essas três skills rodam com contexto de invocação `orchestrated`. Um `/sdd-sp
 ```mermaid
 flowchart TD
   step0["memory-bank-init<br/>Passo 0, política auto"]
-  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, sim"]
-  o2["orchestrate-deliver<br/>arquivos da story, sdd-spec, contestação do PRD,<br/>sdd-plan, sim, preflight"]
+  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, confirm"]
+  o2["orchestrate-deliver<br/>arquivos da story, sdd-spec, contestação do PRD,<br/>sdd-plan, confirm, preflight"]
   o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN;<br/>revisão de fechamento e security quando solicitadas"]
   step0 --> o1 --> o2 --> o3
 ```
@@ -78,9 +78,9 @@ Antes da triagem, da escolha de modo ou de uma fila de passos, a skill roda o Me
 | `refresh` | Você pediu, ou o Passo 0 marcou o bank como desatualizado |
 | `refresh-light` | Passo N do O3 depois que arquivos de aplicação mudaram. Atualiza regiões geradas e `tech-stack.json`. Mantém a prosa humana |
 
-Arquivos MVP: `project-context.md`, `tech-stack.json`, `architecture.md`, `domain-knowledge.md`, `conventions.md`, `known-risks.md`, mais `.inventory/`. Arquivos da fase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`) são escritos quando o repositório já tem DDL, OpenAPI ou um mapa de UI. Script de inventário: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Confirme antes da primeira escrita: `sim` / `ajustar` / `cancelar`.
+Arquivos MVP: `project-context.md`, `tech-stack.json`, `architecture.md`, `domain-knowledge.md`, `conventions.md`, `known-risks.md`, mais `.inventory/`. Arquivos da fase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`) são escritos quando o repositório já tem DDL, OpenAPI ou um mapa de UI. Script de inventário: `scripts/inventory/Invoke-MemoryBankInventory.ps1`. Confirme antes da primeira escrita: `confirm` / `adjust` / `cancel`. Os rótulos são localizados.
 
-Depois de um **sim** de arquitetura greenfield, o O1 promove pontualmente `memory-bank/architecture.md` e define o status do bank como `refreshed`.
+Depois de um `confirm` de arquitetura greenfield, o O1 promove pontualmente `memory-bank/architecture.md` e define o status do bank como `refreshed`.
 
 O O3 passa `bank_path` para cada filho de develop como contexto somente leitura. Classic SDD sozinho não exige um bank.
 
@@ -161,7 +161,7 @@ Há spawn quando `subagents=native` e o roster manda. Caso contrário as mesmas 
 
 Brownfield sempre inclui analyst e architect (espelha o estilo existente). Greenfield ou `needs_domain` sem estilo estabelecido: o architect devolve só um **rascunho**.
 
-Rascunho do architect, nesta ordem: fronteiras; um estilo recomendado e o porquê; no máximo duas alternativas; no máximo cinco perguntas abertas; `needs-confirm`. A seleção de estilo é a Camada A em `core/skills/_shared/code-guidelines/principles/architecture-selection.md` (vertical slice, concentric, DDD tático sobre concentric, overlay event-driven ou um hub de frontend). Vertical slice é uma proposta. Você responde **sim** / **ajustar** / **cancelar**. O ARCH final só é escrito depois do **sim**.
+Rascunho do architect, nesta ordem: fronteiras; um estilo recomendado e o porquê; no máximo duas alternativas; no máximo cinco perguntas abertas; `needs-confirm`. A seleção de estilo é a Camada A em `core/skills/_shared/code-guidelines/principles/architecture-selection.md` (vertical slice, concentric, DDD tático sobre concentric, overlay event-driven ou um hub de frontend). Vertical slice é uma proposta. Você responde `confirm` / `adjust` / `cancel`. O ARCH final só é escrito depois do `confirm`.
 
 Notas de estágio opcionais: `impact`, `risk`, `generate-story`. Elas não acrescentam papéis ao roster.
 
@@ -178,7 +178,7 @@ Depois que as notas dos especialistas se juntam:
 5. **Profundidade da FEATURE.** Problema (prosa), pelo menos uma meta, pelo menos um não-objetivo e evidência (caminho, trecho redigido ou uma omissão explícita). Campos vazios mantêm o status `draft`. O prompt de aprovação humana espera esses campos preenchidos.
 6. **Arquivo da story.** Tipo, objetivo, quais critérios de aceite da feature esta story cobre, fora de escopo, aceite em três faixas (caminho feliz, regra ou borda, falha) com um Then observável, dependências e um scorecard mapeado da rubrica de refine (/100 até 1–5, incluindo profundidade de produto).
 
-O gate humano (**sim** / **ajustar** / **cancelar**) só roda depois que esses gates passam e as pastas obrigatórias existem. No **sim**, `CONTINUITY.md` registra:
+O gate humano (`confirm` / `adjust` / `cancel`) só roda depois que esses gates passam e as pastas obrigatórias existem. No `confirm`, `CONTINUITY.md` registra:
 
 ```text
 /orchestrate-deliver - features/NNN-slug/
@@ -186,13 +186,13 @@ O gate humano (**sim** / **ajustar** / **cancelar**) só roda depois que esses g
 
 ## O2 — `orchestrate-deliver`
 
-Exige um backlog aprovado (status da `FEATURE` approved, ou `CONTINUITY` registrando **sim**). Uma feature ainda em rascunho para. A skill não inventa aprovação.
+Exige um backlog aprovado (status da `FEATURE` approved, ou `CONTINUITY` registrando `confirm`). Uma feature ainda em rascunho para. A skill não inventa aprovação.
 
 O Passo 0 roda de novo, e então:
 
 - Descobre `US*/STORY.md` e `TS*/STORY.md`. Pula uma story que já tem PRD e PLAN, salvo se você pedir refresh.
 - Para de escrever se uma pasta obrigatória `ANALYSIS`, `ARCH` ou `SEC` faltar. Volta ao O1.
-- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. **MINOR** não procede por suposição em nenhum gate. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
+- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. **MINOR** não procede por suposição em nenhum gate. `confirm` não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
 
 Pergunta aberta de **B**, **I** ou **MINOR** é `NEEDS_CLARIFICATION`. O handoff é `/refine-story` e/ou `/orchestrate-analyze` no caminho da feature. Você responde a pergunta e volta ao O2. O refine avulso volta aqui para uma pergunta bloqueante. Não é assim que uma feature começa no caso comum.
 
@@ -202,8 +202,8 @@ A skill pergunta.
 
 | Escolha | O que acontece |
 |---------|----------------|
-| Série | Por story: arquivos da story, depois `sdd-spec`, depois a contestação desse PRD, depois `sdd-plan`. Escrita em disco só depois que esse gate está limpo e há **sim** |
-| Paralelo | Um filho por story, só rascunho, um gate por onda, quando `subagents=native`. Teto quatro. O PLAN não é rascunhado enquanto esse PRD ainda tiver pergunta aberta. O pai é o único que escreve, depois do **sim** |
+| Série | Por story: arquivos da story, depois `sdd-spec`, depois a contestação desse PRD, depois `sdd-plan`. Escrita em disco só depois que esse gate está limpo e há `confirm` |
+| Paralelo | Um filho por story, só rascunho, um gate por onda, quando `subagents=native`. Teto quatro. O PLAN não é rascunhado enquanto esse PRD ainda tiver pergunta aberta. O pai é o único que escreve, depois do `confirm` |
 | Parar | Sem escritas |
 
 Se Task não estiver disponível, o paralelo cai para série. Termine primeiro as stories das quais outras dependem, salvo se você dispensar **story order**. `ANALYSIS` / `ARCH` / `SEC` ausentes não podem ser dispensados.
@@ -214,7 +214,7 @@ Natureza brownfield também escreve `features/NNN-slug/CHANGE.md` (adicionado, m
 
 ### Aprovação e preflight
 
-Por story ou em lote: **sim** / **ajustar** / **cancelar**. Depois:
+Por story ou em lote: `confirm` / `adjust` / `cancel`. Depois:
 
 - A natureza precisa bater com CHANGE (brownfield tem CHANGE; greenfield não força um).
 - O preflight `Invoke-PrdPlanChangePreflight.ps1` em `scripts` precisa liberar o handoff.
@@ -245,9 +245,9 @@ O Passo 0 roda antes da fila. Cada filho recebe `bank_path` somente leitura e `i
 
 `orchestrator_mode` nas preferências é o papel do pai. Ele fica separado desta tabela.
 
-`serial` impede uma onda paralela. `parallel` precisa de um **sim** explícito, passos independentes e um arquivo de sessão distinto por filho, teto quatro. `manual` não faz spawn; só imprime linhas `/sdd-develop`.
+`serial` impede uma onda paralela. `parallel` precisa de um `confirm` explícito, passos independentes e um arquivo de sessão distinto por filho, teto quatro. `manual` não faz spawn; só imprime linhas `/sdd-develop`.
 
-`step_by_step` pede **sim** antes de cada spawn. `continuous` pode pegar o próximo passo pronto depois do primeiro **sim** da fila, ainda reivindica o ledger e ainda roda um passo por filho. O pai ainda mostra o resumo de cada passo. Não fica em silêncio entre passos.
+`step_by_step` pede `confirm` antes de cada spawn. `continuous` pode pegar o próximo passo pronto depois do primeiro `confirm` da fila, ainda reivindica o ledger e ainda roda um passo por filho. O pai ainda mostra o resumo de cada passo. Não fica em silêncio entre passos.
 
 ### Um filho, um passo do PLAN
 
@@ -284,7 +284,7 @@ ou uma skill de stack como `dotnet-developer` ou `react-developer`.
 
 | Outra skill | Como a Orchestrated Delivery a usa |
 |-------------|-------------------------------------|
-| `sdd-spec` | O2, por story, depois do **sim** |
+| `sdd-spec` | O2, por story, depois do `confirm` |
 | `sdd-plan` | O2, depois que o PRD dessa story não tem pergunta aberta. Copia os ids de passo de `split-story-checklist` |
 | `sdd-develop` | Filho do O3, um passo do PLAN; ou a linha manual quando Task está desligado |
 | Arquivo da rubrica de `refine-story` | Scorecard do O1 em `STORY.md`. A pergunta de modo da skill refine não é feita |
@@ -298,6 +298,12 @@ ou uma skill de stack como `dotnet-developer` ou `react-developer`.
 
 ## Confirmações
 
+Contrato das perguntas: [Perguntas e confirmações](questions.md).
+
+Os rótulos são `sim` / `ajustar` / `cancelar`; qualquer idioma é aceito.
+
+Legenda dos gates: sim = confirm, ajustar = adjust, cancelar = cancel, pular = skip, não = decline.
+
 | Momento | Respostas |
 |---------|-----------|
 | Iniciar a skill | **sim** |
@@ -308,6 +314,6 @@ ou uma skill de stack como `dotnet-developer` ou `react-developer`.
 | Fazer spawn do próximo implementador | **sim** (cada passo em `step_by_step`; **sim** da fila e depois claim por passo em `continuous`) |
 | Escrita ou refresh-light do memory bank | **sim** |
 
-Silêncio, “ok” ou um emoji não é **sim**.
+Silêncio, uma resposta ambígua ou não relacionada, ou um emoji isolado não é aprovação; uma resposta afirmativa clara em qualquer idioma é.
 
 Próximo: [Usando skills](using-skills.md).

@@ -40,6 +40,7 @@ plugins:
             First use: First use
             Orchestrated Delivery: Orchestrated Delivery
             Using skills: Using skills
+            Questions: Questions
             Architecture: Architecture
             Adapters: Adapters
             Reference: Reference
@@ -55,6 +56,7 @@ plugins:
             First use: Primeiro uso
             Orchestrated Delivery: Entrega orquestrada
             Using skills: Usando skills
+            Questions: Perguntas
             Architecture: Arquitetura
             Adapters: Adaptadores
             Reference: Referência
@@ -68,6 +70,7 @@ nav:
   - First use: first-use.md
   - Orchestrated Delivery: orchestrated-delivery.md
   - Using skills: using-skills.md
+  - Questions: questions.md
   - Architecture: architecture.md
   - Adapters: adapters.md
   - Reference: reference.md

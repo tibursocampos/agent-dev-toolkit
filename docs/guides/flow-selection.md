@@ -44,4 +44,16 @@ An open **B** (blocker), **I** (important), or **MINOR** item keeps the status a
 
 - `sdd-spec` writes only the PRD in this session. `sdd-plan` writes only the PLAN.
 - `sdd-develop` executes **one** PLAN step per session. When it finishes, stop. The next step starts in another session.
-- Before any new artifact is written, the skill shows the path and a summary and asks: `sim` (yes), `ajustar` (adjust), or `cancelar` (cancel). Writing happens only after `sim`.
+- Before any new artifact is written, the skill shows the path and a summary and asks a gate question. Writing happens only after the `confirm` answer. Silence, an ambiguous or unrelated reply, or an emoji alone is not an answer; the question stays pending.
+
+### Gate legend
+
+Labels are shown in the user's conversation language. The id is stable and is what the rule matches. Answers are matched by meaning, not by a fixed word. Contract: `core/skills/_shared/agents/QUESTIONS.md`.
+
+| Id | Label (pt-BR) | Meaning |
+|----|---------------|---------|
+| `confirm` | sim | Approve the exact action or artifact shown. |
+| `adjust` | ajustar | Change the proposal before acting. |
+| `cancel` | cancelar | Stop. Do not perform the gated action. |
+| `skip` | pular | Leave an optional step undone and continue. |
+| `decline` | não | Refuse an optional offer. |

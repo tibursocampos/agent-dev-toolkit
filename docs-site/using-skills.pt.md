@@ -51,6 +51,8 @@ orchestrate-develop - features/NNN-slug/
 
 Analyze classifica, pergunta, define `needs_*`, chama especialistas quando as flags exigem e espera o **sim** do backlog. As pastas de story esperam a feature sem pergunta aberta. Deliver confere os arquivos de cada story, roda `sdd-spec`, contesta esse PRD e roda `sdd-plan`. Develop roda um passo de `sdd-develop` por filho. Gates, pastas e confirmações: [Entrega orquestrada](orchestrated-delivery.md).
 
+Legenda dos gates (rótulo em português = id): `sim` = confirm, `ajustar` = adjust, `cancelar` = cancel, `pular` = skip, `não` = decline. Os rótulos são localizados; os ids ficam sempre em inglês. Detalhes: [Perguntas e confirmações](questions.md).
+
 Quando o analyze define greenfield ou `needs_domain` e não há estilo de ARCH, o papel de roster **architect** devolve um rascunho. Você responde **sim** antes de o estilo ser aprovado. Brownfield espelha o estilo existente. O pai permanece coordenador.
 
 Nos quatro gates de pergunta aberta, qualquer pergunta sem resposta, inclusive **MINOR**, impede o próximo artefato (`open_question`). READY exige nenhuma pergunta sem resposta de **B**, **I** ou **MINOR** em qualquer handoff. Prontidão não é `step_confirmed`.
@@ -75,7 +77,7 @@ sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
 read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera **sim** / **ajustar** / **cancelar**. Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão. Sem a pasta `features/NNN-slug/`, o `sdd-spec` não lê `docs/backlog/` por conta própria; cite o caminho ou cole o texto.
+`sdd-spec` escreve o quê e o porquê, um `REQ-NNN` estável, o que está fora de escopo, e espera a resposta que o gate mapeia para o id `confirm`, `adjust` ou `cancel` (rótulos localizados: sim / ajustar / cancelar no install em português; confirm / adjust / cancel no inglês). Ela roda `scripts/validation/validate-prd.ps1`. Brownfield também escreve `features/NNN-slug/CHANGE.md` e roda `validate-change.ps1`. Ela não escreve um PLAN na mesma sessão. Sem a pasta `features/NNN-slug/`, o `sdd-spec` não lê `docs/backlog/` por conta própria; cite o caminho ou cole o texto.
 
 `sdd-plan` exige um PRD canônico cujo status está pronto para planejamento. O número do PLAN bate com o do PRD e vive na mesma pasta da story. Cada passo é uma invocação de `sdd-develop`. Um PLAN canônico e um passo elegível explícito podem começar na sessão atual depois dos gates de dependência e confirmação; se o passo ou a rota de execução não forem informados, a skill pergunta entre execução manual e O3. SQL, DDL, JSON e OpenAPI ficam em um arquivo canônico. O PLAN cita esse caminho. **sim** antes de escrever. `validate-plan` precisa passar antes de `/sdd-develop`.
 
@@ -247,7 +249,7 @@ help-skills
 
 `push` roda `git push -u origin HEAD` depois da checagem do branch. Se esta conversa já pediu um pull request, carrega `open-github-pr`. Caso contrário, pergunta.
 
-`open-github-pr` é dono de `gh pr create`. Feature (`feature/*` ou `feat/*` atual) aponta para `develop` com `--squash` quando o auto-merge está ligado. Release (`develop` para `master` ou `main`) usa `--rebase`. O **sim** / **ajustar** / **cancelar** do conteúdo é separado da pergunta de auto-merge (**sim** / **não**). Se o branch não estiver em `origin`, o handoff é `/push` primeiro.
+`open-github-pr` é dono de `gh pr create`. Feature (`feature/*` ou `feat/*` atual) aponta para `develop` com `--squash` quando o auto-merge está ligado. Release (`develop` para `master` ou `main`) usa `--rebase`. O gate do conteúdo (ids `confirm`, `adjust`, `cancel`) é separado da pergunta de auto-merge (ids `confirm`, `decline`). Os rótulos são localizados. Se o branch não estiver em `origin`, o handoff é `/push` primeiro.
 
 `document-plan` pergunta o idioma da documentação uma vez, e então escreve `docs/overview.md` e `docs/documentation-plan/plan.md`. Não escreve PLANs de feature. Para este toolkit o idioma é inglês. `document-implement` executa um passo pendente e para.
 
@@ -272,6 +274,8 @@ Idioma do artefato, uma vez por escrita: override da invocação, senão `artifa
 
 `core/policy/user-language-pt-br.md` e `core/policy/sdd-artifact-language-pt-br.md` seguem como padrão de instalação para uma sessão em português do Brasil. Quando o chat ou as preferências nomeiam outro idioma, `LANGUAGE.md` vence. Handoffs de filho levam um caminho e um trecho curto.
 
+As respostas dos gates são interpretadas pelo significado, em qualquer idioma; silêncio, resposta ambígua ou emoji isolado não é aprovação.
+
 ### Orquestrador pai
 
 O padrão de `orchestrator_mode` é `adaptive`. O pai guarda metas, gates, caminhos e recibos. Especialistas escrevem notas ou código. Comandos: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` e `parent`).
@@ -286,7 +290,7 @@ O primeiro sync interativo pergunta se a compressão de resposta Caveman fica li
 
 Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` e `normal mode` desligam.
 
-`help-skills`, `read-sdd-artifact`, `commit`, `push` e `open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e `(sim / ajustar / cancelar)` permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
+`help-skills`, `read-sdd-artifact`, `commit`, `push` e `open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e as opções dos gates (ids `confirm`, `adjust`, `cancel`; no install em português: sim / ajustar / cancelar) permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
 
 ### Outras chaves de preferência
 
