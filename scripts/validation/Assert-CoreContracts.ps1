@@ -821,7 +821,7 @@ foreach ($rel in $paths) {
         }
     }
 }
-$storageDoc = Get-Content -LiteralPath (Join-Path $repoRoot 'core\sdd\STORAGE-RESOLUTION.md') -Raw -Encoding UTF8
+$storageDoc = Get-Content -LiteralPath (Join-Path $repoRoot 'core\skills\_shared\sdd-artifacts\STORAGE-RESOLUTION.md') -Raw -Encoding UTF8
 $cavemanPolicy = Get-Content -LiteralPath (Join-Path $repoRoot 'core\policy\caveman-mode.md') -Raw -Encoding UTF8
 if ($storageDoc -notmatch '"caveman_mode": true' -or $cavemanPolicy -notmatch 'caveman_mode": true') {
     Write-Fail -TestName 'Should_DocumentCavemanOnAsDefault' -Reason 'storage and Caveman policy must document the on default'
@@ -3029,35 +3029,6 @@ foreach ($workflowFile in @(Get-ChildItem -LiteralPath $workflowDir -Filter '*.y
     }
 }
 Write-Pass -TestName 'Should_Pass_When_WorkflowActionsPinnedAndPermissionsDeclared'
-
-}
-
-$sections['SddContractMirrorIdentity'] = {
-# Tests:
-#   Should_Pass_When_SddContractMirrorsByteIdentical
-
-$sddSourceRelDir = 'core/skills/_shared/sdd-artifacts'
-$sddMirrorRelDir = 'core/sdd'
-$sddMirrorFiles = @('PIPELINE.md', 'MEMORY-BANK.md', 'STORAGE.md', 'STORAGE-RESOLUTION.md', 'SESSION.md')
-$identityName = 'Should_Pass_When_SddContractMirrorsByteIdentical'
-$sddMismatches = [System.Collections.Generic.List[string]]::new()
-foreach ($mirrorFile in $sddMirrorFiles) {
-    $sourcePath = Join-Path (Join-Path $repoRoot ($sddSourceRelDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)) $mirrorFile
-    $mirrorPath = Join-Path (Join-Path $repoRoot ($sddMirrorRelDir -replace '/', [System.IO.Path]::DirectorySeparatorChar)) $mirrorFile
-    if (-not (Test-Path -LiteralPath $sourcePath) -or -not (Test-Path -LiteralPath $mirrorPath)) {
-        $sddMismatches.Add(("{0} (source or mirror missing)" -f $mirrorFile))
-        continue
-    }
-    $sourceHash = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash
-    $mirrorHash = (Get-FileHash -LiteralPath $mirrorPath -Algorithm SHA256).Hash
-    if ($sourceHash -ne $mirrorHash) {
-        $sddMismatches.Add($mirrorFile)
-    }
-}
-if ($sddMismatches.Count -gt 0) {
-    Write-Fail -TestName $identityName -Reason ("core/sdd mirror differs from {0}: {1}" -f $sddSourceRelDir, ($sddMismatches -join ', '))
-}
-Write-Pass -TestName $identityName
 
 }
 

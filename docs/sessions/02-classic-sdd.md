@@ -9,7 +9,7 @@ Classic SDD is three contracts plus a path reader. Orchestrated Delivery **loads
 | 3 | `sdd-develop` | This session executes **one** PLAN step | Code, tests, PLAN progress |
 | — | `read-sdd-artifact` | Read-only, any time | `source_context` envelope |
 
-Default story folder when unspecified is `US01` (or `TSnn` for a technical story). Root-level `PRD/` or `PLAN/` folders are invalid. Global storage uses the SDD root’s `features/` tree for that repo id (`core/sdd/STORAGE.md`).
+Default story folder when unspecified is `US01` (or `TSnn` for a technical story). Root-level `PRD/` or `PLAN/` folders are invalid. Global storage uses the SDD root’s `features/` tree for that repo id (`core/skills/_shared/sdd-artifacts/STORAGE.md`).
 
 Plan/Ask mode drafts in chat. Files are written in Agent mode after `confirm`.
 

@@ -156,7 +156,7 @@ Depois do prepare, `manifest.json` (schema **v2**) fica na raiz SDD efetiva (`ef
 
 Use caminhos portáteis no corpo dos artefatos (`features/NNN-slug/US01/PRD/...`). No modo **repository**, o padrão `features_versioned: false` acrescenta `/features/` ao `.gitignore` (mais `/docs/features/` e redes de segurança de PRD/PLAN). Defina `true` para versionar essas árvores. Mantenha `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` permanece ignorado e não deve receber uma regra de negação. O modo global não edita o `.gitignore` do projeto.
 
-A semente nunca sobrescreve um manifesto existente. Contrato completo: `core/sdd/STORAGE.md`.
+A semente nunca sobrescreve um manifesto existente. Contrato completo: `core/skills/_shared/sdd-artifacts/STORAGE.md`.
 
 ## Verificar
 

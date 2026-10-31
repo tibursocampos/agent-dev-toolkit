@@ -72,4 +72,4 @@ Templates include **## Execution policy** (`templates/sdd/PRD.md`, `templates/sd
 - [01-getting-started.md](01-getting-started.md)  
 - [session-behavior.md](session-behavior.md)  
 - Installed `OPERATOR.md`  
-- [STORAGE.md](../../core/sdd/STORAGE.md) § Preferences
+- [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Preferences

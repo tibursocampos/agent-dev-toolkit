@@ -32,7 +32,7 @@ Três skills rodam em ordem. Cada uma recusa o trabalho da próxima.
 
 O2 carrega `sdd-spec` e depois `sdd-plan`, uma vez por story. O3 carrega `sdd-develop` para um passo em cada filho. Uma story única e clara ainda pode entrar nessas três skills direto. Uma feature com várias stories, brownfield ou pouco clara permanece neste caminho, para especialistas, perguntas e gates de aprovação rodarem antes de qualquer PRD.
 
-Contratos: `core/sdd/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Raiz da feature: `features/NNN-slug/`. Memory bank: `memory-bank/` do repositório ou o caminho classic global. O bank nunca fica sob a pasta da feature.
+Contratos: `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Raiz da feature: `features/NNN-slug/`. Memory bank: `memory-bank/` do repositório ou o caminho classic global. O bank nunca fica sob a pasta da feature.
 
 Essas três skills rodam com contexto de invocação `orchestrated`. Um `/sdd-spec` direto é outro contexto: pastas de especialista ausentes viram uma pergunta. Uma execução orquestrada para e volta ao O1 quando uma pasta obrigatória falta.
 

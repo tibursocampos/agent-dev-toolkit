@@ -44,7 +44,7 @@ A direct `/sdd-spec` remains valid when one story is already clear (`core/router
 
 The entry table for each path (Orchestrated Delivery, Classic SDD, backlog shape) is in [flow-selection.md](flow-selection.md); the session pages linked there explain each one.
 
-Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 

@@ -10,7 +10,7 @@ This is the complete feature path. Three skills run in order. Each one refuses t
 
 O2 does not invent a shorter spec. For each story it closes the story files, loads `sdd-spec`, contests that PRD, then loads `sdd-plan`. A question that is still open, including **MINOR**, stops that story. O3 does not invent an implementer. Each child loads `sdd-develop` for one step. Those three Classic SDD skills are documented in [02](02-classic-sdd.md). A single clear story can still enter them directly. A multi-story, brownfield, or unclear feature stays on this path so specialists, questions, and approval gates run before any PRD.
 
-Contracts: `core/sdd/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Feature root: `features/NNN-slug/`. Memory bank: repository `memory-bank/` or the global classic path. Never under the feature folder.
+Contracts: `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Feature root: `features/NNN-slug/`. Memory bank: repository `memory-bank/` or the global classic path. Never under the feature folder.
 
 Invocation context for these three skills is `orchestrated` (`core/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md`). Direct `/sdd-spec` is a different context: missing specialist folders are a question, not a hard stop. Orchestrated runs stop and return to O1 when a required folder is missing.
 

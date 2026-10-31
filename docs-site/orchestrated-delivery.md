@@ -32,7 +32,7 @@ Three skills run in order. Each one refuses the next skill’s job.
 
 O2 loads `sdd-spec`, then `sdd-plan`, once per story. O3 loads `sdd-develop` for one step in each child. A single clear story can still enter those three skills directly. A multi-story, brownfield, or unclear feature stays on this path so specialists, questions, and approval gates run before any PRD.
 
-Contracts: `core/sdd/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Feature root: `features/NNN-slug/`. Memory bank: repository `memory-bank/` or the global classic path. The bank never sits under the feature folder.
+Contracts: `core/skills/_shared/sdd-artifacts/PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Feature root: `features/NNN-slug/`. Memory bank: repository `memory-bank/` or the global classic path. The bank never sits under the feature folder.
 
 These three skills run with invocation context `orchestrated`. A direct `/sdd-spec` is a different context: missing specialist folders become a question. An orchestrated run stops and returns to O1 when a required folder is missing.
 

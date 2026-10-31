@@ -46,7 +46,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 - `core/skills/` — 46 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
-- `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
+- `core/skills/_shared/sdd-artifacts/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
 
 ## Core path placeholders
 
@@ -58,7 +58,7 @@ Product content under `core/` must not hardcode a single IDE user-profile instal
 | `{{SDD_ROOT}}` | SDD state root (`preferences.json`, `sessions/`, `manifest.json`, optional global Classic tree) |
 | `{{GUARDRAILS_PATH}}` | Guardrails policy file path for the target agent |
 
-Adapters may bake absolute paths at publish; at **runtime** skills resolve SDD state via host-aware `effective_SDD_ROOT` ([STORAGE.md](../core/sdd/STORAGE.md)) so a foreign agent's baked `{{SDD_ROOT}}` never wins over the current host.
+Adapters may bake absolute paths at publish; at **runtime** skills resolve SDD state via host-aware `effective_SDD_ROOT` ([STORAGE.md](../core/skills/_shared/sdd-artifacts/STORAGE.md)) so a foreign agent's baked `{{SDD_ROOT}}` never wins over the current host.
 
 **SDD_ROOT vs cwd artifacts:** `effective_SDD_ROOT` (`{{SDD_ROOT}}` in docs) holds global sessions, preferences, and `manifest.json` (schema v2), plus optional **global** Classic `features/` + `memory-bank/` when `classic.storage_mode` is `global`. **Repository** mode keeps those trees under the consumer `$Cwd` instead. Deep dive: [domains/core.md](domains/core.md) § SDD — do not paste the full STORAGE contract here.
 

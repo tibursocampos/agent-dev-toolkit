@@ -137,7 +137,7 @@ That skill classifies the request, asks, and either continues into `orchestrate-
 | Repository | `$Cwd/features/NNN-slug/...` | `$Cwd/memory-bank/` |
 | Global | Under `classic.path` on the SDD root (outside the consumer git tree) | Same `<path>/memory-bank/` |
 
-Use **portable paths** in artifacts and slash handoffs (e.g. `features/NNN-slug/US01/PRD/...`), not OS absolute paths. In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (default); choose versioned features when you want those trees in git. There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/sdd/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
+Use **portable paths** in artifacts and slash handoffs (e.g. `features/NNN-slug/US01/PRD/...`), not OS absolute paths. In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (default); choose versioned features when you want those trees in git. There is **no** flat `PRD/` or `PLAN/` at the repo root — only under `features/NNN-slug/USnn|TSnn/`. Details: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md), [domains/core.md](../domains/core.md) § SDD.
 
 After the backlog is approved, deliver writes the PRD and PLAN. Develop then runs one PLAN step per session (`orchestrate-develop`, or `sdd-develop` on a single plan path).
 

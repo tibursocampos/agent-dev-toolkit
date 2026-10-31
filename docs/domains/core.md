@@ -71,13 +71,13 @@ Source router document (typically `AGENTS.md`). Published as:
 | Claude | `CLAUDE.md` |
 | Copilot | Folded into `copilot-instructions.md` (router publish may be a no-op) |
 
-## SDD contracts (`core/sdd/`)
+## SDD contracts (`core/skills/_shared/sdd-artifacts/`)
 
 Portable contracts such as `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`. Source of truth for pipeline text. Runtime state (`<InstallRoot>/sdd/sessions/`, `manifest.json`) is prepared on every sync via `Get-SddRoot -Prepare`.
 
 Public state file name: **`manifest.json`** (no version suffix in the filename). Schema **v2** stores per-cwd Classic settings under `repositories[<cwd>].classic` (`storage_mode`, `path`).
 
-Copies also ship inside `core/skills/_shared/sdd-artifacts/` for skill lazy-load. Full rules: [STORAGE.md](../../core/sdd/STORAGE.md).
+Skills lazy-load these files from `core/skills/_shared/sdd-artifacts/`. Full rules: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md).
 
 ### Artifact storage (repository vs global)
 
@@ -95,13 +95,13 @@ Manifest keys: `classic.storage_mode` (`repository` \| `global`) and `classic.pa
 
 No flat `PRD/` / `PLAN/` at repo root or under a global flat tree — only `features/NNN-slug/...`.
 
-**Portable paths:** artifact bodies, handoffs, CONTINUITY, and inventory cites use workspace-relative (or InstallRoot-relative for global) paths — never OS absolute / user-home InstallRoot embeds. Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Portable path.
+**Portable paths:** artifact bodies, handoffs, CONTINUITY, and inventory cites use workspace-relative (or InstallRoot-relative for global) paths — never OS absolute / user-home InstallRoot embeds. Contract: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Portable path.
 
-**Repository `.gitignore`:** when `classic.features_versioned` is `false` (default), skills add `/features/` and `/docs/features/` (plus safety-net `/PRD/`, `/PLAN/`, …). When `true`, those `/features/` lines are omitted so SDD artifacts can be versioned. Keep `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` remains ignored and must not receive a negation rule. Do **not** add `/memory-bank/`. Global mode does not edit project `.gitignore`. Detail: [STORAGE.md](../../core/sdd/STORAGE.md) § Repository mode - `.gitignore`.
+**Repository `.gitignore`:** when `classic.features_versioned` is `false` (default), skills add `/features/` and `/docs/features/` (plus safety-net `/PRD/`, `/PLAN/`, …). When `true`, those `/features/` lines are omitted so SDD artifacts can be versioned. Keep `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` remains ignored and must not receive a negation rule. Do **not** add `/memory-bank/`. Global mode does not edit project `.gitignore`. Detail: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Repository mode - `.gitignore`.
 
 ### Navigation block (Related)
 
-Contract: [STORAGE.md](../../core/sdd/STORAGE.md) § Navigation block (WS7 / REQ-007). Canonical English heading **`## Related`**, then a table (or bullets) of **portable** sibling paths. Omit a row when the sibling is absent — do not create stubs only for linking.
+Contract: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Navigation block (WS7 / REQ-007). Canonical English heading **`## Related`**, then a table (or bullets) of **portable** sibling paths. Omit a row when the sibling is absent — do not create stubs only for linking.
 
 | Track | Minimum reciprocity |
 |-------|---------------------|
