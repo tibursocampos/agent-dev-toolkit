@@ -44,6 +44,29 @@ Feature and fix PRs target `develop`. `.github/workflows/validate-toolkit.yml` e
 
 The normal release starts when an opted-in `develop` → `master`/`main` PR merges. `release.yml` creates the tag/release and assets, then requests a normal reconciliation PR to `develop`. Use `reconcile_only=true` to retry reconciliation without creating another tag. See [VALIDATION.md](VALIDATION.md) for operational recovery details. Check GitHub rulesets and branch protection before each release; repository files do not control that remote configuration.
 
+## Branch and release policy
+
+One table, one owner. Remote enforcement lives in GitHub rulesets; the workflows enforce the rest.
+
+| Branch | Who can change it | Allowed PR source | Merge method | Required checks |
+|--------|-------------------|-------------------|--------------|-----------------|
+| `develop` | Only through a PR | `feature/*` or `feat/*` branches, and `master` back-merges | Squash for features; merge commit for back-merges | `validate` |
+| `master` (or `main`) | Only through a PR | `develop` only (enforced by `release-source`) | Merge commit only | `release-source` |
+
+Rules that apply to both branches:
+
+- No direct commits. Both rulesets require a pull request, and neither has a bypass actor.
+- No force-push and no deletion (`non_fast_forward` and `deletion` rules).
+- Never rebase or squash a release. Squash on `master` makes it diverge from `develop`, and the next release then conflicts.
+
+Release flow:
+
+1. Open a PR from `develop` to `master` with `Create release: yes` and `Version: MAJOR.MINOR.PATCH` in the body.
+2. Merge it with a merge commit.
+3. `release.yml` creates the tag and release on the merge commit, then opens the reconciliation PR back to `develop`.
+
+Change these rules only through GitHub rulesets and this section together. The `protect-release` ruleset was changed to merge-only on 2026-10-31.
+
 ## Related
 
 - [README.md](../README.md) — product entry
