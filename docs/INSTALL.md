@@ -275,7 +275,7 @@ After prepare, `manifest.json` (schema **v2**) lives under the effective SDD roo
 
 **Portable paths** in artifact bodies and handoffs (never OS absolute). **Repository `.gitignore`:** default `features_versioned: false` adds `/features/` (+ `/docs/features/` and PRD/PLAN safety nets); set `true` to version SDD trees. Keep `/docs/documentation-plan/*`; `docs/documentation-plan/plan.md` stays ignored and must not receive a negation rule. Global mode does not edit project `.gitignore`.
 
-Seed never overwrites an existing manifest. Full contract: [STORAGE.md](../core/sdd/STORAGE.md). Domain summary: [domains/core.md](domains/core.md) § SDD.
+Seed never overwrites an existing manifest. Full contract: [STORAGE.md](../core/skills/_shared/sdd-artifacts/STORAGE.md). Domain summary: [domains/core.md](domains/core.md) § SDD.
 
 Full layouts: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md).
 

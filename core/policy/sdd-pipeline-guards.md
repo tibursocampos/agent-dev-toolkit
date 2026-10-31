@@ -46,7 +46,7 @@ Ask structured options in **pt-BR** before a dry handoff (`PIPELINE.md` § Missi
 
 ## Confirm before write
 
-For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask in the user chat language whether to write at `{path}` (**sim** / **ajustar** / **cancelar**). `Write` only after **sim**.
+For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absolute; artifact **Writes** and embedded cites use **portable paths** per `STORAGE.md` § Portable path), then ask in the user chat language whether to write at `{path}`, with the options `confirm` / `adjust` / `cancel` rendered as localized labels (ids and answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). `Write` only after `confirm`.
 
 ## Host session mode
 

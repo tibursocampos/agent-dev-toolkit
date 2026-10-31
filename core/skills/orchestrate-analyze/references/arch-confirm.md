@@ -5,13 +5,13 @@
 **Flow (post-architect, before treating style as selected):**
 
 ```text
-ARCH draft (4 sections) → operator sim / ajustar / cancelar → ARCH approved
+ARCH draft (4 sections) → operator confirm / adjust / cancel (localized labels, ids in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) → ARCH approved
 ```
 
 | Step | Rule |
 |------|------|
 | Draft | Architect proposes via `architecture-selection` + `prompts/architect.md`; optional scaffold `templates/features/story/ARCH/architecture-decision.md` |
-| Confirm | Parent asks in the user chat language (`LANGUAGE.md`) (SKILL §7b). Silence ≠ approval. Receipt stays `needs-confirm.` until **sim** |
+| Confirm | Parent asks in the user chat language (`LANGUAGE.md`) (SKILL §7b). Silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is. Receipt stays `needs-confirm.` until `confirm` |
 | Approved | Persist final ARCH with style id; CONTINUITY notes decision; **point-promote** `memory-bank/architecture.md` (if not already) so it is not left draft / `needs-confirm`; Memory-bank status `refreshed`; implementers load **one** `principles/architecture/<style>.md` + matching stack overlay C |
 | Brownfield | Skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write mirror ARCH (layers, DDL, EF vs Dapper or equivalent, pipeline). ARCH is **not** optional when `needs_domain` or brownfield. |
 
@@ -44,24 +44,28 @@ See also § Architecture confirm gate.
 
 ## Approval gate copy (user chat language)
 
+Render each gate in the user's conversation language, with the ids `confirm` / `adjust` / `cancel` as localized labels (see `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). The pt-BR blocks below are examples only, not templates.
+
 ### Backlog
 
 ```text
+pt-BR example (render in the user's language):
 Backlog O1 pronto em `{feature-path}`.
 
 Posso marcar como aprovado e seguir para O2?
-(sim / ajustar / cancelar)
+Options: confirm / adjust / cancel (localized labels)
 ```
 
-RN01: silence / emoji / “ok” without **sim** is **not** approval.
+RN01: silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is.
 
 ### Architecture confirm (greenfield / `needs_domain`)
 
 ```text
+pt-BR example (render in the user's language):
 Rascunho ARCH (estilo proposto) em `{story-arch-path}`.
 
 Posso gravar o ARCH aprovado com este estilo?
-(sim / ajustar / cancelar)
+Options: confirm / adjust / cancel (localized labels)
 ```
 
-Same rule: silence is **not** approval; keep `needs-confirm.` until **sim**.
+Same rule: silence, an ambiguous or unrelated reply, or a lone emoji is **not** approval; keep `needs-confirm.` until `confirm`.

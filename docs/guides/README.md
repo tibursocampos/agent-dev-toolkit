@@ -30,7 +30,7 @@ Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published ski
 
 The decision tree and entry points live in [flow-selection.md](flow-selection.md) (the owner of that choice). Mechanics of each path: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).
 
-**Greenfield domain:** `/orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until **sim**. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
+**Greenfield domain:** `/orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until a `confirm` answer. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
 
 ---
 
@@ -44,7 +44,7 @@ A direct `/sdd-spec` remains valid when one story is already clear (`core/router
 
 The entry table for each path (Orchestrated Delivery, Classic SDD, backlog shape) is in [flow-selection.md](flow-selection.md); the session pages linked there explain each one.
 
-Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 

@@ -19,9 +19,9 @@
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
 - Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / 006 REQ-009)
 - Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
-- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine PLAN steps
+- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **confirm** (or user-named slug); ask model on routine PLAN steps
 - Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
-- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
+- Exceed orchestrate ≤4 concurrent Agent calls without a user-approved wave (`parallel` mode) (`SPAWN.md`)
 - Paste guideline packs into Agent child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Use O3 / Agent parallelism as the evidence verifier (**Verifier ≠ O3**; evidence-or-zero is sequential `validate-evidence` in `sdd-develop`)
@@ -35,7 +35,7 @@
 ## Explicit exclusions
 
 - Parent implementation of app/test code
-- Multi-step children or auto-chained steps without **sim**
+- Multi-step children or auto-chained steps without **confirm**
 - Forked develop process that skips sdd-develop gates
 - Mandatory multi-angle review
 - Git worktrees for multi-US

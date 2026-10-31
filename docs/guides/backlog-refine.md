@@ -5,7 +5,7 @@ This guide describes the backlog refinement flow: how an informal product item b
 ## Flow
 
 1. `refine-story` writes the item: `STORY.md` with BDD criteria and a quality note.
-2. In step 4a, `refine-story` calls `requirement-review` before the handoff. `requirement-review` challenges the item, asks the open questions, and writes only after `sim`.
+2. In step 4a, `refine-story` calls `requirement-review` before the handoff. `requirement-review` challenges the item, asks the open questions, and writes only after a `confirm` answer.
 3. `split-story-checklist` breaks the story into a task checklist (backend, frontend, tests).
 4. In an O2 run, `sdd-plan` coordinates `split-story-checklist` for a feature of medium or complex size when `REFINE/tasks.md` is missing. A trivial feature does not generate a task file.
 
@@ -36,7 +36,7 @@ With text pasted into the chat and no file path, the report stays in the chat. N
 ### requirement-review
 
 - **Reads:** `STORY.md`, `FEATURE.md`, `REFINE/refine.md` beside the story, or pasted text. Before asking, it reads `REFINE/qa-history.md` so it does not repeat a resolved question. In `--tech` mode, it also reads the repository.
-- **Writes:** the review report and the Q&A history, after `sim`. Without a story folder, the report stays in the chat, unless the operator names a story folder or the `docs/backlog/` shortcut.
+- **Writes:** the review report and the Q&A history, after a `confirm` answer. Without a story folder, the report stays in the chat, unless the operator names a story folder or the `docs/backlog/` shortcut.
 - **Where:** [core/skills/requirement-review/SKILL.md](../../core/skills/requirement-review/SKILL.md).
 - **When to use:** check acceptance criteria (`--feature`) or contracts and flows in the code (`--tech`) before SDD. Exactly one mode per run. Without a mode, the skill asks.
 

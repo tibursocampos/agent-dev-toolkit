@@ -2,16 +2,16 @@
 
 Before any PRD/PLAN write:
 
-- [ ] Gate check reported; `write_confirmed` / user **sim** for this O2 run (O2 writes PRD/PLAN - not develop `step_confirmed`)
+- [ ] Gate check reported; `write_confirmed` / user **confirm** for this O2 run (O2 writes PRD/PLAN - not develop `step_confirmed`)
 - [ ] Feature path resolved (`STORAGE.md`, `$Workflow = classic`)
 - [ ] **Step 0** Memory Bank Gate done (`MEMORY-BANK.md`, policy `auto`; `skip` only with explicit flag)
 - [ ] `FEATURE.md` + `CONTINUITY.md` exist (Memory-bank path/status updated if create/refresh)
-- [ ] Backlog human-approved (FEATURE/stories `approved`, or explicit **sim** in this session recorded)
+- [ ] Backlog human-approved (FEATURE/stories `approved`, or explicit **confirm** in this session recorded)
 - [ ] Story list from `US*/STORY.md` + `TS*/STORY.md`
 - [ ] Flag-gated required siblings present (`ANALYSIS/` / `ARCH/` / `SEC/` when FEATURE `needs_*` or brownfield) — else **STOP** / return to O1; do **not** Write PRD/PLAN; the block limit does not replace this gate
 - [ ] The parent FEATURE has no open question (`open_question`). A story whose feature is still open does not enter O2.
 - [ ] Clarification readiness: no unanswered question on the required story files, including `MINOR`, at the O2 story-files gate — else **STOP** that story with `open_question` (`readiness-severity.md` § Open-question gate). Presence of sibling folders ≠ READY (**RN02**). Dual plane: readiness ≠ `step_confirmed`
-- [ ] Mode chosen: **série** or **paralelo** (user asked; not assumed)
+- [ ] Mode chosen: **`series`** or **`parallel`** (user asked; not assumed; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`)
 - [ ] Any blocking approval/question is `answered` for its current scope; `presented`, `pending`, queued delivery, or resumed-but-unprocessed state keeps dependent work blocked (`approval-gates.md` § Observable question and answer lifecycle)
 
 If backlog not approved -> hand off to O1; do not invent approval (RN01).
@@ -46,18 +46,19 @@ Verify backlog is human-approved:
 | Signal | Accept |
 |--------|--------|
 | `FEATURE.md` **Status** | `approved` (or stories listed as approved) |
-| CONTINUITY | O1 handoff / note that backlog was approved with **sim** |
+| CONTINUITY | O1 handoff / note that backlog was approved with **confirm** |
 
-If still `draft` or approval unclear: **STOP** - do not invent approval:
+If still `draft` or approval unclear: **STOP** - do not invent approval. Question contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Render in the user's conversation language (`LANGUAGE.md`); the ids are fixed:
 
 ```text
-Backlog ainda não aprovado em `{feature-path}`.
-
-1) Voltar ao O1: /orchestrate-analyze - <portable-feature-path>
-2) Você confirma aprovação agora? (sim / cancelar)
+Report: backlog not yet approved in `{feature-path}`.
+Options (ids):
+- O1 route: /orchestrate-analyze - <portable-feature-path>
+- confirm: the user confirms backlog approval now
+- cancel: stop
 ```
 
-Only continue after explicit **sim** (then record in CONTINUITY) or O1 re-approval.
+Only continue after an explicit **confirm** answer (then record in CONTINUITY) or O1 re-approval.
 
 Discover stories: Glob `US*/STORY.md` and `TS*/STORY.md` under the feature. Build the ordered work list (id, title, path, deps from STORY if present), then reconcile each story against its canonical artifacts and the required O2 gates. Resume an existing story at its **next pending gate**: story-file readiness, PRD/spec and contestation, required checklist, PLAN and its required validation, then applicable approval and checkpoint reconciliation. Artifact presence alone does not mean that a story or gate is complete; a draft, unaccepted output, missing required validation, or pending approval must resume at the owning gate.
 
@@ -69,13 +70,14 @@ Skip a story only when all required O2 work for that story is complete and accep
 
 **Brownfield sufficiency STOP:** For brownfield stories, inspect the required analysis content against `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` and the story's affected scope. Before accepting a brownfield analysis artifact, run `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-O2BrownfieldPreflight.ps1 -AnalysisPath <portable-analysis-path>` on the artifact used for sufficiency. The command returns `ALLOW` only when the document-level validator passes; `BLOCK` or a nonzero exit blocks this story and names the table field/line and supported correction. The preflight and validator only normalize recognized aliases in memory and never edit the artifact. Required artifacts must provide relevant repository-backed conventions/impacts, evidence paths, confidence, a trace of each material current behavior through its applicable flow links, a comparison of local reuse/extension against the proposal, affected areas, and material gaps in the format owned by that artifact. A flow link or reuse claim without supporting evidence remains `GAP`; a receiver alone does not demonstrate its producer, and static inspection does not demonstrate runtime activation. Presence of `ANALYSIS/` or `ARCH/` alone does not pass. If evidence is inferred, conflicting, or a material technical gap could change the dependent PRD/PLAN, target more repository inspection when feasible; if still unresolved, **STOP** this story before PRD/PLAN and return the technical gap to O1 for targeted analysis. Do not turn a technical pattern lookup into a product clarification question when the product behavior is already clear. Product/contract decisions that remain unanswered continue to use `open_question` and existing readiness rules. Keep independent eligible stories moving; O2 consumes evidence and does not rewrite specialist-owned analysis. This is a relevance-based sufficiency gate, not a fixed number of files or layers to scan.
 
+Render in the user's conversation language (`LANGUAGE.md`); option ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
+
 ```text
-Faltam pastas obrigatórias em `{story-path}` (FEATURE needs_* / brownfield).
-
-O2 não grava PRD/PLAN sem ANALYSIS|ARCH|SEC quando a flag correspondente é true. O limite de blocos de perguntas não substitui este gate.
-
-1) Voltar ao O1: /orchestrate-analyze - <portable-feature-path>
-2) cancelar
+Report: required sibling folders missing in `{story-path}` (FEATURE needs_* / brownfield).
+Rule: O2 does not write PRD/PLAN without ANALYSIS|ARCH|SEC when the matching flag is true. The question-block limit does not replace this gate.
+Options (ids):
+- O1 route: /orchestrate-analyze - <portable-feature-path>
+- cancel
 ```
 
 See also § Preconditions checklist.
@@ -95,6 +97,8 @@ After presence siblings pass, evaluate open questions on FEATURE / STORY / REFIN
 
 **Dual plane:** do not treat SESSION `step_confirmed` / PLAN step Complete as clarification READY.
 
+Render in the user's conversation language (`LANGUAGE.md`); option ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. The state token `NEEDS_CLARIFICATION` stays English.
+
 ```text
 Status: NEEDS_CLARIFICATION
 
@@ -105,8 +109,9 @@ Paths (portable):
 Open B/I/MINOR:
 - [B|I|MINOR] <sharp question>
 
-1) Responder B/I (refine-story / O1) e reavaliar READY
-2) cancelar
+Options (ids):
+- answer the open B/I items (refine-story / O1), then re-evaluate READY
+- cancel
 
-O2 não grava PRD/PLAN com B/I/MINOR abertos. Presence de pasta ≠ READY.
+O2 does not write PRD/PLAN while any B/I/MINOR question is open. Folder presence is not READY.
 ```

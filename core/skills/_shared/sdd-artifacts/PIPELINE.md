@@ -38,8 +38,8 @@ Tracks coexist (Classic SDD / Backlog Refine / Orchestrated Delivery only). Skil
 Inside **O1** (`orchestrate-analyze`), after the architect specialist (or in-parent fallback) when nature is **`greenfield`** or **`needs_domain`** without an established in-repo style:
 
 1. Produce ARCH **draft** (propose style via `code-guidelines/principles/architecture-selection.md` + `agents/prompts/architect.md`).
-2. Ask operator (**sim** / ajustar / cancelar). Silence ≠ approval; receipt stays `needs-confirm.` until **sim**.
-3. On **sim** only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
+2. Ask operator with ids `confirm` / `adjust` / `cancel`, rendered in the user's language (`QUESTIONS.md`). Silence ≠ approval; receipt stays `needs-confirm.` until `confirm`.
+3. On `confirm` only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
 4. **Brownfield** with an established style: skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a **mirror** ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline). Do **not** skip ARCH because a style already exists.
 
 Do **not** start O2 / implementation waves with an unconfirmed greenfield style. Details: `orchestrate-analyze` SKILL §7b, `ROSTER.md`, `reference.md` § Architecture confirm gate.
@@ -153,9 +153,9 @@ If the user stays in Plan: continue Phase A only. Never state that a PRD or PLAN
 Always before the first `Write` of a **new** PRD or PLAN (and when replacing an empty draft file):
 
 1. Show: title, `NNN`, **portable path** under `features/...` (or `sdd/<repo-id>/features/...` when global) — confirm chat may also show the resolved OS absolute; the **Write** body and handoffs use portable path only (`STORAGE.md` § Portable path), storage mode, 3-5 content bullets, planned status.
-2. Ask in the user chat language (`LANGUAGE.md`): whether to write at `{path}` (**sim** / **ajustar** / **cancelar**).
-3. `Write` only after explicit **sim**.
-4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
+2. Ask in the user chat language (`LANGUAGE.md`), with ids `confirm` / `adjust` / `cancel` rendered per `QUESTIONS.md`: whether to write at `{path}`. Silence, an ambiguous reply, or a lone emoji is not approval.
+3. `Write` only after explicit `confirm`.
+4. `adjust` -> revise draft in chat, ask again. `cancel` -> do not write.
 
 This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never provides content approval.
 

@@ -71,7 +71,7 @@ PLAN prose language follows the resolution above, but a heading used to locate a
 
 ## Observable operator choices
 
-Use an adapter-native choice surface only when the selected answer is returned to the agent in an observable form. If the host does not expose the answer, ask in text in the conversation language, number the choices, and map a clear semantic answer to stable English ids. Do not require a fixed Portuguese or English token when the operator's intent is clear. A missing or ambiguous answer still blocks the gated action. Read repository-local instructions (for example `AGENTS.md`) and honor them within scope; when they conflict with a higher-priority toolkit contract or the operator's explicit request, explain the conflict and apply established precedence rather than silently overriding either source.
+Operator choice surfaces, answer-to-id mapping, and blocking rules are defined once in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`: use a host question component only when its selected answer returns to the agent, otherwise numbered text choices. Read repository-local instructions (for example `AGENTS.md`) and honor them within scope; when they conflict with a higher-priority toolkit contract or the operator's explicit request, explain the conflict and apply established precedence rather than silently overriding either source.
 
 Content-language **must not** flip child prompts to the operator language. Selective retrieval stays path/summary oriented regardless of artifact locale.
 

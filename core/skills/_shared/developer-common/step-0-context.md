@@ -33,7 +33,7 @@ Stack-specific commands and conventions remain with the routed stack skill. Do n
 ## 0.2. Confirm workspace
 
 1. You are in the **target repository** (not this toolkit repo unless that is the subject).
-2. Note default branch (`main`, `develop`, etc.) - ask if unclear.
+2. Note default branch (`main`, `develop`, etc.) - ask if unclear (answer rule: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`).
 3. For SDD work: confirm PRD/PLAN paths when the user provides them. For **`code-review`**, resolve artifacts via `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` (repo + `{{SDD_ROOT}}/<repo-id>/`) - do not assume absence from an empty workspace `PRD/` folder alone.
 
 ---

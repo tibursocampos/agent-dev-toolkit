@@ -30,14 +30,18 @@ If the invocation does **not** name a mode: **STOP** after gate check (-1) / bef
 
 That question applies only to **direct** invocation. When `invocation_context=orchestrated`, the parent passes `mode=feature` or `mode=tech`. Do not ask the mode. Load that playbook. For `mode=feature`, also load `references/feature-research.md` (`references/feature.md`).
 
+Question component form (ids fixed in English; labels rendered in the user chat language):
+
 ```text
-refine-story mode?
-1) feature - User Story / Bug
-2) tech - Technical Story
-3) split - steps ready for /split-story-checklist
+header: refine-story mode
+question: refine-story mode?
+single select:
+- feature: User Story or Bug framing
+- tech: Technical Story framing
+- split: steps ready for /split-story-checklist
 ```
 
-Render the three options in the user chat language. Keep the mode ids `feature`, `tech`, and `split` in English.
+Render the question and the three labels in the user chat language. Keep the mode ids `feature`, `tech`, and `split` in English. The descriptions above give the meaning of each id; they are not labels to copy.
 
 ## Outcome
 
@@ -141,7 +145,7 @@ Resolve mode from the invocation **or** from the user's answer to the Trigger pr
 | `tech` / `technical` / `2` / Technical Story framing | tech | `references/tech.md` |
 | `split` / `3` / checklist / topological steps | split | `references/split.md` |
 
-If still unset or value outside `{feature,tech,split}`: on **direct** invocation, **STOP** and ask the Trigger prompt in the user chat language. On **orchestrated** invocation, do not ask; require `mode=feature` or `mode=tech` from the parent. Do not load any mode playbook until the mode is set.
+If still unset or value outside `{feature,tech,split}`: on **direct** invocation, **STOP** and ask the Trigger prompt in the user chat language. On **orchestrated** invocation, do not ask; require `mode=feature` or `mode=tech` from the parent. Do not load any mode playbook until the mode is set. Question ids, label rendering, and answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
 Then follow **only** that playbook for collect → generate → mode-specific checks. When `invocation_context=orchestrated` and `mode=feature`, also read `references/feature-research.md`. Apply `references/mode-isolation.md` (no cross-mode leak). Open a skeleton **interaction envelope** (`mode` + `invocation_context` + `status: NEEDS_CLARIFICATION` until READY). Shared scorecard / validation / persistence / handoff sections stay lazy per playbook pointers.
 

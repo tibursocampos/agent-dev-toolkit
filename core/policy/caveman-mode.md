@@ -34,9 +34,9 @@ Also accept `stop caveman` / `normal mode` as off.
 
 ## 3. Compression when enabled
 
-**Always protect (never compress):** code fences; paths; errors/stacks; CLI suggestions; gates `(sim / ajustar / cancelar)`; artifact drafts; security/git-block notices.
+**Always protect (never compress):** code fences; paths; errors/stacks; CLI suggestions; gate text in the user's conversation language, including component labels and descriptions (ids and answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); artifact drafts; security/git-block notices.
 
-**Auto-Clarity — drop caveman temporarily for:** security warnings; irreversible confirms; multi-step order that fragments could scramble; compression causing technical ambiguity; user asks to clarify or repeats the question. Resume after.
+**Auto-Clarity — drop caveman temporarily for:** security warnings; irreversible confirms (their gate text stays in the user's language); multi-step order that fragments could scramble; compression causing technical ambiguity; user asks to clarify or repeats the question. Resume after.
 
 **Tokenizer hygiene:** no invented abbrevs (`cfg`/`impl`/`req`/`res`/`fn`); no prose `→`; keep real tech terms exact.
 

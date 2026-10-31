@@ -85,7 +85,7 @@ Marker: **A≠B≠C**. Model policy does **not** decide spawn vs in-parent (**Ei
 |------|------|------|
 | **A** | This page + canonical `SPAWN.md` | Spawn vs in-parent |
 | **B** | `SUBAGENT-MODEL.md` | Default: **omit** `model` → child inherits the parent session model |
-| **C** | `SUBAGENT-MODEL.md` | Premium / alternate slug only when that gate fires **and** the user answers **sim** (silence ≠ approval) |
+| **C** | `SUBAGENT-MODEL.md` | Premium / alternate slug only when that gate fires **and** the user gives a `confirm` answer (silence ≠ approval) |
 
 Do **not** pin child≠parent by default. Do **not** conflate Memory Bank policy `auto` with Cursor Auto model. Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
 

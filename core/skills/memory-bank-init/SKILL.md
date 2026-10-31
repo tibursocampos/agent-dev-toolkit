@@ -109,9 +109,12 @@ If **global**: do **not** edit or suggest SDD patterns in the consumer `.gitigno
 
 ### 3b. Bank language (blocker)
 
-Same gate as `document-plan` before the first bank write. Ask once, in the user chat language:
+Same gate as `document-plan` before the first bank write. Ask once, with a question component (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) whose options carry these ids, or in numbered text in the user chat language when no component is available:
 
-> Memory-bank language — **pt-BR** or **English**?
+- `pt-BR`, label `Português (pt-BR)`
+- `en`, label `English`
+
+Header, in the user chat language: the question asks which language the memory bank uses.
 
 If the user already named the language in this request, record that answer and do not ask again. Record the choice on the repo session and as the first line of `memory-bank/project-context.md` (`Language: pt-BR` or `Language: English`). Refresh keeps that recorded language. Do not write bank prose in another language.
 
@@ -119,9 +122,9 @@ If the user already named the language in this request, record that answer and d
 
 Show (user chat language): mode, full `bank_root`, language, files to create/update. Ask:
 
-`Posso gravar o memory-bank em '{path}'? (sim / ajustar / cancelar)`
+Ask a confirmation question in the user chat language, rendered from a localized template that names the target `{path}`, with the ids `confirm` / `adjust` / `cancel` as labels (see `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Do not copy a fixed-language line. Example, pt-BR (example only): `Posso gravar o memory-bank em '{path}'?`
 
-Write only after **sim**.
+Write only after `confirm`.
 
 ### 5. Inventory (read-only scan of consumer)
 

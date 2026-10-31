@@ -67,9 +67,7 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 
 ### 1. Documentation language (blocker)
 
-Before creating or updating any file under `docs/` in the target repo, ask once:
-
-> Documentation language for product `docs/` - **pt-BR** or **English**?
+Before creating or updating any file under `docs/` in the target repo, ask once, in the user's chat language, which language product `docs/` uses. Offer locale choices (ids `pt-br` or `en`, labels in the chat language) as numbered options, and accept a clear answer that names a language. Answer rule: `core/skills/_shared/agents/QUESTIONS.md`.
 
 Record the choice in the session and in `docs/documentation-plan/plan.md` header (see template).
 
@@ -78,7 +76,7 @@ Record the choice in the session and in `docs/documentation-plan/plan.md` header
 Before writing or updating `docs/documentation-plan/plan.md`:
 
 1. Resolve the target Git repository root and check whether `docs/documentation-plan/plan.md` is already tracked (`git -C <repo-root> ls-files --error-unmatch -- docs/documentation-plan/plan.md`).
-2. If it is tracked, stop before writing and ask for explicit **sim** to remove only this path from the index with `git rm --cached -- docs/documentation-plan/plan.md`. Do not run that command without the confirmation; explain that it stages the removal while preserving the working copy. After confirmation, verify the path is no longer tracked.
+2. If it is tracked, stop before writing and ask for a `confirm` answer (`core/skills/_shared/agents/QUESTIONS.md`) to remove only this path from the index with `git rm --cached -- docs/documentation-plan/plan.md`. Do not run that command without the confirmation; explain that it stages the removal while preserving the working copy. After confirmation, verify the path is no longer tracked.
 3. Ensure the target repository's root `.gitignore` contains a rule that ignores `/docs/documentation-plan/plan.md`. If absent, append that narrow rule automatically before writing the plan; do not add a rule that ignores `docs/overview.md` or other product documentation.
 4. Verify the path is ignored by the repository rule (`git -C <repo-root> check-ignore --no-index --quiet -- docs/documentation-plan/plan.md`). A global excludes file alone does not satisfy this requirement.
 5. After writing/updating the plan, verify it remains untracked with `git ls-files`. Never stage plan contents or commit the plan. The only permitted index mutation is an explicitly confirmed `git rm --cached` to untrack a previously tracked path. If verification fails, stop and report the exact path.

@@ -34,7 +34,7 @@ Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `par
 ## Preference check (every session / task start)
 
 1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow. Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `adaptive` and Caveman on. Existing choices are preserved.
+2. If missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow (answer rule: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `adaptive` and Caveman on. Existing choices are preserved.
 3. If `orchestrator_mode` is missing: default `"adaptive"`.
 4. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
 5. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.

@@ -1,0 +1,68 @@
+# Delete the head branch of a pull request after it is merged into develop.
+# Only feature/*, feat/*, and automation/reconcile-release-pr-* branches from this
+# repository are eligible. develop, master, and main are never deleted by this workflow.
+name: Cleanup merged branches
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  delete-merged-head-branch:
+    name: Delete merged head branch
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete allowed merged head branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+          MERGED: ${{ github.event.pull_request.merged }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${MERGED}" != "true" ]]; then
+            echo "Pull request was not merged, nothing to clean up."
+            exit 0
+          fi
+
+          case "${HEAD}" in
+            develop|master|main)
+              echo "::error::Refusing to delete protected branch '${HEAD}'. develop, master, and main are never deleted by this workflow." >&2
+              exit 1
+              ;;
+          esac
+
+          if ! [[ "${HEAD}" =~ ^feature/[A-Za-z0-9._/-]+$ || "${HEAD}" =~ ^feat/[A-Za-z0-9._/-]+$ || "${HEAD}" =~ ^automation/reconcile-release-pr-[A-Za-z0-9._-]+$ ]]; then
+            echo "::notice::Branch '${HEAD}' is not an allowed branch, skipped."
+            exit 0
+          fi
+
+          open_prs="$(gh pr list --repo "${REPOSITORY}" --head "${HEAD}" --state open --json number --jq 'length')"
+          if [[ "${open_prs}" != "0" ]]; then
+            echo "::notice::Branch '${HEAD}' is still used by ${open_prs} open pull request(s), skipped."
+            exit 0
+          fi
+
+          set +e
+          response="$(gh api -X DELETE "repos/${REPOSITORY}/git/refs/heads/${HEAD}" 2>&1)"
+          status=$?
+          set -e
+
+          if [[ "${status}" -eq 0 ]]; then
+            echo "Deleted branch '${HEAD}'."
+          elif [[ "${response}" == *"HTTP 422"* && "${response}" == *"Reference does not exist"* ]]; then
+            echo "Branch '${HEAD}' is already deleted."
+          else
+            echo "::error::Failed to delete branch '${HEAD}': ${response}" >&2
+            exit 1
+          fi

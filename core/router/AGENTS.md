@@ -91,6 +91,7 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
 | Agent `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Stack → `*-developer` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
+| Question / gate contract | `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md` |
 
 ## Rules (always-on)
 

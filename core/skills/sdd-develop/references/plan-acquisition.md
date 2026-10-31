@@ -34,7 +34,7 @@ Obtain and validate the **canonical PLAN** path and step before implement. Rejec
 
 ### Observable route question
 
-Use an adapter-native question component only when its selected answer is returned to the agent as observable input. Otherwise ask in localized text with numbered choices and accept semantically equivalent replies, not only fixed tokens such as `manual`, `O3`, or `sim`. Missing or ambiguous answers remain blocking. Route selection does not approve the step: retain normal confirmation, `step_confirmed`, dependency, scoped-session, and any context-required PLAN-ledger checks.
+Use an adapter-native question component only when its selected answer is returned to the agent as observable input. Otherwise ask in localized text with numbered choices and accept semantically equivalent replies, not only fixed ids such as `manual` or `orchestrated` (`core/skills/_shared/agents/QUESTIONS.md`). Missing or ambiguous answers remain blocking. Route selection does not approve the step: retain normal confirmation, `step_confirmed`, dependency, scoped-session, and any context-required PLAN-ledger checks.
 
 If path missing: Glob `features/**/PLAN/PLAN_*.md` (workspace + global feature root); if none → `PIPELINE.md` § sdd-develop without PLAN (options 1–3). **Do not** create PRD/PLAN here.
 

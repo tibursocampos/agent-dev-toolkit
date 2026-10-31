@@ -1,6 +1,6 @@
 ## Multi-angle mode
 
-Optional enrichment of the same report template. **No silent default:** if the invoke omits both single and multi, the skill **must ask** in the chat language from `core/skills/_shared/agents/LANGUAGE.md` before step 0.5 - see `SKILL.md` § Trigger and § 0.25. O3 may suggest review; never auto-blocks the pipeline.
+Optional enrichment of the same report template. **No silent default:** if the invoke omits both single and multi, the skill **must ask** in the chat language from `core/skills/_shared/agents/LANGUAGE.md` before step 0.5 - see `SKILL.md` § Trigger and § 0.25. Mode ids `single` and `multi-angle` and the answer rule: `core/skills/_shared/agents/QUESTIONS.md`. O3 may suggest review; never auto-blocks the pipeline.
 
 ### Invoke examples
 
@@ -11,7 +11,7 @@ Optional enrichment of the same report template. **No silent default:** if the i
 /code-review - ângulos: qualidade, aceite, segurança
 ```
 
-Bare `/code-review` -> ask mode (1 single / 2 multi-ângulo). Subset allowed, e.g. `ângulos: qualidade, segurança`. Synonyms: `multi-ângulo`, `multi-angle`, `single`, `single-angle`, `simples`.
+Bare `/code-review` -> ask mode (ids `single` / `multi-angle`, labels in the chat language). Subset allowed, e.g. `ângulos: qualidade, segurança`. Synonyms: `multi-ângulo`, `multi-angle`, `single`, `single-angle`, `simples`.
 
 ### Checklist per angle
 

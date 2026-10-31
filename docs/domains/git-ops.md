@@ -55,14 +55,14 @@ git checkout -b feat/<id>
 
 **Before** `git add` / drafting the message, when these exist in the consumer workspace:
 
-| When present | Ask (pt-BR) and wait | On **sim** |
+| When present | Ask in the conversation language and wait | On `confirm` |
 |--------------|----------------------|------------|
-| `memory-bank/` (or bank root via `STORAGE.md`) | Update memory-bank (`refresh-light`)? (`sim` / `pular`) | `/memory-bank-init` `refresh-light` |
-| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | Update project documentation? (`sim` / `pular`) | Pending plan → `/document-implement`; else `/document-plan` as needed |
+| `memory-bank/` (or bank root via `STORAGE.md`) | Update memory-bank (`refresh-light`)? (`confirm` / `skip`) | `/memory-bank-init` `refresh-light` |
+| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | Update project documentation? (`confirm` / `skip`) | Pending plan → `/document-implement`; else `/document-plan` as needed |
 
-Silence is **not** `pular`. If the user already answered in the same turn (e.g. from `sdd-develop` / O3 / code-review handoff), do not re-ask. Contract: `core/skills/commit/SKILL.md` § Living artifacts.
+Silence is **not** `skip`. If the user already answered in the same turn (e.g. from `sdd-develop` / O3 / code-review handoff), do not re-ask. Contract: `core/skills/commit/SKILL.md` § Living artifacts.
 
-User **sim** (or explicit approve) is required for mutating Git and for PR create. Skills ignore Caveman compression for commit/PR prose.
+A `confirm` answer (or explicit approve) is required for mutating Git and for PR create. Skills ignore Caveman compression for commit/PR prose.
 
 ## Feature vs release PR
 
@@ -132,7 +132,7 @@ Never put tokens, org-only credentials, or private URLs in commit messages, PR b
 
 | After | Next |
 |-------|------|
-| `/code-review` (Changes required / after fixes) | Recommended loop (ask each **sim**/**pular**): fix → re-review → bank refresh-light → docs update → then `/commit` — see `code-review` § Recommended post-review loop |
+| `/code-review` (Changes required / after fixes) | Recommended loop (ask each for `confirm`/`skip`): fix → re-review → bank refresh-light → docs update → then `/commit` — see `code-review` § Recommended post-review loop |
 | `/commit` | `/code-review` (optional), `/push`, or `/open-github-pr` when user asks for a PR |
 | `/push` | `/open-github-pr` or `/code-review` |
 | Branch not pushed before PR | `/push` → `/open-github-pr` |

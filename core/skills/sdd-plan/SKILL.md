@@ -87,7 +87,7 @@ Glob canonical PRDs under `features/**/PRD/` only (workspace + global feature ro
 | Non-canonical `.md` (root `PRD/`, `docs/PRD/`, etc.) | Promote under `features/...` via `sdd-spec` or ask for a canonical feature path |
 | PRD under feature story | `direct`: use the canonical PRD; consult only explicitly linked or operator-provided optional siblings. `orchestrated`: load required O2 backlog/story siblings (`PIPELINE.md` § Feature / story siblings) |
 
-Summarize PRD (**cite portable path** — **must not** paste the full PRD body into chat dumps, PLAN, or child prompts; `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Ask to proceed.
+Summarize PRD (**cite portable path** — **must not** paste the full PRD body into chat dumps, PLAN, or child prompts; `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Ask to proceed, with ids `confirm` / `cancel` rendered in the user's language (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`).
 
 ### 2-4. Explore, derive PLAN steps by context, review twice
 
@@ -121,11 +121,11 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 5.75 Approve PLAN content
 
-Present the complete PLAN draft summary (steps, dependencies, acceptance, validations, risks, and open decisions) and ask whether the operator approves that content (**sim** / **ajustar** / **cancelar**). This approves only the proposed PLAN content; it does not authorize a file write. A persisted PRD approval is consumed as input and must not be requested again.
+Present the complete PLAN draft summary (steps, dependencies, acceptance, validations, risks, and open decisions) and ask whether the operator approves that content, with ids `confirm` / `adjust` / `cancel` rendered in the user's language (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Silence, an ambiguous or unrelated reply, or a lone emoji is not approval. This approves only the proposed PLAN content; it does not authorize a file write. A persisted PRD approval is consumed as input and must not be requested again.
 
 ### 5.9 Confirm before write
 
-After PLAN content approval, show `PLAN_NNN_*`, **portable path** (`STORAGE.md` § Portable path), PRD link, and step count. Ask separately for authorization to write the PLAN (**sim** / **ajustar** / **cancelar**); only **sim** sets `write_confirmed` and permits the write. Confirmation chat may show OS absolute; artifact Writes use portable paths only. Stay on the current branch. Do not show the branch and do not ask for a branch switch.
+After PLAN content approval, show `PLAN_NNN_*`, **portable path** (`STORAGE.md` § Portable path), PRD link, and step count. Ask separately for authorization to write the PLAN (ids `confirm` / `adjust` / `cancel`, rendered in the user's language per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); only `confirm` sets `write_confirmed` and permits the write. Confirmation chat may show OS absolute; artifact Writes use portable paths only. Stay on the current branch. Do not show the branch and do not ask for a branch switch.
 
 ### 6. Write PLAN (Agent + sim only)
 

@@ -43,8 +43,8 @@ Invoke when the user asks for: `/framework-upgrade`, `framework upgrade`, `upgra
 
 | Input | Rule |
 |-------|------|
-| Mode | Explicit or ask once: `audit` \| `plan` \| `migrate` \| `validate` — default ask; never silent `migrate` |
-| `framework_id` | `references/detect.md` — detect or ask if 0 / >1 candidates; pack signals in `PACK.md` |
+| Mode | Explicit or ask once. Ids: `audit`, `plan`, `migrate`, `validate`; question form and labels in `references/modes.md`; answer mapping in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Default ask; never silent `migrate` |
+| `framework_id` | `references/detect.md` — detect or ask if 0 / >1 candidates. Ids are on-disk pack ids (`angular`, `dotnet`); question form in `references/detect.md`; pack signals in `PACK.md` |
 | `currentVersion` / `targetVersion` | Semantic per pack; `target > current`; outside `supported_range` → research |
 | Operator **sim** | **Required** before any file-mutating migrate step; silence ≠ approval |
 

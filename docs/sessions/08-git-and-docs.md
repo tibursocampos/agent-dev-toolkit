@@ -16,7 +16,7 @@ Push only when asked: that is `/push`. A pull request is `/open-github-pr`, not 
 
 ## `push`
 
-`git push -u origin HEAD` after the branch check. On success, if this conversation already asked for a pull request, load `open-github-pr` immediately. Otherwise ask whether to open one. **sim** enters that skill. The GitHub web UI is not offered from `/push`.
+`git push -u origin HEAD` after the branch check. On success, if this conversation already asked for a pull request, load `open-github-pr` immediately. Otherwise ask whether to open one. `confirm` enters that skill. The GitHub web UI is not offered from `/push`.
 
 ## `open-github-pr`
 
@@ -29,7 +29,7 @@ This skill owns `gh pr create`. Ad-hoc `gh pr create` is out of contract.
 
 Ask once if the mode was omitted.
 
-Content confirmation is separate from auto-merge. Show title, base, head, full body, and template path. **sim** / **ajustar** / **cancelar** on the content. Then, every time, including “full flow”: enable auto-merge? **sim** / **não**. Do not infer auto-merge from the earlier request to open a PR.
+Content confirmation is separate from auto-merge. Show title, base, head, full body, and template path. `confirm` / `adjust` / `cancel` on the content. Then, every time, including “full flow”: enable auto-merge? `confirm` / `decline`. Do not infer auto-merge from the earlier request to open a PR.
 
 If the repository disallows auto-merge, still create the PR and say auto-merge cannot be enabled. If the required method (squash or rebase) is disabled, stop and ask. Do not switch methods silently.
 

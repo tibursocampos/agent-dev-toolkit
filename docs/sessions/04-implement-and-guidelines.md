@@ -41,7 +41,7 @@ Agent-facing copy of the same table: `core/skills/_shared/agents/ROUTING.md`.
 
 ## Stack skills
 
-Each one implements **small-to-medium** work in the open workspace. Full multi-step features belong to Classic SDD. Common gates: operator **sim** before writes; one outcome then stop; no guideline dump into child prompts; no auto-commit.
+Each one implements **small-to-medium** work in the open workspace. Full multi-step features belong to Classic SDD. Common gates: operator `confirm` answer before writes; one outcome then stop; no guideline dump into child prompts; no auto-commit.
 
 | Skill | Scope | Guideline pack loaded on demand | Hands off when scope grows |
 |-------|--------|----------------------------------|----------------------------|
@@ -69,7 +69,7 @@ Source: `core/skills/_shared/code-guidelines/`. Load one file. Do not preload `l
 | B | What the style requires (stack-agnostic) | Exactly one of `architecture/vertical-slice.md`, `concentric-dependency.md`, `ddd-tactical.md` (only after concentric), `event-driven.md` (overlay) |
 | C | How this stack does it | The matching `*-guidelines` pack |
 
-Greenfield: propose, set needs-confirm, write final ARCH only after **sim**. The O1 architect runs this gate ([01](01-orchestrated-delivery.md)). Brownfield: mirror. Do not swap style unless the operator asks.
+Greenfield: propose, set needs-confirm, write final ARCH only after a `confirm` answer. The O1 architect runs this gate ([01](01-orchestrated-delivery.md)). Brownfield: mirror. Do not swap style unless the operator asks.
 
 Clean Architecture, onion, and hexagonal are the same concentric rule. Vertical slice is the proposal for CRUD-heavy greenfield, not a silent default. Event-driven does not replace the folder tree. UI-only work uses `frontend-guidelines/frontend-architecture.md` instead of forcing a backend layer tree onto the UI pack.
 

@@ -6,21 +6,14 @@ Detect whether the repo allows auto-merge:
 gh api repos/{owner}/{repo} --jq .allow_auto_merge
 ```
 
-Present title, base, head, full body, template source path, and auto-merge availability. Ask in the user chat language:
+Present title, base, head, full body, template source path, and auto-merge availability. Ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`. Ask two questions in the user's chat language:
 
-```text
-Conteúdo do PR acima está ok?
-- sim — criar o PR
-- ajustar — diga o que mudar
-- cancelar — não criar
+1. Content gate: `confirm` (create the PR), `adjust` (the user says what to change), `cancel` (do not create it).
+2. Auto-merge gate: `confirm` (enable auto-merge after create) or `decline` (do not enable). State whether the repository allows auto-merge, from the `allow_auto_merge` check above.
 
-Habilitar auto-merge após criar? (sim / não)
-(Disponível no repositório: <sim|não>)
-```
+Only a `confirm` on the content gate creates the PR. Apply `adjust` changes and re-confirm. Silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is.
 
-Only proceed on **sim** for content. Apply adjustments and re-confirm if requested.
-
-**Auto-merge question is mandatory every time** — including when the user already said “fluxo completo”, “abra o PR”, or similar. Do not infer auto-merge from those phrases. Ask even when unavailable; if user says **sim** but `allow_auto_merge` is false, create the PR and report that auto-merge cannot be enabled.
+**Auto-merge question is mandatory every time** — including when the user already said “fluxo completo”, “abra o PR”, or similar. Do not infer auto-merge from those phrases. Ask even when unavailable; if the answer is `confirm` but `allow_auto_merge` is false, create the PR and report that auto-merge cannot be enabled.
 
 ## Create PR (and optional auto-merge)
 

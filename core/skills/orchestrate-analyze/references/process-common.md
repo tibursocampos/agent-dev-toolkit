@@ -15,7 +15,7 @@ Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = cl
 - **repository** -> feature `$Cwd/features/`; bank `$Cwd/memory-bank/`
 - **global** -> feature `<classic.path>/features/`; bank `<classic.path>/memory-bank/`
 
-**Path sanitize (required)** for any invoke / allocated feature path: normalize (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under the feature root above. Ask again in pt-BR for a canonical path - do not Read/Write outside the feature root.
+**Path sanitize (required)** for any invoke / allocated feature path: normalize (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under the feature root above. Ask again, in the user's language, for a canonical path - do not Read/Write outside the feature root.
 
 If first run for this repo: ask storage in the user chat language per `STORAGE.md` and persist manifest. Confirm target workspace. Do **not** invent a feature path outside the resolved root.
 
@@ -27,16 +27,16 @@ Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` and `features
 
 Before asking: **product artifact quality gates** must pass (`references/story-synthesis.md` § Product artifact quality gates — FEATURE depth TE01, promotion TE02, cap ≤4 / RN03). Required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only). Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
 
-Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask in the user chat language — copy in `references/arch-confirm.md` § Approval gate copy.
+Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask in the user chat language — copy in `references/arch-confirm.md` § Approval gate copy — with ids per `core/skills/_shared/agents/QUESTIONS.md`.
 
-| Answer | Action |
-|--------|--------|
-| **sim** | status -> `approved`; continue O2 handoff |
-| **ajustar** | revise stories/flags; re-present; ask again |
-| **cancelar** | leave `draft`; do not hand off to O2 |
-| *(silence / other)* | **not** approval - wait |
+| Id | Action |
+|----|--------|
+| `confirm` | status -> `approved`; continue O2 handoff |
+| `adjust` | revise stories/flags; re-present; ask again |
+| `cancel` | leave `draft`; do not hand off to O2 |
+| *(silence / ambiguous / unrelated reply)* | **not** approval - wait |
 
-On **sim**:
+On `confirm`:
 
 1. Update `FEATURE.md` / story statuses to `approved` as appropriate.
 2. Update `CONTINUITY.md`: phase stays `analyze` until O2 starts (or set handoff-ready note); `Last agent` = `orchestrate-analyze`; keep Memory-bank fields; typed handoff string.
