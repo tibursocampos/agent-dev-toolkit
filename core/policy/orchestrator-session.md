@@ -7,7 +7,7 @@ alwaysApply: true
 
 **Applies to:** every conversation in this toolkit install. Do **not** require the user to restate this each session.
 
-Full spawn contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Model param: `SUBAGENT-MODEL.md`. Receipts: `RECEIPT.md`. Caveman: `skills/_shared/caveman/CAVEMAN.md` + `{{SDD_ROOT}}/preferences.json`.
+Session-start digest (read every session): `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md`. Full spawn contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Model param: `SUBAGENT-MODEL.md`. Receipts: `RECEIPT.md`. Caveman: `skills/_shared/caveman/CAVEMAN.md` + `{{SDD_ROOT}}/preferences.json`.
 
 ---
 
@@ -68,10 +68,10 @@ Prefer specialist subagents (parallel when independent) for analysis, multi-file
 
 ## Read SPAWN before decide
 
-- Before drafting any plan that cites Agent, subagents, or orchestration: **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` first.
-- Before the first spawn vs in-parent decision in a chat when work is **not** thin-trivial: **Read** SPAWN.md.
+- At the start of every session, unconditionally: **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md`.
+- Before the first spawn vs in-parent decision in a chat when work is **not** thin-trivial: **Read** SPAWN.md for the full contract.
 - Multi-file analysis / non-trivial planning → spawn specialists; this chat stays parent/orchestrator.
-- Citing Agent/orchestration in a plan without having Read SPAWN = failed checklist.
+- Citing Agent/orchestration in a plan without having Read the digest and SPAWN = failed checklist.
 
 Caps, host table, and child payload rules live in SPAWN.md — use the **Read** triggers above (do not skip the Read and cite the contract from memory).
 

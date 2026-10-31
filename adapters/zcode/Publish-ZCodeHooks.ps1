@@ -353,6 +353,17 @@ function Invoke-ZCodePublishHooks {
         -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
         -RequireStrictChild
     $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destinationGuard
+    $sourceSessionStart = Join-Path $script:ZCodeHooksModuleDirectory (Join-Path $script:ZCodePathConstant.HooksDirectoryName $script:ZCodePathConstant.HooksSessionStartScriptName)
+    $destinationSessionStart = Join-Path $hooksDir $script:ZCodePathConstant.HooksSessionStartScriptName
+    if (-not (Test-Path -LiteralPath $sourceSessionStart)) {
+        throw ($script:ZCodePublishMessage.HooksSourceMissing -f $sourceSessionStart)
+    }
+    Assert-ToolkitManagedPathContained `
+        -CandidatePath $destinationSessionStart `
+        -RootPath $resolvedInstallRoot `
+        -EscapeMessageFormat $script:ToolkitMessage.ManagedCopyPathEscapesRoot `
+        -RequireStrictChild
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceSessionStart -DestinationPath $destinationSessionStart
     $sharedGuardSource = Join-Path (Join-Path (Join-Path $repoRoot 'adapters') '_shared') $script:ZCodePathConstant.SharedGuardCommonFileName
     $sharedGuardDest = Join-Path $hooksDir $script:ZCodePathConstant.SharedGuardCommonFileName
     if (-not (Test-Path -LiteralPath $sharedGuardSource)) {

@@ -69,6 +69,13 @@ function Test-GrokNativeHooksPresent {
         if (-not (Test-Path -LiteralPath $guardPath)) {
             return $false
         }
+        $sessionScriptPath = Join-Path $HooksRoot $script:GrokAdapterConstant.HooksSessionStartScriptName
+        if (-not (Test-Path -LiteralPath $sessionScriptPath -PathType Leaf)) {
+            return $false
+        }
+        if ((Get-Content -LiteralPath $sessionScriptPath -Raw) -notmatch 'SPAWN-DIGEST') {
+            return $false
+        }
         $contractPath = Join-Path $HooksRoot $script:GrokAdapterConstant.SharedAuthorizationContractFileName
         if (-not (Test-Path -LiteralPath $contractPath -PathType Leaf)) {
             return $false
