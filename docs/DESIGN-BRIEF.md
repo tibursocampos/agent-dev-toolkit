@@ -17,7 +17,7 @@ Explorers need to see what the toolkit is, then where it goes, then how to insta
 Home, both locales:
 
 1. The two sentences that already define the toolkit.
-2. The architecture figure: `docs-site/assets/core-adapters-diagram.svg` and `docs-site/assets/core-adapters-diagram.pt.svg`.
+2. The architecture figure: `docs-site/assets/core-adapters-diagram.svg` and `docs-site/assets/core-adapters-diagram-pt.svg` (the `-pt` suffix keeps mkdocs i18n from treating it as a page variant).
 3. Install stays a short point to Get started. Do not explain each publish script on the home.
 
 Get started, both locales:

@@ -370,7 +370,14 @@ html .md-typeset__table table,
 }
 
 .md-typeset table:not([class]) code {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+}
+
+@media screen and (min-width: 60em) {
+  .md-typeset table:not([class]) code {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
 }
 
 .md-typeset table:not([class]) a.file-download + a.file-download {

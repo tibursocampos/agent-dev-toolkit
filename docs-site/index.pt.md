@@ -16,7 +16,7 @@ O **agent-dev-toolkit** é um toolkit para agentes de código. Um core compartil
 Também: [Usando skills](using-skills.md), [Adaptadores](adapters.md) e [Arquitetura](architecture.md).
 
 <figure class="home-diagram">
-  <img src="assets/core-adapters-diagram.pt.svg" alt="Skills do núcleo, adaptadores e pastas de instalação dos agentes" width="560" height="300">
+  <img src="../assets/core-adapters-diagram-pt.svg" alt="Skills do núcleo, adaptadores e pastas de instalação dos agentes" width="560" height="300">
 </figure>
 
 **Dez agentes:** Cursor, Antigravity, Claude Code, Codex, GitHub Copilot, OpenCode, Grok Build, ZCode, Hermes e OpenHands.
