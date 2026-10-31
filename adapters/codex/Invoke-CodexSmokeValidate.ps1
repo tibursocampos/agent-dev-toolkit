@@ -527,7 +527,10 @@ function Invoke-CodexSmokeValidate {
         AgentsMaterializedOk     = $false
         CustomAgentFilesPresent  = $false
         HooksPresent             = $false
-        AuthorizationContractPresent = $false
+        HooksSubagentStopPresent = $false
+        TraceEmitScriptPresent   = $false
+        TraceEmitCommonPresent   = $false
+        GuardScriptAbsent        = $false
         HooksRequired            = $false
         UserSkillsFixtureOk      = $false
         UserSkillsMirrored       = $false
@@ -763,40 +766,73 @@ function Invoke-CodexSmokeValidate {
         }
 
         $hooksObj = $hooksJson.hooks
-        if ($null -eq $hooksObj -or -not ($hooksObj.PSObject.Properties.Name -contains $script:CodexPathConstant.HooksPreToolUseEventName)) {
+        if ($null -eq $hooksObj -or -not (@($hooksObj.PSObject.Properties | ForEach-Object { $_.Name }) -contains $script:CodexPathConstant.HooksSubagentStopEventName)) {
             return New-CodexSmokeResult `
                 -Success $false `
                 -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
                 -ResolvedInstallRoot $resolvedInstallRoot `
                 -Checks $checks `
-                -Message ("TE04: Codex hooks.json missing PreToolUse at: {0}" -f $hooksPath) `
+                -Message ("TE04: Codex hooks.json missing SubagentStop at: {0}" -f $hooksPath) `
                 -ExitCode $exitFail
         }
-        $checks.HooksPreToolUsePresent = $true
+        if (@($hooksObj.PSObject.Properties | ForEach-Object { $_.Name }) -contains $script:CodexPathConstant.HooksPreToolUseEventName) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex hooks.json must not register PreToolUse at: {0}" -f $hooksPath) `
+                -ExitCode $exitFail
+        }
+        $checks.HooksSubagentStopPresent = $true
 
-        $guardScriptPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.HooksGuardScriptName
-        if (-not (Test-Path -LiteralPath $guardScriptPath -PathType Leaf)) {
+        $pluginHooksPath = $mapped.FixturePluginHooksPath
+        $traceEmitPath = Join-Path $pluginHooksPath $script:CodexPathConstant.HooksTraceEmitScriptName
+        if (-not (Test-Path -LiteralPath $traceEmitPath -PathType Leaf)) {
             return New-CodexSmokeResult `
                 -Success $false `
                 -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
                 -ResolvedInstallRoot $resolvedInstallRoot `
                 -Checks $checks `
-                -Message ("TE04: Codex guard-pre-tool.ps1 missing at: {0}" -f $guardScriptPath) `
+                -Message ("TE04: Codex emit-trace.ps1 missing at: {0}" -f $traceEmitPath) `
                 -ExitCode $exitFail
         }
-        $checks.GuardScriptPresent = $true
+        $checks.TraceEmitScriptPresent = $true
 
-        $authorizationContractPath = Join-Path $mapped.FixturePluginHooksPath $script:CodexPathConstant.SharedAuthorizationContractFileName
-        if (-not (Test-Path -LiteralPath $authorizationContractPath -PathType Leaf)) {
+        $traceCommonPath = Join-Path $pluginHooksPath $script:CodexPathConstant.TraceEmitCommonFileName
+        if (-not (Test-Path -LiteralPath $traceCommonPath -PathType Leaf)) {
             return New-CodexSmokeResult `
                 -Success $false `
                 -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
                 -ResolvedInstallRoot $resolvedInstallRoot `
                 -Checks $checks `
-                -Message ("TE04: Codex authorization-contract.json missing at: {0}" -f $authorizationContractPath) `
+                -Message ("TE04: Codex TraceEmitCommon.ps1 missing at: {0}" -f $traceCommonPath) `
                 -ExitCode $exitFail
         }
-        $checks.AuthorizationContractPresent = $true
+        $checks.TraceEmitCommonPresent = $true
+
+        $hooksCommonPath = Join-Path $pluginHooksPath $script:CodexPathConstant.HooksCommonFileName
+        if (-not (Test-Path -LiteralPath $hooksCommonPath -PathType Leaf)) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex _hook-common.ps1 missing at: {0}" -f $hooksCommonPath) `
+                -ExitCode $exitFail
+        }
+
+        $guardScriptPath = Join-Path $pluginHooksPath $script:CodexPathConstant.HooksGuardScriptName
+        if (Test-Path -LiteralPath $guardScriptPath) {
+            return New-CodexSmokeResult `
+                -Success $false `
+                -ErrorCode $script:CodexPathConstant.SmokeTe04Code `
+                -ResolvedInstallRoot $resolvedInstallRoot `
+                -Checks $checks `
+                -Message ("TE04: Codex guard-pre-tool.ps1 must not be published at: {0}" -f $guardScriptPath) `
+                -ExitCode $exitFail
+        }
+        $checks.GuardScriptAbsent = $true
     }
     else {
         $checks.HooksPresent = Test-Path -LiteralPath $hooksPath -PathType Leaf

@@ -675,8 +675,16 @@ function Invoke-ToolkitSync {
         $syncTable[$script:ToolkitConstant.WhatIfParameterName] = $true
     }
     $syncTable['DeferPreferences'] = $true
-    $syncOk = (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.SyncAgentRelativePath -ArgumentTable $syncTable)
+    $summaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ('agent-dev-toolkit-sync-{0}.json' -f ([guid]::NewGuid().ToString('N')))
+    [Environment]::SetEnvironmentVariable($script:ToolkitConstant.SyncSummaryEnvironmentName, $summaryPath)
+    try {
+        $syncOk = (Invoke-ToolkitScript -RelativePath $script:ToolkitConstant.SyncAgentRelativePath -ArgumentTable $syncTable)
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable($script:ToolkitConstant.SyncSummaryEnvironmentName, $null)
+    }
     if (-not $syncOk) {
+        Show-ToolkitSyncSummary -SummaryPath $summaryPath
         return $false
     }
 
@@ -686,6 +694,7 @@ function Invoke-ToolkitSync {
         -Interactive:$PromptInstallPreferences.IsPresent `
         -WhatIf:$WhatIf.IsPresent
 
+    Show-ToolkitSyncSummary -SummaryPath $summaryPath
     return $true
 }
 

@@ -56,9 +56,6 @@ function Copy-CopilotHookFilesTree {
         [Parameter(Mandatory = $true)]
         [string] $DestinationHooksRoot,
 
-        [Parameter()]
-        [string] $RepoRoot,
-
         [Parameter(Mandatory = $true)]
         [string] $InstallRoot
     )
@@ -87,27 +84,6 @@ function Copy-CopilotHookFilesTree {
             -InstallRoot $InstallRoot `
             -RelativePath $relativeInventoryPath
         $filesCopied++
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($RepoRoot)) {
-        $sharedSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
-            throw "GuardCommon source is missing: $sharedSource"
-        }
-        $sharedDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedGuardCommonFileName
-        $null = Copy-ToolkitFileIfAbsent `
-            -SourcePath $sharedSource `
-            -DestinationPath $sharedDest `
-            -InstallRoot $InstallRoot `
-            -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedGuardCommonFileName)
-        $contractSource = Join-Path $RepoRoot ($script:CopilotPathConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $contractDest = Join-Path $DestinationHooksRoot $script:CopilotPathConstant.SharedAuthorizationContractFileName
-        $null = Copy-ToolkitAuthorizationContract `
-            -SourcePath $contractSource `
-            -DestinationPath $contractDest `
-            -InstallRoot $InstallRoot `
-            -RelativePath ('hooks/{0}' -f $script:CopilotPathConstant.SharedAuthorizationContractFileName)
-        $filesCopied += 2
     }
 
     return $filesCopied
@@ -148,6 +124,7 @@ function Invoke-CopilotPublishHooks {
             SourceRoot              = $null
             FilesCopied             = 0
             Message                 = $script:CopilotPublishMessage.HooksNoOpNotCapable
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Copilot does not run toolkit hooks in this release; hooks.json is published with an empty hooks object.'
             ExitCode                = 0
             SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         }
@@ -178,6 +155,7 @@ function Invoke-CopilotPublishHooks {
             SourceRoot              = $sourceHooksRoot
             FilesCopied             = 0
             Message                 = ($script:CopilotPublishMessage.HooksWhatIfOk -f $destinationHooksRoot, $normalizedMode)
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Copilot does not run toolkit hooks in this release; hooks.json is published with an empty hooks object.'
             ExitCode                = 0
             SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         }
@@ -191,7 +169,6 @@ function Invoke-CopilotPublishHooks {
         $filesCopied = Copy-CopilotHookFilesTree `
             -SourceHooksRoot $sourceHooksRoot `
             -DestinationHooksRoot $destinationHooksRoot `
-            -RepoRoot $repoRoot `
             -InstallRoot $resolvedInstallRoot
         $placeholderMap = Get-CopilotPlaceholderMap -InstallRoot $resolvedInstallRoot
         Assert-ToolkitManagedWriteDestination `
@@ -215,6 +192,7 @@ function Invoke-CopilotPublishHooks {
             SourceRoot              = $sourceHooksRoot
             FilesCopied             = $filesCopied
             Message                 = ($script:CopilotPublishMessage.HooksPublishedOk -f $filesCopied, $destinationHooksRoot, $normalizedMode)
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Copilot does not run toolkit hooks in this release; hooks.json is published with an empty hooks object.'
             ExitCode                = 0
             SmokeFilesystemOnlyNote = $script:CopilotPathConstant.SmokeFilesystemOnlyNote
         }

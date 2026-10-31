@@ -71,7 +71,7 @@ function Invoke-ZCodePublishAgents {
         -UnresolvedTokens (Get-ZCodeSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:ZCodePublishMessage.PlaceholderUnresolved
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'zcode-agents'
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'zcode-agents' -FileNames @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)
 
     return [PSCustomObject]@{
         Success          = $true

@@ -3,6 +3,9 @@
 #   Should_AppendAndRedact_When_SecretLikeSummaryAndExtra
 #   Should_Exit0_NoAppend_NoEcho_When_ForcedFail
 #   Should_Exit0_NoAppend_When_NormalPostToolUse
+#   Should_Exit0_NoAppend_NoEcho_When_CodexSubagentStopForcedFail
+#   Should_AppendRedacted_When_CodexSubagentStop
+#   Should_Exit0_NoAppend_When_CodexPostToolUseWired
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -73,6 +76,45 @@ try {
     if ($code -ne 0) { Write-Fail $n "exit $code" }
     if ((Get-Item -LiteralPath $tracePath).Length -ne $before) { Write-Fail $n 'per-tool TRACE line appended' }
     if ($out -match 'NORMAL_TOOL_BODY_MUST_NOT_ECHO') { Write-Fail $n 'tool body echoed' }
+    Write-Pass $n
+
+    # --- Codex SubagentStop (the only trace hook Codex registers) ---
+    $codexEmit = Join-Path $repoRoot ($script:ToolkitConstant.CodexTraceEmitScriptRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $codexEmit -PathType Leaf)) { Write-Fail 'TraceEmitterFailOpen' "missing $codexEmit" }
+    $codexStop = [pscustomobject]@{ hook_event_name = 'SubagentStop'; subagent_type = 'fixture-role'; description = ("finished with bearer {0} password={1}" -f $token, $pwd1) } | ConvertTo-Json -Compress -Depth 6
+
+    $n = 'Should_Exit0_NoAppend_NoEcho_When_CodexSubagentStopForcedFail'
+    $before = (Get-Item -LiteralPath $tracePath).Length
+    $env:TOOLKIT_TRACE_FORCE_FAIL = '1'
+    $out = $codexStop | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $codexEmit 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    Remove-Item Env:TOOLKIT_TRACE_FORCE_FAIL -ErrorAction SilentlyContinue
+    if ($code -ne 0) { Write-Fail $n "exit $code" }
+    if ((Get-Item -LiteralPath $tracePath).Length -ne $before) { Write-Fail $n 'forced fail still appended' }
+    if ($out -match [regex]::Escape($token)) { Write-Fail $n 'secret echoed' }
+    Write-Pass $n
+
+    $n = 'Should_AppendRedacted_When_CodexSubagentStop'
+    $before = (Get-Item -LiteralPath $tracePath).Length
+    $out = $codexStop | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $codexEmit 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    if ($code -ne 0) { Write-Fail $n "exit $code" }
+    if ((Get-Item -LiteralPath $tracePath).Length -le $before) { Write-Fail $n 'SubagentStop appended nothing' }
+    $lastLine = @(Get-Content -LiteralPath $tracePath)[-1]
+    if ($lastLine -notmatch 'specialist_complete') { Write-Fail $n "last TRACE line is not specialist_complete: $lastLine" }
+    foreach ($leak in @($token, $pwd1)) {
+        if ($lastLine -match [regex]::Escape($leak)) { Write-Fail $n "leaked: $leak" }
+    }
+    Write-Pass $n
+
+    $n = 'Should_Exit0_NoAppend_When_CodexPostToolUseWired'
+    $before = (Get-Item -LiteralPath $tracePath).Length
+    $json = [pscustomobject]@{ hook_event_name = 'PostToolUse'; tool_name = 'Read'; tool_input = @{ content = 'CODEX_TOOL_BODY_MUST_NOT_ECHO' } } | ConvertTo-Json -Compress -Depth 6
+    $out = $json | & $hostShell -NoProfile -ExecutionPolicy Bypass -File $codexEmit 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    if ($code -ne 0) { Write-Fail $n "exit $code" }
+    if ((Get-Item -LiteralPath $tracePath).Length -ne $before) { Write-Fail $n 'per-tool TRACE line appended' }
+    if ($out -match 'CODEX_TOOL_BODY_MUST_NOT_ECHO') { Write-Fail $n 'tool body echoed' }
     Write-Pass $n
 }
 finally {

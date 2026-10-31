@@ -57,6 +57,35 @@ function New-AdapterNotImplementedResult {
     }
 }
 
+function New-HookActivation {
+    <#
+    .SYNOPSIS
+      Optional Publish-Hooks result property describing how the provider activates the published hooks.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('manual', 'automatic', 'unavailable', 'blocked')]
+        [string] $State,
+
+        [Parameter()]
+        [string[]] $Steps = @(),
+
+        [Parameter()]
+        [string] $DocsUrl,
+
+        [Parameter()]
+        [string] $Note
+    )
+
+    return [PSCustomObject]@{
+        State   = $State
+        Steps   = @($Steps)
+        DocsUrl = $DocsUrl
+        Note    = $Note
+    }
+}
+
 function Get-AdapterContractCommandNames {
     return @($script:AdapterContractCommandNames)
 }

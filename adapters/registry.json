@@ -76,7 +76,7 @@
         "wholeFileRouter": ["AGENTS.md"]
       },
       "publish": { "userScope": true },
-      "pathGuard": { "mode": "hook", "script": "adapters/codex/assets/hooks/guard-pre-tool.ps1", "payload": "snake" }
+      "pathGuard": { "mode": "host", "forbiddenAssets": ["adapters/codex/assets/hooks/guard-pre-tool.ps1"] }
     },
     {
       "id": "copilot",
@@ -95,7 +95,7 @@
         "wholeFileRouter": []
       },
       "publish": { "mode": "user" },
-      "pathGuard": { "mode": "host", "script": "adapters/copilot/assets/hooks/guard-pre-tool.ps1", "payload": "copilot" }
+      "pathGuard": { "mode": "host", "forbiddenAssets": ["adapters/copilot/assets/hooks/guard-pre-tool.ps1"] }
     },
     {
       "id": "opencode",

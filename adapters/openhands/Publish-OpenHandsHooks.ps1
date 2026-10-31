@@ -231,6 +231,7 @@ function Invoke-OpenHandsPublishHooks {
             HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
             HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
             Message          = ($script:OpenHandsAdapterMessage.HooksSkippedNotCapable -f $hooksDirectory)
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Hook capability is disabled; no hook files were written.'
             ExitCode         = 0
         }
     }
@@ -250,6 +251,7 @@ function Invoke-OpenHandsPublishHooks {
             HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
             HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
             Message          = ($script:OpenHandsAdapterMessage.HooksWhatIfOk -f $hooksDirectory)
+            HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the published session_start and guard_pre_tool hooks are loaded in the OpenHands workspace.') -Note 'OpenHands activates the hooks itself; the toolkit writes files only.'
             ExitCode         = 0
         }
     }
@@ -289,6 +291,7 @@ function Invoke-OpenHandsPublishHooks {
         HooksRelative    = $script:OpenHandsAdapterConstant.OfficialHooksRelativePath
         HooksTrustNote   = $script:OpenHandsAdapterConstant.HooksFilesystemOnlyNote
         Message          = ($script:OpenHandsAdapterMessage.HooksPublishedOk -f $writtenHooks)
+        HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the published session_start and guard_pre_tool hooks are loaded in the OpenHands workspace.') -Note 'OpenHands activates the hooks itself; the toolkit writes files only.'
         ExitCode         = 0
     }
 }

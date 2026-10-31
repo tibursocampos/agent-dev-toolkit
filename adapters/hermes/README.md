@@ -21,8 +21,7 @@ Registry entry remains `adapters/hermes/HermesAdapter.ps1` (thin contract surfac
 | `Invoke-HermesSmokeValidate.ps1` | Native-layout smoke helpers + `Invoke-HermesSmokeValidate` |
 | `Uninstall-HermesToolkit.ps1` | Keyed `Invoke-HermesUninstallToolkit` |
 | `assets/spawn-bridge.md` | Hermes-only spawn operability block appended to managed `AGENTS.md` |
-| `assets/plugins/agent-dev-toolkit-guard/` | Official Hermes plugin (`plugin.yaml` + `__init__.py` `pre_tool_call`) |
-| `assets/agent-hooks/` | Shell dual `guard-pre-tool.sh` / `.ps1` |
+| `assets/plugins/agent-dev-toolkit-guard/` | Hermes plugin package (`plugin.yaml` + `__init__.py`); `register(ctx)` registers no hook |
 
 Public `Publish-Skills` (etc.) in `HermesAdapter.ps1` forward to `Invoke-Hermes*` implementations — same pattern as Grok.
 
@@ -52,8 +51,11 @@ Official refs: [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/fea
 |---------|-----------------|
 | Plugin | `plugins/agent-dev-toolkit-guard/` — compatibility package; it does not register a tool-call hook |
 | Shell dual | Legacy assets remain for cleanup compatibility; publisher does not register a Toolkit shell authorization hook |
+| Config check | Structural check of `config.yaml` runs before any change. An unsupported or invalid format yields `HookActivation` `blocked`; the file stays byte-for-byte intact, nothing is copied to the hook path, and `hermes plugins enable` is not run. This is a structural check, not a YAML parser |
 | Config merge | `plugins.enabled` list and removal of legacy Toolkit `hooks.pre_tool_call` entries; never gateway/tokens/`SOUL.md`/memories |
-| Enable | Best-effort `hermes plugins enable agent-dev-toolkit-guard` |
+| Enable | Best-effort `hermes plugins enable agent-dev-toolkit-guard` (success path only) |
+| `HookActivation` | `unavailable` on success (no hook registered). `blocked` on an unsupported `config.yaml`. A `blocked` result does not stop sync |
+| Trust | Any Hermes trust or review step comes from Hermes documentation and is a manual operator step; not verified here |
 
 ## Spawn / subagents (honesty)
 
@@ -88,7 +90,6 @@ Batch related, bounded work before dispatch. Each dispatched task is one child a
 | `core/router/AGENTS.md` | `AGENTS.md` (`.mdc` refs rewritten to `.md`; `rules/` path refs rewritten to this file) |
 | `adapters/hermes/assets/spawn-bridge.md` | Appended after folded policy (Hermes-only spawn operability; not in core) |
 | `assets/plugins/agent-dev-toolkit-guard/` | `plugins/agent-dev-toolkit-guard/` |
-| `assets/agent-hooks/` | `agent-hooks/` (+ published `GuardCommon.ps1`) |
 | Missing `MEMORY.md` | Seeded once; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
@@ -109,7 +110,7 @@ Official user-home `$HERMES_HOME/skills/` does **not** need trust. If InstallRoo
 | InstallRoot (CI / smoke) | `scripts/validation/fixtures/hermes` (models Hermes home layout) |
 | Skills | `skills/` (direct child of InstallRoot) |
 | Router + policy | `AGENTS.md` at InstallRoot |
-| Plugin + hooks | **Required** — `plugins/agent-dev-toolkit-guard/` + `agent-hooks/` + keyed `config.yaml` |
+| Plugin | **Required** — `plugins/agent-dev-toolkit-guard/` + keyed `config.yaml` (no `agent-hooks/` is published) |
 | Trust CLI | Best-effort; missing `hermes` CLI is not a CI failure |
 
 ```powershell
@@ -143,7 +144,7 @@ Invoke-SmokeValidate -InstallRoot $hermesFixture
 
 ## Uninstall (keyed)
 
-Removes toolkit-managed paths (core skill ids, toolkit-owned `AGENTS.md`, `plugins/agent-dev-toolkit-guard`, `agent-hooks` guard files) and reverse-merges keyed `plugins.enabled` / `hooks.pre_tool_call` from `config.yaml`. Preserves alien skills, other `config.yaml` keys/secrets, `memories/MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
+Removes toolkit-managed paths (core skill ids, toolkit-owned `AGENTS.md`, `plugins/agent-dev-toolkit-guard`, `agent-hooks` guard files) and reverse-merges keyed `plugins.enabled` from `config.yaml`. Preserves alien skills, other `config.yaml` keys/secrets, `memories/MEMORY.md`, `SOUL.md`, `sdd/sessions`, and `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Never deletes gateway tokens.
 
 ## Out of scope (do not emit)
 

@@ -18,10 +18,10 @@ A host **offers** a question component only when the host mechanism table below 
 
 | Host | Mechanism | Evidence in this repo |
 |------|-----------|-----------------------|
-| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` line 728 (read-only tool allow-list) |
-| `grok` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` line 731 |
-| `zcode` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` line 732 |
-| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` line 733; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` line 28 |
+| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `Test-ToolkitReadOnlyToolName`, `$readOnlyTools` entry `claude` |
+| `grok` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `grok` |
+| `zcode` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `zcode` |
+| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list) |
 | `cursor` | `none` | No verified question component. |
 | `antigravity` | `none` | No verified question component. |
 | `codex` | `none` | No verified question component. |

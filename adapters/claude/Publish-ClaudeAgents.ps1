@@ -38,14 +38,17 @@ function Add-ClaudeAgentToolsFrontmatter {
         [string] $AgentsRoot,
 
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string[]] $ManagedFileNames
     )
 
     $modelLinePattern = '(?m)^model:[ \t]*inherit[ \t]*(\r?\n)'
     $toolsLinePattern = '(?m)^tools:[ \t]*\S[^\r\n]*(\r?\n)'
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     $changedPaths = New-Object System.Collections.Generic.List[string]
-    foreach ($file in @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md')) {
+    foreach ($file in @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md' | Where-Object { $ManagedFileNames -contains $_.Name })) {
         $role = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
         if (-not $script:ClaudeAgentToolsByRole.Contains($role)) {
             throw ("Claude agent {0} has no tools mapping in Publish-ClaudeAgents.ps1" -f $file.Name)
@@ -92,14 +95,17 @@ function Add-ClaudeAgentDisallowedToolsFrontmatter {
         [string] $AgentsRoot,
 
         [Parameter(Mandatory = $true)]
-        [string] $InstallRoot
+        [string] $InstallRoot,
+
+        [Parameter(Mandatory = $true)]
+        [string[]] $ManagedFileNames
     )
 
     $modelLinePattern = '(?m)^model:[ \t]*inherit[ \t]*(\r?\n)'
     $disallowedLinePattern = '(?m)^disallowedTools:[ \t]*Agent[ \t]*\r?$'
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     $changedPaths = New-Object System.Collections.Generic.List[string]
-    foreach ($file in @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md')) {
+    foreach ($file in @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md' | Where-Object { $ManagedFileNames -contains $_.Name })) {
         $text = [System.IO.File]::ReadAllText($file.FullName)
         if ($text -match $disallowedLinePattern) { continue }
         if ($text -notmatch $modelLinePattern) {
@@ -182,9 +188,10 @@ function Invoke-ClaudePublishAgents {
         -UnresolvedMessageFormat $script:ClaudePublishMessage.PlaceholderUnresolved
 
     $null = Invoke-ClaudeManagedReferenceRewrite -ManagedPaths @($script:ToolkitLastManagedCopyPaths.ToArray()) -RepoRoot $repoRoot -PlaceholderMap $placeholderMap
-    Add-ClaudeAgentToolsFrontmatter -AgentsRoot $destAgentsRoot -InstallRoot $resolvedInstallRoot
-    Add-ClaudeAgentDisallowedToolsFrontmatter -AgentsRoot $destAgentsRoot -InstallRoot $resolvedInstallRoot
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'claude-agents'
+    $managedFileNames = @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)
+    Add-ClaudeAgentToolsFrontmatter -AgentsRoot $destAgentsRoot -InstallRoot $resolvedInstallRoot -ManagedFileNames $managedFileNames
+    Add-ClaudeAgentDisallowedToolsFrontmatter -AgentsRoot $destAgentsRoot -InstallRoot $resolvedInstallRoot -ManagedFileNames $managedFileNames
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'claude-agents' -FileNames $managedFileNames
 
     return [PSCustomObject]@{
         Success          = $true

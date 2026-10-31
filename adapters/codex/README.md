@@ -94,7 +94,9 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 | Live `$` discovery | `-InstallRoot ~/.codex -AllowUserHome` â†’ `~/.codex/skills` only (omit `-UserScope`) |
 | Live `$` + extra USER mirror | Add explicit `-UserScope` â†’ also `$HOME/.agents/skills` (**duplicates** Personal `$` picks) |
 
-Smoke/CI: absent or empty USER skills root is OK without `-UserScope`. Home `InstallRoot/skills/help-skills` + CATALOG are always required. When UserScope mirrored, smoke asserts help-skills + CATALOG under the resolved USER root. Trust plugin hooks with Codex `/hooks` **manually** after a real install.
+Smoke/CI: absent or empty USER skills root is OK without `-UserScope`. Home `InstallRoot/skills/help-skills` + CATALOG are always required. When UserScope mirrored, smoke asserts help-skills + CATALOG under the resolved USER root.
+
+Hooks: the only registered hook is `SubagentStop` → `emit-trace.ps1`. `HookActivation` is `manual`: review or trust the hook with Codex `/hooks` **manually** after a real install. That step comes from Codex's documentation and is not verified here.
 
 ## `.codex-plugin` extras (honesty)
 
@@ -108,5 +110,5 @@ Public contract: [docs/ADAPTERS.md](../../docs/ADAPTERS.md).
 | Field | Value |
 |-------|-------|
 | Asset | `assets/hooks/emit-trace.ps1` (+ `TraceEmitCommon.ps1`) |
-| Publish wire | **Not** claimed: Publish-Hooks remains PreToolUse guard-only this wave |
+| Publish wire | `SubagentStop` → `emit-trace.ps1` only (no PostToolUse wire). Codex registers no PreToolUse guard. Not verified against a live Codex run |
 | Matrix | `adapters/_shared/trace-emitter-honesty.md` |

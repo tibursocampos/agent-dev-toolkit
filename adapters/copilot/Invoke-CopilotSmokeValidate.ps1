@@ -4,7 +4,7 @@
   Filesystem-only smoke checks for the Copilot adapter.
 
 .DESCRIPTION
-  Validates skills, instructions, and hooks under InstallRoot for -Mode user|repo, including authorization-contract.json.
+  Validates skills, instructions, and hooks under InstallRoot for -Mode user|repo. Hooks are hooks.json only; no guard files are shipped.
   Does not invoke Copilot IDE, VS Code extension, or GitHub login.
   TE01 via Resolve-InstallRoot; TE02 Mode; TE03 missing artifacts; TE04 hooks capable but missing.
 #>
@@ -228,8 +228,11 @@ function Invoke-CopilotSmokeValidateCore {
         if ($null -eq $hooksObj.version -or [int]$hooksObj.version -ne 1) {
             return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (expected version:1)' -f $hooksJsonPath))
         }
-        if ($null -eq $hooksObj.hooks -or -not ($hooksObj.hooks.PSObject.Properties.Name -contains 'preToolUse')) {
-            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (missing preToolUse)' -f $hooksJsonPath))
+        if ($null -eq $hooksObj.hooks) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (missing hooks object)' -f $hooksJsonPath))
+        }
+        if (@($hooksObj.hooks.PSObject.Properties | ForEach-Object { $_.Name }) -contains 'preToolUse') {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.HooksJsonInvalid -f $normalizedMode, ('{0} (preToolUse must not be registered)' -f $hooksJsonPath))
         }
         $completed.Add('hooks-json-schema')
     }

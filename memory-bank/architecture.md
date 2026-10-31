@@ -38,6 +38,9 @@ The toolkit maintains an agent-neutral core and publishes host-specific layouts 
 - Install roots are fixture-first. Profile writes require `-AllowUserHome`; local fixtures do not prove behavior in a live host.
 - Copilot publishing supports `-Mode user|repo`. Codex user-scope skill mirroring is optional and off by default.
 - Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `adaptive`.
+- Each `Publish-Hooks` returns a `HookActivation` (`manual`, `automatic`, `unavailable`, or `blocked`); sync prints it per adapter. A hook publish failure does not stop sync: failures are collected, listed at the end with a fix line, and sync exits 0.
+- Codex publishes only the SubagentStop trace hook (`emit-trace.ps1`); Copilot publishes an empty `hooks.json`; Hermes publishes the compatibility plugin without agent-hooks and registers no hook. The shared `GuardCommon.ps1` is an always-allow shim, so path and secret verdicts are host-owned for these hosts.
+- Uninstall removes legacy guard files (`guard-pre-tool.*`, `_hook-common.ps1`, `GuardCommon.ps1`, `authorization-contract.json`) listed in `scripts/runtime/uninstall-artifacts.json`, so installs made before the change are cleaned.
 - The SDD storage source of truth is `core/skills/_shared/sdd-artifacts/STORAGE.md`; feature and Memory Bank storage share the resolved root.
 
 ## CI and release flow

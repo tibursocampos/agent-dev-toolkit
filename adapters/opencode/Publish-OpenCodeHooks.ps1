@@ -156,6 +156,7 @@ function Invoke-OpenCodePublishHooks {
             FilesCopied             = 0
             RequiresShellHooks      = $false
             Message                 = $script:OpenCodePublishMessage.HooksNoOpNotCapable
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Hook capability is disabled; no hook files were written.'
             ExitCode                = 0
             SmokeFilesystemOnlyNote = $script:OpenCodePathConstant.SmokeFilesystemOnlyNote
         }
@@ -190,6 +191,7 @@ function Invoke-OpenCodePublishHooks {
             FilesCopied             = 0
             RequiresShellHooks      = $false
             Message                 = ($script:OpenCodePublishMessage.HooksWhatIfOk -f $destinationPluginsRoot)
+            HookActivation = New-HookActivation -State 'automatic' -Note 'OpenCode loads the published JS plugin from its plugins directory.'
             ExitCode                = 0
             SmokeFilesystemOnlyNote = $script:OpenCodePathConstant.SmokeFilesystemOnlyNote
         }
@@ -221,6 +223,7 @@ function Invoke-OpenCodePublishHooks {
         FilesCopied             = $filesCopied
         RequiresShellHooks      = $false
         Message                 = ($script:OpenCodePublishMessage.HooksPublishedOk -f $filesCopied, $destinationPluginsRoot)
+        HookActivation = New-HookActivation -State 'automatic' -Note 'OpenCode loads the published JS plugin from its plugins directory.'
         ExitCode                = 0
         SmokeFilesystemOnlyNote = $script:OpenCodePathConstant.SmokeFilesystemOnlyNote
     }

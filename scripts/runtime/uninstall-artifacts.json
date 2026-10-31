@@ -24,7 +24,7 @@
         "hooks-state/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [
         "hooks/context-pre-compact.ps1",
@@ -65,7 +65,7 @@
         "config/hooks/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [],
       "legacyLimit": "Uninstaller explicitly preserves the antigravity-ide/plugins bridge; no legacy artifact ownership inferred.",
@@ -95,7 +95,7 @@
         "sdd/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [
         "permissions.allow: Bash(pwsh *)",
@@ -131,13 +131,17 @@
         "plugin/scripts/**",
         ".agents/scripts/** (optional user-scope)",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [
-        "plugin/hooks/session_start.ps1"
+        "plugin/hooks/session_start.ps1",
+        "plugin/hooks/guard-pre-tool.ps1",
+        "plugin/hooks/_hook-common.ps1"
       ],
       "legacyFiles": [
-        "plugin/hooks/session_start.ps1"
+        "plugin/hooks/session_start.ps1",
+        "plugin/hooks/guard-pre-tool.ps1",
+        "plugin/hooks/_hook-common.ps1"
       ],
       "legacySource": "adapters/codex/Uninstall-CodexToolkit.ps1",
       "pruneRoots": [
@@ -168,9 +172,12 @@
         "sdd/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
-      "legacyEvidence": [],
+      "legacyEvidence": [
+        "hooks/guard-pre-tool.ps1",
+        "hooks/_hook-common.ps1"
+      ],
       "legacyLimit": "Requires explicit user/repo mode; no additional legacy path established in S1.",
       "publishedFiles": [
         "hooks/GuardCommon.ps1"
@@ -202,7 +209,7 @@
         "sdd/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [],
       "notApplicable": [
@@ -236,7 +243,7 @@
         "sdd/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [],
       "currentHookIdentities": [
@@ -275,7 +282,7 @@
         "sdd/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [],
       "currentHookIdentities": [
@@ -312,7 +319,7 @@
         "agent-hooks/**",
         "scripts/**",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [
         "toolkit-session-start.json",
@@ -356,7 +363,7 @@
         "scripts/**",
         ".agents/scripts/** (project-scope)",
         ".toolkit-managed-skills.json",
-        ".toolkit-managed-publish.json",
+        ".toolkit-managed-publish.json"
       ],
       "legacyEvidence": [],
       "legacyLimit": "No legacy microagents path is published by current source; do not remove it without historical evidence.",

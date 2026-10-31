@@ -136,7 +136,7 @@ Every session-helper call is a hard gate, including the final reset. If it exits
 Operators may **opt-in** allowlist the two portable script paths above (cwd = repo root) to reduce repeated Shell approves. Detail: `adapters/cursor/README.md` § Shell allowlist and `docs/domains/cli-scripts.md` § Shell allowlist tip.
 
 - **MUST NOT** enable host-wide “auto-approve all Shell” or ship hooks that silently mutate Shell approve policy.
-- Path/secrets guards (`guard-rules.md` / `GuardCommon.ps1`) stay intact — allowlist ≠ weaken workspace binding or secret scan.
+- Path/secrets verdicts are host-owned: `GuardCommon.ps1` is a compatibility shim that always allows, so the allowlist changes no toolkit verdict. Workspace binding and secret scanning stay with the host.
 
 Before the handoff, include the compact approved-decision envelope from `continuity-handoff.md` when a decision applies to the assigned step. Include its source, concise approved decision, applicable step/acceptance, and required handling. Omit unrelated decisions and full artifact/chat bodies. If the decision materially changes acceptance, stop and return it to the PLAN owner; do not silently extend the child scope.
 

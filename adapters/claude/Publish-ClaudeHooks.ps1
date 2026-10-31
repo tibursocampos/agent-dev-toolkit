@@ -107,6 +107,10 @@ function Invoke-ClaudePublishHooks {
             SettingsPath = $settingsWhatIf.SettingsPath
             FilesCopied  = 0
             Message      = ('{0}; {1}' -f ($script:ClaudePublishMessage.HooksWhatIfOk -f $destinationHooksRoot), $settingsWhatIf.Message)
+            HookActivation = New-HookActivation -State 'manual' -Steps @(
+                'Open the project in Claude Code and accept the workspace trust prompt.',
+                'Run /hooks to confirm the toolkit handlers are listed.'
+            ) -Note 'Claude Code loads the handlers from settings.json only after the project is trusted.'
             ExitCode     = 0
         }
     }
@@ -155,6 +159,9 @@ function Invoke-ClaudePublishHooks {
             SettingsPath = if ($null -ne $settingsMerge) { $settingsMerge.SettingsPath } else { $null }
             FilesCopied  = $filesCopied
             Message      = $detail
+            HookActivation = New-HookActivation -State 'blocked' -Steps @(
+                'Fix the settings.json merge error reported above and re-run sync.'
+            ) -Note 'settings.json was not merged; no handler is registered.'
             ExitCode     = 1
         }
     }
@@ -172,6 +179,10 @@ function Invoke-ClaudePublishHooks {
         BackupTaken  = $settingsMerge.BackupTaken
         FilesCopied  = $filesCopied
         Message      = ('{0}; {1}' -f ($script:ClaudePublishMessage.HooksPublishedOk -f $filesCopied, $destinationHooksRoot), $settingsMerge.Message)
+        HookActivation = New-HookActivation -State 'manual' -Steps @(
+            'Open the project in Claude Code and accept the workspace trust prompt.',
+            'Run /hooks to confirm the toolkit handlers are listed.'
+        ) -Note 'Claude Code loads the handlers from settings.json only after the project is trusted.'
         ExitCode     = 0
     }
 }

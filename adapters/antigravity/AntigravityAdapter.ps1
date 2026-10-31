@@ -31,6 +31,7 @@ if ([string]::IsNullOrWhiteSpace($script:AntigravityAdapterDirectory)) {
 . (Join-Path $script:AntigravityAdapterDirectory 'AntigravityPathConstants.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityPolicy.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityRouter.ps1')
+. (Join-Path (Join-Path (Join-Path $script:AntigravityAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Publish-AntigravityHooks.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Invoke-AntigravitySmokeValidate.ps1')
 . (Join-Path $script:AntigravityAdapterDirectory 'Uninstall-AntigravityToolkit.ps1')

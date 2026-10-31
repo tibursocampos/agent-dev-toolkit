@@ -35,6 +35,7 @@ $script:ZCodeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeSkills.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeRouter.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeAgents.ps1')
+. (Join-Path (Join-Path (Join-Path $script:ZCodeAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Publish-ZCodeHooks.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Invoke-ZCodeSmokeValidate.ps1')
 . (Join-Path $script:ZCodeAdapterDirectory 'Uninstall-ZCodeToolkit.ps1')

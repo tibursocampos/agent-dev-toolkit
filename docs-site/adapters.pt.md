@@ -64,7 +64,9 @@ Todo agente listado tem um módulo concreto com publicação e um smoke no repos
 
 ### Limite de autorização
 
-Hooks do Toolkit não decidem se um provider pode executar uma ferramenta. ACLs, sandbox, configurações de confiança e confirmações nativas continuam sob controle do provider e do operador. O avaliador compartilhado `GuardCommon.ps1` existe por compatibilidade e sempre permite; não classifica caminhos/ferramentas, aplica allowlists nem examina segredos. Cursor e Claude removem entradas geridas antigas de hooks de autorização durante o sync. Outros hooks de compatibilidade publicados não vetam chamadas. O wrapper POSIX do OpenHands também permite quando o `pwsh` opcional não está disponível. Veja `adapters/provider-authorization-conformance.md` e `adapters/_shared/guard-rules.md`.
+Hooks do Toolkit não decidem se um provider pode executar uma ferramenta. ACLs, sandbox, configurações de confiança e confirmações nativas continuam sob controle do provider e do operador. O avaliador compartilhado `GuardCommon.ps1` existe por compatibilidade e sempre permite; não classifica caminhos/ferramentas, aplica allowlists nem examina segredos. Cursor e Claude removem entradas geridas antigas de hooks de autorização durante o sync. Quatro adaptadores (Grok, OpenHands, ZCode e Antigravity) mantêm um shim `PreToolUse` que nega apenas entrada vazia, malformada ou fora do schema; o veredito de caminho e de segredos sempre permite. Codex e Copilot não registram mais um guard, então eventos malformados ou sem identidade deixam de ser negados por um hook do Toolkit. Essa é uma mudança de comportamento registrada em `docs/ENFORCEMENT.md`. O wrapper POSIX do OpenHands também permite quando o `pwsh` opcional não está disponível.
+
+Cada resultado de `Publish-Hooks` informa um estado de ativação de hook (`manual`, `automatic`, `unavailable` ou `blocked`) ao fim do sync. Falha de hook não interrompe o sync; os hooks que falharam são listados no final. Veja `adapters/provider-authorization-conformance.md` e `adapters/_shared/guard-rules.md`.
 
 A maioria dos adaptadores declara `subagents: native`. OpenHands declara `none` (SPAWN fica no pai). A capacidade efetiva do Antigravity é fail-closed em `Get-Capabilities`. Ordem da sonda em `core/skills/_shared/agents/SPAWN.md`: override `ADT_ANTIGRAVITY_SUBAGENTS` → versão de produto `>= 2.0.0` quando conhecida → `agy --version` analisável `>= 1.0.0` como proxy do harness 2.0 (a CLI permanece `1.x`; não exija major da CLI ≥ 2) → senão `none`. Antes de 2.0, ou quando a sonda não consegue dizer, o valor efetivo é `none`.
 
@@ -75,7 +77,7 @@ Honestidade do emissor TRACE:
 | Alegação | Hosts |
 |----------|--------|
 | `emit-trace.ps1` ligado, fail-open | Cursor (`hooks.json` postToolUse / subagentStop). Claude (PostToolUse / SubagentStop) |
-| Só o asset, sem fio PostToolUse ao vivo | Codex (o hook PreToolUse de compatibilidade não autoriza chamadas) |
+| Só `SubagentStop` registrado, sem fio PostToolUse | Codex (`SubagentStop` → `emit-trace.ps1`; sem guard PreToolUse) |
 | Não alegado | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
 
 Assert: `Assert-TraceEmitterFailOpen.ps1`. O arquivo da trilha é `features/NNN-slug/TRACE.jsonl`.
@@ -285,6 +287,8 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent grok -InstallRoot $gro
 | Invocação | `/id`, com `delegate_task` para subagentes |
 
 `Publish-Policy` dobra a política em `AGENTS.md` e acrescenta `adapters/hermes/assets/spawn-bridge.md`. Não escreve uma árvore `rules/`. `GUARDRAILS_PATH` é `InstallRoot/AGENTS.md`. `memories/MEMORY.md` é semeado uma vez se faltar. `SOUL.md` nunca é escrito. Skills do home oficial de usuário não precisam de confiança. Uma cópia de projeto pode chamar `hermes skills trust`. Uma CLI `hermes` ausente pula a confiança e a publicação ainda sucede. Uninstall mantém segredos, `memories/MEMORY.md`, `SOUL.md` e `sdd/*`.
+
+`Publish-Hooks` não registra hook: o plugin é um pacote de compatibilidade. Antes de qualquer mudança, ele faz uma checagem estrutural do `config.yaml`. Formato não suportado ou inválido é reportado como `blocked`; o arquivo fica byte a byte intacto. Isso é uma checagem estrutural, não um parser de YAML.
 
 Fora de escopo: tokens de gateway, cron, Kanban, voz e YAML `delegation.*`.
 
