@@ -111,7 +111,8 @@ function Assert-MarkdownAgentsSpawnKnobs {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $AgentsRoot,
-        [Parameter()][string] $Label = 'agents'
+        [Parameter()][string] $Label = 'agents',
+        [Parameter()][string[]] $FileNames
     )
 
     if (-not (Test-Path -LiteralPath $AgentsRoot)) {
@@ -124,6 +125,9 @@ function Assert-MarkdownAgentsSpawnKnobs {
     }
 
     $files = @(Get-ChildItem -LiteralPath $AgentsRoot -File -Filter '*.md' -ErrorAction Stop)
+    if ($PSBoundParameters.ContainsKey('FileNames')) {
+        $files = @($files | Where-Object { $FileNames -contains $_.Name })
+    }
     if ($files.Count -eq 0) {
         throw ("Spawn knobs: no .md agents under {0}" -f $AgentsRoot)
     }

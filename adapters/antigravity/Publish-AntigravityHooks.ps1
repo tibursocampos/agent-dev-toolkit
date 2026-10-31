@@ -143,6 +143,7 @@ function Invoke-AntigravityPublishHooks {
             SmokeIgnoresHooks         = $true
             SmokeTargetsLegacyBridge  = $false
             Message                   = $message
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Hook capability is disabled; no hook files were written.'
             ExitCode                  = 0
         }
     }
@@ -172,6 +173,7 @@ function Invoke-AntigravityPublishHooks {
             SmokeIgnoresHooks         = $false
             SmokeTargetsLegacyBridge  = $false
             Message                   = ($script:AntigravityPublishMessage.HooksWhatIfOk -f $destinationHooksRoot)
+            HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the guard hooks are active in Antigravity before relying on them.') -Note 'Antigravity loads the published path and secrets guard; the toolkit writes files only.'
             ExitCode                  = 0
         }
     }
@@ -204,6 +206,7 @@ function Invoke-AntigravityPublishHooks {
         SmokeIgnoresHooks         = $false
         SmokeTargetsLegacyBridge  = $false
         Message                   = ($script:AntigravityPublishMessage.HooksPublishedOk -f $filesCopied, $destinationHooksRoot)
+        HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the guard hooks are active in Antigravity before relying on them.') -Note 'Antigravity loads the published path and secrets guard; the toolkit writes files only.'
         ExitCode                  = 0
     }
 }

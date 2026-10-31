@@ -7,8 +7,8 @@
   Removes only known toolkit-managed paths under InstallRoot (core skill ids).
   Removes only the marked toolkit guidance section from AGENTS.md, preserving
   unrelated operator content. Legacy whole-file installs still require hash proof.
-  Also removes plugins/agent-dev-toolkit-guard and agent-hooks toolkit files,
-  including authorization-contract.json,
+  Also removes plugins/agent-dev-toolkit-guard and legacy agent-hooks toolkit files
+  (no longer published; kept for upgrade cleanup), including authorization-contract.json,
   and reverse-merges keyed plugins.enabled / hooks.pre_tool_call entries in
   config.yaml without touching other keys (gateway/tokens preserved).
   Preserves alien skills, config.yaml secrets, MEMORY.md, SOUL.md, sdd/sessions,
@@ -59,7 +59,7 @@ function Get-HermesKnownToolkitArtifactPaths {
         $paths.Add([System.IO.Path]::GetFullPath($pluginRoot))
     }
 
-    foreach ($hookFile in @($script:HermesAdapterConstant.SmokeExpectedAgentHookFileNames)) {
+    foreach ($hookFile in @($script:HermesAdapterConstant.LegacyAgentHookFileNames)) {
         $candidate = Join-Path $MappedPaths.FixtureAgentHooksPath $hookFile
         if (Test-Path -LiteralPath $candidate) {
             $paths.Add([System.IO.Path]::GetFullPath($candidate))

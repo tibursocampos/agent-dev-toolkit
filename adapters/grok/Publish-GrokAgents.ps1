@@ -70,7 +70,7 @@ function Invoke-GrokPublishAgents {
         -UnresolvedTokens @(Get-GrokSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:GrokAdapterMessage.PlaceholderUnresolved
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'grok-agents'
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'grok-agents' -FileNames @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)
 
     return [PSCustomObject]@{
         Success          = $true

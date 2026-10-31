@@ -28,6 +28,7 @@ $script:ClaudeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeRouter.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeAgents.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Merge-ClaudeSettings.ps1')
+. (Join-Path (Join-Path (Join-Path $script:ClaudeAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeHooks.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Invoke-ClaudeSmokeValidate.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Uninstall-ClaudeToolkit.ps1')

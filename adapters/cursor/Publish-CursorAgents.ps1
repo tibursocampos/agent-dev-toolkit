@@ -72,7 +72,7 @@ function Invoke-CursorPublishAgents {
         -UnresolvedTokens (Get-CursorSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:CursorAdapterMessage.PlaceholderUnresolved
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'cursor-agents'
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'cursor-agents' -FileNames @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)
 
     return [PSCustomObject]@{
         Success          = $true

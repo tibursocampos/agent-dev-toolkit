@@ -98,6 +98,66 @@ function Write-ToolkitStepBanner {
     Write-Host ("========== {0} ==========" -f $Title) -ForegroundColor $Color
 }
 
+function Show-ToolkitSyncSummary {
+    <#
+    .SYNOPSIS
+      Render the structured sync summary written by sync-agent.ps1 (colored in the parent menu).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SummaryPath
+    )
+
+    if (-not (Test-Path -LiteralPath $SummaryPath -PathType Leaf)) {
+        return
+    }
+
+    try {
+        $summary = Get-Content -LiteralPath $SummaryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    }
+    catch {
+        return
+    }
+    finally {
+        Remove-Item -LiteralPath $SummaryPath -Force -ErrorAction SilentlyContinue
+    }
+
+    $modeLabel = $script:ToolkitMessage.SyncModePublished
+    if ([bool]$summary.WhatIf) {
+        $modeLabel = $script:ToolkitMessage.SyncModeSimulation
+    }
+
+    $activation = $summary.HookActivation
+    if ($null -ne $activation) {
+        $line = ($script:ToolkitMessage.SyncHookActivationLine -f $modeLabel, [string]$activation.State)
+        switch ([string]$activation.State) {
+            'automatic' { Write-ToolkitSuccess -Message $line }
+            'manual' { Write-ToolkitWarn -Message $line }
+            'blocked' { Write-ToolkitError -Message $line }
+            default { Write-ToolkitHint -Message $line }
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$activation.Note)) {
+            Write-ToolkitHint -Message ('  {0}' -f ([string]$activation.Note).Trim())
+        }
+        foreach ($step in @($activation.Steps)) {
+            Write-ToolkitHint -Message ($script:ToolkitMessage.SyncHookStepLine -f [string]$step)
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$activation.DocsUrl)) {
+            Write-ToolkitHint -Message ($script:ToolkitMessage.SyncHookDocsLine -f [string]$activation.DocsUrl)
+        }
+    }
+
+    $failures = @($summary.HookFailures | Where-Object { $null -ne $_ })
+    if ($failures.Count -gt 0) {
+        Write-ToolkitError -Message ($script:ToolkitMessage.SyncHookFailuresHeader -f $failures.Count)
+        foreach ($failure in $failures) {
+            Write-ToolkitError -Message ($script:ToolkitMessage.SyncHookFailureLine -f [string]$failure.Message)
+            Write-ToolkitWarn -Message ($script:ToolkitMessage.SyncHookFailureFixLine -f [string]$failure.Fix)
+        }
+    }
+}
+
 function Pause-Toolkit {
     [CmdletBinding()]
     param()

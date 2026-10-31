@@ -11,7 +11,7 @@ Adapters map shared **core** into each agent’s install layout and expose a sta
 | Script | Behavior |
 |--------|----------|
 | `scripts/toolkit.ps1` | Menu or `-Action`/`-Agent`. Lists registry agents; Sync/Validate/Uninstall **require** agent (no silent Cursor/home default). Forwards Sync/Validate to sync-agent / validate-agent; Uninstall calls the selected adapter’s `Uninstall-Toolkit`. **Backup** is a fail-closed CLI stub only (`-Action Backup`) — it does **not** call an adapter. |
-| `scripts/sync-agent.ps1 -Agent <id>` | Loads registry entry + module; calls `Publish-*`, then always `Get-SddRoot -Prepare`. Unknown or incomplete adapters exit ≠ 0 with an explicit **not implemented** message (TE04). Defaults `InstallRoot` to in-repo fixture; refuse USERPROFILE without `-AllowUserHome`. |
+| `scripts/sync-agent.ps1 -Agent <id>` | Loads registry entry + module; calls `Publish-*`, then always `Get-SddRoot -Prepare`. A `Publish-Hooks` failure is non-fatal: sync completes and lists failed hooks at the end ([Hook activation](#hook-activation)). Unknown or incomplete adapters exit ≠ 0 with an explicit **not implemented** message (TE04). Defaults `InstallRoot` to in-repo fixture; refuse USERPROFILE without `-AllowUserHome`. |
 | `scripts/validate-agent.ps1 -Agent <id>` | Always runs `validate-core`. Then `Invoke-SmokeValidate` against fixture `InstallRoot`. When smoke is not applicable for an agent, it is a **documented no-op** (does not fail the run). Missing/unknown `-Agent` still abort (TE01/TE02). |
 
 ## Registry
@@ -57,7 +57,7 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
 | `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
 | `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | `$id` (e.g. `$help-skills`) | ADE filesystem — not GLM Coding Plan |
-| `hermes` | `$HERMES_HOME` (Win: `%LOCALAPPDATA%\hermes`; POSIX: `~/.hermes`) | `skills/`, `AGENTS.md` (folded policy; no `rules/`); seed `memories/MEMORY.md` if missing; plugin + `agent-hooks` path/secrets | `/id` (e.g. `/help-skills`) | Never `SOUL.md`; `delegate_task`; keyed `config.yaml` plugins.enabled / hooks.pre_tool_call only |
+| `hermes` | `$HERMES_HOME` (Win: `%LOCALAPPDATA%\hermes`; POSIX: `~/.hermes`) | `skills/`, `AGENTS.md` (folded policy; no `rules/`); seed `memories/MEMORY.md` if missing; compatibility plugin (no `agent-hooks` published) | `/id` (e.g. `/help-skills`) | Never `SOUL.md`; `delegate_task`; keyed `config.yaml` `plugins.enabled` only; no hook registered |
 | `openhands` | Project tree; user skills `~/.agents` | Project: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/` hooks, `.plugin/plugin.json` | Agent Skills (product discovery; mention skill id) | Not microagents. User skills: `-InstallRoot ~/.agents -AllowUserHome`. `subagents=none` |
 
 Primary audit source for adapter paths: this table + each agent section below + `adapters/<id>/README.md`.
@@ -81,32 +81,58 @@ Honesty matrix (**registry** publish surfaces — do not claim unsupported ones)
 | Agent | skills | rules | hooks | router | plugin | agents | subagents | Notes |
 |-------|--------|-------|-------|--------|--------|--------|-----------|-------|
 | `cursor` | true | true | true | true | false | true | `native` | `Publish-Agents` → `InstallRoot/agents/` |
-| `antigravity` | true | true | true | true | true | false | `native` | Declared `native`. PreToolUse path/secrets under `config/hooks`; `Publish-Agents` no-op; Sidecars/Automations OOS. Effective value may be `none` (probe below) |
+| `antigravity` | true | true | true | true | true | false | `native` | Declared `native`. PreToolUse guard shim under `config/hooks`; `Publish-Agents` no-op; Sidecars/Automations OOS. Effective value may be `none` (probe below) |
 | `claude` | true | true | true | true | false | true | `native` | Hooks smoke = files and settings wiring; trust UI out of scope. No provider PreToolUse guard; enforcement through `permissions` and settings |
-| `codex` | true | true | true | true | true | true | `native` | Dual-root; PreToolUse path/secrets; `Publish-Agents` → `agents/*.toml`; `/hooks` trust manual |
-| `copilot` | true | true | true | false | false | true | `native` | `Publish-Router` no-op; hooks `version:1` + `preToolUse` guard; Mode repo agents |
-| `opencode` | true | false | true | true | true | true | `native` | `agents: true`. `HooksSemantics=plugin-only` (JS `tool.execute.before` path/secrets throw); `Publish-Agents` → `InstallRoot/agents/` |
-| `grok` | true | true | true | true | false | true | `native` | `agents: true`. Native under `~/.grok`; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
-| `zcode` | true | false | true | true | false | true | `native` | `Publish-Policy` no-op; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/` |
-| `hermes` | true | true | true | true | true | false | `native` | `agents: false`. Native under `$HERMES_HOME`; policy folded into `AGENTS.md` (no `rules/`); plugin + shell dual hooks; `Publish-Agents` no-op; `memories/MEMORY.md` seed-if-missing; never SOUL.md |
-| `openhands` | true | true | true | true | true | true | `none` | Only declared `subagents=none`. Project tree; policy folded into `AGENTS.md`; shell `pre_tool_use` path/secrets (`guard_pre_tool.sh`); `Publish-Agents` → `.agents/agents/` (roster, not native spawn) |
+| `codex` | true | true | true | true | true | true | `native` | Dual-root; `SubagentStop` → `emit-trace.ps1` only (no PreToolUse guard); `Publish-Agents` → `agents/*.toml`; `/hooks` trust manual |
+| `copilot` | true | true | true | false | false | true | `native` | `Publish-Router` no-op; no active hook (no PreToolUse guard); Mode repo agents |
+| `opencode` | true | false | true | true | true | true | `native` | `agents: true`. `HooksSemantics=plugin-only`; marker plugin installs no interception hook; `Publish-Agents` → `InstallRoot/agents/` |
+| `grok` | true | true | true | true | false | true | `native` | `agents: true`. Native under `~/.grok`; PreToolUse guard shim; `Publish-Agents` → `InstallRoot/agents/` |
+| `zcode` | true | false | true | true | false | true | `native` | `Publish-Policy` no-op; PreToolUse guard shim; `Publish-Agents` → `InstallRoot/agents/` |
+| `hermes` | true | true | true | true | true | false | `native` | `agents: false`. Native under `$HERMES_HOME`; policy folded into `AGENTS.md` (no `rules/`); plugin registers no hook; `config.yaml` structural check before any change; `Publish-Agents` no-op; `memories/MEMORY.md` seed-if-missing; never SOUL.md |
+| `openhands` | true | true | true | true | true | true | `none` | Only declared `subagents=none`. Project tree; policy folded into `AGENTS.md`; shell `pre_tool_use` guard shim (`guard_pre_tool.sh`); `Publish-Agents` → `.agents/agents/` (roster, not native spawn) |
 
-### Shared path/secrets guard (native)
+### Shared guard shim (native)
 
-Rules: [`adapters/_shared/guard-rules.md`](../adapters/_shared/guard-rules.md) · helpers: [`GuardCommon.ps1`](../adapters/_shared/GuardCommon.ps1). Outside-workspace paths and write/delete without a resolvable path are **deny** (fail-closed). Host wiring (summary):
+Rules: [`adapters/_shared/guard-rules.md`](../adapters/_shared/guard-rules.md) · helpers: [`GuardCommon.ps1`](../adapters/_shared/GuardCommon.ps1). `GuardCommon.ps1` is a compatibility helper whose verdict is always `allow`; the adapter shims deny only empty, malformed, or schema-invalid input. Host wiring (summary):
 
 | Agent | Wiring |
 |-------|--------|
 | Cursor | None published. `preToolUse` and `beforeShellExecution` are empty arrays in the shipped `hooks.json`; `guard-pre-tool.ps1` is retired |
 | Claude | None. The adapter publishes no PreToolUse guard hook. Enforcement is the host permission model (`permissions.allow` / `permissions.ask`, sandbox), written by the settings merge |
-| Codex | PreToolUse + `agents/*.toml` |
-| Copilot | hooks `version:1` `preToolUse` |
+| Codex | `SubagentStop` → `emit-trace.ps1` only; no PreToolUse guard; `agents/*.toml` |
+| Copilot | No active hook; no PreToolUse guard |
 | OpenHands | `pre_tool_use` + `guard_pre_tool.sh` (fail-closed) |
 | ZCode | PreToolUse |
 | Grok | PreToolUse; `agents=true` → `InstallRoot/agents/` |
-| OpenCode | None published. Marker plugin only; no `tool.execute.before` hook is installed. Host owns permissions; `agents=true` → `InstallRoot/agents/` |
+| OpenCode | None published. Marker plugin only; no interception hook is installed. Host owns permissions; `agents=true` → `InstallRoot/agents/` |
 | Antigravity | `hooks=true`; `config/hooks` PreToolUse |
-| Hermes | `hooks=true` + `plugin=true`; plugin `agent-dev-toolkit-guard` + `agent-hooks`; keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call`; **never** SOUL / tokens / gateway |
+| Hermes | `hooks=true` + `plugin=true`; plugin `agent-dev-toolkit-guard` registers no hook; keyed `config.yaml` only `plugins.enabled`; legacy `hooks.pre_tool_call` entries removed; **never** SOUL / tokens / gateway |
+
+Four adapters keep a `PreToolUse` guard built on their own shim: Grok, OpenHands, ZCode, and Antigravity. Their shims deny empty, malformed, or schema-invalid input. Codex and Copilot no longer register a guard, so requests that the removed guard used to deny are now decided by the host permission model alone. This is a behavior change; see [ENFORCEMENT.md](ENFORCEMENT.md#behavior-change-codex-and-copilot-guard-removal).
+
+### Hook activation
+
+Every `Publish-Hooks` result may carry a `HookActivation` object (`State`, `Steps`, `DocsUrl`, `Note`). Sync prints each adapter's state at the end, after the other steps. A hook failure is non-fatal: sync completes, and the failed hooks are listed last with their cause. Failures in skills, policy, router, or agents still stop sync.
+
+| State | Meaning |
+|-------|---------|
+| `automatic` | The toolkit registers hooks that need no provider trust step |
+| `manual` | Hooks are registered, but the provider requires a trust or review step that the operator performs |
+| `unavailable` | The toolkit registers no active hook for this provider |
+| `blocked` | An existing provider config has a format the publisher does not support; the publisher changes nothing |
+
+| Adapter | State | Notes |
+|---------|-------|-------|
+| `cursor` | `automatic` | `postToolUse` and `subagentStop` → `emit-trace.ps1`; `beforeSubmitPrompt` and `afterFileEdit` checkpoints. Informative only |
+| `claude` | `manual` | Context, checkpoint, and trace handlers in `settings.json`; workspace trust is a manual step |
+| `codex` | `manual` | `SubagentStop` → `emit-trace.ps1` only; `/hooks` review is a manual step from Codex docs |
+| `copilot` | `unavailable` | No active hook |
+| `opencode` | `unavailable` | Marker plugin only; no interception hook |
+| `hermes` | `unavailable` on success; `blocked` on an unsupported `config.yaml` | Plugin registers no hook. The `config.yaml` check is structural, not a YAML parser, and runs before any change. On `blocked`, the file is left byte-for-byte intact and `hermes plugins enable` is not run |
+| `grok` | `manual` | PreToolUse guard shim; `/hooks-trust` is a manual provider step |
+| `openhands`, `zcode`, `antigravity` | Reported by the publisher at sync | PreToolUse guard shim; provider trust UI is outside smoke scope |
+
+Provider trust and review steps come from each provider's documentation and are not verified by this repository. Hermes `blocked` does not stop sync; it is listed in the final failure list.
 
 Most adapters declare `subagents: native` (host product docs), including **Antigravity**. **OpenHands** is the only adapter that declares `none` (Canvas/ACP is not parent→child; SPAWN fallback in-parent). **Antigravity** *effective* capability is fail-closed via `Get-Capabilities` (declared registry `native` vs effective on this machine). Probe order matches `core/skills/_shared/agents/SPAWN.md`: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0` when known → parseable `agy --version` `>= 1.0.0` as 2.0 harness proxy (CLI stays `1.x`; do not require CLI major ≥ 2) → else `none`. Before 2.0 or unverifiable → `none`. `validate-core` checks registry, each module’s `Get-Capabilities` (Antigravity with CI override), orchestrate SPAWN/fallback text, and Antigravity probe cases. CI adapter smokes stay filesystem sync/validate — no duplicate spawn matrix there.
 
@@ -221,7 +247,7 @@ Relative layout under either InstallRoot is the same: `skills/`, `instructions/`
 | `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved; kebab ids preserved) |
 | `instructions/*.instructions.md` | `Publish-Policy` from `core/policy/` (`.md` → `*.instructions.md`; no fake Cursor `.mdc`) |
 | `copilot-instructions.md` | `Publish-Policy` from `core/router/AGENTS.md` (always-on instructions) |
-| `hooks/*` | `Publish-Hooks` from `adapters/copilot/assets/hooks/` when `hooks=true` — `version:1` `hooks.json` + `preToolUse` → `guard-pre-tool.ps1` (path/secrets deny; IDE trust out of scope) |
+| `hooks/*` | `Publish-Hooks` from `adapters/copilot/assets/hooks/` when `hooks=true`. No handler is registered (`HookActivation` `unavailable`); IDE trust is out of scope |
 | `agents/nome.agent.md` | `Publish-Agents` from `core/agents/` **Mode repo only** (`.github/agents/`). One `nome.agent.md` per catalog agent. The parallel `nome.md` from the copy step is dropped. Mode user is a documented no-op (no Copilot user-home agents dir). |
 
 `Publish-Router` is a documented **no-op** (`router=false`). Router guidance is folded into `copilot-instructions.md` via `Publish-Policy`.
@@ -326,8 +352,8 @@ Keyed removal of toolkit skills / rules / agents / hooks / `CLAUDE.md`, plus rev
 | Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` = true |
-| Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugin/hooks/hooks.json` + `guard-pre-tool.ps1` |
-| Hooks trust | Codex `/hooks` UI is **manual**; smoke/CI never invoke or require trust (RN03). PreToolUse path/secrets deny is filesystem-published only until trusted. |
+| Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugin/hooks/hooks.json` + `emit-trace.ps1` (+ `TraceEmitCommon.ps1`, `_hook-common.ps1`) |
+| Hooks trust | Codex `/hooks` UI is **manual**; smoke/CI never invoke or require trust (RN03). The only registered hook is `SubagentStop` → `emit-trace.ps1`; there is no PreToolUse guard. |
 
 ### Dual-root honesty (skills vs rules)
 
@@ -363,7 +389,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
 | `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
 | `agents/*.toml` | `Publish-Agents` converts `core/agents/*.md` → Codex custom agent TOML (`name`, `description`, `developer_instructions`) under InstallRoot/agents/ |
-| `plugin/hooks/hooks.json` | `Publish-Hooks` PreToolUse for `Bash` + `apply_patch\|Edit\|Write` → `guard-pre-tool.ps1` (filesystem only; trust `/hooks` out of smoke) |
+| `plugin/hooks/hooks.json` | `Publish-Hooks` registers `SubagentStop` → `emit-trace.ps1` only (filesystem only; trust `/hooks` out of smoke). No PreToolUse guard. |
 | `.agents/skills/` | Optional `-UserScope` mirror of `core/skills` (fixture stand-in) |
 
 ### Smoke / sync (filesystem only — no `/hooks` trust)
@@ -374,7 +400,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `Publish-Policy` | Copies `core/policy` → `InstallRoot/rules/*.md` |
 | `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
 | `Publish-Agents` | Emits `core/agents/*.md` → `InstallRoot/agents/*.toml` (live `~/.codex/agents/`) |
-| `Publish-Hooks` | Writes PreToolUse guard files under `plugin/hooks/` |
+| `Publish-Hooks` | Copies `emit-trace.ps1` and `TraceEmitCommon.ps1` under `plugin/hooks/` and registers `SubagentStop`. `HookActivation` `manual` |
 | `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent codex` | Core validate + adapter smoke against fixture InstallRoot |
@@ -406,7 +432,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent codex -InstallRoot $co
 | Fixture override | `-InstallRoot <path>` (CI default: in-repo fixture; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `hooks` / `router` / `plugin` / `agents` = true; `rules` = false |
 | Hooks semantics | `HooksSemantics=plugin-only` — OpenCode uses **JavaScript plugins**, not shell/PS1 hooks (unlike Cursor/Claude). Smoke never requires `.ps1` hooks |
-| MVP hooks (Decision A) | `Publish-Hooks` copies `plugins/agent-dev-toolkit-marker.js` with `tool.execute.before` path/secrets deny (throw) |
+| MVP hooks (Decision A) | `Publish-Hooks` copies `plugins/agent-dev-toolkit-marker.js`. The marker installs no `tool.execute.before` or other interception hook; `HookActivation` `unavailable` |
 | Key artifacts | `skills/<kebab-id>/SKILL.md`, `AGENTS.md`, `agents/*.md`, `plugins/agent-dev-toolkit-marker.js` |
 | `Publish-Policy` | Documented **no-op** (`rules=false`; no dedicated OpenCode policy surface) |
 | `Publish-Agents` | Copies `core/agents/` → `InstallRoot/agents/` (`agents=true`) |
@@ -420,7 +446,7 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent codex -InstallRoot $co
 | `skills/<kebab-id>/SKILL.md` | `Publish-Skills` from `core/skills/` (placeholders resolved; kebab ids preserved) |
 | `AGENTS.md` | `Publish-Router` from `core/router/AGENTS.md` |
 | `agents/*.md` | `Publish-Agents` from `core/agents/` |
-| `plugins/agent-dev-toolkit-marker.js` | `Publish-Hooks` Decision A plugin (`tool.execute.before` path/secrets deny) |
+| `plugins/agent-dev-toolkit-marker.js` | `Publish-Hooks` Decision A marker plugin (compatibility only; no interception hook) |
 
 ### Hooks: plugin JS vs shell/PS1
 
@@ -446,7 +472,7 @@ CI uses the in-repo fixture only. Do not sync to a live `~/.config/opencode` for
 | Official docs | [Agents](https://zcode.z.ai/en/docs/agents), [Subagents](https://zcode.z.ai/en/docs/subagents), [Skills](https://zcode.z.ai/en/docs/skill), [Hooks](https://zcode.z.ai/en/docs/hooks), [Plugins](https://zcode.z.ai/en/docs/plugin) |
 | Fixture override | `-InstallRoot <path>` (in-repo fixture `scripts/validation/fixtures/zcode-install-root`; USERPROFILE paths require `-AllowUserHome`) |
 | Capabilities | `skills` / `hooks` / `router` / `agents` = true; `rules` / `plugin` = false |
-| Key artifacts under InstallRoot | `skills/<id>/SKILL.md`, `AGENTS.md`, `agents/*.md`, `cli/config.json`, `hooks/hooks.json` + PreToolUse path/secrets, `sdd/sessions/`, `sdd/manifest.json` |
+| Key artifacts under InstallRoot | `skills/<id>/SKILL.md`, `AGENTS.md`, `agents/*.md`, `cli/config.json`, `hooks/hooks.json` + PreToolUse guard shim, `sdd/sessions/`, `sdd/manifest.json` |
 
 ### Install layout (relative to InstallRoot / `~/.zcode`)
 
@@ -456,7 +482,7 @@ CI uses the in-repo fixture only. Do not sync to a live `~/.config/opencode` for
 | `AGENTS.md` | Router surface from `core/router/AGENTS.md` (no Cursor `rules/*.mdc` tree) |
 | `agents/*.md` | `Publish-Agents` from `core/agents/` (live `~/.zcode/agents/`) |
 | `cli/config.json` | Hooks config (`hooks.enabled: true` when applicable) |
-| `hooks/hooks.json` | User-level hooks merge; PreToolUse path/secrets deny + exit 2 |
+| `hooks/hooks.json` | User-level hooks merge; PreToolUse guard shim (denies malformed input; exit 2) |
 | `sdd/sessions/` + `sdd/manifest.json` | `Get-SddRoot -Prepare` (seed manifest only when absent) |
 
 `Publish-Policy` is a documented **no-op** (`rules=false`). Marketplace/plugin `.zcode-plugin` packaging and ADE UI trust flows are out of MVP scope. Placeholders `{{TOOLKIT_ROOT}}` / `{{SDD_ROOT}}` / `{{GUARDRAILS_PATH}}` resolve only at the destination.
@@ -497,7 +523,7 @@ This module covers **ZCode (Z.ai ADE)** filesystem surfaces only: skills, `AGENT
 | Native layout | `skills/<id>/SKILL.md`, `rules/*.md`, `agents/*.md`, `hooks/*.json` (+ `session_start.ps1`, `guard-pre-tool.ps1`) under InstallRoot |
 | Router | `AGENTS.md` at InstallRoot (from `core/router`) |
 | Skill invoke | `/id` (e.g. `/help-skills`) |
-| Hooks trust | `/hooks-trust` or `--trust` is **manual** (trust UI, not skill invoke); smoke/CI never write `trusted_folders.toml`. PreToolUse path/secrets deny is filesystem-published. |
+| Hooks trust | `/hooks-trust` or `--trust` is **manual** (trust UI, not skill invoke); smoke/CI never write `trusted_folders.toml`. PreToolUse guard shim is filesystem-published. |
 
 ### Native write vs Claude/Cursor compat (RN02)
 
@@ -511,7 +537,7 @@ Grok Build can also **read** Claude/Cursor artifacts (`CLAUDE.md`, `.claude/`, `
 | `Publish-Policy` | Copies `core/policy` → `rules/*.md` |
 | `Publish-Router` | Writes `AGENTS.md`; rewrites `.mdc` → `.md` refs |
 | `Publish-Agents` | Copies `core/agents/` → `InstallRoot/agents/` (`agents=true`) |
-| `Publish-Hooks` | Writes SessionStart + PreToolUse path/secrets guard under `hooks/` |
+| `Publish-Hooks` | Writes SessionStart + PreToolUse guard shim under `hooks/` |
 | `Invoke-SmokeValidate` | Asserts InstallRoot layout (TE01–TE05); **does not** invoke trust UI |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of InstallRoot / `config.toml`). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent grok` | Core validate + adapter smoke against fixture InstallRoot |
@@ -552,7 +578,7 @@ Module notes: `adapters/grok/README.md`.
 
 ### Native write vs nested home (RN02)
 
-Publish lands at `skills/` and `AGENTS.md` **directly under** InstallRoot. Do **not** publish relative `.hermes/skills` when InstallRoot is already the Hermes home (that yields a nested `.hermes/.hermes/skills`). `Publish-Policy` folds `core/policy` into `AGENTS.md` and appends the Hermes-only spawn bridge — it does **not** write a `rules/` tree or `.mdc`. `Publish-Hooks` installs `plugins/agent-dev-toolkit-guard` + `agent-hooks/` and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` in `config.yaml`. `Publish-Agents` is a documented no-op. Core skills/policy/router must **not** teach `delegate_task` outside the SPAWN host map (anti-hallucination for other adapters).
+Publish lands at `skills/` and `AGENTS.md` **directly under** InstallRoot. Do **not** publish relative `.hermes/skills` when InstallRoot is already the Hermes home (that yields a nested `.hermes/.hermes/skills`). `Publish-Policy` folds `core/policy` into `AGENTS.md` and appends the Hermes-only spawn bridge — it does **not** write a `rules/` tree or `.mdc`. `Publish-Hooks` installs `plugins/agent-dev-toolkit-guard` (which registers no hook), copies `agent-hooks/` for compatibility, and keyed-merges only `plugins.enabled` in `config.yaml`. Before any change it runs a structural check of `config.yaml`; an unsupported or invalid format yields `blocked` with the file left byte-for-byte intact. `Publish-Agents` is a documented no-op. Core skills/policy/router must **not** teach `delegate_task` outside the SPAWN host map (anti-hallucination for other adapters).
 
 Placeholders `{{TOOLKIT_ROOT}}`, `{{SDD_ROOT}}`, `{{GUARDRAILS_PATH}}` resolve with **`TOOLKIT_ROOT` = InstallRoot** and **`GUARDRAILS_PATH` = InstallRoot/AGENTS.md**. Re-sync overwrites managed files; alien files under InstallRoot are left alone.
 
@@ -562,7 +588,7 @@ On publish, if `memories/MEMORY.md` is absent at InstallRoot, the adapter writes
 
 ### Project skills trust
 
-Official user-home skills (`$HERMES_HOME/skills/`) do **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). Publish-Hooks may keyed-merge **only** `plugins.enabled` and `hooks.pre_tool_call` — never gateway tokens or other secrets — and does **not** set `skills.external_dirs` when publishing into the official home.
+Official user-home skills (`$HERMES_HOME/skills/`) do **not** need trust. If InstallRoot is **not** that official user home (project copy), Publish-Skills tries `hermes skills trust <InstallRoot>`. If the `hermes` CLI is missing, trust is skipped (publish still succeeds). Publish-Hooks may keyed-merge **only** `plugins.enabled` (and removes legacy toolkit `hooks.pre_tool_call` entries) — never gateway tokens or other secrets — and does **not** set `skills.external_dirs` when publishing into the official home.
 
 ### Publish + smoke (filesystem only)
 
@@ -572,9 +598,9 @@ Official user-home skills (`$HERMES_HOME/skills/`) do **not** need trust. If Ins
 | `Publish-Policy` | Folds `core/policy` into `AGENTS.md` (no `rules/` directory); appends Hermes-only spawn bridge from `adapters/hermes/assets/spawn-bridge.md` |
 | `Publish-Router` | Writes `AGENTS.md` (router + folded policy + spawn bridge); rewrites `.mdc` → `.md` and `rules/` pointers to this file |
 | `Publish-Agents` | Documented **no-op** (`agents=false`; no `agents/*.md` roster) |
-| `Publish-Hooks` | Plugin `agent-dev-toolkit-guard` + `agent-hooks` shell dual; best-effort `hermes plugins enable`; keyed `config.yaml` merge for `plugins.enabled` + `hooks.pre_tool_call` only |
+| `Publish-Hooks` | Structural `config.yaml` check first (`blocked` on unsupported format, nothing changed); plugin `agent-dev-toolkit-guard` (no hook registered; no `agent-hooks` copied); best-effort `hermes plugins enable`; keyed `config.yaml` merge for `plugins.enabled` only |
 | `Invoke-SmokeValidate` | Native-layout filesystem assert including plugin/hooks; missing `hermes` CLI is not a CI failure |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (skills, owned AGENTS.md, plugin, agent-hooks) + reverse-merge keyed config.yaml entries. Preserves secrets, `memories/MEMORY.md`, `SOUL.md`, `sdd/*` |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts (skills, owned AGENTS.md, plugin, legacy agent-hooks files) + reverse-merge keyed config.yaml entries. Preserves secrets, `memories/MEMORY.md`, `SOUL.md`, `sdd/*` |
 | `validate-agent -Agent hermes` | Core validate + adapter smoke against fixture InstallRoot |
 
 ### Out of scope (do not emit)
@@ -723,7 +749,7 @@ Source: [`adapters/_shared/trace-emitter-honesty.md`](../adapters/_shared/trace-
 | Claim | Hosts |
 |-------|--------|
 | **Wired** fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop); Claude (`PostToolUse` matcher `Write\|Edit\|Bash\|PowerShell` and `SubagentStop`, settings merge) |
-| **Asset only** — not live PostToolUse wire | Codex (`Publish-Hooks` still PreToolUse guard) |
+| **Registered, `SubagentStop` only** — no PostToolUse wire | Codex (`SubagentStop` → `emit-trace.ps1`; appends only inside `features/NNN-slug` or with `TOOLKIT_TRACE_FEATURE_ROOT`; payload not verified against a live host) |
 | **Not claimed** | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
 
 Assert: `Assert-TraceEmitterFailOpen.ps1`. Core trail schema: `TRACE-ARCHIVE-CONTRACT.md` → `features/NNN-slug/TRACE.jsonl` only.

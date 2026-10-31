@@ -11,7 +11,7 @@
   Publish-Skills copies core/skills into InstallRoot/skills.
   Publish-Policy and Publish-Router write the same managed AGENTS.md
   (router body + folded core/policy). Publish-Hooks installs the
-  agent-dev-toolkit-guard plugin + agent-hooks shell dual (hooks=true, plugin=true).
+  agent-dev-toolkit-guard compatibility plugin (hooks=true, plugin=true); no agent-hooks shipped.
   Publish-Agents is a no-op. Invoke-SmokeValidate asserts native skills/AGENTS.md
   layout plus plugin/hooks. Uninstall-Toolkit removes only known toolkit artifacts
   under InstallRoot (keyed; never wipes InstallRoot / config.yaml secrets /
@@ -31,6 +31,7 @@ $script:HermesAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script
 . (Join-Path $script:HermesAdapterDirectory 'Publish-HermesSkills.ps1')
 . (Join-Path $script:HermesAdapterDirectory 'Publish-HermesPolicy.ps1')
 . (Join-Path $script:HermesAdapterDirectory 'Publish-HermesRouter.ps1')
+. (Join-Path (Join-Path (Join-Path $script:HermesAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:HermesAdapterDirectory 'Publish-HermesHooks.ps1')
 . (Join-Path $script:HermesAdapterDirectory 'Invoke-HermesSmokeValidate.ps1')
 . (Join-Path $script:HermesAdapterDirectory 'Uninstall-HermesToolkit.ps1')
@@ -151,7 +152,6 @@ function Get-InstallRoots {
         OfficialSkillsDescription       = $script:HermesAdapterConstant.OfficialSkillsDescription
         OfficialRulesRelativePath       = $script:HermesAdapterConstant.OfficialRulesRelativePath
         OfficialRulesDescription        = $script:HermesAdapterConstant.OfficialRulesDescription
-        OfficialHooksRelativePath       = $script:HermesAdapterConstant.OfficialHooksRelativePath
         OfficialHooksDescription        = $script:HermesAdapterConstant.OfficialHooksDescription
         OfficialAgentsFileName          = $script:HermesAdapterConstant.OfficialAgentsFileName
         OfficialAgentsDescription       = $script:HermesAdapterConstant.OfficialAgentsDescription
@@ -274,7 +274,7 @@ function Publish-Agents {
 function Publish-Hooks {
     <#
     .SYNOPSIS
-      Publish Hermes plugin + agent-hooks path/secrets guard (hooks=true, plugin=true).
+      Publish Hermes compatibility plugin (hooks=true, plugin=true); registers no hook.
     #>
     [CmdletBinding()]
     param(

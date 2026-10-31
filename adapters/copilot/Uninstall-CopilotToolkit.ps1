@@ -89,25 +89,9 @@ function Get-CopilotManagedInstructionFileNames {
 
 function Get-CopilotManagedHookRelativePaths {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $SourceHooksRoot
-    )
+    param()
 
-    $paths = @()
-    $sourceFiles = Get-ChildItem -LiteralPath $SourceHooksRoot -Recurse -File
-    foreach ($file in $sourceFiles) {
-        $relative = $file.FullName.Substring($SourceHooksRoot.Length).TrimStart('\', '/')
-        if ([string]::IsNullOrWhiteSpace($relative)) {
-            continue
-        }
-        if ($relative -eq $script:CopilotPathConstant.GitKeepFileName) {
-            continue
-        }
-        $paths += $relative
-    }
-    $paths += $script:CopilotPathConstant.SharedAuthorizationContractFileName
-    return $paths
+    return @($script:CopilotPathConstant.ManagedHookFileNames) + @($script:CopilotPathConstant.LegacyHookFileNames)
 }
 
 function Remove-CopilotManagedPath {
@@ -228,7 +212,7 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
     }
 
     $hooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName
-    foreach ($hookRelative in (Get-CopilotManagedHookRelativePaths -SourceHooksRoot $sourceHooksRoot)) {
+    foreach ($hookRelative in (Get-CopilotManagedHookRelativePaths)) {
         $hookPath = Join-Path $hooksRoot ($hookRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (Remove-CopilotManagedPath -TargetPath $hookPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf) {
             $removedPaths.Add($hookPath) | Out-Null

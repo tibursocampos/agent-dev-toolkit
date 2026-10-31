@@ -1,6 +1,5 @@
 # Codex TRACE emitter asset (REQ-006 / CA6). Fail-open; schema allowlist.
-# Honesty: Publish-CodexHooks still wires PreToolUse guard only; PostToolUse /
-# SubagentStop emit is asset-ready for fixtures / future publish (PASSO 8 owns Publish-*).
+# Published by Publish-CodexHooks as the SubagentStop hook only; PostToolUse is not registered.
 
 #Requires -Version 5.1
 $ErrorActionPreference = 'Continue'

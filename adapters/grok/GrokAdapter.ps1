@@ -41,6 +41,7 @@ $script:GrokAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:G
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokSkills.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokPolicy.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokRouter.ps1')
+. (Join-Path (Join-Path (Join-Path $script:GrokAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokHooks.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Publish-GrokAgents.ps1')
 . (Join-Path $script:GrokAdapterDirectory 'Invoke-GrokSmokeValidate.ps1')

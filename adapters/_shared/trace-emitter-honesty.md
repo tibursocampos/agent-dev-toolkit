@@ -26,10 +26,10 @@ Without `-Enable`, the helper writes **no** notes (CT5).
 |------|------------------------|---------------|-------|
 | **Cursor** | `postToolUse`, `subagentStop` (real) | `assets/hooks/emit-trace.ps1` via `hooks.json` | Prefer inherit; Explore Task may diverge |
 | **Claude** | `PostToolUse`, `SubagentStop` (real) | `emit-trace.ps1` (+ `plan-after-edit` co-located on PostToolUse) | Merge/settings keyed upsert |
-| **Codex** | Host supports PostToolUse / SubagentStop | Asset `emit-trace.ps1` present | **Honesty:** `Publish-CodexHooks` still emits PreToolUse guard only (PASSO 8 owns Publish-*); do not claim live PostToolUse wire yet |
+| **Codex** | Host supports PostToolUse / SubagentStop; toolkit registers `SubagentStop` only | `SubagentStop` → `emit-trace.ps1` (publisher target) | **Honesty:** no PostToolUse wire (a normal tool completion appends nothing). `SubagentStop` appends only inside `features/NNN-slug` or with `TOOLKIT_TRACE_FEATURE_ROOT`. Codex payload shape has no fixture and is not verified against a live host |
 | **OpenHands** | Shell `pre_tool_use` only (limited) | — | **Honesty:** no TRACE emitter; spawn `none` → in-parent; do not fake `hooks.json` parity |
 | **OpenCode** | Plugin JS hooks (`HooksSemantics=plugin-only`) | — | **Honesty:** not PS1 hook parity |
-| **Hermes / Grok / Copilot / Antigravity / ZCode** | Guard PreToolUse (or equivalent) where present | — | TRACE emit not claimed this wave; reuse GuardCommon path policy if added later |
+| **Hermes / Grok / Copilot / Antigravity / ZCode** | Grok, Antigravity, ZCode: PreToolUse guard shim. Hermes and Copilot: no hook registered | — | TRACE emit not claimed this wave; reuse GuardCommon path policy if added later |
 
 ## Fail-open contract
 
