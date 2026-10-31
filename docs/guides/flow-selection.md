@@ -7,7 +7,7 @@ This guide helps you choose which toolkit flow to use before you start: Orchestr
 ```mermaid
 flowchart TD
   Start([New work]) --> Q{What is the situation?}
-  Q -->|Feature with several stories, brownfield, or specialists| ORCH["orchestrate-analyze → orchestrate-deliver → orchestrate-develop or sdd-develop"]
+  Q -->|Feature with several stories, brownfield, or specialists| ORCH["orchestrate-analyze →<br/>orchestrate-deliver →<br/>orchestrate-develop or sdd-develop"]
   Q -->|One story already clear, no specialists| SDD["sdd-spec → sdd-plan → sdd-develop"]
   Q -->|Informal product item| REF["refine-story → split-story-checklist"]
   Q -->|Requirement must be challenged before SDD| REV["requirement-review --feature or --tech"]

@@ -39,9 +39,9 @@ These three skills run with invocation context `orchestrated`. A direct `/sdd-sp
 ```mermaid
 flowchart TD
   step0["memory-bank-init<br/>Step 0, policy auto"]
-  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, confirm"]
-  o2["orchestrate-deliver<br/>story files, sdd-spec, contest the PRD,<br/>sdd-plan, confirm, preflight"]
-  o3["orchestrate-develop<br/>one sdd-develop child per PLAN step;<br/>close review and security when requested"]
+  o1["orchestrate-analyze<br/>intent, questions, needs_*<br/>specialists, story gates, confirm"]
+  o2["orchestrate-deliver<br/>story files, sdd-spec<br/>contest the PRD, sdd-plan<br/>confirm, preflight"]
+  o3["orchestrate-develop<br/>one sdd-develop child per<br/>PLAN step; close review and<br/>security when requested"]
   step0 --> o1 --> o2 --> o3
 ```
 
@@ -131,15 +131,15 @@ Unset `needs_*` defaults to false. Auth, secrets, PII, feed tokens, or supply-ch
 The next number is the max `NNN` under `features/` plus one. Confirm before the first write.
 
 ```mermaid
-flowchart TD
+flowchart LR
   root["features/NNN-slug/"]
   root --> featureMd["FEATURE.md"]
   root --> continuity["CONTINUITY.md"]
   root --> story["USnn/ or TSnn/"]
   story --> storyMd["STORY.md"]
   story --> refine["REFINE/<br/>optional"]
-  story --> analysis["ANALYSIS/<br/>required when needs_api or brownfield"]
-  story --> arch["ARCH/<br/>required when needs_domain, needs_database, or brownfield"]
+  story --> analysis["ANALYSIS/<br/>required when needs_api<br/>or brownfield"]
+  story --> arch["ARCH/<br/>required when needs_domain,<br/>needs_database, or brownfield"]
   story --> sec["SEC/<br/>required when needs_security"]
 ```
 

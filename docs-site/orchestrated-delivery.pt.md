@@ -39,9 +39,9 @@ Essas três skills rodam com contexto de invocação `orchestrated`. Um `/sdd-sp
 ```mermaid
 flowchart TD
   step0["memory-bank-init<br/>Passo 0, política auto"]
-  o1["orchestrate-analyze<br/>intent, questions, needs_*, specialists, story gates, confirm"]
-  o2["orchestrate-deliver<br/>arquivos da story, sdd-spec, contestação do PRD,<br/>sdd-plan, confirm, preflight"]
-  o3["orchestrate-develop<br/>um filho sdd-develop por passo do PLAN;<br/>revisão de fechamento e security quando solicitadas"]
+  o1["orchestrate-analyze<br/>intent, questions, needs_*<br/>specialists, story gates, confirm"]
+  o2["orchestrate-deliver<br/>arquivos da story, sdd-spec<br/>contestação do PRD, sdd-plan<br/>confirm, preflight"]
+  o3["orchestrate-develop<br/>um filho sdd-develop<br/>por passo do PLAN;<br/>revisão de fechamento e<br/>security quando solicitadas"]
   step0 --> o1 --> o2 --> o3
 ```
 
@@ -131,15 +131,15 @@ Se você citar um markdown fora de `features/` (incluindo um arquivo de plano do
 O próximo número é o maior `NNN` em `features/` mais um. Confirme antes da primeira escrita.
 
 ```mermaid
-flowchart TD
+flowchart LR
   root["features/NNN-slug/"]
   root --> featureMd["FEATURE.md"]
   root --> continuity["CONTINUITY.md"]
   root --> story["USnn/ ou TSnn/"]
   story --> storyMd["STORY.md"]
   story --> refine["REFINE/<br/>opcional"]
-  story --> analysis["ANALYSIS/<br/>obrigatório quando needs_api ou brownfield"]
-  story --> arch["ARCH/<br/>obrigatório quando needs_domain, needs_database ou brownfield"]
+  story --> analysis["ANALYSIS/<br/>obrigatório quando<br/>needs_api ou brownfield"]
+  story --> arch["ARCH/<br/>obrigatório quando needs_domain,<br/>needs_database ou brownfield"]
   story --> sec["SEC/<br/>obrigatório quando needs_security"]
 ```
 
