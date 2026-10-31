@@ -6,30 +6,14 @@ description: >-
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: arduino-developer
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke `arduino-developer` for Arduino sketches, libraries, board-specific firmware, or Arduino Core projects. Host examples: `/arduino-developer`, `$arduino-developer`, `use skill arduino-developer`.
 
@@ -136,7 +120,7 @@ Keep Arduino Cloud guidance limited to firmware integration. Do not include dash
 - Presume a universal Arduino IDE, CLI, PlatformIO, board revision, core version, pin map, TLS behavior, or OTA capability.
 - Put secrets, real credentials, or private keys in examples, logs, fixtures, or evidence.
 - Expand Arduino Cloud into dashboards or administration.
-- Paste guideline packs into child prompts, spawn for trivial work, or hard-fail when `subagents` is `none` or Task is unavailable; use scoped paths, receipt, and fallback in-parent behavior.
+- Paste guideline packs into child prompts, spawn for trivial work, or hard-fail when `subagents` is `none` or Agent is unavailable; use scoped paths, receipt, and fallback in-parent behavior.
 - Auto-commit, auto-push, or claim hardware validation that was not exercised.
 
 ## Handoff

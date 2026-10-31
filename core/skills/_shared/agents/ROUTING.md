@@ -31,15 +31,15 @@ The ESP-IDF route is evidence-based and must remain distinct from Arduino Core a
 
 | Skill | May spawn | Must not |
 |-------|-----------|----------|
-| `orchestrate-analyze` | Roster specialists via Task | Call `*-developer` to write app code |
+| `orchestrate-analyze` | Roster specialists via Agent | Call `*-developer` to write app code |
 | `orchestrate-deliver` | Contracts of `sdd-spec` / `sdd-plan` per story | Implement code |
 | `orchestrate-develop` | One subagent per PLAN step using `sdd-develop` contract | Parent writes app code; multi-step in one child |
 
-**Task model:** see `SUBAGENT-MODEL.md` — omit `model` by default; premium only after rare hard-task gate + user **sim**.
+**Subagent model:** see `SUBAGENT-MODEL.md` — omit `model` by default; premium only after rare hard-task gate + user **sim**.
 
 **Caveman receipts:** when `caveman_mode` is ON, specialists return the schema in `RECEIPT.md` (ultra structured findings). Parent inherits prefs `caveman_level` but **never** compresses gates or artifact drafts. Prefer level `ultra` only for long multi-specialist O1 sessions. Load `_shared/caveman/CAVEMAN.md` only if mode ON.
 
-**Memory-bank (Orchestrated Delivery Step 0):** after gate, pass resolved `bank_root` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/` per `STORAGE.md`) as **read-only** Prior context to specialists / O2 draft Tasks / O3 develop children (selective files). Do not place bank under `features/`. Classic SDD / manual `sdd-*` do not require the gate. Optional narrative compact: `_shared/caveman/COMPACT.md` (user **sim**).
+**Memory-bank (Orchestrated Delivery Step 0):** after gate, pass resolved `bank_root` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/` per `STORAGE.md`) as **read-only** Prior context to specialists / O2 draft Agent calls / O3 develop children (selective files). Do not place bank under `features/`. Classic SDD / manual `sdd-*` do not require the gate. Optional narrative compact: `_shared/caveman/COMPACT.md` (user **sim**).
 
 ## Review
 

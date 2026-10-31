@@ -846,7 +846,7 @@ function Set-PreferenceTestAnswers {
 
 try {
     $interactiveRoot = Join-Path $fixtureRoot 'interactive'
-    Set-PreferenceTestAnswers -Answers @('2', '2')
+    Set-PreferenceTestAnswers -Answers @('1', '2')
     $interactiveOutput = Invoke-ToolkitEnsurePreferences -SddRoot $interactiveRoot -Interactive *>&1 | Out-String
     $interactivePath = Join-Path $interactiveRoot 'preferences.json'
     $interactivePreferences = Get-Content -LiteralPath $interactivePath -Raw | ConvertFrom-Json
@@ -863,8 +863,8 @@ try {
     Set-PreferenceTestAnswers -Answers @()
     $null = Invoke-ToolkitEnsurePreferences -SddRoot $nonInteractiveRoot
     $nonInteractivePreferences = Get-Content -LiteralPath (Join-Path $nonInteractiveRoot 'preferences.json') -Raw | ConvertFrom-Json
-    if ($nonInteractivePreferences.orchestrator_mode -ne 'always' -or $nonInteractivePreferences.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 0) {
-        Write-Fail -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync' -Reason 'non-interactive first sync must default to always / Caveman on without prompting'
+    if ($nonInteractivePreferences.orchestrator_mode -ne 'adaptive' -or $nonInteractivePreferences.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 0) {
+        Write-Fail -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync' -Reason 'non-interactive first sync must default to adaptive / Caveman on without prompting'
     }
     Write-Pass -TestName 'Should_UseDefaults_When_NonInteractiveFirstSync'
 
@@ -872,8 +872,8 @@ try {
     Set-PreferenceTestAnswers -Answers @('', '')
     $null = Invoke-ToolkitEnsurePreferences -SddRoot $interactiveDefaultRoot -Interactive
     $interactiveDefaults = Get-Content -LiteralPath (Join-Path $interactiveDefaultRoot 'preferences.json') -Raw | ConvertFrom-Json
-    if ($interactiveDefaults.orchestrator_mode -ne 'always' -or $interactiveDefaults.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 2) {
-        Write-Fail -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank' -Reason 'blank interactive choices must select always / Caveman on'
+    if ($interactiveDefaults.orchestrator_mode -ne 'adaptive' -or $interactiveDefaults.caveman_mode -ne $true -or $script:PreferenceTestPromptCount -ne 2) {
+        Write-Fail -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank' -Reason 'blank interactive choices must select adaptive / Caveman on'
     }
     Write-Pass -TestName 'Should_UseRecommendedChoices_When_InteractiveInputIsBlank'
 
@@ -901,13 +901,6 @@ try {
 finally {
     if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
 }
-
-$modelCostPath = Join-Path $repoRoot 'core\policy\model-cost-awareness.md'
-$modelCostText = Get-Content -LiteralPath $modelCostPath -Raw -Encoding UTF8
-if ($modelCostText -match '(?i)alwaysApply:\s*true|COST NOTICE|high-cost model') {
-    Write-Fail -TestName 'Should_RetireModelCostPolicy' -Reason 'model cost policy must not be always-on or emit cost guidance'
-}
-Write-Pass -TestName 'Should_RetireModelCostPolicy'
 
 Write-Pass -TestName $testName
 }
@@ -1726,7 +1719,7 @@ $sections['ContinuousQueueAuthorization'] = {
 #   Should_Deny_When_ReconciliationIsIncomplete
 #   Should_Deny_When_RequestIsOutsideQueue
 
-$policyPath = Join-Path $repoRoot 'core\policy\continuous-queue.ps1'
+$policyPath = Join-Path $repoRoot 'scripts\ledger\continuous-queue.ps1'
 if (-not (Test-Path -LiteralPath $policyPath)) {
     throw "Missing queue authorization policy: $policyPath"
 }
@@ -2206,7 +2199,7 @@ function Resolve-ContractInvocationContext {
     if ($explicit.Count -eq 1) { return $explicit[0] }
     if ($CurrentSkill -match '^orchestrate-' -or $ParentStage -match '^orchestrate-') { return 'orchestrated' }
 
-    # Host pacing, a generic scoped Task handoff, parent role/delegation, and PLAN scope are deliberately non-authoritative.
+    # Host pacing, a generic scoped Agent handoff, parent role/delegation, and PLAN scope are deliberately non-authoritative.
     return 'direct'
 }
 
@@ -2342,9 +2335,9 @@ Assert-ContractText -Case 'Should_KeepDirectClassic_WhenParentCoordinatesAndPlan
 )
 Assert-ContractText -Case 'Should_RequireExplicitOrchestratedHandoffForOrchestratedContext' -Text $invocationContexts -Markers @(
     'whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage',
-    'A generic scoped Task handoff does not select this context.'
+    'A generic scoped Agent handoff does not select this context.'
 )
-if ($invocationContexts -match '(?im)^\| `orchestrated` \|[^\r\n]*as a Task/spawn child with a scoped handoff\.') {
+if ($invocationContexts -match '(?im)^\| `orchestrated` \|[^\r\n]*as an Agent/spawn child with a scoped handoff\.') {
     throw 'Should_RequireExplicitOrchestratedHandoffForOrchestratedContext failed; a generic scoped handoff cannot select orchestrated.'
 }
 Assert-ContractText -Case 'Should_NotApplyO3OnlyGates_ToDirectInvocation' -Text ($developSkill + "`n" + $planAcquisition) -Markers @(
@@ -2504,7 +2497,7 @@ Assert-ContractText -Case 'Should_BlockMaterialProductQuestions_WithoutInventing
 
 # O3 consumes evidence-backed brownfield analysis before the first child,
 # without repeating the repository-level pass before every intermediate step.
-Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $orchestratedFlow) -Markers @(
+Assert-ContractText -Case 'Should_PassScopedBrownfieldEvidence_ToFirstO3Child' -Text ($orchestratedSkill + "`n" + $stepQueue + "`n" + $orchestratedFlow) -Markers @(
     'Before the first child of a brownfield or impact-uncertain PLAN',
     'compare their evidenced areas with the first eligible step',
     'portable paths and only the relevant evidence summary',

@@ -16,6 +16,7 @@ $_grokToolkitLibDirectory = Join-Path (
 ) (Join-Path 'scripts' '_lib')
 . (Join-Path $_grokToolkitLibDirectory 'Copy-ToolkitManagedTree.ps1')
 Remove-Variable -Name _grokToolkitLibDirectory -ErrorAction SilentlyContinue
+. (Join-Path $script:GrokAdapterModuleDirectory '../_shared/MdcReferenceRewrite.ps1')
 
 function Get-GrokAdapterRepoRoot {
     [CmdletBinding()]
@@ -242,6 +243,8 @@ function Invoke-GrokPublishSkills {
         -TextFileExtensionPattern $script:GrokAdapterConstant.TextFileExtensionPattern `
         -UnresolvedTokens @(Get-GrokSupportedPlaceholderTokens) `
         -UnresolvedMessageFormat $script:GrokAdapterMessage.PlaceholderUnresolved
+
+    $null = Invoke-ToolkitManagedMdcReferenceRewrite -InstallRoot $resolvedInstallRoot -SourceExtension $script:GrokAdapterConstant.CursorRuleExtension -TargetExtension $script:GrokAdapterConstant.MarkdownExtension
 
     return [PSCustomObject]@{
         Success     = $true

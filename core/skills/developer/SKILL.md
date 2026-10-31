@@ -3,24 +3,9 @@ name: developer
 description: Smart router for stack skills, or senior fullstack for ad-hoc scripts/HTML/automation. Use for generic development or when invoking /developer.
 ---
 
-
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ### Step -1b - Caveman Mode (Full cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
@@ -32,8 +17,7 @@ Gate check:
 ---
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Use when user asks for `/developer` or requests generic coding/refactoring tasks without specifying a stack.
 
@@ -46,7 +30,7 @@ Correct stack skill loaded and executed, or ad-hoc implementation in fallback mo
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
-| Git / language policy | `{{TOOLKIT_ROOT}}/AGENTS.md`, `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
+| Git / language policy | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Developer flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/GUIDE.md` |
 | Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` |
@@ -76,7 +60,7 @@ Follow `references/frontend-design-routing.md` when the task touches UI.
 ### 1. Stack routing
 Follow `references/stack-routing.md` (e.g. `pom.xml` / `build.gradle` → `java-developer`). On match, load that stack `SKILL.md` and stop this router.
 
-When the user names a story PLAN step (`features/.../PLAN/PLAN_*.md` plus a step number): load that step block and the matching `REFINE/tasks.md` boxes before any code. Do not load the rest of the PRD. After the step, set the plan glyph to `☑` and mark those boxes `- [x]`. Without a story path, stay on the ad-hoc fallback.
+When the user names a story PLAN step (`features/.../PLAN/PLAN_*.md` plus a step number): load that step block and the matching `REFINE/tasks.md` boxes before any code. Do not load the rest of the PRD. After the step, set the step status to `COMPLETED` in the PLAN and mark those boxes `- [x]`. Without a story path, stay on the ad-hoc fallback.
 
 ### 2. Fallback only
 If no stack match: follow `references/fallback-execution.md`.

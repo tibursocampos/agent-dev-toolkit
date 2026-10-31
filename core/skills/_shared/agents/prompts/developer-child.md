@@ -1,4 +1,4 @@
-# Task prompt: developer-child
+# Agent prompt: developer-child
 
 ## Role
 

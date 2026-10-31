@@ -2,7 +2,7 @@
 
 Extended detail for `skills/orchestrate-deliver/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
 
 | Section | Path |
 |---------|------|
@@ -10,13 +10,13 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
 | Preconditions / Step 0 / backlog siblings STOP | `references/preconditions.md` |
 | Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` § Clarification readiness STOP |
 | Mode comparison / choose série vs paralelo | `references/mode-selection.md` |
-| Per-story paths / contracts / Task child skeleton | `references/per-story-contracts.md` |
+| Per-story paths / contracts / Agent child skeleton | `references/per-story-contracts.md` |
 | Approval gates / approval answers | `references/approval-gates.md` |
 | CONTINUITY / handoff / cross-artifact / invoke strings | `references/continuity-handoff.md` |
 | Caveman / resolve storage / context pressure | `references/process-common.md` |
 | Boundaries / Must not / exclusions | `references/boundaries-must-not.md` |
 | CHANGE gate / brownfield vs greenfield / TASKS | `references/continuity-handoff.md` § Cross-artifact analyze + `CHANGE-CONTRACT.md` |
-| Preflight PRD→PLAN→CHANGE (REQ-004 / CA4) | `references/preflight-prd-plan-change.md` |
+| Preflight PRD→PLAN→CHANGE | `references/preflight-prd-plan-change.md` |
 
 Brownfield requires `features/NNN-slug/CHANGE.md` (ADDED \| MODIFIED \| REMOVED); greenfield must not force an empty CHANGE stub.
 Before O3 handoff, run `Invoke-PrdPlanChangePreflight.ps1` (see `references/preflight-prd-plan-change.md`).

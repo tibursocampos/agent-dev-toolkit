@@ -118,7 +118,7 @@ Stop spawning and emit handoff when any of:
 | Child blocked / tests fail | Do not mark step done; report; wait for user |
 | User **cancelar** | Leave CONTINUITY with pending next step |
 
-Each child invocation owns exactly one PLAN step and is closed when its receipt is returned. Never reopen, resume, or reuse a returned child invocation; any remaining or corrective work starts as a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
+Each child invocation owns exactly one PLAN step and is idle when its receipt is returned. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; a new request, a different scope, or an already-large context starts a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
 
 Resume strings: `references/contract-boundaries.md` § Canonical invoke strings.
 
@@ -151,7 +151,7 @@ See also § CONTINUITY checklist.
 When this O3 run had at least one successful develop child that changed application files, **before** the final review handoff:
 
 1. Resolve `bank_root` (same as Step 0).
-2. Ask (pt-BR): `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular / cancelar)`
+2. Ask (user chat language): `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular / cancelar)`
 3. On **sim**: follow `memory-bank-init` mode **`refresh-light`** (inventory + GENERATED + `tech-stack.json` only).
 4. Update CONTINUITY Memory-bank status to `refreshed` (or note skipped).
 5. On **pular**: log and continue handoff without bank write.

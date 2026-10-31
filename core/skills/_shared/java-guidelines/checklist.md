@@ -84,7 +84,7 @@ Gradle:
 - [ ] Targeted module tests green for changed code
 - [ ] Full multi-module suite only when required or after asking on large repos
 - [ ] **Portable CI gate:** run whatever SAST, coverage, OWASP dependency, and secrets scans the **repo already configures** (Maven/Gradle plugins, CI workflows, quality profiles) — do **not** add new plugins or scanners casually
-- [ ] Supply-chain / license hygiene when the pipeline already scans (`build-and-bom.md`)
+- [ ] Software supply-chain / license hygiene when the pipeline already scans (`build-and-bom.md`)
 
 ---
 

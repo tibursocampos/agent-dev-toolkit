@@ -38,6 +38,7 @@
       "id": "sdd-develop-prd-status-on-plan-complete",
       "skill": "sdd-develop",
       "files": ["SKILL.md", "references/plan-update.md"],
+      "match": "any-file",
       "mustContain": ["Implementation status", "Implementado", "Implemented", "Pronto para planejamento"]
     },
     {
@@ -144,39 +145,39 @@
       "id": "orchestrate-analyze-spawn-fallback",
       "skill": "orchestrate-analyze",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "orchestrate-deliver-spawn-fallback",
       "skill": "orchestrate-deliver",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "orchestrate-develop-spawn-fallback",
       "skill": "orchestrate-develop",
       "files": ["SKILL.md"],
-      "mustContain": ["SPAWN.md", "fallback", "Task"]
+      "mustContain": ["SPAWN.md", "fallback", "Agent"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-develop",
       "skill": "orchestrate-develop",
       "files": ["references/step-queue-spawn.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-analyze",
       "skill": "orchestrate-analyze",
       "files": ["references/spawn-map.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-deliver",
       "skill": "orchestrate-deliver",
       "files": ["references/mode-selection.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Task `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
@@ -219,7 +220,8 @@
     {
       "id": "req-012-canonical-scripts-sdd-develop",
       "skill": "sdd-develop",
-      "files": ["SKILL.md"],
+      "files": ["SKILL.md", "references/canonical-scripts.md"],
+      "match": "any-file",
       "mustContain": [
         "Invoke-DevelopSessionGate.ps1",
         "Invoke-PlanLedgerClaim.ps1",
@@ -314,6 +316,42 @@
         "readiness-severity.md",
         "STOP"
       ]
+    },
+    {
+      "id": "requirement-review-shared-base",
+      "skill": "requirement-review",
+      "files": ["SKILL.md"],
+      "mustContain": [
+        "--feature",
+        "--tech",
+        "Status:",
+        "NEEDS_CLARIFICATION",
+        "readiness-severity.md",
+        "qa-history.md",
+        "REFINE/",
+        "skill-boilerplate.md",
+        "Must not",
+        "Never by default"
+      ]
+    },
+    {
+      "id": "requirement-review-feature-playbook",
+      "skill": "requirement-review",
+      "files": ["references/feature.md"],
+      "mustContain": ["Load only when mode", "ACCEPTANCE_GAP", "CA-002.a", "Product", "Engineering", "UX"]
+    },
+    {
+      "id": "requirement-review-tech-playbook",
+      "skill": "requirement-review",
+      "files": ["references/tech.md"],
+      "mustContain": ["Load only when mode", "not-found", "api-standards", "non-blocking"]
+    },
+    {
+      "id": "req-refine-step-requirement-review",
+      "skill": "refine-story",
+      "files": ["SKILL.md", "references/command.md"],
+      "match": "any-file",
+      "mustContain": ["requirement-review", "4a"]
     },
     {
       "id": "req-009-sdd-spec-related-write",

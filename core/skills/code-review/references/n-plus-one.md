@@ -1,4 +1,4 @@
-# Review N+1 / hot-path refs (WS16a / REQ-016)
+# Review N+1 / hot-path refs
 
 **Family:** `N+1`. Load during Process §4 (and multi-angle **qualidade**) whenever the diff touches data access, HTTP fan-out, loops over I/O, or UI list→detail fetches.
 
@@ -45,7 +45,7 @@ Only flag **changed** paths or newly introduced call sites. Do not demand a full
 | Broader .NET quality bar | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | Deep profiling (handoff) | `/performance-profile` — only when user asks or PRD requires |
 
-## CT6 marker (N+1)
+## Marker (N+1)
 
 - [ ] This file is reachable from `code-review` Reference routing / Process §4
 - [ ] Checklist is actionable without dumping performance guideline bodies

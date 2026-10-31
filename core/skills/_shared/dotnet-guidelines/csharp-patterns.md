@@ -18,7 +18,7 @@
 | **File name** | Match the primary type name (e.g. `OrderService.cs` -> `OrderService`) |
 | **Forbidden** | Two or more top-level types in the same file **unless** project escape applies |
 | **Project escape** | If the feature folder already colocates related types in one file, match that local colocation — do not invent a new escape |
-| **Review** | **Blocking** - reject until types are split (or escape is documented by existing pattern) (CT4) |
+| **Review** | **Blocking** - reject until types are split (or escape is documented by existing pattern) |
 
 **Allowed exception:** `private` nested types inside the owning top-level type when they are implementation details of that type only (not shared across files). Do not use nested types to avoid creating a dedicated file for a reusable type.
 
@@ -64,7 +64,7 @@ Cross-stack profile: `code-guidelines/principles/structure-and-quality.md` §2.
 |-----------|--------|
 | **Inline (single line)** | Up to **6** parameters **and** the full declaration or invocation line is **≤ 160 characters** |
 | **Multiline (required)** | **More than 6** parameters **or** the full line **exceeds 160 characters** -> **one parameter per line** |
-| **Review** | **Blocking** - request reformat before merge (CT1, CT2, CT3) |
+| **Review** | **Blocking** - request reformat before merge |
 
 **Character count:** Count the **entire physical line** of the signature or invocation (from the start of the return type / access modifier through the closing `)` and `;` or `{`). Include generic type arguments, parameter types, names, default values, and `CancellationToken cancellationToken = default`.
 
@@ -180,13 +180,13 @@ Existing literals stay until the operator approves extracting them. Touching a t
 | **No magic literals** | On new code under an approved toolkit choice, or where no local pattern exists: no raw `"..."` or numeric literals with semantic meaning |
 | **Existing members** | Leave the project's literals in place. Do not extract them as a side effect of editing the file |
 | **Consistency in a type** | Match the style that type already uses. Do not mix a new constant into a literal-style type, and do not sweep the type to constants, unless the operator chose the toolkit |
-| **Naming** | **PascalCase** for all `const` identifiers (production and tests). **Forbidden:** `UPPER_SNAKE_CASE` (CT8) |
+| **Naming** | **PascalCase** for all `const` identifiers (production and tests). **Forbidden:** `UPPER_SNAKE_CASE` |
 | **Reuse first** | Grep/search project `Constants`, message types, and domain files before adding a new constant |
 | **Location (local)** | `private const` in the owning class when the value is used in **one** type only (internal service message, local prop/route name, one-off template) - **do not** create a dedicated constants file for non-reusable values |
-| **Location (shared)** | Public/shared type (e.g. `Constants` **partial** under Models/Domain) only when the value is **reused or clearly intended for reuse** across classes (CT6, RN06) |
+| **Location (shared)** | Public/shared type (e.g. `Constants` **partial** under Models/Domain) only when the value is **reused or clearly intended for reuse** across classes |
 | **Shared file size** | Watch growth of shared constants types; prefer **`partial class`** by responsibility and section grouping via **`#region`** or comment headers - avoid a single monolithic constants dump |
 | **No duplication** | Do not copy the same literal into multiple classes or constant files - one canonical definition |
-| **Review** | **Blocking** for new literals when the toolkit style was chosen or no local pattern exists (CT5). Do not demand extraction of pre-existing project literals unless the operator approved that restyle. Flag unnecessary shared-file churn for one-off values |
+| **Review** | **Blocking** for new literals when the toolkit style was chosen or no local pattern exists. Do not demand extraction of pre-existing project literals unless the operator approved that restyle. Flag unnecessary shared-file churn for one-off values |
 
 **Allowed exception (CA6.1, CT7):** In an arithmetic expression, a **numeric multiplier factor** may stay inline when it is the only literal in that expression (e.g. unit conversion `bytes * 1024`). Other operands with business meaning (limits, thresholds, status codes) still require named constants.
 
@@ -243,14 +243,14 @@ public const string DefaultOrderNumber = "ORD-001";
 // Correct - keep private const on that service class until a second consumer appears
 ```
 
-### Blank lines / anti-IA layout (required - blocking in review)
+### Blank lines and layout (required - blocking in review)
 
 | Forbidden | Allowed |
 |-----------|---------|
 | Blank line between every statement | Blank lines **only** between logical member groups (fields / ctors / methods) |
 | Unnecessary double-blank lines | Single blank between groups when needed |
 
-Do not leave IA-style blank-spam in touched methods. Cross-stack: `structure-and-quality.md` §5.
+Do not leave blank-spam in touched methods. Cross-stack: `structure-and-quality.md` §5.
 
 ### Readable construction (required when multi-arg harms readability)
 
@@ -320,116 +320,9 @@ public sealed class OrderService
 
 **Normative sections in this file (pre-PR and code review):** File structure · Source language · Method signatures and invocations · Architecture vs style · Named constants · Blank lines · Readable construction · Method ordering (this section).
 
-### Async/await
+### Runtime and modern C# (companion file)
 
-- Async methods must use the `Async` suffix.
-- Always use `await`.
-- Do not use `.Result` or `.Wait()`.
-- Do **not** use `ConfigureAwait` in application code (ASP.NET Core APIs, workers, handlers). Prefer plain `await` end-to-end and propagate `CancellationToken`.
-
-```csharp
-// Correct
-public async Task<Order> GetOrderAsync(int id, CancellationToken cancellationToken = default)
-{
-    return await _orderRepository.GetByIdAsync(id, cancellationToken);
-}
-
-// Wrong - deadlock risk / sync-over-async
-public Order GetOrder(int id)
-{
-    return _orderRepository.GetByIdAsync(id).Result;
-}
-
-// Wrong - do not sprinkle ConfigureAwait in app code
-return await _orderRepository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
-```
-
-### Modern C# (primary constructors, collection expressions, `required`)
-
-- **New types / new files** with no established local style: prefer primary constructors, collection expressions (`[1, 2, 3]`), and `required` members when they fit the type.
-- **Existing code / repo already using classic constructors or array syntax:** match the project - do not rewrite only to modernize.
-
-```csharp
-// Preferred for new types
-public sealed class OrderService(IOrderRepository repository)
-{
-    public async Task<Order?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
-        await repository.GetByIdAsync(id, cancellationToken);
-}
-
-public sealed class OrderDto
-{
-    public required string OrderNumber { get; init; }
-}
-
-int[] statusCodes = [1, 2, 3];
-```
-
-### Nullable reference types
-
-```csharp
-// Correct
-public string OrderNumber { get; init; } = string.Empty;
-public string? Notes { get; init; }
-
-// Avoid
-public string OrderNumber { get; set; }  // May be null unintentionally
-```
-
-### Record types
-
-```csharp
-public record OrderDto(int Id, string OrderNumber, DateTime CreatedAt);
-public record OrderReference(string Code, string ProductionLine);
-```
-
-### Dependency injection
-
-```csharp
-public interface IOrderRepository
-{
-    Task<Order?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default);
-}
-
-services.AddScoped<IOrderRepository, OrderRepository>();
-services.AddTransient<IValidator<RegisterOrderCommand>, RegisterOrderCommandValidator>();
-```
-
-### IOptions pattern
-
-```csharp
-public class OrderService
-{
-    private readonly OrderOptions _options;
-
-    public OrderService(IOptions<OrderOptions> options)
-    {
-        _options = options.Value;
-    }
-}
-
-services.Configure<OrderOptions>(configuration.GetSection("Order"));
-```
-
-### Resource management
-
-```csharp
-await using var connection = new SqlConnection(connectionString);
-await connection.OpenAsync(cancellationToken);
-
-public class IntegrationClient
-{
-    private readonly HttpClient _httpClient;
-
-    public IntegrationClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-}
-```
-
----
+Async/await, modern C# features, nullable reference types, records, dependency injection, IOptions, and resource management live in [`csharp-patterns-runtime.md`](./csharp-patterns-runtime.md). Load it when the step touches those topics.
 
 ## .NET tests (just-in-time reference)
 

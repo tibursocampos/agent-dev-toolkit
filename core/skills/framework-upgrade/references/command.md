@@ -23,4 +23,4 @@ Load **after** Step -1 gates. Ordered discovery only — do not paste pack corpo
 | apply changes / implement upgrade | `migrate` (**sim** required first) |
 | build/test / verify after change | `validate` |
 
-If implement is implied without **sim**: stay in `audit` or `plan` (TE05).
+If implement is implied without **sim**: stay in `audit` or `plan`.

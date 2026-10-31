@@ -1,6 +1,6 @@
 # Progressive load — framework-upgrade
 
-Aligns with `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`) and `SKILL-REFERENCE-RETRIEVAL.md`.
+Aligns with `SELECTIVE-RETRIEVAL.md` and `SKILL-REFERENCE-RETRIEVAL.md`.
 
 ## Rule
 
@@ -30,7 +30,7 @@ Never preload all of the above at once.
 
 ## Forbidden
 
-- Dump entire Supply / external brand corpora
+- Dump entire external brand corpora
 - Paste full PRD/PLAN/bank into the upgrade session
 - Preload every pack reference “for convenience”
-- Embed Athena / Jarvis / ADO mutate playbooks
+- Embed tracker-mutate playbooks

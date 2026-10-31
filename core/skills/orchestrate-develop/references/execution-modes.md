@@ -12,7 +12,7 @@ Companions: `references/step-queue-spawn.md`, `references/parallelism.md`, `skil
 
 Declare how O3 schedules PLAN steps and **honor** that declaration. A declared mode must drive claim, queue pick, and parallelism. Violations are **rejected or audited** — never silently ignored.
 
-This is **operator governance** for Orchestrated Delivery O3. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`) and does **not** pin child Task `model` ≠ parent (Eixo B/C).
+This is **operator governance** for Orchestrated Delivery O3. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`) and does **not** pin child Agent `model` ≠ parent (Eixo B/C).
 
 **Not develop pacing:** mode ids here are `serial` \| `parallel` \| `manual`. Pacing modes `continuous` \| `step_by_step` live in `references/develop-modes.md` (007 REQ-009) and compose with this table — they never waive one-step-per-child.
 
@@ -20,9 +20,9 @@ This is **operator governance** for Orchestrated Delivery O3. It does **not** re
 
 | Mode id | Default? | Queue | Ledger claim | Parallelism |
 |---------|----------|-------|--------------|-------------|
-| `serial` | **Yes** | One ready step in flight | Required before each spawn (`Invoke-PlanLedgerClaim`) | Parallel Task wave **forbidden** |
+| `serial` | **Yes** | One ready step in flight | Required before each spawn (`Invoke-PlanLedgerClaim`) | Parallel Agent wave **forbidden** |
 | `parallel` | No (opt-in) | Ready set may run concurrently | Required **per** child step | Allowed only when independence + user **sim** + distinct SESSION files; cap ≤4 (`SPAWN.md`) |
-| `manual` | Fallback when `subagents=none` / Task unavailable | No Task spawn | Optional (operator may still claim) | Handoff to `/sdd-develop` only |
+| `manual` | Fallback when `subagents=none` / Agent unavailable | No Agent spawn | Optional (operator may still claim) | Handoff to `/sdd-develop` only |
 
 Unknown mode ids are **invalid** — reject with reason `mode_unknown` (do not invent a silent default other than documenting that unresolved preference → treat as `serial`).
 
@@ -42,12 +42,12 @@ Resolve in order (first explicit wins):
 2. Apply the active mode **before** spawn:
    - `serial` → pick exactly one ready step; refuse a multi-child wave
    - `parallel` → may pick up to ≤4 independent ready steps after **sim**; each child gets its own PLAN+step SESSION file
-   - `manual` → do not Task-spawn; emit `/sdd-develop - <portable-plan-path> - Step N` with `invocation_context=orchestrated` and `claim_holder`; stop dispatch and await the operator's return with the receipt in this O3 parent flow
+   - `manual` → do not spawn an Agent; emit `/sdd-develop - <portable-plan-path> - Step N` with `invocation_context=orchestrated` and `claim_holder`; stop dispatch and await the operator's return with the receipt in this O3 parent flow
 3. Never enqueue a step whose deps are not Completed.
 
 ### Manual handoff and host-mode gate
 
-When `subagents=none` or the current host cannot spawn a Task, O3 uses the manual handoff for the next eligible PLAN step:
+When `subagents=none` or the current host cannot spawn an Agent, O3 uses the manual handoff for the next eligible PLAN step:
 
 ```text
 /sdd-develop - <portable-plan-path> - Step N
@@ -55,7 +55,7 @@ When `subagents=none` or the current host cannot spawn a Task, O3 uses the manua
 
 Use the canonical portable PLAN path and the numeric step selected from the queue. Include `invocation_context=orchestrated`, the opaque `claim_holder`, and the scoped checklist input in the handoff. The handoff asks the operator to start a separate `sdd-develop` invocation; it does not execute the step or count as a child receipt. Stop dispatch without editing application files, running the child's validation, updating the step as completed, releasing the reservation, or claiming work was done. Resume this parent flow only when the operator returns with the invocation's receipt/checkpoint for reconciliation; without a confirmed return/stop, keep the claim held and the step blocked.
 
-If the host is in Plan or Ask mode and that mode prevents the required writes or validation, state that Agent mode is required, show the handoff, and stop. The operator must switch modes and invoke the handoff; do not imply that the step was started or completed, and do not mutate its status or gates on the operator's behalf.
+If the host is in a read-only mode (plan or ask) and that mode prevents the required writes or validation, state that an edit mode is required, show the handoff, and stop. The operator must switch modes and invoke the handoff; do not imply that the step was started or completed, and do not mutate its status or gates on the operator's behalf.
 
 ## Claim rules (ledger integration)
 
@@ -94,14 +94,14 @@ Evidence / TRACE verifiers remain **sequential** (**Verifier ≠ O3**) regardles
 
 ## Model-lock (transversal)
 
-Modes **must not** pin child Task `model` to a slug different from the parent session. Omit `model` by default (`SUBAGENT-MODEL.md`). Depth/threads still follow `SPAWN.md` caps.
+Modes **must not** pin child Agent `model` to a slug different from the parent session. Omit `model` by default (`SUBAGENT-MODEL.md`). Depth/threads still follow `SPAWN.md` caps.
 
 ## Violation algorithm (observable)
 
 1. Resolve declared mode (or default `serial`).
 2. Classify intended action: `serial-spawn` | `parallel-spawn` | `manual-handoff`.
 3. If invalid pairing → **do not spawn**. Append one audit line; exit non-zero with human-readable reason.
-4. If valid Task spawn → require session helper (`Invoke-DevelopSessionGate.ps1`) + exactly one parent-owned ledger claim success for each step before/at spawn boundary (CT6: gate already true does not skip the parent's claim).
+4. If valid Agent spawn → require session helper (`Invoke-DevelopSessionGate.ps1`) + exactly one parent-owned ledger claim success for each step before/at spawn boundary (CT6: gate already true does not skip the parent's claim).
 5. Never “best-effort ignore” a mode mismatch.
 
 ### Audit line (JSONL)
@@ -130,7 +130,7 @@ Stdout/stderr **must** include `reason`, `mode`, and `intent` so operators can v
 |-------------|------|
 | `mode_unknown` | Mode id not in the declared table |
 | `mode_parallel_forbidden` | `serial` + `parallel-spawn` |
-| `mode_task_spawn_forbidden` | `manual` + Task spawn intent |
+| `mode_task_spawn_forbidden` | `manual` + Agent spawn intent |
 | `mode_claim_required` | Allowed spawn but ledger claim missing/failed |
 | `mode_ok` | Gate allowed (optional success log; not required in audit) |
 
@@ -147,7 +147,7 @@ Expected behavior: serial mode rejects parallel intent with an audit record, and
 | Consumer | Load |
 |----------|------|
 | `orchestrate-develop` | This file via lazy-load / `reference.md` before queue (step 4) and parallelism (step 6) |
-| O3 parent | Run mode gate before Task spawn; own claim acquisition, retention, reconciliation, and release; cite ledger contract |
+| O3 parent | Run mode gate before Agent spawn; own claim acquisition, retention, reconciliation, and release; cite ledger contract |
 | O3 children | Check matching parent claim with `status`; never reacquire or release; execute one step only |
 
 Selective retrieval: portable paths only; never dump full PRD or full `memory-bank/` (`SR-NO-FULL-DUMP`).

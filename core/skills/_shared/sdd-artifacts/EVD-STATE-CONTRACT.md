@@ -4,11 +4,11 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STAT
 
 **Language:** This guideline is **English**. Agent artifact prose for `STATE.md` / `EVD/*` follows **content-language** (`LANGUAGE.md`; no hard-coded locale). Identifiers and paths stay **English**.
 
-Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`.
+Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `SELECTIVE-RETRIEVAL.md`, `PIPELINE.md`.
 
 ---
 
-## Purpose (REQ-005 / CA4)
+## Purpose
 
 After implementation, verification records evidence under the story root:
 
@@ -47,7 +47,7 @@ Policy name: **evidence-or-zero**.
 
 Default for post-implementation verify in `sdd-develop`: **`cheap`** (override via `-Level` or STATE field **Evidence level**).
 
-**Gate (TE02):** level ≥ `cheap` with zero evidence → gate **fails** (exit ≠ 0). Do not mark the PLAN step done.
+**Gate:** level ≥ `cheap` with zero evidence → gate **fails** (exit ≠ 0). Do not mark the PLAN step done.
 
 ## STATE.md
 
@@ -65,7 +65,7 @@ Template stub: `skills/_shared/templates/features/EVD/README.md`.
 
 - Store short, named evidence files (e.g. `EVD/ca1-validate-smoke.md`)
 - Cite portable paths only (`features/NNN-slug/{USnn|TSnn}/EVD/...`)
-- Do **not** dump full PRD / full `memory-bank/` (`SR-NO-FULL-DUMP`)
+- Do **not** dump full PRD / full `memory-bank/`
 
 ## Verifier ≠ O3 parallelism
 
@@ -73,7 +73,7 @@ Evidence verification is a **sequential** gate inside the same `sdd-develop` ses
 
 | Allowed | Forbidden |
 |---------|-----------|
-| Run `validate-evidence.ps1` in the develop child after tests | Spawn Task / O3 parallel children **as the verifier mechanism** |
+| Run `validate-evidence.ps1` in the develop child after tests | Spawn Agent / O3 parallel children **as the verifier mechanism** |
 | Parent asks child to include evidence before marking done | Treat `orchestrate-develop` parallelism as “proof” that ACs passed |
 | Serial re-run of validate after fixing EVD/STATE | Parallel “verify” wave that replaces STATE/EVD |
 
@@ -107,7 +107,7 @@ Run validation without `-Level` for final consolidation so the level declared
 in `STATE.md` applies; when no level is declared, the repository default
 applies. Do not silently lower a configured level to make the gate pass.
 
-Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Deterministic only (RNF-001) — never LLM-as-validator.
+Exit 0 = policy satisfied. Exit ≠ 0 = fix before marking the step done. Deterministic only — never LLM-as-validator.
 
 ## When to write
 
@@ -126,7 +126,7 @@ Rule ids `SDDW-NN` are contract text only; no repository script validates them o
 - **SDDW-09 (defined GAP and DEF ids):** Every `GAP-NN` or `DEF-NN` cited by `STATE.md`, `EVD/`, or PRD acceptance text is defined in the PRD by a line that starts with that id (list item or table row). A cited id without a definition blocks the step done. Reconciliation: each cited id resolves to a PRD definition line.
 ## Must not
 
-- Use O3 / Task parallelism as the evidence verifier
+- Use O3 / Agent parallelism as the evidence verifier
 - Mark step done at level ≥ `cheap` with empty `EVD/` or missing matrix
 - Treat SQLite / OpenSpec / `.specs/` as evidence SoT
 - Dump full memory-bank or PRD into EVD files

@@ -73,6 +73,38 @@ function Read-HookInputJson {
     }
 }
 
+function Get-HookToolFilePath {
+    <#
+    .SYNOPSIS
+      Hook payload file path: tool_input.file_path, falling back to top-level file_path.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        $InputJson
+    )
+
+    if ($null -eq $InputJson) {
+        return ''
+    }
+
+    $toolInput = $InputJson.PSObject.Properties['tool_input']
+    if ($null -ne $toolInput -and $null -ne $toolInput.Value) {
+        $nested = $toolInput.Value.PSObject.Properties['file_path']
+        if ($null -ne $nested -and -not [string]::IsNullOrWhiteSpace([string]$nested.Value)) {
+            return [string]$nested.Value
+        }
+    }
+
+    $topLevel = $InputJson.PSObject.Properties['file_path']
+    if ($null -ne $topLevel) {
+        return [string]$topLevel.Value
+    }
+
+    return ''
+}
+
 function Write-HookJson([hashtable] $Payload) {
     $json = $Payload | ConvertTo-Json -Compress -Depth 5
     Write-Output $json
@@ -120,7 +152,7 @@ function Test-SddSkillPrompt([string] $Prompt) {
     if ([string]::IsNullOrWhiteSpace($Prompt)) {
         return $false
     }
-    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
+    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|requirement-review|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
 }
 
 function Write-PreToolJson([hashtable] $Payload) {

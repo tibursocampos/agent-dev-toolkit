@@ -1,6 +1,12 @@
-## Evidence-or-zero (REQ-005 / CA4)
+## Evidence-or-zero
 
 Canonical paths: `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md`.
+
+Trigger: the step claims AC coverage, or CONTINUITY / the operator sets a level ≥ `cheap`.
+
+1. Create/update `EVD/` and `STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`).
+2. Fill the **AC → evidence matrix**; levels and gate are in the table below (default verify = **`cheap`**).
+3. Run the structural gate below. Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
 
 | Level | Gate |
 |-------|------|
@@ -28,6 +34,6 @@ Run `validate-evidence.ps1` without overriding the level so the STATE setting or
 repository default governs; use an explicit level only when the PLAN/operator
 configures one.
 
-**Verifier ≠ O3:** never use orchestrate-develop Task parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
+**Verifier ≠ O3:** evidence verification runs **sequentially** in the develop session via `validate-evidence`. Never use O3 / Agent parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
 
 ---

@@ -9,11 +9,13 @@ core/          # skills (kebab), policy, router, sdd contracts
 adapters/      # per-agent modules + registry.json + _contract
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public documentation
+memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
 .github/workflows/release.yml
 .github/workflows/publish-release-bootstrap.yml
+README.md  CONTRIBUTING.md  SECURITY.md   # root entry and policy
 ```
 
 ## Layers
@@ -23,6 +25,7 @@ docs/          # public documentation
 | Core | Agent Skills (`SKILL.md`), `_shared`, policy markdown, neutral router, SDD contracts |
 | Adapters | Publish skills/policy/router/hooks into agent-specific layout; smoke via fixture `InstallRoot` |
 | CLI | `scripts/toolkit.ps1` chooses agent for sync / validate / uninstall |
+| Validation | In-repo fixtures and CI smokes; a green run needs no live home write |
 | CI and release | `validate-toolkit.yml` on `pull_request` to `develop` runs core validation, adapter smokes and strict MkDocs, then emits aggregate checks `validate` and `ci-ok`. Release PRs to `master` / `main` also emit `ci-ok` from `master-release-ci.yml` and `release-source` from `enforce-release-source.yml`; they do not rerun the full suite. |
 
 ## Application architecture selection
@@ -40,7 +43,7 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 45 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
+- `core/skills/` — 46 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/sdd/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -90,7 +93,7 @@ InstallRoot models `~/.cursor`. Default publish/smoke targets:
 | `skills/<kebab-id>/SKILL.md` | Agent Skills from `core/skills/` (placeholders resolved) |
 | `rules/*.mdc` | Policy from `core/policy/` (`.md` → `.mdc`) |
 | `AGENTS.md` | Router from `core/router/AGENTS.md` |
-| `hooks/*.ps1` | Hook scripts from `adapters/cursor/assets/hooks/` (incl. `guard-pre-tool.ps1` + published `GuardCommon.ps1`) |
+| `hooks/*.ps1` | Hook scripts from `adapters/cursor/assets/hooks/` (`emit-trace.ps1`, `context-before-prompt.ps1`, `plan-after-edit.ps1`, plus shared `_hook-common.ps1` and `TraceEmitCommon.ps1`) |
 | `hooks.json` | Merge at InstallRoot root; path/secrets `preToolUse` + `beforeShellExecution` (`failClosed`) |
 | `agents/*.md` | Roster from `core/agents/` when `agents=true` |
 | `sdd/sessions/` | SDD sessions directory (`Get-SddRoot -Prepare`) |
@@ -233,7 +236,7 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 
 ## Shared publish rules
 
-Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `always`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
+Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `adaptive`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
 
 ## CI
 

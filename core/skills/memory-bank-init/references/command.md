@@ -1,6 +1,6 @@
 # memory-bank-init — command playbook
 
-**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process (REQ-006 / CA3). Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`).
+**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`).
 
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|
@@ -14,4 +14,4 @@
 | 6 | Scaffold or refresh files (merge synthesis receipts) | `references/template-map.md`, `references/generated-markers.md`, `references/tech-stack.md` |
 | 7 | Report + handoff incl. inventory governance + synthesis roles (STOP; no O1/O2/O3 in this skill) | `references/secrets.md`, `references/dry-run.md` |
 
-Never place bank under `features/`. Never write app code. Secrets checklist: `references/secrets.md`. Skip D: no ADO mutate, Reversa, SpecKit constitution (`inventory-specialist-synthesis.md`).
+Never place bank under `features/`. Never write app code. Secrets checklist: `references/secrets.md`. Skip D: no tracker mutate, no external spec-tool constitution (`inventory-specialist-synthesis.md`).

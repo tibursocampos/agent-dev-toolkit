@@ -78,11 +78,11 @@ await _module.InvokeVoidAsync("subscribe", _dotNetRef);
 [JSInvokable]
 public Task OnJsEventAsync(string payload) => InvokeAsync(StateHasChanged);
 
-public async ValueTask DisposeAsync()
+public async ValueTask DisposeAsync
 {
     _dotNetRef?.Dispose();
     if (_module is not null)
-        await _module.DisposeAsync();
+        await _module.DisposeAsync;
 }
 ```
 

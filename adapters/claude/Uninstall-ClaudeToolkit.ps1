@@ -113,6 +113,7 @@ function Get-ClaudeManagedHookRelativePaths {
         $paths.Add($relative) | Out-Null
     }
 
+    $paths.Add($script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName) | Out-Null
     $paths.Add($script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName) | Out-Null
 
     return @($paths.ToArray())
@@ -124,6 +125,7 @@ function Get-ClaudeManagedHookEventNames {
 
     $c = $script:ClaudeSettingsJsonConstant
     return @(
+        $c.HookEventSessionStart,
         $c.HookEventUserPromptSubmit,
         $c.HookEventPreCompact,
         $c.HookEventPostToolUse,
@@ -209,9 +211,11 @@ function Remove-ClaudeToolkitSettingsEntries {
     }
 
     $hooksChanged = Remove-ClaudeManagedHooksKeyed -Settings $settings
-    $allowToRemove = @(Get-ClaudePermissionsAllowEntriesForRemoval -InstallRoot $ResolvedInstallRoot)
+    $allowToRemove = @(Get-ClaudePermissionsAllowEntriesForRemoval -InstallRoot $ResolvedInstallRoot) + @(Get-ClaudeGitPermissionsAllowEntries)
     $allowChanged = Remove-ClaudePermissionsAllowEntriesByEquality -Settings $settings -EntriesToRemove $allowToRemove
-    $changed = [bool]($hooksChanged -or $allowChanged)
+    $askChanged = Remove-ClaudePermissionsAllowEntriesByEquality -Settings $settings -EntriesToRemove @(Get-ClaudeGitPermissionsAskEntries) -ListKey 'ask'
+    $attributionChanged = Remove-ClaudeAttributionHidden -Settings $settings
+    $changed = [bool]($hooksChanged -or $allowChanged -or $askChanged -or $attributionChanged)
 
     if (-not $changed) {
         return [PSCustomObject]@{

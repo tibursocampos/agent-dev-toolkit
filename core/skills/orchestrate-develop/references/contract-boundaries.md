@@ -1,4 +1,4 @@
-## Contract reuse (RN05)
+## Contract reuse
 
 | Concern | Source of truth |
 |---------|-----------------|
@@ -6,9 +6,9 @@
 | PLAN update protocol | `sdd-develop/reference.md` |
 | SESSION gates | `SESSION.md` (repo + PLAN-scoped develop) + guardrails |
 | Branch rules | `branch-validation.mdc` via sdd-develop |
-| Native Task vs **fallback** | `SPAWN.md` (capability `subagents`; never hard-fail) |
+| Native Agent vs **fallback** | `SPAWN.md` (capability `subagents`; never hard-fail) |
 
-O3 **orchestrates invocation**; it does **not** replace those documents. When `subagents=none` or Task unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code).
+O3 **orchestrates invocation**; it does **not** replace those documents. When `subagents=none` or Agent unavailable → **fallback** handoff to manual `/sdd-develop` (parent never writes app code).
 
 ---
 

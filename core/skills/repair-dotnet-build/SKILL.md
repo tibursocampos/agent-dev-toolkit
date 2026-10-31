@@ -5,30 +5,14 @@ description: Diagnose and fix failing dotnet build or test runs. Local first; op
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: repair-dotnet-build
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/repair-dotnet-build`, `fix build`, `/repair-dotnet-build`, or when build/test failures block progress.
 
@@ -106,7 +90,7 @@ Present using `references/diagnosis-template.md`:
 ...
 ```
 
-Categories: compile, restore/NuGet, test assertion, configuration, pipeline config (YAML only if user supplied log).
+Categories: compile, restore/NuGet, test assertion, configuration, pipeline config (YAML only if user provided log).
 
 ### 3. Root-cause investigation
 

@@ -37,7 +37,7 @@ Shared helper: [`SpawnPublishKnobs.ps1`](SpawnPublishKnobs.ps1).
 | **Antigravity** | native | false | Publish-Agents no-op | — | **Honesty:** do not emit host max-depth knobs | Host `invoke_subagent` only |
 | **OpenHands** | **none** | true | SDK/plugin roster copy only | Roster may carry `model: inherit` from `core/agents` (supply-chain) | **Honesty-only:** no spawn pin; do not invent spawn depth/threads knobs | `subagents=none` — roster ≠ host spawn |
 
-## Supply-chain rule (SEC)
+## Software supply-chain rule (SEC)
 
 Publish may emit **only** depth, threads, and inherit honesty. Forbidden: pinning
 an external/alternate child model slug at publish time. OpenHands must not gain a

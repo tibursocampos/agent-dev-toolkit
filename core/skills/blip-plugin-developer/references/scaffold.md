@@ -2,11 +2,11 @@
 
 ### Subagent-first (before implement)
 
-Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Task unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
+Classify complexity → consult capability `subagents` → if medium/complex and `native`: spawn ≤2 children (scoped **paths** + **receipt**); **trivial** stays **in-parent**; if `subagents=none` or Agent unavailable → **fallback** **in-parent** (never hard-fail). Load `SPAWN.md` + `subagent-first.md`; do not paste guidelines into child prompts.
 
 ### Phase 1 - Scaffold (infrastructure first)
 
-Ask the user **(pt-BR)**:
+Ask the user in the **user chat language**:
 
 1. "Onde deseja criar o projeto do plugin? (diretório atual `./` ou informe caminho e nome `<plugin-name>`)"
 2. "Qual perfil? **Lite** (página única, sem auth) ou **Full** (multi-rota, AuthProvider, buckets)?"
@@ -24,7 +24,7 @@ npm install
 npm run config:plugin
 ```
 
-**User-provided template:** only when the user supplies a URL or path. Clone/use that source; do not invent an internal template.
+**User-provided template:** only when the user provides a URL or path. Clone/use that source; do not invent an internal template.
 
 - `config:plugin` replaces `PLUGIN_NAME` in charts and `appsettings.json`
 - Remove template `.git` only if the user wants a fresh repo history (`Remove-Item -Recurse -Force .git` on Windows)

@@ -29,7 +29,7 @@ Canonical form is the skill **id**.
 |------|-------|
 | Capability | `hooks=true` |
 | Publish | `config/hooks/hooks.json` + `guard-pre-tool.ps1` (+ `_hook-common.ps1`, `GuardCommon.ps1`) |
-| Matcher | `write_to_file\|replace_file_content\|multi_replace_file_content\|run_command` |
+| Matcher | `.*` |
 | Deny shape | `{ "decision": "deny", "reason": "…" }` |
 | Out of scope | Sidecars / Automations; legacy `antigravity-ide/plugins` bridge |
 
@@ -62,7 +62,7 @@ SPAWN/skills must use **effective** capability, not registry alone. Contract: `c
 
 ### Child assignment lifecycle
 
-Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as closed and never follow up, reopen, resume, or reuse it. Any new task, review, or correction—including a lengthy correction to returned work—must use a fresh child handle; do not send returned work back to its former child. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
+Batch related, bounded work before dispatch. Each dispatched task is one child assignment: once that child returns any result (complete, incomplete, blocked, or failed), treat the handle as idle. Continue it (SendMessage where the host offers it) only for the same topic and scope while its context is still relevant; never reuse it for a different topic, a different scope, or an already large context. A new task, review, or correction on a different scope must use a fresh child handle. Clarifications are allowed only while the child is still running and must stay within its original assignment. Use the host's close/stop control when available; handle termination, retention, and context erasure are host-controlled, so do not promise that a returned child process or its context was killed or erased. Canonical policy: `core/skills/_shared/agents/SPAWN.md`.
 
 ### Official references
 

@@ -5,29 +5,13 @@ description: Refine a Bug, User Story, or Technical Story into structured markdo
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask the user in the **user chat language** (`LANGUAGE.md`) - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts follow the **user chat language** (`LANGUAGE.md`)
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
-
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 ---
 
 # Skill: refine-story
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 
 Invoke when the user asks for: `/refine-story`, `refine backlog item`, or quick intake before SDD / Orchestrated Delivery.
@@ -66,6 +50,15 @@ Structured **markdown** in chat (BDD acceptance criteria + implementation steps)
 
 Does **not** create or update cards in external work-item trackers (see `references/exclusions.md`).
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** the item the operator pastes, or a `STORY.md` or `docs/backlog/` path.
+- **Writes:** `STORY.md` with BDD criteria and a quality note; optional `REFINE/` notes beside it.
+- **Where:** `features/NNN-slug/USnn/` (preferred) or shortcut `docs/backlog/<slug>.md`.
+- **When to use:** an informal backlog item before SDD. Calls `requirement-review` at step 4a before the handoff.
+
+Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
+
 ## Lazy-load
 
 | When | Path |
@@ -88,6 +81,7 @@ Does **not** create or update cards in external work-item trackers (see `referen
 | Anti-task-shatter (outcome-shaped titles) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Clarify depth + severity B/I/MINOR | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/clarify-depth.md` |
 | Readiness READY / NEEDS_CLARIFICATION | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` |
+| Requirement review before handoff (step 4a; owned by `requirement-review`) | `{{TOOLKIT_ROOT}}/skills/requirement-review/SKILL.md` |
 | Finding format (id, severity, type, evidence, recommendation) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/refine-story/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/<section>.md` |
@@ -158,6 +152,7 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 | Step | Section |
 |------|---------|
 | Quality scorecard (Product depth + AC budget) | `references/scorecard-rubric.md` + `references/scorecard-template.md`; lazy `gherkin-budget.md`, `invest-and-story-quality.md`, `product-evidence-lite.md` |
+| Requirement review (step 4a, before handoff) | `requirement-review` skill: `--feature`, then `--tech` when the story touches a repository. Pointer only; the review owns its playbooks |
 | Envelope + Q&A + READY | `references/interaction-envelope.md`; `references/qa-history.md`; consume `readiness-severity.md` (dual-plane; do not rewrite taxonomy) |
 | Validation | `references/guardrails.md` |
 | Optional persistence | `references/persistence.md` (+ Q&A history path) |
@@ -165,15 +160,19 @@ Execute steps inside the chosen `references/<mode>.md`. Typical shared tail (cit
 
 **Selective retrieval:** do **not** dump entire `memory-bank/` or paste a full PRD into refine chat/handoffs (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`). Paths + short summaries only.
 
+## Stage table
+
+You must render the stage table (`_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`, refine-story section) at start, before and after each gate, on each row change, on a blocker, and at close, always with every row. Detail: `references/command.md`.
+
 ## Must not
 
 Also enforce `references/exclusions.md`. Boundary: `references/boundary.md`. Product voice: `references/product-persona.md`. Split handoff: `references/split-handoff.md`.
 
 - Call tracker REST APIs, MCP work-item integrations, or PAT scripts for external trackers
-- Create or update Azure DevOps Work Items (or any remote board) — file-based persistence only
+- Create or update tracker work items (or any remote board) — file-based persistence only
 - Add organization-specific custom fields, mandatory AI tags, or PATCH guardrails for remote boards
 - Preload unused mode playbooks (`feature` / `tech` / `split` other than the chosen one) — REQ-004
-- Create a new clarify / `feature-refinement` skill folder or clone Supply clarify as a parallel skill — REQ-007; enrich **this** skill only
+- Add a second requirement-challenge skill beside `requirement-review`; challenge work is owned there (one skill, two modes). Extend that skill instead
 - Write OS absolute paths or InstallRoot embeds into envelopes, Q&A history, or handoffs — portable only (REQ-006 / RNF-002)
 - Write `docs/backlog/` before the language question when choosing shortcut
 - Duplicate full PRD/PLAN templates - hand off to `sdd-spec` / `sdd-plan` or O1

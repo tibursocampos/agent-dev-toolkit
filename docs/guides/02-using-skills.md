@@ -23,11 +23,15 @@ After any agent sync, invoke **`help-skills`** for the installed static catalog 
 
 ## Parallel specialists (default)
 
-After sync, the published router prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. **Thin trivial exception:** single-path Q&A or a one-file edit with no spread risk stays in-parent; if analysis spans multiple files, a one-file change might extend, or there is any doubt → spawn. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**). Child prompts and agent receipts are **always en-US**; do not dump a full user-language PLAN — paths + excerpt (`LANGUAGE.md`).
+After sync, the published router (`core/router/AGENTS.md`) prefers **parallel specialist subagents** for planning, multi-facet execution, analysis, or non-trivial questions, keeping **this session as the parent**. **Thin trivial exception:** single-path Q&A or a one-file edit with no spread risk stays in-parent; if analysis spans multiple files, a one-file change might extend, or there is any doubt → spawn. Caps and fallback: [SPAWN.md](../SPAWN.md) and `core/skills/_shared/agents/SPAWN.md` (`*-developer` **≤ 2**, `orchestrate-*` **≤ 4**). Child prompts and agent receipts are **always en-US**; do not dump a full user-language PLAN — paths + excerpt (`LANGUAGE.md`).
 
 - **`needs_*` → specialist:** O1 spawn map lives in `ROSTER.md` (`Flags (needs_*)`) — point there; do not paste the roster.
 - **Task `model`:** omit by default (inherit parent); premium/alternate only with `SUBAGENT-MODEL.md` gate + user **sim**.
 - **Orchestrate parents:** coordinate / receipts / synthesis — **must not** implement application code.
+
+## Internal contracts
+
+REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B, I, MINOR), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
 
 ## Prerequisites
 
@@ -143,7 +147,7 @@ Analyze classifies the request, asks, sets `needs_*`, calls specialists when fla
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You answer **sim** before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
 
-Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). Outside those gates, open **B** or **I** stops PRD/PLAN writes (`NEEDS_CLARIFICATION`) and **MINOR** may remain. Readiness is not `step_confirmed`. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
+Before backlog **sim**, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`. Rule owner: [core readiness](../domains/core.md#clarification-readiness-b--i--minor). Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
 
 Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
 
@@ -173,6 +177,15 @@ split-story-checklist - <story-or-backlog-path>
 
 Mode is **mandatory** (`feature` \| `tech` \| `split`). Omit it and the skill asks once. It does not assume `feature`. Detail: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
 
+### Challenge a requirement (`requirement-review`)
+
+Run it before SDD when a feature or story has open questions. Mode is mandatory: `--feature` (functional gaps and acceptance criteria) or `--tech` (contracts and flows checked against the repository). Output: a report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, and Q&A entries under `REFINE/`. Detail: [sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md).
+
+```text
+requirement-review --feature - features/NNN-slug/US01/STORY.md
+requirement-review --tech - features/NNN-slug/US01/STORY.md
+```
+
 ### API standards vs typed clients
 
 ```text
@@ -194,7 +207,7 @@ or `dotnet-developer`, `react-developer`, `python-developer`, …
 ### After implementation
 
 ```text
-code-review          # optional; after the report ask fix / re-review only (sim/pular)
+code-review          # optional; asks single vs multi-angle when omitted; after the report, fix / re-review only (sim/pular)
 implementation-survey  # describe the change; not a code-review mode
 commit               # message confirmation only; no memory-bank or docs question
 push
@@ -214,7 +227,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**45** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**46** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

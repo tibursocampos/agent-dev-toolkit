@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path (Join-Path (Join-Path $script:ToolkitCopyHelperRepoRoot 'scripts') '_lib') 'Copy-ToolkitManagedTree.ps1')
+. (Join-Path $PSScriptRoot '../_shared/MdcReferenceRewrite.ps1')
 
 <#
 .SYNOPSIS
@@ -27,7 +28,7 @@ function Copy-CodexCorePolicyTree {
     }
 
     $filesCopied = 0
-    $sourceFiles = Get-ChildItem -LiteralPath $SourcePolicyRoot -Recurse -File
+    $sourceFiles = Get-ChildItem -LiteralPath $SourcePolicyRoot -Recurse -File -Filter *.md
     foreach ($file in $sourceFiles) {
         $relative = $file.FullName.Substring($SourcePolicyRoot.Length).TrimStart('\', '/')
         $destinationPath = Join-Path $DestinationRulesRoot $relative
@@ -105,6 +106,7 @@ function Invoke-CodexPublishPolicy {
     $filesCopied = Copy-CodexCorePolicyTree -SourcePolicyRoot $sourcePolicyRoot -DestinationRulesRoot $destinationRulesRoot
     $placeholderMap = Get-CodexPolicyPlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-CodexPlaceholdersInTree -RootPath $destinationRulesRoot -PlaceholderMap $placeholderMap
+    $null = Convert-MdcReferencesInFiles -Files @(Get-ChildItem -LiteralPath $destinationRulesRoot -Recurse -File -Filter *.md | ForEach-Object { $_.FullName }) -SourceExtension '.mdc' -TargetExtension '.md'
     Assert-CodexPlaceholdersResolved -RootPath $destinationRulesRoot
 
     return [PSCustomObject]@{

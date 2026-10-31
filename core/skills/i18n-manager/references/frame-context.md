@@ -11,7 +11,7 @@
 ### -1. Re-check guardrails and session
 
 Confirm `guardrails.mdc` and `SESSION.md` are loaded.
-If missing, ask user (pt-BR):
+If missing, ask user in the user chat language:
 
 ```text
 Antes da localizacao, confirme:

@@ -2,7 +2,7 @@
 
 Mark `IN_PROGRESS` and re-read the PLAN before editing code. On failure, set `BLOCKED` with the evidence and leave dependents `PENDING`. Resume `BLOCKED` only when that evidence is no longer in the file. `COMPLETED` only with this step's acceptance and tests. No duration.
 
-After the step’s code and targeted tests pass, edit the PLAN file in place (repo or global path).
+After the step’s code and targeted tests pass, edit the PLAN file in place (repo or global path). Persist at the end of the step before handoff.
 
 ### 1. Step block
 
@@ -91,9 +91,9 @@ If a session crashed mid-step: set **Status:** `IN_PROGRESS`, list files touched
 
 ### 9. Single edit
 
-The `sdd-develop` session that executes a step is the sole writer of that step's `Implementation progress` row, status/evidence, checkpoint, and permitted related boxes. In O3, the parent validates the child's persisted checkpoint read-only and never rewrites the same step; it may update its separately owned `CONTINUITY.md` synthesis. One edit covers the owned PLAN fields and only checklist fields applicable to the resolved invocation context: `direct` does not read or write a checklist unless the invocation explicitly adopted a consistently related checklist; `orchestrated` preserves the O3 parent's required scoped inputs and updates only this step's applicable rows. Do not create task rows or a checklist as a fallback. In `step_by_step`, the chat before the edit is the narrative summary, what the PLAN says to do, and the blocking question (`execution-display.md`). When the step closes, show that ledger for every step and applicable task rows only. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
+The `sdd-develop` session that executes a step is the sole writer of that step's `Implementation progress` row, status/evidence, checkpoint, and permitted related boxes. In O3, the parent validates the child's persisted checkpoint read-only and never rewrites the same step; it may update its separately owned `CONTINUITY.md` synthesis. One edit covers the owned PLAN fields and only checklist fields applicable to the resolved invocation context: `direct` does not read or write a checklist unless the invocation explicitly adopted a consistently related checklist; `orchestrated` preserves the O3 parent's required scoped inputs and updates only this step's applicable rows. Do not create task rows or a checklist as a fallback. In `step_by_step`, the chat before the edit is the narrative summary, what the PLAN says to do, and the blocking question (`execution-display.md`). When the step closes, show the full PLAN-step table (every step) and applicable task rows only. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger. Re-read the file. If it changed in the middle of the edit, stop. Do not merge by guess. If the checkpoint branch or commit does not match, stop and do not zero the progress. A `BLOCKED` step returns only when the block evidence is no longer in the file. A plan whose implementation status is `COMPLETED` does not restart without an explicit request.
 
-For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before showing the step ledger and the short result. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step, asks the deviation, and does not delegate the next step. Do not invent a fix and do not rewrite the PLAN. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
+For O3 closure, receipt validation precedes this persistence. After saving, re-read the PLAN before showing the PLAN-step table and the short result. Only then may the orchestrator evaluate the next spawn; `continuous` retains its authorization after this sequence, while `step_by_step` still requires confirmation per spawn. A receipt `status` outside `done`, `blocked`, and `failed`, or an implementation outside the PLAN acceptance, blocks the step, asks the deviation, and does not delegate the next step. Do not invent a fix and do not rewrite the PLAN. A missing, incomplete, inconsistent, blocked, or failed receipt leaves the step pending/blocked and dependents paused.
 
 ### 10. Companion PRD when Implementation status is COMPLETED
 
@@ -103,9 +103,13 @@ When this edit sets the PLAN header **Implementation status** to `COMPLETED` (ev
 2. Set that PRD metadata **Status** to `Implementado` when the PRD prose is pt-BR, or `Implemented` when it is English. Leave acceptance criteria, scope, and requirements unchanged.
 3. In `## Definição de pronto` or `## Definition of done`, check only the boxes whose text is implementation alignment, tests or fixtures, and build or structural validation. Leave spec-quality boxes (REQ coverage, explicit OOS) as they already are.
 4. If `## Histórico de alterações` or `## Change history` exists, append one row: today's date, the next version number, `sdd-develop`, and that the PLAN **Implementation status** reached `COMPLETED`.
-5. If the PLAN is already `COMPLETED` and the PRD status is still `Pronto para planejamento` or `Ready for planning`, apply this close once. That repair is not a restart of implementation.
+5. If the PLAN is already `COMPLETED` and the PRD status is still `Pronto para planejamento` or `Ready for planning`, apply this close once, only when the persisted close authorization is present. That repair is not a restart of implementation.
 
 `/code-review` and `/commit` do not write this status. A review that finds PLAN `COMPLETED` with PRD still `Pronto para planejamento` / `Ready for planning` flags the drift and hands the close back here.
+
+### 11. Terminal gate lifecycle (strict order)
+
+Finish every implementation/artifact edit, re-read the final artifacts, and complete all required validations first. Only after their results are ready, call `tests-run` once and update the PLAN/task status and evidence while the gate is still active. Then call `reset` as the final operation in this develop scope. Reset clears both gates and is terminal: after a successful reset, do not call any session helper, validator, or make any further file/artifact edit in this scope. If a post-reset correction is necessary, stop and begin a fresh, explicitly authorized develop scope/session with its gate confirmed; never repeat `tests-run` against cleared gates. A failed helper remains a hard stop under the session-helper rule in `SKILL.md` (STOP block).
 
 
 ## Write-consistency rules (SDDW)

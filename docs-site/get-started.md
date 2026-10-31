@@ -29,13 +29,16 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 
 The entrypoint downloads the zip, checks the SHA256, and opens the CLI.
 
-| Operating system | File | Download |
-| --- | --- | --- |
-| Windows (recommended) | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
-| Windows (PowerShell terminal only) | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
-| Linux and macOS | `bootstrap.ps1` or `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> · <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
+| Operating system | Download |
+| --- | --- |
+| Windows (recommended) | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
+| Windows (PowerShell terminal only) | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
+| Linux and macOS | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
 
-On Windows, use `bootstrap.bat` for the guided launcher. It clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`, preferring `pwsh` and falling back to Windows PowerShell. A `.ps1` is also supported on Windows when run from a PowerShell terminal with `pwsh -NoProfile -File .\bootstrap.ps1`; do not double-click it. Downloading the `.ps1` in a browser may mark it as coming from the Internet and `RemoteSigned` can block it; downloading with `curl.exe` avoids that mark, or use `Unblock-File` after reviewing the file. On Linux and macOS, run `bootstrap.ps1` through `pwsh -NoProfile -File`; the optional `bootstrap.sh` wrapper must be executable and placed beside `bootstrap.ps1`. Run either command from a terminal: it invokes the interactive Smart Manager there, which waits for your menu choices.
+On Windows, `bootstrap.bat` is the guided launcher. It clears the browser download mark on `bootstrap.ps1` and starts PowerShell with `-ExecutionPolicy Bypass`, preferring `pwsh` and falling back to Windows PowerShell. On Linux and macOS, run `bootstrap.ps1` through `pwsh -NoProfile -File`; the optional `bootstrap.sh` wrapper must be executable and sit beside `bootstrap.ps1`. Either command opens the interactive Smart Manager in the terminal.
+
+!!! warning "Do not double-click bootstrap.ps1"
+    A browser download can mark `bootstrap.ps1` as coming from the Internet, and the `RemoteSigned` policy can then block it. Run it with `pwsh -NoProfile -File .\bootstrap.ps1` from a terminal, or download it with `curl.exe`, which avoids the mark. You can also use `Unblock-File` after reviewing the file.
 
 A bad checksum exits non-zero. There is no extract and no handoff.
 
@@ -78,6 +81,19 @@ cd agent-dev-toolkit
 The menu, every `-Action`, sync, validate, and uninstall live on [CLI](cli.md).
 
 Open the application repo in the agent, then [First use](first-use.md). A feature path is [Orchestrated Delivery](orchestrated-delivery.md).
+
+## Which flow?
+
+Not sure which flow fits your work? Pick one before you start:
+
+| Flow | Use it when | Entry skill |
+|------|-------------|-------------|
+| Orchestrated Delivery | Feature with several stories, brownfield code, or specialists | `orchestrate-analyze` |
+| Classic SDD | One story already clear, no specialists needed | `sdd-spec` |
+| Refine backlog item | Informal item (bug, user story, technical story) before SDD | `refine-story` |
+| Requirement review | Challenge acceptance criteria or contracts before SDD | `requirement-review` |
+
+The flows are not prerequisites for one another. See the full decision guide: [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
 
 ## Troubleshooting
 

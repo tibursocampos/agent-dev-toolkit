@@ -40,4 +40,4 @@ The upgrade skill loads one pack section per hop. It does not dump guideline tre
 
 ## What this skill refuses
 
-ADO work-item mutation, duration or story-point estimates, and baking a single company’s brand into the pack. Unofficial blogs do not override official docs.
+tracker work-item mutation, duration or story-point estimates, and baking a single company’s brand into the pack. Unofficial blogs do not override official docs.

@@ -1,4 +1,4 @@
-## Approval gates (RN01)
+## Approval gates
 
 ### Mode selection
 
@@ -8,7 +8,7 @@ O2 em `{feature-path}` - {N} histórias.
 Modo de execução?
 
 1) série - uma história por vez (spec -> plan -> aprovação)
-2) paralelo - Task por história (filho só rascunha PRD/PLAN; Write só no pai após sim); agregação e aprovação no pai
+2) paralelo - Agent por história (filho só rascunha PRD/PLAN; Write só no pai após sim); agregação e aprovação no pai
 3) cancelar
 ```
 
@@ -28,7 +28,7 @@ Posso marcar como aprovados?
 | **Por história** | User wants tight control; série default after each story |
 | **Lote** | N > 1 and user chose batch after parallel (or after all série drafts). One **sim** authorizes **only** paths listed in the approval table; clear/reset `write_confirmed` after the batch (do not reuse stale gate for unlisted paths) |
 
-Parallel Task cap: **≤4** concurrent story drafts per `SPAWN.md`; wave or prefer série when N>4. If `subagents=none` or Task unavailable → **fallback** série **in-parent** (never hard-fail).
+Parallel Agent cap: **≤4** concurrent story drafts per `SPAWN.md`; wave or prefer série when N>4. If `subagents=none` or Agent unavailable → **fallback** série **in-parent** (never hard-fail).
 
 Silence / emoji / “ok” without **sim** is **not** approval.
 
@@ -36,7 +36,7 @@ Silence / emoji / “ok” without **sim** is **not** approval.
 
 In série mode, once this story's named approval scope is satisfied and its checkpoint is reconciled, continue to the next eligible story without a separate “continue?” prompt. This does not pre-approve that story: present and honor its own required write and content-approval gates when due. If the current answer is pending, `ajustar`, or `cancelar`, do not advance dependent work; follow the table above. Batch approval authorizes only the paths explicitly listed in its approval table.
 
-### Observable question and answer lifecycle (REQ-003 / CA3)
+### Observable question and answer lifecycle
 
 Use these states for every blocking operator question:
 
@@ -53,9 +53,11 @@ Adapters may provide a native prompt, visible approval control, or textual choic
 
 ---
 
-## Process — Approval answers (RN01)
+## Process — Approval answers
 
-After drafts exist (or after each story in série), present summary table (id, PRD path, PLAN path, 3 bullets). Ask (pt-BR) — copy in § Approval gates.
+After drafts exist (or after each story in série), present summary table (id, PRD path, PLAN path, 3 bullets). Ask in the user chat language — copy in § Approval gates.
+
+The per-story approval table is governed by `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` (O2 caller section): columns `gate`, `status`, `owner`, `evidence`, one row per story with the story ID in the gate cell, state keys and ASCII glyphs from that file, labels in the user chat language. You must redraw the full table at each gate and again after each answer (`sim` / `ajustar` / `cancelar`); always show every story row, never a summary or only the changed row.
 
 Offer **por história** vs **lote** when N > 1.
 

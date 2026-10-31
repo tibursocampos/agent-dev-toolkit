@@ -1,4 +1,4 @@
-## Preflight PRD → PLAN → CHANGE (REQ-004 / CA4)
+## Preflight PRD → PLAN → CHANGE
 
 Before emitting O3 / `orchestrate-develop` handoff, run structural preflight so inconsistent artifacts **block** with an explicit reason — never silently ignore.
 
@@ -57,4 +57,4 @@ orchestrated mode, and it does not skip validation when `CHANGE.md` exists.
 3. On block: inspect the reason and the matching validator/preflight condition, then reconcile the affected artifact through its existing owner contract: `sdd-spec` owns PRD and CHANGE; `sdd-plan` owns PLAN. For a structural or cross-artifact defect whose approved meaning is unchanged and supported by available evidence, the O2 parent makes the bounded correction (or starts a fresh scoped specialist draft when the current invocation uses parallel drafts), reruns the failing validator and this preflight, and continues the same O2 run when it returns `ALLOW`. Do not ask the operator to relay routine diagnostics or perform these corrections manually. Preserve existing approval and write gates; if a correction changes material approved behavior, invoke the existing content/write approval gates again. A missing decision, unavailable evidence/access, conflicting source, or repeated failure with no new evidence remains a blocker: ask only for the specific missing input and do **not** start O3. Never weaken a validator to clear the block.
 4. Smoke: `scripts/validation/Assert-PrdPlanChangePreflight.ps1`.
 
-Selective retrieval: cite paths; never dump full PRD or `memory-bank/` (`SR-NO-FULL-DUMP`).
+Selective retrieval: cite paths; never dump full PRD or `memory-bank/`.

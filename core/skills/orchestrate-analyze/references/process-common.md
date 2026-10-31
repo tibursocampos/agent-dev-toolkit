@@ -17,7 +17,7 @@ Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = cl
 
 **Path sanitize (required)** for any invoke / allocated feature path: normalize (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under the feature root above. Ask again in pt-BR for a canonical path - do not Read/Write outside the feature root.
 
-If first run for this repo: ask storage (pt-BR) per `STORAGE.md` and persist manifest. Confirm target workspace. Do **not** invent a feature path outside the resolved root.
+If first run for this repo: ask storage in the user chat language per `STORAGE.md` and persist manifest. Confirm target workspace. Do **not** invent a feature path outside the resolved root.
 
 Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` and `features_versioned` in manifest when writing under `features/` or `memory-bank/` (**do not** add `/memory-bank/`; keep `docs/documentation-plan/plan.md` ignored without a negation rule; do not weaken toolkit patterns; never ignore `skills/`). **Global mode:** do not edit project `.gitignore`.
 
@@ -27,7 +27,7 @@ Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` and `features
 
 Before asking: **product artifact quality gates** must pass (`references/story-synthesis.md` § Product artifact quality gates — FEATURE depth TE01, promotion TE02, cap ≤4 / RN03). Required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only). Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
 
-Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask (pt-BR) — copy in `references/arch-confirm.md` § Approval gate copy.
+Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask in the user chat language — copy in `references/arch-confirm.md` § Approval gate copy.
 
 | Answer | Action |
 |--------|--------|
@@ -42,7 +42,7 @@ On **sim**:
 2. Update `CONTINUITY.md`: phase stays `analyze` until O2 starts (or set handoff-ready note); `Last agent` = `orchestrate-analyze`; keep Memory-bank fields; typed handoff string.
 3. Offer O2 (document series vs parallel as **O2 choice** - do not implement O2 here) — `references/boundaries-handoff.md` § Canonical handoff strings.
 
-Remind (pt-BR): O2 will ask série vs paralelo for per-story PRD/PLAN.
+Remind in the user chat language: O2 will ask série vs paralelo for per-story PRD/PLAN.
 
 ---
 

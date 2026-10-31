@@ -64,6 +64,49 @@ function Get-CopilotPublishNormalizedMode {
     return $normalized
 }
 
+function Get-CopilotRuleReferenceMap {
+    <#
+    .SYNOPSIS
+      Literal rewrites from Cursor rule references to the published Copilot instruction names.
+
+    .DESCRIPTION
+      One entry per core/policy rule, in three passes so the longest form is replaced first:
+      {{TOOLKIT_ROOT}}/rules/<name>.mdc -> {{TOOLKIT_ROOT}}/instructions/<name>.instructions.md,
+      rules/<name>.mdc -> instructions/<name>.instructions.md, and <name>.mdc -> <name>.instructions.md.
+      Prose that names the extension on its own (for example a backticked `.mdc`) is untouched.
+      Must be applied before the {{TOOLKIT_ROOT}} entry of the placeholder map.
+    #>
+    [CmdletBinding()]
+    param()
+
+    $sep = $script:CopilotPathConstant.PathSeparatorForwardSlash
+    $policyRoot = Join-Path (Join-Path (Get-CopilotPublishAdapterRepoRoot) $script:CopilotPathConstant.CoreDirectoryName) $script:CopilotPathConstant.PolicyDirectoryName
+    $names = @(
+        Get-ChildItem -LiteralPath $policyRoot -File -Filter ('*' + $script:CopilotPathConstant.PolicySourceExtension) |
+            ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) } |
+            Sort-Object
+    )
+
+    $sourceExt = $script:CopilotPathConstant.CursorRuleExtension
+    $targetExt = $script:CopilotPathConstant.InstructionsFileExtension
+    $rulesDir = $script:CopilotPathConstant.CursorRulesDirectoryName
+    $instructionsDir = $script:CopilotPathConstant.InstructionsDirectoryName
+    $toolkitRoot = $script:CopilotPathConstant.PlaceholderToolkitRoot
+
+    $map = [ordered]@{}
+    foreach ($name in $names) {
+        $map[$toolkitRoot + $sep + $rulesDir + $sep + $name + $sourceExt] = $toolkitRoot + $sep + $instructionsDir + $sep + $name + $targetExt
+    }
+    foreach ($name in $names) {
+        $map[$rulesDir + $sep + $name + $sourceExt] = $instructionsDir + $sep + $name + $targetExt
+    }
+    foreach ($name in $names) {
+        $map[$name + $sourceExt] = $name + $targetExt
+    }
+
+    return $map
+}
+
 function Get-CopilotPlaceholderMap {
     [CmdletBinding()]
     param(
@@ -77,11 +120,11 @@ function Get-CopilotPlaceholderMap {
         Join-Path (Join-Path $InstallRoot $script:CopilotPathConstant.InstructionsDirectoryName) $script:CopilotPathConstant.GuardrailsFileName
     )
 
-    return [ordered]@{
-        ($script:CopilotPathConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:CopilotPathConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:CopilotPathConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $map = Get-CopilotRuleReferenceMap
+    $map[$script:CopilotPathConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:CopilotPathConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:CopilotPathConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Initialize-CopilotToolkitManagedTreeLib {

@@ -1,4 +1,4 @@
-## Context-aware PLAN inputs (REQ-001 / REQ-013 / REQ-014)
+## Context-aware PLAN inputs
 
 Resolve `invocation_context` once from `INVOCATION-CONTEXTS.md`. The selected context owns its input gates; sibling presence cannot switch or promote the context. See `PIPELINE.md` for the O2 route. This reference does not change `split-story-checklist` ownership of `REFINE/tasks.md`.
 
@@ -23,7 +23,7 @@ If a localized label and explicit Core enum disagree, or the value is missing/un
 
 #### Optional linked context
 
-A `STORY.md` or checklist is optional. Consult one only when its canonical portable path is explicitly linked by the PRD's `## Related` section or supplied by the operator. It may clarify grouping, implementation constraints, or dependencies only when consistent with the approved PRD. If an explicitly linked, valid checklist is adopted, preserve its existing IDs and dependencies exactly; do not create checklist rows or invoke its owner. The PRD remains authoritative for scope and acceptance. A missing optional sibling does not block planning. If optional material conflicts with PRD scope, acceptance, or dependency meaning, stop with `open_question` and identify the conflicting paths and clauses. Do not silently prefer the sibling or rewrite the PRD.
+A `STORY.md` or checklist is optional. Consult one only when its canonical portable path is explicitly linked by the PRD's `## Related` section or provided by the operator. It may clarify grouping, implementation constraints, or dependencies only when consistent with the approved PRD. If an explicitly linked, valid checklist is adopted, preserve its existing IDs and dependencies exactly; do not create checklist rows or invoke its owner. The PRD remains authoritative for scope and acceptance. A missing optional sibling does not block planning. If optional material conflicts with PRD scope, acceptance, or dependency meaning, stop with `open_question` and identify the conflicting paths and clauses. Do not silently prefer the sibling or rewrite the PRD.
 
 ### `orchestrated`: preserve O2 gates
 
@@ -56,7 +56,7 @@ Re-read `features/NNN-slug/{USnn|TSnn}/REFINE/tasks.md` after the owner returns.
 
 If the artifact is missing, invalid, incomplete, changed to a different path, or its IDs/dependencies fail validation, stop with `step_blocked` and the specific cause. An unanswered question remains `open_question`. After successful validation, resume REQ mapping, exploration, the two self-reviews, preview, and confirm-before-write. Checklist acquisition does not approve or write the PLAN.
 
-### Paired context scenarios (CT15 / CT16)
+### Paired context scenarios
 
 | Scenario | Expected result |
 |----------|-----------------|

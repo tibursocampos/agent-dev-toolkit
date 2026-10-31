@@ -5,30 +5,14 @@ description: Execute the next pending step from docs/documentation-plan/plan.md 
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: document-implement
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/document-implement`, `document repository`, `/document-implement`, or `execute documentation plan`.
 
@@ -80,7 +64,7 @@ Read `references/<section>.md` for execution detail — **not** full `reference.
 
 Pick the first step with **Status:** Pending (or **Pendente**) whose dependencies are completed (`references/step-selection.md`). If user names a step id, use that step after validating deps.
 
-Summarize objective and deliverables. If `step_confirmed` is false: ask **(pt-BR)** to implement this doc step; set gate `true` only after **sim**. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
+Summarize objective and deliverables. If `step_confirmed` is false: ask in the **user chat language** to implement this doc step; set gate `true` only after **sim**. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
 
 ### 2. Execute step
 
@@ -91,7 +75,7 @@ Follow the step's **Tasks** in the plan (`references/writing-guidelines.md`):
 - Use **doc language** from plan; keep file paths and type names in English
 - No secrets, tokens, or internal-only URLs in markdown
 
-**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Task `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Task unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
+**Spawn (Axis A — `SPAWN.md`):** for **Kind: new** large greenfield docs, or **Kind: refactor** / large multi-file doc changes, when effective `subagents=native` and work is independent, prefer ≤2 specialist children (scoped **paths** + **receipt**; omit Agent `model`). Trivial or single-file **update** stays **in-parent**. If `subagents=none` or Agent unavailable → **fallback in-parent** (never hard-fail). Do not paste guideline packs into child prompts.
 
 ### 3. Update plan
 
@@ -121,10 +105,10 @@ Files written, step completed, progress `N/M`, suggested handoff. Manual validat
 
 - Run without `docs/documentation-plan/plan.md` (unless user gives an explicit alternate plan path)
 - Use flat `{repo-hash}.json` for `step_confirmed` / `tests_run` when the doc plan path is known - always PLAN-scoped develop session
-- Assume MES/Athena or fixed stack versions
+- Assume MES or fixed stack versions
 - Write product `docs/` before doc language is known
 - Complete multiple **Kind: new** plan steps in one session when context is high - prefer one new-doc step per session
-- Hard-fail when Task/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
+- Hard-fail when Agent/subagents unavailable on a heavy doc step (fallback **in-parent** per `SPAWN.md`)
 - Require external wiki or work-item APIs
 
 ## Handoff

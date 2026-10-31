@@ -15,7 +15,7 @@
 - Approve backlog when required `ANALYSIS/` / `ARCH/` / `SEC/` folders are missing for true flags / brownfield
 - Present human backlog approval when product artifact quality gates fail (FEATURE missing Problem/Goals/Non-goals — TE01; task-shaped/layer-only candidate promoted to US/TS — TE02; >4 US/TS without explicit FEATURE split rationale — RN03)
 - Create `USnn`/`TSnn` for a title that is verb+file/class/script or layer-only (keep as PLAN/refine step; record anti-task-shatter rationale)
-- Treat pointer-only cited `.md` as promoted; treat `.cursor/plans/` as O3 input
+- Treat pointer-only cited `.md` as promoted; treat host plan files as O3 input
 - Write PRD/PLAN (O2 owns that via `sdd-spec` / `sdd-plan` contracts)
 - Create a story folder (`USnn`, `TSnn`, or Bug) while `FEATURE.md` still has an open question (`open_question`)
 - Write `PRD/` or `PLAN/` during O1
@@ -25,10 +25,10 @@
 - Change the `sdd-develop` one-step-per-session contract
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Pass Task `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine spawns
-- Hard-fail when `subagents` is `none` or Task is unavailable (use **fallback** in-parent notes per `SPAWN.md`; until step 9, keep those notes in the parent — do not create `USnn`, `TSnn`, Bug, `ANALYSIS/`, `ARCH/`, or `SEC/` before the open-question gate; never skip the notes)
-- Exceed orchestrate ≤4 concurrent Tasks without user-approved wave/série (`SPAWN.md`)
-- Paste guideline packs into Task child prompts
+- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine spawns
+- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** in-parent notes per `SPAWN.md`; until step 9, keep those notes in the parent — do not create `USnn`, `TSnn`, Bug, `ANALYSIS/`, `ARCH/`, or `SEC/` before the open-question gate; never skip the notes)
+- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
+- Paste guideline packs into Agent child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
 - Dump integral `memory-bank/` or full PRD into CONTINUITY, child prompts, or FEATURE/STORY (`SR-NO-FULL-DUMP`)

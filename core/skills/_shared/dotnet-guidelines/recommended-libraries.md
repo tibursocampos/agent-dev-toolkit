@@ -7,7 +7,7 @@ This page documents a curated list of recommended .NET libraries. These librarie
 **Category**: Internal SDKs & Starters  
 **NuGet**: Multiple packages under `Internal.Starter.Common.*` (internal feed)
 
-### Why we recommend it
+### Why we recommend the Internal C# Starter Kit
 The Internal C# Starter Kit provides a pre-configured starting point for building .NET applications following the company's standards. It includes libraries for structured logging, tracing, secrets management, environment config, and more, reducing boilerplate and ensuring consistency across projects.
 
 ### Included Modules
@@ -26,7 +26,7 @@ The Internal C# Starter Kit provides a pre-configured starting point for buildin
 **Category**: Resilience & Fault Handling  
 **NuGet**: `Microsoft.Extensions.Http.Resilience` (built on Polly v8)
 
-### Why we recommend it
+### Why we recommend HTTP resilience
 For `HttpClient` calls resolved through `IHttpClientFactory`, use Microsoft’s HTTP resilience handlers. They wrap Polly v8 strategies with HTTP-aware defaults, telemetry, and configuration binding.
 
 ### Prefer

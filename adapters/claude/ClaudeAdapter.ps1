@@ -22,6 +22,7 @@ $script:ClaudeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script
 . (Join-Path $script:ClaudeAdapterLibDir 'Initialize-SddRootLayout.ps1')
 
 . (Join-Path $script:ClaudeAdapterDirectory 'ClaudePathConstants.ps1')
+. (Join-Path $script:ClaudeAdapterDirectory 'ClaudeReferenceRewrite.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeSkills.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudePolicy.ps1')
 . (Join-Path $script:ClaudeAdapterDirectory 'Publish-ClaudeRouter.ps1')

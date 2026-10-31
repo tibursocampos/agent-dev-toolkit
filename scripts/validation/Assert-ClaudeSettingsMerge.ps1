@@ -42,6 +42,7 @@ try {
             PreCompact       = @(@{ hooks = @(@{ type = 'command'; command = 'pwsh -NoProfile -File "C:/old/hooks/context-pre-compact.ps1"' }) })
         }
         permissions = @{ allow = @($userAllow) + $legacyBroad; deny = @('Bash(rm -rf *)') }
+        attribution = @{ sessionUrl = $false }
     } | ConvertTo-Json -Depth 10
     Write-Json $sp $seed
     Assert-Merged $n (Invoke-ClaudeMergeSettings -InstallRoot $h)
@@ -56,12 +57,25 @@ try {
     if ($upj -notmatch [regex]::Escape($colocatedMarker)) { Write-Fail $n 'colocated alien handler lost' }
     if (@([regex]::Matches($upj, [regex]::Escape('track-sdd-invocation.ps1'))).Count -ne 1) { Write-Fail $n 'toolkit handler must appear exactly once after two merges' }
     if ($after.hooks.PSObject.Properties.Name -contains 'PreCompact') { Write-Fail $n 'legacy toolkit event must be removed' }
+    foreach ($eventProperty in $after.hooks.PSObject.Properties) {
+        $eventValue = $eventProperty.Value
+        if ($eventValue -isnot [System.Array]) { Write-Fail $n ("hooks.{0} must be an array" -f $eventProperty.Name) }
+        foreach ($item in $eventValue) {
+            if ($item -is [System.Array] -or $item -isnot [System.Management.Automation.PSCustomObject]) { Write-Fail $n ("hooks.{0} items must be matcher-group objects, not nested arrays" -f $eventProperty.Name) }
+        }
+    }
     $allow = @($after.permissions.allow)
     if (-not ($allow -contains $userAllow)) { Write-Fail $n 'user allow entry lost' }
     foreach ($l in $legacyBroad) { if ($allow -contains $l) { Write-Fail $n "legacy allow '$l' must be stripped" } }
     foreach ($e in @(Get-ClaudeManagedPermissionsAllowEntries -InstallRoot $h)) {
         if (@($allow | Where-Object { $_ -eq $e }).Count -ne 1) { Write-Fail $n "managed allow '$e' must appear once" }
     }
+    $askNow = @($after.permissions.ask)
+    foreach ($g in @(Get-ClaudeGitPermissionsAskEntries)) { if (@($askNow | Where-Object { $_ -eq $g }).Count -ne 1) { Write-Fail $n "git ask '$g' must appear once" } }
+    foreach ($g in @(Get-ClaudeGitPermissionsAllowEntries)) { if (@($allow | Where-Object { $_ -eq $g }).Count -ne 1) { Write-Fail $n "git allow '$g' must appear once" } }
+    if ([string]$after.attribution.commit -ne '' -or [string]$after.attribution.pr -ne '') { Write-Fail $n 'attribution commit and pr must be empty strings' }
+    if ($after.attribution.sessionUrl -ne $false) { Write-Fail $n 'attribution.sessionUrl must be preserved' }
+    if ($after.hooks.PSObject.Properties.Name -contains 'PreToolUse') { Write-Fail $n 'no PreToolUse guard may be published' }
     if (-not (Test-Path -LiteralPath ($sp + '.bak'))) { Write-Fail $n 'backup settings.json.bak missing' }
     Write-Pass $n
 
@@ -78,11 +92,16 @@ try {
     $allow = @($un.permissions.allow)
     if (-not ($allow -contains $userAllow)) { Write-Fail $n 'user allow entry lost on uninstall' }
     foreach ($e in @(Get-ClaudeManagedPermissionsAllowEntries -InstallRoot $h)) { if ($allow -contains $e) { Write-Fail $n "managed allow '$e' must be removed" } }
+    foreach ($g in @(Get-ClaudeGitPermissionsAllowEntries)) { if ($allow -contains $g) { Write-Fail $n "git allow '$g' must be removed on uninstall" } }
+    foreach ($g in @(Get-ClaudeGitPermissionsAskEntries)) { if (@($un.permissions.ask) -contains $g) { Write-Fail $n "git ask '$g' must be removed on uninstall" } }
+    if ($un.attribution.PSObject.Properties.Name -contains 'commit' -or $un.attribution.PSObject.Properties.Name -contains 'pr') { Write-Fail $n 'toolkit attribution keys must be removed on uninstall' }
+    if ($un.attribution.sessionUrl -ne $false) { Write-Fail $n 'user attribution key lost on uninstall' }
     Write-Pass $n
 
     # --- malformed / wrong-shape settings: abort, bytes unchanged, no backup ---
     $n = 'Should_AbortWithoutOverwrite_When_SettingsMalformedOrWrongShape'
     $cases = @(
+        @{ Name = 'attribution-array'; Json = '{ "attribution": ["x"], "hooks": {}, "permissions": {} }'; Msg = 'attribution must be a JSON object' },
         @{ Name = 'invalid-json'; Json = '{ this is not valid json'; Msg = '' },
         @{ Name = 'hooks-array'; Json = ('{{ "{0}": "{1}", "hooks": ["x"], "permissions": {{ "allow": ["{2}"] }} }}' -f $alienKey, $alienValue, $userAllow); Msg = 'hooks must be a JSON object' },
         @{ Name = 'permissions-array'; Json = ('{{ "{0}": "{1}", "hooks": {{}}, "permissions": ["x"] }}' -f $alienKey, $alienValue); Msg = 'permissions must be a JSON object' }

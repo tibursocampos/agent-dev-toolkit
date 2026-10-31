@@ -36,10 +36,10 @@ one step. Neither role changes PLAN, session-gate, or claim semantics.
 | `planPath` | always | Exact portable path of the invoked PLAN; normalize `\` to `/`, reject drive letters, UNC paths, `..`, query/fragment text, and paths outside the expected `features/.../PLAN/PLAN_*.md`. |
 | `step` | always | Producer emits a positive JSON integer. Before validation, parent normalizes either a positive JSON integer or the legacy textual alias `S<n>` (for example `S1`) to the same integer; reject zero, negatives, other strings, ranges, or a different step. |
 | `status` | always | Producer emits exactly `done`, `blocked`, or `failed`; use `done` for a successful PLAN step, never the PLAN row label `COMPLETED`. At intake, the runtime guard trims and case-folds the token and accepts only `complete` / `completed` as compatibility aliases for `done`; it returns a canonical receipt projection with `status: done`. Unknown values are rejected. `done` is eligible only after parent checks pass; `blocked`/`failed` never advance dependents. |
-| `files[]` | always | Array of portable paths for files that currently exist; normalize one consistent separator style, reject absolute/local paths, traversal, ambiguous encodings, duplicates, unknown or out-of-scope paths, secrets, PII, and transcript/log paths. Internal paths remain repository-relative. An external artifact may use `external:<alias>/<relative-path>` only when the coordinator explicitly authorized that alias for the assignment. The receipt contains no absolute root. The coordinator supplies an explicit alias-to-root map to `Invoke-O3ReceiptValidation.ps1`; the guard resolves and checks every component against that root, including reparse points. |
+| `files[]` | always | Array of portable paths for files that currently exist; normalize one consistent separator style, reject absolute/local paths, traversal, ambiguous encodings, duplicates, unknown or out-of-scope paths, secrets, PII, and transcript/log paths. Internal paths remain repository-relative. An external artifact may use `external:<alias>/<relative-path>` only when the coordinator explicitly authorized that alias for the assignment. The receipt contains no absolute root. The coordinator provides an explicit alias-to-root map to `Invoke-O3ReceiptValidation.ps1`; the guard resolves and checks every component against that root, including reparse points. |
 | `deletedFiles[]` | optional | Array of portable paths explicitly reported as removed. Apply the same normalization, redaction, deduplication, scope-prefix, alias-root, and containment checks as `files[]`; require all parent directories to exist under the authorized root and require the leaf entry itself to be absent (including a dangling reparse-point entry). This verifies current absence only; it does not prove that an untracked path existed previously. A path cannot appear in both arrays. |
 | `testsSummary` | always | Short factual summary, bounded to 500 characters and one line; identify focused checks and PASS/BLOCKED/FAIL, or explicitly say deferred/skipped when the PLAN step declares no tests. Never include raw output, logs, secrets, PII, or local absolute paths. `done` requires PASS and persisted/validated `tests_run` only when the step declares tests; otherwise `tests_run` stays false and the summary records deferred/skipped. |
-| `nextStep` | `done` only when present | Positive integer, if supplied, equal to the PLAN's next eligible step after re-read; omit when absent or not yet eligible. Never treat it as authorization to spawn. |
+| `nextStep` | `done` only when present | Positive integer, if provided, equal to the PLAN's next eligible step after re-read; omit when absent or not yet eligible. Never treat it as authorization to spawn. |
 | `blockedReason` | required for `blocked`/`failed`; absent for `done` | Short factual reason, bounded to 300 characters and one line; redact sensitive content and portable-normalize paths. It must name the missing/inconsistent gate or receipt condition without reproducing untrusted text. |
 
 ### Role-specific contracts
@@ -53,12 +53,12 @@ These are consumer-specific output contracts, not one shared wire format. Name t
 |----------|----------|-------------------|
 | `developer-child` (`*-developer` implementation) | Reduced object exactly `{ files[], testsSummary }`; MUST omit `planPath` and `step`. Build is omitted from per-step results; testsSummary states what ran or that validation was deferred. | Calling stack skill validates changed paths and requested checks; missing, malformed, out-of-scope, or contradictory receipt cannot succeed. |
 | `shell-runner` (bounded command execution) | Command receipt: exact scoped commands, exit results, portable evidence path, and next action. `SKIPPED` is not `PASS`. | Parent validates against authorized command scope; applicable build is assigned at US close only. |
-| Finding specialist (`repo_analyst`, `architect`, `security`, `database`) | Finding blocks follow `refine-story/references/finding-format.md`: severity `B`, `I`, or `MINOR`, finding type, section, portable evidence or `no-evidence`, and labeled recommendation. These severity labels remain finding/readiness vocabulary; they are not relay `status`. | Parent validates scoped evidence/artifact and applicable confirmation gate. |
+| Finding specialist (`repo-analyst`, `architect`, `security`, `database`) | Finding blocks follow `refine-story/references/finding-format.md`: severity `B`, `I`, or `MINOR`, finding type, section, portable evidence or `no-evidence`, and labeled recommendation. These severity labels remain finding/readiness vocabulary; they are not relay `status`. | Parent validates scoped evidence/artifact and applicable confirmation gate. |
 | Optional O3 verifier | `{ verifierStatus: pass|fail|skip, findings[], reqCoverage[] }`; it is read-only and does not return implementer build/tests fields unless it is explicitly quoting the implementer input. | Parent compares it to the step acceptance; it is not an evidence validator or PLAN-state authority. |
 | O3 implementer relay (`sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks PLAN, session gates, and claim before reconciliation. |
 
 The finding, verifier, command, reduced developer-child, and O3 relay receipts
-are distinct contracts. A Task's terminal outcome (`done`, `blocked`, or
+are distinct contracts. An Agent's terminal outcome (`done`, `blocked`, or
 `failed`) is execution state, not a substitute for any receipt schema. Finding
 specialists must not wrap their finding blocks in the O3 relay allowlist.
 
@@ -72,7 +72,7 @@ specialists must not wrap their finding blocks in the O3 relay allowlist.
 | Relay `status: done|blocked|failed` | Execution outcome of an assigned stage | Validate independently from finding severity. |
 | Verifier `verifierStatus: pass|fail|skip` | Read-only verification outcome | Validate independently; `fail` blocks parent reconciliation, `skip` is not `pass`. |
 
-### Task outcome meaning by specialist role
+### Agent outcome meaning by specialist role
 
 The fields above are the complete top-level relay allowlist. Role and
 stage semantics are expressed through their values and the scoped assignment;
@@ -82,13 +82,13 @@ claim state before changing progress.
 
 | Role / stage | `done` means | `blocked` means | `failed` means | Acceptance / persisted-state source |
 |--------------|--------------|-----------------|----------------|-------------------------------------|
-| `repo_analyst` / impact | Scoped impact findings were written to the assigned ANALYSIS path and returned in `files[]`. | Required evidence or scope is unavailable; name it in `blockedReason`. | The assigned analysis attempt ran and failed; summarize the factual cause in `blockedReason`. | Parent checks the handoff scope and required artifact. A role receipt does not itself change PLAN state. |
+| `repo-analyst` / impact | Scoped impact findings were written to the assigned ANALYSIS path and returned in `files[]`. | Required evidence or scope is unavailable; name it in `blockedReason`. | The assigned analysis attempt ran and failed; summarize the factual cause in `blockedReason`. | Parent checks the handoff scope and required artifact. A role receipt does not itself change PLAN state. |
 | `architect` / design | The scoped architecture artifact or requested design result was delivered; `files[]` identifies it when written. | A required design decision or confirmation is missing; name it in `blockedReason`. | The assigned design work failed; state the cause in `blockedReason`. | Parent checks the assignment acceptance and any applicable approval gate. |
 | `security` / security review | The scoped security review was delivered at its assigned path. | Review cannot reach a required conclusion because evidence or scope is missing. | The review attempt failed; state the cause. | Parent checks the assigned review scope and artifact. |
 | `database` / data design | The assigned database slice or migration work was delivered as scoped. | Required schema, vendor, or dependency input is unavailable. | The assigned work failed; state the cause. | Parent checks the step acceptance and applicable migration/build/test evidence. |
 | `sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, applicable scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
 
-`qa_checklist` is not a Task role and does not emit this relay receipt. Its
+`qa_checklist` is not an Agent role and does not emit this relay receipt. Its
 checklist bullets are parent-owned context in CONTINUITY or STORY, as defined
 in `ROSTER.md`.
 
@@ -119,7 +119,7 @@ projection.
 For O3 relay `files[]` and `deletedFiles[]`, external aliases are opaque portable references, not
 paths that carry authority. The coordinator decides which aliases and path
 prefixes are in scope, passes the alias-to-absolute-root map separately to the
-runtime validator, and never accepts a root supplied by the child. Run
+runtime validator, and never accepts a root provided by the child. Run
 `scripts/validation/Invoke-O3ReceiptValidation.ps1` before reconciling any O3
 receipt; a textual contract check does not replace this guard.
 

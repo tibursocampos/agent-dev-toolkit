@@ -29,13 +29,16 @@ SO suportado: **Windows**, **Linux** (Ubuntu, Debian e derivados) e **macOS**.
 
 O entrypoint baixa o zip, confere o SHA256 e abre o CLI.
 
-| Sistema | Arquivo | Download |
-| --- | --- | --- |
-| Windows (recomendado) | `bootstrap.bat` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
-| Windows (somente pelo terminal PowerShell) | `bootstrap.ps1` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
-| Linux e macOS | `bootstrap.ps1` ou `bootstrap.sh` | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> · <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
+| Sistema | Download |
+| --- | --- |
+| Windows (recomendado) | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.bat">bootstrap.bat</a> |
+| Windows (somente pelo terminal PowerShell) | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> |
+| Linux e macOS | <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.ps1">bootstrap.ps1</a> <a class="file-download" href="https://github.com/tibursocampos/agent-dev-toolkit/releases/latest/download/bootstrap.sh">bootstrap.sh</a> |
 
-No Windows, use `bootstrap.bat` como launcher guiado. Ele remove a marca de download do navegador em `bootstrap.ps1` e inicia o PowerShell com `-ExecutionPolicy Bypass`, preferindo `pwsh` e usando o Windows PowerShell como alternativa. Também é possível executar o `.ps1` no Windows por um terminal PowerShell com `pwsh -NoProfile -File .\bootstrap.ps1`; não dê clique duplo nele. Um download pelo navegador pode marcá-lo como arquivo da Internet e a política `RemoteSigned` pode bloqueá-lo; baixar com `curl.exe` evita essa marca, ou use `Unblock-File` depois de revisar o arquivo. No Linux e macOS, execute `bootstrap.ps1` com `pwsh -NoProfile -File`; o wrapper opcional `bootstrap.sh` precisa estar executável e ao lado do `bootstrap.ps1`. Execute por um terminal: o Smart Manager interativo é aberto ali e aguarda suas escolhas no menu.
+No Windows, `bootstrap.bat` é o launcher guiado. Ele remove a marca de download do navegador em `bootstrap.ps1` e inicia o PowerShell com `-ExecutionPolicy Bypass`, preferindo `pwsh` e usando o Windows PowerShell como alternativa. No Linux e macOS, execute `bootstrap.ps1` com `pwsh -NoProfile -File`; o wrapper opcional `bootstrap.sh` precisa estar executável e ao lado do `bootstrap.ps1`. Qualquer um dos comandos abre o Smart Manager interativo no terminal.
+
+!!! warning "Não dê clique duplo em bootstrap.ps1"
+    Um download pelo navegador pode marcar o `bootstrap.ps1` como arquivo da Internet, e a política `RemoteSigned` pode bloqueá-lo. Execute com `pwsh -NoProfile -File .\bootstrap.ps1` por um terminal, ou baixe com `curl.exe`, que evita a marca. Você também pode usar `Unblock-File` depois de revisar o arquivo.
 
 Checksum inválido sai com código diferente de zero. Não há extração nem handoff.
 
@@ -78,6 +81,19 @@ cd agent-dev-toolkit
 O menu, cada `-Action`, sync, validação e desinstalação estão em [CLI](cli.md).
 
 Abra o repositório da aplicação no agente e siga para [Primeiro uso](first-use.md). O caminho de uma feature é [Entrega orquestrada](orchestrated-delivery.md).
+
+## Qual fluxo escolher?
+
+Não sabe qual fluxo se encaixa no seu trabalho? Escolha antes de começar:
+
+| Fluxo | Use quando | Skill de entrada |
+|-------|------------|------------------|
+| Entrega orquestrada | Feature com várias histórias, código brownfield ou especialistas | `orchestrate-analyze` |
+| SDD clássico | Uma história já clara, sem necessidade de especialistas | `sdd-spec` |
+| Refinar item do backlog | Item informal (bug, história de usuário, história técnica) antes do SDD | `refine-story` |
+| Revisão de requisito | Questionar critérios de aceitação ou contratos antes do SDD | `requirement-review` |
+
+Os fluxos não são pré-requisitos uns dos outros. Veja o guia de decisão completo (ainda só em inglês): [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
 
 ## Solução de problemas
 

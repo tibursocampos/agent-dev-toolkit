@@ -4,11 +4,11 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-AR
 
 **Language:** This guideline is **English**. Agent artifact prose in TRACE summaries follows **content-language** (`LANGUAGE.md`; no hard-coded locale). Identifiers, event names, and paths stay **English**.
 
-Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `EVD-STATE-CONTRACT.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `PIPELINE.md`.
+Companion: `STORAGE.md` (canonical paths), `CHANGE-CONTRACT.md`, `EVD-STATE-CONTRACT.md`, `SELECTIVE-RETRIEVAL.md`, `PIPELINE.md`.
 
 ---
 
-## Purpose (REQ-005 / CA5; living loop)
+## Purpose (living loop)
 
 **P3 living loop** after P0–P2 contracts exist:
 
@@ -22,7 +22,7 @@ converge → sync current → archive
 features/NNN-slug/TRACE.jsonl
 ```
 
-Do **not** invent `openspec/`, `.specs/`, `.specify/`, SQLite/FTS, **`.agent-trace/`**, a second JSONL trail, or **git-notes as SoT** for this trail (RNF-003). Git-notes may exist elsewhere for other workflows; they are **not** the TRACE source of truth in this contract.
+Do **not** invent `openspec/`, `.specs/`, `.specify/`, SQLite/FTS, **`.agent-trace/`**, a second JSONL trail, or **git-notes as SoT** for this trail. Git-notes may exist elsewhere for other workflows; they are **not** the TRACE source of truth in this contract.
 
 ## Living loop phases
 
@@ -52,7 +52,7 @@ Template: `skills/_shared/templates/features/TRACE.jsonl`.
 | `event` | string | Event name (see below) |
 | `feature` | string | Portable feature root: `features/NNN-slug` |
 
-### Optional run metrics (REQ-005 / CA5)
+### Optional run metrics
 
 Cross-cutting fields — **optional**. When a key is **present**, it is **normative** (validate-trace rejects malformed values). Emitters and harvest use these when the host exposes usage/timing/spawn context.
 
@@ -92,14 +92,14 @@ Same required fields (`ts`, `event`, `feature`) on every line. Extra keys allowe
 
 | `event` | Extra fields | Rule |
 |---------|--------------|------|
-| `retrieval` | `paths` (non-empty string array), `reason` (non-empty string) | Selective read audit (`SR-NO-FULL-DUMP`); portable paths only — no drive letters or user-home embeds |
+| `retrieval` | `paths` (non-empty string array), `reason` (non-empty string) | Selective read audit; portable paths only — no drive letters or user-home embeds |
 | `gate` | `gate_id` (non-empty string), `response` (non-empty string) | Human or SESSION gate checkpoint (e.g. step approval, ARCH confirm) |
 | `spawn` | `role` (non-empty string), `reason` (non-empty string), `outcome` (non-empty string) | Specialist spawn or in-parent fallback decision (`SPAWN.md`) |
 | `specialist_complete` | `role` (non-empty string), `summary` (non-empty string) | Specialist pass finished; one-line outcome for parent synthesis |
 
 Do **not** create a parallel trail (e.g. `.agent-trace/`) — extend this `TRACE.jsonl` only. Do **not** treat git-notes as a substitute SoT for TRACE.
 
-### Redact / secrets (RNF-001)
+### Redact / secrets
 
 TRACE payloads and emitter appends must **never** log:
 
@@ -134,7 +134,7 @@ After `archive`:
 1. TRACE contains the ordered living-loop triad above
 2. Every `sync_current.targets` entry is a selective living-doc path (no full bank dump — `SR-NO-FULL-DUMP`)
 3. Brownfield features that ran CHANGE still keep `features/NNN-slug/CHANGE.md` as the delta record; archive does **not** delete CHANGE
-4. Markdown under `features/` + `memory-bank/` remains SoT (RN01)
+4. Markdown under `features/` + `memory-bank/` remains SoT
 
 ## Structural validate
 
@@ -161,8 +161,8 @@ Exit 0 = OK. Exit ≠ 0 = fix before declaring archive done. Validation is deter
 
 - Use SQLite / FTS / OpenSpec / `.specs/` / **`.agent-trace/`** / a second JSONL as TRACE or archive SoT
 - Treat **git-notes** as TRACE SoT under this contract
-- Dump full `memory-bank/` or full PRD into TRACE payloads (`SR-NO-FULL-DUMP`)
-- Log secrets, auth tokens, or PII in TRACE (RNF-001)
+- Dump full `memory-bank/` or full PRD into TRACE payloads
+- Log secrets, auth tokens, or PII in TRACE
 - Emit malformed `tokens` / `duration` / nested `spawn` when those keys are present
 - Skip `sync_current` targets that point at forbidden trees
 - Treat O3 parallelism as the archive verifier (same as evidence: sequential script gate)

@@ -1,6 +1,5 @@
 /* =============================================================================
-   agent-dev-toolkit — committed dark design tokens (DESIGN-BRIEF)
-   Wave 1 Task B — tokens + chrome + home class API (no motion yet)
+   agent-dev-toolkit — dark design tokens (docs/DESIGN-BRIEF.md, docs/DESIGN.md)
    ============================================================================= */
 
 /* -----------------------------------------------------------------------------
@@ -13,7 +12,7 @@
   --muted: oklch(0.70 0.02 250);
   --accent: oklch(0.78 0.14 195);
   --accent-dim: oklch(0.45 0.08 195);
-  /* Dark ink on filled primary — AA ≥4.5:1 vs --accent (teal L≈0.78) */
+  /* Dark ink on filled primary — AA ≥4.5:1 vs --accent */
   --on-accent: oklch(0.18 0.035 250);
   --danger: oklch(0.65 0.18 25);
 
@@ -33,9 +32,9 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --measure: 72ch;
-  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-dim);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
 
-  /* Material palette bridge — kill default purple/pink */
+  /* Material palette bridge */
   --md-default-fg-color: var(--text);
   --md-default-fg-color--light: var(--muted);
   --md-default-fg-color--lighter: color-mix(in oklch, var(--muted) 70%, var(--bg));
@@ -97,24 +96,39 @@
 }
 
 /* -----------------------------------------------------------------------------
-   2. Base typography + chrome
+   2. Base typography and chrome
+   Sizes follow docs/DESIGN.md: body 15px, code 12.5px, nav and TOC 13px.
    ----------------------------------------------------------------------------- */
 html {
   font-size: 100%;
   background-color: var(--bg);
   color: var(--text);
+  caret-color: var(--accent);
+  scrollbar-color: var(--accent-dim) var(--surface);
 }
 
-@media screen and (min-width: 100em) {
-  html {
-    font-size: 100%;
+/* Material sets body to .5rem; keep the page text at the design size. */
+body {
+  font-size: 0.9375rem;
+}
+
+.md-clipboard {
+  color: var(--muted);
+}
+
+.md-clipboard:hover {
+  color: var(--accent);
+}
+
+@media screen and (max-width: 59.9375em) {
+  .md-header__topic:first-child {
+    display: none;
   }
 }
 
-@media screen and (min-width: 125em) {
-  html {
-    font-size: 100%;
-  }
+::selection {
+  background-color: color-mix(in oklch, var(--accent) 30%, transparent);
+  color: var(--text);
 }
 
 body {
@@ -132,8 +146,13 @@ body {
   font-family: var(--font-body);
   font-weight: 400;
   color: var(--text);
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   line-height: 1.55;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  font-size: 0.875rem;
 }
 
 .md-typeset h1,
@@ -146,7 +165,6 @@ body {
 }
 
 .md-typeset h1 {
-  letter-spacing: -0.03em;
   font-size: 2.25rem;
 }
 
@@ -164,7 +182,7 @@ body {
 .md-typeset :not(pre) > code,
 .md-typeset kbd {
   font-family: var(--font-code);
-  font-size: 1rem;
+  font-size: 0.78125rem;
   font-weight: 400;
   line-height: 1.45;
 }
@@ -173,6 +191,7 @@ body {
 .md-content__inner > ul,
 .md-content__inner > ol {
   margin-block: 0.45em;
+  max-width: var(--measure);
 }
 
 .md-typeset a {
@@ -187,11 +206,6 @@ body {
   outline: none;
   box-shadow: var(--focus-ring);
   border-radius: var(--radius-sm);
-}
-
-/* Article measure guidance */
-.md-content__inner > :is(p, ul, ol, dl, blockquote, .admonition) {
-  max-width: none;
 }
 
 .md-header,
@@ -233,13 +247,11 @@ body {
   border-top: 1px solid color-mix(in oklch, var(--accent-dim) 40%, transparent);
 }
 
-/* Kill Material primary purple header fill leftovers */
 .md-header--shadow,
 [data-md-color-primary] .md-header {
   background-color: var(--bg);
 }
 
-/* Visible focus across Material chrome */
 .md-header__button:focus-visible,
 .md-nav__link:focus-visible,
 .md-tabs__link:focus-visible,
@@ -290,516 +302,25 @@ body {
 }
 
 /* -----------------------------------------------------------------------------
-   4. Home hero region API (Task D consumers)
+   4. Home figure
    ----------------------------------------------------------------------------- */
-
-/*
-  Contract for home page authors
-  --------------------------------
-  .home-hero                 Outer composition for first viewport (no card chrome)
-  .home-brand                Product name — display font, hero-level
-  .home-headline             Single H1-scale line under brand
-  .home-lead                 One supporting sentence (muted)
-  .home-cta                  CTA group wrapper
-  .home-cta__primary         Filled primary (Copy) — --accent bg + --on-accent text
-  .home-cta__secondary       Outline secondary (Get started)
-  .home-cta__copy            Copy-command shell (layout + success/error)
-  .home-cta__note            Muted fixture-first hint (full-width under CTAs)
-  .home-cta__script          Secondary scripting command (full-width; not the copy default)
-  .home-cta__status          Live region for copy success/error
-  .home-diagram              Dominant SVG diagram region
-  .agent-switcher            Switcher root (radiogroup)
-  .agent-switcher__label     Visible radiogroup legend
-  .agent-switcher__options    Flat flex-wrap row of all agent chips
-  .agent-switcher__option    Per-agent radio + label (visible without JS)
-  .agent-switcher__badge     Optional compact label on an option (unused on home; keep for future)
-  .agent-switcher__hint      Live-root install hint (__note aliases same rules)
-  .home-secondary-links      Below-fold Skills / Adapters row
-  .reveal / .reveal--*       Load reveal hooks (prefers-reduced-motion gated)
-*/
-
-.home-hero {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  padding-block: var(--space-6) var(--space-7);
-  max-width: 56rem;
-}
-
-.home-brand {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.35rem;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  color: var(--text);
-  margin: 0;
-}
-
-.home-headline {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.125rem;
-  letter-spacing: -0.04em;
-  line-height: 1.25;
-  color: var(--text);
-  margin: 0;
-  max-width: var(--measure);
-}
-
-.home-lead {
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--muted);
-  margin: 0;
-  max-width: 42rem;
-}
-
-.home-cta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin-block: var(--space-2);
-}
-
-/* Shared interactive reset for CTA controls */
-.home-cta__primary,
-.home-cta__secondary,
-.home-cta__copy > .md-button,
-.home-cta__copy > button,
-.home-cta > .md-button {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: 1.75rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out;
-}
-
-/* Filled primary — dark ink on teal (AA); not light-on-teal */
-.home-cta__primary,
-.home-cta__copy > .md-button,
-.home-cta__copy > button {
-  background-color: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
-}
-
-.home-cta__primary:hover,
-.home-cta__copy > .md-button:hover,
-.home-cta__copy > button:hover {
-  background-color: color-mix(in oklch, var(--accent) 88%, white);
-  border-color: color-mix(in oklch, var(--accent) 88%, white);
-  color: var(--on-accent);
-}
-
-.home-cta__primary:focus-visible,
-.home-cta__copy > .md-button:focus-visible,
-.home-cta__copy > button:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-/* Pressed: darken accent via color-mix (not --accent-dim) so --on-accent stays AA ≥4.5:1 */
-.home-cta__primary:active,
-.home-cta__copy > .md-button:active,
-.home-cta__copy > button:active {
-  background-color: color-mix(in oklch, var(--accent) 82%, black);
-  border-color: color-mix(in oklch, var(--accent) 82%, black);
-  color: var(--on-accent);
-}
-
-.home-cta__primary:disabled,
-.home-cta__primary[aria-disabled="true"],
-.home-cta__copy > .md-button:disabled,
-.home-cta__copy > button:disabled,
-.home-cta__copy > .md-button[aria-disabled="true"],
-.home-cta__copy > button[aria-disabled="true"] {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Outline secondary — Get started */
-.home-cta__secondary,
-.home-cta > a.md-button,
-.home-cta > a.md-button--primary,
-.home-cta > .md-button.md-button--primary {
-  background-color: transparent;
-  color: var(--accent);
-  border-color: var(--accent-dim);
-}
-
-.home-cta__secondary:hover,
-.home-cta > a.md-button:hover,
-.home-cta > a.md-button--primary:hover,
-.home-cta > .md-button.md-button--primary:hover {
-  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.home-cta__secondary:focus-visible,
-.home-cta > a.md-button:focus-visible,
-.home-cta > a.md-button--primary:focus-visible,
-.home-cta > .md-button.md-button--primary:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.home-cta__secondary:active,
-.home-cta > a.md-button:active,
-.home-cta > a.md-button--primary:active,
-.home-cta > .md-button.md-button--primary:active {
-  background-color: color-mix(in oklch, var(--accent-dim) 35%, var(--surface));
-  border-color: var(--accent-dim);
-  color: var(--accent);
-}
-
-.home-cta__secondary:disabled,
-.home-cta__secondary[aria-disabled="true"] {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Copy shell — layout only (not a fake button wrapper) */
-.home-cta__copy {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-}
-
-/* Command code: direct under .home-cta or wrapped in .home-cta__copy */
-.home-cta > code,
-.home-cta > [data-sync-command],
-.home-cta__copy > code,
-.home-cta__copy [data-sync-command],
-.home-cta__copy [data-launcher-command] {
-  font-family: var(--font-code);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text);
-  background-color: var(--surface);
-  border: 1px solid color-mix(in oklch, var(--accent-dim) 50%, transparent);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.home-cta__note,
-.home-cta__script {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--muted);
-  margin: 0;
-  max-width: var(--measure);
-}
-
-.home-cta__note,
-.home-cta__script,
-.home-cta__status {
-  flex-basis: 100%;
-  width: 100%;
-}
-
-.home-cta__script code,
-.home-cta__script [data-sync-script-command] {
-  font-family: var(--font-code);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text);
-  background-color: var(--surface);
-  border: 1px solid color-mix(in oklch, var(--accent-dim) 50%, transparent);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
-  display: inline-block;
-  max-width: 100%;
-  overflow-x: auto;
-  vertical-align: middle;
-}
-
-.home-cta__status {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--muted);
-  min-height: 1.25em;
-}
-
-.home-cta__status:empty {
-  display: none;
-}
-
-.home-cta__status.is-success,
-.home-cta__copy.is-success .home-cta__status,
-.home-cta__copy[data-state="success"] .home-cta__status {
-  color: var(--accent);
-}
-
-.home-cta__status.is-error,
-.home-cta__copy.is-error .home-cta__status,
-.home-cta__copy[data-state="error"] .home-cta__status {
-  color: var(--danger);
-}
-
-.home-cta__copy.is-success > .md-button,
-.home-cta__copy[data-state="success"] > .md-button,
-.home-cta__copy > .md-button.is-success,
-.home-cta__copy > .md-button[data-state="success"],
-.home-cta__copy > button.is-success,
-.home-cta__copy > button[data-state="success"],
-.home-cta__primary.is-success,
-.home-cta__primary[data-state="success"] {
-  background-color: color-mix(in oklch, var(--accent) 22%, var(--surface));
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.home-cta__copy.is-error > .md-button,
-.home-cta__copy[data-state="error"] > .md-button,
-.home-cta__copy > .md-button.is-error,
-.home-cta__copy > .md-button[data-state="error"],
-.home-cta__copy > button.is-error,
-.home-cta__copy > button[data-state="error"],
-.home-cta__primary.is-error,
-.home-cta__primary[data-state="error"] {
-  background-color: color-mix(in oklch, var(--danger) 14%, var(--surface));
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
 .md-typeset figure.home-diagram {
   display: block;
   width: 100%;
-  max-width: 100%;
+  max-width: 36rem;
   margin-block: var(--space-4);
   color: var(--text);
 }
 
-.md-typeset figure.home-diagram svg,
 .md-typeset figure.home-diagram img {
   display: block;
   width: 100%;
   height: auto;
 }
 
-/* Agent switcher — readable without JS; flat radiogroup of all agent chips with flex wrap */
-.agent-switcher {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-width: 52rem;
-}
-
-.agent-switcher__label {
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-/* Radiogroup options — radios + labels visible without JS */
-.agent-switcher__options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-}
-
-.agent-switcher__option {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: transparent;
-  border: 1px solid color-mix(in oklch, var(--accent-dim) 55%, transparent);
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 700;
-  min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
-  transition: color 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
-}
-
-/* Native radios stay visible and operable (no clip/sr-only hide) */
-.agent-switcher__option input[type="radio"] {
-  position: static;
-  flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.agent-switcher__option:hover {
-  color: var(--text);
-  border-color: var(--accent-dim);
-  background-color: color-mix(in oklch, var(--surface) 80%, transparent);
-}
-
-.agent-switcher__option:focus-within {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.agent-switcher__option:has(input:checked) {
-  color: var(--accent);
-  border-color: var(--accent);
-  background-color: color-mix(in oklch, var(--accent) 10%, var(--surface));
-}
-
-.agent-switcher__option:has(input:disabled) {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.agent-switcher__badge {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-inline-start: var(--space-1);
-  padding: 0.125rem var(--space-2);
-  border-radius: var(--radius-sm);
-  background-color: color-mix(in oklch, var(--accent) 18%, var(--surface));
-  border: 1px solid color-mix(in oklch, var(--accent) 45%, transparent);
-  color: var(--accent);
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.agent-switcher__hint,
-.agent-switcher__note {
-  font-family: var(--font-code);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--muted);
-  margin: 0;
-  max-width: var(--measure);
-}
-
-.home-secondary-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-block: var(--space-6) var(--space-4);
-  padding-block-start: var(--space-5);
-  border-top: 1px solid color-mix(in oklch, var(--accent-dim) 40%, transparent);
-}
-
-.home-secondary-links a {
-  font-family: var(--font-body);
-  font-weight: 700;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.home-secondary-links a:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.home-secondary-links a:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-/* Compact install table: command in the cell, download and copy at the end of the row. */
-.cmd-table {
-  width: 100%;
-  font-size: 0.8125rem;
-}
-
-.cmd-table code {
-  white-space: pre-wrap;
-  font-size: 0.75rem;
-}
-
-.cmd-table__btn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.6rem;
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  cursor: pointer;
-}
-
-.cmd-table__btn:hover {
-  background: color-mix(in oklch, var(--accent) 88%, white);
-}
-
-.cmd-table__btn:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.md-nav,
-.md-nav--primary .md-nav__item,
-.md-nav--primary .md-nav__title,
-.md-sidebar--primary .md-nav__link,
-.md-sidebar--secondary .md-nav__link,
-.md-nav__link,
-.md-nav__link code,
-.md-nav__title {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.35;
-}
-
-.md-nav__link {
-  margin-top: 0.15rem;
-  padding-block: 0.05rem;
-}
-
-.md-nav__item .md-nav__link--active,
-.md-nav__item .md-nav__link--active code {
-  color: var(--accent);
-  font-weight: 600;
-}
-
+/* -----------------------------------------------------------------------------
+   5. Tables and downloads
+   ----------------------------------------------------------------------------- */
 .md-typeset__scrollwrap {
   margin-inline: 0;
   max-width: 100%;
@@ -833,7 +354,7 @@ html .md-typeset__table table,
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   font-weight: 400;
 }
 
@@ -846,6 +367,21 @@ html .md-typeset__table table,
   vertical-align: top;
   white-space: normal;
   overflow-wrap: break-word;
+}
+
+.md-typeset table:not([class]) code {
+  overflow-wrap: anywhere;
+}
+
+@media screen and (min-width: 60em) {
+  .md-typeset table:not([class]) code {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+}
+
+.md-typeset table:not([class]) a.file-download + a.file-download {
+  margin-inline-start: var(--space-2);
 }
 
 .md-typeset a.file-download {
@@ -884,77 +420,36 @@ html .md-typeset__table table,
   color: var(--on-accent);
 }
 
+/* -----------------------------------------------------------------------------
+   6. Navigation
+   ----------------------------------------------------------------------------- */
+.md-nav,
+.md-nav--primary .md-nav__item,
+.md-nav--primary .md-nav__title,
+.md-sidebar--primary .md-nav__link,
+.md-sidebar--secondary .md-nav__link,
+.md-nav__link,
+.md-nav__link code,
+.md-nav__title {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.md-nav__link {
+  margin-top: 0.15rem;
+  padding-block: 0.05rem;
+}
+
+.md-nav__item .md-nav__link--active,
+.md-nav__item .md-nav__link--active code {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 @media screen and (min-width: 60em) {
   .md-search__form {
     width: 11rem;
-  }
-}
-.os-launcher {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
-  flex: 1 1 100%;
-  width: 100%;
-  min-width: 0;
-  margin-block: var(--space-2);
-}
-
-.os-launcher__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-}
-
-.os-launcher__note {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--muted);
-  margin: 0;
-  max-width: var(--measure);
-}
-
-/* -----------------------------------------------------------------------------
-   5. Motion — load reveals (Wave 2 Task F)
-   ease-out-quart; opacity + translateY only; short stagger
-   ----------------------------------------------------------------------------- */
-@keyframes adt-reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(0.75rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.reveal {
-  animation: adt-reveal-up 560ms cubic-bezier(0.25, 1, 0.5, 1) both;
-}
-
-.reveal--brand {
-  animation-delay: 0ms;
-}
-
-.reveal--diagram {
-  animation-delay: 90ms;
-}
-
-.reveal--switcher {
-  animation-delay: 180ms;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal--brand,
-  .reveal--diagram,
-  .reveal--switcher {
-    animation: none !important;
-    transition: none !important;
   }
 }

@@ -54,8 +54,8 @@ Status tokens and B/I/MINOR taxonomy: `_shared/sdd-artifacts/readiness-severity.
 
 | Envelope `status` | Meaning |
 |-------------------|---------|
-| **READY** | Zero open **B**/**I**; may hand off to `/sdd-spec` / O2 path |
-| **NEEDS_CLARIFICATION** | Open **B**/**I** remain — **STOP** fake-forward ready-for-PRD |
+| **READY** | Per `readiness-severity.md`; may hand off to `/sdd-spec` / O2 path |
+| **NEEDS_CLARIFICATION** | Per `readiness-severity.md`; **STOP** fake-forward ready-for-PRD |
 
 **READY ≠** SESSION `step_confirmed` / PLAN step Complete / folder presence (**RN02**, `RDY-DUAL-PLANE`). Do not reopen taxonomy scripts in this enrich step.
 
@@ -66,7 +66,7 @@ Envelope refine-story
 mode: feature
 status: READY | NEEDS_CLARIFICATION
 paths: <portable only>
-open B/I: <count>
+open B/I/MINOR: <count>
 qa_history: <portable path or "(chat-only — not persisted)">
 next: <handoff or answer B/I>
 ```

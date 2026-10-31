@@ -60,7 +60,7 @@ boundary are inseparable.
 
 ## Merge policy (O1, before human gate)
 
-Before presenting the backlog for approval (RN01):
+Before presenting the backlog for approval:
 
 1. Load this contract (`story-sizing.md`).
 2. For each proposed US/TS, verify objective = one verifiable outcome (not a file or layer list).

@@ -13,8 +13,8 @@ The direct risk choice is not silent permission to invent a contract: record the
 
 ### Direct context
 
-In `direct`, an approved canonical PRD is sufficient; absent O1/O2 siblings do not trigger acquisition or an operator-risk choice. Normalize complexity from the persisted PRD field using `checklist-acquisition.md`; derive PLAN-native steps from approved behavior/REQ/CA without checklist IDs. STORY/checklist may supplement only when explicitly linked or supplied, and cannot override the PRD. Keep this distinct from the PLAN-magro rule above: if an omitted technical body has no canonical source, use the documented direct operator choice.
+In `direct`, an approved canonical PRD is sufficient; absent O1/O2 siblings do not trigger acquisition or an operator-risk choice. Normalize complexity from the persisted PRD field using `checklist-acquisition.md`; derive PLAN-native steps from approved behavior/REQ/CA without checklist IDs. STORY/checklist may supplement only when explicitly linked or provided, and cannot override the PRD. Keep this distinct from the PLAN-magro rule above: if an omitted technical body has no canonical source, use the documented direct operator choice.
 
-In `orchestrated`, O1/O2 must supply the canonical bodies and required siblings before PLAN. O2's FEATURE/STORY, approvals, analysis, and checklist requirements remain in force; do not use the direct fallback.
+In `orchestrated`, O1/O2 must provide the canonical bodies and required siblings before PLAN. O2's FEATURE/STORY, approvals, analysis, and checklist requirements remain in force; do not use the direct fallback.
 
 ---

@@ -5,7 +5,7 @@
 | Purpose | Fast intake - one backlog item + scorecard + envelope/Q&A | Multi-agent triage + US/TS backlog for a feature | Full PRD for one story/feature |
 | Output | Structured markdown + scorecard + interaction envelope | `FEATURE.md`, `CONTINUITY.md`, `STORY.md` × N | PRD under `features/.../PRD/` |
 | Persistence | Prefer `features/.../STORY.md` + `REFINE/qa-history.md`; shortcut `docs/backlog/` | Feature tree only | Canonical PRD path |
-| Specialists | None | Conditional Task (`needs_*`) | None (consumes Prior context) |
+| Specialists | None | Conditional Agent (`needs_*`) | None (consumes Prior context) |
 | When to use | Informal idea, bug, single TS/US | Complex / multi-story / brownfield package | Ready to write PRD for one path |
 | Tracker | Never (no external tracker/`az`) | Never | Never |
 
@@ -28,7 +28,7 @@ Open questions use severity **B** \| **I** \| **MINOR** (`clarify-depth.md` + `r
 
 **Envelopes + Q&A (REQ-005):** `interaction-envelope.md` + `qa-history.md`.
 
-**No new clarify skill (REQ-007):** do not create `clarify` / `feature-refinement` skill folders.
+**Requirement challenge:** `requirement-review` owns feature and tech challenge (one skill, two modes). Refine calls it before handoff. Do not create a second challenge skill or a `feature-refinement` folder.
 
 **Selective retrieval:** `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP` — **must not** dump entire `memory-bank/` or paste full PRD into refine output/handoffs. Smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section).
 

@@ -1,10 +1,10 @@
-# Review policy refs (WS16a / REQ-016)
+# Review policy refs
 
 **Family:** `policy`. Load during Process §3–4 when the diff touches skills, rules, agents, Publish adapters, git flow, or toolkit always-on behavior. Prefer project `docs/standards/` / `AGENTS.md` when reviewing a **consumer** repo.
 
 **Language:** English identifiers and checklist labels. Report prose follows session language (`LANGUAGE.md`).
 
-**Contract:** pointers only — **do not** paste full policy bodies into the review report (`SR-NO-FULL-DUMP` / RNF-004).
+**Contract:** pointers only — **do not** paste full policy bodies into the review report.
 
 Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/verification.md`.
 
@@ -14,19 +14,19 @@ Companions: `references/contracts.md`, `references/n-plus-one.md`, `references/v
 
 | Topic | Portable path (after sync) | When to load |
 |-------|----------------------------|--------------|
-| Guardrails (git / write / one-step / tests) | `{{GUARDRAILS_PATH}}` or `core/policy/guardrails.md` | Any review that judges agent/skill diffs or mutating git advice |
+| Guardrails (git / write / one-step / tests) | `core/policy/guardrails.md` | Any review that judges agent/skill diffs or mutating git advice |
 | SDD pipeline guards | `core/policy/sdd-pipeline-guards.md` | Diffs under `features/`, SDD skills, PRD/PLAN boundaries |
 | Branch naming | `core/policy/branch-validation.md` | Branch/PR naming in scope |
 | Commit message shape | `core/policy/conventional-commits.md` | Commit/PR title hygiene in scope |
 | Orchestrator / parent role | `core/policy/orchestrator-session.md` | O3 / spawn / parent-vs-child diffs |
-| Progress checkpoints | `core/policy/context-management.md` | Skills that change durable step/checkpoint behavior; this reference defines no context threshold |
+| Progress checkpoints | `core/policy/guardrails.md` section "Progress checkpoints" | Skills that change durable step/checkpoint behavior; this reference defines no context threshold |
 | Caveman | `core/policy/caveman-mode.md` | Caveman / compact prose skill changes |
 | AI stealth trailers | `core/policy/ai-stealth.md` | Commit/PR co-author trailer policy |
 | Chat language | `core/policy/user-language-pt-br.md` | Language-surface skill changes (install default; honor `LANGUAGE.md` matrix) |
 | SDD artifact language | `core/policy/sdd-artifact-language-pt-br.md` | PRD/PLAN language policy diffs (install default; honor `LANGUAGE.md` matrix) |
 | Language surfaces SoT | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` | Any chat vs spawn vs SDD-locale surface change |
 
-Repo source of truth for the toolkit tree: `core/policy/`. Installed hosts may mirror as rules (`.mdc`) — same **ids/topics**; do not invent a second policy SoT.
+Repo source of truth for the toolkit tree: `core/policy/`. Installed hosts may mirror as rules — same **ids/topics**; do not invent a second policy SoT.
 
 ---
 
@@ -45,7 +45,7 @@ Run on the **changed** surface only; skip rows that do not apply.
 
 **Severity hint:** finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. Weakened gates / silent PRD writes / auto-merge → `critical` or `important`; cosmetic policy prose → `nice-to-have`.
 
-## CT6 marker (policy)
+## Marker (policy)
 
 - [ ] This file is reachable from `code-review` Reference routing / Process §3–4
 - [ ] Checklist above is actionable without pasting full `core/policy/*` bodies

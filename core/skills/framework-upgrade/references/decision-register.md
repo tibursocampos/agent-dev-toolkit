@@ -27,7 +27,7 @@ Observable log of upgrade decisions. Keep entries short; cite portable paths.
 - Register must remain **readable in-session** (chat summary and/or feature-local note path the operator approved).
 - Do not invent decisions the operator did not confirm.
 - Silence on migrate → `operator_sim=no` → do not apply mutate.
-- No duration / effort / story-point fields (RN04).
+- No duration / effort / story-point fields.
 
 ## Stub persistence (optional)
 

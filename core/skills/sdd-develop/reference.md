@@ -2,14 +2,15 @@
 
 Extended detail for `skills/sdd-develop/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Evidence-or-zero: `EVD/` + `STATE.md` + `validate-evidence` (`EVD-STATE-CONTRACT.md`). Living loop: `TRACE.jsonl` converge → sync_current → archive (`TRACE-ARCHIVE-CONTRACT.md` / `validate-trace`).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Evidence-or-zero: `EVD/` + `STATE.md` + `validate-evidence` (`EVD-STATE-CONTRACT.md`). Living loop: `TRACE.jsonl` converge → sync_current → archive (`TRACE-ARCHIVE-CONTRACT.md` / `validate-trace`).
 
 | Section | Path |
 |---------|------|
+| Canonical scripts after sim (session / ledger helpers) | `references/canonical-scripts.md` |
 | Command playbook (step discovery) | `references/command.md` |
-| plan-acquisition (REQ-008 / CA3) | `references/plan-acquisition.md` |
+| plan-acquisition | `references/plan-acquisition.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |
-| plan-contract markers + delivery-baseline (REQ-010) | `references/plan-contract.md` |
+| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
 | PLAN update protocol | `references/plan-update.md` |
 | Git preparation checklist | `references/git-checklist.md` |
 | Pre-implementation code analysis | `references/code-analysis.md` |

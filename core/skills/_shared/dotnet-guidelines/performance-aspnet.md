@@ -1,8 +1,8 @@
 # ASP.NET Core performance and fundamentals (pointers)
 
-Progressive load: cite URLs and align to existing checklist / `csharp-patterns` gates. **Do not** paste Learn articles or blog posts wholesale (`RNF-004`).
+Progressive load: cite URLs and align to existing checklist / `csharp-patterns` gates. **Do not** paste Learn articles or blog posts wholesale.
 
-**RN08:** Official Microsoft Learn / .NET blog wins auxiliary blogs and gists when they conflict.
+Official Microsoft Learn / .NET blog wins auxiliary blogs and gists when they conflict.
 
 ---
 

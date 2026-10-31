@@ -124,7 +124,7 @@ function New-ClaudeManagedHookEventEntries {
     $entry[$handlersProperty] = @(
         (New-ClaudeManagedHookHandler -Command $Command)
     )
-    return , @($entry)
+    return $entry
 }
 
 function Get-ClaudeManagedHookCommand {
@@ -154,8 +154,13 @@ function Get-ClaudeManagedHooksObject {
     $c = $script:ClaudeSettingsJsonConstant
     $hooks = [ordered]@{}
 
-    $hooks[$c.HookEventUserPromptSubmit] = New-ClaudeManagedHookEventEntries -Command (
-        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptUserPromptSubmit
+    $hooks[$c.HookEventSessionStart] = @(New-ClaudeManagedHookEventEntries -Command (
+        Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptSessionStart
+    ))
+
+    $hooks[$c.HookEventUserPromptSubmit] = @(
+        (New-ClaudeManagedHookEventEntries -Command (Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptUserPromptSubmit)),
+        (New-ClaudeManagedHookEventEntries -Command (Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptPreferencesCommand))
     )
 
     # PreCompact context-usage pressure hook was removed; keep the script identity
@@ -177,9 +182,9 @@ function Get-ClaudeManagedHooksObject {
 
     # Toolkit authorization hooks no longer participate in provider decisions.
 
-    $hooks[$c.HookEventSubagentStop] = New-ClaudeManagedHookEventEntries -Command (
+    $hooks[$c.HookEventSubagentStop] = @(New-ClaudeManagedHookEventEntries -Command (
         Get-ClaudeManagedHookCommand -InstallRoot $InstallRoot -ScriptFileName $c.HookScriptTraceEmit
-    )
+    ))
 
     # Empty managed projections let keyed merge remove legacy Toolkit entries
     # without touching handlers owned by the user or another integration.
@@ -189,23 +194,27 @@ function Get-ClaudeManagedHooksObject {
     return $hooks
 }
 
-function Get-ClaudeManagedHookScriptFileNameMap {
+function Get-ClaudeManagedHookOwnedScriptMap {
     <#
     .SYNOPSIS
-      Map managed hook event name -> the toolkit script filename that owns it.
-      Used as the command/path identity for keyed hook merges.
+      Map each managed hook event to the toolkit script filenames that own handlers on it.
+
+    .DESCRIPTION
+      Identity for keyed merge and reverse-merge. Handlers that do not reference one of
+      these scripts under hooks/ are alien and are never matched.
     #>
     [CmdletBinding()]
     param()
 
     $c = $script:ClaudeSettingsJsonConstant
-    # Primary identity per event for keyed merge strip; PostToolUse also strips emit-trace via multi-pass below.
+    $legacy = @($script:ClaudeLegacyManagedHookScriptFileNames)
     return [ordered]@{
-        $c.HookEventUserPromptSubmit = $c.HookScriptUserPromptSubmit
-        $c.HookEventPreCompact       = $c.HookScriptPreCompact
-        $c.HookEventPostToolUse      = $c.HookScriptPostToolUse
-        $c.HookEventPreToolUse       = $c.HookScriptPreToolUse
-        $c.HookEventSubagentStop     = $c.HookScriptTraceEmit
+        $c.HookEventSessionStart     = @($c.HookScriptSessionStart) + $legacy
+        $c.HookEventUserPromptSubmit = @($c.HookScriptUserPromptSubmit, $c.HookScriptPreferencesCommand) + $legacy
+        $c.HookEventPreCompact       = $legacy
+        $c.HookEventPostToolUse      = @($c.HookScriptPostToolUse, $c.HookScriptTraceEmit) + $legacy
+        $c.HookEventPreToolUse       = $legacy
+        $c.HookEventSubagentStop     = @($c.HookScriptTraceEmit) + $legacy
     }
 }
 
@@ -310,7 +319,7 @@ function Get-ClaudePermissionsAllowEntriesForRemoval {
 function Remove-ClaudePermissionsAllowEntriesByEquality {
     <#
     .SYNOPSIS
-      Drop permissions.allow entries that exactly match EntriesToRemove; preserve others.
+      Drop entries from permissions.<ListKey> that exactly match EntriesToRemove; preserve others.
     #>
     [CmdletBinding()]
     param(
@@ -318,25 +327,28 @@ function Remove-ClaudePermissionsAllowEntriesByEquality {
         [System.Collections.IDictionary] $Settings,
 
         [Parameter(Mandatory = $true)]
-        [string[]] $EntriesToRemove
+        [string[]] $EntriesToRemove,
+
+        [Parameter()]
+        [string] $ListKey = 'allow'
     )
 
     $permissionsKey = $script:ClaudeSettingsJsonConstant.PermissionsPropertyName
-    $allowKey = $script:ClaudeSettingsJsonConstant.AllowPropertyName
+    $listKey = $ListKey
 
     if (-not $Settings.Contains($permissionsKey) -or -not ($Settings[$permissionsKey] -is [System.Collections.IDictionary])) {
         return $false
     }
 
     $permissions = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$permissionsKey]
-    if (-not $permissions.Contains($allowKey) -or $null -eq $permissions[$allowKey]) {
+    if (-not $permissions.Contains($listKey) -or $null -eq $permissions[$listKey]) {
         $Settings[$permissionsKey] = $permissions
         return $false
     }
 
     $changed = $false
     $remaining = New-Object System.Collections.Generic.List[string]
-    foreach ($entry in @($permissions[$allowKey])) {
+    foreach ($entry in @($permissions[$listKey])) {
         if ($null -eq $entry) { continue }
         $entryText = [string]$entry
         $isTarget = $false
@@ -354,86 +366,75 @@ function Remove-ClaudePermissionsAllowEntriesByEquality {
         }
     }
 
-    $permissions[$allowKey] = @($remaining.ToArray())
+    $permissions[$listKey] = @($remaining.ToArray())
     $Settings[$permissionsKey] = $permissions
     return $changed
 }
 
-function Merge-ClaudeHookEventEntries {
+function Merge-ClaudeAttributionHidden {
     <#
     .SYNOPSIS
-      Command-keyed merge for a single hook event's matcher-group entries.
-
-    .DESCRIPTION
-      Drops only the handlers this toolkit recognizes as its own (by script
-      filename identity) so re-sync does not accumulate duplicates, keeps
-      every other (alien) handler untouched, then prepends the freshly
-      generated managed entries.
+      Hide commit and pull request attribution (empty strings); other attribution keys are kept.
     #>
     [CmdletBinding()]
     param(
-        [Parameter()]
-        [AllowNull()]
-        $ExistingEntries,
-
         [Parameter(Mandatory = $true)]
-        [AllowEmptyCollection()]
-        [array] $ManagedEntries,
-
-        [Parameter(Mandatory = $true)]
-        [string] $ManagedScriptFileName
+        [System.Collections.IDictionary] $Settings
     )
 
-    $handlersKey = $script:ClaudeSettingsJsonConstant.HookHandlersPropertyName
-    $commandKey = $script:ClaudeSettingsJsonConstant.HookHandlerCommandPropertyName
-
-    $preservedEntries = [System.Collections.Generic.List[object]]::new()
-    foreach ($entry in @($ExistingEntries)) {
-        if ($null -eq $entry -or -not ($entry -is [System.Collections.IDictionary])) {
-            continue
-        }
-
-        $handlers = @()
-        if ($entry.Contains($handlersKey) -and $null -ne $entry[$handlersKey]) {
-            $handlers = @($entry[$handlersKey])
-        }
-
-        $keptHandlers = [System.Collections.Generic.List[object]]::new()
-        foreach ($handler in $handlers) {
-            $command = $null
-            if ($handler -is [System.Collections.IDictionary] -and $handler.Contains($commandKey)) {
-                $command = [string]$handler[$commandKey]
-            }
-            if (Test-ClaudeManagedHookHandlerCommand -Command $command -ManagedScriptFileName $ManagedScriptFileName) {
-                continue
-            }
-            $keptHandlers.Add($handler) | Out-Null
-        }
-
-        if ($keptHandlers.Count -eq 0) {
-            continue
-        }
-
-        $preservedEntry = [ordered]@{}
-        foreach ($key in $entry.Keys) {
-            if ($key -eq $handlersKey) {
-                continue
-            }
-            $preservedEntry[$key] = $entry[$key]
-        }
-        $preservedEntry[$handlersKey] = @($keptHandlers.ToArray())
-        $preservedEntries.Add($preservedEntry) | Out-Null
+    $attributionKey = $script:ClaudeSettingsJsonConstant.AttributionPropertyName
+    if (-not $Settings.Contains($attributionKey) -or $null -eq $Settings[$attributionKey]) {
+        $Settings[$attributionKey] = [ordered]@{}
+    }
+    elseif (-not ($Settings[$attributionKey] -is [System.Collections.IDictionary])) {
+        # Fail closed: never replace alien non-object attribution with {}.
+        throw $script:ClaudePublishMessage.SettingsAttributionNotObject
+    }
+    else {
+        $Settings[$attributionKey] = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$attributionKey]
     }
 
-    $merged = [System.Collections.Generic.List[object]]::new()
-    foreach ($managedEntry in $ManagedEntries) {
-        $merged.Add($managedEntry) | Out-Null
-    }
-    foreach ($preservedEntry in $preservedEntries) {
-        $merged.Add($preservedEntry) | Out-Null
+    $attribution = $Settings[$attributionKey]
+    $attribution[$script:ClaudeSettingsJsonConstant.AttributionCommitPropertyName] = ''
+    $attribution[$script:ClaudeSettingsJsonConstant.AttributionPrPropertyName] = ''
+}
+
+function Remove-ClaudeAttributionHidden {
+    <#
+    .SYNOPSIS
+      Reverse of Merge-ClaudeAttributionHidden: drop commit/pr only while they are empty; keep other keys.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary] $Settings
+    )
+
+    $attributionKey = $script:ClaudeSettingsJsonConstant.AttributionPropertyName
+    if (-not $Settings.Contains($attributionKey) -or -not ($Settings[$attributionKey] -is [System.Collections.IDictionary])) {
+        return $false
     }
 
-    return $merged.ToArray()
+    $attribution = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$attributionKey]
+    $changed = $false
+    foreach ($name in @($script:ClaudeSettingsJsonConstant.AttributionCommitPropertyName, $script:ClaudeSettingsJsonConstant.AttributionPrPropertyName)) {
+        if ($attribution.Contains($name) -and [string]$attribution[$name] -eq '') {
+            $attribution.Remove($name)
+            $changed = $true
+        }
+    }
+
+    if (-not $changed) {
+        return $false
+    }
+
+    if ($attribution.Count -eq 0) {
+        $Settings.Remove($attributionKey)
+    }
+    else {
+        $Settings[$attributionKey] = $attribution
+    }
+    return $true
 }
 
 function Merge-ClaudeHooksKeyed {
@@ -465,8 +466,7 @@ function Merge-ClaudeHooksKeyed {
     }
 
     $hooks = $Settings[$hooksKey]
-    $scriptFileNameByEvent = Get-ClaudeManagedHookScriptFileNameMap
-    $c = $script:ClaudeSettingsJsonConstant
+    $ownedScriptsByEvent = Get-ClaudeManagedHookOwnedScriptMap
 
     foreach ($eventName in $ManagedHooks.Keys) {
         $existingEntries = @()
@@ -474,33 +474,25 @@ function Merge-ClaudeHooksKeyed {
             $existingEntries = @($hooks[$eventName])
         }
 
-        $managedEntries = @($ManagedHooks[$eventName])
-        $primaryScript = [string]$scriptFileNameByEvent[$eventName]
+        $remaining = $existingEntries
+        foreach ($scriptName in @($ownedScriptsByEvent[$eventName] | Where-Object { $_ })) {
+            $stripResult = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $remaining -ManagedScriptFileName $scriptName
+            $remaining = @($stripResult.RemainingEntries)
+        }
 
-        # PostToolUse co-hosts plan-after-edit + emit-trace: strip both, prepend managed once.
-        if ($eventName -eq $c.HookEventPostToolUse) {
-            $stripped = $existingEntries
-            foreach ($scriptName in @($primaryScript, $c.HookScriptTraceEmit)) {
-                $stripResult = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $stripped -ManagedScriptFileName $scriptName
-                $stripped = @($stripResult.RemainingEntries)
-            }
-            $mergedList = New-Object System.Collections.Generic.List[object]
-            foreach ($managedEntry in $managedEntries) {
-                $mergedList.Add($managedEntry) | Out-Null
-            }
-            foreach ($kept in $stripped) {
-                $mergedList.Add($kept) | Out-Null
-            }
-            $hooks[$eventName] = @($mergedList.ToArray())
+        $mergedList = [System.Collections.Generic.List[object]]::new()
+        foreach ($managedEntry in @($ManagedHooks[$eventName])) {
+            $mergedList.Add($managedEntry) | Out-Null
+        }
+        foreach ($kept in $remaining) {
+            $mergedList.Add($kept) | Out-Null
+        }
+
+        if ($mergedList.Count -eq 0) {
+            $hooks.Remove($eventName)
         }
         else {
-            $mergedEntries = @(Merge-ClaudeHookEventEntries -ExistingEntries $existingEntries -ManagedEntries $managedEntries -ManagedScriptFileName $primaryScript)
-            if ($mergedEntries.Count -eq 0) {
-                $hooks.Remove($eventName)
-            }
-            else {
-                $hooks[$eventName] = $mergedEntries
-            }
+            $hooks[$eventName] = @($mergedList.ToArray())
         }
     }
 }
@@ -591,10 +583,10 @@ function Remove-ClaudeManagedHooksKeyed {
     }
 
     $hooks = ConvertTo-ClaudeSettingsHashtable -InputObject $Settings[$hooksKey]
-    $scriptFileNameByEvent = Get-ClaudeManagedHookScriptFileNameMap
+    $ownedScriptsByEvent = Get-ClaudeManagedHookOwnedScriptMap
     $changed = $false
 
-    foreach ($eventName in @($scriptFileNameByEvent.Keys)) {
+    foreach ($eventName in @($ownedScriptsByEvent.Keys)) {
         if (-not $hooks.Contains($eventName)) {
             continue
         }
@@ -604,14 +596,12 @@ function Remove-ClaudeManagedHooksKeyed {
             $existingEntries = @($hooks[$eventName])
         }
 
-        $result = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $existingEntries -ManagedScriptFileName $scriptFileNameByEvent[$eventName]
-        $remaining = @($result.RemainingEntries)
-        $removedAny = [bool]$result.RemovedAny
-
-        if ($eventName -eq $script:ClaudeSettingsJsonConstant.HookEventPostToolUse) {
-            $resultEmit = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $remaining -ManagedScriptFileName $script:ClaudeSettingsJsonConstant.HookScriptTraceEmit
-            $remaining = @($resultEmit.RemainingEntries)
-            if ($resultEmit.RemovedAny) {
+        $remaining = $existingEntries
+        $removedAny = $false
+        foreach ($scriptName in @($ownedScriptsByEvent[$eventName] | Where-Object { $_ })) {
+            $result = Remove-ClaudeManagedHookHandlersFromEvent -ExistingEntries $remaining -ManagedScriptFileName $scriptName
+            $remaining = @($result.RemainingEntries)
+            if ([bool]$result.RemovedAny) {
                 $removedAny = $true
             }
         }
@@ -678,7 +668,7 @@ function Merge-ClaudePermissionsAllowAdditive {
 function Get-ClaudeGitPermissionsAskEntries {
     <#
     .SYNOPSIS
-      Mutant git commands that require operator confirmation (permissions.ask).
+      State-changing git commands that require operator confirmation (permissions.ask).
     #>
     [CmdletBinding()]
     param()
@@ -918,6 +908,8 @@ function Invoke-ClaudeMergeSettings {
 
         $managedAsk = @(Get-ClaudeGitPermissionsAskEntries)
         Merge-ClaudePermissionsAskAdditive -Settings $settings -ManagedAskEntries $managedAsk
+
+        Merge-ClaudeAttributionHidden -Settings $settings
     }
     catch {
         return [PSCustomObject]@{

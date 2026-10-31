@@ -8,4 +8,4 @@ Extended detail for `skills/arduino-developer/SKILL.md`. Load one section only w
 | Orientation and execution flow | `references/execute-flow.md` |
 | Must not and reporting limits | `references/must-not.md` |
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`.

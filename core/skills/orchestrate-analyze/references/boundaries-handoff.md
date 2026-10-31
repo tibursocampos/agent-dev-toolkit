@@ -4,7 +4,7 @@
 |--------|--------------------------------|---------------------------|----------------------------|
 | Purpose | One informal item + scorecard + mode envelope/Q&A | Multi-agent triage + US/TS backlog | Full PRD one story | PRD+PLAN per approved story |
 | Output | STORY or `docs/backlog/` + envelope / `REFINE/qa-history.md` | FEATURE + CONTINUITY + STORY×N after the open-question gate | `…/PRD/*.md` | `…/PRD/` + `…/PLAN/` |
-| Specialists | None | Conditional Task (`needs_*`) | None | sdd contracts per story |
+| Specialists | None | Conditional Agent (`needs_*`) | None | sdd contracts per story |
 | App code | No | No | No | No |
 | When | Informal single item | Complex / multi-story / brownfield | Ready for one PRD and no open question | After O1 **sim**, with a closed FEATURE and story folders already created |
 
@@ -12,7 +12,7 @@ Escalate **to O1** from refine when: multiple stories, unclear `needs_*`, brownf
 
 Escalate **to sdd-spec** when: single story clear enough for PRD without O2 batching **and** no question is open, including `MINOR` (`open_question`).
 
-### Refine envelopes / READY (O1 light — WS11 / REQ-005–006)
+### Refine envelopes / READY (O1 light)
 
 When receiving a refine handoff or routing early to `/refine-story`, consume — do **not** duplicate taxonomy:
 
@@ -22,7 +22,7 @@ When receiving a refine handoff or routing early to `/refine-story`, consume —
 | Interaction envelope + Q&A history | `skills/refine-story/references/interaction-envelope.md`, `qa-history.md` |
 | READY / NEEDS_CLARIFICATION dual-plane | `skills/_shared/sdd-artifacts/readiness-severity.md` (006 SoT; do not rewrite Assert PS1) |
 
-Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Do **not** create a parallel clarify skill.
+Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Requirement challenge stays in `requirement-review`; do not add a parallel skill.
 
 Do **not** write PRD/PLAN inside O1. Do **not** claim `sdd-develop` one-step contract changed.
 
@@ -30,7 +30,7 @@ Scorecard: reuse `skills/refine-story/references/scorecard-rubric.md` (universal
 
 Story sizing: `skills/_shared/backlog-item-types/story-sizing.md` — load at synthesis; merge/split before human gate; FEATURE table **Rationale** column required.
 
-Product artifact quality gates (REQ-004): FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until those gates pass, the FEATURE has **no** open question (`open_question`, including `MINOR`), story folders already exist, and backlog **sim**.
+Product artifact quality gates: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4 US/TS — see `references/story-synthesis.md` § Product artifact quality gates. Do not hand off to O2 until those gates pass, the FEATURE has **no** open question (`open_question`, including `MINOR`), story folders already exist, and backlog **sim**.
 
 O2 handoff requires a closed FEATURE and stories already created. A feature that stopped at step 8c is not an O2 handoff.
 

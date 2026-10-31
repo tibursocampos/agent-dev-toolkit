@@ -1,6 +1,6 @@
 # type_classification + exact-set → STORY only
 
-**REQ-012 / CA4 / CT4.** Contract id: `type_classification`. Load **after** Step 0 source parse and **before** checklist Write (Step 3). Applies to `/split-story-checklist` when the source is (or resolves to) a feature story folder.
+Contract id: `type_classification`. Load **after** Step 0 source parse and **before** checklist Write (Step 3). Applies to `/split-story-checklist` when the source is (or resolves to) a feature story folder.
 
 **Language:** English identifiers and reason codes. Operator chat follows session language (`LANGUAGE.md`). Portable paths only (`STORAGE.md` § Portable path).
 
@@ -57,17 +57,17 @@ Step 0 parse Steps / Suggested fix
 
 Map: `US` → User Story; `TS` → Technical Story; `Bug` → Bug.
 
-## Skip D (REQ-013 / CA4) — explicit
+## Skip D — explicit
 
 This skill **must not** introduce or invoke:
 
 | Forbidden (Skip D) | Why |
 |--------------------|-----|
-| **ADO mutate** / Azure Boards WI create-update | OOS WS13; no work-item side effects from classification |
-| **Reversa** constitution / skill trees | OOS; not a second SoT |
-| **SpecKit constitution** / `.specify/` / uv / specify installers | Credits may mention inspiration elsewhere; **do not** adopt here |
+| **Tracker mutate** / work-item create-update | OOS WS13; no work-item side effects from classification |
+| External spec-tool constitution / skill trees | OOS; not a second SoT |
+| **External spec-tool constitution** / installers | Credits may mention inspiration elsewhere; **do not** adopt here |
 
-Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN03); inventing `framework-upgrade` or Jarvis/`JARVIS_*` names.
+Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN03); inventing `framework-upgrade` or org-only prefixed names.
 
 ## STOP / reason codes
 
@@ -75,7 +75,7 @@ Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN
 |------|------|
 | `type_unresolved` | Cannot classify after cues + one ask |
 | `exact_set_scatter` | Diff would write type exact-set outside STORY |
-| `classification_skip_d_violation` | Prompt/diff would add ADO mutate, Reversa, or SpecKit constitution |
+| `classification_skip_d_violation` | Prompt/diff would add tracker mutate or external spec-tool constitution |
 | `skill_id_drift` | Attempt to rename skill id or `/split-story-checklist` |
 
 ## Skill wiring
@@ -86,17 +86,17 @@ Also forbidden: renaming skill id / slash (`split-story-checklist` stable — RN
 | `refine-story` handoff | Points here via `/split-story-checklist - <portable-STORY>` — refine does not own checklist exact-set Write |
 | O2 / O3 | Consume STORY **Tipo**; do not re-classify into PLAN/PRD |
 
-## CT4 checklist (manual — split half)
+## Checklist (manual — split half)
 
 - [ ] Contract file present: `references/type-classification.md` with markers `type_classification`, `exact-set`, `STORY only`
 - [ ] SKILL Process loads this ref before checklist Write
 - [ ] Checklist template / output forbids type exact-set fork
-- [ ] Skip D: zero ADO mutate / Reversa / SpecKit in this skill folder for the step
+- [ ] Skip D: zero tracker mutate / external spec-tool constitution in this skill folder for the step
 - [ ] Frontmatter `name: split-story-checklist` and slash `/split-story-checklist` unchanged
 
 ## Must not
 
-- Scatter exact-set outside STORY (REQ-012)
-- ADO mutate, Reversa, SpecKit constitution (Skip D / REQ-013)
-- Create a new skill folder or rename this skill (RN03)
+- Scatter exact-set outside STORY
+- tracker mutate, external spec-tool constitution (Skip D / REQ-013)
+- Create a new skill folder or rename this skill
 - Emit one US/TS per file from type labels (`anti-task-shatter.md` / RN01)

@@ -6,14 +6,14 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **45** kebab skills.
+Total: **46** kebab skills.
 
 ## Tracks
 
 | Track | Skills | When |
 |-------|--------|------|
 | **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
-| **Backlog Refine** | `refine-story`, `split-story-checklist` | Rough bug/story first |
+| **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
 
 **Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
@@ -32,6 +32,7 @@ Total: **45** kebab skills.
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `refine-story` | `refine-story` | Refine bug/story into structured markdown + BDD |
+| `requirement-review` | `requirement-review` | Challenge a feature or story before SDD: `--feature` (functional) or `--tech` (repository-grounded) |
 | `split-story-checklist` | `split-story-checklist` | Dependency-aware task checklist (BE/FE/tests) |
 
 ## Orchestrated Delivery — orchestration

@@ -2,7 +2,7 @@
 
 Extended detail for `skills/api-standards/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md` (`SR-LAZY-REFERENCE`). Agnostic only — no company contracts. Client generation: `api-integrate`.
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Agnostic only — no company contracts. Client generation: `api-integrate`.
 
 | Section | Path |
 |---------|------|

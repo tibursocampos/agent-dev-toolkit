@@ -22,7 +22,7 @@ Child handoffs carry a path and a short excerpt. They do not paste a full PRD, P
 
 ## Parent orchestrator
 
-Default `orchestrator_mode` is `always`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
+Default `orchestrator_mode` is `adaptive` for every adapter. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`). An existing `preferences.json` keeps its value; the default applies only when sync seeds a missing file. On Claude, the `UserPromptSubmit` hook handles these commands.
 
 `adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
 
@@ -34,7 +34,7 @@ Task `model` is omitted so the child uses the parent session model (`core/skills
 
 `caveman_mode` defaults to **on** when non-interactive sync creates `preferences.json`. On interactive first sync, the toolkit asks for both parent orchestration mode and Caveman mode, with **on** as the default choice. Existing preferences are preserved. Caveman only shortens chat prose; it does not change skill steps, gates, or this documentation.
 
-Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
+Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off. On Claude, the `UserPromptSubmit` hook (`preferences-command.ps1`) handles these commands together with the orchestrator commands, and writes `sdd/preferences.json`.
 
 `help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and `(sim / ajustar / cancelar)` stay clear. Credit for the idea: [CREDITS.md](../CREDITS.md). Policy file: `core/policy/caveman-mode.md`.
 
@@ -44,7 +44,7 @@ Created with the defaults object when the file is missing:
 
 | Key | Default | Effect |
 |-----|---------|--------|
-| `orchestrator_mode` | `always` | Parent stays orchestrator |
+| `orchestrator_mode` | `adaptive` | Parent orchestrates; thin trivial work may stay in-parent |
 | `caveman_mode` | `true` | Chat compression on (interactive first sync can choose off) |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |

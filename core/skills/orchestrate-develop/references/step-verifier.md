@@ -12,7 +12,7 @@
 
 1. Read `preferences.json`; if `verify_mode` is not `true`, **skip** this step entirely.
 2. If implementer returned `status: blocked` or a test declared by the PLAN failed, **skip** verifier — keep step pending; do not spawn verifier on known failure. Explicit deferred/skipped tests are not failures when the PLAN defers execution.
-3. **SPAWN gate:** load `SPAWN.md`; prefer Task when `subagents=native`. If Task unavailable, parent records verifier skipped in CONTINUITY — do **not** hard-fail O3.
+3. **SPAWN gate:** load `SPAWN.md`; prefer Agent when `subagents=native`. If Agent unavailable, parent records verifier skipped in CONTINUITY — do **not** hard-fail O3.
 4. Spawn **one read-only verifier child** per completed implementer return (never parallel with the implementer on the same step). Use the verifier result schema below; it is not the canonical implementer relay receipt.
 
 Verifier child must:
@@ -30,7 +30,7 @@ Verifier child must:
 
 - Do **not** mark step done in CONTINUITY.
 - Keep PLAN step **Pendente** (implementer may have prematurely marked Completed — parent must not endorse).
-- Report findings (pt-BR); ask user **sim** to re-spawn implementer or adjust.
+- Report findings in the user chat language; ask user **sim** to re-spawn implementer or adjust.
 
 **Parent on verifier `pass`:**
 
@@ -45,7 +45,7 @@ Verifier child must:
 
 ---
 
-## Task verifier prompt skeleton
+## Agent verifier prompt skeleton
 
 When `verify_mode` is `true` and implementer succeeded:
 

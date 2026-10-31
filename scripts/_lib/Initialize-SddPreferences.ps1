@@ -14,7 +14,7 @@ if (-not (Get-Command -Name ConvertTo-ToolkitSddCleanJson -ErrorAction SilentlyC
 
 $script:ToolkitPreferencesConstant = @{
     FileName                 = 'preferences.json'
-    DefaultOrchestratorMode  = 'always'
+    DefaultOrchestratorMode  = 'adaptive'
     DefaultCavemanMode       = $true
     OrchestratorModeAlways   = 'always'
     OrchestratorModeAdaptive = 'adaptive'
@@ -56,9 +56,9 @@ function Resolve-ToolkitOrchestratorModeFromChoice {
 
     $normalized = $Choice.Trim()
     if ([string]::Equals($normalized, '2', [System.StringComparison]::OrdinalIgnoreCase)) {
-        return $script:ToolkitPreferencesConstant.OrchestratorModeAdaptive
+        return $script:ToolkitPreferencesConstant.OrchestratorModeAlways
     }
-    return $script:ToolkitPreferencesConstant.OrchestratorModeAlways
+    return $script:ToolkitPreferencesConstant.OrchestratorModeAdaptive
 }
 
 function Read-ToolkitPreferenceChoice {
@@ -127,7 +127,7 @@ function Invoke-ToolkitEnsurePreferences {
     if ($Interactive.IsPresent) {
         $modeChoice = Read-ToolkitPreferenceChoice `
             -Header $script:ToolkitMessage.ToolkitOrchestratorInstallPromptHeader `
-            -Options @($script:ToolkitMessage.ToolkitOrchestratorInstallPromptAlwaysLine, $script:ToolkitMessage.ToolkitOrchestratorInstallPromptAdaptiveLine) `
+            -Options @($script:ToolkitMessage.ToolkitOrchestratorInstallPromptAdaptiveLine, $script:ToolkitMessage.ToolkitOrchestratorInstallPromptAlwaysLine) `
             -Prompt $script:ToolkitMessage.ToolkitOrchestratorInstallPromptMenu `
             -DefaultChoice $script:ToolkitMessage.ToolkitOrchestratorInstallDefaultChoice
         $orchestratorMode = Resolve-ToolkitOrchestratorModeFromChoice -Choice $modeChoice

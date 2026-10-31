@@ -12,7 +12,7 @@ Shortening chat prose follows [JuliusBrussee/caveman](https://github.com/JuliusB
 
 What this repository ships is a preferences integration: `core/skills/_shared/caveman/`, policy `caveman-mode`, and chat commands `caveman on|off|…`. Optional continuity compaction is `COMPACT.md`. Upstream `caveman-compress` stays in that project. This is a partial take of the idea, not a copy of the repository.
 
-Compression is one session preference and defaults to off. Commands, and the text that stays in full prose: [Using skills](using-skills.md#session-behavior).
+Compression is one session preference and defaults to on. Commands, and the text that stays in full prose: [Using skills](using-skills.md#session-behavior).
 
 ## Anthropic frontend-design
 

@@ -23,7 +23,7 @@ License: MIT © 2026 Raphael Campos.
 | Vulnerability reporting | This page |
 | License | `LICENSE` (MIT) |
 | Install, sync, uninstall | [Get started](get-started.md) |
-| Validation and CI | [Architecture](architecture.md) |
+| Validation and CI | [Architecture](architecture.md); details in [docs/VALIDATION.md](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/VALIDATION.md) |
 
 ## Issues (bugs only)
 
@@ -69,7 +69,7 @@ Internal development uses Git on branches with write access.
 
 Pull requests are collaborators only. Prefer `/open-github-pr` (after `/commit` / `/push`), or use `.github/PULL_REQUEST_TEMPLATE.md` in the web UI. Feature and fix work targets **`develop`**. Release PRs are **`develop` → `master` or `main`**, enforced by `.github/workflows/enforce-release-source.yml`. `.github/workflows/validate-toolkit.yml` runs on `pull_request` to `develop` only and emits aggregate checks `validate` and `ci-ok`. As checked on 2026-10-29, the active `protect-develop` ruleset requires `validate` and legacy branch protection also requires `ci-ok`. Release PRs emit `ci-ok` from `master-release-ci.yml` for branch direction and `release-source` from `enforce-release-source.yml` for source, release metadata, and App readiness; active `protect-release` requires `release-source`. These release PR checks do not rerun the full suite.
 
-The normal release path is an opted-in, merged `develop` → `master`/`main` PR. `release.yml` publishes the tag and assets, then requests a reconciliation PR back to `develop`. Use `reconcile_only=true` to retry reconciliation without creating another tag. Check remote rulesets before each release because they can change independently of this site.
+The normal release path is an opted-in, merged `develop` → `master`/`main` PR. The PR body opts in with `Create release: yes` and a `Version: MAJOR.MINOR.PATCH` line; `Create release: no` merges without a tag. The release-sync App secrets (`RELEASE_SYNC_APP_ID`, `RELEASE_SYNC_APP_PRIVATE_KEY`) must be configured first. `release.yml` publishes the tag and assets, then prepares a reconciliation PR back to `develop`. Use `reconcile_only=true` (manual `workflow_dispatch` on `master`/`main`, version left blank) to retry reconciliation without creating another tag. Check remote rulesets before each release because they can change independently of this site.
 
 ## Reporting a vulnerability
 

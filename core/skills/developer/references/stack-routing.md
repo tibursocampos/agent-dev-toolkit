@@ -21,9 +21,7 @@
    | `.csproj` / `.sln` without Blazor markers | `dotnet-developer` |
    | `pom.xml`, `build.gradle`, `build.gradle.kts`, or `settings.gradle` | `java-developer` |
    | CPython host tooling/tests, `.py`, `requirements.txt`, or `pyproject.toml` with host-runtime evidence | `python-developer`; do not add device APIs or flashing guidance |
-
    | C/C++ or Python host tooling/tests that exercise firmware without embedded project evidence | Route by the host language (`python-developer` for CPython); do not infer an embedded firmware framework |
-
    | Python source without runtime/target/port evidence where APIs or deployment could differ | Ask for runtime, target, and port evidence before choosing a device workflow; `.py` alone is not MicroPython evidence |
 
    Target and ESP-IDF version are separate evidence fields. A framework match does not establish either one: derive them from project declarations, configuration, build output, dependency metadata, lockfiles, or observed tool output; otherwise state the uncertainty and ask before version-sensitive guidance. Preserve `idf_component.yml`, lockfiles, `sdkconfig.defaults`, generated/local configuration, and existing resolved versions until a reviewed change is requested.

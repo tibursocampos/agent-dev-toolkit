@@ -62,7 +62,7 @@ For test framework, naming, structure, and assertion conventions, load `dotnet-t
 
 ---
 
-## Official sources (normative — RN08)
+## Official sources (normative)
 
 Pointers only — do not paste Learn/blog bodies. Official Microsoft docs win auxiliary blogs/gists.
 

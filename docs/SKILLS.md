@@ -1,16 +1,16 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**45 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**46 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**45** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**46** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
-**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + **sim**; `orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs: [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
+**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + **sim**; `orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs (default `adaptive` for every adapter; existing preferences files keep their value): [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
@@ -36,7 +36,7 @@ The complete path is **Orchestrated Delivery**. `orchestrate-deliver` runs `sdd-
 |------|--------|------|
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
 | **Classic SDD contracts** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | Loaded by O2/O3. Also a direct start when one story is already clear. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md) |
-| **Backlog shape** | `refine-story`, `split-story-checklist` | Inside O1 as rules and rubric. Standalone when a product person shapes one item, or when O2 hits open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
+| **Backlog shape** | `refine-story`, `requirement-review`, `split-story-checklist` | Inside O1 as rules and rubric. Standalone when a product person shapes one item, or when O2 hits open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
 
 Every skill, with the session that expands it: [sessions/09-every-skill.md](sessions/09-every-skill.md). Catalog on disk (`CATALOG.md`) still lists the three names as recommendations so an agent may start at `/sdd-spec` for one clear story. That direct start does not replace the orchestrated path for multi-story or specialist work.
 
@@ -88,6 +88,7 @@ O1 applies the scorecard and story gates without this invoke. Standalone when a 
 |-------|---------|
 | `refine-story` | Refine a bug, user story, or technical story into structured markdown with BDD acceptance |
 | `split-story-checklist` | Break refined steps into a dependency-aware task checklist (backend, frontend, tests) |
+| `requirement-review` | Challenge a feature or story before SDD: `--feature` for functional gaps and criteria, `--tech` for repository-grounded contracts and flows |
 
 **`refine-story` modes (mandatory — no silent default):**
 
@@ -98,6 +99,15 @@ O1 applies the scorecard and story gates without this invoke. Standalone when a 
 | **split** | Steps ready for checklist | Any type — shape deps / parallel-safe | `…/references/split.md` |
 
 If the invoke omits a mode, the skill asks once and loads **only** the chosen playbook. Mode `split` prepares input for `split-story-checklist`. It does not create a separate delivery path.
+
+**`requirement-review` modes (mandatory - exactly one per run):**
+
+| Mode | Scope | Playbook (lazy) |
+|------|-------|-----------------|
+| **--feature** | Functional review: actor, flow, rules, criteria split into atoms | `core/skills/requirement-review/references/feature.md` |
+| **--tech** | Repository-grounded review: contracts, surfaces, data flows; follow-ups for `sdd-spec` | `core/skills/requirement-review/references/tech.md` |
+
+Without a mode, the skill asks once. `refine-story` runs it at step 4a before handoff to `sdd-spec`: `--feature`, then `--tech` when the story touches a repository. Output: a review report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, plus Q&A entries under `REFINE/`.
 
 ## Developer routing and stack
 
@@ -166,6 +176,7 @@ If the invoke omits a mode, the skill asks once and loads **only** the chosen pl
 | `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
+| `requirement-review` | Exactly one mode (`--feature` or `--tech`), asked once when missing; writes only after `sim`; `--tech` does not guess repository facts |
 | `api-standards` vs `api-integrate` | Standards / design review → `api-standards`; OpenAPI → typed clients → `api-integrate` |
 | `document-plan` / `document-implement` | Asks doc language before writing; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths; not 5–12 tiny baby-steps by default |
 | Chat language and optional compression | [guides/session-behavior.md](guides/session-behavior.md) |

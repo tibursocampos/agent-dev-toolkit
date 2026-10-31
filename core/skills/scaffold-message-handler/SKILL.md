@@ -5,22 +5,7 @@ description: Scaffold a message consumer in a .NET workspace (MassTransit, Rabbi
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
@@ -31,8 +16,7 @@ Gate check:
 **Scaffold** - guides discovery, requirements, and implementation in the **target repository**. This toolkit ships **no** embedded corporate consumer templates or org-specific wiring.
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/scaffold-message-handler`, `create message consumer`, `/scaffold-message-handler`, or when a PLAN step adds a new queue/topic handler.
 
@@ -134,7 +118,7 @@ Report: stack detected, paths touched, how to run locally, open risks (idempoten
 
 ## Must not
 
-- Ship or copy hardcoded consumer templates from ai-prompts or internal org repos into the toolkit
+- Ship or copy hardcoded consumer templates from external prompt collections or internal org repos into the toolkit
 - Assume a specific organization or proprietary observability tools
 - Generate code before requirements are collected and the user confirms the plan
 - Preload entire `dotnet-guidelines/` tree beyond clean-architecture and csharp-patterns when coding

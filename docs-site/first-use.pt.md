@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **45** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **46** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -29,6 +29,7 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `sdd-develop` | Exatamente um passo do PLAN | `/sdd-develop - features/NNN-slug/US01/PLAN/PLAN_001_slug.md - Step 1` |
 | `read-sdd-artifact` | Um caminho FEATURE, STORY, PRD ou PLAN em `source_context` | `/read-sdd-artifact - features/NNN-slug/FEATURE.md` |
 | `refine-story` | Um bug, user story ou story técnica | `/refine-story` |
+| `requirement-review` | Desafia uma feature ou story antes do SDD: `--feature` ou `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | Um checklist de dependências sob uma story existente | `/split-story-checklist` |
 
 ## Implementação
@@ -76,4 +77,4 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 10 skills de entrega, 15 de implementação e 20 de revisão/plataforma/git: 45 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 11 skills de entrega, 15 de implementação e 20 de revisão/plataforma/git: 46 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

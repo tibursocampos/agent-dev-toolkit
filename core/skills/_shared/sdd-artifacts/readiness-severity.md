@@ -70,7 +70,7 @@ The global READY rule applies at every readiness boundary: any unanswered **B**,
 
 1. **STOP** Write of PRD/PLAN (and do not claim backlog/PRD readiness).
 2. Emit typed handoff: status **`NEEDS_CLARIFICATION`** + **portable** artifact paths (`STORAGE.md` § Portable path) + short severity list (few sharp questions — align `clarify-depth.md`).
-3. Route to `refine-story` and/or O1 light — **not** a new Supply `clarify` skill clone.
+3. Route to `refine-story` (which runs `requirement-review` before handoff) and/or O1 light.
 
 Presence STOP (missing `ANALYSIS/` / `ARCH/` / `SEC/` when `needs_*` / brownfield) remains orthogonal and still applies. WS3 **adds** quality/severity on top of presence — presence alone never yields READY (**RN02**).
 
@@ -120,14 +120,15 @@ Finding shape: `refine-story/references/finding-format.md`. A blocked story does
 | `clarify-depth.md` | Depth rules + pointer to this severity / READY rule |
 | `orchestrate-deliver` (`preconditions`, per-story, Must not) | Before PRD/PLAN Write: if any unanswered B/I/MINOR → STOP + typed handoff |
 | `refine-story` (boundary / guardrails) | Do not hand off as ready-for-PRD while any unanswered B/I/MINOR is open; emit `NEEDS_CLARIFICATION` |
+| `requirement-review` (feature and tech challenge) | Writes `Status:` plus open B/I/MINOR questions; READY only with none unanswered; no ready-for-PRD claim while questions wait |
 
-**Machine gate (PS1 / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` evaluates the stable markers (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]`/`-[MINOR]` lists) — no free-form prose parse; no Jarvis/ADO/Python. This file remains the skill/contract SoT for taxonomy and STOP wording.
+**Machine gate (PS1 / REQ-006):** `{{TOOLKIT_ROOT}}/scripts/validation/Invoke-SiblingReadinessGate.ps1` evaluates the stable markers (`Status: READY|NEEDS_CLARIFICATION`, severity table cells, `-[B]`/`-[I]`/`-[MINOR]` lists) — no free-form prose parse; no tracker or runtime dependency. This file remains the skill/contract SoT for taxonomy and STOP wording.
 
 ## What this contract does **not** include
 
 | Out of scope | Reason |
 |--------------|--------|
-| Jarvis / ADO / Python runtime | Selective PS1 only (separate step) |
+| Tracker or Python runtime | Selective PS1 only (separate step) |
 | `agents.max_depth` host knobs | SPAWN caps unchanged |
 | Duration / story-point estimates in checkpoints | Forbidden |
 | Monolithic `feature-refinement.md` | Navigation is WS7; readiness pointers stay short |

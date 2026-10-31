@@ -1,5 +1,5 @@
 ﻿---
-description: SDD pipeline order, canonical PRD/PLAN paths, confirm-before-write, Plan/Ask vs Agent phases
+description: SDD pipeline order, canonical PRD/PLAN paths, confirm-before-write, read-only vs edit-capable phases
 alwaysApply: true
 ---
 
@@ -9,7 +9,7 @@ Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load w
 
 ## Operator track choice
 
-Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is valid without `orchestrate-analyze`. The operator may invoke `/sdd-spec` or `/sdd-plan` directly from chat, Plan mode, `.cursor/plans/`, or prior manual analysis. Do **not** block or redirect to Orchestrated Delivery unless the operator chooses it or `invocation_context` is `orchestrated` and O2 gates apply.
+Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is valid without `orchestrate-analyze`. The operator may invoke `/sdd-spec` or `/sdd-plan` directly from chat, the host's planning mode, a host plan file, or prior manual analysis. Do **not** block or redirect to Orchestrated Delivery unless the operator chooses it or `invocation_context` is `orchestrated` and O2 gates apply.
 
 ## Order
 
@@ -30,12 +30,12 @@ Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for
 
 **Promote (scope by `invocation_context` — `INVOCATION-CONTEXTS.md`):**
 
-- **`direct`** (`sdd-spec` / `sdd-plan` slash): cited `.md` outside `features/` (including `.cursor/plans/`) → `PIPELINE.md` § Classic PRD/PLAN promote: `Read` → synthesize → confirm → `Write` under `features/...`. Do **not** require `orchestrate-analyze` first.
+- **`direct`** (`sdd-spec` / `sdd-plan` slash): cited `.md` outside `features/` (including host plan files) → `PIPELINE.md` § Classic PRD/PLAN promote: `Read` → synthesize → confirm → `Write` under `features/...`. Do **not** require `orchestrate-analyze` first.
 - **`orchestrated`** (O1/O2): mandatory promote before backlog **sim**; pointer-only = fail O1.
 
 **Required siblings (scope by context):**
 
-- **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. Max-3 gap questions do not replace this gate.
+- **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. The block limit does not replace this gate.
 - **`direct` (Classic SDD):** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask (create inline / proceed at operator risk / optional `/orchestrate-analyze`); do **not** hard-block.
 
 PLAN magro requires a canonical path: do not omit SQL/DDL/OpenAPI from PLAN unless bank phase 2 or ARCH/ANALYSIS already holds the body; create that file first, then cite the path.
@@ -50,8 +50,8 @@ For **new** PRD or PLAN: show path + summary (confirm chat **may** show OS absol
 
 ## Host session mode
 
-- **Plan / Ask:** Phase A. Questions and draft in chat only. Do not claim files were saved without a successful `Write`.
-- **Agent:** Phase B. Persist after confirmation. Run `sdd-develop`, `run-tests`, and `test-coverage` when that skill applies.
+- **Read-only host mode** (planning or ask-only): Phase A. Questions and draft in chat only. Do not claim files were saved without a successful `Write`.
+- **Edit-capable host mode**: Phase B. Persist after confirmation. Run `sdd-develop`, `run-tests`, and `test-coverage` when that skill applies.
 
 When Phase A is done and persistence is still pending, tell the user, in the user chat language, to switch to the mode that can persist and resend the write command.
 

@@ -47,7 +47,7 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 ## Skill order
 
 - **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The cap of 3 gap questions does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child**) and runs Step N **refresh-light** after code changes. Scope close is `code-review`, then `run-tests`, then the `security` agent.
+- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The block limit does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child**) and runs Step N **refresh-light** after code changes. Scope close is `code-review`, then `run-tests`, then the `security` agent.
 
 | Skill | Writes | Must not in same session |
 |-------|--------|
@@ -157,7 +157,7 @@ Always before the first `Write` of a **new** PRD or PLAN (and when replacing an 
 3. `Write` only after explicit **sim**.
 4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
 
-This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never supplies content approval.
+This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never provides content approval.
 
 `sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
 
@@ -166,7 +166,7 @@ This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` ow
 When the thread already has requirements, review findings, or refined backlog:
 
 - Do **not** run the full `spec` questionnaire.
-- Provide a structured summary + **at most 3** gap questions.
+- Provide a structured summary + all necessary gap questions, in blocks of at most **5**.
 - Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
 - Prefer **promoted** siblings and memory-bank over re-asking. A citation of a non-feature `.md` is not Prior context until § Promote has copied rich content.
 - **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
@@ -177,10 +177,10 @@ When the working path is under `features/NNN-slug/` (or the user names that feat
 
 1. `Read` `FEATURE.md` and `CONTINUITY.md` at the feature root when present.
 2. `Read` sibling story files under the same feature: `STORY.md`; `REFINE/` when present (**optional / on demand**); `ANALYSIS/`, `ARCH/`, `SEC/` when FEATURE `needs_*` or brownfield requires them (**not** optional in that case); and existing `PRD/` / `PLAN/` for that story.
-3. Prefer sibling content and promoted bank files over re-asking. Max **3** gap questions. That cap does **not** apply to `open_question`.
+3. Prefer sibling content and promoted bank files over re-asking. Ask all necessary gap questions, in blocks of at most 5. The block limit does **not** apply to `open_question`.
 4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies; do not dump entire `memory-bank/` or full PRD bodies.
 5. **Required siblings** (`INVOCATION-CONTEXTS.md`):
-   - **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. Max-3 gap questions do **not** replace this gate.
+   - **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. The block limit does **not** replace this gate.
    - **`direct` (Classic SDD):** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask: (1) create inline in this session, (2) proceed without siblings (operator risk), (3) optional `/orchestrate-analyze`. Do **not** hard-block.
    - Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
 

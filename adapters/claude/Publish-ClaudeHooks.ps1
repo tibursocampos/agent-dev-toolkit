@@ -119,6 +119,19 @@ function Invoke-ClaudePublishHooks {
         -DestinationHooksRoot $destinationHooksRoot `
         -InstallRoot $resolvedInstallRoot `
         -RepoRoot $repoRoot
+
+    $sharedGuardSource = Join-Path $repoRoot ($script:ClaudeSettingsJsonConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $sharedGuardDestination = Join-Path $destinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName
+    $null = Copy-ToolkitFileIfAbsent `
+        -SourcePath $sharedGuardSource `
+        -DestinationPath $sharedGuardDestination `
+        -InstallRoot $resolvedInstallRoot `
+        -RelativePath ('{0}/{1}' -f $script:ClaudePathConstant.HooksDirectoryName, $script:ClaudeSettingsJsonConstant.SharedGuardCommonFileName)
+
+    $contractSource = Join-Path $repoRoot ($script:ClaudeSettingsJsonConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    $contractDestination = Join-Path $destinationHooksRoot $script:ClaudeSettingsJsonConstant.SharedAuthorizationContractFileName
+    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDestination -InstallRoot $resolvedInstallRoot
+
     $placeholderMap = Get-ClaudePlaceholderMap -InstallRoot $resolvedInstallRoot
     Resolve-ClaudePlaceholdersInTree -RootPath $destinationHooksRoot -PlaceholderMap $placeholderMap
     Assert-ClaudePlaceholdersResolved -RootPath $destinationHooksRoot

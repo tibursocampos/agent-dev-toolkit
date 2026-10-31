@@ -22,7 +22,7 @@ When an explicit material operator request or correction is carried into impleme
 
 ## Resource and journey proof
 
-Apply this block only when a change alters a resource, screen, transition, or external response. Scope without such a change does not receive this gate. The consumer project supplies the proof; the toolkit requires it and reconciles it. For each material acceptance, provide each item below with its source, or record the missing item as a GAP:
+Apply this block only when a change alters a resource, screen, transition, or external response. Scope without such a change does not receive this gate. The consumer project provides the proof; the toolkit requires it and reconciles it. For each material acceptance, provide each item below with its source, or record the missing item as a GAP:
 
 | Item | What to establish |
 |------|-------------------|
@@ -68,7 +68,7 @@ Record the affected decision, normative section, consumers, and existing owner. 
 
 The `source_context` envelope described by `core/skills/read-sdd-artifact/references/envelope-schema.md` identifies an artifact by kind, portable path, and applicable feature/story/file identity. It supports the existing no-opaque-reread behavior in `core/skills/read-sdd-artifact/references/build-consume-report.md`.
 
-Identity and semantic sufficiency are separate checks. A valid envelope does not, by itself, show that the consumed section was supplied, answers the consumer's question, reflects the current decision, or supports the reported conclusion. When the body or relevant section is available, assess that content against the material question. Read only the current section needed to resolve an identified gap or contradiction; do not reread an artifact solely to rediscover identity already supplied by a valid envelope.
+Identity and semantic sufficiency are separate checks. A valid envelope does not, by itself, show that the consumed section was provided, answers the consumer's question, reflects the current decision, or supports the reported conclusion. When the body or relevant section is available, assess that content against the material question. Read only the current section needed to resolve an identified gap or contradiction; do not reread an artifact solely to rediscover identity already provided by a valid envelope.
 
 ## Disposition
 

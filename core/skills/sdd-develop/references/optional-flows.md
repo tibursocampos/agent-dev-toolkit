@@ -22,7 +22,7 @@ US/PLAN concluído. Próximo?
 
 If the user chooses commit (or asks `/commit` right after the last step), **ask and wait** for each applicable item (**sim** / **pular**). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. Do **not** run bank/docs writes on silence. After the answer, or after an intermediate skill the operator already authorized, resume the original skill until the requested function finishes or that skill declares a blocker with the cause. Keep the asks below.
 
-| When present | Ask (pt-BR) | On **sim** |
+| When present | Ask (user chat language) | On **sim** |
 |--------------|-------------|------------|
 | `memory-bank/` (or bank_root from `STORAGE.md`) | `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular)` | `/memory-bank-init` mode `refresh-light` |
 | Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | `Posso atualizar a documentação do projeto? (sim / pular)` | Pending plan steps → `/document-implement`; no plan but docs exist → `/document-plan` then implement; greenfield docs → `/document-plan` |

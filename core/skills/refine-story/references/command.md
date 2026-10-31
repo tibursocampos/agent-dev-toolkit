@@ -10,7 +10,8 @@
 | 0.6 | Open skeleton **interaction envelope** (`mode`, `invocation_context`, `status`) | `references/interaction-envelope.md` |
 | 1–3 | Collect + generate (mode playbook); append Q&A entries when clarifying | Chosen mode file; **one** `_shared/backlog-item-types/` file; `references/qa-history.md`; `SELECTIVE-RETRIEVAL.md`; `references/boundary.md` |
 | 4 | Quality scorecard (Product depth + AC budget) | `references/scorecard-rubric.md`, `references/scorecard-template.md`; lazy `gherkin-budget.md`, `invest-and-story-quality.md`, `product-evidence-lite.md` |
-| 4b | Refresh envelope `status` from open B/I; sync `qa_history_ref` | `readiness-severity.md` (consume); `interaction-envelope.md`; `qa-history.md` |
+| 4a | Requirement review before handoff: `requirement-review --feature`, then `--tech` when the story touches a repository. Pointer only; statuses feed step 4b | `{{TOOLKIT_ROOT}}/skills/requirement-review/SKILL.md` |
+| 4b | Refresh envelope `status` per the READY rule; sync `qa_history_ref` | `readiness-severity.md` (consume); `interaction-envelope.md`; `qa-history.md` |
 | 5 | Validation (chat-only) | `references/guardrails.md` |
 | 6 | Optional persistence (file-based only; include Q&A history) | `references/persistence.md`; `references/qa-history.md`; `references/exclusions.md` |
 | 7 | Handoff (split / sdd-spec / O1) — **portable paths only** | `references/split-handoff.md`; `references/boundary.md`; `references/exclusions.md` |
@@ -21,6 +22,8 @@
 
 **READY dual-plane (REQ-006):** consume `readiness-severity.md` — do **not** rewrite taxonomy or reopen Assert PS1. READY ≠ `step_confirmed`. Handoffs use portable paths only (RNF-002).
 
-**No new clarify skill (REQ-007):** enrich this skill (+ O1 light pointers) only — never `core/skills/clarify/` or `feature-refinement.md`.
+**Requirement challenge (step 4a):** feature and tech challenge live in `requirement-review`. This skill calls it and reads its status; it does not copy its playbooks. Never a monolithic `feature-refinement.md`.
+
+**Stage table (must):** render the Backlog Refine stage table from `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` (section refine-story) in the user chat language, with the Status column and the standard state keys and glyphs. Rows: Workspace and mode; Mode playbook; Clarify (question blocks); Quality scorecard; Requirement review; Envelope status refresh; Validation; Persistence (when requested); Handoff. You must show it at: start; before each gate; after each gate answer; on each row state change; on a blocker or `NEEDS_CLARIFICATION` (stop the redraw at `blocked`); and at close. Always render every row; never summarize rows or show only the changed one. Do not persist the table in `STORY.md` or the envelope. At close also render the scorecard with every criterion in all three modes.
 
 **Must not:** see `SKILL.md` § Must not + `references/exclusions.md` (no Azure WI / external trackers).

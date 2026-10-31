@@ -73,7 +73,7 @@ Before returning the draft, ensure:
 | OOS | At least one exclusion or honest `N/A` + reason |
 | Provenance | Do not invent Evidence / metrics / PII (`omit > fabricate`); mark agent fill-ins if parent asked |
 | Selective retrieval | Paths + short excerpts only — no full PRD / `memory-bank/` dump |
-| No Jarvis tags | Do **not** emit lifecycle-tags / `JARVIS_*` / org-only tracker markup |
+| No org-only tags | Do **not** emit lifecycle-tags / org-only tracker markup |
 
 Parent synthesizes chat in user language; this child stays **en-US** for receipts.
 

@@ -9,10 +9,13 @@ Public documentation for **agent-dev-toolkit**. Start with [INSTALL.md](INSTALL.
 | Document | Audience | Purpose |
 |----------|----------|---------|
 | [INSTALL.md](INSTALL.md) | Everyone | Prerequisites, clone, sync, live home, uninstall |
-| [sessions/README.md](sessions/README.md) | Everyone | How the 45 skills relate; start at Orchestrated Delivery |
+| [sessions/README.md](sessions/README.md) | Everyone | How the 46 skills relate; start at Orchestrated Delivery |
 | [guides/README.md](guides/README.md) | Daily usage | Entry decision |
 | [guides/01-getting-started.md](guides/01-getting-started.md) | New users | End-to-end first use |
 | [guides/02-using-skills.md](guides/02-using-skills.md) | Everyone | Invoking skills after sync |
+| [guides/flow-selection.md](guides/flow-selection.md) | Everyone | Choosing the flow: decision tree and entry points |
+| [guides/backlog-refine.md](guides/backlog-refine.md) | Product and developers | Backlog refine flow and where each skill writes |
+| [guides/new-endpoint-example.md](guides/new-endpoint-example.md) | Developers | Illustrative .NET endpoint across the layers |
 | [VALIDATION.md](VALIDATION.md) | Operators / **Maintainers** / CI | Audiences + validate-core + keyed uninstall asserts + AllowUserHome forward + 10 agent smokes (Copilot is a suite; visitors: read only) |
 | [SKILLS.md](SKILLS.md) | Everyone | Skill ids; behavior is in `sessions/` |
 | [guides/session-behavior.md](guides/session-behavior.md) | Everyone | Language, orchestrator, optional chat compression |

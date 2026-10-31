@@ -4,7 +4,7 @@
 - [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
 - [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
 - [ ] `direct`: persisted approved PRD is sufficient; steps map PRD behavior/REQ/CA with PLAN-native IDs and no fabricated checklist rows. `orchestrated`: required O2 backlog/approval/checklist gates remain enforced.
-- [ ] Optional direct STORY/checklist is explicitly linked or supplied and does not conflict with PRD scope, acceptance, or dependencies; conflict blocks for operator resolution.
+- [ ] Optional direct STORY/checklist is explicitly linked or provided and does not conflict with PRD scope, acceptance, or dependencies; conflict blocks for operator resolution.
 - [ ] `## Related` present; PRD↔PLAN mutual cite when both exist; omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
 - [ ] Every PRD REQ and acceptance criterion appears in some step
 - [ ] Implementation DoR is reviewable before the first step: every REQ→CA→step has a named planned validation, scope/OOS and dependencies are explicit, and unresolved implementation-affecting decisions block start
@@ -18,7 +18,7 @@
 - [ ] No file-named / task-shaped step titles (file/class/script only) — `story-sizing.md` / `anti-task-shatter.md`
 - [ ] When present, story `ARCH/` / `ANALYSIS/` cited by portable path (not pasted)
 - [ ] `validate-prd` and `validate-plan` exit 0 on the written paths
-- [ ] Step prose in pt-BR (unless English override)
+- [ ] Step prose in the resolved artifact language (`LANGUAGE.md`; English only when the operator requests it)
 - [ ] No full implementation code blocks in the PLAN
 - [ ] When the established project style differs from the toolkit style bar, the PLAN records that difference and the open question (project vs toolkit). Implementation does not restyle existing members until the operator answers. An order to keep the project pattern closes the question
 - [ ] No full PRD / memory-bank dump in PLAN or handoff prompts

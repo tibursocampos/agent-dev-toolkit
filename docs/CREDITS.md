@@ -8,7 +8,7 @@ Response-compression behavior is **inspired by** [JuliusBrussee/caveman](https:/
 
 This toolkit ships a **portable preferences/contract integration** (`core/skills/_shared/caveman/`, policy `caveman-mode`, chat commands `caveman on|off|…`), not a full port of that repository. Optional continuity compaction (`COMPACT.md`) is **not** a port of upstream `caveman-compress`.
 
-Operator note (compression is one session preference, default off): [guides/session-behavior.md](guides/session-behavior.md).
+Operator note (compression is one session preference, default on): [guides/session-behavior.md](guides/session-behavior.md).
 
 ## Anthropic frontend-design (optional external)
 

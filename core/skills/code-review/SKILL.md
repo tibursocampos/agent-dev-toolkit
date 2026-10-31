@@ -5,28 +5,12 @@ description: Review a branch or diff against PRD/PLAN and project standards. Ask
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
-
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
 Invoke when the user asks for: `/code-review`, `review this PR`, `code review`.
 
@@ -223,7 +207,7 @@ An open `critical` stays blocking until a new review shows the fix. Offer at mos
 Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. When the operator passed a pull-request URL and the review identified that range, cite the URL and that range. Finding bands are only `critical`, `important`, and `nice-to-have`. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed.
 
 ## Multi-angle mode (when chosen)
-Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Task when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
+Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Agent when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
 ## Must not
 
 - Write or update PRD/PLAN files (hand off to `/sdd-spec` / `/sdd-plan`)
@@ -237,9 +221,9 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 - Create an implementation-survey skill
 - Tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI. A pull-request URL is used only when the operator passed it
 - Ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`
-- Add a reviewer roster. `architect`, `database`, `security`, and `repo_analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without a Task and without a new prompt
-- Hard-fail multi-angle when `subagents` is `none` or Task is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
-- Paste guideline packs into Task child prompts
+- Add a reviewer roster. `architect`, `database`, `security`, and `repo-analyst` are read-only consultation and do not write application code. `qa_checklist` stays in-parent, without an Agent and without a new prompt
+- Hard-fail multi-angle when `subagents` is `none` or Agent is unavailable (use **fallback** sequential **in-parent** per `SPAWN.md`)
+- Paste guideline packs into Agent child prompts
 - Create `framework-upgrade` or any new product skill folder from this skill (WS16b OOS — needs a separate approved feature)
 - **AI co-author trailers** - in any form. Under NO circumstances should you include `Co-authored-by: Cursor <cursoragent@cursor.com>`, `Co-authored-by: Antigravity`, or any other AI agent attribution in commit messages or PR descriptions.
 
@@ -256,7 +240,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 ### Closeout
 
-`architect`, `database`, `security`, and `repo_analyst` appear only as read-only consultation. They do not write application code. There is no new roster. `qa_checklist` stays in-parent. This skill does not create an implementation-survey skill and does not create a blind-reviewer skill.
+`architect`, `database`, `security`, and `repo-analyst` appear only as read-only consultation. They do not write application code. There is no new roster. `qa_checklist` stays in-parent. This skill does not create an implementation-survey skill and does not create a blind-reviewer skill.
 
 An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 

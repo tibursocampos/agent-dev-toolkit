@@ -18,6 +18,6 @@ Before drafting the PRD, challenge Prior context and operator answers for **dept
 
 For decision-backed PRD content, use `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` rather than duplicating its criteria. Cover rules, failures, compatibility, preservation, OOS, and evidence limits only when material and applicable. A generic acceptance or missing material behavior/failure is a focused gap question, not an agent-authored `agreed` requirement. Keep superseded decisions historical; an unresolved contradiction makes the affected REQ/CA insufficient until the existing decision owner reconciles it.
 
-If FEATURE/STORY siblings are thin: ask ≤3 gap questions targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield: **`orchestrated`** → STOP per SKILL; **`direct`** → ask (create inline / proceed / optional orchestrate) — do not hard-block.
+If FEATURE/STORY siblings are thin: ask all necessary gap questions, in blocks of at most 5, targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield: **`orchestrated`** → STOP per SKILL; **`direct`** → ask (create inline / proceed / optional orchestrate) — do not hard-block.
 
 Anti-task-shatter titles (verb+file/class/script) in Prior context → keep as PLAN/refine altitude; do not promote into Valuable US framing without outcome rewrite (`anti-task-shatter.md` — load only when titles look task-shaped).

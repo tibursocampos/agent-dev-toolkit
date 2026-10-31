@@ -87,7 +87,7 @@ _orders = await client.GetOrdersAsync();
 // later still using a second copy updated only sometimes
 
 // Right — single source: field/service/query result used for render
-_orders = await client.GetOrdersAsync();
+_orders = await client.GetOrdersAsync;
 ```
 
 Keep one authoritative copy of server data; derive UI flags in render when cheap.

@@ -21,7 +21,7 @@ Skill id stays **`framework-upgrade`**. Majors never enter the skill id or slash
 3. Load **only** `packs/<id>/PACK.md`, then **one** `packs/<id>/references/<section>.md` per hop/step (`references/progressive-load.md`).
 4. If `targetVersion` is outside pack `supported_range` → skill `references/research-protocol.md` (do not invent deltas).
 
-## Add a pack (observable steps — REQ-014 / CT4)
+## Add a pack (observable steps)
 
 Do **not** create a sibling skill (`angular-v*-upgrade`, `dotnet10-upgrade`, `framework-upgrade-vN`). New framework = new directory under this folder.
 
@@ -39,4 +39,4 @@ Do **not** create a sibling skill (`angular-v*-upgrade`, `dotnet10-upgrade`, `fr
 
 ## Progressive load
 
-Registry → `PACK.md` → one pack reference section → optional **one** `_shared` guideline file. Never preload every pack or guideline tree (`RNF-004` / `SR-NO-FULL-DUMP`).
+Registry → `PACK.md` → one pack reference section → optional **one** `_shared` guideline file. Never preload every pack or guideline tree.

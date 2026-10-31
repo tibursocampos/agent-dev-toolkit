@@ -16,11 +16,11 @@ Contract text only; covered by `Assert-CoreContracts.ps1`.
 | **Problem / Need** | Pain, defect, regression, ops friction; often one symptom | "Login fails on Safari"; "CI publish step is flaky" |
 | **Idea** | Exploratory, hypothesis, no acceptance yet | "What if we used event sourcing for orders?"; "Maybe MCP for GitHub" |
 
-If ambiguous, ask ≤3 high-cost questions (pt-BR). Do **not** invent scope or architecture in the parent orchestrator.
+If ambiguous, ask the necessary high-cost questions, in blocks of at most 5, in the user chat language. Do **not** invent scope or architecture in the parent orchestrator.
 
 ---
 
-## Map intent → track (RF01 extension)
+## Map intent → track (extension)
 
 | Intent | Default path | Full O1 (`orchestrate-analyze` continues) |
 |--------|--------------|-------------------------------------------|
@@ -32,7 +32,7 @@ If ambiguous, ask ≤3 high-cost questions (pt-BR). Do **not** invent scope or a
 
 ### Early handoff (stop O1 parent flow)
 
-When the mapped path is **not** full O1, present choice (pt-BR) and hand off — do **not** allocate NNN-slug or run Step 0 Memory Bank Gate unless the operator insists on O1 anyway:
+When the mapped path is **not** full O1, present the choice in the user chat language and hand off — do **not** allocate NNN-slug or run Step 0 Memory Bank Gate unless the operator insists on O1 anyway:
 
 | Path | Handoff |
 |------|---------|
@@ -51,14 +51,14 @@ Load `ROSTER.md` + `spawn-map.md` when any row applies. Spawn **before** step 8 
 
 | Trigger | Spawn (parallel within SPAWN ≤4 cap) | Why before synthesis |
 |---------|-------------------------------------|----------------------|
-| **Existing Feature** + brownfield + new stories touch unknown modules | `repo_analyst` | Map blast radius before story split |
+| **Existing Feature** + brownfield + new stories touch unknown modules | `repo-analyst` | Map blast radius before story split |
 | **New Feature** + `needs_domain` or greenfield without established style | `architect` → ARCH confirm gate (`arch-confirm.md`) | Style + boundaries before US/TS sizing |
-| **Product Initiative** + multiple bounded contexts or APIs | `architect`; add `repo_analyst` if brownfield | Decompose initiative without inventing architecture in parent |
+| **Product Initiative** + multiple bounded contexts or APIs | `architect`; add `repo-analyst` if brownfield | Decompose initiative without inventing architecture in parent |
 | **Problem / Need** + auth / secrets / PII / feed-token / supply-chain | `security` | Do not defer `needs_security` to synthesis |
 | **Problem / Need** + persistence / migration / schema | `database` | DDL and migration boundaries before TS split |
 | **Idea** → promoted to O1 after refine | Same as **New Feature** once intent reclassified | Specialists run only after scope is no longer "idea-only" |
 
-Optional (CONTINUITY note only, no Task): `needs_frontend`, `needs_devops`. Do **not** spawn stack `*-developer` agents in O1.
+Optional (CONTINUITY note only, no Agent): `needs_frontend`, `needs_devops`. Do **not** spawn stack `*-developer` agents in O1.
 
 ---
 

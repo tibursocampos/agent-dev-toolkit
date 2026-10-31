@@ -32,7 +32,7 @@ A small, isolated change may need only its target area and one close example. A 
 
 ## Evidence sufficiency
 
-Evaluate only areas that the requested change or current implementation step could affect; do not inventory unrelated layers or tools. A repository area is covered only when a direct, representative source, configuration, or test supports the conclusion, or when an approved architecture decision supplies the convention for a genuinely new area. Record the portable evidence path and the symbol, section, or configuration key.
+Evaluate only areas that the requested change or current implementation step could affect; do not inventory unrelated layers or tools. A repository area is covered only when a direct, representative source, configuration, or test supports the conclusion, or when an approved architecture decision provides the convention for a genuinely new area. Record the portable evidence path and the symbol, section, or configuration key.
 
 `CONFIRMED` requires that direct evidence or approved decision. `INFERRED` is partial or indirect evidence and can guide further investigation, but alone it cannot authorize a convention or architecture choice. `GAP` means reliable evidence is missing, contradictory, or not yet verified. If an area cannot affect the current step's accepted behavior, architecture or conventions, security, data, API or routing, compatibility, tests, or scope, record it as not applicable with a scope-based reason instead of leaving an unexplained gap.
 

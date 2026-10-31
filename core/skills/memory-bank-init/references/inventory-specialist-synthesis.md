@@ -1,10 +1,10 @@
 # inventory → specialist synthesis
 
-**REQ-011 / CA4 / CT4.** Contract id: `inventory-specialist-synthesis`. Load **after** Step 5 inventory and **before** (or as the first pass of) Step 6 scaffold/refresh fills. Applies to `/memory-bank-init` create | refresh | refresh-light.
+Contract id: `inventory-specialist-synthesis`. Load **after** Step 5 inventory and **before** (or as the first pass of) Step 6 scaffold/refresh fills. Applies to `/memory-bank-init` create | refresh | refresh-light.
 
 **Language:** English identifiers and reason codes. Operator chat follows session language (`LANGUAGE.md`). Portable paths only (`STORAGE.md` § Portable path).
 
-Companions: `MEMORY-BANK.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `_shared/agents/SPAWN.md`, `_shared/agents/ROSTER.md`, `references/inventory-fallback.md`, `references/template-map.md`.
+Companions: `MEMORY-BANK.md`, `SELECTIVE-RETRIEVAL.md`, `_shared/agents/SPAWN.md`, `_shared/agents/ROSTER.md`, `references/inventory-fallback.md`, `references/template-map.md`.
 
 ---
 
@@ -30,21 +30,21 @@ Step 5 inventory (sources.json v3)
 | Specialist synthesis | Portable `bank_root` + named bank paths + inventory governance + **short** source summaries | Receipts: facts for architecture / domain / risks / phase-2 |
 | Merge | Specialist receipts | GENERATED blocks, `gaps.md` (preserve `BLOCKING:`), phase-2 stubs when relevant |
 
-**Thin trivial:** single obvious stack with no domain/schema/auth signals → synthesize **in-skill** from inventory + README/AGENTS (no Task). Any multi-file uncertainty, persistence, auth/PII, or architecture ambiguity → spawn specialists.
+**Thin trivial:** single obvious stack with no domain/schema/auth signals → synthesize **in-skill** from inventory + README/AGENTS (no Agent). Any multi-file uncertainty, persistence, auth/PII, or architecture ambiguity → spawn specialists.
 
 ## Signal → specialist map
 
-Use **ROSTER** role ids (`ROSTER.md`) — stable toolkit ids only (do **not** invent Supply/Jarvis names). For this skill, specialists return **bank** receipts (merge into `bank_root`), **not** feature `ANALYSIS/` / `ARCH/` / `SEC/` folders (those remain O1).
+Use **ROSTER** role ids (`ROSTER.md`) — stable toolkit ids only (do **not** invent org-specific names). For this skill, specialists return **bank** receipts (merge into `bank_root`), **not** feature `ANALYSIS/` / `ARCH/` / `SEC/` folders (those remain O1).
 
 | Inventory / Prior signal | Specialist (ROSTER id) | Bank targets (selective) |
 |--------------------------|------------------------|--------------------------|
-| Multi-module / brownfield blast radius unclear | `repo_analyst` | `project-context.md`, `architecture.md` (layers), `gaps.md` |
+| Multi-module / brownfield blast radius unclear | `repo-analyst` | `project-context.md`, `architecture.md` (layers), `gaps.md` |
 | Greenfield / no established style / domain boundaries | `architect` | `architecture.md`, `domain-knowledge.md` |
 | Persistence / DDL / migrations / DbContext | `database` | `database-schema.md` (phase 2 **BLOCKING** when DDL cited), `gaps.md` |
 | Auth / secrets / PII / supply-chain tokens | `security` | `known-risks.md`, `gaps.md` (env **names** only) |
-| Stack / lockfile / tooling only (no domain ambiguity) | *(in-skill — no Task)* | `tech-stack.json`, `conventions.md` GENERATED from `stack_hints` |
+| Stack / lockfile / tooling only (no domain ambiguity) | *(in-skill — no Agent)* | `tech-stack.json`, `conventions.md` GENERATED from `stack_hints` |
 
-Spawn **in parallel** within SPAWN ≤4 cap when independent. Parent stays lean: goals, paths, receipts — **no** app code from specialists. Do **not** spawn `qa_checklist` as a Task.
+Spawn **in parallel** within SPAWN ≤4 cap when independent. Parent stays lean: goals, paths, receipts — **no** app code from specialists. Do **not** spawn `qa_checklist` as an Agent.
 
 ## Child prompt contract (actionable)
 
@@ -57,34 +57,34 @@ Pass **only**:
 
 Receipt (en-US): role, target paths, ≤5 bullets of evidenced facts, open gaps (`BLOCKING:` when Prior already has DDL/OpenAPI/UI map). Parent merges; specialists **must not** Write app/test source.
 
-## Selective retrieval (`SR-NO-FULL-DUMP` / RNF-004)
+## Selective retrieval
 
 | Do | Do not |
 |----|--------|
 | Cite portable paths + short summaries | Dump entire `memory-bank/` into skill or specialist prompts |
 | Read named bank files needed for the merge | Paste full `sources.json` bodies into parent/child chat |
-| Point to `SELECTIVE-RETRIEVAL.md` | Wholesale Supply / Reversa dump into refs |
+| Point to `SELECTIVE-RETRIEVAL.md` | Wholesale external corpus dump into refs |
 
 Normative: `SELECTIVE-RETRIEVAL.md` rule `SR-NO-FULL-DUMP`. Smoke: `Assert-CoreContracts.ps1` (SelectiveRetrieval section) when in-scope.
 
-## Skip D (REQ-013 / CA4) — explicit
+## Skip D — explicit
 
 This skill **must not** introduce or invoke:
 
 | Forbidden (Skip D) | Why |
 |--------------------|-----|
-| **ADO mutate** / Azure Boards WI create-update | OOS WS13; no work-item side effects |
-| **Reversa** constitution / skill trees | OOS; not a second SoT |
-| **SpecKit constitution** / `.specify/` / uv / specify installers | Credits may mention inspiration; **do not** run Spec Kit or adopt its constitution |
+| **Tracker mutate** / work-item create-update | OOS WS13; no work-item side effects |
+| **External spec-tool** constitution / skill trees | OOS; not a second SoT |
+| **External spec-tool constitution** / installers | Credits may mention inspiration; **do not** run that tool or adopt its constitution |
 
-Also forbidden: inventing `framework-upgrade`, Jarvis/`JARVIS_*` names, or new skill folders for synthesis.
+Also forbidden: inventing `framework-upgrade`, org-only prefixed names, or new skill folders for synthesis.
 
 ## STOP / reason codes
 
 | Code | When |
 |------|------|
 | `inventory_not_ready` | `status` = `not-ready` — surface `status_reason` before synthesis fills |
-| `synthesis_skip_d_violation` | Prompt/diff would add ADO mutate, Reversa, or SpecKit constitution |
+| `synthesis_skip_d_violation` | Prompt/diff would add tracker mutate or external spec-tool constitution |
 | `synthesis_full_dump` | Child/parent prompt would dump integral bank or full PRD |
 | `synthesis_app_write` | Specialist attempted app/test source Write |
 
@@ -99,7 +99,7 @@ Also forbidden: inventing `framework-upgrade`, Jarvis/`JARVIS_*` names, or new s
 ## Must not
 
 - Skip synthesis when inventory signals domain/schema/auth ambiguity (thin-trivial only)
-- Dump integral `memory-bank/` or paste full PRD into prompts (`SR-NO-FULL-DUMP`)
-- ADO mutate, Reversa, SpecKit constitution (Skip D / REQ-013)
+- Dump integral `memory-bank/` or paste full PRD into prompts
+- tracker mutate, external spec-tool constitution (Skip D / REQ-013)
 - Write application or test source; place bank under `features/NNN-slug/`
 - Create a parallel clarify/init skill folder

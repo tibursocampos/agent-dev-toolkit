@@ -2,7 +2,7 @@
 
 **Load only when refine mode = `split`.** Do not load `feature.md` or `tech.md` in the same session step. Isolation matrix: `references/mode-isolation.md`.
 
-Packing inspiration (structure only — paraphrase; no remote tracker): clarify-style mode playbook — prepare dependency-aware steps for local checklist split (not Azure WI decomposition). **Do not** create a parallel clarify skill (REQ-007).
+Mode playbook: prepare dependency-aware steps for a local checklist split (not work-item decomposition in a tracker). Requirement challenge is not part of this mode; see `requirement-review`.
 
 ## Scope
 
@@ -52,9 +52,9 @@ This mode does **not** call `split-story-checklist` internals — it prepares in
 
 ### 4. Quality scorecard
 
-Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms. Emphasize **Implementation steps** and **Story scope** notes for checklist readiness. Product depth wiring preserved (US03).
+Score per `references/scorecard-rubric.md` + `references/scorecard-template.md`. Lazy-load Product-depth norms. Emphasize **Implementation steps** and **Story scope** notes for checklist readiness. Product depth wiring preserved (US03). Show in chat the total / 100, ALL criteria rows, strengths, and improvements immediately after the markdown. The full scorecard is chat-only; persistence keeps only the short summary.
 
-Refresh envelope `status` from open B/I; set `handoff_candidate: split-story-checklist` when steps are checklist-ready.
+Refresh envelope `status` per `readiness-severity.md`; set `handoff_candidate: split-story-checklist` when steps are checklist-ready.
 
 ### 5. Validation (chat-only)
 
@@ -72,4 +72,4 @@ Always offer (portable path):
 /split-story-checklist - <portable-story-or-backlog-path>
 ```
 
-Detail: `references/split-handoff.md`. Other paths: O1 / `sdd-spec` / stack developer per `references/boundary.md` — only when envelope `status` is **READY** for that target (no open B/I for PRD handoff).
+Detail: `references/split-handoff.md`. Other paths: O1 / `sdd-spec` / stack developer per `references/boundary.md` — only when envelope `status` is **READY** for that target (`readiness-severity.md`).

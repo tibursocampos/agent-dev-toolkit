@@ -189,8 +189,20 @@ function Invoke-CopilotSmokeValidateCore {
         if (-not (Test-Path -LiteralPath $instructionPath)) {
             return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.ArtifactMissing -f $normalizedMode, $instructionPath)
         }
+        $instructionText = [System.IO.File]::ReadAllText($instructionPath)
+        if (-not $instructionText.Contains($script:CopilotPathConstant.ApplyToAllFrontmatterToken)) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.InstructionApplyToMissing -f $normalizedMode, $instructionPath)
+        }
         $completed.Add(('instruction:{0}' -f $baseName))
     }
+
+    foreach ($instructionFile in @(Get-ChildItem -LiteralPath $instructionsRoot -File -Filter ('*' + $script:CopilotPathConstant.InstructionsFileExtension))) {
+        $instructionText = [System.IO.File]::ReadAllText($instructionFile.FullName)
+        if ($instructionText -match ('(?m)^' + [regex]::Escape($script:CopilotPathConstant.SmokeAlwaysApplyFrontmatterKey))) {
+            return New-CopilotSmokeFailureResult -Mode $normalizedMode -InstallRoot $resolvedInstallRoot -Checks $checks -Message ($script:CopilotSmokeMessage.InstructionAlwaysApplyLeft -f $normalizedMode, $instructionFile.FullName)
+        }
+    }
+    $completed.Add('instructions:applyTo-mapped')
 
     if (Test-CopilotSmokeHooksCapable) {
         $hooksRoot = Join-Path $resolvedInstallRoot $script:CopilotPathConstant.HooksDirectoryName

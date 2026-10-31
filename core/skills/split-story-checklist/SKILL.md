@@ -5,32 +5,16 @@ description: Break refined backlog steps into a dependency-aware task checklist 
 
 ## STOP - Read before ANY tool call
 
-1. Read `{{GUARDRAILS_PATH}}`
-2. Read `_shared/sdd-artifacts/SESSION.md`; load session-state for `$Cwd`
-3. If the relevant gate is not approved: **STOP** - ask user **(pt-BR)** - do **NOT** Write/Shell
-4. SDD/develop skills: after **ONE** step/task, **STOP** session - handoff only
-5. This skill body is **English**; user-facing prompts may be **(pt-BR)**
-
-### Step -1 - Gate check (report in chat before continuing)
-
-```
-Gate check:
-[ ] guardrails.mdc read
-[ ] SESSION.md read; session-state loaded
-[ ] PIPELINE.md read (SDD skills only)
-[ ] User confirmed current action (sim)
--> If any unchecked: STOP
-```
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
 ---
 
 # Skill: split-story-checklist
 
 ## Trigger
-**Negative signal:** Do not activate this skill when the request lacks one of the positive signals below or its required context; topic similarity or an isolated keyword alone is insufficient.
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
 
-
-Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, `/split-story-checklist`, or after `refine-story`.
+Invoke when the user asks for: `/split-story-checklist`, `break down tasks`, or after `refine-story`.
 
 **Input (one of):**
 
@@ -47,7 +31,7 @@ Prerequisite: content includes structured **Steps** (or Bug **Suggested fix**). 
 
 In the **target workspace**, a grouped checklist (backend / frontend / tests) with **dependency-aware order** (dependency-aware task checklist style).
 
-**Output altitude (RN01 / REQ-005):** emit **SMART engineering tasks** only — never one US/TS per file, class, or script (`anti-task-shatter.md`). Keep task-shaped titles as checklist rows under the parent story; do **not** invent new `USnn`/`TSnn` folders from file names.
+**Output altitude:** emit **SMART engineering tasks** only — never one US/TS per file, class, or script (`anti-task-shatter.md`). Keep task-shaped titles as checklist rows under the parent story; do **not** invent new `USnn`/`TSnn` folders from file names.
 
 **Persistence (prefer in order):**
 
@@ -61,22 +45,31 @@ When `sdd-plan` coordinates this skill because the required checklist is absent,
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
-**TASKS complexity gate (REQ-004):** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md` + `references/complexity-policy.md`.
+**TASKS complexity gate:** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md` + `references/complexity-policy.md`.
 
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
-**type_classification (REQ-012 / CA4):** Resolve Bug \| User Story \| Technical Story once; persist the **exact-set** (**Tipo** / `item_type`) **only** on `STORY.md`. Do **not** fork that set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, PRD, or trackers. Details: `references/type-classification.md`.
+**type_classification:** Resolve Bug \| User Story \| Technical Story once; persist the **exact-set** (**Tipo** / `item_type`) **only** on `STORY.md`. Do **not** fork that set into `REFINE/tasks.md`, FEATURE, CONTINUITY, PLAN, PRD, or trackers. Details: `references/type-classification.md`.
 
-**Skip D (REQ-013):** no Azure Boards / ADO mutate, no Reversa, no SpecKit constitution. Skill id and slash `/split-story-checklist` stay stable (RN03).
+**Skip D:** no tracker mutate, no external spec-tool constitution. Skill id and slash `/split-story-checklist` stay stable.
+
+## Flow contract: reads, writes, where, when
+
+- **Reads:** `STORY.md`, a `docs/backlog/` path, the Steps pasted in chat, or the current session's refined markdown.
+- **Writes:** the grouped task checklist (backend, frontend, tests) at `REFINE/tasks.md`; chat only when the source is pasted.
+- **Where:** `features/NNN-slug/USnn/REFINE/tasks.md` (preferred); shortcut `docs/implementation-tasks/<slug>.md`.
+- **When to use:** break a refined story into backend, frontend and test tasks. A trivial feature does not need this file.
+
+Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
 
 ## Lazy-load
 
 | When | Path |
 |------|------|
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Anti-task-shatter / SMART tasks (RN01) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
+| Anti-task-shatter / SMART tasks | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
 | Splitting / merge policy (when grouping unclear) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/splitting.md` |
-| type_classification + exact-set→STORY (REQ-012 / CA4) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/type-classification.md` |
+| type_classification + exact-set→STORY | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/type-classification.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/<section>.md` |
 | Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `references/plan-resolution.md` |
@@ -117,20 +110,18 @@ If no steps found and `source` is not `prd`, stop and suggest `/refine-story`.
 
 If `source=prd` and the STORY has no step list, do not suggest `/refine-story`. Build groups from the closed PRD `REQ` rows (`references/parsing.md`).
 
-If Complexity is `trivial` (small) and the caller is not `sdd-plan`: **STOP Write** of TASKS — tell the operator, in the user chat language, that TASKS is not required for trivial/small; offer an optional checklist only if they insist.
-
-If the caller is `sdd-plan`, a trivial story still returns a one-step breakdown. Do not refuse the write.
+If Complexity is `trivial` (small): **do not** Write TASKS / `REFINE/tasks.md`, for any caller. Tell the operator, in the user chat language, that a checklist file is not required for trivial/small. If the caller is `sdd-plan`, return the one-step breakdown in the chat only; no tasks file is written. Only an explicit operator request for a file changes this, and then the Persistence rules and write gates apply.
 
 If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
 
-### 0.5. type_classification + exact-set → STORY (REQ-012)
+### 0.5. type_classification + exact-set → STORY
 
 Load `references/type-classification.md`:
 
 1. Resolve **item_type**: Bug \| User Story \| Technical Story (ask once if ambiguous).
 2. When under `features/NNN-slug/USnn/`, Write the **exact-set** only to that story’s `STORY.md` (**Tipo** / type fields). Map US↔User Story, TS↔Technical Story.
 3. Do **not** embed the exact-set in the checklist file, FEATURE, CONTINUITY, PLAN, PRD, or any tracker.
-4. **Skip D:** never create/update Azure Boards work items from this step.
+4. **Skip D:** never create/update tracker work items from this step.
 5. If type stays unresolved → **STOP** (`type_unresolved`); do not Write checklist.
 
 ### 1. Documentation language (blocker before Write)
@@ -162,13 +153,13 @@ Write preferred path under the story folder (or shortcut) using `references/outp
 
 Each row is a **SMART task** under the existing story — not a new US/TS. If a step title is verb+file/class/script, keep it as a task row; do **not** promote it to a story folder (`anti-task-shatter.md` / RN01).
 
-Checklist body may cite the portable STORY path as **Source** only — it must **not** restate or fork the type exact-set (REQ-012).
+Checklist body may cite the portable STORY path as **Source** only — it must **not** restate or fork the type exact-set.
 
 Do **not** inject fixed corporate tasks (AI tags, manual sign-off checklist, Sonar boilerplate as mandatory rows).
 
 ### 4. Summarize in chat
 
-Show group names, dependency waves, output path, and suggested next skills.
+After the Write, you must show in chat a table with every group row, never collapsed: Group, Steps, Wave, Status (labels by user chat language per `_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; state keys and glyphs `[ ]` `[~]` `[x]` `[!]` `[-]`). Redraw it in full at each point where the checklist is summarized. Also show the dependency waves, output path, and suggested next skills. The table is a chat projection of the file's Summary table.
 
 ### 5. Handoff
 
@@ -185,14 +176,14 @@ Show group names, dependency waves, output path, and suggested next skills.
 
 Also enforce `references/exclusions.md`. Handoff boundary: `references/sdd-handoff.md`. PLAN path: `references/plan-resolution.md`.
 
-- Create or update external tracker cards via external work-item APIs (**Skip D / REQ-013:** no ADO / Azure Boards mutate)
-- Introduce Reversa trees or SpecKit constitution / uv / specify (Skip D / REQ-013)
-- Scatter type_classification exact-set outside `STORY.md` (REQ-012) — not into tasks.md, FEATURE, CONTINUITY, PLAN, or PRD
-- Rename skill id or slash away from `split-story-checklist` / `/split-story-checklist` (RN03)
+- Create or update external tracker cards via external work-item APIs (**Skip D / REQ-013:** no tracker mutate)
+- Introduce external spec-tool trees or constitution / installers (Skip D / REQ-013)
+- Scatter type_classification exact-set outside `STORY.md` — not into tasks.md, FEATURE, CONTINUITY, PLAN, or PRD
+- Rename skill id or slash away from `split-story-checklist` / `/split-story-checklist`
 - Add fixed "workflow" tasks (manual sign-off checklist, Datadog, SDD/DevAI tags) unless the user explicitly requests a custom section
 - Assume toolkit repo paths during consumer runs
 - Write the file before the language question
-- Emit one US/TS per file, class, or script (RN01) — output stays SMART tasks under the parent story (`anti-task-shatter.md`)
+- Emit one US/TS per file, class, or script — output stays SMART tasks under the parent story (`anti-task-shatter.md`)
 - Create new `USnn`/`TSnn` folders from checklist breakdown
 
 ## Handoff examples

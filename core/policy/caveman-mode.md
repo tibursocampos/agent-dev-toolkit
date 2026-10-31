@@ -25,7 +25,7 @@ Also accept `stop caveman` / `normal mode` as off.
 ## 2. Preference check (every session / task start)
 
 1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: use the first-install defaults `{ "caveman_mode": true, "caveman_level": "full", "orchestrator_mode": "always", "artifact_language": null, "verify_mode": false }`. Interactive first sync may ask the operator to turn response compression off; non-interactive sync keeps it on.
+2. If missing: use the first-install defaults `{ "caveman_mode": true, "caveman_level": "full", "orchestrator_mode": "adaptive", "artifact_language": null, "verify_mode": false }`. Interactive first sync may ask the operator to turn response compression off; non-interactive sync keeps it on.
 3. If `caveman_mode` is `true`:
    - Load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`.
    - Apply intensity: `lite` | `full` | `ultra` (default `full`), capped by active skill participation table in that file.
@@ -40,7 +40,7 @@ Also accept `stop caveman` / `normal mode` as off.
 
 **Tokenizer hygiene:** no invented abbrevs (`cfg`/`impl`/`req`/`res`/`fn`); no prose `→`; keep real tech terms exact.
 
-**Lite** (planning skills: `sdd-spec`, `sdd-plan`, orchestrate analyze/deliver, document-plan, refine-story, memory-bank-init): strip framing only; keep questions, drafts, headers.
+**Lite** (planning skills: `sdd-spec`, `sdd-plan`, orchestrate analyze/deliver, document-plan, refine-story, requirement-review, memory-bank-init): strip framing only; keep questions, drafts, headers.
 
 **Full / Ultra** (develop, review, ops, stack developers, general chat): telegraphic fragments; pattern `[thing] [action] [reason]. [next].`; no preambles/pleasantries/tool narration. Ultra = max terseness when unambiguous.
 

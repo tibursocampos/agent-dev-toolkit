@@ -55,14 +55,14 @@ Do **not** create `REFINE/` or `qa-history.md` at repo root. Paths in links/hand
 
 1. When asking a clarification question, **append** an entry (`Status: open`) before waiting.
 2. When the operator answers, update that entry with the answer, stable decision ID, resolution, and impact (`resolved`) — do not delete prior text. If the answer does not resolve the question, retain `open` and leave decision/impact pending.
-3. Recompute envelope `status` from open **B**/**I** only (`readiness-severity.md`).
+3. Refresh envelope `status` per `readiness-severity.md` (single source of truth for READY / NEEDS_CLARIFICATION).
 4. Envelope `qa_history_ref` / `portable_paths.qa_history` must point at the portable history path once persisted.
 5. On handoff to `/sdd-spec`, `/orchestrate-analyze`, or `/split-story-checklist`, cite the history path in the typed handoff — do not paste the full history into the slash command (`SR-NO-FULL-DUMP`).
 
 ## Consultability checklist
 
 - [ ] History path is portable and listed in the interaction envelope
-- [ ] Open B/I in history match envelope `open_questions`
+- [ ] Unanswered B, I, and MINOR questions in history match envelope `open_questions` and `minor_questions`
 - [ ] Resolved entries link question ID → decision ID → affected artifact/section and applicable REQ/CA
 - [ ] Resolved and superseded entries retain question, answer, resolution, status, and supersession links (audit trail)
 - [ ] No OS absolute paths inside the history file

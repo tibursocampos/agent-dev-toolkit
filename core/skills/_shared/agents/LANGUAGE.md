@@ -4,21 +4,19 @@ Host-agnostic contract for **which language** to use on which surface. Orthogona
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`
 
-**Path decision:** stay under `_shared/agents/` — not `core/router/` (router is L0 index only).
-
 **Rule ID:** `CL-CONTENT-LANGUAGE`
 
-Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md` (`SR-NO-FULL-DUMP`), `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
+Companion: `SPAWN.md`, `SELECTIVE-RETRIEVAL.md`, `STORAGE-RESOLUTION.md` (manifest `artifact_language`), `SESSION.md` (gates), `CONTRACT-PROVENANCE.md`, `memory-bank/conventions.md`.
 
-## Normative matrix (RNF-001 / REQ-014)
+## Normative matrix
 
 | Surface | Language |
 |---------|----------|
-| Internal agent prose / spawn / Task child prompts / receipts | **en-US always** |
+| Internal agent prose / spawn / Agent child prompts / receipts | **en-US always** |
 | `SKILL.md`, references, agents bodies, internal prompts | **en-US always** |
 | Chat **input** | User-chosen language |
 | Chat **output** | Mirror session user language |
-| Host execution plans the operator reads (Cursor Plan mode, `CreatePlan` title/overview/body/todos, `.cursor/plans/*.md`) | **Same as chat output.** Never English by default because `SKILL.md` or this file is English. Paths, skill ids, and identifiers stay English. |
+| Host execution plans the operator reads (plan mode output, or the host plan file with title/overview/body/todos) | **Same as chat output.** Never English by default because `SKILL.md` or this file is English. Paths, skill ids, and identifiers stay English. |
 | SDD artifact **Writes** (PRD, PLAN, ARCH, SEC, STORY, FEATURE, CONTINUITY, CHANGE prose, …) | User language **inferred from chat** — do **not** ask a dedicated language question just for locale; do **not** hard-code pt-BR (or any single locale) |
 | Project source code + product docs (`docs/`, README, ADRs) | Follow **project convention**; if no evidence → ask and **confirm during planning** (existing toolkit rule) |
 | Identifiers / paths / skill ids | **English always** |
@@ -67,7 +65,7 @@ PLAN prose language follows the resolution above, but a heading used to locate a
 |---------|------|
 | Chat replies | Mirror session user language (may differ from content-language only when explaining an override) |
 | Artifact Write | Content-language from resolution above |
-| Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` (`SR-NO-FULL-DUMP` / CT6) |
+| Child prompt / receipt | **en-US**; pass **scoped portable paths** + short excerpt — **do not** dump full PLAN / PRD / FEATURE / `memory-bank/` |
 | Parent synthesis | Parent writes user-facing chat and artifacts in content-language. A specialist receipt stays en-US. The parent translates that receipt before writing `ANALYSIS/`, `ARCH/`, or `SEC/`. Folder names stay English. |
 | Gate STOP / confirm-before-write prompts | User chat language (same as chat output); accept semantically equivalent localized answers rather than requiring a fixed-language token |
 
@@ -87,7 +85,7 @@ When spawning (native path or documented equivalent):
 
 ## Must not
 
-- Write a host execution plan (Cursor Plan / `CreatePlan` / `.cursor/plans/`) in English when the operator chat is another language — **including** because skill bodies are English
+- Write a host execution plan (plan mode or host plan file) in English when the operator chat is another language — **including** because skill bodies are English
 - Hard-code chat or story artifacts to a single locale (e.g. always pt-BR) when preferences/manifest/chat say otherwise
 - Treat `artifact_language: null` as an implicit hard-coded locale (including pt-BR)
 - Ask a dedicated language question **only** to choose SDD artifact locale when chat language is already known

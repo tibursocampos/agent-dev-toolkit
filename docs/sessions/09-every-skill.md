@@ -1,6 +1,6 @@
 # 09 — Every skill
 
-Forty-five invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
+Forty-six invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
 
 The long form of a skill is the session linked on its heading. This page is the index that still says what the skill does, what it writes, and which skill it calls next.
 
@@ -41,6 +41,10 @@ Read-only. Turns one FEATURE, STORY, PRD, or PLAN path under `features/` into `s
 ### `refine-story`
 
 Standalone shaping of one bug, user story, or technical story. On a direct invoke, mode `feature`, `tech`, or `split` is asked in the chat language. An orchestrated call receives `mode=feature` or `mode=tech` and does not ask. Writes chat markdown, a scorecard, and optionally `STORY.md` or `docs/backlog/<slug>.md`. O1 uses the scorecard rubric file without calling this skill. O2 calls this skill when a question is still open. Detail: [03](03-backlog-shape.md).
+
+### `requirement-review`
+
+Challenges one feature or story before SDD. `--feature` checks the functional structure, splits acceptance criteria into atoms, and asks questions with a decision owner. `--tech` grounds named contracts and flows in the repository and records technical follow-ups for `sdd-spec`. Writes a review report and Q&A history under `REFINE/` after confirmation. `refine-story` calls it at step 4a. Detail: [03](03-backlog-shape.md).
 
 ### `split-story-checklist`
 

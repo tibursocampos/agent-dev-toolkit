@@ -19,34 +19,21 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
 3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
 
-Mode and in-session commands: `{{TOOLKIT_ROOT}}/rules/orchestrator-session` + `{{SDD_ROOT}}/preferences.json` (`orchestrator_mode`: `adaptive` default | `always`).
+Full text, in-session commands, and the preference check: `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` + `{{SDD_ROOT}}/preferences.json` (`orchestrator_mode`).
 
 ## Parallel specialists (default)
 
-**This session = parent / orchestrator.** Keep parent lean (goals, gates, paths, receipts, synthesis). Parent does **not** write code, does **not** do heavy analysis, does **not** execute scripts/batches/builds — specialists do that. Prefer specialist subagents **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. Do not require the user to restate this each chat.
+Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent.
 
-Always-on policy source: `{{TOOLKIT_ROOT}}/rules/orchestrator-session`. After publish, honor the host-native surface (do not assume every host has a Cursor rule file): Cursor `rules/orchestrator-session.mdc`; Claude/Grok/Codex `rules/orchestrator-session.md`; Copilot `instructions/orchestrator-session.instructions.md`; Antigravity inside GUARDRAILS; OpenCode/ZCode: **this Parallel specialists section IS the always-on** (no rules file — do not open a `rules/` path).
-
-**Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Task `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
-
-- **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before `CreatePlan` / any plan that cites Task, subagents, or orchestration; before the first spawn vs in-parent decision when work is **not** thin-trivial; and before multi-file analysis / non-trivial planning (spawn specialists; this chat stays parent/orchestrator). Citing Task/orchestration in a plan without that Read = failed checklist. Then honor SPAWN (`subagents` native → spawn; `none` / Task unavailable → fallback **in-parent**, never hard-fail; concurrent caps).
-- Child prompts/returns: Caveman-scoped; omit Task `model` by default (`SUBAGENT-MODEL.md`).
-- Batch related bounded work in the initial child assignment. A running child may receive same-scope clarification only; after it returns, never follow up, reopen, resume, or reuse it, including for a correction or continuation. Send remaining work to a fresh child with a concise receipt/excerpt and scoped handoff. Host UI retention does not change this parent rule; do not claim process/context termination without host support.
-- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
-- User-facing chat and persisted artifacts match the **user chat language**; spawn / child prompts / agent receipts stay **en-US** (`LANGUAGE.md`).
+- **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` before drafting any plan that cites Agent, subagents, or orchestration, and before the first spawn-or-in-parent decision on non-trivial work.
+- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Agent `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate slug without gate + explicit approval (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
+- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, a one-file change might extend to others, or there is any doubt → spawn.
+- **Child lifecycle:** batch related bounded work into one child assignment. A returned child is idle; continue it only for the same topic and scope. Children cannot spawn subagents. Do not claim process or context termination without host support. Full rules: `orchestrator-session` § Child invocation lifecycle.
+- **Child prompts and returns:** Caveman-scoped; omit Agent `model` by default (`SUBAGENT-MODEL.md`). Honor SPAWN (`subagents` native → spawn; `none` or Agent unavailable → fallback in-parent, never hard-fail; concurrent caps).
 
 ## Language
 
-Two surfaces (host-agnostic — `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`):
-
-| Context | Rule |
-|---------|------|
-| User chat + persisted artifacts (FEATURE/STORY/PRD/PLAN/ANALYSIS/ARCH/SEC, product `docs/` / README) | **Same as user chat** in this session |
-| Internal thinking, spawn / Task child prompts, specialist contexts, receipts for agents | **Always en-US** |
-| Identifiers, tests naming, commits | English always |
-| Comments / XML docs / narrative docs in source | Mirror touched area or ask on greenfield (`structure-and-quality.md` §2) |
-
-Do not dump a full user-language PLAN/PRD into a child prompt — **paths + excerpt**. Published `sdd-artifact-language-pt-br*` / `user-language-pt-br*` files are install defaults. Honor `LANGUAGE.md` when the chat is not that locale.
+Language surfaces (chat, persisted artifacts, spawn prompts and receipts) are defined once in `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`. Identifiers, test names, and commit messages are English.
 
 ## Tracks (workflows)
 
@@ -60,7 +47,7 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 
 ### Operator track choice
 
-Tracks are **recommendations**, never prerequisites between each other. The operator may start **Classic SDD** directly from chat, the host plan mode, a host plan scratch file, or manual analysis — **without** running `orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it.
+Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it. Detail: `sdd-pipeline-guards`.
 
 **Checkpoint:** one `sdd-develop` session = one PLAN step. An unanswered question, including **MINOR**, blocks the next artifact (`open_question`). O1 creates story folders only after the feature is closed. O2 contests the PRD before `sdd-plan`. Scope close is `run-tests`, then `code-review`, then `run-tests` after changes (or record it was unnecessary), then the `security` agent, then `commit`/`push`. Step 0 = Memory Bank Gate (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged. Detail stays in `PIPELINE.md`.
 
@@ -97,53 +84,18 @@ Tracks are **recommendations**, never prerequisites between each other. The oper
 
 ## Agents / spawn (lazy)
 
-Default preference: this session stays parent/orchestrator; specialists for heavy work — see **Parallel specialists (default)** above. Details:
-
 | Topic | Path |
 |-------|------|
-| Orchestrator session (always-on) | Cursor `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` (other hosts: rewrite extension, or this Parallel specialists section when `rules=false`) |
 | Spawn contract (native vs fallback) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Roster / `needs_*` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Receipt schema | `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md` |
-| Task `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent `model` param | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Stack → `*-developer` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
 
 ## Rules (always-on)
 
-Published under `{{TOOLKIT_ROOT}}/rules/` after sync-agent (source policy under `core/policy/` where applicable). Cursor-oriented `.mdc` names below; other hosts rewrite the extension or skip this table when `rules=false` (OpenCode/ZCode: honor Parallel specialists — no rules file).
-
-| Rule | Path |
-|------|------|
-| Guardrails (git, write, gates) | `{{GUARDRAILS_PATH}}` |
-| Orchestrator session | `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` |
-| AI stealth | `{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc` |
-| SDD pipeline | `{{TOOLKIT_ROOT}}/rules/sdd-pipeline-guards.mdc` |
-| SDD artifact language | `{{TOOLKIT_ROOT}}/rules/sdd-artifact-language-pt-br.mdc` |
-| User chat language | `{{TOOLKIT_ROOT}}/rules/user-language-pt-br.mdc` |
-| Branch / commits | `branch-validation.mdc`, `conventional-commits.mdc` |
-| Caveman Mode | `caveman-mode.mdc` |
+Read the rule that matches the topic; do not restate it here. Hosts without a rules tree (OpenCode, ZCode) use the Parallel specialists section above as their always-on copy. Hosts that fold policy into `AGENTS.md` (OpenHands, Hermes) carry it there.
 
 ## Skills catalog
 
-Agent SoT: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (map) + `OPERATOR.md` (operator nuances). Invoke skill `help-skills` to present those static files — do not re-analyze every skill body.
-
-| Group | Examples |
-|-------|----------|
-| Catalog | `help-skills` |
-| Classic SDD | `sdd-spec`, `sdd-plan`, `sdd-develop` |
-| Orchestrated Delivery | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| Stack developers | `developer`, `dotnet-developer`, `java-developer`, `react-developer`, `react-native-developer`, `angular-developer`, `vue-developer`, `blazor-developer`, `electron-developer`, `javascript-developer`, `python-developer`, `blip-plugin-developer` |
-| Ops / quality | `code-review`, `run-tests`, `repair-dotnet-build`, `test-coverage`, `commit`, `push`, `open-github-pr`, `refactor`, `performance-profile`, `containerize`, `i18n-manager`, `api-integrate`, `api-standards` |
-| Design / docs / backlog | `document-plan`, `document-implement`, `refine-story`, `split-story-checklist`, `ef-add-migration`, `scaffold-message-handler` |
-
-## Post-sync validation
-
-Neutral host sync (not Cursor-only):
-
-```powershell
-.\scripts\sync-agent.ps1 -Agent <agent-id>
-.\scripts\validation\validate-all.ps1
-```
-
-Or interactive: `.\scripts\toolkit.ps1`
+Groups and ids: `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (see Skill map above).
