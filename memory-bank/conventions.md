@@ -33,7 +33,7 @@
 - `/commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/push`, or a pull request unless that same operator request already includes them.
 - `/code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
 - Do not add `/memory-bank/` to the SDD `.gitignore` block. Commit bank prose when it is product knowledge. Never commit secrets.
-- Normal release path is a `develop` to `master`/`main` PR; the release workflow tags/publishes, then reconciles the promoted commit back to `develop`. For recovery, dispatch `release.yml` on `master`/`main` with `reconcile_only=true` and no version; do not create a second tag for reconciliation.
+- Normal release path is a `develop` to `master` PR merged with a merge commit (never squash or rebase, so `master` keeps `develop` history); the release workflow tags/publishes, then reconciles the promoted commit back to `develop`. For recovery, dispatch `release.yml` on `master` with `reconcile_only=true` and no version; do not create a second tag for reconciliation.
 - Keep `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions secrets only. The App needs contents and pull-request write permissions without branch-rule bypass.
 
 ## Do / don't

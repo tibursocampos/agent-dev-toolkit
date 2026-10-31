@@ -102,4 +102,16 @@ function Remove-ToolkitWorkRoot {
     if (Test-Path -LiteralPath $full) {
         Remove-Item -LiteralPath $full -Recurse -Force -ErrorAction SilentlyContinue
     }
+
+    # Drop the work base once no run directories remain, so a finished run leaves nothing behind.
+    $baseRoot = Get-ToolkitWorkBase -RepoRoot $RepoRoot
+    $runs = @(Get-ChildItem -LiteralPath $baseRoot -Directory -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -cmatch '^[0-9a-f]{32}$' })
+    $marker = Join-Path $baseRoot '.adt-work-marker'
+    if ($runs.Count -eq 0 -and (Test-Path -LiteralPath $marker)) {
+        Remove-Item -LiteralPath $marker -Force -ErrorAction SilentlyContinue
+        if (@(Get-ChildItem -LiteralPath $baseRoot -Force -ErrorAction SilentlyContinue).Count -eq 0) {
+            Remove-Item -LiteralPath $baseRoot -Force -ErrorAction SilentlyContinue
+        }
+    }
 }

@@ -6,8 +6,7 @@
 
 ## Base branch
 
-- [ ] Feature / fix work targets **`develop`**
-- [ ] Base override documented here if not `develop`:
+- [ ] Base branch: <!-- the repository's base branch, or the one the user named -->
 
 ## Test plan
 

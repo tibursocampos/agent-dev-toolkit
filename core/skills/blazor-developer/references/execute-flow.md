@@ -16,7 +16,7 @@ Load Blazor and frontend guidelines for this task.
 
 ### 2. Branch
 
-Use `feature/<slug>` or `feat/<id>-<slug>`. Never commit on `main`/`master`/`develop`.
+Use the repository's work-branch convention. Never commit on `main`/`master`/`develop`.
 
 ### 3. Micro-plan
 
