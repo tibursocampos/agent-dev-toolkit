@@ -86,7 +86,7 @@ function Invoke-OpenCodePublishAgents {
         ) `
         -UnresolvedMessageFormat $script:OpenCodePublishMessage.PlaceholderUnresolved
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'opencode-agents'
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'opencode-agents' -FileNames @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)
 
     return [PSCustomObject]@{
         Success          = $true

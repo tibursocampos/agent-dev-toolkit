@@ -129,7 +129,8 @@ function Invoke-CopilotPublishAgents {
         [System.IO.File]::Delete($legacyFinal)
     }
 
-    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents'
+    $profileFileNames = @(Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot | ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_) + $script:CopilotPathConstant.CustomAgentProfileExtension })
+    Assert-MarkdownAgentsSpawnKnobs -AgentsRoot $destAgentsRoot -Label 'copilot-agents' -FileNames $profileFileNames
 
     return [PSCustomObject]@{
         Success          = $true
