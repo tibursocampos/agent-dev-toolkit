@@ -2,28 +2,13 @@
 
 ## Branching Strategy
 
-Toolkit and consumer repos that follow this guide use:
+Each repository defines its own branches, flow, and release rules, in its `.github/` folder and its docs. The toolkit does not set them.
 
-1. **`develop`**: Integration branch. Default PR target for day-to-day work. Do not commit or push directly.
-2. **`master` / `main`**: Release / stable. Updated only from `develop` via PR. Do not commit or push directly.
-3. **Feature branches**: All work. Branch from `develop` (or the baseline the user/PLAN names). Merge back via PR into `develop`.
-
-Naming convention for branches (enforced by `branch-validation`):
-
-- `feature/<slug>` — e.g. `feature/add-oauth-login`
-- `feat/<id>-<slug>` — e.g. `feat/123`, `feat/PLAN-001`
-
-Do not use `fix/` or `chore/` as branch prefixes under this model; keep those as Conventional Commit **types**, not branch names.
-
-Flow:
-
-```text
-feature/* or feat/*  →  PR →  develop  →  PR →  master / main
-```
+The toolkit enforces one rule for development work: do not commit or push directly on the integration branches `main`, `master`, or `develop`. Development work happens on a separate branch, and the repository's convention names it. Use the operator's explicit branch name when given.
 
 ## Pull Requests and Code Review
 
-- **Default base:** `develop` for feature work; `master`/`main` only for release PRs whose head is `develop`.
+- **Base branch:** the repository's default integration branch, unless the operator or the PLAN names another. The repository's PR template or docs state the rule.
 - **Small, focused PRs**: One responsibility per PR when practical.
 - **Descriptive titles and summaries**: Context, why, how tested. Link issues when relevant (`Refs #42`).
 - **Approvals**: Follow the repository ruleset (toolkit repos often allow 0 approvals for a solo owner; app teams may require peer review or CODEOWNERS).

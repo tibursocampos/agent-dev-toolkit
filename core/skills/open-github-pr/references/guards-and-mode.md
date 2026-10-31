@@ -1,4 +1,4 @@
-## Guards and mode
+## Guards and base
 
 ### Caveman Mode
 **NEVER** - This skill ignores `caveman_mode`. Use clear prose always. Do not load `CAVEMAN.md` for chat compression. PR title/body stay normal English.
@@ -15,19 +15,14 @@ Antes de abrir o PR, confirme:
 Posso seguir? (sim / ajustar / cancelar)
 ```
 
-### 0. Resolve mode
+### 0. Resolve base and head
 
-Modes:
+- **Head:** the current branch. It must not be `main`, `master` or `develop`, because development skills do not run on integration branches. Full check in `references/validate-branch.md`.
+- **Base:** the repository's default branch, unless the user names another. Detect it with `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`. If the repository's PR template or docs name a different base, follow them.
+- The skill does not assume a release or feature flow. The repository defines it.
 
-| Mode | Meaning | Default base | Head | Merge method (auto-merge / merge) |
-|------|---------|--------------|------|-----------------------------------|
-| `feature` | Feature/fix PR into integration | `develop` (or user override) | current `feature/*` or `feat/*` | **squash** — one general commit message on `develop` |
-| `release` | Promote develop to release | `master` or `main` | `develop` | **rebase** (FF-compatible / linear) — keep organized develop commits |
-
-Detect from args (`feature` / `release`, aliases `feat`, `release-pr`). If omitted, ask once in the user chat language and wait — default is **feature** only when the user accepts the default or says nothing after you present it:
+If the base is unclear, ask once in the user chat language:
 
 ```text
-Modo do PR?
-1) feature (padrão) - feature/*|feat/* → develop
-2) release - develop → master|main
+Base do PR? (<default-branch> / outra)
 ```

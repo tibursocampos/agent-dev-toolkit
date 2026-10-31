@@ -81,12 +81,7 @@ Create a PR only when the user asks (or answers **sim** to the post-`/push` offe
 
 **Bundled intent:** phrases like `fluxo completo`, `abra o PR`, `criar PR`, `commit + push + PR`, or `open the PR` mean: after push, **enter `/open-github-pr` immediately** (do not invent a shortcut create). That skill still asks for title/body confirmation and auto-merge; do not infer auto-merge from those phrases.
 
-Default integration base is **`develop`**. Release PRs are **`develop` → `master`/`main`** (not feature → release).
-
-| Mode | Head → base | When |
-|------|-------------|------|
-| **Feature** | current feature branch → `develop` (or user/PLAN base) | Day-to-day work after push |
-| **Release** | `develop` → `master`/`main` | Shipping a release train — never feature → release |
+The base branch is the one the repository defines (its PR template or docs), or the one the user or PLAN names. The toolkit does not set a base or a release flow.
 
 After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** in the user chat language whether to open a PR; on **sim**, load `/open-github-pr`.
 
@@ -94,12 +89,12 @@ After a successful `/push`: if PR intent was already stated, hand off to `/open-
 
 1. Ensure the feature branch is pushed.
 2. Open the repository on GitHub → **Compare & pull request** (or **Pull requests** → **New**).
-3. Set base to `develop` (or the base the user/PLAN specifies) and head to the current feature branch.
+3. Set base to the repository's base branch (or the one the user/PLAN specifies) and head to the current work branch.
 4. Fill title/body from the template; include Summary and Test plan.
 
 | Element | Guidance |
 |---------|----------|
-| Base branch | Default `develop`; release PR uses `master`/`main` with head `develop`. Override only if user or PLAN says otherwise |
+| Base branch | The repository's base branch, or the one the user or PLAN names |
 | Title | Conventional summary or repo convention - not tracker `id - title` only |
 | Body | Summary, test plan, breaking changes |
 | Links | `Refs #42` / `Fixes #42` in body when applicable |
@@ -118,7 +113,7 @@ No MCP work-item linking, no corporate PR template APIs, no mandatory `pr-analyz
 ## Step 4 checklist
 
 - [ ] Commits follow Conventional Commits
-- [ ] Branch valid and pushed (if push requested)
+- [ ] Branch not an integration branch, and pushed (if push requested)
 - [ ] No secrets in committed files
 - [ ] PR created only if user requested, with sensible base branch
 - [ ] Optional issue reference in footer, not in type prefix

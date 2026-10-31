@@ -117,15 +117,12 @@
       "mustContain": [
         "gh pr create",
         "feature",
-        "release",
         "STOP - Read before ANY tool call",
         "Must not",
         "Habilitar auto-merge após criar?",
         "Agent routing (mandatory)",
         "fluxo completo",
-        "--squash",
-        "--rebase",
-        "Merge method by mode"
+        "Merge method (the repository decides)"
       ]
     },
     {

@@ -2,12 +2,10 @@
 
 - Create a PR without Step -1 gate approval and content confirmation (`sim`)
 - Create a PR without asking the auto-merge question in Step 6 (even when auto-merge is unavailable)
-- Enable auto-merge or merge a **feature** PR with `--merge` / `--rebase` instead of **`--squash`**
-- Enable auto-merge or merge a **release** PR with **`--squash`** (or a noisy merge commit when rebase/FF-compatible merge is available) — release must stay linear (`--rebase`)
-- Silently fall back to a different merge method when the mode-required method is disabled in repo settings
+- Enable auto-merge or merge with a method the repository does not allow, or with a method this skill picked without the repository's rules or the operator saying so
+- Open a PR whose base is not the base confirmed in Step 0
 - Skip reading this `SKILL.md` and jump straight to `gh pr create` / web compare
-- Open a feature PR from `main` / `master` / `develop` or an invalid branch name
-- Open a release PR unless head is `develop` and base is `master` or `main`
+- Open a PR from `main` / `master` / `develop` or from an invalid branch name
 - Force-push protected branches
 - Skip push handoff when the branch is not on `origin`
 - Use Caveman Mode or compress PR title/body

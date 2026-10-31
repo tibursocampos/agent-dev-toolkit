@@ -5,7 +5,7 @@
 3. Branch name matches `feature/<slug>` or `feat/<id>-<slug>` (see `branch-validation.mdc`).
 4. Baseline updated if user requested: `git fetch` + merge/rebase per team practice (document in PLAN notes if non-trivial).
 
-**Blocked branch examples:** `main`, `master`, `develop`, `feature/base/foo`, `feature/parent/child`.
+**Blocked branch examples:** `main`, `master`, `develop`.
 
 **Valid examples:** `feature/add-user-export`, `feat/42-export`.
 

@@ -1,34 +1,53 @@
 # Inventory gaps
 
-Unchecked items mean the bank is incomplete for that topic. Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
+Unchecked items mean the bank is incomplete for that topic.
+Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 
 ## MVP coverage
 
-- [x] `project-context.md` refreshed from README, CLI, CI and repository contracts.
-- [x] `tech-stack.json` matches the detected PowerShell/Markdown stack and documentation tooling.
-- [x] Architecture entry points and CI/release boundaries reviewed against current source.
-- [x] Domain areas and terms are evidenced; no unsupported product domain was added.
-- [x] Conventions aligned with README, AGENTS, catalog and validation contracts.
-- [x] Known risks reconciled against current CI/release configuration and evidence limits.
+- [ ] project-context filled from evidence
+- [ ] tech-stack.json matches detected manifests (markdown, powershell)
+- [ ] architecture entry points verified
+- [ ] domain-knowledge has at least one evidenced area (or N/A noted)
+- [ ] conventions aligned with AGENTS/README
+- [ ] known-risks reviewed once
 
 ## Phase 2 / rich contracts
 
-Current reviewed inventory has no DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map. These files are not required unless such source material is added or cited later.
+When Prior/cited content already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (write/promote it, or `- [ ] BLOCKING:` until written).
 
-- [x] `api-contracts.md` — not indicated by current sources.
-- [x] `database-schema.md` — not indicated by current sources.
-- [x] `component-catalog.md` — not indicated by current sources.
-
-## Open gaps
-
-- [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
-- [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
-- [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
+- [ ] api-contracts (OpenAPI/Swagger detected: no)
+- [ ] database-schema (EF/Prisma/SQL migrations detected: no)
+- [ ] component-catalog (design system / large UI kit detected: no)
 
 ## Blocking
 
-_(none)_
+- [x] BLOCKING: source drift detected (63 source(s)); review and check off
 
 ## Notes
 
-Inventory is `ready` at hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3` (`138 source(s); stack: markdown, powershell`). The operator acknowledged the 20-source drift from the prior snapshot; the generated drift blocker was cleared and inventory rerun successfully. Remaining unchecked items are external follow-ups, not Memory Bank write blockers.
+Preserved content records provenance only; its current validity is unverified until reviewed against its source.
+Preserved note (validity unverified): - [x] project-context filled from evidence
+Preserved note (validity unverified): - [x] tech-stack.json matches detected manifests (markdown, powershell)
+Preserved note (validity unverified): - [x] architecture entry points verified
+Preserved note (validity unverified): - [x] domain-knowledge has at least one evidenced area (or N/A noted)
+Preserved note (validity unverified): - [x] conventions aligned with AGENTS/README
+Preserved note (validity unverified): - [x] known-risks reviewed once
+Preserved note (validity unverified): Unchecked items mean the bank is incomplete for that topic. Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
+Preserved note (validity unverified): - [x] `project-context.md` refreshed from README, CLI, CI and repository contracts.
+Preserved note (validity unverified): - [x] `tech-stack.json` matches the detected PowerShell/Markdown stack and documentation tooling.
+Preserved note (validity unverified): - [x] Architecture entry points and CI/release boundaries reviewed against current source.
+Preserved note (validity unverified): - [x] Domain areas and terms are evidenced; no unsupported product domain was added.
+Preserved note (validity unverified): - [x] Conventions aligned with README, AGENTS, catalog and validation contracts.
+Preserved note (validity unverified): - [x] Known risks reconciled against current CI/release configuration and evidence limits.
+Preserved note (validity unverified): Current reviewed inventory has no DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map. These files are not required unless such source material is added or cited later.
+Preserved note (validity unverified): - [x] `api-contracts.md` — not indicated by current sources.
+Preserved note (validity unverified): - [x] `database-schema.md` — not indicated by current sources.
+Preserved note (validity unverified): - [x] `component-catalog.md` — not indicated by current sources.
+Preserved note (validity unverified): ## Open gaps
+Preserved note (validity unverified): - [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
+Preserved note (validity unverified): - [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
+Preserved note (validity unverified): - [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
+Preserved note (validity unverified): Inventory is `ready` at hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3` (`138 source(s); stack: markdown, powershell`). The operator acknowledged the 20-source drift from the prior snapshot; the generated drift blocker was cleared and inventory rerun successfully. Remaining unchecked items are external follow-ups, not Memory Bank write blockers.
+
+Regenerated by Invoke-MemoryBankInventory.ps1.
