@@ -38,18 +38,7 @@ In série mode, once this story's named approval scope is satisfied and its chec
 
 ### Observable question and answer lifecycle
 
-Use these states for every blocking operator question:
-
-| State | Observable condition | May dependent work continue? |
-|-------|----------------------|------------------------------|
-| `presented` | The exact question, choices, and affected scope are in the current conversation. | No |
-| `pending` | The prompt was emitted, but no supported answer has been processed. Silence, a queued message, a notification, or an unrelated reply remains pending. | No |
-| `answered` | The agent has received and parsed an allowed answer for this question and can name the selected outcome. | Only the branch authorized by that answer |
-| `resumed` | After an interruption or new turn, the agent has reloaded the pending gate and confirmed which question is still active before acting. | No, until that gate becomes `answered` |
-
-Record the question id/scope, accepted answer form, and resulting transition in the current turn or persistent workflow artifact where one exists. A host displaying, queuing, retrying, or redelivering a message is not proof that the agent processed it. If the surface cannot expose delivery/processing events, report that boundary and retain `pending` until an answer is actually available to the agent. On resume, repeat the active question or present its current status; never infer approval from prior unrelated text.
-
-Adapters may provide a native prompt, visible approval control, or textual choices. The shared contract requires an explicit response path; it does not claim that toolkit instructions can force a host UI to display, retain, or retract a prompt. Per-surface evidence and retry/redelivery limits are recorded in `adapters/README.md` and the linked adapter README matrices.
+The states for every blocking operator question (`presented`, `pending`, `answered`, `resumed`), the order rule, and the answer-to-id mapping are defined once in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Per-surface evidence and retry/redelivery limits are recorded in `adapters/README.md`.
 
 ---
 

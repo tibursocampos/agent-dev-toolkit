@@ -82,9 +82,9 @@ A question whose rule states no deadline stays open until the operator answers e
 
 After that question is sent, send no further agent message until those answers arrive. Silence, a timeout, and the end of the turn are not answers.
 
-A host that offers an interactive question uses that mechanism. Every other host asks in text. Both block the flow.
+The question mechanism, the order rule, and the option ids are defined in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Both mechanisms block the flow.
 
-After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes. It finishes the requested function or declares a blocker and states the cause. Native questions are usable only when the host returns the selected answer to the agent; otherwise use localized text with numbered options. Read repository-local instructions and explain precedence conflicts; do not silently let lower-priority local text override the operator's explicit request or toolkit gates.
+After the question, or after an intermediate skill the operator already authorized, the skill that was in progress resumes. It finishes the requested function or declares a blocker and states the cause. Read repository-local instructions and explain precedence conflicts; do not silently let lower-priority local text override the operator's explicit request or toolkit gates.
 
 The required **sim** before writes in §2 stays in force. This section does not replace that confirm.
 
