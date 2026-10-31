@@ -277,6 +277,45 @@ function Invoke-HaHermesSyncNonFatal {
     Write-HaCheck $scope 'hermes-invalid-config-runtime-still-published' (Test-Path -LiteralPath $runtimeFile -PathType Leaf) 'a blocked hook must not stop the remaining sync steps'
 }
 
+function Invoke-HaForcedHookExceptionSync {
+    param([Parameter(Mandatory = $true)][string] $WorkRoot)
+
+    $scope = 'forced-exception'
+    $root = Join-Path $WorkRoot 'forced-exception/install'
+    New-Item -ItemType Directory -Path $root -Force | Out-Null
+    # A regular file where cursor expects its hooks directory makes Publish-Hooks throw.
+    [System.IO.File]::WriteAllText((Join-Path $root 'hooks'), 'blocks hooks directory', $script:HaUtf8)
+    $summaryPath = Join-Path $WorkRoot 'forced-exception/summary.json'
+
+    $runner = (Get-Process -Id $PID).Path
+    $previousSummary = [Environment]::GetEnvironmentVariable('TOOLKIT_SYNC_SUMMARY_PATH')
+    [Environment]::SetEnvironmentVariable('TOOLKIT_SYNC_SUMMARY_PATH', $summaryPath)
+    try {
+        $output = (& $runner -NoProfile -File (Join-Path $repoRoot 'scripts/sync-agent.ps1') -Agent cursor -InstallRoot $root 2>&1 | Out-String)
+        $exit = $LASTEXITCODE
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable('TOOLKIT_SYNC_SUMMARY_PATH', $previousSummary)
+    }
+
+    Write-HaCheck $scope 'exit-0' ($exit -eq 0) ("sync-agent exit $exit; output: " + $output.Trim())
+
+    $summary = $null
+    if (Test-Path -LiteralPath $summaryPath -PathType Leaf) {
+        $summary = Get-Content -LiteralPath $summaryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    }
+    $failureCount = if ($null -ne $summary -and $summary.PSObject.Properties.Name -contains 'HookFailures') { @($summary.HookFailures).Count } else { 0 }
+    Write-HaCheck $scope 'summary-lists-hook-failure' ($failureCount -ge 1) 'summary HookFailures must list the forced exception'
+    Write-HaCheck $scope 'output-lists-hook-failure' ($output -match 'Hook publish failures') 'sync output must print the hook failure block'
+
+    $skillsRoot = Join-Path $root 'skills'
+    $skillFile = @(Get-ChildItem -LiteralPath $skillsRoot -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 1)
+    Write-HaCheck $scope 'skills-still-published' ($skillFile.Count -eq 1) 'skills must still be published after a hook exception'
+    $runtimeFile = Join-Path $root 'scripts/inventory/Invoke-MemoryBankInventory.ps1'
+    Write-HaCheck $scope 'runtime-still-published' (Test-Path -LiteralPath $runtimeFile -PathType Leaf) 'RuntimeScripts must still run after a hook exception'
+    Write-HaCheck $scope 'sync-completes' ($output -match 'Sync completed') 'sync must reach its final step after a hook exception'
+}
+
 function Invoke-HaAdapter {
     param(
         [Parameter(Mandatory = $true)] $Agent,
@@ -355,6 +394,13 @@ try {
     }
     catch {
         Write-HaCheck 'sync' 'hermes-invalid-config-sync' $false $_.Exception.Message
+    }
+
+    try {
+        Invoke-HaForcedHookExceptionSync -WorkRoot $work
+    }
+    catch {
+        Write-HaCheck 'forced-exception' 'execution' $false $_.Exception.Message
     }
 }
 finally {
