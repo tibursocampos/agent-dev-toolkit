@@ -4,21 +4,22 @@ Parallel O3 is **supported**. Root cause of gate races is fixed by PLAN-scoped (
 
 | Allowed | Not allowed |
 |---------|-------------|
-| Two ready steps on **different** PLANs with disjoint file scopes + distinct `plan-{hash}.json` + user **sim** | Two children sharing one flat `{repo-hash}.json` for `step_confirmed` / `tests_run` |
+| Two ready steps on **different** PLANs with disjoint file scopes + distinct `plan-{hash}.json` + user **confirm** | Two children sharing one flat `{repo-hash}.json` for `step_confirmed` / `tests_run` |
 | Same PLAN steps marked parallel-safe + disjoint files + `plan-{hash}-step-{N}.json` each | Guessing independence without asking |
 | Serial default when unsure; **cap 4** concurrent children (wave if more) | Worktrees / multi-checkout for multi-US (out of MVP) |
 | After any `plan-{hash}-step-*.json` exists for a PLAN, keep using PLAN+step for that PLAN | Mixing `plan-{hash}.json` and `plan-{hash}-step-N.json` on the same PLAN |
-| Implementation parallelism for disjoint ready steps (with **sim**) | Using O3 / Agent parallelism **as the evidence verifier** (**Verifier ≠ O3**) |
+| Implementation parallelism for disjoint ready steps (with **confirm**) | Using O3 / Agent parallelism **as the evidence verifier** (**Verifier ≠ O3**) |
 
 Evidence-or-zero (`EVD/` + `STATE.md`, levels `off`\|`cheap`\|`standard`\|`strict`) runs **inside** each `sdd-develop` child via `validate-evidence` — sequential script gate. See `EVD-STATE-CONTRACT.md`.
 
 Living loop TRACE (`converge` → `sync_current` → `archive` at `features/NNN-slug/TRACE.jsonl`) runs at wave close via `validate-trace -RequireArchiveComplete` — also sequential; **not** an O3 parallel verifier. See `TRACE-ARCHIVE-CONTRACT.md`.
 
-Ask before parallel:
+Ask before parallel. Render in the user's conversation language (`LANGUAGE.md`); answer ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
 ```text
-Steps {A} e {B} parecem independentes. Executar em paralelo?
-(sim / série / cancelar)
+Report: steps {A} and {B} look independent.
+Question: run them in parallel?
+Options (ids): confirm (run in parallel) | serial (stay serial) | cancel
 ```
 
 Each child prompt must include `planPath`, `step`, `REFINE/tasks.md` for that step, Prior-context paths (`ARCH|SEC|ANALYSIS` when present), and instruction to use the matching scoped SESSION file. Do not attach the full PRD.
@@ -50,7 +51,7 @@ Child prompt **must** include: `planPath`, `step`, `tasksPath`, `memoryBankPath`
 
 Before each parallel spawn, the parent writes that child's receipt allowlist inputs to the run scratch folder (never the repository); location and schema are in `step-queue-spawn.md` § Receipt validation and safe relay.
 
-If unsure about file independence -> **série**. Concurrent parallel Agent cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Agent unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
+If unsure about file independence -> **serial**. Concurrent parallel Agent cap **≤4** per `SPAWN.md` (wave ≤4 or stay serial; do not invent a new cap). No git worktrees multi-US in MVP (RNF04). Parallelism is supported via scoped sessions - do **not** disable parallel as the only safe path. If `subagents=none` or Agent unavailable → **fallback** serial handoff to manual `sdd-develop` (never hard-fail).
 
 **Same-PLAN scope rule:** if any `plan-{planHash}-step-*.json` exists for the PLAN, every spawn for that PLAN (including later serial ones) **must** use PLAN+step session files - do not mix with `plan-{planHash}.json`.
 

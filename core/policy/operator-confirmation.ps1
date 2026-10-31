@@ -14,7 +14,7 @@ function New-OperatorConfirmationEvidence {
 
     return [PSCustomObject]@{
         Boundary = 'operator_action_boundary'
-        Decision = 'sim'
+        Decision = 'confirm'
         Confirmed = $true
         ActionId = $ActionId
         Effect = $Effect
@@ -68,7 +68,7 @@ function Test-AuthorizedActionExecution {
     }
 
     if ([string]$OperatorConfirmation.Boundary -ne 'operator_action_boundary' -or
-        [string]$OperatorConfirmation.Decision -cne 'sim' -or
+        (([string]$OperatorConfirmation.Decision -cne 'confirm') -and ([string]$OperatorConfirmation.Decision -cne 'sim')) -or
         -not [bool]$OperatorConfirmation.Confirmed -or
         [string]::IsNullOrWhiteSpace([string]$OperatorConfirmation.ActionId) -or
         [string]::IsNullOrWhiteSpace([string]$OperatorConfirmation.Effect) -or

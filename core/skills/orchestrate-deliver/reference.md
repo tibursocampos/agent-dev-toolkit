@@ -9,7 +9,7 @@ Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
 | Command playbook (step discovery) | `references/command.md` |
 | Preconditions / Step 0 / backlog siblings STOP | `references/preconditions.md` |
 | Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` § Clarification readiness STOP |
-| Mode comparison / choose série vs paralelo | `references/mode-selection.md` |
+| Mode comparison / choose `series` vs `parallel` | `references/mode-selection.md` |
 | Per-story paths / contracts / Agent child skeleton | `references/per-story-contracts.md` |
 | Approval gates / approval answers | `references/approval-gates.md` |
 | CONTINUITY / handoff / cross-artifact / invoke strings | `references/continuity-handoff.md` |

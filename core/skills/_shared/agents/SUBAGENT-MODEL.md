@@ -45,28 +45,22 @@ Simple STORY draft, ordinary PRD/PLAN, CRUD, wiring, mechanical tests, CONTINUIT
 
 ### Prompt (user chat language) — only when the gate fires
 
-**Must** get explicit user approval before passing any non-default `model`. Offer all three options:
+**Must** get explicit user approval before passing any non-default `model`. Ask in the user's chat language with the three choices below. Ids and render rule (host question component or numbered text): `core/skills/_shared/agents/QUESTIONS.md`.
 
-```text
-Antes de abrir o subagente `{role}` nesta tarefa difícil:
-motivo: {1-2 frases}
-Sugiro modelo `{slug}` (diferente do modelo desta sessão).
+- `confirm` - use the one suggested alternate slug `{slug}` for `{role}` on this Agent call.
+- `decline` - keep the parent session model (omit `model`).
+- `cancel` - do not spawn.
 
-1) sim - usar `{slug}`
-2) manter o modelo da sessão pai (omitir `model`)
-3) cancelar spawn
-```
-
-Suggest **exactly one** alternate slug. Keep the reason to 1–2 sentences.
+Show the role, a reason of 1–2 sentences, and the one suggested slug (different from the session model). Suggest **exactly one** alternate slug.
 
 | Answer | Action |
 |--------|--------|
-| **1** / **sim** (approve alternate) | Pass `model` **only** for that approved slug on this Agent call |
-| **2** / keep parent / “pai” / “omitir” | Spawn **without** `model` (same as parent session). User saying **Auto** (host model picker) is **not** an alternate-slug choice — still omit `model`. |
-| **3** / **cancelar** | Do not spawn |
-| **silence** | Spawn **without** `model` — silence ≠ approval for an alternate model |
+| `confirm` (approve alternate) | Pass `model` **only** for that approved slug on this Agent call |
+| `decline` (keep parent; words such as “pai” / “omitir” map here) | Spawn **without** `model` (same as parent session). User saying **Auto** (host model picker) is **not** an alternate-slug choice — still omit `model`. |
+| `cancel` | Do not spawn |
+| Silence, an ambiguous or unrelated reply, or a lone emoji | Not approval. The question stays `pending` and the Agent call waits (QUESTIONS.md States). No alternate `model` is passed. |
 
-User may also name a different allowed slug; only then use that slug (still requires an explicit choice, not silence).
+A different allowed slug the user names counts as `confirm` for that slug only, and only after an explicit choice, never silence.
 
 ## Host UI limit (RNF-003)
 

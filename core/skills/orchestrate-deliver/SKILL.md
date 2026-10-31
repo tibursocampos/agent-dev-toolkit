@@ -8,7 +8,7 @@ description: >-
 
 Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
-1. `sdd-develop` and direct one-step execution: after **ONE** PLAN step/task, **STOP** that execution session and hand off. This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved série mode; O2 follows its per-story gates and continues through the eligible story queue.
+1. `sdd-develop` and direct one-step execution: after **ONE** PLAN step/task, **STOP** that execution session and hand off. This boundary does not stop an O2 `orchestrate-deliver` run after one story in approved `series` mode; O2 follows its per-story gates and continues through the eligible story queue.
 ---
 
 # Skill: orchestrate-deliver
@@ -33,7 +33,7 @@ Under each approved story folder (`USnn` / `TSnn`):
 
 **Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** mode selection / story contracts. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md` - never under `features/`. CONTINUITY remains the feature phase/handoff source; bank does not replace it.
 
-**Human gate:** PRD/PLAN approval per story **or** batch (`sim` / `ajustar` / `cancelar`). Silence ≠ approval (RN01).
+**Human gate:** PRD/PLAN approval per story **or** batch (answer ids `confirm` / `adjust` / `cancel`; contract `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Silence ≠ approval (RN01).
 
 Orchestrator **does not** implement application code. **Does not** rewrite `sdd-spec` / `sdd-plan` process - load those skills and run their contracts per story. **Does not** call trackers.
 
@@ -65,7 +65,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing paralelo / spawning drafts.
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing `parallel` / spawning drafts.
 
 **Progressive load:** `PIPELINE.md` + `STORAGE.md` first; after gates load `references/command.md` for step discovery; fan-out to `MEMORY-BANK.md` at Step 0, then per story `sdd-spec` → PRD contestation → `split-story-checklist` (medium/complex) → `sdd-plan`, and **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
 
@@ -77,12 +77,12 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Gate / Orchestrated Delivery / siblings STOP | `PIPELINE.md` |
 | Feature / bank roots | `STORAGE.md` |
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
-| Before paralelo Agent wave | `SPAWN.md` |
-| Write PRD (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` |
-| Write PLAN (after **sim**) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` |
+| Before `parallel` Agent wave | `SPAWN.md` |
+| Write PRD (after **confirm**) | `{{TOOLKIT_ROOT}}/skills/sdd-spec/SKILL.md` |
+| Write PLAN (after **confirm**) | `{{TOOLKIT_ROOT}}/skills/sdd-plan/SKILL.md` |
 | Preconditions / Step 0 / siblings STOP | `references/preconditions.md` |
 | Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` |
-| Mode série vs paralelo | `references/mode-selection.md` |
+| Mode `series` vs `parallel` | `references/mode-selection.md` |
 | Per-story contracts / Agent child skeleton | `references/per-story-contracts.md` |
 | Approval gates / answers | `references/approval-gates.md` |
 | CONTINUITY / handoff / cross-artifact | `references/continuity-handoff.md` |
@@ -110,29 +110,29 @@ Load `STORAGE.md`; resolve feature + bank roots; path sanitize; **STOP** if FEAT
 Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` - **not** under `features/`. Update CONTINUITY Memory-bank fields; pass `bank_path` into parallel draft Tasks read-only. Read `references/preconditions.md` § Step 0 - Memory Bank Gate.
 
 ### 4. Preconditions (approved backlog)
-Verify backlog **sim**/approved; discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
+Verify backlog approval (**confirm** or `approved`); discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
-Ask série vs paralelo (never assume); load `SPAWN.md` before paralelo; omit Agent `model` by default. Read `references/mode-selection.md`.
+Ask `series` vs `parallel` (never assume; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); load `SPAWN.md` before `parallel`; omit Agent `model` by default. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
 For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine-story/references/tech.md` § Story PRD contestation). An open question stops that story with `open_question`. Do not write the next artifact. When the PRD is accepted, run `split-story-checklist` for `medium` or `complex` (it writes `REFINE/tasks.md`; `trivial` skips that file), then `sdd-plan` (it reads those ids and does not call the checklist again). Read `references/per-story-contracts.md`.
 
 ### 7. Approval - per story or batch (RN01)
-Present summary; **sim** / ajustar / cancelar (por história | lote). Read `references/approval-gates.md`.
+Present summary; answer ids **confirm** / `adjust` / `cancel`, scope `per-story` | `batch` (render per `QUESTIONS.md`). Read `references/approval-gates.md`.
 
 ### 8. CONTINUITY + multi-path handoff (RF04)
 Update CONTINUITY phase `deliver`; run **cross-artifact analyze** (`CHANGE-CONTRACT.md`: Nature↔CHANGE, complexity↔TASKS, validate-change when CHANGE exists); run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) and **STOP** O3 handoff on block; emit manual `sdd-develop` + O3 handoff paths only when allow. Preserve external evidence references from O1 verbatim as `external:<alias>/<relative-path>` in PRD / PLAN evidence citations and the handoff; do not add roots or authorize aliases. For O3, the coordinator separately authorizes alias + path prefixes and provides the alias-to-root map to `Invoke-O3ReceiptValidation.ps1`. Read `references/continuity-handoff.md`.
 
 ### 9. Durable progress checkpoint
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate. During O2 you must render the chat-only stage table (`stage`, `status`, `weight`, `what_happened`) from `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` in the user chat language. A stage is one of the 11 O2 caller rows defined there (per-story rows repeat per story ID in série mode). Labels, state keys and ASCII glyphs come only from that file. Render the table and the cumulative checkpoint at the start of O2, before each gate, after each gate answer, on each row state change, on a blocker (stop at `blocked`), at each story-cycle checkpoint, and at the close of O2, where you must redraw both once more. Completeness rule: always render the full table with every row; never summarize rows, show only the changed row, or omit completed rows. Neither is persisted in `CONTINUITY.md`.
+Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate. During O2 you must render the chat-only stage table (`stage`, `status`, `weight`, `what_happened`) from `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` in the user chat language. A stage is one of the 11 O2 caller rows defined there (per-story rows repeat per story ID in `series` mode). Labels, state keys and ASCII glyphs come only from that file. Render the table and the cumulative checkpoint at the start of O2, before each gate, after each gate answer, on each row state change, on a blocker (stop at `blocked`), at each story-cycle checkpoint, and at the close of O2, where you must redraw both once more. Completeness rule: always render the full table with every row; never summarize rows, show only the changed row, or omit completed rows. Neither is persisted in `CONTINUITY.md`.
 
-### Série continuation
-In série mode, after a story's required O2 work and its applicable approval gate are complete, reconcile the feature roster and current story state from canonical `FEATURE.md`, `STORY.md`, PRD, PLAN, and required siblings. Treat `CONTINUITY.md` as a resumable checkpoint and reconcile stale entries against those canonical story artifacts; it is not the sole authority for selecting the next story. Read the next eligible US/TS `STORY.md` and every required sibling before continuing its own full O2 cycle. Continue automatically in canonical dependency/order sequence without asking whether to continue. Stop only at a material blocker, a decision or approval gate that is actually due, or when every story is closed; keep unaffected independent stories eligible. Approval of one story never authorizes writing artifacts for another story.
+### Series continuation
+In `series` mode, after a story's required O2 work and its applicable approval gate are complete, reconcile the feature roster and current story state from canonical `FEATURE.md`, `STORY.md`, PRD, PLAN, and required siblings. Treat `CONTINUITY.md` as a resumable checkpoint and reconcile stale entries against those canonical story artifacts; it is not the sole authority for selecting the next story. Read the next eligible US/TS `STORY.md` and every required sibling before continuing its own full O2 cycle. Continue automatically in canonical dependency/order sequence without asking whether to continue. Stop only at a material blocker, a decision or approval gate that is actually due, or when every story is closed; keep unaffected independent stories eligible. Approval of one story never authorizes writing artifacts for another story.
 
 ## Must not
 
-Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN at an O2 write gate with any unanswered question, including **MINOR** (`open_question`); no child disk Write of PRD/PLAN; no silence-as-**sim**; no hard-fail when Agent unavailable (fallback série in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
+Enforce the full list in `references/boundaries-must-not.md`. Critical always-on: no app code; no PRD/PLAN without required siblings; no PRD/PLAN at an O2 write gate with any unanswered question, including **MINOR** (`open_question`); no child disk Write of PRD/PLAN; no silence-as-**confirm**; no hard-fail when Agent unavailable (fallback `series` in-parent); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`).
 
 ## Handoff
 

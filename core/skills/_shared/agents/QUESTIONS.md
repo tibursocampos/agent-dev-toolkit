@@ -59,10 +59,12 @@ Common ids:
 | `decline` | Refuse an optional offer. |
 | `feature`, `tech` | Requirement-review mode (`requirement-review`). |
 | `split` | Divide a story before drafting. |
-| `manual`, `o3` | Execution route for one PLAN step. |
+| `manual`, `orchestrated` | Execution route for one PLAN step. |
 | `series`, `parallel` | Orchestrated Delivery drafting mode. |
 
 Domain ids are added per gate. They are still English and must be listed in the owning skill's contract.
+
+`series` / `parallel` (orchestrate-deliver drafting mode) and `serial` / `parallel` / `manual` (orchestrate-develop queue mode) are distinct id sets for distinct questions.
 
 ## Answer to id mapping
 

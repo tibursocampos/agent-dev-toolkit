@@ -2,13 +2,13 @@
 
 Update `CONTINUITY.md` when:
 
-- [ ] Mode série|paralelo chosen
+- [ ] Mode `series` or `parallel` chosen
 - [ ] Each story PRD+PLAN landed (or batch milestone)
 - [ ] Before / after human approval gate
 - [ ] Before advancing a story or emitting its handoff, reconcile its identified output, applicable approval, recorded validation outcome, and each dependent story boundary; record only affected-story blockers and their existing owner/gate
 - [ ] Final multi-path handoff emitted
 
-`CONTINUITY.md` is a resumable progress checkpoint, not the sole authority for the story roster or artifact state. On every resume and before advancing in série mode, reconcile it against canonical `FEATURE.md`, each candidate `STORY.md`, PRD/PLAN, required siblings, and declared dependencies. If the checkpoint is stale, correct it from those owner artifacts as part of the normal O2 update; do not let stale status hide an eligible story or override a material blocker. Keep the live stage table in chat only.
+`CONTINUITY.md` is a resumable progress checkpoint, not the sole authority for the story roster or artifact state. On every resume and before advancing in `series` mode, reconcile it against canonical `FEATURE.md`, each candidate `STORY.md`, PRD/PLAN, required siblings, and declared dependencies. If the checkpoint is stale, correct it from those owner artifacts as part of the normal O2 update; do not let stale status hide an eligible story or override a material blocker. Keep the live stage table in chat only.
 
 | Field | Rule |
 |-------|------|
@@ -28,7 +28,7 @@ Update `CONTINUITY.md` when:
 
 Feature: `features/004-nuget-extract/`  
 Stories approved in O1: `TS01` (package extract), `TS02` (App A consumer).  
-Mode: paralelo. After approval:
+Mode: `parallel`. After approval:
 
 ```text
 ## Handoff O2 -> develop
@@ -56,7 +56,7 @@ Global storage: same pattern with InstallRoot-relative portable paths (`sdd/<rep
 
 On approval:
 
-1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (série|paralelo); typed handoff with **portable paths** (`STORAGE.md` § Portable path); refresh `## Related` for landed PRD/PLAN (+ STORY/FEATURE when on-disk) — omit-if-absent.
+1. Update `CONTINUITY.md`: **Phase** = `deliver`; **Last agent** = `orchestrate-deliver`; keep **Memory-bank** path + status from Step 0 (`refreshed` if this run refreshed, or if style changed / ARCH was approved this feature — do **not** exit `fresh` in that case); estado atual short per CONTINUITY template; append decisão (`series` or `parallel`); typed handoff with **portable paths** (`STORAGE.md` § Portable path); refresh `## Related` for landed PRD/PLAN (+ STORY/FEATURE when on-disk) — omit-if-absent.
 2. Optionally update `FEATURE.md` / story statuses to reflect deliver done.
 3. Run **cross-artifact analyze** (§ Cross-artifact analyze) — brownfield must have `CHANGE.md`; greenfield must not force an empty CHANGE stub.
 4. Run **preflight PRD→PLAN→CHANGE** (`references/preflight-prd-plan-change.md` / `Invoke-PrdPlanChangePreflight.ps1`) per story PLAN. On exit `2` (**block**): fix artifacts; do **not** emit O3 handoff.

@@ -39,14 +39,12 @@ This rule does not grant an exception for “artifact in English” on identifie
 
 ## Project documentation - ask
 
-When `sdd-spec`, `sdd-plan`, or `sdd-develop` will create or change **product** documentation under `docs/`, README, or similar (not PRD/PLAN agent files), **ask once** before writing:
+When `sdd-spec`, `sdd-plan`, or `sdd-develop` will create or change **product** documentation under `docs/`, README, or similar (not PRD/PLAN agent files), **ask once** before writing, with a question component (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) that offers these options. If no component is available, ask in numbered text.
 
-```
-Em qual idioma gravar a documentação do sistema (docs/, README)?
-
-1) Português (pt-BR)
-2) Inglês (English)
-```
+- Header, in the user's conversation language. pt-BR example (example only): `Em qual idioma gravar a documentação do sistema (docs/, README)?`
+- `pt-BR`, label: `Português (pt-BR)`
+- `en`, label: `English`
+- `other`, label: `Other (state the language)`; free text, the user states the language.
 
 Record the choice in the PLAN step or PRD notes if relevant. Do not assume pt-BR from this rule.
 

@@ -31,13 +31,17 @@ If the invocation names neither mode, or both: **STOP** after gate check (-1) an
 
 When `invocation_context=orchestrated` (a parent such as `refine-story` passes the mode), do not ask. A missing mode is `blocked`: return to the parent.
 
+Question component form (ids fixed in English; labels rendered in the user chat language):
+
 ```text
-requirement-review mode?
-1) --feature - functional review of the story or feature
-2) --tech - repository-grounded technical review
+header: requirement-review mode
+question: requirement-review mode?
+single select:
+- feature: functional review of the story or feature (invoke token --feature)
+- tech: repository-grounded technical review (invoke token --tech)
 ```
 
-Render the two options in the user chat language. Keep the mode ids `--feature` and `--tech` in English.
+Render the question and the two labels in the user chat language. Keep the mode ids `feature` and `tech` in English. The invoke tokens `--feature` and `--tech` map to them.
 
 ## Outcome
 
@@ -105,7 +109,7 @@ Follow `references/feature.md` or `references/tech.md`. It produces findings, ca
 ### 3. Classify open questions
 - Severity **B**, **I**, or **MINOR** per `readiness-severity.md`. Depth per `clarify-depth.md`.
 - Decision owner: **Product** (value, scope, business rules, priority), **Engineering** (feasibility, contracts, data model, performance targets), or **UX** (flows, visible states, copy).
-- Each question has **one** answerable question. Prefer a closed choice ("yes / no / other") when the decision space is known.
+- Each question has **one** answerable question. Prefer a closed choice with stable ids (for example `confirm`, `adjust`, `cancel`, or the domain ids listed in the question), labels rendered in the user chat language. Free text maps to `adjust` when it changes the proposal; otherwise the question stays open. Answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 - A product decision is never solved by assumption. Do not write a default into a criterion. Ask.
 - Ask every open question in one batch at the end, including MINOR. Silence does not close a question. "I do not know" leaves it open.
 

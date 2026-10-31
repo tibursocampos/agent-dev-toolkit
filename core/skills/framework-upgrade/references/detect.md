@@ -27,10 +27,30 @@ After resolve: load `packs/<id>/PACK.md` → continue with `version-policy.md`.
 
 ## Blocking questions (minimal)
 
-Ask **at most one** TE03 question per session for framework resolve:
+Ask **at most one** TE03 question per session for framework resolve. Question component form: single select, ids fixed in English. Render each `question:` and label in the user chat language. Answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
-1. **0 candidates:** `Which framework_id?` + bullet list of registry ids that have `PACK.md` (and optional free-text if operator names a Could not yet on disk → record gap; do not invent pack).
-2. **>1 candidates:** `Multiple frameworks detected — which framework_id?` + table: id | strong/medium hits | sample path.
+1. **0 candidates:**
+
+```text
+header: framework-upgrade framework_id
+question: Which framework_id?
+single select:
+- angular: Angular pack (PACK.md on disk)
+- dotnet: .NET pack (PACK.md on disk)
+- cancel: stop; no pack is loaded
+```
+
+   A free-text name with no `PACK.md` is recorded as a gap; do not invent a pack id. Registry ids without `PACK.md` (`python`, `node`, `react`) are not options yet.
+
+2. **>1 candidates:** one option per candidate with at least one Strong hit (or two Medium hits, when there is no Strong), plus `cancel`. Each description carries the strong/medium hits and a sample path:
+
+```text
+header: framework-upgrade framework_id
+question: which framework_id? (candidates shown with evidence)
+single select:
+- <candidate pack id>: <strong/medium hits; sample path>
+- cancel: stop; no pack is loaded
+```
 
 Do **not** re-ask if operator already provided `framework_id` in the invoke. Do **not** chain mode + version + framework into one mega-prompt when TE03 alone blocks.
 

@@ -76,7 +76,7 @@ If **no** consumer exists, say so and propose a layout consistent with Clean Arc
 
 ### 3. Collect requirements (blocker before code)
 
-Ask using `references/requirements-checklist.md`. Minimum:
+Ask using `references/requirements-checklist.md`. Free-text intake: each answer is open text, and the question stays open until answered. Minimum:
 
 - Queue or topic name (and subscription if applicable)
 - Message contract (type name, key fields, schema source)
@@ -95,7 +95,7 @@ Present (`references/scaffold-checklist.md`):
 - Registration point (DI / MassTransit config)
 - Test files and how to run them
 
-Ask explicit confirmation before writing code.
+Ask explicit confirmation before writing code. Single select; ids `confirm` (write the scaffold), `adjust` (change the plan first), `cancel` (stop). Render labels in the user chat language; answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
 ### 5. Implement (target repo only)
 

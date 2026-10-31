@@ -29,14 +29,14 @@ Invoke when **any** of these apply (slash, English, or pt-BR — including bundl
 | Explicit EN | `open PR`, `open the PR`, `create pull request`, `create a PR`, `open a pull request`, `make a PR` |
 | Explicit pt-BR | `abrir PR`, `abrir o PR`, `criar PR`, `criar o PR`, `faça o PR`, `fazer o PR`, `abre o PR`, `abra o PR` |
 | Bundled flow | `fluxo completo`, `faça o fluxo completo`, `commit push e PR`, `commit + push + PR`, `depois abra o PR`, `push and open PR` — after `/commit`/`/push` finish, **this** skill owns the PR step |
-| Handoff | User answers **sim** to `/push`’s “Abrir pull request com /open-github-pr?” prompt; or `/commit`/`/code-review` hand off for PR |
+| Handoff | User answers `confirm` to `/push`’s “Abrir pull request com /open-github-pr?” prompt; or `/commit`/`/code-review` hand off for PR |
 
 ### Agent routing (mandatory)
 
 1. **Before** any `gh pr create`, `gh pr merge`, or web Compare & pull request steps: **Read this entire `SKILL.md`** and follow Steps -1 → 8 in order.
 2. Do **not** invent a shortcut PR (raw `gh pr create` from `/commit`, `/push`, or ad-hoc chat). Those skills only **hand off** here.
 3. If the user already said they want a PR in the same message as commit/push (“fluxo completo”, “abra o PR”, etc.): after push succeeds, **enter this skill immediately** (do not skip confirmation or the auto-merge question).
-4. Step 6 is **never optional**: always present title/base/head/body **and** ask auto-merge (`sim` / `não`), including when `allow_auto_merge` is false (then report unavailable after create if they said sim).
+4. Step 6 is **never optional**: always present title/base/head/body **and** ask auto-merge (`confirm` / `decline`), including when `allow_auto_merge` is false (then report unavailable after create if they answered `confirm`).
 
 ## Outcome
 
@@ -89,10 +89,10 @@ Follow `references/resolve-template.md`.
 Follow `references/draft-title-body.md`.
 
 ### 6–8. Confirm, create, report
-Follow `references/confirm-and-create.md`. Step 6 confirmation **and** auto-merge ask are **mandatory** every time. Always ask in the user chat language, using this question as the model (translate it when the chat is not pt-BR): **Habilitar auto-merge após criar?** (`sim` / `não`) — including after **fluxo completo**.
+Follow `references/confirm-and-create.md`. Step 6 confirmation **and** auto-merge ask are **mandatory** every time. Gate ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`. Always ask the content gate and the auto-merge gate in the user's chat language, including after **fluxo completo**. The auto-merge question asks whether to enable auto-merge after the PR is created, with the `confirm` (enable) and `decline` (do not enable) choices.
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no PR without gate + content `sim` + auto-merge ask; no invalid branch; no force-push; no Caveman compression of title/body; no skipping this `SKILL.md` for ad-hoc `gh pr create`.
+Enforce the full list in `references/must-not.md`. Critical always-on: no PR without gate + content `confirm` + auto-merge ask; no invalid branch; no force-push; no Caveman compression of title/body; no skipping this `SKILL.md` for ad-hoc `gh pr create`.
 ## Handoff
 
 | Situation | Next |

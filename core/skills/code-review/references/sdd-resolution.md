@@ -24,7 +24,7 @@ Run in **step 0.5** before scoping the diff. Load `{{TOOLKIT_ROOT}}/skills/_shar
    | 2 | PLAN header field **PRD** points to a discovered PRD path |
    | 3 | `NNN` or feature slug aligns with current branch name |
    | 4 | Single pair after pairing |
-   | 5 | Ask once in pt-BR - numbered list of PRD + PLAN paths |
+   | 5 | Ask once in the chat language (`core/skills/_shared/agents/LANGUAGE.md`) - numbered list of PRD + PLAN paths |
 
 8. **Read** selected PRD and PLAN before SDD traceability (step 2).
 9. **Report** - always record full paths used (workspace-relative or absolute global).

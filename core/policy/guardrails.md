@@ -41,9 +41,9 @@ Before those skills change code, run read-only `git status -sb` or `git branch -
 If the current branch is `main`, `master`, or `develop`:
 
 1. Stop before writing code.
-2. Tell the user **(pt-BR)** the branch name. Integration branches are not a work branch for these skills.
+2. Tell the user the branch name in their conversation language. Integration branches are not a work branch for these skills.
 3. Propose `feature/<slug>` or `feat/<id>-<slug>` cut from that branch.
-4. Create the branch only after **sim**. `git checkout -b` stays blocked until that sim.
+4. Create the branch only after explicit confirmation (`confirm`; ids and answer mapping in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). `git checkout -b` stays blocked until then.
 5. Read-only work may continue while waiting.
 
 If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
@@ -52,7 +52,7 @@ If the branch is already `feature/*` or `feat/*`, do not ask again in that conve
 
 Exception: the user explicitly says to keep the current integration branch. That exception is only for the development skills listed above.
 
-Mutating git commands require explicit **sim** in the user's **immediately previous** message, or the user runs them manually.
+Mutating git commands require explicit confirmation (`confirm`) in the user's **immediately previous** message, or the user runs them manually. An observable selection of the question component, or a clear affirmative reply in any language, counts for the exact action asked. It does not generalize to other actions.
 
 Use `/commit` / `/push` after confirmation.
 
@@ -67,8 +67,8 @@ Technical authorization by effect and scope is a separate decision from the oper
 Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
 1. Show title, path, summary bullets.
-2. Ask **(pt-BR):** `Posso gravar em '{path}'? (sim / ajustar / cancelar)`
-3. Write only after **sim**.
+2. Ask for confirmation in the user's conversation language, with the options `confirm` / `adjust` / `cancel` rendered as localized labels (ids and answer mapping in `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). The question names the target path.
+3. Write only after confirmation (`confirm`).
 
 **Exception:** updating an existing PLAN after an **already approved** develop step - no re-confirmation.
 

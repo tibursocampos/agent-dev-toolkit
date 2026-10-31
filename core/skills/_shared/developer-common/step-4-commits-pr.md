@@ -67,13 +67,13 @@ git push -u origin HEAD
 2. Run step 3.5 (or user skipped with acknowledgment).
 3. Validate message format (validator or rule).
 
-Ask user to approve message before committing when the skill is interactive.
+Ask user to approve the message before committing when the skill is interactive. A `confirm` answer is required; `adjust` changes the message first; `cancel` stops (ids and answer rule: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`).
 
 ---
 
 ## 4.4. Pull request (optional, user-driven)
 
-Create a PR only when the user asks (or answers **sim** to the post-`/push` offer).
+Create a PR only when the user asks (or answers `confirm` to the post-`/push` offer).
 
 **Required path:** invoke **`/open-github-pr`** and follow that skill end-to-end (mode, `gh` preflight, template, body confirmation, **mandatory** auto-merge ask).  
 
@@ -83,7 +83,7 @@ Create a PR only when the user asks (or answers **sim** to the post-`/push` offe
 
 The base branch is the one the repository defines (its PR template or docs), or the one the user or PLAN names. The toolkit does not set a base or a release flow.
 
-After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** in the user chat language whether to open a PR; on **sim**, load `/open-github-pr`.
+After a successful `/push`: if PR intent was already stated, hand off to `/open-github-pr` without re-asking “abrir?”; otherwise `/push` **asks** in the user chat language whether to open a PR; on `confirm`, load `/open-github-pr`.
 
 **Fallback — GitHub web UI** (only inside `/open-github-pr` when `gh` is unavailable, or if the user explicitly refuses the skill and asks for UI steps):
 

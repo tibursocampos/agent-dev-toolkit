@@ -22,7 +22,7 @@ Collect before proposing files. Copy into chat and fill with user answers.
 
 ### Idempotency prompts
 
-If not stated, ask:
+If not stated, ask (free text, kept open until answered):
 
 - Can the same message be delivered twice?
 - Is there a natural business key to deduplicate?

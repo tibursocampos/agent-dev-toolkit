@@ -21,13 +21,11 @@ Invoke when the user asks for: `/code-review`, `review this PR`, `code review`.
 | **Single** | `single`, `single-angle`, `simples` |
 | **Multi-angle** | `multi-angle`, `multi-ângulo`, or `ângulos: qualidade, aceite, segurança` (subset allowed) |
 
-If the invocation does **not** name single **or** multi-angle: **STOP** after gate check (-1) / before deep diff analysis - ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` and wait. Do **not** assume single. Do **not** assume multi.
+If the invocation does **not** name single **or** multi-angle: **STOP** after gate check (-1) / before deep diff analysis - ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` and wait. Do **not** assume single. Do **not** assume multi. Mode ids: `single` and `multi-angle` (ids and answer rule: `core/skills/_shared/agents/QUESTIONS.md`).
 
-```text
-Modo de code-review?
-1) single - um revisor (passos -1..7)
-2) multi-ângulo - qualidade + aceite + segurança (ou diga o subset)
-```
+Render the question in the chat language with these two choices:
+- `single` - one reviewer (steps -1..7).
+- `multi-angle` - quality, acceptance, and security (or the subset the operator names).
 
 ## Outcome
 
@@ -244,7 +242,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 
-When the decision is **Changes required** (or the user fixed findings), ask whether to fix and whether to re-run `/code-review`, and wait (**sim** / **pular**). Render those two questions in the user chat language. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. Any review change requires the post-review `/run-tests` stage before the security prompt. A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
+When the decision is **Changes required** (or the user fixed findings), ask whether to fix and whether to re-run `/code-review`, and wait. Each question takes `confirm` or `skip` (ids and answer rule: `core/skills/_shared/agents/QUESTIONS.md`). Render both questions in the user chat language. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. Any review change requires the post-review `/run-tests` stage before the security prompt. A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 
 ## Finding shape
 

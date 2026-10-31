@@ -2,7 +2,7 @@
 
 Update when:
 
-- [ ] Queue presented / mode (série default)
+- [ ] Queue presented / mode (`serial` default)
 - [ ] After each child returns
 - [ ] Story complete / feature complete
 - [ ] Before code-review handoff
@@ -39,8 +39,8 @@ PLAN: `features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md`
 ```text
 ## O3 run
 
-1) sim -> one child invocation (sdd-develop Step 1) -> child closes -> CONTINUITY update
-2) new chat or sim -> one fresh child invocation (sdd-develop Step 2) -> child closes -> …
+1) confirm -> one child invocation (sdd-develop Step 1) -> child closes -> CONTINUITY update
+2) new chat or confirm -> one fresh child invocation (sdd-develop Step 2) -> child closes -> …
 3) TS01 complete -> handoff:
 
 /code-review
@@ -96,13 +96,9 @@ For a review handoff, also point to the existing PLAN step notes and EVD/STATE r
 
 ### Before `/commit` from O3
 
-Step N already asked memory-bank **refresh-light** when app code changed. Still ask project docs when present (**sim** / **pular**), then `/commit`:
+Step N already asked memory-bank **refresh-light** when app code changed. Still ask project docs when present, then `/commit`. Question contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`. Render it in the user's conversation language (`LANGUAGE.md`): may the project documentation be updated now? Options (ids): `confirm` (update docs) | `skip` (continue to `/commit`).
 
-```text
-Posso atualizar a documentação do projeto? (sim / pular)
-```
-
-On **sim**: pending `docs/documentation-plan/plan.md` → `/document-implement`; else → `/document-plan` as needed. On **pular**: continue to `/commit`. If Step N was skipped (no app changes) but `memory-bank/` exists, also ask bank **sim/pular** before commit (same wording as Step N).
+On **confirm**: pending `docs/documentation-plan/plan.md` → `/document-implement`; else → `/document-plan` as needed. On **skip**: continue to `/commit`. If Step N was skipped (no app changes) but `memory-bank/` exists, also ask the bank question with ids **confirm** / **skip** before commit (same options as Step N).
 
 ---
 
@@ -116,7 +112,7 @@ Stop spawning and emit handoff when any of:
 | Feature all PLANs complete | Phase -> review; code-review handoff |
 | Context hard-stop | Hard stop; new chat required |
 | Child blocked / tests fail | Do not mark step done; report; wait for user |
-| User **cancelar** | Leave CONTINUITY with pending next step |
+| User **cancel** | Leave CONTINUITY with pending next step |
 
 Each child invocation owns exactly one PLAN step and is idle when its receipt is returned. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; a new request, a different scope, or an already-large context starts a fresh invocation with a bounded handoff. If the host retains a closed child in its UI, that retention is not a toolkit lifecycle guarantee.
 
@@ -151,9 +147,9 @@ See also § CONTINUITY checklist.
 When this O3 run had at least one successful develop child that changed application files, **before** the final review handoff:
 
 1. Resolve `bank_root` (same as Step 0).
-2. Ask (user chat language): `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular / cancelar)`
-3. On **sim**: follow `memory-bank-init` mode **`refresh-light`** (inventory + GENERATED + `tech-stack.json` only).
+2. Ask in the user chat language (render per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`): may the memory-bank be refreshed (`refresh-light`) at `{bank_root}`? Options (ids): `confirm` | `skip` | `cancel`.
+3. On **confirm**: follow `memory-bank-init` mode **`refresh-light`** (inventory + GENERATED + `tech-stack.json` only).
 4. Update CONTINUITY Memory-bank status to `refreshed` (or note skipped).
-5. On **pular**: log and continue handoff without bank write.
+5. On **skip**: log and continue handoff without bank write.
 
 If no app code changed this run, skip Step N. See also `references/preconditions.md` § Step N - refresh-light.

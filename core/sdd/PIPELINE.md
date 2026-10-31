@@ -38,8 +38,8 @@ Tracks coexist (Classic SDD / Backlog Refine / Orchestrated Delivery only). Skil
 Inside **O1** (`orchestrate-analyze`), after the architect specialist (or in-parent fallback) when nature is **`greenfield`** or **`needs_domain`** without an established in-repo style:
 
 1. Produce ARCH **draft** (propose style via `code-guidelines/principles/architecture-selection.md` + `agents/prompts/architect.md`).
-2. Ask operator (**sim** / ajustar / cancelar). Silence ≠ approval; receipt stays `needs-confirm.` until **sim**.
-3. On **sim** only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
+2. Ask operator with ids `confirm` / `adjust` / `cancel`, rendered in the user's language (`QUESTIONS.md`). Silence ≠ approval; receipt stays `needs-confirm.` until `confirm`.
+3. On `confirm` only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
 4. **Brownfield** with an established style: skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a **mirror** ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline). Do **not** skip ARCH because a style already exists.
 
 Do **not** start O2 / implementation waves with an unconfirmed greenfield style. Details: `orchestrate-analyze` SKILL §7b, `ROSTER.md`, `reference.md` § Architecture confirm gate.
@@ -153,9 +153,9 @@ If the user stays in Plan: continue Phase A only. Never state that a PRD or PLAN
 Always before the first `Write` of a **new** PRD or PLAN (and when replacing an empty draft file):
 
 1. Show: title, `NNN`, **portable path** under `features/...` (or `sdd/<repo-id>/features/...` when global) — confirm chat may also show the resolved OS absolute; the **Write** body and handoffs use portable path only (`STORAGE.md` § Portable path), storage mode, 3-5 content bullets, planned status.
-2. Ask in the user chat language (`LANGUAGE.md`): whether to write at `{path}` (**sim** / **ajustar** / **cancelar**).
-3. `Write` only after explicit **sim**.
-4. **ajustar** -> revise draft in chat, ask again. **cancelar** -> do not write.
+2. Ask in the user chat language (`LANGUAGE.md`), with ids `confirm` / `adjust` / `cancel` rendered per `QUESTIONS.md`: whether to write at `{path}`. Silence, an ambiguous reply, or a lone emoji is not approval.
+3. `Write` only after explicit `confirm`.
+4. `adjust` -> revise draft in chat, ask again. `cancel` -> do not write.
 
 This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never supplies content approval.
 
@@ -192,6 +192,8 @@ Use **one** structured question in the user chat language (`LANGUAGE.md`). Do no
 
 ### `plan` without PRD on disk
 
+Render the two choices in the user's language. Choice ids: `prd-first` (1) and `plan-direct` (2). pt-BR example:
+
 ```text
 Não encontrei um PRD em features/**/PRD/NNN_*.md (nem sob {{SDD_ROOT}}/<repo-id>/features/...).
 
@@ -203,12 +205,14 @@ Como prefere continuar?
 
 | Choice | Next step |
 |--------|-----------|
-| **1** | Ask: *“Envie as orientações do PRD (texto) ou o caminho de um arquivo .md para analisar.”* -> run **`spec`** (Phase A; persist in Agent). Handoff when PRD exists: `/sdd-plan - <portable-prd-path>` |
-| **2** | Ask: *“Envie as especificações (texto) ou o caminho de um arquivo para análise.”* -> analyze -> PLAN draft in chat; note ideal SDD has a PRD; persist PLAN only with canonical path + § Confirm. Suggest option **1** if scope is large |
+| `prd-first` (**1**) | Ask for the PRD guidance (text or a `.md` path) in the user's language; pt-BR example: *“Envie as orientações do PRD (texto) ou o caminho de um arquivo .md para analisar.”* -> run **`spec`** (Phase A; persist in Agent). Handoff when PRD exists: `/sdd-plan - <portable-prd-path>` |
+| `plan-direct` (**2**) | Ask for the specs (text or a file path) in the user's language; pt-BR example: *“Envie as especificações (texto) ou o caminho de um arquivo para análise.”* -> analyze -> PLAN draft in chat; note ideal SDD has a PRD; persist PLAN only with canonical path + § Confirm. Suggest option **1** if scope is large |
 
-Explicit “criar PRD” while invoking `plan` -> treat as choice **1**; do not write PLAN until a canonical PRD exists unless user chose **2**.
+An explicit request to create the PRD while invoking `plan` (pt-BR example: “criar PRD”) -> treat as `prd-first`; do not write PLAN until a canonical PRD exists unless user chose **2**.
 
 ### `sdd-develop` without PLAN on disk
+
+Render the three choices in the user's language. Choice ids: `spec-then-plan` (1), `plan-only` (2), `existing-plan` (3). pt-BR example:
 
 ```text
 Não encontrei um PLAN em features/**/PLAN/PLAN_NNN_*.md (nem sob {{SDD_ROOT}}/<repo-id>/features/...).
@@ -220,7 +224,7 @@ Não encontrei um PLAN em features/**/PLAN/PLAN_NNN_*.md (nem sob {{SDD_ROOT}}/<
 
 | Choice | Action |
 |--------|--------|
-| **1** | Guide to `spec` (use § plan without PRD, choice **1**) then `plan` |
+| `spec-then-plan` (**1**) | Guide to `spec` (use § plan without PRD, choice `prd-first`) then `plan` |
 | **2** | If canonical PRD exists -> `sdd-plan`; else ask for specs or file (same as plan choice **2** inputs) |
 | **3** | `Read` path; if invalid -> promote per § Promote |
 

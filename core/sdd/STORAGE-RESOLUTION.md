@@ -150,7 +150,7 @@ Execute at skill load time, before any read or write. Parameter: `$Workflow` = `
 
 ### User storage prompt (chat only — mirror user language; pt-BR example below)
 
-Ask before the first write of Classic artifacts in the session (unless manifest applies):
+Ask before the first write of Classic artifacts in the session (unless manifest applies). Render the two options in the user's language; option ids `repository` and `global`. The block below is a pt-BR example:
 
 ```text
 Onde gravar artefatos SDD (features/ + memory-bank/) deste projeto?
@@ -159,7 +159,7 @@ Onde gravar artefatos SDD (features/ + memory-bank/) deste projeto?
 2) Global - {{SDD_ROOT}}/<RepositoryName>/ (features/ + memory-bank/ fora do git do projeto; sem alterar .gitignore)
 ```
 
-If **repository** (step 1), ask next:
+If `repository`, ask next, with option ids `versioned` and `not-versioned`, rendered in the user's language. The block below is a pt-BR example:
 
 ```text
 Versionar artefatos SDD em features/ e docs/features/ no git deste repositório?

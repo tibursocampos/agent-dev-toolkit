@@ -14,7 +14,7 @@ Portable contract only — not a full port of that repository. Acknowledgments: 
 
 Forces the agent to respond in telegraphic, concise fragments — eliminating
 conversational filler, preambles, and polite wrapper text — while preserving
-100% of technical content (code, paths, artifact drafts, confirmation gates).
+100% of technical content (code, paths, artifact drafts, confirmation gates in the user's language, see `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`).
 
 **Mouth smaller, brain same.** Compress style, not substance. Compress style, not language: chat follows the active user-language policy; artifact language follows artifact-language resolution.
 
@@ -173,9 +173,8 @@ Resume caveman after the clear part is done.
 | "Com prazer! Antes de prosseguir, preciso verificar..." | "Verificando:" |
 
 ### Always Preserved (any mode)
-```
-Posso gravar em `{path}`? (sim / ajustar / cancelar)
-```
+
+- Gate text in the user's language (see `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Component labels and descriptions are not compressed either.
 ```
 Nenhum comando mutante do Git sera executado sem autorizacao explicita.
 ```

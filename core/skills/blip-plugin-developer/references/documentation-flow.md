@@ -2,7 +2,7 @@
 
 ### Phase 2 - Documentation flow
 
-Ask in the **user chat language**: "Qual fluxo de documentação? (Classic SDD, Orchestrated Delivery, PRD/brief existente, ou escopo informal?)"
+Ask in the **user chat language** which documentation flow applies. Offer the four choices in the table below (Classic SDD, Orchestrated Delivery, existing PRD/brief, informal scope), labelled in that language.
 
 | Choice | Next command (new session each step) |
 |--------|--------------------------------------|

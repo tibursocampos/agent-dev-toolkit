@@ -5,11 +5,11 @@
 2. For each PLAN, list steps with status + deps.
 3. Ready set = pending steps whose deps are all completed.
 4. Default pick = first ready in PLAN order within current story.
-5. Present pick; wait for sim; spawn one child.
+5. Present pick; wait for confirm; spawn one child.
 6. On return, first normalize `step`: accept a positive JSON integer or the compatibility alias `S<n>` (for example `S1`) and convert it to an integer. Then validate the canonical relay receipt against the invoked PLAN and step. Require exact portable `planPath`, normalized positive integer `step`, known terminal `status`, portable in-scope `files[]`, optional non-conflicting `deletedFiles[]`, and bounded one-line `testsSummary`; reject missing, extra, malformed, or inconsistent fields. The producer MUST emit an integer; alias support is input compatibility only. Apply conditional `tests_run` per the PLAN: required only for steps declaring tests; otherwise require explicit deferred/skipped and keep false. Use the role/stage meaning from `core/skills/_shared/agents/RECEIPT.md` rather than treating terminal values as synonyms.
 7. Persist the PLAN checkpoint and progress table and re-read them before presenting any reconciled result.
 8. Show the complete step ledger for every PLAN step exactly once and, for a valid receipt, the short result (step, `done` | `blocked` | `failed`, tests). Every user-facing O3 status summary or transition includes the complete table, including blocked/stopped states and transitions with no eligible dispatch. Reconstruct display rows from the freshly re-read canonical PLAN and overlay only validated receipt/session/claim/checkpoint state; never derive display rows from the pending-only dispatch queue. Use the deterministic O3 formatter and reject a projection with missing, duplicate, extra, or invalid rows. Do not show the stage-weight table, redraw it, emit `Develop:`, or dump the ledger.
-9. Evaluate the next eligible spawn only after that result. For `continuous`, call `Test-ContinuousQueueStepAuthorization` from `{{TOOLKIT_ROOT}}/scripts/ledger/continuous-queue.ps1` with the validated receipt/session/claim state, the re-read queue snapshot, and the completed reconciliation flags. It can authorize only the first eligible pending step and that authorization is consumed by its single spawn; run the decision again after every child return. `step_by_step` requires a new sim.
+9. Evaluate the next eligible spawn only after that result. For `continuous`, call `Test-ContinuousQueueStepAuthorization` from `{{TOOLKIT_ROOT}}/scripts/ledger/continuous-queue.ps1` with the validated receipt/session/claim state, the re-read queue snapshot, and the completed reconciliation flags. It can authorize only the first eligible pending step and that authorization is consumed by its single spawn; run the decision again after every child return. `step_by_step` requires a new confirm.
 10. Only a validated `done` receipt whose exact PLAN acceptance passed, whose scoped `step_confirmed` and applicable `tests_run` gate are valid, and whose claim is valid can enter reconciliation. A PLAN step declaring no tests requires explicit deferred/skipped in `testsSummary` and `tests_run=false`; that is not a test-gate failure. A valid `blocked` receipt records the unmet prerequisite and keeps the step/dependents pending or blocked; `failed` records an attempted operation that did not pass. Neither status releases dependencies. Unknown status, missing/incomplete/inconsistent receipt, or implementation outside acceptance blocks reconciliation: state the missing or conflicting condition, keep dependents pending, do not invent a fix, and do not rewrite the PLAN. Never describe work as completed when the receipt or its evidence says it was blocked, failed, or not executed.
 ```
 
@@ -88,11 +88,12 @@ For each PLAN:
 
 Present queue summary in the user chat language: story, PLAN path, next step id/title, deps. Confirm:
 
-```text
-Fila O3: próximo = `{plan-path}` Step {N} - {title}.
+Render the queue and the question in the user's conversation language (`LANGUAGE.md`); answer ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
-Posso spawnar o subagente (contrato sdd-develop)?
-(sim / ajustar / cancelar)
+```text
+Report: O3 queue, next = `{plan-path}` Step {N} - {title}.
+Question: may the sub-agent for this step be spawned (sdd-develop contract)?
+Options (ids): confirm | adjust | cancel
 ```
 
 Silence ≠ approval (RN01). See also § Step queue algorithm.
@@ -105,11 +106,11 @@ Silence ≠ approval (RN01). See also § Step queue algorithm.
 
 **Hard rule (native path):** one Agent = one PLAN step = full `sdd-develop` contract.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard PLAN steps per that contract; on **não** / silence, spawn without `model`. Never pick a costlier model alone.
+**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard PLAN steps per that contract; on `decline` / silence, spawn without `model`. Never pick a costlier model alone.
 
 ### Canonical Shell boundary (REQ-012 / CA4 / CT6)
 
-After operator **sim** and before implement/spawn boundary, the O3 parent **MUST** call the canonical session helper and acquire exactly one parent-owned claim via the mode gate (which invokes the ledger helper) or the claim helper for manual handoff, using `-File` (cwd = repo root). **MUST NOT** call a second `claim` after a successful mode gate or paste multi-line inline PowerShell that mutates develop session JSON under `sessions/` (`ConvertFrom-Json` / `ConvertTo-Json` / `Set-Content` gate blobs).
+After operator **confirm** and before implement/spawn boundary, the O3 parent **MUST** call the canonical session helper and acquire exactly one parent-owned claim via the mode gate (which invokes the ledger helper) or the claim helper for manual handoff, using `-File` (cwd = repo root). **MUST NOT** call a second `claim` after a successful mode gate or paste multi-line inline PowerShell that mutates develop session JSON under `sessions/` (`ConvertFrom-Json` / `ConvertTo-Json` / `Set-Content` gate blobs).
 
 For `serial` / `parallel`, run the session helper and mode gate; the gate acquires the claim once. For `manual`, run the session helper plus one direct claim call. Prefer **one** Shell approve per step when the host can chain the correct `-File` calls:
 
@@ -162,7 +163,7 @@ Child must:
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1`
 - Skip `Invoke-PlanLedgerClaim.ps1` because session helper already exited 0 (CT6)
 
-After the receipt has been validated, the child's already-persisted PLAN checkpoint and progress table have been read and reconciled, and the step ledger plus short result have been shown, the parent evaluates one next spawn. The child `sdd-develop` session owns and writes its step row/evidence/checkpoint; the parent reads only and does not rewrite them. A missing or conflicting checkpoint blocks advancement and returns correction to the owner in a fresh invocation. In `continuous`, `Test-ContinuousQueueStepAuthorization` from `{{TOOLKIT_ROOT}}/scripts/ledger/continuous-queue.ps1` allows only the first eligible pending step from that re-read queue snapshot; the authorization is consumed by that spawn and cannot cover a later spawn. Re-evaluate after each child return. In `step_by_step`, ask **sim** again or hand off to a new chat. Only as a separate parent synthesis/path handoff does the parent update `CONTINUITY.md`; that update never replaces the PLAN, short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
+After the receipt has been validated, the child's already-persisted PLAN checkpoint and progress table have been read and reconciled, and the step ledger plus short result have been shown, the parent evaluates one next spawn. The child `sdd-develop` session owns and writes its step row/evidence/checkpoint; the parent reads only and does not rewrite them. A missing or conflicting checkpoint blocks advancement and returns correction to the owner in a fresh invocation. In `continuous`, `Test-ContinuousQueueStepAuthorization` from `{{TOOLKIT_ROOT}}/scripts/ledger/continuous-queue.ps1` allows only the first eligible pending step from that re-read queue snapshot; the authorization is consumed by that spawn and cannot cover a later spawn. Re-evaluate after each child return. In `step_by_step`, ask for **confirm** again or hand off to a new chat. Only as a separate parent synthesis/path handoff does the parent update `CONTINUITY.md`; that update never replaces the PLAN, short result, or gate checks. Never advance from an unvalidated receipt. A deviant receipt does not authorize a fix invented by the parent and does not authorize a PLAN rewrite.
 
 These artifacts remain distinct: the PLAN `Implementation progress` ledger and checkpoint are durable state and the operator-facing close; the PLAN-LEDGER claim is the atomic pre-work reservation; the short result is post-persistence communication; and `CONTINUITY.md` is synthesis and handoff. Do not use one as a substitute for another. Do not replace the step ledger with the stage-weight table.
 
@@ -182,7 +183,7 @@ Give each child:
 4. Prior paths for this step only (step block, task boxes, STORY, CONTINUITY, FEATURE, **`ARCH|SEC|ANALYSIS` when present**, **`memoryBankPath`**). Do not paste bodies and do not load the rest of the PRD. Selective bank read only.
 5. Follow the step's declared test policy: when tests are declared, run them and persist/validate `tests_run`; when tests are explicitly deferred, keep it false and record deferred/skipped. Then update PLAN; reset gates through the canonical helper and stop after this step
 5e. Apply the PLAN's mixed strategy and shared `sdd-develop/references/plan-contract.md`: deferred checks never count as passed or approve an intermediate step. A check may move to the final US consolidation step only when it does not gate the current step's acceptance. The final step maps acceptance criteria to tests/evidence, preserves unique coverage and valid STATE/EVD history, and runs evidence validation at the configured level before US/PLAN DoD.
-5a. After **sim**, the parent calls `Invoke-DevelopSessionGate.ps1` and obtains the one claim via the mode gate / ledger helper; the child verifies `status=claimed` and a matching opaque holder. No child reacquisition. **MUST NOT** inline session JSON mutators.
+5a. After **confirm**, the parent calls `Invoke-DevelopSessionGate.ps1` and obtains the one claim via the mode gate / ledger helper; the child verifies `status=claimed` and a matching opaque holder. No child reacquisition. **MUST NOT** inline session JSON mutators.
 5b. When level ≥ `cheap`: update `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` and run `validate-evidence` before Completed (**Verifier ≠ O3** — sequential only; do not spawn nested Agent children for verification)
 5c. When closing the feature wave: append `features/NNN-slug/TRACE.jsonl` living loop (**converge → sync_current → archive**) and run `validate-trace -RequireArchiveComplete` (**Verifier ≠ O3**; `TRACE-ARCHIVE-CONTRACT.md`)
 5d. When touching C#: honor `csharp-patterns.md` signatures/invocations on Write (≤6 params **and** ≤160 chars inline; else one param per line; re-inline if CSharpier wraps without need)
