@@ -66,7 +66,7 @@ After gates: **Read `references/command.md`** for ordered step discovery (prefer
 
 **Stage table:** you must render the full stage table (`LIVE-STAGE-TABLE.md` § sdd-spec; detail in `references/command.md`) in chat when the flow starts, before each gate, after each gate answer, on each row state change, on a blocker, and at close. Always show every row. Do not save it in the PRD.
 
-**Question blocks:** ask every necessary question. There is no global cap on the total number of questions. Group questions in blocks of at most **5** per block, and wait for the answers before the next block.
+**Question blocks:** ask every necessary question. There is no global cap on the total number of questions. Group questions in blocks of at most **5** per block, and wait for the answers before the next block. Gate questions use ids and localized rendering per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`; intake questions are free text (its § Legitimate free text).
 
 ### Step -1b - Caveman Mode (Lite cap)
 1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "adaptive", "artifact_language": null }` if missing).
@@ -95,10 +95,10 @@ Target repo (not this toolkit repo unless subject). Read `AGENTS.md` / `README.m
 When under `features/NNN-slug/`, load `FEATURE.md`, `CONTINUITY.md`, `STORY.md`, `REFINE/` when present (optional / on demand), and `ANALYSIS|ARCH|SEC` when the matching FEATURE `needs_*` (or brownfield) is true. Prefer sibling/bank content over re-asking; ask each gap question that remains, in question blocks of at most **5**. Bank reads = named files only (never recurse-load the whole tree into context).
 
 **Required siblings (`IC-DIRECT-ORCHESTRATED`):** Resolve `invocation_context` at skill start (`INVOCATION-CONTEXTS.md`).
-- **`direct`:** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask (create inline / proceed at operator risk / optional `/orchestrate-analyze`); do **not** hard-block.
+- **`direct`:** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask (create inline / proceed at operator risk / optional `/orchestrate-analyze`; render the choice per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); do **not** hard-block.
 - **`orchestrated`:** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` missing → **STOP**; return to O1. Asking gap questions does **not** replace this gate.
 
-**Otherwise** ask in the user chat language:
+**Otherwise** ask the intake questions in the user chat language. They are intentional free text (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md` § Legitimate free text): answers are recorded as text, with no fixed ids. Render them in the user's language; the block below is a pt-BR example:
 
 ```
 Vou criar o PRD. Informe:
@@ -133,15 +133,15 @@ Checkpoint durable workflow progress at the workflow-defined boundaries; context
 
 ### 6.75 Approve PRD content
 
-Show the proposed PRD content summary, including remaining **`invented`** assumptions. Ask whether the operator approves the content (**sim** / **ajustar** / **cancelar**). This decision approves only the described PRD content and promotes only the listed assumptions to `agreed` (`CONTRACT-PROVENANCE.md`); it does not authorize a file write. In Plan/Ask, complete this content review but do not write.
+Show the proposed PRD content summary, including remaining **`invented`** assumptions. Ask whether the operator approves the content, with ids `confirm` / `adjust` / `cancel`, rendered in the user's language (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is. This decision approves only the described PRD content and promotes only the listed assumptions to `agreed` (`CONTRACT-PROVENANCE.md`); it does not authorize a file write. In Plan/Ask, complete this content review but do not write.
 
 ### 6.8 Open-question gate
 
-When the PRD belongs to a story under `features/NNN-slug/`, resolve the open-question gate for the story files (STORY and any required `ANALYSIS/`, `ARCH/`, or `SEC/`) before the write confirmation (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` § Open-question gate). Any unanswered question, including severity **MINOR**, stops with `open_question`. Ask every open question in question blocks of at most 5. **sim** does not close an open question.
+When the PRD belongs to a story under `features/NNN-slug/`, resolve the open-question gate for the story files (STORY and any required `ANALYSIS/`, `ARCH/`, or `SEC/`) before the write confirmation (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/readiness-severity.md` § Open-question gate). Any unanswered question, including severity **MINOR**, stops with `open_question`. Ask every open question in question blocks of at most 5. A `confirm` answer does not close an open question.
 
 ### 6.9 Confirm before write
 
-After content approval and a clear open-question gate, show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, 3–5 content bullets and planned status **Pronto para planejamento**. Ask separately whether to write at that path (**sim** / **ajustar** / **cancelar**). Persist the content-approval field only with the approved write, including the operator and date. The write confirmation sets only `write_confirmed`; it cannot create or infer content approval.
+After content approval and a clear open-question gate, show title, `NNN`, **portable canonical path** (`STORAGE.md` § Portable path; confirm chat may also show resolved OS absolute), storage mode, 3–5 content bullets and planned status **Pronto para planejamento**. Ask separately whether to write at that path, with ids `confirm` / `adjust` / `cancel` rendered in the user's language (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); silence or an ambiguous reply is not approval. Persist the content-approval field only with the approved write, including the operator and date. The write confirmation sets only `write_confirmed`; it cannot create or infer content approval.
 
 Record `artifact_language` from `preferences.json`, manifest, or user override (`LANGUAGE.md` — do not hard-code pt-BR).
 

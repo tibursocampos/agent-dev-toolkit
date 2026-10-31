@@ -51,6 +51,8 @@ orchestrate-develop - features/NNN-slug/
 
 Analyze classifies, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Story folders wait until the feature has no open question. Deliver checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Gates, folders, and confirmations: [Orchestrated Delivery](orchestrated-delivery.md).
 
+Gate legend (id = Portuguese label shown in the pt-BR install): `confirm` = sim, `adjust` = ajustar, `cancel` = cancelar, `skip` = pular, `decline` = não. Labels are localized; ids stay English. Details: [Questions and confirmations](questions.md).
+
 When analyze sets greenfield or `needs_domain` and no ARCH style exists, the **architect** roster role returns a draft. You answer **sim** before the style is approved. Brownfield mirrors the existing style. The parent stays coordinator.
 
 On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`.
@@ -75,7 +77,7 @@ sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
 read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for **sim** / **ajustar** / **cancelar**. It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session. Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own; cite the path or paste the text.
+`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for its answer, which maps to the id `confirm`, `adjust`, or `cancel` (labels are localized: sim / ajustar / cancelar in the pt install, confirm / adjust / cancel in en). It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session. Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own; cite the path or paste the text.
 
 `sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one `sdd-develop` invocation. A canonical PLAN plus an explicit eligible step can start in the current session after dependency and confirmation gates; if the step or execution route is omitted, the skill asks whether to run manually or use O3. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
 
@@ -247,7 +249,7 @@ help-skills
 
 `push` runs `git push -u origin HEAD` after the branch check. If this conversation already asked for a pull request, it loads `open-github-pr`. Otherwise it asks.
 
-`open-github-pr` owns `gh pr create`. Feature (current `feature/*` or `feat/*`) targets `develop` with `--squash` when auto-merge is enabled. Release (`develop` to `master` or `main`) uses `--rebase`. Content **sim** / **ajustar** / **cancelar** is separate from the auto-merge question (**sim** / **não**). If the branch is not on `origin`, hand off to `/push` first.
+`open-github-pr` owns `gh pr create`. Feature (current `feature/*` or `feat/*`) targets `develop` with `--squash` when auto-merge is enabled. Release (`develop` to `master` or `main`) uses `--rebase`. The content gate (ids `confirm`, `adjust`, `cancel`) is separate from the auto-merge question (ids `confirm`, `decline`). Labels are localized. If the branch is not on `origin`, hand off to `/push` first.
 
 `document-plan` asks documentation language once, then writes `docs/overview.md` and `docs/documentation-plan/plan.md`. It does not write feature PLANs. For this toolkit the language is English. `document-implement` executes one pending step, then stops.
 
@@ -272,6 +274,8 @@ Artifact language, once per write: invocation override, else `preferences.json` 
 
 `core/policy/user-language-pt-br.md` and `core/policy/sdd-artifact-language-pt-br.md` ship as install defaults for a Brazilian Portuguese session. When the chat or preferences name another language, `LANGUAGE.md` wins. Child handoffs carry a path and a short excerpt.
 
+Gate answers are read by meaning, in any language; silence, an ambiguous reply, or a lone emoji is not approval.
+
 ### Parent orchestrator
 
 Default `orchestrator_mode` is `adaptive`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
@@ -286,7 +290,7 @@ First interactive sync asks whether Caveman response compression is on or off; *
 
 Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `caveman full`, `caveman ultra`. `stop caveman` and `normal mode` turn it off.
 
-`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and `(sim / ajustar / cancelar)` stay clear. Policy file: `core/policy/caveman-mode.md`. The idea is credited on [Credits](credits.md).
+`help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and gate options (ids `confirm`, `adjust`, `cancel`; the pt-BR install shows sim / ajustar / cancelar) stay clear. Policy file: `core/policy/caveman-mode.md`. The idea is credited on [Credits](credits.md).
 
 ### Other preference keys
 

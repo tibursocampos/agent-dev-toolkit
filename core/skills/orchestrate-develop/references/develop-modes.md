@@ -12,15 +12,15 @@ Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
 
 | Pacing mode | Parent behavior | Child behavior |
 |-------------|-----------------|----------------|
-| `step_by_step` (default) | **sim** before **each** Agent spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **sim**, the parent may spawn exactly the first eligible next step after receipt validation, read-only reconciliation of the child's persisted checkpoint, and presentation of the step ledger and short result. This is a single-step authorization consumed by that spawn; every later spawn needs a fresh reconciliation decision. The parent does not show the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or a ledger dump. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
+| `step_by_step` (default) | **confirm** before **each** Agent spawn; re-present next step briefly | One PLAN step only; STOP |
+| `continuous` | After initial queue **confirm**, the parent may spawn exactly the first eligible next step after receipt validation, read-only reconciliation of the child's persisted checkpoint, and presentation of the step ledger and short result. This is a single-step authorization consumed by that spawn; every later spawn needs a fresh reconciliation decision. The parent does not show the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or a ledger dump. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
 
 ## Compose with execution-modes
 
 | Queue mode | Allowed with pacing |
 |------------|---------------------|
 | `serial` | Both pacing modes |
-| `parallel` | Prefer `step_by_step` confirm per wave; `continuous` does **not** waive independence + **sim** + distinct SESSION files |
+| `parallel` | Prefer `step_by_step` confirm per wave; `continuous` does **not** waive independence + **confirm** + distinct SESSION files |
 | `manual` | Pacing documents handoff cadence only; no Agent spawn |
 
 ## Hard preserves

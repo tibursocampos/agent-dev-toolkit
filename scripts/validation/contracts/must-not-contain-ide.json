@@ -6,8 +6,7 @@
   "scope": [
     "core/skills",
     "core/policy",
-    "core/router",
-    "core/sdd"
+    "core/router"
   ],
   "placeholders": {
     "TOOLKIT_ROOT": "{{TOOLKIT_ROOT}}",

@@ -101,7 +101,7 @@ A not-implemented result is `Success = false`, `Implemented = false`, `ExitCode 
 
 ### SDD root
 
-Canonical contracts: `core/sdd/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Public state file: `manifest.json`. Helper: `scripts/_lib/Initialize-SddRootLayout.ps1`.
+Canonical contracts: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Public state file: `manifest.json`. Helper: `scripts/_lib/Initialize-SddRootLayout.ps1`.
 
 | Item | Value |
 |------|-------|

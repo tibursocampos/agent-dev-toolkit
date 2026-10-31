@@ -55,7 +55,7 @@ Read `references/<section>.md` for execution detail — **not** full `reference.
 1. Confirm **target repository**.
 2. Resolve **doc plan path** = absolute `$Cwd/docs/documentation-plan/plan.md` (or user-given alternate). If absent -> stop and suggest `/document-plan`.
 3. Load/create **develop session** keyed by that full plan path per `SESSION.md` (`plan-{plan-hash}.json`). Gates `step_confirmed` / `tests_run` live **only** there - never use flat `{repo-hash}.json` for them.
-4. Read the plan. Read **Doc language** from plan header. If missing, ask: **pt-BR** or **English** before writing `docs/` (`references/doc-language.md`).
+4. Read the plan. Read **Doc language** from plan header. If missing, ask the doc-language question (ids `pt-br` / `en`) before writing `docs/` (`references/doc-language.md`).
 5. Re-detect stack briefly (Glob per `document-plan/references/stack-detection.md`) if plan is stale.
 
 **Not Classic SDD / Orchestrated Delivery:** only the documentation plan applies here - not `features/**/PLAN/`. For feature delivery PRD/PLAN, use `sdd-spec` / `sdd-plan` / `sdd-develop` and `STORAGE.md`. Prerequisite rules: `references/prerequisite.md`.
@@ -64,7 +64,7 @@ Read `references/<section>.md` for execution detail — **not** full `reference.
 
 Pick the first step with **Status:** Pending (or **Pendente**) whose dependencies are completed (`references/step-selection.md`). If user names a step id, use that step after validating deps.
 
-Summarize objective and deliverables. If `step_confirmed` is false: ask in the **user chat language** to implement this doc step; set gate `true` only after **sim**. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The required **sim** before writes stays.
+Summarize objective and deliverables. If `step_confirmed` is false: ask in the **user chat language** to implement this doc step, with `confirm` and `cancel` choices (ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`); set gate `true` only after a `confirm` answer. That gate has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, end of turn, a lone emoji, or an ambiguous or unrelated reply is not approval; a clear affirmative reply in any language is. After the answer, resume this skill until the doc step finishes or this skill declares a blocker with the cause. The `confirm` answer stays required before writes.
 
 ### 2. Execute step
 

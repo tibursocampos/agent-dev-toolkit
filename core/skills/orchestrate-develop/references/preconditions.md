@@ -1,6 +1,6 @@
 ## Preconditions checklist
 
-- [ ] Gate check reported; user **sim** for this O3 run / next spawn
+- [ ] Gate check reported; user **confirm** for this O3 run / next spawn
 - [ ] Feature and/or PLAN path resolved (`STORAGE.md`, classic)
 - [ ] **Step 0** Memory Bank Gate done (`auto`; explicit `skip-memory-bank` only to bypass)
 - [ ] At least one `features/**/PLAN/PLAN_*.md` under story folders (or global `.../features/**/PLAN/`)
@@ -77,6 +77,6 @@ shared `delivery-baseline` in `sdd-develop/references/plan-contract.md`.
 |-------|------|
 | Trigger | At least one child changed app files this O3 run |
 | Mode | `memory-bank-init` **`refresh-light`** only (not full prose rewrite) |
-| Confirm | `sim` / `pular` / `cancelar`, localized to the user chat language (`LANGUAGE.md`), before write |
-| Skip | No code changes, or user chose `pular` |
+| Confirm | Answer ids `confirm` / `skip` / `cancel`, rendered in the user chat language (`LANGUAGE.md`) per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`, before write |
+| Skip | No code changes, or user chose `skip` |
 | CONTINUITY | Status `refreshed` when Step N ran |

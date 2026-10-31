@@ -9,7 +9,7 @@
 
 ## Structure
 
-- Agent-neutral material stays under `core/` (skills, policy, router, `core/sdd/` contracts).
+- Agent-neutral material stays under `core/` (skills, policy, router, `core/skills/_shared/sdd-artifacts/` contracts).
 - Host-specific publish code stays under `adapters/<id>/` and is registered in `adapters/registry.json`.
 - Operator CLI and validation asserts stay under `scripts/`.
 - Memory bank for this repo is `memory-bank/` (repository storage). Do not place it under `features/`.

@@ -2,7 +2,7 @@
 
 **When:** `{{SDD_ROOT}}/preferences.json` has `"verify_mode": true` (default `false`).
 
-**Where in O3 flow:** After Step 5 implementer child returns **success** and **before** parent updates CONTINUITY / asks **sim** for the next spawn.
+**Where in O3 flow:** After Step 5 implementer child returns **success** and **before** parent updates CONTINUITY / asks for **confirm** for the next spawn.
 
 **Purpose:** Read-only second pass that checks the implementer's receipt against PLAN step **Aceite** (REQ-NNN / CA), applicable test summary, and scoped file list — without writing application code. Build is handled only at US close when applicable.
 
@@ -30,18 +30,18 @@ Verifier child must:
 
 - Do **not** mark step done in CONTINUITY.
 - Keep PLAN step **Pendente** (implementer may have prematurely marked Completed — parent must not endorse).
-- Report findings in the user chat language; ask user **sim** to re-spawn implementer or adjust.
+- Report findings in the user chat language; ask the user for **confirm** to re-spawn the implementer, or **adjust** (render per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`).
 
 **Parent on verifier `pass`:**
 
-- Proceed with normal post-child flow: CONTINUITY update → apply the pacing rule: fresh **sim** for `step_by_step`, or the initial queue **sim** plus reconciled checkpoint/ledger and session report for `continuous`.
+- Proceed with normal post-child flow: CONTINUITY update → apply the pacing rule: fresh **confirm** for `step_by_step`, or the initial queue **confirm** plus reconciled checkpoint/ledger and session report for `continuous`.
 
 **Must not:**
 
 - Use verifier as a second implementer (no code fixes in verifier child).
 - Spawn verifier when `verify_mode` is `false` (default).
 - Treat verifier as evidence gate — `validate-evidence` remains sequential inside `sdd-develop` (**Verifier ≠ O3** for EVD/TRACE too).
-- Auto-chain implementer → verifier → next implementer without the pacing rule's required authorization: fresh **sim** for `step_by_step`, or the initial queue **sim** plus reconciliation for `continuous`.
+- Auto-chain implementer → verifier → next implementer without the pacing rule's required authorization: fresh **confirm** for `step_by_step`, or the initial queue **confirm** plus reconciliation for `continuous`.
 
 ---
 

@@ -12,11 +12,11 @@ Creates or refreshes `memory-bank/` at the repository root or the global classic
 
 ### `orchestrate-analyze`
 
-O1. Classifies intent, asks a few high-cost questions, sets nature and `needs_*`, spawns specialists only when flags require them, and holds their notes until the feature has no open question. Then it creates story folders, drafts architecture for greenfield and waits for **sim**, merges stories with scorecard and promotion gates, and waits for backlog **sim**. Writes `FEATURE.md`, `CONTINUITY.md`, and `STORY.md`. Does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
+O1. Classifies intent, asks a few high-cost questions, sets nature and `needs_*`, spawns specialists only when flags require them, and holds their notes until the feature has no open question. Then it creates story folders, drafts architecture for greenfield and waits for a `confirm` answer, merges stories with scorecard and promotion gates, and waits for a backlog `confirm` answer. Writes `FEATURE.md`, `CONTINUITY.md`, and `STORY.md`. Does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
 
 ### `orchestrate-deliver`
 
-O2. Requires an approved backlog and a feature with no open question. For each story, checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. An open question, including **MINOR**, stops that story. Series writes in the parent after **sim**. Parallel children return drafts one gate at a time; the parent is the only writer. Stops on missing specialist folders. Brownfield also writes `CHANGE.md`. Preflight must pass before O3. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
+O2. Requires an approved backlog and a feature with no open question. For each story, checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. An open question, including **MINOR**, stops that story. Series writes in the parent after a `confirm` answer. Parallel children return drafts one gate at a time; the parent is the only writer. Stops on missing specialist folders. Brownfield also writes `CHANGE.md`. Preflight must pass before O3. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
 
 ### `orchestrate-develop`
 
@@ -28,7 +28,7 @@ Writes one PRD under `features/NNN-slug/.../PRD/`. What and why, stable `REQ-NNN
 
 ### `sdd-plan`
 
-Writes one PLAN beside that PRD. Copies step ids from `split-story-checklist`. Every REQ maps to one of those steps. Two reviews before **sim**. Bodies of SQL and OpenAPI stay in canonical files; the PLAN cites them. `validate-plan` must pass. Does not implement and does not record duration. Detail: [02](02-classic-sdd.md).
+Writes one PLAN beside that PRD. Copies step ids from `split-story-checklist`. Every REQ maps to one of those steps. Two reviews before a `confirm` answer. Bodies of SQL and OpenAPI stay in canonical files; the PLAN cites them. `validate-plan` must pass. Does not implement and does not record duration. Detail: [02](02-classic-sdd.md).
 
 ### `sdd-develop`
 
@@ -144,7 +144,7 @@ Finds a hot path, waits for a workflow choice, then proves the change with a mic
 
 ### `framework-upgrade`
 
-Modes `audit`, `plan`, `migrate`, `validate`. Packs on disk: `angular`, `dotnet`. Migrate needs **sim**. The skill id never includes a version number. Detail: [06](06-framework-upgrade.md).
+Modes `audit`, `plan`, `migrate`, `validate`. Packs on disk: `angular`, `dotnet`. Migrate needs a `confirm` answer. The skill id never includes a version number. Detail: [06](06-framework-upgrade.md).
 
 ## Platform
 
@@ -188,7 +188,7 @@ Conventional Commit on a valid feature branch after the message is approved. Doe
 
 ### `open-github-pr`
 
-Creates the pull request with `gh`. Feature into `develop` uses squash when auto-merge is enabled. Release from `develop` into `master` or `main` uses rebase. Asks for content **sim** and, separately, whether to enable auto-merge. Detail: [08](08-git-and-docs.md).
+Creates the pull request with `gh`. Feature into `develop` uses squash when auto-merge is enabled. Release from `develop` into `master` or `main` uses rebase. Asks for a `confirm` answer on content and, separately, whether to enable auto-merge. Detail: [08](08-git-and-docs.md).
 
 ### `document-plan`
 

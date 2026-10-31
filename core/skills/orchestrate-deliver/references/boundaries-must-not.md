@@ -27,9 +27,9 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Show the current branch or ask for a branch switch. Write delivery artifacts on the current branch, including `main`, `master`, and `develop`
 - Call `*-developer` / `developer` / `sdd-develop` / `orchestrate-develop` to **implement** (handoff strings only)
 - Rewrite or fork the `sdd-spec` / `sdd-plan` process into a parallel undocumented flow
-- Skip human approval or treat silence as `sim`
+- Skip human approval, or treat silence, an ambiguous or unrelated reply, or a lone emoji as approval. A clear affirmative reply in any language is approval (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`)
 - Advance develop handoff when brownfield lacks `features/NNN-slug/CHANGE.md`, or when greenfield was forced an empty CHANGE stub
-- Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without operator **sim** deferral
+- Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without an operator **confirm** deferral
 - Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; the block limit does not replace this gate
 - Write PRD/PLAN when any unanswered clarification **B**, **I**, or **MINOR** remains — **STOP**; emit `NEEDS_CLARIFICATION` + portable paths (`readiness-severity.md` / REQ-005 / TE01); sibling folder presence ≠ READY (**RN02**)
 - Treat readiness READY as SESSION `step_confirmed` / PLAN step Complete (dual plane — readiness ≠ implementation)
@@ -40,13 +40,13 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Create external work-item tracker or org-only compliance content
 - Change the `sdd-develop` one-step-per-session contract
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
-- Assume série vs paralelo without asking
-- Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **sim**)
+- Assume `series` vs `parallel` without asking
+- Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **confirm**)
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Require memory-bank for Classic SDD / manual `sdd-*` (CA7 - gate is Orchestrated Delivery `orchestrate-*` only)
-- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine story drafts
-- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** série **in-parent** per `SPAWN.md`)
-- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
+- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **confirm** (or user-named slug); ask model on routine story drafts
+- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** to `series` **in-parent** per `SPAWN.md`)
+- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/`series` (`SPAWN.md`)
 - Paste guideline packs into Agent child prompts
 - Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
 - Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
@@ -61,7 +61,7 @@ Do **not** introduce:
 - Forked “mini-spec” that skips sdd-spec/sdd-plan gates
 - External work-item tracker CLI/API commands
 - External work-item tracker or org-only compliance fields
-- Assumed série/paralelo without asking
+- Assumed `series`/`parallel` without asking
 - Changes to `sdd-develop` one-PLAN-step-per-session contract
 - Spec Kit / worktree multi-US changes (out of Orchestrated Delivery MVP)
 - Repo-root `PRD/` / `PLAN/` new writes

@@ -26,6 +26,7 @@ Current branch pushed to `origin` with upstream set when needed. No force-push o
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
+| Question ids and gate render rule | `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/push/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/push/references/<section>.md` |
 
@@ -61,6 +62,6 @@ Enforce the full list in `references/must-not.md`. Critical: no invalid-branch p
 
 | Situation | Next |
 |-----------|------|
-| User wants a PR after push (sim / asks to open PR) | **`/open-github-pr`** (required path — not inline PR creation) |
+| User wants a PR after push (`confirm` / asks to open PR) | **`/open-github-pr`** (required path — not inline PR creation) |
 | Review before PR | `/code-review` then `/open-github-pr` if still needed |
 | GitHub CLI missing | Still hand off to `/open-github-pr` (it runs preflight + STOP help / MCP fallback) |

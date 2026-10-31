@@ -5,15 +5,11 @@
 
 ### -1. Re-check guardrails and session
 
-If missing, ask user in the user chat language:
+If missing, ask the user in the user's chat language, with the `confirm`, `adjust`, and `cancel` choices (ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`). Show the two checks to confirm, rendered in that language:
+- guardrails.mdc read
+- SESSION.md loaded
 
-```text
-Antes do push, confirme:
-- guardrails.mdc lido
-- SESSION.md carregado
-
-Posso seguir? (sim / ajustar / cancelar)
-```
+Then ask whether to proceed. `confirm` continues. `adjust` or `cancel` stops. Silence, an ambiguous or unrelated reply, or a lone emoji is not approval; a clear affirmative reply in any language is.
 
 ### 0. Validate branch
 

@@ -55,12 +55,12 @@ Summarize before running `dotnet ef`:
 | DbContext class | e.g. `ApplicationDbContext` |
 | Migrations folder | existing `Migrations/` or default under target |
 
-If any value is ambiguous, ask the user once.
+If any value is ambiguous, ask the user once. Free text: the answer is a path or name, not a fixed id set; the question stays open until answered.
 
 ### 2. Migration name
 
 - **Name provided:** normalize to PascalCase.
-- **Name omitted:** inspect `git diff` / `git status`, infer from entity/schema changes (see `references/naming.md`), present suggestion, wait for confirmation.
+- **Name omitted:** inspect `git diff` / `git status`, infer from entity/schema changes (see `references/naming.md`), present the suggested name, then ask once. Single select; ids `confirm` (use the name), `adjust` (free-text name instead), `cancel` (no migration). Render labels in the user chat language; answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
 ### 3. Ensure `dotnet-ef`
 

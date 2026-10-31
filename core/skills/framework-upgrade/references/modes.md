@@ -9,6 +9,22 @@ Four modes only. Skill id remains `framework-upgrade` in every mode.
 | `migrate` | Yes | **Explicit sim required** — silence ≠ approval | decision-register, evidence, pack deltas |
 | `validate` | No (except test/fix logs if project requires) | Confirm scope | evidence, pack validation |
 
+## Question component form (mode)
+
+Asked once when the invocation omits the mode (`command.md` step 2). Single select; ids fixed in English; render the question and labels in the user chat language. Answer mapping: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
+
+```text
+header: framework-upgrade mode
+question: framework-upgrade mode?
+single select:
+- audit: read-only inventory of signals, versions, and gaps
+- plan: ordered baby steps; no mutation
+- migrate: apply changes; explicit confirm required before the first write
+- validate: build, test, and evidence; no mutation
+```
+
+A reply that names none of the four ids keeps the question `pending`. Never pick a default.
+
 ## Contracts
 
 ### audit

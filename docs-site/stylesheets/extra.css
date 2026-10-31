@@ -333,6 +333,10 @@ body {
   overflow-x: auto;
 }
 
+:root > * {
+  --md-mermaid-font-family: "trebuchet ms", verdana, arial, sans-serif;
+}
+
 .md-typeset__table {
   display: block;
   width: 100%;

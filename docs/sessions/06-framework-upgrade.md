@@ -12,11 +12,11 @@ If the mode is omitted, ask once. Never assume `migrate`.
 |------|--------------------------|------|
 | `audit` | No | Optional confirm. Inventory versus `supported_range`. Suggests `plan` |
 | `plan` | No (decision register only if the operator asked to persist it) | Confirm scope. Baby steps from current to target. A plan is not permission to migrate |
-| `migrate` | Yes, one hop at a time | **sim** required. Silence is not approval. Plan approval is not migrate approval |
+| `migrate` | Yes, one hop at a time | A `confirm` answer is required. Silence is not approval. Plan approval is not migrate approval |
 | `validate` | No | Pack build and test signals, evidence matrix pass or fail. Does not escalate into migrate |
 
 ```text
-audit → plan → sim → migrate → validate
+audit → plan → confirm → migrate → validate
               ↘ validate on a tree that was already migrated
 ```
 

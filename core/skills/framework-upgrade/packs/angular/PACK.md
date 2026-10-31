@@ -10,6 +10,8 @@
 
 Prefer positive hits; if 0 or >1 framework packs also match, ask once. Orchestrator flow: skill `references/detect.md`.
 
+`framework_id` option id: `angular`. Label rendered in the user chat language (question form in `references/detect.md`).
+
 | Signal | Weight |
 |--------|--------|
 | `angular.json` at repo / workspace root (or app folder) | Strong |

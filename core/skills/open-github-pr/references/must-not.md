@@ -1,6 +1,6 @@
 ## Must not
 
-- Create a PR without Step -1 gate approval and content confirmation (`sim`)
+- Create a PR without Step -1 gate approval and content confirmation (`confirm` answer)
 - Create a PR without asking the auto-merge question in Step 6 (even when auto-merge is unavailable)
 - Enable auto-merge or merge with a method the repository does not allow, or with a method this skill picked without the repository's rules or the operator saying so
 - Open a PR whose base is not the base confirmed in Step 0

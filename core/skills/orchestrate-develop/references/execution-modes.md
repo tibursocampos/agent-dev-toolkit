@@ -2,7 +2,7 @@
 
 Canonical modes contract for `orchestrate-develop` queue / claim / parallelism.
 
-**Language:** This guideline is **English**. Identifiers, mode ids, reason codes, and audit fields stay **English**. Operator chat may be **pt-BR**.
+**Language:** This guideline is **English**. Identifiers, mode ids, reason codes, and audit fields stay **English**. Operator-facing chat follows the user's conversation language (`LANGUAGE.md`); answer ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
 Companions: `references/step-queue-spawn.md`, `references/parallelism.md`, `skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (`PLAN-LEDGER-CONTRACT`), `skills/_shared/agents/SPAWN.md`.
 
@@ -21,7 +21,7 @@ This is **operator governance** for Orchestrated Delivery O3. It does **not** re
 | Mode id | Default? | Queue | Ledger claim | Parallelism |
 |---------|----------|-------|--------------|-------------|
 | `serial` | **Yes** | One ready step in flight | Required before each spawn (`Invoke-PlanLedgerClaim`) | Parallel Agent wave **forbidden** |
-| `parallel` | No (opt-in) | Ready set may run concurrently | Required **per** child step | Allowed only when independence + user **sim** + distinct SESSION files; cap ≤4 (`SPAWN.md`) |
+| `parallel` | No (opt-in) | Ready set may run concurrently | Required **per** child step | Allowed only when independence + user **confirm** + distinct SESSION files; cap ≤4 (`SPAWN.md`) |
 | `manual` | Fallback when `subagents=none` / Agent unavailable | No Agent spawn | Optional (operator may still claim) | Handoff to `/sdd-develop` only |
 
 Unknown mode ids are **invalid** — reject with reason `mode_unknown` (do not invent a silent default other than documenting that unresolved preference → treat as `serial`).
@@ -30,7 +30,7 @@ Unknown mode ids are **invalid** — reject with reason `mode_unknown` (do not i
 
 Resolve in order (first explicit wins):
 
-1. Operator choice in the current O3 confirm (`série` / `paralelo` / `manual`) after the parent presents the queue
+1. Operator answer to the mode question, ids `serial` | `parallel` | `manual`. The parent asks it at SKILL.md § 4 (Build step queue), when it presents the queue and the develop pacing; this file defines no separate question. Render it per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 2. Feature `CONTINUITY.md` field or note naming `execution_mode: serial|parallel|manual` when present
 3. Default **`serial`**
 
@@ -41,7 +41,7 @@ Resolve in order (first explicit wins):
 1. Build the ready set from PLAN deps (`references/step-queue-spawn.md`).
 2. Apply the active mode **before** spawn:
    - `serial` → pick exactly one ready step; refuse a multi-child wave
-   - `parallel` → may pick up to ≤4 independent ready steps after **sim**; each child gets its own PLAN+step SESSION file
+   - `parallel` → may pick up to ≤4 independent ready steps after **confirm**; each child gets its own PLAN+step SESSION file
    - `manual` → do not spawn an Agent; emit `/sdd-develop - <portable-plan-path> - Step N` with `invocation_context=orchestrated` and `claim_holder`; stop dispatch and await the operator's return with the receipt in this O3 parent flow
 3. Never enqueue a step whose deps are not Completed.
 
@@ -64,7 +64,7 @@ Cite `PLAN-LEDGER-CONTRACT` — do **not** invent a second claim SoT.
 | Mode | Rule |
 |------|------|
 | `serial` / `parallel` | The O3 parent is the **single lifecycle owner** and **MUST** obtain exactly one atomic claim per step via the mode gate / `Invoke-PlanLedgerClaim.ps1` before spawn. A child must not claim or release that reservation. |
-| Session gate | **MUST** set develop `step_confirmed` via `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` (`-File`) after operator **sim** — **MUST NOT** inline-mutate session JSON |
+| Session gate | **MUST** set develop `step_confirmed` via `{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGate.ps1` (`-File`) after operator **confirm** — **MUST NOT** inline-mutate session JSON |
 | Tests gate | After tests execute and results are reported, **MUST** persist `tests_run` with the same helper (`-Action tests-run`) and validate it before step completion; reset both gates with `-Action reset` on scope close |
 | One Shell / step | Prefer one Shell approve chaining the session helper with the mode gate (`serial`/`parallel`) or direct claim helper (`manual`); these are distinct claim paths (`step-queue-spawn.md` § Canonical Shell boundary) |
 | Allowlist (REQ-013) | Opt-in host allowlist of the two `-File` scripts only — **no** silent Shell auto-approve; path/secrets guards unchanged (`adapters/cursor/README.md` § Shell allowlist) |
@@ -87,7 +87,7 @@ Reuse `references/parallelism.md` independence conditions. Mode gate adds:
 | Active mode | Intent `parallel-spawn` |
 |-------------|-------------------------|
 | `serial` | **Reject** (`mode_parallel_forbidden`) + audit |
-| `parallel` | Allow only if independence + **sim** + SESSION+ledger hold |
+| `parallel` | Allow only if independence + **confirm** + SESSION+ledger hold |
 | `manual` | **Reject** (`mode_task_spawn_forbidden`) — use `manual-handoff` |
 
 Evidence / TRACE verifiers remain **sequential** (**Verifier ≠ O3**) regardless of mode.

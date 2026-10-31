@@ -7,7 +7,7 @@
 - Write application/production code or tests (`*.cs`, `*.tsx`, `*.ts`, `*.js`, `*.vue`, `*.py`, migrations, etc.)
 - Show the current branch or ask for a branch switch. Write analysis artifacts on the current branch, including `main`, `master`, and `develop`
 - Call `*-developer` / `developer` to **implement** code (suggesting the trivial shortcut is allowed)
-- Skip human backlog approval or treat silence as `sim`
+- Skip human backlog approval, or treat silence, an ambiguous or unrelated reply, or a lone emoji as approval. A clear affirmative reply in any language is approval (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`)
 - Skip the architecture confirm gate on greenfield / `needs_domain` (no established style), or write final ARCH / pick a silent style default before operator **sim**
 - Skip `architect` / `database` (or skip writing mirror ARCH) on brownfield — skip **style re-pick / confirm gate** only
 - Leave `memory-bank/architecture.md` draft / `needs-confirm` after ARCH **sim** (point-promote that file; not a full inventory refresh)

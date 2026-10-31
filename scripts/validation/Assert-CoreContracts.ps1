@@ -821,7 +821,7 @@ foreach ($rel in $paths) {
         }
     }
 }
-$storageDoc = Get-Content -LiteralPath (Join-Path $repoRoot 'core\sdd\STORAGE-RESOLUTION.md') -Raw -Encoding UTF8
+$storageDoc = Get-Content -LiteralPath (Join-Path $repoRoot 'core\skills\_shared\sdd-artifacts\STORAGE-RESOLUTION.md') -Raw -Encoding UTF8
 $cavemanPolicy = Get-Content -LiteralPath (Join-Path $repoRoot 'core\policy\caveman-mode.md') -Raw -Encoding UTF8
 if ($storageDoc -notmatch '"caveman_mode": true' -or $cavemanPolicy -notmatch 'caveman_mode": true') {
     Write-Fail -TestName 'Should_DocumentCavemanOnAsDefault' -Reason 'storage and Caveman policy must document the on default'

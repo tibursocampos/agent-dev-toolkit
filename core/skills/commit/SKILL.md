@@ -62,7 +62,7 @@ Caveman stays off for this skill. Do not load `CAVEMAN.md`. `references/validate
 Follow `references/inspect-changes.md`.
 
 ### 4. Draft commit message
-Follow `references/draft-message.md`. Present message and **wait for user confirmation** before committing. That confirm has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers. Silence, timeout, and end of turn are not answers. After the answer, resume `/commit` until the commit finishes or this skill declares a blocker with the cause.
+Follow `references/draft-message.md`. Present the message and **wait for a `confirm` answer** before committing (ids and render rule: `core/skills/_shared/agents/QUESTIONS.md`). That gate has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text in the user's chat language. Send no further message until the operator answers. Silence, timeout, end of turn, a lone emoji, or an ambiguous or unrelated reply is not approval; a clear affirmative reply in any language is. After the answer, resume `/commit` until the commit finishes or this skill declares a blocker with the cause.
 
 ### 5–7. Commit, then stop
 Follow `references/commit-and-push.md`. Create the commit only after the operator confirms the message. Post-commit `Co-authored-by` strip stays mandatory. Push and a pull-request handoff run only when the same operator request already includes them.

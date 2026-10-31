@@ -5,11 +5,11 @@
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|
 | -1b | Caveman Full when active | `references/process-common.md` § Caveman |
-| 1 | Gate check; **sim** before first spawn | `PIPELINE.md`, `SESSION.md` |
+| 1 | Gate check; **confirm** before first spawn | `PIPELINE.md`, `SESSION.md` |
 | 1b | Resolve `invocation_context` (default `orchestrated`); pass into children | `INVOCATION-CONTEXTS.md` |
 | 2 | Resolve feature / PLAN set; **plan-acquisition**; path sanitize | `references/plan-acquisition.md`; `references/process-common.md` § Resolve feature / PLAN |
 | 3 | Step 0 Memory Bank Gate; pass `bank_path` read-only | `references/preconditions.md` § Step 0 |
-| 4 | Build step queue; execution mode + develop pacing (`continuous`\|`step_by_step`); present with the full PLAN-step table (one row per PLAN step, `LIVE-STAGE-TABLE.md`); wait **sim** | `references/execution-modes.md`; `references/develop-modes.md`; `references/plan-contract.md`; `references/step-queue-spawn.md` |
+| 4 | Build step queue; execution mode + develop pacing (`continuous`\|`step_by_step`); present with the full PLAN-step table (one row per PLAN step, `LIVE-STAGE-TABLE.md`); wait for **confirm** | `references/execution-modes.md`; `references/develop-modes.md`; `references/plan-contract.md`; `references/step-queue-spawn.md` |
 | 5 | Before the first PLAN step only: `repo-analyst` and `architect`; also `database` when the step or PLAN cites persistence. Do not repeat that pass before an intermediate step. Contract, order, or acceptance drift: stop with `plan_stale` and return to `sdd-plan`. Do not rewrite the graph here. Show the full PLAN-step table before the first spawn, after each child return and checkpoint reconciliation, on blockers, and in every status message; labels follow the user chat language and the table never omits, merges, or summarizes rows. Show `execution-display.md` around the spawn (narrative, PLAN instruction, blocking question; short result after a valid receipt). Show the branch and apply the integration-branch gate before the child changes code. Then spawn exactly one step child | `references/execution-display.md`; `references/execution-modes.md`; `references/develop-modes.md`; `references/step-queue-spawn.md`; `references/anti-bypass.md` |
 | 5.5 | Post-implement verifier when `verify_mode: true` | `references/step-verifier.md` |
 | 6 | Safe parallelism (only when mode=`parallel`; distinct SESSION files) | `references/execution-modes.md`; `references/parallelism.md` |

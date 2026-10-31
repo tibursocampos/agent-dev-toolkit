@@ -14,9 +14,14 @@ $sourceWorkflowPath = Join-Path $repoRoot '.github/workflows/enforce-release-sou
 if (-not (Test-Path -LiteralPath $sourceWorkflowPath -PathType Leaf)) {
     throw "Release source workflow not found: $sourceWorkflowPath"
 }
+$cleanupWorkflowPath = Join-Path $repoRoot '.github/workflows/cleanup-merged-branches.yml'
+if (-not (Test-Path -LiteralPath $cleanupWorkflowPath -PathType Leaf)) {
+    throw "Branch cleanup workflow not found: $cleanupWorkflowPath"
+}
 
 $workflow = Get-Content -LiteralPath $workflowPath -Raw
 $sourceWorkflow = Get-Content -LiteralPath $sourceWorkflowPath -Raw
+$cleanupWorkflow = Get-Content -LiteralPath $cleanupWorkflowPath -Raw
 $checks = [ordered]@{
     'required-release-source-check-covers-sync-readiness-and-metadata' =
         $sourceWorkflow -match '(?s)release-source:.*?secrets\.RELEASE_SYNC_APP_ID.*?secrets\.RELEASE_SYNC_APP_PRIVATE_KEY.*?actions/create-github-app-token@[0-9a-f]{40}.*?permission-contents:\s*write.*?permission-pull-requests:\s*write.*?Validate release decision and version' -and
@@ -34,6 +39,11 @@ $checks = [ordered]@{
     'reconciliation-uses-stable-recovery-branch-key' = $workflow -match 'sync_key="manual-\$\{promoted:0:12\}"' -and
         $workflow -match 'sync_branch="automation/reconcile-release-pr-\$\{sync_key\}"'
     'reconciliation-uses-normal-auto-merge' = $workflow -match 'gh pr merge "\$\{existing_pr\}" --repo "\$\{REPOSITORY\}" --auto --merge'
+    'branch-cleanup-workflow-has-guard-markers' = $cleanupWorkflow.Contains('develop|master|main)') -and
+        $cleanupWorkflow.Contains('^feature/[A-Za-z0-9._/-]+$') -and
+        $cleanupWorkflow.Contains('^feat/[A-Za-z0-9._/-]+$') -and
+        $cleanupWorkflow.Contains('^automation/reconcile-release-pr-[A-Za-z0-9._-]+$') -and
+        $cleanupWorkflow.Contains('gh api -X DELETE')
 }
 
 $failed = @($checks.GetEnumerator() | Where-Object { -not $_.Value })

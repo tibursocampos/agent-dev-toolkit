@@ -17,17 +17,19 @@ Accept feature path from invoke (preferred) or Glob under feature root:
 - **repository** -> `$Cwd/features/NNN-slug/`; bank `$Cwd/memory-bank/`
 - **global** -> `<classic.path>/features/NNN-slug/`; bank `<classic.path>/memory-bank/`
 
-**Path sanitize (required):** normalize the invoke path (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under `$Cwd/features/` (repository) or `<classic.path>/features/` (global). Ask again in pt-BR for a canonical path - do not Read/Write outside the feature root.
+**Path sanitize (required):** normalize the invoke path (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under `$Cwd/features/` (repository) or `<classic.path>/features/` (global). Ask again, in the user chat language, for a canonical path - do not Read/Write outside the feature root.
 
 Repository mode: ensure SDD `.gitignore` per `STORAGE.md` and `features_versioned` in manifest before writes under feature or bank roots (**do not** add `/memory-bank/`; keep `docs/documentation-plan/plan.md` ignored without a negation rule). **Global:** do not edit `.gitignore`.
 
 `Read` `FEATURE.md` + `CONTINUITY.md`. If missing: **STOP** - ask for O1 first:
 
-```text
-Não encontrei FEATURE.md / CONTINUITY.md em `{path}`.
+Render in the user's conversation language (`LANGUAGE.md`); option ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
-1) /orchestrate-analyze - <portable-feature-path>
-2) cancelar
+```text
+Report: FEATURE.md / CONTINUITY.md not found under `{path}`.
+Options (ids):
+- O1 route: /orchestrate-analyze - <portable-feature-path>
+- cancel
 ```
 
 ---

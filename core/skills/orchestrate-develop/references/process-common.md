@@ -12,7 +12,7 @@
 
 Load `STORAGE.md` + `STORAGE-RESOLUTION.md` (`$Workflow = classic`). Resolve feature root and `bank_root` (repository vs global per `STORAGE.md` / `MEMORY-BANK.md`).
 
-**Path sanitize (required):** normalize invoke paths; reject `..` and any resolved path outside `$Cwd/features/` (repository) or `<classic.path>/features/` (global). For a single PLAN path, it must remain under that features root. Ask again in pt-BR if invalid.
+**Path sanitize (required):** normalize invoke paths; reject `..` and any resolved path outside `$Cwd/features/` (repository) or `<classic.path>/features/` (global). For a single PLAN path, it must remain under that features root. Ask again, in the user's language, if invalid.
 
 Repository mode: ensure SDD `.gitignore` per `STORAGE.md` and `features_versioned` in manifest before any bank write. **Global:** do not edit `.gitignore`.
 
@@ -20,7 +20,7 @@ Repository mode: ensure SDD `.gitignore` per `STORAGE.md` and `features_versione
 |--------|--------|
 | Feature path | Glob `**/PLAN/PLAN_*.md` under that feature; build story/PLAN queue |
 | Single PLAN path | Work that PLAN only; still update feature `CONTINUITY.md` if present |
-| Missing PLAN | **STOP** - suggest O2 or Classic SDD |
+| Missing PLAN | **STOP** - suggest O2 or Classic SDD (options rendered in the user's language per `core/skills/_shared/agents/QUESTIONS.md`; pt-BR example below) |
 
 ```text
 Não encontrei PLAN sob `{path}`.

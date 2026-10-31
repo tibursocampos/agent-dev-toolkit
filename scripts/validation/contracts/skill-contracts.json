@@ -64,7 +64,7 @@
       "id": "sdd-develop-bank-docs-handoff-ask",
       "skill": "sdd-develop",
       "files": ["references/optional-flows.md"],
-      "mustContain": ["memory-bank", "sim / pular", "document"]
+      "mustContain": ["memory-bank", "QUESTIONS.md", "`confirm`", "`skip`", "document"]
     },
     {
       "id": "document-implement-cadence-spawn",
@@ -119,7 +119,7 @@
         "feature",
         "STOP - Read before ANY tool call",
         "Must not",
-        "Habilitar auto-merge após criar?",
+        "`decline`",
         "Agent routing (mandatory)",
         "fluxo completo",
         "Merge method (the repository decides)"

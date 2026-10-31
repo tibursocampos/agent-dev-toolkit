@@ -59,7 +59,7 @@ The security checklist runs only when the mode is multi-angle and the security a
 
 ### After the report
 
-Ask, and wait for **sim** or **pular**, whether to fix with `/developer`, `/sdd-develop`, or a stack `*-developer`, and whether to re-run `/code-review`. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. There is no memory-bank gate and no documentation gate in this skill.
+Ask, and wait for a `confirm` or `skip` answer, whether to fix with `/developer`, `/sdd-develop`, or a stack `*-developer`, and whether to re-run `/code-review`. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. There is no memory-bank gate and no documentation gate in this skill.
 
 A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 

@@ -101,7 +101,7 @@ Um resultado não implementado é `Success = false`, `Implemented = false`, `Exi
 
 ### Raiz SDD
 
-Contratos canônicos: `core/sdd/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Arquivo público de estado: `manifest.json`. Ajudante: `scripts/_lib/Initialize-SddRootLayout.ps1`.
+Contratos canônicos: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Arquivo público de estado: `manifest.json`. Ajudante: `scripts/_lib/Initialize-SddRootLayout.ps1`.
 
 | Item | Valor |
 |------|--------|

@@ -193,7 +193,6 @@ $script:ToolkitConstant = @{
     AssertDevelopSessionGateScriptName           = 'Assert-DevelopSessionGate.ps1'
     DevelopSessionGateCheckName                  = 'develop-session-gate'
     DevelopSessionGateSessionContractRelativePath = 'core/skills/_shared/sdd-artifacts/SESSION.md'
-    DevelopSessionGateSessionMirrorRelativePath  = 'core/sdd/SESSION.md'
     DevelopSessionGateAllowlistCursorReadmeRelativePath = 'adapters/cursor/README.md'
     DevelopSessionGateAllowlistCliScriptsRelativePath   = 'docs/domains/cli-scripts.md'
     DevelopSessionGateExitOk                     = 0
@@ -361,8 +360,7 @@ $script:ToolkitConstant = @{
     PreferencesSchemaDocRelativePaths            = @(
         'core/policy/caveman-mode.md',
         'core/skills/_shared/caveman/CAVEMAN.md',
-        'core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md',
-        'core/sdd/STORAGE-RESOLUTION.md'
+        'core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md'
     )
     PreferencesSchemaKeyMarkers                  = @(
         'caveman_mode',

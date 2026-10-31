@@ -58,7 +58,7 @@ The complete path is **Orchestrated Delivery**: `memory-bank-init` (Step 0) → 
 
 `sdd-spec`, `sdd-plan`, and `sdd-develop` remain invocable on their own when one story is already clear ([sessions/02-classic-sdd.md](sessions/02-classic-sdd.md)). `refine-story` is the scorecard and the product-only shape path; O1 applies that scorecard without a separate invoke ([sessions/03-backlog-shape.md](sessions/03-backlog-shape.md)).
 
-Contracts: `core/sdd/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) and copies under `core/skills/_shared/sdd-artifacts/`. Feature writes land under `features/NNN-slug/`.
+Contracts: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Feature writes land under `features/NNN-slug/`.
 
 ## Language
 
@@ -82,7 +82,7 @@ Sync, Validate, and Uninstall require an explicit `-Agent`. **Uninstall** is key
 
 ## Reliability safeguards
 
-Published skills resolve their required runtime helpers from the installed toolkit tree; adapter fixtures verify the publication contract separately from a live-host run. Session helpers scope persisted state to repository and PLAN identity before changing state. Storage resolution, session gates, and orchestration behavior are defined by the SDD contracts in `core/sdd/`. Adapters apply provider authorization and hook behavior according to their publish contracts; validation covers repository fixtures and declared runtime checks, not proof of every live host. During development and review, applicable local instructions and configured diagnostic commands are recorded as `PASS`, `FOUND`, or `SKIPPED`; unavailable commands and host-only observations remain `SKIPPED`.
+Published skills resolve their required runtime helpers from the installed toolkit tree; adapter fixtures verify the publication contract separately from a live-host run. Session helpers scope persisted state to repository and PLAN identity before changing state. Storage resolution, session gates, and orchestration behavior are defined by the SDD contracts in `core/skills/_shared/sdd-artifacts/`. Adapters apply provider authorization and hook behavior according to their publish contracts; validation covers repository fixtures and declared runtime checks, not proof of every live host. During development and review, applicable local instructions and configured diagnostic commands are recorded as `PASS`, `FOUND`, or `SKIPPED`; unavailable commands and host-only observations remain `SKIPPED`.
 
 ## Validation and CI
 

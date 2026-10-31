@@ -10,7 +10,9 @@ Do not auto-create PRs or link external trackers.
 
 ## When all PLAN steps are done (parent must ask)
 
-Present **both** options; wait for the user (do not assume). That question has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers. Silence, timeout, and end of turn are not answers. After the answer, resume the chosen function or declare a blocker with the cause.
+Present **both** options, rendered in the user's language per `core/skills/_shared/agents/QUESTIONS.md`; wait for the user (do not assume). That question has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers. Silence, timeout, and end of turn are not answers. After the answer, resume the chosen function or declare a blocker with the cause.
+
+Render the question in the user's language. pt-BR example:
 
 ```text
 US/PLAN concluído. Próximo?
@@ -20,12 +22,12 @@ US/PLAN concluído. Próximo?
 
 ### Before `/commit` (Classic SDD)
 
-If the user chooses commit (or asks `/commit` right after the last step), **ask and wait** for each applicable item (**sim** / **pular**). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. Do **not** run bank/docs writes on silence. After the answer, or after an intermediate skill the operator already authorized, resume the original skill until the requested function finishes or that skill declares a blocker with the cause. Keep the asks below.
+If the user chooses commit (or asks `/commit` right after the last step), **ask and wait** for each applicable item (ids `confirm` / `skip`, rendered in the user's language per `core/skills/_shared/agents/QUESTIONS.md`). Those asks have no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers every pending question. Silence, timeout, and end of turn are not answers. Do **not** run bank/docs writes on silence. After the answer, or after an intermediate skill the operator already authorized, resume the original skill until the requested function finishes or that skill declares a blocker with the cause. Keep the asks below.
 
-| When present | Ask (user chat language) | On **sim** |
+| When present | Ask (ids `confirm` / `skip`) | On `confirm` |
 |--------------|-------------|------------|
-| `memory-bank/` (or bank_root from `STORAGE.md`) | `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular)` | `/memory-bank-init` mode `refresh-light` |
-| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | `Posso atualizar a documentação do projeto? (sim / pular)` | Pending plan steps → `/document-implement`; no plan but docs exist → `/document-plan` then implement; greenfield docs → `/document-plan` |
+| `memory-bank/` (or bank_root from `STORAGE.md`) | Render in the user's language. pt-BR example: `Posso atualizar o memory-bank (refresh-light) em '{bank_root}'? (sim / pular)` | `/memory-bank-init` mode `refresh-light` |
+| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | Render in the user's language. pt-BR example: `Posso atualizar a documentação do projeto? (sim / pular)` | Pending plan steps → `/document-implement`; no plan but docs exist → `/document-plan` then implement; greenfield docs → `/document-plan` |
 
 Only then hand off to `/commit` (the commit skill repeats the same asks if still pending — idempotent skip when user already answered **pular** this turn).
 

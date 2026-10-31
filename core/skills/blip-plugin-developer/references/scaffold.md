@@ -6,12 +6,12 @@ Classify complexity → consult capability `subagents` → if medium/complex and
 
 ### Phase 1 - Scaffold (infrastructure first)
 
-Ask the user in the **user chat language**:
+Ask the user in the **user chat language**, one question each:
 
-1. "Onde deseja criar o projeto do plugin? (diretório atual `./` ou informe caminho e nome `<plugin-name>`)"
-2. "Qual perfil? **Lite** (página única, sem auth) ou **Full** (multi-rota, AuthProvider, buckets)?"
-3. "O plugin consome API REST externa (ex.: .NET) ou apenas resources Blip?"
-4. "Template: `npm create blip-extension@latest` (oficial) ou URL de template fornecida por você?"
+1. Where to create the plugin project (current directory `./`, or a path and `<plugin-name>`).
+2. Profile: **Lite** (single page, no auth) or **Full** (multi-route, AuthProvider, buckets).
+3. Whether the plugin consumes an external REST API (for example .NET) or only Blip resources.
+4. Template: the official `npm create blip-extension@latest`, or a template URL the user provides.
 
 Wait for answers before running scaffold commands.
 
