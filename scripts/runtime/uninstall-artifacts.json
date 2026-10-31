@@ -281,7 +281,8 @@
       "currentHookIdentities": [
         "agent-dev-toolkit-zcode-hooks",
         "agent-dev-toolkit-zcode-session-start",
-        "guard-pre-tool.ps1"
+        "guard-pre-tool.ps1",
+        "session-start-context.ps1"
       ],
       "legacyLimit": "Markers and filenames identify the current contribution, not a historical version.",
       "pruneRoots": [

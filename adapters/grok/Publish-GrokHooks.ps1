@@ -75,14 +75,11 @@ function Write-GrokSessionStartHookScript {
     }
 
     $scriptPath = Join-Path $HooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName
-    $lines = @(
-        '#Requires -Version 5.1'
-        '# Grok Build SessionStart hook - exit 0; no trust UI interaction.'
-        '# ' + $script:GrokAdapterConstant.HooksTrustNote
-        'exit 0'
-    )
-    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    $null = Write-ToolkitFileIfAbsent -Path $scriptPath -Content (($lines -join [Environment]::NewLine) + [Environment]::NewLine) -Encoding $utf8NoBom
+    $sourceScript = Join-Path (Get-GrokHooksAssetsDirectory) $script:GrokAdapterConstant.HooksSessionStartScriptName
+    if (-not (Test-Path -LiteralPath $sourceScript)) {
+        throw ($script:GrokAdapterMessage.HooksAssetsMissing -f $sourceScript)
+    }
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceScript -DestinationPath $scriptPath
     return $scriptPath
 }
 

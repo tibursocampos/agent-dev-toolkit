@@ -79,6 +79,10 @@ function Test-OpenHandsNativeHooksPresent {
         return $false
     }
 
+    if ((Get-Content -LiteralPath $hooksScriptPath -Raw) -notmatch 'SPAWN-DIGEST') {
+        return $false
+    }
+
     try {
         $hooksJson = Get-Content -LiteralPath $hooksJsonPath -Raw | ConvertFrom-Json
         $sessionEvent = $script:OpenHandsAdapterConstant.HooksSessionStartEventSnake

@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo agent-dev-toolkit-zcode-session-start",
+            "command": "pwsh -NoProfile -File hooks/session-start-context.ps1 agent-dev-toolkit-zcode-session-start",
             "enabled": true
           }
         ]
