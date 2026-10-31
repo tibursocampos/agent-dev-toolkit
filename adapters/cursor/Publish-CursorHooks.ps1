@@ -467,6 +467,7 @@ function Invoke-CursorPublishHooks {
             HookScriptCount  = $scriptCount
             WhatIf           = $true
             Message          = ($script:CursorAdapterMessage.HooksWouldPublish -f $scriptCount, $destHooksRoot, $destHooksJson)
+            HookActivation = New-HookActivation -State 'automatic' -Note 'Cursor loads the informational hooks from hooks.json; the toolkit needs no trust step.'
             ExitCode         = 0
         }
     }
@@ -510,6 +511,7 @@ function Invoke-CursorPublishHooks {
         HooksChanged    = [bool]$mergeResult.Changed
         WhatIf          = $false
         Message         = ($script:CursorAdapterMessage.HooksPublished -f $publishedScripts, $destHooksRoot, $destHooksJson)
+        HookActivation = New-HookActivation -State 'automatic' -Note 'Cursor loads the informational hooks from hooks.json; the toolkit needs no trust step.'
         ExitCode        = 0
     }
 }

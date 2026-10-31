@@ -1,4 +1,4 @@
-"""Hermes plugin: path/secrets pre_tool_call guard (agent-dev-toolkit)."""
+"""Hermes compatibility plugin (agent-dev-toolkit): registers no hook; native Hermes authorization applies."""
 
 from __future__ import annotations
 

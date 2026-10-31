@@ -36,6 +36,7 @@ $script:CodexAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script:
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexPolicy.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexRouter.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexAgents.ps1')
+. (Join-Path (Join-Path (Join-Path $script:CodexAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Publish-CodexHooks.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Invoke-CodexSmokeValidate.ps1')
 . (Join-Path $script:CodexAdapterDirectory 'Uninstall-CodexToolkit.ps1')

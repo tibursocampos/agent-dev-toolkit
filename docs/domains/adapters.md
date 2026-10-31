@@ -65,9 +65,9 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
-| Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (path/secrets dual); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |
+| Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (plugin registers no hook; `HookActivation` `unavailable`, `blocked` on unsupported `config.yaml`); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |
 | OpenHands | Project tree + optional `~/.agents/skills`; Agent Skills not microagents; shell `pre_tool_use` + `guard_pre_tool.sh` (fail-closed); `subagents=none` |
-| Path/secrets guard | Shared `adapters/_shared/guard-rules.md` + `GuardCommon.ps1` — outside workspace deny; write without path deny; host wiring in [ADAPTERS.md](../ADAPTERS.md) |
+| Path/secrets guard | Four adapters keep a `PreToolUse` shim (Grok, OpenHands, ZCode, Antigravity) that denies empty/malformed input. `GuardCommon.ps1` is a compatibility helper that always allows. Codex and Copilot no longer register a guard (behavior change, see [ENFORCEMENT.md](../ENFORCEMENT.md)). Rules: `adapters/_shared/guard-rules.md`; host wiring in [ADAPTERS.md](../ADAPTERS.md) |
 | Shell allowlist (WS10) | Cursor operator tip: opt-in allowlist for `Invoke-DevelopSessionGate.ps1` + `Invoke-PlanLedgerClaim.ps1` only — no silent Shell auto-approve; guards unchanged ([cursor README](../../adapters/cursor/README.md) § Shell allowlist; [cli-scripts](cli-scripts.md)) |
 | Antigravity legacy | `antigravity-ide/plugins` opt-in / docs only — not default smoke |
 | Keyed uninstall | All registered adapters; preserves `sdd/sessions` + `sdd/manifest.json` |
@@ -94,10 +94,10 @@ Contract: [`adapters/_shared/trace-emitter-honesty.md`](../../adapters/_shared/t
 |------|----------------------|-------|
 | **Cursor** | Yes — `assets/hooks/emit-trace.ps1` via `hooks.json` (`postToolUse`, `subagentStop`) | Prefer inherit; Explore Task may diverge |
 | **Claude** | Yes — `emit-trace.ps1` (+ `plan-after-edit` on PostToolUse) | Merge/settings keyed upsert |
-| **Codex** | Asset present; **Publish-Hooks still PreToolUse guard only** | Do **not** claim live PostToolUse TRACE wire yet |
+| **Codex** | Yes, `SubagentStop` only → `emit-trace.ps1` (no PostToolUse wire) | Appends only inside `features/NNN-slug` or with `TOOLKIT_TRACE_FEATURE_ROOT`; payload not verified live |
 | **OpenHands** | No | Shell `pre_tool_use` only; spawn `none` → in-parent |
 | **OpenCode** | No | Plugin JS hooks (`HooksSemantics=plugin-only`) — not PS1 parity |
-| Hermes / Grok / Copilot / Antigravity / ZCode | No | Guard PreToolUse (or equivalent) where present; TRACE emit not claimed this wave |
+| Hermes / Grok / Copilot / Antigravity / ZCode | No | Grok, Antigravity, ZCode: PreToolUse guard shim (no TRACE emit); Hermes and Copilot register no hook; TRACE emit not claimed this wave |
 
 Fail-open: emitter exit **0** always; never append `tool_input` / bodies / secrets. CI probe: `TOOLKIT_TRACE_FORCE_FAIL=1` skips append, still exit 0. Assert: `Assert-TraceEmitterFailOpen.ps1`. Trusted-CI-only: `TOOLKIT_TRACE_FEATURE_ROOT` → in-repo fixture `features/NNN-slug` — never live `USERPROFILE`.
 

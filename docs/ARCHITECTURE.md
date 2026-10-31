@@ -94,7 +94,7 @@ InstallRoot models `~/.cursor`. Default publish/smoke targets:
 | `rules/*.mdc` | Policy from `core/policy/` (`.md` → `.mdc`) |
 | `AGENTS.md` | Router from `core/router/AGENTS.md` |
 | `hooks/*.ps1` | Hook scripts from `adapters/cursor/assets/hooks/` (`emit-trace.ps1`, `context-before-prompt.ps1`, `plan-after-edit.ps1`, plus shared `_hook-common.ps1` and `TraceEmitCommon.ps1`) |
-| `hooks.json` | Merge at InstallRoot root; path/secrets `preToolUse` + `beforeShellExecution` (`failClosed`) |
+| `hooks.json` | Merge at InstallRoot root; informative `postToolUse` / `subagentStop` (`emit-trace.ps1`), `beforeSubmitPrompt`, and `afterFileEdit`. `preToolUse` and `beforeShellExecution` stay empty arrays (`HookActivation` `automatic`) |
 | `agents/*.md` | Roster from `core/agents/` when `agents=true` |
 | `sdd/sessions/` | SDD sessions directory (`Get-SddRoot -Prepare`) |
 | `sdd/manifest.json` | Minimal seed when absent; never overwrite existing |
@@ -109,7 +109,7 @@ InstallRoot models `~/.gemini`. Official tree:
 |---------------|------|
 | `config/skills` | Kebab Agent Skills + `dev_persona` |
 | `config/plugins` | Plugin surface (e.g. GUARDRAILS under managed plugin id) |
-| `config/hooks` | Official hooks directory (`hooks=true` → PreToolUse path/secrets guard) |
+| `config/hooks` | Official hooks directory (`hooks=true` → PreToolUse guard shim) |
 | `config/skills.json`, `config/AGENTS.md`, `config/GEMINI.md` | Discovery / managed markdown |
 
 **Legacy bridge** `antigravity-ide/plugins` is documentation / opt-in only — **not** a CI or default-smoke gate.
@@ -128,7 +128,7 @@ InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://develope
 | `rules/*.md` | Publish-Policy from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Publish-Router: materialized dual-root **absolute** paths (no `{{…}}`; no live `docs/` links) |
-| `plugin/hooks/hooks.json` | Plugin hooks files; `/hooks` trust is **manual** |
+| `plugin/hooks/hooks.json` | Plugin hooks: `SubagentStop` → `emit-trace.ps1` only, no PreToolUse guard; `/hooks` trust is **manual** |
 | `.agents/skills/` | Optional `-UserScope` stand-in for `~/.agents/skills` (live: `$HOME/.agents/skills` + `-AllowUserHome`) |
 
 Default sync is **plugin-only**. Fixture: `scripts/validation/fixtures/codex`. See [ADAPTERS.md](ADAPTERS.md).
@@ -156,7 +156,7 @@ InstallRoot models `~/.config/opencode` ([docs](https://opencode.ai/docs/config/
 | `skills/<kebab-id>/SKILL.md` | Agent Skills |
 | `AGENTS.md` | Router |
 | `agents/*.md` | `Publish-Agents` from `core/agents/` (`agents=true`) |
-| `plugins/*.js` | OpenCode JS plugins (`tool.execute.before` path/secrets throw) |
+| `plugins/*.js` | OpenCode JS plugins (compatibility marker; no interception hook) |
 
 Hooks are **plugin-only** (no shell/PS1 parity). CI smoke (`Invoke-AdapterCiSmoke.ps1 -Adapter opencode`) is **filesystem-only** sync+validate against an ephemeral fixture — **not** an OpenCode product runtime.
 
@@ -170,7 +170,7 @@ InstallRoot models `~/.zcode` (ADE filesystem — **not** GLM Coding Plan):
 | `AGENTS.md` | Router surface |
 | `agents/*.md` | `Publish-Agents` (`agents=true`) |
 | `cli/config.json` | Hooks config |
-| `hooks/hooks.json` | User-level hooks merge (PreToolUse path/secrets) |
+| `hooks/hooks.json` | User-level hooks merge (PreToolUse guard shim) |
 
 Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter zcode`.
 
@@ -188,7 +188,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. CI: `Invoke-AdapterC
 | `skills/<kebab-id>/SKILL.md` | Agent Skills |
 | `instructions/*.instructions.md` | Policy |
 | `copilot-instructions.md` | Always-on instructions with the router source embedded; Copilot has no dedicated router surface (`router=false`) |
-| `hooks/*` | Adapter hooks when `hooks=true` (`version:1` `preToolUse` path/secrets) |
+| `hooks/*` | Adapter hooks when `hooks=true`; no active handler registered (`HookActivation` `unavailable`) |
 
 **Out of scope:** JetBrains and Eclipse Copilot IDE layouts. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter copilot`.
 
@@ -201,7 +201,7 @@ InstallRoot **is** `~/.grok` (or project `.grok` passed as InstallRoot) — **na
 | `skills` | Kebab Agent Skills → live `~/.grok/skills` |
 | `rules` | Policy markdown → live `~/.grok/rules` |
 | `agents` | Roster from `core/agents/` (`agents=true`) |
-| `hooks` | Native hooks incl. PreToolUse path/secrets; `/hooks-trust` is **manual** |
+| `hooks` | Native hooks incl. PreToolUse guard shim; `/hooks-trust` is **manual** |
 | `AGENTS.md` | Router |
 
 Claude/Cursor paths may be read by the product as compat; MVP **publish** targets InstallRoot directly. Fixture: `scripts/validation/fixtures/grok` (models `~/.grok`).
@@ -214,11 +214,11 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 |---------------|------|
 | `skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (live `$HERMES_HOME/skills`) |
 | `AGENTS.md` | Router from `core/router` plus folded `core/policy` (no `rules/` tree) |
-| `plugins/agent-dev-toolkit-guard` + `agent-hooks/` | Path/secrets dual hooks (`hooks=true`, `plugin=true`) |
+| `plugins/agent-dev-toolkit-guard` | Plugin registers no hook (`HookActivation` `unavailable`); no `agent-hooks/` is published (`hooks=true`, `plugin=true`) |
 | `memories/MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 
-`Publish-Hooks` installs plugin + shell hooks and keyed-merges only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL / tokens / gateway. The merge keeps non-toolkit keys, including credential-shaped keys, and replaces the whole toolkit `pre_tool_call` item. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
+`Publish-Hooks` runs a structural check of `config.yaml` before any change (unsupported or invalid format → `blocked`, file untouched), then installs the plugin and keyed-merges only `plugins.enabled` — never SOUL / tokens / gateway. The merge keeps non-toolkit keys, including credential-shaped keys, and removes legacy toolkit `hooks.pre_tool_call` entries. `Publish-Agents` is a documented no-op (`agents=false`). Subagents: host **`delegate_task`**. Fixture: `scripts/validation/fixtures/hermes`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
 
 ## OpenHands install layout
 
@@ -229,14 +229,14 @@ InstallRoot **is** `~/.hermes` (CI fixture models that home) — skills and `AGE
 | `.agents/skills/<id>/SKILL.md` | Agent Skills from `core/skills/` (**not** legacy microagents) |
 | `.agents/agents/*.md` | Roster from `core/agents/` (SDK/plugin; not Canvas Profile; not native spawn) |
 | `AGENTS.md` | Router + folded policy (no `rules/` tree) |
-| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks incl. `guard_pre_tool.sh` for `pre_tool_use` path/secrets (never `.ps1`) |
+| `.openhands/hooks.json` + `.openhands/hooks/*.sh` | Shell hooks incl. `guard_pre_tool.sh` for `pre_tool_use` guard shim (never `.ps1`) |
 | `.plugin/plugin.json` | Plugin metadata (skills still work without the plugin) |
 
 **Live user skills:** `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome` publishes `skills/` directly under that home. `AGENTS.md`, hooks, and plugin metadata stay project-scoped. Capability `subagents=none` — SPAWN fallback in-parent. Do not emit Automation Server, cron, GitHub webhooks, sandbox YAML, or LLM secrets. Fixture: `scripts/validation/fixtures/openhands`. CI: `Invoke-AdapterCiSmoke.ps1 -Adapter openhands`.
 
 ## Shared publish rules
 
-Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `adaptive`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. OpenCode allow and deny for relative paths lives in `adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`, not in `GuardCommon.ps1`.
+Published PowerShell hook JSON readers use `[Console]::OpenStandardInput()` first and `[Console]::In` only when that read is empty. A missing `preferences.json` is created on first sync with `orchestrator_mode` `adaptive`. Copilot agent publish keeps one `nome.agent.md` per catalog agent. The OpenCode marker plugin (`adapters/opencode/assets/plugins/agent-dev-toolkit-marker.js`) keeps compatibility helpers for allow/deny evaluation and installs no interception hook; it does not use `GuardCommon.ps1`.
 
 ## CI
 

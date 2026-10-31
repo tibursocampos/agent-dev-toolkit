@@ -542,6 +542,9 @@ function Test-AdapterPathGuard {
     if ([string](Get-AdtProperty $guard 'mode' 'host') -eq 'hook') {
         Test-AdtHookModeGuard -AdapterId $id -ScriptPath $scriptPath -Workspace $workspace -Secret $secret
     }
+    if ($id -eq 'codex') {
+        Test-CodexHookWiring -AdapterId $id -Publish $Publish
+    }
 }
 
 function Test-AdtHookModeGuard {
@@ -602,13 +605,37 @@ function Test-AdtHookModeGuard {
         Write-AdtCheck $AdapterId 'pathguard-hook:secret-finding-rules' ($mixed.Count -gt 0 -and $placeholder.Count -eq 0 -and $placeholderThenReal.Count -gt 0) 'placeholder candidates are exempt only when exact; real candidates on the same line must still be found'
     }
 
-    # hooks wiring + agent toml emission
-    $adapterModule = Join-Path $repoRoot 'adapters/codex/CodexAdapter.ps1'
-    . $adapterModule
-    $hooksObject = New-CodexPreToolUseHooksObject
-    $preTool = @($hooksObject.hooks.PreToolUse)
-    $wired = $preTool.Count -eq 1 -and $preTool[0].matcher -eq '.*' -and ($hooksObject | ConvertTo-Json -Depth 8) -match 'guard-pre-tool\.ps1'
-    Write-AdtCheck $AdapterId 'pathguard-hook:hooks-wire-catch-all-pretooluse' $wired 'expected one catch-all PreToolUse group wired to guard-pre-tool.ps1'
+}
+
+function Test-CodexHookWiring {
+    param(
+        [Parameter(Mandatory = $true)][string] $AdapterId,
+        [Parameter(Mandatory = $true)] $Publish
+    )
+
+    # Codex registers no PreToolUse guard: the only wired hook is SubagentStop -> emit-trace.ps1.
+    $hooksObject = New-CodexSubagentStopHooksObject
+    $events = @($hooksObject.hooks.Keys)
+    $subagentEvent = $script:CodexPathConstant.HooksSubagentStopEventName
+    Write-AdtCheck $AdapterId 'pathguard-hook:codex-no-pretooluse-registered' ($events.Count -eq 1 -and $events[0] -eq $subagentEvent) ('expected SubagentStop as the only registered event; got: ' + ($events -join ', '))
+    $subagentGroups = @($hooksObject.hooks[$subagentEvent])
+    $wired = $subagentGroups.Count -eq 1 -and @($subagentGroups[0].hooks).Count -eq 1 -and ([string]$subagentGroups[0].hooks[0].command) -match 'emit-trace\.ps1'
+    Write-AdtCheck $AdapterId 'pathguard-hook:codex-subagentstop-emit-trace' $wired 'expected one SubagentStop group wired to emit-trace.ps1'
+
+    $pluginHooks = Join-Path $Publish.InstallRoot ($script:CodexPathConstant.PluginRootDirectoryName + '/' + $script:CodexPathConstant.HooksDirectoryName)
+    $publishedHooksPath = Join-Path $pluginHooks $script:CodexPathConstant.HooksFileName
+    $publishedEvents = @()
+    if (Test-Path -LiteralPath $publishedHooksPath -PathType Leaf) {
+        $publishedEvents = @((Get-Content -LiteralPath $publishedHooksPath -Raw -Encoding UTF8 | ConvertFrom-Json).hooks.PSObject.Properties.Name)
+    }
+    Write-AdtCheck $AdapterId 'pathguard-hook:codex-published-hooks-subagentstop-only' ($publishedEvents.Count -eq 1 -and $publishedEvents[0] -eq $subagentEvent) ('published hooks.json events: ' + ($publishedEvents -join ', '))
+    $guardPublished = Test-Path -LiteralPath (Join-Path $pluginHooks $script:CodexPathConstant.HooksGuardScriptName)
+    Write-AdtCheck $AdapterId 'pathguard-hook:codex-guard-not-published' (-not $guardPublished) 'guard-pre-tool.ps1 must not be published for Codex'
+    foreach ($asset in @($script:CodexPathConstant.HooksTraceEmitScriptName, $script:CodexPathConstant.TraceEmitCommonFileName, $script:CodexPathConstant.HooksCommonFileName)) {
+        Write-AdtCheck $AdapterId ('pathguard-hook:codex-published-' + $asset) (Test-Path -LiteralPath (Join-Path $pluginHooks $asset) -PathType Leaf) ($asset + ' missing from plugin/hooks')
+    }
+
+    # agent toml emission
     $toml = Convert-CodexAgentMarkdownToToml -MarkdownText "---`nname: sample-agent`ndescription: Sample for toml emit test.`nmodel: inherit`n---`n`n# sample-agent`n`nDo useful work.`n" -SourcePath 'sample.md'
     $tomlOk = ($toml -match '(?m)^name = ') -and ($toml -match '(?m)^description = ') -and ($toml -match 'developer_instructions = ') -and ($toml -match 'Do useful work') -and
     $toml.Contains('# toolkit.spawn.model = inherit') -and $toml.Contains('# toolkit.spawn.developer_threads = 2') -and $toml.Contains('# toolkit.spawn.orchestrate_threads = 4') -and ($toml -notmatch '(?m)^\s*model\s*=')

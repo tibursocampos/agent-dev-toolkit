@@ -165,7 +165,8 @@ function Merge-ZCodeJsonValues {
                 $mergedList += ,(ConvertTo-ZCodeOrderedHashtable -InputObject $item)
             }
         }
-        return $mergedList
+        # Keep a one-item JSON array an array; a bare return unrolls it into an object on republish.
+        return ,$mergedList
     }
 
     # Scalar / type mismatch: keep destination (user) value.
@@ -326,6 +327,7 @@ function Invoke-ZCodePublishHooks {
             SourceHooksJson  = $sourceHooksJson
             FilesWritten     = 0
             Message          = ($script:ZCodePublishMessage.HooksWhatIfOk -f $resolvedInstallRoot)
+            HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the ZCode hook configuration is loaded in the workspace.') -Note 'ZCode loads the merged config and hooks files; the toolkit writes files only.'
             ExitCode         = 0
         }
     }
@@ -392,6 +394,7 @@ function Invoke-ZCodePublishHooks {
         SourceHooksJson  = $sourceHooksJson
         FilesWritten     = 4
         Message          = ($script:ZCodePublishMessage.HooksPublishedOk -f $destinationCliConfig, $destinationHooksJson)
+        HookActivation = New-HookActivation -State 'manual' -Steps @('Confirm the ZCode hook configuration is loaded in the workspace.') -Note 'ZCode loads the merged config and hooks files; the toolkit writes files only.'
         ExitCode         = 0
     }
 }

@@ -21,6 +21,7 @@
 | O1 / O2 / O3 | Analyze, per-story specification/planning, and step-based development stages in Orchestrated Delivery. |
 | Content-language | SDD prose language resolved from invocation, preferences, manifest, then chat language. |
 | `external:<alias>/<path>` | Portable evidence citation; it does not authorize a filesystem root or read/write access. |
+| HookActivation | Per-adapter result of `Publish-Hooks`: `manual` (a provider step is required), `automatic`, `unavailable` (no toolkit hook runs), or `blocked` (a pre-write check failed; nothing was written). |
 | Catalog parity | Exact equality of invocable skill IDs across source and exhaustive human/docs-site listings; descriptive README previews are not exhaustive catalogs. |
 
 ## Invariants

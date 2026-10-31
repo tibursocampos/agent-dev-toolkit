@@ -6,10 +6,13 @@ The Toolkit does not classify tool calls to decide whether the host may run them
 
 | Provider | Toolkit surface | Current Toolkit decision |
 |----------|-----------------|--------------------------|
-| Cursor | `preToolUse` and `beforeShellExecution` | Removed from the managed hook projection; stale managed entries are stripped during merge. |
-| Claude Code | `PreToolUse` and `PreCompact` | Removed from the managed settings projection; stale managed entries are stripped during merge. |
-| OpenCode | JS `tool.execute.before` plugin callback | Compatibility callback always allows and does not emit secret values. |
-| Hermes | `pre_tool_call` plugin callback and legacy shell hook | Plugin callback allows; the legacy fail-closed shell-hook entry is removed during config merge. |
+| Cursor | `preToolUse` and `beforeShellExecution` | Not projected; the shipped `hooks.json` keeps both as empty arrays. Stale managed entries are stripped during merge. |
+| Claude Code | `PreToolUse` and `PreCompact` | Not projected; stale managed entries are stripped during merge. |
+| Codex | `PreToolUse` guard | Not registered. Only `SubagentStop` → `emit-trace.ps1` is registered. |
+| Copilot | `preToolUse` guard | Not registered; no active hook. |
+| OpenCode | JS plugin | Marker plugin only; no interception callback is installed. Compatibility helpers do not gate tool calls. |
+| Hermes | `pre_tool_call` | No plugin callback is registered. Legacy toolkit `pre_tool_call` entries are removed during config merge; `config.yaml` gets a structural check before any change. |
+| Grok, OpenHands, ZCode, Antigravity | `PreToolUse` guard shim | Shim denies empty, malformed, or schema-invalid input (fail-closed). Its path/secret verdict comes from the shared helper, which always allows. |
 | Other PowerShell-backed providers | Existing provider-specific hook payloads | Shared evaluator always allows; unclassified tools are allowed by adapter entrypoints. |
 | OpenHands shell fallback | POSIX wrapper | Allows when optional `pwsh` runtime is unavailable. |
 

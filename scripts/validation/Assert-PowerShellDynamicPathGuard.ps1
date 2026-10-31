@@ -9,16 +9,11 @@
 #   Should_Verify_HostAuthorization_When_PercentPathIsDynamic
 #   Should_Verify_HostAuthorization_When_EnvVariableIsUnset
 #   Should_Verify_HostAuthorization_When_PathExpressionIsUnsupported
-#   Should_Allow_When_HookForwardsDynamicPathToHostAuthorization
-#   Should_Deny_When_MalformedJsonInput
-#   Should_Deny_When_EmptyInput
-#   Should_Deny_When_HookIdentityMissing
 #
-# Host-owned contract (same as the Codex and Copilot path guards):
+# Host-owned contract (Codex and Copilot publish no PreToolUse guard; the Codex hook cases were removed):
 #   - adapters/_shared/GuardCommon.ps1 is a compatibility shim. Get-ToolkitPathSecretsGuardVerdict
 #     returns allow / host_authorization for every input, including dynamic paths. The provider host
 #     owns path authorization; the shim carries no deny logic and is not a sandbox.
-#   - Malformed or identity-less hook input is denied fail-closed by the Codex PreToolUse hook.
 #   - A detector self-test proves the contract check flags a shim that denies valid input and a hook
 #     that allows malformed input, and does not flag the host-owned shim result.
 #   - This script verifies the host-owned contract only. It is a contract check (host-owned shim),
@@ -28,9 +23,7 @@ $ErrorActionPreference = 'Stop'
 $scriptDir = $PSScriptRoot
 $repoRoot = (Get-Item (Join-Path $scriptDir '..\..')).FullName
 $guardCommon = Join-Path $repoRoot 'adapters\_shared\GuardCommon.ps1'
-$codexHook = Join-Path $repoRoot 'adapters\codex\assets\hooks\guard-pre-tool.ps1'
-
-foreach ($required in @($guardCommon, $codexHook)) {
+foreach ($required in @($guardCommon)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "missing required file: $required"
     }
@@ -173,47 +166,6 @@ finally {
     [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_ROOT', $savedRoot, 'Process')
     [Environment]::SetEnvironmentVariable('ADT_DYN_GUARD_UNSET_FIXTURE', $savedUnset, 'Process')
 }
-
-$hookAllowPayload = @{
-    hook_event_name = 'PreToolUse'
-    tool_name = 'Write'
-    tool_input = @{ path = '$env:ADT_DYN_GUARD_ROOT\hook-outside.md'; content = 'dynamic path fixture' }
-    cwd = $repoRoot
-}
-$hookAllowOutput = Invoke-HookRawInput -RawInput ($hookAllowPayload | ConvertTo-Json -Compress -Depth 6) -HookPath $codexHook
-$hookObservations.Add([pscustomobject]@{
-    Name = 'Should_Allow_When_HookForwardsDynamicPathToHostAuthorization'
-    Kind = 'HookValidInput'
-    Decision = Get-HookPermissionDecision -HookOutput $hookAllowOutput
-    Reason = ''
-})
-
-$malformedCases = @(
-    @{ TestName = 'Should_Deny_When_MalformedJsonInput'; RawInput = '{not-json' },
-    @{ TestName = 'Should_Deny_When_EmptyInput'; RawInput = '' }
-)
-foreach ($case in $malformedCases) {
-    $output = Invoke-HookRawInput -RawInput $case.RawInput -HookPath $codexHook
-    $hookObservations.Add([pscustomobject]@{
-        Name = $case.TestName
-        Kind = 'HookMalformedInput'
-        Decision = Get-HookPermissionDecision -HookOutput $output
-        Reason = ''
-    })
-}
-
-$identityPayload = @{
-    tool_name = 'Write'
-    tool_input = @{ path = '$env:ADT_DYN_GUARD_ROOT\missing-identity.md'; content = 'dynamic path fixture' }
-    cwd = $repoRoot
-}
-$identityOutput = Invoke-HookRawInput -RawInput ($identityPayload | ConvertTo-Json -Compress -Depth 6) -HookPath $codexHook
-$hookObservations.Add([pscustomobject]@{
-    Name = 'Should_Deny_When_HookIdentityMissing'
-    Kind = 'HookMalformedInput'
-    Decision = Get-HookPermissionDecision -HookOutput $identityOutput
-    Reason = ''
-})
 
 $allObservations = @($shimObservations.ToArray()) + @($hookObservations.ToArray())
 foreach ($observation in $allObservations) {

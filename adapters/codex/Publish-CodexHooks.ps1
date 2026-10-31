@@ -5,10 +5,10 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
 
 <#
 .SYNOPSIS
-  Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + guard-pre-tool.ps1).
+  Helpers for Codex Publish-Hooks (plugin/hooks/hooks.json + emit-trace.ps1).
 
 .DESCRIPTION
-  Writes one catch-all PreToolUse path/secrets guard.
+  Writes one SubagentStop trace hook (emit-trace.ps1). No PreToolUse guard is registered.
   RN03: never invoke or assert Codex /hooks trust UI.
 #>
 
@@ -24,23 +24,21 @@ function Get-CodexHooksAdapterRepoRoot {
     return (Split-Path -Parent (Split-Path -Parent $script:CodexHooksModuleDirectory))
 }
 
-function New-CodexPreToolUseHooksObject {
+function New-CodexSubagentStopHooksObject {
     [CmdletBinding()]
     param()
 
     $c = $script:CodexPathConstant
-    $guardCommand = $c.HooksPreToolUseCommandTemplate
     return [ordered]@{
         description = $c.HooksDescription
         hooks       = [ordered]@{
-            ($c.HooksPreToolUseEventName) = @(
+            ($c.HooksSubagentStopEventName) = @(
                 [ordered]@{
-                    matcher = $c.HooksPreToolUseCatchAllMatcher
-                    hooks   = @(
+                    hooks = @(
                         [ordered]@{
                             type          = $c.HooksCommandType
-                            command       = $guardCommand
-                            statusMessage = $c.HooksPreToolUseStatusMessage
+                            command       = $c.HooksSubagentStopCommandTemplate
+                            statusMessage = $c.HooksSubagentStopStatusMessage
                         }
                     )
                 }
@@ -49,54 +47,42 @@ function New-CodexPreToolUseHooksObject {
     }
 }
 
-function Write-CodexGuardPreToolScript {
+function Write-CodexTraceEmitScripts {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [string] $HooksDirectory,
 
         [Parameter(Mandatory = $true)]
-        [string] $RepoRoot,
-
-        [Parameter()]
-        [string] $InstallRoot
+        [string] $RepoRoot
     )
 
     if (-not (Test-Path -LiteralPath $HooksDirectory)) {
         New-Item -ItemType Directory -Path $HooksDirectory -Force | Out-Null
     }
 
-    $sourceGuard = Join-Path $script:CodexHooksModuleDirectory ($script:CodexPathConstant.HooksGuardAssetsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $sourceGuard)) {
-        # Fallback: write inline from shared helpers pattern (assets may live under adapters/codex/assets).
-        $sourceGuard = Join-Path (Join-Path (Join-Path $script:CodexHooksModuleDirectory 'assets') 'hooks') $script:CodexPathConstant.HooksGuardScriptName
+    $sourceEmit = Join-Path $script:CodexHooksModuleDirectory ($script:CodexPathConstant.HooksTraceEmitAssetsRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $sourceEmit -PathType Leaf)) {
+        throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceEmit)
     }
-    $destGuard = Join-Path $HooksDirectory $script:CodexPathConstant.HooksGuardScriptName
-    if (Test-Path -LiteralPath $sourceGuard) {
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceGuard -DestinationPath $destGuard
-    }
-    else {
-        throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceGuard)
-    }
+    $destEmit = Join-Path $HooksDirectory $script:CodexPathConstant.HooksTraceEmitScriptName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceEmit -DestinationPath $destEmit
 
-    $sharedSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
-        throw "GuardCommon source is missing: $sharedSource"
+    $commonSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedTraceEmitCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $commonSource -PathType Leaf)) {
+        throw ($script:CodexPublishMessage.HooksAssetsMissing -f $commonSource)
     }
-    $sharedDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedGuardCommonFileName
-    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-    $contractSource = Join-Path $RepoRoot ($script:CodexPathConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    $contractDest = Join-Path $HooksDirectory $script:CodexPathConstant.SharedAuthorizationContractFileName
-    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $InstallRoot
+    $destCommon = Join-Path $HooksDirectory $script:CodexPathConstant.TraceEmitCommonFileName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $commonSource -DestinationPath $destCommon
 
-    # Thin _hook-common for Codex (loads GuardCommon + Read/Write helpers).
-    $commonSource = Join-Path (Split-Path -Parent $sourceGuard) '_hook-common.ps1'
-    $destCommon = Join-Path $HooksDirectory '_hook-common.ps1'
-    if (Test-Path -LiteralPath $commonSource) {
-        $null = Copy-ToolkitFileIfAbsent -SourcePath $commonSource -DestinationPath $destCommon
+    $sourceHooksCommon = Join-Path (Join-Path (Join-Path $script:CodexHooksModuleDirectory 'assets') 'hooks') $script:CodexPathConstant.HooksCommonFileName
+    if (-not (Test-Path -LiteralPath $sourceHooksCommon -PathType Leaf)) {
+        throw ($script:CodexPublishMessage.HooksAssetsMissing -f $sourceHooksCommon)
     }
+    $destHooksCommon = Join-Path $HooksDirectory $script:CodexPathConstant.HooksCommonFileName
+    $null = Copy-ToolkitFileIfAbsent -SourcePath $sourceHooksCommon -DestinationPath $destHooksCommon
 
-    return $destGuard
+    return $destEmit
 }
 
 function Write-CodexHooksJson {
@@ -111,7 +97,7 @@ function Write-CodexHooksJson {
     }
 
     $hooksPath = Join-Path $HooksDirectory $script:CodexPathConstant.HooksFileName
-    $payload = New-CodexPreToolUseHooksObject
+    $payload = New-CodexSubagentStopHooksObject
     $json = ($payload | ConvertTo-Json -Depth 8)
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     $null = Write-ToolkitFileIfAbsent -Path $hooksPath -Content $json -Encoding $utf8NoBom
@@ -162,6 +148,7 @@ function Invoke-CodexPublishHooks {
             HooksRelative  = $script:CodexPathConstant.HooksDefaultRelativePath
             HooksTrustNote = $script:CodexPathConstant.HooksTrustComment
             Message        = ($script:CodexPublishMessage.HooksSkippedNotCapable -f $pluginRoot)
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Hook capability is disabled; no hook files were written.'
             ExitCode       = 0
         }
     }
@@ -179,6 +166,7 @@ function Invoke-CodexPublishHooks {
             HooksRelative  = $script:CodexPathConstant.HooksDefaultRelativePath
             HooksTrustNote = $script:CodexPathConstant.HooksTrustComment
             Message        = ($script:CodexPublishMessage.HooksWhatIfOk -f $hooksDirectory)
+            HookActivation = New-HookActivation -State 'manual' -Steps @($script:CodexPathConstant.HooksActivationStep) -Note $script:CodexPathConstant.HooksActivationNote
             ExitCode       = 0
         }
     }
@@ -193,7 +181,7 @@ function Invoke-CodexPublishHooks {
     }
 
     $writtenHooks = Write-CodexHooksJson -HooksDirectory $hooksDirectory
-    $guardPath = Write-CodexGuardPreToolScript -HooksDirectory $hooksDirectory -RepoRoot $repoRoot -InstallRoot $resolvedInstallRoot
+    $traceEmitPath = Write-CodexTraceEmitScripts -HooksDirectory $hooksDirectory -RepoRoot $repoRoot
 
     # Preserve the legacy SessionStart-only script; no ownership marker proves it belongs to this toolkit.
     $legacySession = Join-Path $hooksDirectory $script:CodexPathConstant.HooksSessionStartScriptName
@@ -210,10 +198,11 @@ function Invoke-CodexPublishHooks {
         InstallRoot      = $resolvedInstallRoot
         PluginRoot       = $pluginRoot
         HooksPath        = $writtenHooks
-        GuardScriptPath  = $guardPath
+        TraceEmitScriptPath = $traceEmitPath
         HooksRelative    = $script:CodexPathConstant.HooksDefaultRelativePath
         HooksTrustNote   = $script:CodexPathConstant.HooksTrustComment
         Message          = ($script:CodexPublishMessage.HooksPublishedOk -f $hooksDirectory)
+        HookActivation   = New-HookActivation -State 'manual' -Steps @($script:CodexPathConstant.HooksActivationStep) -Note $script:CodexPathConstant.HooksActivationNote
         ExitCode         = 0
     }
 }

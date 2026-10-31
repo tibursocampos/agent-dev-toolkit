@@ -200,7 +200,7 @@ Fixture: `scripts/validation/fixtures/zcode-install-root/`. Smoke: `Invoke-Adapt
 | `skills/<kebab-id>/SKILL.md` | Skills |
 | `instructions/*.instructions.md` | Política |
 | `copilot-instructions.md` | Instruções sempre ligadas com o roteador embutido; o Copilot não tem superfície de roteador dedicada (`router=false`) |
-| `hooks/*` | Hooks `version:1` `preToolUse`; sem decisão de autorização do Toolkit |
+| `hooks/*` | Nenhum hook ativo registrado (`HookActivation` `unavailable`); sem decisão de autorização do Toolkit |
 | `agents/nome.agent.md` | Um arquivo de agente do catálogo no modo repo. O modo user não publica agentes |
 
 Layouts JetBrains e Eclipse ficam fora de escopo. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter copilot`.
@@ -227,11 +227,11 @@ O InstallRoot é o home do Hermes. Windows: `%LOCALAPPDATA%\hermes`. POSIX: `~/.
 |------------------|--------|
 | `skills/<id>/SKILL.md` | Skills |
 | `AGENTS.md` | Roteador mais política dobrada. Sem árvore `rules/` |
-| `plugins/agent-dev-toolkit-guard` e `agent-hooks/` | Assets de hook de compatibilidade; a autorização continua com o Hermes |
+| `plugins/agent-dev-toolkit-guard` | Plugin de compatibilidade; não registra hook; a autorização continua com o Hermes |
 | `memories/MEMORY.md` | Semeado uma vez se faltar |
 | `SOUL.md` | Nunca criado nem sobrescrito |
 
-`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e substitui o item inteiro de `pre_tool_call` do toolkit. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
+`Publish-Agents` é no-op (`agents=false`). O merge de hooks mantém chaves que não são do toolkit e remove entradas antigas de `pre_tool_call` do toolkit. Uma checagem estrutural de `config.yaml` roda antes de qualquer mudança. Subagentes: `delegate_task` do host. Fixture: `scripts/validation/fixtures/hermes`. Smoke: `Invoke-AdapterCiSmoke.ps1 -Adapter hermes`.
 
 ## OpenHands
 

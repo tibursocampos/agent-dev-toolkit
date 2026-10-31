@@ -99,29 +99,29 @@ Skills sync to `~/.config/opencode/skills`. Invoke via the **`skill` tool** (not
 skill({ name: "help-skills" })
 ```
 
-JS behavior extensions live under `plugins/` (not PS1 hooks) — `tool.execute.before` path/secrets throw. `Publish-Agents` → `InstallRoot/agents/`. Module: [adapters/opencode/README.md](../../adapters/opencode/README.md).
+JS behavior extensions live under `plugins/` (not PS1 hooks). The marker plugin installs no interception hook. `Publish-Agents` → `InstallRoot/agents/`. Module: [adapters/opencode/README.md](../../adapters/opencode/README.md).
 
 ## Grok
 
-Expected live skills path: **`~/.grok/skills`**. Invoke with `/id` (e.g. `/help-skills`). Native `.grok` layout; PreToolUse path/secrets; `Publish-Agents` → `InstallRoot/agents/`. Hooks trust via `/hooks-trust` if needed (trust UI, not skill invoke).
+Expected live skills path: **`~/.grok/skills`**. Invoke with `/id` (e.g. `/help-skills`). Native `.grok` layout; PreToolUse guard shim; `Publish-Agents` → `InstallRoot/agents/`. Hooks trust via `/hooks-trust` if needed (trust UI, not skill invoke).
 
 Module: [adapters/grok/README.md](../../adapters/grok/README.md).
 
 ## ZCode
 
-Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). ADE filesystem — not GLM Coding Plan. PreToolUse path/secrets. After sync, refresh skills in Settings → Skills if the product requires it.
+Skills sync to `~/.zcode/skills`. Invoke with **`$id`** (e.g. `$help-skills`). ADE filesystem — not GLM Coding Plan. PreToolUse guard shim. After sync, refresh skills in Settings → Skills if the product requires it.
 
 Module: [adapters/zcode/README.md](../../adapters/zcode/README.md).
 
 ## Hermes
 
-Skills sync to **`~/.hermes/skills`** (directly under that home — not `~/.hermes/.hermes/skills`). Invoke with `/id` (e.g. `/help-skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). `memories/MEMORY.md` is seeded only if missing; `SOUL.md` is never written. Hooks **are** published: plugin `agent-dev-toolkit-guard` + shell `agent-hooks` path/secrets (keyed `config.yaml` only `plugins.enabled` / `hooks.pre_tool_call` — never SOUL/tokens/gateway). `Publish-Agents` is a no-op (`agents=false`). Subagents: host **`delegate_task`**.
+Skills sync to **`~/.hermes/skills`** (directly under that home — not `~/.hermes/.hermes/skills`). Invoke with `/id` (e.g. `/help-skills`). Policy is folded into `AGENTS.md` (no `rules/` tree). `memories/MEMORY.md` is seeded only if missing; `SOUL.md` is never written. Hooks: the plugin `agent-dev-toolkit-guard` registers no hook (`HookActivation` `unavailable`); keyed `config.yaml` only `plugins.enabled` — never SOUL/tokens/gateway. An unsupported `config.yaml` format blocks the hook step and leaves the file unchanged. `Publish-Agents` is a no-op (`agents=false`). Subagents: host **`delegate_task`**.
 
 Module: [adapters/hermes/README.md](../../adapters/hermes/README.md).
 
 ## OpenHands
 
-**Project** sync writes Agent Skills to `<InstallRoot>/.agents/skills/` (not legacy microagents). **User** skills home: `~/.agents/skills` with `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome`. Invoke via product Agent Skills discovery (mention the skill id). Router + folded policy: `AGENTS.md`. Hooks: `.openhands/hooks.json` + `.openhands/hooks/*.sh` including `guard_pre_tool.sh` for `pre_tool_use` path/secrets (fail-closed; shell, not `.ps1`). Plugin metadata: `.plugin/plugin.json` (skills still work without the plugin). Roster markdown under `.agents/agents/` is not native spawn (`subagents=none` — SPAWN fallback in-parent).
+**Project** sync writes Agent Skills to `<InstallRoot>/.agents/skills/` (not legacy microagents). **User** skills home: `~/.agents/skills` with `-InstallRoot "$env:USERPROFILE\.agents" -AllowUserHome`. Invoke via product Agent Skills discovery (mention the skill id). Router + folded policy: `AGENTS.md`. Hooks: `.openhands/hooks.json` + `.openhands/hooks/*.sh` including `guard_pre_tool.sh` for `pre_tool_use` guard shim (fail-closed; shell, not `.ps1`). Plugin metadata: `.plugin/plugin.json` (skills still work without the plugin). Roster markdown under `.agents/agents/` is not native spawn (`subagents=none` — SPAWN fallback in-parent).
 
 Module: [adapters/openhands/README.md](../../adapters/openhands/README.md).
 

@@ -55,7 +55,7 @@ For O3 / Classic develop, skills **MUST** invoke the canonical scripts with `-Fi
 1. `scripts/session/Invoke-DevelopSessionGate.ps1`
 2. `scripts/ledger/Invoke-PlanLedgerClaim.ps1`
 
-Sessions root: `<active InstallRoot>/sdd/sessions` for published runtime helpers; an explicit `-SddRoot` or `-SessionsRoot` can select another root for deliberate callers and isolated tests. The helpers do not infer a root from the user profile. **RNF-004:** do not auto-approve all Shell; do not mutate hooks policy silently; path/secrets guards stay intact. Cursor detail: [adapters/cursor/README.md](../../adapters/cursor/README.md) § Shell allowlist.
+Sessions root: `<active InstallRoot>/sdd/sessions` for published runtime helpers; an explicit `-SddRoot` or `-SessionsRoot` can select another root for deliberate callers and isolated tests. The helpers do not infer a root from the user profile. **RNF-004:** do not auto-approve all Shell; do not mutate hooks policy silently; no toolkit hook is changed by the allowlist. Cursor detail: [adapters/cursor/README.md](../../adapters/cursor/README.md) § Shell allowlist.
 
 ## Operator workflow (inventory → preflight → develop → harvest)
 

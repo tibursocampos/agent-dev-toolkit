@@ -11,8 +11,9 @@ $script:ToolkitCopyHelperRepoRoot = Split-Path -Parent (Split-Path -Parent $PSSc
   1) Copy adapters/hermes/assets/plugins/agent-dev-toolkit-guard -> InstallRoot/plugins/
   2) Best-effort `hermes plugins enable agent-dev-toolkit-guard`; fallback keyed merge
      ONLY plugins.enabled in config.yaml (never gateway/tokens/SOUL.md/memories).
-  3) Copy adapters/hermes/assets/agent-hooks for upgrade cleanup compatibility.
+  3) Ship no agent-hooks; legacy agent-hooks guard files are removed by uninstall only.
   4) Remove only legacy Toolkit hooks.pre_tool_call entries; do not register a guard.
+  The config.yaml structure is checked before any write; unsupported layouts fail closed.
 #>
 
 $script:HermesHooksHelperDirectory = $PSScriptRoot
@@ -39,14 +40,6 @@ function Get-HermesPluginAssetsRoot {
     return (Join-Path (
             Join-Path $script:HermesHooksHelperDirectory $script:HermesAdapterConstant.AssetsDirectoryName
         ) $script:HermesAdapterConstant.PluginsDirectoryName)
-}
-
-function Get-HermesAgentHooksAssetsRoot {
-    [CmdletBinding()]
-    param()
-    return (Join-Path (
-            Join-Path $script:HermesHooksHelperDirectory $script:HermesAdapterConstant.AssetsDirectoryName
-        ) $script:HermesAdapterConstant.AgentHooksDirectoryName)
 }
 
 function Copy-HermesDirectoryTree {
@@ -94,40 +87,6 @@ function Copy-HermesDirectoryTree {
     return $filesCopied
 }
 
-function Get-HermesShellHookCommand {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)][string] $AgentHooksRoot
-    )
-
-    $onWindowsHost = $false
-    if ($PSVersionTable.PSVersion.Major -ge 6) {
-        $onWindowsHost = [bool]$IsWindows
-    }
-    else {
-        $onWindowsHost = ($env:OS -match 'Windows')
-    }
-
-    $hooksDir = $script:HermesAdapterConstant.AgentHooksDirectoryName
-    $hooksLeaf = Split-Path -Leaf $AgentHooksRoot
-    if ($hooksLeaf -ne $hooksDir) {
-        throw ('Agent hooks root must be the {0} directory.' -f $hooksDir)
-    }
-
-    $scriptName = $script:HermesAdapterConstant.AgentHooksGuardShFileName
-    if ($onWindowsHost) {
-        $scriptName = $script:HermesAdapterConstant.AgentHooksGuardPs1FileName
-    }
-
-    $scriptPath = Join-Path $AgentHooksRoot $scriptName
-    $fullPath = [System.IO.Path]::GetFullPath($scriptPath).Replace('\', '/')
-    if ($onWindowsHost) {
-        return ('pwsh -NoProfile -File "{0}"' -f $fullPath)
-    }
-
-    return $fullPath
-}
-
 function ConvertTo-HermesYamlSingleQuotedScalar {
     param(
         [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
@@ -148,7 +107,7 @@ function Test-HermesPluginsEnabledContains {
     }
 
     $escaped = [regex]::Escape($PluginName)
-    return [bool]($YamlText -match ("(?m)^\s*-\s*{0}\s*$" -f $escaped))
+    return [bool]($YamlText -match ("(?m)^[ \t]*-[ \t]*{0}[ \t]*(#[^\r\n]*)?(?=\r?$)" -f $escaped))
 }
 
 function Merge-HermesPluginsEnabledList {
@@ -166,7 +125,7 @@ function Merge-HermesPluginsEnabledList {
         return [PSCustomObject]@{ Text = $YamlText; Changed = $false }
     }
 
-    $text = $YamlText
+    $text = [regex]::Replace($YamlText, '(?m)^plugins:[ \t]*\{[ \t]*\}(?<comment>[ \t]*#[^\r\n]*)?(?=[ \t]*\r?$)', 'plugins:${comment}')
     if ([string]::IsNullOrWhiteSpace($text)) {
         $text = @"
 plugins:
@@ -176,11 +135,11 @@ plugins:
         return [PSCustomObject]@{ Text = $text.TrimEnd() + "`n"; Changed = $true }
     }
 
-    if ($text -match '(?m)^plugins:\s*$') {
-        if ($text -match '(?m)^  enabled:\s*$') {
+    if ($text -match '(?m)^plugins:[ \t]*(#[^\r\n]*)?(?=\r?$)') {
+        if ($text -match '(?m)^  enabled:[ \t]*(#[^\r\n]*)?(?=\r?$)') {
             $text = [regex]::Replace(
                 $text,
-                '(?m)^(  enabled:\s*\r?\n)',
+                '(?m)^(  enabled:[ \t]*(?:#[^\r\n]*)?\r?\n)',
                 ('$1    - {0}{1}' -f $PluginName, [Environment]::NewLine),
                 1
             )
@@ -188,7 +147,7 @@ plugins:
         else {
             $text = [regex]::Replace(
                 $text,
-                '(?m)^(plugins:\s*\r?\n)',
+                '(?m)^(plugins:[ \t]*(?:#[^\r\n]*)?\r?\n)',
                 ('$1  enabled:{0}    - {1}{0}' -f [Environment]::NewLine, $PluginName),
                 1
             )
@@ -222,62 +181,87 @@ function Remove-HermesToolkitPreToolCallEntries {
     return [regex]::Replace($YamlText, $pattern, '')
 }
 
-function Merge-HermesPreToolCallHook {
+function Test-HermesConfigYamlStructure {
+    <#
+    .SYNOPSIS
+      Structural pre-check of config.yaml before any Hermes write. Not a YAML parser.
+      Accepts only the layouts the plugins.enabled merge can edit; anything else fails closed.
+    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $YamlText,
-        [Parameter(Mandatory = $true)][string] $HookCommand
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $YamlText
     )
 
-    $matcher = $script:HermesAdapterConstant.HooksPreToolCallMatcher
-    $timeout = [int]$script:HermesAdapterConstant.HooksPreToolCallTimeoutSeconds
-    $quotedCommand = ConvertTo-HermesYamlSingleQuotedScalar -Value $HookCommand
-    $entry = @"
-  pre_tool_call:
-    - matcher: "$matcher"
-      command: $quotedCommand
-      timeout: $timeout
-      fail_closed: true
-"@
-
-    $text = Remove-HermesToolkitPreToolCallEntries -YamlText $YamlText
-    if ([string]::IsNullOrWhiteSpace($text)) {
-        $text = "hooks:`n" + $entry.TrimStart()
-        return [PSCustomObject]@{ Text = $text.TrimEnd() + "`n"; Changed = $true }
+    $valid = [PSCustomObject]@{ Valid = $true; Reason = '' }
+    if ([string]::IsNullOrWhiteSpace($YamlText)) {
+        return $valid
     }
 
-    if ($text -match '(?m)^hooks:\s*$') {
-        # Drop empty pre_tool_call: section remnants then append toolkit entry under hooks.
-        if ($text -match '(?m)^  pre_tool_call:\s*$') {
-            $text = [regex]::Replace(
-                $text,
-                '(?m)^  pre_tool_call:\s*\r?\n',
-                ('  pre_tool_call:{0}    - matcher: "{1}"{0}      command: {2}{0}      timeout: {3}{0}      fail_closed: true{0}' -f [Environment]::NewLine, $matcher, $quotedCommand, $timeout),
-                1
-            )
+    $lines = @($YamlText -split '\r?\n')
+    $pluginsIndexes = New-Object System.Collections.Generic.List[int]
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        $line = $lines[$index]
+        $lineNumber = $index + 1
+        if ($line -match '^\t') {
+            return [PSCustomObject]@{ Valid = $false; Reason = ('tab indentation at line {0}' -f $lineNumber) }
         }
-        else {
-            $text = [regex]::Replace(
-                $text,
-                '(?m)^(hooks:\s*\r?\n)',
-                ('$1{0}' -f ($entry.TrimStart() + [Environment]::NewLine)),
-                1
-            )
+        if ($line -match '^\s*(#.*)?$' -or $line -match '^(---|\.\.\.)\s*$') {
+            continue
+        }
+        if ($line -match '^\S') {
+            if ($line -notmatch '^[A-Za-z_][A-Za-z0-9_.-]*[ \t]*:([ \t]|$)') {
+                return [PSCustomObject]@{ Valid = $false; Reason = ('unexpected top-level line {0}' -f $lineNumber) }
+            }
+            if ($line -match '^plugins[ \t]*:') {
+                [void]$pluginsIndexes.Add($index)
+            }
         }
     }
-    else {
-        $text = $text.TrimEnd() + "`n`nhooks:`n" + $entry.TrimStart()
+
+    if ($pluginsIndexes.Count -eq 0) {
+        return $valid
+    }
+    if ($pluginsIndexes.Count -gt 1) {
+        return [PSCustomObject]@{ Valid = $false; Reason = ('duplicate top-level key plugins at line {0}' -f ($pluginsIndexes[1] + 1)) }
     }
 
-    return [PSCustomObject]@{ Text = $text.TrimEnd() + "`n"; Changed = $true }
+    $start = $pluginsIndexes[0]
+    if ($lines[$start] -notmatch '^plugins[ \t]*:[ \t]*(\{[ \t]*\})?[ \t]*(#.*)?$') {
+        return [PSCustomObject]@{ Valid = $false; Reason = ('plugins has an inline value other than {{}} at line {0}' -f ($start + 1)) }
+    }
+
+    $enabledCount = 0
+    for ($index = $start + 1; $index -lt $lines.Count; $index++) {
+        $line = $lines[$index]
+        if ($line -match '^\s*(#.*)?$') {
+            continue
+        }
+        if ($line -match '^\S') {
+            break
+        }
+        if ($line -match '^  enabled[ \t]*:[ \t]*(#.*)?$') {
+            $enabledCount++
+            if ($enabledCount -gt 1) {
+                return [PSCustomObject]@{ Valid = $false; Reason = ('duplicate plugins.enabled at line {0}' -f ($index + 1)) }
+            }
+            continue
+        }
+        if ($enabledCount -gt 0 -and $line -match '^    -[ \t]+\S') {
+            continue
+        }
+        return [PSCustomObject]@{ Valid = $false; Reason = ('unsupported plugins layout at line {0} (expected a 2-space enabled key with 4-space list items)' -f ($index + 1)) }
+    }
+
+    return $valid
 }
 
 function Save-HermesConfigYamlKeyedMerge {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][string] $ConfigPath,
-        [Parameter(Mandatory = $true)][string] $PluginName,
-        [Parameter(Mandatory = $true)][string] $HookCommand
+        [Parameter(Mandatory = $true)][string] $PluginName
     )
 
     $existing = ''
@@ -361,7 +345,7 @@ function Invoke-HermesPublishHooks {
 
     if (-not (Test-HermesHooksCapable)) {
         $message = if ($WhatIf.IsPresent) {
-            ($script:HermesAdapterMessage.HooksWhatIfOk -f $mapped.FixtureAgentHooksPath)
+            ($script:HermesAdapterMessage.HooksWhatIfOk -f $mapped.FixturePluginsPath)
         }
         else {
             ($script:HermesAdapterMessage.HooksNoOp -f $resolvedInstallRoot)
@@ -375,28 +359,44 @@ function Invoke-HermesPublishHooks {
             CommandName = 'Publish-Hooks'
             WhatIf      = [bool]$WhatIf.IsPresent
             InstallRoot = $resolvedInstallRoot
-            HooksRoot   = $mapped.FixtureAgentHooksPath
             PluginsRoot = $mapped.FixturePluginsPath
             Message     = $message
+            HookActivation = New-HookActivation -State 'unavailable' -Note $script:HermesAdapterMessage.HooksUnavailableNote
             ExitCode    = 0
         }
     }
 
     $pluginName = $script:HermesAdapterConstant.GuardPluginDirectoryName
     $sourcePluginsRoot = Join-Path (Get-HermesPluginAssetsRoot) $pluginName
-    $sourceAgentHooksRoot = Get-HermesAgentHooksAssetsRoot
     $destPluginRoot = Join-Path $mapped.FixturePluginsPath $pluginName
-    $destAgentHooksRoot = $mapped.FixtureAgentHooksPath
     $configPath = $mapped.FixtureConfigYamlPath
 
     if (-not (Test-Path -LiteralPath $sourcePluginsRoot)) {
         throw ($script:HermesAdapterMessage.HooksAssetsMissing -f $sourcePluginsRoot)
     }
-    if (-not (Test-Path -LiteralPath $sourceAgentHooksRoot)) {
-        throw ($script:HermesAdapterMessage.HooksAssetsMissing -f $sourceAgentHooksRoot)
-    }
 
-    $hookCommandPreview = Get-HermesShellHookCommand -AgentHooksRoot $destAgentHooksRoot
+    $configCheckText = ''
+    if (Test-Path -LiteralPath $configPath -PathType Leaf) {
+        $configCheckText = [System.IO.File]::ReadAllText($configPath)
+    }
+    $configCheck = Test-HermesConfigYamlStructure -YamlText $configCheckText
+    if (-not $configCheck.Valid) {
+        return [PSCustomObject]@{
+            Success        = $false
+            Implemented    = $true
+            Skipped        = $false
+            NoOp           = $false
+            CommandName    = 'Publish-Hooks'
+            WhatIf         = [bool]$WhatIf.IsPresent
+            InstallRoot    = $resolvedInstallRoot
+            PluginsRoot    = $mapped.FixturePluginsPath
+            ConfigYamlPath = $configPath
+            FilesCopied    = 0
+            Message        = ($script:HermesAdapterMessage.HooksConfigBlocked -f $configPath, $configCheck.Reason)
+            HookActivation = New-HookActivation -State 'blocked' -Steps @($script:HermesAdapterMessage.HooksConfigBlockedStep) -Note $script:HermesAdapterMessage.HooksConfigBlockedNote
+            ExitCode       = 1
+        }
+    }
 
     if ($WhatIf.IsPresent) {
         return [PSCustomObject]@{
@@ -408,11 +408,10 @@ function Invoke-HermesPublishHooks {
             WhatIf           = $true
             InstallRoot      = $resolvedInstallRoot
             PluginsRoot      = $destPluginRoot
-            HooksRoot        = $destAgentHooksRoot
             ConfigYamlPath   = $configPath
-            HookCommand      = $hookCommandPreview
             PluginName       = $pluginName
-            Message          = ($script:HermesAdapterMessage.HooksWhatIfPublish -f $destPluginRoot, $destAgentHooksRoot)
+            Message          = ($script:HermesAdapterMessage.HooksWhatIfPublish -f $destPluginRoot)
+            HookActivation   = New-HookActivation -State 'unavailable' -Note $script:HermesAdapterMessage.HooksUnavailableNote
             ExitCode         = 0
         }
     }
@@ -420,27 +419,12 @@ function Invoke-HermesPublishHooks {
     $resolvedInstallRoot = Initialize-InstallRootForWrite -InstallRoot $resolvedInstallRoot -AllowUserHome:$AllowUserHome -RepoRoot $repoRoot
     $mapped = Get-HermesMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
     $destPluginRoot = Join-Path $mapped.FixturePluginsPath $pluginName
-    $destAgentHooksRoot = $mapped.FixtureAgentHooksPath
     $configPath = $mapped.FixtureConfigYamlPath
 
-    $filesCopied = 0
-    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourcePluginsRoot -DestinationRoot $destPluginRoot -InstallRoot $resolvedInstallRoot
-    $filesCopied += Copy-HermesDirectoryTree -SourceRoot $sourceAgentHooksRoot -DestinationRoot $destAgentHooksRoot -InstallRoot $resolvedInstallRoot
-
-    $sharedSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedGuardCommonRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    if (-not (Test-Path -LiteralPath $sharedSource -PathType Leaf)) {
-        throw "GuardCommon source is missing: $sharedSource"
-    }
-    $sharedDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedGuardCommonFileName
-    $null = Copy-ToolkitFileIfAbsent -SourcePath $sharedSource -DestinationPath $sharedDest
-    $contractSource = Join-Path $repoRoot ($script:HermesAdapterConstant.SharedAuthorizationContractRelativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-    $contractDest = Join-Path $destAgentHooksRoot $script:HermesAdapterConstant.SharedAuthorizationContractFileName
-    $null = Copy-ToolkitAuthorizationContract -SourcePath $contractSource -DestinationPath $contractDest -InstallRoot $resolvedInstallRoot
-    $filesCopied += 2
+    $filesCopied = Copy-HermesDirectoryTree -SourceRoot $sourcePluginsRoot -DestinationRoot $destPluginRoot -InstallRoot $resolvedInstallRoot
 
     $enableResult = Invoke-HermesPluginsEnableBestEffort -PluginName $pluginName
-    $hookCommand = Get-HermesShellHookCommand -AgentHooksRoot $destAgentHooksRoot
-    $yamlMerge = Save-HermesConfigYamlKeyedMerge -ConfigPath $configPath -PluginName $pluginName -HookCommand $hookCommand
+    $yamlMerge = Save-HermesConfigYamlKeyedMerge -ConfigPath $configPath -PluginName $pluginName
 
     return [PSCustomObject]@{
         Success              = $true
@@ -451,9 +435,7 @@ function Invoke-HermesPublishHooks {
         WhatIf               = $false
         InstallRoot          = $resolvedInstallRoot
         PluginsRoot          = $destPluginRoot
-        HooksRoot            = $destAgentHooksRoot
         ConfigYamlPath       = $configPath
-        HookCommand          = $hookCommand
         PluginName           = $pluginName
         FilesCopied          = $filesCopied
         PluginsEnableStatus  = $enableResult.Status
@@ -461,7 +443,8 @@ function Invoke-HermesPublishHooks {
         ConfigYamlMerged     = $true
         PluginsListChanged   = $yamlMerge.PluginsChanged
         HooksListChanged     = $yamlMerge.HooksChanged
-        Message              = ($script:HermesAdapterMessage.HooksPublishedOk -f $filesCopied, $destPluginRoot, $destAgentHooksRoot)
+        Message              = ($script:HermesAdapterMessage.HooksPublishedOk -f $filesCopied, $destPluginRoot)
+        HookActivation       = New-HookActivation -State 'unavailable' -Note $script:HermesAdapterMessage.HooksUnavailableNote
         ExitCode             = 0
     }
 }

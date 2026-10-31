@@ -28,6 +28,7 @@ $script:CursorAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $script
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorPolicy.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorRouter.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorAgents.ps1')
+. (Join-Path (Join-Path (Join-Path $script:CursorAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Publish-CursorHooks.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Invoke-CursorSmokeValidate.ps1')
 . (Join-Path $script:CursorAdapterDirectory 'Uninstall-CursorToolkit.ps1')

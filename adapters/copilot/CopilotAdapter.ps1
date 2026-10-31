@@ -28,6 +28,7 @@ $script:CopilotAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $scrip
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotSkills.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotPolicy.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotAgents.ps1')
+. (Join-Path (Join-Path (Join-Path $script:CopilotAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Publish-CopilotHooks.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Invoke-CopilotSmokeValidate.ps1')
 . (Join-Path $script:CopilotAdapterDirectory 'Uninstall-CopilotToolkit.ps1')

@@ -79,6 +79,8 @@ Batch related, bounded work before dispatch. Each dispatched task is one child a
 
 `Publish-Hooks` merges `hooks.json` with **Claude-style keyed upsert**: toolkit-owned commands (identity = `hooks/<managed-script>.ps1`) are replaced and prepended; alien commands and alien event keys are preserved. Re-sync does not keep stale toolkit entries solely because the exact `command` string already exists.
 
+`HookActivation` is `automatic`: the registered hooks are informative (TRACE, prompt context, PLAN checkpoint). Cursor's own hook trust steps, if any, come from Cursor's documentation and are not verified here.
+
 ## Uninstall (keyed)
 
 Removes only toolkit-managed paths (core skill ids, core policy â†’ `rules/*.mdc`, toolkit hook scripts, `AGENTS.md`, roster `agents/*.md`) and reverse-merges `hooks.json` (drop toolkit-managed handlers by strict `-File` command identity; keep aliens and alien top-level keys). Publish merge may match broader `hooks/<script>` paths; uninstall matching is strict `-File`. Preserves alien skills/rules/hooks and **does not** remove `sdd/sessions` or `sdd/manifest.json`. Does **not** wipe InstallRoot wholesale. Supports `-WhatIf`.
@@ -105,7 +107,7 @@ Operator tip for O3 / `sdd-develop` Shell friction. Prefer **allowlisting** the 
 
 - Operator must explicitly allowlist these paths in the host Shell approve UI.
 - **Do not** ship or enable a hooks “auto-approve all Shell” / silent policy mutation.
-- Path/secrets `preToolUse` + `beforeShellExecution` guards (`guard-rules.md` / `GuardCommon.ps1`) stay **unchanged** — allowlisting these scripts does **not** weaken workspace binding, path deny, or secret scan.
+- Cursor publishes no guard: `preToolUse` and `beforeShellExecution` stay empty arrays in `hooks.json`. Allowlisting these scripts does not change any toolkit hook; the host's Shell approval and permission settings remain the only gate.
 
 O3 skill pointer: `core/skills/orchestrate-develop/references/step-queue-spawn.md` § Canonical Shell boundary. CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md).
 

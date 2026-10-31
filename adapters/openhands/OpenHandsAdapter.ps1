@@ -30,6 +30,7 @@ $script:OpenHandsAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $scr
 . (Join-Path $script:OpenHandsAdapterDirectory 'Publish-OpenHandsRouter.ps1')
 . (Join-Path $script:OpenHandsAdapterDirectory 'Publish-OpenHandsPolicy.ps1')
 . (Join-Path $script:OpenHandsAdapterDirectory 'Publish-OpenHandsAgents.ps1')
+. (Join-Path (Join-Path (Join-Path $script:OpenHandsAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:OpenHandsAdapterDirectory 'Publish-OpenHandsHooks.ps1')
 . (Join-Path $script:OpenHandsAdapterDirectory 'Invoke-OpenHandsSmokeValidate.ps1')
 . (Join-Path $script:OpenHandsAdapterDirectory 'Uninstall-OpenHandsToolkit.ps1')

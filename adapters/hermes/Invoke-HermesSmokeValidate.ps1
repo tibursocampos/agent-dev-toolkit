@@ -121,13 +121,6 @@ function Test-HermesRequiredPluginHooksPresent {
         }
     }
 
-    foreach ($name in @($script:HermesAdapterConstant.SmokeExpectedAgentHookFileNames)) {
-        $candidate = Join-Path $MappedPaths.FixtureAgentHooksPath $name
-        if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
-            $missing.Add(('agent-hooks/{0}' -f $name))
-        }
-    }
-
     $configOk = $false
     if (Test-Path -LiteralPath $MappedPaths.FixtureConfigYamlPath -PathType Leaf) {
         $yaml = [System.IO.File]::ReadAllText($MappedPaths.FixtureConfigYamlPath)

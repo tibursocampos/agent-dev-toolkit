@@ -205,6 +205,7 @@ function Invoke-GrokPublishHooks {
             HooksRelative  = $script:GrokAdapterConstant.OfficialHooksRelativePath
             HooksTrustNote = $hooksTrustNote
             Message        = ($script:GrokAdapterMessage.HooksSkippedNotCapable -f $hooksDirectory)
+            HookActivation = New-HookActivation -State 'unavailable' -Note 'Hook capability is disabled; no hook files were written.'
             ExitCode       = 0
         }
     }
@@ -222,6 +223,7 @@ function Invoke-GrokPublishHooks {
             HooksRelative  = $script:GrokAdapterConstant.OfficialHooksRelativePath
             HooksTrustNote = $hooksTrustNote
             Message        = ($script:GrokAdapterMessage.HooksWhatIfOk -f $hooksDirectory)
+            HookActivation = New-HookActivation -State 'manual' -Steps @('Run /hooks-trust in Grok, or start it with --trust, to approve the published hooks.') -Note 'Grok runs the native hooks only after they are trusted.'
             ExitCode       = 0
         }
     }
@@ -248,6 +250,7 @@ function Invoke-GrokPublishHooks {
         HooksRelative    = $script:GrokAdapterConstant.OfficialHooksRelativePath
         HooksTrustNote   = $hooksTrustNote
         Message          = ($script:GrokAdapterMessage.HooksPublishedOk -f $hooksDirectory)
+        HookActivation = New-HookActivation -State 'manual' -Steps @('Run /hooks-trust in Grok, or start it with --trust, to approve the published hooks.') -Note 'Grok runs the native hooks only after they are trusted.'
         ExitCode         = 0
     }
 }

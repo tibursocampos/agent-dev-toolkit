@@ -138,6 +138,128 @@ function Write-SyncPublishOk {
     }
 }
 
+function Invoke-SyncHooksPublish {
+    param(
+        [Parameter(Mandatory = $true)]
+        $Command,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $PublishArgs
+    )
+
+    try {
+        $result = & $Command @PublishArgs
+    }
+    catch {
+        return [PSCustomObject]@{
+            Result  = $null
+            Failed  = $true
+            Message = $_.Exception.Message
+        }
+    }
+
+    if ($null -eq $result) {
+        return [PSCustomObject]@{
+            Result  = $null
+            Failed  = $true
+            Message = $script:ToolkitMessage.SyncHookPublishNoResult
+        }
+    }
+
+    $names = @($result.PSObject.Properties.Name)
+    $failed = (($names -contains 'Success') -and $result.Success -eq $false) -or (($names -contains 'Implemented') -and $result.Implemented -eq $false)
+    $message = $script:ToolkitMessage.SyncHookPublishFailedDefault
+    if ($names -contains 'Message') {
+        $message = [string]$result.Message
+    }
+
+    return [PSCustomObject]@{
+        Result  = $result
+        Failed  = [bool]$failed
+        Message = $message
+    }
+}
+
+function Get-SyncHookFixMessage {
+    param($Activation)
+
+    if ($null -ne $Activation -and $Activation.PSObject.Properties.Name -contains 'Steps' -and @($Activation.Steps).Count -gt 0) {
+        return $script:ToolkitMessage.SyncHookFixSeeSteps
+    }
+    return $script:ToolkitMessage.SyncHookFixGeneric
+}
+
+function Get-SyncHookActivation {
+    param($Result)
+
+    if ($null -eq $Result -or $Result.PSObject.Properties.Name -notcontains 'HookActivation') {
+        return $null
+    }
+    return $Result.HookActivation
+}
+
+function Write-SyncHookSummary {
+    param(
+        [Parameter(Mandatory = $true)]
+        [bool] $IsWhatIf
+    )
+
+    $modeLabel = $script:ToolkitMessage.SyncModePublished
+    if ($IsWhatIf) {
+        $modeLabel = $script:ToolkitMessage.SyncModeSimulation
+    }
+
+    $activation = $script:SyncHookActivation
+    if ($null -ne $activation) {
+        Write-Host ($script:ToolkitMessage.SyncHookActivationLine -f $modeLabel, [string]$activation.State) -ForegroundColor Cyan
+        if (-not [string]::IsNullOrWhiteSpace([string]$activation.Note)) {
+            Write-Host ('  {0}' -f ([string]$activation.Note).Trim()) -ForegroundColor DarkGray
+        }
+        foreach ($step in @($activation.Steps)) {
+            Write-Host ($script:ToolkitMessage.SyncHookStepLine -f [string]$step) -ForegroundColor DarkGray
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$activation.DocsUrl)) {
+            Write-Host ($script:ToolkitMessage.SyncHookDocsLine -f [string]$activation.DocsUrl) -ForegroundColor DarkGray
+        }
+    }
+
+    $failures = $script:SyncHookFailures.ToArray()
+    if ($failures.Count -gt 0) {
+        Write-SyncError -Message ($script:ToolkitMessage.SyncHookFailuresHeader -f $failures.Count)
+        foreach ($failure in $failures) {
+            Write-SyncError -Message ($script:ToolkitMessage.SyncHookFailureLine -f [string]$failure.Message)
+            Write-Host ($script:ToolkitMessage.SyncHookFailureFixLine -f [string]$failure.Fix) -ForegroundColor Yellow
+        }
+    }
+}
+
+function Complete-SyncRun {
+    param(
+        [Parameter()]
+        [string] $AgentId,
+
+        [Parameter(Mandatory = $true)]
+        [bool] $IsWhatIf,
+
+        [Parameter(Mandatory = $true)]
+        [int] $ExitCode
+    )
+
+    $summaryPath = [Environment]::GetEnvironmentVariable($script:ToolkitConstant.SyncSummaryEnvironmentName)
+    if (-not [string]::IsNullOrWhiteSpace($summaryPath)) {
+        $summary = [PSCustomObject]@{
+            Agent          = $AgentId
+            WhatIf         = $IsWhatIf
+            ExitCode       = $ExitCode
+            HookActivation = $script:SyncHookActivation
+            HookFailures   = $script:SyncHookFailures.ToArray()
+        }
+        Set-Content -LiteralPath $summaryPath -Value ($summary | ConvertTo-Json -Depth 6) -Encoding UTF8
+    }
+
+    exit $ExitCode
+}
+
 function Publish-RuntimeScripts {
     param(
         [Parameter(Mandatory = $true)][string] $RepoRoot,
@@ -237,6 +359,9 @@ function Publish-RuntimeScripts {
     }
 }
 
+$script:SyncHookActivation = $null
+$script:SyncHookFailures = New-Object System.Collections.Generic.List[object]
+
 try {
     $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
     Assert-AgentParameterPresent -RepoRoot $repoRoot -AgentId $Agent
@@ -302,6 +427,21 @@ try {
             $publishArgs[$script:ToolkitConstant.UserScopeParameterName] = $true
         }
 
+        if ($commandName -eq $script:ToolkitConstant.HooksPublishCommandName) {
+            $hookPublish = Invoke-SyncHooksPublish -Command $command -PublishArgs $publishArgs
+            $script:SyncHookActivation = Get-SyncHookActivation -Result $hookPublish.Result
+            if ($hookPublish.Failed) {
+                Write-SyncError -Message ($script:ToolkitMessage.SyncHookPublishFailedNonFatal -f $resolved.AgentId, $hookPublish.Message)
+                [void]$script:SyncHookFailures.Add([PSCustomObject]@{
+                    Message = $hookPublish.Message
+                    Fix     = (Get-SyncHookFixMessage -Activation $script:SyncHookActivation)
+                })
+                continue
+            }
+            Write-SyncPublishOk -CommandName $commandName -Result $hookPublish.Result
+            continue
+        }
+
         $result = & $command @publishArgs
         if ($null -eq $result) {
             Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, ("{0} returned no result" -f $commandName))
@@ -341,17 +481,17 @@ try {
     $sddResult = Get-SddRoot @sddArgs
     if ($null -eq $sddResult) {
         Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, 'Get-SddRoot -Prepare returned no result')
-        exit 1
+        Complete-SyncRun -AgentId $resolved.AgentId -IsWhatIf $WhatIf.IsPresent -ExitCode 1
     }
     if ($sddResult.PSObject.Properties.Name -contains 'Implemented' -and $sddResult.Implemented -eq $false) {
         $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
         Write-SyncError -Message ($script:ToolkitMessage.AdapterNotImplemented -f $resolved.AgentId, $detail)
-        exit 1
+        Complete-SyncRun -AgentId $resolved.AgentId -IsWhatIf $WhatIf.IsPresent -ExitCode 1
     }
     if ($sddResult.PSObject.Properties.Name -contains 'Success' -and $sddResult.Success -eq $false) {
         $detail = if ($sddResult.PSObject.Properties.Name -contains 'Message') { [string]$sddResult.Message } else { 'Get-SddRoot' }
         Write-SyncError -Message ($script:ToolkitMessage.SyncPublishFailed -f $resolved.AgentId, $detail)
-        exit 1
+        Complete-SyncRun -AgentId $resolved.AgentId -IsWhatIf $WhatIf.IsPresent -ExitCode 1
     }
 
     Write-SyncPublishOk -CommandName 'Get-SddRoot -Prepare' -Result $sddResult
@@ -360,10 +500,17 @@ try {
         $null = Invoke-ToolkitEnsurePreferences -SddRoot $sddResult.SddRoot
     }
 
+    Write-SyncHookSummary -IsWhatIf $WhatIf.IsPresent
+
+    if ($script:SyncHookFailures.Count -gt 0) {
+        Write-SyncError -Message $script:ToolkitMessage.SyncCompletedWithHookFailures
+        Complete-SyncRun -AgentId $resolved.AgentId -IsWhatIf $WhatIf.IsPresent -ExitCode 0
+    }
+
     Write-Host 'Sync completed.' -ForegroundColor Green
-    exit 0
+    Complete-SyncRun -AgentId $resolved.AgentId -IsWhatIf $WhatIf.IsPresent -ExitCode 0
 }
 catch {
     Write-SyncError -Message $_.Exception.Message
-    exit 1
+    Complete-SyncRun -AgentId $Agent -IsWhatIf $WhatIf.IsPresent -ExitCode 1
 }

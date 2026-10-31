@@ -64,7 +64,9 @@ Every listed agent has a concrete module with publish and an in-repo smoke. The 
 
 ### Authorization boundary
 
-Toolkit hooks do not decide whether a provider may run a tool. ACLs, sandboxing, trust settings, and native confirmations remain owned by the provider and operator. The shared `GuardCommon.ps1` evaluator is compatibility-only and always allows; it does not classify paths/tools, enforce allowlists, or scan for secrets. Cursor and Claude remove stale managed authorization-hook entries during sync. Other published compatibility hooks do not veto tool calls. OpenHands' POSIX wrapper also allows when optional `pwsh` is unavailable. See `adapters/provider-authorization-conformance.md` and `adapters/_shared/guard-rules.md`.
+Toolkit hooks do not decide whether a provider may run a tool. ACLs, sandboxing, trust settings, and native confirmations remain owned by the provider and operator. The shared `GuardCommon.ps1` evaluator is compatibility-only and always allows; it does not classify paths/tools, enforce allowlists, or scan for secrets. Cursor and Claude remove stale managed authorization-hook entries during sync. Four adapters (Grok, OpenHands, ZCode, and Antigravity) keep a `PreToolUse` shim that denies only empty, malformed, or schema-invalid input; its path and secret verdict always allows. Codex and Copilot no longer register a guard, so malformed or identity-less events are no longer denied by a toolkit hook. This is a behavior change recorded in `docs/ENFORCEMENT.md`. OpenHands' POSIX wrapper also allows when optional `pwsh` is unavailable.
+
+Each `Publish-Hooks` result reports a hook activation state (`manual`, `automatic`, `unavailable`, or `blocked`) at the end of sync. A hook failure does not stop sync; the failed hooks are listed at the end. See `adapters/provider-authorization-conformance.md` and `adapters/_shared/guard-rules.md`.
 
 Most adapters declare `subagents: native`. OpenHands declares `none` (SPAWN stays in the parent). Antigravity’s effective capability is fail-closed in `Get-Capabilities`. Probe order in `core/skills/_shared/agents/SPAWN.md`: `ADT_ANTIGRAVITY_SUBAGENTS` override → product version `>= 2.0.0` when known → parseable `agy --version` `>= 1.0.0` as a 2.0 harness proxy (the CLI stays `1.x`; do not require CLI major ≥ 2) → else `none`. Before 2.0, or when the probe cannot tell, the effective value is `none`.
 
@@ -75,7 +77,7 @@ TRACE emitter honesty:
 | Claim | Hosts |
 |-------|--------|
 | Wired fail-open `emit-trace.ps1` | Cursor (`hooks.json` postToolUse / subagentStop). Claude (PostToolUse / SubagentStop) |
-| Asset only, not a live PostToolUse wire | Codex (the compatibility PreToolUse hook does not authorize calls) |
+| Registered `SubagentStop` only, no PostToolUse wire | Codex (`SubagentStop` → `emit-trace.ps1`; no PreToolUse guard) |
 | Not claimed | OpenHands, OpenCode, Hermes, Grok, Copilot, Antigravity, ZCode |
 
 Assert: `Assert-TraceEmitterFailOpen.ps1`. The trail file is `features/NNN-slug/TRACE.jsonl`.
@@ -285,6 +287,8 @@ pwsh -NoProfile -File .\scripts\validate-agent.ps1 -Agent grok -InstallRoot $gro
 | Invoke | `/id` via `delegate_task` for subagents |
 
 `Publish-Policy` folds policy into `AGENTS.md` and appends `adapters/hermes/assets/spawn-bridge.md`. It does not write a `rules/` tree. `GUARDRAILS_PATH` is `InstallRoot/AGENTS.md`. `memories/MEMORY.md` is seeded once if missing. `SOUL.md` is never written. Official user-home skills do not need trust. A project copy may call `hermes skills trust`. A missing `hermes` CLI skips trust and publish still succeeds. Uninstall keeps secrets, `memories/MEMORY.md`, `SOUL.md`, and `sdd/*`.
+
+`Publish-Hooks` registers no hook: the plugin is a compatibility package. It runs a structural check of `config.yaml` before any change. An unsupported or invalid format is reported as `blocked`; the file is left byte-for-byte intact. This is a structural check, not a YAML parser.
 
 Out of scope: gateway tokens, cron, Kanban, voice, and `delegation.*` YAML.
 

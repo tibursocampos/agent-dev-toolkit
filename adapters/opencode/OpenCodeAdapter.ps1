@@ -41,6 +41,7 @@ $script:OpenCodeAdapterLibDir = Join-Path (Join-Path (Join-Path (Join-Path $scri
 . (Join-Path $script:OpenCodeAdapterDirectory 'OpenCodePathConstants.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeSkills.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeRouter.ps1')
+. (Join-Path (Join-Path (Join-Path $script:OpenCodeAdapterDirectory '..') '_contract') 'AdapterContract.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeHooks.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Publish-OpenCodeAgents.ps1')
 . (Join-Path $script:OpenCodeAdapterDirectory 'Invoke-OpenCodeSmokeValidate.ps1')
