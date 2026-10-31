@@ -67,7 +67,7 @@ Product documentation prose follows the **language the user chooses** (pt-BR or 
 
 ### 1. Documentation language (blocker)
 
-Before creating or updating any file under `docs/` in the target repo, ask once, in the user's chat language, which language product `docs/` uses. Offer locale choices (for example `pt-BR` or `en`) as numbered options, and accept a clear answer that names a language. Answer rule: `core/skills/_shared/agents/QUESTIONS.md`.
+Before creating or updating any file under `docs/` in the target repo, ask once, in the user's chat language, which language product `docs/` uses. Offer locale choices (ids `pt-br` or `en`, labels in the chat language) as numbered options, and accept a clear answer that names a language. Answer rule: `core/skills/_shared/agents/QUESTIONS.md`.
 
 Record the choice in the session and in `docs/documentation-plan/plan.md` header (see template).
 

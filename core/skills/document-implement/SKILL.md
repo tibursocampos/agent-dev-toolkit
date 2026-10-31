@@ -55,7 +55,7 @@ Read `references/<section>.md` for execution detail — **not** full `reference.
 1. Confirm **target repository**.
 2. Resolve **doc plan path** = absolute `$Cwd/docs/documentation-plan/plan.md` (or user-given alternate). If absent -> stop and suggest `/document-plan`.
 3. Load/create **develop session** keyed by that full plan path per `SESSION.md` (`plan-{plan-hash}.json`). Gates `step_confirmed` / `tests_run` live **only** there - never use flat `{repo-hash}.json` for them.
-4. Read the plan. Read **Doc language** from plan header. If missing, ask: **pt-BR** or **English** before writing `docs/` (`references/doc-language.md`).
+4. Read the plan. Read **Doc language** from plan header. If missing, ask the doc-language question (ids `pt-br` / `en`) before writing `docs/` (`references/doc-language.md`).
 5. Re-detect stack briefly (Glob per `document-plan/references/stack-detection.md`) if plan is stale.
 
 **Not Classic SDD / Orchestrated Delivery:** only the documentation plan applies here - not `features/**/PLAN/`. For feature delivery PRD/PLAN, use `sdd-spec` / `sdd-plan` / `sdd-develop` and `STORAGE.md`. Prerequisite rules: `references/prerequisite.md`.

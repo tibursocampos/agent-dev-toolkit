@@ -127,7 +127,7 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 
 **Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper treats open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`. It does not change the table above.
 
-Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. **sim** does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
+Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. A `confirm` answer does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
 
 ### Work tracks and internal contracts
 
@@ -193,7 +193,7 @@ Contract: [`CONTRACT-PROVENANCE.md`](../../core/skills/_shared/sdd-artifacts/CON
 | `agreed` | Operator-confirmed, cited Prior context (FEATURE/STORY/REFINE/bank/sibling notes), or an already accepted artifact. |
 | `invented` | Agent fill-in (gap, default, inference) **not** yet accepted. |
 
-Label **per claim** (REQ, CA, assumption, OOS). Ambiguous → `invented`. Never promote `invented` → `agreed` without operator **sim** or an explicit Prior-context cite. Primary author: `sdd-spec`; consumers `sdd-plan` / `sdd-develop` must not re-label invented as agreed Aceite.
+Label **per claim** (REQ, CA, assumption, OOS). Ambiguous → `invented`. Never promote `invented` → `agreed` without an operator `confirm` answer or an explicit Prior-context cite. Primary author: `sdd-spec`; consumers `sdd-plan` / `sdd-develop` must not re-label invented as agreed Aceite.
 
 ### Language surfaces and spawn lock
 
@@ -215,7 +215,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 | Spawn / Task prompts, specialist contexts, agent receipts | **Always en-US** — scoped portable paths + short excerpt; never dump full PLAN/PRD/`memory-bank/` |
 | Source, tests, commits, identifiers | Always English |
 
-**Spawn lock (model):** omit Task `model` by default (inherit parent). Alternate/premium slug only with [`SUBAGENT-MODEL.md`](../../core/skills/_shared/agents/SUBAGENT-MODEL.md) gate + operator **sim**. Human matrix: [SPAWN.md](../SPAWN.md).
+**Spawn lock (model):** omit Task `model` by default (inherit parent). Alternate/premium slug only with [`SUBAGENT-MODEL.md`](../../core/skills/_shared/agents/SUBAGENT-MODEL.md) gate + operator `confirm` answer. Human matrix: [SPAWN.md](../SPAWN.md).
 
 ### Skill `read-sdd-artifact` (`source_context`)
 
@@ -228,7 +228,7 @@ Folder: `core/skills/read-sdd-artifact/` — rule id `RSA-SOURCE-CONTEXT`. Catal
 | Happy path | Full envelope; consumers that already hold `source_context` for that path **skip** opaque re-read (REQ-005 / orchestrated handoff) |
 | Fail path | **No** partial envelope — reject reasons include `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path` |
 | Out of scope kinds | CONTINUITY, ANALYSIS, ARCH, SEC, CHANGE, memory-bank (and similar) — unsupported |
-| Gates | Read-only; does **not** require `write_confirmed` / new-artifact **sim** |
+| Gates | Read-only; does **not** require `write_confirmed` / new-artifact `confirm` answer |
 | Caveman | **NEVER** compress reject reasons or envelope fields |
 
 Do **not** invent product or company names in docs or envelopes — only paths and kinds evidenced under `features/`.
@@ -297,7 +297,7 @@ Item templates (one at a time): `user-story.md`, `technical-story.md`, `bug.md`;
 
 | Skill | When norms load | Gate / behavior |
 |-------|-----------------|-----------------|
-| `orchestrate-analyze` | Synthesis (`references/story-synthesis.md`) | Gates A–C: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4; fail → keep `draft`, no human **sim** |
+| `orchestrate-analyze` | Synthesis (`references/story-synthesis.md`) | Gates A–C: FEATURE depth (Problem/Goals/Non-goals), promotion anti-task-shatter, cap ≤4; fail → keep `draft`, no human `confirm` answer |
 | `refine-story` | Scorecard Step 4 (+ mode playbook) | Product depth band + AC budget; outcome-shaped titles |
 | `requirement-review` | Atomized criteria (`--feature`); repository grounding and API standards by reference (`--tech`) | Open questions carry B/I/MINOR and one decision owner; technical follow-ups never block READY |
 | `split-story-checklist` | Before Write when titles task-shaped | Emit **SMART tasks** only — never US-per-file (`anti-task-shatter` RN01) |
@@ -381,7 +381,7 @@ Styles under B (load **one** primary file): `concentric-dependency`, `vertical-s
 
 ### Architect confirm gate
 
-- **Greenfield** / `needs_domain` with no established ARCH style: specialist `architect` (`_shared/agents/prompts/architect.md`, roster in `_shared/agents/ROSTER.md`) proposes a draft → operator answers **sim** → final ARCH is written. Silence is not approval (`needs-confirm` until sim). Spawned from Orchestrated Delivery `orchestrate-analyze` (§7b), not as a slash skill.
+- **Greenfield** / `needs_domain` with no established ARCH style: specialist `architect` (`_shared/agents/prompts/architect.md`, roster in `_shared/agents/ROSTER.md`) proposes a draft → operator gives a `confirm` answer → final ARCH is written. Silence is not approval (`needs-confirm` until a `confirm` answer). Spawned from Orchestrated Delivery `orchestrate-analyze` (§7b), not as a slash skill.
 - **Brownfield:** discover existing layout / ARCH first and **mirror**; do not re-pick a style unless the operator asks.
 
 ### Token discipline

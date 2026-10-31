@@ -57,7 +57,7 @@ Run against a **consumer** feature / bank when closing a wave or before O3 — n
 |--------|------|---------------|
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Refresh `memory-bank/.inventory/` (`ready` \| `not-ready`; **portable** paths only) | [cli-scripts](domains/cli-scripts.md#memory-bank-inventory) |
 | `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Before O3 — PRD/PLAN/CHANGE consistency | [cli-scripts](domains/cli-scripts.md#prd--plan--change-preflight) |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | After **sim** — idempotent develop `step_confirmed` (MUST `-File` with claim) | [cli-scripts](domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013) · [core session gate](domains/core.md#plan-ledger--develop-session-gate) |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | After **confirm** (pt-BR label: **sim**) — idempotent develop `step_confirmed` (MUST `-File` with claim) | [cli-scripts](domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013) · [core session gate](domains/core.md#plan-ledger--develop-session-gate) |
 | `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | O3 parallel step claim / release | [core PLAN-LEDGER](domains/core.md#plan-ledger--develop-session-gate) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION check | [core readiness](domains/core.md#clarification-readiness-b--i--minor) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |

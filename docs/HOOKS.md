@@ -38,7 +38,7 @@ Exact event names and support vary by adapter. Unsupported events are simply abs
 
 ## Permission prompts are different
 
-A host permission prompt is rendered by the host and controls whether that host will execute a particular operation. It is not a toolkit hook. A hook can report context before or after an operation, but it cannot manufacture, answer, or broaden a host permission prompt. Conversely, host approval does not satisfy a toolkit `sim` confirmation or an SDD session gate.
+A host permission prompt is rendered by the host and controls whether that host will execute a particular operation. It is not a toolkit hook. A hook can report context before or after an operation, but it cannot manufacture, answer, or broaden a host permission prompt. Conversely, host approval does not satisfy a toolkit `confirm` answer (pt-BR label: `sim`) or an SDD session gate.
 
 ## Host placement
 

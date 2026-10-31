@@ -69,7 +69,7 @@ Trigger: `/requirement-review`, or `requirement-review --feature` / `--tech`.
 | `--feature` | `--feature`, `feature`, `1` | Actor, flow, rules, error and permission cases, data ownership, states, rollout; acceptance criteria split into atoms (`CA-002.a`) |
 | `--tech` | `--tech`, `tech`, `2` | Named contracts, endpoints, events, and data flows searched in the repository; API standards applied by reference; technical follow-ups for `sdd-spec` |
 
-Outcome: a review report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, open questions with severity (B, I, MINOR) and one decision owner each, and Q&A entries. Persistence: `features/NNN-slug/USnn/REFINE/requirement-review-<mode>.md` beside the story, with the Q&A history in `REFINE/qa-history.md`; shortcut `docs/backlog/<slug>-requirement-review-<mode>.md` when no story folder exists. Writes wait for `sim`.
+Outcome: a review report with `Status: READY` or `Status: NEEDS_CLARIFICATION`, open questions with severity (B, I, MINOR) and one decision owner each, and Q&A entries. Persistence: `features/NNN-slug/USnn/REFINE/requirement-review-<mode>.md` beside the story, with the Q&A history in `REFINE/qa-history.md`; shortcut `docs/backlog/<slug>-requirement-review-<mode>.md` when no story folder exists. Writes wait for the `confirm` id (pt-BR label: `sim`).
 
 `refine-story` runs this review at step 4a before it hands off to `sdd-spec`: `--feature`, then `--tech` when the story touches a repository. Standalone use is the same.
 

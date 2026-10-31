@@ -10,7 +10,7 @@ Present both via skill **`help-skills`** (all adapters) — do not load every `S
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
-**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + **sim**; `orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs (default `adaptive` for every adapter; existing preferences files keep their value): [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
+**Parallel specialists (default):** after sync, the router prefers parallel specialist subagents for multi-facet planning / analysis / questions; this session stays parent. See `core/router/AGENTS.md` and [SPAWN.md](SPAWN.md). Language: user chat + artifacts match chat; spawn/receipts **en-US** (`LANGUAGE.md`). Operator norms: `needs_*` → `ROSTER.md` spawn map; Task `model` omit (inherit parent) unless `SUBAGENT-MODEL.md` gate + `confirm` answer; `orchestrate-*` parents coordinate / receipts only — **no** application code. Orchestrator charter + `orchestrator_mode` prefs (default `adaptive` for every adapter; existing preferences files keep their value): [guides/08-orchestrator-mode.md](guides/08-orchestrator-mode.md).
 
 **Guidelines + architecture:** `code-guidelines/principles/` (selection A + style pack B), stack `*-guidelines` overlays (C), and specialist prompts under `_shared/agents/` (including **architect**). The architect path is spawned from `orchestrate-analyze` / the agent roster — there is **no** `architect` skill. See [domains/core.md](domains/core.md) § Code guidelines and architecture selection.
 
@@ -55,7 +55,7 @@ Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01
 | Skill | Purpose |
 |-------|---------|
 | `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0, and refresh-light after code) |
-| `orchestrate-analyze` | Classify, ask, set `needs_*`, specialists, story gates, backlog **sim** |
+| `orchestrate-analyze` | Classify, ask, set `needs_*`, specialists, story gates, backlog `confirm` answer |
 | `orchestrate-deliver` | PRD + PLAN per story by running `sdd-spec` then `sdd-plan` |
 | `orchestrate-develop` | One PLAN step per child by running `sdd-develop` |
 
@@ -169,14 +169,14 @@ Without a mode, the skill asks once. `refine-story` runs it at step 4a before ha
 | Area | What you will be asked / options |
 |------|----------------------------------|
 | Git (`commit` / `push` / `open-github-pr`) | `/commit` confirms the message and does not ask about memory bank or project docs. Confirm push. PR feature vs release; confirm title/body; **always** ask auto-merge; merge method = feature **`--squash`** / release **`--rebase`**. Deep dive: [domains/git-ops.md](domains/git-ops.md) |
-| `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs **`sim`** (silence ≠ approval); skill id must not pin a major |
-| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (**sim**/**pular**). Do not ask about memory bank or project docs. |
+| `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs a `confirm` answer (silence ≠ approval); skill id must not pin a major |
+| `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (`confirm`/`skip`). Do not ask about memory bank or project docs. |
 | `implementation-survey` | `source` (`working-tree` or a ref git already resolves) and `target` (`HEAD` or another branch); one question when either is missing (no silent default); optional `path`; report without approval; read `SPAWN.md` before the first spawn decision |
-| Orchestrated Delivery | Memory-bank Step 0; backlog **sim**; architect ARCH draft → **sim** on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + **sim**; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
+| Orchestrated Delivery | Memory-bank Step 0; backlog `confirm` answer; architect ARCH draft → `confirm` answer on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + `confirm` answer; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
-| `requirement-review` | Exactly one mode (`--feature` or `--tech`), asked once when missing; writes only after `sim`; `--tech` does not guess repository facts |
+| `requirement-review` | Exactly one mode (`--feature` or `--tech`), asked once when missing; writes only after a `confirm` answer; `--tech` does not guess repository facts |
 | `api-standards` vs `api-integrate` | Standards / design review → `api-standards`; OpenAPI → typed clients → `api-integrate` |
 | `document-plan` / `document-implement` | Asks doc language before writing; Kind **new** ≈ one file/step; Kind **update** coalesces existing paths; not 5–12 tiny baby-steps by default |
 | Chat language and optional compression | [guides/session-behavior.md](guides/session-behavior.md) |

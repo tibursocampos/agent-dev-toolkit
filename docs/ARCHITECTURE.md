@@ -34,7 +34,7 @@ How consumer apps pick a style (separate from the toolkit’s own core/adapters 
 
 | Mode | Flow |
 |------|------|
-| **Greenfield** | Roster specialist **architect** (`core/skills/_shared/agents/`) proposes via Layer A (`architecture-selection.md`) → ARCH **draft** → operator **sim** → ARCH approved. No silent default style. |
+| **Greenfield** | Roster specialist **architect** (`core/skills/_shared/agents/`) proposes via Layer A (`architecture-selection.md`) → ARCH **draft** → operator `confirm` answer → ARCH approved. No silent default style. |
 | **Brownfield** | **Discover-first:** mirror in-repo / approved ARCH style; skip re-selection unless the operator asks to change it. |
 
 After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery wires the confirm gate in `orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
