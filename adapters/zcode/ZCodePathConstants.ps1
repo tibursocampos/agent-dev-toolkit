@@ -36,6 +36,7 @@ This host does not publish a rules tree (`rules=false`). Honor **Parallel specia
     HooksDirectoryName        = 'hooks'
     HooksJsonFileName         = 'hooks.json'
     HooksGuardPreToolScriptName  = 'guard-pre-tool.ps1'
+    HooksSessionStartScriptName  = 'session-start-context.ps1'
     SharedGuardCommonFileName    = 'GuardCommon.ps1'
     SharedAuthorizationContractRelativePath = 'adapters/_shared/authorization-contract.json'
     SharedAuthorizationContractFileName = 'authorization-contract.json'

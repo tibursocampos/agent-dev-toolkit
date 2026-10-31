@@ -1,7 +1,7 @@
 ---
 name: open-github-pr
 description: >
-  Create a GitHub pull request with gh CLI (feature → develop or release develop → master/main),
+  Create a GitHub pull request with gh CLI against the repository's base branch,
   template resolution, mandatory title/body confirmation, and mandatory auto-merge ask.
   Use whenever the user wants a PR opened — including /open-github-pr, open PR, create pull request,
   abrir PR, criar PR, abrir o PR, faça o PR, fazer o PR, open the PR, open a pull request,
@@ -40,7 +40,7 @@ Invoke when **any** of these apply (slash, English, or pt-BR — including bundl
 
 ## Outcome
 
-One GitHub pull request created via `gh pr create` (feature → `develop`, or release `develop` → `master`/`main`), using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved, with **mode-required** merge method: **feature → develop = `--squash`** (general commit message from PR title/body); **release develop → main/master = `--rebase`** (linear / FF-compatible; do not squash). No PR without content confirmation **and** an explicit auto-merge answer.
+One GitHub pull request created via `gh pr create` against the repository's base branch, using the resolved template, after user confirmation. Optional `gh pr merge --auto` when allowed and approved, with the merge method the repository requires (see `references/confirm-and-create.md`). No PR without content confirmation **and** an explicit auto-merge answer.
 
 ## Lazy-load (only when needed)
 
@@ -49,7 +49,6 @@ One GitHub pull request created via `gh pr create` (feature → `develop`, or re
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit / PR flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 | Feature body fallback | `{{TOOLKIT_ROOT}}/skills/open-github-pr/templates/feature-pr.md` |
-| Release body fallback | `{{TOOLKIT_ROOT}}/skills/open-github-pr/templates/release-pr.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/open-github-pr/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/open-github-pr/references/<section>.md` |
 
@@ -72,7 +71,7 @@ One GitHub pull request created via `gh pr create` (feature → `develop`, or re
 Read `references/<section>.md` for procedural detail — **not** full `reference.md`. Do not skip gates.
 
 ### -1 / 0. Guards and mode
-Follow `references/guards-and-mode.md` (Caveman **NEVER**; re-check guardrails; resolve `feature` vs `release` mode).
+Follow `references/guards-and-mode.md` (Caveman **NEVER**; re-check guardrails; resolve the base and the head).
 
 ### 1. Validate branch (blocker)
 Follow `references/validate-branch.md`. If blocked, stop — do not create a PR.

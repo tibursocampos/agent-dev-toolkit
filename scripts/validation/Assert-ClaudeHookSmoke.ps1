@@ -49,6 +49,7 @@ try {
     $null = Invoke-ToolkitEnsurePreferences -SddRoot (Split-Path -Parent $prefsPath)
     $start = (Invoke-HookScript -ScriptName 'session-start-context.ps1' -Payload '{"hook_event_name":"SessionStart","source":"startup"}' | ConvertFrom-Json).hookSpecificOutput
     if ($start.hookEventName -ne 'SessionStart' -or $start.additionalContext -notmatch 'orchestrator_mode=adaptive') { Write-Fail $n 'SessionStart must report the seeded default state' }
+    if ($start.additionalContext -notmatch 'Spawn digest') { Write-Fail $n 'SessionStart must include the spawn digest marker' }
 
     $adaptive = (Invoke-HookScript -ScriptName 'preferences-command.ps1' -Payload '{"prompt":"orchestrator adaptive"}' | ConvertFrom-Json).hookSpecificOutput
     if ($adaptive.hookEventName -ne 'UserPromptSubmit' -or $adaptive.additionalContext -notmatch 'adaptive') { Write-Fail $n 'orchestrator adaptive must confirm' }

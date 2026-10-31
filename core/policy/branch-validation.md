@@ -1,5 +1,5 @@
 ---
-description: Block commit and push from integration branches; respect the repository and operator branch choice
+description: Block commit and push from integration branches; the repository defines its own branch names and flow
 alwaysApply: true
 ---
 
@@ -9,29 +9,11 @@ alwaysApply: true
 
 Before any `git add`, `git commit`, or `git push`, verify the current branch name.
 
-### Branch naming guidance
-
-| Pattern | Example |
-|---------|---------|
-| `feature/<slug>` | `feature/add-oauth-login` |
-| `feat/<id>-<slug>` | `feat/123-login`, `feat/issue-42-login` |
-
-- These patterns are examples, not a closed allowlist. Follow repository-local instructions and the operator's explicit branch request unless it is an integration branch or a separate git safety rule blocks the operation.
+Branch names and the branch flow belong to each repository. Follow the repository's own conventions (its `.github/`, `CONTRIBUTING`, or docs) and the operator's explicit branch request.
 
 ### Blocked branches
 
-Do not commit or push from:
-
-- `main`, `master`, `develop`, or other default integration branches
-
-**Valid examples**
-
-```
-feature/user-profile-api
-feature/fix-null-ref
-feat/123
-feat/PLAN-001-cursor-toolkit
-```
+Do not commit or push from the integration branches `main`, `master`, or `develop`, or from the repository's default branch when it has another name.
 
 ## How to verify
 
@@ -61,17 +43,12 @@ esac
 ## If blocked
 
 1. Choose a slug or id for the work (PRD/PLAN name, issue id, or short topic).
-2. If a branch change is requested, use the repository convention or operator-provided name:
-   ```bash
-   git checkout -b feature/<slug>
-   # or
-   git checkout -b feat/<id>-<slug>
-   ```
+2. Create a work branch using the repository's convention or the operator's name, for example `git checkout -b <branch-name>`.
 3. Re-run the commit flow (`commit` skill or your git commands).
 
 ## Integration-branch stop before code changes
 
-This stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`. Those skills show the current branch and, when it is `main`, `master`, or `develop`, stop before changing code. They propose `feature/<slug>` or `feat/<id>-<slug>` and create it only after **sim**.
+This stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`. Those skills show the current branch and, when it is `main`, `master`, or `develop`, stop before changing code. They propose a work branch and create it only after **sim**.
 
 `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill write on the current branch. They do not show the branch and do not ask for a branch switch.
 

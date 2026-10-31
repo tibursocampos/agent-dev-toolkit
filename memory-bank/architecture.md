@@ -43,8 +43,8 @@ The toolkit maintains an agent-neutral core and publishes host-specific layouts 
 ## CI and release flow
 
 - GitHub CI runs for pull requests to `develop`. The current source defines `validate` and `ci-ok` aggregate checks, adapter smokes, and `docs-strict`; the current local changes passed `validate-core.ps1` and a strict MkDocs build. A pushed feature branch without a PR has no run from this PR-triggered workflow.
-- The intended release path is a `develop` to `master`/`main` PR. Required `release-source` validates source, metadata, and release-sync App readiness before merge. The release workflow publishes the tag/assets and opens or reuses a reconciliation PR to bring the promoted commit into `develop`.
-- Recovery uses `workflow_dispatch` on `master`/`main` with `reconcile_only=true` and no version input. It reconciles the current promoted commit without creating another release. The GitHub App credential names are `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY`; the current repository has no usable values, so live reconciliation remains blocked until an administrator configures them.
+- The release path is a `develop` to `master` PR merged with a merge commit only; `protect-release` allows only that method (changed 2026-10-31). Required `release-source` checks the head is `develop`. The release workflow publishes the tag/assets and opens a reconciliation PR to bring the promoted commit into `develop`.
+- Recovery uses `workflow_dispatch` on `master`/`main` with `reconcile_only=true` and no version input. It reconciles the current promoted commit without creating another release. The GitHub App credentials `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` are configured and the App is installed on the repository; the preflight passed on 2026-10-31.
 - Release and CI branch rules are configured in GitHub, not fully represented by files in this repository. Validate the actual required checks on a PR before treating a new workflow as remotely verified.
 
 ## External behavior and evidence limits

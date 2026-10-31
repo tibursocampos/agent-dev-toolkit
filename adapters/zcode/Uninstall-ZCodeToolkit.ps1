@@ -434,6 +434,7 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
 
     foreach ($hookFileName in @(
             $script:ZCodePathConstant.HooksGuardPreToolScriptName,
+            $script:ZCodePathConstant.HooksSessionStartScriptName,
             $script:ZCodePathConstant.SharedGuardCommonFileName,
             $script:ZCodePathConstant.SharedAuthorizationContractFileName
         )) {
