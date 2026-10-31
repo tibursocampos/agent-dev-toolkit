@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">Skills do núcleo passam pelos adaptadores até as pastas dos agentes</title>
+  <desc id="diagram-desc">Diagrama de fluxo: as skills do núcleo são publicadas por adaptadores por agente nas pastas de instalação de dez agentes.</desc>
+  <style type="text/css">
+    /* Hex teal --accent: img-sourced SVG cannot inherit page CSS currentColor */
+    /* Avoid CSS url references: GitHub SVG sanitizer treats them as invalid image source */
+    .box { fill: none; stroke: #5ec8c0; stroke-width: 1.75; }
+    .label { fill: #e8eef5; font-family: Sora, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+    .sub { fill: #e8eef5; opacity: 0.85; font-family: Sora, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; font-size: 18px; }
+    .flow { stroke: #5ec8c0; stroke-width: 2; fill: none; }
+    .arrow { fill: #5ec8c0; stroke: none; }
+  </style>
+
+  <!-- Core -->
+  <rect class="box" x="70" y="12" width="420" height="80" rx="4"/>
+  <text class="label" x="280" y="46" text-anchor="middle">Skills do núcleo</text>
+  <text class="sub" x="280" y="74" text-anchor="middle">SDD · policy · router</text>
+
+  <!-- Flow core to adapters -->
+  <path class="flow" d="M 280 92 V 108"/>
+  <polygon class="arrow" points="274,106 280,116 286,106"/>
+
+  <!-- Adapters -->
+  <rect class="box" x="70" y="116" width="420" height="80" rx="4"/>
+  <text class="label" x="280" y="150" text-anchor="middle">Adaptadores</text>
+  <text class="sub" x="280" y="178" text-anchor="middle">publicação por agente · sync PowerShell</text>
+
+  <!-- Flow adapters to agents -->
+  <path class="flow" d="M 280 196 V 212"/>
+  <polygon class="arrow" points="274,210 280,220 286,210"/>
+
+  <!-- Agent install roots -->
+  <rect class="box" x="70" y="220" width="420" height="72" rx="4"/>
+  <text class="label" x="280" y="252" text-anchor="middle">Pastas de instalação</text>
+  <text class="sub" x="280" y="278" text-anchor="middle">dez agentes</text>
+</svg>

@@ -51,6 +51,15 @@ One review report per run, with:
 
 Flow outcome per `_shared/skills-catalog/CATALOG.md` (Flow terminal contract): `done` when READY and the handoff is named; `open_question` while any question waits for an answer; `blocked` when the source or the repository is missing.
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** `STORY.md` or `FEATURE.md`, `REFINE/qa-history.md` when present, or pasted text.
+- **Writes:** after `sim` only: `REFINE/requirement-review-feature.md` (or `-tech.md`) and `REFINE/qa-history.md`. Pasted source: chat only.
+- **Where:** `features/NNN-slug/USnn/REFINE/`; without a story folder, `docs/backlog/<slug>-requirement-review-<mode>.md`.
+- **When to use:** challenge a feature or story before SDD, with `--feature` (acceptance criteria) or `--tech` (repository contracts).
+
+Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
+
 ## Lazy-load
 
 | When | Path |

@@ -90,7 +90,7 @@ pwsh -NoProfile -File .\scripts\validation\Invoke-SiblingReadinessGate.ps1 `
   -FeatureRoot features\<NNN-slug>\<story>
 ```
 
-Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**/**I** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
+Evaluates open clarification markers (B / I / MINOR) per `readiness-severity.md` under that feature/story root. Open **B**, **I**, or **MINOR** → exit `NEEDS_CLARIFICATION` (blocks O2 / refine handoff as READY). Presence of sibling folders alone is not READY. Domain: [core readiness](core.md#clarification-readiness-b--i--minor).
 
 ### PRD / PLAN / CHANGE preflight
 

@@ -27,6 +27,8 @@ Supported OS: **Windows**, **Linux** (Ubuntu, Debian, and derivatives), and **ma
 
 Invalid checksum aborts with exit ≠ 0: **no** extract and **no** handoff.
 
+Downloading the entrypoint alone installs nothing; the second command runs it. The zip is the same on every OS, and Git is not required on this path.
+
 ### Fixed Release asset names (CI SoT)
 
 Published by `.github/workflows/publish-release-bootstrap.yml` onto `…/releases/latest/download/…`:
@@ -123,7 +125,7 @@ pwsh -NoProfile -File .\scripts\toolkit.ps1
 | **Sync agent** | Publish skills/policy/hooks — wizard picks agent, then **live home (Enter default)** / fixture / custom path |
 | **Validate agent** | `validate-core` + adapter smoke for one agent |
 | **Sync then validate** | Sync, then smoke the same target |
-| **Validate core only** | Repo contracts only — **no** agent home write |
+| **Validate core only** | Repo checks only (`Assert-GuardShellCanonicalPaths.ps1` and `Assert-TraceEmitterFailOpen.ps1`) — **no** agent home write. The full local suite is `scripts/validation/validate-core.ps1` |
 | **Validation lab** | Run `validate-core` or an `Invoke-*CiSmoke` script |
 | **Uninstall agent** | Remove **keyed** toolkit files from InstallRoot (not a full home wipe). Preserves `sdd/sessions` and `sdd/manifest.json` |
 | **Help and docs** | In-menu explanation of actions and equivalent flags |
@@ -156,6 +158,8 @@ Sync / Validate / Uninstall **require** `-Agent` when not using the menu (no sil
 | `-Mode` | Required for `copilot`: `user` or `repo` |
 | `-Quiet` / `-SkipSmoke` | Forwarded to validate-agent / validate-core |
 | `-Action Backup` | Not implemented (fail-closed unless `-ForceStub` for tests) |
+
+CI-style adapter smoke for one registry id: `pwsh -NoProfile -File .\scripts\validation\Invoke-AdapterCiSmoke.ps1 -Adapter <id>`. Ids and details: [VALIDATION.md](VALIDATION.md#ci-smoke-harnesses).
 
 ## 3. Sync to an agent (option 2+ — direct scripts)
 

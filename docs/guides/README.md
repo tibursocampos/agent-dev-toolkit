@@ -28,38 +28,7 @@ Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published ski
 
 ## Which skill should I use?
 
-```mermaid
-flowchart TD
-  Start([New feature work]) --> O1["/orchestrate-analyze"]
-  O1 --> Decide{What analyze decided}
-  Decide -->|Approved feature| O2["/orchestrate-deliver"]
-  O2 --> O3["/orchestrate-develop"]
-  Decide -->|One story already clear| Direct["/sdd-spec then /sdd-plan then /sdd-develop"]
-  Decide -->|One product item only| Shape["/refine-story"]
-  Decide -->|Trivial file and operator chooses shortcut| Small["/developer or stack skill"]
-  O3 --> Post
-  Direct --> Post
-  Small --> Post
-  Post[After code] --> CR["/code-review"]
-  CR --> Tests["/run-tests"]
-  Tests --> Commit["/commit then /push"]
-  Commit --> PR["/open-github-pr optional"]
-```
-
-**ASCII summary:**
-
-```
-Feature
-  └─ orchestrate-analyze
-        ├─ classifies, asks, sets needs_*, specialists, story gates, sim
-        ├─ trivial one-file → /developer (only if the operator picks that shortcut)
-        ├─ one already-clear story → sdd-spec (direct contract)
-        └─ approved backlog → orchestrate-deliver
-              └─ story files, sdd-spec, contest the PRD, sdd-plan → orchestrate-develop
-                    └─ one sdd-develop step per child → code-review, run-tests, security
-```
-
-Full mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).
+The decision tree and entry points live in [flow-selection.md](flow-selection.md) (the owner of that choice). Mechanics of each path: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).
 
 **Greenfield domain:** `/orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until **sim**. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
 
@@ -69,15 +38,11 @@ Full mechanics: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrat
 
 Orchestrated Delivery is the complete path. O2 loads `sdd-spec` then `sdd-plan`. O3 loads `sdd-develop` for one PLAN step. O1 applies the refine scorecard itself.
 
-A direct `/sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/refine-story` remains valid for a single product item, or when O2 stops on open clarification B/I. Those are exits from the complete path, not a second equal product.
+A direct `/sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/refine-story` remains valid for a single product item, or when O2 stops on open clarification (B, I, or MINOR). Those are exits from the complete path, not a second equal product.
 
 `/requirement-review` checks a feature or story before `sdd-spec`, with `--feature` or `--tech`. It is a check, not a separate product path.
 
-| Path | When | Page |
-|------|------|------|
-| Orchestrated Delivery | Feature, specialists, several stories | [sessions/01](../sessions/01-orchestrated-delivery.md) |
-| Classic SDD contracts | One clear story, or the contracts O2/O3 run | [sessions/02](../sessions/02-classic-sdd.md) |
-| Backlog shape | Product-only item, or blocking questions | [sessions/03](../sessions/03-backlog-shape.md) |
+The entry table for each path (Orchestrated Delivery, Classic SDD, backlog shape) is in [flow-selection.md](flow-selection.md); the session pages linked there explain each one.
 
 Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
@@ -92,6 +57,9 @@ Canonical contracts ship in `core/sdd/` and under `core/skills/_shared/sdd-artif
 | [session-behavior.md](session-behavior.md) | Chat language, parent orchestrator, optional compression |
 | [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default adaptive, charter, commands |
 | [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
+| [flow-selection.md](flow-selection.md) | Choosing the flow: decision tree, entry points, readiness rule, write limits |
+| [backlog-refine.md](backlog-refine.md) | Backlog refine flow: refine-story, requirement-review, split-story-checklist, write locations |
+| [new-endpoint-example.md](new-endpoint-example.md) | Illustrative .NET endpoint across controller, facade, service, entity, HTTP client and tests |
 
 Related:
 
@@ -115,7 +83,7 @@ Related:
 
 ## Session behavior
 
-Chat language, parent orchestrator, and optional response compression (`caveman` default off) are one page: [session-behavior.md](session-behavior.md). Compression does not change skill steps.
+Chat language, parent orchestrator, and optional response compression (`caveman` default on) are one page: [session-behavior.md](session-behavior.md). Compression does not change skill steps.
 
 ## Orchestrator mode
 

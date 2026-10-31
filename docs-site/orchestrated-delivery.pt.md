@@ -4,7 +4,7 @@ title: Entrega orquestrada
 
 # Entrega orquestrada
 
-Abra o repositório da aplicação no agente e comece a feature com `orchestrate-analyze`. Esta página é esse caminho. Instalação e sync estão em [Começar](get-started.md). Prefixos do host estão em [Usando skills](using-skills.md).
+Abra o repositório da aplicação no agente e comece a feature com `orchestrate-analyze`. Esta página é esse caminho. Para escolher entre os fluxos antes, veja [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md) (guia ainda só em inglês). Instalação e sync estão em [Começar](get-started.md). Prefixos do host estão em [Usando skills](using-skills.md).
 
 ## O primeiro comando
 
@@ -58,7 +58,7 @@ A primeira escrita da feature pergunta se os artefatos SDD ficam **local (reposi
 
 Use caminhos portáteis nos artefatos e nos handoffs (`features/NNN-slug/US01/PRD/...`). No modo **repository** o agente pode acrescentar `/features/` ao `.gitignore` quando `features_versioned` é false (o padrão). Não há `PRD/` nem `PLAN/` soltos na raiz do repositório. Essas pastas ficam em `features/NNN-slug/USnn|TSnn/`.
 
-No primeiro sync interativo, se `preferences.json` não existir, o assistente pergunta **Adaptive** (padrão) ou **Always orchestrate** e depois se a compressão Caveman fica ligada (padrão) ou desligada. O primeiro sync não interativo usa `always` e Caveman ligado. Preferências existentes são preservadas.
+No primeiro sync interativo, se `preferences.json` não existir, o assistente pergunta **Adaptive** (padrão) ou **Always orchestrate** e depois se a compressão Caveman fica ligada (padrão) ou desligada. O primeiro sync não interativo usa `adaptive` e Caveman ligado. Preferências existentes são preservadas.
 
 ## Passo 0 — memory bank
 
@@ -184,8 +184,6 @@ O gate humano (**sim** / **ajustar** / **cancelar**) só roda depois que esses g
 /orchestrate-deliver - features/NNN-slug/
 ```
 
-Com cerca de 40% de contexto a skill grava `CONTINUITY.md` e o chat seguinte retoma o mesmo caminho.
-
 ## O2 — `orchestrate-deliver`
 
 Exige um backlog aprovado (status da `FEATURE` approved, ou `CONTINUITY` registrando **sim**). Uma feature ainda em rascunho para. A skill não inventa aprovação.
@@ -194,9 +192,9 @@ O Passo 0 roda de novo, e então:
 
 - Descobre `US*/STORY.md` e `TS*/STORY.md`. Pula uma story que já tem PRD e PLAN, salvo se você pedir refresh.
 - Para de escrever se uma pasta obrigatória `ANALYSIS`, `ARCH` ou `SEC` faltar. Volta ao O1.
-- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. Fora desses gates, **MINOR** pode ficar. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
+- Para essa story se ainda houver pergunta sem resposta nos arquivos obrigatórios da story, no PRD ou no plano, inclusive **MINOR**. Código de parada `open_question`. **MINOR** não procede por suposição em nenhum gate. **sim** não fecha uma pergunta. A presença da pasta não é prontidão. Prontidão não é `step_confirmed`. Uma story travada não apaga as outras.
 
-B/I aberto é `NEEDS_CLARIFICATION`. O handoff é `/refine-story` e/ou `/orchestrate-analyze` no caminho da feature. Você responde a pergunta e volta ao O2. O refine avulso volta aqui para uma pergunta bloqueante. Não é assim que uma feature começa no caso comum.
+Pergunta aberta de **B**, **I** ou **MINOR** é `NEEDS_CLARIFICATION`. O handoff é `/refine-story` e/ou `/orchestrate-analyze` no caminho da feature. Você responde a pergunta e volta ao O2. O refine avulso volta aqui para uma pergunta bloqueante. Não é assim que uma feature começa no caso comum.
 
 ### Série ou paralelo
 
@@ -272,7 +270,7 @@ O pai atualiza `CONTINUITY.md` só depois que o filho volta. Falha deixa o passo
 
 Quando um filho alterou arquivos de aplicação, o O3 pergunta e então roda `memory-bank-init` **refresh-light**.
 
-Quando você pede ao O3 para fechar a onda, ele encaminha para `code-review`; se você não escolher, a skill pergunta entre revisão single ou multi-angle. Siga o fluxo de fechamento para revisão, testes e security antes de `/commit` e `/push`. Sem pedido de fechamento, o O3 encaminha só o próximo passo ou a próxima story. `test-coverage` continua sendo o relatório Coverlet .NET. `run-tests` não o substitui.
+Quando você pede ao O3 para fechar a onda, a ordem é `run-tests`, depois `code-review` (a skill pergunta entre revisão single ou multi-angle se você não disser), depois `run-tests` de novo após mudanças da revisão (ou registre que não é preciso repetir), depois a passagem de `security`, e então `/commit` e `/push` em pedido separado. Sem pedido de fechamento, o O3 encaminha só o próximo passo ou a próxima story. `test-coverage` continua sendo o relatório Coverlet .NET. `run-tests` não o substitui.
 
 Uma mudança pequena, um arquivo, quando o analyze oferece o atalho:
 
@@ -291,10 +289,10 @@ ou uma skill de stack como `dotnet-developer` ou `react-developer`.
 | `sdd-develop` | Filho do O3, um passo do PLAN; ou a linha manual quando Task está desligado |
 | Arquivo da rubrica de `refine-story` | Scorecard do O1 em `STORY.md`. A pergunta de modo da skill refine não é feita |
 | Invocação de `refine-story` | Uma pergunta aberta nesses gates, ou uma pessoa de produto formando um item fora de uma feature |
-| `split-story-checklist` | Chamada por `sdd-plan` para gravar `REFINE/tasks.md`. O O1 ainda pode checar o teto de cinco grupos |
+| `split-story-checklist` | Chamada por `sdd-plan` (`source=prd`) para gravar `REFINE/tasks.md`, só para features médias ou complexas. O O1 ainda pode checar o teto de cinco grupos |
 | `memory-bank-init` | Passo 0 e Passo N do O3 |
-| `code-review` | Primeiro handoff quando a implementação de uma story ou feature termina |
-| `run-tests` | Depois de `code-review`, antes da passagem de security. Não substitui `test-coverage` |
+| `code-review` | Segundo handoff, depois do primeiro `run-tests`, quando a implementação de uma story ou feature termina |
+| `run-tests` | Primeiro, depois de novo após mudanças da revisão (ou registrar que não é preciso repetir), ambos antes da passagem de security. Não substitui `test-coverage` |
 | `developer` / `*-developer` | Só o atalho da triagem trivial. Não é o implementador do O3 |
 | `read-sdd-artifact` | Normaliza um caminho FEATURE, STORY, PRD ou PLAN em `source_context` para um filho |
 

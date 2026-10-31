@@ -20,6 +20,13 @@ Invoke when the user asks for: `/sdd-spec`, `create spec`, `new feature`.
 
 A complete **PRD** (agent `.md` artifact) in the **user chat language** (or `preferences.json` / manifest `artifact_language` when set) at a **canonical** path under `features/NNN-slug/USnn/PRD/` (Classic SDD default story `US01`; or `TSnn`). Global: `{{SDD_ROOT}}/<repo-id>/features/...`. Root/flat `PRD/` is **not** a valid Classic SDD path. Include **## Execution policy** from `templates/sdd/PRD.md`. Mandatory input for **sdd-plan**.
 
+## Flow contract: reads, writes, where, when
+
+- **Reads:** chat, the existing PRD, and backlog siblings only when the operator cites them. Without a `features/NNN-slug/` folder it does not read `docs/backlog/` on its own.
+- **Writes:** one PRD only, under `features/NNN-slug/USnn/PRD/`. Nothing is written before the gate; no PLAN and no code.
+- **Gates:** `sim` / `ajustar` / `cancelar` before any write.
+- **When to use:** a new feature or change needs a PRD. Feeds `sdd-plan`. Flow choice: [flow selection guide](../../../docs/guides/flow-selection.md).
+
 ## PRD boundaries
 
 The PRD answers **what**, not **how**. No implementation code. Identifiers (types, APIs, paths) in **English**.

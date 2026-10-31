@@ -21,11 +21,11 @@ O1 does not ask “feature, tech, or split?”. That question belongs only to a 
 | Product person shaping one bug, user story, or technical story, no feature delivery | `/refine-story` |
 | That item needs a dependency checklist | `/split-story-checklist` |
 | A feature or story has open questions before SDD, or a technical story must be checked against the repository | `/requirement-review --feature` or `--tech` |
-| O2 stopped because clarification **B** or **I** is still open | `/refine-story` (and/or return to O1). Do not write PRD/PLAN until READY |
+| O2 stopped because clarification **B**, **I**, or **MINOR** is still open | `/refine-story` (and/or return to O1). Do not write PRD/PLAN until READY |
 | O1 intent classified the input as one informal item or an idea | Early handoff to `/refine-story`, then re-enter O1 only if the result is multi-story or needs specialists |
 | Normal feature through analyze → deliver → develop | Neither skill is required |
 
-Readiness outside the four open-question gates: no open **B** or **I**. **MINOR** may remain. On the feature before story folders, on the story files before a PRD, on the PRD before a PLAN, and on the PLAN before it is saved, any unanswered question blocks, including **MINOR**. Ready for a spec is not the same as a PLAN step being complete, and it is not `step_confirmed`.
+READY needs no unanswered **B**, **I**, or **MINOR** question. The four open-question gates name where the next artifact stops: the feature before story folders, the story files before a PRD, the PRD before a PLAN, and the PLAN before it is saved (`readiness-severity.md`). Ready for a spec is not the same as a PLAN step being complete, and it is not `step_confirmed`.
 
 ## `refine-story`
 
@@ -50,7 +50,7 @@ The skill does not create tracker cards. It does not invent architecture that be
 
 Process: confirm the repo (and look for PRDs under `features/**/PRD/`, not a root `PRD/` folder); lock the mode; collect and generate inside that playbook; score product depth and acceptance budget; keep an interaction envelope at `NEEDS_CLARIFICATION` until READY; challenge vague BDD; persist only after the language question when using `docs/backlog/`.
 
-While **B** or **I** remain, do not hand off to `sdd-spec`.
+While **B**, **I**, or **MINOR** remain, do not hand off to `sdd-spec`.
 
 ```text
 /split-story-checklist - features/NNN-slug/US01/STORY.md

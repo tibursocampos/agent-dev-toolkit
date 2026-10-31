@@ -4,7 +4,7 @@ title: Orchestrated Delivery
 
 # Orchestrated Delivery
 
-Open the application repo in the agent, then start the feature with `orchestrate-analyze`. This page is that path. Install and sync are on [Get started](get-started.md). Host prefixes are on [Using skills](using-skills.md).
+Open the application repo in the agent, then start the feature with `orchestrate-analyze`. This page is that path. To choose between flows first, see [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md). Install and sync are on [Get started](get-started.md). Host prefixes are on [Using skills](using-skills.md).
 
 ## The first command
 
@@ -58,7 +58,7 @@ The first feature write asks whether to store SDD artifacts **local (repository)
 
 Use portable paths in artifacts and handoffs (`features/NNN-slug/US01/PRD/...`). In **repository** mode the agent may add `/features/` to `.gitignore` when `features_versioned` is false (the default). There is no flat `PRD/` or `PLAN/` at the repo root. Those folders live under `features/NNN-slug/USnn|TSnn/`.
 
-On the first interactive sync, if `preferences.json` is missing, the wizard asks for **Adaptive** (default) or **Always orchestrate**, then asks whether Caveman response compression is on (default) or off. Non-interactive first sync uses `always` and Caveman on. Existing preferences are preserved.
+On the first interactive sync, if `preferences.json` is missing, the wizard asks for **Adaptive** (default) or **Always orchestrate**, then asks whether Caveman response compression is on (default) or off. Non-interactive first sync uses `adaptive` and Caveman on. Existing preferences are preserved.
 
 ## Step 0 — memory bank
 
@@ -184,8 +184,6 @@ The human gate (**sim** / **ajustar** / **cancelar**) runs only after those gate
 /orchestrate-deliver - features/NNN-slug/
 ```
 
-At about 40% context the skill saves `CONTINUITY.md` and the next chat resumes the same path.
-
 ## O2 — `orchestrate-deliver`
 
 Requires an approved backlog (`FEATURE` status approved, or `CONTINUITY` recording **sim**). A still-draft feature stops. The skill does not invent approval.
@@ -194,9 +192,9 @@ Step 0 runs again, then:
 
 - Discover `US*/STORY.md` and `TS*/STORY.md`. Skip a story that already has both PRD and PLAN unless you ask to refresh.
 - Stop writing if a required `ANALYSIS`, `ARCH`, or `SEC` folder is missing. Return to O1.
-- Stop that story if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. Outside those gates, **MINOR** may stay. **sim** does not close a question. Folder presence is not readiness. Readiness is not `step_confirmed`. A stuck story does not erase the others.
+- Stop that story if any question is still unanswered on the required story files, on the PRD, or on the plan, including **MINOR**. Stop code `open_question`. **MINOR** does not proceed on an assumption at any gate. **sim** does not close a question. Folder presence is not readiness. Readiness is not `step_confirmed`. A stuck story does not erase the others.
 
-Open B/I is `NEEDS_CLARIFICATION`. The handoff is `/refine-story` and/or `/orchestrate-analyze` on the feature path. You answer the question and re-enter O2. Standalone refine comes back here for a blocking question. It is not how a feature normally starts.
+An open **B**, **I**, or **MINOR** question gives `NEEDS_CLARIFICATION`. The handoff is `/refine-story` and/or `/orchestrate-analyze` on the feature path. You answer the question and re-enter O2. Standalone refine comes back here for a blocking question. It is not how a feature normally starts.
 
 ### Series or parallel
 
@@ -272,7 +270,7 @@ The parent updates `CONTINUITY.md` only after the child returns. Failure leaves 
 
 When a child changed application files, O3 asks, then runs `memory-bank-init` **refresh-light**.
 
-When you ask O3 to close the wave, it hands off to `code-review`; the skill asks for single or multi-angle review if omitted. Follow the close workflow for review, tests, and security before `/commit` and `/push`. Without a close request, O3 hands off only the next step or story. `test-coverage` remains the .NET Coverlet report. `run-tests` does not replace it.
+When you ask O3 to close the wave, the order is `run-tests`, then `code-review` (the skill asks for single or multi-angle review if you do not say), then `run-tests` again after review changes (or record that no rerun is required), then the `security` pass, then `/commit` and `/push` as a separate ask. Without a close request, O3 hands off only the next step or story. `test-coverage` remains the .NET Coverlet report. `run-tests` does not replace it.
 
 A small change, one file, when analyze offers the shortcut:
 
@@ -291,10 +289,10 @@ or a stack skill such as `dotnet-developer` or `react-developer`.
 | `sdd-develop` | O3 child, one PLAN step; or the manual line when Task is off |
 | `refine-story` rubric file | O1 scorecard on `STORY.md`. The refine skill’s mode question is not asked |
 | `refine-story` invoke | An open question at those gates, or a product person shaping one item outside a feature |
-| `split-story-checklist` | Called by `sdd-plan` to write `REFINE/tasks.md`. O1 may still check the five-group cap |
+| `split-story-checklist` | Called by `sdd-plan` (`source=prd`) to write `REFINE/tasks.md`, for medium or complex features only. O1 may still check the five-group cap |
 | `memory-bank-init` | Step 0 and O3 Step N |
-| `code-review` | First handoff when implementation of a story or feature is done |
-| `run-tests` | After `code-review`, before the security pass. Does not replace `test-coverage` |
+| `code-review` | Second handoff, after the first `run-tests`, when implementation of a story or feature is done |
+| `run-tests` | First, then again after review changes (or record no rerun required), both before the security pass. Does not replace `test-coverage` |
 | `developer` / `*-developer` | Trivial triage shortcut only. Not the O3 implementer |
 | `read-sdd-artifact` | Normalizes a FEATURE, STORY, PRD, or PLAN path into `source_context` for a child |
 

@@ -17,7 +17,7 @@ Explorers need to see what the toolkit is, then where it goes, then how to insta
 Home, both locales:
 
 1. The two sentences that already define the toolkit.
-2. The architecture figure: `docs-site/assets/core-adapters-diagram.svg` and `docs-site/assets/core-adapters-diagram.pt.svg`.
+2. The architecture figure: `docs-site/assets/core-adapters-diagram.svg` and `docs-site/assets/core-adapters-diagram-pt.svg` (the `-pt` suffix keeps mkdocs i18n from treating it as a page variant).
 3. Install stays a short point to Get started. Do not explain each publish script on the home.
 
 Get started, both locales:
@@ -95,19 +95,23 @@ Controls name the file they download. One sentence of outcome next to the table.
 
 ## 9. Implementation notes
 
-Edit `docs-site/stylesheets/extra.css`, `docs-site/overrides/`, `docs-site/javascripts/agent-switcher.js` only if the download or figure needs it, and the minimum of `index.md`, `index.pt.md`, `get-started.md`, and `get-started.pt.md` so the figure and the download return.
+Edit `docs-site/stylesheets/extra.css` and `docs-site/overrides/`, and the minimum of `index.md`, `index.pt.md`, `get-started.md`, and `get-started.pt.md` so the figure and the download return.
 
 Do not edit `core/`, `adapters/`, `scripts/`, or `memory-bank/` for this pass. Do not reorganize `mkdocs.yml` nav here.
 
-## 10. Implementation scope (one session)
+## 10. Status and next steps
 
-Next session is `/javascript-developer` on the HTML/CSS fallback. Load only `frontend-practices.md`, `semantic-html.md`, `css-foundations.md`, `modern-css.md`, `accessibility-basics.md`, and `checklist.md`.
+Status as of the last review of the site. The CSS and page changes already exist in the repo, so this section tracks what is verified.
 
 Acceptance:
 
-- [ ] Home shows the architecture SVG in both locales.
-- [ ] Get started offers one download control per bootstrap file, in both locales, without the long `curl` and without a copy button beside it.
-- [ ] Body is 15px Atkinson. Code, pre, and kbd are 12.5px JetBrains Mono. Left nav and TOC are both 13px Atkinson.
+- [x] Home shows the architecture SVG in both locales (`index.md`, `index.pt.md`).
+- [x] Get started offers one download control per bootstrap file, in both locales, without the long `curl` and without a copy button beside it (`get-started.md` table).
+- [x] Body is 15px Atkinson. Code, pre, and kbd are 12.5px JetBrains Mono. Left nav and TOC are both 13px Atkinson. Verified in the browser after the CSS fix.
 - [ ] Checked in the browser, desktop and phone width, English and Portuguese: home, get started, one page with a table, one page with a code block. Local server `http://127.0.0.1:8000/agent-dev-toolkit/`.
 
-**Handoff:** new conversation with `/javascript-developer`. Do not implement the CSS in the session that only writes this brief.
+Next steps:
+
+1. Audit the current look with `/impeccable` in analysis mode only (no edits). Output: critique and a `DESIGN.md` derived from the shipped site, next to this brief.
+2. Verify the two open criteria in the browser after building the site locally.
+3. Apply only the fixes the audit and the browser check confirm, in `docs-site/stylesheets/extra.css` and `docs-site/overrides/`.

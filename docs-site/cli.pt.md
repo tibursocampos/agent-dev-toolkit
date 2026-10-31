@@ -133,7 +133,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -WhatIf
 | Agente | Artefatos típicos sob o InstallRoot |
 |--------|-------------------------------------|
 | Cursor | `skills/`, `rules/*.mdc`, `AGENTS.md`, `hooks/`, `hooks.json` |
-| Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `hooks/`, `settings.json` mesclado |
+| Claude | `skills/`, `rules/*.md`, `CLAUDE.md`, `agents/*.md`, `hooks/`, `settings.json` mesclado |
 | Copilot | `skills/`, `instructions/*.instructions.md`, `copilot-instructions.md`, `hooks/` |
 | Codex | `plugin/` (e marketplace), `skills/` (espelho `$`), `rules/*.md`, `AGENTS.md` materializado. `.agents/skills` opcional com `-UserScope` |
 | OpenCode | `skills/`, `AGENTS.md`, `plugins/*.js` |
@@ -175,7 +175,7 @@ Ou abra **Validation lab** no menu. Depois de um sync ao vivo do Cursor, arquivo
 
 Reinicie o agente ou recarregue a janela se as skills não aparecerem. Confie nos hooks na UI do agente se ela pedir. Esse passo de confiança é manual e fica fora da CI.
 
-No primeiro sync, se `preferences.json` não existir sob a raiz SDD, o assistente pergunta **Always orchestrate** (padrão) ou **Adaptive**.
+No primeiro sync, se `preferences.json` não existir sob a raiz SDD, o assistente pergunta **Adaptive** (padrão) ou **Always orchestrate**.
 
 ## Abra o projeto e a primeira skill
 
