@@ -292,7 +292,7 @@ jobs:
               merge --no-ff "${promoted}" -m "merge: reconcile ${RELEASE_BASE} after release PR ${PR_NUMBER:-recovery}"
           fi
           git push origin "HEAD:refs/heads/${sync_branch}"
-          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${OWNER}:${sync_branch}" --state open --json url --jq '.[0].url // empty')"
+          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${sync_branch}" --state open --json url --jq '.[0].url // empty')"
           if [[ -z "${existing_pr}" ]]; then
             gh pr create --repo "${REPOSITORY}" --base develop --head "${sync_branch}" \
               --title "chore: reconcile develop after release ${RELEASE_TAG:-recovery}" \
@@ -300,7 +300,7 @@ jobs:
           else
             echo "Existing reconciliation PR: ${existing_pr}"
           fi
-          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${OWNER}:${sync_branch}" --state open --json url --jq '.[0].url // empty')"
+          existing_pr="$(gh pr list --repo "${REPOSITORY}" --base develop --head "${sync_branch}" --state open --json url --jq '.[0].url // empty')"
           [[ -n "${existing_pr}" ]] || { echo "Reconciliation PR was not created or found." >&2; exit 1; }
           if ! gh pr merge "${existing_pr}" --repo "${REPOSITORY}" --auto --merge; then
             echo "Could not enable auto-merge for reconciliation PR ${existing_pr}. Check that repository auto-merge is enabled and the App token can request a normal merge; no branch protection bypass is used." >&2
