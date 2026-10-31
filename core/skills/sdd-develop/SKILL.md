@@ -165,6 +165,8 @@ Load `references/execution-display.md` and `references/session-report.md`. Show 
 
 For a direct Classic step delegated by a parent, the parent owns the operator-facing relay after the child returns: re-read the persisted PLAN, reconcile the step checkpoint with the child report, then show the complete PLAN-step table and next eligible step as defined in `references/execution-display.md`. A child receipt, partial summary, or child-rendered table does not satisfy the parent's relay. If the saved checkpoint cannot be reconciled, stop with `ledger_partial`; do not start the next direct step.
 
+For a direct Classic step delegated by a parent, the parent owns the operator-facing relay after the child returns: re-read the persisted PLAN, reconcile the step checkpoint with the child report, then show the complete PLAN step ledger and next eligible step as defined in `references/execution-display.md`. A child receipt, partial summary, or child-rendered table does not satisfy the parent's relay. If the saved checkpoint cannot be reconciled, stop with `ledger_partial`; do not start the next direct step.
+
 ## Must not
 
 Also enforce `references/forbidden.md` (§ Must not (develop scope) holds the full list). Before marking Completed: `references/quality-self-check.md`. Optional user flows: `references/optional-flows.md`.
