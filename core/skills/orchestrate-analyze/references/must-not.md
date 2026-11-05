@@ -25,7 +25,7 @@
 - Change the `sdd-develop` one-step-per-session contract
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **sim** (or user-named slug); ask model on routine spawns
+- Pass Agent `model` or `effort` outside the `SUBAGENT-MODEL.md` session choice; ask the model question per spawn or from a child
 - Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** in-parent notes per `SPAWN.md`; until step 9, keep those notes in the parent — do not create `USnn`, `TSnn`, Bug, `ANALYSIS/`, `ARCH/`, or `SEC/` before the open-question gate; never skip the notes)
 - Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
 - Paste guideline packs into Agent child prompts

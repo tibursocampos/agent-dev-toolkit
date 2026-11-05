@@ -282,7 +282,7 @@ O padrão de `orchestrator_mode` é `adaptive`. O pai guarda metas, gates, camin
 
 `adaptive` pode manter no pai uma pergunta de um caminho só ou uma edição de um arquivo. Qualquer mudança mais larga é spawn. Se o host tem `subagents=none`, o mesmo trabalho fica no pai. A sessão não falha porque Task está ausente.
 
-O `model` da Task é omitido para o filho usar o modelo da sessão pai (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
+O `model` da Task é omitido para o filho usar o modelo da sessão pai (`core/skills/_shared/agents/SUBAGENT-MODEL.md`). O pai pergunta uma vez por sessão se os subagentes herdam ou usam um par verificado.
 
 ### Compressão opcional do chat
 

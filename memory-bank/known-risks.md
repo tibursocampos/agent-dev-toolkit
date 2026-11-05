@@ -14,6 +14,12 @@
 | Hermes `config.yaml` is checked structurally, not parsed as YAML | Hermes | `Test-HermesConfigYamlStructure` accepts only the `plugins` layouts that the keyed merge can edit and blocks before any write otherwise. It is not a YAML validator; other layouts may be valid YAML and still be blocked. |
 | Hook trust and consent steps are provider-owned and not verified in CI | Hooks / providers | Codex `/hooks`, Grok `/hooks-trust` and similar steps are reported as `manual` with the step text. Fixtures do not prove the host trust UI or that a host runs the hook. |
 
+<!-- BEGIN GENERATED: host-model-option-evidence -->
+## Host model-option evidence
+
+Model and effort choices depend on the active provider surface, schema, version, and configured route. Documentation or a visible schema does not prove account availability or effective runtime application. When a complete pair cannot be verified, preserve inheritance. Evidence: `docs/SPAWN.md`, `docs/guides/session-behavior.md`, `core/policy/orchestrator-session.md`.
+<!-- END GENERATED: host-model-option-evidence -->
+
 ## Fragile areas
 
 - `adapters/registry.json` declarations versus effective host capability probes.

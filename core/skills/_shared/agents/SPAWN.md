@@ -14,7 +14,7 @@ Normative split — do **not** conflate axes. Marker: `A≠B≠C`.
 |------|------|------|
 | **A** | This file | Spawn vs in-parent decision. **Thin trivial exception intact** — never remove spawn choice. |
 | **B** | `SUBAGENT-MODEL.md` | Omit/inherit `model` (same as parent session). SPAWN does **not** pin child ≠ parent. |
-| **C** | `SUBAGENT-MODEL.md` | Alternate slug only after gate + explicit approval. SPAWN does **not** invent model escapes. |
+| **C** | `SUBAGENT-MODEL.md` | Alternate pair only via the session choice. SPAWN does **not** invent model escapes. |
 
 **Default preference (all adapters):** this chat stays **parent / orchestrator** (lean: goals, gates, paths, receipts, synthesis). Prefer specialist children **in parallel** when independent for analysis, multi-file edits, script/batch runs, long builds/tests, deep investigation, and non-trivial planning. **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn. Caps and fallback below still apply.
 

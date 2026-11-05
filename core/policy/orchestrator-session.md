@@ -7,7 +7,9 @@ alwaysApply: true
 
 **Applies to:** every conversation in this toolkit install. Do **not** require the user to restate this each session.
 
-Session-start digest (read every session): `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md`. Full spawn contract: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Model param: `SUBAGENT-MODEL.md`. Receipts: `RECEIPT.md`. Caveman: `skills/_shared/caveman/CAVEMAN.md` + `{{SDD_ROOT}}/preferences.json`.
+Startup is capability-first. Resolve the active host's effective `subagents` capability and read `{{SDD_ROOT}}/preferences.json` before loading any spawn contract. Only when the active host exposes `subagents=native`, load `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md` and relevant contracts before a delegation decision. When capability is `none`, unavailable, or unknown, skip all spawn/model-choice contracts and questions, and use the workflow's documented fallback. The preference `orchestrator_mode` is read and reported only when effective `subagents=native`; its supported values are `always` and `adaptive`.
+
+Spawn contracts (conditional): `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`; model choice: `SUBAGENT-MODEL.md`; receipts: `RECEIPT.md`. Caveman: `skills/_shared/caveman/CAVEMAN.md` + `{{SDD_ROOT}}/preferences.json`.
 
 ---
 
@@ -33,13 +35,16 @@ Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `par
 
 ## Preference check (every session / task start)
 
-1. Read `{{SDD_ROOT}}/preferences.json`.
-2. If missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow (answer rule: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `adaptive` and Caveman on. Existing choices are preserved.
-3. If `orchestrator_mode` is missing: default `"adaptive"`.
-4. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
-5. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
-6. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead. The in-session command `orchestrator adaptive` stays.
-7. Work the spawn contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays in-parent.
+1. Resolve the active host's effective `subagents` capability from exposed native tools / adapter capability. Unknown or unavailable is `none` (safe degrade).
+2. If capability is `none`, skip `orchestrator_mode`, all spawn-contract reads, and the subagent model question. Use only the owning workflow's fallback. Do not present the session as an active orchestrator.
+3. If capability is `native`, read `{{SDD_ROOT}}/preferences.json` before loading spawn contracts.
+4. If preferences are missing: interactive first sync through `toolkit.ps1` asks for parent orchestration mode (`always` / `adaptive`) and Caveman (`on` / `off`) in one flow (answer rule: `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Caveman on is recommended; turning it off disables response compression. Non-interactive first sync defaults to `adaptive` and Caveman on. Existing choices are preserved.
+5. If `orchestrator_mode` is missing: default `"adaptive"`. This setting has only `always` and `adaptive`; `subagents=none` is the off condition, not a third mode.
+6. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
+7. Load the session-start digest and read the session model-choice contract before the first skill/task work that can delegate. Discover current host options before asking; do not defer discovery until after the user selects an unavailable generic `pair` choice.
+8. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
+9. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead. The in-session command `orchestrator adaptive` stays.
+10. Work the spawn contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays in-parent.
 
 ---
 
@@ -68,7 +73,7 @@ Prefer specialist subagents (parallel when independent) for analysis, multi-file
 
 ## Read SPAWN before decide
 
-- At the start of every session, unconditionally: **Read** `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md`.
+- At the start of every session, first resolve effective `subagents` capability and read preferences. **Only if native**, read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md` before any skill/task work that could delegate.
 - Before the first spawn vs in-parent decision in a chat when work is **not** thin-trivial: **Read** SPAWN.md for the full contract.
 - Multi-file analysis / non-trivial planning → spawn specialists; this chat stays parent/orchestrator.
 - Citing Agent/orchestration in a plan without having Read the digest and SPAWN = failed checklist.
@@ -112,8 +117,8 @@ Do **not** conflate axes. Marker: `A≠B≠C`.
 |------|------|------|
 | **A** | `SPAWN.md` | Spawn vs in-parent; thin-trivial in-parent preserved (RN01). |
 | **B** | `SUBAGENT-MODEL.md` | Omit `model` → inherit parent session model (RN02). |
-| **C** | `SUBAGENT-MODEL.md` | No alternate-slug escape without gate + explicit approval. |
+| **C** | `SUBAGENT-MODEL.md` | Alternate pair only from the session choice (one question per session); never autonomous. |
 
 ## Model on spawn
 
-Default: **omit `model`** — child uses the **same model as this parent session** (Axis B). Different slug only when extremely necessary, and only after explicit user approval per `SUBAGENT-MODEL.md` (Axis C). Silence ≠ approval for an alternate model. Never remove Axis A spawn choice.
+Default: **omit `model`** — child uses the **same model as this parent session** (Axis B). A different model and effort apply only through the session choice in `SUBAGENT-MODEL.md` (Axis C), asked once per session. Silence ≠ approval. Never remove Axis A spawn choice.

@@ -85,9 +85,9 @@ Marker: **A≠B≠C**. Model policy does **not** decide spawn vs in-parent (**Ei
 |------|------|------|
 | **A** | This page + canonical `SPAWN.md` | Spawn vs in-parent |
 | **B** | `SUBAGENT-MODEL.md` | Default: **omit** `model` → child inherits the parent session model |
-| **C** | `SUBAGENT-MODEL.md` | Premium / alternate slug only when that gate fires **and** the user gives a `confirm` answer (silence ≠ approval) |
+| **C** | `SUBAGENT-MODEL.md` | Alternate pair only through the single session choice (one question per session; silence ≠ approval) |
 
-Do **not** pin child≠parent by default. Do **not** conflate Memory Bank policy `auto` with Cursor Auto model. Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md`.
+At session start, resolve `subagents` capability and read preferences before loading spawn contracts; `none`/unknown skips those contracts and model questions. For `native`, discover complete host-specific pairs before the question: show concrete pairs with `inherit`, or `inherit` alone if none are discoverable. Do **not** pin child≠parent by default. Do **not** conflate Memory Bank policy `auto` with Cursor Auto model. Details: `core/skills/_shared/agents/SUBAGENT-MODEL.md` and `SUBAGENT-OPTIONS.md`.
 
 ## Orchestrate parents
 

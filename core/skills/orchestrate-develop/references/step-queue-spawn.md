@@ -106,7 +106,7 @@ Silence ≠ approval (RN01). See also § Step queue algorithm.
 
 **Hard rule (native path):** one Agent = one PLAN step = full `sdd-develop` contract.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Ask about a premium slug **only** for very hard PLAN steps per that contract; on `decline` / silence, spawn without `model`. Never pick a costlier model alone.
+**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. A different pair only through the session choice in that contract (asked once per session); never pick a costlier model alone.
 
 ### Canonical Shell boundary (REQ-012 / CA4 / CT6)
 

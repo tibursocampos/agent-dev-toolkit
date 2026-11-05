@@ -5,49 +5,38 @@ Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 
 ## MVP coverage
 
-- [ ] project-context filled from evidence
-- [ ] tech-stack.json matches detected manifests (markdown, powershell)
-- [ ] architecture entry points verified
-- [ ] domain-knowledge has at least one evidenced area (or N/A noted)
-- [ ] conventions aligned with AGENTS/README
-- [ ] known-risks reviewed once
+- [x] project-context filled from evidence
+- [x] tech-stack.json matches detected manifests (markdown, powershell)
+- [x] architecture entry points verified
+- [x] domain-knowledge has at least one evidenced area (or N/A noted)
+- [x] conventions aligned with AGENTS/README
+- [x] known-risks reviewed once
 
 ## Phase 2 / rich contracts
 
 When Prior/cited content already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (write/promote it, or `- [ ] BLOCKING:` until written).
 
-- [ ] api-contracts (OpenAPI/Swagger detected: no)
-- [ ] database-schema (EF/Prisma/SQL migrations detected: no)
-- [ ] component-catalog (design system / large UI kit detected: no)
+- [x] api-contracts (OpenAPI/Swagger detected: no)
+- [x] database-schema (EF/Prisma/SQL migrations detected: no)
+- [x] component-catalog (design system / large UI kit detected: no)
 
 ## Blocking
 
 - [x] BLOCKING: source drift detected (63 source(s)); review and check off
+- [x] BLOCKING: source drift detected (71 source(s)); reviewed 2026-11-05: 65/71 paths represented in committed history through HEAD, six are current S4/S9 edits; no stack additions. Architecture prose updated in commit 3a37061.
+- [x] BLOCKING: source drift detected (3 source(s)); reviewed 2026-11-05: capability-first startup, host-specific model/effort option discovery, and inheritance fallback are represented in conventions and known-risks.
 
 ## Notes
 
-Preserved content records provenance only; its current validity is unverified until reviewed against its source.
-Preserved note (validity unverified): - [x] project-context filled from evidence
-Preserved note (validity unverified): - [x] tech-stack.json matches detected manifests (markdown, powershell)
-Preserved note (validity unverified): - [x] architecture entry points verified
-Preserved note (validity unverified): - [x] domain-knowledge has at least one evidenced area (or N/A noted)
-Preserved note (validity unverified): - [x] conventions aligned with AGENTS/README
-Preserved note (validity unverified): - [x] known-risks reviewed once
-Preserved note (validity unverified): Unchecked items mean the bank is incomplete for that topic. Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
-Preserved note (validity unverified): - [x] `project-context.md` refreshed from README, CLI, CI and repository contracts.
-Preserved note (validity unverified): - [x] `tech-stack.json` matches the detected PowerShell/Markdown stack and documentation tooling.
-Preserved note (validity unverified): - [x] Architecture entry points and CI/release boundaries reviewed against current source.
-Preserved note (validity unverified): - [x] Domain areas and terms are evidenced; no unsupported product domain was added.
-Preserved note (validity unverified): - [x] Conventions aligned with README, AGENTS, catalog and validation contracts.
-Preserved note (validity unverified): - [x] Known risks reconciled against current CI/release configuration and evidence limits.
-Preserved note (validity unverified): Current reviewed inventory has no DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map. These files are not required unless such source material is added or cited later.
-Preserved note (validity unverified): - [x] `api-contracts.md` — not indicated by current sources.
-Preserved note (validity unverified): - [x] `database-schema.md` — not indicated by current sources.
-Preserved note (validity unverified): - [x] `component-catalog.md` — not indicated by current sources.
-Preserved note (validity unverified): ## Open gaps
-Preserved note (validity unverified): - [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
-Preserved note (validity unverified): - [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
-Preserved note (validity unverified): - [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
-Preserved note (validity unverified): Inventory is `ready` at hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3` (`138 source(s); stack: markdown, powershell`). The operator acknowledged the 20-source drift from the prior snapshot; the generated drift blocker was cleared and inventory rerun successfully. Remaining unchecked items are external follow-ups, not Memory Bank write blockers.
+The 2026-11-05 inventory is `ready` at hash `30dd6df1d21a29ccdd40beca83bff7298c5829ae0d23aac74f17f2ec0a19008f` (144 sources; Markdown and PowerShell). The three changed session-start/spawn-contract sources were reviewed and represented in the Memory Bank.
+
+No DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map were detected; phase-2 files are not currently required.
+
+## Open gaps
+
+- [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
+- [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
+- [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
+- [ ] Verify live model/effort option discovery and application for each provider/surface; current evidence is contract/schema documentation and operator-reported Claude/Codex manual testing, not independent host telemetry.
 
 Regenerated by Invoke-MemoryBankInventory.ps1.

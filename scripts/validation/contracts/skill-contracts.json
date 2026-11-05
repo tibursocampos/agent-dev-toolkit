@@ -192,6 +192,34 @@
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
+      "id": "axis-c-session-choice-subagent-model",
+      "skill": "_shared/agents",
+      "files": ["SUBAGENT-MODEL.md"],
+      "mustContain": ["Session choice (once per session)", "Only the parent asks", "omit both", "one inheritance attempt", "effort=unverified"],
+      "mustNotContain": ["alternate slug", "extremely necessary", "Different model", "premium", "inherit parent / Auto"]
+    },
+    {
+      "id": "axis-c-session-choice-orchestrate-develop-must-not",
+      "skill": "orchestrate-develop",
+      "files": ["references/must-not.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "session choice"],
+      "mustNotContain": ["gate + user", "premium"]
+    },
+    {
+      "id": "axis-c-session-choice-orchestrate-develop-step-queue",
+      "skill": "orchestrate-develop",
+      "files": ["references/step-queue-spawn.md"],
+      "mustContain": ["omit Agent `model`", "same model as the parent session", "session choice"],
+      "mustNotContain": ["premium", "very hard"]
+    },
+    {
+      "id": "axis-c-session-choice-developer-common",
+      "skill": "_shared/developer-common",
+      "files": ["subagent-first.md"],
+      "mustContain": ["SUBAGENT-MODEL.md", "session choice"],
+      "mustNotContain": ["alternate slug", "gate + explicit"]
+    },
+    {
       "id": "req-012-canonical-scripts-step-queue-spawn",
       "skill": "orchestrate-develop",
       "files": ["references/step-queue-spawn.md"],

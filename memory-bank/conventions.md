@@ -45,6 +45,14 @@
 | Keep one PLAN step per `sdd-develop` session | Continue into the next PLAN step in the same session |
 | Cite env var names only | Copy tokens, connection strings, or raw `.env` values into the bank |
 
+<!-- BEGIN GENERATED: session-start-subagent-policy -->
+## Session startup and subagent choice
+
+- Resolve effective `subagents` capability and read preferences before loading spawn or model-choice contracts. `none` or unknown skips those contracts and the model question; `orchestrator_mode` has `adaptive` and `always`, while `subagents=none` disables delegation.
+- When native subagents are available, discover complete model-and-effort options for the current host surface before the single session choice. Offer `inherit` when no alternate pair is verified; unknown runtime application remains unverified.
+- Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `docs/SPAWN.md`, `docs/guides/session-behavior.md`.
+<!-- END GENERATED: session-start-subagent-policy -->
+
 ## Notes
 
 Align with `README.md`, `core/policy/`, and `core/skills/_shared/agents/LANGUAGE.md`.

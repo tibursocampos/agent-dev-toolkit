@@ -28,7 +28,7 @@ Default `orchestrator_mode` is `adaptive` for every adapter. The parent keeps go
 
 Full charter: [08-orchestrator-mode.md](08-orchestrator-mode.md). Spawn matrix: [SPAWN.md](../SPAWN.md).
 
-Task `model` is omitted so the child uses the parent session model (`core/skills/_shared/agents/SUBAGENT-MODEL.md`). A different model needs an explicit approval. Silence is not that approval.
+At session start, first resolve effective `subagents` capability and read preferences. When `subagents=none` or capability is unknown, skip spawn/model-choice contracts and questions. When `native`, resolve `orchestrator_mode` (`always` or `adaptive`), load the shared spawn contracts, and discover the active host's complete model/effort pairs before asking. The parent presents `inherit` plus concrete discovered pairs; if none are available, it offers only `inherit`. A selected pair expresses intent; it does not prove the host applied it. Task `model` and `effort` are otherwise omitted so children inherit the parent session (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
 
 ## Optional chat compression
 

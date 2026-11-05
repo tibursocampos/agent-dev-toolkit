@@ -215,7 +215,7 @@ Contract: [`LANGUAGE.md`](../../core/skills/_shared/agents/LANGUAGE.md) (`CL-CON
 | Spawn / Task prompts, specialist contexts, agent receipts | **Always en-US** — scoped portable paths + short excerpt; never dump full PLAN/PRD/`memory-bank/` |
 | Source, tests, commits, identifiers | Always English |
 
-**Spawn lock (model):** omit Task `model` by default (inherit parent). Alternate/premium slug only with [`SUBAGENT-MODEL.md`](../../core/skills/_shared/agents/SUBAGENT-MODEL.md) gate + operator `confirm` answer. Human matrix: [SPAWN.md](../SPAWN.md).
+**Spawn lock (model):** omit Task `model` and `effort` by default (inherit parent). A different pair only through the session choice in [`SUBAGENT-MODEL.md`](../../core/skills/_shared/agents/SUBAGENT-MODEL.md), asked once per session. Human matrix: [SPAWN.md](../SPAWN.md).
 
 ### Skill `read-sdd-artifact` (`source_context`)
 

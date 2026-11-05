@@ -44,7 +44,7 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **confirm**)
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Require memory-bank for Classic SDD / manual `sdd-*` (CA7 - gate is Orchestrated Delivery `orchestrate-*` only)
-- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **confirm** (or user-named slug); ask model on routine story drafts
+- Pass Agent `model` or `effort` outside the `SUBAGENT-MODEL.md` session choice; ask the model question per spawn or from a child
 - Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** to `series` **in-parent** per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/`series` (`SPAWN.md`)
 - Paste guideline packs into Agent child prompts

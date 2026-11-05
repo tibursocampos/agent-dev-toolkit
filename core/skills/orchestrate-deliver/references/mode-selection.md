@@ -25,6 +25,6 @@ Ask in the user chat language - never assume. Only after the required-siblings S
 
 Document the choice in `CONTINUITY.md` (decisões). Before any `parallel` Agent wave: load `SPAWN.md` and consult capability `subagents`.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Premium slug only after the rare hard-task gate + user **confirm**; **decline** / silence → omit `model`.
+**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. A different pair only through the session choice in that contract (asked once per session); never pick a costlier model alone.
 
 See also § Mode comparison (RF03).

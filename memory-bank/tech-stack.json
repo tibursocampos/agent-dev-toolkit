@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-10-30T00:32:30.7618397Z",
+  "generated_at": "2026-11-05T23:46:41.9818691Z",
   "languages": [
     "powershell",
     "markdown",
@@ -33,7 +33,7 @@
       "docs-site/requirements-docs.txt"
     ],
     "notes": [
-      "Inventory summary: 138 sources; stack hints are markdown and powershell.",
+      "Inventory summary: 144 source(s); stack: markdown, powershell.",
       "PowerShell 5.1+ on Windows or pwsh 7+; non-Windows workflows use pwsh 7+.",
       "The toolkit runtime is PowerShell and agent-neutral Markdown/policy; YAML is used for GitHub Actions configuration.",
       "MkDocs Material and mkdocs-static-i18n are limited to docs-site; install through docs-site/requirements-docs.txt.",

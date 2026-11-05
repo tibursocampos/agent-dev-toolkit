@@ -6,10 +6,10 @@ Language: English
 | Field | Value |
 |-------|-------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-10-30T00:32:30Z |
+| **Inventory at** | 2026-11-05T23:46:41.9818691Z |
 | **Status** | ready |
-| **Inventory hash** | `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3` |
-| **Primary stack signals** | 138 source(s); stack: markdown, powershell |
+| **Inventory hash** | `30dd6df1d21a29ccdd40beca83bff7298c5829ae0d23aac74f17f2ec0a19008f` |
+| **Primary stack signals** | 144 source(s); stack: markdown, powershell |
 <!-- END GENERATED: inventory-summary -->
 
 ## Purpose

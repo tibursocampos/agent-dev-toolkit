@@ -282,7 +282,7 @@ Default `orchestrator_mode` is `adaptive`. The parent keeps goals, gates, paths,
 
 `adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
 
-Task `model` is omitted so the child uses the parent session model (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
+Task `model` is omitted so the child uses the parent session model (`core/skills/_shared/agents/SUBAGENT-MODEL.md`). The parent asks once per session whether subagents inherit or use one verified pair.
 
 ### Optional chat compression
 

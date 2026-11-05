@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Single-process text/contract assertions for core/ (router, spawn, orchestration, SDD contracts).
@@ -642,6 +642,20 @@ foreach ($rel in $paths) {
     }
 }
 
+$startupPolicy = Get-Content -LiteralPath (Join-Path $repoRoot 'core/policy/orchestrator-session.md') -Raw -Encoding UTF8
+$router = Get-Content -LiteralPath (Join-Path $repoRoot 'core/router/AGENTS.md') -Raw -Encoding UTF8
+foreach ($marker in @('Startup is capability-first', 'effective `subagents` capability', 'preferences.json` before loading any spawn contract', 'subagents=none', 'only `always` and `adaptive`')) {
+    if ($startupPolicy -notmatch [regex]::Escape($marker)) {
+        Write-Fail -TestName $testName -Reason ("orchestrator-session is missing capability-first startup marker: {0}" -f $marker)
+    }
+}
+if ($startupPolicy -match 'unconditionally: \*\*Read\*\*.*SPAWN-DIGEST' -or $router -match 'Read\*\*.*SPAWN-DIGEST.*unconditionally') {
+    Write-Fail -TestName $testName -Reason 'the digest must not be mandated before capability/preferences are checked'
+}
+if ($router -notmatch [regex]::Escape('If capability is `none`/unknown, skip spawn/model-choice contracts and questions')) {
+    Write-Fail -TestName $testName -Reason 'router must gate spawn-contract reads and questions on effective native capability'
+}
+
 Write-Pass -TestName $testName
 }
 
@@ -786,6 +800,553 @@ if ($spawnText -notmatch $script:NoPinChildPattern) {
     Write-Fail -TestName $axisBCName -Reason 'SPAWN.md must forbid pin child≠parent (Axis B/C boundary)'
 }
 Write-Pass -TestName $axisBCName
+
+# --- Should_Pass_When_SessionChoiceContractPresent ---
+$sessionChoiceName = 'Should_Pass_When_SessionChoiceContractPresent'
+foreach ($phrase in @(
+    'Session choice (once per session)',
+    'once per session',
+    'not a question about whether to delegate',
+    'At session start, before the active skill/task is processed',
+    'Only the parent asks',
+    'Extract and enumerate every literal value',
+    '`SESSION_SCHEMA` / requestable',
+    'never their assumed Cartesian product',
+    'unconstrained string with no enum',
+    'Disclose the extracted schema values immediately before the question',
+    'a clarification does not reset its state',
+    'do not replace it with a yes/no question',
+    'never persisted',
+    'SUBAGENT-OPTIONS.md',
+    'live read-only model/effort choices',
+    'explicit selectable option',
+    'only `inherit`',
+    'Never include `pair` as a selectable option when the list is empty',
+    'subagents=none',
+    'omit both',
+    'one inheritance attempt',
+    'compaction',
+    'effort=unverified',
+    'Requested, sent, and effective',
+    'never contains preferences'
+)) {
+    if ($subagentText -notmatch [regex]::Escape($phrase)) {
+        Write-Fail -TestName $sessionChoiceName -Reason ("SUBAGENT-MODEL.md missing session-choice contract phrase: {0}" -f $phrase)
+    }
+}
+foreach ($phrase in @('alternate slug', 'extremely necessary', 'Different model', 'premium', 'inherit parent / Auto')) {
+    if ($subagentText -match [regex]::Escape($phrase)) {
+        Write-Fail -TestName $sessionChoiceName -Reason ("SUBAGENT-MODEL.md contains obsolete contract phrase: {0}" -f $phrase)
+    }
+}
+if ($subagentText -match '(?i)\b(claude|gpt|gemini|grok|composer)-\S+') {
+    Write-Fail -TestName $sessionChoiceName -Reason 'SUBAGENT-MODEL.md must not contain a model identifier'
+}
+Write-Pass -TestName $sessionChoiceName
+
+}
+
+$sections['SubagentSessionChoice'] = {
+# Tests:
+#   Should_Pass_When_SessionChoiceTextSatisfiesContract
+#   Should_Fail_When_ModelCatalogWrittenInContract
+#   Should_Fail_When_OmitBothSentenceRemoved
+#   Should_Fail_When_ChildPromptProtectionRemoved
+#   Should_Pass_When_ReceiptContractHasNoSessionFields
+#   Should_Pass_When_PublishedAgentsInheritParentModel
+
+function Test-SessionChoiceText {
+    param([Parameter(Mandatory = $true)][string] $Text)
+    $failures = [System.Collections.Generic.List[string]]::new()
+    foreach ($phrase in @(
+        'Session choice (once per session)',
+        'once per session',
+        'not a question about whether to delegate',
+        'At session start, before the active skill/task is processed',
+        'Only the parent asks',
+        'Extract and enumerate every literal value',
+        '`SESSION_SCHEMA` / requestable',
+        'never their assumed Cartesian product',
+        'unconstrained string with no enum',
+        'Disclose the extracted schema values immediately before the question',
+        'a clarification does not reset its state',
+        'do not replace it with a yes/no question',
+        'never persisted',
+        'SUBAGENT-OPTIONS.md',
+        'live read-only model/effort choices',
+        'explicit selectable option',
+        'only `inherit`',
+        'Never include `pair` as a selectable option when the list is empty',
+        'subagents=none',
+        'omit both',
+        'one inheritance attempt',
+        'compaction',
+        'effort=unverified',
+        'Requested, sent, and effective',
+        'never contains preferences',
+        'Refusal and fallback',
+        'refused context',
+        'Non-interactive sessions'
+    )) {
+        if ($Text -notmatch [regex]::Escape($phrase)) {
+            $failures.Add(("missing required phrase: {0}" -f $phrase))
+        }
+    }
+    foreach ($phrase in @('alternate slug', 'extremely necessary', 'Different model', 'premium', 'inherit parent / Auto')) {
+        if ($Text -match [regex]::Escape($phrase)) {
+            $failures.Add(("contains obsolete phrase: {0}" -f $phrase))
+        }
+    }
+    if ($Text -match '(?i)\b(claude|gpt|gemini|grok|composer)-\S+') {
+        $failures.Add('contains a model identifier')
+    }
+    return $failures.ToArray()
+}
+
+$sessionChoicePath = Join-Path $repoRoot 'core/skills/_shared/agents/SUBAGENT-MODEL.md'
+if (-not (Test-Path -LiteralPath $sessionChoicePath -PathType Leaf)) {
+    Write-Fail -TestName 'Assert-SubagentSessionChoicePreconditions' -Reason 'SUBAGENT-MODEL.md is missing'
+}
+$sessionChoiceText = [System.IO.File]::ReadAllText($sessionChoicePath, [System.Text.UTF8Encoding]::new($false))
+
+# --- Should_Pass_When_SessionChoiceTextSatisfiesContract ---
+$positiveName = 'Should_Pass_When_SessionChoiceTextSatisfiesContract'
+$positiveFailures = @(Test-SessionChoiceText -Text $sessionChoiceText)
+if ($positiveFailures.Count -gt 0) {
+    Write-Fail -TestName $positiveName -Reason ($positiveFailures -join '; ')
+}
+Write-Pass -TestName $positiveName
+
+# --- Should_Pass_When_AllAdapterDiscoveryPathsHaveHonestFallbacks ---
+$adapterDiscoveryName = 'Should_Pass_When_AllAdapterDiscoveryPathsHaveHonestFallbacks'
+$adapterOptionsPath = Join-Path $repoRoot 'core/skills/_shared/agents/SUBAGENT-OPTIONS.md'
+$adapterOptionsText = [System.IO.File]::ReadAllText($adapterOptionsPath, [System.Text.UTF8Encoding]::new($false))
+$adapterRequirements = @(
+    @{ id = 'ADP-CLAUDE'; markers = @('/model', '/effort', 'Agent` invocation schema', 'offer `inherit` only') },
+    @{ id = 'ADP-CODEX'; markers = @('collaboration.spawn_agent', 'reasoning_effort', 'DOCUMENTED` / requestable', 'runtime UNKNOWN') },
+    @{ id = 'ADP-CURSOR'; markers = @('Cursor.models.list()', 'model-id[param=value]', 'offer `inherit` only') },
+    @{ id = 'ADP-HERMES'; markers = @('delegate_task', 'model_map', 'option`', 'inherit only') },
+    @{ id = 'ADP-COPILOT'; markers = @('/model', '/subagents', 'reasoningEffort', 'IDE/cloud inherit-only') }
+)
+foreach ($adapterRequirement in $adapterRequirements) {
+    $adapterRow = @($adapterOptionsText -split "`r?`n" | Where-Object { $_.StartsWith('| ' + $adapterRequirement.id + ' |') })
+    if ($adapterRow.Count -ne 1) {
+        Write-Fail -TestName $adapterDiscoveryName -Reason ('expected one matrix row for {0}' -f $adapterRequirement.id)
+        continue
+    }
+    foreach ($marker in $adapterRequirement.markers) {
+        if ($adapterRow[0] -notmatch [regex]::Escape($marker)) {
+            Write-Fail -TestName $adapterDiscoveryName -Reason ('{0} is missing discovery/fallback marker: {1}' -f $adapterRequirement.id, $marker)
+        }
+    }
+}
+Write-Pass -TestName $adapterDiscoveryName
+
+# --- Should_Fail_When_ModelCatalogWrittenInContract ---
+$n1Name = 'Should_Fail_When_ModelCatalogWrittenInContract'
+$n1Text = $sessionChoiceText + "`n| claude-opus-x | high |"
+$n1Failures = @(Test-SessionChoiceText -Text $n1Text)
+if (@($n1Failures | Where-Object { $_ -eq 'contains a model identifier' }).Count -eq 0) {
+    Write-Fail -TestName $n1Name -Reason 'expected a model-identifier failure for the in-memory duplicate catalog'
+}
+Write-Pass -TestName $n1Name
+
+# --- Should_Fail_When_OmitBothSentenceRemoved ---
+$n2Name = 'Should_Fail_When_OmitBothSentenceRemoved'
+$n2Text = $sessionChoiceText.Replace('omit both', 'omit one')
+$n2Failures = @(Test-SessionChoiceText -Text $n2Text)
+if ($n2Text -ceq $sessionChoiceText -or @($n2Failures | Where-Object { $_ -eq 'missing required phrase: omit both' }).Count -eq 0) {
+    Write-Fail -TestName $n2Name -Reason 'expected the missing omit-both phrase failure for the in-memory partial-argument mutation'
+}
+Write-Pass -TestName $n2Name
+
+# --- Should_Fail_When_ChildPromptProtectionRemoved ---
+$n3Name = 'Should_Fail_When_ChildPromptProtectionRemoved'
+$n3Text = $sessionChoiceText.Replace('never contains preferences', 'may contain preferences')
+$n3Failures = @(Test-SessionChoiceText -Text $n3Text)
+if ($n3Text -ceq $sessionChoiceText -or @($n3Failures | Where-Object { $_ -eq 'missing required phrase: never contains preferences' }).Count -eq 0) {
+    Write-Fail -TestName $n3Name -Reason 'expected the missing protected-data phrase failure for the in-memory prompt mutation'
+}
+Write-Pass -TestName $n3Name
+
+# --- Should_Pass_When_ReceiptContractHasNoSessionFields ---
+$receiptName = 'Should_Pass_When_ReceiptContractHasNoSessionFields'
+$receiptPath = Join-Path $repoRoot 'core/skills/_shared/agents/RECEIPT.md'
+$receiptValidatorPath = Join-Path $repoRoot 'scripts/validation/Invoke-O3ReceiptValidation.ps1'
+if (-not (Test-Path -LiteralPath $receiptPath -PathType Leaf) -or -not (Test-Path -LiteralPath $receiptValidatorPath -PathType Leaf)) {
+    Write-Fail -TestName $receiptName -Reason 'receipt contract or validator is missing'
+}
+$receiptText = [System.IO.File]::ReadAllText($receiptPath, [System.Text.UTF8Encoding]::new($false))
+if ($receiptText -match '(?i)\b(session choice|subagent_models)\b') {
+    Write-Fail -TestName $receiptName -Reason 'RECEIPT.md must not add a session-choice or preference field'
+}
+$receiptValidatorText = [System.IO.File]::ReadAllText($receiptValidatorPath, [System.Text.UTF8Encoding]::new($false))
+$requiredAllowlistLine = "`$required = @('planPath','step','status','files','testsSummary')"
+if (-not $receiptValidatorText.Contains($requiredAllowlistLine)) {
+    Write-Fail -TestName $receiptName -Reason 'O3 receipt validator allowlist changed'
+}
+Write-Pass -TestName $receiptName
+
+# --- Should_Pass_When_PublishedAgentsInheritParentModel ---
+$inheritanceName = 'Should_Pass_When_PublishedAgentsInheritParentModel'
+$agentsPath = Join-Path $repoRoot 'core/agents'
+if (-not (Test-Path -LiteralPath $agentsPath -PathType Container)) {
+    Write-Fail -TestName $inheritanceName -Reason 'core/agents directory is missing'
+}
+$agentFiles = @(Get-ChildItem -LiteralPath $agentsPath -Filter '*.md' -File)
+if ($agentFiles.Count -eq 0) {
+    Write-Fail -TestName $inheritanceName -Reason 'core/agents contains no markdown agents'
+}
+foreach ($agentFile in $agentFiles) {
+    $agentText = [System.IO.File]::ReadAllText($agentFile.FullName, [System.Text.UTF8Encoding]::new($false))
+    if ($agentText -match '(?m)^model:\s*(?!inherit\s*$)\S') {
+        Write-Fail -TestName $inheritanceName -Reason ("{0} pins a model outside inherit" -f $agentFile.Name)
+    }
+    if ($agentText -match '(?m)^effort:') {
+        Write-Fail -TestName $inheritanceName -Reason ("{0} pins an effort value" -f $agentFile.Name)
+    }
+}
+Write-Pass -TestName $inheritanceName
+
+# --- Should_Pass_When_DecisionCase_DCxx ---
+$decisionFixtureName = 'Should_Pass_When_SessionDecisionFixturesMatchOracle'
+$decisionFixturePath = Join-Path $repoRoot 'scripts/validation/fixtures/subagent-session-choice/decision-cases.json'
+if (-not (Test-Path -LiteralPath $decisionFixturePath -PathType Leaf)) {
+    Write-Fail -TestName $decisionFixtureName -Reason 'decision fixture JSON is missing'
+}
+$decisionFixture = Get-Content -LiteralPath $decisionFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+if ($decisionFixture.schemaVersion -ne 1 -or @($decisionFixture.cases).Count -ne 21) {
+    Write-Fail -TestName $decisionFixtureName -Reason 'decision fixture must have schemaVersion 1 and exactly 21 cases'
+}
+
+function Resolve-SessionDecision {
+    param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
+
+    $questionsAsked = 0
+    $warnings = 0
+    $inheritanceAttempts = 0
+    $workflowFallbackUsed = $false
+    $spawnsBlockedUntilAnswer = $false
+    $paramsSentPerSpawn = [System.Collections.Generic.List[string]]::new()
+    $taskComplete = [System.Collections.Generic.List[bool]]::new()
+    $sessionChoice = 'inherit'
+    $pairRefusedInContext = $false
+    $retryPending = $false
+    $postRefusalHandled = $false
+
+    $availablePairs = @()
+    if ($Given.PSObject.Properties['availablePairs']) {
+        $availablePairs = @($Given.availablePairs | ForEach-Object { [string]$_ })
+    }
+    $schemaDiscovery = $null
+    $schemaDisclosure = $null
+    if ($Given.PSObject.Properties['codexSchema']) {
+        $modelEnum = @($Given.codexSchema.modelEnum | ForEach-Object { [string]$_ })
+        $effortEnum = @($Given.codexSchema.reasoningEffortEnum | ForEach-Object { [string]$_ })
+        $schemaPairs = [System.Collections.Generic.List[string]]::new()
+        $compatiblePairs = @()
+        if ($Given.codexSchema.PSObject.Properties['compatiblePairs']) {
+            $compatiblePairs = @($Given.codexSchema.compatiblePairs)
+        }
+        foreach ($candidate in $compatiblePairs) {
+            $model = [string]$candidate.model
+            $effort = [string]$candidate.reasoning_effort
+            if ($model -in $modelEnum -and $effort -in $effortEnum) {
+                $schemaPairs.Add(($model + '|' + $effort))
+            }
+        }
+        $documentedEffortsByModel = [ordered]@{}
+        if ($Given.codexSchema.PSObject.Properties['documentedEffortsByModel']) {
+            foreach ($modelProperty in $Given.codexSchema.documentedEffortsByModel.PSObject.Properties) {
+                $model = [string]$modelProperty.Name
+                if ($model -notin $modelEnum) { continue }
+                foreach ($effort in @($modelProperty.Value | ForEach-Object { [string]$_ })) {
+                    if ($effortEnum.Count -eq 0 -or $effort -in $effortEnum) {
+                        $candidatePair = $model + '|' + $effort
+                        if ($candidatePair -notin $schemaPairs) { $schemaPairs.Add($candidatePair) }
+                    }
+                }
+                $documentedEffortsByModel[$model] = @($modelProperty.Value | ForEach-Object { [string]$_ })
+            }
+        }
+        $availablePairs = @($schemaPairs.ToArray())
+        $schemaDiscovery = [ordered]@{
+            modelEnum = @($modelEnum)
+            reasoningEffortEnum = @($effortEnum)
+            documentedEffortsByModel = [PSCustomObject]$documentedEffortsByModel
+            candidatePairs = @($availablePairs)
+            candidatePairCount = $availablePairs.Count
+            evidence = 'SESSION_SCHEMA/requestable'
+            modelEvidence = 'SESSION_SCHEMA/requestable'
+            effortEvidence = 'DOCUMENTED/requestable; runtime-unverified'
+        }
+        $modelValuesText = if ($modelEnum.Count -gt 0) { $modelEnum -join ', ' } else { 'none exposed' }
+        $effortValuesText = if ($effortEnum.Count -gt 0) { $effortEnum -join ', ' } else { 'none exposed' }
+        $pairValuesText = if ($availablePairs.Count -gt 0) { $availablePairs -join ', ' } else { 'none established' }
+        if ($effortEnum.Count -gt 0) {
+            $schemaDisclosure = ('model enum: {0}; reasoning_effort enum: {1}; compatible pairs: {2}; evidence: SESSION_SCHEMA/requestable, not runtime-verified' -f $modelValuesText, $effortValuesText, $pairValuesText)
+        } else {
+            $schemaDisclosure = ('model enum: {0}; reasoning_effort enum: {1}; documented compatible pairs: {2}; evidence: model SESSION_SCHEMA/requestable; effort DOCUMENTED/requestable; runtime-unverified' -f $modelValuesText, $effortValuesText, $pairValuesText)
+        }
+    }
+    $observedPairs = @($availablePairs)
+    $pairSupported = $true
+    if ($Given.PSObject.Properties['pairSupported']) { $pairSupported = [bool]$Given.pairSupported }
+    $referenceAvailable = [bool]$Given.referenceReadable -and $availablePairs.Count -gt 0
+    if (-not $referenceAvailable -or -not $pairSupported) { $availablePairs = @() }
+    $questionOptions = @('inherit') + $availablePairs
+    if ($availablePairs.Count -gt 4) { $questionOptions = @('inherit', 'pair') }
+    $verifiedQuestionHosts = @('claude', 'grok', 'zcode', 'hermes')
+    $hasVerifiedQuestionComponent = $false
+    if ($Given.PSObject.Properties['host'] -and [string]$Given.host -in $verifiedQuestionHosts) {
+        $hasVerifiedQuestionComponent = $true
+    }
+    if ($Given.PSObject.Properties['answerComponent'] -and -not [bool]$Given.answerComponent) {
+        $hasVerifiedQuestionComponent = $false
+    }
+    $questionPresentation = if ($hasVerifiedQuestionComponent) { 'question-component' } else { 'numbered-text' }
+    $questionText = $null
+    $candidateSelectionOptions = @()
+    $candidateListDisplayed = $false
+    $pendingAfterPairChoice = $false
+    $candidateSelectionPresentation = 'none'
+    $candidateSelectionText = $null
+    $followupQuestionEmissions = 0
+    if ($availablePairs.Count -gt 4) {
+        $candidateListDisplayed = $Given.answer -eq 'pair' -and $availablePairs.Count -gt 0
+        if (-not $hasVerifiedQuestionComponent) {
+            $questionText = "Subagent model and effort choice:`n1. Inherit the parent session model and effort`n2. Choose an alternate model and effort pair"
+        }
+        if ($candidateListDisplayed) {
+            $candidateSelectionOptions = @($availablePairs)
+            $candidateSelectionPresentation = 'numbered-text'
+            $pendingAfterPairChoice = $availablePairs.Count -gt 0
+            $followupQuestionEmissions = 1
+            $candidateLines = for ($candidateIndex = 0; $candidateIndex -lt $candidateSelectionOptions.Count; $candidateIndex++) {
+                '{0}. {1}' -f ($candidateIndex + 1), $candidateSelectionOptions[$candidateIndex]
+            }
+            $candidateSelectionText = "Choose a documented model-effort pair (runtime unverified):`n" + ($candidateLines -join "`n")
+        }
+    }
+
+    if ($Given.subagents -eq 'none') {
+        $workflowFallbackUsed = $true
+        $result = [ordered]@{
+            questionsAsked = 0
+            spawnsBlockedUntilAnswer = $false
+            paramsSentPerSpawn = @()
+            warnings = 0
+            inheritanceAttempts = 0
+            preferencesWritten = $false
+            taskComplete = @()
+            workflowFallbackUsed = $true
+            questionOptions = @()
+            questionEmissions = 0
+            followupQuestionEmissions = 0
+            pendingAfterClarification = $false
+        }
+        return [PSCustomObject]$result
+    }
+
+    $validExplicitPair = $false
+    if ($Given.request -eq 'invalid-pair' -or $Given.request -eq 'partial-pair') {
+        $warnings++
+    } elseif ($Given.request -eq 'valid-pair') {
+        $requestedPairId = ''
+        if ($Given.PSObject.Properties['requestedPairId']) { $requestedPairId = [string]$Given.requestedPairId }
+        $validExplicitPair = $referenceAvailable -and $pairSupported -and $requestedPairId -and ($requestedPairId -in $availablePairs)
+        if ($validExplicitPair) {
+            $sessionChoice = 'pair'
+        } else {
+            $warnings++
+        }
+    }
+
+    if (-not $validExplicitPair) {
+        if ($Given.interactive) { $questionsAsked = 1 }
+        if ($Given.answer -in $availablePairs) {
+            $sessionChoice = 'pair'
+        } elseif ($Given.answer -eq 'pair' -and $pendingAfterPairChoice) {
+            $spawnsBlockedUntilAnswer = $true
+        } elseif ($Given.answer -eq 'pair' -or $Given.answer -in $observedPairs) {
+            $warnings++
+            $sessionChoice = 'inherit'
+        } else {
+            $sessionChoice = 'inherit'
+        }
+    }
+
+    $pendingAfterClarification = $Given.answer -eq 'clarification' -and $Given.interactive
+    if (($Given.answer -eq 'silence' -or $pendingAfterClarification) -and $Given.interactive) {
+        $spawnsBlockedUntilAnswer = $true
+    }
+
+    $promptMode = 'none'
+    if ($questionsAsked -gt 0) {
+        if ($hasVerifiedQuestionComponent) { $promptMode = 'native' }
+        else { $promptMode = 'numbered' }
+    }
+
+    if (-not $spawnsBlockedUntilAnswer) {
+        foreach ($outcome in @($Given.hostOutcomes)) {
+            $parameterChoice = if ($sessionChoice -eq 'pair' -and -not $pairRefusedInContext) { 'pair' } else { 'none' }
+            $paramsSentPerSpawn.Add($parameterChoice)
+
+            if ($outcome -eq 'refuse-pair' -and $parameterChoice -eq 'pair') {
+                $inheritanceAttempts++
+                $pairRefusedInContext = $true
+                $retryPending = $true
+                continue
+            }
+            if ($outcome -eq 'refuse-inherit' -and $parameterChoice -eq 'none') {
+                $workflowFallbackUsed = $true
+                $taskComplete.Add($false)
+                $retryPending = $false
+                continue
+            }
+            if ($outcome -eq 'ok') {
+                $taskComplete.Add($true)
+                if ($retryPending) {
+                    $retryPending = $false
+                    if (-not $postRefusalHandled -and $Given.PSObject.Properties['postRefusalRequest'] -and $Given.postRefusalRequest -eq 'same-pair') {
+                        $postRefusalHandled = $true
+                        if ($Given.contextChange) {
+                            $pairRefusedInContext = $false
+                        } else {
+                            $warnings++
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $result = [ordered]@{
+        questionsAsked = $questionsAsked
+        spawnsBlockedUntilAnswer = $spawnsBlockedUntilAnswer
+        paramsSentPerSpawn = @($paramsSentPerSpawn.ToArray())
+        warnings = $warnings
+        inheritanceAttempts = $inheritanceAttempts
+        preferencesWritten = $false
+        taskComplete = @($taskComplete.ToArray())
+        workflowFallbackUsed = $workflowFallbackUsed
+        questionEmissions = $questionsAsked + $followupQuestionEmissions
+        followupQuestionEmissions = $followupQuestionEmissions
+        pendingAfterClarification = $pendingAfterClarification
+        questionPresentation = $questionPresentation
+        questionOptionsCount = $questionOptions.Count
+        candidateListDisplayed = $candidateListDisplayed
+        candidateSelectionOptions = @($candidateSelectionOptions)
+        candidateSelectionOptionsCount = $candidateSelectionOptions.Count
+        candidateSelectionPresentation = $candidateSelectionPresentation
+        pendingAfterPairChoice = $pendingAfterPairChoice
+        candidateSelectionTextLineCount = if ($null -ne $candidateSelectionText) { @($candidateSelectionText -split "`r?`n").Count } else { 0 }
+    }
+    if ($questionsAsked -gt 0) { $result['promptMode'] = $promptMode }
+    if ($Given.PSObject.Properties['availablePairs'] -or $Given.PSObject.Properties['codexSchema']) { $result['questionOptions'] = @($questionOptions) }
+    if ($null -ne $questionText) { $result['questionText'] = $questionText }
+    if ($null -ne $candidateSelectionText) { $result['candidateSelectionText'] = $candidateSelectionText }
+    if ($null -ne $schemaDiscovery) {
+        $result['schemaDiscovery'] = [PSCustomObject]$schemaDiscovery
+        $result['schemaDisclosure'] = $schemaDisclosure
+    }
+    return [PSCustomObject]$result
+}
+
+$expectedDecisionIds = @(1..21 | ForEach-Object { 'DC-{0:D2}' -f $_ })
+$actualDecisionIds = @($decisionFixture.cases | ForEach-Object { [string]$_.id })
+if (($actualDecisionIds -join '|') -cne ($expectedDecisionIds -join '|')) {
+    Write-Fail -TestName $decisionFixtureName -Reason 'decision fixture ids are missing, duplicated, or out of order'
+}
+foreach ($decisionCase in $decisionFixture.cases) {
+    $caseName = 'Should_Pass_When_DecisionCase_{0}' -f $decisionCase.id
+    $requiredGivenFields = @('subagents', 'interactive', 'savedDefault', 'request', 'answer', 'referenceReadable', 'hostOutcomes', 'spawnsBeforeAnswer', 'compaction', 'contextChange')
+    foreach ($field in $requiredGivenFields) {
+        if (-not $decisionCase.given.PSObject.Properties[$field]) {
+            Write-Fail -TestName $caseName -Reason ('missing given field: {0}' -f $field)
+        }
+    }
+    if ($decisionCase.given.PSObject.Properties['roles']) {
+        $roles = @($decisionCase.given.roles | ForEach-Object { [string]$_ })
+        $distinctRoles = @($roles | Sort-Object -Unique)
+        if ($roles.Count -ne @($decisionCase.given.hostOutcomes).Count -or $distinctRoles.Count -ne $roles.Count) {
+            Write-Fail -TestName $caseName -Reason 'roles must be distinct and align with the modeled spawn sequence'
+        }
+    }
+    try {
+        $actualDecision = Resolve-SessionDecision -Given $decisionCase.given
+    } catch {
+        Write-Fail -TestName $caseName -Reason ('oracle error: {0}' -f $_.Exception.Message)
+    }
+    foreach ($field in $decisionCase.expect.PSObject.Properties.Name) {
+        if ($field -eq 'candidateSelectionTextStartsWith') {
+            if (-not [string]$actualDecision.candidateSelectionText.StartsWith([string]$decisionCase.expect.$field, [System.StringComparison]::Ordinal)) {
+                Write-Fail -TestName $caseName -Reason ('candidateSelectionText did not start with expected numbered-list header')
+            }
+            continue
+        }
+        if ($field -eq 'candidateSelectionTextEndsWith') {
+            if (-not [string]$actualDecision.candidateSelectionText.EndsWith([string]$decisionCase.expect.$field, [System.StringComparison]::Ordinal)) {
+                Write-Fail -TestName $caseName -Reason ('candidateSelectionText did not end with the last expected numbered pair')
+            }
+            continue
+        }
+        if ($field -eq 'questionOptionsInclude') {
+            foreach ($option in @($decisionCase.expect.$field)) {
+                if ($option -notin @($actualDecision.questionOptions)) {
+                    Write-Fail -TestName $caseName -Reason ('questionOptions did not include expected candidate: {0}' -f $option)
+                }
+            }
+            continue
+        }
+        if ($field -eq 'questionOptionsExclude') {
+            foreach ($option in @($decisionCase.expect.$field)) {
+                if ($option -in @($actualDecision.questionOptions)) {
+                    Write-Fail -TestName $caseName -Reason ('questionOptions included unsupported candidate: {0}' -f $option)
+                }
+            }
+            continue
+        }
+        if ($field -eq 'candidateSelectionOptionsInclude') {
+            foreach ($option in @($decisionCase.expect.$field)) {
+                if ($option -notin @($actualDecision.candidateSelectionOptions)) {
+                    Write-Fail -TestName $caseName -Reason ('candidate selection list did not include expected pair: {0}' -f $option)
+                }
+            }
+            continue
+        }
+        if ($field -eq 'candidateSelectionOptionsExclude') {
+            foreach ($option in @($decisionCase.expect.$field)) {
+                if ($option -in @($actualDecision.candidateSelectionOptions)) {
+                    Write-Fail -TestName $caseName -Reason ('candidate selection list included unsupported pair: {0}' -f $option)
+                }
+            }
+            continue
+        }
+        if ($field -eq 'schemaDiscovery') {
+            foreach ($schemaField in $decisionCase.expect.$field.PSObject.Properties.Name) {
+                if (-not $actualDecision.schemaDiscovery.PSObject.Properties[$schemaField]) {
+                    Write-Fail -TestName $caseName -Reason ('schemaDiscovery omitted field: {0}' -f $schemaField)
+                }
+                $expectedSchemaValue = ConvertTo-Json -InputObject $decisionCase.expect.$field.$schemaField -Depth 8 -Compress
+                $actualSchemaValue = ConvertTo-Json -InputObject $actualDecision.schemaDiscovery.$schemaField -Depth 8 -Compress
+                if ($expectedSchemaValue -cne $actualSchemaValue) {
+                    Write-Fail -TestName $caseName -Reason ('schemaDiscovery.{0}: expected {1}, got {2}' -f $schemaField, $expectedSchemaValue, $actualSchemaValue)
+                }
+            }
+            continue
+        }
+        if (-not $actualDecision.PSObject.Properties[$field]) {
+            Write-Fail -TestName $caseName -Reason ('oracle omitted field: {0}' -f $field)
+        }
+        $expectedValue = ConvertTo-Json -InputObject $decisionCase.expect.$field -Depth 8 -Compress
+        $actualValue = ConvertTo-Json -InputObject $actualDecision.$field -Depth 8 -Compress
+        if ($expectedValue -cne $actualValue) {
+            Write-Fail -TestName $caseName -Reason ('{0}: expected {1}, got {2}' -f $field, $expectedValue, $actualValue)
+        }
+    }
+    Write-Pass -TestName $caseName
+}
 
 }
 

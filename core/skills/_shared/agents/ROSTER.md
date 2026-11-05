@@ -6,7 +6,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
 **Spawn / degrade:** `SPAWN.md` (capability `subagents`, native vs fallback, child limits, no guideline paste). Do **not** duplicate that policy here.
 
-**Subagent model policy:** `SUBAGENT-MODEL.md` (omit `model` by default; rare premium gate + user **sim**).
+**Subagent model policy:** `SUBAGENT-MODEL.md` (omit `model` by default; one session question for a different pair).
 
 **Receipt:** `RECEIPT.md` (lazy-load when Caveman ON or child returns findings).
 

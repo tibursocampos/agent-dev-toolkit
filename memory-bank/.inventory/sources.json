@@ -3,19 +3,26 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-10-31T02:47:41.5319270Z",
+  "generated_at": "2026-11-05T23:46:41.9818691Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "d29c33ac0622191f83432b29b04c5949c696aa4f069b25267bcadf3c107e7091",
-  "inventory_summary": "143 source(s); stack: markdown, powershell",
+  "inventory_hash": "30dd6df1d21a29ccdd40beca83bff7298c5829ae0d23aac74f17f2ec0a19008f",
+  "inventory_summary": "144 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
     "powershell"
   ],
   "skill_count": 46,
-  "assert_script_count": 35,
+  "assert_script_count": 36,
   "sources": [
+    {
+      "path": ".github/workflows/cleanup-merged-branches.yml",
+      "last_write_utc": "2026-10-31T18:49:19.3911206Z",
+      "length": 2554,
+      "hash": "cf9c3a0dac0c16fb39f23df01d3baaee140c3777bee484cfa9222bd1377c2a49",
+      "summary": "[non-markdown: content summary omitted]"
+    },
     {
       "path": ".github/workflows/docs.yml",
       "last_write_utc": "2026-10-09T22:58:39.6429946Z",
@@ -46,9 +53,9 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "last_write_utc": "2026-10-30T04:56:03.4881848Z",
-      "length": 17027,
-      "hash": "333d7b5990c1edde00a42d2404ff6a550387bf633d454bf001cd5da9233a69f3",
+      "last_write_utc": "2026-10-31T18:49:19.3942136Z",
+      "length": 17009,
+      "hash": "843c102983bc45c4d8f821c9d21b10625379ddbc72510f7ae49915f6148c2405",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -67,16 +74,16 @@
     },
     {
       "path": "adapters/antigravity/AntigravityAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.2986880Z",
-      "length": 41885,
-      "hash": "cb7c98145aff5774e50c6eb153c4ca9f4dee80c64ae1468932ded15b97cbe987",
+      "last_write_utc": "2026-10-31T18:49:19.4041772Z",
+      "length": 41999,
+      "hash": "e28dc4a1b777f567c0f0647af6cee502b15a20bc0bdaa6deed2236750ab9e24d",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/antigravity/Publish-AntigravityHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9438389Z",
-      "length": 9121,
-      "hash": "b49e2c440cd2139325e1b7423b16cf5e97993380e93455ccc53be6d9ae658de0",
+      "last_write_utc": "2026-10-31T18:49:19.4061772Z",
+      "length": 9744,
+      "hash": "6f8faddd987fd31c0b6151ca46d01d8b1915acc3339af3a2e0b8770793b8d353",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -102,28 +109,28 @@
     },
     {
       "path": "adapters/claude/ClaudeAdapter.ps1",
-      "last_write_utc": "2026-10-30T17:30:03.1067974Z",
-      "length": 12543,
-      "hash": "48892b8e6dbd668ec1d3e8bda9410a92a062f54721ff440eb2a1642fc8ef383f",
+      "last_write_utc": "2026-10-31T18:49:19.4071779Z",
+      "length": 12652,
+      "hash": "54342881175f1642b00611ca0bda35113a3f9a860da67809e0a62070ef4c16f8",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/claude/Publish-ClaudeAgents.ps1",
-      "last_write_utc": "2026-10-30T17:30:03.1091754Z",
-      "length": 8934,
-      "hash": "402f0790f807d6386adb4d2b2edb3a2841c5db3c82f93553e64b6794812c8260",
+      "last_write_utc": "2026-10-31T18:49:19.4106292Z",
+      "length": 9404,
+      "hash": "d0ca7adcfb6895a5653a2b917d59feea43984658b3536e851174c01cddb039f2",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/claude/Publish-ClaudeHooks.ps1",
-      "last_write_utc": "2026-10-30T21:29:54.5878560Z",
-      "length": 7667,
-      "hash": "258ae2877dcaf568a3a6c88df2de7a84499f52fe875623d8cca8d7390575fc36",
+      "last_write_utc": "2026-10-31T18:49:19.4116294Z",
+      "length": 8587,
+      "hash": "14d1f00daa4272455e1b5ebd54725f56286063290ba219ac94adbaa27057a02e",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/claude/Publish-ClaudePolicy.ps1",
-      "last_write_utc": "2026-10-31T01:03:50.2009789Z",
+      "last_write_utc": "2026-10-31T18:49:19.4136291Z",
       "length": 8330,
       "hash": "59d87a9a44ea3bf176eb55604217aa42d4444baf711cc1bf68b738032d6e2937",
       "summary": "[non-markdown: content summary omitted]"
@@ -151,9 +158,9 @@
     },
     {
       "path": "adapters/codex/CodexAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5521495Z",
-      "length": 21456,
-      "hash": "4d0e57da2bc910953d56cc8cd27fbd85324535efb6b0d42f8ae9f9e6eeeb9a07",
+      "last_write_utc": "2026-10-31T18:49:19.4166292Z",
+      "length": 21564,
+      "hash": "1fc8e909dfba300fa7784e66f9dc0ea5afb9fe596a1cbc4bbccee10c4d576022",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -165,9 +172,9 @@
     },
     {
       "path": "adapters/codex/Publish-CodexHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9660242Z",
-      "length": 9405,
-      "hash": "7f5a30938e32817e88dd1bb6218dd6ce3e846c072355a98d939f577335b82e41",
+      "last_write_utc": "2026-10-31T18:49:19.4231431Z",
+      "length": 9174,
+      "hash": "7f551727a33ea5d0c0a83c454208605d1c47a42d92f0bd73ba83f531697d2447",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -193,30 +200,30 @@
     },
     {
       "path": "adapters/codex/Uninstall-CodexToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9700778Z",
-      "length": 17307,
-      "hash": "da3bd6afeddd955419c7dbc2e5b6eac0ff88a54c43e74936dddf3afca7544c52",
+      "last_write_utc": "2026-10-31T18:49:19.4271431Z",
+      "length": 17562,
+      "hash": "c33f58a8af26dd698d68de0a9dc98bbe6aeb0acfb8a7f0f413c053fcdf5a26ff",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/copilot/CopilotAdapter.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.8208544Z",
-      "length": 27730,
-      "hash": "00cceb89a3ce30f611a3626496f8d50c4dd237bd81d5a037c376c4c4aee84747",
+      "last_write_utc": "2026-10-31T18:49:19.4311721Z",
+      "length": 27840,
+      "hash": "85eab3f256961d8c7c3307ec5bb7c4873527b55eee2d9ee6da9ced19c517ce6f",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/copilot/Publish-CopilotAgents.ps1",
-      "last_write_utc": "2026-10-09T22:58:39.8347837Z",
-      "length": 7396,
-      "hash": "de3ecdcf65401fe426480c8873fdb1cd47b84c10c756339d4591b97982028ca2",
+      "last_write_utc": "2026-10-31T18:49:19.4351705Z",
+      "length": 7651,
+      "hash": "ac31b9f2a57749f7e1377b2605e90ca30833361fc3fa29c2e413b0a1038828d3",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/copilot/Publish-CopilotHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9777678Z",
-      "length": 10019,
-      "hash": "cdadac655573a703021285f6eb7e7dcf3788ca7376d0023839501cac0824f26c",
+      "last_write_utc": "2026-10-31T18:49:19.4366747Z",
+      "length": 9110,
+      "hash": "e02ada4d664e5580b0f46ca8970f141cbfd8a6d1edc1940a5209b12c3bf49da9",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -235,30 +242,30 @@
     },
     {
       "path": "adapters/copilot/Uninstall-CopilotToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9807651Z",
-      "length": 11707,
-      "hash": "9e7cddbb3d935e5a34d03588d02e16a3e2ea8df38bdb685d8fd2c8e0ed19d44f",
+      "last_write_utc": "2026-10-31T18:49:19.4391953Z",
+      "length": 11152,
+      "hash": "999fba586d265569445ed7258c3018f57458a54789f8ed9f0723a7b003deb786",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/cursor/CursorAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
-      "length": 10456,
-      "hash": "1f2d4d8eab7ff92036f4aff3736d4239059f0eca2819da070453e2be7d9498db",
+      "last_write_utc": "2026-10-31T18:49:19.4402013Z",
+      "length": 10565,
+      "hash": "1d0623bb1e2a1ad200d55b0ca08764c98abffb5fbd87f9e8bbbb2c5cda9fa3db",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/cursor/Publish-CursorAgents.ps1",
-      "last_write_utc": "2026-09-07T12:21:47.8438442Z",
-      "length": 3775,
-      "hash": "8826f66ac0cdbd7d7d991b0f1fd5f8ba038b496b9ea2e50cf2abba76c5fd207c",
+      "last_write_utc": "2026-10-31T18:49:19.4411995Z",
+      "length": 3858,
+      "hash": "3cd5a832d3147db4b653b283e15c2eb2e8233cb55771ecc8b160367e73e629fc",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/cursor/Publish-CursorHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:05.9920626Z",
-      "length": 21161,
-      "hash": "6874784910799b96e9364d73a571b4a5c1cf79bb59c0521e8eb3ca67a40d43e5",
+      "last_write_utc": "2026-10-31T18:49:19.4434650Z",
+      "length": 21483,
+      "hash": "0cf8648245b8bb31f95b548b6179c1ba378dd618719711a112d6d32e42fa38c7",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -291,23 +298,23 @@
     },
     {
       "path": "adapters/grok/GrokAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
-      "length": 13665,
-      "hash": "80bb6c16503d94c25a10eaf931b854ddf426aae456850538b065de699dcd8bfd",
+      "last_write_utc": "2026-10-31T18:49:19.4455557Z",
+      "length": 13772,
+      "hash": "bb8e559d1714ed1d7f39ac192edf7a53b9ad077e30ddbb65952531a796ebc9f6",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/grok/Publish-GrokAgents.ps1",
-      "last_write_utc": "2026-09-24T21:10:40.9227305Z",
-      "length": 3704,
-      "hash": "2d7b878ff9d8142fbfaf855f5fd34a89a599e25f562268c28ae19949802523d3",
+      "last_write_utc": "2026-10-31T18:49:19.4480642Z",
+      "length": 3787,
+      "hash": "32fb22c07ffc4fb5ed5cfacf08113ad2c33cbc9f8a7e9d4b70df683bd595c16b",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/grok/Publish-GrokHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0020428Z",
-      "length": 11092,
-      "hash": "61365fdd140c6535f92c971c62c23028b6cddd29a293c37f0308a3986150bd24",
+      "last_write_utc": "2026-10-31T18:49:19.4501414Z",
+      "length": 11602,
+      "hash": "c877f7d33f213a87f2ecd8ec479b56c80c55f790b2e3f04ca880de03de71d523",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -340,16 +347,16 @@
     },
     {
       "path": "adapters/hermes/HermesAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
-      "length": 13536,
-      "hash": "faf773adc31e89bbdac63c63beb8ff02bee9f6f9bf681550fdf313e47dfd8844",
+      "last_write_utc": "2026-10-31T18:49:19.4521334Z",
+      "length": 13559,
+      "hash": "f941a6c4bead4a7a7e37241740282c313ecf9da089caf6179e8d6a47233f0142",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/hermes/Publish-HermesHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0080039Z",
-      "length": 18139,
-      "hash": "d0227c105bde232cf49110d4a3d3c46dc52914d96934c29643ea21948e03ee07",
+      "last_write_utc": "2026-10-31T18:49:19.4591530Z",
+      "length": 17600,
+      "hash": "5a83c5f4d183b53cd68c77de0ad190679db51ab95c4e85a7e9f4bda9d035275b",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -375,30 +382,30 @@
     },
     {
       "path": "adapters/hermes/Uninstall-HermesToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0130479Z",
-      "length": 15158,
-      "hash": "8e5a3fe5bbdd759ffb3ddb927d13138d29d72a0ea1d25b08e18cf59eeeb36a1d",
+      "last_write_utc": "2026-10-31T18:49:19.4631524Z",
+      "length": 15206,
+      "hash": "a197e6299b5f40dedb0477cb246e2954eb5e2d19eb2ca655ac1861d74b61e16c",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/opencode/OpenCodeAdapter.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0250232Z",
-      "length": 18597,
-      "hash": "8277e566f1d0237060c38dedeaab996cd78fe9febc76c1c90da1c3b299a6d3bb",
+      "last_write_utc": "2026-10-31T18:49:19.4671518Z",
+      "length": 18708,
+      "hash": "758b2ee2b3cc0016db64f3579da11e25f3123f1b14bb97a51e02a0d85100d6b4",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/opencode/Publish-OpenCodeAgents.ps1",
-      "last_write_utc": "2026-09-24T21:10:40.9237299Z",
-      "length": 4653,
-      "hash": "e1166e40cf0296ac46c6a725c704898964ef2d2e241a736132fa87f117b49018",
+      "last_write_utc": "2026-10-31T18:49:19.4702763Z",
+      "length": 4736,
+      "hash": "d1ca8fc5471e6fcafbe04a02f4fde3e4bcf5c42bd96c84412ecf1355ea105539",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/opencode/Publish-OpenCodeHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0290218Z",
-      "length": 10097,
-      "hash": "4af5ebb05cf8ba0b2adfe85d0374006b89f506f757a85b4def21e163169fdac8",
+      "last_write_utc": "2026-10-31T18:49:19.4722758Z",
+      "length": 10514,
+      "hash": "0129cf14531a5c8d7c5d83916987e5046f20a17468299ce83c815f16b6360dc7",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -424,9 +431,9 @@
     },
     {
       "path": "adapters/openhands/OpenHandsAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5576300Z",
-      "length": 13965,
-      "hash": "d6dd33573dd16471cd8918aebd1c1b451a106fd91c85b784c9b973d33fa590d2",
+      "last_write_utc": "2026-10-31T18:49:19.4752747Z",
+      "length": 14077,
+      "hash": "eeed57babd7eb287477447759dc1cd390438f5876e57dcf9712c59d3e3ca7d62",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -438,9 +445,9 @@
     },
     {
       "path": "adapters/openhands/Publish-OpenHandsHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0360865Z",
-      "length": 12453,
-      "hash": "6ad39e2c261c8d658ee6682fd206fa566bdb6d4f587cdbdca0f14fb1ff505686",
+      "last_write_utc": "2026-10-31T18:49:19.4772751Z",
+      "length": 13092,
+      "hash": "4ebee0c3cad4e3254c77300f84cd82b34b4adf6e3978a66151189658f828f370",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -473,23 +480,23 @@
     },
     {
       "path": "adapters/registry.json",
-      "last_write_utc": "2026-10-30T17:30:03.1442729Z",
-      "length": 6257,
-      "hash": "c23a1dfb2d438cb6ef520c64879c9f5dd4fbdf56e58f84eeaeabe7165f73da78",
+      "last_write_utc": "2026-10-31T18:49:19.4797805Z",
+      "length": 6237,
+      "hash": "a5a0845c8abb5202117fde8c9a2becfb10cc71fb33948e524358c1c40240ad88",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/zcode/Publish-ZCodeAgents.ps1",
-      "last_write_utc": "2026-09-24T21:10:40.9237299Z",
-      "length": 3793,
-      "hash": "bbe4579b367f4b1d3c6bff8c8540b7713ab9e55c4e685e16192804e1c42c5e13",
+      "last_write_utc": "2026-10-31T18:49:19.4807804Z",
+      "length": 3876,
+      "hash": "29aeab9a9260d88e87ba9822cf7fe25fa383494d5ca05ccedb741e01c0f25fef",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/zcode/Publish-ZCodeHooks.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0459955Z",
-      "length": 15801,
-      "hash": "900835726ad8b1cf4031b0cc2907e9b621327a2c0a5f2b38a49dab603be205fe",
+      "last_write_utc": "2026-10-31T18:49:19.4817804Z",
+      "length": 17158,
+      "hash": "2ae49d974cc46b0eccc39227ca7546c85f7451044edc37c5f9739e35694142fe",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -508,16 +515,16 @@
     },
     {
       "path": "adapters/zcode/Uninstall-ZCodeToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0476370Z",
-      "length": 20491,
-      "hash": "6a85ba9b8e7aa68be8690b09bbbc8a0cd5f9b84a03440cf7f2fe8ad63eab7bdd",
+      "last_write_utc": "2026-10-31T18:49:19.4827803Z",
+      "length": 20559,
+      "hash": "742374e9eb61b1467679b98dbd11bce1a768e43845ae458858e84760432f2367",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "adapters/zcode/ZCodeAdapter.ps1",
-      "last_write_utc": "2026-09-07T16:37:26.5688034Z",
-      "length": 14341,
-      "hash": "113ffa594ff0d0b3a2a822de60feeebd4a191946a8d8472616116630734c4b41",
+      "last_write_utc": "2026-10-31T18:49:19.4837805Z",
+      "length": 14449,
+      "hash": "72ca5a29bd9f222b1bc113d8a96619a8296ef8165d50eefbe54c83926858a9f5",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -529,51 +536,51 @@
     },
     {
       "path": "core/router/AGENTS.md",
-      "last_write_utc": "2026-10-30T21:29:54.5928714Z",
-      "length": 7418,
-      "hash": "491b18be6a736e39eb31e3750722b65e24ccd3736581484b89f72702c58d41af",
+      "last_write_utc": "2026-11-05T20:05:53.0552626Z",
+      "length": 7718,
+      "hash": "26dd51d3db715fe454d96ee88f8f3a344b9789cec9843555e1a3060da4e45430",
       "summary": "Agent router (L0 index) - agent-dev-toolkit"
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-10-30T21:29:54.5981048Z",
-      "length": 17415,
-      "hash": "dce833ff9e9b8c2d57de891d3542aaa72e2ba01ecebed0db9d1ba913766336ed",
+      "last_write_utc": "2026-11-05T17:19:53.0741701Z",
+      "length": 17407,
+      "hash": "4cc138b555c22c4c96db20d78f720995abda64775ba3df8004557f1cadcb1e1b",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
       "path": "docs/ADAPTERS.md",
-      "last_write_utc": "2026-10-30T17:30:03.3034747Z",
-      "length": 61601,
-      "hash": "8077ba963f6635b790162866c305b2c3b7ae04d24b8d15a5c621d88803a068e3",
+      "last_write_utc": "2026-10-31T18:49:19.6429195Z",
+      "length": 65089,
+      "hash": "a3d369fa922326e9638818e70c5bec5ab6ba80efa8c29f6b1c2cdbd621a39fca",
       "summary": "Adapters"
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "last_write_utc": "2026-10-30T22:30:39.4466663Z",
-      "length": 18203,
-      "hash": "c0d638def618ce6ccd43225fd79a4b5e3227eda032a94549740419951d3b12f0",
+      "last_write_utc": "2026-10-31T18:49:19.6459205Z",
+      "length": 18680,
+      "hash": "c532d2110b72640a958c26b0d0245a2b025b7359e8649e7483d9fa5a38b52838",
       "summary": "Architecture"
     },
     {
       "path": "docs/CREDITS.md",
-      "last_write_utc": "2026-10-30T23:13:11.0370017Z",
-      "length": 3704,
-      "hash": "82a6793792a1d6f06b804d583c2dc04002985ecec5d4b987bdcad35965bd8fd1",
+      "last_write_utc": "2026-10-31T18:49:19.6469200Z",
+      "length": 3746,
+      "hash": "7028efcbe563f3c3fd3bec8cafe0d27e41abe10706d1ecd336707abcdfe666d0",
       "summary": "Credits and acknowledgments"
     },
     {
       "path": "docs/DESIGN-BRIEF.md",
-      "last_write_utc": "2026-10-31T00:05:39.2768837Z",
+      "last_write_utc": "2026-10-31T18:49:19.6486737Z",
       "length": 6503,
       "hash": "75a87fa4bd5208590a9a9b41a489b317bf077b8c2d1857077f34051dd5dd9a00",
       "summary": "DESIGN-BRIEF — Public docs site reading pass"
     },
     {
       "path": "docs/DESIGN.md",
-      "last_write_utc": "2026-10-30T23:49:19.6976737Z",
-      "length": 4595,
-      "hash": "e72b665c25c7a70ba5dec92531cda7f9b4f13132af04c5c15fb9bdd31ba5bdb5",
+      "last_write_utc": "2026-10-31T18:49:19.6496797Z",
+      "length": 4688,
+      "hash": "ac16b56b90534bc65b737131a979e59febe09165d6efbf1bc595123629655ca2",
       "summary": "DESIGN — agent-dev-toolkit docs site"
     },
     {
@@ -592,58 +599,58 @@
     },
     {
       "path": "docs/domains/adapters.md",
-      "last_write_utc": "2026-09-25T13:41:44.3576839Z",
-      "length": 8677,
-      "hash": "fa406faf7adbfeb5e489ba4ec7a6ac7459fd7f6e73c5811e3528e99ad6cb0296",
+      "last_write_utc": "2026-10-31T18:49:19.6641970Z",
+      "length": 9081,
+      "hash": "4b51e34e075a17a5400169ba169d211b8266dbc0f1f18f19b6227caec14b3c55",
       "summary": "Domain: Adapters"
     },
     {
       "path": "docs/domains/cli-scripts.md",
-      "last_write_utc": "2026-10-30T22:42:50.9273916Z",
-      "length": 16718,
-      "hash": "066ed6bdf0f0e7d8dd9e4c80f6b90e48ffb0df4c50113ed5ef7b2a7f679109a2",
+      "last_write_utc": "2026-10-31T18:49:19.6661957Z",
+      "length": 16730,
+      "hash": "a1f83f940505032e18d617eaf7395fd02e7cd2837afd3d6667e3df915acd9af7",
       "summary": "Domain: CLI scripts"
     },
     {
       "path": "docs/domains/core.md",
-      "last_write_utc": "2026-10-30T22:43:48.0845890Z",
-      "length": 31820,
-      "hash": "f40368bd1f4ca4bae787c778f3fa458ef045cb490bf49efaac321aa6f92c5dcf",
+      "last_write_utc": "2026-11-05T17:34:46.5455587Z",
+      "length": 32032,
+      "hash": "6a2832c3306bc35452dfa9e14cabaa8af9eeb4e58b1f7dcddc7cabb8ac0d2508",
       "summary": "Domain: Core"
     },
     {
       "path": "docs/domains/git-ops.md",
-      "last_write_utc": "2026-10-30T04:56:03.5636207Z",
-      "length": 9659,
-      "hash": "06168b1a45cf4dbd9e398309b7b1d0ab667d2e26f583fb1551463e17f1de1d1f",
+      "last_write_utc": "2026-10-31T18:49:19.6697021Z",
+      "length": 9696,
+      "hash": "7f48db8fa403fd6705c9f559c1ef655e030525b69fdd262d07deac1dffcd1e8a",
       "summary": "Domain: Git ops"
     },
     {
       "path": "docs/ENFORCEMENT.md",
-      "last_write_utc": "2026-10-30T17:30:03.3044845Z",
-      "length": 3753,
-      "hash": "05ca04a804751d785f9e1e588ec0e147ef69ef8ec1b921aaaf9e93020c19a9ca",
+      "last_write_utc": "2026-10-31T18:49:19.6506782Z",
+      "length": 5023,
+      "hash": "e82f858bdb14daadcc6f64ad4cad692b1d634f56cbe2f5f04b8eb108783b10e5",
       "summary": "Enforcement model"
     },
     {
       "path": "docs/guides/01-getting-started.md",
-      "last_write_utc": "2026-10-30T04:56:03.5646289Z",
-      "length": 7343,
-      "hash": "31eb06e70097efec96012917aceebffbd56dcce4f1413d80486cb564d8275e9c",
+      "last_write_utc": "2026-10-31T18:49:19.6707014Z",
+      "length": 7368,
+      "hash": "595d25c35d64741e8eee1d7efb0588f03729ce0b1391b8fafa4441f1f9f23af4",
       "summary": "Getting started"
     },
     {
       "path": "docs/guides/02-using-skills.md",
-      "last_write_utc": "2026-10-30T22:43:22.2797361Z",
-      "length": 15118,
-      "hash": "12391bb07e840a06a24d323d2212b23532af3f29f29459ef0f56e155ebc452ae",
+      "last_write_utc": "2026-11-05T17:34:46.5465575Z",
+      "length": 15255,
+      "hash": "7757aafda01e0d32f725629f8ddc090fbf784dfe98c4579ff9da8788697a0c67",
       "summary": "Using skills"
     },
     {
       "path": "docs/guides/08-orchestrator-mode.md",
-      "last_write_utc": "2026-10-30T17:30:03.3106644Z",
-      "length": 3599,
-      "hash": "e5a530d73f8985e1260dd2674416bfe17f7a11d4fd79271a17d6365c2f8b76e3",
+      "last_write_utc": "2026-10-31T18:49:19.6737024Z",
+      "length": 3624,
+      "hash": "119a3e8545ac2705353cbbc2ab1088034f4f1fc8b302902c5463f4a0f2a969f1",
       "summary": "08 — Orchestrator mode"
     },
     {
@@ -655,114 +662,114 @@
     },
     {
       "path": "docs/guides/backlog-refine.md",
-      "last_write_utc": "2026-10-30T22:42:46.4211430Z",
-      "length": 4152,
-      "hash": "3cc3917aa472bbffe597b75f9ceefd58d290d0c321835c2bbd79a28d7500a85f",
+      "last_write_utc": "2026-10-31T18:49:19.6767004Z",
+      "length": 4232,
+      "hash": "2627a92f784b1797a49533d5712176ac2baba69530baf275bec3aacadc841468",
       "summary": "Refining backlog items"
     },
     {
       "path": "docs/guides/flow-selection.md",
-      "last_write_utc": "2026-10-30T22:43:02.4108287Z",
-      "length": 3493,
-      "hash": "23360f0b30253f76118b9da45e4368dca03f1d82f179d98c7abd2a54dfeacfd2",
+      "last_write_utc": "2026-10-31T18:49:19.6767004Z",
+      "length": 4237,
+      "hash": "d4fceceb26c2954c81c3b6334b7b9790ab174d7a0cbe28ec97ab744f3a2dfac0",
       "summary": "Choosing the flow"
     },
     {
       "path": "docs/guides/new-endpoint-example.md",
-      "last_write_utc": "2026-10-30T22:07:40.2860117Z",
-      "length": 5843,
-      "hash": "268af9a56e5718590021138edd3605d8245a86fc931ae363eaf5c3656fe0cacb",
+      "last_write_utc": "2026-10-31T18:49:19.6782072Z",
+      "length": 6012,
+      "hash": "db79a4d9ad91ee01af328ba229d3d61810b7aed7ee097b5ce6ea7c2dd8247b02",
       "summary": "Example: new .NET endpoint"
     },
     {
       "path": "docs/guides/README.md",
-      "last_write_utc": "2026-10-30T23:13:12.5266147Z",
-      "length": 6093,
-      "hash": "c252eb93914019e3b09124dd255b1eeb4a12716035c5dc750fe67e9eca122057",
+      "last_write_utc": "2026-10-31T18:49:19.6747004Z",
+      "length": 6082,
+      "hash": "3a97d7d61f5cf724c1957a86598486fe23b49b973fae618a2edf5065be971b49",
       "summary": "User guides"
     },
     {
       "path": "docs/guides/session-behavior.md",
-      "last_write_utc": "2026-10-30T17:30:03.3116645Z",
-      "length": 4105,
-      "hash": "0cdf95f3ba305ddc46678fafa3f18a17b0d2c64e20b15d6967ac3296b3e81d44",
+      "last_write_utc": "2026-11-05T20:09:58.8133762Z",
+      "length": 4699,
+      "hash": "f45e9965a6c865d65d895aaa73ffb35f9385142140c2103fd7e1651a0ac5accf",
       "summary": "Session behavior"
     },
     {
       "path": "docs/HOOKS.md",
-      "last_write_utc": "2026-10-30T17:30:03.3056650Z",
-      "length": 4013,
-      "hash": "23b14fc1c63b43cc7c98666ac270dc108f802c090b50d700d197f3ffb193d683",
+      "last_write_utc": "2026-10-31T18:49:19.6521851Z",
+      "length": 6380,
+      "hash": "1bd641d022cfb848e60b8dc6ec3b43dc9abc19a489d674b3725b704d1761c9a9",
       "summary": "Toolkit hooks"
     },
     {
       "path": "docs/INSTALL.md",
-      "last_write_utc": "2026-10-30T22:29:57.4679468Z",
-      "length": 19152,
-      "hash": "a56ad45fda13227ffeee4d2dcad10f8508634a6cc0940c75544df0a5abb1c45a",
+      "last_write_utc": "2026-10-31T18:49:19.6551859Z",
+      "length": 19177,
+      "hash": "e656adb80878f83ce2c70cf81a33d5611b770a7882ec109f89e0c59b7d87484e",
       "summary": "Install and sync"
     },
     {
       "path": "docs/overview.md",
-      "last_write_utc": "2026-10-30T22:42:35.2350714Z",
-      "length": 10418,
-      "hash": "6ef9f5f0b3918bb10316a724c29caa726e997ad75490caad44d487a92f650fe5",
+      "last_write_utc": "2026-10-31T18:49:19.6802138Z",
+      "length": 10414,
+      "hash": "dc818927de5c009388b74ce011d1382f6054b902e7cba50f85123757c135f034",
       "summary": "Overview"
     },
     {
       "path": "docs/README.md",
-      "last_write_utc": "2026-10-30T22:06:46.3206246Z",
+      "last_write_utc": "2026-10-31T18:49:19.6571857Z",
       "length": 3794,
       "hash": "cd147b69370c023fa4934474d1048da1b02bf23fd3b305a5584390c23aa6c9f8",
       "summary": "Documentation index"
     },
     {
       "path": "docs/REPO_GOVERNANCE.md",
-      "last_write_utc": "2026-10-31T00:57:57.2668430Z",
+      "last_write_utc": "2026-10-31T18:49:19.6581851Z",
       "length": 4967,
       "hash": "fa9d663709d4ec6fa17334b2d53b8de32022245560677e989b0f451ed9eac3b0",
       "summary": "Repository governance"
     },
     {
       "path": "docs/sessions/01-orchestrated-delivery.md",
-      "last_write_utc": "2026-10-30T23:01:46.2595841Z",
-      "length": 19382,
-      "hash": "ea6dac08b6cd72e818885c1c558910cd51359b8e2dc415552f2e3bcd7ed9babe",
+      "last_write_utc": "2026-10-31T18:49:19.6812121Z",
+      "length": 19794,
+      "hash": "2f7419fb4e550d36a3c3de222bc496772b31bdee14329a3cf8ee7e3546e91b55",
       "summary": "01 — Orchestrated Delivery"
     },
     {
       "path": "docs/sessions/02-classic-sdd.md",
-      "last_write_utc": "2026-10-30T13:21:25.6417420Z",
-      "length": 9620,
-      "hash": "f227d4b697bc1af058e69bd3283b32686ebd0404b1806f4c13cd6b0ef5d81789",
+      "last_write_utc": "2026-10-31T18:49:19.6832120Z",
+      "length": 9654,
+      "hash": "8abd093c346b53ac7bbe44181f2ab72605c7906dc4cb4194b1e8e33a684bed9f",
       "summary": "02 — Classic SDD"
     },
     {
       "path": "docs/sessions/03-backlog-shape.md",
-      "last_write_utc": "2026-10-30T22:42:44.2374016Z",
-      "length": 6791,
-      "hash": "5e4b09fca592ff2513760827c6be51f098f73ca167dfcc4c0ac0b015b1cc24d2",
+      "last_write_utc": "2026-10-31T18:49:19.6842140Z",
+      "length": 6823,
+      "hash": "f10b64d1c57f8e05c9e9360a4f17ebdc0cd1b4f5479507ca2728bb3a82dcee49",
       "summary": "03 — Backlog shape"
     },
     {
       "path": "docs/sessions/04-implement-and-guidelines.md",
-      "last_write_utc": "2026-10-21T16:56:06.5353896Z",
-      "length": 6597,
-      "hash": "071737d3a0ed13e521db8a75fde9c472f541719d3dee7bfca6091b9acda6461e",
+      "last_write_utc": "2026-10-31T18:49:19.6852117Z",
+      "length": 6617,
+      "hash": "3b5ea410c6aa7f0ff64c0123273bd5157f04e654c58743741778a42f205d75ab",
       "summary": "04 — Implement and guidelines"
     },
     {
       "path": "docs/sessions/05-review-and-quality.md",
-      "last_write_utc": "2026-10-09T22:58:40.4269479Z",
-      "length": 8541,
-      "hash": "5788175a26f5a0c81ff32175d9323e91d2082321e950478d9d10f7a5413b57e9",
+      "last_write_utc": "2026-10-31T18:49:19.6862136Z",
+      "length": 8549,
+      "hash": "1d54f59a03bddaced0c2304c1c9b2d821e407327dedc9518d7cfe05191de453b",
       "summary": "05 — Review and quality"
     },
     {
       "path": "docs/sessions/06-framework-upgrade.md",
-      "last_write_utc": "2026-10-30T17:30:03.3126700Z",
-      "length": 2489,
-      "hash": "db14e53a15d886592a07dae1a837ab9d8ab36aaa3fb116a99a65b026f897284f",
+      "last_write_utc": "2026-10-31T18:49:19.6877174Z",
+      "length": 2507,
+      "hash": "f23533aee56b0f21496258fe6f7269ddad4047a87410fd4b32f14ad6a72554ab",
       "summary": "06 — Framework upgrade"
     },
     {
@@ -774,44 +781,44 @@
     },
     {
       "path": "docs/sessions/08-git-and-docs.md",
-      "last_write_utc": "2026-10-09T22:58:40.4299497Z",
+      "last_write_utc": "2026-10-31T18:49:19.6882296Z",
       "length": 3959,
-      "hash": "15d05c69cc448ade2fb5a30e2dd1c6d07f8c4dd822b537fafdbcc8ce5ec63495",
+      "hash": "6df4f4fe6702d3d75b8c7410c3507778f8df1417394dd8c427d7cf924b8c5434",
       "summary": "08 — Git and repository docs"
     },
     {
       "path": "docs/sessions/09-every-skill.md",
-      "last_write_utc": "2026-10-30T22:42:39.9443446Z",
-      "length": 14305,
-      "hash": "28b7d3b841c12e71ef82e146550ae70834acbd5487e057786a28ba9be82359f5",
+      "last_write_utc": "2026-10-31T18:49:19.6892328Z",
+      "length": 14374,
+      "hash": "7b709a558757c2afbeab47c26024f2b43ab43b0d8bed79df1678da536110a158",
       "summary": "09 — Every skill"
     },
     {
       "path": "docs/sessions/README.md",
-      "last_write_utc": "2026-10-30T22:43:00.9452991Z",
+      "last_write_utc": "2026-10-31T18:49:19.6912326Z",
       "length": 2800,
       "hash": "68f3bbdf6dc3d1b28bf80fc68f9f65f65ad1ed90343a003c483e68822c15f846",
       "summary": "Skill sessions"
     },
     {
       "path": "docs/SKILLS.md",
-      "last_write_utc": "2026-10-30T22:43:03.5899899Z",
-      "length": 15170,
-      "hash": "7168d7be384a66bc95716c860b1c9e537b00c098ee3cf911880e67b2e7c5607b",
+      "last_write_utc": "2026-10-31T18:49:19.6603329Z",
+      "length": 15236,
+      "hash": "aa56942a7ba675f529889d35f96acf0e814d5716a0e5feb6e2f72c8c48ad45b6",
       "summary": "Skills catalog"
     },
     {
       "path": "docs/SPAWN.md",
-      "last_write_utc": "2026-10-30T17:30:03.3086658Z",
-      "length": 9437,
-      "hash": "5721cd59cc91211744b15215574687f7a80962e5031e03fb57ff6a6b7ab94ba3",
+      "last_write_utc": "2026-11-05T20:10:24.6399617Z",
+      "length": 9773,
+      "hash": "3e9f2d794106e2bf473909e526cb2a2985c26761850dde70d48c59a42dd56afa",
       "summary": "Spawn / subagents"
     },
     {
       "path": "docs/VALIDATION.md",
-      "last_write_utc": "2026-10-30T22:29:43.0917553Z",
-      "length": 20662,
-      "hash": "23f3ace38791253a08ca1a68f79129bc1bc5b118bb78faa7501d0a54ae5c9d39",
+      "last_write_utc": "2026-10-31T18:49:19.6631950Z",
+      "length": 20689,
+      "hash": "f5dc4f6267d97dc4e05cf31dafcc321e9c08f73eeb72563c16b50ef31b6cda97",
       "summary": "Validation and local CI"
     },
     {
@@ -823,16 +830,16 @@
     },
     {
       "path": "README.md",
-      "last_write_utc": "2026-10-30T22:30:07.5012523Z",
+      "last_write_utc": "2026-10-31T18:49:19.3952133Z",
       "length": 2741,
       "hash": "c2d9443e37c30c15fb5dbfeb0c35b0e513a1308163c011a53817cfdfadf76746",
       "summary": "Agent Dev Toolkit"
     },
     {
       "path": "scripts/_lib/AdapterChecks.ps1",
-      "last_write_utc": "2026-10-30T04:56:03.5715089Z",
-      "length": 44933,
-      "hash": "63cf0b51f9245afea1fbe0c6380db696a4f06dd3562519666d4ab16cee3d1de6",
+      "last_write_utc": "2026-10-31T18:49:19.7024009Z",
+      "length": 46920,
+      "hash": "85aff0a778d7a10639c4793bd16f081222d719f448388e78b6724d9a47751499",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -907,7 +914,7 @@
     },
     {
       "path": "scripts/_lib/New-ToolkitWorkRoot.ps1",
-      "last_write_utc": "2026-10-31T02:41:13.8856036Z",
+      "last_write_utc": "2026-10-31T18:49:19.7049086Z",
       "length": 5603,
       "hash": "aabf497cc6021c4e2be1ff1fbbcb8e9089351aff84fe1d269b0cee68652ca1db",
       "summary": "[non-markdown: content summary omitted]"
@@ -949,16 +956,16 @@
     },
     {
       "path": "scripts/_lib/ToolkitCliUi.ps1",
-      "last_write_utc": "2026-10-09T22:58:40.4750454Z",
-      "length": 5578,
-      "hash": "919cb81ba8654013a0842b357f8ecd3a395fd84dc7bc4c2de5c99ea6c19d6a16",
+      "last_write_utc": "2026-10-31T18:49:19.7059144Z",
+      "length": 7912,
+      "hash": "10ed3da5b2b7dd944ca1f6a22d6420d0426c6e025d6ba1f67433a54d1ed68cbb",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "scripts/_lib/ToolkitConstants.ps1",
-      "last_write_utc": "2026-10-30T21:29:54.6667222Z",
-      "length": 66262,
-      "hash": "a516e4b68d3c6af5b2bc831539a145f6be09ee7cf76cdb27a7ac6f100a13759e",
+      "last_write_utc": "2026-10-31T18:49:19.7079144Z",
+      "length": 67316,
+      "hash": "dd523ecf6da1fdb8af44d715c5914d107e180e4e7ea473505eb5e33cbd058519",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -984,16 +991,16 @@
     },
     {
       "path": "scripts/sync-agent.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.8655928Z",
-      "length": 17013,
-      "hash": "28a5b139b82f260237e86aee09e0207ff4d74497b32108bc60dac8823f2ed674",
+      "last_write_utc": "2026-10-31T18:49:19.7109652Z",
+      "length": 22706,
+      "hash": "9e0c2bfa8970cc9fd09e5205a22709982c9e70dc3f43d63ac58e559c1dccaa5c",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
       "path": "scripts/toolkit.ps1",
-      "last_write_utc": "2026-10-30T04:56:03.5813560Z",
-      "length": 42879,
-      "hash": "8b31b283bdf9c4cf95e56e35813f6511f78499ae7b6c09ab9e8577883724cd3b",
+      "last_write_utc": "2026-10-31T18:49:19.7129657Z",
+      "length": 43389,
+      "hash": "e56d304883f0fa3bce9f6841e01d18dd60fd97cec42323f69e299a66644fefad",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -1005,9 +1012,9 @@
     },
     {
       "path": "scripts/validation/validate-core.ps1",
-      "last_write_utc": "2026-10-30T17:30:03.3288007Z",
-      "length": 11434,
-      "hash": "8c4c44c7baf563a87ae587bc65b0d43d5d4b5ef96a15b95deb692ced25de48bd",
+      "last_write_utc": "2026-10-31T18:49:19.7250983Z",
+      "length": 11526,
+      "hash": "0ca194bf892c25493664d2146c36471842ac5ec38a50b8bda57d748a5612d5fa",
       "summary": "[non-markdown: content summary omitted]"
     },
     {

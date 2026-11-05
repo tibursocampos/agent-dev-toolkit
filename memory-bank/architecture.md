@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout from the current inventory (2026-10-30T00:32:30Z; hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3`)._
+_Entry points and layout from the current inventory (2026-11-05T23:46:41.9818691Z; 144 source(s); stack: Markdown and PowerShell; hash `30dd6df1d21a29ccdd40beca83bff7298c5829ae0d23aac74f17f2ec0a19008f`)._
 
 | Signal | Path |
 |--------|------|
@@ -14,6 +14,8 @@ _Entry points and layout from the current inventory (2026-10-30T00:32:30Z; hash 
 | Skills catalog | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Shared SDD contracts | `core/skills/_shared/sdd-artifacts/` |
 | Router index | `core/router/AGENTS.md` |
+| Session orchestration policy | `core/policy/orchestrator-session.md` |
+| Host spawn contract | `docs/SPAWN.md` |
 | Adapter path guard | `adapters/_shared/GuardCommon.ps1` |
 <!-- END GENERATED: inventory-summary -->
 
