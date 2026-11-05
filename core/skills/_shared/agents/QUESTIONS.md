@@ -22,11 +22,11 @@ A host **offers** a question component only when the host mechanism table below 
 | `grok` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `grok` |
 | `zcode` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `zcode` |
 | `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list) |
-| `cursor` | `none` | No verified question component. |
+| `cursor` | `none` | Documented in the official ACP reference as `cursor/ask_question` (blocking, https://cursor.com/docs/cli/acp). Not verified in the CLI agent: ask in text until a live run shows the answer reaching the agent. |
 | `antigravity` | `none` | No verified question component. |
 | `codex` | `none` | No verified question component. |
-| `copilot` | `none` | No verified question component. |
-| `opencode` | `none` | No verified question component. |
+| `copilot` | `none` | Official docs state that `--no-ask-user` stops the agent from asking clarifying questions (https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/run-cli-programmatically). Tool name and subagent behaviour not verified: ask in text until a live run shows the answer reaching the agent. |
+| `opencode` | `none` | Documented as the `question` permission, which asks the user during execution (https://opencode.ai/docs/permissions/). Blocking behaviour and subagent behaviour not verified: ask in text until a live run shows the answer reaching the agent. |
 | `openhands` | `none` | No verified question component. |
 
 Rules for this table:
@@ -105,7 +105,7 @@ Gates are never compressed. The protected text is the gate text in the user's la
 
 ## Subagents
 
-Children never ask the operator. Only the parent asks. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
+Children never ask the operator. Only the parent asks. This is a toolkit rule, not a host guarantee: on `claude`, the question tool is not available inside subagents (https://code.claude.com/docs/en/sub-agents), and the rule holds on every host. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
 
 ## Cross-refs (lazy-load)
 
