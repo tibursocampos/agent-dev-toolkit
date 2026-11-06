@@ -10,7 +10,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **46** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **47** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
@@ -74,7 +74,8 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `push` | `git push -u origin HEAD` | `/push` |
 | `open-github-pr` | A pull request with `gh` | `/open-github-pr` |
 | `help-skills` | The installed catalog, `CATALOG.md` and `OPERATOR.md` | `/help-skills` |
+| `adt-settings` | Show or save the general model and effort for subagents, or return to inheriting | `/adt-settings` |
 | `document-plan` | `docs/overview.md` and the documentation plan | `/document-plan` |
 | `document-implement` | One pending documentation step | `/document-implement` |
 
-That is 11 delivery skills, 15 implementation skills, and 20 review/platform/git skills: 46 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).
+That is 11 delivery skills, 15 implementation skills, and 21 review/platform/git skills: 47 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).

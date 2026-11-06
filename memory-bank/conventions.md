@@ -23,7 +23,8 @@
 - Layout: `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, fixtures under `scripts/validation/fixtures/`.
 - Run core checks with `pwsh -NoProfile -File scripts/validation/validate-core.ps1`; use `-Only <check-name>` for a bounded assertion. Build the docs site strictly with `pip install -r docs-site/requirements-docs.txt` followed by `python -m mkdocs build --strict -f docs-site/mkdocs.yml`.
 - `scripts/toolkit.ps1` dispatches CLI scripts through `scripts/_lib/Invoke-ToolkitChildScript.ps1`; preserve this process boundary so a child script's top-level `exit` cannot terminate the interactive menu. `Assert-ToolkitScriptIsolation.ps1` is the regression check.
-- Catalog changes must keep all 45 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Catalog changes must keep all 47 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Session-wide subagent model/effort choice uses the host-supported complete pair when available and otherwise inherits the parent selection; published settings do not prove host runtime application.
 
 ## Git / branches
 

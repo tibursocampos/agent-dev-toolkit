@@ -25,11 +25,11 @@ When Prior/cited content already has DDL, OpenAPI, or a UI component map, the ma
 - [x] BLOCKING: source drift detected (63 source(s)); review and check off
 - [x] BLOCKING: source drift detected (71 source(s)); reviewed 2026-11-05: 65/71 paths represented in committed history through HEAD, six are current S4/S9 edits; no stack additions. Architecture prose updated in commit 3a37061.
 - [x] BLOCKING: source drift detected (3 source(s)); reviewed 2026-11-05: capability-first startup, host-specific model/effort option discovery, and inheritance fallback are represented in conventions and known-risks.
+- [x] BLOCKING: source drift detected (11 source(s)); reviewed 2026-11-06: adt-settings model/effort inheritance, Hermes bounded uninstall reporting, and adapter contract checks are represented in architecture, project context, conventions, and known risks. No database, API, or UI contracts were added.
 
 ## Notes
 
-The 2026-11-05 inventory is `ready` at hash `30dd6df1d21a29ccdd40beca83bff7298c5829ae0d23aac74f17f2ec0a19008f` (144 sources; Markdown and PowerShell). The three changed session-start/spawn-contract sources were reviewed and represented in the Memory Bank.
-
+Review basis: inventory is `ready` at hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551` (144 sources; Markdown and PowerShell). MVP coverage was reviewed on 2026-11-06. The 11 changed sources were reviewed and their subagent settings, Hermes uninstall, and adapter validation implications are represented in the bank.
 No DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map were detected; phase-2 files are not currently required.
 
 ## Open gaps

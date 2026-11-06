@@ -207,10 +207,25 @@ function Test-AdapterPublishLayout {
 
     # rules / instructions (hosts without a rules surface carry the orchestrator text in the router)
     if ($caps.rules -eq $true) {
-        $rule = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)orchestrator-session[^/]*$' })
-        Write-AdtCheck $id 'rules-orchestrator-session' ($rule.Count -ge 1) 'orchestrator-session rule/instruction file missing'
-        $guardrails = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)guardrails[^/]*$' })
-        Write-AdtCheck $id 'rules-guardrails' ($guardrails.Count -ge 1) 'guardrails rule file missing'
+        if ($id -eq 'hermes') {
+            $agentsRel = 'AGENTS.md'
+            $agentsPath = Join-Path $root $agentsRel
+            $agentsText = if ($files -contains $agentsRel -and (Test-Path -LiteralPath $agentsPath -PathType Leaf)) {
+                [System.IO.File]::ReadAllText($agentsPath)
+            } else { '' }
+            $hasManagedMarkers = $agentsText.Contains('<!-- BEGIN agent-dev-toolkit managed Hermes guidance -->') -and
+                $agentsText.Contains('<!-- END agent-dev-toolkit managed Hermes guidance -->')
+            Write-AdtCheck $id 'rules-managed-agents-markers' $hasManagedMarkers 'managed Hermes AGENTS.md markers missing'
+            Write-AdtCheck $id 'rules-folded-policy-heading' $agentsText.Contains('## Toolkit always-on policy') 'folded policy heading missing from AGENTS.md'
+            Write-AdtCheck $id 'rules-orchestrator-session' $agentsText.Contains('### orchestrator-session') 'folded orchestrator-session heading missing from AGENTS.md'
+            Write-AdtCheck $id 'rules-guardrails' $agentsText.Contains('### guardrails') 'folded guardrails heading missing from AGENTS.md'
+        }
+        else {
+            $rule = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)orchestrator-session[^/]*$' })
+            Write-AdtCheck $id 'rules-orchestrator-session' ($rule.Count -ge 1) 'orchestrator-session rule/instruction file missing'
+            $guardrails = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)guardrails[^/]*$' })
+            Write-AdtCheck $id 'rules-guardrails' ($guardrails.Count -ge 1) 'guardrails rule file missing'
+        }
     }
 
     # hooks
@@ -250,15 +265,17 @@ function Test-AdapterPublishLayout {
     }
 
     $takesRoot = (Get-Command Get-InstallRoots).Parameters.ContainsKey('InstallRoot')
+    $modeArgs = @{}
+    if ($id -eq 'copilot') { $modeArgs['Mode'] = [string]$Publish.Mode }
     $rootsInfo = $null
-    try { $rootsInfo = if ($takesRoot) { Get-InstallRoots -AgentId $id -InstallRoot $root } else { Get-InstallRoots -AgentId $id } } catch { $rootsInfo = $null }
+    try { $rootsInfo = if ($takesRoot) { Get-InstallRoots -AgentId $id -InstallRoot $root @modeArgs } else { Get-InstallRoots -AgentId $id } } catch { $rootsInfo = $null }
     $rootsOk = $null -ne $rootsInfo -and (Get-AdtProperty $rootsInfo 'Success' $false) -eq $true
     Write-AdtCheck $id 'install-roots-map' $rootsOk 'Get-InstallRoots must report Success'
     $probe = Join-Path ([Environment]::GetFolderPath('UserProfile')) ('.adt-userhome-probe-' + $id)
     $threwResolve = $false
     try { $null = Resolve-InstallRoot -InstallRoot $probe } catch { $threwResolve = ($_.Exception.Message -match 'AllowUserHome') }
     $threwAdapter = -not $takesRoot
-    if ($takesRoot) { try { $null = Get-InstallRoots -AgentId $id -InstallRoot $probe } catch { $threwAdapter = ($_.Exception.Message -match 'AllowUserHome') } }
+    if ($takesRoot) { try { $null = Get-InstallRoots -AgentId $id -InstallRoot $probe @modeArgs } catch { $threwAdapter = ($_.Exception.Message -match 'AllowUserHome') } }
     Write-AdtCheck $id 'userhome-guard' ($threwResolve -and $threwAdapter -and -not (Test-Path -LiteralPath $probe)) "resolve=$threwResolve adapter=$threwAdapter; USERPROFILE install roots must require -AllowUserHome"
 
     # per-id extras

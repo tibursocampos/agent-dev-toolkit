@@ -6,7 +6,7 @@ title: Usando skills
 
 Invoque skills pelo **id** (kebab-case em `core/skills/`). O id é o mesmo em todo host. O prefixo é do host (`/`, `$`, `use skill` ou a ferramenta `skill` do OpenCode). Compat em muitos hosts: `use skill <id>`, ou linguagem natural que bate com a descrição da skill.
 
-Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **46** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
+Depois de qualquer sync, invoque **`help-skills`**. Ela lê o catálogo instalado (`CATALOG.md` e `OPERATOR.md`). Há **47** skills invocáveis. Pastas em `core/skills/_shared/` são packs, não skills. Os arquivos architect, database, security, repo-analyst e shell-runner em `core/agents/` são papéis do roster, não ids de skill.
 
 O roteamento depende do adaptador: o Copilot tem `router=false`, então a orientação de `core/router/AGENTS.md` fica embutida no `copilot-instructions.md` gerado; isso não é um id de skill separado nem prova de execução no host ao vivo.
 
@@ -292,11 +292,28 @@ Comandos: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 
 `help-skills`, `read-sdd-artifact`, `commit`, `push` e `open-github-pr` nunca comprimem. Gates, rascunhos, caminhos e as opções dos gates (ids `confirm`, `adjust`, `cancel`; no install em português: sim / ajustar / cancelar) permanecem claros. Arquivo de política: `core/policy/caveman-mode.md`. A ideia está creditada em [Créditos](credits.md).
 
+### Subagentes: modelo e esforço
+
+Use `adt-settings` para consultar ou salvar um único par geral de modelo e esforço para subagentes, ou para voltar a herdar. O padrão é herdar os dois valores do pai. Um par salvo serve somente como pré-seleção da pergunta de sessão, feita uma vez; ele não altera uma sessão depois que a pergunta foi respondida.
+
+Os pares disponíveis vêm da linha do adapter efetivo em `SUBAGENT-OPTIONS.md`. Quando não há mecanismo comprovado para aplicar o par, o host herda os valores do pai.
+
+| Adapter | Status |
+|---------|--------|
+| Claude | documented, not verified at runtime |
+| Codex | documented, not verified at runtime |
+| Cursor | documented, not verified at runtime |
+| Hermes | documented, not verified at runtime |
+| Copilot | documented, not verified at runtime |
+
+Atualize o status de um adapter somente depois de registrar evidência real para ele.
+
 ### Outras chaves de preferência
 
 | Chave | Padrão | Efeito |
 |-------|--------|--------|
 | `orchestrator_mode` | `adaptive` | O pai orquestra; trabalho trivial pode ficar no pai |
+| `subagent_models.default` | ausente (herdar) | Par `{model, effort}` opcional usado como pré-seleção |
 | `caveman_mode` | `true` no primeiro sync | Compressão do chat ligada; o sync interativo pode desligá-la |
 | `caveman_level` | `full` | Intensidade se a compressão for ligada |
 | `artifact_language` | `null` | Sem override de locale |
