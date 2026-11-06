@@ -68,10 +68,8 @@ function Get-GrokKnownToolkitArtifactPaths {
         }
     }
 
-    $hooksJson = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.HooksJsonFileName
-    if (Test-Path -LiteralPath $hooksJson) {
-        $paths.Add([System.IO.Path]::GetFullPath($hooksJson))
-    }
+    # hooks/toolkit-session-start.json is shared host configuration. Remove only
+    # the toolkit handlers below; keep operator properties and unrelated hooks.
 
     $hooksScript = Join-Path $MappedPaths.FixtureHooksPath $script:GrokAdapterConstant.HooksSessionStartScriptName
     if (Test-Path -LiteralPath $hooksScript) {
@@ -106,6 +104,58 @@ function Get-GrokKnownToolkitArtifactPaths {
     return @($paths.ToArray())
 }
 
+function Remove-GrokToolkitHooksFromConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [switch] $WhatIf
+    )
+
+    # The shared config is retained, but its path must stay inside InstallRoot.
+    # Validate before checking or reading it so a leaf/parent reparse point cannot
+    # redirect either operation outside the adapter's resolved install boundary.
+    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $true }
+    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+    try { $payload = [System.IO.File]::ReadAllText($Path) | ConvertFrom-Json }
+    catch { throw "Grok hooks configuration is invalid; refusing to alter it: $Path. $($_.Exception.Message)" }
+    $hookRoot = if ($payload.PSObject.Properties.Name -contains 'hooks') { $payload.hooks } else { $payload }
+    $hooksDirectory = Split-Path -Parent $Path
+    $managedCommandPaths = @(
+        ([System.IO.Path]::GetFullPath((Join-Path $hooksDirectory $script:GrokAdapterConstant.HooksSessionStartScriptName)) -replace '\\', '/'),
+        ([System.IO.Path]::GetFullPath((Join-Path $hooksDirectory $script:GrokAdapterConstant.HooksGuardPreToolScriptName)) -replace '\\', '/')
+    )
+    $changed = $false
+    foreach ($eventName in @($hookRoot.PSObject.Properties.Name | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })) {
+        $keptBlocks = New-Object System.Collections.Generic.List[object]
+        foreach ($block in @($hookRoot.$eventName)) {
+            if ($null -eq $block -or $block.PSObject.Properties.Name -notcontains 'hooks') { $keptBlocks.Add($block); continue }
+            $entries = @($block.hooks)
+            $keptEntries = @($entries | Where-Object {
+                $command = [string]$_.command
+                $isManagedCommand = $false
+                foreach ($managedPath in $managedCommandPaths) {
+                    if ($command.IndexOf($managedPath, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { $isManagedCommand = $true; break }
+                }
+                -not $isManagedCommand
+            })
+            if ($keptEntries.Count -lt $entries.Count) { $changed = $true }
+            if ($keptEntries.Count -gt 0) { $block.hooks = $keptEntries; $keptBlocks.Add($block) }
+        }
+        if ($keptBlocks.Count -eq 0) { $hookRoot.PSObject.Properties.Remove($eventName) }
+        else { $hookRoot.PSObject.Properties[$eventName].Value = @($keptBlocks.ToArray()) }
+    }
+    if ($changed -and -not $WhatIf.IsPresent) {
+        # Recheck immediately before writing; a shared config can be replaced after
+        # the initial read by a file symlink or a junction in one of its ancestors.
+        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($Path, ($payload | ConvertTo-Json -Depth $script:GrokAdapterConstant.JsonConvertDepthDeep), $utf8)
+    }
+    return $true
+}
+
 function Invoke-GrokUninstallToolkit {
     [CmdletBinding()]
     param(
@@ -136,6 +186,8 @@ function Invoke-GrokUninstallToolkit {
 $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
     . $artifactHelper
     $mapped = Get-GrokMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
+    $hooksConfigPath = Join-Path $mapped.FixtureHooksPath $script:GrokAdapterConstant.HooksJsonFileName
+    $null = Remove-GrokToolkitHooksFromConfig -Path $hooksConfigPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
     $knownPaths = @(Get-GrokKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
     $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `

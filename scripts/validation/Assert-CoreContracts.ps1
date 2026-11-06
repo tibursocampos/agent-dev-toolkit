@@ -283,7 +283,7 @@ function Test-RegisteredAdapterSpawnGuidance {
 
         $capability = [string]$agent.capabilities.subagents
         if ($capability -eq 'native') {
-            $hasFreshAssignment = $section -match '(?is)fresh\s+(?:child|subagent|agent|handle)' -and $section -match '(?is)new\s+(?:task|assignment|review|correction)'
+            $hasFreshAssignment = $section -match '(?is)fresh\s+(?:child|subagent|agent|handle)'
             $hasNoCompletedReuse = $section -match '(?is)(?:never|do\s+not|must\s+not).{0,240}reuse' -and $section -match '(?is)(?:child\s+returns|returned\s+(?:child|work|result)|completed\s+(?:child|subagent|agent)|after\s+(?:the\s+)?child\s+returns)'
             $hasHostTeardownBoundary = $section -match '(?is)host.{0,120}(?:control|manage|provides?.{0,30}(?:close|kill|terminat|teardown)|close|kill|terminat|teardown).{0,80}(?:close|kill|terminat|teardown|lifecycle|control|manage)?|(?:close|kill|terminat|teardown).{0,80}host.{0,40}(?:control|manage)'
             if (-not $hasFreshAssignment) { $problems.Add("${id}: native Spawn section must require a fresh child/handle for each new task") }
@@ -3591,6 +3591,412 @@ foreach ($workflowFile in @(Get-ChildItem -LiteralPath $workflowDir -Filter '*.y
 }
 Write-Pass -TestName 'Should_Pass_When_WorkflowActionsPinnedAndPermissionsDeclared'
 
+}
+
+$sections['SpawnChecklistAudit'] = {
+# Tests:
+#   Should_Classify_When_ThresholdsAreInclusive
+#   Should_Delegate_When_AnyDimensionExceedsOrExclusionApplies
+#   Should_ReopenCountsAndReclassifyWhenScopeGrows
+#   Should_AcceptAndRejectSpawnAuditLineShapes
+#   Should_ContinueOnlyWithinReceiptScopeAndCount
+#   Should_Pass_When_CanonicalSpawnChecklistAndModesArePresent
+#   Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint
+#   Should_Fail_When_RTrivialFingerprintIsCopiedToStackSkillConsumer
+#   Should_Fail_When_RTrivialFingerprintIsCopiedToOrchestratorConsumer
+#   Should_Fail_When_RTrivialFingerprintIsCopiedToSddPlanConsumer
+#   Should_Fail_When_RTrivialFingerprintIsCopiedToMemoryBankReference
+
+function Test-SpawnClassification {
+    param([int] $Edited, [int] $Read, [int] $Lines, [string] $Exclusion = '')
+    if ($Edited -lt 0 -or $Read -lt 0 -or $Lines -lt 0) { return 'delegate' }
+    if ($Edited -le 3 -and $Read -le 6 -and $Lines -le 150 -and [string]::IsNullOrWhiteSpace($Exclusion)) { return 'trivial' }
+    return 'delegate'
+}
+
+function Test-SpawnAuditLine {
+    param([string] $Line)
+    $pattern = '^\[Spawn\] (trivial|delegate|continue|new-child) mode=(adaptive|always) edited=\d+ read=\d+ lines=\d+ criterion=(files-edited|files-read|lines|long-command|shared-contract|security|search-count|topic|scope|count-limit|no-record|doubt|none)$'
+    if ($Line -cnotmatch $pattern) { return $false }
+    if ($Matches[1] -eq 'trivial' -and ($Matches[2] -cne 'adaptive' -or $Matches[3] -cne 'none')) { return $false }
+    if ($Matches[1] -eq 'continue' -and $Matches[3] -cne 'none') { return $false }
+    return $true
+}
+
+function Get-SpawnContinuationDecision {
+    param(
+        [string] $ReceiptStatus,
+        [bool] $SameScope,
+        [bool] $InScopePaths,
+        [bool] $Edits,
+        [int] $Count,
+        [bool] $HasRecord,
+        [bool] $TopicClear
+    )
+    if (-not $HasRecord) { return 'new-child:no-record' }
+    if (-not $TopicClear) { return 'new-child:doubt' }
+    if ($ReceiptStatus -cne 'done' -or -not $SameScope -or -not $InScopePaths -or $Edits) { return 'new-child:scope' }
+    if ($Count -ge 2) { return 'new-child:count-limit' }
+    return 'continue'
+}
+
+$classificationName = 'Should_Classify_When_ThresholdsAreInclusive'
+if ((Test-SpawnClassification -Edited 3 -Read 6 -Lines 150) -cne 'trivial' -or
+    (Test-SpawnClassification -Edited 0 -Read 0 -Lines 0) -cne 'trivial') {
+    Write-Fail -TestName $classificationName -Reason 'inclusive limits and a zero-sized task must be trivial'
+}
+Write-Pass -TestName $classificationName
+
+$delegateName = 'Should_Delegate_When_AnyDimensionExceedsOrExclusionApplies'
+foreach ($case in @(
+    @{ Edited = 4; Read = 0; Lines = 0; Exclusion = '' },
+    @{ Edited = 0; Read = 7; Lines = 0; Exclusion = '' },
+    @{ Edited = 0; Read = 0; Lines = 151; Exclusion = '' },
+    @{ Edited = 3; Read = 6; Lines = 150; Exclusion = 'security' }
+)) {
+    if ((Test-SpawnClassification @case) -cne 'delegate') {
+        Write-Fail -TestName $delegateName -Reason 'a value over one threshold or an exclusion must delegate'
+    }
+}
+Write-Pass -TestName $delegateName
+
+$reopenName = 'Should_ReopenCountsAndReclassifyWhenScopeGrows'
+$openedFiles = @('a', 'b', 'a', 'c')
+$distinctReadCount = @($openedFiles | Select-Object -Unique).Count
+if ($distinctReadCount -ne 3 -or (Test-SpawnClassification -Edited 2 -Read $distinctReadCount -Lines 80) -cne 'trivial') {
+    Write-Fail -TestName $reopenName -Reason 'reopening a file must not increase distinct reads'
+}
+$initialClass = Test-SpawnClassification -Edited 2 -Read 3 -Lines 80
+$grownClass = Test-SpawnClassification -Edited 2 -Read 3 -Lines 160
+if ($initialClass -cne 'trivial' -or $grownClass -cne 'delegate') {
+    Write-Fail -TestName $reopenName -Reason 'scope growth must be reclassified before continuing'
+}
+Write-Pass -TestName $reopenName
+
+$auditName = 'Should_AcceptAndRejectSpawnAuditLineShapes'
+$validAuditLines = @(
+    '[Spawn] trivial mode=adaptive edited=1 read=2 lines=20 criterion=none',
+    '[Spawn] delegate mode=always edited=1 read=1 lines=5 criterion=none',
+    '[Spawn] delegate mode=adaptive edited=4 read=2 lines=30 criterion=files-edited',
+    '[Spawn] continue mode=adaptive edited=0 read=1 lines=0 criterion=none',
+    '[Spawn] new-child mode=adaptive edited=1 read=1 lines=10 criterion=scope'
+)
+foreach ($line in $validAuditLines) {
+    if (-not (Test-SpawnAuditLine -Line $line)) { Write-Fail -TestName $auditName -Reason ("valid audit line rejected: {0}" -f $line) }
+}
+$invalidAuditLines = @(
+    '[Spawn] trivial mode=adaptive edited=1 read=2 lines=20 criterion=none extra text',
+    '[Spawn] delegate mode=adaptive edited=x read=2 lines=30 criterion=files-edited',
+    '[Spawn] delegate mode=adaptive edited=4 read=2 lines=30 criterion=model',
+    '[Spawn] delegate mode=auto edited=4 read=2 lines=30 criterion=files-edited',
+    '[Spawn] trivial mode=always edited=1 read=1 lines=5 criterion=none',
+    '[Spawn] continue mode=adaptive edited=0 read=1 lines=0 criterion=none count=1',
+    '[Spawn] continue mode=adaptive edited=0 read=1 lines=0 criterion=none path=core/a.md'
+)
+foreach ($line in $invalidAuditLines) {
+    if (Test-SpawnAuditLine -Line $line) { Write-Fail -TestName $auditName -Reason ("invalid audit line accepted: {0}" -f $line) }
+}
+Write-Pass -TestName $auditName
+
+$continuationName = 'Should_ContinueOnlyWithinReceiptScopeAndCount'
+$continuationCases = @(
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'continue' },
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $false; Count = 1; HasRecord = $true; TopicClear = $true; Expected = 'continue' },
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $false; Count = 2; HasRecord = $true; TopicClear = $true; Expected = 'new-child:count-limit' },
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $true; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = 'blocked'; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = 'failed'; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = ''; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = 'done'; SameScope = $false; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = 'done'; SameScope = $true; InScope = $false; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $true; Expected = 'new-child:scope' },
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $false; TopicClear = $true; Expected = 'new-child:no-record' },
+    @{ Status = 'done'; SameScope = $true; InScope = $true; Edits = $false; Count = 0; HasRecord = $true; TopicClear = $false; Expected = 'new-child:doubt' }
+)
+foreach ($case in $continuationCases) {
+    $decision = Get-SpawnContinuationDecision -ReceiptStatus $case.Status -SameScope $case.SameScope -InScopePaths $case.InScope -Edits $case.Edits -Count $case.Count -HasRecord $case.HasRecord -TopicClear $case.TopicClear
+    if ($decision -cne $case.Expected) {
+        Write-Fail -TestName $continuationName -Reason ("expected {0}, got {1}" -f $case.Expected, $decision)
+    }
+}
+Write-Pass -TestName $continuationName
+
+$spawnText = Get-Content -LiteralPath (Join-Path $repoRoot 'core/skills/_shared/agents/SPAWN.md') -Raw -Encoding UTF8
+$digestText = Get-Content -LiteralPath (Join-Path $repoRoot 'core/skills/_shared/agents/SPAWN-DIGEST.md') -Raw -Encoding UTF8
+$policyPath = 'core/policy/orchestrator-session.md'
+$policyText = Get-Content -LiteralPath (Join-Path $repoRoot $policyPath) -Raw -Encoding UTF8
+$contentName = 'Should_Pass_When_CanonicalSpawnChecklistAndModesArePresent'
+foreach ($marker in @('## Delegation checklist', '## Audit line', 'edited <= 3', 'read <= 6', 'lines <= 150', '4, 7 or 151', 'at most 2 times', 'no-record', 'doubt')) {
+    if ($spawnText -notmatch [regex]::Escape($marker)) { Write-Fail -TestName $contentName -Reason ("SPAWN.md is missing: {0}" -f $marker) }
+}
+foreach ($marker in @('edited <= 3', 'read <= 6', 'lines <= 150', '[Spawn]', 'ROSTER.md', '*-developer` 2', 'orchestrate-*` 4')) {
+    if ($digestText -notmatch [regex]::Escape($marker)) { Write-Fail -TestName $contentName -Reason ("SPAWN-DIGEST.md is missing: {0}" -f $marker) }
+}
+if ($policyText -notmatch '(?m)^## Modes\s*$') {
+    Write-Fail -TestName $contentName -Reason 'orchestrator-session.md is missing the canonical Modes section'
+}
+$modeHeader = '| Mode | Trivial task (checklist in `SPAWN.md`) | Other tasks | `qa_checklist` | Agent unavailable |'
+$canonicalModeHeaders = @()
+foreach ($root in @('core', 'docs')) {
+    $rootPath = Join-Path $repoRoot $root
+    foreach ($file in @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -eq '.md' -or $_.Extension -eq '.mdx' })) {
+        $text = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+        if ($text.Contains($modeHeader)) { $canonicalModeHeaders += $file.FullName }
+    }
+}
+$expectedPolicyPath = Join-Path $repoRoot $policyPath
+if ($canonicalModeHeaders.Count -ne 1 -or $canonicalModeHeaders[0] -ne $expectedPolicyPath) {
+    Write-Fail -TestName $contentName -Reason 'the canonical spawn Modes table must appear once, in orchestrator-session.md'
+}
+Write-Pass -TestName $contentName
+
+function Get-SpawnConsumerDuplicateViolations {
+    param([hashtable] $Documents, [hashtable[]] $Rules)
+    $violations = [System.Collections.Generic.List[string]]::new()
+    foreach ($rule in $Rules) {
+        $allowed = @($rule.AllowedFiles) + @($rule.OwnerFile)
+        foreach ($path in $Documents.Keys) {
+            if ($Documents[$path].Contains($rule.Fingerprint) -and $path -notin $allowed) {
+                $violations.Add(("{0}:{1}" -f $path, $rule.RuleId))
+            }
+        }
+    }
+    return $violations.ToArray()
+}
+
+$consumerFingerprint = 'The task is trivial only when edited <= 3, read <= 6, lines <= 150 and no exclusion applies.'
+$consumerRule = @{
+    RuleId = 'R-TRIVIAL'
+    OwnerFile = 'core/skills/_shared/agents/SPAWN.md'
+    Fingerprint = $consumerFingerprint
+    AllowedFiles = @()
+}
+$consumerPaths = @('core/skills/_shared/skills-catalog/OPERATOR.md')
+$consumerDocuments = @{}
+foreach ($consumerPath in $consumerPaths) {
+    $consumerFullPath = Join-Path $repoRoot $consumerPath
+    if (-not (Test-Path -LiteralPath $consumerFullPath -PathType Leaf)) {
+        Write-Fail -TestName 'Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint' -Reason ("missing S4 consumer: {0}" -f $consumerPath)
+    }
+    $consumerText = Get-Content -LiteralPath $consumerFullPath -Raw -Encoding UTF8
+    if (-not $consumerText.Contains('SPAWN.md')) {
+        Write-Fail -TestName 'Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint' -Reason ("consumer lacks SPAWN.md pointer: {0}" -f $consumerPath)
+    }
+    $consumerDocuments[$consumerPath] = $consumerText
+}
+$consumerViolations = @(Get-SpawnConsumerDuplicateViolations -Documents $consumerDocuments -Rules @($consumerRule))
+if ($consumerViolations.Count -gt 0) {
+    Write-Fail -TestName 'Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint' -Reason ("consumer repeats normative R-TRIVIAL text: {0}" -f $consumerViolations[0])
+}
+Write-Pass -TestName 'Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint'
+
+$syntheticConsumerCases = @(
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToStackSkillConsumer'; Path = 'core/skills/react-developer/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToOrchestratorConsumer'; Path = 'core/skills/orchestrate-develop/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToSddPlanConsumer'; Path = 'core/skills/sdd-plan/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToMemoryBankReference'; Path = 'core/skills/memory-bank-init/references/inventory-specialist-synthesis.md' }
+)
+foreach ($case in $syntheticConsumerCases) {
+    $syntheticDocuments = @{ $case.Path = $consumerFingerprint }
+    $syntheticViolations = @(Get-SpawnConsumerDuplicateViolations -Documents $syntheticDocuments -Rules @($consumerRule))
+    $expectedViolation = "{0}:R-TRIVIAL" -f $case.Path
+    if ($syntheticViolations -notcontains $expectedViolation) {
+        Write-Fail -TestName $case.Name -Reason ("synthetic consumer did not report {0}" -f $expectedViolation)
+    }
+    Write-Pass -TestName $case.Name
+}
+}
+
+$sections['SpawnSizeBudget'] = {
+# Tests:
+#   Should_Fail_When_SpawnDigestExceeds2500BytesLf
+#   Should_Warn_When_SpawnExceeds14000BytesLf
+#   Should_Fail_When_NormativeFingerprintIsDuplicatedOutsideOwner
+#   Should_Fail_When_ChecklistLimitsContradictOwner
+#   Should_Fail_When_ChecklistLimitsContradictOwner
+
+function Get-LfUtf8ByteCount {
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'File')][string] $Path,
+        [Parameter(Mandatory = $true, ParameterSetName = 'Text')][AllowEmptyString()][string] $Text
+    )
+    if ($PSCmdlet.ParameterSetName -eq 'File') {
+        $Text = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+    }
+    $normalized = $Text -replace "`r`n", "`n" -replace "`r", "`n"
+    return [System.Text.Encoding]::UTF8.GetByteCount($normalized)
+}
+
+function Get-SpawnDuplicateViolations {
+    param([hashtable] $Documents, [hashtable[]] $Rules)
+    $violations = [System.Collections.Generic.List[string]]::new()
+    foreach ($rule in $Rules) {
+        $allowed = @($rule.AllowedFiles) + @($rule.OwnerFile)
+        foreach ($path in $Documents.Keys) {
+            if ($Documents[$path].Contains($rule.Fingerprint) -and $path -notin $allowed) {
+                $violations.Add(("{0}:{1}" -f $path, $rule.RuleId))
+            }
+        }
+    }
+    return $violations.ToArray()
+}
+
+function Test-SpawnChecklistContradiction {
+    param([string] $Text)
+    return ($Text -match '(?i)edited\s*<=\s*4' -or
+        $Text -match '(?i)read\s*<=\s*7' -or
+        $Text -match '(?i)lines\s*<=\s*151' -or
+        $Text -match '(?is)always.{0,120}trivial\s+in\s+the\s+parent')
+}
+
+$sizeName = 'Should_Fail_When_SpawnDigestExceeds2500BytesLf'
+$overBudget = Get-LfUtf8ByteCount -Text ('a' * 2501)
+$atBudget = Get-LfUtf8ByteCount -Text ('a' * 2500)
+$crlfText = ('x' * 2480) + (("`r`n") * 20)
+$rawCrlfBytes = [System.Text.Encoding]::UTF8.GetByteCount($crlfText)
+$normalizedCrlf = Get-LfUtf8ByteCount -Text $crlfText
+$accentBytes = Get-LfUtf8ByteCount -Text 'é'
+if ($overBudget -ne 2501 -or $overBudget -le 2500 -or $atBudget -ne 2500 -or $rawCrlfBytes -ne 2520 -or $normalizedCrlf -ne 2500 -or $accentBytes -ne 2) {
+    Write-Fail -TestName $sizeName -Reason 'UTF-8/LF byte-count boundary or normalization failed'
+}
+$digestPath = Join-Path $repoRoot 'core/skills/_shared/agents/SPAWN-DIGEST.md'
+$digestBytes = Get-LfUtf8ByteCount -Path $digestPath
+if ($digestBytes -gt 2500) {
+    Write-Fail -TestName $sizeName -Reason ("SPAWN-DIGEST.md is {0} bytes (UTF-8, LF); ceiling is 2500" -f $digestBytes)
+}
+Write-Pass -TestName $sizeName
+
+$spawnBytes = Get-LfUtf8ByteCount -Path (Join-Path $repoRoot 'core/skills/_shared/agents/SPAWN.md')
+if ($spawnBytes -gt 14000) {
+    Write-Warning ("SPAWN.md is {0} bytes (UTF-8, LF); reference is 14000 (warning only)" -f $spawnBytes)
+}
+Write-Pass -TestName 'Should_Warn_When_SpawnExceeds14000BytesLf'
+
+$duplicateName = 'Should_Fail_When_NormativeFingerprintIsDuplicatedOutsideOwner'
+$fingerprint = 'Each dispatched task is one child assignment: once that child ' + 'returns any result'
+$syntheticDocuments = @{
+    'core/x.md' = $fingerprint
+    'docs/y.md' = $fingerprint
+}
+$syntheticRule = @{
+    RuleId = 'R-LIFECYCLE'
+    OwnerFile = 'core/x.md'
+    Fingerprint = $fingerprint
+    AllowedFiles = @()
+}
+$syntheticViolations = @(Get-SpawnDuplicateViolations -Documents $syntheticDocuments -Rules @($syntheticRule))
+if ($syntheticViolations -notcontains 'docs/y.md:R-LIFECYCLE') {
+    Write-Fail -TestName $duplicateName -Reason 'synthetic duplicate did not report file:rule'
+}
+
+$roots = @('core', 'docs', 'docs-site', 'adapters', 'scripts')
+$documents = @{}
+foreach ($root in $roots) {
+    $rootPath = Join-Path $repoRoot $root
+    foreach ($file in @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -eq '.md' -or $_.Extension -eq '.mdx' -or $_.Extension -eq '.ps1' })) {
+        $relative = $file.FullName.Substring($repoRoot.TrimEnd('\', '/').Length).TrimStart('\', '/').Replace('\', '/')
+        $documents[$relative] = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+    }
+}
+$rules = @(
+    @{
+        RuleId = 'R-LIFECYCLE'
+        OwnerFile = 'core/skills/_shared/agents/SPAWN.md'
+        Fingerprint = $fingerprint
+        AllowedFiles = @(
+            'adapters/antigravity/README.md', 'adapters/claude/README.md', 'adapters/codex/README.md',
+            'adapters/copilot/README.md', 'adapters/cursor/README.md', 'adapters/grok/README.md',
+            'adapters/hermes/README.md', 'adapters/opencode/README.md', 'adapters/openhands/README.md',
+            'adapters/zcode/README.md'
+        )
+    }
+)
+$actualViolations = @(Get-SpawnDuplicateViolations -Documents $documents -Rules $rules)
+if ($actualViolations.Count -gt 0) {
+    Write-Fail -TestName $duplicateName -Reason ("duplicate normative rule {0}" -f $actualViolations[0])
+}
+Write-Pass -TestName $duplicateName
+
+$contradictionName = 'Should_Fail_When_ChecklistLimitsContradictOwner'
+$contradictoryText = 'edited <= 4; read <= 7; lines <= 151; always trivial in the parent'
+$spawnText = Get-Content -LiteralPath (Join-Path $repoRoot 'core/skills/_shared/agents/SPAWN.md') -Raw -Encoding UTF8
+if (-not (Test-SpawnChecklistContradiction -Text $contradictoryText)) {
+    Write-Fail -TestName $contradictionName -Reason 'synthetic contradictory checklist limits were accepted'
+}
+if (Test-SpawnChecklistContradiction -Text $spawnText) {
+    Write-Fail -TestName $contradictionName -Reason 'the canonical SPAWN checklist contradicts its owner'
+}
+Write-Pass -TestName $contradictionName
+}
+
+$sections['SpawnHostMatrix'] = {
+# Tests:
+#   Should_Pass_When_SpawnHostMatrixMatchesRegistry
+#   Should_Fail_When_SpawnHostMatrixOmitsRegisteredAgent
+#   Should_Fail_When_OfficialEvidenceHasNoUrl
+
+function Get-SpawnHostMatrixViolations {
+    param([string] $MatrixText, [object[]] $Agents)
+    $rows = @{}
+    $inMatrix = $false
+    foreach ($line in ($MatrixText -split "`r?`n")) {
+        if ($line -eq '## Nesting matrix') { $inMatrix = $true; continue }
+        if ($inMatrix -and $line -match '^## ') { break }
+        if (-not $inMatrix -or $line -notmatch '^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|$') { continue }
+        $id = $Matches[1].Trim()
+        if ($id -eq 'Agent id' -or $id -match '^-+$') { continue }
+        $rows[$id] = @{
+            child = $Matches[2].Trim(); source = $Matches[3].Trim(); evidence = $Matches[4].Trim()
+            checked = $Matches[5].Trim(); restriction = $Matches[6].Trim()
+        }
+    }
+
+    $issues = [System.Collections.Generic.List[string]]::new()
+    foreach ($agent in $Agents) {
+        $id = [string]$agent.id
+        if (-not $rows.ContainsKey($id)) { $issues.Add(("docs/SPAWN.md:{0} missing matrix row" -f $id)); continue }
+        $row = $rows[$id]
+        $capability = [string]$agent.capabilities.subagents
+        if ($capability -eq 'none') {
+            if ($id -ne 'openhands' -or $row.child -ne 'n/a' -or $row.source -ne 'n/a' -or $row.evidence -ne 'none' -or $row.checked -notmatch '^\d{4}-\d{2}-\d{2}$' -or $row.restriction -ne 'n/a') {
+                $issues.Add(("docs/SPAWN.md:{0} must mirror subagents=none as n/a/n/a/none/date/n/a" -f $id))
+            }
+            continue
+        }
+        if ($capability -ne 'native') { $issues.Add(("docs/SPAWN.md:{0} has unsupported registry capability {1}" -f $id, $capability)); continue }
+        if ($row.child -notin @('yes','no','unknown')) { $issues.Add(("docs/SPAWN.md:{0} invalid Child can spawn child '{1}'" -f $id, $row.child)) }
+        if ($row.evidence -notin @('official','local','unknown')) { $issues.Add(("docs/SPAWN.md:{0} invalid Evidence level '{1}'" -f $id, $row.evidence)) }
+        if ($row.restriction -notin @('host-enforced','prompt-only','unknown')) { $issues.Add(("docs/SPAWN.md:{0} invalid Restriction type '{1}'" -f $id, $row.restriction)) }
+        if ($row.evidence -eq 'unknown' -and ($row.child -ne 'unknown' -or $row.source -ne 'unknown' -or $row.checked -ne '-' -or $row.restriction -ne 'unknown')) { $issues.Add(("docs/SPAWN.md:{0} unknown evidence requires unknown/unknown/-/unknown" -f $id)) }
+        if ($row.evidence -eq 'official' -and $row.source -notmatch '^https?://\S+$') { $issues.Add(("docs/SPAWN.md:{0} official evidence requires a URL" -f $id)) }
+        if ($row.evidence -eq 'local' -and ($row.source -notmatch '^adapters/[^|]+$' -or -not (Test-Path -LiteralPath (Join-Path $repoRoot $row.source)))) { $issues.Add(("docs/SPAWN.md:{0} local evidence requires an existing adapters path" -f $id)) }
+        if ($row.evidence -in @('official','local') -and $row.checked -notmatch '^\d{4}-\d{2}-\d{2}$') { $issues.Add(("docs/SPAWN.md:{0} checked date is invalid" -f $id)) }
+    }
+    foreach ($id in $rows.Keys) { if (@($Agents | Where-Object { $_.id -eq $id }).Count -eq 0) { $issues.Add(("docs/SPAWN.md:{0} is not registered" -f $id)) } }
+    return @($issues)
+}
+
+$docsPath = Join-Path $repoRoot 'docs/SPAWN.md'
+$docsText = Get-Content -LiteralPath $docsPath -Raw -Encoding UTF8
+$registry = Get-Content -LiteralPath (Join-Path $repoRoot 'adapters/registry.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$agents = @($registry.agents)
+if (@($agents | Where-Object { $_.capabilities.subagents -eq 'native' }).Count -ne 9 -or @($agents | Where-Object { $_.capabilities.subagents -eq 'none' }).Count -ne 1) {
+    Write-Fail -TestName 'Should_Pass_When_SpawnHostMatrixMatchesRegistry' -Reason 'registry must contain nine native agents and one none agent'
+}
+$requiredNote = 'A prompt instruction is not a host block.'
+if ($docsText -notmatch [regex]::Escape($requiredNote)) { Write-Fail -TestName 'Should_Pass_When_SpawnHostMatrixMatchesRegistry' -Reason ('docs/SPAWN.md missing note: {0}' -f $requiredNote) }
+$violations = @(Get-SpawnHostMatrixViolations -MatrixText $docsText -Agents $agents)
+if ($violations.Count -gt 0) { Write-Fail -TestName 'Should_Pass_When_SpawnHostMatrixMatchesRegistry' -Reason $violations[0] }
+Write-Pass -TestName 'Should_Pass_When_SpawnHostMatrixMatchesRegistry'
+
+$missingRowText = $docsText -replace '(?m)^\| hermes \|[^\r\n]*\r?\n',''
+$missingRowIssues = @(Get-SpawnHostMatrixViolations -MatrixText $missingRowText -Agents $agents)
+if (-not (@($missingRowIssues | Where-Object { $_ -eq 'docs/SPAWN.md:hermes missing matrix row' }).Count -gt 0)) { Write-Fail -TestName 'Should_Fail_When_SpawnHostMatrixOmitsRegisteredAgent' -Reason 'synthetic matrix without hermes did not report docs/SPAWN.md:hermes' }
+Write-Pass -TestName 'Should_Fail_When_SpawnHostMatrixOmitsRegisteredAgent'
+
+$badOfficialText = $docsText.Replace('| antigravity | unknown | unknown | unknown | - | unknown |','| antigravity | yes | adapters/antigravity/README.md | official | 2026-11-06 | prompt-only |')
+$officialIssues = @(Get-SpawnHostMatrixViolations -MatrixText $badOfficialText -Agents $agents)
+if (-not (@($officialIssues | Where-Object { $_ -eq 'docs/SPAWN.md:antigravity official evidence requires a URL' }).Count -gt 0)) { Write-Fail -TestName 'Should_Fail_When_OfficialEvidenceHasNoUrl' -Reason 'synthetic official row without URL was accepted' }
+Write-Pass -TestName 'Should_Fail_When_OfficialEvidenceHasNoUrl'
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()

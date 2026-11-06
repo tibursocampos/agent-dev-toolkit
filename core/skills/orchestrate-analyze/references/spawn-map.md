@@ -16,7 +16,7 @@ Spawn Agent **only** when `subagents=native` **and** ROSTER says so (`SPAWN.md`)
 
 Spawn an Agent subagent **only** when `subagents=native` **and** `ROSTER.md` canonical `needs_*` / brownfield rules say so. Load prompt from `skills/_shared/agents/prompts/`. The parent prompt requires the return shape in `refine-story/references/finding-format.md` (zero or more finding blocks; a summary is not the only product). Who is called does not change. When multiple specialists apply, spawn **in parallel** within the SPAWN ≤4 cap; if more flags apply, batch in waves of ≤4 or ask in the user chat language to run série.
 
-**Model (`SUBAGENT-MODEL.md`):** omit Agent `model` by default — child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. A different pair only through the session choice in that contract (asked once per session); never pick a costlier model alone.
+**Model configuration:** see `skills/_shared/agents/SUBAGENT-MODEL.md`.
 
 | Signal (see ROSTER) | Specialist | Prompt |
 |---------------------|------------|--------|

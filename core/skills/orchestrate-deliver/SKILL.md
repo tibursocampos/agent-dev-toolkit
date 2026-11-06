@@ -113,7 +113,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Verify backlog approval (**confirm** or `approved`); discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
-Ask `series` vs `parallel` (never assume; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); load `SPAWN.md` before `parallel`; omit Agent `model` by default. Read `references/mode-selection.md`.
+Ask `series` vs `parallel` (never assume; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); load `SPAWN.md` before `parallel`; follow model/effort selection in `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
 For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine-story/references/tech.md` § Story PRD contestation). An open question stops that story with `open_question`. Do not write the next artifact. When the PRD is accepted, run `split-story-checklist` for `medium` or `complex` (it writes `REFINE/tasks.md`; `trivial` skips that file), then `sdd-plan` (it reads those ids and does not call the checklist again). Read `references/per-story-contracts.md`.

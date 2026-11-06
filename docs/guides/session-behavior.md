@@ -22,14 +22,7 @@ Child handoffs carry a path and a short excerpt. They do not paste a full PRD, P
 
 ## Parent orchestrator
 
-Default `orchestrator_mode` is `adaptive` for every adapter. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`). An existing `preferences.json` keeps its value; the default applies only when sync seeds a missing file. On Claude, the `UserPromptSubmit` hook handles these commands.
-
-`adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
-
-Full charter: [08-orchestrator-mode.md](08-orchestrator-mode.md). Spawn matrix: [SPAWN.md](../SPAWN.md).
-
-At session start, first resolve effective `subagents` capability and read preferences. When `subagents=none` or capability is unknown, skip spawn/model-choice contracts and questions. When `native`, resolve `orchestrator_mode` (`always` or `adaptive`), load the shared spawn contracts, and discover the active host's complete model/effort pairs before asking. The parent presents `inherit` plus concrete discovered pairs; if none are available, it offers only `inherit`. A selected pair expresses intent; it does not prove the host applied it. Task `model` and `effort` are otherwise omitted so children inherit the parent session (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
-
+adaptive: trivial work (3/6/150 limits) may stay in the parent. always: delegates everything except qa_checklist. Full table: `core/policy/orchestrator-session.md` "Modes".
 ## Optional chat compression
 
 `caveman_mode` defaults to **on** when non-interactive sync creates `preferences.json`. On interactive first sync, the toolkit asks for both parent orchestration mode and Caveman mode, with **on** as the default choice. Existing preferences are preserved. Caveman only shortens chat prose; it does not change skill steps, gates, or this documentation.
@@ -44,7 +37,7 @@ Created with the defaults object when the file is missing:
 
 | Key | Default | Effect |
 |-----|---------|--------|
-| `orchestrator_mode` | `adaptive` | Parent orchestrates; thin trivial work may stay in-parent |
+| `orchestrator_mode` | `adaptive` | Parent orchestrates; trivial work may stay in the parent |
 | `caveman_mode` | `true` | Chat compression on (interactive first sync can choose off) |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |

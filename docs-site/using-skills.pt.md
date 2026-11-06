@@ -278,12 +278,7 @@ As respostas dos gates são interpretadas pelo significado, em qualquer idioma; 
 
 ### Orquestrador pai
 
-O padrão de `orchestrator_mode` é `adaptive`. O pai guarda metas, gates, caminhos e recibos. Especialistas escrevem notas ou código. Comandos: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` e `parent`).
-
-`adaptive` pode manter no pai uma pergunta de um caminho só ou uma edição de um arquivo. Qualquer mudança mais larga é spawn. Se o host tem `subagents=none`, o mesmo trabalho fica no pai. A sessão não falha porque Task está ausente.
-
-O `model` da Task é omitido para o filho usar o modelo da sessão pai (`core/skills/_shared/agents/SUBAGENT-MODEL.md`). O pai pergunta uma vez por sessão se os subagentes herdam ou usam um par verificado.
-
+adaptive: trabalho trivial (limites 3/6/150) pode ficar no pai. always: delega tudo, exceto qa_checklist. Tabela completa: `core/policy/orchestrator-session.md` "Modes".
 ### Compressão opcional do chat
 
 O primeiro sync interativo pergunta se a compressão de resposta Caveman fica ligada ou desligada; **ligada** é o padrão. O primeiro sync não interativo usa `caveman_mode: true`. Ela só encurta a prosa do chat. Não muda passos de skill, gates nem documentação.

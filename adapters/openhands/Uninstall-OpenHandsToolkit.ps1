@@ -60,10 +60,8 @@ function Get-OpenHandsKnownToolkitArtifactPaths {
         }
     }
 
-    $hooksJson = Join-Path $MappedPaths.FixtureHooksPath $script:OpenHandsAdapterConstant.HooksJsonFileName
-    if (Test-Path -LiteralPath $hooksJson) {
-        $paths.Add([System.IO.Path]::GetFullPath($hooksJson))
-    }
+    # .openhands/hooks.json is shared host configuration. Remove toolkit hook
+    # commands while retaining operator properties and unrelated hook entries.
 
     $hooksScript = Join-Path $MappedPaths.FixtureHooksScriptsPath $script:OpenHandsAdapterConstant.HooksSessionStartScriptName
     if (Test-Path -LiteralPath $hooksScript) {
@@ -88,6 +86,52 @@ function Get-OpenHandsKnownToolkitArtifactPaths {
     }
 
     return @($paths.ToArray())
+}
+
+function Remove-OpenHandsToolkitHooksFromConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [switch] $WhatIf
+    )
+
+    # The shared config is retained, but its path must stay inside InstallRoot.
+    # Validate before checking or reading it so a leaf/parent reparse point cannot
+    # redirect either operation outside the adapter's resolved install boundary.
+    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $true }
+    $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+    try { $payload = [System.IO.File]::ReadAllText($Path) | ConvertFrom-Json }
+    catch { throw "OpenHands hooks configuration is invalid; refusing to alter it: $Path. $($_.Exception.Message)" }
+    $managedCommands = @(
+        [string]$script:OpenHandsAdapterConstant.HooksSessionStartCommandRelative,
+        [string]$script:OpenHandsAdapterConstant.HooksGuardPreToolCommandRelative
+    )
+    $changed = $false
+    foreach ($eventName in @($payload.PSObject.Properties.Name | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })) {
+        $keptBlocks = New-Object System.Collections.Generic.List[object]
+        foreach ($block in @($payload.$eventName)) {
+            if ($null -eq $block -or $block.PSObject.Properties.Name -notcontains 'hooks') { $keptBlocks.Add($block); continue }
+            $entries = @($block.hooks)
+            $keptEntries = @($entries | Where-Object {
+                $command = [string]$_.command
+                -not ($managedCommands -contains $command)
+            })
+            if ($keptEntries.Count -lt $entries.Count) { $changed = $true }
+            if ($keptEntries.Count -gt 0) { $block.hooks = $keptEntries; $keptBlocks.Add($block) }
+        }
+        if ($keptBlocks.Count -eq 0) { $payload.PSObject.Properties.Remove($eventName) }
+        else { $payload.$eventName = @($keptBlocks.ToArray()) }
+    }
+    if ($changed -and -not $WhatIf.IsPresent) {
+        # Recheck immediately before writing; a shared config can be replaced after
+        # the initial read by a file symlink or a junction in one of its ancestors.
+        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $Path -InstallRoot $InstallRoot
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($Path, ($payload | ConvertTo-Json -Depth $script:OpenHandsAdapterConstant.JsonConvertDepthDeep), $utf8)
+    }
+    return $true
 }
 
 function Invoke-OpenHandsUninstallToolkit {
@@ -115,6 +159,8 @@ function Invoke-OpenHandsUninstallToolkit {
 $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') 'ToolkitUninstallArtifacts.ps1'
     . $artifactHelper
     $mapped = Get-OpenHandsMappedInstallPaths -ResolvedInstallRoot $resolvedInstallRoot
+    $hooksConfigPath = Join-Path $mapped.FixtureHooksPath $script:OpenHandsAdapterConstant.HooksJsonFileName
+    $null = Remove-OpenHandsToolkitHooksFromConfig -Path $hooksConfigPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
     $knownPaths = @(Get-OpenHandsKnownToolkitArtifactPaths -RepoRoot $repoRoot -MappedPaths $mapped)
     $skillAudit = Get-ToolkitManagedSkillsUninstallAudit -DestinationSkillsRoots @($mapped.FixtureSkillsPath)
     $managedSkillResult = Remove-ToolkitManagedSkillsByInventory `

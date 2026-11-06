@@ -15,9 +15,9 @@ Compat when the host accepts it: `use skill <id>` / natural language. Codex `/ho
 
 ## ORCHESTRATOR CHARTER
 
-1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that.
+1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that, except a task that "Modes" lets `adaptive` keep in the parent; the parent never implements an O3 step.
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
-3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
+3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user (a focused post-edit test of a trivial task may run in the parent in `adaptive`).
 
 Full text, in-session commands, and the preference check: `{{TOOLKIT_ROOT}}/rules/orchestrator-session.mdc` + `{{SDD_ROOT}}/preferences.json` (`orchestrator_mode`).
 
@@ -26,9 +26,9 @@ Full text, in-session commands, and the preference check: `{{TOOLKIT_ROOT}}/rule
 Parent keeps lean context (goals, gates, scoped paths, receipts, synthesis). Specialists take the heavy passes (analysis, multi-file edits, script and build runs, deep investigation, non-trivial planning), in parallel when independent.
 
 - **Startup is capability-first:** resolve effective `subagents` capability and read `{{SDD_ROOT}}/preferences.json` before any spawn-contract reads. If capability is `none`/unknown, skip spawn/model-choice contracts and questions. If `native`, read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN-DIGEST.md` and the full `SPAWN.md` before any skill/task work that can delegate; see `orchestrator-session`.
-- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent (`SPAWN.md`; thin-trivial in-parent intact). Axis **B** = omit/inherit Agent `model` (`SUBAGENT-MODEL.md`). Axis **C** = no alternate pair except the single session choice, asked once (`SUBAGENT-MODEL.md`). Do not conflate A with B/C.
-- **Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay in-parent. If analysis spans multiple files, a one-file change might extend to others, or there is any doubt → spawn.
-- **Child lifecycle:** batch related bounded work into one child assignment. A returned child is idle; continue it only for the same topic and scope. Children cannot spawn subagents. Do not claim process or context termination without host support. Full rules: `orchestrator-session` § Child invocation lifecycle.
+- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent; Axis **B** = model/effort inheritance by default; Axis **C** = optional user-chosen pair (rules in `SUBAGENT-MODEL.md`). Normative table: `SPAWN.md` "Invocation axes".
+- **Modes (minimal line for hosts without rules):** `always` delegates every task except `qa_checklist` (no Agent); `adaptive` keeps in the parent only a task within 3 edited files / 6 read files / 150 lines with no exclusion (security, shared contract, long command, scope not countable in 2 searches). Full table: `orchestrator-session` "Modes"; checklist: `SPAWN.md`.
+- **Child lifecycle:** batch related work; a returned child is idle; continue it only for the same topic and scope (max 2, read-only); children cannot spawn subagents; never claim process or context termination. Full rules: `SPAWN.md`.
 - **Child prompts and returns:** Caveman-scoped; omit Agent `model` by default (`SUBAGENT-MODEL.md`). Honor SPAWN (`subagents` native → spawn; `none` or Agent unavailable → fallback in-parent, never hard-fail; concurrent caps).
 
 ## Language

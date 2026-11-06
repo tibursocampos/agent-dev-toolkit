@@ -160,28 +160,28 @@
       "id": "axis-b-omit-model-orchestrate-develop",
       "skill": "orchestrate-develop",
       "files": ["references/step-queue-spawn.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-analyze",
       "skill": "orchestrate-analyze",
       "files": ["references/spawn-map.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-orchestrate-deliver",
       "skill": "orchestrate-deliver",
       "files": ["references/mode-selection.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit Agent `model`", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
       "id": "axis-b-omit-model-developer-common",
       "skill": "_shared/developer-common",
       "files": ["subagent-first.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "omit", "same model as the parent session"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["inherit parent / Auto"]
     },
     {
@@ -202,21 +202,21 @@
       "id": "axis-c-session-choice-orchestrate-develop-must-not",
       "skill": "orchestrate-develop",
       "files": ["references/must-not.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "session choice"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["gate + user", "premium"]
     },
     {
       "id": "axis-c-session-choice-orchestrate-develop-step-queue",
       "skill": "orchestrate-develop",
       "files": ["references/step-queue-spawn.md"],
-      "mustContain": ["omit Agent `model`", "same model as the parent session", "session choice"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["premium", "very hard"]
     },
     {
       "id": "axis-c-session-choice-developer-common",
       "skill": "_shared/developer-common",
       "files": ["subagent-first.md"],
-      "mustContain": ["SUBAGENT-MODEL.md", "session choice"],
+      "mustContain": ["SUBAGENT-MODEL.md"],
       "mustNotContain": ["alternate slug", "gate + explicit"]
     },
     {

@@ -15,9 +15,9 @@ Spawn contracts (conditional): `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`
 
 ## ORCHESTRATOR CHARTER
 
-1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that.
+1. **Parent orchestrator-only:** this chat does **not** write application code, run builds, execute scripts/batches, or perform heavy multi-file analysis — specialists do that, except a task that "Modes" lets `adaptive` keep in the parent; the parent never implements an O3 step.
 2. **Delegate in parallel:** when work is independent, spawn specialist subagents in parallel; pass **minimal handoff** (scoped paths + receipt requirement + role).
-3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user.
+3. **Post-change validation:** after file changes, the **child** runs build + tests and reports results; the **parent** synthesizes for the user (a focused post-edit test of a trivial task may run in the parent in `adaptive`).
 
 ---
 
@@ -43,8 +43,17 @@ Also accept: `orchestrate always`, `parent always`, `orchestrate adaptive`, `par
 6. Show once per session: `[Orchestrator] Mode active: {orchestrator_mode}. Type orchestrator status to review.`
 7. Load the session-start digest and read the session model-choice contract before the first skill/task work that can delegate. Discover current host options before asking; do not defer discovery until after the user selects an unavailable generic `pair` choice.
 8. **`always`:** enforce charter strictly — parent stays lean; spawn for non-trivial work per SPAWN.md.
-9. **`adaptive`:** same spawn preference for multi-file / heavy work; may keep **thin trivial** Q&A or one-file no-spread edits in-parent without repeated spawn overhead. The in-session command `orchestrator adaptive` stays.
-10. Work the spawn contract says to delegate still goes to a subagent when effective `subagents` is `native`. The single-path trivial exception stays in-parent.
+9. **`adaptive`:** see section "Modes".
+10. Work the spawn contract says to delegate still goes to a subagent when effective `subagents` is `native`. The `orchestrator adaptive` command stays.
+
+## Modes
+
+| Mode | Trivial task (checklist in `SPAWN.md`) | Other tasks | `qa_checklist` | Agent unavailable |
+|------|----------------------------------------|-------------|----------------|-------------------|
+| `adaptive` (default) | stays in the parent; log `trivial` | delegated per `SPAWN.md` | CONTINUITY/STORY only, no Agent | fallback allowed by the consumer workflow; O3 hands off manually |
+| `always` | delegated, including in stack developers; log `delegate`; caps in `SPAWN.md` | delegated per `SPAWN.md` | CONTINUITY/STORY only, no Agent | warn the user, then the same fallback; O3 hands off manually; dispatch is not completion |
+
+A focused post-edit test of a trivial task runs in the parent in `adaptive` and does not change the classification. The parent never implements an O3 step.
 
 ---
 
@@ -67,7 +76,7 @@ Parent does **not** write code, does **not** do heavy analysis, does **not** exe
 
 Prefer specialist subagents (parallel when independent) for analysis, multi-file edits, script/batch runs, long builds/tests, and non-trivial planning. Parent synthesizes; child does the heavy pass.
 
-**Thin trivial exception:** single-path Q&A or a one-file edit **with no risk of spreading** may stay **in-parent**. If analysis spans multiple files, OR a one-file change might extend to others, OR any doubt → spawn.
+Thin trivial exception: defined once in `SPAWN.md` section "Delegation checklist"; mode effect in section "Modes".
 
 ---
 
@@ -100,24 +109,13 @@ Caps, host table, and child payload rules live in SPAWN.md — use the **Read** 
 
 ## Child invocation lifecycle
 
-- Batch related, bounded work into the initial handoff. Do not launch a child for each tiny lookup or keep expanding its assignment after launch.
-- A running child may receive only a concise clarification that stays inside its original scope. Added deliverables, phases, or paths require a new assignment.
-- When a child returns, its invocation is idle. Continue it (SendMessage) only for the same topic and scope while its context is still relevant; never reuse a completed child for a different topic, a different scope, or an already large context. Those go to a fresh child invocation with a compact receipt/excerpt, scoped paths, and a bounded request.
-- Children cannot spawn subagents. Only the main session spawns; a child reports any need for another specialist in its receipt.
-- Treat the child return as final even if the host UI labels or retains the thread differently. Use host close/terminate controls only when documented and available; never promise process termination or context erasure otherwise.
-- Preserve SPAWN.md's thin-trivial in-parent exception and host concurrency caps.
+Lifecycle rules (one bounded assignment per child, batching, clarification only while the child runs, at most 2 read-only continuations, no reuse for another topic or scope, children cannot spawn subagents, no claim of process or context termination) are defined once in `SPAWN.md` section "Task ownership and lifecycle".
 
 ---
 
 ## Invocation axes (A ≠ B ≠ C)
 
-Do **not** conflate axes. Marker: `A≠B≠C`.
-
-| Axis | Owns | Rule |
-|------|------|------|
-| **A** | `SPAWN.md` | Spawn vs in-parent; thin-trivial in-parent preserved (RN01). |
-| **B** | `SUBAGENT-MODEL.md` | Omit `model` → inherit parent session model (RN02). |
-| **C** | `SUBAGENT-MODEL.md` | Alternate pair only from the session choice (one question per session); never autonomous. |
+- **Invocation axes (A ≠ B ≠ C):** Axis **A** = spawn vs in-parent; Axis **B** = model/effort inheritance by default; Axis **C** = optional user-chosen pair (rules in `SUBAGENT-MODEL.md`). Normative table: `SPAWN.md` "Invocation axes".
 
 ## Model on spawn
 

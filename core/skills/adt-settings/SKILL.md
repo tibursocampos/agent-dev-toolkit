@@ -16,6 +16,15 @@ Read `_shared/skill-boilerplate.md` before any tool call.
 - Only the parent session, only on the user's explicit request to query, save or return to inheritance. A temporary session choice is never saved. Without an explicit request, write nothing (`no-explicit-request`).
 - Subagents never ask, never read or write the preference, and are never given its path. If this skill is invoked inside a delegated task, stop and return the impediment through the workflow's own return contract.
 
+## Lazy-load (only when needed)
+
+| When | Path |
+|------|------|
+| Query or save a pair | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-OPTIONS.md` (Adapter matrix) |
+| Resolve the effective storage root | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` (Effective SDD_ROOT) |
+
+**Never by default:** do not preload the preference file or adapter matrix before identifying the requested operation; returning to inheritance does not need the adapter matrix.
+
 ## Options source
 - Read `_shared/agents/SUBAGENT-OPTIONS.md` (section: Adapter matrix). Use only the row of the effective adapter, surface and version. Offer or accept only pairs listed there. Do not keep or invent a model or effort list.
 - Reference missing, unreadable or without a row for this context: `reference-unavailable`. Saving a pair is refused; querying and returning to inheritance still work.
