@@ -3,11 +3,11 @@
   "repo": "agent-dev-toolkit",
   "repo_path": ".",
   "bank_path": "memory-bank",
-  "generated_at": "2026-11-06T09:34:13.1203356Z",
+  "generated_at": "2026-11-07T16:35:57.0380358Z",
   "stale_days": 90,
   "status": "ready",
   "status_reason": "sources indexed with hash and summary",
-  "inventory_hash": "9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551",
+  "inventory_hash": "cb3726a4546479a35b9005db86d83f1909303dd7a27063741b5732373ea42481",
   "inventory_summary": "144 source(s); stack: markdown, powershell",
   "stack_hints": [
     "markdown",
@@ -340,9 +340,9 @@
     },
     {
       "path": "adapters/grok/Uninstall-GrokToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0030427Z",
-      "length": 12151,
-      "hash": "80f042ff81be6e09f2f935f2143142be009823281e1577ce9388c04a30d26f3f",
+      "last_write_utc": "2026-11-06T20:58:57.3178458Z",
+      "length": 15570,
+      "hash": "bc9e905e3ed93025412c146bd7288953c163e2ca862a28f97c49a844ca0f33ce",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -424,9 +424,9 @@
     },
     {
       "path": "adapters/opencode/Uninstall-OpenCodeToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0300214Z",
-      "length": 9602,
-      "hash": "40508ed0ac7f1882d15aef126dbe11e8e456b2091862b7ff72761b52d1acba02",
+      "last_write_utc": "2026-11-06T20:58:57.3198451Z",
+      "length": 9865,
+      "hash": "c4c88396ec9cc58689f0b283176758bf527a787770269e1f11d9fe8348d850b1",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -473,9 +473,9 @@
     },
     {
       "path": "adapters/openhands/Uninstall-OpenHandsToolkit.ps1",
-      "last_write_utc": "2026-10-21T16:56:06.0370860Z",
-      "length": 10717,
-      "hash": "47be308978faa8f65bbc9714120aea257130df981e0d81b534e9d072fd246ca1",
+      "last_write_utc": "2026-11-06T20:58:57.3188480Z",
+      "length": 13579,
+      "hash": "6780532a4baf496e0cffe7aff67455c52e5cb6851a277b5f97afe622961b3900",
       "summary": "[non-markdown: content summary omitted]"
     },
     {
@@ -536,16 +536,16 @@
     },
     {
       "path": "core/router/AGENTS.md",
-      "last_write_utc": "2026-11-05T20:05:53.0552626Z",
-      "length": 7718,
-      "hash": "26dd51d3db715fe454d96ee88f8f3a344b9789cec9843555e1a3060da4e45430",
+      "last_write_utc": "2026-11-06T13:31:35.2991915Z",
+      "length": 7904,
+      "hash": "e730a95e2bb828a04f66e4e3709cae1ba53eba9e3d23dd33829efcb85c3746da",
       "summary": "Agent router (L0 index) - agent-dev-toolkit"
     },
     {
       "path": "core/skills/_shared/agents/SPAWN.md",
-      "last_write_utc": "2026-11-05T17:19:53.0741701Z",
-      "length": 17407,
-      "hash": "4cc138b555c22c4c96db20d78f720995abda64775ba3df8004557f1cadcb1e1b",
+      "last_write_utc": "2026-11-06T21:03:36.1756256Z",
+      "length": 20221,
+      "hash": "6a2d7799c411f7494be791ce087e562ec8e49af79a77193ab80254266b21d94c",
       "summary": "Portable spawn contract (Orchestrated Delivery + developers)"
     },
     {
@@ -641,16 +641,16 @@
     },
     {
       "path": "docs/guides/02-using-skills.md",
-      "last_write_utc": "2026-11-06T01:37:06.1926165Z",
-      "length": 15255,
-      "hash": "effe6f47861f2f32c9dcaddad64a47893c68e7ea4c66d22b6f9c3e7c1d6e6b9a",
+      "last_write_utc": "2026-11-06T19:36:48.7200478Z",
+      "length": 14779,
+      "hash": "d031c292c6d05f018d6307bb49d9d73f7cfe3041629d196425c82ae42c947b47",
       "summary": "Using skills"
     },
     {
       "path": "docs/guides/08-orchestrator-mode.md",
-      "last_write_utc": "2026-10-31T18:49:19.6737024Z",
-      "length": 3624,
-      "hash": "119a3e8545ac2705353cbbc2ab1088034f4f1fc8b302902c5463f4a0f2a969f1",
+      "last_write_utc": "2026-11-06T19:37:03.8573653Z",
+      "length": 3593,
+      "hash": "2d4a4dea0b1bb80c30e8c99beb0c4065bd6ef768e3d9fcc473733abaf8d295f9",
       "summary": "08 — Orchestrator mode"
     },
     {
@@ -690,9 +690,9 @@
     },
     {
       "path": "docs/guides/session-behavior.md",
-      "last_write_utc": "2026-11-05T20:09:58.8133762Z",
-      "length": 4699,
-      "hash": "f45e9965a6c865d65d895aaa73ffb35f9385142140c2103fd7e1651a0ac5accf",
+      "last_write_utc": "2026-11-06T19:40:05.8848357Z",
+      "length": 3416,
+      "hash": "1eecca33106a9a7e1a9a611d18cf6ee4dc0c8450e650e9289cc7a83a0ad16d05",
       "summary": "Session behavior"
     },
     {
@@ -809,9 +809,9 @@
     },
     {
       "path": "docs/SPAWN.md",
-      "last_write_utc": "2026-11-05T20:10:24.6399617Z",
-      "length": 9773,
-      "hash": "3e9f2d794106e2bf473909e526cb2a2985c26761850dde70d48c59a42dd56afa",
+      "last_write_utc": "2026-11-06T19:42:59.0742971Z",
+      "length": 8128,
+      "hash": "7528ac8a2788956ca6f1f505d9dea4e7a5d91ee9a838f3c1784b647875287e93",
       "summary": "Spawn / subagents"
     },
     {
@@ -837,9 +837,9 @@
     },
     {
       "path": "scripts/_lib/AdapterChecks.ps1",
-      "last_write_utc": "2026-11-06T04:04:28.0862608Z",
-      "length": 48234,
-      "hash": "ffa7e13a4ce5cd0f7d4b087a089f5baab5e132114954385ff34d81702f8e5ba2",
+      "last_write_utc": "2026-11-06T21:22:25.6205460Z",
+      "length": 60431,
+      "hash": "075d7e8bfd9f88ffe1ce9c593c7ec52b757dcd3b4d977ff781c9b0024697da58",
       "summary": "[non-markdown: content summary omitted]"
     },
     {

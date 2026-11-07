@@ -177,7 +177,7 @@ Report path, storage, language, `.gitignore` changes. After `validate-prd` (and 
 /sdd-plan - features/NNN-slug/US01/PRD/NNN_short_feature_slug.md
 ```
 
-Skip the checklist line when FEATURE complexity is `trivial`. Orchestrated O2 runs the same contestation and then the checklist before `sdd-plan` without leaving the feature. Global paths use `sdd/<repo-id>/features/...`.
+For Classic `direct`, apply the approved PRD's persisted `Complexidade` / `Complexity` according to `sdd-plan/references/checklist-acquisition.md`: skip the checklist handoff only for `trivial`; for `medium` or `complex`, hand off to `/split-story-checklist` after contestation and before `/sdd-plan`, passing the approved PRD as the complexity source. For Orchestrated Delivery O2, retain FEATURE as the complexity source and its existing gates and order; `trivial` skips the checklist, while `medium` or `complex` runs it after PRD contestation and before `sdd-plan`. Do not use FEATURE to infer direct complexity or PRD to replace O2's FEATURE source. Global paths use `sdd/<repo-id>/features/...`.
 
 ## Must not
 
@@ -205,4 +205,4 @@ Skip the checklist line when FEATURE complexity is `trivial`. Orchestrated O2 ru
 /sdd-plan - <portable-prd-path-under-features>
 ```
 
-Run Story PRD contestation before that handoff. An open question replaces the handoff with `open_question`. When the feature is medium or complex, hand `/split-story-checklist - <portable-story-path>` first.
+Run Story PRD contestation before the handoff. An open question replaces the handoff with `open_question`. Apply the context-specific source and ordering above; checklist creation remains owned by `split-story-checklist`.

@@ -21,6 +21,12 @@
 Model and effort choices depend on the active provider surface, schema, version, and configured route. Documentation or a visible schema does not prove account availability or effective runtime application. When a complete pair cannot be verified, preserve inheritance. Evidence: `docs/SPAWN.md`, `docs/guides/session-behavior.md`, `core/policy/orchestrator-session.md`.
 <!-- END GENERATED: host-model-option-evidence -->
 
+<!-- BEGIN GENERATED: uninstall-path-boundary-evidence -->
+## Uninstall path and preservation evidence
+
+Grok and OpenHands validate shared-configuration paths under `InstallRoot` and recheck before writes/deletes; junction/symlink escapes and TOCTOU remain filesystem risks that static checks do not prove absent. OpenCode preserves shared authorization configuration and operator-added keys during uninstall. `scripts/_lib/AdapterChecks.ps1` includes a parent-reparse blocking assertion. Evidence: `adapters/grok/Uninstall-GrokToolkit.ps1`, `adapters/openhands/Uninstall-OpenHandsToolkit.ps1`, `adapters/opencode/Uninstall-OpenCodeToolkit.ps1`, `scripts/_lib/AdapterChecks.ps1`.
+<!-- END GENERATED: uninstall-path-boundary-evidence -->
+
 ## Fragile areas
 
 - `adapters/registry.json` declarations versus effective host capability probes.

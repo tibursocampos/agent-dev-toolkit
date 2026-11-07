@@ -19,7 +19,8 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
-foreach ($required in @($repoRootScript, $constantsScript)) {
+$physicalPathScript = Join-Path $scriptDir '_lib\ToolkitPhysicalPath.ps1'
+foreach ($required in @($repoRootScript, $constantsScript, $physicalPathScript)) {
     if (-not (Test-Path -LiteralPath $required)) {
         Write-Error ("Assert-CoreContracts: missing {0}" -f $required)
         exit 1
@@ -27,6 +28,7 @@ foreach ($required in @($repoRootScript, $constantsScript)) {
 }
 . $repoRootScript
 . $constantsScript
+. $physicalPathScript
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 
 $script:PassCount = 0
@@ -4321,6 +4323,120 @@ $badOfficialText = $docsText.Replace('| antigravity | unknown | unknown | unknow
 $officialIssues = @(Get-SpawnHostMatrixViolations -MatrixText $badOfficialText -Agents $agents)
 if (-not (@($officialIssues | Where-Object { $_ -eq 'docs/SPAWN.md:antigravity official evidence requires a URL' }).Count -gt 0)) { Write-Fail -TestName 'Should_Fail_When_OfficialEvidenceHasNoUrl' -Reason 'synthetic official row without URL was accepted' }
 Write-Pass -TestName 'Should_Fail_When_OfficialEvidenceHasNoUrl'
+}
+
+$sections['SkillReferenceRouteContracts'] = {
+# Tests:
+#   Should_Pass_When_SkillReferenceRouteContractIsValid
+#   Should_Fail_When_SkillRoutePathIsMissing
+#   Should_Fail_When_SkillRoutePathEscapesItsRoot
+#   Should_Fail_When_ResolvedRouteTargetEscapesPhysicalRoot
+#   Should_Fail_When_SkillRouteJunctionEscapesItsRoot (when junction creation is available)
+#   Should_Fail_When_SkillRoutePathIsBothRequiredAndExcluded
+#   Should_Fail_When_ContextualComplexitySourceIsWrong
+
+$validator = Join-Path $repoRoot 'scripts/validation/validate-skill-contracts.ps1'
+$basePath = Join-Path $repoRoot 'scripts/validation/contracts/skill-contracts.json'
+$tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
+[void](New-Item -ItemType Directory -Path $tempRoot)
+try {
+    $baseJson = Get-Content -LiteralPath $basePath -Raw -Encoding UTF8
+    function Invoke-SkillRouteFixture {
+        param([string] $Name, [scriptblock] $Mutate, [int] $ExpectedExit, [string] $ExpectedFailureMarker)
+        $fixture = $baseJson | ConvertFrom-Json
+        if ($Mutate) { & $Mutate $fixture }
+        $fixturePath = Join-Path $tempRoot ($Name + '.json')
+        $fixture | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $fixturePath -Encoding UTF8
+        $output = @(& pwsh -NoProfile -File $validator -RepoRoot $repoRoot -ContractPath $fixturePath 2>&1)
+        $actualExit = $LASTEXITCODE
+        if ($actualExit -ne $ExpectedExit) {
+            Write-Fail -TestName $Name -Reason ("expected exit {0}, got {1}: {2}" -f $ExpectedExit, $actualExit, (($output | Select-Object -Last 4) -join ' '))
+        }
+        if ($ExpectedExit -ne 0 -and ($output -join "`n") -notmatch 'referenceRoutes|complexitySources|rule=file-path') {
+            Write-Fail -TestName $Name -Reason 'diagnostic omitted skill route or contextual complexity rule'
+        }
+        if ($ExpectedFailureMarker -and ($output -join "`n") -notmatch [regex]::Escape($ExpectedFailureMarker)) {
+            Write-Fail -TestName $Name -Reason ("diagnostic did not identify {0}" -f $ExpectedFailureMarker)
+        }
+        Write-Pass -TestName $Name
+    }
+    Invoke-SkillRouteFixture -Name 'Should_Pass_When_SkillReferenceRouteContractIsValid' -Mutate $null -ExpectedExit 0
+    $danglingLinkInspector = {
+        param($path)
+        # Simulate a directory entry that exists as a reparse point while its
+        # target is absent, the case where Test-Path alone returns false.
+        return @{ exists = $false; reparsePoint = $true }
+    }
+    if (-not (Test-ToolkitForbiddenPathEntryExists -RootPath $tempRoot -RelativePath 'dangling-skill-link' -EntryInspector $danglingLinkInspector)) {
+        Write-Fail -TestName 'Should_Treat_DanglingForbiddenSkillLinkAsExisting' -Reason 'dangling reparse entry was treated as absent'
+    }
+    Write-Pass -TestName 'Should_Treat_DanglingForbiddenSkillLinkAsExisting'
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_SkillRoutePathIsMissing' -Mutate {
+        param($fixture) $fixture.referenceRoutes[0].routes[0].required += 'references/missing-s4-fixture.md'
+    } -ExpectedExit 1
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_SkillRoutePathEscapesItsRoot' -Mutate {
+        param($fixture) $fixture.referenceRoutes[0].routes[0].required += 'references/../../outside-s4-fixture.md'
+    } -ExpectedExit 1 -ExpectedFailureMarker 'rule=path-traversal'
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_SkillRouteOwnerEscapesSkillsRoot' -Mutate {
+        param($fixture) $fixture.referenceRoutes[0].owner = '../outside-s4-fixture.md'
+    } -ExpectedExit 1 -ExpectedFailureMarker 'rule=owner-path'
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_SharedRuleOwnerEscapesSkillsRoot' -Mutate {
+        param($fixture) $fixture.referenceRoutes[0].sharedRules[0].owner = '../outside-s4-fixture.md'
+    } -ExpectedExit 1 -ExpectedFailureMarker 'rule=shared-owner-path'
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_ContractFileEscapesSkillRoot' -Mutate {
+        param($fixture) $fixture.contracts[0].files[0] = '../outside-s4-fixture.md'
+    } -ExpectedExit 1 -ExpectedFailureMarker 'rule=file-path'
+    $syntheticResolver = {
+        param($path)
+        if ($path -eq 'fixture-root') { return (Join-Path $tempRoot 'physical-root') }
+        return (Join-Path $tempRoot 'outside/route.md')
+    }.GetNewClosure()
+    if (Test-ToolkitPathWithinRoot -RootPath 'fixture-root' -CandidatePath 'fixture-root/references/route.md' -PhysicalResolver $syntheticResolver) {
+        Write-Fail -TestName 'Should_Fail_When_ResolvedRouteTargetEscapesPhysicalRoot' -Reason 'injected physical target outside root was accepted'
+    }
+    Write-Pass -TestName 'Should_Fail_When_ResolvedRouteTargetEscapesPhysicalRoot'
+
+    $junctionRepo = Join-Path $tempRoot 'junction-repo'
+    $junctionSkill = Join-Path $junctionRepo 'core/skills/route-fixture'
+    $junctionOutside = Join-Path $tempRoot 'junction-target'
+    [void](New-Item -ItemType Directory -Path $junctionSkill -Force)
+    [void](New-Item -ItemType Directory -Path $junctionOutside -Force)
+    Set-Content -LiteralPath (Join-Path $junctionSkill 'SKILL.md') -Value 'fixture' -Encoding UTF8
+    Set-Content -LiteralPath (Join-Path $junctionOutside 'route.md') -Value 'outside' -Encoding UTF8
+    $junctionContract = @{
+        skillsRoot = 'core/skills'
+        referenceRoutes = @(@{
+            skill = 'route-fixture'; owner = 'core/skills/route-fixture/SKILL.md'
+            routes = @(@{ mode = 'fixture'; condition = 'junction escape case'; required = @('references/route.md'); conditional = @(); excluded = @() })
+            sharedRules = @()
+        })
+        contracts = @()
+    }
+    $junctionContractPath = Join-Path $tempRoot 'junction-contract.json'
+    $junctionContract | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $junctionContractPath -Encoding UTF8
+    $junctionCreated = $false
+    try {
+        [void](New-Item -ItemType Junction -Path (Join-Path $junctionSkill 'references') -Target $junctionOutside -ErrorAction Stop)
+        $junctionCreated = $true
+    }
+    catch {
+        Write-Host 'INFO: junction integration fixture unavailable; deterministic injected-resolver containment fixture passed.'
+    }
+    if ($junctionCreated) {
+        $junctionOutput = @(& pwsh -NoProfile -File $validator -RepoRoot $junctionRepo -ContractPath $junctionContractPath 2>&1)
+        if ($LASTEXITCODE -ne 1 -or ($junctionOutput -join "`n") -notmatch 'referenceRoutes/route-fixture/mode=fixture/rule=path-outside-root') {
+            Write-Fail -TestName 'Should_Fail_When_SkillRouteJunctionEscapesItsRoot' -Reason ('junction escape accepted or diagnostic missing: {0}' -f (($junctionOutput | Select-Object -Last 4) -join ' '))
+        }
+        Write-Pass -TestName 'Should_Fail_When_SkillRouteJunctionEscapesItsRoot'
+    }
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_SkillRoutePathIsBothRequiredAndExcluded' -Mutate {
+        param($fixture) $fixture.referenceRoutes[0].routes[0].excluded += $fixture.referenceRoutes[0].routes[0].required[0]
+    } -ExpectedExit 1
+    Invoke-SkillRouteFixture -Name 'Should_Fail_When_ContextualComplexitySourceIsWrong' -Mutate {
+        param($fixture) $fixture.complexitySources[0].source = 'FEATURE'
+    } -ExpectedExit 1
+}
+finally { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()

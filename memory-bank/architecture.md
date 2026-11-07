@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout from the current inventory (2026-11-06T09:34:13.5699436Z; 144 source(s); stack: markdown, powershell; hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551`)._
+_Entry points and layout from the current inventory (2026-11-07T16:35:57.0380358Z; 144 source(s); stack: markdown, powershell; hash `cb3726a4546479a35b9005db86d83f1909303dd7a27063741b5732373ea42481`; status: ready)._
 
 | Signal | Path |
 |--------|------|
@@ -17,6 +17,8 @@ _Entry points and layout from the current inventory (2026-11-06T09:34:13.5699436
 | Session orchestration policy | `core/policy/orchestrator-session.md` |
 | Host spawn contract | `docs/SPAWN.md` |
 | Adapter path guard | `adapters/_shared/GuardCommon.ps1` |
+| Shared adapter validation assertions | `scripts/_lib/AdapterChecks.ps1` |
+| Host uninstallers | `adapters/grok/Uninstall-GrokToolkit.ps1`, `adapters/opencode/Uninstall-OpenCodeToolkit.ps1`, `adapters/openhands/Uninstall-OpenHandsToolkit.ps1` |
 <!-- END GENERATED: inventory-summary -->
 
 ## Overview

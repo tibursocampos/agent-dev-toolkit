@@ -45,7 +45,7 @@ When `sdd-plan` coordinates this skill because the required checklist is absent,
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
-**TASKS complexity gate:** Read FEATURE **Complexity**. If `trivial` (small) → **do not** Write TASKS / `REFINE/tasks.md` only to satisfy a gate — report that TASKS is not required. If `medium` or `complex` → TASKS checklist **is required** before handoff. Details: `CHANGE-CONTRACT.md` + `references/complexity-policy.md`.
+**TASKS complexity gate:** Resolve the invocation context first. In Classic `direct`, read the approved PRD's persisted `Complexidade` / `Complexity`; in Orchestrated Delivery O2, read FEATURE **Complexity**. Do not infer from the other source. For `trivial`, do not write TASKS / `REFINE/tasks.md` only to satisfy a gate. For `medium` or `complex`, produce the required checklist before `/sdd-plan`. See `references/complexity-policy.md`; the current caller supplies the canonical context/source when invoking this owner.
 
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
@@ -73,6 +73,7 @@ Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/split-story-checklist/references/<section>.md` |
 | Resolve SDD PLAN path (handoff) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` + `references/plan-resolution.md` |
+| Invocation context and complexity source | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` + `references/complexity-policy.md` |
 | Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 
@@ -104,15 +105,15 @@ Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
 1. Confirm target repository.
 2. Load refined content from feature story, path, chat, or paste.
 3. Extract steps from Steps / Suggested fix (`references/parsing.md`).
-4. Read sibling `FEATURE.md` **Complexity** when under `features/NNN-slug/` (`CHANGE-CONTRACT.md` TASKS policy).
+4. Resolve `invocation_context` using `INVOCATION-CONTEXTS.md`. Read only the matching complexity source: approved PRD for Classic `direct`, or sibling FEATURE for O2 (`CHANGE-CONTRACT.md` TASKS policy and `references/complexity-policy.md`).
 
 If no steps found and `source` is not `prd`, stop and suggest `/refine-story`.
 
 If `source=prd` and the STORY has no step list, do not suggest `/refine-story`. Build groups from the closed PRD `REQ` rows (`references/parsing.md`).
 
-If Complexity is `trivial` (small): **do not** Write TASKS / `REFINE/tasks.md`, for any caller. Tell the operator, in the user chat language, that a checklist file is not required for trivial/small. If the caller is `sdd-plan`, return the one-step breakdown in the chat only; no tasks file is written. Only an explicit operator request for a file changes this, and then the Persistence rules and write gates apply.
+If the selected source's complexity is `trivial` (small): **do not** Write TASKS / `REFINE/tasks.md` only to satisfy the flow. Tell the operator, in the user chat language, that a checklist file is not required. If the caller is `sdd-plan`, return the breakdown in the chat only; no tasks file is written. Only an explicit operator request for a file changes this, and then the Persistence rules and write gates apply.
 
-If Complexity is `medium` or `complex` (or unknown and story looks multi-step): proceed to build the required TASKS file.
+If the selected source's complexity is `medium` or `complex`, proceed to build the required TASKS file. If the source is absent, unsupported, or contradictory, stop and identify the selected context and required source; do not infer from the sibling context or story shape.
 
 ### 0.5. type_classification + exact-set → STORY
 

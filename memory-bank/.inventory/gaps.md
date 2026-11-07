@@ -16,9 +16,9 @@ Use `- [ ] BLOCKING:` only when Step 0 must treat the bank as stale/incomplete.
 
 When Prior/cited content already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (write/promote it, or `- [ ] BLOCKING:` until written).
 
-- [x] api-contracts (OpenAPI/Swagger detected: no)
-- [x] database-schema (EF/Prisma/SQL migrations detected: no)
-- [x] component-catalog (design system / large UI kit detected: no)
+- [ ] api-contracts (OpenAPI/Swagger detected: no)
+- [ ] database-schema (EF/Prisma/SQL migrations detected: no)
+- [ ] component-catalog (design system / large UI kit detected: no)
 
 ## Blocking
 
@@ -26,17 +26,26 @@ When Prior/cited content already has DDL, OpenAPI, or a UI component map, the ma
 - [x] BLOCKING: source drift detected (71 source(s)); reviewed 2026-11-05: 65/71 paths represented in committed history through HEAD, six are current S4/S9 edits; no stack additions. Architecture prose updated in commit 3a37061.
 - [x] BLOCKING: source drift detected (3 source(s)); reviewed 2026-11-05: capability-first startup, host-specific model/effort option discovery, and inheritance fallback are represented in conventions and known-risks.
 - [x] BLOCKING: source drift detected (11 source(s)); reviewed 2026-11-06: adt-settings model/effort inheritance, Hermes bounded uninstall reporting, and adapter contract checks are represented in architecture, project context, conventions, and known risks. No database, API, or UI contracts were added.
+- [x] BLOCKING: source drift detected (10 source(s)); reviewed 2026-11-07: adaptive orchestration and capability fallback are reflected in conventions; Grok/OpenHands path-boundary checks and OpenCode configuration preservation are recorded with static/live-host evidence limits. No database, API, or UI contracts were added.
 
 ## Notes
 
-Review basis: inventory is `ready` at hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551` (144 sources; Markdown and PowerShell). MVP coverage was reviewed on 2026-11-06. The 11 changed sources were reviewed and their subagent settings, Hermes uninstall, and adapter validation implications are represented in the bank.
-No DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map were detected; phase-2 files are not currently required.
-
-## Open gaps
-
-- [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
-- [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
-- [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
-- [ ] Verify live model/effort option discovery and application for each provider/surface; current evidence is contract/schema documentation and operator-reported Claude/Codex manual testing, not independent host telemetry.
+Preserved content records provenance only; its current validity is unverified until reviewed against its source.
+Preserved note (validity unverified): - [x] project-context filled from evidence
+Preserved note (validity unverified): - [x] tech-stack.json matches detected manifests (markdown, powershell)
+Preserved note (validity unverified): - [x] architecture entry points verified
+Preserved note (validity unverified): - [x] domain-knowledge has at least one evidenced area (or N/A noted)
+Preserved note (validity unverified): - [x] conventions aligned with AGENTS/README
+Preserved note (validity unverified): - [x] known-risks reviewed once
+Preserved note (validity unverified): - [x] api-contracts (OpenAPI/Swagger detected: no)
+Preserved note (validity unverified): - [x] database-schema (EF/Prisma/SQL migrations detected: no)
+Preserved note (validity unverified): - [x] component-catalog (design system / large UI kit detected: no)
+Preserved note (validity unverified): Review basis: inventory is `ready` at hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551` (144 sources; Markdown and PowerShell). MVP coverage was reviewed on 2026-11-06. The 11 changed sources were reviewed and their subagent settings, Hermes uninstall, and adapter validation implications are represented in the bank.
+Preserved note (validity unverified): No DDL/SQL migrations, OpenAPI/Swagger specification, or UI component map were detected; phase-2 files are not currently required.
+Preserved note (validity unverified): ## Open gaps
+Preserved note (validity unverified): - [ ] Configure `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions with the required narrow permissions; verify live token mint and ancestry reconciliation. No secret values are stored here.
+Preserved note (validity unverified): - [ ] Run GitHub Actions for the final workflow changes on a PR to `develop`; local `validate-core` and docs build do not prove remote checks/ruleset integration.
+Preserved note (validity unverified): - [ ] Confirm real host/provider external-access enforcement, production I/O, isolation/TOCTOU behavior, and the Windows case-sensitive-directory fixture; current evidence remains contract/fixture-only.
+Preserved note (validity unverified): - [ ] Verify live model/effort option discovery and application for each provider/surface; current evidence is contract/schema documentation and operator-reported Claude/Codex manual testing, not independent host telemetry.
 
 Regenerated by Invoke-MemoryBankInventory.ps1.
