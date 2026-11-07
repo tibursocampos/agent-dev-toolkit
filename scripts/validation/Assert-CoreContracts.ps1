@@ -813,15 +813,19 @@ foreach ($phrase in @(
     '`SESSION_SCHEMA` / requestable',
     'never their assumed Cartesian product',
     'unconstrained string with no enum',
-    'Disclose the extracted schema values immediately before the question',
+    'Disclose available model choices immediately before the model question',
+    'disclose only its documented or observed support among',
+    'If no model choice or no eligible effort can be discovered for the active surface',
+    'Keep inheritance available',
     'a clarification does not reset its state',
     'do not replace it with a yes/no question',
     'never persisted',
     'SUBAGENT-OPTIONS.md',
     'live read-only model/effort choices',
-    'explicit selectable option',
-    'only `inherit`',
-    'Never include `pair` as a selectable option when the list is empty',
+    'ask for the model first using only choices exposed by the active adapter and surface',
+    'show only the supported values among `low`, `medium`, and `high`',
+    'Do not show a cartesian list of model/effort combinations or infer compatibility',
+    'skip the effort question and continue by inheriting the parent''s model and effort',
     'subagents=none',
     'omit both',
     'one inheritance attempt',
@@ -860,6 +864,23 @@ function Test-SessionChoiceText {
     $failures = [System.Collections.Generic.List[string]]::new()
     foreach ($phrase in @(
         'Session choice (once per session)',
+        'three outcomes: `inherit`, `reuse_saved`, or `choose_model`',
+        'revalidate the complete saved pair against the exact supported choices and encoding for the active adapter and surface',
+        'Label a legacy value as a saved configuration',
+        'The initial menu choice is never persisted',
+        'After the parent has used the complete active pair',
+        'An explicit confirmation that it worked is sufficient',
+        'Only confirmation for the pair actually used authorizes a preference update',
+        'Update only the existing `subagent_models.default` field',
+        'do not request logs, captures, or another artifact',
+        'restore the prior content',
+        'Do not call it proven or previously confirmed',
+        'Do not put an extended model/effort combination list in the initial question',
+        'ask for the model first using only choices exposed by the active adapter and surface',
+        'show only the supported values among `low`, `medium`, and `high`',
+        'Do not show a cartesian list of model/effort combinations or infer compatibility',
+        'skip the effort question and continue by inheriting the parent''s model and effort',
+        'The operator confirms usable question components for Codex, Claude, Cursor, Hermes, and Copilot',
         'once per session',
         'not a question about whether to delegate',
         'At session start, before the active skill/task is processed',
@@ -868,15 +889,11 @@ function Test-SessionChoiceText {
         '`SESSION_SCHEMA` / requestable',
         'never their assumed Cartesian product',
         'unconstrained string with no enum',
-        'Disclose the extracted schema values immediately before the question',
         'a clarification does not reset its state',
         'do not replace it with a yes/no question',
         'never persisted',
         'SUBAGENT-OPTIONS.md',
         'live read-only model/effort choices',
-        'explicit selectable option',
-        'only `inherit`',
-        'Never include `pair` as a selectable option when the list is empty',
         'subagents=none',
         'omit both',
         'one inheritance attempt',
@@ -908,6 +925,313 @@ if (-not (Test-Path -LiteralPath $sessionChoicePath -PathType Leaf)) {
     Write-Fail -TestName 'Assert-SubagentSessionChoicePreconditions' -Reason 'SUBAGENT-MODEL.md is missing'
 }
 $sessionChoiceText = [System.IO.File]::ReadAllText($sessionChoicePath, [System.Text.UTF8Encoding]::new($false))
+
+# --- US03 S1 initial-choice cases ---
+$initialChoiceFixtureName = 'Should_Pass_When_Us03InitialChoiceFixturesMatchOracle'
+$initialChoiceFixturePath = Join-Path $repoRoot 'scripts/validation/fixtures/subagent-session-choice/us03-initial-choice-cases.json'
+if (-not (Test-Path -LiteralPath $initialChoiceFixturePath -PathType Leaf)) {
+    Write-Fail -TestName $initialChoiceFixtureName -Reason 'US03 initial-choice fixture is missing'
+}
+$initialChoiceFixture = Get-Content -LiteralPath $initialChoiceFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+if ($initialChoiceFixture.schemaVersion -ne 1 -or @($initialChoiceFixture.cases).Count -ne 9) {
+    Write-Fail -TestName $initialChoiceFixtureName -Reason 'US03 initial-choice fixture must have schemaVersion 1 and exactly nine cases'
+}
+
+function Resolve-Us03InitialChoice {
+    param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
+
+    $optionIds = [System.Collections.Generic.List[string]]::new()
+    $optionIds.Add('inherit')
+    $hasReusablePair = $Given.savedPairState -eq 'complete' -and [bool]$Given.savedPairCompatible
+    if ($hasReusablePair) { $optionIds.Add('reuse_saved') }
+    $optionIds.Add('choose_model')
+
+    $presentation = 'numbered'
+    if ([bool]$Given.operatorReportedComponent -and [bool]$Given.answerObservable) { $presentation = 'component' }
+
+    return [PSCustomObject]@{
+        optionIds = @($optionIds.ToArray())
+        savedLabel = if ($hasReusablePair) { 'saved configuration' } else { $null }
+        savedCalledProven = $false
+        presentation = $presentation
+    }
+}
+
+foreach ($initialChoiceCase in $initialChoiceFixture.cases) {
+    $caseName = 'Should_Pass_When_Us03InitialChoice_{0}' -f $initialChoiceCase.id
+    $actualChoice = Resolve-Us03InitialChoice -Given $initialChoiceCase.given
+    foreach ($field in $initialChoiceCase.expect.PSObject.Properties.Name) {
+        if (-not $actualChoice.PSObject.Properties[$field]) {
+            Write-Fail -TestName $caseName -Reason ('oracle omitted field: {0}' -f $field)
+        }
+        $expectedValue = ConvertTo-Json -InputObject $initialChoiceCase.expect.$field -Depth 8 -Compress
+        $actualValue = ConvertTo-Json -InputObject $actualChoice.$field -Depth 8 -Compress
+        if ($expectedValue -cne $actualValue) {
+            Write-Fail -TestName $caseName -Reason ('{0}: expected {1}, got {2}' -f $field, $expectedValue, $actualValue)
+        }
+    }
+    Write-Pass -TestName $caseName
+}
+
+$questionContractPath = Join-Path $repoRoot 'core/skills/_shared/agents/QUESTIONS.md'
+$questionContractText = [System.IO.File]::ReadAllText($questionContractPath, [System.Text.UTF8Encoding]::new($false))
+$questionMechanismName = 'Should_Pass_When_Us03QuestionComponentsAndFallbackAreScoped'
+$questionMechanisms = @{
+    codex = '`request_user_input_async`'
+    claude = '`AskUserQuestion`'
+    cursor = '`cursor/ask_question`'
+    hermes = '`ask_user`'
+}
+foreach ($hostId in $questionMechanisms.Keys) {
+    $mechanism = $questionMechanisms[$hostId]
+    if ($questionContractText -notmatch ('\| `' + [regex]::Escape($hostId) + '` \| `' + [regex]::Escape($mechanism.Trim('`')) + '` \|')) {
+        Write-Fail -TestName $questionMechanismName -Reason ('missing named question mechanism for {0}' -f $hostId)
+    }
+}
+if ($questionContractText -notmatch '(?s)\| `copilot` \| `operator-confirmed component` \|.*?operator confirms the component is usable for US03 and its answer reaches the agent.*?Do not invent a tool name') {
+    Write-Fail -TestName $questionMechanismName -Reason 'Copilot must use the operator-confirmed component without inventing its mechanism name'
+}
+if ($questionContractText -notmatch 'none` means no question component is confirmed') {
+    Write-Fail -TestName $questionMechanismName -Reason 'missing unconfirmed-host numbered-text fallback rule'
+}
+if ($questionContractText -notmatch 'For US03, the operator confirms usable components on Codex, Claude, Cursor, Hermes, and Copilot. This does not extend to other hosts.') {
+    Write-Fail -TestName $questionMechanismName -Reason 'operator-confirmed component scope is missing or extends beyond the five confirmed hosts'
+}
+foreach ($hostId in @('antigravity', 'opencode', 'openhands')) {
+    if ($questionContractText -notmatch ('\| `' + [regex]::Escape($hostId) + '` \| `none` \|')) {
+        Write-Fail -TestName $questionMechanismName -Reason ('unverified host must retain numbered-text fallback: {0}' -f $hostId)
+    }
+}
+Write-Pass -TestName $questionMechanismName
+
+# --- US03 S2 effort-filter cases ---
+$effortFilterFixtureName = 'Should_Pass_When_Us03EffortFilterFixturesMatchOracle'
+$effortFilterFixturePath = Join-Path $repoRoot 'scripts/validation/fixtures/subagent-session-choice/us03-effort-filter-cases.json'
+if (-not (Test-Path -LiteralPath $effortFilterFixturePath -PathType Leaf)) {
+    Write-Fail -TestName $effortFilterFixtureName -Reason 'US03 effort-filter fixture is missing'
+}
+$effortFilterFixture = Get-Content -LiteralPath $effortFilterFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+if ($effortFilterFixture.schemaVersion -ne 1 -or @($effortFilterFixture.cases).Count -ne 3) {
+    Write-Fail -TestName $effortFilterFixtureName -Reason 'US03 effort-filter fixture must have schemaVersion 1 and exactly three cases'
+}
+
+function Resolve-Us03EffortChoices {
+    param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
+
+    $supportedEfforts = @($Given.supportedEfforts | ForEach-Object { [string]$_ })
+    $allowedEfforts = @('low', 'medium', 'high')
+    $effortOptions = @($allowedEfforts | Where-Object { $_ -in $supportedEfforts })
+    return [PSCustomObject]@{
+        effortOptions = @($effortOptions)
+        nextAction = if ($effortOptions.Count -gt 0) { 'ask_effort' } else { 'inherit' }
+    }
+}
+
+foreach ($effortFilterCase in $effortFilterFixture.cases) {
+    $caseName = 'Should_Pass_When_Us03EffortFilter_{0}' -f $effortFilterCase.id
+    $actualEffortChoices = Resolve-Us03EffortChoices -Given $effortFilterCase.given
+    foreach ($field in $effortFilterCase.expect.PSObject.Properties.Name) {
+        $expectedValue = ConvertTo-Json -InputObject $effortFilterCase.expect.$field -Depth 8 -Compress
+        $actualValue = ConvertTo-Json -InputObject $actualEffortChoices.$field -Depth 8 -Compress
+        if ($expectedValue -cne $actualValue) {
+            Write-Fail -TestName $caseName -Reason ('{0}: expected {1}, got {2}' -f $field, $expectedValue, $actualValue)
+        }
+    }
+    Write-Pass -TestName $caseName
+}
+
+$effortOptionsContract = "ask for the model first using only choices exposed by the active adapter and surface`n" +
+    'show only the supported values among `low`, `medium`, and `high`' + "`n" +
+    'Do not show a cartesian list of model/effort combinations or infer compatibility' + "`n" +
+    'skip the effort question and continue by inheriting the parent''s model and effort'
+if (-not $sessionChoiceText.Contains($effortOptionsContract.Split("`n")[0]) -or
+    -not $sessionChoiceText.Contains($effortOptionsContract.Split("`n")[1]) -or
+    -not $sessionChoiceText.Contains($effortOptionsContract.Split("`n")[2]) -or
+    -not $sessionChoiceText.Contains($effortOptionsContract.Split("`n")[3])) {
+    Write-Fail -TestName 'Should_Pass_When_Us03EffortPromptIsModelSpecificAndFiltered' -Reason 'session-choice contract must specify model-first filtering and inheritance on an empty result'
+}
+Write-Pass -TestName 'Should_Pass_When_Us03EffortPromptIsModelSpecificAndFiltered'
+
+# --- US03 S3 saved-pair reuse cases ---
+$savedPairFixtureName = 'Should_Pass_When_Us03SavedPairFixturesMatchOracle'
+$savedPairFixturePath = Join-Path $repoRoot 'scripts/validation/fixtures/subagent-session-choice/us03-saved-pair-reuse-cases.json'
+if (-not (Test-Path -LiteralPath $savedPairFixturePath -PathType Leaf)) {
+    Write-Fail -TestName $savedPairFixtureName -Reason 'US03 saved-pair reuse fixture is missing'
+}
+$savedPairFixture = Get-Content -LiteralPath $savedPairFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+if ($savedPairFixture.schemaVersion -ne 1 -or @($savedPairFixture.cases).Count -ne 6) {
+    Write-Fail -TestName $savedPairFixtureName -Reason 'US03 saved-pair fixture must have schemaVersion 1 and exactly six cases'
+}
+
+function Resolve-Us03SavedPairReuse {
+    param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
+
+    $savedModel = if ($Given.savedPair) { [string]$Given.savedPair.model } else { '' }
+    $savedEffort = if ($Given.savedPair) { [string]$Given.savedPair.effort } else { '' }
+    $isCompletePair = -not [string]::IsNullOrWhiteSpace($savedModel) -and -not [string]::IsNullOrWhiteSpace($savedEffort)
+    $supportedPair = @($Given.supportedPairs | Where-Object {
+        [string]$_.model -ceq $savedModel -and [string]$_.effort -ceq $savedEffort
+    })
+    $canReuse = [bool]$Given.preferenceReadable -and $isCompletePair -and $supportedPair.Count -gt 0
+
+    $optionIds = [System.Collections.Generic.List[string]]::new()
+    $optionIds.Add('inherit')
+    if ($canReuse) { $optionIds.Add('reuse_saved') }
+    $optionIds.Add('choose_model')
+
+    $route = 'inherit'
+    $appliedPair = $null
+    $inheritanceRetryCount = 0
+    $fallbackUsed = $false
+    $nextAction = 'continue'
+    if ([string]$Given.selection -eq 'reuse_saved' -and $canReuse) {
+        $route = 'reuse_saved'
+        $appliedPair = [PSCustomObject]@{ model = $savedModel; effort = $savedEffort }
+        if ([bool]$Given.hostRefusesSavedPair) {
+            $route = 'inherit_fallback'
+            $appliedPair = $null
+            $inheritanceRetryCount = 1
+            $fallbackUsed = $true
+            if ([bool]$Given.hostRefusesInheritance) { $nextAction = 'blocked' }
+        }
+    }
+
+    return [PSCustomObject]@{
+        optionIds = @($optionIds.ToArray())
+        route = $route
+        appliedPair = $appliedPair
+        inheritanceRetryCount = $inheritanceRetryCount
+        fallbackUsed = $fallbackUsed
+        preferencePreserved = $true
+        preferenceWrites = 0
+        nextAction = $nextAction
+    }
+}
+
+foreach ($savedPairCase in $savedPairFixture.cases) {
+    $caseName = 'Should_Pass_When_Us03SavedPairReuse_{0}' -f $savedPairCase.id
+    $actualReuse = Resolve-Us03SavedPairReuse -Given $savedPairCase.given
+    foreach ($field in $savedPairCase.expect.PSObject.Properties.Name) {
+        if (-not $actualReuse.PSObject.Properties[$field]) {
+            Write-Fail -TestName $caseName -Reason ('oracle omitted field: {0}' -f $field)
+        }
+        $expectedValue = ConvertTo-Json -InputObject $savedPairCase.expect.$field -Depth 8 -Compress
+        $actualValue = ConvertTo-Json -InputObject $actualReuse.$field -Depth 8 -Compress
+        if ($expectedValue -cne $actualValue) {
+            Write-Fail -TestName $caseName -Reason ('{0}: expected {1}, got {2}' -f $field, $expectedValue, $actualValue)
+        }
+    }
+    Write-Pass -TestName $caseName
+}
+
+$savedPairOptionsPath = Join-Path $repoRoot 'core/skills/_shared/agents/SUBAGENT-OPTIONS.md'
+$savedPairOptionsText = [System.IO.File]::ReadAllText($savedPairOptionsPath, [System.Text.UTF8Encoding]::new($false))
+$savedPairContract = @(
+    'Before showing `reuse_saved`, revalidate the complete saved pair against the exact supported choices and encoding for the active adapter and surface',
+    'If the preference is unreadable, incomplete, or incompatible, omit `reuse_saved`, preserve the saved content',
+    'If the host refuses a reused pair, make one inheritance attempt that omits both parameters',
+    'the preference has no stored adapter/surface provenance'
+)
+foreach ($phrase in $savedPairContract[0..2]) {
+    if (-not $sessionChoiceText.Contains($phrase)) {
+        Write-Fail -TestName 'Should_Pass_When_SavedPairReuseIsRevalidatedAndPreserved' -Reason ('missing reuse safety rule: {0}' -f $phrase)
+    }
+}
+if (-not $savedPairOptionsText.Contains($savedPairContract[3])) {
+    Write-Fail -TestName 'Should_Pass_When_SavedPairReuseIsRevalidatedAndPreserved' -Reason 'preference provenance limitation is missing'
+}
+Write-Pass -TestName 'Should_Pass_When_SavedPairReuseIsRevalidatedAndPreserved'
+
+# --- US03 S4 confirmed-use write cases ---
+$confirmedUseFixtureName = 'Should_Pass_When_Us03PreferenceWriteRequiresConfirmedUse'
+$confirmedUseFixturePath = Join-Path $repoRoot 'scripts/validation/fixtures/subagent-session-choice/us03-confirmed-use-save-cases.json'
+if (-not (Test-Path -LiteralPath $confirmedUseFixturePath -PathType Leaf)) {
+    Write-Fail -TestName $confirmedUseFixtureName -Reason 'US03 confirmed-use fixture is missing'
+}
+$confirmedUseFixture = Get-Content -LiteralPath $confirmedUseFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+if ($confirmedUseFixture.schemaVersion -ne 1 -or @($confirmedUseFixture.cases).Count -ne 4) {
+    Write-Fail -TestName $confirmedUseFixtureName -Reason 'US03 confirmed-use fixture must have schemaVersion 1 and exactly four cases'
+}
+
+function Resolve-Us03ConfirmedUseWrite {
+    param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
+    $saveRequested = [bool]$Given.pairWasUsed -and [bool]$Given.explicitConfirmation
+    $result = if (-not $saveRequested) { 'not-confirmed-use' } elseif ([bool]$Given.simulateWriteFailure) { 'reread-mismatch' } else { 'saved' }
+    return [PSCustomObject]@{
+        saveRequested = $saveRequested
+        field = if ($saveRequested) { 'subagent_models.default' } else { $null }
+        historyWritten = $false
+        priorPreferencePreserved = -not $saveRequested -or [bool]$Given.simulateWriteFailure
+        result = $result
+        restored = [bool]$Given.simulateWriteFailure
+    }
+}
+
+foreach ($confirmedUseCase in $confirmedUseFixture.cases) {
+    $caseName = 'Should_Pass_When_Us03ConfirmedUse_{0}' -f $confirmedUseCase.id
+    $actualUpdate = Resolve-Us03ConfirmedUseWrite -Given $confirmedUseCase.given
+    foreach ($field in $confirmedUseCase.expect.PSObject.Properties.Name) {
+        if (-not $actualUpdate.PSObject.Properties[$field]) {
+            Write-Fail -TestName $caseName -Reason ('oracle omitted field: {0}' -f $field)
+        }
+        $expectedValue = ConvertTo-Json -InputObject $confirmedUseCase.expect.$field -Depth 8 -Compress
+        $actualValue = ConvertTo-Json -InputObject $actualUpdate.$field -Depth 8 -Compress
+        if ($expectedValue -cne $actualValue) {
+            Write-Fail -TestName $caseName -Reason ('{0}: expected {1}, got {2}' -f $field, $expectedValue, $actualValue)
+        }
+    }
+    Write-Pass -TestName $caseName
+}
+$preferencesSkillPath = Join-Path $repoRoot 'core/skills/adt-settings/SKILL.md'
+$preferencesSkillText = [System.IO.File]::ReadAllText($preferencesSkillPath, [System.Text.UTF8Encoding]::new($false))
+if ($preferencesSkillText -notmatch 'US03 session flow may update the same field only after the parent used the complete active pair') {
+    Write-Fail -TestName $confirmedUseFixtureName -Reason 'adt-settings compatibility with the US03 confirmed-use update is missing'
+}
+Write-Pass -TestName $confirmedUseFixtureName
+
+# --- US03 S5 published contract parity ---
+$us03PublicationName = 'Should_Pass_When_Us03PublishedContractsMatchCurrentFlow'
+$publishHonestyPath = Join-Path $repoRoot 'adapters/_shared/spawn-publish-honesty.md'
+$adapterReadmePath = Join-Path $repoRoot 'adapters/README.md'
+foreach ($requiredPath in @($publishHonestyPath, $adapterReadmePath)) {
+    if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+        Write-Fail -TestName $us03PublicationName -Reason ('publication contract is missing: {0}' -f $requiredPath)
+    }
+}
+$publishHonestyText = [System.IO.File]::ReadAllText($publishHonestyPath, [System.Text.UTF8Encoding]::new($false))
+$adapterReadmeText = [System.IO.File]::ReadAllText($adapterReadmePath, [System.Text.UTF8Encoding]::new($false))
+foreach ($phrase in @(
+    'Session configuration choice (US03)',
+    'reuse the saved configuration when its complete pair is eligible',
+    'ask for the model first',
+    'supported values among `low`, `medium`, and `high`',
+    'never list model/effort combinations',
+    'Other hosts remain unverified and retain numbered-text fallback'
+)) {
+    if (-not $publishHonestyText.Contains($phrase)) {
+        Write-Fail -TestName $us03PublicationName -Reason ('publish honesty contract is missing: {0}' -f $phrase)
+    }
+}
+if ($publishHonestyText.Contains('initial question lists concrete complete pairs') -or $publishHonestyText.Contains('Session pair choice (US01)')) {
+    Write-Fail -TestName $us03PublicationName -Reason 'stale US01 pair-list publication rule remains'
+}
+foreach ($phrase in @(
+    '| Cursor | `cursor/ask_question` for US03',
+    '| Claude Code | `AskUserQuestion` when its selected answer returns to the agent; the operator confirms a usable component for US03.',
+    '| Codex | `request_user_input_async`',
+    '| GitHub Copilot | Operator confirms a usable question component for US03',
+    '| Hermes | `ask_user` when its selected answer returns to the agent; the operator confirms a usable component for US03.'
+)) {
+    if (-not $adapterReadmeText.Contains($phrase)) {
+        Write-Fail -TestName $us03PublicationName -Reason ('adapter question publication is missing: {0}' -f $phrase)
+    }
+}
+foreach ($hostId in @('antigravity', 'opencode', 'openhands')) {
+    if ($questionContractText -notmatch ('\| `' + [regex]::Escape($hostId) + '` \| `none` \|')) {
+        Write-Fail -TestName $us03PublicationName -Reason ('unconfirmed host lost numbered-text fallback: {0}' -f $hostId)
+    }
+}
+Write-Pass -TestName $us03PublicationName
 
 # --- Should_Pass_When_SessionChoiceTextSatisfiesContract ---
 $positiveName = 'Should_Pass_When_SessionChoiceTextSatisfiesContract'

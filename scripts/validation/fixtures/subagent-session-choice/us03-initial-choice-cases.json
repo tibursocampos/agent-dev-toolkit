@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "S1-01",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "codex",
+        "operatorReportedComponent": true,
+        "mechanismKnown": true,
+        "answerObservable": true
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "component"
+      }
+    },
+    {
+      "id": "S1-02",
+      "given": {
+        "savedPairState": "complete",
+        "savedPairCompatible": true,
+        "legacyValue": true,
+        "operatorConfirmed": false,
+        "host": "hermes",
+        "operatorReportedComponent": true,
+        "mechanismKnown": true,
+        "answerObservable": true
+      },
+      "expect": {
+        "optionIds": ["inherit", "reuse_saved", "choose_model"],
+        "savedLabel": "saved configuration",
+        "savedCalledProven": false,
+        "presentation": "component"
+      }
+    },
+    {
+      "id": "S1-03",
+      "given": {
+        "savedPairState": "complete",
+        "savedPairCompatible": false,
+        "legacyValue": true,
+        "operatorConfirmed": false,
+        "host": "cursor",
+        "operatorReportedComponent": true,
+        "mechanismKnown": true,
+        "answerObservable": true
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "component"
+      }
+    },
+    {
+      "id": "S1-04",
+      "given": {
+        "savedPairState": "incomplete",
+        "savedPairCompatible": false,
+        "legacyValue": true,
+        "operatorConfirmed": false,
+        "host": "copilot",
+        "operatorReportedComponent": true,
+        "mechanismKnown": false,
+        "answerObservable": true
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "component"
+      }
+    },
+    {
+      "id": "S1-05",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "antigravity",
+        "operatorReportedComponent": false,
+        "mechanismKnown": false,
+        "answerObservable": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "numbered"
+      }
+    },
+    {
+      "id": "S1-06",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "grok",
+        "operatorReportedComponent": false,
+        "mechanismKnown": true,
+        "answerObservable": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "numbered"
+      }
+    },
+    {
+      "id": "S1-07",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "zcode",
+        "operatorReportedComponent": false,
+        "mechanismKnown": true,
+        "answerObservable": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "numbered"
+      }
+    },
+    {
+      "id": "S1-08",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "opencode",
+        "operatorReportedComponent": false,
+        "mechanismKnown": false,
+        "answerObservable": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "numbered"
+      }
+    },
+    {
+      "id": "S1-09",
+      "given": {
+        "savedPairState": "absent",
+        "savedPairCompatible": false,
+        "legacyValue": false,
+        "operatorConfirmed": false,
+        "host": "openhands",
+        "operatorReportedComponent": false,
+        "mechanismKnown": false,
+        "answerObservable": false
+      },
+      "expect": {
+        "optionIds": ["inherit", "choose_model"],
+        "savedLabel": null,
+        "savedCalledProven": false,
+        "presentation": "numbered"
+      }
+    }
+  ]
+}

@@ -13,7 +13,7 @@ Read `_shared/skill-boilerplate.md` before any tool call.
 - Never change the parent's model or effort, roles, favorites, limits, hooks, commands or modes. Never touch another preference key.
 
 ## Who may run it
-- Only the parent session, only on the user's explicit request to query, save or return to inheritance. A temporary session choice is never saved. Without an explicit request, write nothing (`no-explicit-request`).
+- This skill's query, save, and return-to-inheritance operations run only on the parent session's explicit request. Without that request, this skill writes nothing (`no-explicit-request`). Separately, the US03 session flow may update the same field only after the parent used the complete active pair and the operator explicitly confirms that it worked, as defined in `_shared/agents/SUBAGENT-MODEL.md`; the initial menu choice itself is never saved.
 - Subagents never ask, never read or write the preference, and are never given its path. If this skill is invoked inside a delegated task, stop and return the impediment through the workflow's own return contract.
 
 ## Lazy-load (only when needed)
@@ -29,6 +29,7 @@ Read `_shared/skill-boilerplate.md` before any tool call.
 - Read `_shared/agents/SUBAGENT-OPTIONS.md` (section: Adapter matrix). Use only the row of the effective adapter, surface and version. Offer or accept only pairs listed there. Do not keep or invent a model or effort list.
 - Reference missing, unreadable or without a row for this context: `reference-unavailable`. Saving a pair is refused; querying and returning to inheritance still work.
 - A saved default is only a pre-selection for the session question asked by the delegating skills. It never answers that question and never changes a session choice already given.
+- The US03 confirmed-use update uses the same field-scoped safeguards below and does not change these explicit operations.
 
 ## Operations
 1. Query (no write): read the file and the reference; show the current default (or "none"), its origin (this file) and that the effective result without a valid default is inheriting the parent. Default present but not a valid pair, or file unreadable or of incompatible shape: show the field, the reason code, and "effective: inherit the parent". Do not repair, remove or rewrite anything.

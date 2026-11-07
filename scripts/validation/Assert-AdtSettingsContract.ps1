@@ -14,6 +14,7 @@
 #   Should_RefuseWrite_When_ContentChangedSinceRead
 #   Should_RestoreOriginal_When_RereadMismatch
 #   Should_KeepSubagentModels_When_ClaudeHookRewritesPreferences
+#   Should_SaveOnlyAfterConfirmedUse_AndPreserveOldValueOnFailure
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -22,6 +23,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 . (Join-Path $scriptsRoot '_lib\New-ToolkitWorkRoot.ps1')
 $repoRoot = Get-ToolkitRepoRoot -FromPath $scriptDir
 $fixtureRoot = Join-Path $scriptDir 'fixtures\adt-settings'
+$sessionChoiceFixtureRoot = Join-Path $scriptDir 'fixtures\subagent-session-choice'
 
 function Write-Pass { param([string] $TestName) Write-Host ("{0}: PASS" -f $TestName) }
 function Write-Fail { param([string] $TestName, [string] $Reason) Write-Error ("{0}: FAIL - {1}" -f $TestName, $Reason); exit 1 }
@@ -76,6 +78,16 @@ function Invoke-PreferenceReference {
     return [pscustomobject]@{ Result='saved'; Value=(Read-JsonText ([System.IO.File]::ReadAllText($Path))) }
 }
 
+# Models the US03 confirmation gate before calling the existing field-scoped writer.
+function Invoke-ConfirmedSessionPreferenceUpdate {
+    param([string] $Path, [PSCustomObject] $Case, [string] $ReferencePath)
+    if (-not [bool]$Case.given.pairWasUsed -or -not [bool]$Case.given.explicitConfirmation) {
+        return [pscustomobject]@{ Result='not-confirmed-use' }
+    }
+    $afterWrite = if ([bool]$Case.given.simulateWriteFailure) { { param($target) [System.IO.File]::WriteAllText($target, 'corrupt') } } else { $null }
+    return Invoke-PreferenceReference -Path $Path -Operation save -Model 'fixture-model-b' -Effort 'fixture-effort-b' -ReferencePath $ReferencePath -AfterWrite $afterWrite
+}
+
 try {
     $skillPath=Join-Path $repoRoot 'core\skills\adt-settings\SKILL.md'
     $skill=[System.IO.File]::ReadAllText($skillPath)
@@ -96,6 +108,32 @@ try {
     if (-not $block.Success) { Write-Fail $n 'preferences JSON block missing' }
     $template=Read-JsonText $block.Groups[1].Value
     if ((Get-JsonDigest $template) -cne (Get-JsonDigest $defaults)) { Write-Fail $n 'template differs from installer object' }
+    Write-Pass $n
+
+    $n='Should_SaveOnlyAfterConfirmedUse_AndPreserveOldValueOnFailure'
+    $confirmedUseFixturePath=Join-Path $sessionChoiceFixtureRoot 'us03-confirmed-use-save-cases.json'
+    if(-not (Test-Path -LiteralPath $confirmedUseFixturePath -PathType Leaf)){Write-Fail $n 'US03 confirmed-use fixture missing'}
+    $confirmedUseFixture=Get-Content -LiteralPath $confirmedUseFixturePath -Raw | ConvertFrom-Json -ErrorAction Stop
+    if($confirmedUseFixture.schemaVersion -ne 1 -or @($confirmedUseFixture.cases).Count -ne 4){Write-Fail $n 'US03 confirmed-use fixture must contain four cases'}
+    $work=New-ToolkitWorkRoot -RepoRoot $repoRoot
+    try {
+        $prefs=Join-Path $work 'confirmed-use.json'; $ref=Join-Path $fixtureRoot 'reference-stub.md'
+        foreach($case in $confirmedUseFixture.cases){
+            Copy-Fixture 'prefs-with-default.json' $prefs; $oldHash=Get-Hash $prefs
+            $result=Invoke-ConfirmedSessionPreferenceUpdate -Path $prefs -Case $case -ReferencePath $ref
+            if($result.Result -cne [string]$case.expect.result){Write-Fail $n ("{0}: expected {1}, got {2}" -f $case.id,$case.expect.result,$result.Result)}
+            if(-not [bool]$case.expect.saveRequested){
+                if((Get-Hash $prefs) -cne $oldHash){Write-Fail $n ("{0}: preference changed without confirmed pair use" -f $case.id)}
+            } elseif($case.given.simulateWriteFailure){
+                if(-not [bool]$result.Restored -or (Get-Hash $prefs) -cne $oldHash){Write-Fail $n ("{0}: failed write did not restore prior value" -f $case.id)}
+            } else {
+                $expected=Read-JsonText ([System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'expected-after-save.json')))
+                $actual=Read-JsonText ([System.IO.File]::ReadAllText($prefs))
+                if((Get-JsonDigest $actual) -cne (Get-JsonDigest $expected)){Write-Fail $n ("{0}: confirmed write changed unexpected fields" -f $case.id)}
+            }
+        }
+    }
+    finally { Remove-ToolkitWorkRoot -RepoRoot $repoRoot -Path $work }
     Write-Pass $n
 
     $n='Should_NotWrite_When_QueryingAnyFixture'

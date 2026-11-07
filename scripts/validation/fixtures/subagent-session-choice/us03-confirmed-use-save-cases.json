@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "inheritance-does-not-save",
+      "given": {
+        "pairWasUsed": false,
+        "explicitConfirmation": true,
+        "simulateWriteFailure": false
+      },
+      "expect": {
+        "saveRequested": false,
+        "result": "not-confirmed-use"
+      }
+    },
+    {
+      "id": "missing-confirmation-does-not-save",
+      "given": {
+        "pairWasUsed": true,
+        "explicitConfirmation": false,
+        "simulateWriteFailure": false
+      },
+      "expect": {
+        "saveRequested": false,
+        "result": "not-confirmed-use"
+      }
+    },
+    {
+      "id": "explicit-funcionou-saves",
+      "given": {
+        "pairWasUsed": true,
+        "explicitConfirmation": true,
+        "simulateWriteFailure": false
+      },
+      "expect": {
+        "saveRequested": true,
+        "result": "saved"
+      }
+    },
+    {
+      "id": "confirmed-write-failure-preserves-old-value",
+      "given": {
+        "pairWasUsed": true,
+        "explicitConfirmation": true,
+        "simulateWriteFailure": true
+      },
+      "expect": {
+        "saveRequested": true,
+        "result": "reread-mismatch",
+        "restored": true
+      }
+    }
+  ]
+}
