@@ -1,5 +1,74 @@
 {
   "skillsRoot": "core/skills",
+  "complexitySources": [
+    { "skill": "sdd-plan", "mode": "Classic direct", "source": "approved PRD" },
+    { "skill": "sdd-plan", "mode": "O2", "source": "FEATURE" }
+  ],
+  "referenceRoutes": [
+    {
+      "skill": "code-review",
+      "owner": "core/skills/code-review/SKILL.md",
+      "routes": [
+        { "mode": "all", "condition": "after gates; load one process section per active review step", "required": ["references/sdd-resolution.md when SDD resolution applies", "references/report-template.md", "references/verification.md", "references/policy.md", "references/contracts.md"], "conditional": ["references/multi-angle.md only for multi-angle", "references/n-plus-one.md for N+1/hot-path signals", "frontend/dotnet checklist only for detected changed surface", "coverage pack only when threshold is required"], "excluded": ["unselected review-angle and surface checklists", "unused references/*.md and full guideline packs"] }
+      ],
+      "sharedRules": [{ "owner": "core/skills/_shared/agents/QUESTIONS.md", "consumers": ["code-review", "requirement-review", "refine-story"], "preserve": "code-review single/multi-angle selection and report-specific gates" }]
+    },
+    {
+      "skill": "requirement-review",
+      "owner": "core/skills/requirement-review/SKILL.md",
+      "routes": [
+        { "mode": "--feature", "condition": "feature mode selected", "required": ["references/feature.md", "refine-story/references/finding-format.md", "refine-story/references/qa-history.md", "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"], "conditional": ["feature-research only when required by its flow"], "excluded": ["references/tech.md", "api-standards"] },
+        { "mode": "--tech", "condition": "technical mode selected", "required": ["references/tech.md", "refine-story/references/finding-format.md", "refine-story/references/qa-history.md", "_shared/sdd-artifacts/INVOCATION-CONTEXTS.md"], "conditional": ["api-standards/SKILL.md and one matching reference only when an affected API contract exists"], "excluded": ["references/feature.md", "api-standards when no API contract is affected"] }
+      ],
+      "sharedRules": [{ "owner": "core/skills/refine-story/references/finding-format.md", "consumers": ["requirement-review", "refine-story"], "preserve": "feature atomization vs tech grounding/follow-ups" }, { "owner": "core/skills/_shared/agents/QUESTIONS.md", "consumers": ["code-review", "requirement-review", "refine-story"], "preserve": "mode-specific finding and Q&A flow" }]
+    },
+    {
+      "skill": "developer",
+      "owner": "core/skills/developer/SKILL.md",
+      "routes": [{ "mode": "stack/ad-hoc", "condition": "route after stack detection; one section per process step", "required": ["references/stack-routing.md", "selected stack SKILL.md on match", "references/fallback-execution.md when no stack matches"], "conditional": ["references/frontend-design-routing.md for UI", "selected frontend-design brief when applicable"], "excluded": ["unselected stack packs and references/*.md"] }],
+      "sharedRules": [{ "owner": "core/skills/_shared/developer-common/subagent-first.md", "consumers": ["developer and stack developer skills"], "preserve": "stack-specific implementation conventions" }]
+    },
+    {
+      "skill": "refine-story",
+      "owner": "core/skills/refine-story/SKILL.md",
+      "routes": [
+        { "mode": "feature", "condition": "feature item selected", "required": ["references/feature.md", "references/mode-isolation.md"], "conditional": ["feature-research for orchestrated FEATURE flow", "persona-context for User Stories", "scorecard-rubric and validation when called by the selected playbook"], "excluded": ["references/tech.md", "references/split.md"] },
+        { "mode": "tech", "condition": "technical item selected", "required": ["references/tech.md", "references/mode-isolation.md"], "conditional": ["shared tail sections referenced by the selected playbook"], "excluded": ["references/feature.md", "references/split.md"] },
+        { "mode": "split", "condition": "split mode selected", "required": ["references/split.md", "references/mode-isolation.md"], "conditional": ["anti-task-shatter and type-classification at their stated gates"], "excluded": ["references/feature.md", "references/tech.md"] }
+      ],
+      "sharedRules": [{ "owner": "core/skills/refine-story/references/mode-isolation.md", "consumers": ["refine-story"], "preserve": "mode-specific generation and checks" }, { "owner": "core/skills/refine-story/references/finding-format.md", "consumers": ["requirement-review", "refine-story"], "preserve": "refinement mode playbooks" }]
+    },
+    {
+      "skill": "split-story-checklist",
+      "owner": "core/skills/split-story-checklist/SKILL.md",
+      "routes": [{ "mode": "direct|orchestrated", "condition": "after gates and complexity source resolution; load current step only", "required": ["references/complexity-policy.md", "selected references/<section>.md"], "conditional": ["anti-task-shatter when titles are task-shaped", "type-classification before checklist write"], "excluded": ["unselected process sections and backlog-item-types"] }],
+      "sharedRules": [{ "owner": "core/skills/split-story-checklist/references/complexity-policy.md", "consumers": ["split-story-checklist", "sdd-plan"], "preserve": "direct PRD vs O2 FEATURE complexity sources and split ownership" }]
+    },
+    {
+      "skill": "sdd-spec",
+      "owner": "core/skills/sdd-spec/SKILL.md",
+      "routes": [{ "mode": "Classic direct|O2 stage", "condition": "after gates; load current process section only", "required": ["references/command.md after gates", "selected references/<section>.md", "shared SDD pipeline and storage contracts"], "conditional": ["product-depth norms at Step 5.5 or thin FEATURE/STORY", "semantic-sufficiency for material decisions projected into PRD"], "excluded": ["all unused references, templates, backlog item types and full sdd-plan/develop packs"] }],
+      "sharedRules": [{ "owner": "core/skills/_shared/sdd-artifacts/PIPELINE.md", "consumers": ["sdd-spec", "sdd-plan", "orchestrate-deliver"], "preserve": "spec-stage flow and PRD approval gates" }]
+    },
+    {
+      "skill": "sdd-plan",
+      "owner": "core/skills/sdd-plan/SKILL.md",
+      "routes": [{ "mode": "Classic direct|O2 stage", "condition": "after gates; resolve checklist by invocation context and complexity source", "required": ["references/command.md after gates", "selected references/<section>.md", "shared SDD pipeline and storage contracts", "checklist-acquisition.md when checklist decision applies"], "conditional": ["checklist for direct medium/complex; O2 contract uses FEATURE", "selected template/validation references at their step"], "excluded": ["unselected process sections and unrelated full skill packs"] }],
+      "sharedRules": [{ "owner": "core/skills/split-story-checklist/references/complexity-policy.md", "consumers": ["split-story-checklist", "sdd-plan"], "preserve": "direct PRD vs O2 FEATURE source distinction" }]
+    },
+    {
+      "skill": "orchestrate-analyze",
+      "owner": "core/skills/orchestrate-analyze/SKILL.md",
+      "routes": [{ "mode": "O1", "condition": "after gates; command discovery then current step section", "required": ["references/command.md after gates", "selected references/<section>.md", "FEATURE/CONTINUITY contracts"], "conditional": ["SPAWN and specialist prompts only when flags/nature require Agents", "domain/API/security/database references only for triggered scope"], "excluded": ["unselected process sections and specialist prompts without corresponding flags"] }],
+      "sharedRules": [{ "owner": "core/skills/_shared/agents/ROSTER.md", "consumers": ["orchestrate-analyze", "orchestrate-deliver"], "preserve": "O1 triage flags vs O2 delivery sequence and per-story decisions" }]
+    },
+    {
+      "skill": "orchestrate-deliver",
+      "owner": "core/skills/orchestrate-deliver/SKILL.md",
+      "routes": [{ "mode": "O2 series|parallel", "condition": "after gates; select mode then current section", "required": ["references/command.md after gates", "selected references/<section>.md", "per-story contracts for active story"], "conditional": ["SPAWN only for parallel/spawn", "sdd-spec or sdd-plan contracts at matching story stage", "preflight before O3 handoff"], "excluded": ["unselected sections, unused full skill packs and command before gates"] }],
+      "sharedRules": [{ "owner": "core/skills/orchestrate-deliver/references/per-story-contracts.md", "consumers": ["orchestrate-deliver"], "preserve": "per-story mode, approval, gate and O3 handoff distinctions" }]
+    }
+  ],
   "mustNotContain": [
     "~/.cursor",
     "$HOME/.cursor",

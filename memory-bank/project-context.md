@@ -6,9 +6,9 @@ Language: English
 | Field | Value |
 |-------|-------|
 | **Repo** | agent-dev-toolkit |
-| **Inventory at** | 2026-11-06T09:34:13.5699436Z |
+| **Inventory at** | 2026-11-07T16:35:57.0380358Z |
 | **Status** | ready |
-| **Inventory hash** | `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551` |
+| **Inventory hash** | `cb3726a4546479a35b9005db86d83f1909303dd7a27063741b5732373ea42481` |
 | **Primary stack signals** | 144 source(s); stack: markdown, powershell |
 <!-- END GENERATED: inventory-summary -->
 

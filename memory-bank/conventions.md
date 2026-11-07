@@ -50,8 +50,10 @@
 ## Session startup and subagent choice
 
 - Resolve effective `subagents` capability and read preferences before loading spawn or model-choice contracts. `none` or unknown skips those contracts and the model question; `orchestrator_mode` has `adaptive` and `always`, while `subagents=none` disables delegation.
+- `orchestrator_mode` defaults to `adaptive`; delegate independent or substantial work when effective `subagents` is `native`, while bounded trivial work may stay in-parent. Children perform post-change validation.
+- Resolve effective `subagents` capability before spawn/model-choice contracts. Missing or unknown capability safely behaves as `none`; registry declarations do not prove live host support.
 - When native subagents are available, discover complete model-and-effort options for the current host surface before the single session choice. Offer `inherit` when no alternate pair is verified; unknown runtime application remains unverified.
-- Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `docs/SPAWN.md`, `docs/guides/session-behavior.md`.
+- Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `core/skills/_shared/agents/SPAWN.md`, `docs/SPAWN.md`, `docs/guides/02-using-skills.md`, `docs/guides/08-orchestrator-mode.md`, `docs/guides/session-behavior.md`.
 <!-- END GENERATED: session-start-subagent-policy -->
 
 ## Notes
