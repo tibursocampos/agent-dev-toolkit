@@ -1068,8 +1068,10 @@ if ($savedPairFixture.schemaVersion -ne 1 -or @($savedPairFixture.cases).Count -
 function Resolve-Us03SavedPairReuse {
     param([Parameter(Mandatory = $true)][PSCustomObject] $Given)
 
-    $savedModel = if ($Given.savedPair) { [string]$Given.savedPair.model } else { '' }
-    $savedEffort = if ($Given.savedPair) { [string]$Given.savedPair.effort } else { '' }
+    $savedModelProperty = if ($Given.savedPair) { $Given.savedPair.PSObject.Properties['model'] } else { $null }
+    $savedEffortProperty = if ($Given.savedPair) { $Given.savedPair.PSObject.Properties['effort'] } else { $null }
+    $savedModel = if ($savedModelProperty) { [string]$savedModelProperty.Value } else { '' }
+    $savedEffort = if ($savedEffortProperty) { [string]$savedEffortProperty.Value } else { '' }
     $isCompletePair = -not [string]::IsNullOrWhiteSpace($savedModel) -and -not [string]::IsNullOrWhiteSpace($savedEffort)
     $supportedPair = @($Given.supportedPairs | Where-Object {
         [string]$_.model -ceq $savedModel -and [string]$_.effort -ceq $savedEffort
