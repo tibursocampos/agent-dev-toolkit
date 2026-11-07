@@ -4,7 +4,7 @@ Shared decision policy for stack `*-developer` skills. Encode RN02–RN04 here o
 
 **Mandatory:** read `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` and capability `subagents` (`native` | `none` from registry / Get-Capabilities) before spawning.
 
-**Agent `model` (Axis B):** when spawning, follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` — **omit** the Agent `model` parameter by default so the child uses the **same model as the parent session**. Do **not** conflate with a host auto model or Memory Bank policy `auto`. Premium / alternate slug only after that contract’s gate + explicit user `confirm` answer.
+**Model configuration:** see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`
 
@@ -59,7 +59,7 @@ Skills and CI asserts should echo these literals (exact substrings preferred):
 | Marker | Role |
 |--------|------|
 | `SPAWN.md` | Mandatory contract pointer |
-| `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C gate |
+| `SUBAGENT-MODEL.md` | Axis B omit `model` / Axis C session choice |
 | `subagents` | Capability name |
 | `in-parent` | Trivial path + fallback path |
 | `fallback` | Degrade when none / no Agent |

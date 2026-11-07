@@ -63,7 +63,7 @@ Orchestrator **does not** implement application code. **Does not** rewrite `sdd-
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/orchestrate-deliver/references/<section>.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; session choice) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 
 **Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload both `sdd-spec` and `sdd-plan` full bodies plus all templates and SPAWN/SUBAGENT-MODEL before mode selection. Load contracts when running that story stage; load SPAWN only when choosing `parallel` / spawning drafts.
 
@@ -113,7 +113,7 @@ Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_
 Verify backlog approval (**confirm** or `approved`); discover stories; **STOP** if flag-gated `ANALYSIS|ARCH|SEC` missing; at the O2 story-files/PRD/PLAN write gates, **STOP** Write for any unanswered question, including **MINOR**, with stop code `open_question` (`readiness-severity.md` / REQ-005). Read `references/preconditions.md`.
 
 ### 5. Choose mode (RF03)
-Ask `series` vs `parallel` (never assume; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); load `SPAWN.md` before `parallel`; omit Agent `model` by default. Read `references/mode-selection.md`.
+Ask `series` vs `parallel` (never assume; question per `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`); load `SPAWN.md` before `parallel`; follow model/effort selection in `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`. Read `references/mode-selection.md`.
 
 ### 6. Per-story contracts (reuse, do not rewrite)
 For each story: story-file gate, then `sdd-spec`, then PRD contestation (`refine-story/references/tech.md` § Story PRD contestation). An open question stops that story with `open_question`. Do not write the next artifact. When the PRD is accepted, run `split-story-checklist` for `medium` or `complex` (it writes `REFINE/tasks.md`; `trivial` skips that file), then `sdd-plan` (it reads those ids and does not call the checklist again). Read `references/per-story-contracts.md`.

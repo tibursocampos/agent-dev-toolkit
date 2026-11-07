@@ -6,7 +6,7 @@ title: Using skills
 
 Invoke skills by **id** (kebab-case under `core/skills/`). The id is the same on every host. The prefix is host-specific (`/`, `$`, `use skill`, or the OpenCode `skill` tool). Compat on many hosts: `use skill <id>`, or natural language that matches the skill description.
 
-After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **46** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
+After any sync, invoke **`help-skills`**. It reads the installed catalog (`CATALOG.md` and `OPERATOR.md`). There are **47** invocable skills. Folders under `core/skills/_shared/` are packs, not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles, not skill ids.
 
 Host routing is adapter-specific: Copilot has `router=false`, so the `core/router/AGENTS.md` guidance is embedded in its generated `copilot-instructions.md`; this is not a separate skill id or live-host proof.
 
@@ -278,12 +278,7 @@ Gate answers are read by meaning, in any language; silence, an ambiguous reply, 
 
 ### Parent orchestrator
 
-Default `orchestrator_mode` is `adaptive`. The parent keeps goals, gates, paths, and receipts. Specialists write notes or code. Commands: `orchestrator always`, `orchestrator adaptive`, `orchestrator status` (aliases `orchestrate` and `parent`).
-
-`adaptive` may keep a single-path question or a one-file edit in the parent. Any wider change is spawned. If the host has `subagents=none`, the same work stays in the parent. The session does not fail because Task is missing.
-
-Task `model` is omitted so the child uses the parent session model (`core/skills/_shared/agents/SUBAGENT-MODEL.md`).
-
+adaptive: trivial work (3/6/150 limits) may stay in the parent. always: delegates everything except qa_checklist. Full table: `core/policy/orchestrator-session.md` "Modes".
 ### Optional chat compression
 
 First interactive sync asks whether Caveman response compression is on or off; **on** is the default. Non-interactive first sync defaults to `caveman_mode: true`. It only shortens chat prose. It does not change skill steps, gates, or documentation.
@@ -292,11 +287,28 @@ Commands: `caveman on`, `caveman off`, `caveman status`, `caveman lite`, `cavema
 
 `help-skills`, `read-sdd-artifact`, `commit`, `push`, and `open-github-pr` never compress. Gates, drafts, paths, and gate options (ids `confirm`, `adjust`, `cancel`; the pt-BR install shows sim / ajustar / cancelar) stay clear. Policy file: `core/policy/caveman-mode.md`. The idea is credited on [Credits](credits.md).
 
+### Subagent model and effort
+
+Use `adt-settings` to inspect or save one general model and effort pair for subagents, or to return to inheriting. The default is to inherit both values from the parent. A saved pair only preselects the one-time session question; it does not change a session after that question has been answered.
+
+Available pairs come from the effective adapter row in `SUBAGENT-OPTIONS.md`. When an adapter has no proven mechanism for applying the pair, the host inherits the parent values.
+
+| Adapter | Status |
+|---------|--------|
+| Claude | documented, not verified at runtime |
+| Codex | documented, not verified at runtime |
+| Cursor | documented, not verified at runtime |
+| Hermes | documented, not verified at runtime |
+| Copilot | documented, not verified at runtime |
+
+Update an adapter's status only after real evidence is recorded for it.
+
 ### Other preference keys
 
 | Key | Default | Effect |
 |-----|---------|--------|
-| `orchestrator_mode` | `adaptive` | Parent orchestrates; thin trivial work may stay in-parent |
+| `orchestrator_mode` | `adaptive` | Parent orchestrates; trivial work may stay in the parent |
+| `subagent_models.default` | absent (inherit) | Optional `{model, effort}` pair used as a preselection |
 | `caveman_mode` | `true` on first sync | Chat compression on; interactive sync may set it off |
 | `caveman_level` | `full` | Intensity if compression is turned on |
 | `artifact_language` | `null` | No locale override |

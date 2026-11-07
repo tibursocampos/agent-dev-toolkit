@@ -12,26 +12,28 @@ Other files point here. Gate wording and blocking rules are not restated elsewhe
 2. If the component cannot open, or its answer does not reach the agent, ask in text in the conversation language with numbered options.
 3. In both cases the flow blocks. The question stays `open_question` until its state is `answered` (see States). Silence, a timeout, or the end of the turn is never an answer.
 
-A host **offers** a question component only when the host mechanism table below names a tool for it. No other signal counts as an offer.
+A host **offers** a question component when the host mechanism table names a tool for it, or the row is explicitly `operator-confirmed component`, and the selected answer is returned to the agent. No other signal counts as an offer.
 
 ## Host mechanism table
 
 | Host | Mechanism | Evidence in this repo |
 |------|-----------|-----------------------|
-| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `Test-ToolkitReadOnlyToolName`, `$readOnlyTools` entry `claude` |
+| `claude` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `Test-ToolkitReadOnlyToolName`, `$readOnlyTools` entry `claude`; operator also confirms a usable component for US03. |
 | `grok` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `grok` |
 | `zcode` | `AskUserQuestion` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `zcode` |
-| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list) |
-| `cursor` | `none` | No verified question component. |
+| `hermes` | `ask_user` | `adapters/_shared/GuardCommon.ps1` `$readOnlyTools` entry `hermes`; `adapters/hermes/assets/plugins/agent-dev-toolkit-guard/__init__.py` (`ask_user` in the read-only tool list); operator also confirms a usable component for US03. |
+| `cursor` | `cursor/ask_question` | Named by the official ACP reference and operator confirms a usable component for US03. Use it only when its selected answer reaches the agent; otherwise fall back to numbered text. |
 | `antigravity` | `none` | No verified question component. |
-| `codex` | `none` | No verified question component. |
-| `copilot` | `none` | No verified question component. |
-| `opencode` | `none` | No verified question component. |
+| `codex` | `request_user_input_async` | Current Codex surface exposes this question component; the operator selected an option and the answer reached the agent during US03 execution. |
+| `copilot` | `operator-confirmed component` | Operator confirms the component is usable for US03 and its answer reaches the agent; this repository does not record the mechanism name. Do not invent a tool name. |
+| `opencode` | `none` | Documented as the `question` permission, which asks the user during execution (https://opencode.ai/docs/permissions/). Blocking behaviour and subagent behaviour not verified: ask in text until a live run shows the answer reaching the agent. |
 | `openhands` | `none` | No verified question component. |
 
 Rules for this table:
 
-- `none` means no verified question component: ask in numbered text. For a host marked `none` the tool name must not be invented.
+- `none` means no question component is confirmed for the active host surface: use numbered text.
+- `operator-confirmed component` means the operator has confirmed that the host component is usable and its answer reaches the agent, even though this repository does not record a mechanism name. Use the component and do not invent a tool name.
+- For US03, the operator confirms usable components on Codex, Claude, Cursor, Hermes, and Copilot. This does not extend to other hosts. For any other host or any component whose answer is not observable, keep the numbered-text fallback.
 - Use only the row for the current host. Never invoke another host's tool.
 - A name in the evidence column shows that the toolkit knows the tool name. It does not prove that the answer returns to the agent. Treat the mechanism as usable only after a live run shows the selected answer reaching the agent, and record that run in the adapter evidence (`adapters/README.md`).
 
@@ -105,7 +107,7 @@ Gates are never compressed. The protected text is the gate text in the user's la
 
 ## Subagents
 
-Children never ask the operator. Only the parent asks. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
+Children never ask the operator. Only the parent asks. This is a toolkit rule, not a host guarantee: on `claude`, the question tool is not available inside subagents (https://code.claude.com/docs/en/sub-agents), and the rule holds on every host. A child that needs an answer stops its pass and reports the need in its receipt (`RECEIPT.md`): the `needs-confirm.` token, plus the question, its ids, and its scope. The child writes the receipt in en-US. The parent renders the question in the user's language and asks it, then blocks as above.
 
 ## Cross-refs (lazy-load)
 

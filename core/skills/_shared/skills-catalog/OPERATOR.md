@@ -15,7 +15,7 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 | Invoke | Use **skill ids** (kebab-case). Host prefixes differ — see matrix below. Compat: `use skill <id>` / natural language when the host accepts it. |
 | Gates | Most mutating skills require guardrails + SESSION; user **`sim`** before writes. Silence ≠ approval. |
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
-| Orchestrator mode | Default **`always`**. Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). See `docs/guides/08-orchestrator-mode.md` + `orchestrator-session` policy. |
+| Orchestrator mode | Default **`adaptive`**. See `orchestrator-session` section "Modes". Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
 | Caveman **NEVER** | `help-skills`, `read-sdd-artifact`, `commit`, `push`, `open-github-pr` — clear prose always; do not load CAVEMAN for compression. |
 

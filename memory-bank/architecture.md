@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout from the current inventory (2026-10-30T00:32:30Z; hash `8aff168d2fe4178874796e16319d5e7c15d994e1bede413229116e70fa0b3fe3`)._
+_Entry points and layout from the current inventory (2026-11-06T09:34:13.5699436Z; 144 source(s); stack: markdown, powershell; hash `9da86d44882663a19460d6c0f04c24b7d331fe44d1f005a66881ae51e8a10551`)._
 
 | Signal | Path |
 |--------|------|
@@ -14,6 +14,8 @@ _Entry points and layout from the current inventory (2026-10-30T00:32:30Z; hash 
 | Skills catalog | `core/skills/_shared/skills-catalog/CATALOG.md` |
 | Shared SDD contracts | `core/skills/_shared/sdd-artifacts/` |
 | Router index | `core/router/AGENTS.md` |
+| Session orchestration policy | `core/policy/orchestrator-session.md` |
+| Host spawn contract | `docs/SPAWN.md` |
 | Adapter path guard | `adapters/_shared/GuardCommon.ps1` |
 <!-- END GENERATED: inventory-summary -->
 
@@ -38,6 +40,8 @@ The toolkit maintains an agent-neutral core and publishes host-specific layouts 
 - Install roots are fixture-first. Profile writes require `-AllowUserHome`; local fixtures do not prove behavior in a live host.
 - Copilot publishing supports `-Mode user|repo`. Codex user-scope skill mirroring is optional and off by default.
 - Runtime preferences are initialized by `scripts/_lib/Initialize-SddPreferences.ps1`; missing preferences default `orchestrator_mode` to `adaptive`.
+- `core/skills/adt-settings/SKILL.md` defines session-wide subagent model and effort choice; omitted adapter overrides inherit the parent selection. This documents configuration behavior, while host runtime application still requires provider-specific evidence.
+- Hermes uninstall reports `KeyedOnly=true` and `WholesaleWipe=false` for its bounded toolkit-owned removal. `scripts/_lib/AdapterChecks.ps1` checks the folded policy and Copilot publish-mode install-root checks; contract assertions do not prove live-host behavior.
 - Each `Publish-Hooks` returns a `HookActivation` (`manual`, `automatic`, `unavailable`, or `blocked`); sync prints it per adapter. A hook publish failure does not stop sync: failures are collected, listed at the end with a fix line, and sync exits 0.
 - Codex publishes only the SubagentStop trace hook (`emit-trace.ps1`); Copilot publishes an empty `hooks.json`; Hermes publishes the compatibility plugin without agent-hooks and registers no hook. The shared `GuardCommon.ps1` is an always-allow shim, so path and secret verdicts are host-owned for these hosts.
 - Uninstall removes legacy guard files (`guard-pre-tool.*`, `_hook-common.ps1`, `GuardCommon.ps1`, `authorization-contract.json`) listed in `scripts/runtime/uninstall-artifacts.json`, so installs made before the change are cleaned.

@@ -35,7 +35,7 @@ The ESP-IDF route is evidence-based and must remain distinct from Arduino Core a
 | `orchestrate-deliver` | Contracts of `sdd-spec` / `sdd-plan` per story | Implement code |
 | `orchestrate-develop` | One subagent per PLAN step using `sdd-develop` contract | Parent writes app code; multi-step in one child |
 
-**Subagent model:** see `SUBAGENT-MODEL.md` — omit `model` by default; premium only after rare hard-task gate + user **sim**.
+**Subagent model:** See `SUBAGENT-MODEL.md` for the canonical subagent model and effort rules.
 
 **Caveman receipts:** when `caveman_mode` is ON, specialists return the schema in `RECEIPT.md` (ultra structured findings). Parent inherits prefs `caveman_level` but **never** compresses gates or artifact drafts. Prefer level `ultra` only for long multi-specialist O1 sessions. Load `_shared/caveman/CAVEMAN.md` only if mode ON.
 

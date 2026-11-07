@@ -23,7 +23,8 @@
 - Layout: `scripts/validation/Assert-*.ps1`, `scripts/validation/validate-core.ps1`, fixtures under `scripts/validation/fixtures/`.
 - Run core checks with `pwsh -NoProfile -File scripts/validation/validate-core.ps1`; use `-Only <check-name>` for a bounded assertion. Build the docs site strictly with `pip install -r docs-site/requirements-docs.txt` followed by `python -m mkdocs build --strict -f docs-site/mkdocs.yml`.
 - `scripts/toolkit.ps1` dispatches CLI scripts through `scripts/_lib/Invoke-ToolkitChildScript.ps1`; preserve this process boundary so a child script's top-level `exit` cannot terminate the interactive menu. `Assert-ToolkitScriptIsolation.ps1` is the regression check.
-- Catalog changes must keep all 45 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Catalog changes must keep all 47 invocable IDs aligned across source, `CATALOG.md`, `docs/SKILLS.md`, and both docs-site first-use pages. `Assert-SkillCatalogParity.ps1` checks these exhaustive surfaces.
+- Session-wide subagent model/effort choice uses the host-supported complete pair when available and otherwise inherits the parent selection; published settings do not prove host runtime application.
 
 ## Git / branches
 
@@ -44,6 +45,14 @@
 | Treat registry `subagents` as `native` or `none`; use effective Antigravity probe | Assume OpenHands can spawn children |
 | Keep one PLAN step per `sdd-develop` session | Continue into the next PLAN step in the same session |
 | Cite env var names only | Copy tokens, connection strings, or raw `.env` values into the bank |
+
+<!-- BEGIN GENERATED: session-start-subagent-policy -->
+## Session startup and subagent choice
+
+- Resolve effective `subagents` capability and read preferences before loading spawn or model-choice contracts. `none` or unknown skips those contracts and the model question; `orchestrator_mode` has `adaptive` and `always`, while `subagents=none` disables delegation.
+- When native subagents are available, discover complete model-and-effort options for the current host surface before the single session choice. Offer `inherit` when no alternate pair is verified; unknown runtime application remains unverified.
+- Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `docs/SPAWN.md`, `docs/guides/session-behavior.md`.
+<!-- END GENERATED: session-start-subagent-policy -->
 
 ## Notes
 

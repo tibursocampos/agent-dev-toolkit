@@ -8,7 +8,7 @@
   - skills/<id> folders that match core/skills (including _shared)
   - AGENTS.md at InstallRoot root (Publish-Router target) when provenance confirms toolkit ownership
     (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
-  - plugins/agent-dev-toolkit-marker.js and authorization-contract.json (Decision A Publish-Hooks)
+  - plugins/agent-dev-toolkit-marker.js; preserve shared plugins/authorization-contract.json (Decision A Publish-Hooks)
 
   Operator-edited or drifted AGENTS.md is preserved.
 
@@ -168,12 +168,11 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
     $pluginContractPath = Join-Path (
         Join-Path $resolvedInstallRoot $script:OpenCodePathConstant.PluginsDirectoryName
     ) $script:OpenCodePathConstant.SharedAuthorizationContractFileName
-    $wouldRemoveContract = Remove-OpenCodePathIfPresent -Path $pluginContractPath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
-    if ($wouldRemoveContract) {
-        $wouldRemovePaths.Add($pluginContractPath) | Out-Null
-        if (-not $WhatIf.IsPresent) {
-            $removedPaths.Add($pluginContractPath) | Out-Null
-        }
+    # The authorization contract is shared plugin configuration and remains
+    # useful to the adapter after uninstall. Preserve operator-added keys too.
+    if (-not $WhatIf.IsPresent -and (Get-Command -Name Remove-ToolkitManagedPublishInventoryEntries -ErrorAction SilentlyContinue)) {
+        $contractRelativePath = $script:OpenCodePathConstant.PluginsDirectoryName + '/' + $script:OpenCodePathConstant.SharedAuthorizationContractFileName
+        $null = Remove-ToolkitManagedPublishInventoryEntries -InstallRoot $resolvedInstallRoot -RelativePaths @($contractRelativePath)
     }
 
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot

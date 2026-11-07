@@ -198,8 +198,14 @@ function Test-AdapterPublishLayout {
         foreach ($whole in @($Agent.publishSurface.wholeFileRouter)) {
             Write-AdtCheck $id ('router-file:' + $whole) ($files -contains $whole) 'whole-file router missing at install root'
         }
+        $guidanceFiles = @($routers)
+        if ($id -eq 'antigravity') {
+            # Antigravity publishes core/router as the generated dev_persona skill;
+            # AGENTS.md contains only the host discovery block.
+            $guidanceFiles += @($files | Where-Object { $_ -eq 'config/skills/dev_persona/SKILL.md' })
+        }
         $hasOrchestrator = $false
-        foreach ($router in $routers) {
+        foreach ($router in $guidanceFiles) {
             if ([System.IO.File]::ReadAllText((Join-Path $root $router)) -match 'Parallel specialists|ORCHESTRATOR CHARTER') { $hasOrchestrator = $true; break }
         }
         Write-AdtCheck $id 'router-orchestrator-section' $hasOrchestrator 'published router lacks the orchestrator section'
@@ -207,10 +213,45 @@ function Test-AdapterPublishLayout {
 
     # rules / instructions (hosts without a rules surface carry the orchestrator text in the router)
     if ($caps.rules -eq $true) {
-        $rule = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)orchestrator-session[^/]*$' })
-        Write-AdtCheck $id 'rules-orchestrator-session' ($rule.Count -ge 1) 'orchestrator-session rule/instruction file missing'
-        $guardrails = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)guardrails[^/]*$' })
-        Write-AdtCheck $id 'rules-guardrails' ($guardrails.Count -ge 1) 'guardrails rule file missing'
+        if ($id -eq 'hermes') {
+            $agentsRel = 'AGENTS.md'
+            $agentsPath = Join-Path $root $agentsRel
+            $agentsText = if ($files -contains $agentsRel -and (Test-Path -LiteralPath $agentsPath -PathType Leaf)) {
+                [System.IO.File]::ReadAllText($agentsPath)
+            } else { '' }
+            $hasManagedMarkers = $agentsText.Contains('<!-- BEGIN agent-dev-toolkit managed Hermes guidance -->') -and
+                $agentsText.Contains('<!-- END agent-dev-toolkit managed Hermes guidance -->')
+            Write-AdtCheck $id 'rules-managed-agents-markers' $hasManagedMarkers 'managed Hermes AGENTS.md markers missing'
+            Write-AdtCheck $id 'rules-folded-policy-heading' $agentsText.Contains('## Toolkit always-on policy') 'folded policy heading missing from AGENTS.md'
+            Write-AdtCheck $id 'rules-orchestrator-session' $agentsText.Contains('### orchestrator-session') 'folded orchestrator-session heading missing from AGENTS.md'
+            Write-AdtCheck $id 'rules-guardrails' $agentsText.Contains('### guardrails') 'folded guardrails heading missing from AGENTS.md'
+        }
+        elseif ($id -eq 'openhands') {
+            # OpenHands folds router and always-on policy into its published AGENTS.md.
+            $agentsRel = 'AGENTS.md'
+            $agentsPath = Join-Path $root $agentsRel
+            $agentsText = if ($files -contains $agentsRel -and (Test-Path -LiteralPath $agentsPath -PathType Leaf)) {
+                [System.IO.File]::ReadAllText($agentsPath)
+            } else { '' }
+            Write-AdtCheck $id 'rules-orchestrator-session' ($agentsText.Contains('### orchestrator-session')) 'folded orchestrator-session guidance missing from AGENTS.md'
+            Write-AdtCheck $id 'rules-guardrails' ($agentsText.Contains('### guardrails')) 'folded guardrails guidance missing from AGENTS.md'
+        }
+        elseif ($id -eq 'antigravity') {
+            # Antigravity folds alwaysApply policy into the generated plugin file.
+            $policyRel = 'config/plugins/agent-dev-toolkit/GUARDRAILS.md'
+            $policyPath = Join-Path $root $policyRel
+            $policyText = if ($files -contains $policyRel -and (Test-Path -LiteralPath $policyPath -PathType Leaf)) {
+                [System.IO.File]::ReadAllText($policyPath)
+            } else { '' }
+            Write-AdtCheck $id 'rules-orchestrator-session' ($policyText.Contains('# Orchestrator session') -and $policyText.Contains('Startup is capability-first')) 'folded orchestrator-session policy missing from GUARDRAILS.md'
+            Write-AdtCheck $id 'rules-guardrails' ($policyText.Contains('# Guardrails - non-negotiable agent rules') -and $policyText.Contains('## 2. Write / delete')) 'folded guardrails policy missing from GUARDRAILS.md'
+        }
+        else {
+            $rule = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)orchestrator-session[^/]*$' })
+            Write-AdtCheck $id 'rules-orchestrator-session' ($rule.Count -ge 1) 'orchestrator-session rule/instruction file missing'
+            $guardrails = @($nonSkill | Where-Object { $_ -match '(?i)(^|/)guardrails[^/]*$' })
+            Write-AdtCheck $id 'rules-guardrails' ($guardrails.Count -ge 1) 'guardrails rule file missing'
+        }
     }
 
     # hooks
@@ -250,15 +291,17 @@ function Test-AdapterPublishLayout {
     }
 
     $takesRoot = (Get-Command Get-InstallRoots).Parameters.ContainsKey('InstallRoot')
+    $modeArgs = @{}
+    if ($id -eq 'copilot') { $modeArgs['Mode'] = [string]$Publish.Mode }
     $rootsInfo = $null
-    try { $rootsInfo = if ($takesRoot) { Get-InstallRoots -AgentId $id -InstallRoot $root } else { Get-InstallRoots -AgentId $id } } catch { $rootsInfo = $null }
+    try { $rootsInfo = if ($takesRoot) { Get-InstallRoots -AgentId $id -InstallRoot $root @modeArgs } else { Get-InstallRoots -AgentId $id } } catch { $rootsInfo = $null }
     $rootsOk = $null -ne $rootsInfo -and (Get-AdtProperty $rootsInfo 'Success' $false) -eq $true
     Write-AdtCheck $id 'install-roots-map' $rootsOk 'Get-InstallRoots must report Success'
     $probe = Join-Path ([Environment]::GetFolderPath('UserProfile')) ('.adt-userhome-probe-' + $id)
     $threwResolve = $false
     try { $null = Resolve-InstallRoot -InstallRoot $probe } catch { $threwResolve = ($_.Exception.Message -match 'AllowUserHome') }
     $threwAdapter = -not $takesRoot
-    if ($takesRoot) { try { $null = Get-InstallRoots -AgentId $id -InstallRoot $probe } catch { $threwAdapter = ($_.Exception.Message -match 'AllowUserHome') } }
+    if ($takesRoot) { try { $null = Get-InstallRoots -AgentId $id -InstallRoot $probe @modeArgs } catch { $threwAdapter = ($_.Exception.Message -match 'AllowUserHome') } }
     Write-AdtCheck $id 'userhome-guard' ($threwResolve -and $threwAdapter -and -not (Test-Path -LiteralPath $probe)) "resolve=$threwResolve adapter=$threwAdapter; USERPROFILE install roots must require -AllowUserHome"
 
     # per-id extras
@@ -401,9 +444,20 @@ function Test-AdapterKeyedUninstall {
     Write-AdtCheck $id 'uninstall-whatif' $whatIfOk "WhatIf must succeed without changing the tree (before=$countBefore after=$countAfterWhatIf)"
 
     $result = @(Invoke-AdtUninstall -AdapterId $id -Mode $mode -InstallRoot $mut)[-1]
-    $resultOk = $null -ne $result -and $result.Implemented -eq $true -and $result.Success -eq $true -and $result.ExitCode -eq 0 -and $result.RemovedCount -ge 1 -and $result.KeyedOnly -eq $true -and $result.WholesaleWipe -ne $true
+    $resultProperties = if ($null -ne $result) { @($result.PSObject.Properties.Name) } else { @() }
+    # Some adapters return a structured success/removal result without the optional
+    # KeyedOnly/WholesaleWipe metadata. Sentinel and artifact assertions below prove
+    # scoped deletion and preservation for those native result shapes.
+    $keyedResultOk = if ($resultProperties -contains 'KeyedOnly') { $result.KeyedOnly -eq $true } else { $true }
+    $wipeResultOk = if ($resultProperties -contains 'WholesaleWipe') { $result.WholesaleWipe -ne $true } else { $true }
+    $removedCount = if ($resultProperties -contains 'RemovedCount') { [int]$result.RemovedCount }
+        elseif ($resultProperties -contains 'RemovedPathCount') { [int]$result.RemovedPathCount }
+        elseif ($resultProperties -contains 'RemovedPaths') { @($result.RemovedPaths).Count }
+        else { 0 }
+    $resultOk = $null -ne $result -and $result.Implemented -eq $true -and $result.Success -eq $true -and $result.ExitCode -eq 0 -and $removedCount -ge 1 -and $keyedResultOk -and $wipeResultOk
     $resultText = if ($null -eq $result) { 'null' } else { [string]$result.Message }
-    $fields = if ($null -eq $result) { "" } else { "impl=$($result.Implemented) ok=$($result.Success) status=$($result.Status) exit=$($result.ExitCode) removed=$($result.RemovedCount) keyed=$($result.KeyedOnly) wipe=$($result.WholesaleWipe) incomplete=$(@($result.IncompletePaths).Count)" }
+    $incompleteText = if ($null -eq $result) { '' } else { @($result.IncompletePaths) -join '; ' }
+    $fields = if ($null -eq $result) { "" } else { "impl=$($result.Implemented) ok=$($result.Success) status=$($result.Status) exit=$($result.ExitCode) removed=$removedCount keyed=$($result.KeyedOnly) wipe=$($result.WholesaleWipe) incomplete=$incompleteText" }
     Write-AdtCheck $id 'uninstall-result' $resultOk "unexpected uninstall result: $fields"
 
     $lost = @($sentinels | Where-Object { -not (Test-Path -LiteralPath (Join-Path $mut $_) -PathType Leaf) })
@@ -413,7 +467,16 @@ function Test-AdapterKeyedUninstall {
     $residual = @($staleDirs | Where-Object { Test-Path -LiteralPath (Join-Path $mut $_) })
     Write-AdtCheck $id 'uninstall-removes-stale-managed-skill' ($residual.Count -eq 0) ('stale managed skill folders remain: ' + ($residual -join ', '))
 
-    $skillLeft = @($before | Where-Object { $_ -match '(^|/)skills/[^/]+/SKILL\.md$' -and (Test-Path -LiteralPath (Join-Path $mut $_)) })
+    $expectedRetained = @()
+    if ($id -eq 'antigravity') { $expectedRetained += 'config/skills/dev_persona/SKILL.md' }
+    if ($id -eq 'grok') { $expectedRetained += 'hooks/toolkit-session-start.json' }
+    if ($id -eq 'opencode') { $expectedRetained += 'plugins/authorization-contract.json' }
+    if ($id -eq 'openhands') { $expectedRetained += '.openhands/hooks.json' }
+    foreach ($relative in $expectedRetained) {
+        $retained = Test-Path -LiteralPath (Join-Path $mut $relative) -PathType Leaf
+        Write-AdtCheck $id ('uninstall-keeps-adapter-owned-config:' + $relative) $retained 'adapter-owned config expected to remain after uninstall'
+    }
+    $skillLeft = @($before | Where-Object { $_ -match '(^|/)skills/[^/]+/SKILL\.md$' -and $_ -notin $expectedRetained -and (Test-Path -LiteralPath (Join-Path $mut $_)) })
     Write-AdtCheck $id 'uninstall-removes-toolkit-skills' ($skillLeft.Count -eq 0) ('toolkit skills remain: ' + (($skillLeft | Select-Object -First 5) -join ', '))
 
     $pruneRoots = @($artifacts.pruneRoots | ForEach-Object { ([string]$_).Trim() })
@@ -422,6 +485,7 @@ function Test-AdapterKeyedUninstall {
     $pruneLeft = New-Object System.Collections.Generic.List[string]
     foreach ($rel in $before) {
         if ($rel -match '(^|/)\.(gitkeep|toolkit-managed)') { continue }
+        if ($expectedRetained -contains $rel) { continue }
         if ($sharedPaths -contains $rel) { continue }
         $underPrune = $false
         foreach ($prune in $pruneRoots) { if ($rel.StartsWith($prune + '/')) { $underPrune = $true; break } }
@@ -437,7 +501,11 @@ function Test-AdapterKeyedUninstall {
         $survived = $false
         $overlayPath = Join-Path $mut $overlay
         if (Test-Path -LiteralPath $overlayPath) {
-            try { $survived = ((Get-Content -LiteralPath $overlayPath -Raw | ConvertFrom-Json).operatorCustomKey -eq 'must-survive-merge') } catch { $survived = $false }
+            try {
+                $overlayPayload = Get-Content -LiteralPath $overlayPath -Raw | ConvertFrom-Json
+                $operatorValues = @($overlayPayload.operatorCustomKey)
+                $survived = $operatorValues.Count -eq 1 -and [string]$operatorValues[0] -ceq 'must-survive-merge'
+            } catch { $survived = $false }
         }
         Write-AdtCheck $id ('uninstall-reverse-merge:' + $overlay) $survived 'operator key lost from shared JSON config'
     }
@@ -448,9 +516,149 @@ function Test-AdapterKeyedUninstall {
         Write-AdtCheck $id ('uninstall-mixed-router:' + $mixedRouter) $noteKept 'operator text appended to the router was lost'
     }
 
+    if ($id -in @('grok', 'openhands')) {
+        Test-AdtHookConfigReparseContainment -AdapterId $id -Mode $mode -Publish $Publish -WorkRoot $WorkRoot
+    }
+
     $again = Invoke-AdtUninstall -AdapterId $id -Mode $mode -InstallRoot $mut
     Write-AdtCheck $id 'uninstall-idempotent' ($null -ne $again -and $again.Success -eq $true) 'second uninstall must stay successful'
     Remove-Item -LiteralPath $mut -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+function Test-AdtHookConfigReparseContainment {
+    param(
+        [Parameter(Mandatory = $true)][string] $AdapterId,
+        [AllowEmptyString()][string] $Mode,
+        [Parameter(Mandatory = $true)] $Publish,
+        [Parameter(Mandatory = $true)][string] $WorkRoot
+    )
+
+    $WorkRoot = [System.IO.Path]::GetFullPath($WorkRoot)
+    $relativeConfig = if ($AdapterId -eq 'grok') { 'hooks/toolkit-session-start.json' } else { '.openhands/hooks.json' }
+    $leafRoot = Join-Path $WorkRoot ($AdapterId + '/uninstall-hook-config-leaf-reparse')
+    $leafOutside = Join-Path $WorkRoot ($AdapterId + '/uninstall-hook-config-leaf-outside')
+    $parentRoot = Join-Path $WorkRoot ($AdapterId + '/uninstall-hook-config-parent-reparse')
+    $parentOutside = Join-Path $WorkRoot ($AdapterId + '/uninstall-hook-config-parent-outside')
+    $parentBackup = $null
+    $parentLink = $null
+    $isWindowsPlatform = $env:OS -eq 'Windows_NT'
+
+    $leafInstallRoot = Join-Path $leafRoot 'install'
+    $parentInstallRoot = Join-Path $parentRoot 'install'
+    $leafConfig = Join-Path $leafInstallRoot $relativeConfig
+    $leafOutsideFile = Join-Path $leafOutside 'hooks-config.json'
+    $parentConfig = Join-Path $parentInstallRoot $relativeConfig
+    $parentConfigDirectory = Split-Path -Parent $parentConfig
+    $parentConfigName = Split-Path -Leaf $parentConfig
+    $parentOutsideFile = Join-Path $parentOutside $parentConfigName
+
+    $leafLinkCreated = $false
+    $parentLinkCreated = $false
+    try {
+        $null = New-AdtPublishCopy -Publish $Publish -Destination $leafInstallRoot
+        $null = New-AdtPublishCopy -Publish $Publish -Destination $parentInstallRoot
+        New-Item -ItemType Directory -Path $leafOutside -Force | Out-Null
+        New-Item -ItemType Directory -Path $parentOutside -Force | Out-Null
+
+        if (-not (Test-Path -LiteralPath $leafConfig -PathType Leaf) -or -not (Test-Path -LiteralPath $parentConfig -PathType Leaf)) {
+            Write-AdtCheck $AdapterId 'uninstall-hook-config-pathguard-preconditions' $false ("published config missing: {0}" -f $relativeConfig)
+            return
+        }
+
+        # File-level symlink reproduces a leaf reparse-point escape. The outside
+        # copy contains published toolkit commands, so an unchecked reverse merge
+        # would rewrite this canary file.
+        Copy-Item -LiteralPath $leafConfig -Destination $leafOutsideFile -Force
+        $leafHashBefore = (Get-FileHash -LiteralPath $leafOutsideFile -Algorithm SHA256).Hash
+        Remove-Item -LiteralPath $leafConfig -Force
+        $leafFixtureError = ''
+        try {
+            if ($isWindowsPlatform) {
+                [System.IO.File]::CreateSymbolicLink($leafConfig, $leafOutsideFile) | Out-Null
+            }
+            else {
+                New-Item -ItemType SymbolicLink -Path $leafConfig -Target $leafOutsideFile -ErrorAction Stop | Out-Null
+            }
+            $leafLinkCreated = $true
+        }
+        catch {
+            $leafFixtureError = $_.Exception.Message
+        }
+        if (-not $leafLinkCreated) {
+            Write-Host ("{0}/uninstall-hook-config-leaf-reparse-blocked: SKIPPED - cannot create a file symlink in this environment: {1}" -f $AdapterId, $leafFixtureError) -ForegroundColor Yellow
+        }
+        else {
+            $leafAttributes = [System.IO.File]::GetAttributes($leafConfig)
+            $leafGuardRejected = $false
+            try { $null = Assert-PathUnderInstallRootForDelete -CandidatePath $leafConfig -InstallRoot $leafInstallRoot }
+            catch { $leafGuardRejected = $true }
+            Write-AdtCheck $AdapterId 'uninstall-hook-config-leaf-reparse-detected' (($leafAttributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 -and $leafGuardRejected) ("file symlink must be identified by the path guard; attributes=$leafAttributes rejected=$leafGuardRejected")
+
+            $leafThrew = $false
+            $leafError = ''
+            $leafResult = $null
+            try { $leafResult = @(Invoke-AdtUninstall -AdapterId $AdapterId -Mode $Mode -InstallRoot $leafInstallRoot)[-1] }
+            catch { $leafThrew = $true; $leafError = $_.Exception.Message }
+            $leafBlocked = $leafThrew -or ($null -ne $leafResult -and $leafResult.Success -eq $false -and $leafResult.ExitCode -ne 0)
+            $leafHashAfter = (Get-FileHash -LiteralPath $leafOutsideFile -Algorithm SHA256).Hash
+            $leafDetail = "blocked=$leafBlocked unchanged=$($leafHashAfter -ceq $leafHashBefore) threw=$leafThrew resultSuccess=$($leafResult.Success) resultExit=$($leafResult.ExitCode) error=$leafError"
+            Write-AdtCheck $AdapterId 'uninstall-hook-config-leaf-reparse-blocked' ($leafBlocked -and $leafHashAfter -ceq $leafHashBefore) ("uninstaller must block a config file symlink before outside content can change; " + $leafDetail)
+        }
+
+        # Directory junction/symlink reproduces an ancestor escape while retaining
+        # the original adapter directory for safe fixture cleanup.
+        Copy-Item -LiteralPath $parentConfig -Destination $parentOutsideFile -Force
+        $parentHashBefore = (Get-FileHash -LiteralPath $parentOutsideFile -Algorithm SHA256).Hash
+        $parentBackup = $parentConfigDirectory + '.fixture-backup'
+        Move-Item -LiteralPath $parentConfigDirectory -Destination $parentBackup -ErrorAction Stop
+        if ($isWindowsPlatform) {
+            New-Item -ItemType Junction -Path $parentConfigDirectory -Target $parentOutside -ErrorAction Stop | Out-Null
+        }
+        else {
+            New-Item -ItemType SymbolicLink -Path $parentConfigDirectory -Target $parentOutside -ErrorAction Stop | Out-Null
+        }
+        $parentLink = $parentConfigDirectory
+        $parentLinkCreated = $true
+
+        $parentThrew = $false
+        $parentResult = $null
+        try { $parentResult = @(Invoke-AdtUninstall -AdapterId $AdapterId -Mode $Mode -InstallRoot $parentInstallRoot)[-1] }
+        catch { $parentThrew = $true }
+        $parentBlocked = $parentThrew -or ($null -ne $parentResult -and $parentResult.Success -eq $false -and $parentResult.ExitCode -ne 0)
+        $parentHashAfter = (Get-FileHash -LiteralPath $parentOutsideFile -Algorithm SHA256).Hash
+        Write-AdtCheck $AdapterId 'uninstall-hook-config-parent-reparse-blocked' ($parentBlocked -and $parentHashAfter -ceq $parentHashBefore) 'uninstaller must block a config ancestor junction/symlink before outside content can change'
+    }
+    catch {
+        Write-AdtCheck $AdapterId 'uninstall-hook-config-reparse-fixtures-created' $false $_.Exception.Message
+    }
+    finally {
+        if ($leafLinkCreated) {
+            try {
+                [System.IO.File]::Delete($leafConfig)
+                $leafLinkCreated = $false
+            }
+            catch { }
+        }
+        if ($parentLinkCreated) {
+            try {
+                if ($isWindowsPlatform) { [System.IO.Directory]::Delete($parentLink, $false) }
+                else { Remove-Item -LiteralPath $parentLink -Force }
+                $parentLinkCreated = $false
+            }
+            catch { }
+        }
+        if (-not [string]::IsNullOrWhiteSpace($parentBackup) -and (Test-Path -LiteralPath $parentBackup) -and -not (Test-Path -LiteralPath $parentConfigDirectory)) {
+            try { Move-Item -LiteralPath $parentBackup -Destination $parentConfigDirectory } catch { }
+        }
+        $fixtureRootsToRemove = @($leafOutside)
+        if (-not $leafLinkCreated) { $fixtureRootsToRemove += $leafRoot }
+        if (-not $parentLinkCreated) { $fixtureRootsToRemove += @($parentRoot, $parentOutside) }
+        foreach ($fixtureRoot in $fixtureRootsToRemove) {
+            if (Test-Path -LiteralPath $fixtureRoot) {
+                Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
 }
 
 function Test-AdtInvalidJsonFailsClosed {
@@ -715,7 +923,11 @@ function Invoke-AdapterChecks {
                 Test-AdapterKeyedUninstall -Agent $agent -Publish $publish -WorkRoot $work
                 if ($Adapter -or $All) { Test-AdapterPathGuard -Agent $agent -Publish $publish -WorkRoot $work }
             }
-            catch { Write-AdtCheck $id 'execution' $false $_.Exception.Message }
+            catch {
+                $detail = $_.Exception.Message
+                if (-not [string]::IsNullOrWhiteSpace($_.ScriptStackTrace)) { $detail = $detail + ' | ' + $_.ScriptStackTrace }
+                Write-AdtCheck $id 'execution' $false $detail
+            }
         }
     }
     finally { if (-not $KeepWork) { Remove-ToolkitWorkRoot -RepoRoot $repoRoot -Path $work } }

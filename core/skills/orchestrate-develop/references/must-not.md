@@ -19,7 +19,7 @@
 - Write new PRD/PLAN (O2 / sdd-spec / sdd-plan own that)
 - Invent a second navigation SoT in CONTINUITY (or strip `## Related`); Related = portable-path edges only, omit-if-absent (`STORAGE.md` § Navigation block / 006 REQ-009)
 - Require memory-bank for manual Classic SDD `sdd-develop` (CA7)
-- Pass Agent `model` without `SUBAGENT-MODEL.md` gate + user **confirm** (or user-named slug); ask model on routine PLAN steps
+- Model/effort selection: see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.
 - Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** handoff to `/sdd-develop` per `SPAWN.md`)
 - Exceed orchestrate ≤4 concurrent Agent calls without a user-approved wave (`parallel` mode) (`SPAWN.md`)
 - Paste guideline packs into Agent child prompts

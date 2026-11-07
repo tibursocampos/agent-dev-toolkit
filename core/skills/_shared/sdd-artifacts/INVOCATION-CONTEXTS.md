@@ -59,7 +59,7 @@ Record the resolved id in the session report / child receipt when one is produce
 | Portable paths | Artifact cross-refs use portable paths (`STORAGE.md`); no OS absolute / InstallRoot embeds in written artifacts |
 | Secrets in examples | Env var **names** or `***` only — never real tokens |
 | Gates | Honor `SESSION.md` gates before Write / mutating Shell |
-| Model on spawn | Omit `model` by default (same as parent); no alternate slug without gate (`SUBAGENT-MODEL.md`) |
+| Model on spawn | Omit `model` by default (same as parent); a different pair only via the session choice (`SUBAGENT-MODEL.md`) |
 
 ### `direct`
 

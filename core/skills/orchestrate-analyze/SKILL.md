@@ -54,7 +54,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
 | Roster, `needs_*`, triage table | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Agent subagent model (default omit; rare premium gate) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
+| Agent subagent model (default omit; session choice) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
 | Stack routing (implement later) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
 | Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
 | Specialist prompts | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` — **one file per spawned specialist** |
@@ -83,7 +83,7 @@ Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). 
 | Step 0 Memory Bank | `MEMORY-BANK.md` |
 | Set `needs_*` / brownfield spawn rules | `ROSTER.md` |
 | Before any Agent / fallback | `SPAWN.md` |
-| Premium Agent `model` gate (rare) | `SUBAGENT-MODEL.md` |
+| Subagent pair session choice | `SUBAGENT-MODEL.md` |
 | Implement-later stack hint | `ROUTING.md` |
 | Step 1 intent classification (triage entry) | `references/intent-classification.md` |
 | Step 0 Memory Bank detail | `references/memory-bank-gate.md` |

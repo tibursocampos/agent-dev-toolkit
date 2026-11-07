@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repo": "agent-dev-toolkit",
-  "generated_at": "2026-10-30T00:32:30.7618397Z",
+  "generated_at": "2026-11-06T09:34:13.5699436Z",
   "languages": [
     "powershell",
     "markdown",
@@ -33,12 +33,12 @@
       "docs-site/requirements-docs.txt"
     ],
     "notes": [
-      "Inventory summary: 138 sources; stack hints are markdown and powershell.",
+      "Inventory summary: 144 source(s); stack: markdown, powershell.",
       "PowerShell 5.1+ on Windows or pwsh 7+; non-Windows workflows use pwsh 7+.",
       "The toolkit runtime is PowerShell and agent-neutral Markdown/policy; YAML is used for GitHub Actions configuration.",
       "MkDocs Material and mkdocs-static-i18n are limited to docs-site; install through docs-site/requirements-docs.txt.",
       "Validation is PowerShell assertions and fixture smokes; validate-core.ps1 is the local core suite.",
-      "The registry contains 10 host adapters and the canonical skills catalog contains 46 invocable skills.",
+      "The registry contains 10 host adapters and the canonical skills catalog contains 47 invocable skills.",
       "No SQL schema, OpenAPI/Swagger specification, or UI component map was detected in the reviewed inventory."
     ]
   }

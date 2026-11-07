@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **46** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **47** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -74,7 +74,8 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `push` | `git push -u origin HEAD` | `/push` |
 | `open-github-pr` | Um pull request com `gh` | `/open-github-pr` |
 | `help-skills` | O catálogo instalado, `CATALOG.md` e `OPERATOR.md` | `/help-skills` |
+| `adt-settings` | Consulta ou salva o modelo e o esforço gerais dos subagentes, ou volta a herdar | `/adt-settings` |
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 11 skills de entrega, 15 de implementação e 20 de revisão/plataforma/git: 46 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 11 skills de entrega, 15 de implementação e 21 de revisão/plataforma/git: 47 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

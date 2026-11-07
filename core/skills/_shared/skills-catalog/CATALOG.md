@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **46** kebab skills.
+Total: **47** kebab skills.
 
 ## Tracks
 
@@ -74,6 +74,7 @@ Total: **46** kebab skills.
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `help-skills` | `help-skills`, `list skills`, `skill catalog` | Present this catalog + `OPERATOR.md` (static) |
+| `adt-settings` | `adt-settings` | Show or save the general model and effort for subagents, or return to inheriting |
 | `code-review` | `code-review` | Structured review (quality / acceptance / security) |
 | `implementation-survey` | `implementation-survey` | Describe what changed and how the implementation appears to work |
 | `repair-dotnet-build` | `repair-dotnet-build` | Diagnose/fix .NET build and tests |

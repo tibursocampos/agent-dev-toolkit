@@ -4,7 +4,7 @@ Canonical modes contract for `orchestrate-develop` queue / claim / parallelism.
 
 **Language:** This guideline is **English**. Identifiers, mode ids, reason codes, and audit fields stay **English**. Operator-facing chat follows the user's conversation language (`LANGUAGE.md`); answer ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
 
-Companions: `references/step-queue-spawn.md`, `references/parallelism.md`, `skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (`PLAN-LEDGER-CONTRACT`), `skills/_shared/agents/SPAWN.md`.
+Companions: `references/step-queue-spawn.md`, `references/parallelism.md`, `skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` (`PLAN-LEDGER-CONTRACT`), `skills/_shared/agents/SPAWN.md`. Model configuration: `skills/_shared/agents/SUBAGENT-MODEL.md`.
 
 ---
 
@@ -12,7 +12,7 @@ Companions: `references/step-queue-spawn.md`, `references/parallelism.md`, `skil
 
 Declare how O3 schedules PLAN steps and **honor** that declaration. A declared mode must drive claim, queue pick, and parallelism. Violations are **rejected or audited** — never silently ignored.
 
-This is **operator governance** for Orchestrated Delivery O3. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`) and does **not** pin child Agent `model` ≠ parent (Eixo B/C).
+This is **operator governance** for Orchestrated Delivery O3. It does **not** replace SESSION gates (`step_confirmed` / `tests_run`).
 
 **Not develop pacing:** mode ids here are `serial` \| `parallel` \| `manual`. Pacing modes `continuous` \| `step_by_step` live in `references/develop-modes.md` (007 REQ-009) and compose with this table — they never waive one-step-per-child.
 
@@ -91,10 +91,6 @@ Reuse `references/parallelism.md` independence conditions. Mode gate adds:
 | `manual` | **Reject** (`mode_task_spawn_forbidden`) — use `manual-handoff` |
 
 Evidence / TRACE verifiers remain **sequential** (**Verifier ≠ O3**) regardless of mode.
-
-## Model-lock (transversal)
-
-Modes **must not** pin child Agent `model` to a slug different from the parent session. Omit `model` by default (`SUBAGENT-MODEL.md`). Depth/threads still follow `SPAWN.md` caps.
 
 ## Violation algorithm (observable)
 
