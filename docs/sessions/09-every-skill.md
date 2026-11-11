@@ -32,7 +32,7 @@ Writes one PLAN beside that PRD. Copies step ids from `split-story-checklist`. E
 
 ### `sdd-develop`
 
-Implements exactly one PLAN step, updates that PLAN, runs targeted tests. Optional evidence files and TRACE when the wave closes. Does not start the next step. This is the contract O3 children follow. Detail: [02](02-classic-sdd.md).
+Implements one PLAN step per gate scope, updates that PLAN, and runs targeted tests. O3 children never start a second step. Direct Classic stops after one by default; any bounded continuation requires explicit authorization and reset/revalidation. Optional evidence files and TRACE when the wave closes. Detail: [02](02-classic-sdd.md).
 
 ### `read-sdd-artifact`
 

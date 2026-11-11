@@ -12,9 +12,9 @@ Companions: `references/plan-acquisition.md`, `references/plan-contract.md`, `SE
 
 ## Purpose
 
-Declare how the operator/orchestrator **paces** PLAN steps. Both modes **preserve**:
+Declare how the operator/orchestrator **paces** PLAN steps. For direct Classic SDD, the default remains one step and stop; a finite sequence requires explicit current authorization. For the opt-in integrated-delivery flow, the approved plan and selected cadence define the bounded sequence. Both modes **preserve**:
 
-- **One PLAN step per `sdd-develop` session scope** (guardrails / RNF-003)
+- **One PLAN step per gate scope**. Each scope records and resets its own gates before another begins.
 - SESSION develop gates + PLAN-LEDGER claim SoT (006) — **no second SoT**
 
 Resolve the execution route before pacing. A canonical PLAN plus an explicit step starts that step in the current `sdd-develop` session after dependency and confirmation gates; it never requires a new session. If the invocation omits a step or route, `plan-acquisition.md` asks manual-per-invocation vs O3. This route is separate from pacing and `preferences.json` `orchestrator_mode` (`always` | `adaptive`).
@@ -24,7 +24,7 @@ Resolve the execution route before pacing. A canonical PLAN plus an explicit ste
 | Mode id | Default? | Direct `/sdd-develop` | O3 parent (`orchestrate-develop`) |
 |---------|----------|----------------------|-----------------------------------|
 | `step_by_step` | **Yes** | Explicitly requested eligible step → execute now, mark Complete → **STOP**; handoff invoke for Step N+1 only | Present queue; require **sim** before **each** spawn |
-| `continuous` | No (opt-in) | Explicitly requested eligible step → execute now, still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md`: the full PLAN-step table plus the short result. It does not go silent between steps. **each** child still one step |
+| `continuous` | No (opt-in) | Direct Classic: execute the explicitly authorized step, reset and stop unless a finite current authorization covers another step; before continuation, revalidate approval, inputs, dependencies, and gates. Integrated delivery: process one eligible step at a time within its approved-plan authorization; reset and revalidate before each next step. | After initial queue **sim**, the parent may spawn the next ready step only after receipt, session, claim, checkpoint, and queue reconciliation. The parent still shows `execution-display.md`: the full PLAN-step table plus the short result. It does not go silent between steps. **Each child still executes one step.** |
 
 Unknown mode id → treat as `step_by_step` (document the fallback; do not invent silent third pacing mode).
 
@@ -38,7 +38,7 @@ Do **not** conflate with `preferences.json` `orchestrator_mode` (`always`|`adapt
 
 ## Hard rules (both modes)
 
-1. Child / direct develop: **one** PLAN step only; never multi-step in one develop scope.
+1. One PLAN step per gate scope; never merge multiple PLAN steps into one direct develop scope or O3 child. A separately authorized continuous coordinator may open the next scope only after reset and full revalidation.
 2. Persist `step_confirmed` via `Invoke-DevelopSessionGate.ps1`; claim via `Invoke-PlanLedgerClaim.ps1` when required — **no** inline session JSON mutation.
 3. Evidence / TRACE verifiers stay sequential (**Verifier ≠ O3**).
 4. Zero duration/effort estimates in pacing prompts or checkpoints (`references/plan-contract.md`).
@@ -48,13 +48,15 @@ Do **not** conflate with `preferences.json` `orchestrator_mode` (`always`|`adapt
 ```text
 develop_mode: step_by_step | continuous
 plan-acquisition: ok
-next: STOP | emit /sdd-develop ... Step N+1 (do not execute)
+next: STOP | continue only under the active finite authorization, after closing/resetting and revalidating this step's gate scope
 ```
 
 ## Checklist (manual)
 
 - [ ] Both mode ids appear in this ref and are cited from `sdd-develop` + `orchestrate-develop` indexes
-- [ ] `continuous` text does **not** authorize multi-step `sdd-develop`
+- [ ] Direct Classic defaults to one step; any continuation has finite current authorization and resets/revalidates every gate scope
+- [ ] Integrated delivery bounds `continuous` to its approved plan; O3 retains one PLAN step per child and its receipt/session/claim/checkpoint/queue gates
+- [ ] No policy sentence narrows all `continuous` cadence to O3 or says every next step requires a new chat
 - [ ] Cross-link to `execution-modes.md` clarifies serial/parallel ≠ continuous/step_by_step
 
 Switch `continuous` and `step_by_step` only when no step is `IN_PROGRESS` and the tree is still the tree recorded on the checkpoint.

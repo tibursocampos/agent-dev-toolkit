@@ -236,7 +236,7 @@ The child follows [sdd-develop](02-classic-sdd.md): branch, code, targeted tests
 
 `verify_mode: true` in preferences adds a **read-only** verifier child after a successful implementer and before `CONTINUITY` is updated. Default is false.
 
-The parent updates `CONTINUITY.md` only after the child returns. Failure leaves the step `PENDING` or `BLOCKED` with the cause in the PLAN. The next step is a new chat, or another `confirm`. The parent does not mark steps the child did not finish, and does not call `*-developer` to implement a PLAN step. If Task is missing, the handoff is manual `/sdd-develop` for that step.
+The parent updates `CONTINUITY.md` only after the child returns. Failure leaves the step `PENDING` or `BLOCKED` with the cause in the PLAN. In `step_by_step`, the next step requires a new chat or a separate `confirm`. In `continuous`, after the initial queue `confirm`, the parent may advance to the next ready step in that approved queue after reconciling the returned child and revalidating the gates; it does not require another chat or per-step `confirm`. Each child still implements only one PLAN step, and the parent reports each step's summary. The parent does not mark steps the child did not finish, and does not call `*-developer` to implement a PLAN step. If Task is missing, the handoff is manual `/sdd-develop` for that step.
 
 ### After code exists
 

@@ -2963,6 +2963,10 @@ $receipt = Read-Contract 'core/skills/_shared/agents/RECEIPT.md'
 $o1 = Read-Contract 'core/skills/orchestrate-analyze/SKILL.md'
 $o2 = Read-Contract 'core/skills/orchestrate-deliver/references/preconditions.md'
 $o3 = Read-Contract 'core/skills/orchestrate-develop/SKILL.md'
+$guardrails = Read-Contract 'core/policy/guardrails.md'
+$developModes = Read-Contract 'core/skills/sdd-develop/references/develop-modes.md'
+$classicSession = Read-Contract 'docs/sessions/02-classic-sdd.md'
+$orchestratedSession = Read-Contract 'docs/sessions/01-orchestrated-delivery.md'
 $classic = Read-Contract 'core/skills/sdd-develop/references/code-analysis.md'
 $developer = Read-Contract 'core/skills/_shared/developer-common/step-0-context.md'
 $validateCore = Read-Contract 'scripts/validation/validate-core.ps1'
@@ -2981,6 +2985,32 @@ Assert-Contract 'CA6_AnalysisConsumedBeforeImplementation' ($o1 + $o2 + $o3 + $c
 Assert-Contract 'CA7_RoleSpecificOutputContracts' ($repoAnalyst + $architect + $receipt) @('Output', 'role-specific', 'finding')
 Assert-Contract 'CA8_ValidatedMachineFormatWithoutYamlProtocol' ($receipt + $spawn) @('JSON', 'YAML', 'consumer')
 Assert-Contract 'CA9_O3InvariantsRemainDocumented' ($o3 + $receipt) @('claim', 'receipt', 'one step')
+Assert-Contract 'ScopedDevelopCadencePreservesDirectAndO3Gates' ($guardrails + "`n" + $developModes + "`n" + $classicSession) @('default direct Classic invocation still stops after that step', 'finite sequence of eligible steps in the current invocation', 'approved integrated-delivery plan', 'that exact approved plan', 'reset and revalidate', 'one PLAN step per child', 'O3 retains one PLAN step per child', 'Default pacing remains `step_by_step`')
+Assert-Contract 'O3ContinuousQueueRemainsBounded' $orchestratedSession @('after the initial queue `confirm`', 'next ready step in that approved queue', 'reconciling the returned child and revalidating the gates', 'Each child still implements only one PLAN step')
+$cadenceContradictions = @(
+    @{ Text = $guardrails; Pattern = '(?i)continuous.{0,100}limited to.{0,50}O3' },
+    @{ Text = $developModes; Pattern = '(?i)continuous.{0,100}does \*\*not\*\* authorize multi-step' },
+    @{ Text = $developModes; Pattern = '(?i)exactly one.{0,30}step this session.{0,30}continuous' },
+    @{ Text = $classicSession; Pattern = '(?i)one session completes one step, including when pacing is `continuous`|the next step is a new chat' },
+    @{ Text = $orchestratedSession; Pattern = '(?i)the next step is a new chat, or another `confirm`' }
+)
+foreach ($check in $cadenceContradictions) {
+    if ($check.Text -match $check.Pattern) {
+        throw 'ScopedDevelopCadenceContradiction failed; legacy hard-stop text contradicts the bounded cadence contract.'
+    }
+}
+$legacyCadenceFixtures = @(
+    @{ Text = 'continuous is independently limited to its eligible O3 queue step'; Pattern = '(?i)continuous.{0,100}limited to.{0,50}O3' },
+    @{ Text = 'continuous text does **not** authorize multi-step sdd-develop'; Pattern = '(?i)continuous.{0,100}does \*\*not\*\* authorize multi-step' },
+    @{ Text = 'One session completes one step, including when pacing is `continuous`. The next step is a new chat.'; Pattern = '(?i)one session completes one step, including when pacing is `continuous`|the next step is a new chat' },
+    @{ Text = 'The next step is a new chat, or another `confirm`.'; Pattern = '(?i)the next step is a new chat, or another `confirm`' }
+)
+foreach ($fixture in $legacyCadenceFixtures) {
+    if ($fixture.Text -notmatch $fixture.Pattern) {
+        throw 'ScopedDevelopCadenceContradiction failed; regression fixture did not match the legacy contradiction detector.'
+    }
+}
+Write-Host 'ScopedDevelopCadenceContradiction: PASS (legacy conflict fixtures rejected; default remains step_by_step)'
 Assert-Contract 'CA10_BoundedSpecialistInputAndExpectedResult' $spawn @('role', 'objective', 'scope', 'references', 'expected result')
 Assert-Contract 'CentralValidatorRegistersConsolidatedContract' $validateCore @('AssertCoreContractsScriptName', 'coreContractsCheckName')
 Assert-Contract 'CentralValidatorRegistersEvidenceClassificationConsumer' $validateCore @('brownfield-analysis-validation', 'Assert-BrownfieldAnalysisValidator.ps1')

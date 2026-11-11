@@ -6,7 +6,7 @@
 - Invent a fix or rewrite the PLAN when a receipt `status` is outside `done`, `blocked`, and `failed`, or when the implementation is outside the PLAN acceptance. Block the step, ask the deviation, and do not delegate the next step
 - Repeat impact, architecture, and persistence analysis before an intermediate PLAN step. Run that pass once before the first step and again when code review is requested against that PLAN
 - Merge N PLAN steps into one Agent / one session context
-- Bypass or weaken `sdd-develop` one-step-per-session contract (including under develop mode `continuous`)
+- Merge multiple PLAN steps into one O3 child or one develop gate scope. Continuous O3 still uses one child per step and requires receipt, session, claim, checkpoint, and queue reconciliation before considering the next spawn.
 - Skip child/parent `plan-acquisition` or accept Complete without **delivery-baseline** (`references/plan-contract.md`)
 - Add duration/effort estimates as queue or Complete gates (REQ-010 / RN04)
 - Inline-mutate develop session JSON instead of `Invoke-DevelopSessionGate.ps1` via `-File` (REQ-012)

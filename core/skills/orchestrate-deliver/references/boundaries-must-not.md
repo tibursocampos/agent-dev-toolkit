@@ -14,7 +14,7 @@ Escalate **to O1** when backlog not approved, stories missing, or flag-gated req
 
 Escalate **to `refine-story` / O1** when clarification status is `NEEDS_CLARIFICATION` (any unanswered **B**, **I**, or **MINOR**) — do **not** Write PRD/PLAN (`readiness-severity.md` / REQ-005).
 
-Do **not** claim `sdd-develop` one-step contract changed.
+Do **not** change or claim a change to the shared `sdd-develop` cadence policy from O2; a shared policy update requires its own explicit authorization.
 
 ---
 
@@ -38,7 +38,7 @@ Do **not** claim `sdd-develop` one-step contract changed.
 - Exit O2 with Memory-bank status `fresh` if style changed or ARCH was approved this feature (set `refreshed`; point-promote `architecture.md` if not already)
 - Write PRD/PLAN at repo root or outside the story folder
 - Create external work-item tracker or org-only compliance content
-- Change the `sdd-develop` one-step-per-session contract
+- Change the shared develop cadence policy from O2 without separate explicit authorization
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Assume `series` vs `parallel` without asking
 - Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **confirm**)
@@ -62,6 +62,6 @@ Do **not** introduce:
 - External work-item tracker CLI/API commands
 - External work-item tracker or org-only compliance fields
 - Assumed `series`/`parallel` without asking
-- Changes to `sdd-develop` one-PLAN-step-per-session contract
+- Unauthorized changes to the shared `sdd-develop` cadence policy
 - Spec Kit / worktree multi-US changes (out of Orchestrated Delivery MVP)
 - Repo-root `PRD/` / `PLAN/` new writes

@@ -24,7 +24,7 @@ When receiving a refine handoff or routing early to `/refine-story`, consume —
 
 Handoff strings use **portable** feature/story paths only (`STORAGE.md` § Portable path). READY ≠ SESSION `step_confirmed`. Requirement challenge stays in `requirement-review`; do not add a parallel skill.
 
-Do **not** write PRD/PLAN inside O1. Do **not** claim `sdd-develop` one-step contract changed.
+Do **not** write PRD/PLAN inside O1. Do **not** change or claim a shared `sdd-develop` cadence update from O1; that requires separate explicit authorization.
 
 Scorecard: reuse `skills/refine-story/references/scorecard-rubric.md` (universal + type-specific; output shape `scorecard-template.md`). Map totals to STORY 1-5: 80+ -> 5, 60-79 -> 4, 40-59 -> 3, else ≤2.
 

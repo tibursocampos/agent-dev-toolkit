@@ -22,7 +22,7 @@
 - Create external work-item tracker or org-only compliance content
 - Create ~40 agent files or expand the roster beyond `ROSTER.md`
 - Modify toolkit `.gitignore` as part of porting this skill into the toolkit repo; at runtime follow `STORAGE.md` only for consumer repo SDD patterns
-- Change the `sdd-develop` one-step-per-session contract
+- Change shared develop cadence policy from O1; any such policy change requires its own explicit authorization and must preserve one step per gate scope and one step per O3 child
 - Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
 - Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
 - Model/effort selection: see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.

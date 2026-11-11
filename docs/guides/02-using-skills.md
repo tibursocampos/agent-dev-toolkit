@@ -143,7 +143,7 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for a backlog `confirm` answer. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for a backlog `confirm` answer. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. O3 develop runs one `sdd-develop` step per child and reconciles before each next spawn. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You give a `confirm` answer before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
 

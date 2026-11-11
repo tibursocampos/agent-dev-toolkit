@@ -98,10 +98,10 @@
       "mustContainAny": ["never writes application code", "Parent orchestrator never"]
     },
     {
-      "id": "sdd-develop-one-step",
+      "id": "sdd-develop-one-step-per-scope",
       "skill": "sdd-develop",
       "files": ["SKILL.md"],
-      "mustContain": ["one step", "Must not", "STOP - Read before ANY tool call"]
+      "mustContain": ["one PLAN step per gate scope", "explicit finite authorization", "reset and revalidate", "STOP - Read before ANY tool call"]
     },
     {
       "id": "sdd-develop-prd-status-on-plan-complete",

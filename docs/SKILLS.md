@@ -69,7 +69,7 @@ Loaded by deliver and develop. Also a direct start when one story is already cle
 |-------|---------|
 | `sdd-spec` | Create a PRD for a new feature or change |
 | `sdd-plan` | Baby-step PLAN from an existing PRD |
-| `sdd-develop` | Execute **one** PLAN step per session |
+| `sdd-develop` | Execute one PLAN step per gate scope; direct Classic defaults to one step |
 | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN under `features/` into `source_context` (reject traversal / outside features) |
 
 Direct example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
@@ -174,7 +174,7 @@ Without a mode, the skill asks once. `refine-story` runs it at step 4a before ha
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (`confirm`/`skip`). Do not ask about memory bank or project docs. |
 | `implementation-survey` | `source` (`working-tree` or a ref git already resolves) and `target` (`HEAD` or another branch); one question when either is missing (no silent default); optional `path`; report without approval; read `SPAWN.md` before the first spawn decision |
 | Orchestrated Delivery | Memory-bank Step 0; backlog `confirm` answer; architect ARCH draft → `confirm` answer on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + `confirm` answer; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
-| `sdd-develop` | One PLAN step per session; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
+| `sdd-develop` | One PLAN step per gate scope; bounded continuation requires explicit authorization and reset/revalidation; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
 | `requirement-review` | Exactly one mode (`--feature` or `--tech`), asked once when missing; writes only after a `confirm` answer; `--tech` does not guess repository facts |

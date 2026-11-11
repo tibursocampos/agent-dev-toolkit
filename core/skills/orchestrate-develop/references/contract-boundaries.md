@@ -2,7 +2,7 @@
 
 | Concern | Source of truth |
 |---------|-----------------|
-| One step per session | `sdd-develop/SKILL.md` |
+| One step per gate scope; O3 one step per child | `sdd-develop/SKILL.md` |
 | PLAN update protocol | `sdd-develop/reference.md` |
 | SESSION gates | `SESSION.md` (repo + PLAN-scoped develop) + guardrails |
 | Branch rules | `branch-validation.mdc` via sdd-develop |
@@ -18,7 +18,7 @@ O3 **orchestrates invocation**; it does **not** replace those documents. When `s
 |--------|----|----|----------------------|
 | Writes | PRD/PLAN | CONTINUITY + spawns implementers | Code + PLAN progress |
 | App code | No | Children only | Yes (the skill itself) |
-| Steps per session | N/A | **One** per child | **One** |
+| Steps per gate scope/child | N/A | **One** per child | **One per scope** (direct default; bounded continuation requires explicit authorization) |
 | Required? | After O1 for Orchestrated Delivery | **Optional** | Always valid |
 
 ---

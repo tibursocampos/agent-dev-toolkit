@@ -1,5 +1,5 @@
 ---
-description: Non-negotiable agent rules for every conversation - git, write confirmation, one step per session, tests, language
+description: Non-negotiable agent rules for every conversation - git, write confirmation, scoped develop gates, tests, language
 alwaysApply: true
 ---
 
@@ -62,7 +62,7 @@ Use `/commit` / `/push` after confirmation.
 
 ## 2. Write / delete (confirm before write)
 
-Technical authorization by effect and scope is a separate decision from the operator confirmation required for the current action. An `allow` result from a provider or shared policy does not satisfy the required `sim`; `continuous` is independently limited to its eligible O3 queue step.
+Technical authorization by effect and scope is a separate decision from the operator confirmation required for the current action. An `allow` result from a provider or shared policy does not satisfy the required `sim`. `continuous` is a bounded cadence choice only for a workflow that explicitly supports it; it never supplies write confirmation or removes a gate.
 
 Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
@@ -90,13 +90,14 @@ The required **sim** before writes in §2 stays in force. This section does not 
 
 ---
 
-## 3. One step per session (SDD develop)
+## 3. Develop step scopes and cadence
 
-- `sdd-develop`: exactly **one** PLAN step per develop session scope (PLAN-scoped session file — see `SESSION.md`).
+- `sdd-develop` uses one PLAN step per gate scope. The default direct Classic invocation still stops after that step. A direct invocation may continue only when the operator explicitly authorized a finite sequence of eligible steps in the current invocation; record `step_confirmed` for each step, then reset and revalidate plan approval, inputs, dependencies, and gates before opening the next scope (`SESSION.md`).
+- An approved integrated-delivery plan may select `step_by_step` or `continuous`. In `continuous`, the initial authorization covers only eligible steps in that exact approved plan. Process one step at a time, close/reset its gate scope, then revalidate before selecting the next. A blocker, material scope/input/approval change, or separate-authorization action stops the sequence. This is coordinator-level cadence; it does not combine PLAN steps into one develop scope.
+- Orchestrated Delivery O3 always keeps one PLAN step per child. `continuous` may authorize the parent to consider the next eligible child only after the existing receipt, checkpoint, session, claim, and queue reconciliation gates pass; it never makes a child multi-step.
 - `document-implement`: exactly **one** documentation plan step per session.
 
-After completing the step: **STOP**. Do not start step N+1 in the same conversation.
-Cite the next handoff with a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Do **not** weaken this gate for batch convenience unless the operator explicitly authorized a multi-step amend in the current session.
+Without an explicit bounded authorization for a multi-step cadence, **STOP** after the current step. Handoffs cite a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. No cadence bypasses confirmation, dependency, validation, approval, or scope gates.
 
 ---
 

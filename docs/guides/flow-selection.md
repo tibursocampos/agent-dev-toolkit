@@ -43,7 +43,7 @@ An open **B** (blocker), **I** (important), or **MINOR** item keeps the status a
 ## Sessions and gates
 
 - `sdd-spec` writes only the PRD in this session. `sdd-plan` writes only the PLAN.
-- `sdd-develop` executes **one** PLAN step per session. When it finishes, stop. The next step starts in another session.
+- `sdd-develop` executes one PLAN step per gate scope. Direct Classic stops by default; a bounded continuation requires explicit authorization and a reset plus full revalidation before the next scope. O3 still uses one child per PLAN step.
 - Before any new artifact is written, the skill shows the path and a summary and asks a gate question. Writing happens only after the `confirm` answer. Silence, an ambiguous or unrelated reply, or an emoji alone is not an answer; the question stays pending.
 
 ### Gate legend

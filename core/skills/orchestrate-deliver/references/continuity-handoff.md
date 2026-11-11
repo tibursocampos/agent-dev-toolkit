@@ -40,7 +40,7 @@ Feature: features/004-nuget-extract/
 | TS01 | features/004-nuget-extract/TS01/PRD/004_nuget_package.md | features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md |
 | TS02 | features/004-nuget-extract/TS02/PRD/004_app_a_consumer.md | features/004-nuget-extract/TS02/PLAN/PLAN_004_app_a_consumer.md |
 
-### Manual (one PLAN step per session)
+### Manual (one PLAN step per gate scope)
 /sdd-develop - features/004-nuget-extract/TS01/PLAN/PLAN_004_nuget_package.md - Step 1
 /sdd-develop - features/004-nuget-extract/TS02/PLAN/PLAN_004_app_a_consumer.md - Step 1
 
@@ -64,7 +64,7 @@ On approval:
 
 If a handed-off PLAN relies on external evidence, retain its exact `external:<alias>/<relative-path>` reference in the PLAN and identify the alias in the O3 handoff. Do not put the authorized root in CONTINUITY, PRD, PLAN, or the receipt. O2 does not grant access: before dispatch, the O3 coordinator authorizes alias and path prefix and provides the alias-to-root JSON separately to `Invoke-O3ReceiptValidation.ps1` (`STORAGE.md` § External evidence references for O3; `_shared/agents/RECEIPT.md`).
 
-Remind in the user chat language: O3 is optional; `sdd-develop` one-step contract unchanged. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank. User picks one path per story/session.
+Remind in the user chat language: O3 is optional; direct `sdd-develop` still defaults to one step and stop, while any bounded continuation needs explicit authorization and reset/revalidation. O3 retains one PLAN step per child. Story order after an accepted PRD is contestation, then `split-story-checklist` when medium or complex, then `sdd-plan`, then `sdd-develop`. Classic SDD does **not** require memory-bank. User picks one path per story/session.
 
 See also § CONTINUITY update checklist.
 

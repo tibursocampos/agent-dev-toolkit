@@ -32,7 +32,7 @@
 ## 7.4. SDD traceability (when PLAN exists)
 
 - [ ] PLAN step deliverables and acceptance checkboxes addressed
-- [ ] Only one PLAN step claimed per session (implement skill)
+- [ ] Only one PLAN step is active per gate scope; reset and revalidate before a separately authorized next step
 - [ ] PLAN file updated with completion notes before handoff
 
 ---

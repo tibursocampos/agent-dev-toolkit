@@ -24,7 +24,7 @@ Total: **47** kebab skills.
 |-------|--------------|---------|
 | `sdd-spec` | `sdd-spec` | Create a PRD for a new feature or change |
 | `sdd-plan` | `sdd-plan` | Baby-step PLAN from an existing PRD |
-| `sdd-develop` | `sdd-develop` | Execute **one** PLAN step per session |
+| `sdd-develop` | `sdd-develop` | Execute one PLAN step per gate scope; direct Classic defaults to one step |
 | `read-sdd-artifact` | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
 
 ## Backlog Refine — backlog prep

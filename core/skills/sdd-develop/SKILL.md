@@ -1,6 +1,6 @@
 ---
 name: sdd-develop
-description: Execute one PLAN baby step (identifiers English; comments/docs mirror or ask; PLAN in file language per LANGUAGE.md). One session = one step. Use when implementing a PLAN step or invoking /sdd-develop.
+description: Execute one PLAN baby step per gate scope (identifiers English; comments/docs mirror or ask; PLAN in file language per LANGUAGE.md). Direct Classic defaults to one step; bounded continuation requires explicit authorization. Use when implementing a PLAN step or invoking /sdd-develop.
 ---
 
 ## STOP - Read before ANY tool call
@@ -22,7 +22,7 @@ Invoke when the user asks for: `/sdd-develop`, `implement step`, `execute step`.
 
 ## Outcome
 
-One **PLAN step** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, conditional tests/build, receipt/handoff). Do not start the next step in the same develop session scope.
+One **PLAN step per gate scope** done: **identifiers in English**; comments/docs **mirror** touched area or **ask** on greenfield; PLAN updated in place. Honor **Execution policy** in the PLAN (orchestrator mode, conditional tests/build, receipt/handoff). Direct Classic defaults to stopping after this step. Continue only under an explicit finite authorization for the next eligible step; reset and revalidate all applicable approvals, inputs, dependencies, claims, and session gates before opening its scope.
 
 ### Terminal outcomes
 
@@ -39,7 +39,7 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 
 - **Reads:** one PLAN step from `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`.
 - **Writes:** the code and tests for that step, and the step status in the PLAN.
-- **Where:** the repository source and tests, plus the PLAN file. One PLAN step per session; then stop.
+- **Where:** the repository source and tests, plus the PLAN file. One PLAN step per gate scope; then stop unless an explicit finite authorization covers the next scope.
 - **When to use:** implement one PLAN step. Gates: `sim` / `ajustar` / `cancelar`. Flow choice: [flow selection guide](../../../docs/guides/flow-selection.md).
 
 ## Language
@@ -122,7 +122,7 @@ Load `references/execution-display.md` before any code edit and show its checkpo
 | Path under `features/NNN-slug/` | Optionally load `CONTINUITY.md` / story `STORY.md` and `ANALYSIS/` / `ARCH/` / `SEC/` when present for Prior context only - **do not** change multi-step rules |
 | User asks "criar PRD/sdd-plan" | Redirect to `sdd-spec` / `sdd-plan`; stop |
 
-Resolve `invocation_context` once from the explicit current invocation/handoff; `orchestrator_mode` and sibling artifacts do not select or change it. In `direct`, a canonical approved PLAN plus explicit step proceeds after its direct gates; absence of a checklist is not a blocker and the direct path must not fall through to O3 requirements. In `orchestrated`, preserve the parent's scoped inputs, O3 preflight, parent-held claim, and checklist requirements. Verify the claim using `Invoke-PlanLedgerClaim.ps1 -Action status`; proceed only when its holder matches the opaque `claim_holder` passed by the parent. The child must not reacquire or release the reservation. A direct invocation without an O3-held reservation retains its own claim lifecycle. If context or route is genuinely absent, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or a required claim. Execute one step only and stop after its report.
+Resolve `invocation_context` once from the explicit current invocation/handoff; `orchestrator_mode` and sibling artifacts do not select or change it. In `direct`, a canonical approved PLAN plus explicit step proceeds after its direct gates; absence of a checklist is not a blocker and the direct path must not fall through to O3 requirements. In `orchestrated`, preserve the parent's scoped inputs, O3 preflight, parent-held claim, and checklist requirements. Verify the claim using `Invoke-PlanLedgerClaim.ps1 -Action status`; proceed only when its holder matches the opaque `claim_holder` passed by the parent. The child must not reacquire or release the reservation. A direct invocation without an O3-held reservation retains its own claim lifecycle. If context or route is genuinely absent, ask manual-per-invocation vs O3 per `plan-acquisition.md`. Then resolve pacing `continuous` \| `step_by_step` (`references/develop-modes.md`; default `step_by_step`). Neither route nor pacing bypasses gates, dependencies, scoped session, or a required claim. Execute one step per gate scope and stop after its report; open a later scope only under explicit finite authorization and after reset/revalidation.
 
 After PLAN path is known: create `{sessions}/{repo-hash}/` if needed; load or create develop session with gates `false` (`SESSION.md` § Develop session - never copy develop gates from the flat repo JSON). If this child was given an explicit step-scoped path (O3 parallel same PLAN), use `plan-{plan-hash}-step-{N}.json`.
 

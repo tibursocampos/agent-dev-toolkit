@@ -7,7 +7,7 @@ Every skill loads this file before its first tool call. The skill body adds only
 1. Read `{{GUARDRAILS_PATH}}` (always mandatory).
 2. Session state: read `_shared/sdd-artifacts/SESSION.md` before any tool call (mandatory, same as guardrails STOP step 2). Gate checks and gate writes apply only where a session gate covers the action; use `_shared/sdd-artifacts/INDEX.md` to decide which SESSION sections to apply.
 3. If the relevant gate is not approved: **STOP** and ask the user in the **user chat language** (`_shared/agents/LANGUAGE.md`); gate ids and answer rule: `_shared/agents/QUESTIONS.md`. Do **NOT** Write or run Shell.
-4. SDD and develop skills: after **ONE** step or task, **STOP** the develop scope. Hand off only.
+4. SDD and develop skills: process one step per gate scope. Continue to another scope only when the active workflow and current operator authorization explicitly permit it; reset and revalidate before the next step. O3 remains one PLAN step per child. Otherwise **STOP** and hand off.
 5. The skill body is **English**. User-facing prompts follow the **user chat language** (`_shared/agents/LANGUAGE.md`).
 
 ### Step -1 - Gate check (silent)

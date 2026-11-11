@@ -59,7 +59,7 @@ Process:
 5. Write steps as `PENDING`, progress `0/N`, refresh `## Related` so PRD and PLAN cite each other. The open-decisions section stays empty.
 6. Run `validate-plan` (and `validate-prd` on the source). That check does not replace the two reviews. Failure blocks `/sdd-develop`.
 
-Next session, one step:
+Default step-by-step handoff:
 
 ```text
 /sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
@@ -69,7 +69,7 @@ Next session, one step:
 
 Trigger: `/sdd-develop`, “implement step”, “execute step”.
 
-Required: the canonical PLAN path and a step id. One session completes one step, including when pacing is `continuous`. The next step is a new chat.
+Required: the canonical PLAN path and a step id. Direct Classic defaults to one step and stop. A finite sequence explicitly authorized for the current invocation may continue one step at a time after closing/resetting and revalidating each gate scope; without that authorization, hand off the next step for a later invocation. This direct-flow rule does not change O3's one-step-per-child boundary.
 
 After `confirm`, persist `step_confirmed` with `scripts/session/Invoke-DevelopSessionGate.ps1` on `sessions/{repo-hash}/plan-{plan-hash}.json` (or `plan-{plan-hash}-step-{N}.json` when several children share one PLAN). When a ledger claim is required, also `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim`. Do not hand-edit session JSON in a one-liner.
 
