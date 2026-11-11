@@ -10,7 +10,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **47** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **52** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
@@ -31,6 +31,10 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `refine-story` | One bug, user story, or technical story | `/refine-story` |
 | `requirement-review` | Challenge one feature or story before SDD: `--feature` or `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | A dependency checklist under an existing story | `/split-story-checklist` |
+| `integrated-delivery` | Experimental single entry for one eligible delivery transition | `/integrated-delivery` |
+| `integrated-delivery-refine` | One canonical feature refinement when cross-unit decisions require it | `/integrated-delivery-refine` |
+| `integrated-delivery-plan` | One executable plan for a unit and repository | `/integrated-delivery-plan` |
+| `integrated-delivery-implement` | Execute eligible approved plan steps with checkpointed resume | `/integrated-delivery-implement` |
 
 ## Implementation
 
@@ -57,6 +61,7 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | Skill | What it does | Example |
 |-------|----------------|---------|
 | `code-review` | Review a branch. Does not edit code | `/code-review` |
+| `integrated-delivery-review` | Cold reader/critic review at experimental delivery gates | `/integrated-delivery-review` |
 | `implementation-survey` | Describe what changed and how it appears to work; not a review | `/implementation-survey` |
 | `test-coverage` | .NET Coverlet. Default 80% | `/test-coverage` |
 | `run-tests` | Detected-stack tests. Does not edit code | `/run-tests` |
@@ -78,4 +83,4 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `document-plan` | `docs/overview.md` and the documentation plan | `/document-plan` |
 | `document-implement` | One pending documentation step | `/document-implement` |
 
-That is 11 delivery skills, 15 implementation skills, and 21 review/platform/git skills: 47 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).
+That is 15 delivery skills, 15 implementation skills, and 22 review/platform/git skills: 52 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).

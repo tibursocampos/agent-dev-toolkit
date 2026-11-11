@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **47** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **52** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -31,6 +31,10 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `refine-story` | Um bug, user story ou story técnica | `/refine-story` |
 | `requirement-review` | Desafia uma feature ou story antes do SDD: `--feature` ou `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | Um checklist de dependências sob uma story existente | `/split-story-checklist` |
+| `integrated-delivery` | Entrada única experimental para uma transição elegível | `/integrated-delivery` |
+| `integrated-delivery-refine` | Um refinamento canônico quando houver decisões entre unidades | `/integrated-delivery-refine` |
+| `integrated-delivery-plan` | Um plano executável para uma unidade e repositório | `/integrated-delivery-plan` |
+| `integrated-delivery-implement` | Executa passos elegíveis com checkpoints e retomada | `/integrated-delivery-implement` |
 
 ## Implementação
 
@@ -57,6 +61,7 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | Skill | O que faz | Exemplo |
 |-------|-----------|---------|
 | `code-review` | Revisa um branch. Não edita código | `/code-review` |
+| `integrated-delivery-review` | Revisão fria reader/critic nos gates do fluxo experimental | `/integrated-delivery-review` |
 | `implementation-survey` | Descreve o que mudou e como a implementação parece funcionar; não é uma revisão | `/implementation-survey` |
 | `test-coverage` | Coverlet .NET. Padrão 80% | `/test-coverage` |
 | `run-tests` | Testes da stack detectada. Não edita código | `/run-tests` |
@@ -78,4 +83,4 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 11 skills de entrega, 15 de implementação e 21 de revisão/plataforma/git: 47 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 15 skills de entrega, 15 de implementação e 22 de revisão/plataforma/git: 52 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

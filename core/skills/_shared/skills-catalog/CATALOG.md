@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **47** kebab skills.
+Total: **52** kebab skills.
 
 ## Tracks
 
@@ -15,6 +15,7 @@ Total: **47** kebab skills.
 | **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+| **Integrated Delivery (experimental)** | `integrated-delivery`, `integrated-delivery-refine`, `integrated-delivery-plan`, `integrated-delivery-review`, `integrated-delivery-implement` | Opt-in feature-to-code flow with one refinement when needed, one plan per unit, cold review, and checkpointed implementation |
 
 **Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
 
@@ -43,6 +44,16 @@ Total: **47** kebab skills.
 | `orchestrate-analyze` | `orchestrate-analyze` | Triage, specialists, backlog structure |
 | `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |
 | `orchestrate-develop` | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` |
+
+## Integrated Delivery — experimental
+
+| Skill | Id / phrases | Purpose |
+|-------|--------------|---------|
+| `integrated-delivery` | `integrated-delivery` | Single entry that routes one eligible delivery transition |
+| `integrated-delivery-refine` | `integrated-delivery-refine` | One canonical feature refinement when cross-unit decisions require it |
+| `integrated-delivery-plan` | `integrated-delivery-plan` | One executable plan for a unit and repository |
+| `integrated-delivery-review` | `integrated-delivery-review` | Cold reader/critic review and reconciliation at required gates |
+| `integrated-delivery-implement` | `integrated-delivery-implement` | Execute eligible plan steps with checkpointed cadence and resume |
 
 ## Developer routing and stack
 

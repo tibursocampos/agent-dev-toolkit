@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**47 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**52 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**47** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**52** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -60,6 +60,18 @@ Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01
 | `orchestrate-develop` | One PLAN step per child by running `sdd-develop` |
 
 Internal contracts (REQ, CHANGE, EVD/STATE, TRACE, validate-*) run inside those invocations. The parent does not write application code.
+
+## Integrated Delivery (experimental)
+
+Opt-in feature-to-code flow with a single entry, one refinement only when cross-unit decisions require it, one executable plan per unit/repository, cold review at stabilized gates, and checkpointed implementation. Existing Classic SDD and Orchestrated Delivery remain separate.
+
+| Skill | Purpose |
+|-------|---------|
+| `integrated-delivery` | Route one eligible transition from feature intake through implementation |
+| `integrated-delivery-refine` | Produce the canonical feature refinement when required |
+| `integrated-delivery-plan` | Produce one executable plan for a unit and repository |
+| `integrated-delivery-review` | Run and reconcile cold reader/critic review at required gates |
+| `integrated-delivery-implement` | Execute eligible approved plan steps with checkpointed cadence and resume |
 
 ## Classic SDD contracts
 

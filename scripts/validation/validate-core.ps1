@@ -93,6 +93,8 @@ $coreChecks = @(
     @{ Name = 'claude-skill-size'; Script = 'Assert-ClaudeSkillSize.ps1'; Isolated = $true },
     @{ Name = 'adt-settings-contract'; Script = 'Assert-AdtSettingsContract.ps1'; Isolated = $true },
     @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
+    @{ Name = 'delivery-review-record'; Script = 'Assert-DeliveryReviewRecord.ps1' },
+    @{ Name = 'delivery-execution'; Script = 'Assert-DeliveryExecution.ps1' },
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )

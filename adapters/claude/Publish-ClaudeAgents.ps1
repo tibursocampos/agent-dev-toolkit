@@ -21,6 +21,8 @@ $script:ClaudeAgentToolsByRole = [ordered]@{
     'database'        = 'Read, Grep, Glob, Write, Edit'
     'shell-runner'    = 'Bash'
     'developer-child' = 'Read, Grep, Glob, Write, Edit, Bash'
+    'cold-reader'     = 'Read, Grep, Glob'
+    'cold-critic'     = 'Read, Grep, Glob'
 }
 
 function Add-ClaudeAgentToolsFrontmatter {
