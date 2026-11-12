@@ -14,7 +14,8 @@ param(
     [Parameter(Mandatory = $true)][string] $PlanPath,
     [Parameter(Mandatory = $true)][ValidatePattern('^(PROGRESS|CHECKPOINT|APPROVAL|STEP:[A-Za-z0-9][A-Za-z0-9._-]*)$')][string] $Block,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string] $ExpectedBlockHash,
-    [Parameter(Mandatory = $true)][string] $PayloadJson
+    [Parameter(Mandatory = $true)][string] $PayloadJson,
+    [switch] $AsLibrary
 )
 
 Set-StrictMode -Version Latest
@@ -25,12 +26,72 @@ $libDir = Join-Path (Split-Path -Parent $PSScriptRoot) '_lib'
 . (Join-Path $libDir 'DeliveryAtomicWrite.ps1')
 
 function Write-Result([bool]$Ok, [string]$Code, [bool]$Written) {
-    [pscustomobject]@{ ok = $Ok; code = $Code; written = $Written } | ConvertTo-Json -Compress
+    $result = [pscustomobject]@{ ok = $Ok; code = $Code; written = $Written }
+    if ($AsLibrary) { return $result }
+    return $result | ConvertTo-Json -Compress
 }
 
 function ConvertTo-RepoRelativePath([string]$FullPath) {
     if ([string]::IsNullOrEmpty($FullPath)) { return '' }
     return $FullPath.Substring($repo.Length + 1).Replace('\', '/')
+}
+
+function Assert-BaselineBeforeStepStart {
+    param(
+        [Parameter(Mandatory = $true)][object] $StepJson,
+        [Parameter(Mandatory = $true)][string] $StepId,
+        [Parameter(Mandatory = $true)][object[]] $Blocks
+    )
+
+    $checkpointBlock = @($Blocks | Where-Object { $_.Type -ceq 'CHECKPOINT' })
+    if ($checkpointBlock.Count -ne 1) { throw 'baseline_missing' }
+    $baselineProperty = Get-DeliveryExactProperty -Object $checkpointBlock[0].Json -Name 'baseline_evidence'
+    if ($null -eq $baselineProperty -or $baselineProperty.Value -isnot [string] -or
+        [string]::IsNullOrWhiteSpace([string]$baselineProperty.Value)) { throw 'baseline_missing' }
+    $baselineReference = [string]$baselineProperty.Value
+    $separator = $baselineReference.IndexOf('/')
+    if ($separator -le 0 -or $separator -eq ($baselineReference.Length - 1) -or
+        $baselineReference.Substring(0, $separator) -cne $StepId -or $baselineReference.IndexOf('/', $separator + 1) -ge 0) {
+        throw 'baseline_ref_invalid'
+    }
+    $baselineName = $baselineReference.Substring($separator + 1)
+    $refsProperty = Get-DeliveryExactProperty -Object $StepJson -Name 'evidence_refs'
+    if ($null -eq $refsProperty -or $refsProperty.Value -isnot [System.Array]) { throw 'baseline_missing' }
+    $matches = @($refsProperty.Value | Where-Object {
+        $name = Get-DeliveryExactProperty -Object $_ -Name 'name'
+        $null -ne $name -and $name.Value -is [string] -and [string]$name.Value -ceq $baselineName
+    })
+    if ($matches.Count -ne 1) { throw 'baseline_missing' }
+    $pathProperty = Get-DeliveryExactProperty -Object $matches[0] -Name 'path'
+    $hashProperty = Get-DeliveryExactProperty -Object $matches[0] -Name 'sha256'
+    if ($null -eq $pathProperty -or $pathProperty.Value -isnot [string] -or
+        $null -eq $hashProperty -or $hashProperty.Value -isnot [string] -or
+        [string]$hashProperty.Value -cnotmatch '^[A-F0-9]{64}$') { throw 'baseline_ref_invalid' }
+
+    $planRelative = ConvertTo-RepoRelativePath $file
+    if ($planRelative -cnotmatch '^(features/[^/]+/[^/]+)/PLAN\.md$') { throw 'baseline_ref_invalid' }
+    $expectedPrefix = $Matches[1] + '/evidence/'
+    $evidencePath = [string]$pathProperty.Value
+    $expectedFilePrefix = $StepId + '--' + $baselineName + '.'
+    if ($evidencePath -cnotmatch ('^' + [regex]::Escape($expectedPrefix) + '[^/]+$') -or
+        -not [IO.Path]::GetFileName($evidencePath).StartsWith($expectedFilePrefix, [StringComparison]::Ordinal)) {
+        throw 'baseline_ref_invalid'
+    }
+    $fullPath = [IO.Path]::GetFullPath((Join-Path $repo ($evidencePath.Replace('/', [IO.Path]::DirectorySeparatorChar))))
+    $repoPrefix = $repo.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $fullPath.StartsWith($repoPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'baseline_ref_invalid' }
+    $walk = $repo
+    foreach ($segment in $evidencePath.Split('/')) {
+        $walk = [IO.Path]::Combine($walk, $segment)
+        try { $attributes = [IO.File]::GetAttributes($walk) } catch { throw 'baseline_missing' }
+        if (($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'baseline_ref_invalid' }
+    }
+    if (($attributes -band [IO.FileAttributes]::Directory) -ne 0) { throw 'baseline_missing' }
+    $bytes = [IO.File]::ReadAllBytes($fullPath)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { $actualHash = ([BitConverter]::ToString($sha.ComputeHash($bytes))).Replace('-', '') }
+    finally { $sha.Dispose() }
+    if ($actualHash -cne [string]$hashProperty.Value) { throw 'baseline_changed' }
 }
 
 try {
@@ -76,6 +137,11 @@ try {
     if ($found.Count -ne 1) { throw 'block_missing' }
     $target = $found[0]
 
+    if ($blockType -ceq 'STEP' -and $null -ne (Get-DeliveryExactProperty -Object $payload -Name 'status') -and
+        [string]$payload.status -ceq 'IN_PROGRESS') {
+        Assert-BaselineBeforeStepStart -StepJson $payload -StepId $blockId -Blocks @($parsed.Blocks)
+    }
+
     if ((Get-DeliveryBlockHash -Payload $target.Payload) -cne $ExpectedBlockHash.ToUpperInvariant()) {
         throw 'state_conflict'
     }
@@ -107,11 +173,15 @@ try {
     if ($hasBom) { $newBytes = [byte[]](@(0xEF, 0xBB, 0xBF) + $newBytes) }
     $replace = Invoke-DeliveryAtomicReplace -Path $file -NewBytes $newBytes -ExpectedOldBytes $originalBytes
     if ($replace.Status -ceq 'restore_failed') {
-        [pscustomobject]@{ ok = $false; code = 'state_restore_failed'; written = $false; backup_path = (ConvertTo-RepoRelativePath $replace.BackupPath); conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) } | ConvertTo-Json -Compress
+        $result = [pscustomobject]@{ ok = $false; code = 'state_restore_failed'; written = $false; backup_path = (ConvertTo-RepoRelativePath $replace.BackupPath); conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) }
+        if ($AsLibrary) { return $result }
+        $result | ConvertTo-Json -Compress
         exit 1
     }
     if ($replace.Status -ceq 'conflict') {
-        [pscustomobject]@{ ok = $false; code = 'state_conflict'; written = $false; conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) } | ConvertTo-Json -Compress
+        $result = [pscustomobject]@{ ok = $false; code = 'state_conflict'; written = $false; conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) }
+        if ($AsLibrary) { return $result }
+        $result | ConvertTo-Json -Compress
         exit 1
     }
     Write-Result $true 'written_and_verified' $true
@@ -119,6 +189,7 @@ try {
 catch {
     $code = $_.Exception.Message
     if ([string]::IsNullOrWhiteSpace($code)) { $code = 'state_write_failed' }
+    if ($AsLibrary) { return [pscustomobject]@{ ok = $false; code = $code; written = $false } }
     Write-Result $false $code $false
     exit 1
 }

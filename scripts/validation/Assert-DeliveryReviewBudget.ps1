@@ -142,6 +142,16 @@ try {
     Assert-ExitCode 3 $run 'Should_ExitThree_When_BlockingRises'
     Assert-Equal 'no_convergence' (Get-ReasonsText $run) 'Should_ReturnNoConvergence_When_BlockingRises'
 
+    $oscillating = New-SummaryFile -Name 'oscillating' -Json (New-SummaryJson -Blocking @(3, 2, 3))
+    $run = Invoke-Budget -CliArgs @('-SummaryPath', $oscillating, '-StallRounds', '2')
+    Assert-ExitCode 3 $run 'Should_ExitThree_When_BlockingOscillatesWithoutNetProgress'
+    Assert-Equal 'no_convergence' (Get-ReasonsText $run) 'Should_ReturnNoConvergence_When_BlockingOscillatesWithoutNetProgress'
+
+    $oscillatingProgress = New-SummaryFile -Name 'oscillating-progress' -Json (New-SummaryJson -Blocking @(5, 3, 4, 2))
+    $run = Invoke-Budget -CliArgs @('-SummaryPath', $oscillatingProgress, '-StallRounds', '2')
+    Assert-ExitCode 0 $run 'Should_ExitZero_When_OscillationWindowStillMakesNetProgress'
+    Assert-Equal '' (Get-ReasonsText $run) 'Should_NotEscalate_When_OscillationWindowMakesNetProgress'
+
     $stallThenZero = New-SummaryFile -Name 'stall-then-zero' -Json (New-SummaryJson -Blocking @(3, 3, 3, 0))
     $run = Invoke-Budget -CliArgs @('-SummaryPath', $stallThenZero, '-StallRounds', '2')
     Assert-ExitCode 0 $run 'Should_ExitZero_When_LastBlockingIsZero'

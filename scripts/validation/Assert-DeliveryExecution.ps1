@@ -8,6 +8,8 @@ $scriptsRoot = Split-Path -Parent $PSScriptRoot
 $helper = Join-Path $scriptsRoot 'ledger/Resolve-DeliveryExecution.ps1'
 $writer = Join-Path $scriptsRoot 'ledger/Set-DeliveryExecutionBlock.ps1'
 . (Join-Path $scriptsRoot '_lib/DeliveryGrammar.ps1')
+. (Join-Path $scriptsRoot '_lib/DeliveryReviewRecord.ps1')
+$reviewChecker = Join-Path (Split-Path -Parent $scriptsRoot) 'runtime/Test-DeliveryReviewRecord.ps1'
 
 $childHost = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($childHost)) { $childHost = 'pwsh' }
@@ -45,7 +47,7 @@ function New-PlanBody {
         [string] $Step1Status = 'PENDING',
         [string] $Step2Status = 'PENDING',
         [string] $ActiveStep = '',
-        [string] $Identity = 'PENDING-IDENTITY',
+        [string] $Identity = ('0' * 64),
         [hashtable] $Step2Extra = @{},
         [hashtable] $ProgressExtra = @{},
         [switch] $OmitDependsOn
@@ -54,12 +56,20 @@ function New-PlanBody {
     $activeStepValue = $null
     if (-not [string]::IsNullOrEmpty($ActiveStep)) { $activeStepValue = $ActiveStep }
     $checkpoint = ConvertTo-CompactJson @{ schema = 'delivery-checkpoint/v1'; run_id = 'run-1'; branch = 'codex/test'; head = 'abc123'; active_step = $activeStepValue }
-    $approval = ConvertTo-CompactJson @{ schema = 'delivery-approval/v1'; state = 'approved'; identity = $Identity; input_identity = 'INPUT-1'; review_state = 'reviewed'; blocking_findings = @(); unresolved_decisions = @() }
+    $approval = ConvertTo-CompactJson @{ schema = 'delivery-approval/v1'; state = 'approved'; identity = $Identity; input_identity = ('0' * 64); review_identity = ('0' * 64); review_state = 'reviewed'; blocking_findings = @(); unresolved_decisions = @() }
     $progressFields = @{ schema = 'delivery-progress/v1'; cadence = $Cadence }
     foreach ($key in $ProgressExtra.Keys) { $progressFields[$key] = $ProgressExtra[$key] }
     $progress = ConvertTo-CompactJson $progressFields
     $step1Fields = @{ schema = 'delivery-step/v1'; id = 'US01-S1'; status = $Step1Status; depends_on = @() }
     $step2Fields = @{ schema = 'delivery-step/v1'; id = 'US01-S2'; status = $Step2Status; depends_on = @('US01-S1') }
+    if ($Step1Status -ceq 'COMPLETED') {
+        $step1Fields['acceptance_evidence'] = @('accepted')
+        $step1Fields['validation_results'] = @(@{ command = 'run-tests'; result = 'passed'; exit_code = 0 })
+    }
+    if ($Step2Status -ceq 'COMPLETED') {
+        $step2Fields['acceptance_evidence'] = @('accepted')
+        $step2Fields['validation_results'] = @(@{ command = 'run-tests'; result = 'passed'; exit_code = 0 })
+    }
     if ($OmitDependsOn) {
         $step1Fields.Remove('depends_on')
         $step2Fields.Remove('depends_on')
@@ -72,6 +82,16 @@ function New-PlanBody {
         '# Test plan',
         '',
         'Normative body: feature behavior.',
+        '',
+        '## Steps',
+        '',
+        '### US01-S1 First step',
+        'Depends on: none',
+        'Validation: run-tests',
+        '',
+        '### US01-S2 Second step',
+        'Depends on: US01-S1',
+        'Validation: run-tests',
         '',
         '<!-- DELIVERY:PROGRESS:BEGIN -->',
         $progress,
@@ -119,9 +139,53 @@ function New-Fixture {
     $progressExtra = @{}
     if ($null -ne $record) { $progressExtra['authorization'] = $record }
     $body = New-PlanBody -Cadence $Cadence -Step1Status $Step1Status -Step2Status $Step2Status -ActiveStep $ActiveStep -Identity $identity -Step2Extra $Step2Extra -ProgressExtra $progressExtra -OmitDependsOn:$OmitDependsOn
-    $path = Join-Path $tempRoot ($Name + '.md')
+    $repo = Join-Path $tempRoot $Name
+    $path = Join-Path $repo 'features/001-demo/US01/PLAN.md'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
     [System.IO.File]::WriteAllText($path, $body, $utf8)
+    Add-ReviewBinding $path
     return $path
+}
+
+function Get-ReviewRecordPath([string]$Plan) {
+    $unitDir = Split-Path -Parent $Plan
+    $featureDir = Split-Path -Parent $unitDir
+    $unit = Split-Path -Leaf $unitDir
+    return Join-Path $featureDir ('delivery-reviews/' + $unit + '.json')
+}
+
+function Add-ReviewBinding([string]$Plan) {
+    $text = [System.IO.File]::ReadAllText($Plan)
+    $repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Plan)))
+    $repoPrefix = $repoRoot.TrimEnd([char] [System.IO.Path]::DirectorySeparatorChar, [char] [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    $relative = $Plan.Substring($repoPrefix.Length).Replace('\', '/')
+    try { $contentSha = Get-DeliveryNormativeIdentity -Text $text }
+    catch { throw ('Fixture plan grammar invalid before review binding ({0}): {1}' -f $Plan, $_.Exception.Message) }
+    $inputs = @()
+    $inputIdentity = Get-DeliveryMaterialInputIdentity -Inputs $inputs
+    $record = [ordered]@{
+        schema = 'delivery-review-record/v2'; state = 'reviewed';
+        target = [ordered]@{ path = $relative; kind = 'PLAN.md'; stage = 'delivery_unit_plan_review'; content_sha256 = $contentSha; review_identity = ('0' * 64) }
+        material_input_identity = $inputIdentity; inputs = @();
+        reviewers = [ordered]@{
+            reader = [ordered]@{ host = 'Codex'; observed_isolation = 'fresh-context-instruction'; result = [ordered]@{ paraphrases = [ordered]@{ proposal = 'A bounded plan.'; current_system = 'A declared baseline.' }; lenses = @('comprehension'); findings = @() } }
+            critic = [ordered]@{ host = 'Codex'; observed_isolation = 'fresh-context-instruction'; result = [ordered]@{ lenses = @('scope'); findings = @() } }
+        }
+        dispositions = @(); provenance = [ordered]@{}; round = 1
+    }
+    $record.target.review_identity = Get-DeliveryReviewRecordBindingIdentity -Record ($record | ConvertTo-Json -Depth 30 | ConvertFrom-Json) -MaterialInputIdentity $inputIdentity
+    Assert-DeliveryReviewRecordShape -Value ($record | ConvertTo-Json -Depth 30 | ConvertFrom-Json)
+    $recordPath = Get-ReviewRecordPath $Plan
+    New-Item -ItemType Directory -Path (Split-Path -Parent $recordPath) -Force | Out-Null
+    [System.IO.File]::WriteAllText($recordPath, ($record | ConvertTo-Json -Depth 30), $utf8)
+    $approvalMatch = [regex]::Match($text, '(?s)(<!-- DELIVERY:APPROVAL:BEGIN -->\r?\n)(.*?)(\r?\n<!-- DELIVERY:APPROVAL:END -->)')
+    if (-not $approvalMatch.Success) { throw 'Fixture approval block missing.' }
+    $approval = $approvalMatch.Groups[2].Value | ConvertFrom-Json
+    $approval | Add-Member -NotePropertyName input_identity -NotePropertyValue $inputIdentity -Force
+    $approval | Add-Member -NotePropertyName review_identity -NotePropertyValue $record.target.review_identity -Force
+    $updated = $approvalMatch.Groups[1].Value + ($approval | ConvertTo-Json -Compress -Depth 20) + $approvalMatch.Groups[3].Value
+    $text = $text.Substring(0, $approvalMatch.Index) + $updated + $text.Substring($approvalMatch.Index + $approvalMatch.Length)
+    [System.IO.File]::WriteAllText($Plan, $text, $utf8)
 }
 
 function Get-BlockHashFromFile([string]$Path, [string]$Type, [string]$Id = '') {
@@ -149,21 +213,57 @@ function Invoke-ChildScript([string[]]$Arguments) {
     $startInfo.CreateNoWindow = $true
     $process = [System.Diagnostics.Process]::Start($startInfo)
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-    $stderrText = $process.StandardError.ReadToEnd()
-    $process.WaitForExit()
-    return [pscustomobject]@{ ExitCode = $process.ExitCode; Output = ($stdoutTask.Result + $stderrText) }
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(5000)) {
+        try { $process.Kill($true) } catch { }
+        [void]$process.WaitForExit(2000)
+        throw 'Execution assertion child exceeded its 5-second limit; its process tree was stopped.'
+    }
+    return [pscustomobject]@{ ExitCode = $process.ExitCode; Output = ($stdoutTask.Result + $stderrTask.Result) }
 }
 
-function Invoke-Decision([string]$Plan, [string]$Cadence = 'continuous', [string]$InputIdentity = 'INPUT-1', [string]$Branch = 'codex/test', [string]$Head = 'abc123', [switch]$Resume, [switch]$StepAuth, [switch]$ContinuousAuth) {
-    $argsList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $helper, '-PlanPath', $Plan, '-Cadence', $Cadence, '-CurrentInputIdentity', $InputIdentity, '-CurrentBranch', $Branch, '-CurrentHead', $Head)
+function Invoke-Decision([string]$Plan, [string]$Cadence = 'continuous', [string]$InputIdentity = '', [string]$Branch = 'codex/test', [string]$Head = 'abc123', [switch]$Resume, [switch]$StepAuth, [switch]$ContinuousAuth) {
+    if ([string]::IsNullOrWhiteSpace($InputIdentity)) { $InputIdentity = Get-DeliveryMaterialInputIdentity -Inputs @() }
+    $argsList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $helper, '-PlanPath', $Plan, '-ReviewRecordPath', (Get-ReviewRecordPath $Plan), '-Cadence', $Cadence, '-CurrentInputIdentity', $InputIdentity, '-CurrentBranch', $Branch, '-CurrentHead', $Head)
     if ($Resume) { $argsList += '-Resume' }
     if ($StepAuth) { $argsList += '-StepAuthorization' }
     if ($ContinuousAuth) { $argsList += '-ContinuousAuthorization' }
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $libraryArguments = @{
+            PlanPath = $Plan
+            ReviewRecordPath = (Get-ReviewRecordPath $Plan)
+            Cadence = $Cadence
+            CurrentInputIdentity = $InputIdentity
+            CurrentBranch = $Branch
+            CurrentHead = $Head
+            AsLibrary = $true
+        }
+        if ($Resume) { $libraryArguments['Resume'] = $true }
+        if ($StepAuth) { $libraryArguments['StepAuthorization'] = $true }
+        if ($ContinuousAuth) { $libraryArguments['ContinuousAuthorization'] = $true }
+        $run = & $helper @libraryArguments
+        return [pscustomobject]@{ ExitCode = $run.ExitCode; Result = $run.Result }
+    }
     $run = Invoke-ChildScript $argsList
     return [pscustomobject]@{ ExitCode = $run.ExitCode; Result = ($run.Output.Trim() | ConvertFrom-Json) }
 }
 
 function Invoke-Writer([string]$RepoPath, [string]$PlanPath, [string]$Block, [string]$Hash, [string]$Payload) {
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $writerArguments = @{
+            RepoPath = $RepoPath
+            PlanPath = $PlanPath
+            Block = $Block
+            ExpectedBlockHash = $Hash
+            PayloadJson = $Payload
+            AsLibrary = $true
+        }
+        try { $result = & $writer @writerArguments }
+        catch {
+            return [pscustomobject]@{ ExitCode = 1; Result = [pscustomobject]@{ code = $_.Exception.Message }; Output = $_.Exception.Message }
+        }
+        return [pscustomobject]@{ ExitCode = [int](-not [bool]$result.ok); Result = $result; Output = ($result | ConvertTo-Json -Compress) }
+    }
     $argsList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $writer, '-RepoPath', $RepoPath, '-PlanPath', $PlanPath, '-Block', $Block, '-ExpectedBlockHash', $Hash, '-PayloadJson', $Payload)
     $run = Invoke-ChildScript $argsList
     $parsed = $null
@@ -223,12 +323,16 @@ function New-EvidencePlan {
     if ($Step2Extra.Length -gt 0) { $headings += $Step2Extra }
     $headings += @('Validation: run-tests', '')
 
-    $step1 = '{"schema":"delivery-step/v1","id":"US01-S1","status":"' + $Step1Status + '","depends_on":[]' + $refsJson + '}'
+    $completionJson = ''
+    if ($Step1Status -ceq 'COMPLETED') {
+        $completionJson = ',"acceptance_evidence":["accepted"],"validation_results":[{"command":"run-tests","result":"passed","exit_code":0}]'
+    }
+    $step1 = '{"schema":"delivery-step/v1","id":"US01-S1","status":"' + $Step1Status + '","depends_on":[]' + $refsJson + $completionJson + '}'
     $step2 = '{"schema":"delivery-step/v1","id":"US01-S2","status":"PENDING","depends_on":["US01-S1"]}'
 
     $buildBody = {
         param([string]$Identity)
-        $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"' + $Identity + '","input_identity":"INPUT-1","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
+        $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"' + $Identity + '","input_identity":"' + ('0' * 64) + '","review_identity":"' + ('0' * 64) + '","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
         $progress = '{"schema":"delivery-progress/v1","cadence":"continuous","authorization":{"kind":"continuous","scope":"continuous","granted_utc":"2026-11-11T12:00:00Z","plan_identity":"' + $Identity + '"}}'
         $lines = @($headings + @(
             '<!-- DELIVERY:PROGRESS:BEGIN -->', $progress, '<!-- DELIVERY:PROGRESS:END -->',
@@ -243,6 +347,7 @@ function New-EvidencePlan {
     $identity = Get-DeliveryNormativeIdentity -Text $probe
     $planPath = Join-Path $unitDir 'PLAN.md'
     [System.IO.File]::WriteAllText($planPath, (& $buildBody $identity), $utf8)
+    Add-ReviewBinding $planPath
     return $planPath
 }
 
@@ -251,7 +356,7 @@ try {
 
     $plan = New-Fixture 'eligible'
     $r = Invoke-Decision $plan -ContinuousAuth
-    Assert-Equal '0' ([string]$r.ExitCode) 'continuous eligible exit'
+    Assert-Equal '0' ([string]$r.ExitCode) ('continuous eligible exit (' + ($r.Result | ConvertTo-Json -Compress) + ')')
     Assert-Equal 'US01-S1' ([string]$r.Result.step) 'first declared step selected'
 
     $resumed = New-Fixture 'completed-step' -Step1Status COMPLETED
@@ -292,7 +397,9 @@ try {
     $otherPlanIdentity = New-Fixture 'identity-other-plan' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity ('0' * 64))
     $r = Invoke-Decision $otherPlanIdentity -ContinuousAuth
     Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'continuous authorization bound to another plan is denied'
-    $lowerIdentity = New-Fixture 'identity-lowercase' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity.ToLowerInvariant())
+    $lowerIdentity = New-Fixture 'identity-lowercase'
+    $lowerIdentityText = [System.IO.File]::ReadAllText($lowerIdentity).Replace('"plan_identity":"' + $canonicalIdentity + '"', '"plan_identity":"' + $canonicalIdentity.ToLowerInvariant() + '"')
+    [System.IO.File]::WriteAllText($lowerIdentity, $lowerIdentityText, $utf8)
     $r = Invoke-Decision $lowerIdentity -ContinuousAuth
     Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'plan identity comparison is case-sensitive'
 
@@ -303,6 +410,7 @@ try {
     $staleNewIdentity = Get-DeliveryNormativeIdentity -Text $staleEdited
     $staleEdited = $staleEdited.Replace('"identity":"' + $staleOldIdentity + '"', '"identity":"' + $staleNewIdentity + '"')
     [System.IO.File]::WriteAllText($staleAuth, $staleEdited, $utf8)
+    Add-ReviewBinding $staleAuth
     $r = Invoke-Decision $staleAuth -ContinuousAuth
     Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'authorization recorded before a normative edit is denied after re-approval'
 
@@ -312,7 +420,9 @@ try {
     $stepEmptyScope = New-Fixture 'scope-step-empty' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @())
     $r = Invoke-Decision $stepEmptyScope -Cadence step_by_step -StepAuth
     Assert-Equal 'authorization_scope_excludes_step' ([string]$r.Result.reason) 'step authorization with empty step_ids is denied'
-    $stepScalarScope = New-Fixture 'scope-step-scalar' -Cadence step_by_step -Authorization @{ kind = 'step'; scope = 'step_by_step'; granted_utc = '2026-11-11T12:00:00Z'; plan_identity = $canonicalIdentity; step_ids = 'US01-S1' }
+    $stepScalarScope = New-Fixture 'scope-step-scalar' -Cadence step_by_step
+    $stepScalarText = [System.IO.File]::ReadAllText($stepScalarScope).Replace('"step_ids":["US01-S1","US01-S2"]', '"step_ids":"US01-S1"')
+    [System.IO.File]::WriteAllText($stepScalarScope, $stepScalarText, $utf8)
     $r = Invoke-Decision $stepScalarScope -Cadence step_by_step -StepAuth
     Assert-Equal 'grammar_invalid' ([string]$r.Result.reason) 'step_ids given as a string is rejected by the block grammar'
     $stepOneElement = New-Fixture 'scope-step-single' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S1'))
@@ -359,7 +469,7 @@ try {
 
     $orphan = New-Fixture 'orphan' -Step1Status IN_PROGRESS -ActiveStep US01-S1
     $r = Invoke-Decision $orphan -Resume -ContinuousAuth
-    Assert-Equal 'orphaned_in_progress_reconcile_required' ([string]$r.Result.reason) 'orphan is never replayed'
+    Assert-Equal 'baseline_missing' ([string]$r.Result.reason) 'Git orphan without recorded baseline is blocked before reconciliation'
 
     $blockedDep = New-Fixture 'dependency' -Step1Status BLOCKED
     $r = Invoke-Decision $blockedDep -ContinuousAuth -Resume
@@ -368,7 +478,7 @@ try {
     $tampered = New-Fixture 'tampered'
     [System.IO.File]::AppendAllText($tampered, ([string][char]10 + 'Material scope changed.' + [char]10), [System.Text.Encoding]::UTF8)
     $r = Invoke-Decision $tampered -ContinuousAuth
-    Assert-Equal 'approval_identity_stale' ([string]$r.Result.reason) 'material edit invalidates approval'
+    Assert-Equal 'review_gate_identity_stale' ([string]$r.Result.reason) 'material edit invalidates the review record before approval is evaluated'
 
     $legacy = New-Fixture 'legacy-step-marker'
     $legacyText = [System.IO.File]::ReadAllText($legacy).Replace('<!-- DELIVERY:STEP:', '<!-- DELIVERY:STEP-')
@@ -381,7 +491,35 @@ try {
     $r = Invoke-Decision $noDependsOn -ContinuousAuth
     Assert-Equal 'US01-S1' ([string]$r.Result.step) 'STEP payloads without depends_on are eligible for the first step'
 
-    $unknownProperty = New-Fixture 'unknown-property' -Step2Extra @{ extra_note = 'not in allowlist' }
+    $graphMismatch = New-Fixture 'graph-mismatch'
+    $graphMismatchText = [System.IO.File]::ReadAllText($graphMismatch).Replace('"depends_on":["US01-S1"]', '"depends_on":[]')
+    [System.IO.File]::WriteAllText($graphMismatch, $graphMismatchText, $utf8)
+    $r = Invoke-Decision $graphMismatch -ContinuousAuth
+    Assert-Equal 'depends_on_mismatch' ([string]$r.Result.reason) 'operational dependency copy cannot override the plan graph'
+
+    $missingPredecessorEvidence = New-Fixture 'missing-predecessor-evidence' -Step1Status COMPLETED
+    $missingEvidenceText = [regex]::Replace([System.IO.File]::ReadAllText($missingPredecessorEvidence), ',"acceptance_evidence":\[[^]]*\]', '')
+    [System.IO.File]::WriteAllText($missingPredecessorEvidence, $missingEvidenceText, $utf8)
+    $r = Invoke-Decision $missingPredecessorEvidence -ContinuousAuth
+    Assert-Equal 'dependency_evidence_missing' ([string]$r.Result.reason) 'completed predecessor requires acceptance evidence'
+
+    $missingPredecessorValidation = New-Fixture 'missing-predecessor-validation' -Step1Status COMPLETED
+    $missingValidationText = [regex]::Replace([System.IO.File]::ReadAllText($missingPredecessorValidation), '(?s)(<!-- DELIVERY:STEP:US01-S1:BEGIN -->\r?\n)(.*?)(\r?\n<!-- DELIVERY:STEP:US01-S1:END -->)', {
+        param($match)
+        $step = $match.Groups[2].Value | ConvertFrom-Json
+        [void]$step.PSObject.Properties.Remove('validation_results')
+        return ($match.Groups[1].Value + ($step | ConvertTo-Json -Compress -Depth 10) + $match.Groups[3].Value)
+    })
+    [System.IO.File]::WriteAllText($missingPredecessorValidation, $missingValidationText, $utf8)
+    $r = Invoke-Decision $missingPredecessorValidation -ContinuousAuth
+    Assert-Equal 'dependency_validation_missing' ([string]$r.Result.reason) 'completed predecessor requires successful declared validation evidence'
+
+    $unknownProperty = New-Fixture 'unknown-property'
+    $unknownPropertyText = [System.IO.File]::ReadAllText($unknownProperty).Replace('"depends_on":["US01-S1"]', '"depends_on":["US01-S1"],"extra_note":"not in allowlist"')
+    [System.IO.File]::WriteAllText($unknownProperty, $unknownPropertyText, $utf8)
+    $unknownParsed = Read-DeliveryBlocks -Text $unknownPropertyText
+    Assert-Equal 'False' ([string]$unknownParsed.Ok) 'unknown-property fixture is rejected by shared grammar'
+    Assert-Equal 'True' ([string](@($unknownParsed.Errors | ForEach-Object { [string]$_.code }) -contains 'unknown_property')) 'unknown-property fixture carries expected grammar code'
     $r = Invoke-Decision $unknownProperty -ContinuousAuth
     Assert-Equal 'grammar_invalid' ([string]$r.Result.reason) 'unknown block property reports grammar_invalid'
     Assert-Equal 'True' ([string](@($r.Result.errors) -contains 'unknown_property')) 'grammar_invalid lists unknown_property'
@@ -427,12 +565,19 @@ try {
     Assert-Equal 'invalid_payload' ([string]$unknownKeyResult.Result.code) 'setter refuses payload with unknown key'
     Assert-Equal 'True' ([string]((Get-FileBase64 $writerPlan) -ceq $beforeUnknownKey)) 'refused payload leaves plan file unchanged'
 
-    $stepWriterPlan = Join-Path $writerDir 'STEP-PLAN.md'
-    $stepWriterText = @('# Steps', '', '<!-- DELIVERY:STEP:US01-S1:BEGIN -->', '{"schema":"delivery-step/v1","id":"US01-S1","status":"PENDING","depends_on":[]}', '<!-- DELIVERY:STEP:US01-S1:END -->', '') -join $nl
+    $stepWriterUnit = Join-Path $writerRepo 'features/001-demo/US01'
+    $stepEvidenceDir = Join-Path $stepWriterUnit 'evidence'
+    New-Item -ItemType Directory -Path $stepEvidenceDir -Force | Out-Null
+    $stepBaselinePath = Join-Path $stepEvidenceDir 'US01-S1--plan-snapshot.txt'
+    [System.IO.File]::WriteAllText($stepBaselinePath, 'synthetic baseline', $utf8)
+    $stepBaselineSha = [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData([System.IO.File]::ReadAllBytes($stepBaselinePath)))
+    $stepWriterPlan = Join-Path $stepWriterUnit 'PLAN.md'
+    $stepWriterText = @('# Steps', '', '<!-- DELIVERY:CHECKPOINT:BEGIN -->', '{"schema":"delivery-checkpoint/v1","branch":"","head":"","active_step":null,"location_kind":"directory","baseline_evidence":"US01-S1/plan-snapshot"}', '<!-- DELIVERY:CHECKPOINT:END -->', '<!-- DELIVERY:STEP:US01-S1:BEGIN -->', '{"schema":"delivery-step/v1","id":"US01-S1","status":"PENDING","depends_on":[]}', '<!-- DELIVERY:STEP:US01-S1:END -->', '') -join $nl
     [System.IO.File]::WriteAllText($stepWriterPlan, $stepWriterText, $utf8)
     $stepIdentityBefore = Get-DeliveryNormativeIdentity -Text $stepWriterText
     $stepHash = Get-BlockHashFromFile $stepWriterPlan 'STEP' 'US01-S1'
-    $stepWrite = Invoke-Writer $writerRepo $stepWriterPlan 'STEP:US01-S1' $stepHash '{"schema":"delivery-step/v1","id":"US01-S1","status":"IN_PROGRESS","depends_on":[],"started_utc":"2026-11-11T12:00:00Z"}'
+    $stepEvidenceRef = '{"name":"plan-snapshot","path":"features/001-demo/US01/evidence/US01-S1--plan-snapshot.txt","sha256":"' + $stepBaselineSha + '"}'
+    $stepWrite = Invoke-Writer $writerRepo $stepWriterPlan 'STEP:US01-S1' $stepHash ('{"schema":"delivery-step/v1","id":"US01-S1","status":"IN_PROGRESS","depends_on":[],"evidence_refs":[' + $stepEvidenceRef + '],"started_utc":"2026-11-11T12:00:00Z"}')
     Assert-Equal 'written_and_verified' ([string]$stepWrite.Result.code) 'canonical STEP block write'
     Assert-Equal $stepIdentityBefore (Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($stepWriterPlan))) 'STEP write keeps plan identity'
 
@@ -455,10 +600,11 @@ try {
     Assert-Equal 'True' ([string]((Get-FileBase64 $stepWriterPlan) -ceq $stepEmbeddedNewline)) 'newline payload leaves plan file unchanged'
 
     $tsRepo = Join-Path $tempRoot 'timestamp-repo'
-    $tsDir = Join-Path $tsRepo 'features/unit'
+    $tsDir = Join-Path $tsRepo 'features/001-demo/US01'
     New-Item -ItemType Directory -Path $tsDir -Force | Out-Null
     $tsPlan = Join-Path $tsDir 'PLAN.md'
     Copy-Item -LiteralPath (New-Fixture 'timestamp-step') -Destination $tsPlan
+    Add-ReviewBinding $tsPlan
     $tsHash = Get-BlockHashFromFile $tsPlan 'STEP' 'US01-S1'
     $tsPayload = '{"schema":"delivery-step/v1","id":"US01-S1","status":"PENDING","depends_on":[],"started_utc":"2026-11-11T12:00:00Z"}'
     $tsWrite = Invoke-Writer $tsRepo $tsPlan 'STEP:US01-S1' $tsHash $tsPayload
@@ -468,10 +614,11 @@ try {
     Assert-Equal 'US01-S1' ([string]$r.Result.step) 'plan with timestamped STEP stays eligible'
 
     $opRepo = Join-Path $tempRoot 'op-repo'
-    $opDir = Join-Path $opRepo 'features/unit'
+    $opDir = Join-Path $opRepo 'features/001-demo/US01'
     New-Item -ItemType Directory -Path $opDir -Force | Out-Null
     $opPlan = Join-Path $opDir 'PLAN.md'
     Copy-Item -LiteralPath (New-Fixture 'operational-edit') -Destination $opPlan
+    Add-ReviewBinding $opPlan
     $opIdentityBefore = Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($opPlan))
     $opHash = Get-BlockHashFromFile $opPlan 'PROGRESS'
     $opPayload = ConvertTo-CompactJson @{ schema = 'delivery-progress/v1'; cadence = 'continuous'; current_stage = 'implementation'; completed = 1; total = 2; authorization = (New-AuthorizationRecord -Kind continuous -PlanIdentity $opIdentityBefore) }
@@ -483,10 +630,11 @@ try {
     Assert-Equal 'US01-S1' ([string]$r.Result.step) 'operational edit selects the same step'
 
     $dropRepo = Join-Path $tempRoot 'drop-repo'
-    $dropDir = Join-Path $dropRepo 'features/unit'
+    $dropDir = Join-Path $dropRepo 'features/001-demo/US01'
     New-Item -ItemType Directory -Path $dropDir -Force | Out-Null
     $dropPlan = Join-Path $dropDir 'PLAN.md'
     Copy-Item -LiteralPath (New-Fixture 'operational-drop') -Destination $dropPlan
+    Add-ReviewBinding $dropPlan
     $dropHash = Get-BlockHashFromFile $dropPlan 'PROGRESS'
     $dropWrite = Invoke-Writer $dropRepo $dropPlan 'PROGRESS' $dropHash '{"schema":"delivery-progress/v1","cadence":"continuous","current_stage":"implementation"}'
     Assert-Equal 'written_and_verified' ([string]$dropWrite.Result.code) 'operational PROGRESS edit without authorization written'
@@ -581,6 +729,10 @@ try {
     $r = Invoke-Decision $evGitEmpty -ContinuousAuth -Resume -Branch ''
     Assert-Equal 'branch_mismatch' ([string]$r.Result.reason) 'git-kind plan denies empty current branch as a mismatch'
 
+    $evOrphan = New-EvidencePlan 'ev-orphan-baseline' -Step1Status IN_PROGRESS -Checkpoint '{"schema":"delivery-checkpoint/v1","branch":"codex/test","head":"abc123","active_step":"US01-S1","baseline_evidence":"US01-S1/plan-snapshot"}'
+    $r = Invoke-Decision $evOrphan -ContinuousAuth -Resume
+    Assert-Equal 'orphaned_in_progress_reconcile_required' ([string]$r.Result.reason) 'Git orphan with intact baseline remains blocked for manual reconciliation'
+
     # Plan-to-plan dependencies
 
     function New-UnitPlanText {
@@ -597,12 +749,15 @@ try {
         $progress = '{"schema":"delivery-progress/v1","cadence":"continuous","authorization":{"kind":"continuous","scope":"continuous","granted_utc":"2026-11-11T12:00:00Z","plan_identity":"@@IDENTITY@@"}}'
         $checkpoint = '{"schema":"delivery-checkpoint/v1","branch":"codex/test","head":"abc123","active_step":null}'
         $stepOne = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S1","status":"' + $StepOneStatus + '","depends_on":[]' + $StepOneEvidence + '}'
+        if ($StepOneStatus -ceq 'COMPLETED' -and $StepOneEvidence -notmatch 'validation_results') {
+            $stepOne = $stepOne.TrimEnd('}') + ',"validation_results":[{"command":"run-tests","result":"passed","exit_code":0}]}'
+        }
         $stepTwo = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S2","status":"' + $StepTwoStatus + '","depends_on":["' + $Unit + '-S1"]}'
         if ($ApprovalState -ceq 'pending') {
             $approval = '{"schema":"delivery-approval/v1","state":"pending"}'
         }
         else {
-            $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"@@IDENTITY@@","input_identity":"INPUT-1","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
+            $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"@@IDENTITY@@","input_identity":"' + ('0' * 64) + '","review_identity":"' + ('0' * 64) + '","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
         }
 
         $lines = @('# Unit plan', '', $Body, '')
@@ -635,6 +790,8 @@ try {
         New-Item -ItemType Directory -Path (Split-Path -Parent $dependentPath) -Force | Out-Null
         [System.IO.File]::WriteAllText($predecessorPath, $PredecessorText, $utf8)
         [System.IO.File]::WriteAllText($dependentPath, $DependentText, $utf8)
+        Add-ReviewBinding $predecessorPath
+        Add-ReviewBinding $dependentPath
         return [pscustomobject]@{ Predecessor = $predecessorPath; Dependent = $dependentPath }
     }
 

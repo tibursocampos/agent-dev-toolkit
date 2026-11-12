@@ -28,6 +28,8 @@ Cross-PLAN: every spawn omits `model` and `effort` unless the session choice sel
 
 ## Default (almost every spawn)
 
+**Native-session gate:** these defaults describe how to invoke a child *after* the session choice is answered. They do not select `inherit` for the operator. Before processing any task in a session with `subagents=native`, the parent must present the one-time session choice and wait for an explicit answer; do not spawn, record `inherit`, or proceed on the assumption that the default answers that question. A saved pair also never answers it. Only an explicit `inherit`/abstention selects inheritance.
+
 1. Call `Agent` **without** the `model` and `effort` parameters.
 2. Child uses the **same model as the parent session** (whatever the user selected for this chat).
 3. Do **not** ask about model choice per spawn; the one session question below is the only model question.
@@ -41,6 +43,7 @@ The parent asks one initial question about the subagents' session configuration,
 ### When
 
 - At session start, before the active skill/task is processed, after effective `subagents=native` and `orchestrator_mode` have been resolved. This applies even when the task later stays in-parent under `adaptive`.
+- The session choice is a blocking startup gate: do not begin the active task or choose inheritance until the operator explicitly answers. The default invocation rule below is not an implicit answer.
 - Never when the effective `subagents` capability is `none` (`subagents=none`): nothing is spawned, so there is nothing to choose.
 - If several spawns are ready before the answer, ask one question; every spawn waits for it.
 

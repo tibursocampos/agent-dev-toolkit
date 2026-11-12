@@ -119,4 +119,4 @@ Lifecycle rules (one bounded assignment per child, batching, clarification only 
 
 ## Model on spawn
 
-Default: **omit `model`** — child uses the **same model as this parent session** (Axis B). A different model and effort apply only through the session choice in `SUBAGENT-MODEL.md` (Axis C), asked once per session. Silence ≠ approval. Never remove Axis A spawn choice.
+The one-time Axis C session choice in `SUBAGENT-MODEL.md` is a blocking startup gate for native-capable sessions. Ask and wait for an explicit answer before processing the task; do not treat the default below or a saved preference as the operator's choice. After the answer, default: **omit `model`** — child uses the **same model as this parent session** (Axis B). Silence ≠ approval. Never remove Axis A spawn choice.

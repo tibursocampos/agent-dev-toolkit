@@ -11,9 +11,11 @@
 param(
     [Parameter(Mandatory = $true)][string] $RepoPath,
     [Parameter(Mandatory = $true)][string] $PlanPath,
+    [string] $SnapshotPath = '',
     [string] $ExpectedIdentity = '',
     [string] $ReviewRecordPath = '',
-    [string] $AliasCatalogPath = ''
+    [string] $AliasCatalogPath = '',
+    [switch] $AsLibrary
 )
 
 Set-StrictMode -Version Latest
@@ -38,6 +40,11 @@ function Exit-WithPreflight {
     )
 
     $report = [pscustomobject]@{ ok = $Ok; identity = $Identity; issues = [object[]]@($Issues) }
+    if ($AsLibrary) {
+        $exception = [System.Exception]::new('Delivery plan preflight completed.')
+        $exception.Data['DeliveryPlanPreflightReport'] = $report
+        throw $exception
+    }
     [Console]::Out.WriteLine(($report | ConvertTo-Json -Compress -Depth 5))
     if ($Ok) { exit 0 }
     exit 3
@@ -342,12 +349,52 @@ try {
 
     $canonicalShape = $planRelative -cmatch '^features/\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*/(?:US|TS)\d{2}/PLAN\.md$'
     $draftShape = $planRelative -cmatch '^features/\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*/scratch/delivery-review/[A-Za-z0-9][A-Za-z0-9._-]*\.md$'
-    if ((-not $canonicalShape -and -not $draftShape) -or -not (Test-Path -LiteralPath $planFull -PathType Leaf)) {
+    $targetExists = Test-Path -LiteralPath $planFull -PathType Leaf
+    $snapshotCanStandInForMissingTarget = $canonicalShape -and -not [string]::IsNullOrWhiteSpace($SnapshotPath)
+    if ((-not $canonicalShape -and -not $draftShape) -or (-not $targetExists -and -not $snapshotCanStandInForMissingTarget)) {
         $issues.Add((New-PreflightIssue -Code 'plan_path_invalid' -Message 'PlanPath must be features/NNN-slug/(USnn|TSnn)/PLAN.md or features/NNN-slug/scratch/delivery-review/<name>.md, and name an existing file.'))
         Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
     }
 
-    $planText = [System.IO.File]::ReadAllText($planFull, [System.Text.Encoding]::UTF8)
+    $planTextFull = $planFull
+    if (-not [string]::IsNullOrWhiteSpace($SnapshotPath)) {
+        if (-not $canonicalShape) {
+            $issues.Add((New-PreflightIssue -Code 'plan_path_invalid' -Message 'SnapshotPath requires PlanPath to identify the intended canonical PLAN.md target.'))
+            Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
+        }
+        $targetFeature = ($planRelative -split '/')[1]
+        $snapshotParts = $SnapshotPath -split '[\\/]'
+        if ($snapshotParts.Count -lt 5 -or $snapshotParts[0] -cne 'features' -or
+            $snapshotParts[1] -cne $targetFeature -or $snapshotParts[2] -cne 'scratch' -or
+            $snapshotParts[3] -cne 'delivery-review' -or $snapshotParts -contains '' -or
+            $snapshotParts -contains '.' -or $snapshotParts -contains '..') {
+            $issues.Add((New-PreflightIssue -Code 'plan_path_invalid' -Message 'SnapshotPath must be a file under the selected feature scratch/delivery-review directory.'))
+            Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
+        }
+        $planTextFull = Get-SafeFullPath $repoFull $SnapshotPath
+        $featureFull = Get-SafeFullPath $repoFull ('features/' + $targetFeature)
+        $snapshotRoot = [System.IO.Path]::GetFullPath((Join-Path $featureFull 'scratch\delivery-review')).TrimEnd([char] [System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+        if (-not $planTextFull.StartsWith($snapshotRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $issues.Add((New-PreflightIssue -Code 'plan_path_invalid' -Message 'SnapshotPath escapes the selected feature scratch/delivery-review directory.'))
+            Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
+        }
+        Assert-NoReparseAncestors $planTextFull $featureFull
+        if (-not (Test-Path -LiteralPath $planTextFull -PathType Leaf)) {
+            $issues.Add((New-PreflightIssue -Code 'plan_path_invalid' -Message 'SnapshotPath must name an existing file.'))
+            Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
+        }
+    }
+    elseif ($canonicalShape -and -not [string]::IsNullOrWhiteSpace($ReviewRecordPath)) {
+        # Canonical post-approval validation reads PlanPath directly.
+        $planTextFull = $planFull
+    }
+
+    if ($draftShape -and -not [string]::IsNullOrWhiteSpace($ReviewRecordPath)) {
+        $issues.Add((New-PreflightIssue -Code 'review_gate_blocked' -Message 'ReviewRecordPath requires the canonical target as PlanPath; pass the draft separately with SnapshotPath.'))
+        Exit-WithPreflight -Ok $false -Identity '' -Issues $issues.ToArray()
+    }
+
+    $planText = [System.IO.File]::ReadAllText($planTextFull, [System.Text.Encoding]::UTF8)
 
     $declared = Get-DeliveryDeclaredSteps -Text $planText
     $declaredSteps = @($declared.Steps)
@@ -457,9 +504,17 @@ try {
         if ($null -ne $approvalJson) {
             $approvalState = Get-DeliveryExactProperty -Object $approvalJson -Name 'state'
             $approvalIdentity = Get-DeliveryExactProperty -Object $approvalJson -Name 'identity'
-            if (($null -ne $approvalState) -and (([string]$approvalState.Value) -ceq 'approved') -and
-                ($null -ne $approvalIdentity) -and (([string]$approvalIdentity.Value) -cne $identity)) {
-                $issues.Add((New-PreflightIssue -Code 'approval_identity_stale' -Message 'APPROVAL identity does not match the recomputed normative identity.'))
+            if (($null -ne $approvalState) -and (([string]$approvalState.Value) -ceq 'approved')) {
+                if (($null -eq $approvalIdentity) -or ([string]$approvalIdentity.Value) -cne $identity) {
+                    $issues.Add((New-PreflightIssue -Code 'approval_identity_stale' -Message 'APPROVAL identity is missing or does not match the recomputed normative identity.'))
+                }
+                $approvalInputIdentity = Get-DeliveryExactProperty -Object $approvalJson -Name 'input_identity'
+                $approvalReviewIdentity = Get-DeliveryExactProperty -Object $approvalJson -Name 'review_identity'
+                if ($null -eq $approvalInputIdentity -or $null -eq $approvalReviewIdentity -or
+                    ([string]$approvalInputIdentity.Value -cnotmatch '\A[0-9A-F]{64}\z') -or
+                    ([string]$approvalReviewIdentity.Value -cnotmatch '\A[0-9A-F]{64}\z')) {
+                    $issues.Add((New-PreflightIssue -Code 'approval_binding_missing' -Message 'Approved DELIVERY blocks require recomputed input_identity and a bound review_identity. Regenerate the review record and obtain fresh content approval.'))
+                }
             }
         }
 
@@ -546,9 +601,24 @@ try {
 
     if ($ReviewRecordPath.Length -gt 0) {
         $checker = Join-Path $PSScriptRoot 'Test-DeliveryReviewRecord.ps1'
+        if ($PSVersionTable.PSVersion.Major -ge 7) {
+            $checkerParameters = @{ RepoPath = $RepoPath; TargetPath = $PlanPath; RecordPath = $ReviewRecordPath; AsLibrary = $true }
+            if (-not [string]::IsNullOrWhiteSpace($SnapshotPath)) { $checkerParameters['SnapshotPath'] = $SnapshotPath }
+            if ($AliasCatalogPath.Length -gt 0) { $checkerParameters['AliasCatalogPath'] = $AliasCatalogPath }
+            $checked = & $checker @checkerParameters
+            if ($checked.ExitCode -eq 1) {
+                $run = [pscustomobject]@{ ExitCode = 1; Stdout = ''; Stderr = [string]$checked.Error }
+            }
+            else {
+                $run = [pscustomobject]@{ ExitCode = [int]$checked.ExitCode; Stdout = ($checked.Result | ConvertTo-Json -Compress -Depth 10); Stderr = '' }
+            }
+        }
+        else {
         $checkerArguments = @('-RepoPath', $RepoPath, '-TargetPath', $PlanPath, '-RecordPath', $ReviewRecordPath)
+        if (-not [string]::IsNullOrWhiteSpace($SnapshotPath)) { $checkerArguments += @('-SnapshotPath', $SnapshotPath) }
         if ($AliasCatalogPath.Length -gt 0) { $checkerArguments += @('-AliasCatalogPath', $AliasCatalogPath) }
         $run = Invoke-ReviewChecker -CheckerPath $checker -Arguments $checkerArguments
+        }
         $verdict = $null
         if ($run.ExitCode -ne 1) {
             try { $verdict = $run.Stdout.Trim() | ConvertFrom-Json } catch { $verdict = $null }
@@ -562,11 +632,43 @@ try {
         elseif (-not [bool]$verdict.allowed) {
             $issues.Add((New-PreflightIssue -Code 'review_gate_blocked' -Message ('Review gate blocked: {0}.' -f [string]$verdict.reason)))
         }
+        else {
+            $verifiedIdentity = Get-DeliveryExactProperty -Object $verdict -Name 'identity'
+            $verifiedReviewIdentity = $null
+            $verifiedInputIdentity = $null
+            if ($null -ne $verifiedIdentity -and $null -ne $verifiedIdentity.Value) {
+                $verifiedReviewIdentity = Get-DeliveryExactProperty -Object $verifiedIdentity.Value -Name 'review_identity'
+                $verifiedInputIdentity = Get-DeliveryExactProperty -Object $verifiedIdentity.Value -Name 'material_input_identity'
+            }
+            if ($null -eq $verifiedIdentity -or $null -eq $verifiedReviewIdentity -or $null -eq $verifiedInputIdentity) {
+                $issues.Add((New-PreflightIssue -Code 'review_gate_blocked' -Message 'Review checker returned an allowed verdict without verified review and material-input identities.'))
+            }
+            else {
+                $approvedReviewIdentity = $null
+                $approvedInputIdentity = $null
+                if ($null -ne $approvalJson) {
+                    $reviewIdentityProperty = Get-DeliveryExactProperty -Object $approvalJson -Name 'review_identity'
+                    $inputIdentityProperty = Get-DeliveryExactProperty -Object $approvalJson -Name 'input_identity'
+                    if ($null -ne $reviewIdentityProperty) { $approvedReviewIdentity = [string]$reviewIdentityProperty.Value }
+                    if ($null -ne $inputIdentityProperty) { $approvedInputIdentity = [string]$inputIdentityProperty.Value }
+                }
+                if ($approvedReviewIdentity -cne [string]$verifiedReviewIdentity.Value) {
+                    $issues.Add((New-PreflightIssue -Code 'approval_review_identity_stale' -Message 'APPROVAL review_identity does not match the recomputed durable review binding.'))
+                }
+                if ($approvedInputIdentity -cne [string]$verifiedInputIdentity.Value) {
+                    $issues.Add((New-PreflightIssue -Code 'approval_input_identity_stale' -Message 'APPROVAL input_identity does not match the recomputed material input identity.'))
+                }
+            }
+        }
     }
 
     Exit-WithPreflight -Ok ($issues.Count -eq 0) -Identity $identity -Issues $issues.ToArray()
 }
 catch {
+    if ($AsLibrary) {
+        if ($_.Exception.Data.Contains('DeliveryPlanPreflightReport')) { return $_.Exception.Data['DeliveryPlanPreflightReport'] }
+        return [pscustomobject]@{ ok = $false; identity = ''; issues = @([pscustomobject]@{ code = 'preflight_error'; message = $_.Exception.Message; step = '' }) }
+    }
     [Console]::Error.WriteLine($_.Exception.Message)
     exit 1
 }

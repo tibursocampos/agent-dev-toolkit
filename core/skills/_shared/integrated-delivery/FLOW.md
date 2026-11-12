@@ -28,6 +28,7 @@ The coordinator is the sole user-facing entry and routes one state at a time. It
 - After a correction, reviewers recheck the changed content and affected context. The review identity includes declared dependencies; a changed, missing, or unverifiable dependency blocks the affected approval and execution.
 - An unavailable cold review stops the flow and offers an explicit bypass with reason. B/I findings remain blocking under bypass.
 - Drafts may be prepared in memory or scratch, then cold-reviewed before the canonical write. Do not require legacy SDD structural validators, scorecards, or quality checklists as gates in this flow. Keep only checks necessary for the chosen operational state format and safe execution.
+- Plans and refinements are written for a cold reader. Material external facts are checked against primary sources when available; record the source, version/date, and uncertainty when a fact shapes scope, acceptance, or execution. Label repository observations, facts, inferences, assumptions, and gaps distinctly.
 
 ## Conditional specialist routing
 

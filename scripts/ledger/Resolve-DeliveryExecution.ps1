@@ -11,13 +11,16 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string] $PlanPath,
+    [Parameter(Mandatory = $true)][string] $ReviewRecordPath,
+    [string] $AliasCatalogPath = '',
     [Parameter(Mandatory = $true)][ValidateSet('step_by_step', 'continuous')][string] $Cadence,
     [Parameter(Mandatory = $true)][string] $CurrentInputIdentity,
     [Parameter(Mandatory = $true)][AllowEmptyString()][string] $CurrentBranch,
     [Parameter(Mandatory = $true)][AllowEmptyString()][string] $CurrentHead,
     [switch] $Resume,
     [switch] $StepAuthorization,
-    [switch] $ContinuousAuthorization
+    [switch] $ContinuousAuthorization,
+    [switch] $AsLibrary
 )
 
 Set-StrictMode -Version Latest
@@ -39,6 +42,72 @@ function Get-BlockJson([object[]]$Blocks, [string]$Type) {
 
 function Test-Field($Object, [string]$Name) {
     return ($null -ne $Object -and $null -ne $Object.PSObject.Properties[$Name])
+}
+
+function Get-VerifiedReviewIdentity {
+    param([string]$PlanFullPath)
+
+    $location = Get-EvidenceLocation -PlanFullPath $PlanFullPath
+    if ($null -eq $location) { throw 'review_gate_target_invalid' }
+    $repoRoot = [string]$location.Root
+    $repoPrefix = $repoRoot.TrimEnd([char] [System.IO.Path]::DirectorySeparatorChar, [char] [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $PlanFullPath.StartsWith($repoPrefix, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'review_gate_target_invalid' }
+    $relativePlan = $PlanFullPath.Substring($repoPrefix.Length).Replace('\', '/')
+    if ($relativePlan -notmatch '^features/[^/]+/(US|TS)[0-9]{2}/PLAN\.md$') { throw 'review_gate_target_invalid' }
+    $checker = Join-Path (Split-Path -Parent $PSScriptRoot) 'runtime/Test-DeliveryReviewRecord.ps1'
+    if (-not (Test-Path -LiteralPath $checker -PathType Leaf)) { throw 'review_gate_unavailable' }
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        try {
+            $arguments = @{ RepoPath = $repoRoot; TargetPath = $relativePlan; RecordPath = $ReviewRecordPath; AsLibrary = $true }
+            if (-not [string]::IsNullOrWhiteSpace($AliasCatalogPath)) { $arguments['AliasCatalogPath'] = $AliasCatalogPath }
+            $check = & $checker @arguments
+        }
+        catch { throw 'review_gate_invalid_result' }
+        if ($null -eq $check -or $null -eq $check.Result) { throw 'review_gate_invalid_result' }
+        $verdict = $check.Result
+        if ([int]$check.ExitCode -ne 0) {
+            if (Test-Field $verdict 'reason') { throw ('review_gate_' + [string]$verdict.reason) }
+            throw 'review_gate_denied'
+        }
+        if (-not (Test-Field $verdict 'allowed') -or $verdict.allowed -ne $true -or -not (Test-Field $verdict 'identity') -or
+            -not (Test-Field $verdict.identity 'review_identity') -or -not (Test-Field $verdict.identity 'material_input_identity')) {
+            throw 'review_gate_invalid_result'
+        }
+        return $verdict.identity
+    }
+    $pwshCommand = Get-Command pwsh -ErrorAction SilentlyContinue
+    if ($null -eq $pwshCommand) { throw 'review_gate_runtime_unavailable' }
+    $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $checker, '-RepoPath', $repoRoot, '-TargetPath', $relativePlan, '-RecordPath', $ReviewRecordPath)
+    if (-not [string]::IsNullOrWhiteSpace($AliasCatalogPath)) { $arguments += @('-AliasCatalogPath', $AliasCatalogPath) }
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $pwshCommand.Source
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+    $quoted = foreach ($argument in $arguments) { '"' + ([string]$argument).Replace('"', '\\"') + '"' }
+    $startInfo.Arguments = [string]::Join(' ', $quoted)
+    $process = [System.Diagnostics.Process]::Start($startInfo)
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(5000)) {
+        try { $process.Kill($true) } catch { }
+        [void]$process.WaitForExit(2000)
+        throw 'review_gate_timeout'
+    }
+    $stdout = $stdoutTask.Result
+    $stderr = $stderrTask.Result
+    if ($process.ExitCode -ne 0) {
+        try { $verdict = $stdout | ConvertFrom-Json } catch { throw 'review_gate_invalid_result' }
+        if (Test-Field $verdict 'reason') { throw ('review_gate_' + [string]$verdict.reason) }
+        throw 'review_gate_denied'
+    }
+    try { $verdict = $stdout | ConvertFrom-Json } catch { throw 'review_gate_invalid_result' }
+    if (-not (Test-Field $verdict 'allowed') -or $verdict.allowed -ne $true -or -not (Test-Field $verdict 'identity') -or
+        -not (Test-Field $verdict.identity 'review_identity') -or -not (Test-Field $verdict.identity 'material_input_identity')) {
+        throw 'review_gate_invalid_result'
+    }
+    return $verdict.identity
 }
 
 function Assert-ExecutionAuthorization {
@@ -185,6 +254,30 @@ function Get-EvidenceFailure {
     return $null
 }
 
+function Get-OrphanBaselineFailure {
+    param(
+        [Parameter(Mandatory = $true)][string] $StepId,
+        [Parameter(Mandatory = $true)][object] $Checkpoint,
+        [Parameter(Mandatory = $true)][object] $Location,
+        [Parameter(Mandatory = $true)][object[]] $Blocks
+    )
+
+    if (-not (Test-Field $Checkpoint 'active_step') -or [string]$Checkpoint.active_step -cne $StepId) {
+        return (New-EvidenceFailure -Reason 'baseline_ref_invalid' -Reference ($StepId + '/git-baseline'))
+    }
+    if (-not (Test-Field $Checkpoint 'baseline_evidence') -or
+        [string]::IsNullOrWhiteSpace([string]$Checkpoint.baseline_evidence)) {
+        return (New-EvidenceFailure -Reason 'baseline_missing' -Reference ($StepId + '/git-baseline'))
+    }
+    $baselineText = [string]$Checkpoint.baseline_evidence
+    $separator = $baselineText.IndexOf('/')
+    if ($separator -le 0 -or $separator -eq ($baselineText.Length - 1) -or
+        $baselineText.Substring(0, $separator) -cne $StepId -or $baselineText.IndexOf('/', $separator + 1) -ge 0) {
+        return (New-EvidenceFailure -Reason 'baseline_ref_invalid' -Reference $baselineText)
+    }
+    return (Get-EvidenceFailure -Step $StepId -Name $baselineText.Substring($separator + 1) -Location $Location -Blocks $Blocks -Kind 'baseline')
+}
+
 function New-DependencyFailure {
     param(
         [Parameter(Mandatory = $true)][string] $Reason,
@@ -205,6 +298,28 @@ function Test-AcceptanceEvidence {
             if ($item -is [System.DateTime]) { return $true }
             if (($item -is [string]) -and ($item.Trim().Length -gt 0)) { return $true }
         }
+    }
+    return $false
+}
+
+function Test-DeclaredValidationEvidence {
+    param(
+        [Parameter(Mandatory = $true)][AllowNull()][object] $Step,
+        [Parameter(Mandatory = $true)][string] $DeclaredCommand
+    )
+
+    $resultsProperty = Get-DeliveryExactProperty -Object $Step -Name 'validation_results'
+    if ($null -eq $resultsProperty -or $resultsProperty.Value -isnot [System.Array]) { return $false }
+    foreach ($result in @($resultsProperty.Value)) {
+        $command = Get-DeliveryExactProperty -Object $result -Name 'command'
+        $status = Get-DeliveryExactProperty -Object $result -Name 'result'
+        if ($null -eq $command -or $command.Value -isnot [string] -or
+            $null -eq $status -or $status.Value -isnot [string]) { continue }
+        if ([string]$command.Value -ine $DeclaredCommand.Trim() -or
+            ([string]$status.Value).Trim() -inotmatch '^(pass|passed|success|succeeded)$') { continue }
+        $exitCode = Get-DeliveryExactProperty -Object $result -Name 'exit_code'
+        if ($null -ne $exitCode -and $exitCode.Value -ne 0) { continue }
+        return $true
     }
     return $false
 }
@@ -285,6 +400,11 @@ function Get-PlanDependencyFailure {
             return (New-DependencyFailure -Reason 'plan_dependency_not_approved' -Dependency $dependencyPath)
         }
 
+        $predecessorDeclared = Get-DeliveryDeclaredSteps -Text $predecessorText
+        if (@($predecessorDeclared.Errors).Count -gt 0) {
+            return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+        }
+
         foreach ($stepId in @($dependency.Steps)) {
             $stepJson = $null
             $stepFound = $false
@@ -299,6 +419,11 @@ function Get-PlanDependencyFailure {
                 return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
             }
 
+            $declaredStep = @($predecessorDeclared.Steps | Where-Object { [string]$_.Id -ceq [string]$stepId }) | Select-Object -First 1
+            if ($null -eq $declaredStep -or [string]::IsNullOrWhiteSpace([string]$declaredStep.Validation)) {
+                return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+            }
+
             $statusProperty = Get-DeliveryExactProperty -Object $stepJson -Name 'status'
             if (($null -eq $statusProperty) -or ($statusProperty.Value -isnot [string]) -or ($statusProperty.Value -cne 'COMPLETED')) {
                 return (New-DependencyFailure -Reason 'plan_dependency_step_incomplete' -Dependency $dependencyPath)
@@ -307,6 +432,9 @@ function Get-PlanDependencyFailure {
             $evidenceProperty = Get-DeliveryExactProperty -Object $stepJson -Name 'acceptance_evidence'
             if (($null -eq $evidenceProperty) -or -not (Test-AcceptanceEvidence -Value $evidenceProperty.Value)) {
                 return (New-DependencyFailure -Reason 'plan_dependency_evidence_missing' -Dependency $dependencyPath)
+            }
+            if (-not (Test-DeclaredValidationEvidence -Step $stepJson -DeclaredCommand ([string]$declaredStep.Validation))) {
+                return (New-DependencyFailure -Reason 'plan_dependency_validation_missing' -Dependency $dependencyPath)
             }
         }
     }
@@ -345,9 +473,12 @@ try {
     $progress = Get-BlockJson -Blocks @($parsed.Blocks) -Type 'PROGRESS'
     $checkpoint = Get-BlockJson -Blocks @($parsed.Blocks) -Type 'CHECKPOINT'
     $approval = Get-BlockJson -Blocks @($parsed.Blocks) -Type 'APPROVAL'
+    $verifiedReviewIdentity = Get-VerifiedReviewIdentity -PlanFullPath $resolved
     if (-not (Test-Field $approval 'state') -or $approval.state -cne 'approved') { throw 'plan_not_approved' }
     if (-not (Test-Field $approval 'identity') -or $approval.identity -cne $planIdentity) { throw 'approval_identity_stale' }
-    if (-not (Test-Field $approval 'input_identity') -or $approval.input_identity -cne $CurrentInputIdentity) { throw 'material_input_identity_stale' }
+    if (-not (Test-Field $approval 'input_identity') -or $approval.input_identity -cne $CurrentInputIdentity -or
+        $approval.input_identity -cne [string]$verifiedReviewIdentity.material_input_identity) { throw 'material_input_identity_stale' }
+    if (-not (Test-Field $approval 'review_identity') -or $approval.review_identity -cne [string]$verifiedReviewIdentity.review_identity) { throw 'review_identity_stale' }
     if (-not (Test-Field $approval 'review_state') -or $approval.review_state -notin @('reviewed', 'bypassed')) { throw 'review_required' }
     if ($approval.review_state -ceq 'bypassed' -and
         ((-not (Test-Field $approval 'review_bypass_reason')) -or [string]::IsNullOrWhiteSpace([string]$approval.review_bypass_reason) -or
@@ -361,6 +492,9 @@ try {
 
     $declared = Get-DeliveryDeclaredSteps -Text $text
     $declaredSteps = @($declared.Steps)
+    foreach ($declaredError in @($declared.Errors)) {
+        if ([string]$declaredError.code -cne 'evidence_declaration_invalid') { throw 'declared_step_graph_invalid' }
+    }
     $location = Get-EvidenceLocation -PlanFullPath $resolved
     $locationKind = 'git'
     if ((Test-Field $checkpoint 'location_kind') -and ($checkpoint.location_kind -ceq 'directory')) { $locationKind = 'directory' }
@@ -406,18 +540,68 @@ try {
         $stepOrder.Add($stepId)
     }
     if ($steps.Count -eq 0) { throw 'step_blocks_missing' }
+    # The plan prose is normative; depends_on in operational blocks is only a
+    # checked copy. Never use that copy to release a step at selection time.
+    $declaredById = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::Ordinal)
+    foreach ($declaredStep in $declaredSteps) {
+        $declaredById[[string]$declaredStep.Id] = $declaredStep
+    }
+    if ($declaredById.Count -ne $steps.Count) { throw 'declared_step_graph_invalid' }
+    foreach ($id in $stepOrder) {
+        if (-not $declaredById.ContainsKey($id)) { throw 'declared_step_graph_invalid' }
+        $declaredDependencies = @($declaredById[$id].DependsOn)
+        $operationalDependencies = @($dependencies[$id])
+        if ((Test-Field $steps[$id] 'depends_on') -and (($declaredDependencies.Count -ne $operationalDependencies.Count) -or
+            @($declaredDependencies | Where-Object { $operationalDependencies -cnotcontains $_ }).Count -gt 0 -or
+            @($operationalDependencies | Where-Object { $declaredDependencies -cnotcontains $_ }).Count -gt 0)) {
+            throw 'depends_on_mismatch'
+        }
+        $dependencies[$id] = [System.Collections.Generic.List[string]]::new()
+        foreach ($dependencyId in $declaredDependencies) { $dependencies[$id].Add([string]$dependencyId) }
+    }
     if ((Test-Field $checkpoint 'active_step') -and -not [string]::IsNullOrWhiteSpace([string]$checkpoint.active_step)) {
         $activeId = [string]$checkpoint.active_step
         if (-not $steps.ContainsKey($activeId)) { throw 'checkpoint_active_step_missing' }
-        if ($steps[$activeId].status -ceq 'IN_PROGRESS') { throw 'orphaned_in_progress_reconcile_required' }
+        if ($steps[$activeId].status -ceq 'IN_PROGRESS') {
+            if ($locationKind -ceq 'git') {
+                $orphanBaselineFailure = Get-OrphanBaselineFailure -StepId $activeId -Checkpoint $checkpoint -Location $location -Blocks @($parsed.Blocks)
+                if ($null -ne $orphanBaselineFailure) { $denialEvidence = [string]$orphanBaselineFailure.Evidence; throw ([string]$orphanBaselineFailure.Reason) }
+            }
+            throw 'orphaned_in_progress_reconcile_required'
+        }
         throw 'checkpoint_active_step_inconsistent'
     }
     foreach ($id in $stepOrder) {
         $step = $steps[$id]
         if ($step.status -ceq 'BLOCKED') { throw 'blocked_step_requires_resolution' }
-        if ($step.status -ceq 'IN_PROGRESS') { throw 'orphaned_in_progress_reconcile_required' }
+        if ($step.status -ceq 'IN_PROGRESS') {
+            if ($locationKind -ceq 'git') {
+                $orphanBaselineFailure = Get-OrphanBaselineFailure -StepId $id -Checkpoint $checkpoint -Location $location -Blocks @($parsed.Blocks)
+                if ($null -ne $orphanBaselineFailure) { $denialEvidence = [string]$orphanBaselineFailure.Evidence; throw ([string]$orphanBaselineFailure.Reason) }
+            }
+            throw 'orphaned_in_progress_reconcile_required'
+        }
         foreach ($dependency in $dependencies[$id]) {
             if (-not $steps.ContainsKey($dependency) -or $dependency -ceq $id) { throw 'dependency_invalid' }
+            if ($steps[$dependency].status -ceq 'COMPLETED') {
+                $predecessor = $steps[$dependency]
+                if (-not (Test-Field $predecessor 'acceptance_evidence') -or
+                    -not (Test-AcceptanceEvidence -Value $predecessor.acceptance_evidence)) { throw 'dependency_evidence_missing' }
+                $requiredValidation = [string]$declaredById[$dependency].Validation
+                $validationPassed = $false
+                $validationResults = @()
+                if (Test-Field $predecessor 'validation_results') { $validationResults = @($predecessor.validation_results) }
+                foreach ($validation in $validationResults) {
+                    if ((Test-Field $validation 'command') -and (Test-Field $validation 'result') -and
+                        ([string]$validation.command).Trim() -ieq $requiredValidation.Trim() -and
+                        ([string]$validation.result).Trim() -imatch '^(pass|passed|success|succeeded)$' -and
+                        ((-not (Test-Field $validation 'exit_code')) -or [int]$validation.exit_code -eq 0)) {
+                        $validationPassed = $true
+                        break
+                    }
+                }
+                if (-not $validationPassed) { throw 'dependency_validation_missing' }
+            }
         }
     }
     $eligibleId = ''
@@ -463,7 +647,9 @@ try {
         }
     }
 
-    return (New-Decision $true 'next_step_eligible' $eligibleId) | ConvertTo-Json -Compress
+    $decision = New-Decision $true 'next_step_eligible' $eligibleId
+    if ($AsLibrary) { return [pscustomobject]@{ ExitCode = 0; Result = $decision } }
+    return $decision | ConvertTo-Json -Compress
 }
 catch {
     $reason = $_.Exception.Message
@@ -478,6 +664,7 @@ catch {
     if ($denialDependency.Length -gt 0) {
         $decision | Add-Member -NotePropertyName dependency -NotePropertyValue $denialDependency
     }
+    if ($AsLibrary) { return [pscustomobject]@{ ExitCode = 1; Result = $decision } }
     $decision | ConvertTo-Json -Compress
     exit 1
 }

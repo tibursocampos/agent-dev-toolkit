@@ -10,7 +10,7 @@ Create or update one canonical `REFINEMENT.md` only when the shared document con
 
 ## Before writing
 
-1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md`; read `REVIEW.md` when entering or resuming the cold-review gate.
+1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md`; at the first transition in a host session, follow `STARTUP.md` to resolve and record the startup marker before any canonical write. Check `-Gate spawn` before the first delegation and `-Gate review-record` before each durable review-record write. Read `REVIEW.md` when entering or resuming the cold-review gate.
 2. Confirm this is a multi-unit/cross-cutting feature or a previously simple case that acquired a material cross-unit decision. If it is a simple single unit, return to the coordinator and route directly to planning.
 3. Inspect current canonical files and declared source inputs. Resolve the feature path using the repository's existing storage convention; do not invent a root or write to the experiment's design folder.
 4. Reuse settled decisions and evidence; ask the coordinator to collect unresolved material decisions before drafting. Do not repeat questions answered by the operator or current repository evidence.
@@ -35,6 +35,7 @@ Approval state lives only in the single APPROVAL block (`references/refinement-f
 - No full Q&A history, raw specialist/reviewer transcripts, duplicated PRD, separate criteria file, or default `ANALYSIS/`, `ARCH/`, `SEC/`, `STORY.md`, or `CONTINUITY.md` tree.
 - Facts, inferences, assumptions, gaps, and operator decisions remain visibly distinct.
 - Record each platform, API, SDK or integration constraint that shapes a decision with its primary source, version or date, a verifiable statement of the constraint, and open uncertainties; an unsourced constraint that affects a decision is a material gap, not an assumption.
+- Verify material external facts against current primary sources when possible. Label facts, repository observations, inferences, assumptions, and gaps distinctly; include enough source detail for a reviewer to recheck a claim, and date volatile facts.
 - Never claim approval, successful review, host isolation, or validation that was not observed.
 
 ## Lazy-load

@@ -212,7 +212,14 @@ function Assert-DeliveryReviewRecordShape {
         [Parameter(Mandatory = $true)][AllowNull()][object] $Value
     )
 
-    if (-not (Test-DeliveryReviewEnum -Value $Value.schema -Allowed @('delivery-review-record/v1'))) { throw 'Record schema must be delivery-review-record/v1.' }
+    if (-not (Test-DeliveryReviewEnum -Value $Value.schema -Allowed @('delivery-review-record/v1', 'delivery-review-record/v2'))) { throw 'Record schema must be delivery-review-record/v1 or delivery-review-record/v2.' }
+    if ($Value.schema -ceq 'delivery-review-record/v2') {
+        $materialIdentity = Get-DeliveryReviewRecordField -Object $Value -Name 'material_input_identity'
+        if ($materialIdentity -isnot [string] -or $materialIdentity -cnotmatch '\A[0-9A-F]{64}\z') { throw 'v2 record requires uppercase material_input_identity SHA-256.' }
+        $target = Get-DeliveryReviewRecordField -Object $Value -Name 'target'
+        $targetBinding = Get-DeliveryReviewRecordField -Object $target -Name 'review_identity'
+        if ($targetBinding -isnot [string] -or $targetBinding -cnotmatch '\A[0-9A-F]{64}\z') { throw 'v2 record requires target.review_identity SHA-256 binding.' }
+    }
     $state = $Value.state
     if (-not (Test-DeliveryReviewEnum -Value $state -Allowed @('reviewed', 'bypassed', 'not_run'))) { throw 'Invalid review state.' }
     if ($null -eq $Value.reviewers -or $null -eq $Value.dispositions -or $null -eq $Value.inputs) { throw 'Record requires reviewers, dispositions, and inputs.' }
@@ -437,4 +444,64 @@ function Get-DeliveryReviewIdentity {
     }
     $identityJson = $identityPayload | ConvertTo-Json -Depth 20 -Compress
     return Get-Sha256Text $identityJson
+}
+
+function Get-DeliveryMaterialInputIdentity {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][object[]] $Inputs
+    )
+
+    # Identity format is explicitly versioned. Inputs are a set: order of declarations and
+    # order of impacted IDs do not change its identity. The caller must provide recomputed hashes.
+    $rows = [System.Collections.Generic.List[object]]::new()
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($input in $Inputs) {
+        $id = [string]$input.id
+        if ([string]::IsNullOrWhiteSpace($id) -or -not $seen.Add($id)) { throw 'Material input IDs must be non-blank and unique.' }
+        $impactedSet = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::Ordinal)
+        foreach ($impactedId in @($input.impacted_ids)) { [void]$impactedSet.Add([string]$impactedId) }
+        $impacted = [string[]]@($impactedSet)
+        $rows.Add([ordered]@{
+            id = $id
+            path = ([string]$input.path).Replace('\', '/')
+            sha256 = ([string]$input.sha256).ToUpperInvariant()
+            role = [string]$input.role
+            impacted_ids = $impacted
+        })
+    }
+    $orderedRows = [object[]]$rows.ToArray()
+    [Array]::Sort($orderedRows, [System.Collections.Generic.Comparer[object]]::Create([System.Comparison[object]]{
+        param($left, $right)
+        return [System.StringComparer]::Ordinal.Compare([string]$left.id, [string]$right.id)
+    }))
+    $payload = [ordered]@{ schema = 'delivery-material-input-identity/v1'; inputs = $orderedRows }
+    return Get-Sha256Text ($payload | ConvertTo-Json -Depth 20 -Compress)
+}
+
+function Get-DeliveryReviewRecordBindingIdentity {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][pscustomobject] $Record,
+        [Parameter(Mandatory = $true)][string] $MaterialInputIdentity
+    )
+
+    # Approval metadata and provenance timestamps are deliberately excluded to avoid circular
+    # binding. Review status, reviewer outputs, findings and dispositions are included.
+    $payload = [ordered]@{
+        schema = 'delivery-review-binding/v1'
+        target = [ordered]@{
+            path = ([string]$Record.target.path).Replace('\', '/')
+            kind = [string]$Record.target.kind
+            stage = [string]$Record.target.stage
+            content_sha256 = [string]$Record.target.content_sha256
+        }
+        material_input_identity = $MaterialInputIdentity
+        state = [string]$Record.state
+        reason = (Get-DeliveryReviewRecordField -Object $Record -Name 'reason')
+        operator_choice = (Get-DeliveryReviewRecordField -Object $Record -Name 'operator_choice')
+        reviewers = $Record.reviewers
+        dispositions = @($Record.dispositions)
+    }
+    return Get-Sha256Text ($payload | ConvertTo-Json -Depth 50 -Compress)
 }

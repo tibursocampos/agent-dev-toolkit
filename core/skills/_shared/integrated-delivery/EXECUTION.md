@@ -29,12 +29,18 @@ Each decision has one owner and one record. A decision never extends to another 
 
 | Decision | Decided by | Recorded in | Covers | Never covers |
 |---|---|---|---|---|
-| Approve plan content | Operator | APPROVAL block (`state`, `identity`, `input_identity`, `review_state`, `approved_utc`) | Writing the exact displayed content to the declared canonical path | Implementation, cadence, Git, publication, external effects |
+| Approve plan content | Operator | APPROVAL block (`state`, `identity`, `input_identity`, `review_state`, `review_identity`, `approved_utc`) | Writing the exact displayed content to the declared canonical path | Implementation, cadence, Git, publication, external effects |
 | Authorize implementation and choose cadence | Operator | PROGRESS block (`cadence`, `authorization`) | The listed steps (`step_by_step`) or all eligible steps (`continuous`) of that exact plan identity | Other plans, Git, publication, external effects, scope expansion |
 | Preparatory precondition (for example creating or switching a work branch) | Operator or the plan's declared owner, outside the executor | Plan `Preconditions` entry, observed through CHECKPOINT branch and HEAD or the operator's confirmation | Only the named precondition | Execution by the executor; any effect of plan approval or cadence |
 | Commit, push, merge, publication, external effects | Operator, by separate authorization naming the action and destination | Not stored in PROGRESS or APPROVAL; the operator's explicit instruction | Only the named action and destination | Any other action; approval, cadence, and authorization records never cover it |
 
-The resolver reads only the APPROVAL and PROGRESS records. It does not read or verify preconditions or Git/publication authorization, and it does not authenticate the operator.
+Before every selection or resume, run `Test-DeliveryPlanPreflight.ps1 -ExpectedIdentity <approved identity> -ReviewRecordPath <record>`, then call the resolver with the same `-ReviewRecordPath`. The resolver independently runs `Test-DeliveryReviewRecord.ps1`, compares its recomputed `review_identity` and `material_input_identity` with APPROVAL and the caller's current input identity, and fails closed if the gate is unavailable or denied. Pass `-AliasCatalogPath` when external aliases are used. It still does not verify preconditions or Git/publication authorization, and it does not authenticate the operator.
+
+At each selection, the resolver uses `Depends on:` from the normative `## Steps` section as the dependency graph. If a STEP block includes the optional `depends_on` copy, it must match the declaration; a mismatch denies with `depends_on_mismatch`. Each completed predecessor must carry non-blank `acceptance_evidence` and a `validation_results` entry whose `command` matches its declared `Validation:` value, whose `result` is `pass`, `passed`, `success`, or `succeeded` (case-insensitive), and whose optional `exit_code` is zero. Missing evidence denies selection with `dependency_evidence_missing` or `dependency_validation_missing`. This check is repeated before every selected step.
+
+For each cross-plan `Requires plan` predecessor step, the resolver applies the same completion, acceptance-evidence, and declared-validation evidence checks. Missing cross-plan evidence denies with `plan_dependency_evidence_missing` or `plan_dependency_validation_missing` and identifies the predecessor plan.
+
+The resolver maps a denied or unavailable review checker to `review_gate_<reason>` (or `review_gate_unavailable`, `review_gate_runtime_unavailable`, `review_gate_timeout`, `review_gate_invalid_result`). The checker is bounded to five seconds; timeout kills its process tree and denies selection. A valid review whose identity differs from APPROVAL denies with `review_identity_stale`; mismatched material inputs deny with `material_input_identity_stale`. An approved pre-v2 record fails closed at the checker with `review_gate_approval_binding_missing` and requires regeneration plus reapproval.
 
 ## Approval and review state
 
@@ -71,6 +77,8 @@ Progress block records cadence, current stage, completed/total counts, and the s
 - Resume cannot repeat a completed step, skip a dependency, or execute a stale step.
 - Each run has a unique ID. Writes are idempotent by plan identity, step ID, and run ID; conflicting concurrent state fails closed.
 - Cross-machine resume is unsupported for this experiment while artifacts and state remain local and unversioned; report that boundary.
+- For a `directory` checkpoint, the resolver verifies that the referenced baseline evidence file still matches its recorded hash. This establishes evidence-file integrity only; it does not prove that the current directory is clean or unchanged from the moment the baseline was captured. If the operator cannot establish that relationship, stop and obtain direction; do not regenerate the baseline automatically.
+- Before a STEP block can transition to `IN_PROGRESS`, `Set-DeliveryExecutionBlock.ps1` requires the CHECKPOINT baseline reference to resolve to one matching STEP `evidence_refs` entry and verifies the file's current hash. This guard applies after the resolver selects a candidate, so baseline capture does not block candidate selection.
 
 ## State storage
 

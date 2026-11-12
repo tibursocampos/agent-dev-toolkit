@@ -83,13 +83,10 @@ try {
     $reasons = [System.Collections.Generic.List[string]]::new()
     $count = $blockingByRound.Count
     if (($count -gt $StallRounds) -and ($blockingByRound[$count - 1] -gt 0)) {
-        $stalled = $true
-        for ($i = $count - $StallRounds; $i -lt $count; $i++) {
-            if ($blockingByRound[$i] -lt $blockingByRound[$i - 1]) {
-                $stalled = $false
-                break
-            }
-        }
+        # Compare the endpoints of the recent transition window. A temporary
+        # decrease followed by a rebound is not convergence (e.g. 3,2,3).
+        $windowStart = $count - 1 - $StallRounds
+        $stalled = $blockingByRound[$count - 1] -ge $blockingByRound[$windowStart]
         if ($stalled) { $reasons.Add('no_convergence') }
     }
     if ($hasMaxTokens -and ($tokenTotal -gt $MaxTokens)) { $reasons.Add('token_budget_exceeded') }

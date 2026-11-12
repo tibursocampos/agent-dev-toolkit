@@ -145,7 +145,7 @@ Identity:
 - `Get-DeliveryBlockHash -Payload` is the uppercase SHA-256 hex of the normalized payload with trailing LF characters trimmed.
 - `Get-DeliverySha256Hex -Text` is the uppercase SHA-256 hex of UTF-8 bytes (no BOM) of the text as given.
 
-The projection covers document text only. Declared material inputs (portable path or revision, recomputed SHA-256, role, impacted ids) are hashed by the caller. See `core/skills/integrated-delivery-review/references/review-protocol.md`. That composition is not implemented by this library.
+The projection covers document text only. Declared material inputs are composed by the versioned `delivery-material-input-identity/v1` canonical set hash in `scripts/_lib/DeliveryReviewRecord.ps1`; callers must recompute each input hash before using it. The review binding then covers the target identity, material input identity, review state, reviewer outputs, findings, and dispositions. These hashes detect content substitution; they do not prove authorship or operator identity.
 
 Markers inside fenced code blocks are not removed, so they remain in the projection.
 
@@ -265,7 +265,7 @@ Directory kind. A unit outside Git has no branch or HEAD to observe. With `locat
 | `blocking_findings` | Optional | array | Must be empty for eligibility. The resolver treats a missing property as empty. |
 | `unresolved_decisions` | Optional | array | Must be empty for eligibility. Same presence rule as `blocking_findings`. |
 | `operator_choice` | Optional | object | `{ "choice": string, "evidence": string }`. Both inner keys are optional; no other inner key is allowed. Content-approval evidence, with `choice` set to `content_approval`. The resolver does not read it. |
-| `review_identity` | Optional | string | Identity of the review record that backs this approval. Binds the approval to the durable review record. |
+| `review_identity` | Required when `state` is `approved` | string | Uppercase SHA-256 identity of the review record, including its status and dispositions. It must match the current durable review record. A missing or mismatched value blocks approval use. |
 | `approved_utc` | Optional | string | Time of the operator approval. |
 
 ```json
@@ -275,6 +275,7 @@ Directory kind. A unit outside Git has no branch or HEAD to observe. With `locat
   "identity": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
   "input_identity": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
   "review_state": "reviewed",
+  "review_identity": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
   "review_bypass_reason": null,
   "review_bypass_operator_choice": null,
   "blocking_findings": [],
@@ -444,7 +445,7 @@ Preflight issue codes (`issues[].code`):
 - Dependency graph: `dependency_unknown`, `dependency_self`, `dependency_cycle`.
 - Approval and review: `approval_identity_stale`, `identity_changed`, `review_gate_blocked`.
 
-Accepted plan paths: `features/NNN-slug/scratch/delivery-review/<name>.md` (draft snapshot) or the canonical `features/NNN-slug/(USnn|TSnn)/PLAN.md`; any other path is `plan_path_invalid`.
+Accepted `PlanPath` values: `features/NNN-slug/scratch/delivery-review/<name>.md` for draft-only structural checks, or the canonical `features/NNN-slug/(USnn|TSnn)/PLAN.md`. For review-gated draft validation, keep `PlanPath` canonical and pass the distinct scratch file with `-SnapshotPath`; the snapshot must be inside the same feature's `scratch/delivery-review/` directory and may stand in for a canonical file that has not yet been written. The review checker binds to `PlanPath` and reads the exact `SnapshotPath` bytes. After approval, omit `SnapshotPath` so preflight reads the canonical file. Other paths, cross-feature snapshots, missing snapshots, and unsafe paths fail closed as `plan_path_invalid` or a blocked review gate.
 
 The preflight is read-only. It writes JSON `{ ok, identity, issues: [ { code, message, step } ] }` to stdout. Exit codes: 0 when ok, 3 when there are issues, 1 on error.
 
@@ -469,6 +470,7 @@ Resolver reasons. `scripts/ledger/Resolve-DeliveryExecution.ps1` checks the whol
 4. `plan_dependency_not_approved`: the predecessor APPROVAL is missing, not `approved`, or its `identity` is stale.
 5. `plan_dependency_step_incomplete`: a listed step is not `COMPLETED`.
 6. `plan_dependency_evidence_missing`: a listed step is `COMPLETED` but its `acceptance_evidence` is missing or blank.
+7. `plan_dependency_validation_missing`: a listed step is `COMPLETED` but has no successful `validation_results` entry matching that step's declared `Validation:` command.
 
 Preflight codes (`scripts/runtime/Test-DeliveryPlanPreflight.ps1`). The preflight follows the dependency chain. It does not require predecessor steps to be `COMPLETED`.
 
@@ -487,7 +489,9 @@ Limits. `acceptance_evidence` counts as non-blank when it is a non-blank string,
 
 ### 10.3 External input sources
 
-Scope: declared material inputs of a `delivery-review-record/v1` record (`inputs[]`). Repository-relative inputs keep the rules of section 10.2.
+Scope: declared material inputs of a `delivery-review-record/v2` record (`inputs[]`). Repository-relative inputs keep the rules of section 10.2.
+
+`delivery-review-record/v2` stores `material_input_identity`, the uppercase SHA-256 of a versioned canonical set of input tuples (`id`, normalized `path`, recomputed `sha256`, `role`, and sorted unique `impacted_ids`). Input declaration order does not affect this identity. Its `target.review_identity` is a separate binding over the target tuple, material input identity, review `state`, `reason`, `operator_choice`, reviewer outputs, and dispositions. `approval` and provenance metadata are excluded to avoid a circular identity. Approval and preflight consumers recompute and compare both identities. Existing approved v1 records and approvals cannot prove this binding; they fail closed with `approval_binding_missing` and require a fresh record plus explicit reapproval. Unapproved v1 records remain readable under the legacy checker path during migration.
 
 Alias catalog:
 

@@ -8,8 +8,12 @@ $writer = [System.IO.Path]::GetFullPath($writer)
 . (Join-Path $PSScriptRoot '..\_lib\DeliveryReviewRecord.ps1')
 $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('delivery-review-test-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tempRoot | Out-Null
+$passed = 0
 
-function Assert([bool]$Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
+function Assert([bool]$Condition, [string]$Message) {
+    if (-not $Condition) { throw $Message }
+    $script:passed++
+}
 function Invoke-Writer([string]$TargetPath, [string]$RecordPath, [string]$Json, [string]$Text,
     [string]$TargetKind='PLAN.md', [string]$Stage='delivery_unit_plan_review', [string]$SnapshotPath='') {
     $params = @{
@@ -25,14 +29,13 @@ function Invoke-Writer([string]$TargetPath, [string]$RecordPath, [string]$Json, 
         return [pscustomobject]@{ output = [string]$_.Exception.Message; code = 1 }
     }
 }
-$childHost = (Get-Process -Id $PID).Path
 $gateScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\runtime\Test-DeliveryReviewRecord.ps1'))
-function Invoke-Gate([string]$TargetPath, [string]$RecordPath) {
-    $output = & $childHost -NoProfile -ExecutionPolicy Bypass -File $gateScript -RepoPath $tempRoot -TargetPath $TargetPath -RecordPath $RecordPath 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    $verdict = $null
-    try { $verdict = $output.Trim() | ConvertFrom-Json } catch { $verdict = $null }
-    return [pscustomobject]@{ code = $code; verdict = $verdict; output = $output.Trim() }
+function Invoke-Gate([string]$TargetPath, [string]$RecordPath, [string]$SnapshotPath='') {
+    $gateParams = @{ RepoPath = $tempRoot; TargetPath = $TargetPath; RecordPath = $RecordPath; AsLibrary = $true }
+    if (-not [string]::IsNullOrWhiteSpace($SnapshotPath)) { $gateParams['SnapshotPath'] = $SnapshotPath }
+    $result = & $gateScript @gateParams
+    $output = if ($null -ne $result.Result) { $result.Result | ConvertTo-Json -Compress -Depth 10 } else { [string]$result.Error }
+    return [pscustomobject]@{ code = [int]$result.ExitCode; verdict = $result.Result; output = $output }
 }
 function Get-IndependentSha256Hex([string]$Text) {
     $sha = [System.Security.Cryptography.SHA256]::Create()
@@ -259,6 +262,11 @@ Stable normative criterion.
     $draftRecord = Join-Path $genericReviews 'draft.json'
     $draftResult = Invoke-Writer $draftTargetRel $draftRecord (New-Record $genericInputRel) $text 'PLAN.md' 'delivery_unit_plan_review' $draftRel
     Assert ($draftResult.code -eq 0) "Controlled draft review before canonical write failed: $($draftResult.output)"
+    $draftGate = Invoke-Gate $draftTargetRel 'features/031-generic-delivery/delivery-reviews/draft.json' $draftRel
+    Assert ($draftGate.code -eq 0 -and $draftGate.verdict.reason -eq 'reviewed') "Review record gate must validate the controlled draft snapshot before canonical write: $($draftGate.output)"
+    Assert ($draftGate.verdict.identity.review_identity -cmatch '\A[0-9A-F]{64}\z' -and $draftGate.verdict.identity.material_input_identity -cmatch '\A[0-9A-F]{64}\z') 'Allowed gate verdict must return the verified v2 review and material-input identities.'
+    $wrongFeatureSnapshot = Invoke-Gate $draftTargetRel 'features/031-generic-delivery/delivery-reviews/draft.json' 'features/032-other-feature/scratch/delivery-review/draft.md'
+    Assert ($wrongFeatureSnapshot.code -eq 1 -and $wrongFeatureSnapshot.output -match 'selected feature') "Snapshot gate must reject a snapshot from another feature: $($wrongFeatureSnapshot.output)"
     $stale = Invoke-Writer $draftTargetRel (Join-Path $genericReviews 'stale.json') (New-Record $genericInputRel) ($text + "`nchanged") 'PLAN.md' 'delivery_unit_plan_review' $draftRel
     Assert ($stale.code -ne 0) 'ArtifactText that differs from the designated draft snapshot must fail closed.'
 
@@ -305,12 +313,13 @@ Stable normative criterion.
     $goldenRecordRel = 'features/052-golden/delivery-reviews/plan.json'
     $golden = Invoke-Writer $goldenTargetRel (Join-Path $tempRoot 'features\052-golden\delivery-reviews\plan.json') (New-Record $goldenInputRel) $goldenBody
     Assert ($golden.code -eq 0) "Golden record save failed: $($golden.output)"
-    $goldenWritten = $golden.output | ConvertFrom-Json
-    $goldenPayload = '{"target_kind":"PLAN.md","stage":"delivery_unit_plan_review","target_path":"features/052-golden/US01/PLAN.md","normative_content_sha256":"' + (Get-IndependentSha256Hex $goldenBody) + '","inputs":[{"id":"REQ-1","path":"features/052-golden/REFINEMENT.md","sha256":"' + (Get-IndependentSha256Hex $goldenInputBody) + '","role":"accepted refinement","impacted_ids":["S1"]}]}'
-    $goldenExpected = Get-IndependentSha256Hex $goldenPayload
-    Assert ($goldenWritten.review_identity -ceq $goldenExpected) "Writer review identity drifted from the golden formula: $($goldenWritten.review_identity)"
-    $libraryIdentity = Get-DeliveryReviewIdentity -TargetKind 'PLAN.md' -Stage 'delivery_unit_plan_review' -TargetPath $goldenTargetRel -NormativeSha (Get-IndependentSha256Hex $goldenBody) -Inputs @([pscustomobject]@{ id = 'REQ-1'; path = $goldenInputRel; sha256 = (Get-IndependentSha256Hex $goldenInputBody); role = 'accepted refinement'; impacted_ids = @('S1') })
-    Assert ($libraryIdentity -ceq $goldenExpected) 'Library review identity drifted from the golden formula.'
+    $goldenWritten = [System.IO.File]::ReadAllText((Join-Path $tempRoot $goldenRecordRel)) | ConvertFrom-Json
+    Assert ($goldenWritten.schema -ceq 'delivery-review-record/v2') 'Newly written records must use the bound v2 schema.'
+    $goldenInputs = @([pscustomobject]@{ id = 'REQ-1'; path = $goldenInputRel; sha256 = (Get-IndependentSha256Hex $goldenInputBody); role = 'accepted refinement'; impacted_ids = @('S1') })
+    $goldenMaterialIdentity = Get-DeliveryMaterialInputIdentity -Inputs $goldenInputs
+    Assert ($goldenWritten.material_input_identity -ceq $goldenMaterialIdentity) 'Writer material input identity drifted from the library formula.'
+    $goldenBindingIdentity = Get-DeliveryReviewRecordBindingIdentity -Record $goldenWritten -MaterialInputIdentity $goldenMaterialIdentity
+    Assert ($goldenWritten.target.review_identity -ceq $goldenBindingIdentity) 'Writer review binding identity drifted from the library formula.'
     $goldenGate = Invoke-Gate $goldenTargetRel $goldenRecordRel
     Assert ($goldenGate.code -eq 0 -and $goldenGate.verdict.reason -eq 'reviewed') "Golden record must pass the gate: $($goldenGate.output)"
 
@@ -339,7 +348,7 @@ Stable normative criterion.
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'truncated.json' $gateRecordText.Substring(0, [Math]::Floor($gateRecordText.Length / 2)))
     Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'record_unreadable') "Truncated JSON must block as record_unreadable: $($gate.output)"
 
-    $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'wrong-schema.json' $gateRecordText.Replace('delivery-review-record/v1', 'delivery-review-record/v0'))
+    $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'wrong-schema.json' $gateRecordText.Replace('delivery-review-record/v2', 'delivery-review-record/v0'))
     Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'record_schema_invalid') "Wrong schema string must block as record_schema_invalid: $($gate.output)"
 
     $gate = Invoke-Gate 'features/050-gate/US02/PLAN.md' $gateRecordRel
@@ -362,13 +371,13 @@ Stable normative criterion.
     $roleTampered = [regex]::Replace($gateRecordText, '"role":\s*"accepted refinement"', '"role": "tampered refinement"')
     Assert ($roleTampered -cne $gateRecordText) 'Role tamper fixture must change the record.'
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'role-tampered.json' $roleTampered)
-    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'review_identity_mismatch') "Tampered input role must block as review_identity_mismatch: $($gate.output)"
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'material_input_identity_mismatch') "Tampered input role must block as material_input_identity_mismatch: $($gate.output)"
 
     [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\REFINEMENT-copy.md'), "# Gate input v1`n", $utf8NoBom)
     $pathTampered = [regex]::Replace($gateRecordText, '"path":\s*"features/050-gate/REFINEMENT\.md"', '"path": "features/050-gate/REFINEMENT-copy.md"')
     Assert ($pathTampered -cne $gateRecordText) 'Path tamper fixture must change the record.'
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'path-tampered.json' $pathTampered)
-    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'review_identity_mismatch') "Tampered input path must block as review_identity_mismatch: $($gate.output)"
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'material_input_identity_mismatch') "Tampered input path must block as material_input_identity_mismatch: $($gate.output)"
 
     $findingB = @{ id = 'F-1'; severity = 'B'; category = 'GAP'; section = 'scope'; evidence = 'missing'; recommendation = 'clarify' }
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'no-disposition.json' (ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; inputs = @(); reviewers = (New-ReviewerBlock -Findings @($findingB)); dispositions = @() }))
@@ -443,8 +452,21 @@ Stable normative criterion.
     }
     $approvalWrite = Invoke-Writer $gateTargetRel (Join-Path $tempRoot 'features\050-gate\delivery-reviews\approved.json') $approvalJson $text
     Assert ($approvalWrite.code -eq 0) "Approved record with approval.operator_choice must save: $($approvalWrite.output)"
+    $approvedPersisted = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\approved.json')) | ConvertFrom-Json
+    Assert ($approvedPersisted.schema -ceq 'delivery-review-record/v2') 'Writer must upgrade approved draft records to v2 before persistence.'
     $gate = Invoke-Gate $gateTargetRel 'features/050-gate/delivery-reviews/approved.json'
     Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Approved record with approval.operator_choice must pass: $($gate.output)"
+    $legacyApproved = $approvedPersisted | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+    $legacyApproved.schema = 'delivery-review-record/v1'
+    $legacyApproved.PSObject.Properties.Remove('material_input_identity')
+    $legacyInputs = @($legacyApproved.inputs | ForEach-Object {
+        [pscustomobject]@{ id = $_.id; path = $_.path; sha256 = $_.sha256; role = $_.role; impacted_ids = $_.impacted_ids }
+    })
+    $legacyApproved.target.review_identity = Get-DeliveryReviewIdentity -TargetKind $legacyApproved.target.kind -Stage $legacyApproved.target.stage -TargetPath $legacyApproved.target.path -NormativeSha $legacyApproved.target.content_sha256 -Inputs $legacyInputs
+    $legacyApprovedPath = Join-Path $tempRoot 'features\050-gate\delivery-reviews\approved-v1.json'
+    [System.IO.File]::WriteAllText($legacyApprovedPath, ($legacyApproved | ConvertTo-Json -Depth 50), $utf8NoBom)
+    $gate = Invoke-Gate $gateTargetRel 'features/050-gate/delivery-reviews/approved-v1.json'
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'approval_binding_missing' -and ($gate.output -match 'obtain approval again')) "Approved v1 record must fail closed with migration guidance: $($gate.output)"
 
     $noImpactedIds = [regex]::Replace($gateRecordText, ',\s*"impacted_ids":\s*\[[^\]]*\]', '')
     $scalarImpactedIds = [regex]::Replace($gateRecordText, '"impacted_ids":\s*\[[^\]]*\]', '"impacted_ids": "S1"')
@@ -683,8 +705,13 @@ Stable normative criterion.
         '-InputsPath', $e2eInputs, '-DispositionsPath', $e2eDispositions, '-RoundsPath', $e2eRounds,
         '-Round', '2', '-PriorReviewIdentity', $round1Identity,
         '-OutPath', 'features/050-gate/scratch/delivery-review/round2.json')
-    $builderOutput = & $childHost -NoProfile -ExecutionPolicy Bypass -File $builderScript @builderArgs 2>&1 | Out-String
-    $builderCode = $LASTEXITCODE
+    $builderParams = @{}
+    for ($index = 0; $index -lt $builderArgs.Count; $index += 2) {
+        $builderParams[([string]$builderArgs[$index]).TrimStart('-')] = $builderArgs[$index + 1]
+    }
+    $builderCode = 0
+    try { $builderOutput = & $builderScript @builderParams 2>&1 | Out-String }
+    catch { $builderCode = 1; $builderOutput = [string]$_.Exception.Message }
     Assert ($builderCode -eq 0) "Round 2 builder must exit 0: $builderOutput"
     $round2Json = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\scratch\delivery-review\round2.json'))
     $round2Saved = Save-GateRecord 'round2-linked.json' $round2Json $round2Text
@@ -816,14 +843,11 @@ Stable normative criterion.
         return [System.IO.File]::ReadAllText((Join-Path $tempRoot ('features\050-gate\delivery-reviews\' + $Name + '.json'))) | ConvertFrom-Json
     }
     function Invoke-SourceGate([string] $Name, [AllowNull()][string] $CatalogPath) {
-        $gateArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $gateScript, '-RepoPath', $tempRoot,
-            '-TargetPath', $gateTargetRel, '-RecordPath', ('features/050-gate/delivery-reviews/' + $Name + '.json'))
-        if (-not [string]::IsNullOrWhiteSpace($CatalogPath)) { $gateArgs += @('-AliasCatalogPath', $CatalogPath) }
-        $output = (& $childHost @gateArgs 2>&1 | Out-String).Trim()
-        $code = $LASTEXITCODE
-        $verdict = $null
-        try { $verdict = $output | ConvertFrom-Json } catch { $verdict = $null }
-        return [pscustomobject]@{ code = $code; verdict = $verdict; output = $output }
+        $gateParams = @{ RepoPath = $tempRoot; TargetPath = $gateTargetRel; RecordPath = ('features/050-gate/delivery-reviews/' + $Name + '.json'); AsLibrary = $true }
+        if (-not [string]::IsNullOrWhiteSpace($CatalogPath)) { $gateParams['AliasCatalogPath'] = $CatalogPath }
+        $result = & $gateScript @gateParams
+        $output = if ($null -ne $result.Result) { $result.Result | ConvertTo-Json -Compress -Depth 10 } else { [string]$result.Error }
+        return [pscustomobject]@{ code = [int]$result.ExitCode; verdict = $result.Result; output = $output }
     }
 
     $srcFileInput = @{ id = 'SRC-FILE'; path = 'alias:docs/brief.md'; role = 'accepted refinement'; impacted_ids = @('S1') }
@@ -946,6 +970,7 @@ Stable normative criterion.
     [System.IO.File]::WriteAllText($externalPlanFile, $text, $utf8NoBom)
 
     'PASS: external input source shape rules, alias and source writer records, gate verdicts (inputs_changed and input_source_unavailable), and raw-byte alias plan identity.'
+    Write-Output ('PASS: {0} delivery review record assertions.' -f $passed)
 } finally {
     if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 }

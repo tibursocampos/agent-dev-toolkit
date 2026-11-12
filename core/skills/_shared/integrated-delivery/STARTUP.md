@@ -29,6 +29,15 @@ Script: `{{TOOLKIT_ROOT}}/scripts/session/Invoke-StartupPreflight.ps1`. Sessions
    - `-Action check -Gate review-record` before saving a review record.
 3. Exit 3 means blocked. The `reason` is one of `marker_missing`, `host_mismatch`, `reads_missing`, `model_choice_missing`, or `marker_invalid`. Fix the cause, record again, then check again.
 
+Operational sequence for each host session:
+
+1. On the first integrated-delivery transition, resolve the host and capability, read the applicable startup contracts, then record one marker for the current host session. Reuse that `SessionId` and `SessionsRoot` for later transitions in the same session; do not infer that a prior conversation created a marker.
+2. Before the first child delegation in the session, run the script with `-Action check -Gate spawn`.
+3. Immediately before each durable review-record write, run it with `-Action check -Gate review-record`. A blocked result means do not write the record; report the exact reason and resolve the marker inputs first.
+4. Canonical artifacts may be drafted before the review-record gate, but record the startup marker before the first such write.
+
+Use `{{TOOLKIT_ROOT}}/scripts/session/Invoke-StartupPreflight.ps1` with the exact argument forms in section 3. The record call must declare the base names actually read. When capability is `none` or `unknown`, omit spawn/model-choice reads and model-choice parameters. When the host exposes no session id, create one session-local unique id and reuse it for the current host session; this id does not prove continuity across restarts.
+
 ## 4. Limits
 
 - The marker is a coordinator declaration. It does not prove that the model read the files or which model the host applied.

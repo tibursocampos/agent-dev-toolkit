@@ -7,7 +7,7 @@
 | `REFINEMENT.md` | `delivery_refinement_review` |
 | `PLAN.md` | `delivery_unit_plan_review` |
 
-The target path is the intended repository-relative canonical file under the selected feature. Review the exact stabilized draft, whether it is held in memory or a temporary snapshot; the review record binds to the intended canonical path and draft bytes. When the record writer needs an on-disk snapshot before the canonical file exists, pass `SnapshotPath` under that feature's `scratch/delivery-review/` directory and remove the temporary snapshot after the review record is saved. Store the durable record under that feature's local ignored `delivery-reviews/` directory. Never store reviewer transcripts in scratch unless needed as concise evidence.
+The target path is the intended repository-relative canonical file under the selected feature. Review the exact stabilized draft, whether it is held in memory or a temporary snapshot; the review record binds to the intended canonical path and draft bytes. When the record writer needs an on-disk snapshot before the canonical file exists, pass a repository-relative `SnapshotPath` under that feature's `scratch/delivery-review/` directory; the writer verifies feature ownership and exact text equality. Validate the same snapshot with the applicable preapproval preflight before presenting it for approval. Keep the snapshot and round evidence until the review is complete. Store the final durable record under that feature's local ignored `delivery-reviews/` directory. Never overwrite earlier round evidence.
 
 ## Reviewer output and record assembly
 
@@ -17,7 +17,7 @@ Each reviewer's final message is one JSON object, defined by `../../_shared/agen
 
 Identity is the normative projection of the document plus ordered material-input tuples (portable path, recomputed SHA-256, role, impacted IDs). Projection and marker rules are defined in `../../_shared/integrated-delivery/SCHEMAS.md` (sections 1 and 4) and implemented in `scripts/_lib/DeliveryGrammar.ps1`.
 
-Each review round returns the full findings set and covered lenses. On re-audit, include prior findings, changed normative content, and affected context. A finding first found in unchanged content is `late`. Keep open B/I blocked until evidence-backed resolution or contestation. MINOR requires explicit disposition and reason. Convergence has no fixed round/call budget.
+Each review round returns the full findings set and covered lenses. Retain per round the reviewer JSON, exact target snapshot or verifiable diff, prior findings and dispositions with rationale/evidence, critic handoff, and coordinator cost summary, under unique feature-local scratch names. On re-audit, include prior findings, changed normative content, and affected context. A finding first found in unchanged content is `late`. Keep open B/I blocked until evidence-backed resolution or contestation. MINOR requires explicit disposition and reason. Convergence has no fixed round/call budget.
 
 ## Re-audit handoff
 

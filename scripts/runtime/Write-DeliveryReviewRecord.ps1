@@ -100,19 +100,24 @@ foreach ($input in $provided.inputs) {
         $sourceEcho = [ordered]@{ kind = [string]$sourceValue.kind }
         if ([string]$sourceValue.kind -ceq 'fileset') { $sourceEcho['files'] = @($sourceValue.files | ForEach-Object { [string]$_ }) }
         if ([string]$sourceValue.kind -ceq 'revision') { $sourceEcho['revision'] = [string]$sourceValue.revision }
-        $inputEntry['source'] = $sourceEcho
+        $inputEntry['source'] = [pscustomobject]$sourceEcho
     }
-    $inputIdentity.Add($inputEntry)
+    $inputIdentity.Add([pscustomobject]$inputEntry)
 }
-$reviewIdentity = Get-DeliveryReviewIdentity -TargetKind $TargetKind -Stage $Stage -TargetPath $TargetPath -NormativeSha $normativeIdentity -Inputs $inputIdentity.ToArray()
-$provided | Add-Member -NotePropertyName target -NotePropertyValue ([ordered]@{
+$provided.schema = 'delivery-review-record/v2'
+$materialInputIdentity = Get-DeliveryMaterialInputIdentity -Inputs $inputIdentity.ToArray()
+$provided | Add-Member -NotePropertyName material_input_identity -NotePropertyValue $materialInputIdentity -Force
+$targetBlock = [pscustomobject]@{
     path = $TargetPath.Replace('\', '/')
     kind = $TargetKind
     stage = $Stage
     content_sha256 = $normativeIdentity
-    review_identity = $reviewIdentity
-}) -Force
-$provided.inputs = @($inputIdentity)
+    review_identity = ('0' * 64)
+}
+$provided | Add-Member -NotePropertyName target -NotePropertyValue $targetBlock -Force
+$provided.inputs = @($inputIdentity.ToArray())
+$targetBlock.review_identity = Get-DeliveryReviewRecordBindingIdentity -Record $provided -MaterialInputIdentity $materialInputIdentity
+Assert-DeliveryReviewRecordShape -Value $provided
 $provided.provenance = if ($null -eq $provided.provenance) { [ordered]@{} } else { $provided.provenance }
 if ($provided.provenance -is [System.Collections.IDictionary]) {
     $provided.provenance['generated_at'] = [DateTime]::UtcNow.ToString('o')
@@ -133,4 +138,4 @@ try {
 } finally {
     if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
 }
-[pscustomobject]@{ status = 'saved'; state = $provided.state; review_identity = $reviewIdentity; record_path = $recordFull } | ConvertTo-Json -Compress
+[pscustomobject]@{ status = 'saved'; state = $provided.state; review_identity = $targetBlock.review_identity; material_input_identity = $materialInputIdentity; record_path = $recordFull } | ConvertTo-Json -Compress

@@ -807,6 +807,11 @@ Write-Pass -TestName $axisBCName
 $sessionChoiceName = 'Should_Pass_When_SessionChoiceContractPresent'
 foreach ($phrase in @(
     'Session choice (once per session)',
+    'Native-session gate:',
+    'They do not select `inherit` for the operator',
+    'wait for an explicit answer',
+    'The session choice is a blocking startup gate',
+    'The default invocation rule below is not an implicit answer',
     'once per session',
     'not a question about whether to delegate',
     'At session start, before the active skill/task is processed',

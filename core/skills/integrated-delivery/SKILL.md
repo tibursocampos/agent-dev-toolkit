@@ -10,7 +10,7 @@ This is the single user-facing entry for the experimental flow. It runs in the m
 
 ## Load only what this transition needs
 
-1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md` before routing or writing. Before any delegation, read `../_shared/integrated-delivery/STARTUP.md`.
+1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md` before routing or writing. At the first transition in a host session, follow `../_shared/integrated-delivery/STARTUP.md` to resolve and record the startup marker before any canonical write; check `-Gate spawn` before the first delegation and `-Gate review-record` before each durable review-record write.
 2. Read `EXECUTION.md` only when checking approval, resume, or execution state. Read `REVIEW.md` only before a required review or when reconciling findings.
 3. Read the active repository's relevant instructions and only named Memory Bank files that could affect the demand. Do not dump the Memory Bank or unrelated SDD references into context.
 4. For triage and question grouping, read [references/triage.md](references/triage.md).
@@ -57,6 +57,7 @@ For the concrete unit-boundary, materiality, question, and conditional-specialis
 | When | Path |
 |---|---|
 | Every routing transition | `../_shared/integrated-delivery/FLOW.md`, `DOCUMENTS.md` |
+| Before delegation, canonical artifact write, or durable review-record write | `../_shared/integrated-delivery/STARTUP.md` |
 | Checking approval, resume, or execution state | `../_shared/integrated-delivery/EXECUTION.md` |
 | Before a required review or reconciling findings | `../_shared/integrated-delivery/REVIEW.md` and `../integrated-delivery-review/SKILL.md` |
 | Triage or question grouping | `references/triage.md` |

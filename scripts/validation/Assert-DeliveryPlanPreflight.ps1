@@ -73,7 +73,7 @@ function Build-PlanText {
         $lines.Add('')
     }
 
-    $approval = '{{"schema":"delivery-approval/v1","state":"{0}","identity":"{1}","input_identity":"INPUT-1","review_state":"reviewed"}}' -f $ApprovalState, $ApprovalIdentity
+    $approval = '{{"schema":"delivery-approval/v1","state":"{0}","identity":"{1}","input_identity":"{2}","review_identity":"{3}","review_state":"reviewed"}}' -f $ApprovalState, $ApprovalIdentity, ('A' * 64), ('B' * 64)
     $lines.AddRange([string[]]@(
         '<!-- DELIVERY:PROGRESS:BEGIN -->', $ProgressJson, '<!-- DELIVERY:PROGRESS:END -->',
         '<!-- DELIVERY:CHECKPOINT:BEGIN -->', $CheckpointJson, '<!-- DELIVERY:CHECKPOINT:END -->',
@@ -133,14 +133,6 @@ function Write-PlanFile {
     return $repo
 }
 
-function ConvertTo-ProcessArgument([string]$Value) {
-    if ($Value.Length -eq 0) { return '""' }
-    if ($Value -notmatch '[\s"]') { return $Value }
-    $escaped = [regex]::Replace($Value, '(\\*)"', '$1$1\"')
-    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
-    return '"' + $escaped + '"'
-}
-
 function Invoke-Preflight {
     param(
         [Parameter(Mandatory = $true)][string] $Repo,
@@ -148,24 +140,26 @@ function Invoke-Preflight {
         [string] $PlanPath = $planRelative
     )
 
-    $checkArgs = @('-RepoPath', $Repo, '-PlanPath', $PlanPath) + $Extra
-    $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $preflight) + $checkArgs
-    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
-    $startInfo.FileName = $childHost
-    $startInfo.Arguments = (@($argList | ForEach-Object { ConvertTo-ProcessArgument ([string]$_) }) -join ' ')
-    $startInfo.UseShellExecute = $false
-    $startInfo.RedirectStandardOutput = $true
-    $startInfo.RedirectStandardError = $true
-    $startInfo.CreateNoWindow = $true
-    $process = [System.Diagnostics.Process]::Start($startInfo)
-    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-    $stderrText = $process.StandardError.ReadToEnd()
-    $process.WaitForExit()
-    $stdoutText = $stdoutTask.Result
+    $checkParams = @{ RepoPath = $Repo; PlanPath = $PlanPath; AsLibrary = $true }
+    for ($index = 0; $index -lt $Extra.Count; $index += 2) {
+        $name = ([string]$Extra[$index]).TrimStart('-')
+        if ($index + 1 -ge $Extra.Count) { throw "Missing value for preflight parameter '$name'." }
+        $checkParams[$name] = $Extra[$index + 1]
+    }
+    $parsed = & $preflight @checkParams
+    $issues = @($parsed.issues)
+    $isRuntimeError = @($issues | Where-Object { [string]$_.code -ceq 'preflight_error' }).Count -gt 0
+    $exitCode = if ($isRuntimeError) { 1 } elseif ($issues.Count -gt 0) { 3 } else { 0 }
+    $stdoutText = $parsed | ConvertTo-Json -Compress -Depth 5
+    return [pscustomobject]@{ ExitCode = $exitCode; Result = $parsed; Stdout = $stdoutText; Stderr = '' }
+}
 
-    $parsed = $null
-    try { $parsed = $stdoutText.Trim() | ConvertFrom-Json } catch { $parsed = $null }
-    return [pscustomobject]@{ ExitCode = $process.ExitCode; Result = $parsed; Stdout = $stdoutText; Stderr = $stderrText }
+function ConvertTo-ProcessArgument([string]$Value) {
+    if ($Value.Length -eq 0) { return '""' }
+    if ($Value -notmatch '[\s"]') { return $Value }
+    $escaped = [regex]::Replace($Value, '(\\*)"', '$1$1\"')
+    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+    return '"' + $escaped + '"'
 }
 
 function Get-IssueCodes($Run) {
@@ -295,6 +289,10 @@ try {
 
     $staleRepo = Write-PlanFile 'approval-stale' (New-PlanText -Declared $validDeclared -ApprovalIdentity $placeholderIdentity)
     Assert-IssueCode (Invoke-Preflight -Repo $staleRepo) 'approval_identity_stale' 'Should_ReturnApprovalIdentityStale_When_ApprovedIdentityDiffers'
+
+    $missingBindingText = (New-PlanText -Declared $validDeclared -ApprovalIdentity 'AUTO').Replace(('"input_identity":"' + ('A' * 64) + '","review_identity":"' + ('B' * 64) + '"'), '"input_identity":"INPUT-1"')
+    $missingBindingRepo = Write-PlanFile 'approval-missing-binding' $missingBindingText
+    Assert-IssueCode (Invoke-Preflight -Repo $missingBindingRepo) 'approval_binding_missing' 'Should_RequireInputAndReviewBinding_When_ApprovalApproved'
 
     $pendingRepo = Write-PlanFile 'approval-pending' (New-PlanText -Declared $validDeclared -ApprovalState 'pending')
     $pending = Invoke-Preflight -Repo $pendingRepo
@@ -479,9 +477,31 @@ try {
     $aliasWrite = & $writerScript -Action save -RepoPath $aliasRepo -TargetPath $planRelative -TargetKind PLAN.md -Stage delivery_unit_plan_review -ArtifactText $validText -RecordPath (Join-Path $aliasRepo 'features\001-demo\delivery-reviews\alias.json') -RecordJson $aliasRecordJson -AliasCatalogPath $sourceCatalog
     Assert-True ([string]$aliasWrite -match '"status":"saved"') 'Should_SaveAliasReviewRecord_When_CatalogGiven'
 
+    $aliasRecord = Get-Content -LiteralPath (Join-Path $aliasRepo 'features\001-demo\delivery-reviews\alias.json') -Raw | ConvertFrom-Json
+    $aliasPlanPath = Join-Path $aliasRepo ($planRelative.Replace('/', [System.IO.Path]::DirectorySeparatorChar))
+    $aliasPlanText = [System.IO.File]::ReadAllText($aliasPlanPath)
+    $placeholderBindings = '"input_identity":"' + ('A' * 64) + '","review_identity":"' + ('B' * 64) + '"'
+    $correctBindings = '"input_identity":"' + $aliasRecord.material_input_identity + '","review_identity":"' + $aliasRecord.target.review_identity + '"'
+    $aliasPlanText = $aliasPlanText.Replace($placeholderBindings, $correctBindings)
+    [System.IO.File]::WriteAllText($aliasPlanPath, $aliasPlanText, $utf8)
+
     $aliasWithCatalog = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel, '-AliasCatalogPath', $sourceCatalog)
     Assert-ExitCode 0 $aliasWithCatalog 'Should_ExitZero_When_AliasReviewRecordGetsCatalog'
     Assert-True ($aliasWithCatalog.Result.ok -eq $true) 'Should_ReturnOk_When_AliasReviewRecordGetsCatalog'
+
+    $staleInputPlan = $aliasPlanText.Replace($aliasRecord.material_input_identity, ('C' * 64))
+    [System.IO.File]::WriteAllText($aliasPlanPath, $staleInputPlan, $utf8)
+    $staleInputBinding = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel, '-AliasCatalogPath', $sourceCatalog)
+    Assert-ExitCode 3 $staleInputBinding 'Should_BlockWhen_ApprovedMaterialInputBindingDiffersFromVerifiedRecord'
+    Assert-IssueCode $staleInputBinding 'approval_input_identity_stale' 'Should_ReportStaleMaterialInputBinding_When_ApprovedInputIdentityDiffers'
+
+    $staleReviewPlan = $aliasPlanText.Replace($aliasRecord.target.review_identity, ('D' * 64))
+    [System.IO.File]::WriteAllText($aliasPlanPath, $staleReviewPlan, $utf8)
+    $staleReviewBinding = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel, '-AliasCatalogPath', $sourceCatalog)
+    Assert-ExitCode 3 $staleReviewBinding 'Should_BlockWhen_ApprovedReviewBindingDiffersFromVerifiedRecord'
+    Assert-IssueCode $staleReviewBinding 'approval_review_identity_stale' 'Should_ReportStaleReviewBinding_When_ApprovedReviewIdentityDiffers'
+
+    [System.IO.File]::WriteAllText($aliasPlanPath, $aliasPlanText, $utf8)
 
     $aliasWithoutCatalog = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel)
     Assert-ExitCode 3 $aliasWithoutCatalog 'Should_ExitThree_When_AliasReviewRecordHasNoCatalog'
@@ -520,9 +540,15 @@ try {
     }
 
     function Invoke-RefinementCli([string[]]$Arguments) {
-        $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $refinementCli) + $Arguments
+        $cliParams = @{}
+        for ($index = 0; $index -lt $Arguments.Count; $index += 2) {
+            $name = ([string]$Arguments[$index]).TrimStart('-')
+            if ($index + 1 -ge $Arguments.Count) { throw "Missing value for refinement CLI parameter '$name'." }
+            $cliParams[$name] = $Arguments[$index + 1]
+        }
         $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
         $startInfo.FileName = $childHost
+        $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $refinementCli) + $Arguments
         $startInfo.Arguments = (@($argList | ForEach-Object { ConvertTo-ProcessArgument ([string]$_) }) -join ' ')
         $startInfo.UseShellExecute = $false
         $startInfo.RedirectStandardOutput = $true
@@ -530,9 +556,14 @@ try {
         $startInfo.CreateNoWindow = $true
         $process = [System.Diagnostics.Process]::Start($startInfo)
         $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-        $stderrText = $process.StandardError.ReadToEnd()
-        $process.WaitForExit()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit(15000)) {
+            try { $process.Kill($true) } catch { }
+            $process.WaitForExit()
+            throw 'Refinement CLI exceeded the 15-second per-invocation limit; process tree was terminated.'
+        }
         $stdoutText = $stdoutTask.Result
+        $stderrText = $stderrTask.Result
         $parsed = $null
         try { $parsed = $stdoutText.Trim() | ConvertFrom-Json } catch { $parsed = $null }
         return [pscustomobject]@{ ExitCode = $process.ExitCode; Result = $parsed; Stdout = $stdoutText; Stderr = $stderrText }

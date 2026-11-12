@@ -16,6 +16,7 @@ $cli = @{
     Setter     = Join-Path $scriptsRoot 'ledger/Set-DeliveryExecutionBlock.ps1'
 }
 . (Join-Path $scriptsRoot '_lib/DeliveryGrammar.ps1')
+. (Join-Path $scriptsRoot '_lib/DeliveryReviewRecord.ps1')
 
 $childHost = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($childHost)) { $childHost = 'pwsh' }
@@ -108,7 +109,11 @@ function Invoke-Cli {
     $process.StandardInput.Close()
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
     $stderrTask = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
+    if (-not $process.WaitForExit(5000)) {
+        try { $process.Kill($true) } catch { }
+        [void]$process.WaitForExit(2000)
+        throw "End-to-end child script exceeded its 5-second limit: $Script"
+    }
     $stdoutText = $stdoutTask.Result
     $stderrText = $stderrTask.Result
 
@@ -166,20 +171,104 @@ function Get-BlockHashFromFile([string]$Path, [string]$Block) {
     return (Get-DeliveryBlockHash -Payload $found[0].Payload)
 }
 
+function Add-ReviewBinding([string]$Plan) {
+    $text = [System.IO.File]::ReadAllText($Plan)
+    $repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Plan)))
+    $repoPrefix = $repoRoot.TrimEnd([char] [System.IO.Path]::DirectorySeparatorChar, [char] [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    $relative = $Plan.Substring($repoPrefix.Length).Replace('\', '/')
+    $contentSha = Get-DeliveryNormativeIdentity -Text $text
+    $inputs = @()
+    $inputIdentity = Get-DeliveryMaterialInputIdentity -Inputs $inputs
+    $record = [ordered]@{
+        schema = 'delivery-review-record/v2'; state = 'reviewed'
+        target = [ordered]@{ path = $relative; kind = 'PLAN.md'; stage = 'delivery_unit_plan_review'; content_sha256 = $contentSha; review_identity = ('0' * 64) }
+        material_input_identity = $inputIdentity; inputs = @()
+        reviewers = [ordered]@{
+            reader = [ordered]@{ host = 'synthetic'; observed_isolation = 'synthetic'; result = [ordered]@{ paraphrases = [ordered]@{ proposal = 'A bounded plan.'; current_system = 'A declared baseline.' }; lenses = @('comprehension'); findings = @() } }
+            critic = [ordered]@{ host = 'synthetic'; observed_isolation = 'synthetic'; result = [ordered]@{ lenses = @('scope'); findings = @() } }
+        }
+        dispositions = @(); provenance = [ordered]@{}; round = 1
+    }
+    $record.target.review_identity = Get-DeliveryReviewRecordBindingIdentity -Record ($record | ConvertTo-Json -Depth 30 | ConvertFrom-Json) -MaterialInputIdentity $inputIdentity
+    Assert-DeliveryReviewRecordShape -Value ($record | ConvertTo-Json -Depth 30 | ConvertFrom-Json)
+    $recordPath = Join-Path (Split-Path -Parent (Split-Path -Parent $Plan)) ('delivery-reviews/' + (Split-Path -Leaf (Split-Path -Parent $Plan)) + '-plan.json')
+    New-Item -ItemType Directory -Path (Split-Path -Parent $recordPath) -Force | Out-Null
+    [System.IO.File]::WriteAllText($recordPath, ($record | ConvertTo-Json -Depth 30), $utf8)
+    $approvalMatch = [regex]::Match($text, '(?s)(<!-- DELIVERY:APPROVAL:BEGIN -->\r?\n)(.*?)(\r?\n<!-- DELIVERY:APPROVAL:END -->)')
+    if (-not $approvalMatch.Success) { throw 'Fixture approval block missing.' }
+    $approval = $approvalMatch.Groups[2].Value | ConvertFrom-Json
+    $approval | Add-Member -NotePropertyName input_identity -NotePropertyValue $inputIdentity -Force
+    $approval | Add-Member -NotePropertyName review_identity -NotePropertyValue $record.target.review_identity -Force
+    $updated = $approvalMatch.Groups[1].Value + ($approval | ConvertTo-Json -Compress -Depth 20) + $approvalMatch.Groups[3].Value
+    $text = $text.Substring(0, $approvalMatch.Index) + $updated + $text.Substring($approvalMatch.Index + $approvalMatch.Length)
+    [System.IO.File]::WriteAllText($Plan, $text, $utf8)
+    return $inputIdentity
+}
+
 function Invoke-Setter([string]$Repo, [string]$PlanFull, [string]$Block, [string]$Payload) {
     $hash = Get-BlockHashFromFile -Path $PlanFull -Block $Block
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $setterArguments = @{
+            RepoPath = $Repo
+            PlanPath = $PlanFull
+            Block = $Block
+            ExpectedBlockHash = $hash
+            PayloadJson = $Payload
+            AsLibrary = $true
+        }
+        try {
+            $result = & $cli.Setter @setterArguments
+            return [pscustomobject]@{ ExitCode = [int](-not [bool]$result.ok); Result = $result; Stdout = ($result | ConvertTo-Json -Compress); Stderr = '' }
+        }
+        catch {
+            return [pscustomobject]@{ ExitCode = 1; Result = $null; Stdout = ''; Stderr = $_.Exception.Message }
+        }
+    }
     return Invoke-Cli -Script $cli.Setter -Arguments @(
         '-RepoPath', $Repo, '-PlanPath', $PlanFull, '-Block', $Block,
         '-ExpectedBlockHash', $hash, '-PayloadJson', $Payload)
 }
 
 function Invoke-Preflight([string]$Repo, [string[]]$Extra = @()) {
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $arguments = @{ RepoPath = $Repo; PlanPath = $planRelative; AsLibrary = $true }
+        for ($index = 0; $index -lt $Extra.Count; $index++) {
+            $key = ([string]$Extra[$index]).TrimStart('-')
+            if (($index + 1 -lt $Extra.Count) -and -not ([string]$Extra[$index + 1]).StartsWith('-')) {
+                $arguments[$key] = $Extra[$index + 1]
+                $index++
+            }
+            else { $arguments[$key] = $true }
+        }
+        $result = & $cli.Preflight @arguments
+        $exitCode = if ($result.ok) { 0 } else { 3 }
+        return [pscustomobject]@{ ExitCode = $exitCode; Result = $result; Stdout = ($result | ConvertTo-Json -Compress -Depth 5); Stderr = '' }
+    }
     return Invoke-Cli -Script $cli.Preflight -Arguments (@('-RepoPath', $Repo, '-PlanPath', $planRelative) + $Extra)
 }
 
-function Invoke-Resolver([string]$PlanFull, [string]$InputIdentity) {
+function Invoke-Resolver([string]$PlanFull, [string]$InputIdentity, [string]$ReviewRecordPath = '') {
+    if ([string]::IsNullOrWhiteSpace($ReviewRecordPath)) {
+        $unit = Split-Path -Leaf (Split-Path -Parent $PlanFull)
+        $feature = Split-Path -Leaf (Split-Path -Parent (Split-Path -Parent $PlanFull))
+        $ReviewRecordPath = 'features/{0}/delivery-reviews/{1}-plan.json' -f $feature, $unit
+    }
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $resolverArguments = @{
+            PlanPath = $PlanFull
+            ReviewRecordPath = $ReviewRecordPath
+            Cadence = 'step_by_step'
+            CurrentInputIdentity = $InputIdentity
+            CurrentBranch = ''
+            CurrentHead = ''
+            StepAuthorization = $true
+            AsLibrary = $true
+        }
+        $result = & $cli.Resolver @resolverArguments
+        return [pscustomobject]@{ ExitCode = $result.ExitCode; Result = $result.Result; Stdout = ($result.Result | ConvertTo-Json -Compress); Stderr = '' }
+    }
     return Invoke-Cli -Script $cli.Resolver -Arguments @(
-        '-PlanPath', $PlanFull, '-Cadence', 'step_by_step', '-CurrentInputIdentity', $InputIdentity,
+        '-PlanPath', $PlanFull, '-ReviewRecordPath', $ReviewRecordPath, '-Cadence', 'step_by_step', '-CurrentInputIdentity', $InputIdentity,
         '-CurrentBranch', '', '-CurrentHead', '', '-StepAuthorization')
 }
 
@@ -254,6 +343,10 @@ function New-StepPayload([string]$Id, [string]$Status, [string]$DependsJson, [st
     $refs = ''
     if ($RefsJson.Length -gt 0) { $refs = ',"evidence_refs":' + $RefsJson }
     return '{"schema":"delivery-step/v1","id":"' + $Id + '","status":"' + $Status + '","depends_on":' + $DependsJson + $refs + '}'
+}
+
+function New-CompletedEvidenceStepPayload([string]$Id, [string]$RefsJson) {
+    return '{"schema":"delivery-step/v1","id":"' + $Id + '","status":"COMPLETED","depends_on":[],"evidence_refs":' + $RefsJson + ',"acceptance_evidence":["synthetic acceptance recorded"],"validation_results":[{"command":"synthetic check one","result":"passed","exit_code":0}]}'
 }
 
 function New-RefJson([string]$Name, [string]$Path, [string]$Sha) {
@@ -336,14 +429,10 @@ try {
     Assert-Field $checkRun 'allowed' 'True' 'Should_Allow_When_ReviewRecordReviewed'
     Assert-Field $checkRun 'reason' 'reviewed' 'Should_ReturnReasonReviewed_When_ReviewRecordReviewed'
 
-    $gatedPreflight = Invoke-Preflight $repoA @('-ReviewRecordPath', $recordA)
-    Assert-ExitCode 0 $gatedPreflight 'Should_ExitZero_When_ReviewGateSatisfied'
-    Assert-Field $gatedPreflight 'ok' 'True' 'Should_ReturnOk_When_ReviewGateSatisfied'
-
     $stateReviewed = Copy-State $repoA 'state-reviewed'
 
     # A4: approve through the setter, then confirm the expected identity.
-    $inputIdentity = Get-Sha256Upper $refinementA
+    $inputIdentity = [string](Get-Prop (Get-Prop $checkRun.Result 'identity') 'material_input_identity')
     $approvalPayload = '{"schema":"delivery-approval/v1","state":"approved","identity":"' + $identity +
         '","input_identity":"' + $inputIdentity + '","review_state":"reviewed","review_identity":"' + $reviewIdentity +
         '","blocking_findings":[],"unresolved_decisions":[],"approved_utc":"2026-11-11T12:00:00Z"}'
@@ -354,6 +443,10 @@ try {
     $approvedPreflight = Invoke-Preflight $repoA @('-ExpectedIdentity', $identity)
     Assert-ExitCode 0 $approvedPreflight 'Should_ExitZero_When_ApprovedPlanMatchesExpectedIdentity'
     Assert-Field $approvedPreflight 'ok' 'True' 'Should_ReturnOk_When_ApprovedPlanMatchesExpectedIdentity'
+
+    $gatedPreflight = Invoke-Preflight $repoA @('-ExpectedIdentity', $identity, '-ReviewRecordPath', $recordA)
+    Assert-ExitCode 0 $gatedPreflight 'Should_ExitZero_When_ReviewGateAndApprovalBindingsMatch'
+    Assert-Field $gatedPreflight 'ok' 'True' 'Should_ReturnOk_When_ReviewGateAndApprovalBindingsMatch'
 
     $stateApproved = Copy-State $repoA 'state-approved'
 
@@ -389,7 +482,8 @@ try {
     Assert-ExitCode 0 $firstDecision 'Should_ExitZero_When_FirstStepEligible'
     Assert-Field $firstDecision 'step' 'US01-S1' 'Should_SelectFirstStep_When_NothingCompleted'
 
-    $completeRun = Invoke-Setter $repoA $planA 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refs)
+    $completePayload = '{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","depends_on":[],"evidence_refs":' + $refs + ',"acceptance_evidence":["synthetic acceptance recorded"],"validation_results":[{"command":"synthetic check one","result":"passed","exit_code":0}]}'
+    $completeRun = Invoke-Setter $repoA $planA 'STEP:US01-S1' $completePayload
     Assert-ExitCode 0 $completeRun 'Should_ExitZero_When_FirstStepCompleted'
 
     $null = Set-StepAuthorization $repoA $planA @('US01-S2')
@@ -406,7 +500,7 @@ try {
     Edit-File $planB1 'Validation: synthetic check one' 'Validation: changed check one'
     $b1Resolver = Invoke-Resolver $planB1 $inputIdentity
     Assert-ExitCode 1 $b1Resolver 'Should_ExitOne_When_NormativeTextEditedAfterApproval'
-    Assert-Field $b1Resolver 'reason' 'approval_identity_stale' 'Should_ReturnApprovalIdentityStale_When_NormativeTextEditedAfterApproval'
+    Assert-Field $b1Resolver 'reason' 'review_gate_identity_stale' 'Should_ReturnReviewGateIdentityStale_When_NormativeTextEditedAfterApproval'
     $b1Preflight = Invoke-Preflight $repoB1 @('-ExpectedIdentity', $identity)
     Assert-ExitCode 3 $b1Preflight 'Should_ExitThree_When_NormativeTextEditedAfterApproval'
     Assert-Issue $b1Preflight 'identity_changed' 'Should_ReturnIdentityChanged_When_NormativeTextEditedAfterApproval'
@@ -482,7 +576,7 @@ try {
     $planB8 = Get-RepoPath $repoB8 $planRelative
     $null = Set-StepAuthorization $repoB8 $planB8 @('US01-S2')
     $refsNoResult = '[' + (New-RefJson 'baseline' $baselineRelative $baselineSha) + ']'
-    $b8Setter = Invoke-Setter $repoB8 $planB8 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refsNoResult)
+    $b8Setter = Invoke-Setter $repoB8 $planB8 'STEP:US01-S1' (New-CompletedEvidenceStepPayload 'US01-S1' $refsNoResult)
     Assert-ExitCode 0 $b8Setter 'Should_ExitZero_When_ResultReferenceRemoved'
     $b8Resolver = Invoke-Resolver $planB8 $inputIdentity
     Assert-ExitCode 1 $b8Resolver 'Should_ExitOne_When_ResultReferenceRemoved'
@@ -499,7 +593,7 @@ try {
     $b8bFirst = Invoke-Resolver $planB8b $inputIdentity
     Assert-ExitCode 1 $b8bFirst 'Should_ExitOne_When_BaselineReferenceRemovedBeforeFirstSelection'
     Assert-Field $b8bFirst 'reason' 'baseline_missing' 'Should_ReturnBaselineMissing_When_BaselineReferenceRemovedBeforeFirstSelection'
-    $b8bCompleted = Invoke-Setter $repoB8b $planB8b 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refsNoBaseline)
+    $b8bCompleted = Invoke-Setter $repoB8b $planB8b 'STEP:US01-S1' (New-CompletedEvidenceStepPayload 'US01-S1' $refsNoBaseline)
     Assert-ExitCode 0 $b8bCompleted 'Should_ExitZero_When_BaselineReferenceRemovedAfterCompletion'
     $null = Set-StepAuthorization $repoB8b $planB8b @('US01-S2')
     $b8bSecond = Invoke-Resolver $planB8b $inputIdentity
@@ -530,23 +624,27 @@ try {
     Write-RepoFile $repoC $us02CPath $us02CText
     $us01CPlan = Get-RepoPath $repoC $us01CPath
     $us02CPlan = Get-RepoPath $repoC $us02CPath
+    $inputIdentityC01 = Add-ReviewBinding $us01CPlan
+    $inputIdentityC02 = Add-ReviewBinding $us02CPlan
 
     $null = Set-StepAuthorization $repoC $us02CPlan @('US02-S1') $identityC02
-    $c2 = Invoke-Resolver $us02CPlan 'INPUT-1'
+    $c2 = Invoke-Resolver $us02CPlan $inputIdentityC02
     Assert-ExitCode 1 $c2 'Should_ExitOne_When_PredecessorStepNotCompleted'
     Assert-Field $c2 'reason' 'plan_dependency_step_incomplete' 'Should_ReturnStepIncomplete_When_PredecessorStepPending'
     Assert-Field $c2 'dependency' $us01CPath 'Should_NameDependency_When_PredecessorStepPending'
 
-    $completeC = Invoke-Setter $repoC $us01CPlan 'STEP:US01-S1' '{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","depends_on":[],"acceptance_evidence":["synthetic acceptance recorded"]}'
+    $completeC = Invoke-Setter $repoC $us01CPlan 'STEP:US01-S1' '{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","depends_on":[],"acceptance_evidence":["synthetic acceptance recorded"],"validation_results":[{"command":"synthetic check one","result":"passed","exit_code":0}]}'
     Assert-ExitCode 0 $completeC 'Should_ExitZero_When_PredecessorStepCompletedThroughSetter'
     $stateCDone = Copy-State $repoC 'c-completed'
-    $c3 = Invoke-Resolver $us02CPlan 'INPUT-1'
+    $c3 = Invoke-Resolver $us02CPlan $inputIdentityC02
     Assert-ExitCode 0 $c3 'Should_ExitZero_When_PredecessorStepCompleted'
     Assert-Field $c3 'step' 'US02-S1' 'Should_SelectDependentStep_When_PredecessorStepCompleted'
 
     $repoC4 = Copy-State $stateCDone 'c4-normative-edit'
     Edit-File (Get-RepoPath $repoC4 $us01CPath) 'Normative body: synthetic chained unit plan.' 'Normative body changed after approval.'
-    $c4 = Invoke-Resolver (Get-RepoPath $repoC4 $us02CPath) 'INPUT-1'
+    $c4Plan = Get-RepoPath $repoC4 $us02CPath
+    Add-ReviewBinding $c4Plan | Out-Null
+    $c4 = Invoke-Resolver $c4Plan $inputIdentityC02
     Assert-ExitCode 1 $c4 'Should_ExitOne_When_PredecessorNormativeTextEdited'
     Assert-Field $c4 'reason' 'plan_dependency_identity_changed' 'Should_ReturnIdentityChanged_When_PredecessorNormativeTextEdited'
     Assert-Field $c4 'dependency' $us01CPath 'Should_NameDependency_When_PredecessorNormativeTextEdited'
@@ -560,7 +658,9 @@ try {
     $c5Preflight = Invoke-Cli -Script $cli.Preflight -Arguments @('-RepoPath', $repoC5, '-PlanPath', $us02CPath, '-ExpectedIdentity', $identityC02)
     Assert-ExitCode 0 $c5Preflight 'Should_ExitZero_When_PredecessorOperationalBlocksEdited'
     Assert-Field $c5Preflight 'identity' $identityC02 'Should_KeepDependentIdentity_When_PredecessorOperationalBlocksEdited'
-    $c5 = Invoke-Resolver (Get-RepoPath $repoC5 $us02CPath) 'INPUT-1'
+    $c5Plan = Get-RepoPath $repoC5 $us02CPath
+    Add-ReviewBinding $c5Plan | Out-Null
+    $c5 = Invoke-Resolver $c5Plan $inputIdentityC02
     Assert-ExitCode 0 $c5 'Should_ExitZero_When_PredecessorOperationalBlocksEdited'
     Assert-Field $c5 'step' 'US02-S1' 'Should_KeepEligibility_When_PredecessorOperationalBlocksEdited'
 
