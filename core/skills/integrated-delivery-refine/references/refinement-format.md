@@ -11,7 +11,17 @@ Use this outline for a required feature refinement. Keep each normative item in 
 7. **Risks and assumptions** — impact, evidence, owner or resolution point; retain unresolved material questions explicitly.
 8. **Unit and repository map** — one outcome per `USnn` or `TSnn`, dependency order, shared-file owner/order, each affected repository as `AFFECTED` or evidence-backed `NO_CHANGE`.
 9. **Definition of done** — criterion IDs and required evidence; do not restate criterion text.
-10. **Operational review and approval block** — maintain outside normative identity per the shared contracts. Do not record raw private transcripts or credentials.
+10. **Approval state (operational block)** — a refinement carries exactly one operational block `<!-- DELIVERY:APPROVAL:BEGIN -->` ... `<!-- DELIVERY:APPROVAL:END -->` holding one JSON object with `schema` `delivery-approval/v1`. Place it in its own final section titled for the approval state. It carries no other DELIVERY block (no PROGRESS, CHECKPOINT, or STEP). Field names, required fields per `state`, and enums follow the APPROVAL table in `../../_shared/integrated-delivery/SCHEMAS.md` (section 6.3); do not copy them here. This block is excluded from the normative identity. All decisions, criteria, and text outside it are normative. Any status or approval prose lives only inside that block's JSON, never as free text in the normative sections, so recording an approval never changes the normative identity. Do not record raw private transcripts or credentials.
+
+Minimal example, state `pending`:
+
+```markdown
+<!-- DELIVERY:APPROVAL:BEGIN -->
+{"schema": "delivery-approval/v1", "state": "pending"}
+<!-- DELIVERY:APPROVAL:END -->
+```
+
+**Amendments.** After approval, any change outside the APPROVAL block changes the normative identity and needs a new approval. Follow the `approved` -> `pending` transition in `../../_shared/integrated-delivery/SCHEMAS.md` section 6.3: reset the block to `pending`, then record a new approval for the new identity. Changes confined to the APPROVAL block's operational fields (for example `approved_utc` or `review_identity`) do not change the identity and need no new approval.
 
 ## Cross-reference rules
 

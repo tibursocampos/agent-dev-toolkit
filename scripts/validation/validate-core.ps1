@@ -95,6 +95,12 @@ $coreChecks = @(
     @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
     @{ Name = 'delivery-review-record'; Script = 'Assert-DeliveryReviewRecord.ps1' },
     @{ Name = 'delivery-execution'; Script = 'Assert-DeliveryExecution.ps1' },
+    @{ Name = 'delivery-grammar'; Script = 'Assert-DeliveryGrammar.ps1' },
+    @{ Name = 'startup-preflight'; Script = 'Assert-StartupPreflight.ps1' },
+    @{ Name = 'new-delivery-review-record'; Script = 'Assert-NewDeliveryReviewRecord.ps1' },
+    @{ Name = 'delivery-plan-preflight'; Script = 'Assert-DeliveryPlanPreflight.ps1' },
+    @{ Name = 'delivery-evidence'; Script = 'Assert-DeliveryEvidence.ps1' },
+    @{ Name = 'delivery-end-to-end'; Script = 'Assert-DeliveryEndToEnd.ps1' },
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )

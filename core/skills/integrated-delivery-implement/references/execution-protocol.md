@@ -2,14 +2,14 @@
 
 ## Operational block payloads
 
-The canonical markers are defined in the shared EXECUTION.md contract. Each block contains one JSON object:
+The canonical markers are defined in the shared EXECUTION.md contract. Each block contains exactly one JSON object with a `schema` of the form `delivery-<type>/v1`, and unknown keys are rejected. Field names, types, and enums are defined only in `../../_shared/integrated-delivery/SCHEMAS.md` (section 6). Each block carries:
 
-- PROGRESS: cadence, current_stage, completed/total counts, approval_identity, and finite authorization evidence.
-- CHECKPOINT: unique run_id, UTC update time, active_step, last_completed, ordered next_eligible IDs, per-repository base/branch/HEAD, and declared input identity.
-- APPROVAL: state, exact plan identity, declared-input identity, review-record identity/state, unresolved blocking findings, operator choice and timestamp.
-- STEP-<id>: stable step ID, status, run ID, start/end timestamps, acceptance evidence, required validation results, and blocker if any.
+- `DELIVERY:PROGRESS`: `cadence`, `current_stage`, `completed`/`total` counts, `approval_identity`, and `authorization` evidence.
+- `DELIVERY:CHECKPOINT`: `run_id`, `updated_utc`, `active_step`, `last_completed`, ordered `next_eligible` IDs, top-level `branch` and `head`, optional per-repository `repositories`, and `input_identity`.
+- `DELIVERY:APPROVAL`: `state`, `identity` (exact plan identity), `input_identity`, `review_state`, optional `review_identity`, `blocking_findings`, `unresolved_decisions`, `operator_choice`, and `approved_utc`.
+- `DELIVERY:STEP:<id>`: `id`, `status`, `run_id`, `started_utc`, `ended_utc`, `acceptance_evidence`, `evidence_refs`, `validation_results`, and `blocker` if any.
 
-Before writing state, verify there is exactly one progress, checkpoint and approval block and one block for every declared step. Reject unknown, duplicate, nested, missing or unbalanced markers. Replace only the intended operational block; preserve normative bytes and re-read the full plan after the write. Never edit approved normative content as part of a state update.
+Before writing state, verify there is exactly one progress, checkpoint and approval block and one block for every declared step. Reject unknown, duplicate, nested, missing or unbalanced markers. Two layers report rejections. The library error codes are listed in `../../_shared/integrated-delivery/SCHEMAS.md` (section 2). Script reasons wrap them: `Resolve-DeliveryExecution` returns `allowed=false` with reason `grammar_invalid` (its `errors` array carries the library codes) or `legacy_marker` (library code `legacy_step_marker`); `Set-DeliveryExecutionBlock` refuses with `invalid_payload` (new text fails library validation) or `identity_changed` (normative identity would change). `approval_identity_stale` is unchanged. Replace only the intended operational block; preserve normative bytes and re-read the full plan after the write. Never edit approved normative content as part of a state update.
 
 ## Identity and eligibility
 
@@ -26,6 +26,13 @@ One run executes one step at a time. Before invoking implementation, persist the
 An interrupted IN_PROGRESS step is never replayed automatically. Compare the current diff and recorded start/checkpoint. If the outcome is clear, present evidence and reconcile the state; if unclear, ask the operator. A branch or HEAD mismatch blocks without reset. A completed step is never selected again; an incomplete dependency cannot be skipped.
 
 Step-by-step authorization covers one next step and ends with that step. Continuous authorization is recorded once against the exact approved plan identity and covers eligible implementation steps in that plan only. Re-check identity, dependency, gate, and checkpoint after each step. Stop on blocker, material change, stale approval, scope expansion, or Git/publication action; obtain separate authorization for such action classes.
+
+## Evidence and baseline
+
+- (a) When a step produces declared evidence, write it with `scripts/runtime/Invoke-DeliveryEvidence.ps1 -Action write`. Record the returned path and sha256 in that step's `DELIVERY:STEP` block `evidence_refs` through `scripts/ledger/Set-DeliveryExecutionBlock.ps1`. A step that needs the evidence is eligible only after the producer's reference exists and verifies.
+- (b) Unit outside Git: before the first step, write the baseline evidence with the helper under the first step id and its declared name, and record it in that STEP block's `evidence_refs` (status stays `PENDING`). Then write the CHECKPOINT with `location_kind` `directory`, empty `branch` and `head` strings, and `baseline_evidence` `<step-id>/<name>`. Never invent a branch or HEAD. The resolver verifies the baseline on every selection and resume instead of comparing branch and HEAD.
+- (c) A missing, changed, or invalid evidence reference denies with the resolver reason (`evidence_missing`, `evidence_changed`, `evidence_ref_invalid`, `baseline_missing`, `baseline_changed`, `baseline_ref_invalid`). A failed evidence check blocks the step that needs it (step-level); a failed baseline check denies every selection (the baseline is a unit-level precondition). A helper block (for example `evidence_ambiguous`) stops the write. Do not replay or regenerate evidence automatically; ask the operator.
+- (d) Limits: evidence files live under `features/NNN-slug/<UNIT>/evidence/`, outside Git when that tree is ignored. Cross-machine resume stays unsupported. A matching hash proves integrity, not authorship.
 
 ## Context and reporting
 

@@ -5,13 +5,14 @@
 .DESCRIPTION
   This helper is limited to existing DELIVERY operational markers under
   RepoPath/features. It preserves all other bytes and requires the caller's
-  hash of the previous block, so a stale concurrent state update fails closed.
+  hash of the current block payload, so a stale concurrent state update fails
+  closed. Blocks are located and hashed with scripts/_lib/DeliveryGrammar.ps1.
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string] $RepoPath,
     [Parameter(Mandatory = $true)][string] $PlanPath,
-    [Parameter(Mandatory = $true)][ValidatePattern('^(PROGRESS|CHECKPOINT|APPROVAL|STEP-[A-Za-z0-9-]+)$')][string] $Block,
+    [Parameter(Mandatory = $true)][ValidatePattern('^(PROGRESS|CHECKPOINT|APPROVAL|STEP:[A-Za-z0-9][A-Za-z0-9._-]*)$')][string] $Block,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string] $ExpectedBlockHash,
     [Parameter(Mandatory = $true)][string] $PayloadJson
 )
@@ -19,11 +20,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-function Get-Sha256([byte[]]$Bytes) {
-    $sha = [System.Security.Cryptography.SHA256]::Create()
-    try { return ([BitConverter]::ToString($sha.ComputeHash($Bytes))).Replace('-', '') }
-    finally { $sha.Dispose() }
-}
+$libDir = Join-Path (Split-Path -Parent $PSScriptRoot) '_lib'
+. (Join-Path $libDir 'DeliveryGrammar.ps1')
 
 function Write-Result([bool]$Ok, [string]$Code, [bool]$Written) {
     [pscustomobject]@{ ok = $Ok; code = $Code; written = $Written } | ConvertTo-Json -Compress
@@ -49,22 +47,58 @@ try {
 
     $payload = $PayloadJson | ConvertFrom-Json -ErrorAction Stop
     if ($null -eq $payload -or $payload -is [System.Array] -or $payload -is [string]) { throw 'payload_must_be_json_object' }
-    $payloadText = $payload | ConvertTo-Json -Compress -Depth 30
+    # The caller's own text is spliced as-is so timestamps and other values are not re-serialized.
+    $payloadText = $PayloadJson.Trim()
+    if ($payloadText.IndexOfAny([char[]]@([char]13, [char]10)) -ge 0) { throw 'invalid_payload' }
     $originalBytes = [System.IO.File]::ReadAllBytes($file)
     $hasBom = $originalBytes.Length -ge 3 -and $originalBytes[0] -eq 0xEF -and $originalBytes[1] -eq 0xBB -and $originalBytes[2] -eq 0xBF
     $encoding = New-Object System.Text.UTF8Encoding($false)
     $originalText = $encoding.GetString($originalBytes)
     if ($hasBom -and $originalText.StartsWith([string][char]0xFEFF)) { $originalText = $originalText.Substring(1) }
     if ($originalText.Contains([string][char]0xFFFD)) { throw 'plan_invalid_utf8' }
-    $marker = [regex]::Escape($Block)
-    $pattern = '(?ms)^<!-- DELIVERY:' + $marker + ':BEGIN -->\r?\n(.*?)\r?\n<!-- DELIVERY:' + $marker + ':END -->$'
-    $matches = [regex]::Matches($originalText, $pattern)
-    if ($matches.Count -ne 1) { throw 'block_missing_or_duplicate' }
-    $oldPayload = $matches[0].Groups[1].Value
-    if ((Get-Sha256 ([System.Text.Encoding]::UTF8.GetBytes($oldPayload))) -cne $ExpectedBlockHash.ToUpperInvariant()) {
+
+    $parsed = Read-DeliveryBlocks -Text $originalText
+    if (-not $parsed.Ok) { throw 'plan_grammar_invalid' }
+
+    if ($Block.StartsWith('STEP:', [System.StringComparison]::Ordinal)) {
+        $blockType = 'STEP'
+        $blockId = $Block.Substring('STEP:'.Length)
+    }
+    else {
+        $blockType = $Block
+        $blockId = $null
+    }
+    $found = @($parsed.Blocks | Where-Object { ($_.Type -ceq $blockType) -and (([string]$_.Id) -ceq ([string]$blockId)) })
+    if ($found.Count -ne 1) { throw 'block_missing' }
+    $target = $found[0]
+
+    if ((Get-DeliveryBlockHash -Payload $target.Payload) -cne $ExpectedBlockHash.ToUpperInvariant()) {
         throw 'state_conflict'
     }
-    $newText = $originalText.Substring(0, $matches[0].Groups[1].Index) + $payloadText + $originalText.Substring($matches[0].Groups[1].Index + $matches[0].Groups[1].Length)
+
+    # Replace only the payload lines of the located block; terminators and all other lines are kept.
+    $segments = [regex]::Split($originalText, '(\r\n|\r|\n)')
+    $lineCount = [int](($segments.Length + 1) / 2)
+    $payloadFirst = [int]$target.StartLine
+    $payloadLast = [int]$target.EndLine - 2
+    $payloadTerminator = $segments[(2 * $payloadLast) + 1]
+    $rebuilt = New-Object System.Text.StringBuilder
+    for ($index = 0; $index -lt $payloadFirst; $index++) {
+        [void]$rebuilt.Append($segments[2 * $index]).Append($segments[(2 * $index) + 1])
+    }
+    [void]$rebuilt.Append($payloadText).Append($payloadTerminator)
+    for ($index = [int]$target.EndLine - 1; $index -lt $lineCount; $index++) {
+        [void]$rebuilt.Append($segments[2 * $index])
+        if ($index -lt ($lineCount - 1)) { [void]$rebuilt.Append($segments[(2 * $index) + 1]) }
+    }
+    $newText = $rebuilt.ToString()
+
+    $newParsed = Read-DeliveryBlocks -Text $newText
+    if (-not $newParsed.Ok) { throw 'invalid_payload' }
+    if ((Get-DeliveryNormativeIdentity -Text $newText) -cne (Get-DeliveryNormativeIdentity -Text $originalText)) {
+        throw 'identity_changed'
+    }
+
     $newBytes = $encoding.GetBytes($newText)
     if ($hasBom) { $newBytes = [byte[]](@(0xEF, 0xBB, 0xBF) + $newBytes) }
     $directory = Split-Path -Parent $file

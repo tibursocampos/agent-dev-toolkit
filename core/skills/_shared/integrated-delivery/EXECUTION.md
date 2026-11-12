@@ -44,9 +44,11 @@ The following marker names and grammar are canonical for this experiment:
 <!-- DELIVERY:STEP:US01-S1:END -->
 ```
 
+Block grammar, error codes, projection rule, and payload schemas: `SCHEMAS.md` in this folder; reference parser: `scripts/_lib/DeliveryGrammar.ps1`.
+
 There is one progress block, one checkpoint block, one approval block, and exactly one step block per declared step ID. Duplicate, unknown, missing, nested, or unmatched markers fail validation. The normative content hash excludes only these balanced operational blocks; all other bytes and declared inputs remain significant. Header status is derived from the step ledger and is never a second state source.
 
-Progress block records cadence, current stage, completed/total counts, and the source approval identity. Checkpoint block records run ID/time, active and last-completed step, upcoming eligible steps, per-repository base/branch/HEAD, and declared input identity. Approval block records operator choice, date, content identity, review identity and source. Step blocks record exactly one stable step ID, status (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `BLOCKED`), run ID, start/end, acceptance evidence and validation results.
+Progress block records cadence, current stage, completed/total counts, and the source approval identity. Checkpoint block records run ID/time, active and last-completed step, upcoming eligible steps, top-level branch and HEAD with optional per-repository entries, and `input_identity`. Approval block records `state`, `identity`, `input_identity`, `review_state`, optional `review_identity`, and `approved_utc`. Step blocks record exactly one stable step ID, status (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `BLOCKED`), run ID, start/end, acceptance evidence and validation results.
 
 ## Resume and idempotency
 

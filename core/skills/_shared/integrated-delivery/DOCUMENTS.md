@@ -21,7 +21,7 @@ The feature refinement contains:
 7. Risks, assumptions, unresolved questions, and owner.
 8. Unit definitions, dependencies, affected repository disposition (`AFFECTED`/`NO_CHANGE`) and evidence, shared-file ownership and execution order.
 9. Definition of done by criterion ID.
-10. Approval and review identity in the operational block, not mixed into normative content.
+10. Approval state and review identity only in the single APPROVAL operational block, excluded from normative identity per `SCHEMAS.md` section 6.3.
 
 ## Unit plan content
 
@@ -48,9 +48,9 @@ Each unit/repository plan contains:
 
 ## Approval identity
 
-The identity is the hash of normalized approved normative content plus the ordered set of declared material input tuples: portable identifier, immutable revision or recomputed content hash, role, and affected requirement/criterion/step IDs. The operational block is excluded. The validator recalculates hashes; a declared hash is never trusted as proof.
+The `identity` is the normative projection hash of the approved document (`SCHEMAS.md` section 4); the operational block is excluded. Declared material input tuples (portable identifier, immutable revision or recomputed content hash, role, and affected requirement/criterion/step IDs) are covered by the separate `input_identity`, and an approval binds both. The validator recalculates hashes; a declared hash is never trusted as proof.
 
-Before feature approval, plan approval, implementation, and resume, verify each tuple. Missing, changed, ambiguous, or unverifiable inputs block the affected scope. Reconcile impact; obtain fresh review and explicit approval for affected content. Unreferenced files do not invalidate approval merely because they were read. Hash normalization and operational marker grammar are specified in `EXECUTION.md` and must have contract fixtures before implementation.
+Before feature approval, plan approval, implementation, and resume, verify each tuple. Missing, changed, ambiguous, or unverifiable inputs block the affected scope. Reconcile impact; obtain fresh review and explicit approval for affected content. Unreferenced files do not invalidate approval merely because they were read. Hash normalization, the normative projection, and the marker grammar are specified in `SCHEMAS.md` (sections 1 and 4) and implemented in `scripts/_lib/DeliveryGrammar.ps1`.
 
 ## Portability and privacy
 

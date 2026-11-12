@@ -9,9 +9,13 @@
 
 The target path is the intended repository-relative canonical file under the selected feature. Review the exact stabilized draft, whether it is held in memory or a temporary snapshot; the review record binds to the intended canonical path and draft bytes. When the record writer needs an on-disk snapshot before the canonical file exists, pass `SnapshotPath` under that feature's `scratch/delivery-review/` directory and remove the temporary snapshot after the review record is saved. Store the durable record under that feature's local ignored `delivery-reviews/` directory. Never store reviewer transcripts in scratch unless needed as concise evidence.
 
+## Reviewer output and record assembly
+
+Each reviewer's final message is one JSON object, defined by `../../_shared/agents/prompts/cold-reader.md` and `cold-critic.md`. The reader returns `paraphrases`, `lenses`, and `findings`; the critic returns `lenses` and `findings`. Finding IDs are `R<round>-<nnn>` for the reader and `C<round>-<nnn>` for the critic, with the round taken from the handoff (default 1) and never reused across rounds. `scripts/runtime/New-DeliveryReviewRecord.ps1` assembles the record from those outputs, maps `location` to `section`, normalizes severity, and lists undisposed finding IDs; it requires `-RepoPath`, confines `-OutPath` to `features/NNN-slug/scratch/delivery-review/`, and checks record shape with the library; identity validation remains the writer's responsibility. Optional `-RequestedModel` and `-RequestedEffort` (given together) fill `provenance` only when the host reports the requested pair; the record never claims an effective model.
+
 ## Identity and convergence
 
-Identity consists of SHA-256 over UTF-8 content after removing only valid balanced `DELIVERY:PROGRESS`, `CHECKPOINT`, `APPROVAL`, and `STEP:<stable-id>` blocks, plus ordered material-input tuples (portable path, recomputed SHA-256, role, impacted IDs). Normalize line endings to LF and remove a UTF-8 BOM before hashing. All text outside recognized operational blocks remains significant. Reject malformed, nested, duplicate, unknown, or unmatched operational markers.
+Identity is the normative projection of the document plus ordered material-input tuples (portable path, recomputed SHA-256, role, impacted IDs). Projection and marker rules are defined in `../../_shared/integrated-delivery/SCHEMAS.md` (sections 1 and 4) and implemented in `scripts/_lib/DeliveryGrammar.ps1`.
 
 Each review round returns the full findings set and covered lenses. On re-audit, include prior findings, changed normative content, and affected context. A finding first found in unchanged content is `late`. Keep open B/I blocked until evidence-backed resolution or contestation. MINOR requires explicit disposition and reason. Convergence has no fixed round/call budget.
 

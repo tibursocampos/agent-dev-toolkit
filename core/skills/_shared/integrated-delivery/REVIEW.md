@@ -37,8 +37,8 @@ The coordinator alone writes a `delivery-review-record/v1` record under the revi
 | `inputs[]` | Declared material input ID/path, hash or immutable revision, role and impacted IDs |
 | `reviewers.reader` / `reviewers.critic` | Structured role result; reader has both paraphrases, each role has covered lenses and a complete findings array, including empty when none; host and observed isolation |
 | `state` | `reviewed`, `bypassed`, or `not_run` |
-| `dispositions[]` | Finding ID/severity, corrected, contested, accepted minor, or unresolved; evidence and reason |
-| `operator_choice` | Required for a review bypass; choice, date, evidence reference |
+| `dispositions[]` | Per finding ID: `resolved`, `contested`, or `accepted_minor`, with evidence for B/I and a reason for MINOR; a finding without a disposition entry is unresolved and blocks. |
+| `operator_choice` | Bypass: `operator_choice` with choice `bypass`, evidence and date, plus a top-level `reason`; content approval is recorded separately under `approval.operator_choice` with choice `content_approval` and evidence. |
 | `provenance` | Requested model/effort and effective values only if host reports them |
 
 Writer recalculates normalized content and input hashes, validates target/stage identity and schema, rejects unresolved B/I or findings without dispositions, and writes atomically under the feature's local `delivery-reviews/` directory. `reviewed` requires valid structured outputs from both roles. `bypassed` requires explicit operator evidence. Missing identity, malformed output, unresolved B/I, or failed durable write leaves the artifact blocked. The record is not cryptographic identity proof and does not independently authenticate operator or host behavior.

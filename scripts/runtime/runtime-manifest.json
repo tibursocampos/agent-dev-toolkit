@@ -9,10 +9,15 @@
   "files": [
     { "source": "scripts/inventory/Invoke-MemoryBankInventory.ps1", "destination": "inventory/Invoke-MemoryBankInventory.ps1", "class": "runtime", "caller": "memory-bank-init and shared memory-bank inventory contract" },
     { "source": "scripts/session/Invoke-DevelopSessionGate.ps1", "destination": "session/Invoke-DevelopSessionGate.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
+    { "source": "scripts/session/Invoke-StartupPreflight.ps1", "destination": "session/Invoke-StartupPreflight.ps1", "class": "runtime", "caller": "integrated-delivery (startup preflight; skill wiring pending)" },
     { "source": "scripts/ledger/Invoke-PlanLedgerClaim.ps1", "destination": "ledger/Invoke-PlanLedgerClaim.ps1", "class": "runtime", "caller": "sdd-develop and orchestrate-develop" },
     { "source": "scripts/ledger/Invoke-ExecutionModeGate.ps1", "destination": "ledger/Invoke-ExecutionModeGate.ps1", "class": "runtime", "caller": "orchestrate-develop" },
     { "source": "scripts/ledger/continuous-queue.ps1", "destination": "ledger/continuous-queue.ps1", "class": "runtime", "caller": "orchestrate-develop O3 continuous queue (Test-ContinuousQueueStepAuthorization)" },
     { "source": "scripts/runtime/Write-DeliveryReviewRecord.ps1", "destination": "runtime/Write-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
+    { "source": "scripts/runtime/New-DeliveryReviewRecord.ps1", "destination": "runtime/New-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
+    { "source": "scripts/runtime/Test-DeliveryReviewRecord.ps1", "destination": "runtime/Test-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery gates" },
+    { "source": "scripts/runtime/Test-DeliveryPlanPreflight.ps1", "destination": "runtime/Test-DeliveryPlanPreflight.ps1", "class": "runtime", "caller": "integrated-delivery-plan" },
+    { "source": "scripts/runtime/Invoke-DeliveryEvidence.ps1", "destination": "runtime/Invoke-DeliveryEvidence.ps1", "class": "runtime", "caller": "integrated-delivery-implement" },
     { "source": "scripts/ledger/Resolve-DeliveryExecution.ps1", "destination": "ledger/Resolve-DeliveryExecution.ps1", "class": "runtime", "caller": "integrated-delivery-implement" },
     { "source": "scripts/ledger/Set-DeliveryExecutionBlock.ps1", "destination": "ledger/Set-DeliveryExecutionBlock.ps1", "class": "runtime", "caller": "integrated-delivery-implement" },
     { "source": "scripts/validation/Invoke-SiblingReadinessGate.ps1", "destination": "validation/Invoke-SiblingReadinessGate.ps1", "class": "runtime", "caller": "shared readiness-severity contract" },
@@ -33,6 +38,8 @@
     { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "preflight runtime script above" },
     { "source": "scripts/_lib/Get-ToolkitRelativePath.ps1", "destination": "_lib/Get-ToolkitRelativePath.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
     { "source": "scripts/_lib/Test-ToolkitFileReadback.ps1", "destination": "_lib/Test-ToolkitFileReadback.ps1", "class": "support", "caller": "session gate and PLAN ledger claim runtime scripts above" },
+    { "source": "scripts/_lib/DeliveryGrammar.ps1", "destination": "_lib/DeliveryGrammar.ps1", "class": "support", "caller": "integrated-delivery ledger and review-record scripts" },
+    { "source": "scripts/_lib/DeliveryReviewRecord.ps1", "destination": "_lib/DeliveryReviewRecord.ps1", "class": "support", "caller": "integrated-delivery review-record scripts" },
     { "source": "scripts/_lib/Format-O3PlanProgressTable.ps1", "destination": "_lib/Format-O3PlanProgressTable.ps1", "class": "support", "caller": "O3 artifact preflight complete-step status table" }
   ]
 }
