@@ -106,6 +106,8 @@ $coreChecks = @(
     @{ Name = 'delivery-input-sources'; Script = 'Assert-DeliveryInputSources.ps1' },
     @{ Name = 'delivery-packaging'; Script = 'Assert-DeliveryPackaging.ps1' },
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },
+    @{ Name = 'validate-agent-exit'; Script = 'Assert-ValidateAgentExit.ps1'; Isolated = $true },
+    @{ Name = 'codex-user-scope-smoke'; Script = 'Assert-CodexUserScopeSmoke.ps1'; Isolated = $true },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )
 
