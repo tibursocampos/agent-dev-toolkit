@@ -16,6 +16,9 @@ param(
     [string]$ApprovalEvidence,
     [string]$RequestedModel,
     [string]$RequestedEffort,
+    [int]$Round = 1,
+    [string]$PriorReviewIdentity,
+    [string]$RoundsPath,
     [Parameter(Mandatory)][string]$OutPath
 )
 
@@ -66,7 +69,17 @@ function ConvertTo-ReviewFindings([object]$Raw, [string]$Role) {
     foreach ($source in (ConvertTo-Items $Raw)) {
         if ($source -isnot [pscustomobject]) { throw "$Role finding must be a JSON object." }
         $finding = [ordered]@{}
-        foreach ($property in $source.PSObject.Properties) { $finding[$property.Name] = $property.Value }
+        foreach ($property in $source.PSObject.Properties) {
+            switch -CaseSensitive ($property.Name) {
+                'late' {
+                    if ($property.Value -isnot [bool]) { throw "$Role finding '$($source.id)' late must be a JSON boolean." }
+                }
+                'repeats' {
+                    if (($property.Value -isnot [string]) -or [string]::IsNullOrWhiteSpace($property.Value)) { throw "$Role finding '$($source.id)' repeats must be a non-blank string." }
+                }
+            }
+            $finding[$property.Name] = $property.Value
+        }
         if ($finding.Contains('location')) {
             if ($null -eq $finding['section']) { $finding['section'] = $finding['location'] }
             $finding.Remove('location')
@@ -115,6 +128,11 @@ if ($State -eq 'not_run') {
 if ([string]::IsNullOrWhiteSpace($RequestedModel) -ne [string]::IsNullOrWhiteSpace($RequestedEffort)) {
     throw '-RequestedModel and -RequestedEffort must be given together.'
 }
+if ($Round -lt 1) { throw '-Round must be an integer greater than or equal to 1.' }
+$hasPriorIdentity = -not [string]::IsNullOrWhiteSpace($PriorReviewIdentity)
+if ($Round -ge 2 -and -not $hasPriorIdentity) { throw '-PriorReviewIdentity is required when -Round is 2 or greater.' }
+if ($Round -lt 2 -and $hasPriorIdentity) { throw '-PriorReviewIdentity is allowed only when -Round is 2 or greater.' }
+if ($hasPriorIdentity -and $PriorReviewIdentity -cnotmatch '\A[0-9A-F]{64}\z') { throw '-PriorReviewIdentity must be 64 uppercase hexadecimal characters.' }
 
 $repoFull = [System.IO.Path]::GetFullPath($RepoPath)
 $outFull = Get-ConfinedOutPath $repoFull $OutPath
@@ -127,7 +145,7 @@ $findingIds = [System.Collections.Generic.List[string]]::new()
 $severityById = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
 $seenFindingIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 $dispositionIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-$counts = [ordered]@{ B = 0; I = 0; MINOR = 0 }
+$counts = [ordered]@{ B = 0; I = 0; MINOR = 0; late = 0; repeats = 0 }
 
 if ($State -eq 'reviewed') {
     $readerRaw = Read-JsonDocument $ReaderResultPath 'ReaderResultPath'
@@ -162,6 +180,8 @@ if ($State -eq 'reviewed') {
         $severity = [string]$finding['severity']
         $severityById[$id] = $severity
         $counts[$severity] = $counts[$severity] + 1
+        if (($finding.Keys -ccontains 'late') -and ($finding['late'] -eq $true)) { $counts['late'] = $counts['late'] + 1 }
+        if ($finding.Keys -ccontains 'repeats') { $counts['repeats'] = $counts['repeats'] + 1 }
         $findingIds.Add($id)
     }
 
@@ -184,15 +204,23 @@ if ($State -eq 'reviewed') {
     }
 }
 
+$roundEntries = [System.Collections.Generic.List[object]]::new()
+if (-not [string]::IsNullOrWhiteSpace($RoundsPath)) {
+    foreach ($source in (ConvertTo-Items (Read-JsonDocument $RoundsPath 'RoundsPath'))) { $roundEntries.Add($source) }
+}
+
 if (-not [string]::IsNullOrWhiteSpace($InputsPath)) {
     foreach ($source in (ConvertTo-Items (Read-JsonDocument $InputsPath 'InputsPath'))) {
         if ($source -isnot [pscustomobject]) { throw 'Input must be a JSON object.' }
-        $inputs.Add([ordered]@{
+        $inputEntry = [ordered]@{
             id           = Get-Prop $source 'id'
             path         = Get-Prop $source 'path'
             role         = Get-Prop $source 'role'
             impacted_ids = ConvertTo-Items (Get-Prop $source 'impacted_ids')
-        })
+        }
+        $sourceProperty = Get-DeliveryReviewRecordExactProperty -Object $source -Name 'source'
+        if ($null -ne $sourceProperty) { $inputEntry['source'] = $sourceProperty.Value }
+        $inputs.Add($inputEntry)
     }
 }
 
@@ -230,6 +258,9 @@ if (-not [string]::IsNullOrWhiteSpace($RequestedModel)) {
     $record['provenance']['requested_model'] = $RequestedModel
     $record['provenance']['requested_effort'] = $RequestedEffort
 }
+$record['round'] = $Round
+if ($hasPriorIdentity) { $record['prior_review_identity'] = $PriorReviewIdentity }
+if (-not [string]::IsNullOrWhiteSpace($RoundsPath)) { $record['rounds'] = $roundEntries.ToArray() }
 
 $undisposed = [System.Collections.Generic.List[string]]::new()
 foreach ($id in $findingIds) {

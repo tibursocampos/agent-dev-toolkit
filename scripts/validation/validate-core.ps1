@@ -101,6 +101,9 @@ $coreChecks = @(
     @{ Name = 'delivery-plan-preflight'; Script = 'Assert-DeliveryPlanPreflight.ps1' },
     @{ Name = 'delivery-evidence'; Script = 'Assert-DeliveryEvidence.ps1' },
     @{ Name = 'delivery-end-to-end'; Script = 'Assert-DeliveryEndToEnd.ps1' },
+    @{ Name = 'delivery-atomic-write'; Script = 'Assert-DeliveryAtomicWrite.ps1' },
+    @{ Name = 'delivery-review-budget'; Script = 'Assert-DeliveryReviewBudget.ps1' },
+    @{ Name = 'delivery-input-sources'; Script = 'Assert-DeliveryInputSources.ps1' },
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },
     @{ Name = $constant.AdapterPublishCheckName; Script = $constant.AssertAdapterPublishScriptName; Isolated = $true }
 )

@@ -5,7 +5,9 @@ One plan represents one accepted US or TS unit in one repository. The canonical 
 ## Normative sections
 
 1. **Identity and inputs:** unit ID/type, repository, plan-set ID where applicable, portable source IDs/revisions, and material input identity tuples.
+   - **Plan dependencies:** a unit that depends on another plan declares it under `## Plan dependencies` with the predecessor's current identity and the needed steps, for example `Requires plan: features/NNN-slug/US01/PLAN.md identity=E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855 steps=US01-S2`. Syntax and checks: `SCHEMAS.md` section 10.2.
 2. **Purpose and boundaries:** approved objective, included/excluded scope, risks and assumptions. Cite decisions by ID; do not restate their normative value.
+   - **Preconditions:** preparatory conditions the operator owns (for example the work branch or workspace state), each with an owner and how it is observed (checkpoint branch/head or the operator's confirmation). The plan lists them but never instructs the executor to run Git for them.
 3. **Acceptance criteria:** include only for a simple unit without feature refinement. Otherwise reference the approved criterion IDs and body hashes from `REFINEMENT.md`.
 4. **Traceability matrix:** each applicable criterion ID maps to implementing step IDs and validation evidence. Every criterion must be implemented or explicitly dispositioned by the approved source.
 5. **Shared files:** for a plan set, enumerate repository paths touched by each unit. Any intersection names owning unit, operation, ordering and merge rule. No unexplained overlap is permitted.
@@ -43,7 +45,7 @@ One plan represents one accepted US or TS unit in one repository. The canonical 
 - Produce one executable plan for each repository with approved work.
 - Keep shared feature decisions and criteria in the refinement. Each plan declares only the IDs and input hashes it consumes.
 - A repository assessed as requiring no change is represented by an evidence-backed `NO_CHANGE` entry in the refinement, not by an empty plan.
-- Identify cross-repository dependencies and order explicitly. Do not imply parallel execution where a dependency or shared contract prevents it.
+- Identify cross-repository dependencies and order explicitly. Do not imply parallel execution where a dependency or shared contract prevents it. Cross-plan order and shared contracts are declared with `## Plan dependencies`, and selection-time checks cover only direct predecessors.
 - Validate the complete set for missing units, duplicate IDs, unresolved dependencies, stale input identities and file intersections before any plan approval.
 
 ## Drafting and persistence

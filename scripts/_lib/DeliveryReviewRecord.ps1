@@ -1,6 +1,7 @@
 #Requires -Version 7.0
 
 . (Join-Path $PSScriptRoot 'DeliveryGrammar.ps1')
+. (Join-Path $PSScriptRoot 'DeliveryInputSources.ps1')
 
 function Get-Sha256Text([string]$Text) {
     $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($Text)
@@ -53,6 +54,158 @@ function Test-DeliveryReviewEnum {
     return (($Value -is [string]) -and ($Allowed -ccontains $Value))
 }
 
+function Get-DeliveryReviewRecordExactProperty {
+    param(
+        [AllowNull()][object] $Object,
+        [Parameter(Mandatory = $true)][string] $Name
+    )
+
+    if ($null -eq $Object) { return $null }
+    foreach ($property in $Object.PSObject.Properties) {
+        if ($property.Name -ceq $Name) { return $property }
+    }
+    return $null
+}
+
+function Test-DeliveryReviewInteger {
+    param(
+        [AllowNull()][object] $Value,
+        [Parameter(Mandatory = $true)][int64] $Minimum
+    )
+
+    if (($Value -isnot [int]) -and ($Value -isnot [long])) { return $false }
+    return ([int64]$Value -ge $Minimum)
+}
+
+function Assert-DeliveryReviewExactKeys {
+    param(
+        [Parameter(Mandatory = $true)][pscustomobject] $Object,
+        [Parameter(Mandatory = $true)][string[]] $Allowed,
+        [Parameter(Mandatory = $true)][string] $Context
+    )
+
+    foreach ($property in $Object.PSObject.Properties) {
+        if (-not ($Allowed -ccontains $property.Name)) { throw "$Context has unknown key $($property.Name)." }
+    }
+}
+
+function Assert-DeliveryReviewRounds {
+    param(
+        [AllowNull()][object] $Rounds
+    )
+
+    if ($Rounds -isnot [System.Array]) { throw 'rounds must be an array of round objects.' }
+    foreach ($entry in $Rounds) {
+        if ($entry -isnot [pscustomobject]) { throw 'Each rounds entry must be an object.' }
+        Assert-DeliveryReviewExactKeys -Object $entry -Allowed @('round', 'role', 'inputs', 'reported_tokens', 'reported_tool_calls', 'duration_s') -Context 'rounds entry'
+
+        $roundProperty = Get-DeliveryReviewRecordExactProperty -Object $entry -Name 'round'
+        if ($null -eq $roundProperty -or -not (Test-DeliveryReviewInteger -Value $roundProperty.Value -Minimum 1)) { throw 'rounds entry round must be an integer greater than or equal to 1.' }
+        $roleProperty = Get-DeliveryReviewRecordExactProperty -Object $entry -Name 'role'
+        if ($null -eq $roleProperty -or -not (Test-DeliveryReviewEnum -Value $roleProperty.Value -Allowed @('reader', 'critic'))) { throw 'rounds entry role must be reader or critic.' }
+
+        $inputsProperty = Get-DeliveryReviewRecordExactProperty -Object $entry -Name 'inputs'
+        if ($null -eq $inputsProperty -or $inputsProperty.Value -isnot [System.Array]) { throw 'rounds entry inputs must be an array.' }
+        foreach ($input in $inputsProperty.Value) {
+            if ($input -isnot [pscustomobject]) { throw 'Each rounds entry input must be an object.' }
+            Assert-DeliveryReviewExactKeys -Object $input -Allowed @('id', 'reason') -Context 'rounds entry input'
+            foreach ($field in @('id', 'reason')) {
+                $fieldProperty = Get-DeliveryReviewRecordExactProperty -Object $input -Name $field
+                if ($null -eq $fieldProperty -or $fieldProperty.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($fieldProperty.Value)) { throw "rounds entry input $field must be a non-blank string." }
+            }
+        }
+
+        foreach ($costField in @('reported_tokens', 'reported_tool_calls', 'duration_s')) {
+            $costProperty = Get-DeliveryReviewRecordExactProperty -Object $entry -Name $costField
+            if ($null -ne $costProperty -and $null -ne $costProperty.Value -and -not (Test-DeliveryReviewInteger -Value $costProperty.Value -Minimum 0)) {
+                throw "rounds entry $costField must be an integer greater than or equal to 0, or null."
+            }
+        }
+    }
+}
+
+function Assert-DeliveryInputAliasSyntax {
+    param(
+        [Parameter(Mandatory = $true)][string] $Path
+    )
+
+    $body = $Path.Substring(6)
+    $separatorIndex = $body.IndexOf('/')
+    $name = $body
+    if ($separatorIndex -ge 0) { $name = $body.Substring(0, $separatorIndex) }
+    if ($name -cnotmatch '\A[a-z0-9][a-z0-9-]*\z') { throw 'alias path must be alias:<slug> or alias:<slug>/<relative> with a lowercase slug.' }
+    if ($separatorIndex -lt 0) { return }
+
+    $relative = $body.Substring($separatorIndex + 1)
+    if ($relative.Length -eq 0) { throw 'alias path must not end with a slash.' }
+    foreach ($segment in $relative.Replace('\', '/').Split('/')) {
+        if (($segment -ceq '') -or ($segment -ceq '.') -or ($segment -ceq '..')) {
+            throw 'alias path contains an empty, current or parent segment.'
+        }
+    }
+}
+
+function Test-DeliveryReviewInputUsesSource {
+    param(
+        [AllowNull()][object] $InputEntry
+    )
+
+    $path = [string](Get-DeliveryReviewRecordField -Object $InputEntry -Name 'path')
+    return ($path.StartsWith('alias:', [System.StringComparison]::Ordinal) -or ($null -ne (Get-DeliveryReviewRecordExactProperty -Object $InputEntry -Name 'source')))
+}
+
+function Assert-DeliveryReviewInputSource {
+    param(
+        [Parameter(Mandatory = $true)][pscustomobject] $InputEntry
+    )
+
+    $path = [string](Get-DeliveryReviewRecordField -Object $InputEntry -Name 'path')
+    $isAlias = $path.StartsWith('alias:', [System.StringComparison]::Ordinal)
+    if ($isAlias) { Assert-DeliveryInputAliasSyntax -Path $path }
+
+    $isAliasOnly = $isAlias -and ($path.IndexOf('/') -lt 0)
+
+    $sourceProperty = Get-DeliveryReviewRecordExactProperty -Object $InputEntry -Name 'source'
+    if ($null -eq $sourceProperty) {
+        if ($isAliasOnly) { throw 'an alias-only path requires a fileset or revision source.' }
+        return
+    }
+    $source = $sourceProperty.Value
+    if ($source -isnot [pscustomobject]) { throw 'input source must be an object.' }
+
+    $kindProperty = Get-DeliveryReviewRecordExactProperty -Object $source -Name 'kind'
+    if (($null -eq $kindProperty) -or -not (Test-DeliveryReviewEnum -Value $kindProperty.Value -Allowed @('file', 'fileset', 'revision'))) {
+        throw 'input source kind must be file, fileset or revision.'
+    }
+    $kind = [string]$kindProperty.Value
+
+    if ($kind -ceq 'file') {
+        Assert-DeliveryReviewExactKeys -Object $source -Allowed @('kind') -Context 'file source'
+        if (-not $isAlias) { throw 'a repository-relative path with a file source is invalid; plain repository files take no source.' }
+        if ($isAliasOnly) { throw 'an alias-only path requires a fileset or revision source.' }
+        return
+    }
+
+    if ($kind -ceq 'fileset') {
+        Assert-DeliveryReviewExactKeys -Object $source -Allowed @('kind', 'files') -Context 'fileset source'
+        $filesProperty = Get-DeliveryReviewRecordExactProperty -Object $source -Name 'files'
+        if (($null -eq $filesProperty) -or ($filesProperty.Value -isnot [System.Array]) -or ($filesProperty.Value.Count -lt 1)) {
+            throw 'fileset source files must be a non-empty array.'
+        }
+        foreach ($file in $filesProperty.Value) {
+            if (($file -isnot [string]) -or [string]::IsNullOrWhiteSpace($file)) { throw 'fileset source files must contain only non-blank strings.' }
+        }
+        return
+    }
+
+    Assert-DeliveryReviewExactKeys -Object $source -Allowed @('kind', 'revision') -Context 'revision source'
+    if (-not $isAlias -or ($path.IndexOf('/') -ge 0)) { throw 'a revision source requires an alias-only path of the form alias:<slug>.' }
+    $revisionProperty = Get-DeliveryReviewRecordExactProperty -Object $source -Name 'revision'
+    if (($null -eq $revisionProperty) -or ($revisionProperty.Value -isnot [string]) -or ($revisionProperty.Value -cnotmatch '\A[0-9a-fA-F]{40}\z')) {
+        throw 'revision source revision must be exactly 40 hexadecimal characters.'
+    }
+}
+
 function Assert-DeliveryReviewRecordShape {
     [CmdletBinding()]
     param(
@@ -64,6 +217,25 @@ function Assert-DeliveryReviewRecordShape {
     if (-not (Test-DeliveryReviewEnum -Value $state -Allowed @('reviewed', 'bypassed', 'not_run'))) { throw 'Invalid review state.' }
     if ($null -eq $Value.reviewers -or $null -eq $Value.dispositions -or $null -eq $Value.inputs) { throw 'Record requires reviewers, dispositions, and inputs.' }
 
+    $roundProperty = Get-DeliveryReviewRecordExactProperty -Object $Value -Name 'round'
+    $priorProperty = Get-DeliveryReviewRecordExactProperty -Object $Value -Name 'prior_review_identity'
+    $round = 1
+    if ($null -ne $roundProperty) {
+        if (-not (Test-DeliveryReviewInteger -Value $roundProperty.Value -Minimum 1)) { throw 'round must be an integer greater than or equal to 1.' }
+        $round = [int64]$roundProperty.Value
+    }
+    if ($round -ge 2) {
+        if ($null -eq $priorProperty) { throw 'prior_review_identity is required when round is 2 or greater.' }
+    }
+    elseif ($null -ne $priorProperty) {
+        throw 'prior_review_identity is allowed only when round is 2 or greater.'
+    }
+    if ($null -ne $priorProperty -and ($priorProperty.Value -isnot [string] -or $priorProperty.Value -cnotmatch '\A[0-9A-F]{64}\z')) {
+        throw 'prior_review_identity must be 64 uppercase hexadecimal characters.'
+    }
+    $roundsProperty = Get-DeliveryReviewRecordExactProperty -Object $Value -Name 'rounds'
+    if ($null -ne $roundsProperty) { Assert-DeliveryReviewRounds -Rounds $roundsProperty.Value }
+
     foreach ($input in @($Value.inputs)) {
         foreach ($field in @('id', 'path', 'role')) {
             if ([string]::IsNullOrWhiteSpace([string](Get-DeliveryReviewRecordField -Object $input -Name $field))) { throw 'Each material input requires id, path, and role.' }
@@ -74,6 +246,7 @@ function Assert-DeliveryReviewRecordShape {
         foreach ($impactedId in $impactedIds) {
             if ($impactedId -isnot [string]) { throw 'Each material input requires impacted_ids as an array of strings.' }
         }
+        Assert-DeliveryReviewInputSource -InputEntry $input
     }
 
     $allFindingIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
@@ -99,6 +272,13 @@ function Assert-DeliveryReviewRecordShape {
                     if ([string]::IsNullOrWhiteSpace([string]$finding.$field)) { throw "$role finding is missing $field." }
                 }
                 if (-not (Test-DeliveryReviewEnum -Value $finding.severity -Allowed @('B', 'I', 'MINOR'))) { throw "Finding $($finding.id) has invalid severity." }
+                $lateProperty = Get-DeliveryReviewRecordExactProperty -Object $finding -Name 'late'
+                if ($null -ne $lateProperty -and $lateProperty.Value -isnot [bool]) { throw "$role finding $($finding.id) late must be a boolean." }
+                $repeatsProperty = Get-DeliveryReviewRecordExactProperty -Object $finding -Name 'repeats'
+                if ($null -ne $repeatsProperty) {
+                    if ($repeatsProperty.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($repeatsProperty.Value)) { throw "$role finding $($finding.id) repeats must be a non-blank string." }
+                    if ($repeatsProperty.Value -ceq [string]$finding.id) { throw "Finding $($finding.id) cannot repeat itself." }
+                }
                 if (-not $allFindingIds.Add([string]$finding.id)) { throw "Duplicate finding ID: $($finding.id)" }
                 $severityById[[string]$finding.id] = [string]$finding.severity
             }
@@ -191,6 +371,41 @@ function Resolve-DeliveryReviewRecordPath {
     if (-not $recordFull.StartsWith($recordsRoot, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'RecordPath must be inside the feature delivery-reviews directory.' }
     Assert-NoReparseAncestors $recordFull $FeatureFull
     return $recordFull
+}
+
+function Assert-DeliveryInputPathSegments {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $RelativePath
+    )
+
+    foreach ($segment in $RelativePath.Replace('\', '/').Split('/')) {
+        if (($segment -ceq '') -or ($segment -ceq '.') -or ($segment -ceq '..')) { throw 'input path contains a parent segment' }
+    }
+}
+
+function Get-DeliveryInputIdentity {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $RelativePath
+    )
+
+    $normalizedPath = $RelativePath.Replace('\', '/')
+    Assert-DeliveryInputPathSegments -RelativePath $normalizedPath
+    $fullPath = Get-SafeFullPath $RepoRoot $normalizedPath
+    if ($normalizedPath -cnotmatch '^features/[^/]+/(REFINEMENT\.md|(US|TS)[0-9]+/PLAN\.md)$') {
+        return (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash
+    }
+
+    $text = [System.IO.File]::ReadAllText($fullPath, [System.Text.UTF8Encoding]::new($false))
+    if ($text.Length -gt 0 -and $text[0] -eq [char]0xFEFF) { $text = $text.Substring(1) }
+    $blocks = Read-DeliveryBlocks -Text $text
+    if (-not $blocks.Ok) {
+        $codes = @($blocks.Errors | ForEach-Object { [string]$_.code } | Select-Object -Unique)
+        throw ('Delivery input {0} has invalid DELIVERY blocks: {1}' -f $normalizedPath, ($codes -join ', '))
+    }
+    return Get-DeliveryNormativeIdentity -Text $text
 }
 
 function Get-DeliveryReviewIdentity {

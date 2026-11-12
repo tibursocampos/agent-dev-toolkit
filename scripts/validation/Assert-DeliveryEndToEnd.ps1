@@ -183,6 +183,30 @@ function Invoke-Resolver([string]$PlanFull, [string]$InputIdentity) {
         '-CurrentBranch', '', '-CurrentHead', '', '-StepAuthorization')
 }
 
+function New-ProgressPayload([string]$PlanIdentity, [string[]]$StepIds, [string]$Stage = '') {
+    $fields = @{ schema = 'delivery-progress/v1'; cadence = 'step_by_step' }
+    if ($Stage.Length -gt 0) { $fields['current_stage'] = $Stage }
+    $fields['authorization'] = @{
+        kind          = 'step'
+        scope         = 'step_by_step'
+        granted_utc   = '2026-11-11T12:00:00Z'
+        plan_identity = $PlanIdentity
+        step_ids      = @($StepIds)
+    }
+    return (ConvertTo-Json -InputObject $fields -Compress -Depth 10)
+}
+
+function Set-StepAuthorization([string]$Repo, [string]$PlanFull, [string[]]$StepIds, [string]$PlanIdentity = '') {
+    $bound = $PlanIdentity
+    if ($bound.Length -eq 0) {
+        $preflight = Invoke-Preflight $Repo
+        $bound = [string](Get-Prop $preflight.Result 'identity')
+    }
+    $run = Invoke-Setter $Repo $PlanFull 'PROGRESS' (New-ProgressPayload $bound $StepIds)
+    Assert-ExitCode 0 $run 'Should_ExitZero_When_StepAuthorizationRecorded'
+    return $run
+}
+
 function Invoke-EvidenceWrite([string]$Repo, [string]$Name, [string]$Content) {
     return Invoke-Cli -Script $cli.Evidence -Arguments @(
         '-Action', 'write', '-RepoPath', $Repo, '-PlanPath', $planRelative,
@@ -234,6 +258,28 @@ function New-StepPayload([string]$Id, [string]$Status, [string]$DependsJson, [st
 
 function New-RefJson([string]$Name, [string]$Path, [string]$Sha) {
     return '{"name":"' + $Name + '","path":"' + $Path + '","sha256":"' + $Sha + '"}'
+}
+
+function New-ChainUnitText {
+    param(
+        [Parameter(Mandatory = $true)][string] $Unit,
+        [string[]] $DependencyLines = @()
+    )
+
+    $lines = @('# Chained unit plan', '', 'Normative body: synthetic chained unit plan.', '')
+    if ($DependencyLines.Count -gt 0) { $lines += @('## Plan dependencies', '') + $DependencyLines + '' }
+    $lines += @('## Steps', '', ('### {0}-S1 First step' -f $Unit), 'Depends on: none', 'Validation: synthetic check one', '',
+        ('### {0}-S2 Second step' -f $Unit), ('Depends on: {0}-S1' -f $Unit), 'Validation: synthetic check two', '')
+    $stepOne = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S1","status":"PENDING","depends_on":[]}'
+    $stepTwo = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S2","status":"PENDING","depends_on":["' + $Unit + '-S1"]}'
+    $lines += @(
+        '<!-- DELIVERY:PROGRESS:BEGIN -->', $progressPayload, '<!-- DELIVERY:PROGRESS:END -->',
+        '<!-- DELIVERY:CHECKPOINT:BEGIN -->', $gitCheckpoint, '<!-- DELIVERY:CHECKPOINT:END -->',
+        '<!-- DELIVERY:APPROVAL:BEGIN -->', '{"schema":"delivery-approval/v1","state":"approved","identity":"@@IDENTITY@@","input_identity":"INPUT-1","review_state":"reviewed"}', '<!-- DELIVERY:APPROVAL:END -->',
+        ('<!-- DELIVERY:STEP:{0}-S1:BEGIN -->' -f $Unit), $stepOne, ('<!-- DELIVERY:STEP:{0}-S1:END -->' -f $Unit),
+        ('<!-- DELIVERY:STEP:{0}-S2:BEGIN -->' -f $Unit), $stepTwo, ('<!-- DELIVERY:STEP:{0}-S2:END -->' -f $Unit))
+    $text = (($lines -join "`n") + "`n")
+    return $text.Replace('@@IDENTITY@@', (Get-DeliveryNormativeIdentity -Text $text))
 }
 
 try {
@@ -338,6 +384,7 @@ try {
     $stateBaseline = Copy-State $repoA 'state-baseline'
 
     # A6: resolver eligibility, completion, and dependent eligibility.
+    $null = Set-StepAuthorization $repoA $planA @('US01-S1')
     $firstDecision = Invoke-Resolver $planA $inputIdentity
     Assert-ExitCode 0 $firstDecision 'Should_ExitZero_When_FirstStepEligible'
     Assert-Field $firstDecision 'step' 'US01-S1' 'Should_SelectFirstStep_When_NothingCompleted'
@@ -345,6 +392,7 @@ try {
     $completeRun = Invoke-Setter $repoA $planA 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refs)
     Assert-ExitCode 0 $completeRun 'Should_ExitZero_When_FirstStepCompleted'
 
+    $null = Set-StepAuthorization $repoA $planA @('US01-S2')
     $secondDecision = Invoke-Resolver $planA $inputIdentity
     Assert-ExitCode 0 $secondDecision 'Should_ExitZero_When_DependentStepEligible'
     Assert-Field $secondDecision 'step' 'US01-S2' 'Should_SelectDependentStep_When_EvidenceSatisfied'
@@ -354,6 +402,7 @@ try {
     # Scenario B: one defect per copy of the state named in its header.
     $repoB1 = Copy-State $stateApproved 'b1-normative-edit'
     $planB1 = Get-RepoPath $repoB1 $planRelative
+    $null = Set-StepAuthorization $repoB1 $planB1 @('US01-S1')
     Edit-File $planB1 'Validation: synthetic check one' 'Validation: changed check one'
     $b1Resolver = Invoke-Resolver $planB1 $inputIdentity
     Assert-ExitCode 1 $b1Resolver 'Should_ExitOne_When_NormativeTextEditedAfterApproval'
@@ -364,6 +413,7 @@ try {
 
     $repoB2 = Copy-State $stateApproved 'b2-legacy-marker'
     $planB2 = Get-RepoPath $repoB2 $planRelative
+    $null = Set-StepAuthorization $repoB2 $planB2 @('US01-S1')
     Edit-File $planB2 '<!-- DELIVERY:STEP:US01-S1:BEGIN -->' '<!-- DELIVERY:STEP-US01-S1:BEGIN -->'
     $b2Resolver = Invoke-Resolver $planB2 $inputIdentity
     Assert-ExitCode 1 $b2Resolver 'Should_ExitOne_When_LegacyStepMarkerPresent'
@@ -374,6 +424,7 @@ try {
 
     $repoB3 = Copy-State $stateBaseline 'b3-baseline-edit'
     $planB3 = Get-RepoPath $repoB3 $planRelative
+    $null = Set-StepAuthorization $repoB3 $planB3 @('US01-S1')
     [System.IO.File]::WriteAllText((Get-RepoPath $repoB3 $baselineRelative), 'tampered baseline content', $utf8)
     $b3Resolver = Invoke-Resolver $planB3 $inputIdentity
     Assert-ExitCode 1 $b3Resolver 'Should_ExitOne_When_BaselineEvidenceEditedAfterRecording'
@@ -409,7 +460,7 @@ try {
 
     $repoB9 = Copy-State $stateApproved 'b9-operational-edit'
     $planB9 = Get-RepoPath $repoB9 $planRelative
-    $b9Setter = Invoke-Setter $repoB9 $planB9 'PROGRESS' '{"schema":"delivery-progress/v1","cadence":"step_by_step","current_stage":"implementation"}'
+    $b9Setter = Invoke-Setter $repoB9 $planB9 'PROGRESS' (New-ProgressPayload $identity @('US01-S1') 'implementation')
     Assert-ExitCode 0 $b9Setter 'Should_ExitZero_When_ProgressStageWritten'
     $b9Preflight = Invoke-Preflight $repoB9 @('-ExpectedIdentity', $identity)
     Assert-ExitCode 0 $b9Preflight 'Should_ExitZero_When_OnlyOperationalBlockChanged'
@@ -418,9 +469,18 @@ try {
     Assert-ExitCode 0 $b9Resolver 'Should_ExitZero_When_OnlyOperationalBlockChangedResolver'
     Assert-Field $b9Resolver 'step' 'US01-S1' 'Should_KeepEligibility_When_OnlyOperationalBlockChanged'
 
+    # B10: authorization recorded against a different plan identity is denied before candidate evidence.
+    $repoB10 = Copy-State $stateApproved 'b10-authorization-other-identity'
+    $planB10 = Get-RepoPath $repoB10 $planRelative
+    $null = Set-StepAuthorization $repoB10 $planB10 @('US01-S1') ('0' * 64)
+    $b10Resolver = Invoke-Resolver $planB10 $inputIdentity
+    Assert-ExitCode 1 $b10Resolver 'Should_ExitOne_When_StepAuthorizationBoundToOtherIdentity'
+    Assert-Field $b10Resolver 'reason' 'authorization_identity_mismatch' 'Should_ReturnAuthorizationIdentityMismatch_When_StepAuthorizationBoundToOtherIdentity'
+
     # B8: the S2 evidence reference is removed after S1 completed.
     $repoB8 = Copy-State $stateDone 'b8-result-ref-removed'
     $planB8 = Get-RepoPath $repoB8 $planRelative
+    $null = Set-StepAuthorization $repoB8 $planB8 @('US01-S2')
     $refsNoResult = '[' + (New-RefJson 'baseline' $baselineRelative $baselineSha) + ']'
     $b8Setter = Invoke-Setter $repoB8 $planB8 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refsNoResult)
     Assert-ExitCode 0 $b8Setter 'Should_ExitZero_When_ResultReferenceRemoved'
@@ -432,6 +492,7 @@ try {
     # B8b: the baseline reference is removed; the unit-level precondition denies every selection.
     $repoB8b = Copy-State $stateBaseline 'b8b-baseline-ref-removed'
     $planB8b = Get-RepoPath $repoB8b $planRelative
+    $null = Set-StepAuthorization $repoB8b $planB8b @('US01-S1')
     $refsNoBaseline = '[' + (New-RefJson 'result' $resultRelative $resultSha) + ']'
     $b8bSetter = Invoke-Setter $repoB8b $planB8b 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'PENDING' '[]' $refsNoBaseline)
     Assert-ExitCode 0 $b8bSetter 'Should_ExitZero_When_BaselineReferenceRemoved'
@@ -440,6 +501,7 @@ try {
     Assert-Field $b8bFirst 'reason' 'baseline_missing' 'Should_ReturnBaselineMissing_When_BaselineReferenceRemovedBeforeFirstSelection'
     $b8bCompleted = Invoke-Setter $repoB8b $planB8b 'STEP:US01-S1' (New-StepPayload 'US01-S1' 'COMPLETED' '[]' $refsNoBaseline)
     Assert-ExitCode 0 $b8bCompleted 'Should_ExitZero_When_BaselineReferenceRemovedAfterCompletion'
+    $null = Set-StepAuthorization $repoB8b $planB8b @('US01-S2')
     $b8bSecond = Invoke-Resolver $planB8b $inputIdentity
     Assert-ExitCode 1 $b8bSecond 'Should_ExitOne_When_BaselineReferenceRemovedAfterCompletion'
     Assert-Field $b8bSecond 'reason' 'baseline_missing' 'Should_ReturnBaselineMissing_When_BaselineReferenceRemovedAfterCompletion'
@@ -447,11 +509,60 @@ try {
     # B8c: the result evidence file is edited after recording; S2 must be denied.
     $repoB8c = Copy-State $stateDone 'b8c-result-file-edit'
     $planB8c = Get-RepoPath $repoB8c $planRelative
+    $null = Set-StepAuthorization $repoB8c $planB8c @('US01-S2')
     [System.IO.File]::WriteAllText((Get-RepoPath $repoB8c $resultRelative), 'tampered result content', $utf8)
     $b8cResolver = Invoke-Resolver $planB8c $inputIdentity
     Assert-ExitCode 1 $b8cResolver 'Should_ExitOne_When_ResultEvidenceEditedAfterRecording'
     Assert-Field $b8cResolver 'reason' 'evidence_changed' 'Should_ReturnEvidenceChanged_When_ResultEvidenceEditedAfterRecording'
     Assert-Field $b8cResolver 'evidence' 'US01-S1/result' 'Should_NameResultReference_When_ResultEvidenceEditedAfterRecording'
+
+    # Scenario C: US02 requires US01-S1 to be COMPLETED with acceptance evidence before its own steps are eligible.
+    $repoC = Join-Path $tempRoot 'scenario-c'
+    New-Item -ItemType Directory -Path (Get-RepoPath $repoC 'features/900-e2e') -Force | Out-Null
+    $us01CPath = 'features/900-e2e/US01/PLAN.md'
+    $us02CPath = 'features/900-e2e/US02/PLAN.md'
+    $us01CText = New-ChainUnitText -Unit 'US01'
+    $identityC01 = Get-DeliveryNormativeIdentity -Text $us01CText
+    $requiresC = 'Requires plan: ' + $us01CPath + ' identity=' + $identityC01 + ' steps=US01-S1'
+    $us02CText = New-ChainUnitText -Unit 'US02' -DependencyLines @($requiresC)
+    $identityC02 = Get-DeliveryNormativeIdentity -Text $us02CText
+    Write-RepoFile $repoC $us01CPath $us01CText
+    Write-RepoFile $repoC $us02CPath $us02CText
+    $us01CPlan = Get-RepoPath $repoC $us01CPath
+    $us02CPlan = Get-RepoPath $repoC $us02CPath
+
+    $null = Set-StepAuthorization $repoC $us02CPlan @('US02-S1') $identityC02
+    $c2 = Invoke-Resolver $us02CPlan 'INPUT-1'
+    Assert-ExitCode 1 $c2 'Should_ExitOne_When_PredecessorStepNotCompleted'
+    Assert-Field $c2 'reason' 'plan_dependency_step_incomplete' 'Should_ReturnStepIncomplete_When_PredecessorStepPending'
+    Assert-Field $c2 'dependency' $us01CPath 'Should_NameDependency_When_PredecessorStepPending'
+
+    $completeC = Invoke-Setter $repoC $us01CPlan 'STEP:US01-S1' '{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","depends_on":[],"acceptance_evidence":["synthetic acceptance recorded"]}'
+    Assert-ExitCode 0 $completeC 'Should_ExitZero_When_PredecessorStepCompletedThroughSetter'
+    $stateCDone = Copy-State $repoC 'c-completed'
+    $c3 = Invoke-Resolver $us02CPlan 'INPUT-1'
+    Assert-ExitCode 0 $c3 'Should_ExitZero_When_PredecessorStepCompleted'
+    Assert-Field $c3 'step' 'US02-S1' 'Should_SelectDependentStep_When_PredecessorStepCompleted'
+
+    $repoC4 = Copy-State $stateCDone 'c4-normative-edit'
+    Edit-File (Get-RepoPath $repoC4 $us01CPath) 'Normative body: synthetic chained unit plan.' 'Normative body changed after approval.'
+    $c4 = Invoke-Resolver (Get-RepoPath $repoC4 $us02CPath) 'INPUT-1'
+    Assert-ExitCode 1 $c4 'Should_ExitOne_When_PredecessorNormativeTextEdited'
+    Assert-Field $c4 'reason' 'plan_dependency_identity_changed' 'Should_ReturnIdentityChanged_When_PredecessorNormativeTextEdited'
+    Assert-Field $c4 'dependency' $us01CPath 'Should_NameDependency_When_PredecessorNormativeTextEdited'
+
+    $repoC5 = Copy-State $stateCDone 'c5-operational-edit'
+    $c5Progress = Invoke-Setter $repoC5 (Get-RepoPath $repoC5 $us01CPath) 'PROGRESS' '{"schema":"delivery-progress/v1","cadence":"step_by_step","current_stage":"implementation"}'
+    Assert-ExitCode 0 $c5Progress 'Should_ExitZero_When_PredecessorProgressWritten'
+    $c5Second = Invoke-Setter $repoC5 (Get-RepoPath $repoC5 $us01CPath) 'STEP:US01-S2' '{"schema":"delivery-step/v1","id":"US01-S2","status":"COMPLETED","depends_on":["US01-S1"]}'
+    Assert-ExitCode 0 $c5Second 'Should_ExitZero_When_PredecessorOtherStepWritten'
+    Assert-Equal $identityC01 (Get-DeliveryNormativeIdentity -Text (Read-RepoText $repoC5 $us01CPath)) 'Should_KeepPredecessorIdentity_When_OperationalBlocksEdited'
+    $c5Preflight = Invoke-Cli -Script $cli.Preflight -Arguments @('-RepoPath', $repoC5, '-PlanPath', $us02CPath, '-ExpectedIdentity', $identityC02)
+    Assert-ExitCode 0 $c5Preflight 'Should_ExitZero_When_PredecessorOperationalBlocksEdited'
+    Assert-Field $c5Preflight 'identity' $identityC02 'Should_KeepDependentIdentity_When_PredecessorOperationalBlocksEdited'
+    $c5 = Invoke-Resolver (Get-RepoPath $repoC5 $us02CPath) 'INPUT-1'
+    Assert-ExitCode 0 $c5 'Should_ExitZero_When_PredecessorOperationalBlocksEdited'
+    Assert-Field $c5 'step' 'US02-S1' 'Should_KeepEligibility_When_PredecessorOperationalBlocksEdited'
 
     Write-Output ('PASS: {0} delivery end-to-end assertions.' -f $passed)
 }

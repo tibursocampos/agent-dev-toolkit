@@ -3,7 +3,8 @@
 param(
     [Parameter(Mandatory = $true)][string] $RepoPath,
     [Parameter(Mandatory = $true)][string] $TargetPath,
-    [Parameter(Mandatory = $true)][string] $RecordPath
+    [Parameter(Mandatory = $true)][string] $RecordPath,
+    [string] $AliasCatalogPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -85,11 +86,15 @@ try {
         $inputPath = [string](Get-DeliveryReviewRecordField -Object $input -Name 'path')
         $inputRole = [string](Get-DeliveryReviewRecordField -Object $input -Name 'role')
         $inputSha = [string](Get-DeliveryReviewRecordField -Object $input -Name 'sha256')
+        $usesSource = Test-DeliveryReviewInputUsesSource -InputEntry $input
         $inputFull = $null
         try {
             if ([string]::IsNullOrWhiteSpace($inputSha)) { throw 'Each record input requires sha256.' }
-            $inputFull = Get-SafeFullPath $repoFull $inputPath
-            Assert-NoReparseAncestors $inputFull $repoFull
+            if (-not $usesSource) {
+                Assert-DeliveryInputPathSegments -RelativePath $inputPath
+                $inputFull = Get-SafeFullPath $repoFull $inputPath
+                Assert-NoReparseAncestors $inputFull $repoFull
+            }
         }
         catch {
             Exit-WithVerdict -Allowed $false -Reason 'record_schema_invalid' -Details @($_.Exception.Message) -ExitCode 3
@@ -101,6 +106,8 @@ try {
             recorded     = $inputSha
             full         = $inputFull
             impacted_ids = $input.impacted_ids
+            uses_source  = $usesSource
+            source_input = $input
         })
     }
 
@@ -120,13 +127,37 @@ try {
     }
 
     $changedInputIds = [System.Collections.Generic.List[string]]::new()
+    $unavailableInputIds = [System.Collections.Generic.List[string]]::new()
+    $sourceErrorCodes = Get-DeliveryInputErrorCodes
     $inputRows = [System.Collections.Generic.List[object]]::new()
     foreach ($entry in $inputEntries) {
-        if (-not (Test-Path -LiteralPath $entry.full -PathType Leaf)) {
+        if (-not $entry.uses_source -and -not (Test-Path -LiteralPath $entry.full -PathType Leaf)) {
             $changedInputIds.Add($entry.id)
             continue
         }
-        $currentInputSha = (Get-FileHash -LiteralPath $entry.full -Algorithm SHA256).Hash
+        try {
+            if ($entry.uses_source) {
+                $currentInputSha = Get-DeliveryInputSourceIdentity -RepoRoot $repoFull -InputSource $entry.source_input -AliasCatalogPath $AliasCatalogPath
+            }
+            else {
+                $currentInputSha = Get-DeliveryInputIdentity -RepoRoot $repoFull -RelativePath $entry.path
+            }
+        }
+        catch {
+            $message = [string]$_.Exception.Message
+            $errorCode = ''
+            $separatorIndex = $message.IndexOf(': ', [System.StringComparison]::Ordinal)
+            if ($separatorIndex -gt 0) { $errorCode = $message.Substring(0, $separatorIndex) }
+            if ($entry.uses_source) {
+                $detail = $message
+                if ($sourceErrorCodes -ccontains $errorCode) { $detail = $errorCode }
+                $unavailableInputIds.Add(('{0}: {1}' -f $entry.id, $detail))
+            }
+            else {
+                $changedInputIds.Add(('{0}: {1}' -f $entry.id, $message))
+            }
+            continue
+        }
         if ($currentInputSha -cne $entry.recorded) { $changedInputIds.Add($entry.id) }
         $inputRows.Add([pscustomobject]@{
             id           = $entry.id
@@ -138,6 +169,9 @@ try {
     }
     if ($changedInputIds.Count -gt 0) {
         Exit-WithVerdict -Allowed $false -Reason 'inputs_changed' -Details $changedInputIds.ToArray() -ExitCode 3
+    }
+    if ($unavailableInputIds.Count -gt 0) {
+        Exit-WithVerdict -Allowed $false -Reason 'input_source_unavailable' -Details $unavailableInputIds.ToArray() -ExitCode 3
     }
 
     $recomputedIdentity = Get-DeliveryReviewIdentity -TargetKind $recordTargetKind -Stage $recordTargetStage -TargetPath $targetRelative -NormativeSha $recordContentSha -Inputs $inputRows.ToArray()

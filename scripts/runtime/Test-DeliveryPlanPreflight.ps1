@@ -12,7 +12,8 @@ param(
     [Parameter(Mandatory = $true)][string] $RepoPath,
     [Parameter(Mandatory = $true)][string] $PlanPath,
     [string] $ExpectedIdentity = '',
-    [string] $ReviewRecordPath = ''
+    [string] $ReviewRecordPath = '',
+    [string] $AliasCatalogPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -107,6 +108,79 @@ function Get-StepDependsOnSet {
     $property = Get-DeliveryExactProperty -Object $Json -Name 'depends_on'
     if ($null -eq $property) { return , ([string[]]@()) }
     return , ([string[]]@($property.Value | ForEach-Object { [string]$_ }))
+}
+
+function Read-PlanDependencyTarget {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoFull,
+        [Parameter(Mandatory = $true)][string] $RelativePath
+    )
+
+    $full = $null
+    try {
+        $full = Get-SafeFullPath $RepoFull $RelativePath
+        Assert-NoReparseAncestors $full $RepoFull
+    }
+    catch {
+        return [pscustomobject]@{ State = 'invalid'; Text = $null; Message = $_.Exception.Message }
+    }
+    if (-not (Test-Path -LiteralPath $full -PathType Leaf)) {
+        return [pscustomobject]@{ State = 'missing'; Text = $null; Message = '' }
+    }
+    $text = [System.IO.File]::ReadAllText($full, [System.Text.Encoding]::UTF8)
+    return [pscustomobject]@{ State = 'ok'; Text = $text; Message = '' }
+}
+
+function Get-PlanDependencyEdges {
+    param(
+        [Parameter(Mandatory = $true)][string] $Node,
+        [Parameter(Mandatory = $true)][hashtable] $Context
+    )
+
+    if ($Node -ceq [string]$Context.PlanRelative) {
+        $text = [string]$Context.PlanText
+    }
+    else {
+        if (-not $Context.Cache.ContainsKey($Node)) {
+            $target = Read-PlanDependencyTarget -RepoFull ([string]$Context.RepoFull) -RelativePath $Node
+            if ($target.State -ceq 'ok') { $Context.Cache[$Node] = $target.Text } else { $Context.Cache[$Node] = $null }
+        }
+        $text = $Context.Cache[$Node]
+    }
+    if ($null -eq $text) { return , ([string[]]@()) }
+
+    $declaration = Get-DeliveryPlanDependencies -Text ([string]$text)
+    return , ([string[]]@($declaration.Dependencies | ForEach-Object { [string]$_.Path }))
+}
+
+function Find-PlanDependencyCycle {
+    param(
+        [Parameter(Mandatory = $true)][string] $Node,
+        [Parameter(Mandatory = $true)][hashtable] $Context,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.Dictionary[string, int]] $State,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][System.Collections.Generic.List[string]] $Path
+    )
+
+    $State[$Node] = 1
+    $Path.Add($Node)
+    if (($Path.Count - 1) -gt 20) {
+        return [pscustomobject]@{ Chain = [string[]]$Path.ToArray(); DepthExceeded = $true }
+    }
+    $edges = Get-PlanDependencyEdges -Node $Node -Context $Context
+    foreach ($next in [string[]]$edges) {
+        if ($State.ContainsKey($next) -and ($State[$next] -eq 1)) {
+            $start = $Path.IndexOf($next)
+            $chain = [string[]]($Path.GetRange($start, $Path.Count - $start).ToArray() + $next)
+            return [pscustomobject]@{ Chain = $chain; DepthExceeded = $false }
+        }
+        if (-not $State.ContainsKey($next)) {
+            $found = Find-PlanDependencyCycle -Node $next -Context $Context -State $State -Path $Path
+            if ($null -ne $found) { return $found }
+        }
+    }
+    $State[$Node] = 2
+    $Path.RemoveAt($Path.Count - 1)
+    return $null
 }
 
 function ConvertTo-ProcessArgument {
@@ -302,9 +376,63 @@ try {
         }
     }
 
+    $dependencyDeclaration = Get-DeliveryPlanDependencies -Text $planText
+    foreach ($dependencyError in @($dependencyDeclaration.Errors)) {
+        $issues.Add((New-PreflightIssue -Code 'plan_dependency_invalid' -Message ('Line {0}: {1}' -f $dependencyError.line, $dependencyError.message)))
+    }
+
+    foreach ($dependency in @($dependencyDeclaration.Dependencies)) {
+        $dependencyPath = [string]$dependency.Path
+        if ($dependencyPath -ceq $planRelative) { continue }
+
+        $target = Read-PlanDependencyTarget -RepoFull $repoFull -RelativePath $dependencyPath
+        if ($target.State -ceq 'invalid') {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_invalid' -Message ('Dependency {0} is not a safe repository path: {1}' -f $dependencyPath, $target.Message)))
+            continue
+        }
+        if ($target.State -ceq 'missing') {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_missing' -Message ('Dependency {0} does not exist.' -f $dependencyPath)))
+            continue
+        }
+
+        $targetBlocks = Read-DeliveryBlocks -Text $target.Text
+        if (-not $targetBlocks.Ok) {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_invalid' -Message ('Dependency {0} does not parse as DELIVERY grammar.' -f $dependencyPath)))
+            continue
+        }
+
+        $targetIdentity = Get-DeliveryNormativeIdentity -Text $target.Text
+        if ([string]$dependency.Identity -cne $targetIdentity) {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_identity_changed' -Message ('Dependency {0} declares identity {1}, but its current normative identity is {2}.' -f $dependencyPath, $dependency.Identity, $targetIdentity)))
+        }
+
+        $targetStepIds = @((Get-DeliveryDeclaredSteps -Text $target.Text).Steps | ForEach-Object { [string]$_.Id })
+        foreach ($requiredStep in @($dependency.Steps)) {
+            if ($targetStepIds -cnotcontains [string]$requiredStep) {
+                $issues.Add((New-PreflightIssue -Code 'plan_dependency_step_unknown' -Message ('Dependency {0} requires step {1}, which the predecessor does not declare.' -f $dependencyPath, $requiredStep)))
+            }
+        }
+    }
+
+    $dependencyContext = @{ RepoFull = $repoFull; PlanRelative = $planRelative; PlanText = $planText; Cache = @{} }
+    $dependencyCycle = Find-PlanDependencyCycle -Node $planRelative -Context $dependencyContext `
+        -State ([System.Collections.Generic.Dictionary[string, int]]::new([System.StringComparer]::Ordinal)) `
+        -Path ([System.Collections.Generic.List[string]]::new())
+    if ($null -ne $dependencyCycle) {
+        $chainText = (@($dependencyCycle.Chain) -join ' -> ')
+        if ([bool]$dependencyCycle.DepthExceeded) {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_cycle' -Message ('Plan dependency chain exceeds the depth limit of 20: {0}.' -f $chainText)))
+        }
+        else {
+            $issues.Add((New-PreflightIssue -Code 'plan_dependency_cycle' -Message ('Plan dependency cycle: {0}.' -f $chainText)))
+        }
+    }
+
     if ($ReviewRecordPath.Length -gt 0) {
         $checker = Join-Path $PSScriptRoot 'Test-DeliveryReviewRecord.ps1'
-        $run = Invoke-ReviewChecker -CheckerPath $checker -Arguments @('-RepoPath', $RepoPath, '-TargetPath', $PlanPath, '-RecordPath', $ReviewRecordPath)
+        $checkerArguments = @('-RepoPath', $RepoPath, '-TargetPath', $PlanPath, '-RecordPath', $ReviewRecordPath)
+        if ($AliasCatalogPath.Length -gt 0) { $checkerArguments += @('-AliasCatalogPath', $AliasCatalogPath) }
+        $run = Invoke-ReviewChecker -CheckerPath $checker -Arguments $checkerArguments
         $verdict = $null
         if ($run.ExitCode -ne 1) {
             try { $verdict = $run.Stdout.Trim() | ConvertFrom-Json } catch { $verdict = $null }

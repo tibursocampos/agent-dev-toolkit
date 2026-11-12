@@ -23,6 +23,19 @@ A step is eligible only if all are true:
 
 Technical readiness does not satisfy a human gate. Stop and ask when any condition fails. Continuous authorization does not authorize commit, push, merge, installation/publication, external side effects, or scope expansion.
 
+## Decisions and where they are recorded
+
+Each decision has one owner and one record. A decision never extends to another row.
+
+| Decision | Decided by | Recorded in | Covers | Never covers |
+|---|---|---|---|---|
+| Approve plan content | Operator | APPROVAL block (`state`, `identity`, `input_identity`, `review_state`, `approved_utc`) | Writing the exact displayed content to the declared canonical path | Implementation, cadence, Git, publication, external effects |
+| Authorize implementation and choose cadence | Operator | PROGRESS block (`cadence`, `authorization`) | The listed steps (`step_by_step`) or all eligible steps (`continuous`) of that exact plan identity | Other plans, Git, publication, external effects, scope expansion |
+| Preparatory precondition (for example creating or switching a work branch) | Operator or the plan's declared owner, outside the executor | Plan `Preconditions` entry, observed through CHECKPOINT branch and HEAD or the operator's confirmation | Only the named precondition | Execution by the executor; any effect of plan approval or cadence |
+| Commit, push, merge, publication, external effects | Operator, by separate authorization naming the action and destination | Not stored in PROGRESS or APPROVAL; the operator's explicit instruction | Only the named action and destination | Any other action; approval, cadence, and authorization records never cover it |
+
+The resolver reads only the APPROVAL and PROGRESS records. It does not read or verify preconditions or Git/publication authorization, and it does not authenticate the operator.
+
 ## Approval and review state
 
 Approval of the cold-reviewed content authorizes writing that exact content to the declared canonical path; do not ask for a second content or write approval. Plan approval does not prove implementation tests passed. Implementation follows the approved plan and selected cadence; Git/publication and out-of-scope actions still require separate authorization. A material edit or changed declared input invalidates affected approval/review state and dependent steps. An operational ledger/checkpoint update does not.

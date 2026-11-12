@@ -41,6 +41,37 @@ function Test-Field($Object, [string]$Name) {
     return ($null -ne $Object -and $null -ne $Object.PSObject.Properties[$Name])
 }
 
+function Assert-ExecutionAuthorization {
+    param(
+        [Parameter(Mandatory = $true)][AllowNull()][object] $Progress,
+        [Parameter(Mandatory = $true)][ValidateSet('step', 'continuous')][string] $ExpectedKind,
+        [Parameter(Mandatory = $true)][string] $PlanIdentity,
+        [Parameter(Mandatory = $true)][string] $StepId
+    )
+
+    if (-not (Test-Field $Progress 'authorization') -or ($Progress.authorization -isnot [System.Management.Automation.PSCustomObject])) {
+        throw 'authorization_record_missing'
+    }
+    $authorization = $Progress.authorization
+    if (-not (Test-Field $authorization 'kind') -or ($authorization.kind -isnot [string]) -or ($authorization.kind -cne $ExpectedKind)) {
+        throw 'authorization_kind_mismatch'
+    }
+    if (-not (Test-Field $authorization 'plan_identity') -or ($authorization.plan_identity -isnot [string]) -or ($authorization.plan_identity -cne $PlanIdentity)) {
+        throw 'authorization_identity_mismatch'
+    }
+    $scopeRequired = ($ExpectedKind -ceq 'step') -or (Test-Field $authorization 'step_ids')
+    if (-not $scopeRequired) { return }
+    if (-not (Test-Field $authorization 'step_ids') -or ($authorization.step_ids -isnot [System.Array])) {
+        throw 'authorization_scope_excludes_step'
+    }
+    $scopeIds = @($authorization.step_ids)
+    if ($scopeIds.Count -eq 0) { throw 'authorization_scope_excludes_step' }
+    foreach ($scopeId in $scopeIds) {
+        if ($scopeId -isnot [string]) { throw 'authorization_scope_excludes_step' }
+    }
+    if (-not ($scopeIds -ccontains $StepId)) { throw 'authorization_scope_excludes_step' }
+}
+
 function Get-EvidenceLocation {
     param([Parameter(Mandatory = $true)][string] $PlanFullPath)
 
@@ -154,8 +185,138 @@ function Get-EvidenceFailure {
     return $null
 }
 
+function New-DependencyFailure {
+    param(
+        [Parameter(Mandatory = $true)][string] $Reason,
+        [string] $Dependency = ''
+    )
+
+    return [pscustomobject]@{ Reason = $Reason; Dependency = $Dependency }
+}
+
+function Test-AcceptanceEvidence {
+    param([AllowNull()][object] $Value)
+
+    if ($null -eq $Value) { return $false }
+    if ($Value -is [System.DateTime]) { return $true }
+    if ($Value -is [string]) { return ($Value.Trim().Length -gt 0) }
+    if ($Value -is [System.Array]) {
+        foreach ($item in $Value) {
+            if ($item -is [System.DateTime]) { return $true }
+            if (($item -is [string]) -and ($item.Trim().Length -gt 0)) { return $true }
+        }
+    }
+    return $false
+}
+
+function Get-PlanDependencyFailure {
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $PlanText,
+        [Parameter(Mandatory = $true)][string] $PlanFullPath,
+        [Parameter(Mandatory = $true)][AllowNull()][object] $Location
+    )
+
+    $declaration = Get-DeliveryPlanDependencies -Text $PlanText
+    if (@($declaration.Errors).Count -gt 0) {
+        return (New-DependencyFailure -Reason 'plan_dependency_invalid')
+    }
+
+    foreach ($dependency in @($declaration.Dependencies)) {
+        $dependencyPath = [string]$dependency.Path
+        if ($null -eq $Location) {
+            return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+        }
+
+        $root = [string]$Location.Root
+        $candidate = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($root, $dependencyPath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)))
+        $featuresPrefix = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($root, 'features')) + [System.IO.Path]::DirectorySeparatorChar
+        if (-not $candidate.StartsWith($featuresPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+            $candidate.Equals($PlanFullPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+        }
+
+        $walk = [System.IO.Path]::GetFullPath($root)
+        $missing = $false
+        foreach ($segment in $dependencyPath.Split('/')) {
+            $walk = [System.IO.Path]::Combine($walk, $segment)
+            $attributes = [System.IO.FileAttributes]::Normal
+            try {
+                $attributes = [System.IO.File]::GetAttributes($walk)
+            }
+            catch {
+                $missing = $true
+                break
+            }
+            if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+            }
+        }
+        if ($missing -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+            return (New-DependencyFailure -Reason 'plan_dependency_missing' -Dependency $dependencyPath)
+        }
+
+        $predecessorText = [System.IO.File]::ReadAllText($candidate, [System.Text.Encoding]::UTF8)
+        if ($predecessorText.Contains([string][char]0xFFFD)) {
+            return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+        }
+        $predecessorBlocks = Read-DeliveryBlocks -Text $predecessorText
+        if (-not $predecessorBlocks.Ok) {
+            return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+        }
+
+        $recomputedIdentity = Get-DeliveryNormativeIdentity -Text $predecessorText
+        if ([string]$dependency.Identity -cne $recomputedIdentity) {
+            return (New-DependencyFailure -Reason 'plan_dependency_identity_changed' -Dependency $dependencyPath)
+        }
+
+        $approvalJson = $null
+        foreach ($block in @($predecessorBlocks.Blocks)) {
+            if ($block.Type -ceq 'APPROVAL') { $approvalJson = $block.Json }
+        }
+        if ($null -eq $approvalJson) {
+            return (New-DependencyFailure -Reason 'plan_dependency_not_approved' -Dependency $dependencyPath)
+        }
+        $approvalState = Get-DeliveryExactProperty -Object $approvalJson -Name 'state'
+        $approvalIdentity = Get-DeliveryExactProperty -Object $approvalJson -Name 'identity'
+        if (($null -eq $approvalState) -or ($approvalState.Value -isnot [string]) -or ($approvalState.Value -cne 'approved')) {
+            return (New-DependencyFailure -Reason 'plan_dependency_not_approved' -Dependency $dependencyPath)
+        }
+        if (($null -eq $approvalIdentity) -or ($approvalIdentity.Value -isnot [string]) -or ($approvalIdentity.Value -cne $recomputedIdentity)) {
+            return (New-DependencyFailure -Reason 'plan_dependency_not_approved' -Dependency $dependencyPath)
+        }
+
+        foreach ($stepId in @($dependency.Steps)) {
+            $stepJson = $null
+            $stepFound = $false
+            foreach ($block in @($predecessorBlocks.Blocks)) {
+                if (($block.Type -ceq 'STEP') -and ([string]$block.Id -ceq [string]$stepId)) {
+                    $stepJson = $block.Json
+                    $stepFound = $true
+                    break
+                }
+            }
+            if (-not $stepFound -or ($null -eq $stepJson)) {
+                return (New-DependencyFailure -Reason 'plan_dependency_invalid' -Dependency $dependencyPath)
+            }
+
+            $statusProperty = Get-DeliveryExactProperty -Object $stepJson -Name 'status'
+            if (($null -eq $statusProperty) -or ($statusProperty.Value -isnot [string]) -or ($statusProperty.Value -cne 'COMPLETED')) {
+                return (New-DependencyFailure -Reason 'plan_dependency_step_incomplete' -Dependency $dependencyPath)
+            }
+
+            $evidenceProperty = Get-DeliveryExactProperty -Object $stepJson -Name 'acceptance_evidence'
+            if (($null -eq $evidenceProperty) -or -not (Test-AcceptanceEvidence -Value $evidenceProperty.Value)) {
+                return (New-DependencyFailure -Reason 'plan_dependency_evidence_missing' -Dependency $dependencyPath)
+            }
+        }
+    }
+
+    return $null
+}
+
 $grammarCodes = @()
 $denialEvidence = ''
+$denialDependency = ''
 
 try {
     if (-not (Test-Path -LiteralPath $PlanPath -PathType Leaf)) { throw 'plan_missing' }
@@ -203,6 +364,12 @@ try {
     $location = Get-EvidenceLocation -PlanFullPath $resolved
     $locationKind = 'git'
     if ((Test-Field $checkpoint 'location_kind') -and ($checkpoint.location_kind -ceq 'directory')) { $locationKind = 'directory' }
+
+    $dependencyFailure = Get-PlanDependencyFailure -PlanText $text -PlanFullPath $resolved -Location $location
+    if ($null -ne $dependencyFailure) {
+        $denialDependency = [string]$dependencyFailure.Dependency
+        throw ([string]$dependencyFailure.Reason)
+    }
 
     if ($locationKind -ceq 'directory') {
         $baselineText = [string]$checkpoint.baseline_evidence
@@ -266,6 +433,9 @@ try {
     if ([string]::IsNullOrWhiteSpace($eligibleId)) { throw 'no_eligible_step' }
     if ($Cadence -eq 'step_by_step' -and -not $StepAuthorization) { throw 'step_authorization_required' }
     if ($Cadence -eq 'continuous' -and -not $ContinuousAuthorization) { throw 'continuous_authorization_required' }
+    $authorizationKind = 'continuous'
+    if ($Cadence -ceq 'step_by_step') { $authorizationKind = 'step' }
+    Assert-ExecutionAuthorization -Progress $progress -ExpectedKind $authorizationKind -PlanIdentity $planIdentity -StepId $eligibleId
 
     $candidateNeeds = @()
     $candidateStartLine = 0
@@ -304,6 +474,9 @@ catch {
     }
     if ($denialEvidence.Length -gt 0) {
         $decision | Add-Member -NotePropertyName evidence -NotePropertyValue $denialEvidence
+    }
+    if ($denialDependency.Length -gt 0) {
+        $decision | Add-Member -NotePropertyName dependency -NotePropertyValue $denialDependency
     }
     $decision | ConvertTo-Json -Compress
     exit 1

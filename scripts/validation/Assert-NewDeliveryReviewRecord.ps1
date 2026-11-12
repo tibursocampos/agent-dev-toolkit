@@ -304,6 +304,136 @@ try {
     Assert-Equal '0' ([string]$lineRun.ExitCode) 'one-line build exit'
     Assert-True (-not ($lineRun.Output.Trim() -match "`n")) 'stdout is one line'
 
+    # re-audit rounds: linkage, rounds entries, late and repeats
+    $priorIdentity = '0123456789ABCDEF' * 4
+    $defaultRound = Read-Record $out1
+    Assert-Equal '1' ([string]$defaultRound.round) 'round defaults to 1'
+    Assert-True (-not $defaultRound.PSObject.Properties['prior_review_identity']) 'no prior identity without round 2'
+    Assert-True (-not $defaultRound.PSObject.Properties['rounds']) 'no rounds without RoundsPath'
+
+    $roundsFile = New-InputFile 'rounds-2.json' '[{"round":2,"role":"critic","inputs":[{"id":"IN-1","reason":"Section 3 changed"}],"reported_tokens":null,"reported_tool_calls":3,"duration_s":41}]'
+    $roundOut = Get-Out 'round-2.json'
+    $run = Invoke-Builder ((Get-ReviewedArgs $roundOut) + @('-DispositionsPath', $dispositionsPath, '-Round', '2', '-PriorReviewIdentity', $priorIdentity, '-RoundsPath', $roundsFile))
+    Assert-Equal '0' ([string]$run.ExitCode) 'round 2 build exit'
+    $roundSummary = $run.Output.Trim() | ConvertFrom-Json
+    Assert-Equal 'True' ([string]$roundSummary.ok) 'round 2 record fully dispositioned'
+    $roundRecord = Read-Record $roundOut
+    Assert-Equal '2' ([string]$roundRecord.round) 'round 2 recorded'
+    Assert-Equal $priorIdentity ([string]$roundRecord.prior_review_identity) 'prior identity recorded'
+    Assert-Equal '1' ([string]@($roundRecord.rounds).Count) 'rounds entry recorded'
+    Assert-Equal 'critic' ([string]$roundRecord.rounds[0].role) 'rounds role kept'
+    Assert-Equal '41' ([string]$roundRecord.rounds[0].duration_s) 'rounds duration kept'
+    Assert-True ($null -eq $roundRecord.rounds[0].reported_tokens) 'null reported tokens kept as unknown'
+    Assert-True ([System.IO.File]::ReadAllText($roundOut) -match '"rounds":\s*\[\s*\{\s*"round":\s*2') 'one rounds entry kept as array'
+    Assert-True ([System.IO.File]::ReadAllText($roundOut) -match '"inputs":\s*\[\s*\{\s*"id":\s*"IN-1"') 'one rounds input kept as array'
+
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'round-2-no-prior.json')) + @('-DispositionsPath', $dispositionsPath, '-Round', '2'))
+    Assert-Equal '1' ([string]$run.ExitCode) 'round 2 without prior identity exits 1'
+    Assert-True (-not (Test-Path -LiteralPath (Get-Out 'round-2-no-prior.json'))) 'round 2 without prior writes nothing'
+
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'round-1-prior.json')) + @('-DispositionsPath', $dispositionsPath, '-Round', '1', '-PriorReviewIdentity', $priorIdentity))
+    Assert-Equal '1' ([string]$run.ExitCode) 'prior identity with round 1 exits 1'
+    Assert-True (-not (Test-Path -LiteralPath (Get-Out 'round-1-prior.json'))) 'round 1 with prior writes nothing'
+
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'round-0.json')) + @('-DispositionsPath', $dispositionsPath, '-Round', '0'))
+    Assert-Equal '1' ([string]$run.ExitCode) 'round 0 exits 1'
+
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'round-lower.json')) + @('-DispositionsPath', $dispositionsPath, '-Round', '2', '-PriorReviewIdentity', $priorIdentity.ToLowerInvariant()))
+    Assert-Equal '1' ([string]$run.ExitCode) 'lowercase prior identity exits 1'
+
+    $badRoundsFile = New-InputFile 'rounds-bad.json' '[{"round":2,"role":"author","inputs":[],"reported_tokens":-1}]'
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'rounds-bad.json')) + @('-DispositionsPath', $dispositionsPath, '-Round', '2', '-PriorReviewIdentity', $priorIdentity, '-RoundsPath', $badRoundsFile))
+    Assert-Equal '1' ([string]$run.ExitCode) 'invalid rounds entry exits 1'
+    Assert-True (-not (Test-Path -LiteralPath (Get-Out 'rounds-bad.json'))) 'invalid rounds entry writes nothing'
+
+    $lateCritic = New-InputFile 'late-critic.json' '{"lenses":["consistency"],"findings":[]}'
+    $lateDisp = New-InputFile 'late-disp.json' '[{"id":"R2-001","disposition":"resolved","evidence":"Corrected in section 3."},{"id":"R2-002","disposition":"resolved","evidence":"Section 4 now states the rule."}]'
+    $lateReader = New-InputFile 'late-reader.json' '{"paraphrases":{"proposal":"p","current_system":"c"},"lenses":["comprehension"],"findings":[{"id":"R2-001","severity":"B","category":"GAP","section":"3","evidence":"e","recommendation":"r","late":true},{"id":"R2-002","severity":"B","category":"GAP","section":"4","evidence":"e","recommendation":"r","repeats":"R1-001"}]}'
+    $lateOut = Get-Out 'late.json'
+    $lateArgs = @('-State', 'reviewed', '-RepoPath', $repoRoot,
+        '-ReaderResultPath', $lateReader, '-CriticResultPath', $lateCritic,
+        '-ReaderHost', 'host-reader', '-ReaderIsolation', 'context-only',
+        '-CriticHost', 'host-critic', '-CriticIsolation', 'not_reported',
+        '-InputsPath', $inputsPath, '-Round', '2', '-PriorReviewIdentity', $priorIdentity)
+    $run = Invoke-Builder ($lateArgs + @('-DispositionsPath', $lateDisp, '-OutPath', $lateOut))
+    Assert-Equal '0' ([string]$run.ExitCode) 'late and repeats build exit'
+    $lateSummary = $run.Output.Trim() | ConvertFrom-Json
+    Assert-Equal '1' ([string]$lateSummary.counts.late) 'late findings counted'
+    Assert-Equal '1' ([string]$lateSummary.counts.repeats) 'repeats findings counted'
+    Assert-Equal 'True' ([string]$lateSummary.ok) 'late and repeats record fully dispositioned'
+    $lateRecord = Read-Record $lateOut
+    Assert-Equal 'True' ([string]$lateRecord.reviewers.reader.result.findings[0].late) 'late passes through'
+    Assert-Equal 'R1-001' ([string]$lateRecord.reviewers.reader.result.findings[1].repeats) 'repeats passes through'
+
+    # insufficient correction: the later finding repeating a prior id stays undisposed until disposed
+    $partialLateDisp = New-InputFile 'partial-late-disp.json' '[{"id":"R2-001","disposition":"resolved","evidence":"Corrected in section 3."}]'
+    $run = Invoke-Builder ($lateArgs + @('-DispositionsPath', $partialLateDisp, '-OutPath', (Get-Out 'insufficient.json')))
+    Assert-Equal '0' ([string]$run.ExitCode) 'undisposed repeat draft exits 0'
+    $insufficientSummary = $run.Output.Trim() | ConvertFrom-Json
+    Assert-Equal 'False' ([string]$insufficientSummary.ok) 'undisposed repeat keeps record not ok'
+    Assert-Equal 'R2-002' (@($insufficientSummary.undisposed) -join ',') 'undisposed repeat is reported'
+
+    $readerWithoutLate = New-InputFile 'reader-without-late.json' '{"paraphrases":{"proposal":"p","current_system":"c"},"lenses":["comprehension"],"findings":[{"id":"R2-010","severity":"I","category":"GAP","section":"S","evidence":"e","recommendation":"r","late":"yes"}]}'
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'late-string.json') $lateCritic 'context-only' $readerWithoutLate) + @('-DispositionsPath', $dispositionsPath))
+    Assert-Equal '1' ([string]$run.ExitCode) 'late as string exits 1'
+
+    $readerBlankRepeats = New-InputFile 'reader-blank-repeats.json' '{"paraphrases":{"proposal":"p","current_system":"c"},"lenses":["comprehension"],"findings":[{"id":"R2-011","severity":"I","category":"GAP","section":"S","evidence":"e","recommendation":"r","repeats":"  "}]}'
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'blank-repeats.json') $lateCritic 'context-only' $readerBlankRepeats) + @('-DispositionsPath', $dispositionsPath))
+    Assert-Equal '1' ([string]$run.ExitCode) 'blank repeats exits 1'
+
+    $readerSelfRepeat = New-InputFile 'reader-self-repeat.json' '{"paraphrases":{"proposal":"p","current_system":"c"},"lenses":["comprehension"],"findings":[{"id":"R2-012","severity":"I","category":"GAP","section":"S","evidence":"e","recommendation":"r","repeats":"R2-012"}]}'
+    $run = Invoke-Builder ((Get-ReviewedArgs (Get-Out 'self-repeat.json') $lateCritic 'context-only' $readerSelfRepeat) + @('-DispositionsPath', $dispositionsPath))
+    Assert-Equal '1' ([string]$run.ExitCode) 'repeats equal to own id exits 1'
+
+    # reviewer unavailable across a later round: bypassed, reasoned, no findings
+    $bypassRoundOut = Get-Out 'bypass-round-2.json'
+    $run = Invoke-Builder @('-State', 'bypassed', '-RepoPath', $repoRoot, '-BypassEvidence', 'Operator chose bypass in chat', '-Reason', 'Review host offline', '-Round', '2', '-PriorReviewIdentity', $priorIdentity, '-OutPath', $bypassRoundOut)
+    Assert-Equal '0' ([string]$run.ExitCode) 'bypassed round 2 exit'
+    $bypassRoundRecord = Read-Record $bypassRoundOut
+    Assert-Equal '2' ([string]$bypassRoundRecord.round) 'bypassed round 2 recorded'
+    Assert-Equal '0' ([string]@($bypassRoundRecord.reviewers.PSObject.Properties).Count) 'bypassed round 2 carries no reviewers'
+
+    # External input sources pass through unchanged; the builder never resolves them.
+    $sourceInputsJson = '[{"id":"SRC-FILE","path":"alias:docs/brief.md","role":"source","impacted_ids":["AC-1"]},{"id":"SRC-SET","path":"alias:docs/specs","role":"source","impacted_ids":["AC-2"],"source":{"kind":"fileset","files":["b.md","a.md"]}},{"id":"SRC-REV","path":"alias:gitsrc","role":"source","impacted_ids":["AC-3"],"source":{"kind":"revision","revision":"0123456789abcdef0123456789abcdef01234567"}},{"id":"SRC-ONE","path":"features/001-demo/specs","role":"source","impacted_ids":["AC-4"],"source":{"kind":"fileset","files":["a.md"]}}]'
+    $sourceInputsPath = New-InputFile 'source-inputs.json' $sourceInputsJson
+    $sourceOut = Get-Out 'source-inputs-record.json'
+    $run = Invoke-Builder @('-State', 'reviewed', '-RepoPath', $repoRoot,
+        '-ReaderResultPath', $readerPath, '-CriticResultPath', $criticPath,
+        '-ReaderHost', 'host-reader', '-ReaderIsolation', 'context-only',
+        '-CriticHost', 'host-critic', '-CriticIsolation', 'not_reported',
+        '-InputsPath', $sourceInputsPath, '-DispositionsPath', $dispositionsPath, '-OutPath', $sourceOut)
+    Assert-Equal '0' ([string]$run.ExitCode) "source inputs build exit: $($run.Output)"
+    $sourceRecord = Read-Record $sourceOut
+    Assert-Equal 'alias:docs/brief.md' ([string]$sourceRecord.inputs[0].path) 'alias file path passes through'
+    Assert-True (-not $sourceRecord.inputs[0].PSObject.Properties['source']) 'alias file without source stays without source'
+    Assert-Equal 'alias:docs/specs' ([string]$sourceRecord.inputs[1].path) 'alias fileset path passes through'
+    Assert-Equal 'fileset' ([string]$sourceRecord.inputs[1].source.kind) 'fileset source passes through'
+    Assert-Equal 'b.md' ([string]$sourceRecord.inputs[1].source.files[0]) 'fileset order passes through'
+    Assert-Equal '2' ([string]@($sourceRecord.inputs[1].source.files).Count) 'fileset files keep both members'
+    Assert-Equal 'revision' ([string]$sourceRecord.inputs[2].source.kind) 'revision source passes through'
+    Assert-Equal '0123456789abcdef0123456789abcdef01234567' ([string]$sourceRecord.inputs[2].source.revision) 'revision id passes through'
+    Assert-Equal '1' ([string]@($sourceRecord.inputs[3].source.files).Count) 'one-element fileset stays an array'
+    Assert-True (-not $sourceRecord.inputs[0].PSObject.Properties['sha256']) 'alias input carries no builder hash'
+
+    $repoFileSourceInputs = New-InputFile 'repo-file-source.json' '[{"id":"BAD-1","path":"features/001-demo/REFINEMENT.md","role":"source","impacted_ids":["AC-1"],"source":{"kind":"file"}}]'
+    $run = Invoke-Builder @('-State', 'reviewed', '-RepoPath', $repoRoot,
+        '-ReaderResultPath', $readerPath, '-CriticResultPath', $criticPath,
+        '-ReaderHost', 'host-reader', '-ReaderIsolation', 'context-only',
+        '-CriticHost', 'host-critic', '-CriticIsolation', 'not_reported',
+        '-InputsPath', $repoFileSourceInputs, '-OutPath', (Get-Out 'repo-file-source.json'))
+    Assert-Equal '1' ([string]$run.ExitCode) 'repository file with file source exits 1'
+    Assert-True ($run.Output -match 'plain repository files take no source') 'repository file with file source names the rule'
+    Assert-True (-not (Test-Path -LiteralPath (Get-Out 'repo-file-source.json'))) 'rejected source input writes no record'
+
+    $nullSourceInputs = New-InputFile 'null-source.json' '[{"id":"BAD-2","path":"alias:docs/brief.md","role":"source","impacted_ids":["AC-1"],"source":null}]'
+    $run = Invoke-Builder @('-State', 'reviewed', '-RepoPath', $repoRoot,
+        '-ReaderResultPath', $readerPath, '-CriticResultPath', $criticPath,
+        '-ReaderHost', 'host-reader', '-ReaderIsolation', 'context-only',
+        '-CriticHost', 'host-critic', '-CriticIsolation', 'not_reported',
+        '-InputsPath', $nullSourceInputs, '-OutPath', (Get-Out 'null-source.json'))
+    Assert-Equal '1' ([string]$run.ExitCode) 'null source exits 1'
+    Assert-True ($run.Output -match 'input source must be an object') 'null source is rejected by shape, not dropped'
+
     Write-Output ('PASS: {0} assertions for New-DeliveryReviewRecord.' -f $passed)
 }
 finally {

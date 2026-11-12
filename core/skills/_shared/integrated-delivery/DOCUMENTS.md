@@ -48,7 +48,7 @@ Each unit/repository plan contains:
 
 ## Approval identity
 
-The `identity` is the normative projection hash of the approved document (`SCHEMAS.md` section 4); the operational block is excluded. Declared material input tuples (portable identifier, immutable revision or recomputed content hash, role, and affected requirement/criterion/step IDs) are covered by the separate `input_identity`, and an approval binds both. The validator recalculates hashes; a declared hash is never trusted as proof.
+The `identity` is the normative projection hash of the approved document (`SCHEMAS.md` section 4); the operational block is excluded. Declared material input tuples (portable identifier, immutable revision or recomputed content hash, role, and affected requirement/criterion/step IDs) are covered by the separate `input_identity`, and an approval binds both. The validator recalculates hashes; a declared hash is never trusted as proof. Identity depends on the document kind: a declared `REFINEMENT.md` or unit `PLAN.md` input is identified by its normative identity, and any other file by the SHA-256 of its raw bytes (`SCHEMAS.md` section 10.2). External sources cited by alias (`alias:<name>` paths and `source` kinds) are identified as defined in `SCHEMAS.md` section 10.3.
 
 Before feature approval, plan approval, implementation, and resume, verify each tuple. Missing, changed, ambiguous, or unverifiable inputs block the affected scope. Reconcile impact; obtain fresh review and explicit approval for affected content. Unreferenced files do not invalidate approval merely because they were read. Hash normalization, the normative projection, and the marker grammar are specified in `SCHEMAS.md` (sections 1 and 4) and implemented in `scripts/_lib/DeliveryGrammar.ps1`.
 

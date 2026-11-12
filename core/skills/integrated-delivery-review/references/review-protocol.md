@@ -19,6 +19,46 @@ Identity is the normative projection of the document plus ordered material-input
 
 Each review round returns the full findings set and covered lenses. On re-audit, include prior findings, changed normative content, and affected context. A finding first found in unchanged content is `late`. Keep open B/I blocked until evidence-backed resolution or contestation. MINOR requires explicit disposition and reason. Convergence has no fixed round/call budget.
 
+## Re-audit handoff
+
+A re-review passes `round` (>= 2) and `prior_review_identity` (the 64-character uppercase identity of the previous round's review).
+
+- Reader: the exact current target only, as in a first round. No prior findings and no previous snapshot.
+- Critic: the re-audit handoff, which is:
+  1. Previous snapshot and current snapshot, or a verifiable diff.
+  2. The complete list of prior findings with dispositions, justifications and evidence.
+  3. The affected context.
+
+The handoff is a declared input, not author conversation. Isolation limits are unchanged: no author chat and no reader result. The critic sets `late` and `repeats`; a repeated finding is not counted as new.
+
+## Evidence package
+
+The author may attach a concise evidence package (glossary, term origins, cited sources, verification results) as a declared input with role `evidence_package`, identified like any other input. It is not author conversation.
+
+## External inputs
+
+An input may cite a controlled external source by its `alias:<name>` path, with an optional `source` object (`SCHEMAS.md` section 10.3). Never pass a private root. When any input uses an alias, the coordinator passes `-AliasCatalogPath` to `Write-DeliveryReviewRecord.ps1`, `Test-DeliveryReviewRecord.ps1`, and the plan preflight. A source that cannot be verified blocks with `input_source_unavailable`. One `InputsPath` entry per kind:
+
+```json
+[
+  { "id": "IN-01", "path": "alias:brief/source.md", "role": "reference", "impacted_ids": ["CA-001"], "source": { "kind": "file" } },
+  { "id": "IN-02", "path": "alias:brief/specs", "role": "reference", "impacted_ids": ["CA-002"], "source": { "kind": "fileset", "files": ["a.md", "tables/b.md"] } },
+  { "id": "IN-03", "path": "alias:legacy-api", "role": "evidence_package", "impacted_ids": ["D-004"], "source": { "kind": "revision", "revision": "0123456789abcdef0123456789abcdef01234567" } }
+]
+```
+
+A repository-relative plain file omits `source`. The builder (`New-DeliveryReviewRecord.ps1`) only passes alias paths and `source` through unchanged and never resolves them; verification belongs to the writer, the gate, and the preflight.
+
+## Optional finding fields
+
+Besides `id`, `severity`, `category`, `section`, `evidence` and `recommendation`, a finding may carry `late` (boolean) and `repeats` (prior finding id). Category `EVIDENCE_GAP` applies to a claim, term or origin that cannot be verified from the declared inputs. Example critic output on round 2:
+
+```json
+{"lenses":["consistency"],"findings":[{"id":"C2-003","severity":"I","category":"CONTRADICTION","section":"3","evidence":"...","recommendation":"...","late":true,"repeats":"C1-002"}]}
+```
+
+`scripts/runtime/New-DeliveryReviewRecord.ps1` gains `-Round`, `-PriorReviewIdentity` (required when round >= 2) and `-RoundsPath` (cost entries). Its output gains `late` and `repeats` counts. Budget checks use `Test-DeliveryReviewBudget.ps1` on the coordinator summary; it does not change any finding.
+
 ## Review and validation consolidation
 
 | Existing purpose | New-flow handling | Boundary |

@@ -22,13 +22,17 @@ $ErrorActionPreference = 'Stop'
 
 $libDir = Join-Path (Split-Path -Parent $PSScriptRoot) '_lib'
 . (Join-Path $libDir 'DeliveryGrammar.ps1')
+. (Join-Path $libDir 'DeliveryAtomicWrite.ps1')
 
 function Write-Result([bool]$Ok, [string]$Code, [bool]$Written) {
     [pscustomobject]@{ ok = $Ok; code = $Code; written = $Written } | ConvertTo-Json -Compress
 }
 
-$temp = ''
-$backup = ''
+function ConvertTo-RepoRelativePath([string]$FullPath) {
+    if ([string]::IsNullOrEmpty($FullPath)) { return '' }
+    return $FullPath.Substring($repo.Length + 1).Replace('\', '/')
+}
+
 try {
     $repo = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepoPath).Path).TrimEnd('\', '/')
     $features = [System.IO.Path]::GetFullPath((Join-Path $repo 'features')).TrimEnd('\', '/')
@@ -101,26 +105,15 @@ try {
 
     $newBytes = $encoding.GetBytes($newText)
     if ($hasBom) { $newBytes = [byte[]](@(0xEF, 0xBB, 0xBF) + $newBytes) }
-    $directory = Split-Path -Parent $file
-    $temp = Join-Path $directory ('.delivery-state.' + [Guid]::NewGuid().ToString('N') + '.tmp')
-    $backup = Join-Path $directory ('.delivery-state.' + [Guid]::NewGuid().ToString('N') + '.bak')
-    [System.IO.File]::WriteAllBytes($temp, $newBytes)
-
-    # The displaced bytes reveal a concurrent edit between read and replacement.
-    [System.IO.File]::Replace($temp, $file, $backup)
-    $displaced = [System.IO.File]::ReadAllBytes($backup)
-    $readback = [System.IO.File]::ReadAllBytes($file)
-    if ([Convert]::ToBase64String($displaced) -cne [Convert]::ToBase64String($originalBytes) -or
-        [Convert]::ToBase64String($readback) -cne [Convert]::ToBase64String($newBytes)) {
-        $restore = Join-Path $directory ('.delivery-state.' + [Guid]::NewGuid().ToString('N') + '.restore')
-        $unexpected = Join-Path $directory ('.delivery-state.' + [Guid]::NewGuid().ToString('N') + '.new')
-        [System.IO.File]::Copy($backup, $restore, $true)
-        [System.IO.File]::Replace($restore, $file, $unexpected)
-        Remove-Item -LiteralPath $unexpected -Force -ErrorAction SilentlyContinue
-        throw 'state_conflict_or_readback_failed_restored'
+    $replace = Invoke-DeliveryAtomicReplace -Path $file -NewBytes $newBytes -ExpectedOldBytes $originalBytes
+    if ($replace.Status -ceq 'restore_failed') {
+        [pscustomobject]@{ ok = $false; code = 'state_restore_failed'; written = $false; backup_path = (ConvertTo-RepoRelativePath $replace.BackupPath); conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) } | ConvertTo-Json -Compress
+        exit 1
     }
-    Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue
-    $backup = ''
+    if ($replace.Status -ceq 'conflict') {
+        [pscustomobject]@{ ok = $false; code = 'state_conflict'; written = $false; conflict_path = (ConvertTo-RepoRelativePath $replace.ConflictPath) } | ConvertTo-Json -Compress
+        exit 1
+    }
     Write-Result $true 'written_and_verified' $true
 }
 catch {
@@ -128,11 +121,4 @@ catch {
     if ([string]::IsNullOrWhiteSpace($code)) { $code = 'state_write_failed' }
     Write-Result $false $code $false
     exit 1
-}
-finally {
-    foreach ($path in @($temp, $backup)) {
-        if (-not [string]::IsNullOrWhiteSpace($path) -and (Test-Path -LiteralPath $path)) {
-            Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
-        }
-    }
 }

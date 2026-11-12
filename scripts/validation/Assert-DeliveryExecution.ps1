@@ -25,6 +25,20 @@ function ConvertTo-CompactJson([hashtable]$Value) {
     return ($Value | ConvertTo-Json -Compress -Depth 10)
 }
 
+function New-AuthorizationRecord {
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('step', 'continuous')][string] $Kind,
+        [Parameter(Mandatory = $true)][string] $PlanIdentity,
+        [object[]] $StepIds = $null
+    )
+
+    $scope = 'continuous'
+    if ($Kind -ceq 'step') { $scope = 'step_by_step' }
+    $record = @{ kind = $Kind; scope = $scope; granted_utc = '2026-11-11T12:00:00Z'; plan_identity = $PlanIdentity }
+    if ($null -ne $StepIds) { $record['step_ids'] = @($StepIds) }
+    return $record
+}
+
 function New-PlanBody {
     param(
         [string] $Cadence = 'continuous',
@@ -33,6 +47,7 @@ function New-PlanBody {
         [string] $ActiveStep = '',
         [string] $Identity = 'PENDING-IDENTITY',
         [hashtable] $Step2Extra = @{},
+        [hashtable] $ProgressExtra = @{},
         [switch] $OmitDependsOn
     )
 
@@ -40,7 +55,9 @@ function New-PlanBody {
     if (-not [string]::IsNullOrEmpty($ActiveStep)) { $activeStepValue = $ActiveStep }
     $checkpoint = ConvertTo-CompactJson @{ schema = 'delivery-checkpoint/v1'; run_id = 'run-1'; branch = 'codex/test'; head = 'abc123'; active_step = $activeStepValue }
     $approval = ConvertTo-CompactJson @{ schema = 'delivery-approval/v1'; state = 'approved'; identity = $Identity; input_identity = 'INPUT-1'; review_state = 'reviewed'; blocking_findings = @(); unresolved_decisions = @() }
-    $progress = ConvertTo-CompactJson @{ schema = 'delivery-progress/v1'; cadence = $Cadence }
+    $progressFields = @{ schema = 'delivery-progress/v1'; cadence = $Cadence }
+    foreach ($key in $ProgressExtra.Keys) { $progressFields[$key] = $ProgressExtra[$key] }
+    $progress = ConvertTo-CompactJson $progressFields
     $step1Fields = @{ schema = 'delivery-step/v1'; id = 'US01-S1'; status = $Step1Status; depends_on = @() }
     $step2Fields = @{ schema = 'delivery-step/v1'; id = 'US01-S2'; status = $Step2Status; depends_on = @('US01-S1') }
     if ($OmitDependsOn) {
@@ -75,11 +92,33 @@ function New-PlanBody {
     return (($lines -join "`n") + "`n")
 }
 
-function New-Fixture([string]$Name, [string]$Cadence = 'continuous', [string]$Step1Status = 'PENDING', [string]$Step2Status = 'PENDING', [string]$ActiveStep = '', [hashtable]$Step2Extra = @{}, [switch]$OmitDependsOn) {
+function New-Fixture {
+    param(
+        [Parameter(Mandatory = $true)][string] $Name,
+        [string] $Cadence = 'continuous',
+        [string] $Step1Status = 'PENDING',
+        [string] $Step2Status = 'PENDING',
+        [string] $ActiveStep = '',
+        [hashtable] $Step2Extra = @{},
+        [hashtable] $Authorization = $null,
+        [switch] $NoAuthorization,
+        [switch] $OmitDependsOn
+    )
+
     # Block payloads are outside the normative projection, so the identity can be computed from the canonical body.
     $reference = New-PlanBody -Cadence $Cadence -Step1Status $Step1Status -Step2Status $Step2Status -ActiveStep $ActiveStep -OmitDependsOn:$OmitDependsOn
     $identity = Get-DeliveryNormativeIdentity -Text $reference
-    $body = New-PlanBody -Cadence $Cadence -Step1Status $Step1Status -Step2Status $Step2Status -ActiveStep $ActiveStep -Identity $identity -Step2Extra $Step2Extra -OmitDependsOn:$OmitDependsOn
+    $record = $Authorization
+    if (($null -eq $record) -and -not $NoAuthorization) {
+        $defaultKind = 'continuous'
+        if ($Cadence -ceq 'step_by_step') { $defaultKind = 'step' }
+        $defaultStepIds = $null
+        if ($defaultKind -ceq 'step') { $defaultStepIds = @('US01-S1', 'US01-S2') }
+        $record = New-AuthorizationRecord -Kind $defaultKind -PlanIdentity $identity -StepIds $defaultStepIds
+    }
+    $progressExtra = @{}
+    if ($null -ne $record) { $progressExtra['authorization'] = $record }
+    $body = New-PlanBody -Cadence $Cadence -Step1Status $Step1Status -Step2Status $Step2Status -ActiveStep $ActiveStep -Identity $identity -Step2Extra $Step2Extra -ProgressExtra $progressExtra -OmitDependsOn:$OmitDependsOn
     $path = Join-Path $tempRoot ($Name + '.md')
     [System.IO.File]::WriteAllText($path, $body, $utf8)
     return $path
@@ -184,13 +223,13 @@ function New-EvidencePlan {
     if ($Step2Extra.Length -gt 0) { $headings += $Step2Extra }
     $headings += @('Validation: run-tests', '')
 
-    $progress = '{"schema":"delivery-progress/v1","cadence":"continuous"}'
     $step1 = '{"schema":"delivery-step/v1","id":"US01-S1","status":"' + $Step1Status + '","depends_on":[]' + $refsJson + '}'
     $step2 = '{"schema":"delivery-step/v1","id":"US01-S2","status":"PENDING","depends_on":["US01-S1"]}'
 
     $buildBody = {
         param([string]$Identity)
         $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"' + $Identity + '","input_identity":"INPUT-1","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
+        $progress = '{"schema":"delivery-progress/v1","cadence":"continuous","authorization":{"kind":"continuous","scope":"continuous","granted_utc":"2026-11-11T12:00:00Z","plan_identity":"' + $Identity + '"}}'
         $lines = @($headings + @(
             '<!-- DELIVERY:PROGRESS:BEGIN -->', $progress, '<!-- DELIVERY:PROGRESS:END -->',
             '<!-- DELIVERY:CHECKPOINT:BEGIN -->', $Checkpoint, '<!-- DELIVERY:CHECKPOINT:END -->',
@@ -208,6 +247,8 @@ function New-EvidencePlan {
 }
 
 try {
+    $canonicalIdentity = Get-DeliveryNormativeIdentity -Text (New-PlanBody)
+
     $plan = New-Fixture 'eligible'
     $r = Invoke-Decision $plan -ContinuousAuth
     Assert-Equal '0' ([string]$r.ExitCode) 'continuous eligible exit'
@@ -228,6 +269,68 @@ try {
     $stepResume = New-Fixture 'step-resume' -Cadence step_by_step -Step1Status COMPLETED
     $r = Invoke-Decision $stepResume -Cadence step_by_step -Resume -StepAuth
     Assert-Equal 'US01-S2' ([string]$r.Result.step) 'step-by-step resumes at the next pending step'
+
+    $noAuthContinuous = New-Fixture 'auth-record-missing-continuous' -NoAuthorization
+    $r = Invoke-Decision $noAuthContinuous -ContinuousAuth
+    Assert-Equal 'authorization_record_missing' ([string]$r.Result.reason) 'continuous switch without authorization record is denied'
+    $noAuthStep = New-Fixture 'auth-record-missing-step' -Cadence step_by_step -NoAuthorization
+    $r = Invoke-Decision $noAuthStep -Cadence step_by_step -StepAuth
+    Assert-Equal 'authorization_record_missing' ([string]$r.Result.reason) 'step switch without authorization record is denied'
+
+    $continuousKindOnStep = New-Fixture 'kind-continuous-on-step' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity -StepIds @('US01-S1', 'US01-S2'))
+    $r = Invoke-Decision $continuousKindOnStep -Cadence step_by_step -StepAuth
+    Assert-Equal 'authorization_kind_mismatch' ([string]$r.Result.reason) 'step_by_step with kind continuous is denied'
+    $stepKindOnContinuous = New-Fixture 'kind-step-on-continuous' -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S1'))
+    $r = Invoke-Decision $stepKindOnContinuous -ContinuousAuth
+    Assert-Equal 'authorization_kind_mismatch' ([string]$r.Result.reason) 'continuous with kind step is denied'
+    $upperKindOnStep = New-Fixture 'kind-upper-on-step' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S1'))
+    $upperKindText = [System.IO.File]::ReadAllText($upperKindOnStep).Replace('"kind":"step"', '"kind":"STEP"')
+    [System.IO.File]::WriteAllText($upperKindOnStep, $upperKindText, $utf8)
+    $r = Invoke-Decision $upperKindOnStep -Cadence step_by_step -StepAuth
+    Assert-Equal 'authorization_kind_mismatch' ([string]$r.Result.reason) 'authorization kind is case-sensitive'
+
+    $otherPlanIdentity = New-Fixture 'identity-other-plan' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity ('0' * 64))
+    $r = Invoke-Decision $otherPlanIdentity -ContinuousAuth
+    Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'continuous authorization bound to another plan is denied'
+    $lowerIdentity = New-Fixture 'identity-lowercase' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity.ToLowerInvariant())
+    $r = Invoke-Decision $lowerIdentity -ContinuousAuth
+    Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'plan identity comparison is case-sensitive'
+
+    $staleAuth = New-Fixture 'auth-stale-normative'
+    $staleText = [System.IO.File]::ReadAllText($staleAuth)
+    $staleOldIdentity = Get-DeliveryNormativeIdentity -Text $staleText
+    $staleEdited = $staleText.Replace('Normative body: feature behavior.', 'Normative body: changed feature behavior.')
+    $staleNewIdentity = Get-DeliveryNormativeIdentity -Text $staleEdited
+    $staleEdited = $staleEdited.Replace('"identity":"' + $staleOldIdentity + '"', '"identity":"' + $staleNewIdentity + '"')
+    [System.IO.File]::WriteAllText($staleAuth, $staleEdited, $utf8)
+    $r = Invoke-Decision $staleAuth -ContinuousAuth
+    Assert-Equal 'authorization_identity_mismatch' ([string]$r.Result.reason) 'authorization recorded before a normative edit is denied after re-approval'
+
+    $stepOnlyFirst = New-Fixture 'scope-step-other-step' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S2'))
+    $r = Invoke-Decision $stepOnlyFirst -Cadence step_by_step -StepAuth
+    Assert-Equal 'authorization_scope_excludes_step' ([string]$r.Result.reason) 'step authorization that excludes the candidate is denied'
+    $stepEmptyScope = New-Fixture 'scope-step-empty' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @())
+    $r = Invoke-Decision $stepEmptyScope -Cadence step_by_step -StepAuth
+    Assert-Equal 'authorization_scope_excludes_step' ([string]$r.Result.reason) 'step authorization with empty step_ids is denied'
+    $stepScalarScope = New-Fixture 'scope-step-scalar' -Cadence step_by_step -Authorization @{ kind = 'step'; scope = 'step_by_step'; granted_utc = '2026-11-11T12:00:00Z'; plan_identity = $canonicalIdentity; step_ids = 'US01-S1' }
+    $r = Invoke-Decision $stepScalarScope -Cadence step_by_step -StepAuth
+    Assert-Equal 'grammar_invalid' ([string]$r.Result.reason) 'step_ids given as a string is rejected by the block grammar'
+    $stepOneElement = New-Fixture 'scope-step-single' -Cadence step_by_step -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S1'))
+    $r = Invoke-Decision $stepOneElement -Cadence step_by_step -StepAuth
+    Assert-Equal 'US01-S1' ([string]$r.Result.step) 'one-element step_ids array covers the candidate'
+    $stepOneElementResume = New-Fixture 'scope-step-single-resume' -Cadence step_by_step -Step1Status COMPLETED -Authorization (New-AuthorizationRecord -Kind step -PlanIdentity $canonicalIdentity -StepIds @('US01-S2'))
+    $r = Invoke-Decision $stepOneElementResume -Cadence step_by_step -Resume -StepAuth
+    Assert-Equal 'US01-S2' ([string]$r.Result.step) 'one-element step_ids array covers the resumed candidate'
+
+    $continuousScopeMiss = New-Fixture 'scope-continuous-other-step' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity -StepIds @('US01-S2'))
+    $r = Invoke-Decision $continuousScopeMiss -ContinuousAuth
+    Assert-Equal 'authorization_scope_excludes_step' ([string]$r.Result.reason) 'continuous step_ids that exclude the candidate are denied'
+    $continuousScopeEmpty = New-Fixture 'scope-continuous-empty' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity -StepIds @())
+    $r = Invoke-Decision $continuousScopeEmpty -ContinuousAuth
+    Assert-Equal 'authorization_scope_excludes_step' ([string]$r.Result.reason) 'continuous empty step_ids are denied'
+    $continuousNoScope = New-Fixture 'scope-continuous-absent' -Authorization (New-AuthorizationRecord -Kind continuous -PlanIdentity $canonicalIdentity)
+    $r = Invoke-Decision $continuousNoScope -ContinuousAuth
+    Assert-Equal 'US01-S1' ([string]$r.Result.step) 'continuous authorization without step_ids covers every eligible step'
 
     $bypass = New-Fixture 'bypass'
     $bypassText = [System.IO.File]::ReadAllText($bypass)
@@ -371,13 +474,24 @@ try {
     Copy-Item -LiteralPath (New-Fixture 'operational-edit') -Destination $opPlan
     $opIdentityBefore = Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($opPlan))
     $opHash = Get-BlockHashFromFile $opPlan 'PROGRESS'
-    $opPayload = ConvertTo-CompactJson @{ schema = 'delivery-progress/v1'; cadence = 'continuous'; current_stage = 'implementation'; completed = 1; total = 2 }
+    $opPayload = ConvertTo-CompactJson @{ schema = 'delivery-progress/v1'; cadence = 'continuous'; current_stage = 'implementation'; completed = 1; total = 2; authorization = (New-AuthorizationRecord -Kind continuous -PlanIdentity $opIdentityBefore) }
     $opWrite = Invoke-Writer $opRepo $opPlan 'PROGRESS' $opHash $opPayload
     Assert-Equal 'written_and_verified' ([string]$opWrite.Result.code) 'operational PROGRESS edit written'
     Assert-Equal $opIdentityBefore (Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($opPlan))) 'operational edit keeps approval identity'
     $r = Invoke-Decision $opPlan -ContinuousAuth
     Assert-Equal 'True' ([string]$r.Result.allowed) 'operational edit keeps plan eligible'
     Assert-Equal 'US01-S1' ([string]$r.Result.step) 'operational edit selects the same step'
+
+    $dropRepo = Join-Path $tempRoot 'drop-repo'
+    $dropDir = Join-Path $dropRepo 'features/unit'
+    New-Item -ItemType Directory -Path $dropDir -Force | Out-Null
+    $dropPlan = Join-Path $dropDir 'PLAN.md'
+    Copy-Item -LiteralPath (New-Fixture 'operational-drop') -Destination $dropPlan
+    $dropHash = Get-BlockHashFromFile $dropPlan 'PROGRESS'
+    $dropWrite = Invoke-Writer $dropRepo $dropPlan 'PROGRESS' $dropHash '{"schema":"delivery-progress/v1","cadence":"continuous","current_stage":"implementation"}'
+    Assert-Equal 'written_and_verified' ([string]$dropWrite.Result.code) 'operational PROGRESS edit without authorization written'
+    $r = Invoke-Decision $dropPlan -ContinuousAuth
+    Assert-Equal 'authorization_record_missing' ([string]$r.Result.reason) 'operational edit that drops the authorization is denied'
 
     $evidenceFileName = 'US01-S1--plan-snapshot.md'
     $evSatisfied = New-EvidencePlan 'ev-satisfied' -Step1Status COMPLETED
@@ -466,6 +580,141 @@ try {
     $evGitEmpty = New-EvidencePlan 'ev-git-empty-branch' -Step1Status COMPLETED
     $r = Invoke-Decision $evGitEmpty -ContinuousAuth -Resume -Branch ''
     Assert-Equal 'branch_mismatch' ([string]$r.Result.reason) 'git-kind plan denies empty current branch as a mismatch'
+
+    # Plan-to-plan dependencies
+
+    function New-UnitPlanText {
+        param(
+            [Parameter(Mandatory = $true)][string] $Unit,
+            [string[]] $DependencyLines = @(),
+            [string] $Body = 'Normative body: unit plan for the dependency self-test.',
+            [string] $StepOneStatus = 'PENDING',
+            [string] $StepOneEvidence = '',
+            [string] $ApprovalState = 'approved',
+            [string] $StepTwoStatus = 'PENDING'
+        )
+
+        $progress = '{"schema":"delivery-progress/v1","cadence":"continuous","authorization":{"kind":"continuous","scope":"continuous","granted_utc":"2026-11-11T12:00:00Z","plan_identity":"@@IDENTITY@@"}}'
+        $checkpoint = '{"schema":"delivery-checkpoint/v1","branch":"codex/test","head":"abc123","active_step":null}'
+        $stepOne = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S1","status":"' + $StepOneStatus + '","depends_on":[]' + $StepOneEvidence + '}'
+        $stepTwo = '{"schema":"delivery-step/v1","id":"' + $Unit + '-S2","status":"' + $StepTwoStatus + '","depends_on":["' + $Unit + '-S1"]}'
+        if ($ApprovalState -ceq 'pending') {
+            $approval = '{"schema":"delivery-approval/v1","state":"pending"}'
+        }
+        else {
+            $approval = '{"schema":"delivery-approval/v1","state":"approved","identity":"@@IDENTITY@@","input_identity":"INPUT-1","review_state":"reviewed","blocking_findings":[],"unresolved_decisions":[]}'
+        }
+
+        $lines = @('# Unit plan', '', $Body, '')
+        if ($DependencyLines.Count -gt 0) { $lines += @('## Plan dependencies', '') + $DependencyLines + '' }
+        $lines += @('## Steps', '', ('### {0}-S1 First step' -f $Unit), 'Depends on: none', 'Validation: run-tests', '', ('### {0}-S2 Second step' -f $Unit), ('Depends on: {0}-S1' -f $Unit), 'Validation: run-tests', '')
+        $lines += @(
+            '<!-- DELIVERY:PROGRESS:BEGIN -->', $progress, '<!-- DELIVERY:PROGRESS:END -->',
+            '<!-- DELIVERY:CHECKPOINT:BEGIN -->', $checkpoint, '<!-- DELIVERY:CHECKPOINT:END -->',
+            '<!-- DELIVERY:APPROVAL:BEGIN -->', $approval, '<!-- DELIVERY:APPROVAL:END -->',
+            ('<!-- DELIVERY:STEP:{0}-S1:BEGIN -->' -f $Unit), $stepOne, ('<!-- DELIVERY:STEP:{0}-S1:END -->' -f $Unit),
+            ('<!-- DELIVERY:STEP:{0}-S2:BEGIN -->' -f $Unit), $stepTwo, ('<!-- DELIVERY:STEP:{0}-S2:END -->' -f $Unit))
+        return (($lines -join "`n") + "`n")
+    }
+
+    function Complete-UnitPlanText([string]$Text) {
+        return $Text.Replace('@@IDENTITY@@', (Get-DeliveryNormativeIdentity -Text $Text))
+    }
+
+    function New-DependencyRepo {
+        param(
+            [Parameter(Mandatory = $true)][string] $Name,
+            [Parameter(Mandatory = $true)][string] $PredecessorText,
+            [Parameter(Mandatory = $true)][string] $DependentText
+        )
+
+        $repo = Join-Path $tempRoot $Name
+        $predecessorPath = Join-Path $repo 'features/001-demo/US01/PLAN.md'
+        $dependentPath = Join-Path $repo 'features/001-demo/US02/PLAN.md'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $predecessorPath) -Force | Out-Null
+        New-Item -ItemType Directory -Path (Split-Path -Parent $dependentPath) -Force | Out-Null
+        [System.IO.File]::WriteAllText($predecessorPath, $PredecessorText, $utf8)
+        [System.IO.File]::WriteAllText($dependentPath, $DependentText, $utf8)
+        return [pscustomobject]@{ Predecessor = $predecessorPath; Dependent = $dependentPath }
+    }
+
+    $depPredecessorPath = 'features/001-demo/US01/PLAN.md'
+    $depEvidence = ',"acceptance_evidence":["synthetic acceptance recorded"]'
+    $depPredecessorDone = Complete-UnitPlanText (New-UnitPlanText -Unit 'US01' -StepOneStatus 'COMPLETED' -StepOneEvidence $depEvidence)
+    $depIdentity = Get-DeliveryNormativeIdentity -Text $depPredecessorDone
+    $depRequires = 'Requires plan: ' + $depPredecessorPath + ' identity=' + $depIdentity + ' steps=US01-S1'
+    $depDependentText = Complete-UnitPlanText (New-UnitPlanText -Unit 'US02' -DependencyLines @($depRequires))
+
+    $depEligible = New-DependencyRepo 'dep-complete' $depPredecessorDone $depDependentText
+    $r = Invoke-Decision $depEligible.Dependent -ContinuousAuth
+    Assert-Equal 'True' ([string]$r.Result.allowed) 'Should_AllowDependent_When_PredecessorStepCompleteWithEvidence'
+    Assert-Equal 'US02-S1' ([string]$r.Result.step) 'Should_SelectOwnFirstStep_When_DependencyMet'
+
+    $depPending = New-DependencyRepo 'dep-step-pending' (Complete-UnitPlanText (New-UnitPlanText -Unit 'US01')) $depDependentText
+    $r = Invoke-Decision $depPending.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_step_incomplete' ([string]$r.Result.reason) 'Should_DenyDependent_When_PredecessorStepPending'
+    Assert-Equal $depPredecessorPath ([string]$r.Result.dependency) 'Should_NameDependency_When_PredecessorStepPending'
+
+    $depNoEvidence = New-DependencyRepo 'dep-evidence-missing' (Complete-UnitPlanText (New-UnitPlanText -Unit 'US01' -StepOneStatus 'COMPLETED')) $depDependentText
+    $r = Invoke-Decision $depNoEvidence.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_evidence_missing' ([string]$r.Result.reason) 'Should_DenyDependent_When_CompletedStepHasNoAcceptanceEvidence'
+    Assert-Equal $depPredecessorPath ([string]$r.Result.dependency) 'Should_NameDependency_When_EvidenceMissing'
+
+    $depBlankEvidence = New-DependencyRepo 'dep-evidence-blank' (Complete-UnitPlanText (New-UnitPlanText -Unit 'US01' -StepOneStatus 'COMPLETED' -StepOneEvidence ',"acceptance_evidence":"   "')) $depDependentText
+    $r = Invoke-Decision $depBlankEvidence.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_evidence_missing' ([string]$r.Result.reason) 'Should_DenyDependent_When_AcceptanceEvidenceIsBlank'
+
+    $depNormativeEdit = New-DependencyRepo 'dep-normative-edit' ($depPredecessorDone.Replace('Normative body: unit plan for the dependency self-test.', 'Normative body changed after approval.')) $depDependentText
+    $r = Invoke-Decision $depNormativeEdit.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_identity_changed' ([string]$r.Result.reason) 'Should_DenyDependent_When_PredecessorNormativeTextEdited'
+    Assert-Equal $depPredecessorPath ([string]$r.Result.dependency) 'Should_NameDependency_When_PredecessorIdentityChanged'
+
+    $depOperationalText = $depPredecessorDone.Replace('"cadence":"continuous"', '"cadence":"continuous","current_stage":"implementation"').Replace('"id":"US01-S2","status":"PENDING"', '"id":"US01-S2","status":"COMPLETED"')
+    Assert-Equal 'False' ([string]($depOperationalText -ceq $depPredecessorDone)) 'Should_ChangeFixture_When_PredecessorOperationalBlocksEdited'
+    $depOperational = New-DependencyRepo 'dep-operational-edit' $depOperationalText $depDependentText
+    Assert-Equal $depIdentity (Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($depOperational.Predecessor))) 'Should_KeepPredecessorIdentity_When_OperationalBlocksEdited'
+    Assert-Equal (Get-DeliveryNormativeIdentity -Text $depDependentText) (Get-DeliveryNormativeIdentity -Text ([System.IO.File]::ReadAllText($depOperational.Dependent))) 'Should_KeepDependentIdentity_When_PredecessorOperationalBlocksEdited'
+    $r = Invoke-Decision $depOperational.Dependent -ContinuousAuth
+    Assert-Equal 'True' ([string]$r.Result.allowed) 'Should_AllowDependent_When_PredecessorOperationalBlocksEdited'
+    Assert-Equal 'US02-S1' ([string]$r.Result.step) 'Should_SelectSameStep_When_PredecessorOperationalBlocksEdited'
+
+    $depApprovalPending = New-DependencyRepo 'dep-approval-pending' (Complete-UnitPlanText (New-UnitPlanText -Unit 'US01' -StepOneStatus 'COMPLETED' -StepOneEvidence $depEvidence -ApprovalState 'pending')) $depDependentText
+    $r = Invoke-Decision $depApprovalPending.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_not_approved' ([string]$r.Result.reason) 'Should_DenyDependent_When_PredecessorApprovalPending'
+    Assert-Equal $depPredecessorPath ([string]$r.Result.dependency) 'Should_NameDependency_When_PredecessorNotApproved'
+
+    $depStaleApproval = $depPredecessorDone.Replace('"identity":"' + $depIdentity + '"', '"identity":"' + ('F' * 64) + '"')
+    Assert-Equal 'False' ([string]($depStaleApproval -ceq $depPredecessorDone)) 'Should_ChangeFixture_When_PredecessorApprovalIdentityReplaced'
+    $depStale = New-DependencyRepo 'dep-approval-stale' $depStaleApproval $depDependentText
+    $r = Invoke-Decision $depStale.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_not_approved' ([string]$r.Result.reason) 'Should_DenyDependent_When_PredecessorApprovalIdentityIsStale'
+
+    $depMissing = New-DependencyRepo 'dep-missing' $depPredecessorDone $depDependentText
+    Remove-Item -LiteralPath $depMissing.Predecessor -Force
+    $r = Invoke-Decision $depMissing.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_missing' ([string]$r.Result.reason) 'Should_DenyDependent_When_PredecessorFileMissing'
+    Assert-Equal $depPredecessorPath ([string]$r.Result.dependency) 'Should_NameDependency_When_PredecessorMissing'
+
+    $depMalformedRequires = 'Requires plan: ' + $depPredecessorPath + ' identity=' + $depIdentity.ToLowerInvariant() + ' steps=US01-S1'
+    $depMalformed = New-DependencyRepo 'dep-malformed-line' $depPredecessorDone (Complete-UnitPlanText (New-UnitPlanText -Unit 'US02' -DependencyLines @($depMalformedRequires)))
+    $r = Invoke-Decision $depMalformed.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_invalid' ([string]$r.Result.reason) 'Should_DenyDependent_When_RequiresLineMalformed'
+
+    $depSelfRequires = 'Requires plan: features/001-demo/US02/PLAN.md identity=' + ('E' * 64) + ' steps=US02-S1'
+    $depSelf = New-DependencyRepo 'dep-self' $depPredecessorDone (Complete-UnitPlanText (New-UnitPlanText -Unit 'US02' -DependencyLines @($depSelfRequires)))
+    $r = Invoke-Decision $depSelf.Dependent -ContinuousAuth
+    Assert-Equal 'False' ([string]$r.Result.allowed) 'Should_DenyDependent_When_DependencyPointsAtItself'
+    Assert-Equal 'features/001-demo/US02/PLAN.md' ([string]$r.Result.dependency) 'Should_NameSelfDependency_When_DependencyPointsAtItself'
+
+    $depStrayText = (New-UnitPlanText -Unit 'US02').Replace('## Steps' + "`n", 'Requires plan: ' + $depPredecessorPath + ' identity=' + $depIdentity + ' steps=US01-S1' + "`n`n" + '## Steps' + "`n")
+    $depStray = New-DependencyRepo 'dep-stray-line' $depPredecessorDone (Complete-UnitPlanText $depStrayText)
+    $r = Invoke-Decision $depStray.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_invalid' ([string]$r.Result.reason) 'Should_DenyDependent_When_RequiresLineOutsideHeading'
+
+    $depTwoSteps = 'Requires plan: ' + $depPredecessorPath + ' identity=' + $depIdentity + ' steps=US01-S1,US01-S2'
+    $depMulti = New-DependencyRepo 'dep-multi-step' $depPredecessorDone (Complete-UnitPlanText (New-UnitPlanText -Unit 'US02' -DependencyLines @($depTwoSteps)))
+    $r = Invoke-Decision $depMulti.Dependent -ContinuousAuth
+    Assert-Equal 'plan_dependency_step_incomplete' ([string]$r.Result.reason) 'Should_DenyDependent_When_AnyListedStepIncomplete'
 
     Write-Output ('PASS: {0} focused execution and resume assertions on PowerShell {1}.' -f $passed, $PSVersionTable.PSVersion)
 }

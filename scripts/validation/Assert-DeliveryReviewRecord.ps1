@@ -67,6 +67,35 @@ function New-Record([string]$InputPath='features/030-demo/REFINEMENT.md') {
     } | ConvertTo-Json -Depth 20 -Compress
 }
 
+$builderScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\runtime\New-DeliveryReviewRecord.ps1'))
+$priorIdentity = '0123456789ABCDEF' * 4
+function New-ShapeRecord([hashtable]$Overrides = @{}) {
+    $record = @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; inputs = @(); reviewers = (New-ReviewerBlock); dispositions = @() }
+    foreach ($key in $Overrides.Keys) { $record[$key] = $Overrides[$key] }
+    return ($record | ConvertTo-Json -Depth 20)
+}
+function Get-ShapeError([string]$Json) {
+    $candidate = $Json | ConvertFrom-Json -Depth 50
+    try { Assert-DeliveryReviewRecordShape -Value $candidate; return '' }
+    catch { return [string]$_.Exception.Message }
+}
+function Assert-ShapeError([string]$Json, [string]$Pattern, [string]$Name) {
+    $message = Get-ShapeError $Json
+    Assert ($message -match $Pattern) "${Name}: expected shape error matching '$Pattern', got '$message'"
+}
+function Assert-ShapePasses([string]$Json, [string]$Name) {
+    $message = Get-ShapeError $Json
+    Assert ($message -eq '') "${Name}: expected shape to pass, got '$message'"
+}
+function New-Finding([string]$Id, [string]$Severity = 'B', [hashtable]$Extra = @{}) {
+    $finding = @{ id = $Id; severity = $Severity; category = 'GAP'; section = 'scope'; evidence = 'missing'; recommendation = 'clarify' }
+    foreach ($key in $Extra.Keys) { $finding[$key] = $Extra[$key] }
+    return $finding
+}
+function Save-GateRecord([string]$FileName, [string]$Json, [string]$ArtifactText = $text) {
+    return Invoke-Writer $gateTargetRel (Join-Path $tempRoot ('features\050-gate\delivery-reviews\' + $FileName)) $Json $ArtifactText
+}
+
 try {
     $feature = Join-Path $tempRoot 'features\030-demo'
     New-Item -ItemType Directory -Path (Join-Path $feature 'US01') -Force | Out-Null
@@ -335,7 +364,7 @@ Stable normative criterion.
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'role-tampered.json' $roleTampered)
     Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'review_identity_mismatch') "Tampered input role must block as review_identity_mismatch: $($gate.output)"
 
-    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\REFINEMENT-copy.md'), '# Gate input v1', $utf8NoBom)
+    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\REFINEMENT-copy.md'), "# Gate input v1`n", $utf8NoBom)
     $pathTampered = [regex]::Replace($gateRecordText, '"path":\s*"features/050-gate/REFINEMENT\.md"', '"path": "features/050-gate/REFINEMENT-copy.md"')
     Assert ($pathTampered -cne $gateRecordText) 'Path tamper fixture must change the record.'
     $gate = Invoke-Gate $gateTargetRel (Save-RecordFile 'path-tampered.json' $pathTampered)
@@ -449,8 +478,474 @@ Stable normative criterion.
     $gate = Invoke-Gate $gateTargetRel '../../outside.json'
     Assert ($gate.code -eq 1) "Record path escape must exit 1: $($gate.output)"
 
+    $identityFeature = Join-Path $tempRoot 'features\053-input-identity'
+    New-Item -ItemType Directory -Path (Join-Path $identityFeature 'US01'), (Join-Path $identityFeature 'delivery-reviews') -Force | Out-Null
+    $identityTargetRel = 'features/053-input-identity/US01/PLAN.md'
+    $identityTarget = Join-Path $tempRoot 'features\053-input-identity\US01\PLAN.md'
+    $identityTargetText = "# Target plan`nDepends on the predecessor plan.`n"
+    [System.IO.File]::WriteAllText($identityTarget, $identityTargetText, $utf8NoBom)
+
+    $identityPlanRel = 'features/053-input-identity/US02/PLAN.md'
+    $identityPlan = Join-Path $tempRoot 'features\053-input-identity\US02\PLAN.md'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $identityPlan) -Force | Out-Null
+    [System.IO.File]::WriteAllText($identityPlan, $text, $utf8NoBom)
+    $identityPlanRecord = Join-Path $identityFeature 'delivery-reviews\plan-input.json'
+    $planInput = Invoke-Writer $identityTargetRel $identityPlanRecord (New-Record $identityPlanRel) $identityTargetText
+    Assert ($planInput.code -eq 0) "Plan input record save failed: $($planInput.output)"
+    $identityPlanRecordRel = 'features/053-input-identity/delivery-reviews/plan-input.json'
+    $planPersisted = Get-Content -LiteralPath $identityPlanRecord -Raw | ConvertFrom-Json
+    Assert ($planPersisted.inputs[0].sha256 -ceq (Get-DeliveryNormativeIdentity -Text $text)) 'Plan input must record its normative identity.'
+
+    $planOperational = $text.Replace('"current_stage":"draft"', '"current_stage":"in progress"').Replace('"status":"PENDING"', '"status":"COMPLETED"')
+    [System.IO.File]::WriteAllText($identityPlan, $planOperational, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $identityPlanRecordRel
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Operational edit in an input plan must stay allowed: $($gate.output)"
+
+    $planNormative = $text.Replace('Stable normative criterion.', 'Revised normative criterion.')
+    [System.IO.File]::WriteAllText($identityPlan, $planNormative, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $identityPlanRecordRel
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'REQ-1')) "Normative edit in an input plan must block as inputs_changed: $($gate.output)"
+
+    $planBroken = $text.Replace('<!-- DELIVERY:PROGRESS:END -->', '')
+    [System.IO.File]::WriteAllText($identityPlan, $planBroken, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $identityPlanRecordRel
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and ($gate.output -match 'REQ-1') -and ($gate.output -match 'invalid DELIVERY blocks')) "Input plan with broken grammar must block as inputs_changed naming REQ-1: $($gate.output)"
+    [System.IO.File]::WriteAllText($identityPlan, $text, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $identityPlanRecordRel
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Restored input plan must pass again: $($gate.output)"
+
+    $planLegacyRel = 'features/053-input-identity/TS03/PLAN.md'
+    $planLegacy = Join-Path $tempRoot 'features\053-input-identity\TS03\PLAN.md'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $planLegacy) -Force | Out-Null
+    $legacyInputText = $text.Replace('<!-- DELIVERY:STEP:US01-S1:BEGIN -->', '<!-- DELIVERY:STEP-US01-S1:BEGIN -->').Replace('<!-- DELIVERY:STEP:US01-S1:END -->', '<!-- DELIVERY:STEP-US01-S1:END -->')
+    [System.IO.File]::WriteAllText($planLegacy, $legacyInputText, $utf8NoBom)
+    $legacyInput = Invoke-Writer $identityTargetRel (Join-Path $identityFeature 'delivery-reviews\legacy-input.json') (New-Record $planLegacyRel) $identityTargetText
+    Assert ($legacyInput.code -ne 0 -and ($legacyInput.output -match 'REQ-1') -and ($legacyInput.output -match 'invalid DELIVERY blocks') -and ($legacyInput.output -match 'legacy_step_marker')) "Legacy STEP- marker in an input plan must fail the writer with the input id: $($legacyInput.output)"
+    Assert (-not (Test-Path -LiteralPath (Join-Path $identityFeature 'delivery-reviews\legacy-input.json'))) 'Writer must not record an input plan with invalid DELIVERY blocks.'
+
+    $refinementInputRel = 'features/053-input-identity/REFINEMENT.md'
+    $refinementInput = Join-Path $tempRoot 'features\053-input-identity\REFINEMENT.md'
+    $approvalPending = '{"schema":"delivery-approval/v1","state":"pending"}'
+    $refinementInputText = "# Feature refinement`n<!-- DELIVERY:APPROVAL:BEGIN -->`n$approvalPending`n<!-- DELIVERY:APPROVAL:END -->`n"
+    [System.IO.File]::WriteAllText($refinementInput, $refinementInputText, $utf8NoBom)
+    $refinementRecordPath = Join-Path $identityFeature 'delivery-reviews\refinement-input.json'
+    $refinementRecordSave = Invoke-Writer $identityTargetRel $refinementRecordPath (New-Record $refinementInputRel) $identityTargetText
+    Assert ($refinementRecordSave.code -eq 0) "Refinement input record save failed: $($refinementRecordSave.output)"
+    $refinementRecordRel = 'features/053-input-identity/delivery-reviews/refinement-input.json'
+    $refinementApprovalEdit = $refinementInputText.Replace('"state":"pending"', '"state":"superseded"')
+    [System.IO.File]::WriteAllText($refinementInput, $refinementApprovalEdit, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $refinementRecordRel
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "APPROVAL edit in a refinement input must stay allowed: $($gate.output)"
+    [System.IO.File]::WriteAllText($refinementInput, $refinementInputText, $utf8NoBom)
+
+    $notesInputRel = 'features/053-input-identity/NOTES.md'
+    $notesInput = Join-Path $tempRoot 'features\053-input-identity\NOTES.md'
+    $notesInputText = "# Notes`n# Comment v1`n"
+    [System.IO.File]::WriteAllText($notesInput, $notesInputText, $utf8NoBom)
+    $notesRecordPath = Join-Path $identityFeature 'delivery-reviews\notes-input.json'
+    $notesRecordSave = Invoke-Writer $identityTargetRel $notesRecordPath (New-Record $notesInputRel) $identityTargetText
+    Assert ($notesRecordSave.code -eq 0) "Ordinary input record save failed: $($notesRecordSave.output)"
+    $notesPersisted = Get-Content -LiteralPath $notesRecordPath -Raw | ConvertFrom-Json
+    Assert ($notesPersisted.inputs[0].sha256 -ceq (Get-IndependentSha256Hex $notesInputText)) 'Ordinary input must record the SHA-256 of its raw bytes.'
+    $notesRecordRel = 'features/053-input-identity/delivery-reviews/notes-input.json'
+    [System.IO.File]::WriteAllText($notesInput, "# Notes`n# Comment v2`n", $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel $notesRecordRel
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'REQ-1')) "Comment edit in an ordinary input must block as inputs_changed: $($gate.output)"
+    [System.IO.File]::WriteAllText($notesInput, $notesInputText, $utf8NoBom)
+
     'PASS: review-record gate, golden identity, saved-record verdicts, and approval/bypass field rules.'
+    $segmentRecord = Join-Path $identityFeature 'delivery-reviews\parent-segment.json'
+    foreach ($segmentPath in @('features/../REFINEMENT.md', 'features/053-input-identity/./NOTES.md')) {
+        $segmentWrite = Invoke-Writer $identityTargetRel $segmentRecord (New-Record $segmentPath) $identityTargetText
+        Assert ($segmentWrite.code -ne 0 -and ($segmentWrite.output -match 'REQ-1') -and ($segmentWrite.output -match 'parent segment')) "Writer must reject input path $segmentPath with the input id: $($segmentWrite.output)"
+        Assert (-not (Test-Path -LiteralPath $segmentRecord)) "Writer must not record input path $segmentPath."
+    }
+
+    $notesRecordJson = [System.IO.File]::ReadAllText($notesRecordPath)
+    $dotSegmentJson = [regex]::Replace($notesRecordJson, '"path":\s*"features/053-input-identity/NOTES\.md"', '"path": "features/053-input-identity/./NOTES.md"')
+    Assert ($dotSegmentJson -cne $notesRecordJson) 'Dot-segment checker fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $identityFeature 'delivery-reviews\dot-segment.json'), $dotSegmentJson, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel 'features/053-input-identity/delivery-reviews/dot-segment.json'
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'record_schema_invalid' -and ($gate.output -match 'parent segment')) "Dot-segment input path must block as record_schema_invalid: $($gate.output)"
+
+    $parentSegmentJson = [regex]::Replace($notesRecordJson, '"path":\s*"features/053-input-identity/NOTES\.md"', '"path": "features/../features/053-input-identity/NOTES.md"')
+    Assert ($parentSegmentJson -cne $notesRecordJson) 'Parent-segment checker fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $identityFeature 'delivery-reviews\parent-segment-checker.json'), $parentSegmentJson, $utf8NoBom)
+    $gate = Invoke-Gate $identityTargetRel 'features/053-input-identity/delivery-reviews/parent-segment-checker.json'
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'record_schema_invalid' -and ($gate.output -match 'parent segment')) "Parent-segment input path must block as record_schema_invalid: $($gate.output)"
+
+    'PASS: delivery-document inputs use normative identity (plans and refinements), ordinary inputs use raw bytes, invalid input grammar fails closed on write and check.'
     'PASS: schema, identity, marker rejection, legacy STEP rejection, unclosed fence rejection, findings gate, generic targets, no-block drafts, controlled drafts, stale snapshot rejection, traversal, and reparse containment.'
+
+    # Re-audit round fields: shape rules.
+    Assert-ShapeError (New-ShapeRecord @{ round = 2 }) 'prior_review_identity is required' 'round 2 without prior'
+    Assert-ShapeError (New-ShapeRecord @{ round = 1; prior_review_identity = $priorIdentity }) 'prior_review_identity is allowed only' 'round 1 with prior'
+    Assert-ShapeError (New-ShapeRecord @{ prior_review_identity = $priorIdentity }) 'prior_review_identity is allowed only' 'absent round with prior'
+    Assert-ShapeError (New-ShapeRecord @{ round = 0 }) 'round must be' 'round 0'
+    Assert-ShapeError (New-ShapeRecord @{ round = '2'; prior_review_identity = $priorIdentity }) 'round must be' 'string round'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity.ToLowerInvariant() }) 'prior_review_identity must be' 'lowercase prior'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity.Substring(0, 63) }) 'prior_review_identity must be' '63 character prior'
+    Assert-ShapePasses (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity }) 'round 2 with prior'
+    Assert-ShapePasses (New-ShapeRecord @{ round = 1 }) 'explicit round 1 without prior'
+
+    $roundEntry = @{ round = 2; role = 'critic'; inputs = @(@{ id = 'IN-1'; reason = 'Section 3 changed' }); reported_tokens = $null; reported_tool_calls = 3; duration_s = 41 }
+    Assert-ShapePasses (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundEntry) }) 'rounds entry with null tokens'
+    $oneRoundJson = New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundEntry) }
+    Assert ($oneRoundJson -match '"rounds":\s*\[\s*\{') 'one-element rounds must serialize as an array'
+    Assert ($oneRoundJson -match '"inputs":\s*\[\s*\{') 'one-element rounds inputs must serialize as an array'
+    Assert-ShapePasses $oneRoundJson 'one-element rounds and inputs arrays'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @{ round = 2 } }) 'rounds must be an array' 'rounds as object'
+    $roundUnknownKey = $roundEntry.Clone(); $roundUnknownKey['author'] = 'x'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundUnknownKey) }) 'unknown key author' 'rounds entry unknown key'
+    $roundBadRole = $roundEntry.Clone(); $roundBadRole['role'] = 'author'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundBadRole) }) 'role must be reader or critic' 'rounds entry bad role'
+    $roundNegative = $roundEntry.Clone(); $roundNegative['reported_tokens'] = -1
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundNegative) }) 'reported_tokens' 'rounds entry negative tokens'
+    $roundStringTokens = $roundEntry.Clone(); $roundStringTokens['reported_tokens'] = '5'
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundStringTokens) }) 'reported_tokens' 'rounds entry string tokens'
+    $roundBlankReason = $roundEntry.Clone(); $roundBlankReason['inputs'] = @(@{ id = 'IN-1'; reason = ' ' })
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundBlankReason) }) 'reason must be a non-blank string' 'rounds input blank reason'
+    $roundInputUnknown = $roundEntry.Clone(); $roundInputUnknown['inputs'] = @(@{ id = 'IN-1'; reason = 'x'; extra = 'y' })
+    Assert-ShapeError (New-ShapeRecord @{ round = 2; prior_review_identity = $priorIdentity; rounds = @($roundInputUnknown) }) 'unknown key extra' 'rounds input unknown key'
+
+    $lateStringFinding = New-Finding 'R2-001' 'B' @{ late = 'yes' }
+    $resolvedB = @(@{ id = 'R2-001'; severity = 'B'; disposition = 'resolved'; evidence = 'Section 2 now names one output.' })
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @($lateStringFinding)); dispositions = $resolvedB }) 'late must be a boolean' 'late as string'
+    Assert-ShapePasses (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B' @{ late = $true }))); dispositions = $resolvedB }) 'late true'
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B' @{ repeats = 'R2-001' }))); dispositions = $resolvedB }) 'cannot repeat itself' 'repeats equal to own id'
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B' @{ repeats = '' }))); dispositions = $resolvedB }) 'repeats must be a non-blank string' 'blank repeats'
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B' @{ repeats = 3 }))); dispositions = $resolvedB }) 'repeats must be a non-blank string' 'repeats as number'
+    Assert-ShapePasses (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B' @{ repeats = 'R1-001' }))); dispositions = $resolvedB }) 'repeats pointing at prior id'
+
+    # Corrected B, insufficient correction, contested B, MINOR reasons.
+    Assert-ShapePasses (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B'))); dispositions = @(@{ id = 'R2-001'; severity = 'B'; disposition = 'contested'; evidence = 'Section 2 is explicit.' }) }) 'contested B with evidence'
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B'))); dispositions = @(@{ id = 'R2-001'; severity = 'B'; disposition = 'contested'; evidence = '' }) }) 'requires evidence' 'contested B without evidence'
+    Assert-ShapeError (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-002' 'MINOR'))); dispositions = @(@{ id = 'R2-002'; severity = 'MINOR'; disposition = 'accepted_minor' }) }) 'reasoned disposition' 'MINOR without reason'
+    Assert-ShapePasses (New-ShapeRecord @{ reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-002' 'MINOR'))); dispositions = @(@{ id = 'R2-002'; severity = 'MINOR'; disposition = 'accepted_minor'; reason = 'Wording is acceptable.' }) }) 'MINOR with reason'
+
+    # Reviewer unavailable on a later round: bypassed or not_run, reasoned, no findings.
+    Assert-ShapePasses (New-ShapeRecord @{ state = 'bypassed'; round = 2; prior_review_identity = $priorIdentity; reason = 'Review host offline'; operator_choice = @{ choice = 'bypass'; evidence = 'Operator chose bypass in chat' }; reviewers = @{} }) 'bypassed round 2 without findings'
+    Assert-ShapePasses (New-ShapeRecord @{ state = 'not_run'; round = 2; prior_review_identity = $priorIdentity; reason = 'Review host unavailable'; reviewers = @{} }) 'not_run round 2 without findings'
+    Assert-ShapeError (New-ShapeRecord @{ state = 'bypassed'; round = 2; prior_review_identity = $priorIdentity; reason = 'Review host offline'; operator_choice = @{ choice = 'bypass'; evidence = 'Operator chose bypass in chat' }; reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-009'))); dispositions = @() }) 'cannot carry' 'bypassed round 2 carrying a finding'
+
+    # Writer and gate: corrected B, insufficient correction, contested evidence, bypass on a later round.
+    [System.IO.File]::WriteAllText($gateTarget, $text, $utf8NoBom)
+    $gateInputs = @(@{ id = 'REQ-1'; path = $gateInputRel; role = 'accepted refinement'; impacted_ids = @('S1') })
+
+    $correctedJson = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; round = 2; prior_review_identity = $priorIdentity; inputs = $gateInputs; reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-001' 'B'))); dispositions = @(@{ id = 'R2-001'; severity = 'B'; disposition = 'resolved'; evidence = 'Section 2 now names one output.' }) }
+    $corrected = Save-GateRecord 'round2-corrected.json' $correctedJson
+    Assert ($corrected.code -eq 0) "Corrected round 2 B finding must save: $($corrected.output)"
+    $gate = Invoke-Gate $gateTargetRel 'features/050-gate/delivery-reviews/round2-corrected.json'
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Corrected round 2 B finding must pass the gate: $($gate.output)"
+
+    $insufficientFinding = New-Finding 'R2-002' 'B' @{ repeats = 'R1-001' }
+    $insufficientJson = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; round = 2; prior_review_identity = $priorIdentity; inputs = $gateInputs; reviewers = (New-ReviewerBlock -Findings @($insufficientFinding)); dispositions = @() }
+    $insufficient = Save-GateRecord 'round2-insufficient.json' $insufficientJson
+    Assert ($insufficient.code -ne 0 -and $insufficient.output -match 'R2-002 has no disposition') "Repeat finding without disposition must not save: $($insufficient.output)"
+    $insufficientDisposed = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; round = 2; prior_review_identity = $priorIdentity; inputs = $gateInputs; reviewers = (New-ReviewerBlock -Findings @($insufficientFinding)); dispositions = @(@{ id = 'R2-002'; severity = 'B'; disposition = 'contested'; evidence = 'Section 1 already states the rule.' }) }
+    $insufficientSaved = Save-GateRecord 'round2-insufficient.json' $insufficientDisposed
+    Assert ($insufficientSaved.code -eq 0) "Disposed repeat finding must save: $($insufficientSaved.output)"
+
+    $contestedNoEvidence = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; round = 2; prior_review_identity = $priorIdentity; inputs = $gateInputs; reviewers = (New-ReviewerBlock -Findings @((New-Finding 'R2-003' 'B'))); dispositions = @(@{ id = 'R2-003'; severity = 'B'; disposition = 'contested'; evidence = '' }) }
+    $contestedResult = Save-GateRecord 'round2-contested-blank.json' $contestedNoEvidence
+    Assert ($contestedResult.code -ne 0 -and $contestedResult.output -match 'requires evidence') "Contested B without evidence must not save: $($contestedResult.output)"
+
+    $bypassRoundJson = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'bypassed'; round = 2; prior_review_identity = $priorIdentity; reason = 'Cold review unavailable'; operator_choice = @{ choice = 'bypass'; evidence = 'operator accepted the bypass' }; inputs = @(); reviewers = @{}; dispositions = @() }
+    $bypassRoundResult = Save-GateRecord 'round2-bypass.json' $bypassRoundJson
+    Assert ($bypassRoundResult.code -eq 0) "Bypassed round 2 must save: $($bypassRoundResult.output)"
+    $gate = Invoke-Gate $gateTargetRel 'features/050-gate/delivery-reviews/round2-bypass.json'
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'bypassed') "Bypassed round 2 must pass with its reason: $($gate.output)"
+
+    # Round 2 end to end: round 1 saved, target corrected, builder links the prior identity, writer and gate accept.
+    $round1Json = ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; inputs = $gateInputs; reviewers = (New-ReviewerBlock); dispositions = @() }
+    $round1Saved = Save-GateRecord 'round1-linked.json' $round1Json
+    Assert ($round1Saved.code -eq 0) "Round 1 record must save: $($round1Saved.output)"
+    $round1Identity = [string](($round1Saved.output | ConvertFrom-Json).review_identity)
+
+    $round2Text = $text.Replace('Stable normative criterion.', 'Corrected normative criterion.')
+    [System.IO.File]::WriteAllText($gateTarget, $round2Text, $utf8NoBom)
+    $e2eDir = Join-Path $tempRoot 'e2e-round2'
+    New-Item -ItemType Directory -Path $e2eDir -Force | Out-Null
+    $e2eReader = Join-Path $e2eDir 'reader.json'
+    $e2eCritic = Join-Path $e2eDir 'critic.json'
+    $e2eInputs = Join-Path $e2eDir 'inputs.json'
+    $e2eDispositions = Join-Path $e2eDir 'dispositions.json'
+    $e2eRounds = Join-Path $e2eDir 'rounds.json'
+    [System.IO.File]::WriteAllText($e2eReader, '{"paraphrases":{"proposal":"A corrected plan.","current_system":"A declared baseline."},"lenses":["comprehension"],"findings":[]}', $utf8NoBom)
+    [System.IO.File]::WriteAllText($e2eCritic, '{"lenses":["consistency"],"findings":[{"id":"C2-001","severity":"I","category":"CONTRADICTION","section":"Section 3","evidence":"Section 3 still differs.","recommendation":"Align Section 3.","late":true,"repeats":"C1-001"}]}', $utf8NoBom)
+    [System.IO.File]::WriteAllText($e2eInputs, '[{"id":"REQ-1","path":"features/050-gate/REFINEMENT.md","role":"accepted refinement","impacted_ids":["S1"]}]', $utf8NoBom)
+    [System.IO.File]::WriteAllText($e2eDispositions, '[{"id":"C2-001","disposition":"resolved","evidence":"Section 3 now matches the criterion."}]', $utf8NoBom)
+    [System.IO.File]::WriteAllText($e2eRounds, '[{"round":2,"role":"critic","inputs":[{"id":"REQ-1","reason":"Criterion revised"}],"reported_tokens":null,"reported_tool_calls":3,"duration_s":41}]', $utf8NoBom)
+    $builderArgs = @('-State', 'reviewed', '-RepoPath', $tempRoot,
+        '-ReaderResultPath', $e2eReader, '-CriticResultPath', $e2eCritic,
+        '-ReaderHost', 'host-reader', '-ReaderIsolation', 'context-only',
+        '-CriticHost', 'host-critic', '-CriticIsolation', 'not_reported',
+        '-InputsPath', $e2eInputs, '-DispositionsPath', $e2eDispositions, '-RoundsPath', $e2eRounds,
+        '-Round', '2', '-PriorReviewIdentity', $round1Identity,
+        '-OutPath', 'features/050-gate/scratch/delivery-review/round2.json')
+    $builderOutput = & $childHost -NoProfile -ExecutionPolicy Bypass -File $builderScript @builderArgs 2>&1 | Out-String
+    $builderCode = $LASTEXITCODE
+    Assert ($builderCode -eq 0) "Round 2 builder must exit 0: $builderOutput"
+    $round2Json = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\scratch\delivery-review\round2.json'))
+    $round2Saved = Save-GateRecord 'round2-linked.json' $round2Json $round2Text
+    Assert ($round2Saved.code -eq 0) "Round 2 record must save through the writer: $($round2Saved.output)"
+    $gate = Invoke-Gate $gateTargetRel 'features/050-gate/delivery-reviews/round2-linked.json'
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Round 2 record must pass the gate: $($gate.output)"
+    $round2Persisted = Get-Content -LiteralPath (Join-Path $tempRoot 'features\050-gate\delivery-reviews\round2-linked.json') -Raw | ConvertFrom-Json
+    Assert ([int]$round2Persisted.round -eq 2) 'Persisted round 2 record must keep round 2.'
+    Assert ([string]$round2Persisted.prior_review_identity -ceq $round1Identity) 'Persisted round 2 record must keep the prior review identity.'
+    Assert ([string]$round2Persisted.rounds[0].role -ceq 'critic') 'Persisted round 2 record must keep its rounds entry.'
+    Assert ([bool]$round2Persisted.reviewers.critic.result.findings[0].late) 'Persisted round 2 finding must keep late.'
+    [System.IO.File]::WriteAllText($gateTarget, $text, $utf8NoBom)
+
+    'PASS: re-audit round shape rules, late and repeats fields, contested and MINOR reasons, later-round bypass, and round 2 end to end.'
+    'PASS: schema, identity, marker rejection, legacy STEP rejection, unclosed fence rejection, findings gate, generic targets, no-block drafts, controlled drafts, stale snapshot rejection, traversal, and reparse containment.'
+
+    # External input sources: alias paths and source objects (shape rules first).
+    function New-ShapeInput([hashtable] $Extra = @{}) {
+        $shapeInput = @{ id = 'IN-A'; path = 'alias:docs/brief.md'; role = 'source'; impacted_ids = @('S1') }
+        foreach ($key in $Extra.Keys) { $shapeInput[$key] = $Extra[$key] }
+        return $shapeInput
+    }
+    function New-ShapeInputRecord([hashtable] $Extra = @{}) {
+        return New-ShapeRecord @{ inputs = @(New-ShapeInput $Extra) }
+    }
+    $fullRevision = 'a' * 40
+    Assert-ShapePasses (New-ShapeInputRecord @{}) 'alias file without source'
+    Assert-ShapePasses (New-ShapeInputRecord @{ source = @{ kind = 'file' } }) 'alias file with explicit file source'
+    Assert-ShapePasses (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = @('a.md') } }) 'alias fileset with one-element files'
+    Assert-ShapePasses (New-ShapeInputRecord @{ path = 'alias:docs'; source = @{ kind = 'fileset'; files = @('a.md', 'nested/b.md') } }) 'alias-only fileset root'
+    Assert-ShapePasses (New-ShapeInputRecord @{ path = 'features/050-gate/specs'; source = @{ kind = 'fileset'; files = @('a.md') } }) 'repository-relative fileset'
+    Assert-ShapePasses (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision'; revision = $fullRevision } }) 'alias-only revision'
+    Assert-ShapePasses (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision'; revision = $fullRevision.ToUpperInvariant() } }) 'uppercase revision id'
+    $oneFilesJson = New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = @('a.md') } }
+    Assert ($oneFilesJson -match '"files":\s*\[\s*"a\.md"\s*\]') 'one-element files must serialize as an array'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'features/050-gate/REFINEMENT.md'; source = @{ kind = 'file' } }) 'plain repository files take no source' 'repository file with file source'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'features/050-gate/REFINEMENT.md'; source = @{ kind = 'revision'; revision = $fullRevision } }) 'alias-only path' 'repository path with revision source'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:gitsrc/notes.txt'; source = @{ kind = 'revision'; revision = $fullRevision } }) 'alias-only path' 'alias with relative part and revision source'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ kind = 'folder' } }) 'kind must be' 'unknown source kind'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ kind = 'File' } }) 'kind must be' 'source kind wrong case'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ Kind = 'file' } }) 'kind must be' 'source key wrong case'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ kind = $null } }) 'kind must be' 'null source kind'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ files = @('a.md') } }) 'kind must be' 'source without kind'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = 'fileset' }) 'must be an object' 'scalar source'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = $null }) 'must be an object' 'null source'
+    Assert-ShapeError (New-ShapeInputRecord @{ source = @{ kind = 'file'; files = @('a.md') } }) 'unknown key' 'file source with files key'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = @('a.md'); revision = $fullRevision } }) 'unknown key' 'fileset source with revision key'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision'; revision = $fullRevision; files = @('a.md') } }) 'unknown key' 'revision source with files key'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = @() } }) 'non-empty array' 'empty fileset files'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = 'a.md' } }) 'non-empty array' 'fileset files as string'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset' } }) 'non-empty array' 'fileset without files'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/specs'; source = @{ kind = 'fileset'; files = @(' ') } }) 'non-blank' 'blank fileset member'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision'; revision = 'a' * 39 } }) 'exactly 40' 'short revision'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision'; revision = ('g' * 40) } }) 'exactly 40' 'non-hex revision'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:gitsrc'; source = @{ kind = 'revision' } }) 'exactly 40' 'revision without id'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:Docs/brief.md' }) 'lowercase slug' 'uppercase alias name'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:' }) 'lowercase slug' 'empty alias name'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/' }) 'must not end with a slash' 'alias trailing slash'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs//brief.md' }) 'empty, current or parent segment' 'alias empty segment'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/../brief.md' }) 'parent segment' 'alias parent segment'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs/./brief.md' }) 'parent segment' 'alias current segment'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs' }) 'alias-only path requires' 'alias-only path without source is a file'
+    Assert-ShapeError (New-ShapeInputRecord @{ path = 'alias:docs'; source = @{ kind = 'file' } }) 'alias-only path requires' 'alias-only path with file source'
+
+    # Writer and gate: alias file, fileset and revision inputs over a temp catalog.
+    $sourcesRoot = Join-Path $tempRoot 'external-sources'
+    $docsRoot = Join-Path $sourcesRoot 'docs'
+    $specsRoot = Join-Path $docsRoot 'specs'
+    New-Item -ItemType Directory -Path $specsRoot -Force | Out-Null
+    $briefFile = Join-Path $docsRoot 'brief.md'
+    $specAFile = Join-Path $specsRoot 'a.md'
+    $specBFile = Join-Path $specsRoot 'b.md'
+    $externalPlanFile = Join-Path $docsRoot 'external-plan.md'
+    [System.IO.File]::WriteAllText($briefFile, "# Brief v1`n", $utf8NoBom)
+    [System.IO.File]::WriteAllText($specAFile, "A v1`n", $utf8NoBom)
+    [System.IO.File]::WriteAllText($specBFile, "B v1`n", $utf8NoBom)
+    [System.IO.File]::WriteAllText($externalPlanFile, $text, $utf8NoBom)
+
+    $gitSourceRoot = Join-Path $sourcesRoot 'gitsrc'
+    $gitAvailable = $null -ne (Get-Command git -ErrorAction SilentlyContinue)
+    $aliasEntries = [System.Collections.Generic.List[object]]::new()
+    $aliasEntries.Add([ordered]@{ name = 'docs'; root = $docsRoot; kind = 'directory' })
+    $revisionCommit = ''
+    $revisionTree = ''
+    if ($gitAvailable) {
+        New-Item -ItemType Directory -Path $gitSourceRoot -Force | Out-Null
+        [System.IO.File]::WriteAllText((Join-Path $gitSourceRoot 'notes.txt'), "notes v1`n", $utf8NoBom)
+        $gitInit = & git -C $gitSourceRoot -c init.defaultBranch=main init -q 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "git fixture init failed: $gitInit" }
+        $gitAdd = & git -C $gitSourceRoot add -- notes.txt 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "git fixture add failed: $gitAdd" }
+        $gitCommit = & git -C $gitSourceRoot -c user.name=t -c user.email=t@t.t -c commit.gpgsign=false commit -q -m 'test: seed fixture' 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "git fixture commit failed: $gitCommit" }
+        $revisionCommit = (& git -C $gitSourceRoot rev-parse HEAD).Trim()
+        $revisionTree = (& git -C $gitSourceRoot rev-parse 'HEAD^{tree}').Trim()
+        $aliasEntries.Add([ordered]@{ name = 'gitsrc'; root = $gitSourceRoot; kind = 'git' })
+    }
+    else {
+        Write-Output 'SKIP: revision source cases; git is not available.'
+    }
+    $catalogPath = Join-Path $sourcesRoot 'aliases.json'
+    $catalogDocument = [ordered]@{ schema = 'delivery-input-aliases/v1'; aliases = $aliasEntries.ToArray() }
+    [System.IO.File]::WriteAllText($catalogPath, ($catalogDocument | ConvertTo-Json -Depth 6), $utf8NoBom)
+
+    function Get-RawFileSha256([string] $Path) {
+        return [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData([System.IO.File]::ReadAllBytes($Path)))
+    }
+    function New-SourceRecordJson([object[]] $Inputs) {
+        return ConvertTo-RecordJson @{ schema = 'delivery-review-record/v1'; state = 'reviewed'; inputs = @($Inputs); reviewers = (New-ReviewerBlock); dispositions = @() }
+    }
+    function Invoke-SourceWriter([string] $RecordPath, [string] $Json, [AllowNull()][string] $CatalogPath) {
+        $params = @{
+            Action = 'save'; RepoPath = $tempRoot; TargetPath = $gateTargetRel; TargetKind = 'PLAN.md'; Stage = 'delivery_unit_plan_review'
+            ArtifactText = $text; RecordPath = $RecordPath; RecordJson = $Json
+        }
+        if (-not [string]::IsNullOrWhiteSpace($CatalogPath)) { $params['AliasCatalogPath'] = $CatalogPath }
+        try {
+            $output = & $writer @params 2>&1 | Out-String
+            return [pscustomobject]@{ output = $output.Trim(); code = 0 }
+        }
+        catch {
+            return [pscustomobject]@{ output = [string]$_.Exception.Message; code = 1 }
+        }
+    }
+    function Save-SourceRecord([string] $Name, [string] $Json, [AllowNull()][string] $CatalogPath) {
+        return Invoke-SourceWriter (Join-Path $tempRoot ('features\050-gate\delivery-reviews\' + $Name + '.json')) $Json $CatalogPath
+    }
+    function Read-SourceRecord([string] $Name) {
+        return [System.IO.File]::ReadAllText((Join-Path $tempRoot ('features\050-gate\delivery-reviews\' + $Name + '.json'))) | ConvertFrom-Json
+    }
+    function Invoke-SourceGate([string] $Name, [AllowNull()][string] $CatalogPath) {
+        $gateArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $gateScript, '-RepoPath', $tempRoot,
+            '-TargetPath', $gateTargetRel, '-RecordPath', ('features/050-gate/delivery-reviews/' + $Name + '.json'))
+        if (-not [string]::IsNullOrWhiteSpace($CatalogPath)) { $gateArgs += @('-AliasCatalogPath', $CatalogPath) }
+        $output = (& $childHost @gateArgs 2>&1 | Out-String).Trim()
+        $code = $LASTEXITCODE
+        $verdict = $null
+        try { $verdict = $output | ConvertFrom-Json } catch { $verdict = $null }
+        return [pscustomobject]@{ code = $code; verdict = $verdict; output = $output }
+    }
+
+    $srcFileInput = @{ id = 'SRC-FILE'; path = 'alias:docs/brief.md'; role = 'accepted refinement'; impacted_ids = @('S1') }
+    $srcFileSave = Save-SourceRecord 'src-file' (New-SourceRecordJson @($srcFileInput)) $catalogPath
+    Assert ($srcFileSave.code -eq 0) "Alias file input must save: $($srcFileSave.output)"
+    $srcFileRaw = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-file.json'))
+    Assert (-not $srcFileRaw.Contains($sourcesRoot) -and -not $srcFileRaw.Contains($sourcesRoot.Replace('\', '/'))) 'Saved record must not contain the alias root.'
+    $srcFilePersisted = Read-SourceRecord 'src-file'
+    Assert ($srcFilePersisted.inputs[0].path -ceq 'alias:docs/brief.md') 'Alias file path must be recorded as written.'
+    Assert ($srcFilePersisted.inputs[0].sha256 -ceq (Get-RawFileSha256 $briefFile)) 'Alias file input must record the SHA-256 of its raw bytes.'
+    Assert (-not $srcFilePersisted.inputs[0].PSObject.Properties['source']) 'Alias file without source must not echo a source.'
+
+    $srcSetInput = @{ id = 'SRC-SET'; path = 'alias:docs/specs'; role = 'accepted refinement'; impacted_ids = @('S1'); source = @{ kind = 'fileset'; files = @('b.md', 'a.md') } }
+    $srcSetSave = Save-SourceRecord 'src-set' (New-SourceRecordJson @($srcSetInput)) $catalogPath
+    Assert ($srcSetSave.code -eq 0) "Alias fileset input must save: $($srcSetSave.output)"
+    $srcSetPersisted = Read-SourceRecord 'src-set'
+    $expectedSetIdentity = Get-IndependentSha256Hex ('[{"path":"a.md","sha256":"' + (Get-RawFileSha256 $specAFile) + '"},{"path":"b.md","sha256":"' + (Get-RawFileSha256 $specBFile) + '"}]')
+    Assert ($srcSetPersisted.inputs[0].sha256 -ceq $expectedSetIdentity) 'Fileset input must record the sorted per-file identity.'
+    Assert ($srcSetPersisted.inputs[0].source.kind -ceq 'fileset' -and @($srcSetPersisted.inputs[0].source.files).Count -eq 2) 'Fileset input must echo its source.'
+
+    if ($gitAvailable) {
+        $srcRevInput = @{ id = 'SRC-REV'; path = 'alias:gitsrc'; role = 'accepted refinement'; impacted_ids = @('S1'); source = @{ kind = 'revision'; revision = $revisionCommit } }
+        $srcRevSave = Save-SourceRecord 'src-rev' (New-SourceRecordJson @($srcRevInput)) $catalogPath
+        Assert ($srcRevSave.code -eq 0) "Revision input must save: $($srcRevSave.output)"
+        $srcRevPersisted = Read-SourceRecord 'src-rev'
+        $expectedRevIdentity = Get-IndependentSha256Hex ('{"kind":"revision","alias":"gitsrc","commit":"' + $revisionCommit + '","tree":"' + $revisionTree + '"}')
+        Assert ($srcRevPersisted.inputs[0].sha256 -ceq $expectedRevIdentity) 'Revision input must record the commit and tree identity.'
+        Assert ($srcRevPersisted.inputs[0].source.revision -ceq $revisionCommit) 'Revision input must echo its revision.'
+    }
+
+    $unknownAliasInput = @{ id = 'SRC-BAD'; path = 'alias:nope/brief.md'; role = 'source'; impacted_ids = @('S1') }
+    $unknownAlias = Save-SourceRecord 'src-unknown' (New-SourceRecordJson @($unknownAliasInput)) $catalogPath
+    Assert ($unknownAlias.code -ne 0 -and $unknownAlias.output -match "Input 'SRC-BAD': alias_unknown: ") "Unknown alias must fail the writer with its code and input id: $($unknownAlias.output)"
+    Assert (-not (Test-Path -LiteralPath (Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-unknown.json'))) 'Unknown alias must not write a record.'
+    $noCatalog = Save-SourceRecord 'src-nocatalog' (New-SourceRecordJson @($srcFileInput)) $null
+    Assert ($noCatalog.code -ne 0 -and $noCatalog.output -match "Input 'SRC-FILE': alias_catalog_missing: ") "Alias input without a catalog must fail with alias_catalog_missing: $($noCatalog.output)"
+    $driveEscape = Save-SourceRecord 'src-drive' (New-SourceRecordJson @(@{ id = 'SRC-ESC'; path = 'alias:docs/C:/outside.txt'; role = 'source'; impacted_ids = @('S1') })) $catalogPath
+    Assert ($driveEscape.code -ne 0 -and $driveEscape.output -match "Input 'SRC-ESC': source_path_invalid: ") "Drive-form alias path must fail with source_path_invalid: $($driveEscape.output)"
+    $parentEscape = Save-SourceRecord 'src-parent' (New-SourceRecordJson @(@{ id = 'SRC-UP'; path = 'alias:docs/../brief.md'; role = 'source'; impacted_ids = @('S1') })) $catalogPath
+    Assert ($parentEscape.code -ne 0 -and $parentEscape.output -match 'parent segment' -and -not (Test-Path -LiteralPath (Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-parent.json'))) "Parent-segment alias path must fail before any record is written: $($parentEscape.output)"
+
+    $gate = Invoke-SourceGate 'src-file' $catalogPath
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Alias file input must pass the gate: $($gate.output)"
+    $gate = Invoke-SourceGate 'src-set' $catalogPath
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Alias fileset input must pass the gate: $($gate.output)"
+    if ($gitAvailable) {
+        $gate = Invoke-SourceGate 'src-rev' $catalogPath
+        Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Revision input must pass the gate: $($gate.output)"
+    }
+
+    [System.IO.File]::WriteAllText($briefFile, "# Brief v2`n", $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-file' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'SRC-FILE')) "Edited alias file must block as inputs_changed naming SRC-FILE: $($gate.output)"
+    [System.IO.File]::WriteAllText($briefFile, "# Brief v1`n", $utf8NoBom)
+
+    [System.IO.File]::WriteAllText($specAFile, "A v2`n", $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-set' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'SRC-SET')) "Changed listed fileset member must block as inputs_changed: $($gate.output)"
+    [System.IO.File]::WriteAllText($specAFile, "A v1`n", $utf8NoBom)
+
+    $specCFile = Join-Path $specsRoot 'c.md'
+    [System.IO.File]::WriteAllText($specCFile, "C v1`n", $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-set' $catalogPath
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "A file added to the directory but not to the recorded list is not part of the identity: $($gate.output)"
+    Remove-Item -LiteralPath $specCFile -Force
+
+    $setRaw = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-set.json'))
+    $setDropped = [regex]::Replace($setRaw, '"files":\s*\[\s*"b\.md",\s*"a\.md"\s*\]', '"files": ["a.md"]')
+    Assert ($setDropped -cne $setRaw) 'Fileset tamper fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-set-dropped.json'), $setDropped, $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-set-dropped' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'SRC-SET')) "Tampered source.files that changes the set must block as inputs_changed: $($gate.output)"
+
+    $setReordered = [regex]::Replace($setRaw, '"files":\s*\[\s*"b\.md",\s*"a\.md"\s*\]', '"files": ["a.md", "b.md"]')
+    Assert ($setReordered -cne $setRaw) 'Fileset reorder fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-set-reordered.json'), $setReordered, $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-set-reordered' $catalogPath
+    Assert ($gate.code -eq 0 -and $gate.verdict.reason -eq 'reviewed') "Reordered source.files is not part of the identity and stays reviewed: $($gate.output)"
+
+    $gate = Invoke-SourceGate 'src-file' $null
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'input_source_unavailable' -and (@($gate.verdict.details) -contains 'SRC-FILE: alias_catalog_missing')) "Gate without a catalog must block as input_source_unavailable: $($gate.output)"
+
+    $srcFileUnknownRaw = [regex]::Replace($srcFileRaw, '"path":\s*"alias:docs/brief\.md"', '"path": "alias:nope/brief.md"')
+    Assert ($srcFileUnknownRaw -cne $srcFileRaw) 'Unknown alias fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-file-unknown.json'), $srcFileUnknownRaw, $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-file-unknown' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'input_source_unavailable' -and (@($gate.verdict.details) -contains 'SRC-FILE: alias_unknown')) "Unknown alias must block as input_source_unavailable: $($gate.output)"
+
+    Move-Item -LiteralPath $briefFile -Destination ($briefFile + '.moved') -Force
+    $gate = Invoke-SourceGate 'src-file' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'input_source_unavailable' -and (@($gate.verdict.details) -contains 'SRC-FILE: source_missing')) "Missing alias file must block as input_source_unavailable: $($gate.output)"
+    Move-Item -LiteralPath ($briefFile + '.moved') -Destination $briefFile -Force
+
+    if ($gitAvailable) {
+        $srcRevRaw = [System.IO.File]::ReadAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-rev.json'))
+        $srcRevUnknownRaw = $srcRevRaw.Replace($revisionCommit, ('f' * 40))
+        Assert ($srcRevUnknownRaw -cne $srcRevRaw) 'Unreachable revision fixture must change the record.'
+        [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-rev-unknown.json'), $srcRevUnknownRaw, $utf8NoBom)
+        $gate = Invoke-SourceGate 'src-rev-unknown' $catalogPath
+        Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'input_source_unavailable' -and (@($gate.verdict.details) -contains 'SRC-REV: revision_unavailable')) "Unreachable revision must block as input_source_unavailable: $($gate.output)"
+    }
+
+    $overlongMember = 'a' * 33000
+    $setOverlong = [regex]::Replace($setRaw, '"files":\s*\[\s*"b\.md",\s*"a\.md"\s*\]', ('"files": ["' + $overlongMember + '"]'))
+    Assert ($setOverlong -cne $setRaw) 'Overlong member fixture must change the record.'
+    [System.IO.File]::WriteAllText((Join-Path $tempRoot 'features\050-gate\delivery-reviews\src-set-overlong.json'), $setOverlong, $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-set-overlong' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'input_source_unavailable' -and @($gate.verdict.details).Count -eq 1 -and @($gate.verdict.details)[0].StartsWith('SRC-SET: ', [System.StringComparison]::Ordinal)) "A non-code failure on a source-bearing input must block as input_source_unavailable: $($gate.output)"
+    Assert (-not (@($gate.verdict.details)[0] -cmatch '^SRC-SET: source_')) "Overlong member must fail outside the coded source errors: $($gate.output)"
+
+    $srcPlanInput = @{ id = 'SRC-PLAN'; path = 'alias:docs/external-plan.md'; role = 'accepted refinement'; impacted_ids = @('S1') }
+    $srcPlanSave = Save-SourceRecord 'src-plan' (New-SourceRecordJson @($srcPlanInput)) $catalogPath
+    Assert ($srcPlanSave.code -eq 0) "Alias plan input must save: $($srcPlanSave.output)"
+    $srcPlanPersisted = Read-SourceRecord 'src-plan'
+    Assert ($srcPlanPersisted.inputs[0].sha256 -ceq (Get-RawFileSha256 $externalPlanFile)) 'Alias plan input must be identified by raw bytes, not by its normative identity.'
+    $externalOperational = $text.Replace('"status":"PENDING"', '"status":"COMPLETED"')
+    [System.IO.File]::WriteAllText($externalPlanFile, $externalOperational, $utf8NoBom)
+    $gate = Invoke-SourceGate 'src-plan' $catalogPath
+    Assert ($gate.code -eq 3 -and $gate.verdict.reason -eq 'inputs_changed' -and (@($gate.verdict.details) -contains 'SRC-PLAN')) "Operational edit in an alias plan must block as inputs_changed (raw bytes): $($gate.output)"
+    [System.IO.File]::WriteAllText($externalPlanFile, $text, $utf8NoBom)
+
+    'PASS: external input source shape rules, alias and source writer records, gate verdicts (inputs_changed and input_source_unavailable), and raw-byte alias plan identity.'
 } finally {
     if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 }

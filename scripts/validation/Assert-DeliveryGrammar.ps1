@@ -381,5 +381,83 @@ Assert-GrammarError (New-GrammarStepText ('{"schema":"delivery-step/v1","id":"US
 Assert-GrammarError (New-GrammarStepText ('{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","evidence_refs":[{"name":"plan-snapshot","path":"p","sha256":"' + $shaUpper + '","hidden_note":"x"}]}')) 'unknown_property' 'Should_ReturnUnknownProperty_When_EvidenceRefHasExtraKey'
 Assert-GrammarError (New-GrammarStepText ('{"schema":"delivery-step/v1","id":"US01-S1","status":"COMPLETED","evidence_refs":[{"name":"plan-snapshot","sha256":"' + $shaUpper + '"}]}')) 'missing_field' 'Should_ReturnMissingField_When_EvidenceRefOmitsPath'
 
+# Plan dependency declarations
+
+$depPathA = 'features/001-demo/US01/PLAN.md'
+$depPathB = 'features/001-demo/TS02/PLAN.md'
+$depHexA = 'A' * 64
+$depHexB = 'B' * 64
+$depStepsTail = @('## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '')
+
+function New-DependencyText([string[]]$Lines) {
+    return ((@('# Plan', '', 'Normative body.', '', '## Plan dependencies', '') + $Lines + @('') + $depStepsTail) -join $lf)
+}
+
+$depOne = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=US01-S1"))
+Assert-Equal '0' ([string]@($depOne.Errors).Count) 'Should_ReturnNoErrors_When_OneDependencyIsValid'
+Assert-Equal '1' ([string]@($depOne.Dependencies).Count) 'Should_ReturnOneDependency_When_OneRequiresLineIsValid'
+Assert-Equal $depPathA ([string]$depOne.Dependencies[0].Path) 'Should_ReturnPath_When_RequiresLineIsValid'
+Assert-Equal $depHexA ([string]$depOne.Dependencies[0].Identity) 'Should_ReturnIdentity_When_RequiresLineIsValid'
+Assert-Equal '1' ([string]@($depOne.Dependencies[0].Steps).Count) 'Should_ReturnOneStep_When_StepsListHasOneId'
+Assert-True ($depOne.Dependencies[0].Steps -is [System.Array]) 'Should_KeepStepsArray_When_StepsListHasOneId'
+Assert-Equal '7' ([string]$depOne.Dependencies[0].Line) 'Should_ReturnLineNumber_When_RequiresLineIsValid'
+
+$depTwo = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=US01-S1,US01-S2", "", "Requires plan: $depPathB identity=$depHexB steps=TS02-S1"))
+Assert-Equal '0' ([string]@($depTwo.Errors).Count) 'Should_ReturnNoErrors_When_TwoDependenciesAreValid'
+Assert-Equal '2' ([string]@($depTwo.Dependencies).Count) 'Should_ReturnTwoDependencies_When_TwoRequiresLinesAreValid'
+Assert-Equal '2' ([string]@($depTwo.Dependencies[0].Steps).Count) 'Should_ReturnBothSteps_When_StepsListHasTwoIds'
+Assert-Equal $depPathB ([string]$depTwo.Dependencies[1].Path) 'Should_ReturnSecondPath_When_TwoRequiresLinesAreValid'
+
+$depNone = Get-DeliveryPlanDependencies -Text (New-GrammarPlan)
+Assert-Equal '0' ([string]@($depNone.Dependencies).Count) 'Should_ReturnNoDependencies_When_HeadingAbsent'
+Assert-Equal '0' ([string]@($depNone.Errors).Count) 'Should_ReturnNoErrors_When_HeadingAbsent'
+$depEmptySection = Get-DeliveryPlanDependencies -Text (New-DependencyText @())
+Assert-Equal '0' ([string]@($depEmptySection.Dependencies).Count) 'Should_ReturnNoDependencies_When_HeadingHasNoLines'
+Assert-Equal '0' ([string]@($depEmptySection.Errors).Count) 'Should_ReturnNoErrors_When_HeadingHasNoLines'
+
+$depLowerHex = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$($depHexA.ToLowerInvariant()) steps=US01-S1"))
+Assert-IssueCode $depLowerHex.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_IdentityIsLowercase'
+Assert-Equal '0' ([string]@($depLowerHex.Dependencies).Count) 'Should_ExcludeDependency_When_IdentityIsLowercase'
+
+$depBadPathParent = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: features/001-demo/../002-x/US01/PLAN.md identity=$depHexA steps=US01-S1"))
+Assert-IssueCode $depBadPathParent.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_PathContainsParentSegment'
+$depBadPathDrive = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: C:/repo/features/001-demo/US01/PLAN.md identity=$depHexA steps=US01-S1"))
+Assert-IssueCode $depBadPathDrive.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_PathHasDrive'
+$depBadPathName = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: features/001-demo/US01/notes.md identity=$depHexA steps=US01-S1"))
+Assert-IssueCode $depBadPathName.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_PathIsNotPlanFile'
+
+$depEmptySteps = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps="))
+Assert-IssueCode $depEmptySteps.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_StepsAreEmpty'
+$depTrailingComma = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=US01-S1,"))
+Assert-IssueCode $depTrailingComma.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_StepsHaveEmptyToken'
+$depBadStepId = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=-US01"))
+Assert-IssueCode $depBadStepId.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_StepIdIsMalformed'
+
+$depDuplicate = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=US01-S1", "Requires plan: $depPathA identity=$depHexB steps=US01-S2"))
+Assert-IssueCode $depDuplicate.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_PathRepeats'
+Assert-Equal '1' ([string]@($depDuplicate.Dependencies).Count) 'Should_KeepFirstDependency_When_PathRepeats'
+
+$depStray = Get-DeliveryPlanDependencies -Text (New-DependencyText @("Requires plan: $depPathA identity=$depHexA steps=US01-S1", "Note: stray text"))
+Assert-IssueCode $depStray.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_StrayLineUnderHeading'
+Assert-Equal '1' ([string]@($depStray.Dependencies).Count) 'Should_KeepValidDependency_When_StrayLineAlsoPresent'
+
+$depFencedHeading = Get-DeliveryPlanDependencies -Text (@('# Plan', '', '```markdown', '## Plan dependencies', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '```', '') -join $lf)
+Assert-Equal '0' ([string]@($depFencedHeading.Dependencies).Count) 'Should_IgnoreDependency_When_HeadingIsInsideFence'
+Assert-Equal '0' ([string]@($depFencedHeading.Errors).Count) 'Should_ReturnNoErrors_When_HeadingIsInsideFence'
+
+$depFencedLine = Get-DeliveryPlanDependencies -Text (New-DependencyText @('```', 'Example text under the heading', '```', "Requires plan: $depPathA identity=$depHexA steps=US01-S1"))
+Assert-Equal '1' ([string]@($depFencedLine.Dependencies).Count) 'Should_IgnoreFencedLinesUnderHeading_When_FenceIsClosed'
+Assert-Equal '0' ([string]@($depFencedLine.Errors).Count) 'Should_ReturnNoErrors_When_FenceUnderHeadingIsClosed'
+
+$depStrayBeforeHeading = Get-DeliveryPlanDependencies -Text ((@('# Plan', '', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '', '## Plan dependencies', '', '## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '') -join $lf))
+Assert-IssueCode $depStrayBeforeHeading.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_RequiresLineIsBeforeHeading'
+$depStrayAfterSection = Get-DeliveryPlanDependencies -Text ((@('# Plan', '', '## Notes', '', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '', '## Plan dependencies', '', '## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '') -join $lf))
+Assert-IssueCode $depStrayAfterSection.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_RequiresLineIsAfterOtherSection'
+$depStrayNoHeading = Get-DeliveryPlanDependencies -Text ((@('# Plan', '', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '', '## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '') -join $lf))
+Assert-IssueCode $depStrayNoHeading.Errors 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_RequiresLineHasNoHeading'
+Assert-Equal '0' ([string]@($depStrayNoHeading.Dependencies).Count) 'Should_NotDeclareDependency_When_RequiresLineIsOutsideHeading'
+$depFencedOutside = Get-DeliveryPlanDependencies -Text ((@('# Plan', '', '```text', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '```', '', '## Plan dependencies', '', '## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '') -join $lf))
+Assert-Equal '0' ([string]@($depFencedOutside.Errors).Count) 'Should_IgnoreRequiresLine_When_InsideFencedCodeOutsideHeading'
+
 Write-Output ('PASS: {0} delivery grammar assertions.' -f $passed)
 exit 0

@@ -16,6 +16,8 @@
     { "source": "scripts/runtime/Write-DeliveryReviewRecord.ps1", "destination": "runtime/Write-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
     { "source": "scripts/runtime/New-DeliveryReviewRecord.ps1", "destination": "runtime/New-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
     { "source": "scripts/runtime/Test-DeliveryReviewRecord.ps1", "destination": "runtime/Test-DeliveryReviewRecord.ps1", "class": "runtime", "caller": "integrated-delivery gates" },
+    { "source": "scripts/runtime/Test-DeliveryReviewBudget.ps1", "destination": "runtime/Test-DeliveryReviewBudget.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
+    { "source": "scripts/runtime/Get-DeliveryInputSourceIdentity.ps1", "destination": "runtime/Get-DeliveryInputSourceIdentity.ps1", "class": "runtime", "caller": "integrated-delivery-review" },
     { "source": "scripts/runtime/Test-DeliveryPlanPreflight.ps1", "destination": "runtime/Test-DeliveryPlanPreflight.ps1", "class": "runtime", "caller": "integrated-delivery-plan" },
     { "source": "scripts/runtime/Invoke-DeliveryEvidence.ps1", "destination": "runtime/Invoke-DeliveryEvidence.ps1", "class": "runtime", "caller": "integrated-delivery-implement" },
     { "source": "scripts/ledger/Resolve-DeliveryExecution.ps1", "destination": "ledger/Resolve-DeliveryExecution.ps1", "class": "runtime", "caller": "integrated-delivery-implement" },
@@ -39,7 +41,9 @@
     { "source": "scripts/_lib/Get-ToolkitRelativePath.ps1", "destination": "_lib/Get-ToolkitRelativePath.ps1", "class": "support", "caller": "session and ledger runtime scripts above" },
     { "source": "scripts/_lib/Test-ToolkitFileReadback.ps1", "destination": "_lib/Test-ToolkitFileReadback.ps1", "class": "support", "caller": "session gate and PLAN ledger claim runtime scripts above" },
     { "source": "scripts/_lib/DeliveryGrammar.ps1", "destination": "_lib/DeliveryGrammar.ps1", "class": "support", "caller": "integrated-delivery ledger and review-record scripts" },
+    { "source": "scripts/_lib/DeliveryAtomicWrite.ps1", "destination": "_lib/DeliveryAtomicWrite.ps1", "class": "support", "caller": "integrated-delivery ledger scripts" },
     { "source": "scripts/_lib/DeliveryReviewRecord.ps1", "destination": "_lib/DeliveryReviewRecord.ps1", "class": "support", "caller": "integrated-delivery review-record scripts" },
+    { "source": "scripts/_lib/DeliveryInputSources.ps1", "destination": "_lib/DeliveryInputSources.ps1", "class": "support", "caller": "integrated-delivery review-record scripts" },
     { "source": "scripts/_lib/Format-O3PlanProgressTable.ps1", "destination": "_lib/Format-O3PlanProgressTable.ps1", "class": "support", "caller": "O3 artifact preflight complete-step status table" }
   ]
 }

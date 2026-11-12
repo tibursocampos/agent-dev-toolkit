@@ -98,6 +98,7 @@ No other normalization is applied. Trailing spaces are significant.
 | `step_depends_missing` | A declared step has no `Depends on:` line (section 10). |
 | `step_validation_missing` | A declared step has no `Validation:` line, or its text is empty (section 10). |
 | `evidence_declaration_invalid` | An `Evidence:` or `Needs evidence:` line has a name that fails the slug pattern, a malformed `Needs evidence` token, a duplicate name within one step's `Evidence`, or an empty token between commas (section 10). |
+| `plan_dependency_invalid` | A `## Plan dependencies` heading or `Requires plan:` line is malformed (section 10.2). |
 
 Key paths: messages name the block type and the key. Nested keys use a dotted path (for example `operator_choice.choice` or `authorization.kind`). Array entries use an index (for example `repositories[0].path` or `validation_results[1].command`). `unknown_property`, `missing_field`, and `invalid_field` apply at every nesting level with the same meaning as at the top level.
 
@@ -174,7 +175,7 @@ Markers inside fenced code blocks are not removed, so they remain in the project
 | `completed` | Optional | integer | Count of COMPLETED steps. |
 | `total` | Optional | integer | Count of declared steps. |
 | `approval_identity` | Optional | string | Copy of the APPROVAL `identity` at write time. Informational. |
-| `authorization` | Optional | object | Evidence of the finite authorization. Inner allowlist: `kind`, `scope`, `granted_utc`, `plan_identity` (strings) and `step_ids` (array of strings). No inner key is required. Other inner keys are `unknown_property`. |
+| `authorization` | Optional | object | Evidence of the cadence authorization. Inner allowlist: `kind`, `scope`, `granted_utc`, `plan_identity` (strings) and `step_ids` (array of strings). No inner key is required. Other inner keys are `unknown_property`. `scope` is optional and informational (for example `step_by_step` with kind `step`); the resolver does not validate it, and `kind` with `step_ids` carry the enforced scope. |
 
 ```json
 {
@@ -185,7 +186,7 @@ Markers inside fenced code blocks are not removed, so they remain in the project
   "total": 2,
   "approval_identity": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
   "authorization": {
-    "kind": "finite",
+    "kind": "step",
     "scope": "step_by_step",
     "granted_utc": "2026-11-11T12:00:00Z",
     "plan_identity": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
@@ -193,6 +194,8 @@ Markers inside fenced code blocks are not removed, so they remain in the project
   }
 }
 ```
+
+`authorization` semantics. `kind` is `step` (step_by_step) or `continuous`. `plan_identity` is the approved identity the choice covers and must equal the current plan identity (case-sensitive). `step_ids` is a non-empty array for `step`; for `continuous`, omitting it covers every eligible step of that plan, and a list restricts it to those steps. The resolver releases a step only when the record matches the switch passed (`-StepAuthorization` or `-ContinuousAuthorization`), the identity is current, and the step is in scope. Denial reasons: `authorization_record_missing`, `authorization_kind_mismatch`, `authorization_identity_mismatch`, `authorization_scope_excludes_step`. The record never covers other plans, Git, publication, or external effects, and the resolver does not authenticate the operator. See `scripts/ledger/Resolve-DeliveryExecution.ps1` and the decisions table in `EXECUTION.md`.
 
 ### 6.2 CHECKPOINT (`delivery-checkpoint/v1`)
 
@@ -442,3 +445,81 @@ Preflight issue codes (`issues[].code`):
 Accepted plan paths: `features/NNN-slug/scratch/delivery-review/<name>.md` (draft snapshot) or the canonical `features/NNN-slug/(USnn|TSnn)/PLAN.md`; any other path is `plan_path_invalid`.
 
 The preflight is read-only. It writes JSON `{ ok, identity, issues: [ { code, message, step } ] }` to stdout. Exit codes: 0 when ok, 3 when there are issues, 1 on error.
+
+### 10.2 Plan dependencies and input identity
+
+Declaration (normative text, outside operational blocks):
+
+- `## Plan dependencies` is an optional level-2 heading, with an optional leading `<n>. ` as in `## Steps`. Without the heading the plan has no plan dependencies. Lines inside fenced code blocks are ignored (section 1.1).
+- Each dependency is one line under the heading:
+
+```markdown
+Requires plan: features/NNN-slug/US01/PLAN.md identity=E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855 steps=US01-S2
+```
+
+- `<path>` is a repository-relative `features/NNN-slug/(US|TS)nn/PLAN.md`. `identity` is the 64-character uppercase normative identity (section 4) of the predecessor when this plan was approved. `steps` lists one or more predecessor step ids that this plan needs. A non-blank line under the heading that does not match this form is a malformed declaration (`plan_dependency_invalid`). A second `## Plan dependencies` heading is `plan_dependency_invalid`. A `Requires plan:` line outside the heading, outside fenced code, is `plan_dependency_invalid`. A dependency on the plan itself is `plan_dependency_invalid` in the resolver and `plan_dependency_cycle` in the preflight.
+
+Resolver reasons. `scripts/ledger/Resolve-DeliveryExecution.ps1` checks the whole plan declaration for direct predecessors only, before the directory baseline check. The first failure denies, with the predecessor path in `dependency`. Checks run in this order:
+
+1. `plan_dependency_missing`: the predecessor file is absent.
+2. `plan_dependency_invalid`: the declaration is malformed, the predecessor fails the grammar, or a listed step is absent from its `## Steps`.
+3. `plan_dependency_identity_changed`: the predecessor's recomputed normative identity differs from the declared `identity`.
+4. `plan_dependency_not_approved`: the predecessor APPROVAL is missing, not `approved`, or its `identity` is stale.
+5. `plan_dependency_step_incomplete`: a listed step is not `COMPLETED`.
+6. `plan_dependency_evidence_missing`: a listed step is `COMPLETED` but its `acceptance_evidence` is missing or blank.
+
+Preflight codes (`scripts/runtime/Test-DeliveryPlanPreflight.ps1`). The preflight follows the dependency chain. It does not require predecessor steps to be `COMPLETED`.
+
+- `plan_dependency_invalid` and `plan_dependency_missing`: as in the resolver. The preflight also reports `plan_dependency_invalid` for an unsafe path and for a predecessor whose delivery blocks do not parse.
+- `plan_dependency_identity_changed`: the declared `identity` differs from the predecessor's current identity.
+- `plan_dependency_step_unknown`: a listed step is not declared in the predecessor's `## Steps`.
+- `plan_dependency_cycle`: the chain returns to the plan itself or to a plan already on the same chain. The visited set is per chain, so a diamond is not a cycle. More than 20 `Requires plan:` hops is `plan_dependency_cycle` with a depth-limit message.
+
+Effect. Operational progress in a predecessor, including all operational blocks, never changes either normative identity. A normative change of a predecessor blocks each dependent with `plan_dependency_identity_changed` until the dependent is amended (new declared identity, re-review, re-approval).
+
+Input identity by kind. A declared input that is `features/NNN-slug/REFINEMENT.md` or `features/NNN-slug/(US|TS)nn/PLAN.md` is identified by its normative identity (section 4). Any other declared file is identified by the uppercase SHA-256 of its raw bytes. An input of the first kind whose delivery blocks do not parse invalidates the review record check (`inputs_changed`) and the record writer.
+
+Gate order and divergence. Before the first implementation step the coordinator runs `Test-DeliveryPlanPreflight.ps1 -ExpectedIdentity <approved identity> -ReviewRecordPath <record>`, which includes the review gate, and then the resolver. A blocked preflight blocks execution. The resolver is the per-step authority and does not read the review record itself. It also runs on Windows PowerShell 5.1, while the review scripts need pwsh 7.
+
+Limits. `acceptance_evidence` counts as non-blank when it is a non-blank string, or an array containing one. PowerShell 7 may parse an ISO 8601 timestamp value as a date; that value still counts as non-blank.
+
+### 10.3 External input sources
+
+Scope: declared material inputs of a `delivery-review-record/v1` record (`inputs[]`). Repository-relative inputs keep the rules of section 10.2.
+
+Alias catalog:
+
+- A per-user JSON file kept in the SDD directory beside `preferences.json`, conventionally `input-aliases.json`. The toolkit never writes it, and it never lives inside a repository or a versioned artifact.
+- Shape: `{ "schema": "delivery-input-aliases/v1", "aliases": [ { "name", "root", "kind" } ] }`. `name` is a slug and unique. `root` is an absolute existing directory that is not a link. `kind` is `directory` or `git`; `git` requires a `.git` entry in `root`. Unknown keys are rejected.
+- Scripts receive the catalog through `-AliasCatalogPath`. Without it an alias input cannot be verified.
+
+Input path forms:
+
+- Repository-relative (section 10.2), or `alias:<name>` / `alias:<name>/<relative>`.
+- Forward slashes; no `.` or `..` segment, no empty segment, no colon outside the `alias:` prefix, no trailing slash.
+- Artifacts and records cite the alias form only, never the private root.
+- An alias-only path (`alias:<slug>`, no relative part) is valid only for source kind `revision` or `fileset`; a `file` input needs a relative part. Reordering `source.files` does not change the identity, because members are hashed in sorted order.
+
+Source kinds. An optional `source` object on a record input selects how the input is identified. A repository-relative plain file takes no `source`.
+
+| `source.kind` | `path` | Other keys | Identity |
+|---|---|---|---|
+| `file` | `alias:<name>/<file>` | none | SHA-256 of the raw bytes. The file is read twice; a difference is `source_changed_during_read`. |
+| `fileset` | `alias:<name>/<dir>` (directory) | `files`: explicit list of relative member paths | SHA-256 (uppercase hex) of the UTF-8 compact JSON array, no whitespace, entries ordered by `path` with ordinal comparison, each `{"path":"<relative path with />","sha256":"<UPPERCASE hex of the file bytes>"}` (key order `path`, then `sha256`). Case-insensitive duplicate paths are `fileset_collision`. Limits: 2000 files, 50 MB per file. |
+| `revision` | `alias:<name>` of a `git` alias | `revision`: full 40-hex commit id | SHA-256 (uppercase hex) of the UTF-8 compact JSON text `{"kind":"revision","alias":"<name>","commit":"<lowercase 40 hex>","tree":"<lowercase tree id>"}`, no whitespace. Branches, tags, and abbreviations are `revision_invalid`. Verified with read-only Git (`cat-file`, `rev-parse`) only. |
+
+Alias files and filesets are always identified by raw bytes; no normative projection applies to them.
+
+Safety. Containment under the alias root is required. The library rejects `..`, absolute and drive-qualified forms, links and reparse points (dangling ones included), missing or unreadable members, and files that change while being read.
+
+Failure codes: `alias_catalog_missing`, `alias_catalog_invalid`, `alias_unknown`, `source_kind_invalid`, `source_path_invalid`, `source_escapes_root`, `source_reparse_point`, `source_missing`, `source_unreadable`, `source_too_large`, `source_changed_during_read`, `fileset_invalid`, `fileset_collision`, `revision_invalid`, `revision_unavailable`, `git_unavailable`.
+
+Verdict. The record gate (`Test-DeliveryReviewRecord.ps1`) returns `input_source_unavailable` with detail `<id>: <code>` when any code above prevents verification. A changed identity or a missing repository file stays `inputs_changed`.
+
+A source the machinery cannot verify gives `input_source_unavailable`, including a missing alias file (an unmounted root looks like a deletion) and any unexpected error while verifying it. Plain repository paths keep `inputs_changed` for a changed or missing file. When a changed identity and an unavailable source both occur, `inputs_changed` is reported first.
+
+CLI: `scripts/runtime/Get-DeliveryInputSourceIdentity.ps1 -RepoPath <repo> (-InputJson <json> | -InputPath <file>) [-AliasCatalogPath <file>]`. On success it prints `{"ok":true,"identity":"<HEX>"}` and exits 0. On failure it prints `{"ok":false,"reason":"<code>","message":"<text>"}` and exits 3.
+
+Writers and gates. `Write-DeliveryReviewRecord.ps1` and `Test-DeliveryReviewRecord.ps1` accept `-AliasCatalogPath`. `Test-DeliveryPlanPreflight.ps1` forwards it and reports the review-gate result as `review_gate_blocked`.
+
+Limit. A plan's declared inputs written as prose are not machine-read. External sources are verified only for review-record inputs and through the identity CLI.

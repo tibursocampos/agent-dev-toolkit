@@ -8,7 +8,8 @@ param(
     [Parameter(Mandatory)][ValidateSet('delivery_refinement_review', 'delivery_unit_plan_review')][string]$Stage,
     [Parameter(Mandatory)][string]$ArtifactText,
     [Parameter(Mandatory)][string]$RecordPath,
-    [Parameter(Mandatory)][string]$RecordJson
+    [Parameter(Mandatory)][string]$RecordJson,
+    [string]$AliasCatalogPath
 )
 
 Set-StrictMode -Version Latest
@@ -63,16 +64,45 @@ $inputIdentity = [System.Collections.Generic.List[object]]::new()
 foreach ($input in $provided.inputs) {
     if ([string]::IsNullOrWhiteSpace([string]$input.path) -or [string]::IsNullOrWhiteSpace([string]$input.id) -or [string]::IsNullOrWhiteSpace([string]$input.role)) { throw 'Each material input requires id, path, and role.' }
     if ($null -eq $input.PSObject.Properties['impacted_ids'] -or $input.impacted_ids -isnot [System.Array]) { throw 'Each material input requires impacted_ids as an array of strings.' }
-    $inputFull = Get-SafeFullPath $repoFull ([string]$input.path)
-    Assert-NoReparseAncestors $inputFull $repoFull
-    if (-not (Test-Path -LiteralPath $inputFull -PathType Leaf)) { throw "Material input is missing: $($input.path)" }
-    $inputIdentity.Add([ordered]@{
+    $usesSource = Test-DeliveryReviewInputUsesSource -InputEntry $input
+    if (-not $usesSource) {
+        try {
+            Assert-DeliveryInputPathSegments -RelativePath ([string]$input.path)
+        }
+        catch {
+            throw ("Input '{0}': {1}" -f $input.id, $_.Exception.Message)
+        }
+        $inputFull = Get-SafeFullPath $repoFull ([string]$input.path)
+        Assert-NoReparseAncestors $inputFull $repoFull
+        if (-not (Test-Path -LiteralPath $inputFull -PathType Leaf)) { throw "Material input is missing: $($input.path)" }
+    }
+    try {
+        if ($usesSource) {
+            $inputSha = Get-DeliveryInputSourceIdentity -RepoRoot $repoFull -InputSource $input -AliasCatalogPath $AliasCatalogPath
+        }
+        else {
+            $inputSha = Get-DeliveryInputIdentity -RepoRoot $repoFull -RelativePath ([string]$input.path)
+        }
+    }
+    catch {
+        throw ("Input '{0}': {1}" -f $input.id, $_.Exception.Message)
+    }
+    $inputEntry = [ordered]@{
         id = [string]$input.id
         path = ([string]$input.path).Replace('\', '/')
-        sha256 = (Get-FileHash -LiteralPath $inputFull -Algorithm SHA256).Hash
+        sha256 = $inputSha
         role = [string]$input.role
         impacted_ids = @($input.impacted_ids)
-    })
+    }
+    $sourceProperty = Get-DeliveryReviewRecordExactProperty -Object $input -Name 'source'
+    if ($null -ne $sourceProperty) {
+        $sourceValue = $sourceProperty.Value
+        $sourceEcho = [ordered]@{ kind = [string]$sourceValue.kind }
+        if ([string]$sourceValue.kind -ceq 'fileset') { $sourceEcho['files'] = @($sourceValue.files | ForEach-Object { [string]$_ }) }
+        if ([string]$sourceValue.kind -ceq 'revision') { $sourceEcho['revision'] = [string]$sourceValue.revision }
+        $inputEntry['source'] = $sourceEcho
+    }
+    $inputIdentity.Add($inputEntry)
 }
 $reviewIdentity = Get-DeliveryReviewIdentity -TargetKind $TargetKind -Stage $Stage -TargetPath $TargetPath -NormativeSha $normativeIdentity -Inputs $inputIdentity.ToArray()
 $provided | Add-Member -NotePropertyName target -NotePropertyValue ([ordered]@{

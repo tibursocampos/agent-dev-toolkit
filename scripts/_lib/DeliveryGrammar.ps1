@@ -893,3 +893,103 @@ function Get-DeliveryDeclaredSteps {
 
     return [pscustomobject]@{ Steps = $steps.ToArray(); Errors = $errors.ToArray() }
 }
+
+function Get-DeliveryPlanDependencies {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text
+    )
+
+    $lines = (ConvertTo-DeliveryNormalizedText -Text $Text).Split([char]10)
+    $errors = [System.Collections.Generic.List[object]]::new()
+    $dependencies = [System.Collections.Generic.List[object]]::new()
+    $seenPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $sectionCount = 0
+    $inSection = $false
+    $fence = $null
+
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        $line = $lines[$index]
+        $lineNumber = $index + 1
+
+        if ($null -ne $fence) {
+            if (Test-DeliveryFenceCloser -Line $line -FenceChar $fence.Char -MinLength $fence.Length) {
+                $fence = $null
+            }
+            continue
+        }
+
+        $opener = Get-DeliveryFenceOpener -Line $line
+        if ($null -ne $opener) {
+            $fence = [pscustomobject]@{ Char = $opener.Char; Length = $opener.Length }
+            continue
+        }
+
+        $sectionMatch = [regex]::Match($line, '^## (.*)$')
+        if ($sectionMatch.Success) {
+            $title = [regex]::Replace($sectionMatch.Groups[1].Value.Trim(), '^\d+\. ', '')
+            $inSection = ($title -ieq 'Plan dependencies')
+            if ($inSection) {
+                $sectionCount++
+                if ($sectionCount -gt 1) {
+                    $errors.Add((New-DeliveryIssue -Code 'plan_dependency_invalid' -Message 'The Plan dependencies heading appears more than once.' -Line $lineNumber))
+                }
+            }
+            continue
+        }
+
+        if (-not $inSection) {
+            if ($line.StartsWith('Requires plan:', [System.StringComparison]::Ordinal)) {
+                $errors.Add((New-DeliveryIssue -Code 'plan_dependency_invalid' -Message 'Requires plan line is outside the Plan dependencies heading; dependency lines must live under that heading.' -Line $lineNumber))
+            }
+            continue
+        }
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+        $requiresMatch = [regex]::Match($line, '^Requires plan: (\S+) identity=(\S+) steps=(\S+)$')
+        if (-not $requiresMatch.Success) {
+            $errors.Add((New-DeliveryIssue -Code 'plan_dependency_invalid' -Message 'Plan dependencies accepts only lines of the form ''Requires plan: <path> identity=<HEX> steps=<id>[,<id>...]''.' -Line $lineNumber))
+            continue
+        }
+
+        $path = $requiresMatch.Groups[1].Value
+        $identity = $requiresMatch.Groups[2].Value
+        $steps = [string[]]@($requiresMatch.Groups[3].Value.Split(','))
+        $problem = ''
+
+        if (($path.Contains('..')) -or ($path.Contains(':')) -or ($path.Contains('\')) -or $path.StartsWith('/', [System.StringComparison]::Ordinal)) {
+            $problem = 'the path must be repository-relative, with forward slashes, and must not contain ''..'' or a drive'
+        }
+        elseif ($path -cnotmatch '^features/[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*/(?:US|TS)[0-9]{2}/PLAN\.md$') {
+            $problem = 'the path must be features/NNN-slug/(US|TS)nn/PLAN.md'
+        }
+        elseif ($identity -cnotmatch '^[0-9A-F]{64}$') {
+            $problem = 'the identity must be 64 uppercase hexadecimal characters'
+        }
+        else {
+            foreach ($step in $steps) {
+                if ($step -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$') {
+                    $problem = ('step id ''{0}'' does not match the step id pattern' -f $step)
+                    break
+                }
+            }
+        }
+        if (($problem.Length -eq 0) -and -not $seenPaths.Add($path)) {
+            $problem = 'a Requires plan line for this path already exists'
+        }
+
+        if ($problem.Length -gt 0) {
+            $errors.Add((New-DeliveryIssue -Code 'plan_dependency_invalid' -Message ('Requires plan line for ''{0}'' is invalid: {1}.' -f $path, $problem) -Line $lineNumber))
+            continue
+        }
+
+        $dependencies.Add([pscustomobject]@{
+                Path     = $path
+                Identity = $identity
+                Steps    = $steps
+                Line     = $lineNumber
+            })
+    }
+
+    return [pscustomobject]@{ Dependencies = $dependencies.ToArray(); Errors = $errors.ToArray() }
+}

@@ -381,6 +381,113 @@ try {
         @{ Id = 'US01-S2'; Depends = 'US01-S1'; Validation = 'run-tests' }) -CheckpointJson '{"schema":"delivery-checkpoint/v1","branch":"","head":"","active_step":null,"location_kind":"directory","baseline_evidence":"US01-S1/other"}')
     Assert-IssueCode (Invoke-Preflight -Repo $baselineNameRepo) 'baseline_reference_unknown' 'Should_ReturnBaselineReferenceUnknown_When_BaselineNameUndeclared'
 
+    # Plan-to-plan dependencies
+
+    function Add-DependencySection([string]$Text, [string[]]$Lines) {
+        $section = (@('## Plan dependencies', '') + $Lines + '') -join $lf
+        $index = $Text.IndexOf('## Steps' + $lf, [System.StringComparison]::Ordinal)
+        if ($index -lt 0) { throw 'fixture marker missing' }
+        return $Text.Insert($index, $section + $lf)
+    }
+
+    function New-DependentPlanText([object[]]$Declared, [string[]]$Lines) {
+        $probe = Add-DependencySection (Build-PlanText -Declared $Declared -ApprovalIdentity $placeholderIdentity) $Lines
+        $dependentIdentity = Get-DeliveryNormativeIdentity -Text $probe
+        return $probe.Replace('"identity":"' + $placeholderIdentity + '"', '"identity":"' + $dependentIdentity + '"')
+    }
+
+    function Add-RepoPlan([string]$Repo, [string]$RelativePath, [string]$Text) {
+        $path = Join-Path $Repo ($RelativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar))
+        New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+        [System.IO.File]::WriteAllText($path, $Text, $utf8)
+    }
+
+    function Assert-IssueMessage($Run, [string]$Code, [string]$Fragment, [string]$Name) {
+        $match = @(@($Run.Result.issues) | Where-Object { ([string]$_.code -ceq $Code) -and ([string]$_.message).Contains($Fragment) })
+        if ($match.Count -eq 0) { throw ('{0}: expected issue {1} naming {2}' -f $Name, $Code, $Fragment) }
+        $script:passed++
+    }
+
+    $depPredecessor = 'features/001-demo/US01/PLAN.md'
+    $depRepo = Write-PlanFile 'dependency-base' $validText
+    $depValidLine = 'Requires plan: ' + $depPredecessor + ' identity=' + $identity + ' steps=US01-S1'
+    Add-RepoPlan $depRepo 'features/001-demo/US02/PLAN.md' (New-DependentPlanText -Declared $validDeclared -Lines @($depValidLine))
+    $depValid = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US02/PLAN.md'
+    Assert-ExitCode 0 $depValid 'Should_ExitZero_When_DependentPlanIsValid'
+    Assert-True ($depValid.Result.ok -eq $true) 'Should_ReturnOk_When_DependentPlanIsValid'
+    Assert-True (([string]$depValid.Result.identity).Length -eq 64) 'Should_ReturnIdentity_When_DependentPlanIsValid'
+    Assert-True ((Get-IssueCodes $depValid) -notcontains 'plan_dependency_step_incomplete') 'Should_NotRequireCompletion_When_PredecessorStepIsPending'
+
+    $depBadHexLine = 'Requires plan: ' + $depPredecessor + ' identity=' + $identity.ToLowerInvariant() + ' steps=US01-S1'
+    Add-RepoPlan $depRepo 'features/001-demo/US03/PLAN.md' (New-DependentPlanText -Declared $validDeclared -Lines @($depBadHexLine))
+    $depBadHex = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US03/PLAN.md'
+    Assert-ExitCode 3 $depBadHex 'Should_ExitThree_When_DependencyIdentityMalformed'
+    Assert-IssueCode $depBadHex 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_DependencyLineMalformed'
+
+    $depMissingPath = 'features/001-demo/US09/PLAN.md'
+    $depMissingLine = 'Requires plan: ' + $depMissingPath + ' identity=' + $identity + ' steps=US09-S1'
+    Add-RepoPlan $depRepo 'features/001-demo/US04/PLAN.md' (New-DependentPlanText -Declared $validDeclared -Lines @($depMissingLine))
+    $depMissing = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US04/PLAN.md'
+    Assert-IssueCode $depMissing 'plan_dependency_missing' 'Should_ReturnPlanDependencyMissing_When_PredecessorFileAbsent'
+    Assert-IssueMessage $depMissing 'plan_dependency_missing' $depMissingPath 'Should_NameDependencyPath_When_PredecessorFileAbsent'
+
+    $depChangedLine = 'Requires plan: ' + $depPredecessor + ' identity=' + ('C' * 64) + ' steps=US01-S1'
+    Add-RepoPlan $depRepo 'features/001-demo/US05/PLAN.md' (New-DependentPlanText -Declared $validDeclared -Lines @($depChangedLine))
+    $depChanged = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US05/PLAN.md'
+    Assert-IssueCode $depChanged 'plan_dependency_identity_changed' 'Should_ReturnPlanDependencyIdentityChanged_When_DeclaredIdentityDiffers'
+    Assert-IssueMessage $depChanged 'plan_dependency_identity_changed' $depPredecessor 'Should_NameDependencyPath_When_IdentityChanged'
+
+    $depUnknownStepLine = 'Requires plan: ' + $depPredecessor + ' identity=' + $identity + ' steps=US01-S9'
+    Add-RepoPlan $depRepo 'features/001-demo/US06/PLAN.md' (New-DependentPlanText -Declared $validDeclared -Lines @($depUnknownStepLine))
+    $depUnknownStep = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US06/PLAN.md'
+    Assert-IssueCode $depUnknownStep 'plan_dependency_step_unknown' 'Should_ReturnPlanDependencyStepUnknown_When_StepNotDeclaredByPredecessor'
+    Assert-IssueMessage $depUnknownStep 'plan_dependency_step_unknown' $depPredecessor 'Should_NameDependencyPath_When_StepUnknown'
+
+    $depCycleA = 'features/001-demo/US07/PLAN.md'
+    $depCycleB = 'features/001-demo/US08/PLAN.md'
+    $depCycleLineToB = 'Requires plan: ' + $depCycleB + ' identity=' + ('D' * 64) + ' steps=US01-S1'
+    $depCycleLineToA = 'Requires plan: ' + $depCycleA + ' identity=' + ('D' * 64) + ' steps=US01-S1'
+    Add-RepoPlan $depRepo $depCycleA (New-DependentPlanText -Declared $validDeclared -Lines @($depCycleLineToB))
+    Add-RepoPlan $depRepo $depCycleB (New-DependentPlanText -Declared $validDeclared -Lines @($depCycleLineToA))
+    $depCycle = Invoke-Preflight -Repo $depRepo -PlanPath $depCycleA
+    Assert-IssueCode $depCycle 'plan_dependency_cycle' 'Should_ReturnPlanDependencyCycle_When_PredecessorsReturnToPlan'
+    Assert-IssueMessage $depCycle 'plan_dependency_cycle' $depCycleB 'Should_NameDependencyPath_When_CycleFound'
+
+    $depSelfPath = 'features/001-demo/US10/PLAN.md'
+    $depSelfLine = 'Requires plan: ' + $depSelfPath + ' identity=' + ('E' * 64) + ' steps=US01-S1'
+    Add-RepoPlan $depRepo $depSelfPath (New-DependentPlanText -Declared $validDeclared -Lines @($depSelfLine))
+    $depSelf = Invoke-Preflight -Repo $depRepo -PlanPath $depSelfPath
+    Assert-IssueCode $depSelf 'plan_dependency_cycle' 'Should_ReturnPlanDependencyCycle_When_PlanRequiresItself'
+
+    $depStrayLine = 'Requires plan: ' + $depPredecessor + ' identity=' + $identity + ' steps=US01-S1'
+    $depStrayText = (Build-PlanText -Declared $validDeclared -ApprovalIdentity $identity).Replace('## Steps' + $lf, $depStrayLine + $lf + $lf + '## Steps' + $lf)
+    Add-RepoPlan $depRepo 'features/001-demo/US11/PLAN.md' $depStrayText
+    $depStray = Invoke-Preflight -Repo $depRepo -PlanPath 'features/001-demo/US11/PLAN.md'
+    Assert-ExitCode 3 $depStray 'Should_ExitThree_When_RequiresLineOutsideHeading'
+    Assert-IssueCode $depStray 'plan_dependency_invalid' 'Should_ReturnPlanDependencyInvalid_When_RequiresLineOutsideHeading'
+
+    $writerScript = Join-Path $scriptsRoot 'runtime/Write-DeliveryReviewRecord.ps1'
+    $sourceDocs = Join-Path $tempRoot 'preflight-sources\docs'
+    New-Item -ItemType Directory -Path $sourceDocs -Force | Out-Null
+    [System.IO.File]::WriteAllText((Join-Path $sourceDocs 'brief.md'), "# Brief`n", $utf8)
+    $sourceCatalog = Join-Path $tempRoot 'preflight-sources\aliases.json'
+    $sourceCatalogDocument = [ordered]@{ schema = 'delivery-input-aliases/v1'; aliases = @([ordered]@{ name = 'docs'; root = $sourceDocs; kind = 'directory' }) }
+    [System.IO.File]::WriteAllText($sourceCatalog, ($sourceCatalogDocument | ConvertTo-Json -Depth 6), $utf8)
+    $aliasRepo = Write-PlanFile 'alias-review' $validText
+    $aliasRecordRel = 'features/001-demo/delivery-reviews/alias.json'
+    $aliasRecordJson = '{"schema":"delivery-review-record/v1","state":"reviewed","inputs":[{"id":"SRC-1","path":"alias:docs/brief.md","role":"accepted refinement","impacted_ids":["S1"]}],"reviewers":{"reader":{"host":"Codex","observed_isolation":"fresh-context-instruction","result":{"paraphrases":{"proposal":"A plan.","current_system":"A baseline."},"lenses":["comprehension"],"findings":[]}},"critic":{"host":"Codex","observed_isolation":"fresh-context-instruction","result":{"lenses":["scope"],"findings":[]}}},"dispositions":[],"provenance":{}}'
+    $aliasWrite = & $writerScript -Action save -RepoPath $aliasRepo -TargetPath $planRelative -TargetKind PLAN.md -Stage delivery_unit_plan_review -ArtifactText $validText -RecordPath (Join-Path $aliasRepo 'features\001-demo\delivery-reviews\alias.json') -RecordJson $aliasRecordJson -AliasCatalogPath $sourceCatalog
+    Assert-True ([string]$aliasWrite -match '"status":"saved"') 'Should_SaveAliasReviewRecord_When_CatalogGiven'
+
+    $aliasWithCatalog = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel, '-AliasCatalogPath', $sourceCatalog)
+    Assert-ExitCode 0 $aliasWithCatalog 'Should_ExitZero_When_AliasReviewRecordGetsCatalog'
+    Assert-True ($aliasWithCatalog.Result.ok -eq $true) 'Should_ReturnOk_When_AliasReviewRecordGetsCatalog'
+
+    $aliasWithoutCatalog = Invoke-Preflight -Repo $aliasRepo -Extra @('-ReviewRecordPath', $aliasRecordRel)
+    Assert-ExitCode 3 $aliasWithoutCatalog 'Should_ExitThree_When_AliasReviewRecordHasNoCatalog'
+    Assert-IssueCode $aliasWithoutCatalog 'review_gate_blocked' 'Should_ReturnReviewGateBlocked_When_AliasReviewRecordHasNoCatalog'
+    Assert-IssueMessage $aliasWithoutCatalog 'review_gate_blocked' 'input_source_unavailable' 'Should_NameInputSourceUnavailable_When_AliasReviewRecordHasNoCatalog'
+
     Write-Output ('PASS: {0} delivery plan preflight assertions.' -f $passed)
 }
 finally {
