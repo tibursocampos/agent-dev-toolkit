@@ -8,8 +8,16 @@ One plan represents one accepted US or TS unit in one repository. The canonical 
    - **Plan dependencies:** a unit that depends on another plan declares it under `## Plan dependencies` with the predecessor's current identity and the needed steps, for example `Requires plan: features/NNN-slug/US01/PLAN.md identity=E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855 steps=US01-S2`. Syntax and checks: `SCHEMAS.md` section 10.2.
 2. **Purpose and boundaries:** approved objective, included/excluded scope, risks and assumptions. Cite decisions by ID; do not restate their normative value.
    - **Preconditions:** preparatory conditions the operator owns (for example the work branch or workspace state), each with an owner and how it is observed (checkpoint branch/head or the operator's confirmation). The plan lists them but never instructs the executor to run Git for them.
-3. **Acceptance criteria:** include only for a simple unit without feature refinement. Otherwise reference the approved criterion IDs and body hashes from `REFINEMENT.md`.
-4. **Traceability matrix:** each applicable criterion ID maps to implementing step IDs and validation evidence. Every criterion must be implemented or explicitly dispositioned by the approved source.
+3. **Acceptance criteria:** include only for a simple unit without feature refinement. Otherwise cite the approved criterion IDs from `REFINEMENT.md` under `## Refinement references`.
+   - **Refinement references:** a level-2 heading `## Refinement references` (optional `<n>. ` prefix) with one line per cited item: `Uses: <features/NNN-slug/REFINEMENT.md> <ID> hash=<64 UPPERCASE hex>`. Read the hash through `Get-DeliveryRefinementItems.ps1`. A `Uses:` line outside that heading is an error (`refinement_reference_invalid`). The referenced refinement must be approved with a current identity. Plans never restate a referenced item's value, and never declare a `### <ID> ...` heading for an ID defined in a referenced refinement (`plan_restates_refinement_item`).
+
+   ```markdown
+   ## Refinement references
+
+   Uses: features/NNN-slug/REFINEMENT.md CA-001 hash=E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
+   ```
+
+4. **Traceability matrix:** each applicable criterion ID cited under `## Refinement references` maps to implementing step IDs and validation evidence. Every criterion must be implemented or explicitly dispositioned by the approved source.
 5. **Shared files:** for a plan set, enumerate repository paths touched by each unit. Any intersection names owning unit, operation, ordering and merge rule. No unexplained overlap is permitted.
 6. **Steps:** stable IDs `<UNIT>-S<n>` (for example `US01-S1`), one observable outcome per step, target paths/symbols, criterion IDs, predecessor IDs, validation method/evidence, risks and reversal. Declare steps machine-readably:
    - `## Steps` (level-2; an optional leading `<n>. ` is allowed) starts the list.
@@ -38,6 +46,7 @@ One plan represents one accepted US or TS unit in one repository. The canonical 
 
    A unit outside Git declares its baseline as the Evidence of its first step.
 7. **Validation and completion:** checks required by criteria, existing repository instructions and accepted risks; completion is evidenced, not inferred from status.
+   - **Activation and rollback:** required for any step with an external effect or a dependence on a platform, API, SDK or integration. State the preconditions and their owners; the activation order; the validation, labelled as local syntax or fixture check, external tool check, or real integrated behavior check (local syntax or fixtures never prove publishability or integration); the rollback steps and their owner. Credentials, tokens and personal data must not be printed or stored in test output or receipts. No upload, publication or external call without separate authorization.
 8. **Operational blocks:** progress, checkpoint, approval and one block per declared step using the exact marker grammar in `EXECUTION.md`. Each declared step has exactly one `STEP` block whose `depends_on` mirrors its declared `Depends on:` text.
 
 ## Multi-repository plan set

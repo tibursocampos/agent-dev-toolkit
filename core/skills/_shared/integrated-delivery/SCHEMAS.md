@@ -99,6 +99,8 @@ No other normalization is applied. Trailing spaces are significant.
 | `step_validation_missing` | A declared step has no `Validation:` line, or its text is empty (section 10). |
 | `evidence_declaration_invalid` | An `Evidence:` or `Needs evidence:` line has a name that fails the slug pattern, a malformed `Needs evidence` token, a duplicate name within one step's `Evidence`, or an empty token between commas (section 10). |
 | `plan_dependency_invalid` | A `## Plan dependencies` heading or `Requires plan:` line is malformed (section 10.2). |
+| `refinement_item_invalid` | A refinement item ID appears more than once in one REFINEMENT.md (section 10.4). |
+| `refinement_reference_invalid` | A `## Refinement references` line is malformed, a `Uses:` line appears outside that heading, or its hash is not 64 uppercase hex (section 10.4). |
 
 Key paths: messages name the block type and the key. Nested keys use a dotted path (for example `operator_choice.choice` or `authorization.kind`). Array entries use an index (for example `repositories[0].path` or `validation_results[1].command`). `unknown_property`, `missing_field`, and `invalid_field` apply at every nesting level with the same meaning as at the top level.
 
@@ -523,3 +525,38 @@ CLI: `scripts/runtime/Get-DeliveryInputSourceIdentity.ps1 -RepoPath <repo> (-Inp
 Writers and gates. `Write-DeliveryReviewRecord.ps1` and `Test-DeliveryReviewRecord.ps1` accept `-AliasCatalogPath`. `Test-DeliveryPlanPreflight.ps1` forwards it and reports the review-gate result as `review_gate_blocked`.
 
 Limit. A plan's declared inputs written as prose are not machine-read. External sources are verified only for review-record inputs and through the identity CLI.
+
+### 10.4 Refinement items and references
+
+Scope: items of `features/NNN-slug/REFINEMENT.md` and the plan `## Refinement references` section. Field labels and layout: `core/skills/integrated-delivery-refine/references/refinement-format.md` ("Refinement items").
+
+Items:
+
+- Item heading: level 3, `### <ID> <title>`. `<ID>` is `D-`, `CA-` or `R-` followed by at least three digits (`(D|CA|R)-[0-9]{3,}`) and must be the first space-delimited token. Other headings are ordinary headings and do not start an item.
+- The body runs to the next heading of level 1 to 3. IDs are unique within the file (`refinement_item_invalid` otherwise) and are never recycled.
+- A superseded item keeps its ID and carries the body line `Status: superseded by <ID>`.
+- Item hash: uppercase SHA-256 hex of the UTF-8 item body, from the heading line through the line before the next level 1 to 3 heading. Normalize as in section 1 (BOM, CRLF to LF), trim trailing blank lines, and end with exactly one LF.
+
+References (plan side):
+
+- `## Refinement references` is a level-2 heading with an optional `<n>. ` prefix. Each cited item is one line: `Uses: <features/NNN-slug/REFINEMENT.md> <ID> hash=<64 UPPERCASE hex>`, where the hash is the item hash.
+- A `Uses:` line outside that heading, a malformed line, or a hash that is not 64 uppercase hex is `refinement_reference_invalid`.
+- The referenced refinement must have its APPROVAL in state `approved` with a current `identity`; otherwise `refinement_not_approved`.
+- A plan never restates a referenced item's value and never declares a `### <ID> ...` heading for an ID defined in a referenced refinement (`plan_restates_refinement_item`).
+
+Preflight codes (`scripts/runtime/Test-DeliveryPlanPreflight.ps1`). Precedence: a superseded item reports `refinement_reference_superseded` even when its hash also changed.
+
+- `refinement_reference_unknown`: the refinement file or the cited ID does not exist.
+- `refinement_reference_stale`: the cited hash differs from the current item hash.
+- `refinement_reference_superseded`: the cited item carries `Status: superseded by`.
+- `refinement_not_approved`, `plan_restates_refinement_item`, `refinement_reference_invalid`: as above.
+
+CLI: `scripts/runtime/Get-DeliveryRefinementItems.ps1 -RepoPath <repo> -RefinementPath <REFINEMENT.md> [-Id <ID>]`. On success it prints `{"ok":true,"identity":"<HEX>","items":[{"id","title","hash","superseded_by"}]}` and exits 0; `superseded_by` is `null` when the item is not superseded. `identity` is the refinement's normative identity (section 4). On failure it prints `{"ok":false,"reason","message"}` and exits 3.
+
+Focused amendment flow:
+
+1. Patch only the affected items, as a minimal edit.
+2. Reset the APPROVAL block from `approved` to `pending` (section 6.3), re-review the affected content, and record a new approval.
+3. Dependent plans report `refinement_reference_stale` or `refinement_reference_superseded` at preflight.
+4. In each dependent plan, update only the affected `Uses:` lines with hashes read through the CLI (a superseded ID is replaced by its replacement ID), re-audit the affected plan sections, and re-approve the plan content.
+5. Operational edits (progress, checkpoint, step status, evidence) never require a new normative approval.

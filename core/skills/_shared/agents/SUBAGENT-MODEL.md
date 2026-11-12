@@ -4,6 +4,16 @@ Contract for **LLM model** on native subagent spawns (`Agent` calls) from `orche
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`
 
+## Read map
+
+Read only the section named for your action. Skills cite the section; they do not load the whole file.
+
+- Asking the session question: read `Session choice`, then `When` and `Question`. `Question` names the adapter row of `SUBAGENT-OPTIONS.md` to look up.
+- Applying the chosen pair: read `Apply`.
+- Host refuses a spawn: read `Refusal and fallback`.
+- Updating the saved preference after confirmed use: read `Confirmed-use preference update`.
+- Non-interactive run, compaction, or replacement of the choice: read `Non-interactive sessions, compaction, replacement`.
+
 ## Invocation axes (A ≠ B ≠ C)
 
 Normative split — do **not** conflate axes. Marker: `A≠B≠C`.

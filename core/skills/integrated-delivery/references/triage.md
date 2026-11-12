@@ -21,6 +21,14 @@ Prefer targeted repository evidence and direct source material. Label every conc
 
 Use an available read-only specialist in a fresh, depth-one context when it materially reduces uncertainty. If the host cannot provide that role, either inspect the bounded evidence in the main context or leave a named gap. Do not claim isolation beyond what the host actually provides. Do not use fallback as a reason to skip required evidence or approval.
 
+## Platform and integration constraints
+
+Signal: a decision depends on an external platform, API, SDK, service, or integration. The triage:
+- records the signal with the affected decision or criterion IDs;
+- requests a primary source (official documentation, specification, or observed behavior) with its version or date;
+- states the constraint verifiably and lists its open uncertainties; the specialist request carries these fields too;
+- names a missing source for a constraint that affects a decision as a material gap in the triage output, never as an assumption.
+
 ## Minimum pre-plan readiness
 
 Before routing to a planning stage, verify:

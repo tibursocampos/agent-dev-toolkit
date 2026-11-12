@@ -993,3 +993,178 @@ function Get-DeliveryPlanDependencies {
 
     return [pscustomobject]@{ Dependencies = $dependencies.ToArray(); Errors = $errors.ToArray() }
 }
+
+function Get-DeliveryFencedLineMask {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][AllowEmptyString()][string[]] $Lines
+    )
+
+    $mask = [bool[]]::new($Lines.Count)
+    $fence = $null
+    for ($index = 0; $index -lt $Lines.Count; $index++) {
+        $line = $Lines[$index]
+        if ($null -ne $fence) {
+            $mask[$index] = $true
+            if (Test-DeliveryFenceCloser -Line $line -FenceChar $fence.Char -MinLength $fence.Length) { $fence = $null }
+            continue
+        }
+
+        $opener = Get-DeliveryFenceOpener -Line $line
+        if ($null -ne $opener) {
+            $mask[$index] = $true
+            $fence = [pscustomobject]@{ Char = $opener.Char; Length = $opener.Length }
+        }
+    }
+    return , $mask
+}
+
+function Get-DeliveryMarkdownHeadingLevel {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Line)
+
+    $match = [regex]::Match($Line, '^(#{1,3})(?:[ \t].*)?$')
+    if ($match.Success) { return $match.Groups[1].Value.Length }
+    return 0
+}
+
+function Get-DeliveryRefinementItems {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text
+    )
+
+    $lines = (ConvertTo-DeliveryNormalizedText -Text $Text).Split([char]10)
+    $fenced = Get-DeliveryFencedLineMask -Lines $lines
+    $errors = [System.Collections.Generic.List[object]]::new()
+    $items = [System.Collections.Generic.List[object]]::new()
+    $seenLines = [System.Collections.Generic.Dictionary[string, int]]::new([System.StringComparer]::Ordinal)
+
+    $headings = [System.Collections.Generic.List[int]]::new()
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        if ($fenced[$index]) { continue }
+        if ((Get-DeliveryMarkdownHeadingLevel -Line $lines[$index]) -gt 0) { $headings.Add($index) }
+    }
+
+    for ($position = 0; $position -lt $headings.Count; $position++) {
+        $start = $headings[$position]
+        $headingMatch = [regex]::Match($lines[$start], '^### (.*)$')
+        if (-not $headingMatch.Success) { continue }
+        $parts = @($headingMatch.Groups[1].Value.Trim() -split '[ \t]+', 2)
+        $id = [string]$parts[0]
+        if ($id -cnotmatch '^(D|CA|R)-[0-9]{3,}$') { continue }
+        $title = ''
+        if ($parts.Count -gt 1) { $title = ([string]$parts[1]).Trim() }
+
+        $end = $lines.Count
+        if ($position + 1 -lt $headings.Count) { $end = $headings[$position + 1] }
+        $bodyLines = [System.Collections.Generic.List[string]]::new()
+        for ($index = $start; $index -lt $end; $index++) { $bodyLines.Add($lines[$index]) }
+        while (($bodyLines.Count -gt 0) -and [string]::IsNullOrWhiteSpace($bodyLines[$bodyLines.Count - 1])) {
+            $bodyLines.RemoveAt($bodyLines.Count - 1)
+        }
+        $body = [string]::Join("`n", $bodyLines.ToArray()) + "`n"
+
+        $lineNumber = $start + 1
+        if ($seenLines.ContainsKey($id)) {
+            $errors.Add((New-DeliveryIssue -Code 'refinement_item_invalid' -Message ('Refinement item {0} is defined at line {1} and again at line {2}.' -f $id, $seenLines[$id], $lineNumber) -Line $lineNumber))
+            continue
+        }
+        $seenLines[$id] = $lineNumber
+
+        $supersededBy = ''
+        foreach ($bodyLine in $bodyLines) {
+            $statusMatch = [regex]::Match($bodyLine, '^Status: superseded by (\S+)[ \t]*$')
+            if ($statusMatch.Success) {
+                $supersededBy = $statusMatch.Groups[1].Value
+                break
+            }
+        }
+
+        $items.Add([pscustomobject]@{
+                Id           = $id
+                Title        = $title
+                Line         = $lineNumber
+                Body         = $body
+                Hash         = Get-DeliverySha256Hex -Text $body
+                SupersededBy = $supersededBy
+            })
+    }
+
+    return [pscustomobject]@{ Items = $items.ToArray(); Errors = $errors.ToArray() }
+}
+
+function Get-DeliveryRefinementReferences {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text
+    )
+
+    $lines = (ConvertTo-DeliveryNormalizedText -Text $Text).Split([char]10)
+    $fenced = Get-DeliveryFencedLineMask -Lines $lines
+    $errors = [System.Collections.Generic.List[object]]::new()
+    $references = [System.Collections.Generic.List[object]]::new()
+    $seenLines = [System.Collections.Generic.Dictionary[string, int]]::new([System.StringComparer]::Ordinal)
+    $sectionCount = 0
+    $inSection = $false
+
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        if ($fenced[$index]) { continue }
+        $line = $lines[$index]
+        $lineNumber = $index + 1
+
+        $sectionMatch = [regex]::Match($line, '^## (.*)$')
+        if ($sectionMatch.Success) {
+            $title = [regex]::Replace($sectionMatch.Groups[1].Value.Trim(), '^\d+\. ', '')
+            $inSection = ($title -ieq 'Refinement references')
+            if ($inSection) {
+                $sectionCount++
+                if ($sectionCount -gt 1) {
+                    $errors.Add((New-DeliveryIssue -Code 'refinement_reference_invalid' -Message 'The Refinement references heading appears more than once.' -Line $lineNumber))
+                }
+            }
+            continue
+        }
+
+        if (-not $inSection) {
+            if ($line.TrimStart().StartsWith('Uses:', [System.StringComparison]::Ordinal)) {
+                $errors.Add((New-DeliveryIssue -Code 'refinement_reference_invalid' -Message 'Uses line is outside the Refinement references heading.' -Line $lineNumber))
+            }
+            continue
+        }
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+        $usesMatch = [regex]::Match($line, '^Uses: (\S+) (\S+) hash=(\S+)$')
+        if (-not $usesMatch.Success) {
+            $errors.Add((New-DeliveryIssue -Code 'refinement_reference_invalid' -Message 'Refinement references accepts only lines of the form ''Uses: <path> <ID> hash=<HEX>''.' -Line $lineNumber))
+            continue
+        }
+
+        $path = $usesMatch.Groups[1].Value
+        $id = $usesMatch.Groups[2].Value
+        $hash = $usesMatch.Groups[3].Value
+        $problem = ''
+        if ($path -cnotmatch '^features/[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*/REFINEMENT\.md$') {
+            $problem = 'the path must be features/NNN-slug/REFINEMENT.md with forward slashes and without ''..'' or a drive'
+        }
+        elseif ($id -cnotmatch '^(D|CA|R)-[0-9]{3,}$') {
+            $problem = 'the ID must match ^(D|CA|R)-[0-9]{3,}$'
+        }
+        elseif ($hash -cnotmatch '^[0-9A-F]{64}$') {
+            $problem = 'the hash must be 64 uppercase hexadecimal characters'
+        }
+        if ($problem.Length -gt 0) {
+            $errors.Add((New-DeliveryIssue -Code 'refinement_reference_invalid' -Message ('Uses line for ''{0}'' {1} is invalid: {2}.' -f $path, $id, $problem) -Line $lineNumber))
+            continue
+        }
+
+        $key = $path + "`n" + $id
+        if ($seenLines.ContainsKey($key)) {
+            $errors.Add((New-DeliveryIssue -Code 'refinement_reference_invalid' -Message ('Uses line for ''{0}'' {1} repeats the reference at line {2}.' -f $path, $id, $seenLines[$key]) -Line $lineNumber))
+            continue
+        }
+        $seenLines[$key] = $lineNumber
+        $references.Add([pscustomobject]@{ Path = $path; Id = $id; Hash = $hash; Line = $lineNumber })
+    }
+
+    return [pscustomobject]@{ References = $references.ToArray(); Errors = $errors.ToArray() }
+}

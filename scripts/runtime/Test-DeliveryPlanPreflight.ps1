@@ -214,6 +214,117 @@ function Invoke-ReviewChecker {
     return [pscustomobject]@{ ExitCode = $process.ExitCode; Stdout = $stdoutTask.Result; Stderr = $stderrText }
 }
 
+function Test-RefinementApproval {
+    param(
+        [Parameter(Mandatory = $true)][object] $Blocks,
+        [Parameter(Mandatory = $true)][string] $Identity
+    )
+
+    $approvalBlocks = @($Blocks.Blocks | Where-Object { $_.Type -ceq 'APPROVAL' })
+    if ($approvalBlocks.Count -ne 1) { return $false }
+    $approvalJson = $approvalBlocks[0].Json
+    if ($null -eq $approvalJson) { return $false }
+    $stateProperty = Get-DeliveryExactProperty -Object $approvalJson -Name 'state'
+    $identityProperty = Get-DeliveryExactProperty -Object $approvalJson -Name 'identity'
+    if (($null -eq $stateProperty) -or ($null -eq $identityProperty)) { return $false }
+    if (($stateProperty.Value -isnot [string]) -or ($stateProperty.Value -cne 'approved')) { return $false }
+    return (($identityProperty.Value -is [string]) -and ($identityProperty.Value -ceq $Identity))
+}
+
+function Get-PlanRefinementIssues {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoFull,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $PlanText
+    )
+
+    $issues = [System.Collections.Generic.List[object]]::new()
+    $declaration = Get-DeliveryRefinementReferences -Text $PlanText
+    $planItems = @((Get-DeliveryRefinementItems -Text $PlanText).Items)
+    $references = @($declaration.References)
+    $referenceErrors = @($declaration.Errors)
+    if (($references.Count -eq 0) -and ($referenceErrors.Count -eq 0) -and ($planItems.Count -eq 0)) {
+        return , $issues.ToArray()
+    }
+
+    foreach ($referenceError in $referenceErrors) {
+        $issues.Add((New-PreflightIssue -Code ([string]$referenceError.code) -Message ('Line {0}: {1}' -f $referenceError.line, $referenceError.message)))
+    }
+
+    $pathOrder = [System.Collections.Generic.List[string]]::new()
+    $referencesByPath = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::Ordinal)
+    foreach ($reference in $references) {
+        $path = [string]$reference.Path
+        if (-not $referencesByPath.ContainsKey($path)) {
+            $referencesByPath[$path] = [System.Collections.Generic.List[object]]::new()
+            $pathOrder.Add($path)
+        }
+        $referencesByPath[$path].Add($reference)
+    }
+
+    $restatedIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($path in $pathOrder) {
+        $pathReferences = @($referencesByPath[$path])
+        $target = Read-PlanDependencyTarget -RepoFull $RepoFull -RelativePath $path
+        if ($target.State -ceq 'invalid') {
+            foreach ($reference in $pathReferences) {
+                $issues.Add((New-PreflightIssue -Code 'refinement_reference_unknown' -Message ('Refinement item {1} cites {0}, which is not a safe repository path: {2}' -f $path, $reference.Id, $target.Message)))
+            }
+            continue
+        }
+        if ($target.State -ceq 'missing') {
+            foreach ($reference in $pathReferences) {
+                $issues.Add((New-PreflightIssue -Code 'refinement_reference_unknown' -Message ('Refinement item {1} cites {0}, which does not exist.' -f $path, $reference.Id)))
+            }
+            continue
+        }
+
+        $blocks = Read-DeliveryBlocks -Text $target.Text
+        $refinementItems = Get-DeliveryRefinementItems -Text $target.Text
+        $itemErrors = @($refinementItems.Errors)
+        $refinementItemList = @($refinementItems.Items)
+        foreach ($itemError in $itemErrors) {
+            $issues.Add((New-PreflightIssue -Code 'refinement_reference_invalid' -Message ('Refinement {0} line {1}: {2}' -f $path, $itemError.line, $itemError.message)))
+        }
+        $grammarOk = [bool]$blocks.Ok
+        if (-not $grammarOk) {
+            $blockCodes = @($blocks.Errors | ForEach-Object { [string]$_.code } | Select-Object -Unique)
+            $issues.Add((New-PreflightIssue -Code 'refinement_reference_invalid' -Message ('Refinement {0} DELIVERY blocks do not parse: {1}.' -f $path, ($blockCodes -join ', '))))
+        }
+
+        foreach ($planItem in $planItems) {
+            $definedInRefinement = @($refinementItemList | Where-Object { $_.Id -ceq [string]$planItem.Id }).Count -gt 0
+            if ($definedInRefinement -and $restatedIds.Add([string]$planItem.Id)) {
+                $issues.Add((New-PreflightIssue -Code 'plan_restates_refinement_item' -Message ('Plan heading {0} restates an item defined in {1}; cite it under Refinement references instead.' -f $planItem.Id, $path)))
+            }
+        }
+
+        if (-not ($grammarOk -and ($itemErrors.Count -eq 0))) { continue }
+
+        $identity = Get-DeliveryNormativeIdentity -Text $target.Text
+        if (-not (Test-RefinementApproval -Blocks $blocks -Identity $identity)) {
+            $issues.Add((New-PreflightIssue -Code 'refinement_not_approved' -Message ('Refinement {0} is not approved for its current normative text.' -f $path)))
+        }
+
+        foreach ($reference in $pathReferences) {
+            $found = @($refinementItemList | Where-Object { $_.Id -ceq [string]$reference.Id })
+            if ($found.Count -eq 0) {
+                $issues.Add((New-PreflightIssue -Code 'refinement_reference_unknown' -Message ('Refinement item {1} is not an item of {0}.' -f $path, $reference.Id)))
+                continue
+            }
+            $item = $found[0]
+            if (([string]$item.SupersededBy).Length -gt 0) {
+                $issues.Add((New-PreflightIssue -Code 'refinement_reference_superseded' -Message ('Refinement item {1} in {0} is superseded by {2}.' -f $path, $reference.Id, $item.SupersededBy)))
+                continue
+            }
+            if ([string]$item.Hash -cne [string]$reference.Hash) {
+                $issues.Add((New-PreflightIssue -Code 'refinement_reference_stale' -Message ('Refinement item {1} in {0} changed after the plan cited hash {2}; current hash is {3}.' -f $path, $reference.Id, $reference.Hash, $item.Hash)))
+            }
+        }
+    }
+
+    return , $issues.ToArray()
+}
+
 try {
     if (($ExpectedIdentity.Length -gt 0) -and ($ExpectedIdentity -cnotmatch '^[0-9A-F]{64}$')) {
         throw 'ExpectedIdentity must be 64 uppercase hex characters.'
@@ -426,6 +537,11 @@ try {
         else {
             $issues.Add((New-PreflightIssue -Code 'plan_dependency_cycle' -Message ('Plan dependency cycle: {0}.' -f $chainText)))
         }
+    }
+
+    $refinementIssues = Get-PlanRefinementIssues -RepoFull $repoFull -PlanText $planText
+    foreach ($refinementIssue in $refinementIssues) {
+        $issues.Add($refinementIssue)
     }
 
     if ($ReviewRecordPath.Length -gt 0) {

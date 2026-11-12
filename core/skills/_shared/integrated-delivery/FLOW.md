@@ -14,6 +14,8 @@ Status: Stage 1 design contract for the opt-in `integrated-delivery` flow.
 
 Story and PRD may be inputs. They are not parallel authorities after their accepted content is represented in the canonical refinement or unit plan. Full conversations and raw specialist transcripts are not canonical artifacts.
 
+Platform constraints (source, version, statement, uncertainty) are evidence entries of the feature refinement, not a legacy gate; an external-effect step also needs the activation and rollback statement defined in the plan format.
+
 ## Flow states
 
 `intake → feature_refinement → feature_review → feature_approval → unit_plan → plan_review → plan_approval → implementation → validation → complete`

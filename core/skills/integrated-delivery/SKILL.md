@@ -10,7 +10,7 @@ This is the single user-facing entry for the experimental flow. It runs in the m
 
 ## Load only what this transition needs
 
-1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md` before routing or writing.
+1. Read `../_shared/integrated-delivery/FLOW.md` and `DOCUMENTS.md` before routing or writing. Before any delegation, read `../_shared/integrated-delivery/STARTUP.md`.
 2. Read `EXECUTION.md` only when checking approval, resume, or execution state. Read `REVIEW.md` only before a required review or when reconciling findings.
 3. Read the active repository's relevant instructions and only named Memory Bank files that could affect the demand. Do not dump the Memory Bank or unrelated SDD references into context.
 4. For triage and question grouping, read [references/triage.md](references/triage.md).
@@ -23,7 +23,7 @@ The flow is experimental and opt-in. Do not claim an adapter, validator, reviewe
 1. Resolve the workspace root and inspect the target feature's existing canonical artifacts. Preserve the current branch and all unrelated work. Do not allocate a feature folder until the repository's existing storage convention is understood and the operator's demand warrants persisted artifacts.
 2. Precheck the environment before planning: confirm the intended repository is open, its local instructions and relevant source paths are readable, current feature storage can be resolved, and there is no apparent path/permission blocker. This is a lightweight readiness check, not a build or proof of host capabilities.
 3. Determine the next state from on-disk evidence, not conversation memory alone. Follow `FLOW.md`. Never infer an approval from a review result, a prior session, or a file's presence.
-4. Triage objective, scope, exclusions, affected repositories, complexity, risks, unit boundaries, and material specialist signals. Reuse information already supplied or evidenced; ask only for unresolved material decisions. Batch blocking and important questions, at most five per batch. Use the host's native question component when available; do not ask these as unstructured prose. Record MINOR observations without interrupting unless they expose a material gap.
+4. Triage objective, scope, exclusions, affected repositories, complexity, risks, unit boundaries, material specialist signals, and platform or integration constraints (see `references/triage.md`). Reuse information already supplied or evidenced; ask only for unresolved material decisions. Batch blocking and important questions, at most five per batch. Use the host's native question component when available; do not ask these as unstructured prose. Record MINOR observations without interrupting unless they expose a material gap.
 5. Route only the current eligible stage. A simple single-unit demand goes directly to the unit-plan stage when available; do not create a `REFINEMENT.md`, story, PRD, task checklist, or feature scaffold solely for formality. If the plan stage is unavailable, report that exact next step and stop without simulating its output.
 6. For multi-unit work, shared files, changed shared contracts, or superseded material decisions, invoke `integrated-delivery-refine` when available. It writes the canonical feature refinement and stops at the required review/approval gate. Do not start unit planning in the same invocation after that gate.
 7. Invoke domain specialists only for a material signal identified by the triage rules. Use available depth-one read-only specialist capability; specialists do not spawn other agents. If unavailable, do targeted analysis in the main context or record the evidence gap. Do not create empty folders or separate notes by default. Keep concise findings, evidence, confidence, limitations, and affected IDs in the canonical refinement.
@@ -40,6 +40,13 @@ The flow is experimental and opt-in. Do not claim an adapter, validator, reviewe
 - Never perform Git or publication actions, implement code, silently widen scope, or convert a specialist inference into an approved requirement.
 
 For the concrete unit-boundary, materiality, question, and conditional-specialist rules, use [references/triage.md](references/triage.md). The canonical document and approval rules in shared contracts take precedence over this router.
+
+## Coordinator conduct
+
+- Report progress only on a stage change, a material decision, or a block. No waiting turns and no repeated partial reports of the same child.
+- Amend documents by focused patches. Rewrite a whole document only with a reason stated in the stage summary.
+- Present decisions as numbered items per `../_shared/agents/QUESTIONS.md` and the question rules in `../_shared/integrated-delivery/FLOW.md`.
+- Choose a subagent model and effort pair by role under `../_shared/agents/SUBAGENT-MODEL.md`. Record the requested pair in the review record with `-RequestedModel` and `-RequestedEffort`. Never claim an effective model or isolation the host did not report.
 
 ## Lazy-load
 

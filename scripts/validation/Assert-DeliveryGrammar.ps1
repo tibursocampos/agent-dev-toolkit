@@ -459,5 +459,104 @@ Assert-Equal '0' ([string]@($depStrayNoHeading.Dependencies).Count) 'Should_NotD
 $depFencedOutside = Get-DeliveryPlanDependencies -Text ((@('# Plan', '', '```text', "Requires plan: $depPathA identity=$depHexA steps=US01-S1", '```', '', '## Plan dependencies', '', '## Steps', '', '### US01-S1 First', 'Depends on: none', 'Validation: run-tests', '') -join $lf))
 Assert-Equal '0' ([string]@($depFencedOutside.Errors).Count) 'Should_IgnoreRequiresLine_When_InsideFencedCodeOutsideHeading'
 
+# Refinement items
+
+function Get-ExpectedSha256Hex([string]$Text) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return ([BitConverter]::ToString($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Text)))).Replace('-', '')
+    }
+    finally {
+        $sha.Dispose()
+    }
+}
+
+function Get-ItemById($Items, [string]$Id) {
+    return @(@($Items) | Where-Object { $_.Id -ceq $Id })[0]
+}
+
+$refinementItemsText = (@('# Refinement', '', '### D-001 Use cache', 'Cache results.', '', '### CA-002 Latency', 'Under 200 ms.', '', '### R-003 Load', 'Peak load risk.', '') -join $lf)
+$refinementItems = Get-DeliveryRefinementItems -Text $refinementItemsText
+Assert-Equal '3' ([string]@($refinementItems.Items).Count) 'Should_ParseThreeItems_When_DecisionCriterionAndRiskHeadingsPresent'
+Assert-Equal 'D-001,CA-002,R-003' (@($refinementItems.Items | ForEach-Object { $_.Id }) -join ',') 'Should_ReturnItemIdsInOrder_When_ItemsParsed'
+Assert-Equal 'Use cache' ([string]$refinementItems.Items[0].Title) 'Should_ReturnTitle_When_ItemHeadingHasTitle'
+Assert-Equal '0' ([string]@($refinementItems.Errors).Count) 'Should_ReturnNoErrors_When_ItemsAreValid'
+Assert-True ($refinementItems.Items[0].Body -ceq "### D-001 Use cache`nCache results.`n") 'Should_EndBodyBeforeNextHeading_When_ItemFollowedByHeading'
+Assert-True (-not $refinementItems.Items[0].Body.Contains('CA-002')) 'Should_NotIncludeNextItem_When_BodyEndsAtNextHeading'
+
+$fencedItemsText = (@('# Refinement', '', '### D-001 Example', 'Text.', '```markdown', '### D-009 Fake', '```', 'More.', '') -join $lf)
+$fencedItems = Get-DeliveryRefinementItems -Text $fencedItemsText
+Assert-Equal '1' ([string]@($fencedItems.Items).Count) 'Should_IgnoreFencedItemHeading_When_HeadingIsInsideFence'
+Assert-True ($fencedItems.Items[0].Body.Contains('### D-009 Fake')) 'Should_KeepFencedHeadingInBody_When_HeadingIsInsideFence'
+
+$ordinaryItemsText = (@('# Refinement', '', '### D-001 Decision', 'Text.', '', '### Notes', 'Not an item.', '') -join $lf)
+$ordinaryItems = Get-DeliveryRefinementItems -Text $ordinaryItemsText
+Assert-Equal '1' ([string]@($ordinaryItems.Items).Count) 'Should_IgnoreOrdinaryHeading_When_FirstTokenIsNotItemId'
+Assert-True (-not $ordinaryItems.Items[0].Body.Contains('Not an item.')) 'Should_EndBody_When_OrdinaryLevelThreeHeadingFollows'
+
+$duplicateItemsText = (@('### D-001 First', 'a', '', '### D-001 Second', 'b', '') -join $lf)
+$duplicateItems = Get-DeliveryRefinementItems -Text $duplicateItemsText
+Assert-IssueCode $duplicateItems.Errors 'refinement_item_invalid' 'Should_ReturnRefinementItemInvalid_When_IdRepeats'
+Assert-True ([string]$duplicateItems.Errors[0].message).Contains('line 1') 'Should_NameFirstLine_When_IdRepeats'
+Assert-True ([string]$duplicateItems.Errors[0].message).Contains('line 4') 'Should_NameSecondLine_When_IdRepeats'
+
+$hashText = (@('# R', '', '### D-001 Use X', 'Body line.', '', '### D-002 Y', 'z', '') -join $lf)
+$hashItems = Get-DeliveryRefinementItems -Text $hashText
+Assert-Equal (Get-ExpectedSha256Hex "### D-001 Use X`nBody line.`n") ([string](Get-ItemById $hashItems.Items 'D-001').Hash) 'Should_MatchIndependentSha256_When_HashingItemBody'
+
+$editedItemsText = $hashText.Replace('z', 'changed')
+$editedItems = Get-DeliveryRefinementItems -Text $editedItemsText
+Assert-True ((Get-ItemById $hashItems.Items 'D-002').Hash -cne (Get-ItemById $editedItems.Items 'D-002').Hash) 'Should_ChangeHash_When_OwnItemTextChanges'
+Assert-Equal (Get-ItemById $hashItems.Items 'D-001').Hash (Get-ItemById $editedItems.Items 'D-001').Hash 'Should_KeepHash_When_OtherItemTextChanges'
+
+$renamedText = $hashText.Replace('### D-001 Use X', '### D-001 Use Y')
+$renamedItems = Get-DeliveryRefinementItems -Text $renamedText
+Assert-True ((Get-ItemById $hashItems.Items 'D-001').Hash -cne (Get-ItemById $renamedItems.Items 'D-001').Hash) 'Should_ChangeHash_When_HeadingTitleRenamed'
+
+$supersededText = (@('### D-001 Old', 'Status: superseded by D-002', '', '### D-002 New', 'Current.', '') -join $lf)
+$superseded = Get-DeliveryRefinementItems -Text $supersededText
+Assert-Equal 'D-002' ([string](Get-ItemById $superseded.Items 'D-001').SupersededBy) 'Should_DetectSupersededBy_When_StatusLinePresent'
+Assert-Equal '' ([string](Get-ItemById $superseded.Items 'D-002').SupersededBy) 'Should_LeaveSupersededByEmpty_When_NoStatusLine'
+
+$arrayOne = Get-DeliveryRefinementItems -Text ((@('### R-001 Only', 'x', '') -join $lf))
+Assert-True ($arrayOne.Items -is [System.Array]) 'Should_KeepItemsArray_When_OneItemParsed'
+Assert-Equal '1' ([string]@($arrayOne.Items).Count) 'Should_ReturnOneItem_When_OneItemParsed'
+$arrayNone = Get-DeliveryRefinementItems -Text '# Empty'
+Assert-True ($arrayNone.Items -is [System.Array]) 'Should_KeepItemsArray_When_NoItemsParsed'
+Assert-Equal '0' ([string]@($arrayNone.Items).Count) 'Should_ReturnNoItems_When_NoItemHeadings'
+
+# Refinement references
+
+$shaRef = 'A' * 64
+$refOneText = (@('# Plan', '', '## Refinement references', '', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", '', '## Steps', '') -join $lf)
+$refOne = Get-DeliveryRefinementReferences -Text $refOneText
+Assert-Equal '0' ([string]@($refOne.Errors).Count) 'Should_ReturnNoErrors_When_OneReferenceValid'
+Assert-Equal '1' ([string]@($refOne.References).Count) 'Should_ReturnOneReference_When_OneUsesLineValid'
+Assert-Equal 'D-001' ([string]$refOne.References[0].Id) 'Should_ReturnReferenceId_When_UsesLineValid'
+Assert-Equal $shaRef ([string]$refOne.References[0].Hash) 'Should_ReturnReferenceHash_When_UsesLineValid'
+Assert-Equal 'features/001-demo/REFINEMENT.md' ([string]$refOne.References[0].Path) 'Should_ReturnReferencePath_When_UsesLineValid'
+
+$refManyText = (@('## 2. Refinement references', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", "Uses: features/001-demo/REFINEMENT.md CA-002 hash=$shaRef", "Uses: features/002-other/REFINEMENT.md R-003 hash=$shaRef", '', '## Steps', '') -join $lf)
+$refMany = Get-DeliveryRefinementReferences -Text $refManyText
+Assert-Equal '0' ([string]@($refMany.Errors).Count) 'Should_ReturnNoErrors_When_ManyReferencesValid'
+Assert-Equal '3' ([string]@($refMany.References).Count) 'Should_ReturnAllReferences_When_ManyUsesLinesValid'
+Assert-Equal 'R-003' ([string]$refMany.References[2].Id) 'Should_KeepOrder_When_ManyUsesLinesValid'
+
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$($shaRef.ToLowerInvariant())", '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_HashIsLowercase'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/../002-x/REFINEMENT.md D-001 hash=$shaRef", '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_PathContainsParentSegment'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/PLAN.md D-001 hash=$shaRef", '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_PathIsNotRefinement'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/REFINEMENT.md X-1 hash=$shaRef", '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_IdIsMalformed'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_PathAndIdRepeat'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", 'Note: stray text', '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_OtherTextUnderHeading'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('# Plan', '', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", '', '## Refinement references', '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_UsesLineIsOutsideHeading'
+Assert-IssueCode (Get-DeliveryRefinementReferences -Text ((@('## Refinement references', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", '## Notes', '## Refinement references', '') -join $lf))).Errors 'refinement_reference_invalid' 'Should_ReturnReferenceInvalid_When_SecondHeadingPresent'
+$fencedRefs = Get-DeliveryRefinementReferences -Text ((@('## Refinement references', '```text', "Uses: features/001-demo/REFINEMENT.md D-001 hash=$shaRef", '```', '') -join $lf))
+Assert-Equal '0' ([string]@($fencedRefs.References).Count) 'Should_IgnoreFencedUsesLine_When_LineIsInsideFence'
+Assert-Equal '0' ([string]@($fencedRefs.Errors).Count) 'Should_ReturnNoErrors_When_FencedLineUnderHeading'
+$noRefHeading = Get-DeliveryRefinementReferences -Text '# Plan'
+Assert-True ($noRefHeading.References -is [System.Array]) 'Should_KeepReferencesArray_When_NoHeading'
+Assert-Equal '0' ([string]@($noRefHeading.References).Count) 'Should_ReturnNoReferences_When_NoHeading'
+Assert-Equal '0' ([string]@($noRefHeading.Errors).Count) 'Should_ReturnNoErrors_When_NoHeading'
+
 Write-Output ('PASS: {0} delivery grammar assertions.' -f $passed)
 exit 0

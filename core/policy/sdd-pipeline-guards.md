@@ -18,6 +18,8 @@ Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`s
 
 ## Canonical paths only
 
+The canonical paths below apply to Classic SDD only; integrated-delivery units (`features/NNN-slug/USnn|TSnn/PLAN.md`, `REFINEMENT.md`) follow the integrated-delivery contracts (precedence in `{{TOOLKIT_ROOT}}/skills/_shared/integrated-delivery/STARTUP.md`) and must not be validated against the Classic path format.
+
 ### Classic SDD (writes and execution)
 
 - PRD: `features/NNN-slug/USnn/PRD/NNN_*.md` (default story `US01`) or global under `{{SDD_ROOT}}/<repo-id>/features/...`.

@@ -72,6 +72,17 @@ Besides `id`, `severity`, `category`, `section`, `evidence` and `recommendation`
 
 This is an integration policy for the new experimental flow. It does not rewire or disable existing SDD/O1/O2 skills. Their validators and content gates do not become prerequisites in this flow.
 
+## Plan completability lens
+
+For a unit `PLAN.md` target, the critic also checks each step for:
+- an observable outcome, target files or symbols, and predecessors (missing: `ACCEPTANCE_GAP` or `GAP`);
+- validation that runs with dependencies available at that step; a step needing output from a later step states an isolation strategy (test double or reordering), otherwise `DEPENDENCY`;
+- evidence, risk, and reversal (missing: `RISK`);
+- a requirement crossing a shared wrapper (privacy, security, logging) has its fix inside the declared scope or an explicit decision (otherwise `RISK`);
+- a step that cannot be completed without a file outside scope is a `GAP` finding, not an automatic scope expansion;
+- every criterion maps to a step and a test by ID, without copying criterion bodies (missing: `ACCEPTANCE_GAP`);
+- no step is complete from a status field or an agent receipt alone; completion needs validation evidence (otherwise `ACCEPTANCE_GAP`).
+
 ## Host limits
 
 Fresh contexts are not proof of filesystem isolation. Record the host, requested/effective capabilities if observable, and the actual evidence for restrictions. Codex context-only is explicitly a context boundary, not tool or filesystem enforcement. If review is unavailable, offer bypass; without explicit operator choice the record remains `not_run`. A bypass records the reason and evidence and cannot resolve B/I.

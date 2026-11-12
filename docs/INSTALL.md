@@ -279,6 +279,15 @@ Seed never overwrites an existing manifest. Full contract: [STORAGE.md](../core/
 
 Full layouts: [ARCHITECTURE.md](ARCHITECTURE.md), [ADAPTERS.md](ADAPTERS.md).
 
+### Integrated delivery requirements
+
+- Scripts under `runtime/` require **pwsh 7**.
+- `session/Invoke-StartupPreflight.ps1` and the scripts under `ledger/` run on **Windows PowerShell 5.1** and **pwsh 7**.
+- The optional per-user alias catalog is `input-aliases.json` in the SDD directory next to `preferences.json`. It is never versioned and never placed inside a repository.
+- The startup marker (`startup-<SessionId>.json`) is written by the coordinator under the sessions directory (`<InstallRoot>/sdd/sessions/`).
+- None of this has been verified on real hosts; only the local validation suite covers it.
+- Packaging failures (missing skill entry points, unregistered script references, missing manifest sources) are detected by `scripts/validation/Assert-DeliveryPackaging.ps1`.
+
 ## 5. Verify
 
 ```powershell

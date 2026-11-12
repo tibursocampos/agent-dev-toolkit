@@ -488,6 +488,200 @@ try {
     Assert-IssueCode $aliasWithoutCatalog 'review_gate_blocked' 'Should_ReturnReviewGateBlocked_When_AliasReviewRecordHasNoCatalog'
     Assert-IssueMessage $aliasWithoutCatalog 'review_gate_blocked' 'input_source_unavailable' 'Should_NameInputSourceUnavailable_When_AliasReviewRecordHasNoCatalog'
 
+    # Refinement references
+
+    $refinementCli = Join-Path $scriptsRoot 'runtime/Get-DeliveryRefinementItems.ps1'
+    $refinementRelative = 'features/001-demo/REFINEMENT.md'
+
+    function Add-PlanSection([string]$Text, [string]$Heading, [string[]]$Lines) {
+        $section = (@("## $Heading", '') + $Lines + '') -join $lf
+        $index = $Text.IndexOf('## Steps' + $lf, [System.StringComparison]::Ordinal)
+        if ($index -lt 0) { throw 'fixture marker missing' }
+        return $Text.Insert($index, $section + $lf)
+    }
+
+    function New-RefinementPlanText([string[]]$Lines, [string]$Heading = 'Refinement references') {
+        $probe = Add-PlanSection (Build-PlanText -Declared $validDeclared -ApprovalIdentity $placeholderIdentity) $Heading $Lines
+        $planIdentity = Get-DeliveryNormativeIdentity -Text $probe
+        return $probe.Replace('"identity":"' + $placeholderIdentity + '"', '"identity":"' + $planIdentity + '"')
+    }
+
+    function New-RefinementFixtureText([string]$D1 = 'Decision one.', [string]$D2 = 'Decision two.', [string]$State = 'approved') {
+        $prefix = @('# Refinement', '', '### D-001 First decision', $D1, '', '### D-002 Second decision', $D2, '', '## Approval', '')
+        $approval = '{"schema":"delivery-approval/v1","state":"' + $State + '","identity":"' + $placeholderIdentity + '","input_identity":"INPUT-1","review_state":"reviewed"}'
+        $probe = (($prefix + @('<!-- DELIVERY:APPROVAL:BEGIN -->', $approval, '<!-- DELIVERY:APPROVAL:END -->', '')) -join $lf)
+        $refinementIdentity = Get-DeliveryNormativeIdentity -Text $probe
+        return $probe.Replace('"identity":"' + $placeholderIdentity + '"', '"identity":"' + $refinementIdentity + '"')
+    }
+
+    function Get-RefinementItemHash([string]$Text, [string]$Id) {
+        $found = @(@((Get-DeliveryRefinementItems -Text $Text).Items) | Where-Object { $_.Id -ceq $Id })
+        return [string]$found[0].Hash
+    }
+
+    function Invoke-RefinementCli([string[]]$Arguments) {
+        $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $refinementCli) + $Arguments
+        $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = $childHost
+        $startInfo.Arguments = (@($argList | ForEach-Object { ConvertTo-ProcessArgument ([string]$_) }) -join ' ')
+        $startInfo.UseShellExecute = $false
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $startInfo.CreateNoWindow = $true
+        $process = [System.Diagnostics.Process]::Start($startInfo)
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrText = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        $stdoutText = $stdoutTask.Result
+        $parsed = $null
+        try { $parsed = $stdoutText.Trim() | ConvertFrom-Json } catch { $parsed = $null }
+        return [pscustomobject]@{ ExitCode = $process.ExitCode; Result = $parsed; Stdout = $stdoutText; Stderr = $stderrText }
+    }
+
+    $refinementText = New-RefinementFixtureText
+    $refinementHashD1 = Get-RefinementItemHash $refinementText 'D-001'
+    $staleHash = 'F' * 64
+
+    $refValidRepo = Write-PlanFile 'refinement-valid' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$refinementHashD1"))
+    Add-RepoPlan $refValidRepo $refinementRelative $refinementText
+    $refValid = Invoke-Preflight -Repo $refValidRepo
+    Assert-ExitCode 0 $refValid 'Should_ExitZero_When_RefinementReferencesValidAndApproved'
+    Assert-True ($refValid.Result.ok -eq $true) 'Should_ReturnOk_When_RefinementReferencesValidAndApproved'
+    Assert-True (@(Get-IssueCodes $refValid).Count -eq 0) 'Should_ReturnNoIssues_When_ApprovalIdentityMatches'
+
+    $refMalformedRepo = Write-PlanFile 'refinement-reference-invalid' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=abc"))
+    Assert-IssueCode (Invoke-Preflight -Repo $refMalformedRepo) 'refinement_reference_invalid' 'Should_ReturnRefinementReferenceInvalid_When_UsesLineMalformed'
+
+    $refDuplicateItemRepo = Write-PlanFile 'refinement-item-duplicate' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$refinementHashD1"))
+    Add-RepoPlan $refDuplicateItemRepo $refinementRelative ($refinementText + "### D-001 Again`nx`n")
+    Assert-IssueCode (Invoke-Preflight -Repo $refDuplicateItemRepo) 'refinement_reference_invalid' 'Should_ReturnRefinementReferenceInvalid_When_RefinementItemIdRepeats'
+
+    $refBlockBrokenRepo = Write-PlanFile 'refinement-blocks-broken' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$refinementHashD1"))
+    Add-RepoPlan $refBlockBrokenRepo $refinementRelative ($refinementText + "<!-- DELIVERY:APPROVAL:BEGIN -->`n")
+    $refBlockBroken = Invoke-Preflight -Repo $refBlockBrokenRepo
+    Assert-IssueCode $refBlockBroken 'refinement_reference_invalid' 'Should_ReturnRefinementReferenceInvalid_When_RefinementBlocksDoNotParse'
+
+    $refMissingRepo = Write-PlanFile 'refinement-missing' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$refinementHashD1"))
+    $refMissing = Invoke-Preflight -Repo $refMissingRepo
+    Assert-IssueCode $refMissing 'refinement_reference_unknown' 'Should_ReturnRefinementReferenceUnknown_When_RefinementFileMissing'
+    Assert-IssueMessage $refMissing 'refinement_reference_unknown' $refinementRelative 'Should_NameRefinementPath_When_RefinementFileMissing'
+
+    $refUnknownIdRepo = Write-PlanFile 'refinement-unknown-id' (New-RefinementPlanText @("Uses: $refinementRelative D-009 hash=$refinementHashD1"))
+    Add-RepoPlan $refUnknownIdRepo $refinementRelative $refinementText
+    $refUnknownId = Invoke-Preflight -Repo $refUnknownIdRepo
+    Assert-IssueCode $refUnknownId 'refinement_reference_unknown' 'Should_ReturnRefinementReferenceUnknown_When_IdIsNotAnItem'
+    Assert-IssueMessage $refUnknownId 'refinement_reference_unknown' 'D-009' 'Should_NameItemId_When_IdIsNotAnItem'
+
+    $refStaleRepo = Write-PlanFile 'refinement-stale' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$staleHash"))
+    Add-RepoPlan $refStaleRepo $refinementRelative $refinementText
+    $refStale = Invoke-Preflight -Repo $refStaleRepo
+    Assert-IssueCode $refStale 'refinement_reference_stale' 'Should_ReturnRefinementReferenceStale_When_HashDiffers'
+    Assert-IssueMessage $refStale 'refinement_reference_stale' 'D-001' 'Should_NameItemId_When_ReferenceStale'
+
+    $supersededRefinement = New-RefinementFixtureText -D1 "Old decision.`nStatus: superseded by D-002"
+    $supersededHash = Get-RefinementItemHash $supersededRefinement 'D-001'
+    $refSupersededRepo = Write-PlanFile 'refinement-superseded' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$staleHash"))
+    Add-RepoPlan $refSupersededRepo $refinementRelative $supersededRefinement
+    $refSuperseded = Invoke-Preflight -Repo $refSupersededRepo
+    Assert-IssueCode $refSuperseded 'refinement_reference_superseded' 'Should_ReturnRefinementReferenceSuperseded_When_ItemSuperseded'
+    Assert-True ((Get-IssueCodes $refSuperseded) -notcontains 'refinement_reference_stale') 'Should_NotReportStale_When_ItemSupersededEvenIfHashDiffers'
+    Assert-IssueMessage $refSuperseded 'refinement_reference_superseded' 'D-002' 'Should_NameSupersedingItem_When_ItemSuperseded'
+
+    $refSupersededCurrentRepo = Write-PlanFile 'refinement-superseded-current' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$supersededHash"))
+    Add-RepoPlan $refSupersededCurrentRepo $refinementRelative $supersededRefinement
+    Assert-IssueCode (Invoke-Preflight -Repo $refSupersededCurrentRepo) 'refinement_reference_superseded' 'Should_ReturnRefinementReferenceSuperseded_When_HashMatchesSupersededItem'
+
+    $pendingRefinement = New-RefinementFixtureText -State 'pending'
+    $refPendingRepo = Write-PlanFile 'refinement-pending' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$(Get-RefinementItemHash $pendingRefinement 'D-001')"))
+    Add-RepoPlan $refPendingRepo $refinementRelative $pendingRefinement
+    $refPending = Invoke-Preflight -Repo $refPendingRepo
+    Assert-IssueCode $refPending 'refinement_not_approved' 'Should_ReturnRefinementNotApproved_When_ApprovalPending'
+    Assert-True (@(Get-IssueCodes $refPending | Where-Object { $_ -ceq 'refinement_not_approved' }).Count -eq 1) 'Should_ReportNotApprovedOnce_When_RefinementReferencedTwice'
+
+    $editedApprovedRefinement = $refinementText.Replace('Decision one.', 'Decision one edited.')
+    Assert-True ($editedApprovedRefinement -cne $refinementText) 'Should_ChangeFixture_When_ApprovedTextEdited'
+    $refEditedRepo = Write-PlanFile 'refinement-edited-after-approval' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$(Get-RefinementItemHash $editedApprovedRefinement 'D-001')"))
+    Add-RepoPlan $refEditedRepo $refinementRelative $editedApprovedRefinement
+    $refEdited = Invoke-Preflight -Repo $refEditedRepo
+    Assert-IssueCode $refEdited 'refinement_not_approved' 'Should_ReturnRefinementNotApproved_When_NormativeTextEditedAfterApproval'
+
+    $unrelatedEditRefinement = $refinementText.Replace('Decision two.', 'Decision two changed.')
+    $refUnrelatedRepo = Write-PlanFile 'refinement-unrelated-edit' (New-RefinementPlanText @("Uses: $refinementRelative D-001 hash=$refinementHashD1"))
+    Add-RepoPlan $refUnrelatedRepo $refinementRelative $unrelatedEditRefinement
+    $refUnrelated = Invoke-Preflight -Repo $refUnrelatedRepo
+    Assert-True ((Get-IssueCodes $refUnrelated) -notcontains 'refinement_reference_stale') 'Should_NotReportStale_When_UnrelatedItemEdited'
+
+    $restateProbe = Add-PlanSection (Add-PlanSection (Build-PlanText -Declared $validDeclared -ApprovalIdentity $placeholderIdentity) 'Notes' @('### D-001 Restated decision', 'Copied text.', '')) 'Refinement references' @("Uses: $refinementRelative D-001 hash=$refinementHashD1")
+    $restatePlanText = $restateProbe.Replace('"identity":"' + $placeholderIdentity + '"', '"identity":"' + (Get-DeliveryNormativeIdentity -Text $restateProbe) + '"')
+    $restateRepo = Write-PlanFile 'refinement-restates-cited' $restatePlanText
+    Add-RepoPlan $restateRepo $refinementRelative $refinementText
+    $restate = Invoke-Preflight -Repo $restateRepo
+    Assert-IssueCode $restate 'plan_restates_refinement_item' 'Should_ReturnPlanRestatesRefinementItem_When_PlanDeclaresCitedItemId'
+    Assert-IssueMessage $restate 'plan_restates_refinement_item' 'D-001' 'Should_NameItemId_When_PlanRestates'
+
+    $noRefinementRepo = Write-PlanFile 'refinement-none' (New-RefinementPlanText @())
+    $noRefinement = Invoke-Preflight -Repo $noRefinementRepo
+    Assert-ExitCode 0 $noRefinement 'Should_ExitZero_When_PlanHasNoRefinementReferences'
+
+    # refinement CLI
+
+    $cliRepo = Write-PlanFile 'refinement-cli' $validText
+    Add-RepoPlan $cliRepo $refinementRelative $refinementText
+    $cliAll = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', $refinementRelative)
+    Assert-ExitCode 0 $cliAll 'Should_ExitZero_When_RefinementListed'
+    Assert-True ($cliAll.Result.ok -eq $true) 'Should_ReturnOkJson_When_RefinementListed'
+    Assert-True (([string]$cliAll.Result.identity).Length -eq 64) 'Should_ReturnIdentity_When_RefinementListed'
+    Assert-Equal '2' ([string]@($cliAll.Result.items).Count) 'Should_ListAllItems_When_NoIdGiven'
+    Assert-Equal 'D-001' ([string]$cliAll.Result.items[0].id) 'Should_ReturnItemId_When_RefinementListed'
+    Assert-Equal 'First decision' ([string]$cliAll.Result.items[0].title) 'Should_ReturnItemTitle_When_RefinementListed'
+    Assert-Equal $refinementHashD1 ([string]$cliAll.Result.items[0].hash) 'Should_ReturnItemHash_When_RefinementListed'
+    Assert-True ($null -eq $cliAll.Result.items[0].superseded_by) 'Should_ReturnNullSupersededBy_When_ItemNotSuperseded'
+
+    $cliOne = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', $refinementRelative, '-Id', 'D-002')
+    Assert-ExitCode 0 $cliOne 'Should_ExitZero_When_IdFilterMatches'
+    Assert-Equal '1' ([string]@($cliOne.Result.items).Count) 'Should_ListOnlyRequestedItem_When_IdGiven'
+    Assert-Equal 'D-002' ([string]$cliOne.Result.items[0].id) 'Should_ReturnRequestedId_When_IdGiven'
+
+    $cliUnknown = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', $refinementRelative, '-Id', 'D-009')
+    Assert-ExitCode 3 $cliUnknown 'Should_ExitThree_When_IdUnknown'
+    Assert-Equal 'refinement_reference_unknown' ([string]$cliUnknown.Result.reason) 'Should_ReturnUnknownReason_When_IdUnknown'
+    Assert-True ($cliUnknown.Result.ok -eq $false) 'Should_ReturnNotOk_When_IdUnknown'
+
+    $cliOneItemRepo = Write-PlanFile 'refinement-cli-one' $validText
+    Add-RepoPlan $cliOneItemRepo $refinementRelative ("# Refinement`n`n### R-001 Only risk`nText.`n")
+    $cliOneItem = Invoke-RefinementCli @('-RepoPath', $cliOneItemRepo, '-RefinementPath', $refinementRelative)
+    Assert-ExitCode 0 $cliOneItem 'Should_ExitZero_When_SingleItemRefinementListed'
+    Assert-True ($cliOneItem.Stdout.Contains('"items":[{')) 'Should_KeepItemsArray_When_SingleItemRefinementListed'
+
+    $cliSupersededRepo = Write-PlanFile 'refinement-cli-superseded' $validText
+    Add-RepoPlan $cliSupersededRepo $refinementRelative $supersededRefinement
+    $cliSuperseded = Invoke-RefinementCli @('-RepoPath', $cliSupersededRepo, '-RefinementPath', $refinementRelative, '-Id', 'D-001')
+    Assert-ExitCode 0 $cliSuperseded 'Should_ExitZero_When_SupersededItemListed'
+    Assert-Equal 'D-002' ([string]$cliSuperseded.Result.items[0].superseded_by) 'Should_ReturnSupersededBy_When_ItemSuperseded'
+
+    $cliMissing = Invoke-RefinementCli @('-RepoPath', $validRepo, '-RefinementPath', 'features/001-demo/REFINEMENT.md')
+    Assert-ExitCode 3 $cliMissing 'Should_ExitThree_When_RefinementMissing'
+    Assert-Equal 'refinement_reference_unknown' ([string]$cliMissing.Result.reason) 'Should_ReturnUnknownReason_When_RefinementMissing'
+
+    $cliBadPath = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', 'features/001-demo/../002-x/REFINEMENT.md')
+    Assert-ExitCode 3 $cliBadPath 'Should_ExitThree_When_PathContainsParentSegment'
+    Assert-Equal 'refinement_reference_invalid' ([string]$cliBadPath.Result.reason) 'Should_ReturnInvalidReason_When_PathContainsParentSegment'
+
+    $cliBackslash = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', 'features\001-demo\REFINEMENT.md')
+    Assert-ExitCode 3 $cliBackslash 'Should_ExitThree_When_PathUsesBackslashes'
+
+    $cliBrokenRepo = Write-PlanFile 'refinement-cli-broken' $validText
+    Add-RepoPlan $cliBrokenRepo $refinementRelative ("# Refinement`n`n<!-- DELIVERY:APPROVAL:BEGIN -->`n")
+    $cliBroken = Invoke-RefinementCli @('-RepoPath', $cliBrokenRepo, '-RefinementPath', $refinementRelative)
+    Assert-ExitCode 3 $cliBroken 'Should_ExitThree_When_RefinementGrammarFails'
+    Assert-Equal 'refinement_reference_invalid' ([string]$cliBroken.Result.reason) 'Should_ReturnInvalidReason_When_RefinementGrammarFails'
+
+    $cliBadId = Invoke-RefinementCli @('-RepoPath', $cliRepo, '-RefinementPath', $refinementRelative, '-Id', 'X-1')
+    Assert-ExitCode 1 $cliBadId 'Should_ExitOne_When_IdParameterMalformed'
+
+    $cliBadRepo = Invoke-RefinementCli @('-RepoPath', (Join-Path $tempRoot 'does-not-exist'), '-RefinementPath', $refinementRelative)
+    Assert-ExitCode 1 $cliBadRepo 'Should_ExitOne_When_RepoPathMissing'
+
     Write-Output ('PASS: {0} delivery plan preflight assertions.' -f $passed)
 }
 finally {
