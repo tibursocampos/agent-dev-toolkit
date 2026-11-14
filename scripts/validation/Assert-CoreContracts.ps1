@@ -2990,7 +2990,7 @@ Assert-Contract 'CA6_AnalysisConsumedBeforeImplementation' ($o1 + $o2 + $o3 + $c
 Assert-Contract 'CA7_RoleSpecificOutputContracts' ($repoAnalyst + $architect + $receipt) @('Output', 'role-specific', 'finding')
 Assert-Contract 'CA8_ValidatedMachineFormatWithoutYamlProtocol' ($receipt + $spawn) @('JSON', 'YAML', 'consumer')
 Assert-Contract 'CA9_O3InvariantsRemainDocumented' ($o3 + $receipt) @('claim', 'receipt', 'one step')
-Assert-Contract 'ScopedDevelopCadencePreservesDirectAndO3Gates' ($guardrails + "`n" + $developModes + "`n" + $classicSession) @('default direct Classic invocation still stops after that step', 'finite sequence of eligible steps in the current invocation', 'approved integrated-delivery plan', 'that exact approved plan', 'reset and revalidate', 'one PLAN step per child', 'O3 retains one PLAN step per child', 'Default pacing remains `step_by_step`')
+Assert-Contract 'ScopedDevelopCadencePreservesDirectAndO3Gates' ($guardrails + "`n" + $developModes + "`n" + $classicSession) @('default direct Classic invocation still stops after that step', 'finite sequence of eligible steps in the current invocation', 'ADT Delivery follows its own approved plan', 'that exact approved plan', 'reset and revalidate', 'one PLAN step per child', 'O3 retains one PLAN step per child', 'Default pacing remains `step_by_step`')
 Assert-Contract 'O3ContinuousQueueRemainsBounded' $orchestratedSession @('after the initial queue `confirm`', 'next ready step in that approved queue', 'reconciling the returned child and revalidating the gates', 'Each child still implements only one PLAN step')
 $cadenceContradictions = @(
     @{ Text = $guardrails; Pattern = '(?i)continuous.{0,100}limited to.{0,50}O3' },

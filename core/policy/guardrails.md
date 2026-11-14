@@ -72,6 +72,8 @@ Before creating or replacing **new** SDD artifacts (PRD, PLAN):
 
 **Exception:** updating an existing PLAN after an **already approved** develop step - no re-confirmation.
 
+The separate `adt-delivery-flow` may create and refine its draft feature-root `PLAN.md` before plan approval. Present the complete plan and obtain explicit approval before implementation; material amendments require renewed approval before affected work. This exception does not change Classic SDD gates.
+
 Before editing production code or tests: confirm scope unless the user explicitly approved the current step/task. A clear affirmative answer in the conversation language or an observable native confirmation selection satisfies the operator-answer contract; do not require literal `sim` when the semantic choice is unambiguous. Keep technical authorization, scope, and persisted session gates as separate checks.
 
 ---
@@ -93,7 +95,7 @@ The required **sim** before writes in §2 stays in force. This section does not 
 ## 3. Develop step scopes and cadence
 
 - `sdd-develop` uses one PLAN step per gate scope. The default direct Classic invocation still stops after that step. A direct invocation may continue only when the operator explicitly authorized a finite sequence of eligible steps in the current invocation; record `step_confirmed` for each step, then reset and revalidate plan approval, inputs, dependencies, and gates before opening the next scope (`SESSION.md`).
-- An approved integrated-delivery plan may select `step_by_step` or `continuous`. In `continuous`, the initial authorization covers only eligible steps in that exact approved plan. Process one step at a time, close/reset its gate scope, then revalidate before selecting the next. A blocker, material scope/input/approval change, or separate-authorization action stops the sequence. This is coordinator-level cadence; it does not combine PLAN steps into one develop scope.
+- ADT Delivery follows its own approved plan and selected `step_by_step` or `continuous` cadence. In `continuous`, the initial authorization covers only the eligible steps of that exact approved plan; a blocker, a material scope, input or approval change, or an action needing separate authorization stops the sequence. Its implementation skill defines progress, validation and review.
 - Orchestrated Delivery O3 always keeps one PLAN step per child. `continuous` may authorize the parent to consider the next eligible child only after the existing receipt, checkpoint, session, claim, and queue reconciliation gates pass; it never makes a child multi-step.
 - `document-implement`: exactly **one** documentation plan step per session.
 

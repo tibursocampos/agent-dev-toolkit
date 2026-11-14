@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **52** kebab skills.
+Total: **51** kebab skills.
 
 ## Tracks
 
@@ -15,7 +15,7 @@ Total: **52** kebab skills.
 | **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
 | **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
-| **Integrated Delivery (experimental)** | `integrated-delivery`, `integrated-delivery-refine`, `integrated-delivery-plan`, `integrated-delivery-review`, `integrated-delivery-implement` | Opt-in feature-to-code flow with one refinement when needed, one plan per unit, cold review, and checkpointed implementation |
+| **ADT Delivery** | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` | One evolving feature plan from refinement through implementation and code review |
 
 **Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
 
@@ -45,15 +45,16 @@ Total: **52** kebab skills.
 | `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |
 | `orchestrate-develop` | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` |
 
-## Integrated Delivery — experimental
+## ADT Delivery
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
-| `integrated-delivery` | `integrated-delivery` | Single entry that routes one eligible delivery transition |
-| `integrated-delivery-refine` | `integrated-delivery-refine` | One canonical feature refinement when cross-unit decisions require it |
-| `integrated-delivery-plan` | `integrated-delivery-plan` | One executable plan for a unit and repository |
-| `integrated-delivery-review` | `integrated-delivery-review` | Cold reader/critic review and reconciliation at required gates |
-| `integrated-delivery-implement` | `integrated-delivery-implement` | Execute eligible plan steps with checkpointed cadence and resume |
+| `adt-delivery-flow` | `adt-delivery-flow` | Coordinate refinement, planning and implementation |
+| `adt-delivery-refine` | `adt-delivery-refine` | Refine the demand in the feature plan |
+| `adt-delivery-plan` | `adt-delivery-plan` | Complete the same plan for approval |
+| `adt-delivery-implement` | `adt-delivery-implement` | Execute the approved plan, validate and run code review |
+
+The flow uses one evolving `PLAN.md` and the existing `code-review` skill; it does not use cold review.
 
 ## Developer routing and stack
 

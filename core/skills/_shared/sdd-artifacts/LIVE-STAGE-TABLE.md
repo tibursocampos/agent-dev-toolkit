@@ -1,6 +1,6 @@
 # Live progress tables
 
-Chat-only progress tables for every flow: O1, O2, O3, `sdd-spec`, `sdd-plan`, `sdd-develop` and Backlog Refine. Skill prose in this file is English. Render tables in the user chat language (`LANGUAGE.md`) using the label map below.
+Chat-only progress tables for every flow: O1, O2, O3, `sdd-spec`, `sdd-plan`, `sdd-develop`, Backlog Refine and the ADT delivery skills (`adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement`). Skill prose in this file is English. Render tables in the user chat language (`LANGUAGE.md`) using the label map below.
 
 This file defines the standard once. Flow `SKILL.md` files point here and must not hard-code column names, state labels, or glyphs.
 

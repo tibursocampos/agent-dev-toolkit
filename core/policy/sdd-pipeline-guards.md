@@ -18,7 +18,7 @@ Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`s
 
 ## Canonical paths only
 
-The canonical paths below apply to Classic SDD only; integrated-delivery units (`features/NNN-slug/USnn|TSnn/PLAN.md`, `REFINEMENT.md`) follow the integrated-delivery contracts (precedence in `{{TOOLKIT_ROOT}}/skills/_shared/integrated-delivery/STARTUP.md`) and must not be validated against the Classic path format.
+The canonical paths below apply to Classic SDD only; ADT Delivery uses one evolving `features/NNN-slug/PLAN.md` under its own skill contracts and must not be validated against the Classic path format.
 
 ### Classic SDD (writes and execution)
 
@@ -62,5 +62,5 @@ When Phase A is done and persistence is still pending, tell the user, in the use
 A canonical PLAN plus an explicit eligible step starts in the current session after dependency and confirmation gates; do not require a new session. If invocation omits the step or execution route, ask manual-per-invocation vs O3; keep that answer independent from `orchestrator_mode` and pacing. Stop after the requested step's gate scope unless an explicit finite authorization covers a later scope; reset and revalidate before continuing.
 
 - `sdd-spec` / `sdd-plan`: no production or test code changes.
-- `sdd-develop`: one PLAN step per gate scope. Direct Classic defaults to one step and stops unless the current invocation explicitly authorizes a finite eligible sequence; every step gets its own gate record and reset/revalidation. An approved integrated-delivery plan may use its explicit `step_by_step` or `continuous` cadence. O3 remains one PLAN step per child. Handoff to the next step cites the portable PLAN path + step id only. Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `{{SDD_ROOT}}/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
+- `sdd-develop`: one PLAN step per gate scope. Direct Classic defaults to one step and stops unless the current invocation explicitly authorizes a finite eligible sequence; every step gets its own gate record and reset/revalidation. ADT Delivery uses the cadence in its own approved plan and skill contracts. O3 remains one PLAN step per child. Handoff to the next step cites the portable PLAN path + step id only. Develop gates (`step_confirmed`, `tests_run`) live in PLAN-scoped files under `{{SDD_ROOT}}/sessions/{repo-hash}/` - see `SESSION.md` (supports parallel O3 without sharing one flat session JSON).
 - `code-review`: does not write PRD/PLAN; hand off findings with `/sdd-spec`.

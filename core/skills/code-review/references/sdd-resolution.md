@@ -11,16 +11,16 @@ Run in **step 0.5** before scoping the diff. Load `{{TOOLKIT_ROOT}}/skills/_shar
 
    | Location | Patterns |
    |----------|----------|
-   | Workspace | `features/**/PRD/*.md`, `features/**/PLAN/PLAN_*.md`, `docs/features/**/PRD/*.md`, `docs/features/**/PLAN/PLAN_*.md` |
-   | Global | `{{SDD_ROOT}}/<repo-id>/features/**/PRD/*.md`, `{{SDD_ROOT}}/<repo-id>/features/**/PLAN/PLAN_*.md` |
+   | Workspace | `features/**/PRD/*.md`, `features/**/PLAN/PLAN_*.md`, `features/*/PLAN.md`, `docs/features/**/PRD/*.md`, `docs/features/**/PLAN/PLAN_*.md` |
+   | Global | `{{SDD_ROOT}}/<repo-id>/features/**/PRD/*.md`, `{{SDD_ROOT}}/<repo-id>/features/**/PLAN/PLAN_*.md`, `{{SDD_ROOT}}/<repo-id>/features/*/PLAN.md` |
 
-5. **Extract `NNN`** - first three digits from PRD filename (`001_...md`) and from PLAN (`PLAN_001_...md`).
+5. **Extract `NNN`** - first three digits from PRD filename (`001_...md`) and from PLAN (`PLAN_001_...md`). For a plan at `features/NNN-slug/PLAN.md` (no `PLAN_NNN_` prefix), take `NNN` from the parent `features/NNN-slug/` folder name.
 6. **Pair** - match PRD and PLAN with the same `NNN`.
 7. **Select one pair** (first match wins):
 
    | Priority | Signal |
    |----------|--------|
-   | 1 | User passed explicit PRD or PLAN path in invocation |
+   | 1 | User passed explicit PRD or PLAN path in invocation. An explicit feature-root plan `features/NNN-slug/PLAN.md` with no PRD of the same `NNN` is used alone as plan-only context. A classic `PLAN_NNN_*.md` without its PRD keeps the **Limitação SDD** outcome |
    | 2 | PLAN header field **PRD** points to a discovered PRD path |
    | 3 | `NNN` or feature slug aligns with current branch name |
    | 4 | Single pair after pairing |
@@ -34,6 +34,7 @@ Run in **step 0.5** before scoping the diff. Load `{{TOOLKIT_ROOT}}/skills/_shar
 | Result | Action |
 |--------|--------|
 | One pair found | Proceed with SDD traceability |
+| Explicit feature-root `PLAN.md` only (no PRD) | Proceed with traceability against that plan's scope and acceptance criteria; do not report **Limitação SDD** |
 | No artifacts after full search | Report **Limitação SDD** (technical/guidelines review only); do not state PRD/PLAN "do not exist" |
 | Multiple ambiguous pairs | Ask user once; then proceed |
 

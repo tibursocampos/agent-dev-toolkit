@@ -368,7 +368,7 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
 
     $customAgentsRoot = Join-Path $resolvedInstallRoot $script:ClaudePathConstant.CustomAgentsDirectoryName
     $sourceAgentsRoot = Get-ToolkitCoreAgentsRoot -RepoRoot $repoRoot
-    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot)) {
+    foreach ($agentFileName in (Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot -InstallRoot $resolvedInstallRoot -DestinationAgentsRoot $customAgentsRoot)) {
         $agentFilePath = Join-Path $customAgentsRoot $agentFileName
         $hit = Remove-ClaudeManagedPathIfPresent -Path $agentFilePath -InstallRoot $resolvedInstallRoot -WhatIf:$WhatIf
         if ($hit) {
