@@ -94,6 +94,7 @@ $coreChecks = @(
     @{ Name = 'claude-hook-wiring'; Script = 'Assert-ClaudeHookWiring.ps1'; Isolated = $true },
     @{ Name = 'claude-skill-size'; Script = 'Assert-ClaudeSkillSize.ps1'; Isolated = $true },
     @{ Name = 'adt-delivery-flow'; Script = 'Assert-AdtDeliveryFlow.ps1' },
+    @{ Name = 'adt-delivery-preflight'; Script = 'Assert-AdtDeliveryPreflight.ps1' },
     @{ Name = 'adt-settings-contract'; Script = 'Assert-AdtSettingsContract.ps1'; Isolated = $true },
     @{ Name = 'ledger-readback'; Script = 'Assert-LedgerReadback.ps1' },
     @{ Name = 'hook-activation'; Script = 'Assert-HookActivation.ps1'; Isolated = $true },

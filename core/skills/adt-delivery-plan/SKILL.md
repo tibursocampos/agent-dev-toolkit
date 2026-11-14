@@ -9,6 +9,8 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 
 ADT exceptions to the Classic gates: this flow keeps one evolving `features/NNN-slug/PLAN.md`, one explicit plan approval (`{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md`) instead of per-step `step_confirmed`, and its own cadence. The draft `PLAN.md` may be created and refined before approval. Everything else in the boilerplate still applies.
 
+**Step 0 is blocking.** When run directly (not routed by `adt-delivery-flow` in this same run), run Step 0 first: `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md`. When routed, Step 0 was already done.
+
 # Skill: adt-delivery-plan
 
 ## Trigger
@@ -26,6 +28,8 @@ Invoke `adt-delivery-plan` (host forms: `/adt-delivery-plan`, `$adt-delivery-pla
 - The planner self-check is done; ONE explicit approval of the full plan is requested and recorded.
 - No implementation, commit or publish happens here. Invoked by `adt-delivery-flow`, it returns control to the coordinator.
 
+Stage preconditions: Step 0 passed and ledger `refine=done`; enforced by the `plan` preflight at entry.
+
 ## Terminal outcomes
 
 Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATALOG.md`, as mapped for this skill in `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/HANDOFF.md`: `done`, `blocked`, `failed`, `open_question`. Never report `done` without evidence.
@@ -41,9 +45,9 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 
 | When | Path |
 |------|------|
-| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/adt-delivery-plan/references/command.md` |
+| Command playbook (step discovery after Step 0) | `{{TOOLKIT_ROOT}}/skills/adt-delivery-plan/references/command.md` |
 | Language surfaces | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
-| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
+| Caveman Mode | exempt in this stage, never compressed; see Step -1b (`{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`) |
 | Storage root, feature selection, plan selection, split | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/STORAGE-FEATURE.md` |
 | Approval record, material change, amendment | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md` |
 | Shaping the plan | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-TEMPLATE.md` |
@@ -52,34 +56,35 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 | Progress table rows | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md` |
 | Terminal outcomes and handoff | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/HANDOFF.md` |
 | Selecting specialists when warranted | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
-| Delegating when available | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Delegating; mandatory when subagents capability is `native` | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 
 **Never by default:** do not preload `references/command.md` before the gates; load one reference per step.
 
 ## Process
 
-After gates: **Read `references/command.md`** for ordered step discovery; then load one reference per step.
+After Step 0: **Read `references/command.md`** for ordered step discovery; then load one reference per step.
 
-### Step -1b - Caveman Mode (Lite cap)
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full", "orchestrator_mode": "adaptive", "artifact_language": null }` if missing).
-2. If `caveman_mode` is false: continue without compression.
-3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
-4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
-5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+### Step -1b - Caveman Mode (exempt: never compress)
+1. This stage is exempt. Caveman compression is fully suspended for chat output, questions, findings, drafts, and the prompts and receipts of specialists spawned here, regardless of `caveman_mode` and `caveman_level`.
+2. Do not show the caveman activation notice. No caveman command lifts the exemption while this stage runs.
+
+### Steps
 
 1. **Resolve storage and select plan.** Follow `STORAGE-FEATURE.md`. If the selected plan is absent, stop and request the intended input or refinement; do not create a substitute.
-2. **Inspect source, run specialist triage.** Read relevant source only. Triage per `TRIAGE.md`; delegate per `ROSTER.md` and `SPAWN.md` only when warranted, with a local fallback.
-3. **Draft steps, validation and risks.** Shape with `PLAN-TEMPLATE.md` and `references/plan-content.md`. Keep normative content separate from operational status.
-4. **Planner self-check.** Targeted check in `references/plan-content.md`. Not a cold review and not a review loop.
-5. **Show progress.** Render the progress table(s) per `DISPLAY.md` at every display point; the chat table is never written into `PLAN.md`. When invoked by `adt-delivery-flow`, do not draw this table: the flow's own table is the only one drawn (see `DISPLAY.md`).
-6. **Present the plan and ask one approval.** Show the complete plan, request ONE explicit approval for its full scope, and record it per `PLAN-LIFECYCLE.md`. Resolve any open material question first.
-7. **Outcome and handoff.** Apply `HANDOFF.md`: terminal outcome, then the handoff below.
+2. **Entry check.** Run the `plan` preflight (`{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md`). Exit 1: report the `failures` list and stop.
+3. **Inspect source, run specialist triage.** Read relevant source only. Triage per `TRIAGE.md`; delegate per `ROSTER.md` and `SPAWN.md` only when warranted, with a local fallback.
+4. **Draft steps, validation and risks.** Shape with `PLAN-TEMPLATE.md` and `references/plan-content.md`. Keep normative content separate from operational status.
+5. **Planner self-check.** Targeted check in `references/plan-content.md`. Not a cold review and not a review loop.
+6. **Show progress.** Render the progress table(s) per `DISPLAY.md` at every display point; the chat table is never written into `PLAN.md`. When invoked by `adt-delivery-flow`, do not draw this table: the flow's own table is the only one drawn (see `DISPLAY.md`).
+7. **Present the plan and ask one approval.** Show the complete plan, request ONE explicit approval for its full scope, and record it per `PLAN-LIFECYCLE.md`. Set `Stage ledger` to `plan=approved` only when that explicit approval is recorded; a question, a review or silence leaves `plan=pending`. Resolve any open material question first.
+8. **Outcome and handoff.** Apply `HANDOFF.md`: terminal outcome, then the handoff below.
 
 ## Must not
 
 - Implement, commit or publish.
 - Create a substitute plan when the selected plan is missing.
 - Infer approval from silence, a review or a refinement approval.
+- Set `plan=approved` without the recorded explicit approval.
 - Request approval while a material question is open.
 - Add a separate reviewer or review loop.
 - Fall back from global to local storage.

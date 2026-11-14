@@ -25,6 +25,10 @@
 
 ## Operational record
 
+- Mode: full|analysis
+- Subagents: native|none
+- Model choice: inherit|reuse_saved|choose_model|n/a
+- Stage ledger: refine=pending|done, plan=pending|approved, implement=pending|in_progress|done
 - Approval: [format defined in `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md`]
 - Choices: [branch, cadence, review mode, base and focus as applicable]
 - Progress: [per step PENDING | IN_PROGRESS | COMPLETED | BLOCKED | SKIPPED; evidence, actual results, blockers, next action]

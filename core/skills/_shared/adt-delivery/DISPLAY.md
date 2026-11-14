@@ -51,6 +51,7 @@ Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happene
 ## ADT rules
 
 - One table per moment: when `adt-delivery-flow` runs a stage, only the flow's stage table is shown; the stage skill does not draw its own. A skill invoked directly draws its own table.
+- Analysis mode: the flow stage table ends at row 3 (Refinement); rows 4 to 7 are not drawn.
 - The six display points (LIVE-STAGE-TABLE section 3) apply in every pacing. In `adt-delivery-implement` the full PLAN-step table appears in both `step_by_step` and `continuous`; pacing never changes the table.
 - Before the first edit of an implementation start: show the PLAN-step table, a short summary of the next step and what the plan says to do. In `step_by_step`, wait for the answer.
 - After a child or specialist returns: re-read the persisted `PLAN.md`, reconcile it with the receipt, then redraw the owning table. A child-drawn table or a prose summary does not count.

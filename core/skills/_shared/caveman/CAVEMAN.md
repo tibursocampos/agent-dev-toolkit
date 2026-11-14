@@ -116,10 +116,14 @@ Resume caveman after the clear part is done.
 | Skill / Context | Cap when mode ON |
 |---|---|
 | `help-skills`, `commit`, `push`, `open-github-pr` | **NEVER** — excluded regardless of setting |
+| `adt-delivery-refine`, `adt-delivery-plan` | **NEVER** - exempt and non-overridable: chat, questions, findings, drafts, and specialist prompts and receipts stay uncompressed; no activation notice; caveman commands do not lift it |
+| `adt-delivery-flow` while its refine or plan stage runs | **NEVER** - same exemption as the stages it runs |
+| `adt-delivery-flow` outside refine and plan | **LITE** |
 | `sdd-spec`, `sdd-plan` | **LITE** |
 | `orchestrate-analyze`, `orchestrate-deliver` | **LITE** |
 | `document-plan`, `refine-story`, `requirement-review`, `memory-bank-init` | **LITE** |
 | `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
+| `adt-delivery-implement` | **FULL** (or prefs level if lower) |
 | `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage`, `run-tests` | **FULL** |
 | `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
 | Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |

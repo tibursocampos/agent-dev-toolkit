@@ -23,6 +23,16 @@ Write this exact format inside the Operational record, as one line:
 - One explicit approval covers the full plan. Silence, a review, or approval of refinement alone is NOT approval.
 - The planner or coordinator records the approval and its date concisely. Approval is tracked by that date and the scope sentence only; no checksums or text-identity comparisons.
 
+## Run mode, subagents and stage ledger
+
+- `Mode: full | analysis` in the Operational record. `analysis` stops after refine; plan and implement never start.
+- `Subagents: native | none` and `Model choice: inherit | reuse_saved | choose_model | n/a` record the run's specialist choice. `native` requires a model choice other than `n/a`.
+- `Stage ledger` tracks the stages: `refine=pending | done`, `plan=pending | approved`, `implement=pending | in_progress | done`.
+- Refine sets `refine=done` at its exit. Plan sets `plan=approved` only after the single explicit approval is recorded in the Approval line.
+- Implement moves `implement` to `in_progress` while work runs and to `done` after it finishes.
+- The preflight `{{TOOLKIT_ROOT}}/scripts/runtime/Test-AdtDeliveryPreflight.ps1` reads these lines before each stage starts.
+- A stage never starts unless the previous ledger value is satisfied: plan needs `refine=done`; implement needs `plan=approved` and an Approval line that reads approved.
+
 ## What is a material change
 
 - Material: changes the goal, scope or exclusions, acceptance criteria, a decision, affected paths, the steps or their order, or the intended validation.

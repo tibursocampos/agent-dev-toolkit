@@ -4,7 +4,7 @@
 
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|
-| -1b | Caveman Lite when active | `CAVEMAN.md` |
+| -1b | Caveman suspended in this stage (never compress) | `CAVEMAN.md` |
 | 1 | Resolve storage and select plan | `STORAGE-FEATURE.md` |
 | 2 | Inspect source, specialist triage | `TRIAGE.md`, `references/plan-content.md` |
 | 3 | Draft steps, validation, risks | `references/plan-content.md`, `PLAN-TEMPLATE.md` |

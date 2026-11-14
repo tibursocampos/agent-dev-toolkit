@@ -14,13 +14,13 @@ $catalogPath = Join-Path $skillsRoot '_shared/skills-catalog/CATALOG.md'
 $liveStagePath = Join-Path $skillsRoot '_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
 $ordinal = [System.StringComparison]::Ordinal; $tick = [string][char]96; $script:failureCount = 0
 
-# Per-skill table: Cap is the Caveman cap that skill must declare.
-$stages = @(@{ Id = 'adt-delivery-flow'; Cap = 'Lite' }, @{ Id = 'adt-delivery-refine'; Cap = 'Lite' },
-    @{ Id = 'adt-delivery-plan'; Cap = 'Lite' }, @{ Id = 'adt-delivery-implement'; Cap = 'Full' })
+# Per-skill table: Caveman is the parenthetical that the skill's Step -1b heading must carry.
+$stages = @(@{ Id = 'adt-delivery-flow'; Caveman = 'Lite cap; exempt during refine and plan' }, @{ Id = 'adt-delivery-refine'; Caveman = 'exempt: never compress' },
+    @{ Id = 'adt-delivery-plan'; Caveman = 'exempt: never compress' }, @{ Id = 'adt-delivery-implement'; Caveman = 'Full cap' })
 $stageIds = @($stages | ForEach-Object { $_.Id })
 $reusedSkillIds = @('run-tests', 'code-review')
 $sharedFileNames = @('STORAGE-FEATURE.md', 'PLAN-LIFECYCLE.md', 'PLAN-TEMPLATE.md', 'TRIAGE.md', 'DISPLAY.md', 'HANDOFF.md', 'SCENARIOS.md')
-$removedConceptPatterns = @('\bsha-?256\b', '\bdigest\b', '\bhash\b', 'PLAN-GUIDE')
+$removedConceptPatterns = @('\bsha-?256\b', '(?<!SPAWN-)\bdigest\b', '\bhash\b', 'PLAN-GUIDE')
 $citePattern = '\{\{TOOLKIT_ROOT\}\}/skills/([^\s\x60"''()|]+)'
 $templatePrefix = '{{TOOLKIT_ROOT}}/skills/'; $scenarioHeader = '| ID | Area | Scenario | Expected | Check | Rule source | Anchor | Status |'
 
@@ -122,9 +122,9 @@ function Get-SkeletonProblems([string] $Id, [string] $Rel, [AllowEmptyCollection
 
 function Get-CavemanProblems([string] $Rel, [string] $Expected, [AllowEmptyCollection()][AllowEmptyString()][string[]] $Lines) {
     $found = $null
-    foreach ($line in $Lines) { $m = [regex]::Match($line, '^### Step -1b - Caveman Mode \((Lite|Full) cap\)'); if ($m.Success) { $found = $m.Groups[1].Value; break } }
-    if ($null -eq $found) { "${Rel}: heading '### Step -1b - Caveman Mode (X cap)' missing" }
-    elseif ($found -cne $Expected) { "${Rel}: Caveman cap is $found; expected $Expected" }
+    foreach ($line in $Lines) { $m = [regex]::Match($line, '^### Step -1b - Caveman Mode \((.+)\)$'); if ($m.Success) { $found = $m.Groups[1].Value; break } }
+    if ($null -eq $found) { "${Rel}: heading '### Step -1b - Caveman Mode (...)' missing" }
+    elseif ($found -cne $Expected) { "${Rel}: Caveman heading is '($found)'; expected '($Expected)'" }
 }
 
 function Get-CommandPlaybookProblems([string] $Id, [string] $Rel, [AllowEmptyCollection()][AllowEmptyString()][string[]] $Lines, [AllowEmptyCollection()][AllowEmptyString()][string[]] $CommandLines, [string] $CommandRel) {
@@ -267,7 +267,7 @@ foreach ($stage in $stages) {
     Complete-Test "Should_HaveValidFrontmatter_When_$id" @(Get-FrontmatterProblems $id $rel $lines)
     Complete-Test "Should_ShowGatePointer_When_$id" @(Get-GatePointerProblems $rel $lines)
     Complete-Test "Should_KeepSkeletonOrder_When_$id" @(Get-SkeletonProblems $id $rel $lines)
-    Complete-Test "Should_UseDeclaredCavemanCap_When_$id" @(Get-CavemanProblems $rel $stage.Cap $lines)
+    Complete-Test "Should_UseDeclaredCavemanHeading_When_$id" @(Get-CavemanProblems $rel $stage.Caveman $lines)
     Complete-Test "Should_ListCommandPlaybook_When_$id" @(Get-CommandPlaybookProblems $id $rel $lines $cmdLines $cmdRel)
     Complete-Test "Should_MapTerminalOutcomes_When_$id" @(Get-TerminalProblems $rel $lines)
     Complete-Test "Should_ForbidSharedAntiPatterns_When_$id" @(Get-AntiPatternProblems $rel $lines)

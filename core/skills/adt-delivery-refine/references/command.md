@@ -4,7 +4,7 @@
 
 | Step | Action | Lazy section / contract |
 |------|--------|-------------------------|
-| -1b | Caveman Lite when active | `CAVEMAN.md` |
+| -1b | Caveman suspended in this stage (never compress) | `CAVEMAN.md` |
 | 1 | Resolve storage and feature | `STORAGE-FEATURE.md` |
 | 2 | Specialist triage and audit table | `TRIAGE.md` |
 | 3 | Clarify and gather evidence | `references/clarify.md` |

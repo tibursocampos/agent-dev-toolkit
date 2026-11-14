@@ -9,6 +9,8 @@ Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the ses
 
 ADT exceptions to the Classic gates: this flow keeps one evolving `features/NNN-slug/PLAN.md`, one explicit plan approval (`{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md`) instead of per-step `step_confirmed`, and its own cadence. The draft `PLAN.md` may be created and refined before approval. Everything else in the boilerplate still applies.
 
+**Step 0 is blocking.** When run directly (not routed by `adt-delivery-flow` in this same run), run Step 0 first: `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md`. When routed, Step 0 was already done.
+
 # Skill: adt-delivery-implement
 
 ## Trigger
@@ -22,6 +24,8 @@ Invoke `adt-delivery-implement` (host forms: `/adt-delivery-implement`, `$adt-de
 
 - Approved steps are implemented within planned paths; `PLAN.md` Progress and Closeout hold status and evidence; final validation and the existing `code-review` ran; `CODE-REVIEW.md` sits next to the plan.
 - Nothing is committed, pushed, merged or published automatically.
+
+Stage preconditions: Step 0 passed, ledger `plan=approved` and `Mode: full`; enforced by the `implement` preflight at entry.
 
 ## Terminal outcomes
 
@@ -38,7 +42,7 @@ Apply the shared `Flow terminal contract` in `skills/_shared/skills-catalog/CATA
 
 | When | Path |
 |------|------|
-| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/adt-delivery-implement/references/command.md` |
+| Command playbook (step discovery after Step 0) | `{{TOOLKIT_ROOT}}/skills/adt-delivery-implement/references/command.md` |
 | Language surfaces | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Plan check, branch, cadence, review mode, baseline | `{{TOOLKIT_ROOT}}/skills/adt-delivery-implement/references/start-choices.md` |
@@ -68,6 +72,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 ### Step 1 - Select plan, check approval
 1. Resolve storage and select the plan per `STORAGE-FEATURE.md`; an absent selected plan blocks implementation. Details: `references/start-choices.md`.
 2. Confirm approval is still valid per `PLAN-LIFECYCLE.md`; material changes need renewed approval. Inspect branch, working tree, progress and evidence; on resume reconcile with the actual tree and preserve unrelated changes.
+3. **Entry check.** Run the `implement` preflight (`{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md`). Exit 1: report the `failures` list and stop. On exit 0, set `Stage ledger` to `implement=in_progress` in the Operational record.
 
 ### Step 2 - Choices and baseline
 1. Ask the operator for branch (current or new, at each start), cadence (`step_by_step` or `continuous`), review mode (`single` or `multi-angle`), base and focus. Never infer from silence; reuse recorded cadence and review mode.
@@ -78,7 +83,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 2. Update `PLAN.md` after each step with status, evidence, blockers and next action. `step_by_step`: stop after each non-final step. `continuous`: run until complete or blocked. The last step proceeds directly to closeout.
 
 ### Step 4 - Closeout
-1. Run planned final validation (`run-tests`), invoke `code-review` on the working tree with resolved plan path, review mode, focus, base and diff scope, and save findings in `CODE-REVIEW.md` next to the plan (`references/closeout.md`). Fix in-scope findings, then rerun affected validation and a focused recheck.
+1. Run planned final validation (`run-tests`), invoke `code-review` on the working tree with resolved plan path, review mode, focus, base and diff scope, and save findings in `CODE-REVIEW.md` next to the plan (`references/closeout.md`). Fix in-scope findings, then rerun affected validation and a focused recheck. Once that evidence is recorded, set `Stage ledger` to `implement=done`.
 
 ### Step 5 - Report and outcome
 1. Report results, evidence and remaining limitations, never claiming completion without evidence; map the result to a terminal outcome per `HANDOFF.md`.
@@ -91,6 +96,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 - Let children edit `PLAN.md` (the coordinator is its only writer).
 - Claim completion without evidence, or present failed, unavailable or partial validation or review as success.
 - Commit, push, merge or publish automatically.
+- Set `implement=done` before the validation and review evidence is recorded.
 - Modify the `run-tests` or `code-review` skills (call them as other flows do).
 - Fall back from global to local storage.
 - Use cold reviewers (cold-critic, cold-reader) or impose a token budget.

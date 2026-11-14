@@ -5,7 +5,7 @@ To record a run result, set Status to `pass YYYY-MM-DD <evidence>` or `fail YYYY
 
 | ID | Area | Scenario | Expected | Check | Rule source | Anchor | Status |
 |----|------|----------|----------|-------|-------------|--------|--------|
-| INV-01 | Invocation | flow runs refine, plan, implement end to end in one invocation | Demand carried through refinement, one approval and implementation in one run | run | adt-delivery-flow/SKILL.md | The demand is carried through refinement, planning | pass 2026-11-14 walkthrough: refine, plan, one approval, implement in one run; routing.md continue rule quoted |
+| INV-01 | Invocation | flow runs refine, plan, implement end to end in one invocation | Demand carried through refinement, one approval and implementation in one run | run | adt-delivery-flow/SKILL.md | The demand is carried through refinement, planning | not run |
 | INV-02 | Invocation | refine invoked directly stops at the planning handoff | Stops and hands off to adt-delivery-plan | run | adt-delivery-refine/SKILL.md | Invoked directly, it stops with the planning handoff | pass 2026-11-14 walkthrough: stops after refinement with adt-delivery-plan handoff; clarify.md direct rule quoted |
 | INV-03 | Invocation | plan invoked directly with no selected plan stops and asks | Stops, asks for input or refinement, creates no substitute plan | run | _shared/adt-delivery/STORAGE-FEATURE.md | with no selected existing plan: stop | pass 2026-11-14 walkthrough: stops, asks for input, no substitute plan; the SKILL.md line is a Must-not rule |
 | INV-04 | Invocation | implement invoked directly without a valid approval does not start | Implementation does not start | run | adt-delivery-implement/SKILL.md | Start without a valid plan approval | pass 2026-11-14 walkthrough: approval pending, stops at approval question, no code; start-without-approval rule quoted |
@@ -53,3 +53,16 @@ To record a run result, set Status to `pass YYYY-MM-DD <evidence>` or `fail YYYY
 | GOV-02 | Governance | terminal outcomes | Mapped to the shared contract via HANDOFF.md | static | _shared/adt-delivery/HANDOFF.md | Outcome states come from the shared contract | not run |
 | GOV-03 | Governance | skill process | Caveman Step -1b present | static | adt-delivery-flow/SKILL.md | Step -1b - Caveman Mode | not run |
 | GOV-04 | Governance | flow policy | No cold reviewers and no token budget | static | adt-delivery-flow/references/routing.md | No cold reviewers. No token budget | not run |
+| STG-01 | Stage order | flow stage order | refine, plan, implement strictly in order; coordinator never does stage work | static | adt-delivery-flow/SKILL.md | Stages run strictly in this order | not run |
+| STG-02 | Stage order | refine skipped or shortened | Depth may shrink, the stage is never skipped | static | adt-delivery-flow/SKILL.md | never skip the stage | not run |
+| STG-03 | Stage order | route to planning before refine ran | Not routed until the ledger says refine=done | static | adt-delivery-flow/references/routing.md | Until then, do not route to planning | not run |
+| STG-04 | Stage order | resume picks the stage | Ledger decides the next stage | static | adt-delivery-flow/references/routing.md | The ledger picks the next stage | not run |
+| STP-01 | Step 0 | start gate | Blocking: failed preflight or unanswered model question stops the run | static | adt-delivery-flow/SKILL.md | Step 0 is blocking | not run |
+| STP-02 | Step 0 | preflight exit 1 | Failures reported and the run stops | static | adt-delivery-flow/references/step0.md | Exit 1: blocking | not run |
+| STP-03 | Step 0 | native subagents, model question | Asked once and answered before any task work | run | adt-delivery-flow/references/step0.md | Step 0 - blocking start gate | not run |
+| SPC-05 | Specialists | brownfield with subagents available | Specialist spawned; in-parent fallback only without spawn | run | _shared/adt-delivery/TRIAGE.md | is allowed only when the capability is | not run |
+| SPC-06 | Specialists | suggested defect before the operator decides | Stays a suggestion, never plan scope or acceptance | static | _shared/adt-delivery/TRIAGE.md | stays a suggestion until the operator explicitly decides | not run |
+| ANA-01 | Analysis mode | operator asks for analysis only | Mode analysis, stops after refine with findings report | run | adt-delivery-flow/SKILL.md | record `Mode: analysis` | not run |
+| ANA-02 | Analysis mode | operator accepts planning after analysis | Mode switches to full, plan preflight runs | static | _shared/adt-delivery/HANDOFF.md | set `Mode: full` in the Operational record | not run |
+| CVM-01 | Caveman | refine or plan stage with caveman on | Never compressed: chat, questions, findings, drafts, specialist receipts | static | adt-delivery-refine/SKILL.md | Caveman compression is fully suspended | not run |
+| CVM-02 | Caveman | policy table | Refine, plan and flow during those stages marked never compress | static | _shared/caveman/CAVEMAN.md | exempt and non-overridable | not run |
