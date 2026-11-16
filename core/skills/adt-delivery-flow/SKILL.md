@@ -7,6 +7,8 @@ description: Coordinate an ADT delivery from demand through refinement, one appr
 
 Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
 
+Every text, table and message this skill writes follows `{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc`.
+
 ADT exceptions to the Classic gates: this flow keeps one evolving `features/NNN-slug/PLAN.md`, one explicit plan approval (`{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md`) instead of per-step `step_confirmed`, and its own cadence. The draft `PLAN.md` may be created and refined before approval. Everything else in the boilerplate still applies.
 
 **Step 0 is blocking.** Run Step 0 before any step: complete `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md`. A failed preflight or an unanswered model question stops the run.
@@ -31,11 +33,11 @@ The demand is carried through refinement, planning (ONE explicit approval) and i
 
 | Stage | Skill | Entry condition | Exit evidence |
 |-------|-------|-----------------|---------------|
-| refine | `adt-delivery-refine` | Step 0 passed | PLAN.md refinement content, triage audit table, ledger `refine=done` |
+| refine | `adt-delivery-refine` | Step 0 passed | PLAN.md refinement content (evidence with `Guidelines:` and `Memory-bank:` lines), specialist triage summary, ledger `refine=done` |
 | plan | `adt-delivery-plan` | Ledger `refine=done` | Complete plan, explicit approval recorded, ledger `plan=approved` |
 | implement | `adt-delivery-implement` | Ledger `plan=approved` and `Mode: full` | Validation and review evidence, ledger `implement=done` |
 
-Stages run strictly in this order. Each one runs as its stage skill: the coordinator never does stage work itself, and no stage can be skipped. "In proportion" may shorten the depth of refinement, never skip the stage. The `Stage preconditions` line of each stage skill and the preflight (`references/step0.md`) enforce these entry conditions.
+Stages run strictly in this order. Each one runs as its stage skill: the coordinator never does stage work itself, and no stage can be skipped. "In proportion" may shorten the depth of refinement, never skip the stage. The `Stage preconditions` line of each stage skill and its entry check (prose, against the plan's Stage ledger and Mode) enforce these entry conditions.
 
 ## Terminal outcomes
 
@@ -59,11 +61,11 @@ When the operator asks only for an analysis, diagnosis or assessment, record `Mo
 | Command playbook (step discovery after Step 0) | `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/command.md` |
 | Blocking start, model choice, preflight | `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/step0.md` |
 | Language surfaces | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
-| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **exempt during refine and plan; Lite otherwise** |
+| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **exempt during refine and plan; Full otherwise** |
 | Triage, routing, split, resume | `{{TOOLKIT_ROOT}}/skills/adt-delivery-flow/references/routing.md` |
 | Storage root, feature selection, split | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/STORAGE-FEATURE.md` |
 | Approval, amendment, resume | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-LIFECYCLE.md` |
-| Specialist triage and audit table | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/TRIAGE.md` |
+| Specialist triage | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/TRIAGE.md` |
 | Progress table rows | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md` |
 | Terminal outcomes and handoff | `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/HANDOFF.md` |
 | Refinement | `{{TOOLKIT_ROOT}}/skills/adt-delivery-refine/SKILL.md` |
@@ -80,28 +82,28 @@ When the operator asks only for an analysis, diagnosis or assessment, record `Mo
 
 After Step 0: **Read `references/command.md`** for ordered step discovery; then load one reference per step.
 
-### Step -1b - Caveman Mode (Lite cap; exempt during refine and plan)
+### Step -1b - Caveman Mode (Full cap; exempt during refine and plan)
 1. Preferences are read and the notices are shown in Step 0 (`references/step0.md`).
 2. **Exemption.** While the refine or plan stage runs, including the coordinator's chat for that stage, caveman compression is fully suspended for chat output, questions, findings, drafts, and the prompts and receipts of specialists spawned in that stage. This holds regardless of `caveman_mode` and `caveman_level`. No caveman notice is shown then, and no caveman command lifts the exemption during those stages. Participation: `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`.
-3. Outside refine and plan: if `caveman_mode` is true, apply the **Lite** cap with the prefs `caveman_level` (Lite never escalates).
+3. Outside refine and plan: if `caveman_mode` is true, apply the **Full** cap with the prefs `caveman_level` (the cap never escalates).
 4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) outside those stages.
 5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
 
 ### Steps
 
-1. **Resolve storage and feature.** Follow `STORAGE-FEATURE.md`; locate existing artifacts before allocating NNN; preserve unrelated work.
+1. **Resolve storage and feature.** Follow `STORAGE-FEATURE.md`; locate existing artifacts before allocating NNN; preserve unrelated work. Then read `DISPLAY.md` now (mandatory) and draw the flow stage table at display point 1 (Start), after Step 0 and before any routing.
 2. **Triage the demand.** `references/routing.md`; `TRIAGE.md` for security signals. Decide full or analysis mode (Analysis-only mode above).
-3. **Route to refinement.** `adt-delivery-refine`. It runs its own entry preflight after it writes the Operational record (`references/routing.md`).
-4. **Route to planning, one approval.** Only after ledger `refine=done`: run the `plan` preflight (`references/step0.md`), then `adt-delivery-plan`; `references/routing.md`; `PLAN-LIFECYCLE.md`. Continue to planning in the same invocation only when no material decision is pending.
-5. **Route to implementation.** Only after ledger `plan=approved` and `Mode: full`: run the `implement` preflight, then `adt-delivery-implement`, which asks branch, cadence and review mode.
-6. **Show progress.** Render the one flow table per `DISPLAY.md` at every display point; the chat table is never written into `PLAN.md`.
+3. **Route to refinement.** `adt-delivery-refine`. It writes the Operational record first and runs its own entry check (`references/routing.md`).
+4. **Route to planning, one approval.** Only after ledger `refine=done`; otherwise report the missing refinement and stop. Then `adt-delivery-plan`; `references/routing.md`; `PLAN-LIFECYCLE.md`. Continue to planning in the same invocation only when no material decision is pending.
+5. **Route to implementation.** Only after ledger `plan=approved`, `Mode: full` and the one-line approval note in the Operational record; otherwise report what is missing and stop. Then `adt-delivery-implement`, which asks branch, cadence and review mode.
+6. **Show progress.** Redraw the one flow table per `DISPLAY.md` at every display point (start, gate answer, row change, blocker, close); the chat table is never written into `PLAN.md`.
 7. **Resume and report the outcome.** `references/routing.md`; `HANDOFF.md`.
 
 ## Must not
 
 - Treat approval of the refinement as approval to implement, or skip the single plan approval.
 - Do the stage work itself instead of routing to the stage skills.
-- Route to a stage before its entry condition holds or its preflight passes.
+- Route to a stage before its entry check (ledger and Mode) holds.
 - Skip Step 0, or treat a saved preference as the model answer.
 - Load every stage skill or specialist reference at once.
 - Create independent plans without the operator's agreement.
@@ -116,7 +118,7 @@ After Step 0: **Read `references/command.md`** for ordered step discovery; then 
 | Situation | Next |
 |-----------|------|
 | Flow done | Report the result. Commit, push and PR only on the operator's specific request. |
-| Analysis findings delivered | Offer planning and wait. If accepted: set `Mode: full`, run the `plan` preflight, continue at step 4. |
+| Analysis findings delivered | Offer planning and wait. If accepted: set `Mode: full`, check that ledger `refine=done` holds, continue at step 4. |
 | A stage blocked, failed or waiting | State the stage and the cause or the question; wait. |
 | Resume | Run Step 0 again, then start from the selected plan's Operational record. |
 

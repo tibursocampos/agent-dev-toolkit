@@ -18,7 +18,7 @@ Run this before any other step of `adt-delivery-flow`. A stage skill run directl
 
 ## Recorded values
 
-The answers of this step, and the mode, are written into the plan's Operational record by the refine stage (`{{TOOLKIT_ROOT}}/skills/adt-delivery-refine/SKILL.md`, step 1). These are the exact lines:
+The answers of this step, and the mode, are written into the plan's Operational record by the refine stage (`{{TOOLKIT_ROOT}}/skills/adt-delivery-refine/SKILL.md`, step 1). The fields are:
 
 - `Mode: full|analysis` (`analysis` only when the operator asked for an analysis alone, see `adt-delivery-flow/SKILL.md`, "Analysis-only mode"; otherwise `full`)
 - `Subagents: native|none`
@@ -29,13 +29,10 @@ A new plan starts with `refine=pending, plan=pending, implement=pending`. A resu
 
 ## Preflight calls
 
-`Test-AdtDeliveryPreflight.ps1` checks one stage per call and prints one JSON line `{"ok":bool,"stage":"..","failures":[".."]}`. Exit 1 is blocking in every skill that calls it: report the `failures` list and stop. Do not route around it and do not retry the same call without a changed input.
+`Test-AdtDeliveryPreflight.ps1` runs the start gate only and prints one JSON line `{"ok":bool,"stage":"start","failures":[".."]}`. Exit 1 is blocking: report the `failures` list and stop. Do not route around it and do not retry the same call without a changed input.
 
 | Stage | Called by | Arguments |
 |-------|-----------|-----------|
 | `start` | Step 0 | `-Stage start -Subagents <..> -ModelChoice <..>` |
-| `refine` | refine entry, after it writes the record | `-Stage refine -PlanPath <selected PLAN.md> -Subagents <..> -ModelChoice <..>` |
-| `plan` | flow before routing to planning, and plan entry | `-Stage plan -PlanPath <selected PLAN.md> -Subagents <..> -ModelChoice <..>` |
-| `implement` | flow before routing to implementation, and implement entry | `-Stage implement -PlanPath <selected PLAN.md> -Subagents <..> -ModelChoice <..>` |
 
-For `refine`, `plan` and `implement`, pass the values recorded in the Operational record. `start` has no `-PlanPath`.
+The stage entry checks (refine, plan, implement) are not scripts. Each stage skill checks the plan's Stage ledger and Mode in prose and stops when a condition is missing; see `adt-delivery-flow/SKILL.md`, "Process", steps 3 to 5.

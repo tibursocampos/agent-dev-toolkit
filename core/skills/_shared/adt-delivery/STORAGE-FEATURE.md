@@ -13,6 +13,12 @@ Used by adt-delivery-flow, adt-delivery-refine, adt-delivery-plan and adt-delive
 - Malformed or unsupported manifest, or invalid configured path: stop and reconcile. Never fall back from global to local.
 - Configured global root missing on disk: stop and ask the operator whether to correct the configured path or create the folder. Never create it silently and never use a local `features/` folder instead.
 
+## Memory bank root
+
+- `bank_root` follows `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`, section "Path resolution", with the storage root resolved above: repository storage `$Cwd/memory-bank/`; global storage `<classic.path>/memory-bank/`.
+- Never place the bank under `features/NNN-slug/`.
+- Refine and plan read it selectively and never write it. Only `memory-bank-init`, after the operator confirms it at the end of implement, creates or refreshes it.
+
 ## Feature directory
 
 - Explicit feature path: resolve it inside the configured feature root. Reject traversal and escapes, including in global storage.
