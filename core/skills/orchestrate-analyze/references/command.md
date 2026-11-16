@@ -10,7 +10,7 @@
 | 2 | Resolve storage / bank roots; path sanitize | `references/process-common.md` § Resolve storage; `STORAGE.md` |
 | 3 | Intent classification (triage entry) | `references/intent-classification.md` |
 | 4 | Step 0 Memory Bank Gate (`auto`) | `references/memory-bank-gate.md`; `MEMORY-BANK.md` |
-| 5 | Collect description and triage (`needs_*`) | `references/triage.md`; `ROSTER.md` |
+| 5 | Collect description and triage (`needs_*`); optionally resolve a user-selected feature ID from an identified EPIC (narrow read; no whole-EPIC promotion) | `references/triage.md`; `ROSTER.md` |
 | 6 | Trivial shortcut (optional exit) | `references/triage.md` § Trivial |
 | 7 | Allocate NNN-slug; scaffold `FEATURE.md` and `CONTINUITY.md` only (no story folders) | `references/story-synthesis.md` |
 | 8 | Spawn Agent specialists (SPAWN; omit model). Return notes to the parent. Do not create story folders until step 9 | `references/spawn-map.md`; `SPAWN.md` |

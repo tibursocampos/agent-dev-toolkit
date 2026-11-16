@@ -33,7 +33,7 @@ Never save **new** SDD artifacts under `docs/backlog/` or ad-hoc `docs/*.md` for
 **Promote (scope by `invocation_context` — `INVOCATION-CONTEXTS.md`):**
 
 - **`direct`** (`sdd-spec` / `sdd-plan` slash): cited `.md` outside `features/` (including host plan files) → `PIPELINE.md` § Classic PRD/PLAN promote: `Read` → synthesize → confirm → `Write` under `features/...`. Do **not** require `orchestrate-analyze` first.
-- **`orchestrated`** (O1/O2): mandatory promote before backlog **sim**; pointer-only = fail O1.
+- **`orchestrated`** (O1/O2): mandatory promote before backlog **sim**; pointer-only = fail O1. Narrow exception: O1 may selectively read and use only an identified relevant `EPIC.md`, its selected feature section, and relevant context within that EPIC, without promoting the whole EPIC. Any separately opened or cited Markdown reference or dependency remains subject to promotion; all O1 questions, gates, and artifact requirements remain in force.
 
 **Required siblings (scope by context):**
 

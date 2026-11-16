@@ -19,6 +19,8 @@ Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/
 
 Optional: pasted feature description, existing notes path, or prior refine output.
 
+Optional EPIC context: if the user identifies an existing initiative `EPIC.md` and a stable feature ID in it, read only that feature section plus the shared context, its dependencies, and referenced material within that EPIC needed to understand it. Do not accept a file merely because it is named `EPIC.md`; establish that it is the relevant EPIC and that the user-selected feature ID exists. Verify the selected brief as an input, then use it alongside the user's request and other evidence. If the ID is missing or ambiguous, ask which feature they mean. This is a narrow exception to the generic cited non-feature `.md` promotion rule: do not promote the whole EPIC or require it to be promoted; any separately opened or cited Markdown reference or dependency remains subject to the normal promotion rule. EPIC context does not replace O1 triage, memory-bank, specialist, research, artifact-quality, or approval gates, and creates no required handoff. Without an identified EPIC and feature ID, run O1 normally.
+
 ## Outcome
 
 Under the resolved classic feature root (`STORAGE.md`, `$Workflow = classic`):
