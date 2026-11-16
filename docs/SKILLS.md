@@ -1,12 +1,12 @@
 # Skills catalog
 
-Canonical kebab-case skill folders under `core/skills/` (**51 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
+Canonical kebab-case skill folders under `core/skills/` (**52 skills** + `_shared`). After sync, invoke by **skill id**. Host prefixes: `/id` (Cursor/Claude/Copilot/Grok), `$id` (Codex/ZCode), `use skill id` or `/id` (Antigravity), OpenCode `skill` tool. Compat: `use skill <id>` / natural language. Full matrix: [guides/02-using-skills.md](guides/02-using-skills.md).
 
 **Agent source of truth (installed):**  
 - Map: `core/skills/_shared/skills-catalog/CATALOG.md`  
 - Operator nuances: `core/skills/_shared/skills-catalog/OPERATOR.md`  
 
-Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**51** kebab skills).
+Present both via skill **`help-skills`** (all adapters) — do not load every `SKILL.md` and do not re-analyze the static guide. This file (`docs/SKILLS.md`) is the human/clone mirror and must stay name-count aligned with disk (**52** kebab skills).
 
 Shared packs live under `core/skills/_shared/` — not invoked as skills (except the catalog pack is read by `help-skills`).
 
@@ -34,7 +34,7 @@ The complete path is **Orchestrated Delivery**. `orchestrate-deliver` runs `sdd-
 
 | Role | Skills | When |
 |------|--------|------|
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
+| **Orchestrated Delivery** | `adt-epic-planner` (optional), `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Optional initiative planning; default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md) |
 | **Classic SDD contracts** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | Loaded by O2/O3. Also a direct start when one story is already clear. Detail: [sessions/02-classic-sdd.md](sessions/02-classic-sdd.md) |
 | **Backlog shape** | `refine-story`, `requirement-review`, `split-story-checklist` | Inside O1 as rules and rubric. Standalone when a product person shapes one item, or when O2 hits open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md) |
 
@@ -50,10 +50,13 @@ Decision tree: [guides/README.md](guides/README.md).
 
 ## Orchestrated Delivery
 
+For an initiative likely to span multiple features, optionally start with `adt-epic-planner` to create a navigable `EPIC.md`. Then start O1 for one selected feature, for example `/orchestrate-analyze - EPIC.md feature001`. O1 reads only that selected brief and relevant shared context/dependencies; the EPIC is optional and does not replace O1 gates.
+
 Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
 | Skill | Purpose |
 |-------|---------|
+| `adt-epic-planner` | Optional discovery for a multi-feature initiative; creates a navigable `EPIC.md` |
 | `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0, and refresh-light after code) |
 | `orchestrate-analyze` | Classify, ask, set `needs_*`, specialists, story gates, backlog `confirm` answer |
 | `orchestrate-deliver` | PRD + PLAN per story by running `sdd-spec` then `sdd-plan` |
@@ -184,7 +187,7 @@ Without a mode, the skill asks once. `refine-story` runs it at step 4a before ha
 | `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs a `confirm` answer (silence ≠ approval); skill id must not pin a major |
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (`confirm`/`skip`). Do not ask about memory bank or project docs. |
 | `implementation-survey` | `source` (`working-tree` or a ref git already resolves) and `target` (`HEAD` or another branch); one question when either is missing (no silent default); optional `path`; report without approval; read `SPAWN.md` before the first spawn decision |
-| Orchestrated Delivery | Memory-bank Step 0; backlog `confirm` answer; architect ARCH draft → `confirm` answer on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + `confirm` answer; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
+| Orchestrated Delivery | Optional `adt-epic-planner` for initiatives; O1 may read a user-selected feature section from an identified EPIC; memory-bank Step 0; backlog `confirm` answer; architect ARCH draft → `confirm` answer on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + `confirm` answer; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
 | `sdd-develop` | One PLAN step per gate scope; bounded continuation requires explicit authorization and reset/revalidation; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |

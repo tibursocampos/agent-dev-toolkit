@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **51** kebab skills.
+Total: **52** kebab skills.
 
 ## Tracks
 
@@ -14,7 +14,7 @@ Total: **51** kebab skills.
 |-------|--------|------|
 | **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+| **Orchestrated Delivery** | `adt-epic-planner` (optional initiative discovery), `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Optional initiative planning; multi-story / brownfield delivery |
 | **ADT Delivery** | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` | One evolving feature plan from refinement through implementation and code review |
 
 **Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
@@ -40,6 +40,7 @@ Total: **51** kebab skills.
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
+| `adt-epic-planner` | `adt-epic-planner` | Discover a multi-feature initiative and persist one navigable `EPIC.md`; optional context for O1 |
 | `memory-bank-init` | `memory-bank-init` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
 | `orchestrate-analyze` | `orchestrate-analyze` | Triage, specialists, backlog structure |
 | `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |

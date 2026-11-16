@@ -64,6 +64,7 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 | `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
 | `requirement-review` | Exactly one mode: `--feature` or `--tech`; asks once when missing (no silent default). Report and Q&A writes only after `sim`. Never edits code. `--tech` searches the repository and does not guess. |
 | `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
+| `adt-epic-planner` | Optional initiative discovery for work likely to span multiple features. It writes a navigable `EPIC.md`; it is not a prerequisite for O1 or a delivery tracker. When starting O1 from it, identify the relevant EPIC and select a stable feature ID; O1 reads that section plus relevant shared context/dependencies and retains its usual gates. |
 | `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
 | `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |
 | `orchestrate-develop` | One PLAN step per child via `sdd-develop`; continuous never makes a child multi-step. Parent does not implement. |

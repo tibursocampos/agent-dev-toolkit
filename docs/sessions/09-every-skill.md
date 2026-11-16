@@ -1,10 +1,14 @@
 # 09 — Every skill
 
-Forty-six invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
+Fifty-two invocable skills. Shared packs under `core/skills/_shared/` are not skills. The architect, database, security, repo-analyst, and shell-runner files under `core/agents/` are roster roles spawned by O1 or the router, not slash skills.
 
 The long form of a skill is the session linked on its heading. This page is the index that still says what the skill does, what it writes, and which skill it calls next.
 
 ## Delivery
+
+### `adt-epic-planner`
+
+Facilitates active discovery and decomposes an initiative into outcome-based features in one navigable `EPIC.md`. It is optional and does not create stories, PRDs, or PLANs. O1 can use one explicitly selected feature ID as context without requiring EPIC promotion or a separate handoff. Detail: [01](01-orchestrated-delivery.md).
 
 ### `memory-bank-init`
 

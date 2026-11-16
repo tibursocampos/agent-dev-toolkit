@@ -110,7 +110,7 @@ That early exit is how a single clear story or a product-only backlog item leave
 
 Ask or reuse prior context: goal, current behavior, constraints, known areas. Do not re-ask facts the bank already states.
 
-If you cite a markdown file outside `features/` (including a host plan file), the skill reads it and promotes rich content (DDL, JSON, tables, OpenAPI, diagrams) into bank phase 2 or into `ARCH` / `SEC` / `ANALYSIS`. A citation with no promoted body fails O1. Host plan files are not O3 input.
+If you cite a markdown file outside `features/` (including a host plan file), the skill reads it and promotes rich content (DDL, JSON, tables, OpenAPI, diagrams) into bank phase 2 or into `ARCH` / `SEC` / `ANALYSIS`. A citation with no promoted body fails O1. Narrow exception: O1 may selectively read and use only an identified relevant `EPIC.md`, its selected feature section, and relevant context within that EPIC without promoting the whole EPIC. A separately opened or cited Markdown reference or dependency remains subject to the normal promotion rule. The exception does not change O1 questions, gates, or artifact requirements. Host plan files are not O3 input.
 
 | Dimension | Values |
 |-----------|--------|
