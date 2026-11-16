@@ -31,7 +31,7 @@ Plan paths are portable. Use one of:
 | plan approved, invoked directly | `adt-delivery-implement - <portable-plan-path>`; branch, cadence and review mode are asked there |
 | plan approved after an agreed split, invoked directly | `adt-delivery-implement - <portable-plan-path>` once per independent plan, one line each; the feature-root plan holds the shared decisions and is not implemented itself |
 | plan not approved, or open question | stay in `adt-delivery-plan`; ask once and wait |
-| analysis findings delivered, operator accepts planning | set `Mode: full` in the Operational record, run the `plan` preflight, then continue to `adt-delivery-plan - <portable-plan-path>` |
+| analysis findings delivered, operator accepts planning | set `Mode: full` in the Operational record, check that the Stage ledger reads `refine=done`, then continue to `adt-delivery-plan - <portable-plan-path>` |
 | analysis findings delivered, no acceptance | stop; the analysis outcome is `done` with the findings report as evidence |
 | implement done | report the result; commit, push and PR only on the operator's specific request (`commit`, `push`, `open-github-pr` skills) |
 | implement blocked or failed | state the cause and the exact input or change that resolves it; do not retry the same transition automatically |

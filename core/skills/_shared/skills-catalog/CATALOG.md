@@ -55,6 +55,7 @@ Total: **51** kebab skills.
 | `adt-delivery-implement` | `adt-delivery-implement` | Execute the approved plan, validate and run code review |
 
 The flow uses one evolving `PLAN.md` and the existing `code-review` skill; it does not use cold review.
+ADT delivery does not use workflow hooks or per-step session gates by design.
 
 ## Developer routing and stack
 
