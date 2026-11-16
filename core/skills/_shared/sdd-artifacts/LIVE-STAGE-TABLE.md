@@ -92,10 +92,10 @@ A child return never replaces the owning flow's table. The parent re-reads the c
 
 - Do not show a second form of the same table, or two different progress tables, in the same turn.
 - The closeout table appears only when the operator asks to close the wave.
-- The weighted stage table defined in the next section is for O1, O2, `sdd-plan`, and `sdd-spec`. It is **not** shown in chat for development flows (direct `sdd-develop` and O3). Those flows use the PLAN-step table, and the closeout table when close is requested. `sdd-develop` and `orchestrate-develop` do not emit a `Develop:` heartbeat.
+- The weighted stage table defined in the next section is for O1, O2, `sdd-plan`, `sdd-spec`, and the ADT flow, refine and plan stages. It is **not** shown in chat for development flows (direct `sdd-develop`, O3 and ADT implement). Those flows use the PLAN-step table, and the closeout table when close is requested. `sdd-develop` and `orchestrate-develop` do not emit a `Develop:` heartbeat.
 - Direct `sdd-develop` also follows `sdd-develop/references/execution-display.md`.
 
-## Weighted stage table (O1, O2, sdd-spec, sdd-plan only)
+## Weighted stage table (O1, O2, sdd-spec, sdd-plan, ADT flow, refine and plan)
 
 Columns: `stage`, `status`, `weight`, `what_happened`.
 
@@ -253,3 +253,7 @@ At close, also render the scorecard with every criterion (`criterion`, `status`,
 ### split-story-checklist: groups
 
 Columns: `group`, `step_ids` (Steps), `wave`, `status`. One row per group, rendered in chat when the checklist is summarized and at every redraw point of section 3. Never collapse groups.
+
+### ADT delivery (adt-delivery-flow, adt-delivery-refine, adt-delivery-plan, adt-delivery-implement)
+
+Rows, weights and display points: `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md`, section "Rows per skill". The flow, refine and plan use the weighted stage table (columns `stage`, `status`, `weight`, `what_happened`). Implement uses the PLAN-step table and the closeout table. When the flow runs a stage, only the flow's table is drawn.

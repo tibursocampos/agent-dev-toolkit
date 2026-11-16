@@ -4,52 +4,60 @@ The display standard, columns, glyphs, label map and the six display points are 
 
 ## Rows per skill
 
+Rows follow the Process steps of each skill (`SKILL.md`). A row may cover more than one step; the step numbers after the weight say which.
+
 ### adt-delivery-flow - stage table (weight in parentheses)
 
 Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happened`.
 
-1. Storage and feature (Low)
-2. Specialist triage (Medium)
-3. Refinement (High)
-4. Plan and approval (High)
-5. Execution choices: branch, cadence, review mode (Low)
-6. Implementation (Very high)
-7. Final validation and code review (High)
+1. Storage and feature (Low) - Step 1
+2. Demand triage (Medium) - Step 2
+3. Refinement (High) - Step 3, the refine stage
+4. Plan and approval (High) - Step 4, the plan stage and its one approval
+5. Execution choices: branch, cadence, review mode (Low) - Step 5, asked at the start of implement
+6. Implementation (Very high) - Step 5, the implement stage steps
+7. Closeout: validation, review, quality checks (High) - Step 5, the closeout of implement
 
 ### adt-delivery-refine - stage table
 
 Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happened`.
 
-1. Storage and feature (Low)
-2. Clarify outcome and scope (Medium)
-3. Repository evidence (Very high)
-4. Specialist triage (Medium)
-5. Record in the plan (Low)
-6. Handoff to planning (Low)
+1. Storage, feature and entry check (Low) - Steps 1 and 2
+2. Memory-bank (Low) - Step 4
+3. Specialist triage (Medium) - Step 5
+4. Guidelines (Medium) - Step 6
+5. Clarify and evidence (Very high) - Step 7
+6. Record in the plan (Low) - Step 8
+7. Handoff to planning (Low) - Step 9
 
 ### adt-delivery-plan - stage table
 
 Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happened`.
 
-1. Inputs and selected plan (Low)
-2. Repository analysis (High)
-3. Draft steps and validation (High)
-4. Planner self-check (Medium)
-5. Approval (Low)
+1. Inputs and selected plan (Low) - Steps 1 and 2, ledger check `refine=done`
+2. Context: memory-bank and guidelines (Medium) - Step 4
+3. Source and specialist triage (High) - Step 5
+4. Draft steps with criterion-to-test map (High) - Step 6
+5. Planner self-check (Medium) - Step 7
+6. Approval (Low) - Step 8
+7. Handoff (Low) - Step 9
 
 ### adt-delivery-implement - PLAN-step table plus closeout table
 
 - PLAN-step table: one row for EVERY step S1..Sn of the approved PLAN. Never summarize, merge or omit rows. Column keys: `step_id`, `step`, `dependencies`, `status`, `evidence`, `next_action`.
-- Closeout table: column keys `gate`, `status`, `owner`, `evidence`. Rows, in order:
-  1. Approval still valid
-  2. Branch and baseline recorded
-  3. Final validation
-  4. Code review
-  5. Fixes and focused recheck
-  6. Review report written
+- Closeout table: column keys `gate`, `status`, `owner`, `evidence`. Rows, in the order of `adt-delivery-implement/references/closeout.md`:
+  1. Criterion map (closeout step 0)
+  2. Final validation (closeout step 1)
+  3. Code review (closeout step 2)
+  4. Rerun after review changes (closeout step 3)
+  5. Security pass, when needed (closeout step 4)
+  6. Quality checks (closeout step 5)
+  7. AI-trace scan (closeout step 6)
+  8. Report written (`CODE-REVIEW.md` and the plan's Closeout)
 
 ## ADT rules
 
+- Display point 1 (Start) is drawn at a named step of each skill, after the state it shows is resolved: flow Step 1 (after Step 0), refine Step 3, plan Step 3, implement Step 2 (before the first edit). Read this file at that step; it is a mandatory read, not a lazy one.
 - One table per moment: when `adt-delivery-flow` runs a stage, only the flow's stage table is shown; the stage skill does not draw its own. A skill invoked directly draws its own table.
 - Analysis mode: the flow stage table ends at row 3 (Refinement); rows 4 to 7 are not drawn.
 - The six display points (LIVE-STAGE-TABLE section 3) apply in every pacing. In `adt-delivery-implement` the full PLAN-step table appears in both `step_by_step` and `continuous`; pacing never changes the table.
