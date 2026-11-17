@@ -1,28 +1,12 @@
-## Quality checklist (before handoff)
+# PLAN readiness summary
 
-- [ ] User confirmed **sim** on canonical PLAN path (`PIPELINE.md` § Confirm before write)
-- [ ] Canonical PRD on disk; PRD path and `NNN` match the PLAN filename
-- [ ] Body follows `templates/sdd/PLAN.md` (REQ→step map; Aceite cites REQ/CA)
-- [ ] `direct`: persisted approved PRD is sufficient; steps map PRD behavior/REQ/CA with PLAN-native IDs and no fabricated checklist rows. `orchestrated`: required O2 backlog/approval/checklist gates remain enforced.
-- [ ] Optional direct STORY/checklist is explicitly linked or provided and does not conflict with PRD scope, acceptance, or dependencies; conflict blocks for operator resolution.
-- [ ] `## Related` present; PRD↔PLAN mutual cite when both exist; omit-if-absent (`STORAGE.md` § Navigation block / REQ-009)
-- [ ] Every PRD REQ and acceptance criterion appears in some step
-- [ ] Implementation DoR is reviewable before the first step: every REQ→CA→step has a named planned validation, scope/OOS and dependencies are explicit, and unresolved implementation-affecting decisions block start
-- [ ] Acceptance traceability records planned validation separately from execution evidence; no planned check is represented as a passing result
-- [ ] Step/US DoD requires accepted outcomes, passed declared checks, and recorded evidence; clarification `READY` is not used as authorization or completion
-- [ ] PLAN preserves the develop-session gate lifecycle: finish edits/re-read/validation, record `tests_run`, update status/evidence, then reset terminally; no helper, validation, or artifact edit follows reset in that scope
-- [ ] Mixed test strategy is explicit; deferred checks have a final US consolidation owner and cannot approve an intermediate step
-- [ ] Final consolidation maps acceptance criteria to tests/evidence, preserves unique unit and unrelated smoke coverage, and removes only proven redundancy
-- [ ] Final US/PLAN DoD requires consolidation checks and STATE/EVD validation at the configured evidence level; valid prior evidence is retained or explicitly superseded with a reason and replacement
-- [ ] Vague Aceite challenged and rewritten (observable checks only)
-- [ ] No file-named / task-shaped step titles (file/class/script only) — `story-sizing.md` / `anti-task-shatter.md`
-- [ ] When present, story `ARCH/` / `ANALYSIS/` cited by portable path (not pasted)
-- [ ] `validate-prd` and `validate-plan` exit 0 on the written paths
-- [ ] Step prose in the resolved artifact language (`LANGUAGE.md`; English only when the operator requests it)
-- [ ] No full implementation code blocks in the PLAN
-- [ ] When the established project style differs from the toolkit style bar, the PLAN records that difference and the open question (project vs toolkit). Implementation does not restyle existing members until the operator answers. An order to keep the project pattern closes the question
-- [ ] No full PRD / memory-bank dump in PLAN or handoff prompts
-- [ ] PLAN magro: SQL/DDL/JSON/OpenAPI omitted **only** if a canonical path already exists (bank phase 2 or `ARCH/` / `ANALYSIS/`); otherwise create that file first and cite the path
-- [ ] Output path: `features/**/PLAN/PLAN_NNN_*.md` or global `.../features/**/PLAN/` only (not root `PLAN/`, ad-hoc `docs/`, or `{{TOOLKIT_ROOT}}/` outside `sdd/.../features/`)
-- [ ] Handoff: `/sdd-develop - <portable-plan-path> - Step 1`
-- [ ] Initial progress `0/N`
+Use `self-review.md` once for the substantive review. This short summary is for a direct handoff and is not an additional gate:
+
+- The PLAN covers the requested outcome, scope, material acceptance, dependencies, concrete risks, and proportionate validation.
+- The execution progress table is the single persisted source of implementation progress.
+- Material unresolved decisions and affected work are visible; minor questions do not block unrelated work.
+- The canonical path is clear and portable references are used.
+- The complete PLAN is presented for one explicit approval before implementation. When this skill runs inside O2, O2 owns that approval.
+- A direct planning invocation ends with a handoff. It does not start implementation.
+
+An optional structural validator may help identify a repairable artifact issue. Its result is not approval, and formatting-only findings do not decide whether the plan is usable.

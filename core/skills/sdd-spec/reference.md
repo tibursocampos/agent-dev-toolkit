@@ -1,20 +1,14 @@
-# sdd-spec — reference index
+# sdd-spec reference index
 
-Extended detail for `skills/sdd-spec/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+The skill body is the workflow contract. Load only a relevant section below.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Brownfield CHANGE gate: `CHANGE.md` / `CHANGE-CONTRACT.md` (`references/validate-change.md`). **Greenfield** must **not** force an empty CHANGE stub. Structural gate: REQ-NNN + `validate-prd` (`references/validate-prd.md`). Selective retrieval: `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`. Product depth challenge (metrics/MoSCoW/Severity; FEATURE/STORY siblings): `references/challenge-vagueness.md` + lazy `backlog-item-types/` (no preload).
-
-| Section | Path |
-|---------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Filename and numbering | `references/filename-numbering.md` |
-| Storage and .gitignore | `references/storage-gitignore.md` |
-| Product documentation language | `references/product-docs-language.md` |
-| REQ-NNN tracking | `references/req-tracking.md` |
-| Template usage | `references/template-usage.md` |
-| Challenge vagueness | `references/challenge-vagueness.md` |
-| Selective retrieval | `references/selective-retrieval.md` |
-| English override | `references/english-override.md` |
-| Structural validate (validate-prd) | `references/validate-prd.md` |
-| Brownfield CHANGE (validate-change) | `references/validate-change.md` |
-| Quality checklist | `references/quality-checklist.md` |
+| Need | Reference |
+|---|---|
+| Authoring guidance | `references/template-usage.md` |
+| File naming and canonical paths | `references/filename-numbering.md`, `STORAGE.md` |
+| Existing repository evidence | `references/selective-retrieval.md` |
+| Make behavior and acceptance clear | `references/challenge-vagueness.md` |
+| Requirement IDs, when useful | `references/req-tracking.md` |
+| Language and external paths | `references/product-docs-language.md`, `CLASSIC-EXTERNAL-ACCESS.md` |
+| Optional structural diagnostic | `references/validate-prd.md` |
+| Optional standalone CHANGE note | `references/validate-change.md` |

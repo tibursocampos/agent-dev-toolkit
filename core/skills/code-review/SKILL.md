@@ -53,6 +53,7 @@ All of these may be omitted. Do not invent a value for an omitted input.
 | `working_tree` or `branch` | Without `working_tree`, scope stays the branch diff (current branch head against the given base). With `working_tree`, keep unstaged (`git diff`) and staged (`git diff --cached`) separate. `branch` reviews that range against the base. |
 | Manifest confidence | Confidence for `.agent-validation-tools.json` on this invoke. Omitted or false: manifest commands stay `SKIPPED` and are not executed. Do not infer confidence from the repository or from the presence of a command. |
 | Focus | Without a focus on invoke, ask once in the chat language (`core/skills/_shared/agents/LANGUAGE.md`) what to review: the whole diff, persistence, an architecture boundary, security, or a list the operator gives. Do not infer the focus. |
+| Current validation result | A caller may provide the latest `/run-tests` result. Reuse it only when stack, command, and reviewed working-tree state match; if absent or stale, run `/run-tests` once per detected stack. |
 
 This skill does not edit application code and does not write a PRD or a PLAN.
 
@@ -188,7 +189,7 @@ Load `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/architecture/dd
 Name a pattern only when Signals from `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/design-patterns.md` appear in the diff or the immediate callee. Do not recommend adopting a pattern. Do not use a name outside that closed list.
 
 ### 5. Run verification (when feasible)
-Follow `references/verification.md`. Call `/run-tests` once for each stack detected in step 0. Copy each stack result as `PASS`, `FAIL`, or `SKIPPED`. When `/run-tests` has no command for that stack, record `SKIPPED` and do not treat that item as `PASS`.
+Follow `references/verification.md`. Use a matching current `/run-tests` result supplied by the caller; otherwise call `/run-tests` once for each stack detected in step 0. Copy each stack result as `PASS`, `FAIL`, or `SKIPPED`. When `/run-tests` has no command for that stack, record `SKIPPED` and do not treat that item as `PASS`.
 
 Record the configured lint, audit, or analyzer runner as `PASS`, `FAIL`, or `SKIPPED`. A missing tool, script, or runner is `SKIPPED` and never `PASS`.
 
@@ -229,7 +230,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 | Situation | Next |
 |-----------|------|
-| After O3 (`orchestrate-develop`) completes | First `/run-tests`, then `/code-review`; after review changes, `/run-tests` again, then the security prompt. That prompt is the pass after the post-review `/run-tests` at closeout, including when the review was single. The handoff is `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, using only a documented host mechanism or bounded in-parent fallback; never claim a `/security` command. One pass does not waive the other. |
+| After O3 (`orchestrate-develop`) completes | Follow the shared closeout contract in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`: one substantive review, reuse current matching validation, rerun only checks affected by corrections, and request specialist review only for concrete risk. |
 | New feature / PRD from review findings | `/sdd-spec` - paste or summarize review items; do **not** write PRD in this skill |
 | Coverage below threshold | `/test-coverage` -> then `/dotnet-developer` or `/sdd-develop` |
 | Fixes needed | `/developer` / `/sdd-develop` / stack `*-developer` (user chooses) |
@@ -242,7 +243,7 @@ Run **only** after step **0.25** resolved to multi-angle. Follow `references/mul
 
 An open `critical` stays blocking until a new review shows the fix. Offer at most three automatic rounds, and do not offer a fourth. Do not downgrade the band spontaneously. The default decision is `Changes required`. If the operator explicitly keeps the `critical` band and continues, record that decision and do not block.
 
-When the decision is **Changes required** (or the user fixed findings), ask whether to fix and whether to re-run `/code-review`, and wait. Each question takes `confirm` or `skip` (ids and answer rule: `core/skills/_shared/agents/QUESTIONS.md`). Render both questions in the user chat language. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. Any review change requires the post-review `/run-tests` stage before the security prompt. A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
+When the decision is **Changes required** (or the user fixed findings), ask whether to fix and whether to re-run `/code-review`, and wait. Each question takes `confirm` or `skip` (ids and answer rule: `core/skills/_shared/agents/QUESTIONS.md`). Render both questions in the user chat language. Do not ask, suggest, or hand off memory bank, `/memory-bank-init`, `/document-implement`, or `/document-plan`. After an in-scope correction, rerun only the validations affected by that correction; record when existing evidence remains current. Request a security specialist only when a concrete risk calls for it. A pull-request URL is used only when the operator passed it. Do not tell the operator to open a pull request, call `/open-github-pr`, or open the GitHub UI.
 
 ## Finding shape
 

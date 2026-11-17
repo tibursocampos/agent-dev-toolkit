@@ -2,22 +2,22 @@
 
 Extended detail for `skills/sdd-develop/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Evidence-or-zero: `EVD/` + `STATE.md` + `validate-evidence` (`EVD-STATE-CONTRACT.md`). Living loop: `TRACE.jsonl` converge → sync_current → archive (`TRACE-ARCHIVE-CONTRACT.md` / `validate-trace`).
+Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Separate evidence or trace artifacts are optional and apply only when the approved PLAN or a concrete request includes them.
 
 | Section | Path |
 |---------|------|
-| Canonical scripts after sim (session / ledger helpers) | `references/canonical-scripts.md` |
+| Validation command guidance | `references/canonical-scripts.md` |
 | Command playbook (step discovery) | `references/command.md` |
 | plan-acquisition | `references/plan-acquisition.md` |
 | Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |
-| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
+| PLAN execution and completion | `references/plan-contract.md` |
 | PLAN update protocol | `references/plan-update.md` |
 | Git preparation checklist | `references/git-checklist.md` |
 | Pre-implementation code analysis | `references/code-analysis.md` |
 | Stack pointers (.NET / non-.NET) | `references/stack-pointers.md` |
-| Session report / context checkpoint | `references/session-report.md` |
-| Evidence-or-zero | `references/evidence-or-zero.md` |
-| Living loop + TRACE | `references/living-loop-trace.md` |
+| Result report | `references/session-report.md` |
+| Optional acceptance evidence | `references/evidence-or-zero.md` |
+| Optional trace/documentation synchronization | `references/living-loop-trace.md` |
 | Quality self-check | `references/quality-self-check.md` |
 | Optional flows | `references/optional-flows.md` |
 | Forbidden | `references/forbidden.md` |

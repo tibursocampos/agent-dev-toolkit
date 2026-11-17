@@ -1,6 +1,6 @@
-# SDD pipeline guards (spec / plan / implement)
+# SDD pipeline contract (spec / plan / implement)
 
-Execution order, host session mode, canonical paths, confirmation gates, and missing-artifact dialogs. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Orchestrated Delivery `orchestrate-*` - do not paste into PRD/PLAN bodies.
+Execution order, approval boundaries, canonical paths, and artifact ownership. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Orchestrated Delivery `orchestrate-*` - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
@@ -18,9 +18,36 @@ Normative SoT: `STORAGE.md` § Navigation block (Related). Summary for pipeline 
 | Paths | Portable (`STORAGE.md` § Portable path) |
 | Omit | Skip sibling if absent — never stub a file only for a link |
 | Classic | PRD ↔ PLAN on Write; STORY if on-disk |
-| O1+ | Bidirectional among on-disk siblings (FEATURE / CONTINUITY / STORY / ANALYSIS\|ARCH\|SEC / PRD / PLAN) |
+| O1+ | Link relevant on-disk siblings (FEATURE / STORY / ANALYSIS\|ARCH\|SEC / PRD / PLAN); CONTINUITY is optional context |
 
 Templates under `skills/_shared/templates/` include the block. Skill Write MUST details belong in `sdd-*` / `orchestrate-*` (not here). Do **not** create `feature-refinement.md`.
+
+## Simplified Delivery contract
+
+This section is the shared source of truth for approval, questions, execution progress, and artifact requirements in Classic SDD and Orchestrated Delivery. It supersedes older per-artifact confirmation, SESSION, claim, and continuity instructions in this guide. Skill procedures may explain how to apply it but must not add duplicate gates.
+
+- **Preparation and approval:** O1/O2 and Classic spec/plan may create and revise draft documents as part of the authorized work. Present the complete PLAN for one explicit approval before implementation. A material change to behavior, acceptance, scope, access, or implementation decisions requires a new decision for the affected work. Writing drafts does not require separate approval.
+- **Questions:** block only when an unanswered decision prevents determining behavior, acceptance, scope, required access, or an implementation choice. Keep minor questions and optional improvements visible; independent work may continue.
+- **Implementation progress:** the PLAN is the sole persisted progress source for Classic and O1/O2/O3 implementation. Its single execution table records step, dependencies, state, evidence/validation, and blocker/next action. Do not add competing session flags, claims, checklists, CONTINUITY status mirrors, or task-state tables. A live table is a chat projection, owned once by the active coordinator or direct skill per `LIVE-STAGE-TABLE.md`.
+- **Cadence:** Classic develop and O3 use the cadence selected at implementation start or persisted in the approved PLAN. `step_by_step` stops after a completed step. `continuous` advances through eligible steps until completion or a real blocker. O3 dispatches one child at a time, one step per child.
+- **Legacy context:** existing CONTINUITY, CHANGE, and TASKS files may be consulted when useful. New or resumed work does not require creating, converting, synchronizing, or deleting them. Missing, stale, or conflicting context is reconciled from current canonical requirements and PLAN; ask only when a material ambiguity remains.
+- **Preserved authorization:** approval covers only the named PLAN and scope. Dependencies, acceptance, required validation, access controls, path containment, and separately authorized external or destructive actions remain in force. No commit, push, PR, publication, or installation is implied.
+
+### Closeout
+
+At the end of an approved implementation scope, complete the validation required by its PLAN and one substantive review. Reuse a current validation result when it covers the same stack, command, and unchanged working tree; do not rerun a full suite only because review also checks tests. If review leads to an in-scope correction, rerun only validations that the change affects; record when no rerun was needed. Ask for a decision before a material scope or acceptance change. Request security, data, or architecture review when a concrete risk needs it, not as a universal per-step gate. Record results, limits, and remaining blockers in the canonical PLAN evidence; do not add a second progress ledger. O3 and direct Classic use their single live table for any requested closeout activities. ADT retains its closeout checks and records them in its own plan and the same contextual table it already owns.
+
+### Consumer matrix
+
+| Consumer | Simplified contract | Separate contract retained |
+|---|---|---|
+| Classic `sdd-spec` / `sdd-plan` | Draft writing is part of preparation; no separate write or repeated approval gate. | Canonical feature/story paths and portable references in `STORAGE.md`; direct skill stops at handoff. |
+| Classic `sdd-develop` | PLAN-only progress; selected step-by-step or continuous cadence; no SESSION/claim prerequisites. | Approved scope, dependencies, acceptance, required validation, path safety. |
+| O1 / O2 | One plan approval before implementation; only material questions block; legacy sidecars optional. | STORY/FEATURE/PRD remain requirement sources when used; scoped specialist evidence stays attributable. |
+| O3 | Serial child dispatch and PLAN reconciliation after each step; no claims, SESSION flags, or CONTINUITY progress mirror. | One step per child; parent reviews the result and stops on real blockers or material scope changes. |
+| ADT Delivery | Preserve its own plan, approval, cadence, and external progress summary; use the single table-owner rule when it calls internal steps. | ADT skills keep their distinct contracts; this is compatibility guidance, not an ADT redesign. |
+| Backlog Refine | STORY remains useful; task breakdown is optional. | Direct refinement and `split-story-checklist` remain independently invocable. |
+| `document-implement` and other consumers | Not migrated by this change. | Existing SESSION or task-specific contracts remain only where those consumers explicitly require them. |
 
 ## Work tracks
 
@@ -28,26 +55,14 @@ Templates under `skills/_shared/templates/` include the block. Skill Write MUST 
 |-------|------|------------------|
 | **Classic SDD** | `sdd-spec` -> `sdd-plan` -> `sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
 | **Backlog Refine** | `refine-story` -> `split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
-| **Orchestrated Delivery** | **Step 0** memory-bank gate -> `orchestrate-analyze` -> `orchestrate-deliver` -> `orchestrate-develop` **or** manual `sdd-develop` | Same `features/` tree; CONTINUITY between stages; bank co-located via manifest (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) |
+| **Orchestrated Delivery** | `orchestrate-analyze` -> `orchestrate-deliver` -> `orchestrate-develop` **or** manual `sdd-develop` | Same `features/` tree; Memory Bank and CONTINUITY are optional context |
 
-Tracks coexist (Classic SDD / Backlog Refine / Orchestrated Delivery only). Skill ids (`sdd-*`, `orchestrate-*`, `refine-story`, …) are **unchanged**. **Classic SDD** does **not** require memory-bank. Gate contract: `MEMORY-BANK.md`.
-
-
-### Orchestrated Delivery — ARCH confirm gate (architecture selection)
-
-Inside **O1** (`orchestrate-analyze`), after the architect specialist (or in-parent fallback) when nature is **`greenfield`** or **`needs_domain`** without an established in-repo style:
-
-1. Produce ARCH **draft** (propose style via `code-guidelines/principles/architecture-selection.md` + `agents/prompts/architect.md`).
-2. Ask operator with ids `confirm` / `adjust` / `cancel`, rendered in the user's language (`QUESTIONS.md`). Silence ≠ approval; receipt stays `needs-confirm.` until `confirm`.
-3. On `confirm` only: write ARCH **approved** (style id + boundaries). Then continue backlog synthesis / human backlog gate / O2.
-4. **Brownfield** with an established style: skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a **mirror** ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline). Do **not** skip ARCH because a style already exists.
-
-Do **not** start O2 / implementation waves with an unconfirmed greenfield style. Details: `orchestrate-analyze` SKILL §7b, `ROSTER.md`, `reference.md` § Architecture confirm gate.
+Tracks coexist. Skill ids (`sdd-*`, `orchestrate-*`, `refine-story`, …) are **unchanged**. Classic SDD does not require FEATURE, STORY, Memory Bank, or orchestration. Create ARCH or other specialist analysis only when a concrete decision or risk needs it; brownfield classification alone does not require mirrored architecture documentation. A material architecture choice still needs an explicit decision before dependent implementation.
 
 ## Skill order
 
 - **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery**: Fixed sequence: **Step 0 (Memory Bank Gate, policy `auto`) -> `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) \| `sdd-develop`)** after human gates. Each `orchestrate-*` re-checks Step 0 before its flow. O1 creates story folders only after `FEATURE.md` has no open question. O2 checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. Any unanswered question, including **MINOR**, stops that story (`open_question` in `readiness-severity.md`). The block limit does not apply to that gate. O3 reuses `sdd-develop` (**one PLAN step per child**) and runs Step N **refresh-light** after code changes. Scope close is `code-review`, then `run-tests`, then the `security` agent.
+- **Orchestrated Delivery**: `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) | `sdd-develop`). O1 investigates proportionally and can prepare independent analysis in parallel. O2 prepares stories and their PRDs/PLANs, then obtains one explicit approval of the complete implementation plan(s). Minor questions do not block unrelated stories. O3 runs serially, one PLAN step per child, and reconciles each result in the PLAN. Closeout validation follows the approved PLAN and relevant repository checks.
 
 | Skill | Writes | Must not in same session |
 |-------|--------|
@@ -55,9 +70,9 @@ Do **not** start O2 / implementation waves with an unconfirmed greenfield style.
 | `plan` | PLAN + manifest under feature story | PRD body; production/test code |
 | `sdd-develop` | Code (English) + PLAN progress | New PRD/PLAN files; **multiple PLAN steps** |
 | `memory-bank-init` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
-| `orchestrate-analyze` | `FEATURE.md` and `CONTINUITY.md` first; story folders only after no open question; ARCH confirm when greenfield/`needs_domain`; promote cited non-feature `.md` | App code; story folders while a question is open; skip Step 0 / human backlog approval / ARCH confirm when required; approve backlog if required folders are missing or promote is pointer-only |
-| `orchestrate-deliver` | PRD then PLAN per story, after the open-question gates | App code; skip Step 0 when wired; write the next artifact while `open_question` is set; treat **sim** as closing a question |
-| `orchestrate-develop` | CONTINUITY + one child per PLAN step; Step N refresh-light; close with `code-review`, `run-tests`, `security` | App code in parent; multi-step in one child; skip Step 0 when wired; treat a host plan scratch directory as O3 input |
+| `orchestrate-analyze` | FEATURE and justified stories/analysis | App code; promote suggestions to scope without a decision; require CONTINUITY or mirrored ARCH without a concrete need |
+| `orchestrate-deliver` | PRD and PLAN per selected story | App code; create mandatory CHANGE/TASKS; require repeated document approvals |
+| `orchestrate-develop` | One child per eligible PLAN step; serial reconciliation | App code in parent; more than one step per child; dispatch next step before reconciling prior results |
 
 ## Canonical paths
 
@@ -89,56 +104,35 @@ Do **not** read, write, or continue Classic SDD from:
 - `{{TOOLKIT_ROOT}}/` outside `sdd/<repo-id>/features/` (classic)
 - `docs/backlog/*.md`, arbitrary `docs/*.md`, repo-root `*.md` without feature tree
 
-**O3 input:** `orchestrate-develop` / `sdd-develop` read only `features/` + memory-bank. **Allow Read** of a cited plan scratch file outside `features/` for promote (O1/O2). **Forbid** treating that scratch directory as O3 execution input.
+**O3 input:** `orchestrate-develop` / `sdd-develop` execute from the canonical PLAN under `features/`; existing relevant memory-bank files may be consulted when available. A cited plan scratch file can be read as input but is not itself the canonical O3 execution PLAN.
 
-### Promote non-canonical `.md`
+### Use of cited material
 
-Applies when the user cites any `.md` **outside** `features/` — including a host plan scratch directory outside `features/`, `docs/*.md`, repo-root `*.md`, and root/flat `PRD/` / `PLAN/`.
+Read cited files that are relevant and authorized. Synthesize their material into the canonical PRD or PLAN when useful; a citation, rich content, or host plan scratch file does not require a separate promotion artifact. Preserve the cited source unless the user asks to replace or delete it. New canonical PRD/PLAN files still use the feature paths below. O3 execution always resolves its PLAN from the canonical feature tree.
 
-#### Mandatory promote (`orchestrated` — O1 / O2 only)
+Manifest-backed roots resolve per `STORAGE-RESOLUTION.md` (`features/` root).
 
-Applies when `invocation_context` is `orchestrated`. Do **not** apply these O1 gates to Classic SDD `direct` slash.
-
-1. **Read** the cited file (allowed). Do **not** treat a host plan scratch directory as O3 input. O3 reads only `features/` + memory-bank.
-2. Copy **rich content** (DDL, SQL, JSON, mermaid, tables, OpenAPI, config examples) into canonical destinations as relevant:
-   - memory-bank phase 2: `database-schema.md`, `api-contracts.md`, `component-catalog.md`, `config-examples.md`
-   - and/or story `ARCH/` | `SEC/` | `ANALYSIS/`
-3. Pointer-only / bibliography-only (links or titles without copied bodies) = **fail O1**. Do **not** mark the backlog approved.
-4. **PLAN magro:** do not paste SQL/DDL/OpenAPI into PLAN. Bodies live in bank phase 2 and/or ARCH/ANALYSIS. PLAN **cites the canonical path**. If that path does not exist, O1/O2 must create the canonical file first — do not omit the body from PLAN without a canonical destination (`sdd-plan` Outcome + Must not).
-
-#### Classic PRD / PLAN promote (`direct` — Classic SDD / missing canonical)
-
-**Primary path** when the operator invokes `/sdd-spec` or `/sdd-plan` with a cited non-feature `.md` (including a host plan scratch file). No `orchestrate-analyze` prerequisite.
-
-1. `Read` the file the user cited.
-2. Build PRD (or PLAN) content per `spec/reference.md` or `plan/reference.md`.
-3. Run § Confirm before write.
-4. `Write` only under `features/NNN-slug/[USnn|TSnn]/{PRD|PLAN}/`.
-5. Do not delete the old file unless the user asks.
-
-Manifest-backed roots must resolve per `STORAGE-RESOLUTION.md` schema v2 (`features/` root).
-
-## Host session mode - Phase A / Phase B
+## Host session mode
 
 **Product limit:** In **Plan** and **Ask**, `Write`/`Edit` and often shell are blocked. User permission in chat does not enable disk writes. This is not an invocation context (`INVOCATION-CONTEXTS.md`).
 
 | Phase | Modes | Actions |
 |-------|-------|---------|
-| **A - Collect & draft** | Plan, Ask, Agent | Questions, `Read`/Glob/Grep, PRD/PLAN draft in chat, content approval |
-| **B - Persist** | **Agent** only | `Write` PRD/PLAN after § Confirm; `sdd-develop` code; `test-coverage` and `run-tests` runs |
+| **A - Collect & draft** | Plan, Ask, Agent | Questions, `Read`/Glob/Grep, PRD/PLAN draft in chat |
+| **B - Persist** | **Agent** only | Persist authorized documents; `sdd-develop` code; `test-coverage` and `run-tests` runs |
 
 | Mode | `sdd-spec` / `sdd-plan` | `sdd-develop` | `test-coverage` | `run-tests` |
 |------|-----------------|-------------|-----------------|-------------|
-| Agent | Write after confirm | Allowed | Allowed | Allowed |
+| Agent | Write within authorized task scope | Allowed | Allowed | Allowed |
 | Plan | Phase A only; no `Write`; never claim “saved” | Draft/analysis only; no `Edit` on code | Explain tests need Agent | Explain tests need Agent |
 | Ask | Same as Plan | Block code changes | Block test execution | Block test execution |
 
-### Phase A complete - prompt the user
+### Phase A complete - explain host limitation
 
 Render the prompt in the user chat language (`LANGUAGE.md`). Meaning:
 
 ```text
-Draft approved. To write the file at `{path}` (or to run tests),
+Draft ready. To write the file at `{path}` (or to run tests),
 switch to the mode that can persist and send:
 
 /<name> - write
@@ -148,18 +142,9 @@ switch to the mode that can persist and send:
 
 If the user stays in Plan: continue Phase A only. Never state that a PRD or PLAN was saved without a successful `Write`.
 
-## Confirm before write (spec and plan)
+## Plan approval boundary
 
-Always before the first `Write` of a **new** PRD or PLAN (and when replacing an empty draft file):
-
-1. Show: title, `NNN`, **portable path** under `features/...` (or `sdd/<repo-id>/features/...` when global) — confirm chat may also show the resolved OS absolute; the **Write** body and handoffs use portable path only (`STORAGE.md` § Portable path), storage mode, 3-5 content bullets, planned status.
-2. Ask in the user chat language (`LANGUAGE.md`), with ids `confirm` / `adjust` / `cancel` rendered per `QUESTIONS.md`: whether to write at `{path}`. Silence, an ambiguous reply, or a lone emoji is not approval.
-3. `Write` only after explicit `confirm`.
-4. `adjust` -> revise draft in chat, ask again. `cancel` -> do not write.
-
-This confirmation authorizes only the file write. The `sdd-spec` / `sdd-plan` owner separately obtains content approval and persists the approved status only from that observed approval; `write_confirmed` never provides content approval.
-
-`sdd-develop` updates the existing PLAN after completing a step without re-asking storage.
+Draft preparation and saving are part of the authorized specification/planning workflow. Before code changes begin, present the complete implementation PLAN and obtain one explicit approval. Do not add separate PRD-content, PLAN-write, or artifact-write gates. Reopen approval only for a material change to the approved outcome, acceptance, scope, access, or implementation decisions.
 
 ## Prior context (chat, Plan, code-review, feature tree)
 
@@ -168,61 +153,23 @@ When the thread already has requirements, review findings, or refined backlog:
 - Do **not** run the full `spec` questionnaire.
 - Provide a structured summary + all necessary gap questions, in blocks of at most **5**.
 - Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
-- Prefer **promoted** siblings and memory-bank over re-asking. A citation of a non-feature `.md` is not Prior context until § Promote has copied rich content.
+- Prefer current, relevant sources over re-asking. A cited file may be used directly when authorized; no promotion copy is required solely to make it context.
 - **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
 
 ### Feature / story siblings (Classic SDD / Orchestrated Delivery)
 
 When the working path is under `features/NNN-slug/` (or the user names that feature):
 
-1. `Read` `FEATURE.md` and `CONTINUITY.md` at the feature root when present.
-2. `Read` sibling story files under the same feature: `STORY.md`; `REFINE/` when present (**optional / on demand**); `ANALYSIS/`, `ARCH/`, `SEC/` when FEATURE `needs_*` or brownfield requires them (**not** optional in that case); and existing `PRD/` / `PLAN/` for that story.
-3. Prefer sibling content and promoted bank files over re-asking. Ask all necessary gap questions, in blocks of at most 5. The block limit does **not** apply to `open_question`.
-4. Keep parent chat lean: summarize + paths; do not paste full guideline bodies; do not dump entire `memory-bank/` or full PRD bodies.
-5. **Required siblings** (`INVOCATION-CONTEXTS.md`):
-   - **`orchestrated` (O2):** if FEATURE `needs_*` (or brownfield) and matching `ANALYSIS/` / `ARCH/` / `SEC/` is missing → **STOP**; return to O1. The block limit does **not** replace this gate.
-   - **`direct` (Classic SDD):** if no `FEATURE.md` with `needs_*` → do not require siblings. If flags exist and folders missing → ask: (1) create inline in this session, (2) proceed without siblings (operator risk), (3) optional `/orchestrate-analyze`. Do **not** hard-block.
-   - Waive-deps is for **story order**, not for missing SEC/ARCH/ANALYSIS.
+1. Read the canonical PRD/PLAN and any existing FEATURE/STORY/ANALYSIS/ARCH/SEC/CONTINUITY/CHANGE/TASKS material that is relevant to the current decision.
+2. Do not require a sidecar because a flag, brownfield label, or old scaffold names it. Create or update specialist analysis only for a concrete question, risk, or decision within the approved scope.
+3. Ask focused questions only when a material decision remains open. Minor questions do not stop unrelated work.
+4. Keep retrieval selective: summarize and cite paths; do not dump full guidelines, a whole memory bank, or full PRD bodies.
 
-If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` — use Classic promote (§ above) or `/sdd-spec` to create under `features/...`.
+If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` for new canonical artifacts. Use the demand or cited material to create the appropriate artifact under `features/...`.
 
-## Missing canonical artifact - ask before handoff
+## Missing canonical artifact
 
-Use **one** structured question in the user chat language (`LANGUAGE.md`). Do not invent PRD/PLAN or write code in this step.
-
-### `plan` without PRD on disk
-
-```text
-Não encontrei um PRD em features/**/PRD/NNN_*.md (nem sob {{SDD_ROOT}}/<repo-id>/features/...).
-
-Como prefere continuar?
-
-1) Criar o PRD primeiro (recomendado para SDD completo)
-2) Montar o PLAN direto - você envia as especificações na próxima mensagem
-```
-
-| Choice | Next step |
-|--------|-----------|
-| **1** | Ask: *“Envie as orientações do PRD (texto) ou o caminho de um arquivo .md para analisar.”* -> run **`spec`** (Phase A; persist in Agent). Handoff when PRD exists: `/sdd-plan - <portable-prd-path>` |
-| **2** | Ask: *“Envie as especificações (texto) ou o caminho de um arquivo para análise.”* -> analyze -> PLAN draft in chat; note ideal SDD has a PRD; persist PLAN only with canonical path + § Confirm. Suggest option **1** if scope is large |
-
-Explicit “criar PRD” while invoking `plan` -> treat as choice **1**; do not write PLAN until a canonical PRD exists unless user chose **2**.
-
-### `sdd-develop` without PLAN on disk
-
-```text
-Não encontrei um PLAN em features/**/PLAN/PLAN_NNN_*.md (nem sob {{SDD_ROOT}}/<repo-id>/features/...).
-
-1) Criar PRD + PLAN antes (spec -> plan)
-2) Só criar o PLAN - você envia PRD ou especificações na próxima mensagem
-3) Você já tem um arquivo de plano - informe o caminho sob features/ (será validado/promovido se necessário)
-```
-
-| Choice | Action |
-|--------|--------|
-| **1** | Guide to `spec` (use § plan without PRD, choice **1**) then `plan` |
-| **2** | If canonical PRD exists -> `sdd-plan`; else ask for specs or file (same as plan choice **2** inputs) |
-| **3** | `Read` path; if invalid -> promote per § Promote |
+Use the demand and available evidence to prepare missing PRD/PLAN artifacts within the authorized workflow. `sdd-plan` may work directly from a sufficiently specified demand when no PRD exists. `sdd-develop` needs an executable PLAN; if none exists, prepare it when requirements are sufficient, or ask only for the missing material input. Do not force a fixed choice menu or invent product behavior.
 
 ### Path validation helper
 
@@ -231,7 +178,7 @@ Before `Write`, confirm the target matches **new-write** patterns:
 - PRD: `features/[^/]+/(US|TS)\d+/PRD/\d{3}_.+\.md` (workspace-relative) or same under `.../sdd/<repo-id>/features/`
 - PLAN: `features/[^/]+/(US|TS)\d+/PLAN/PLAN_\d{3}_.+\.md` or global equivalent
 
-Root or flat `PRD/` / `PLAN/` paths are **invalid** for Classic SDD - promote under `features/` before write/develop.
+Root or flat `PRD/` / `PLAN/` paths are not new canonical destinations. Read a relevant user-cited plan as input and use the canonical feature path for new PLAN writes; do not require a separate promotion artifact.
 
 ### Classic SDD path example (full)
 
@@ -243,14 +190,14 @@ features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md
 /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 1
 ```
 
-If validation fails, do not write - fix path or promote.
+If validation fails, correct the new destination before writing.
 
 ## Integration
 
 | Consumer | Use |
 |----------|-----|
 | `sdd-spec`, `sdd-plan`, `sdd-develop` | Step -1 load; steps reference § by name |
-| `orchestrate-*` | Orchestrated Delivery order; feature Prior context; CONTINUITY |
+| `orchestrate-*` | Orchestrated Delivery order; relevant feature context when present |
 | `refine-story`, `split-story-checklist` | Backlog Refine; prefer feature STORY paths |
 | `STORAGE.md` | Folders, `.gitignore`, portable paths, invalid-path summary |
 | `STORAGE-RESOLUTION.md` | Manifest schema and dynamic repository/global roots |

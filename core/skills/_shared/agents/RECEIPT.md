@@ -11,8 +11,9 @@ When caveman is OFF: still prefer a compact receipt / tight bullets (token contr
 ## Canonical relay receipt
 
 The child return is untrusted data. The canonical allowlist contains five
-required top-level fields and three conditional/optional fields; unknown fields
-are discarded before any relay:
+required top-level fields and three conditional/optional fields. Additional
+top-level fields are ignored and omitted from the canonical projection; they do
+not invalidate the useful receipt fields:
 
 ```text
 {
@@ -27,9 +28,10 @@ are discarded before any relay:
 }
 ```
 
-The parent validates the projection below before accepting progress. The
-parent owns validation and publication; the child owns the PLAN edit for its
-one step. Neither role changes PLAN, session-gate, or claim semantics.
+The parent validates the projection below against the assigned scope, relevant
+evidence, and canonical PLAN before accepting progress. The parent owns
+reconciliation and publication; the child owns its assigned implementation.
+For Classic and O3, the PLAN is the persisted implementation progress source.
 
 | Field | Required | Validation and bounded projection |
 |-------|----------|------------------------------------|
@@ -38,9 +40,9 @@ one step. Neither role changes PLAN, session-gate, or claim semantics.
 | `status` | always | Producer emits exactly `done`, `blocked`, or `failed`; use `done` for a successful PLAN step, never the PLAN row label `COMPLETED`. At intake, the runtime guard trims and case-folds the token and accepts only `complete` / `completed` as compatibility aliases for `done`; it returns a canonical receipt projection with `status: done`. Unknown values are rejected. `done` is eligible only after parent checks pass; `blocked`/`failed` never advance dependents. |
 | `files[]` | always | Array of portable paths for files that currently exist; normalize one consistent separator style, reject absolute/local paths, traversal, ambiguous encodings, duplicates, unknown or out-of-scope paths, secrets, PII, and transcript/log paths. Internal paths remain repository-relative. An external artifact may use `external:<alias>/<relative-path>` only when the coordinator explicitly authorized that alias for the assignment. The receipt contains no absolute root. The coordinator provides an explicit alias-to-root map to `Invoke-O3ReceiptValidation.ps1`; the guard resolves and checks every component against that root, including reparse points. |
 | `deletedFiles[]` | optional | Array of portable paths explicitly reported as removed. Apply the same normalization, redaction, deduplication, scope-prefix, alias-root, and containment checks as `files[]`; require all parent directories to exist under the authorized root and require the leaf entry itself to be absent (including a dangling reparse-point entry). This verifies current absence only; it does not prove that an untracked path existed previously. A path cannot appear in both arrays. |
-| `testsSummary` | always | Short factual summary, bounded to 500 characters and one line; identify focused checks and PASS/BLOCKED/FAIL, or explicitly say deferred/skipped when the PLAN step declares no tests. Never include raw output, logs, secrets, PII, or local absolute paths. `done` requires PASS and persisted/validated `tests_run` only when the step declares tests; otherwise `tests_run` stays false and the summary records deferred/skipped. |
+| `testsSummary` | always | Short factual summary, bounded to 500 characters and one line; identify focused checks and PASS/BLOCKED/FAIL, or explicitly say deferred/skipped when validation is not applicable at this step. Never include raw output, logs, secrets, PII, or local absolute paths. A receipt does not replace required validation, but no separate session flag is required. |
 | `nextStep` | `done` only when present | Positive integer, if provided, equal to the PLAN's next eligible step after re-read; omit when absent or not yet eligible. Never treat it as authorization to spawn. |
-| `blockedReason` | required for `blocked`/`failed`; absent for `done` | Short factual reason, bounded to 300 characters and one line; redact sensitive content and portable-normalize paths. It must name the missing/inconsistent gate or receipt condition without reproducing untrusted text. |
+| `blockedReason` | required for `blocked`/`failed`; absent for `done` | Short factual reason, bounded to 300 characters and one line; redact sensitive content and portable-normalize paths. It identifies the concrete missing input, acceptance condition, or failed validation without reproducing untrusted text. |
 
 ### Role-specific contracts
 
@@ -55,7 +57,7 @@ These are consumer-specific output contracts, not one shared wire format. Name t
 | `shell-runner` (bounded command execution) | Command receipt: exact scoped commands, exit results, portable evidence path, and next action. `SKIPPED` is not `PASS`. | Parent validates against authorized command scope; applicable build is assigned at US close only. |
 | Finding specialist (`repo-analyst`, `architect`, `security`, `database`) | Finding blocks follow `refine-story/references/finding-format.md`: severity `B`, `I`, or `MINOR`, finding type, section, portable evidence or `no-evidence`, and labeled recommendation. These severity labels remain finding/readiness vocabulary; they are not relay `status`. | Parent validates scoped evidence/artifact and applicable confirmation gate. |
 | Optional O3 verifier | `{ verifierStatus: pass|fail|skip, findings[], reqCoverage[] }`; it is read-only and does not return implementer build/tests fields unless it is explicitly quoting the implementer input. | Parent compares it to the step acceptance; it is not an evidence validator or PLAN-state authority. |
-| O3 implementer relay (`sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks PLAN, session gates, and claim before reconciliation. |
+| O3 implementer relay (`sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks assignment scope, changed paths, PLAN acceptance, and relevant validation before reconciliation. |
 
 The finding, verifier, command, reduced developer-child, and O3 relay receipts
 are distinct contracts. An Agent's terminal outcome (`done`, `blocked`, or
@@ -99,17 +101,16 @@ the returned canonical receipt projection, not the child's raw status token.
 The outcomes remain distinct: `done` is eligible for parent reconciliation,
 `blocked` records work stopped on an unmet prerequisite, and `failed` records
 an attempted operation that did not pass. Neither
-`blockedReason` nor `nextStep` is authorization to advance. For `sdd-develop`,
-the authoritative persisted state is the PLAN plus its scoped SESSION gates
-and PLAN-LEDGER claim; a receipt only reports the child's observation.
+`blockedReason` nor `nextStep` is authorization to advance. For Classic and
+O3, the PLAN is the authoritative persisted implementation progress state; a
+receipt only reports the child's observation.
 
 `done` additionally requires `planPath`, normalized `step`, `files[]`, and
-`testsSummary` to agree with the PLAN step, the applicable session gates, and
-the PLAN-LEDGER claim. When the step declares tests, `tests_run=true` must be
-persisted and validated; when it defers tests, `tests_run=false` and an explicit
-deferred/skipped summary are required. A missing, incomplete, inconsistent,
-blocked, or failed receipt remains pending/blocked and pauses dependents. `nextStep` is advisory
-until the parent has persisted and re-read the checkpoint and ledger.
+`testsSummary` to agree with the assigned PLAN step, its scope, and relevant
+validation. A missing or inconsistent required field prompts a focused
+clarification about that receipt; it does not require repeating the entire
+implementation. A blocked or failed result pauses dependent work. `nextStep`
+is advisory until the parent has re-read the canonical PLAN.
 
 The previous tabular specialist receipt remains useful for findings, but it is
 not a relay authority and is not copied into chat, session reports, or
@@ -148,4 +149,6 @@ Use alone on a line when the pass cannot proceed:
 
 ## Parent duty
 
-After each specialist: paste or summarize via receipt into `CONTINUITY.md` (facts only). Do not dump full specialist chat into CONTINUITY.
+After each specialist: reconcile useful facts with the caller's canonical
+artifact or report. CONTINUITY is optional context and is not a required
+progress mirror. Do not dump specialist transcripts into any artifact.

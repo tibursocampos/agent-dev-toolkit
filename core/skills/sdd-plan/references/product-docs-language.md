@@ -1,5 +1,5 @@
-## Product documentation language
+# Product-document language
 
-If a step updates **project** `docs/` or README, the **plan** or **implement** skill must **ask** pt-BR vs English before writing that deliverable.
+When a planned step changes project documentation, follow the repository's established language and localization conventions. If they are not evident and the choice materially affects the deliverable, ask during planning. Do not ask a separate language question when the user's requested language and repository convention already settle it.
 
----
+PLAN prose follows the artifact-language rules in `skills/_shared/agents/LANGUAGE.md`; identifiers and test names remain English.

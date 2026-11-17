@@ -1,67 +1,11 @@
-## Boundaries vs O1 / sdd-* / O3
+## O2 boundaries
 
-| Aspect | O1 `orchestrate-analyze` | O2 `orchestrate-deliver` | Classic SDD `sdd-spec`/`sdd-plan` | O3 `orchestrate-develop` |
-|--------|--------------------------|--------------------------|-----------------------------------|--------------------------|
-| Purpose | Triage + US/TS backlog | PRD+PLAN per approved story | One story PRD or PLAN | Implement PLAN steps |
-| Input | Feature description | Approved `features/NNN-slug/` | Story/requirements | Approved PLAN paths |
-| Output | FEATURE + CONTINUITY + STORY | PRD + PLAN per US/TS | Single PRD or PLAN | Code + PLAN checkboxes |
-| Contracts | Specialists (`needs_*`) | **Reuses** sdd-spec / sdd-plan | Is the contract | **Reuses** sdd-develop |
-| App code | No | No | No | Children only; parent no |
-
-Escalate **to Classic SDD alone** when only one story and user skips O2 batching.
-
-Escalate **to O1** when backlog not approved, stories missing, or flag-gated required siblings (`ANALYSIS/` / `ARCH/` / `SEC/`) are missing.
-
-Escalate **to `refine-story` / O1** when clarification status is `NEEDS_CLARIFICATION` (any unanswered **B**, **I**, or **MINOR**) — do **not** Write PRD/PLAN (`readiness-severity.md` / REQ-005).
-
-Do **not** change or claim a change to the shared `sdd-develop` cadence policy from O2; a shared policy update requires its own explicit authorization.
-
----
-
-## Must not (full)
-
-- Skip Step 0 Memory Bank Gate (unless explicit user `skip-memory-bank`)
-- Create `memory-bank/` under `features/NNN-slug/` or replace CONTINUITY with bank body
-- Dump entire memory-bank into parent or child prompts
-- Write application/production code or tests (`*.cs`, `*.tsx`, `*.ts`, `*.js`, `*.vue`, `*.py`, migrations, etc.)
-- Show the current branch or ask for a branch switch. Write delivery artifacts on the current branch, including `main`, `master`, and `develop`
-- Call `*-developer` / `developer` / `sdd-develop` / `orchestrate-develop` to **implement** (handoff strings only)
-- Rewrite or fork the `sdd-spec` / `sdd-plan` process into a parallel undocumented flow
-- Skip human approval, or treat silence, an ambiguous or unrelated reply, or a lone emoji as approval. A clear affirmative reply in any language is approval (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`)
-- Advance develop handoff when brownfield lacks `features/NNN-slug/CHANGE.md`, or when greenfield was forced an empty CHANGE stub
-- Advance when FEATURE complexity is `medium`/`complex` and TASKS checklist is missing without an operator **confirm** deferral
-- Write PRD/PLAN when FEATURE `needs_*` (or brownfield) is true and the story lacks matching `ANALYSIS/` / `ARCH/` / `SEC/` — **STOP** / return to O1; the block limit does not replace this gate
-- Write PRD/PLAN when any unanswered clarification **B**, **I**, or **MINOR** remains — **STOP**; emit `NEEDS_CLARIFICATION` + portable paths (`readiness-severity.md` / REQ-005 / TE01); sibling folder presence ≠ READY (**RN02**)
-- Treat readiness READY as SESSION `step_confirmed` / PLAN step Complete (dual plane — readiness ≠ implementation)
-- Omit `## Related` on PRD/PLAN (or upward FEATURE/CONTINUITY/STORY) Writes, skip PRD↔PLAN mutual cite when both exist, use `## See also`, stub absent siblings only for links (`STORAGE.md` § Navigation block / REQ-009)
-- Treat waive-deps as a waiver for missing `SEC/` / `ARCH/` / `ANALYSIS` (waive-deps is **story order** only)
-- Exit O2 with Memory-bank status `fresh` if style changed or ARCH was approved this feature (set `refreshed`; point-promote `architecture.md` if not already)
-- Write PRD/PLAN at repo root or outside the story folder
-- Create external work-item tracker or org-only compliance content
-- Change the shared develop cadence policy from O2 without separate explicit authorization
-- Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
-- Assume `series` vs `parallel` without asking
-- Let parallel Agent children `Write` PRD/PLAN to disk (parent-only writes after **confirm**)
-- Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Require memory-bank for Classic SDD / manual `sdd-*` (CA7 - gate is Orchestrated Delivery `orchestrate-*` only)
-- Model/effort selection: see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.
-- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** to `series` **in-parent** per `SPAWN.md`)
-- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/`series` (`SPAWN.md`)
-- Paste guideline packs into Agent child prompts
-- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
-- Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
-
----
-
-## Explicit exclusions
-
-Do **not** introduce:
-
-- Application or test source writes in O2
-- Forked “mini-spec” that skips sdd-spec/sdd-plan gates
-- External work-item tracker CLI/API commands
-- External work-item tracker or org-only compliance fields
-- Assumed `series`/`parallel` without asking
-- Unauthorized changes to the shared `sdd-develop` cadence policy
-- Spec Kit / worktree multi-US changes (out of Orchestrated Delivery MVP)
-- Repo-root `PRD/` / `PLAN/` new writes
+- Do not write application or test code, run implementation steps, or authorize work beyond the PLANs presented and approved.
+- Do not require Memory Bank initialization, CONTINUITY, CHANGE, TASKS, mirrored architecture, structural preflight, or per-document/per-story approval.
+- Do not block on document title, headings, numbering, language, punctuation, optional fields, or minor questions when substantive behavior is clear.
+- Do not stop independent eligible stories because another story is blocked.
+- Do not render a second progress table from internal `sdd-spec` or `sdd-plan` calls.
+- Do not treat a previous approval as covering a new or unlisted PLAN, or a material change in behavior/scope.
+- Do not infer completion or approval from artifact presence, old session flags, receipts, or CONTINUITY alone.
+- Do not expose secrets, PII, or absolute local paths in portable artifacts or handoffs.
+- Do not claim tests, runtime behavior, or validations that were not observed.

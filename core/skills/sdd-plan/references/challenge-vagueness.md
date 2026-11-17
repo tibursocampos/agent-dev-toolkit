@@ -1,23 +1,9 @@
-## Challenge vagueness (Aceite + step titles)
+# Clear acceptance and step titles
 
-Before finalizing steps: rewrite Aceite lines that say "works", "ok", "as expected", "funciona", "como esperado". Prefer observable checks (tests named, script exit, checklist item).
+Acceptance should describe a result a reviewer can recognize from relevant behavior, evidence, or validation. Use REQ/CA IDs when they make tracing easier; do not require a specific ID scheme, BDD form, test name, or fixed number of criteria.
 
-### Non-vague Aceite (required)
+Replace statements that convey only completion (for example, “works” or “as expected”) with the observable behavior or evidence that matters. A suitable check may be an automated test, manual observation, contract comparison, static inspection, or another proportionate method.
 
-Every step **Aceite** must:
+Prefer outcome-oriented step titles over names that only list a file or class. Technical targets may appear in the step's planned changes. If a change is genuinely limited to a configuration or document update, a concise title can identify that work while the step still states its purpose and acceptance.
 
-1. Cite at least one **REQ-NNN** and/or **CA** from the PRD.
-2. State a **verifiable** outcome (named test, script exit code, checklist item, or measurable behavior) — not "done", "ok", or "implementado".
-3. Map to Prior context when present: **cite** portable paths to story `ARCH/` and/or `ANALYSIS/` (and SEC when relevant) instead of pasting bodies (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
-
-### Anti file-named steps
-
-Step titles and Aceite must **not** be only a file, class, script, or path name.
-
-| Forbidden (file-named / task-shaped) | Prefer (behavior / outcome) |
-|--------------------------------------|-----------------------------|
-| "`OrderValidator.cs`" | "Validate empty optional field on create-order command" |
-| "Add `validate-foo.ps1`" | "Fail Assert when fixture FEATURE omits Goals" |
-| "Update Application layer" | "Expose export-by-date API with authorization check" |
-
-Lazy-load when sizing or rewriting titles: `story-sizing.md` (step title ≠ file/class only) and `anti-task-shatter.md` (verb+file/class/script stays a task under an outcome step — do not invent a US-shaped PLAN step per file). Checklist: `references/baby-step-sizing.md`.
+When the plan depends on repository evidence, cite the portable path and section or symbol actually inspected. Distinguish observed behavior, inference, proposal, and evidence gaps; do not claim runtime behavior from static inspection.

@@ -1,34 +1,16 @@
-# plan-acquisition (O3 parent + child)
+# PLAN selection (O3 parent and child)
 
-Contract id: `plan-acquisition`. Parent resolves the PLAN set; **every** implement child re-validates the canonical path before code mutations.
+Resolve the user's feature or PLAN path using `STORAGE.md`. Use only canonical PLAN files under the resolved feature's `features/` tree (repository or configured global root). Normalize and validate supplied paths; reject traversal and paths that escape the authorized feature root.
 
-Canonical detail for the develop child: `skills/sdd-develop/references/plan-acquisition.md` (same contract id — do not fork rules).
+## Parent
 
-**Language:** English reason codes. Portable paths only.
+1. A feature path selects its canonical PLAN files. A specific PLAN path selects only that PLAN.
+2. If no PLAN exists, stop and hand off to `orchestrate-deliver` or direct `sdd-plan`; O3 does not create or repair PRD/PLAN documents.
+3. Read the selected PLAN and derive order, dependencies, acceptance, validation, and progress from it. Existing FEATURE/STORY/PRD or sidecars may be read when useful, but do not require a fixed sibling set or structural preflight.
+4. Pass the selected portable PLAN path and one step identifier to the child.
 
----
+## Child
 
-## Parent (orchestrate-develop)
+The `sdd-develop` child independently confirms that its PLAN path and assigned step are canonical and in scope before editing. The parent-provided path does not authorize edits outside the approved step.
 
-1. Resolve feature / PLAN set (`references/process-common.md`) — path sanitize; reject non-canonical PLAN shapes.
-2. Build queue from **that** PLAN file only.
-3. Pass into each child: portable PLAN path + step id + `invocation_context: orchestrated`.
-4. Do **not** implement app code in the parent.
-
-## Child (sdd-develop contract)
-
-Child **must** run full `plan-acquisition` (obtain → validate → SESSION scope → then implement). Parent path hint does not waive validation.
-
-## STOP / reason codes
-
-Reuse child codes: `plan_path_non_canonical`, `plan_path_outside_features`, `plan_step_missing`, `plan_deps_incomplete`, `plan_session_unscoped`.
-
-## Must not
-
-- Second SESSION/ledger SoT
-- Skip acquisition because “queue already listed the step”
-- Duration/effort estimates in acquisition chatter (`plan-contract.md`)
-
-## Missing PLAN
-
-When no PLAN is ready, call `sdd-plan` in the same pass, with preview and **confirm**, then re-read the file. At most one cycle. A request to ignore an old plan uses only the plan whose criteria come from this story's PRD.
+Missing or inconsistent scope is a focused blocker. Do not create a session, claim, or sidecar to authorize continuation.

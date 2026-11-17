@@ -1,22 +1,17 @@
 # sdd-plan — reference index
 
-Extended detail for `skills/sdd-plan/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+Use references selectively. The skill body and shared `PIPELINE.md` define the workflow; no reference adds a separate approval or formatting gate.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`. Selective retrieval: `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`. Structural gate: **Mapa REQ** / REQ-NNN → steps, **Execution policy**, then `validate-plan` (`references/validate-plan.md`). Aceite não-vago + anti file-named steps + cite ARCH/ANALYSIS: `references/challenge-vagueness.md`, `references/baby-step-sizing.md` (lazy `story-sizing.md` / `anti-task-shatter.md`).
+| Topic | Path |
+|---|---|
+| Ordered workflow and progress-table ownership | `references/command.md`, shared `LIVE-STAGE-TABLE.md` |
+| Optional checklist context | `references/checklist-acquisition.md` |
+| Outcome-based step grouping | `references/baby-step-sizing.md` |
+| One substantive review | `references/self-review.md` |
+| Clear acceptance and step titles | `references/challenge-vagueness.md` |
+| PLAN template guidance | `references/template-usage.md` |
+| Canonical paths and portable links | `references/filename-numbering.md`, shared `STORAGE.md` |
+| Optional structural diagnostic | `references/validate-plan.md` |
+| Evidence retrieval and technical body references | `references/selective-retrieval.md`, `references/plan-magro.md` |
 
-| Section | Path |
-|---------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Filename and numbering | `references/filename-numbering.md` |
-| Storage and .gitignore | `references/storage-gitignore.md` |
-| Product documentation language | `references/product-docs-language.md` |
-| Template usage | `references/template-usage.md` |
-| Challenge vagueness | `references/challenge-vagueness.md` |
-| Selective retrieval | `references/selective-retrieval.md` |
-| PLAN magro | `references/plan-magro.md` |
-| PLAN update protocol (implement) | `../sdd-develop/references/plan-update.md` (pointer: `references/plan-update.md`) |
-| Status legend | `references/status-legend.md` |
-| Baby-step sizing checklist | `references/baby-step-sizing.md` |
-| Structural validate (validate-plan) | `references/validate-plan.md` |
-| Quality checklist | `references/quality-checklist.md` |
-| PLAN-LEDGER (atomic step claim) | `references/plan-ledger.md` |
+Other references remain available for focused needs, such as product-document language, storage ignore rules, or updating an existing PLAN. PLAN update and ledger helpers do not authorize or mirror planning progress.

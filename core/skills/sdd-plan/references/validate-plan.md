@@ -1,10 +1,11 @@
-## Structural validate (`validate-plan`)
+## Optional structural diagnostics
 
-Before `/sdd-develop` handoff, run:
+The repository may provide a structural PLAN validator, for example:
 
-```
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-prd.ps1" -Path <prd-path>
+```text
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-plan.ps1" -Path <plan-path> -PrdPath <prd-path>
 ```
 
-Exit 0 required: PLAN has Execution policy, REQ→step map, PASSO/STEP headings, and covers every PRD `REQ-NNN`. Exit ≠ 0 → fix and re-run. Fixtures/smoke: `scripts/validation/Assert-ValidatePrdPlan.ps1`. Deterministic scripts only — never use an LLM as the structural validator.
+Use it when it can help find a concrete artifact issue or when the operator requests it. A passing result is not proof that behavior, acceptance, or validation are substantively sufficient. A failure is diagnostic: inspect the finding, fix it when it reveals a real content problem, and leave grammar-only or optional-field preferences non-blocking.
+
+Do not use validator output as an authorization token, approval gate, or reason to create mandatory TASKS, CONTINUITY, CHANGE, section counts, or exact title grammar. Existing fixtures and static checks validate their own contracts; they do not establish that the host presents a live table.

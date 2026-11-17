@@ -49,7 +49,7 @@ Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land und
 
 Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it. Detail: `sdd-pipeline-guards`.
 
-**Checkpoint:** one `sdd-develop` PLAN step per gate scope. Direct Classic stops after one step unless a finite sequence is explicitly authorized; reset and revalidate before another scope. O3 keeps one PLAN step per child. An unanswered question, including **MINOR**, blocks the next artifact (`open_question`). O1 creates story folders only after the feature is closed. O2 contests the PRD before `sdd-plan`. Scope close is `run-tests`, then `code-review`, then `run-tests` after changes (or record it was unnecessary), then the `security` agent, then `commit`/`push`. Step 0 = Memory Bank Gate (`{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md`). O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged. Detail stays in `PIPELINE.md`.
+**Checkpoint:** Classic `sdd-develop` uses the approved PLAN cadence (`step_by_step` or `continuous`) and checks PLAN approval, dependencies, scope, and acceptance before each step. O3 remains serial, one PLAN step per child, reconciled before the next dispatch. The PLAN is the only implementation progress source for Classic/O1/O2/O3; do not require SESSION flags, claims, CONTINUITY, CHANGE, or TASKS as progress gates. Only material questions block affected work. O1 investigation and sidecars are proportional; O2 prepares PRDs/PLANs and obtains one approval for the complete explicitly listed PLAN set. Closeout follows `PIPELINE.md` and the caller's approved scope. Memory Bank, CONTINUITY, CHANGE, and TASKS are optional context for these flows. O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged. Detail stays in `PIPELINE.md`.
 
 **Enforcement:** `{{GUARDRAILS_PATH}}`, `sdd-pipeline-guards.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`.
 
@@ -79,7 +79,7 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 |-------|------|
 | Pipeline / modes | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
 | Storage / manifest | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Session gates | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
+| Session helpers (only for explicit consumers) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md` |
 | Memory-bank (Orchestrated Delivery) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
 
 ## Agents / spawn (lazy)

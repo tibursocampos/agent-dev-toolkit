@@ -1,28 +1,18 @@
-# orchestrate-develop — reference index
+# O3 reference index
 
-Extended detail for `skills/orchestrate-develop/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+Procedural details for `skills/orchestrate-develop/SKILL.md`. Load only the relevant reference.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
+| Topic | Path |
+|---|---|
+| PLAN path and selection | `references/plan-acquisition.md` |
+| PLAN semantics and acceptance | `references/plan-contract.md` |
+| Queue, one-child dispatch, and reconciliation | `references/step-queue-spawn.md` |
+| Step-by-step and continuous pacing | `references/develop-modes.md` |
+| Serial dispatch and manual fallback | `references/execution-modes.md` |
+| Shared table ownership | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
+| Handoff, stop, and requested closeout | `references/continuity-handoff.md` |
+| Optional risk-based review | `references/step-verifier.md` |
+| Authorization and path safety | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`, `{{GUARDRAILS_PATH}}` |
+| Spawn and receipt contracts | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`, `RECEIPT.md` |
 
-| Section | Path |
-|---------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Preconditions / Step 0 / Step N refresh-light | `references/preconditions.md` |
-| Anti-bypass checklist | `references/anti-bypass.md` |
-| Step queue / build queue / spawn child / Agent skeleton | `references/step-queue-spawn.md` |
-| Step 5.5 post-implement verifier (`verify_mode`) | `references/step-verifier.md` |
-| Safe parallelism rules + process | `references/parallelism.md` |
-| Execution modes (serial/parallel/manual; queue/claim) | `references/execution-modes.md` |
-| plan-acquisition | `references/plan-acquisition.md` |
-| Develop modes `continuous` \| `step_by_step` (007 REQ-009) | `references/develop-modes.md` |
-| plan-contract markers + delivery-baseline | `references/plan-contract.md` |
-| CONTINUITY / handoff / stop conditions / Step N process | `references/continuity-handoff.md` |
-| Contract reuse / boundaries / invoke strings | `references/contract-boundaries.md` |
-| Caveman / resolve feature / PLAN set | `references/process-common.md` |
-| Must not / exclusions | `references/must-not.md` |
-
-Evidence (EVD/`STATE.md`, `validate-evidence`, Verifier ≠ O3): `references/step-queue-spawn.md` + `EVD-STATE-CONTRACT.md`.  
-Post-implement verifier (`verify_mode`, read-only child): `references/step-verifier.md`.  
-Living loop / TRACE (`validate-trace`): `references/step-queue-spawn.md` + `TRACE-ARCHIVE-CONTRACT.md`.
-
-Develop contract (source of truth, not split): `skills/sdd-develop/SKILL.md` + `reference.md`.
+O3 implementation dispatch is always serial.

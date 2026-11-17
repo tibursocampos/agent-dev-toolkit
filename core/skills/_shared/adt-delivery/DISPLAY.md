@@ -1,6 +1,6 @@
 # ADT delivery - progress display
 
-The display standard, columns, glyphs, label map and the six display points are defined only in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; this file lists rows and ADT rules. Render in the user chat language per `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`.
+The table ownership and display points are defined only in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; this file lists rows and ADT rules. Render in the user chat language per `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`.
 
 ## Rows per skill
 
@@ -42,10 +42,10 @@ Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happene
 6. Approval (Low) - Step 8
 7. Handoff (Low) - Step 9
 
-### adt-delivery-implement - PLAN-step table plus closeout table
+### adt-delivery-implement - one progress table
 
-- PLAN-step table: one row for EVERY step S1..Sn of the approved PLAN. Never summarize, merge or omit rows. Column keys: `step_id`, `step`, `dependencies`, `status`, `evidence`, `next_action`.
-- Closeout table: column keys `gate`, `status`, `owner`, `evidence`. Rows, in the order of `adt-delivery-implement/references/closeout.md`:
+- Show one row for EVERY step S1..Sn of the approved PLAN. Never summarize, merge or omit rows. When closeout is in scope, append its activities to this same table; do not draw a second progress table. Use columns that can represent both step and closeout rows: `id`, `step_or_activity`, `dependencies`, `status`, `evidence`, `next_action_or_owner`.
+- Append closeout rows in the order of `adt-delivery-implement/references/closeout.md`:
   1. Criterion map (closeout step 0)
   2. Final validation (closeout step 1)
   3. Code review (closeout step 2)
@@ -58,13 +58,13 @@ Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happene
 ## ADT rules
 
 - Display point 1 (Start) is drawn at a named step of each skill, after the state it shows is resolved: flow Step 1 (after Step 0), refine Step 3, plan Step 3, implement Step 2 (before the first edit). Read this file at that step; it is a mandatory read, not a lazy one.
-- One table per moment: when `adt-delivery-flow` runs a stage, only the flow's stage table is shown; the stage skill does not draw its own. A skill invoked directly draws its own table.
+- One table per progress update: when `adt-delivery-flow` runs a stage, only the flow's table is shown; the stage skill does not draw its own. A skill invoked directly owns its own table.
 - Analysis mode: the flow stage table ends at row 3 (Refinement); rows 4 to 7 are not drawn.
-- The six display points (LIVE-STAGE-TABLE section 3) apply in every pacing. In `adt-delivery-implement` the full PLAN-step table appears in both `step_by_step` and `continuous`; pacing never changes the table.
+- Use the display points in `LIVE-STAGE-TABLE.md`: initial state, meaningful transition (including blocking decisions and reconciled answers/results), resume, and close/handoff. Combine adjacent events into one redraw. In `adt-delivery-implement`, show the full table in both `step_by_step` and `continuous`; pacing never changes the row set.
 - Before the first edit of an implementation start: show the PLAN-step table, a short summary of the next step and what the plan says to do. In `step_by_step`, wait for the answer.
-- After a child or specialist returns: re-read the persisted `PLAN.md`, reconcile it with the receipt, then redraw the owning table. A child-drawn table or a prose summary does not count.
+- After a child or specialist returns: re-read the persisted `PLAN.md`, reconcile it with the result, then redraw the owning table. A child-drawn table or a prose summary does not count.
 - The table is chat only and is never written into `PLAN.md`. The persisted record is the Progress ledger of the Operational record (`{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/PLAN-TEMPLATE.md`), updated in the same edit that changes a step status.
 - Weight is qualitative only (Low, Medium, High, Very high). Never durations, estimates or story points.
 - Do not narrate skill reads, agent names, tool calls or waits. Do not invent a heartbeat. Never expose hidden reasoning.
-- At `blocked`, or on a `failed` receipt shown as a `blocked` row, redraw with the blocked row and stop. Never imply success.
+- At `blocked`, or on a failed result shown as a blocked row, redraw with the blocked row and stop. Never imply success.
 - On resume, redraw the table as at the start (display point 1) with every row set from the persisted state.

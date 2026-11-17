@@ -1,5 +1,5 @@
-## PLAN update protocol (implement skill)
+# Updating PLAN progress during implementation
 
-Do **not** embed implement update rules inside the PLAN artifact. After each completed step, **`sdd-develop`** updates the same PLAN file per `skills/sdd-develop/references/plan-update.md` (status token `COMPLETED`, progress bar, next-step field, deliverable checkboxes; persisted status tokens are English only, see `status-legend.md`, and localized labels are display-only). Do not edit progress manually during implementation except session recovery.
+The implementer owns progress updates. `sdd-develop` updates the same PLAN using `skills/sdd-develop/references/plan-update.md` and the `status-legend.md` tokens.
 
----
+Keep the single canonical execution table current. Record step state, evidence/validation, and blocker or next action in its row; do not maintain separate progress bars, counters, queues, deliverable checklists, session flags, or claim state. A plan author should not prewrite implementation results.

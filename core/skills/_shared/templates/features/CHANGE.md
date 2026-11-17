@@ -1,47 +1,23 @@
-# CHANGE: {{NNN}}-{{slug}}
+# Optional change context: {{NNN}}-{{slug}}
 
-| Field | Value |
-|-------|--------|
-| **Feature** | `features/{{NNN}}-{{slug}}/` |
-| **Nature** | brownfield |
-| **Vs current** | Living domain specs under `memory-bank/` (e.g. `domain-knowledge.md`, `architecture.md`, `api-contracts.md`, `conventions.md`) — **not** `openspec/`, `.specs/`, or `.specify/` |
-| **PRD** | `./USnn/PRD/NNN_*.md` (portable path) |
-| **Status** | draft \| ready-for-plan |
+Use this note only when a substantial change is easier to explain separately. It is not required for brownfield work; the relevant current behavior, intended change, and concrete risks may be recorded directly in the PRD or PLAN. Existing CHANGE files remain optional context and do not need conversion or deletion.
 
-## Purpose
+## Current behavior
 
-Brownfield delta vs **current** product/domain knowledge. Written at O2 / `sdd-spec` close. Greenfield features **must not** invent an empty CHANGE stub.
+- [Observed behavior and portable evidence path, when available]
 
-## ADDED
+## Intended change
 
-- [ ] [What is new vs current — path or capability; cite current baseline path when useful]
+- [Behavior or capability that will change]
 
-## MODIFIED
+## Affected areas and risks (when relevant)
 
-- [ ] [What changes vs current — before → after; cite current baseline path]
+- [Area, compatibility/data/operation risk, and relevant evidence]
 
-## REMOVED
+## Not changing (when useful)
 
-- [ ] [What is retired vs current — cite current baseline path]
-- [ ] *(Use `None` if nothing is removed.)*
+- [Existing behavior intentionally preserved]
 
-## Current baselines (selective)
+## References (when useful)
 
-List only the **named** current files this delta touches (no full memory-bank dump):
-
-| Portable path | Role in this CHANGE |
-|---------------|---------------------|
-| `memory-bank/domain-knowledge.md` | [why cited] |
-
-## TASKS policy
-
-| FEATURE **Complexity** | TASKS |
-|------------------------|-------|
-| `trivial` (small) | **Do not** require `TASKS.md` / `REFINE/tasks.md` |
-| `medium` or `complex` | **Require** a task checklist (`USnn/REFINE/tasks.md` default, or `USnn/TASKS.md` if explicitly requested) |
-
-## Cross-artifact notes (O2)
-
-- FEATURE `Nature` = brownfield ↔ this file required at `features/NNN-slug/CHANGE.md`
-- PRD REQ/CA should align with ADDED \| MODIFIED \| REMOVED themes
-- After Write: run `validate-change.ps1` before plan/develop handoff
+- [Portable path and section/symbol]

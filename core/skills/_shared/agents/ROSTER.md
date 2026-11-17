@@ -46,14 +46,14 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 
 | Flag | Spawn when true | Specialist / action | Prompt |
 |------|-----------------|---------------------|--------|
-| `needs_api` | API / package / integration surface | `repo-analyst` (+ `architect` if contract-heavy); **write `ANALYSIS/`** | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
-| (brownfield / impact unclear) | Nature `brownfield` or impact unclear | `repo-analyst` **and** `architect` (discover / **mirror ARCH**; skip style re-pick only) + `database` when persistence is in scope; folders on disk | `prompts/repo_analyst.md`, `prompts/architect.md`, `prompts/database.md` |
-| (greenfield / no established style) | Nature `greenfield` **or** no in-repo architecture style | `architect` → **architecture-selection** propose + operator **confirm** before final ARCH; **write `ARCH/`** | `prompts/architect.md` + `code-guidelines/principles/architecture-selection.md` |
-| `needs_domain` | Domain / cross-cutting design | `architect` (same confirm gate when style is not yet established); **write `ARCH/`** | `prompts/architect.md` |
-| `needs_database` | Persistence / schema | `database`; **write `ARCH/` DB slice** | `prompts/database.md` |
-| `needs_frontend` | UI work | No O1 Agent - note in CONTINUITY only; route via `ROUTING.md` at implement | - |
-| `needs_security` | Auth, secrets, PII, supply-chain, threat surface | `security`; **write `SEC/`** | `prompts/security.md` |
-| `needs_devops` | Deploy / pipeline notes | Short CONTINUITY note only (no Agent) | - |
+| `needs_api` | A concrete API / package / integration question affects behavior, scope, or acceptance | `repo-analyst` (+ `architect` when a material contract decision needs design); persist useful findings in the canonical story/feature artifact or a justified `ANALYSIS/` note | `prompts/repo_analyst.md` (+ optionally `architect.md`) |
+| (brownfield / impact unclear) | A specific unresolved current-behavior or impact question could change scope, acceptance, risk, or implementation | Select only the specialist needed for that question (`repo-analyst`, `architect`, and/or `database`); no mirrored architecture or analysis artifact based on brownfield classification alone | Relevant specialist prompt(s) |
+| (greenfield / no established style) | A material architecture choice is required to define behavior, boundaries, or implementation | `architect` may present options and a recommendation; request an operator decision only when the choice materially blocks the approved outcome or implementation; persist the decision where useful | `prompts/architect.md` + `code-guidelines/principles/architecture-selection.md` |
+| `needs_domain` | A concrete domain / cross-cutting design question affects the feature | `architect` when specialist reasoning is useful; record relevant decisions in the canonical feature/story artifact or a justified `ARCH/` note | `prompts/architect.md` |
+| `needs_database` | A persistence or schema decision is within scope and affects the design | `database`; record the relevant decision in the canonical artifact or a justified `ARCH/` database slice | `prompts/database.md` |
+| `needs_frontend` | UI work requires specialist analysis during O1 | No O1 Agent by default; route via `ROUTING.md` at implementation and persist a material analysis only when useful | - |
+| `needs_security` | Auth, secrets, PII, supply-chain, or threat-surface evidence needs specialist analysis | `security`; persist findings in the canonical artifact or a justified `SEC/` note | `prompts/security.md` |
+| `needs_devops` | Deployment or pipeline behavior is material to the feature | Consult a specialist only when a concrete question needs it; persist useful findings in the canonical artifact or a justified analysis note | - |
 
 ### Implementer, finding, verifier, and relay contracts
 
@@ -63,9 +63,9 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 - The optional read-only verifier uses its verifier contract; it cannot implement, edit PLAN, or substitute for evidence validation.
 - `prompts/` is canonical. `core/agents/` files are thin discoverable wrappers; `shell-runner` and `developer-child` also have canonical prompt files because roster/workflow consumers call them.
 
-**Folder on disk:** when a flag above is **true** (or nature is brownfield), spawn Agent when `subagents=native`, else **in-parent write**. The matching story folder **must exist on disk** before backlog approval: `needs_api` / brownfield → `ANALYSIS/`; `needs_domain` / brownfield → `ARCH/`; `needs_database` → `ARCH/` (DB slice); `needs_security` → `SEC/`. Do **not** substitute a CONTINUITY handoff note for these flags. `needs_frontend` / `needs_devops` remain CONTINUITY-only (no Agent, no specialist folder).
+**Specialist evidence:** a flag or brownfield classification alone does not require a specialist folder or sidecar. Persist material decisions in the canonical FEATURE/STORY when appropriate; create ANALYSIS/ARCH/SEC only when a distinct evidence record is useful. O1 may prepare and revise backlog artifacts without a separate backlog approval gate. Optional CONTINUITY notes are not required to represent specialist findings.
 
-**Architecture confirm gate (greenfield / `needs_domain` without established style):** architect returns ARCH **draft** → parent asks operator (**sim** / ajustar / cancelar) → only on **sim** write ARCH **approved**. Until **sim**, treat receipt as `needs-confirm.` — silence is not approval. **Brownfield:** skip **style re-pick / style-id confirm gate** only. Still spawn `architect` and `database` (when persistence is in scope) and write a mirror ARCH slice (layers, DDL, EF vs Dapper or equivalent, pipeline).
+**Material architecture decision:** do not require a confirmation solely because the repository is greenfield, lacks an established style, or is brownfield. If a concrete choice materially affects the intended behavior, acceptance, scope, or implementation, present it to the operator and resolve it before dependent work; otherwise record useful evidence and continue without an ARCH approval gate. Brownfield classification alone never requires mirrored architecture, database, or pipeline notes.
 
 **TE01 / security signals:** Prefer `false` for ambiguous flags **except** when auth, secrets, PII, feed tokens, or supply-chain appear in the description - then ask explicitly or set `needs_security=true` (do not default those signals to `false`).
 

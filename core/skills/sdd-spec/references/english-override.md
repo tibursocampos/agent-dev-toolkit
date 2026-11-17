@@ -1,5 +1,3 @@
-## English override
+## English artifact language
 
-When the user requests English in the skill invocation: same structure as the shared template; section titles in English (`## 1. Overview`, **Given**/**When**/**Then**, status **Ready for planning**). Set manifest `artifact_language` to `en`. Keep REQ-IDs, OOS, blast radius, and optional EARS rules.
-
----
+When the user requests English, write the PRD body in English. Use familiar headings and examples such as Overview or Given/When/Then only when they improve clarity. Do not require a fixed structure, status field, REQ-ID scheme, OOS field, or blast-radius section. Record `artifact_language: en` only when the user requested it and the manifest supports that field.

@@ -2,11 +2,13 @@
 
 Esta página é um índice de navegação e responsabilidade para os artefatos que os fluxos consomem. Ela não substitui nem replica os contratos especializados. Em divergência, prevalece a fonte normativa indicada na linha; o consumidor deve registrar a divergência e não inferir sucesso, autoridade ou migração.
 
+Para Classic SDD e Orchestrated Delivery, drafts podem ser escritos durante preparação, uma aprovação completa do PLAN ocorre antes da implementação, e o PLAN é a única fonte persistida de progresso. CONTINUITY/CHANGE/TASKS são contexto opcional; SESSION e claims não são gates desses fluxos. Veja a matriz de consumidores em `PIPELINE.md`.
+
 ## Como resolver destino e contexto
 
 - Artefatos de feature seguem `STORAGE.md` e `STORAGE-RESOLUTION.md`: `repository` resolve em `$Cwd/features/NNN-slug/`; `global` resolve em `<classic.path>/features/NNN-slug/`, co-localizado com `memory-bank/`. `features_versioned` controla versionamento, não descoberta nem existência. Citações persistidas usam caminhos portáteis.
 - Nos exemplos de caminho com `USnn`, use `TSnn` no lugar quando o item for Technical Story.
-- Estado operacional de sessão e claims não é colocado na árvore `features/` nem escolhido por `manifest.json`: usa o `sessions` da raiz SDD da instalação ativa, conforme `SESSION.md` e `PLAN-LEDGER-CONTRACT.md`.
+- Estado operacional de sessão usado por `document-implement` fica fora da árvore `features/`, conforme `SESSION.md`. Classic SDD e Orchestrated Delivery não usam claims.
 - `direct` e `orchestrated` são contextos de invocação explícitos. A presença de FEATURE/STORY/CONTINUITY/checklist não muda o contexto; ver `INVOCATION-CONTEXTS.md`.
 - Proprietário indica quem pode criar/atualizar a fonte no fluxo descrito. Consumidores podem ler e validar, mas isso não transfere a propriedade da escrita.
 
@@ -29,7 +31,6 @@ The artifact matrix (type, authority, writer, consumers, lifecycle) lives in `AR
 | Resolução dinâmica de armazenamento | `core/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
 | Contexto de invocação | `core/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
 | Sessões e gates | `core/skills/_shared/sdd-artifacts/SESSION.md` |
-| Claim do PLAN | `core/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` |
 | EVD e STATE | `core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` |
 | TRACE e archive | `core/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` |
 | CHANGE | `core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md` |

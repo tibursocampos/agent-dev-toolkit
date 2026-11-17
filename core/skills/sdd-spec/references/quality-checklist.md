@@ -1,22 +1,12 @@
-## Quality checklist (before handoff)
+## Optional PRD review aid
 
-- [ ] User confirmed **sim** on canonical path (`PIPELINE.md` § Confirm before write)
-- [ ] Path matches `features/**/PRD/NNN_*.md` or global `.../features/**/PRD/NNN_*.md` only
-- [ ] Body follows `templates/sdd/PRD.md` (REQ-NNN ids, verifiable CA, OOS; EARS only if useful)
-- [ ] `## Related` present; omit-if-absent; portable paths; PLAN cited when known (`STORAGE.md` § Navigation block / REQ-009)
-- [ ] Vague AC/REQ challenged and rewritten
-- [ ] Implementation DoR inputs are explicit: REQ→verifiable CA, scope/OOS, and relevant dependencies/decisions; `READY` is recorded only as clarification status and is not treated as implementation authorization (`templates/sdd/PRD.md` §2.1; `readiness-severity.md`)
-- [ ] PRD DoD items describe implementation completion and evidence separately from specification readiness; do not mark implementation DoD complete during specification
-- [ ] Product depth challenged: metrics (§1.3), MoSCoW (§4.3), Severity on open questions (§5.1); FEATURE/STORY sibling depth when present (`references/challenge-vagueness.md`)
-- [ ] No implementation how/code in the PRD from depth challenges
-- [ ] `validate-prd` exit 0 on the written path
-- [ ] Brownfield: `CHANGE.md` present + `validate-change` exit 0; greenfield: no empty CHANGE forced
-- [ ] No implementation code in the PRD; no production/test code edited in `spec` session
-- [ ] No full memory-bank / PRD dump prescribed in this skill session
-- [ ] Body follows the chat language (`LANGUAGE.md`); do not hard-code a locale
-- [ ] On the story PRD: API, event, database, and domain are each present or marked not applicable in one sentence
-- [ ] A sibling surface is included only when the text says why the others do not serve
-- [ ] Type/method/API names in English where cited
-- [ ] Status **Pronto para planejamento** (or **Ready for planning** if EN override)
-- [ ] Persisted content-approval field records the explicit operator approval and date; it is not inferred from `write_confirmed`
-- [ ] Handoff: `/sdd-plan - <portable-prd-path>`
+Use these prompts as relevant; they are not a scorecard, required fields, or a release gate.
+
+- Can a reader understand the user or operational outcome?
+- Are material behavior, acceptance, boundaries, and dependencies clear enough for planning?
+- Does a brownfield change describe relevant current behavior, the intended change, concrete risks, and evidence limits?
+- Are decisions, unresolved material questions, and agent inferences distinguishable?
+- Are references portable and useful?
+- Does the PRD avoid implementation code and claims beyond inspected evidence?
+
+Omit questions that do not apply. Do not block an otherwise usable PRD on an optional field, heading, ID scheme, count, or validator result.

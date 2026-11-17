@@ -1,60 +1,38 @@
-## Process — Caveman (Lite cap)
+# O1 common practices
 
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
-2. If `caveman_mode` is false: continue without compression.
-3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
-4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
-5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+## Resolve storage and paths
 
----
+Use `STORAGE.md` and, when needed, `STORAGE-RESOLUTION.md` to resolve the
+canonical feature root. Common roots are repository `features/` or the
+manifest-selected global `<classic.path>/features/`.
 
-## Process — Resolve storage
+Normalize portable paths and reject traversal or paths outside the resolved
+feature root. Preserve the current workspace and its existing files. Do not
+edit application `.gitignore` outside the repository storage rules. Ask about
+storage only when the canonical destination is genuinely unresolved; do not
+repeat a choice already established by the manifest or conversation.
 
-Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`. Resolve feature root and bank root:
+O1 may prepare and revise its authorized FEATURE/STORY/analysis artifacts
+without separate write confirmation. This does not authorize product-code
+changes, commits, pushes, PRs, publication, installation, deletion, or unrelated
+external actions.
 
-- **repository** -> feature `$Cwd/features/`; bank `$Cwd/memory-bank/`
-- **global** -> feature `<classic.path>/features/`; bank `<classic.path>/memory-bank/`
+## Questions and evidence
 
-**Path sanitize (required)** for any invoke / allocated feature path: normalize (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under the feature root above. Ask again, in the user's language, for a canonical path - do not Read/Write outside the feature root.
+Ask only when a decision blocks determining behavior, acceptance, scope,
+required access, or an implementation choice. Identify affected work and keep
+unrelated investigation moving. Minor questions and optional improvements may
+be recorded without stopping the flow.
 
-If first run for this repo: ask storage in the user chat language per `STORAGE.md` and persist manifest. Confirm target workspace. Do **not** invent a feature path outside the resolved root.
+Use relevant repository and cited evidence directly. Distinguish observed
+facts, inferences, suggestions, and operator decisions. Cite portable paths
+where useful. Do not fabricate evidence or promote suggestions into approved
+scope. Read only relevant Memory Bank files if an existing bank can answer a
+concrete question; see `memory-bank-gate.md`.
 
-Repository mode: ensure SDD `.gitignore` patterns per `STORAGE.md` and `features_versioned` in manifest when writing under `features/` or `memory-bank/` (**do not** add `/memory-bank/`; keep `docs/documentation-plan/plan.md` ignored without a negation rule; do not weaken toolkit patterns; never ignore `skills/`). **Global mode:** do not edit project `.gitignore`.
+## Handoff
 
----
-
-## Process — Backlog approval + O2 handoff
-
-Before asking: **product artifact quality gates** must pass (`references/story-synthesis.md` § Product artifact quality gates — FEATURE depth TE01, promotion TE02, cap ≤4 / RN03). Required specialist folders must exist on disk for true flags / brownfield (`ANALYSIS/` / `ARCH/` / `SEC/` per `ROSTER.md`); cited non-feature `.md` must be promoted (not pointer-only), except the user-selected feature brief in an identified EPIC, which is consumed narrowly under `references/triage.md` and does not require whole-file promotion. Else **fail O1** — do not present the backlog as ready and do **not** mark approved.
-
-Present the backlog (feature summary + story table with **Rationale** column + scorecard highlights). Ask in the user chat language — copy in `references/arch-confirm.md` § Approval gate copy — with ids per `core/skills/_shared/agents/QUESTIONS.md`.
-
-| Id | Action |
-|----|--------|
-| `confirm` | status -> `approved`; continue O2 handoff |
-| `adjust` | revise stories/flags; re-present; ask again |
-| `cancel` | leave `draft`; do not hand off to O2 |
-| *(silence / ambiguous / unrelated reply)* | **not** approval - wait |
-
-On `confirm`:
-
-1. Update `FEATURE.md` / story statuses to `approved` as appropriate.
-2. Update `CONTINUITY.md`: phase stays `analyze` until O2 starts (or set handoff-ready note); `Last agent` = `orchestrate-analyze`; keep Memory-bank fields; typed handoff string.
-3. Offer O2 (document series vs parallel as **O2 choice** - do not implement O2 here) — `references/boundaries-handoff.md` § Canonical handoff strings.
-
-Remind in the user chat language: O2 will ask série vs paralelo for per-story PRD/PLAN.
-
----
-
-## Process — Durable progress handoff
-
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
-
-1. Persist latest `CONTINUITY.md` (estado atual short per CONTINUITY template, decisões, pendências, exact next `/…`).
-2. Offer session handoff - same phase, resume with feature path:
-
-```text
-/orchestrate-analyze - <portable-feature-path>
-```
-
-Do **not** paste full specialist dumps into the parent chat.
+There is no separate O1 backlog approval or durable CONTINUITY checkpoint.
+Summarize the demand, prepared stories, material decisions/questions, evidence
+limits, and next action in the session. O2 or Classic planning obtains one
+explicit approval for the complete implementation PLAN set before code.

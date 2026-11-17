@@ -1,45 +1,19 @@
-# Plan-contract markers + delivery-baseline — O3
+# O3 PLAN contract
 
-Contract ids: **`plan-contract`** + **`delivery-baseline`**. Zero duration/effort estimates.
+The approved PLAN is the authority for O3 scope, ordered steps, dependencies, acceptance, validation, and persisted implementation progress.
 
-Canonical tables: `skills/sdd-develop/references/plan-contract.md`.
+## Before dispatch
 
----
+- Confirm the requested PLAN belongs to the feature/story scope and is the approved plan for the work.
+- Interpret its step order, dependencies, acceptance, validation, and current state semantically. Do not require exact metadata wording, section grammar, or a structural validator as an authorization token.
+- Dispatch only the first pending step whose dependencies are complete.
+- Reuse the approval for the unchanged scope. If behavior, acceptance, scope, access, or a material implementation decision changes, stop and seek a decision before affected work.
 
-## Parent use
+## After a child returns
 
-When presenting the queue or accepting a child receipt:
+- Compare the changed paths and evidence with that step's acceptance and required checks.
+- `done` is eligible for reconciliation only when those conditions are met; the parent updates the PLAN row and re-reads the PLAN.
+- `blocked` or `failed` keeps dependent work from advancing. Record the factual reason and next action.
+- Unknown, missing, or conflicting information calls for a focused clarification. Never treat a well-formed receipt as completion proof.
 
-1. Identify next step via **plan-contract markers** (Status, Deps, Aceite, Progresso N/M).
-2. Accept Complete only if **delivery-baseline** holds (child receipt + Aceite + tests when claimed) — **not** by elapsed time.
-3. Refuse to treat estimates as gates.
-
-## Child use
-
-Children update PLAN markers per `sdd-develop/references/plan-update.md` without adding Time/effort/story-point fields.
-
-## Receipt outcomes at the queue boundary
-
-The canonical relay fields and role/stage meanings are defined in
-`core/skills/_shared/agents/RECEIPT.md`. Preserve the distinction when
-reconciling an O3 child result:
-
-- `done` reports that the assigned step's acceptance and required focused
-  checks passed. It is eligible for parent reconciliation only after the
-  parent verifies the exact PLAN, scoped session gates, and PLAN-LEDGER claim.
-- `blocked` reports an unmet prerequisite or unresolved acceptance condition;
-  retain its `blockedReason`, keep the step/dependents pending or blocked, and
-  do not release dependencies.
-- `failed` reports an attempted operation or validation that did not pass;
-  retain its factual cause, keep dependents pending, and do not release them.
-
-An unknown status, missing or malformed receipt, or mismatch with the invoked
-PLAN/step is not a terminal success. Do not convert it to `done`, infer a
-completion message, or advance the queue. `nextStep` remains advisory and
-cannot override the persisted PLAN checkpoint.
-
-## Must not
-
-- Replace SESSION/ledger with ad-hoc “done because quick”
-- Mark multiple steps Complete from one child receipt
-- Introduce duration/effort estimates into CONTINUITY or queue summaries
+Do not use SESSION flags, PLAN claims, preflight output, or CONTINUITY as a substitute for the approved PLAN or its evidence. Do not mark multiple steps complete from one child result or introduce duration/effort estimates as gates.

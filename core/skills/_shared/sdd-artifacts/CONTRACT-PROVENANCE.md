@@ -35,7 +35,7 @@ Other pipeline skills may **cite** this file when they synthesize requirements; 
 
 Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not once per session:
 
-1. **Operator said / confirmed** in this session (answers to questionnaire, **sim** on draft bullets that include the claim) → `agreed`.
+1. **Operator said / decided** in this session, including explicit approval of the complete implementation PLAN containing the claim → `agreed` within that approved scope.
 2. **Cited Prior context** with a portable path + short quote/summary pointing to an existing accepted artifact → `agreed` (cite the path; do not dump full PRD/`memory-bank/`).
 3. **Agent fill-in** to close a gap, propose a default, or infer from code without operator confirm → `invented` until confirmed.
 4. **Ambiguous** → treat as `invented`; ask or label explicitly before Write.
@@ -47,7 +47,7 @@ Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not onc
 | Rule | Behavior |
 |------|----------|
 | Labeling | PRD / handoff that includes agent fill-in must make provenance **visible** (section, table column, or inline tag such as `provenance: invented`) |
-| No laundering | Never move `invented` → `agreed` without operator **sim** or an explicit Prior-context cite |
+| No laundering | Never present an agent suggestion as an operator decision; record adopted material requirements in the approved PLAN or an explicitly accepted source |
 | Secrets | Examples use env var **names** or `***` only — never real tokens |
 | Selective retrieval | Cite portable paths + short summaries; **must not** dump entire `memory-bank/` or paste full PRD |
 | Portable paths | Cross-refs in written artifacts use portable paths only |
@@ -57,9 +57,9 @@ Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not onc
 | Observable | Required behavior |
 |------------|-------------------|
 | Questionnaire / Prior context answers | Map into REQ/CA as `agreed` |
-| Agent proposals (defaults, inferred NFRs, guessed IDs) | Keep under Assumptions / Open questions / explicit `invented` until operator confirms |
-| Confirm-before-write draft | Show which bullets are still `invented`; wait for **sim** / **ajustar** — after **sim**, those listed bullets become `agreed` for the Write |
-| OOS | Out-of-scope items the operator accepted are `agreed` OOS; agent-suggested OOS without confirm stays `invented` |
+| Agent proposals (defaults, inferred NFRs, guessed IDs) | Label as suggestions or assumptions; a material proposal needs a decision before it is treated as approved scope |
+| Draft preparation | Drafts may be written during authorized specification/planning; do not require approval of each PRD bullet before writing |
+| OOS | Record user-stated boundaries as agreed; label agent-suggested exclusions so they are not mistaken for decisions |
 | Handoff | Do not tell `sdd-plan` that invented gaps are locked requirements |
 
 ### `sdd-plan` / `sdd-develop` (consume)
@@ -68,7 +68,7 @@ Resolve provenance **per claim** (REQ, CA bullet, assumption, OOS item), not onc
 |------------|-------------------|
 | PRD REQs without invented label | Treat as `agreed` input for planning / implementation |
 | PRD / notes marked `invented` or “open assumption” | Do **not** put into Aceite as done criteria until operator promotes them |
-| New gaps found mid-plan/develop | Label `invented`; ask operator — do not silently encode as REQ |
+| New gaps found mid-plan/develop | Label proposals; ask only when the gap materially affects behavior, acceptance, scope, access, or implementation. Do not silently add material scope |
 
 ## Examples (no secrets)
 
@@ -95,7 +95,7 @@ Authorization: Bearer eyJhbGciOi***real***
 | REQ-001 | Operator can export profile CSV | agreed |
 ```
 
-After operator **sim** on the assumption, move it into Requirements (or drop it) and remove the invented label.
+After an explicit plan decision adopts an assumption, record it in the approved requirements and remove or update the assumption label.
 
 ### Consumer shape (sdd-plan)
 
@@ -125,7 +125,7 @@ Automated Assert may be added later; missing `sdd-spec` wire → do not mark REQ
 - Collapse `agreed` and `invented` into one unlabeled blob in PRD Write
 - Put real API tokens, passwords, or private keys in examples
 - Dump this contract body into child Agent prompts (cite portable path + rule id only)
-- Use provenance labels to skip confirm-before-write gates
+- Treat a provenance label as a substitute for the single PLAN approval before implementation
 
 ## Change class
 

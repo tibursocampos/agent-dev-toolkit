@@ -20,7 +20,6 @@ Companions: `references/sdd-resolution.md`, `references/policy.md`, `references/
 | Storage / portable paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` | Path / storage_mode / navigation diffs |
 | EVD / STATE | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md` | Evidence artifacts in scope |
 | TRACE / archive | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md` | Living-loop / archive diffs |
-| Plan ledger | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md` | Ledger / claim payload diffs |
 | Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` | Skills that load bank/PRD context |
 | Plan-contract markers + delivery-baseline | `{{TOOLKIT_ROOT}}/skills/sdd-develop/references/plan-contract.md` | PLAN progress / Complete criteria |
 | Invocation contexts | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` | direct vs orchestrated skill diffs |

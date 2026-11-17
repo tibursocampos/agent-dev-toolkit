@@ -1,19 +1,14 @@
-# sdd-develop — command playbook
+# sdd-develop command playbook
 
-**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process. One PLAN step per gate scope. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`). Continue only under explicit bounded authorization, after reset and revalidation.
+Load after the shared pipeline and canonical PLAN path are resolved. Use one PLAN step at a time and load only the relevant step references.
 
-| Step | Action | Lazy section / contract |
-|------|--------|-------------------------|
-| -1b | Caveman Full when active | `CAVEMAN.md` |
-| -1 | Pipeline + STORAGE; resolve `invocation_context`; honor provenance | `PIPELINE.md`, `STORAGE.md`, `INVOCATION-CONTEXTS.md`, `CONTRACT-PROVENANCE.md` |
-| 0 | **plan-acquisition**; resolve develop mode; load PLAN-scoped SESSION | `references/plan-acquisition.md`; `references/develop-modes.md`; `references/execution-display.md`; `SESSION.md` |
-| 1 | On the first implementation step, evaluate the shared PLAN DoR; then validate this step (deps Completed; Aceite REQ/CA) and ask proceed | PLAN/PRD; `references/plan-contract.md` |
-| 2 | Feature branch / git prep | `references/git-checklist.md` |
-| 3–4 | Analyze + implement; targeted tests; child receipt | `references/code-analysis.md`, `references/stack-pointers.md` |
-| 4b | Evidence-or-zero when level ≥ cheap | `references/evidence-or-zero.md`; `EVD-STATE-CONTRACT.md` |
-| 4c | Living loop + TRACE at wave close | `references/living-loop-trace.md`; `TRACE-ARCHIVE-CONTRACT.md` |
-| 5 | Offer `/commit` (do not auto-commit) | — |
-| 6 | Update PLAN in place; checkpoint (delivery-baseline; no estimates) | `references/plan-update.md`; `references/plan-contract.md` |
-| 7 | Session report; handoff next step | `references/session-report.md`; `references/execution-display.md` |
+| Step | Action | Reference |
+|---|---|---|
+| 1 | Resolve invocation context and cadence; confirm the approved PLAN covers the requested work | `PIPELINE.md`, `INVOCATION-CONTEXTS.md`, `references/develop-modes.md` |
+| 2 | Acquire the canonical PLAN, resolve the requested step, and verify dependencies, scope, acceptance, and access | `references/plan-acquisition.md` |
+| 3 | Show the complete PLAN-step table and step summary | `references/execution-display.md` |
+| 4 | Inspect relevant code and repository conventions, then implement the approved step | `references/code-analysis.md`, `references/stack-pointers.md` |
+| 5 | Run applicable validation; record observed evidence and limitations in the same PLAN progress row | Repository guidance; `references/plan-update.md` |
+| 6 | Re-read the PLAN, reconcile the row, render the full table, and report result | `references/plan-update.md`, `references/execution-display.md`, `references/session-report.md` |
 
-Before Completed: `references/quality-self-check.md`. Forbidden: `references/forbidden.md`. Optional: `references/optional-flows.md`.
+Before marking a step complete, use `references/quality-self-check.md`. Optional evidence or closeout flows apply only when their own concrete trigger is present. Classic execution does not run session or claim scripts.

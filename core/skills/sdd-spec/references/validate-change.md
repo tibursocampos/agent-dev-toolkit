@@ -1,9 +1,5 @@
-## Brownfield CHANGE (`validate-change`)
+## Optional CHANGE note
 
-When FEATURE **Nature** is **brownfield**, also Write `features/NNN-slug/CHANGE.md` (ADDED \| MODIFIED \| REMOVED vs **current** `memory-bank/` docs) and run:
+CHANGE is a historical, optional context artifact. New brownfield work may record relevant current behavior, intended change, concrete risks, and evidence in its PRD or PLAN instead. Do not create or validate a CHANGE file solely because the feature is classified as brownfield.
 
-```
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-change.ps1" -Path <features/NNN-slug/CHANGE.md>
-```
-
-**Greenfield** must **not** force an empty CHANGE stub. Contract: `CHANGE-CONTRACT.md`. Smoke: `Assert-CoreContracts.ps1` (ChangeContract section).
+If the user or existing workflow specifically requests a standalone CHANGE note, `validate-change` may be used as a diagnostic; it is not an O2 or Classic authorization gate.

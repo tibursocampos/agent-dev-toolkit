@@ -14,7 +14,7 @@
    - the base branch;
    - scope `working_tree` (all uncommitted delivery changes, staged and unstaged).
    - Do not pass a report path. `code-review` returns its report in chat.
-   - `code-review` runs `/run-tests` itself as part of its verification; that is expected, as in the other flows.
+   - Pass the current final-validation result to `code-review`. If it covers the same stack, command, and unchanged working tree, reuse it; otherwise run only the missing validation once. Do not run a second full suite only because both closeout steps mention tests.
    - Fix the actionable findings (see "Findings") before step 3.
 3. **Rerun.** After review-driven changes, run the affected validation again with `run-tests`. Or record in the plan that no change required a rerun. Any later code change returns to this step, and steps 4 and 5 run again on the changed tree.
 4. **Security pass (conditional).** Only if the plan's triage marks security as needed (`needs_security`): have the `security` specialist review the final working-tree diff, after the review and the rerun. Use `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md` and the spawn rules of `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/TRIAGE.md`. Findings come back in chat; no artifact is written. Treat them like review findings.

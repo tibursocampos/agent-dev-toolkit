@@ -24,8 +24,8 @@ Total: **52** kebab skills.
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `sdd-spec` | `sdd-spec` | Create a PRD for a new feature or change |
-| `sdd-plan` | `sdd-plan` | Baby-step PLAN from an existing PRD |
-| `sdd-develop` | `sdd-develop` | Execute one PLAN step per gate scope; direct Classic defaults to one step |
+| `sdd-plan` | `sdd-plan` | Executable PLAN from a PRD or sufficiently specified demand; one approval before implementation |
+| `sdd-develop` | `sdd-develop` | Execute an approved PLAN step-by-step or continuously, using PLAN as the progress source |
 | `read-sdd-artifact` | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
 
 ## Backlog Refine — backlog prep
@@ -42,9 +42,9 @@ Total: **52** kebab skills.
 |-------|--------------|---------|
 | `adt-epic-planner` | `adt-epic-planner` | Discover a multi-feature initiative and persist one navigable `EPIC.md`; optional context for O1 |
 | `memory-bank-init` | `memory-bank-init` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
-| `orchestrate-analyze` | `orchestrate-analyze` | Triage, specialists, backlog structure |
-| `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |
-| `orchestrate-develop` | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` |
+| `orchestrate-analyze` | `orchestrate-analyze` | Proportional triage, targeted specialist analysis, and justified backlog structure |
+| `orchestrate-deliver` | `orchestrate-deliver` | Prepare PRD + PLAN per selected story; one approval for the complete listed PLAN set |
+| `orchestrate-develop` | `orchestrate-develop` | Serial PLAN-step queue via `sdd-develop`; reconcile each result before dispatch |
 
 ## ADT Delivery
 

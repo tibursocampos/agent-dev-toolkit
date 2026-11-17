@@ -1,50 +1,19 @@
-## Must not (full)
+# O1 boundaries
 
-- Skip Step 0 Memory Bank Gate (unless explicit user `skip-memory-bank`)
-- Create or place `memory-bank/` under `features/NNN-slug/`
-- Duplicate memory-bank body into CONTINUITY (path + status only)
-- Dump entire memory-bank into the parent orchestrator context
-- Write application/production code or tests (`*.cs`, `*.tsx`, `*.ts`, `*.js`, `*.vue`, `*.py`, migrations, etc.)
-- Show the current branch or ask for a branch switch. Write analysis artifacts on the current branch, including `main`, `master`, and `develop`
-- Call `*-developer` / `developer` to **implement** code (suggesting the trivial shortcut is allowed)
-- Skip human backlog approval, or treat silence, an ambiguous or unrelated reply, or a lone emoji as approval. A clear affirmative reply in any language is approval (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`)
-- Skip the architecture confirm gate on greenfield / `needs_domain` (no established style), or write final ARCH / pick a silent style default before operator **sim**
-- Skip `architect` / `database` (or skip writing mirror ARCH) on brownfield — skip **style re-pick / confirm gate** only
-- Leave `memory-bank/architecture.md` draft / `needs-confirm` after ARCH **sim** (point-promote that file; not a full inventory refresh)
-- Pile unresolved product/schema choices only in CONTINUITY when `needs_database` / `needs_domain` (write them under `ANALYSIS/` / `ARCH/`; CONTINUITY may pointer only)
-- Approve backlog when required `ANALYSIS/` / `ARCH/` / `SEC/` folders are missing for true flags / brownfield
-- Present human backlog approval when product artifact quality gates fail (FEATURE missing Problem/Goals/Non-goals — TE01; task-shaped/layer-only candidate promoted to US/TS — TE02; >4 US/TS without explicit FEATURE split rationale — RN03)
-- Create `USnn`/`TSnn` for a title that is verb+file/class/script or layer-only (keep as PLAN/refine step; record anti-task-shatter rationale)
-- Treat pointer-only cited `.md` as promoted; treat host plan files as O3 input
-- Write PRD/PLAN (O2 owns that via `sdd-spec` / `sdd-plan` contracts)
-- Create a story folder (`USnn`, `TSnn`, or Bug) while `FEATURE.md` still has an open question (`open_question`)
-- Write `PRD/` or `PLAN/` during O1
-- Create external work-item tracker or org-only compliance content
-- Create ~40 agent files or expand the roster beyond `ROSTER.md`
-- Modify toolkit `.gitignore` as part of porting this skill into the toolkit repo; at runtime follow `STORAGE.md` only for consumer repo SDD patterns
-- Change shared develop cadence policy from O1; any such policy change requires its own explicit authorization and must preserve one step per gate scope and one step per O3 child
-- Create `REFINE/` / `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at **repo root**
-- Resolve feature paths outside `$Cwd/features/` or `<classic.path>/features/`, or accept `..` segments
-- Model/effort selection: see `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`.
-- Hard-fail when `subagents` is `none` or Agent is unavailable (use **fallback** in-parent notes per `SPAWN.md`; until step 9, keep those notes in the parent — do not create `USnn`, `TSnn`, Bug, `ANALYSIS/`, `ARCH/`, or `SEC/` before the open-question gate; never skip the notes)
-- Exceed orchestrate ≤4 concurrent Agent calls without user-approved wave/série (`SPAWN.md`)
-- Paste guideline packs into Agent child prompts
-- Write SDD artifacts containing OS absolute paths matching `^[A-Za-z]:/` or user-home InstallRoot embeds (`…/.cursor/sdd/…`, `…/.claude/sdd/…`) — use portable paths per `STORAGE.md` § Portable path
-- Read full `reference.md` when a `references/<section>.md` exists for the current Process step (`SKILL-REFERENCE-RETRIEVAL.md`)
-- Dump integral `memory-bank/` or full PRD into CONTINUITY, child prompts, or FEATURE/STORY (`SR-NO-FULL-DUMP`)
-- Omit `## Related` on FEATURE / CONTINUITY / STORY Writes, use `## See also`, stub absent siblings (incl. PRD/PLAN) only for links, or invent `feature-refinement.md` as navigation SoT (`STORAGE.md` § Navigation block / REQ-009)
-
----
-
-## Explicit exclusions
-
-Do **not** introduce:
-
-- Write of application or test source as part of O1
-- `memory-bank/` under `features/NNN-slug/`
-- Full memory-bank dump into CONTINUITY or parent chat
-- Skip of Step 0 without explicit `skip-memory-bank`
-- External work-item tracker CLI/API commands
-- External work-item tracker or org-only compliance fields
-- Forty aspirational agent files from design.md
-- Changes to `sdd-develop` one-PLAN-step-per-session contract
+- Do not write application code, PRDs, or PLANs in O1.
+- Do not require CONTINUITY, CHANGE, TASKS, Memory Bank creation/refresh,
+  specialist folders, mirrored ARCH, fixed scorecards, fixed story counts, or
+  document validators solely to complete O1.
+- Do not add a backlog approval or architecture-style approval gate. Material
+  decisions are resolved when they affect behavior, acceptance, scope, access,
+  or implementation.
+- Do not turn suggestions into scope without an operator decision.
+- Do not let a minor question block independent work.
+- Do not fabricate evidence, architecture, requirements, or decisions.
+- Do not read or write outside authorized, resolved paths.
+- Do not perform commits, pushes, PRs, publication, installation, or unrelated
+  external actions unless separately authorized.
+- Follow shared spawn limits and path-safety rules. Do not hard-fail only
+  because native subagents are unavailable.
+- Keep O1 as the sole owner of its live contextual progress table; do not add a
+  cumulative checkpoint or a second progress table.

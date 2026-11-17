@@ -6,7 +6,7 @@ How to wire validators into agent-dev-toolkit skills (Git-only).
 
 ```
 format-validators
-  ├── validate-prd.ps1          -> sdd-spec / sdd-plan (executable PRD structure gate)
+  ├── validate-prd.ps1          -> optional PRD structure diagnostic
   ├── feature-validator.md      -> PRD authoring checklist (non-executable)
   ├── commit-message-validator.md -> commit, code-review
   └── pr-comment-validator.md   -> code-review
@@ -16,13 +16,13 @@ format-validators
 
 ## spec
 
-**Executable gate:** `scripts/validation/validate-prd.ps1`
-**When:** After writing PRD and before handoff to `/sdd-plan`; `/sdd-plan` runs it again against its source PRD. `feature-validator.md` is an authoring checklist, not the executable gate. Storage: `sdd-artifacts/STORAGE.md`. Language: content-language per `agents/LANGUAGE.md`.
+**Optional diagnostic:** `scripts/validation/validate-prd.ps1`
+**When:** Run only when requested or when it helps investigate a concrete content issue. It is not required before handoff, and `/sdd-plan` does not rerun it automatically. `feature-validator.md` is optional authoring guidance. Storage: `sdd-artifacts/STORAGE.md`. Language: content-language per `agents/LANGUAGE.md`.
 
 | Context | Level | Behavior |
 |---------|-------|----------|
-| PRD generation | script structural gate | Block handoff when required sections, REQ ids, or CA headings are missing |
-| Content review | checklist guidance | Review matching locale; the script does not enforce every template section |
+| PRD generation | optional diagnostic | Report structural differences for inspection; do not block handoff solely for heading, ID, or section grammar |
+| Content review | optional checklist guidance | Review matching locale and substantive behavior; equivalent content need not match a fixed template structure |
 
 ---
 

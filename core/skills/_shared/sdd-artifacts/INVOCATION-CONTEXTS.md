@@ -33,7 +33,7 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 | `sdd-develop` | `direct` unless O3 child / plan-scoped develop session from orchestrator |
 | `refine-story` | `direct` unless parent handoff marks `orchestrated` |
 | `requirement-review` | `direct` unless parent handoff marks `orchestrated` |
-| `memory-bank-init` | `direct` unless Step 0 / Step N gate from `orchestrate-*` |
+| `memory-bank-init` | `direct` unless explicitly invoked for a bounded bank operation |
 
 ## Detection (deterministic)
 
@@ -58,28 +58,28 @@ Record the resolved id in the session report / child receipt when one is produce
 | Selective retrieval | Paths + short summaries only; **must not** dump entire `memory-bank/` or paste full PRD |
 | Portable paths | Artifact cross-refs use portable paths (`STORAGE.md`); no OS absolute / InstallRoot embeds in written artifacts |
 | Secrets in examples | Env var **names** or `***` only — never real tokens |
-| Gates | Honor `SESSION.md` gates before Write / mutating Shell |
+| Authorization | Honor the user's authorized scope, material decisions, dependency/acceptance criteria, and required validation; Classic/O1/O2/O3 do not require SESSION flags or claims |
 | Model on spawn | Omit `model` by default (same as parent); a different pair only via the session choice (`SUBAGENT-MODEL.md`) |
 
 ### `direct`
 
 | Observable | Required behavior |
 |------------|-------------------|
-| Operator confirms | This skill owns confirm-before-write / step confirm dialogs for **its** writes |
+| Approval | Spec/plan drafts may be written during preparation; the complete PLAN receives one explicit approval before implementation |
 | Memory-bank | Classic `sdd-*` does **not** require Step 0 bank gate; `memory-bank-init` may run alone |
 | CONTINUITY | Do **not** assume a parent CONTINUITY owner; update CONTINUITY only when this skill's contract says so |
 | Scope | Full skill Process for the invoked skill; do **not** silently start sibling orchestrate stages |
 | Handoff | After one skill outcome, stop; suggest next slash invoke (portable path) |
-| Bounded authorization | An explicit operator authorization in the current invocation may cover a finite, named sequence of eligible direct steps. Persist its source, scope, and limits in the PLAN when it must survive sessions; it does not waive dependencies, per-step `step_confirmed`, validation, or close gates. |
+| Cadence | The approved PLAN's selected `step_by_step` or `continuous` cadence applies; dependencies, acceptance, required validation, and material scope decisions still govern advancement |
 
 ### `orchestrated`
 
 | Observable | Required behavior |
 |------------|-------------------|
-| Parent owns wave | Parent `orchestrate-*` owns CONTINUITY phase, Step 0 bank gate, and multi-story / multi-step queue |
-| Child scope | One PLAN step / one story stage / one bank mode per child — never multi-step in one child |
+| Parent owns wave | Parent `orchestrate-*` owns its one live progress table and multi-story / multi-step queue; Memory Bank and CONTINUITY are optional context |
+| Child scope | O3 dispatch is serial: one PLAN step per child, never multiple concurrent implementation children |
 | Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
-| No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration, re-approve the feature backlog, or rewrite parent CONTINUITY beyond the child's allowed receipt fields |
+| No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration or expand the approved step scope; parent reconciles the result into PLAN before dispatching another child |
 | Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Agent summaries stay **en-US** (`LANGUAGE.md`) |
 | Spawn (Eixo A) | Parent decides spawn vs in-parent per `SPAWN.md`; children do not flip that policy |
 
@@ -101,7 +101,7 @@ Authorization: Bearer eyJhbGciOi***real***
 ```text
 User: /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2
 → invocation_context=direct
-→ skill owns step_confirmed gate; no O3 CONTINUITY ownership
+→ skill follows the PLAN's selected cadence; no SESSION gate or O3 CONTINUITY ownership
 ```
 
 ### Orchestrated child (shape)
@@ -139,4 +139,4 @@ Automated Assert may be added later; missing wire → do not mark REQ-001 / CA1 
 - Put real API tokens, passwords, or private keys in examples
 - Use invocation context to remove Eixo A spawn vs in-parent choice
 - Treat Plan/Ask vs Agent as `direct` / `orchestrated`
-- Treat the parent's approval as authorization for the child to write. The child still needs its own write gate.
+- Add a separate file-write confirmation or SESSION gate to a child when the approved plan already authorizes its bounded implementation work.

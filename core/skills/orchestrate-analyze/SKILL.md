@@ -1,185 +1,122 @@
 ---
 name: orchestrate-analyze
 description: >-
-  Orchestrated Delivery O1: triage a feature, spawn conditional Agent specialists, write FEATURE.md + CONTINUITY + US/TS under features/NNN-slug/. No app code. Use when invoking /orchestrate-analyze.
+  Orchestrated Delivery O1: understand a multi-story or brownfield demand,
+  investigate concrete questions, prepare a FEATURE and justified stories, then
+  hand off to O2. No application code.
 ---
 
-## STOP - Read before ANY tool call
+## Read first
 
-Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
-
----
+Read `_shared/skill-boilerplate.md`, then `PIPELINE.md`, `STORAGE.md`, and
+`INVOCATION-CONTEXTS.md`. These define shared authorization, path, and
+invocation rules. O1 does not add separate artifact-write or backlog approval
+gates. The complete implementation PLAN receives one explicit approval in O2
+before implementation.
 
 # Skill: orchestrate-analyze
 
-## Trigger
-**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
+## When to use
 
-Invoke when the user asks for: `/orchestrate-analyze`, `orchestrate analyze`, `/orchestrate-analyze`, or Orchestrated Delivery analysis for a complex / multi-story / brownfield feature.
+Use for a complex, multi-story, multi-area, or materially uncertain feature.
+For a clear single story, route to Classic SDD; for one informal backlog item,
+route to Backlog Refine. A trivial issue may go directly to `developer` or the
+relevant stack skill. Reuse context the user already supplied.
 
-Optional: pasted feature description, existing notes path, or prior refine output.
+An identified EPIC and selected feature ID may be read narrowly as evidence.
+Do not infer relevance from a filename alone or require promotion of the whole
+EPIC.
 
-Optional EPIC context: if the user identifies an existing initiative `EPIC.md` and a stable feature ID in it, read only that feature section plus the shared context, its dependencies, and referenced material within that EPIC needed to understand it. Do not accept a file merely because it is named `EPIC.md`; establish that it is the relevant EPIC and that the user-selected feature ID exists. Verify the selected brief as an input, then use it alongside the user's request and other evidence. If the ID is missing or ambiguous, ask which feature they mean. This is a narrow exception to the generic cited non-feature `.md` promotion rule: do not promote the whole EPIC or require it to be promoted; any separately opened or cited Markdown reference or dependency remains subject to the normal promotion rule. EPIC context does not replace O1 triage, memory-bank, specialist, research, artifact-quality, or approval gates, and creates no required handoff. Without an identified EPIC and feature ID, run O1 normally.
+## Outcome and boundaries
 
-## Outcome
+O1 produces a comprehensible FEATURE and justified US/TS/Bug stories under the
+resolved `features/` root, plus justified analysis records when they add useful
+evidence. It does not write PRDs, PLANs, or application code. It ends with a
+handoff to O2 (or a more appropriate direct workflow).
 
-Under the resolved classic feature root (`STORAGE.md`, `$Workflow = classic`):
+Existing FEATURE/STORY/PRD/PLAN material is canonical according to its role.
+Existing CONTINUITY, CHANGE, TASKS, and Memory Bank files are optional context.
+O1 does not require their creation, conversion, synchronization, or deletion.
+Do not create `ANALYSIS/`, `ARCH/`, or `SEC/` solely because of brownfield
+classification or a `needs_*` flag.
 
-1. `features/NNN-slug/FEATURE.md` - triage, scope, nature, complexity, `needs_*`
-2. `features/NNN-slug/CONTINUITY.md` - phase, decisions, typed handoff, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote)
-3. `features/NNN-slug/USnn/STORY.md` and/or `TSnn/STORY.md` - BDD + scorecard summary + deps. Create these only at step 9, and only when FEATURE has no open question.
+## Flow
 
-**Step 0 (required):** Memory Bank Gate (`MEMORY-BANK.md`, policy `auto`) **before** triage. Resolve `bank_root` via `STORAGE.md` + `STORAGE-RESOLUTION.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **never** under `features/NNN-slug/`.
+1. **Classify intent.** Reuse the request and cited evidence; select full O1,
+   Classic SDD, Backlog Refine, or a direct developer handoff. See
+   `references/intent-classification.md` and `references/triage.md`.
+2. **Resolve storage and resume context.** Use `STORAGE.md` for roots and
+   portable paths. Read relevant existing artifacts and optionally consult an
+   existing Memory Bank when it can answer a concrete question. Do not create or
+   refresh one as an O1 prerequisite.
+3. **Understand the demand.** Identify the desired outcome, relevant current
+   behavior, constraints, and known areas. Classify nature, complexity, scope,
+   and investigation signals proportionally. Do not repeat discovery already
+   answered by supplied context.
+4. **Investigate concrete questions.** Use a specialist only when its expertise
+   is useful for a specific question. Independent investigations may run in
+   parallel. Distinguish observed facts, inferences, suggestions, and decisions.
+   Suggestions do not enter scope without an operator decision.
+5. **Synthesize.** Prepare or revise FEATURE and stories as needed. Keep
+   behavior, scope, acceptance, dependencies, material questions, and evidence
+   clear. Record relevant brownfield current behavior, intended change, and
+   concrete risks in the FEATURE/STORY or PRD/PLAN destination as appropriate.
+   Create separate ANALYSIS/ARCH/SEC notes only when the evidence or decision
+   benefits from a distinct record.
+6. **Resolve material questions.** Ask only when behavior, acceptance, scope,
+   required access, or an implementation decision cannot be determined. Name
+   affected work. Minor questions and optional improvements remain visible and
+   do not block independent work.
+7. **Handoff.** Summarize the understanding, stories, material decisions or
+   unresolved questions, evidence limits, and next action. O2 prepares the
+   PRD/PLAN set and obtains one explicit approval before implementation.
 
-**Human gate:** backlog must be explicitly approved (`sim` / `ajustar` / `cancelar`) before O2. **Silence is not approval** (RN01). Do **not** mark approved if required specialist folders are missing or cited non-feature `.md` was not promoted (pointer-only = fail O1). When greenfield / `needs_domain` without an established style, an **architecture confirm gate** (ARCH draft → **sim** → ARCH approved) runs after the architect pass and before treating style as selected (`references/arch-confirm.md`). Brownfield skips **style re-pick** only — still write mirror ARCH.
+## Session progress display
 
-Orchestrator **does not** implement application code. At steps 8 and 8b, hold specialist notes in the parent. Create story folders and `ANALYSIS/` / `ARCH/` / `SEC/` only at step 9, and only when FEATURE has no open question. `REFINE/` remains on demand. Do **not** route those notes to CONTINUITY as a substitute.
+O1 owns one contextual progress table under
+`LIVE-STAGE-TABLE.md` § O1. Show the complete table at start, meaningful state
+changes, blocking decisions and their resolution, reconciliation of specialist
+results, resume, and handoff. Combine adjacent events into one redraw. Do not
+display a second cumulative checkpoint.
 
-Does **not** write PRD/PLAN (that is O2 via `sdd-spec` / `sdd-plan` contracts). Does **not** call trackers.
+## Specialists
 
-**Mental map (ids unchanged):** O1 ≈ **explore** (FEATURE, stories, specialists). O2 ≈ FEATURE+PRD+CHANGE; O3 ≈ apply. See `CHANGE-CONTRACT.md`.
+Use the shared `ROSTER.md` for signals and roles and `SPAWN.md` for delegation
+rules. A flag or brownfield label alone does not require an agent, folder, or
+sidecar. If native subagents are unavailable, use the documented in-parent
+fallback where appropriate; do not fail only because an agent is unavailable.
+Specialists do not implement product code in O1.
 
-## Lazy-load (only when needed)
+## References
 
-| When | Path (after syncing the active adapter) |
-|------|----------------------------------------|
-| Command playbook (step discovery after gates) | `references/command.md` |
-| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
-| Pipeline Orchestrated Delivery, confirm, paths | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` |
-| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
-| Evidence decisions, relevant sources, decoys, gaps, and conflicts (`SR-NO-FULL-DUMP`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
-| Material behavior or decision carried into FEATURE/STORY (Steps 5 and 9 only) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
-| Storage, manifest, feature tree | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
-| Step 1 triage — intent classification (before Step 0 when not full O1) | `references/intent-classification.md` |
-| Step 0 Memory Bank Gate | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
-| Memory-bank create/refresh | `{{TOOLKIT_ROOT}}/skills/memory-bank-init/SKILL.md` |
-| Roster, `needs_*`, triage table | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROSTER.md` |
-| Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
-| Agent subagent model (default omit; session choice) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md` |
-| Stack routing (implement later) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/ROUTING.md` |
-| Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/{FEATURE,CONTINUITY,TREE}.md`, `.../story/STORY.md` |
-| Specialist prompts | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/{repo_analyst,architect,security,database,impact,risk,generate-story}.md` — **one file per spawned specialist** |
-| Reference index (routing only) | `reference.md` |
-| Process step detail (lazy) | `references/<section>.md` |
-| Scorecard rubric (reuse) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
-| Scorecard template (optional shape) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-template.md` |
-| Story sizing (synthesis / merge policy) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
-| Persona / Product intent (US only) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
-| Promotion / anti-task-shatter gate (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
-| Cap / altitude rationale (synthesis) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
-| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
-| Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
-
-**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all specialist prompts, all templates, or ROSTER+SPAWN+SUBAGENT-MODEL+ROUTING+MEMORY-BANK together. Do not dump guideline packs into Agent child prompts. Do not preload `persona-context.md` except when synthesizing **User Story** Product intent. Do not preload `anti-task-shatter.md` / `feature-altitude.md` until synthesis / product artifact gates.
-
-**Progressive load:** contracts first (`PIPELINE.md` + `STORAGE.md`); after gates load `references/command.md` for step discovery; fan-out only on trigger (`MEMORY-BANK.md` at Step 0, `ROSTER.md` when setting `needs_*`, `SPAWN.md` before Agent, **one** prompt per spawn, **one** `references/<section>.md` per Process step — never full `reference.md` when a section file exists (`SKILL-REFERENCE-RETRIEVAL.md`).
-
-## Reference routing
-
-| Situation | Path |
-|-----------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Gate / Orchestrated Delivery / promote | `PIPELINE.md` |
-| Feature root / bank root / portable paths | `STORAGE.md` |
-| Step 0 Memory Bank | `MEMORY-BANK.md` |
-| Set `needs_*` / brownfield spawn rules | `ROSTER.md` |
-| Before any Agent / fallback | `SPAWN.md` |
-| Subagent pair session choice | `SUBAGENT-MODEL.md` |
-| Implement-later stack hint | `ROUTING.md` |
-| Step 1 intent classification (triage entry) | `references/intent-classification.md` |
-| Step 0 Memory Bank detail | `references/memory-bank-gate.md` |
-| Triage / collect / trivial / NuGet | `references/triage.md` |
-| Spawn / specialist map | `references/spawn-map.md` |
-| ARCH confirm gate | `references/arch-confirm.md` |
-| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` |
-| Live stage table (step 8c chat) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
-| Scaffold / synthesize / CONTINUITY / product artifact gates | `references/story-synthesis.md` |
-| Boundaries / handoff strings | `references/boundaries-handoff.md` |
-| Caveman / storage / approval / context | `references/process-common.md` |
-| Must not (full) | `references/must-not.md` |
-| Scorecard /100 → STORY | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
-| Story sizing / merge policy | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
-| Product intent (US Who/Job/Outcome) | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
-| Promotion anti-task-shatter | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
-| Cap / feature altitude | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
-
-## Process
-
-After gates: **Read `references/command.md`** for ordered step discovery (do not dump this Process section into child prompts). Then load `references/<section>.md` for the current step only — **not** full `reference.md`. Do not skip gates.
-
-### Step -1b - Caveman Mode (Lite cap)
-Apply Lite caveman prefs when active. Read `references/process-common.md` § Process — Caveman (Lite cap).
-
-### 1. Gate check
-Report the Step -1 gate checklist in chat. Load `PIPELINE.md` (Orchestrated Delivery) and `SESSION.md`. **STOP** if any gate unchecked. Stay on the current branch. Do not show the branch and do not ask for a branch switch, including when the branch is `main`, `master`, or `develop`.
-
-### 1b. Resolve invocation context
-Load `INVOCATION-CONTEXTS.md`. This skill defaults to `orchestrated` (`IC-DIRECT-ORCHESTRATED`). Apply orchestrated observable rules; pass `invocation_context: orchestrated` into child handoffs (path cite only — do not dump the contract body).
-
-### 2. Resolve storage
-Load `STORAGE.md` (`$Workflow = classic`); resolve feature + bank roots; path sanitize; gitignore per STORAGE. Read `references/process-common.md` § Process — Resolve storage.
-
-### 3. Intent classification (Step 1 triage entry)
-Load `references/intent-classification.md`. Classify input (Existing Feature \| New Feature \| Product Initiative \| Problem/Need \| Idea); map to Classic SDD vs Backlog Refine vs full O1. On early handoff (`/refine-story`, `/sdd-spec`, `/developer`), confirm in the user chat language and **STOP** — skip Step 0 unless operator chooses to continue O1 anyway. Record intent when continuing full O1.
-
-### 4. Step 0 - Memory Bank Gate
-Follow `MEMORY-BANK.md` (policy default **`auto`**). Bank root = resolved `bank_root` — **never** under `features/NNN-slug/`. Confirm before bank write; healthy → selective read only. Record path + status for CONTINUITY; after ARCH **sim** point-promote `architecture.md` and set `refreshed`. Read `references/memory-bank-gate.md`.
-
-### 5. Collect description and triage
-Ask/reuse Prior context; promote cited non-feature `.md` per `PIPELINE.md`. Set complexity/nature/scope + `needs_*` via `ROSTER.md` (TE01 / RF01). Read `references/triage.md` (after intent from step 3).
-
-For each analysis question that can affect scope, story boundaries, architecture, security, or the O2 handoff, apply `SELECTIVE-RETRIEVAL.md` § Evidence decisions. Record the question/objective, relevant source-of-truth paths, rejected decoys with the scope reason, remaining gaps or conflicts, the decision and its source, and the next permitted gate in existing FEATURE / CONTINUITY sections. Keep this as traceable summary, not a second source of truth. If a gap or conflict can change scope or acceptance, keep it open and do not present the backlog as ready. Label operator reports and comparative material as such; do not promote them to independent implementation or runtime proof. For external evidence intended to be reachable during O3, record the exact `external:<alias>/<relative-path>` reference in the existing evidence/source note, with no root or absolute path (`STORAGE.md` § External evidence references for O3). This captures a reference only; O1 does not authorize its alias.
-
-For brownfield work, apply `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROWNFIELD-ANALYSIS.md` proportionally to the affected scope. O1 synthesis must check that applicable conventions and impacts have repository evidence, confidence, reuse/affected areas, and material gaps recorded in the existing analysis/architecture artifacts. Folder or artifact presence alone is not evidence of sufficient analysis. Keep technical pattern investigation (targeted repository inspection) distinct from product questions: only unresolved decisions about behavior, scope, acceptance, security, ownership, or validation become operator questions. If a material technical evidence gap remains after feasible inspection, record it and do not present dependent stories/backlog as ready; preserve O1 ownership of FEATURE/CONTINUITY and specialist-owned findings.
-
-When that investigation will shape a material story boundary or downstream acceptance, also apply `SEMANTIC-SUFFICIENCY.md` to the specific content consumed. Resolve the current decision and compare its actual normative destination before carrying a historical source forward; record the disposition in existing FEATURE fields rather than a second decision list.
-
-### 6. Trivial shortcut
-If `trivial`: offer shortcut (read `references/triage.md` § Process — Trivial shortcut). Continue O1 only if user chooses **2**.
-
-### 7. Allocate NNN-slug and scaffold tree
-Glob next NNN; confirm portable path; scaffold `FEATURE.md` and `CONTINUITY.md` only. Do not create story folders. Read `references/story-synthesis.md`.
-
-### 8. Spawn Agent specialists (conditional, parallel)
-SPAWN first; spawn per ROSTER when `native`; fallback in-parent write; cap ≤4; omit Agent `model` by default. Read `references/spawn-map.md`.
-
-### 8b. Architecture confirm gate (greenfield / `needs_domain`)
-ARCH draft → operator **sim** / ajustar / cancelar → approved + point-promote. Brownfield: skip style re-pick only; still write mirror ARCH. Read `references/arch-confirm.md`.
-
-### 8c. Feature research before story folders
-Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`. Update only `FEATURE.md` and `CONTINUITY.md`. If any open question remains, stop with `open_question`. Do not run step 9.
-
-You must render, in the user chat language, the 8c stage table (`stage`, `status`, `weight`, `what_happened`; the six O1 rows, including the second critique round) and the cumulative checkpoint defined in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`. Labels, state keys and ASCII glyphs come only from that file. You must render both at each named display point: the start of the stage, before each gate, after each gate answer, on each row state change, on a blocker (`open_question`, with the blocked row `blocked`), and at the close of 8c. Completeness rule: always render the full table with every row; never summarize rows, show only the changed row, or omit completed rows. Both are chat-only and never persisted in `FEATURE.md` or `CONTINUITY.md`.
-
-### 9. Synthesize artifacts + product artifact quality gates
-Run only when FEATURE has no open question and any required brownfield analysis is sufficient for the dependent story scope. Load `story-sizing.md`; apply **merge policy** (merge file/layer fragments; split when >~8 refine steps or independent consumers). Lazy-load `anti-task-shatter.md` (and `feature-altitude.md` when cap/altitude unclear). For each material behavior, apply `SEMANTIC-SUFFICIENCY.md` before promotion: compare the current decision with its actual normative destination and the candidate story acceptance text. Reuse existing macro-acceptance, Decisions, Open questions, and story-index fields to show whether the behavior is covered, preserved unchanged, explicitly excluded, or still a question; valid links or IDs alone do not pass this check. Create story folders and merge into FEATURE / CONTINUITY / STORY (scorecard via `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md`). Each new STORY carries type, objective, and the FEATURE acceptance ids it covers. `FEATURE.md` story table must include **Rationale** and **Product intent** per row (Who/Job/Outcome or `n/a`; lazy-load `persona-context.md` for User Stories only). **Before** Step 10: run **product artifact quality gates** in `references/story-synthesis.md` — FEATURE depth (TE01 / Problem+Goals+Non-goals), promotion anti-task-shatter (TE02 — no US/TS for verb+file/class/script or layer-only), cap ≤4 US/TS unless explicit split rationale (RN03), and the deterministic evidence validation for every required brownfield `ANALYSIS/` document. Any fail → keep `draft`; return invalid analysis to its owner for correction, list fields/rules; do **not** present human approval. Read `references/story-synthesis.md`.
-
-### 10. Human backlog approval (RN01)
-Before presenting the backlog, verify the evidence summary required in Step 5 is persisted in the existing FEATURE / CONTINUITY fields and identifies the next gate. Product artifact quality gates must have passed. For each required brownfield `ANALYSIS/`, verify the Step 9 validator returned `PASS`; folder presence alone is insufficient. Required folders + promote first; present backlog; **sim** / ajustar / cancelar (silence ≠ approval). O2 retains its independent brownfield validation gate. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/arch-confirm.md` § Approval gate copy.
-
-### 11. Approve -> CONTINUITY + O2 handoff
-On **sim**: approve statuses; typed O2 handoff. Read `references/process-common.md` § Process — Backlog approval + O2 handoff and `references/boundaries-handoff.md` § Canonical handoff strings.
-
-### 12. Durable progress checkpoint
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
+| Need | Reference |
+|---|---|
+| Intent and routing | `references/intent-classification.md`, `references/triage.md` |
+| Paths and selective evidence | shared `STORAGE.md`, `SELECTIVE-RETRIEVAL.md` |
+| Specialist choice and dispatch | shared `ROSTER.md`, `SPAWN.md`, `references/spawn-map.md` |
+| Story synthesis | `references/story-synthesis.md` |
+| Handoff | `references/boundaries-handoff.md` |
+| Optional Memory Bank context | `references/memory-bank-gate.md` |
 
 ## Must not
 
-Enforce the full list in `references/must-not.md`. Critical always-on: no app code; no PRD/PLAN; no skip Step 0 / backlog **sim** / ARCH confirm; no missing `ANALYSIS|ARCH|SEC` when flags require them; no hard-fail when Agent unavailable (fallback in-parent write); portable paths only; do not ignore `IC-DIRECT-ORCHESTRATED` (`INVOCATION-CONTEXTS.md`); do not present human backlog approval when FEATURE depth / promotion / cap gates fail; do not promote task-shaped or layer-only titles to US/TS.
+- Require a Memory Bank, CONTINUITY, CHANGE, TASKS, mirrored ARCH, fixed
+  scorecard, folder, or validator solely to complete O1.
+- Recreate a backlog approval or architecture-style approval gate.
+- Treat a suggestion as approved scope or make minor questions block unrelated
+  work.
+- Invent evidence, architecture, behavior, or product decisions.
+- Write PRD/PLAN or product code, or perform external actions not authorized by
+  the user.
+- Read or write outside the resolved feature root without explicit authority.
 
 ## Handoff
 
-| Situation | Next |
-|-----------|------|
-| Backlog approved | `/orchestrate-deliver - <portable-feature-path>` |
-| Handoff mid-O1 | `/orchestrate-analyze - <portable-feature-path>` |
-| Trivial after triage | `/developer` or stack `*-developer` |
-| Single clear story, skip O2 multi | `/sdd-spec` (Classic SDD) after STORY exists |
-| Informal single item only | `/refine-story` (Backlog Refine) |
-
-### Canonical O2 handoff (exact pattern)
+When multi-story delivery is ready for planning:
 
 ```text
 /orchestrate-deliver - <portable-feature-path>
 ```
+
+For a clear single story, hand off to `/sdd-spec`; for an informal item, use
+`/refine-story`. No backlog approval token is required before these handoffs.

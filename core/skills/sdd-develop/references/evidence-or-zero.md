@@ -1,39 +1,7 @@
-## Evidence-or-zero
+# Optional acceptance evidence
 
-Canonical paths: `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md`.
+Use this guidance only when the approved PLAN calls for a separate evidence artifact or when it adds material proof for acceptance. An AC reference by itself does not require EVD/STATE files, a fixed evidence level, a matrix, or a validator run.
 
-Trigger: the step claims AC coverage, or CONTINUITY / the operator sets a level ≥ `cheap`.
+Prefer current source paths, tests, logs, or other evidence already available. State whether evidence is observed, inferred, proposed, or missing, and describe its limits. Record the evidence that matters in the PLAN progress row or the explicitly planned artifact.
 
-1. Create/update `EVD/` and `STATE.md` from `templates/features/` (`EVD-STATE-CONTRACT.md`).
-2. Fill the **AC → evidence matrix**; levels and gate are in the table below (default verify = **`cheap`**).
-3. Run the structural gate below. Exit ≠ 0 → **STOP**; do not mark the PLAN step Completed (TE02).
-
-| Level | Gate |
-|-------|------|
-| `off` | No evidence required |
-| `cheap` | STATE + EVD + ≥1 non-empty cited evidence file |
-| `standard` | Every matrix row has non-empty EVD file |
-| `strict` | `standard` + every Result = `pass` |
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -StoryRoot features/NNN-slug/USnn [-Level cheap]
-# Or derive the story root only from an explicit plan/story path:
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-evidence.ps1" -PlanPath features/NNN-slug/TSnn/PLAN/PLAN_*.md [-Level cheap]
-```
-
-Templates: `skills/_shared/templates/features/STATE.md`, `…/EVD/README.md`. Contract: `EVD-STATE-CONTRACT.md`. Run `validate-evidence.ps1` when the step declares evidence validation.
-
-For final US test consolidation, reconcile the STATE matrix against every
-applicable acceptance criterion and its tests/results. Append new evidence or
-update the relevant matrix row; do not remove a valid prior EVD artifact merely
-because a newer run exists. Supersession is valid only when a newer equivalent
-or stronger result covers the same criterion against the current implementation.
-Record the old and replacement evidence paths and the reason in the evidence
-record, retain the old file, and point the current matrix row to the replacement.
-Run `validate-evidence.ps1` without overriding the level so the STATE setting or
-repository default governs; use an explicit level only when the PLAN/operator
-configures one.
-
-**Verifier ≠ O3:** evidence verification runs **sequentially** in the develop session via `validate-evidence`. Never use O3 / Agent parallelism as the mechanism that “proves” ACs — evidence is script + matrix only.
-
----
+Never present a planned check as a passed result. Do not repeat evidence in multiple ledgers or create an evidence artifact only to satisfy formatting.

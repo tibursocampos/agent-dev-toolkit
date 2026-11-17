@@ -1,23 +1,7 @@
-## Challenge vagueness + product depth (before Write)
+## Make the requested outcome clear
 
-Reject or rewrite acceptance / REQ text that cannot be verified. Examples of **forbidden** phrasing: "works correctly", "as expected", "properly", "funciona corretamente", "como esperado", "de forma adequada".
+Use focused questions when a vague phrase hides a material product behavior, acceptance boundary, or decision. Examples such as “works correctly” can be clarified into an observable result when the meaning is not evident from context.
 
-Every CA must state an **observable** outcome (test, script exit code, checklist item, or measurable UI/API result). Every functional REQ maps to ≥1 CA.
+Consult FEATURE/STORY or product-depth guidance when it helps explain the work. Do not require metrics, MoSCoW, fixed happy/rule/failure scenario counts, scorecards, or completed optional sections. Do not turn a minor wording improvement into a blocker.
 
-### Product depth challenge (FEATURE / STORY / PRD)
-
-Before drafting the PRD, challenge Prior context and operator answers for **depth**, not only wording. Lazy-load norms only at this step (do not preload):
-
-| Artifact | Must challenge / require | Norm / template |
-|----------|--------------------------|-----------------|
-| FEATURE (sibling) | Problem, Goals, Non-goals, Evidence (omit > fabricate); story table Rationale + Product intent | `feature-altitude.md`, `product-evidence-lite.md`, `templates/features/FEATURE.md` |
-| STORY (sibling) | Objective; Who/Job/Outcome when US; OOS; AC budget **happy + rule/edge + failure** with observable Then | `gherkin-budget.md`, `invest-and-story-quality.md`, `templates/features/story/STORY.md` |
-| PRD (this Write) | Success **metrics** (§1.3); **MoSCoW** (§4.3); open questions with **Severity** (§5.1) when unknowns remain; when a material decision applies, verify the actual REQ/CA wording reflects it, not only its ID/link | `clarify-depth.md`, `templates/sdd/PRD.md` |
-
-**What / not how:** depth challenges ask for observable outcomes, beneficiaries, and success signals — **never** implementation code, class design, or step-by-step how. Identifiers (types, APIs, paths) stay English when cited.
-
-For decision-backed PRD content, use `skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` rather than duplicating its criteria. Cover rules, failures, compatibility, preservation, OOS, and evidence limits only when material and applicable. A generic acceptance or missing material behavior/failure is a focused gap question, not an agent-authored `agreed` requirement. Keep superseded decisions historical; an unresolved contradiction makes the affected REQ/CA insufficient until the existing decision owner reconciles it.
-
-If FEATURE/STORY siblings are thin: ask all necessary gap questions, in blocks of at most 5, targeting the missing depth fields; do **not** invent Evidence (`product-evidence-lite.md`). If required siblings are missing under FEATURE `needs_*` / brownfield: **`orchestrated`** → STOP per SKILL; **`direct`** → ask (create inline / proceed / optional orchestrate) — do not hard-block.
-
-Anti-task-shatter titles (verb+file/class/script) in Prior context → keep as PLAN/refine altitude; do not promote into Valuable US framing without outcome rewrite (`anti-task-shatter.md` — load only when titles look task-shaped).
+Keep product behavior separate from implementation design. If a proposed implementation detail is only an inference, label it as such and leave it for planning rather than presenting it as a user requirement.
