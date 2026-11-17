@@ -1,48 +1,21 @@
 ## Process — Caveman (Lite cap)
 
-1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
-2. If `caveman_mode` is false: continue without compression.
-3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
-4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
-5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+Apply the user's configured participation level when enabled. Do not create configuration merely to continue O2; read session preferences when needed and keep questions/drafts/paths clear.
 
----
+## Resolve feature and storage
 
-## Process — Resolve feature and storage
+Load `STORAGE.md` and `STORAGE-RESOLUTION.md` when storage resolution is needed. Accept a user-supplied canonical feature path or discover it under the authorized feature root. Normalize separators and reject traversal or paths outside that root. Respect repository/global storage rules and portable paths.
 
-Load `STORAGE.md` + `STORAGE-RESOLUTION.md`. Run resolution with `$Workflow = classic`.
+Read the current FEATURE and relevant story artifacts. CONTINUITY is optional prior context and is never required to start, resume, or finish O2. If a materially relevant record conflict cannot be resolved from available evidence, identify that conflict and pause only the affected work.
 
-Accept feature path from invoke (preferred) or Glob under feature root:
+## Durable progress and handoff
 
-- **repository** -> `$Cwd/features/NNN-slug/`; bank `$Cwd/memory-bank/`
-- **global** -> `<classic.path>/features/NNN-slug/`; bank `<classic.path>/memory-bank/`
+Persist implementation progress only in each canonical PLAN execution table. O2 preparation progress is a chat projection in its single owner table; do not add a cumulative checkpoint table or require CONTINUITY updates. Keep prepared PRD/PLAN paths and approval scope in the handoff. Do not paste full artifact bodies into chat.
 
-**Path sanitize (required):** normalize the invoke path (`\` -> `/`, trim trailing `/`, resolve `.`). Reject if it contains `..`, or if the resolved absolute path is **not** under `$Cwd/features/` (repository) or `<classic.path>/features/` (global). Ask again, in the user chat language, for a canonical path - do not Read/Write outside the feature root.
-
-Repository mode: ensure SDD `.gitignore` per `STORAGE.md` and `features_versioned` in manifest before writes under feature or bank roots (**do not** add `/memory-bank/`; keep `docs/documentation-plan/plan.md` ignored without a negation rule). **Global:** do not edit `.gitignore`.
-
-`Read` `FEATURE.md` + `CONTINUITY.md`. If missing: **STOP** - ask for O1 first:
-
-Render in the user's conversation language (`LANGUAGE.md`); option ids follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`.
+Handoff may include:
 
 ```text
-Report: FEATURE.md / CONTINUITY.md not found under `{path}`.
-Options (ids):
-- O1 route: /orchestrate-analyze - <portable-feature-path>
-- cancel
+/orchestrate-develop - <portable-feature-path>
 ```
 
----
-
-## Process — Durable progress handoff
-
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
-
-1. Persist `CONTINUITY.md` (estado, decisões, which stories done/pending, exact next invoke).
-2. Offer resume:
-
-```text
-/orchestrate-deliver - <portable-feature-path>
-```
-
-Do **not** paste full PRD/PLAN bodies into the parent chat.
+or a direct develop handoff for each approved PLAN. O2 does not implement code.

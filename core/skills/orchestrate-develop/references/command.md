@@ -1,23 +1,13 @@
-# orchestrate-develop — command playbook
+# O3 command flow
 
-**Load after Step -1 gates.** Ordered step discovery without dumping `SKILL.md` Process. Load **one** section file per step (`SKILL-REFERENCE-RETRIEVAL.md`). Parent never writes app code.
+1. Read the shared authorization, scope, and path-safety contracts.
+2. Resolve the canonical feature and PLAN path(s); inspect existing PLAN state and relevant partial work.
+3. Reuse the recorded PLAN approval. Resolve the cadence (`step_by_step` or `continuous`) only if no valid choice is recorded.
+4. Build the eligible queue from PLAN order and dependencies. Display the complete O3 table once for the current state.
+5. Dispatch one child for the first eligible step, or hand off that one step to manual `sdd-develop` if child dispatch is unavailable.
+6. Inspect the child's result and acceptance evidence. Update the PLAN row only when the step is complete; re-read the PLAN and display the full table after reconciliation.
+7. Stop after one reconciled step for `step_by_step`. For `continuous`, continue serially through eligible steps until completion or a real blocker.
+8. On resume, re-read the PLAN and inspect partial work. If another conversation may still own active implementation on the same PLAN, stop and resolve ownership.
+9. Run closeout only when requested, adding its activities to the same contextual progress table.
 
-| Step | Action | Lazy section / contract |
-|------|--------|-------------------------|
-| -1b | Caveman Full when active | `references/process-common.md` § Caveman |
-| 1 | Gate check; **confirm** before first spawn | `PIPELINE.md`, `SESSION.md` |
-| 1b | Resolve `invocation_context` (default `orchestrated`); pass into children | `INVOCATION-CONTEXTS.md` |
-| 2 | Resolve feature / PLAN set; **plan-acquisition**; path sanitize | `references/plan-acquisition.md`; `references/process-common.md` § Resolve feature / PLAN |
-| 3 | Step 0 Memory Bank Gate; pass `bank_path` read-only | `references/preconditions.md` § Step 0 |
-| 4 | Build step queue; execution mode + develop pacing (`continuous`\|`step_by_step`); present with the full PLAN-step table (one row per PLAN step, `LIVE-STAGE-TABLE.md`); wait for **confirm** | `references/execution-modes.md`; `references/develop-modes.md`; `references/plan-contract.md`; `references/step-queue-spawn.md` |
-| 5 | Before the first PLAN step only: `repo-analyst` and `architect`; also `database` when the step or PLAN cites persistence. Do not repeat that pass before an intermediate step. Contract, order, or acceptance drift: stop with `plan_stale` and return to `sdd-plan`. Do not rewrite the graph here. Show the full PLAN-step table before the first spawn, after each child return and checkpoint reconciliation, on blockers, and in every status message; labels follow the user chat language and the table never omits, merges, or summarizes rows. Show `execution-display.md` around the spawn (narrative, PLAN instruction, blocking question; short result after a valid receipt). Show the branch and apply the integration-branch gate before the child changes code. Then spawn exactly one step child | `references/execution-display.md`; `references/execution-modes.md`; `references/develop-modes.md`; `references/step-queue-spawn.md`; `references/anti-bypass.md` |
-| 5.5 | Post-implement verifier when `verify_mode: true` | `references/step-verifier.md` |
-| 6 | Safe parallelism (only when mode=`parallel`; distinct SESSION files) | `references/execution-modes.md`; `references/parallelism.md` |
-| 7 | Stop conditions | `references/continuity-handoff.md` § Stop |
-| 8 | Update CONTINUITY | `references/continuity-handoff.md` |
-| 9 | Step N refresh-light after app file changes | `references/continuity-handoff.md` § Step N; `references/preconditions.md` |
-| 10 | Scope close, in this order: `run-tests`, `code-review`, post-review `run-tests`, `security`, then ask `/commit`, then ask `/push` separately. When code review is requested against this PLAN, repeat the impact, architecture, and persistence pass once before that review | `references/continuity-handoff.md` § Handoff |
-
-**Table:** the closeout table appears only when the operator asked to close the wave; the weighted stage table never appears in chat for O3. Completeness rule: always render every PLAN step as its own row.
-
-**Anti-bypass:** `references/anti-bypass.md`. **Must not (full):** `references/must-not.md`.
+See `execution-modes.md`, `develop-modes.md`, `plan-acquisition.md`, `plan-contract.md`, `step-queue-spawn.md`, and `continuity-handoff.md` for the relevant details. Do not load retired parallelism, SESSION, claim, or preflight procedures.

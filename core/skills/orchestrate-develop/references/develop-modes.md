@@ -1,38 +1,21 @@
-# Develop pacing modes (`continuous` | `step_by_step`) — O3
+# O3 pacing (`step_by_step` | `continuous`)
 
-**REQ-009 / CA3 / CT3 (feature 007).** Mode ids: **`continuous`** \| **`step_by_step`**. Distinct from **006 REQ-009** (`## Related` navigation).
+Pacing controls when O3 stops between serial PLAN steps. It never changes the one-child-at-a-time rule.
 
-**Not the same as** queue modes in `references/execution-modes.md` (`serial` \| `parallel` \| `manual`).
+| Pacing | Parent behavior |
+|---|---|
+| `step_by_step` | Dispatch the first eligible step, reconcile it into the PLAN, display the complete table, then stop and wait for authorization to continue. This is not a second approval of the PLAN. |
+| `continuous` | After the initial approved scope and cadence are established, keep dispatching the next eligible step after each successful reconciliation. Stop on completion, a real blocker, or a material scope decision. |
 
-Canonical pacing rules: `skills/sdd-develop/references/develop-modes.md`.
+Reuse an explicit valid cadence already recorded for the approved work. Ask only when no choice exists. An unanswered material question blocks only the affected work; do not repeat a cadence or PLAN-approval question on resume.
 
----
+## Reconciliation before advancement
 
-## O3 mapping
+After every child result:
 
-| Pacing mode | Parent behavior | Child behavior |
-|-------------|-----------------|----------------|
-| `step_by_step` (default) | **confirm** before **each** Agent spawn; re-present next step briefly | One PLAN step only; STOP |
-| `continuous` | After initial queue **confirm**, the parent may spawn exactly the first eligible next step after receipt validation, read-only reconciliation of the child's persisted checkpoint, and presentation of the step ledger and short result. This is a single-step authorization consumed by that spawn; every later spawn needs a fresh reconciliation decision. The parent does not show the stage-weight table, a redraw of that table, the `Develop:` heartbeat, or a ledger dump. It does not go silent between steps. | One PLAN step only; STOP — **never** multi-step child |
+1. Inspect changed files and the requested step's acceptance and validation evidence.
+2. Update the canonical PLAN row only when its acceptance is met; otherwise preserve or record its blocked/pending state and reason.
+3. Re-read the PLAN and display the complete current O3 table.
+4. In `step_by_step`, stop. In `continuous`, continue only when the next step is eligible and no material decision or concurrent owner blocks it.
 
-## Compose with execution-modes
-
-| Queue mode | Allowed with pacing |
-|------------|---------------------|
-| `serial` | Both pacing modes |
-| `parallel` | Prefer `step_by_step` confirm per wave; `continuous` does **not** waive independence + **confirm** + distinct SESSION files |
-| `manual` | Pacing documents handoff cadence only; no Agent spawn |
-
-## Hard preserves
-
-- One-step-per-child / per develop session
-- SESSION + PLAN-LEDGER remain SoT
-- No duration/effort estimates (`references/plan-contract.md`)
-
-## Reconciliation gate
-
-The initial `continuous` confirmation authorizes the queue policy only; it does not authorize an arbitrary number of later steps. For every child return, validate the canonical receipt, session gates, and claim first; read and reconcile the PLAN checkpoint and progress table already persisted by the child second; show the step ledger and short result third; evaluate one next spawn last. The child `sdd-develop` session is the sole writer of its step row/checkpoint; the parent is read-only and returns discrepancies to the owner for a fresh invocation. Do not redraw a stage-weight table or dump the ledger into chat.
-
-Use `Test-ContinuousQueueStepAuthorization` from `{{TOOLKIT_ROOT}}/scripts/ledger/continuous-queue.ps1` for that decision. Provide validation results for the receipt, session gates, and claim; the post-reread queue snapshot; and true reconciliation flags only after the child's checkpoint was reread and reconciled and the result was presented. The policy permits only the requested step when it is the first pending step whose dependencies are all completed. The returned authorization covers that step alone and is consumed by its spawn. Re-evaluate after that child returns; do not carry a prior result forward as permission for another step.
-
-A receipt `status` outside `done`, `blocked`, and `failed`, an implementation outside PLAN acceptance, invalid session/claim state, or incomplete reconciliation blocks advancement. Describe the deviation in one question; do not delegate the next step, invent a fix, or rewrite the PLAN. A missing, incomplete, inconsistent, blocked, or failed receipt pauses the step and its dependents in either pacing mode. `step_by_step` still requires a fresh confirmation before each spawn. Impact, architecture, and persistence analysis runs once before the first PLAN step and again when code review is requested against that PLAN. It does not run before an intermediate step.
+The receipt is a navigation aid, not completion proof. SESSION flags, claims, and session-specific authorization helpers are not O3 prerequisites. A completed persisted PLAN row is not rerun because a transcript or receipt is absent; inspect partial work before deciding how to resume.

@@ -1,81 +1,41 @@
-**Intent entry (Step 1):** classify input and map to track before this table when O1 starts cold — load `intent-classification.md` first; early handoff to Classic SDD or Backlog Refine skips Step 0 Memory Bank Gate unless the operator continues O1 anyway.
+# O1 triage
 
----
+Classify the work to choose a proportionate path. These labels guide
+investigation; they do not create approval, document, or specialist gates.
 
-## Triage decision table
+| Dimension | Guidance |
+|---|---|
+| Nature | `greenfield`, `brownfield`, or `operational`; use brownfield when existing behavior or integration may change. |
+| Complexity | `trivial` for a clear isolated change; `medium` for one bounded story; `complex` for multiple outcomes, consumers, or unresolved impacts. |
+| Scope | `backend`, `frontend`, `fullstack`, or an operational surface. |
+| Investigation signals | `needs_*` describe questions to consider under shared `ROSTER.md`; they do not require specialists or folders by themselves. |
 
-| Dimension | Values | How to choose |
-|-----------|--------|---------------|
-| **Nature** | `greenfield` | New capability; little or no existing code to map |
-| | `brownfield` | Touches existing modules, packages, APIs, or data |
-| | `operational` | Ops/process/tooling (scripts, CI, sync) more than product domain |
-| **Complexity** | `trivial` | One file / isolated fix; clear stack skill |
-| | `medium` | Single story or small feature; Classic SDD often enough |
-| | `complex` | Multi-story, unclear blast radius, or several `needs_*` true |
-| **Scope** | `backend` / `frontend` / `fullstack` | Primary delivery surface |
+Prefer Classic SDD for one clear story and Backlog Refine for an informal item.
+Use O1 for justified multi-story decomposition, multi-area impact, or concrete
+unknowns that need coordinated investigation. A trivial shortcut may be
+offered, but do not require the user to select a numbered menu when the
+appropriate route is already clear.
 
-| Complexity | Suggested path |
-|------------|------------------------|
-| `trivial` | `developer` / `*-developer` - skip full O1 unless user insists |
-| `medium` | Classic SDD (`sdd-spec` -> …) **or** O1 if multi-US/TS |
-| `complex` | Full Orchestrated Delivery O1 -> approval -> O2 |
+## Collect the demand
 
-If nature or any `needs_*` is unclear after a short Prior-context pass, ask the necessary high-cost questions, in blocks of at most 5. Default unset flags to `false`, **except** auth / secrets / PII / feed-token / supply-chain signals -> ask or set `needs_security=true`. Do not invent architecture in the parent orchestrator. Canonical spawn map: `ROSTER.md` only.
+Reuse supplied context. Identify the desired outcome, relevant current
+behavior, constraints, likely affected areas, and material uncertainties. Read
+only relevant cited files. A citation is usable evidence; do not require a
+promotion copy merely because it is outside `features/`.
 
----
+For an explicitly identified EPIC and feature ID, read only the selected
+feature brief, relevant shared context, dependencies, and references needed to
+understand it. A filename alone does not establish relevance. This narrow read
+does not create a separate handoff or approval.
 
-## Process — Collect description / promote
+Ask focused questions only when the missing answer affects behavior,
+acceptance, scope, required access, or an implementation choice. Identify the
+affected work. Minor uncertainties and optional improvements remain visible;
+they do not block independent work.
 
-Ask for (or reuse Prior context): goal, current behavior, constraints, known repos/areas. Use selective memory-bank facts as Prior context - do not re-ask what the bank already states clearly.
+## Security and sensitive signals
 
-If the user cites a `.md` **outside** `features/` (including a host plan file or any host plans dir): **Read** it and **promote** per `PIPELINE.md` § Promote — copy rich content (DDL, JSON, mermaid, tables, OpenAPI) into memory-bank phase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`, `config-examples.md` as relevant) and/or story `ARCH|SEC|ANALYSIS`. A citation is not Prior context until promote is done. Pointer-only / bibliography-only → **fail O1** (do not mark backlog approved). Allow Read of cited plans; never treat host plan files as O3 input.
-
-Set complexity / nature / scope and `needs_*` per **Triage decision table** above and **canonical** `ROSTER.md` (do not fork a second mapping). Optional NuGet/examples: § Example: NuGet brownfield triage.
-
-**Ambiguous flags:** ask at most a few high-cost questions in the user chat language. Do **not** invent architecture in the orchestrator. Prefer `false` until evidence or user confirms - **except** auth / secrets / PII / feed-token / supply-chain signals -> ask explicitly or set `needs_security=true`.
-
----
-
-## Process — Trivial shortcut
-
-If `trivial`: recommend skipping full O1 write. Render the prompt in the user chat language. Keep the option ids.
-
-```text
-Trivial scope. Prefer the shortcut?
-
-1) /developer  (or the stack *-developer)
-2) Continue O1 anyway (write the feature tree)
-3) cancel
-```
-
-Only continue to allocate/scaffold if the user explicitly chooses **2**. Choosing **1** does not create story folders and does not present a partial backlog. If the feature still has an open question, the shortcut must not pretend the backlog exists. Either step 8c closes the FEATURE, or this shortcut stays a developer handoff with no `USnn` / `TSnn` / Bug folders.
-
-## Example: NuGet brownfield triage (short)
-
-**Ask:** Extract shared library X into an internal NuGet; App A and App B must consume it without breaking CI.
-
-| Field | Value |
-|-------|--------|
-| Nature | `brownfield` |
-| Complexity | `complex` |
-| Scope | `backend` |
-| needs_api | `true` (public package surface) |
-| needs_domain | `true` (bounded context of shared types) |
-| needs_database | `false` (unless shared persistence) |
-| needs_frontend | `false` |
-| needs_security | `true` (package feed / secrets / provide chain) |
-| needs_devops | `true` (CI publish - CONTINUITY note only) |
-
-**Spawn (parallel):** `repo-analyst`, `architect`, `security`.  
-**Stories (example):**
-
-| Id | Tipo | Título | Rationale | Product intent |
-|----|------|--------|-----------|----------------|
-| TS01 | TS | Package extract + internal feed publish | Upstream outcome; consumers depend on published package | n/a |
-| TS02 | TS | App A consumes package without CI regression | Independent consumer / rollback boundary | n/a |
-| TS03 | TS | App B consumes package without CI regression | Same pattern as TS02; separate blast radius | n/a |
-| US01 | US | Developer publish flow documented | Optional user-facing outcome; not merged into TS01 | Who: package maintainer / Job: publish shared lib safely / Outcome: runbook-ready publish |
-
-Full sizing anti-patterns and heuristics: `story-sizing.md` § Reference example: NuGet brownfield extract.
-
-**After approve:** `/orchestrate-deliver - features/00N-nuget-extract/`
+Use the shared ROSTER and security contract when auth, secrets, PII,
+supply-chain, or another concrete threat question is in scope. Ask for missing
+facts only when required to assess a material risk or access boundary. Do not
+place credentials, secrets, or raw PII in artifacts or agent prompts.

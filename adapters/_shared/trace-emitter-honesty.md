@@ -41,6 +41,24 @@ Without `-Enable`, the helper writes **no** notes (CT5).
 - Force-fail probe: `TOOLKIT_TRACE_FORCE_FAIL=1` → append skipped, exit still 0.
 - Host shell: Cursor `hooks.json` invokes `powershell` (Windows PowerShell 5.1). Emit scripts are `#Requires -Version 5.1` and must run under `powershell` or `pwsh`; asserts prefer `powershell` then fall back to `pwsh`.
 
+## Trace completeness
+
+Facts, verified in the adapter code:
+
+- The Claude adapter (`adapters/claude/Merge-ClaudeSettings.ps1`) registers `PostToolUse` with two managed handlers, `plan-after-edit` and `emit-trace`. It registers `SubagentStop` with `emit-trace`. No `PreToolUse` handler is registered; that event's managed projection is empty.
+- Only `SubagentStop` writes a TRACE event (`specialist_complete`). The `emit-trace` handler on `PostToolUse` returns without writing (`TraceEmitCommon.ps1`).
+- `spawn` is in the allowed event list, but no registered hook produces it.
+- Whether `SubagentStop` fires for every subagent, including subagents running in the background, is host behavior. This repository does not document it.
+- The Codex adapter registers only `SubagentStop`. It is not verified against a live host.
+- Observed in one real run: 6 trace events for 15 subagents.
+
+Reading rules:
+
+- A missing trace event means unknown. It is never a failure, and it is never proof that a subagent completed or did not run.
+- A trace with fewer events than known subagents is partial. Label it `partial` wherever its metrics appear.
+- No metric from a partial trace may replace a review or an acceptance decision.
+- Known gap: no spawn hook exists, and `SubagentStop` coverage is unverified. A `PreToolUse` spawn hook is a possible follow-up. It needs the `hook-activation` checks before it is claimed as working.
+
 ## Verify-if-missing (SEC)
 
 - Event real vs honesty documented (this table).

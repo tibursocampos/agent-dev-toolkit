@@ -293,7 +293,6 @@ try {
     $required = @('planPath','step','status','files','testsSummary')
     $optional = @('nextStep','blockedReason','deletedFiles')
     foreach ($key in $required) { if ($keys -notcontains $key) { Fail "missing field: $key" } }
-    foreach ($key in $keys) { if (($required + $optional) -notcontains $key) { Fail "unknown field: $key" } }
 
     $repo = Get-FinalPath $RepoRoot
     $expectedPlan = Get-FinalPath $PlanPath
@@ -386,7 +385,19 @@ try {
             }
         }
     }
-    $canonicalReceiptJson = ConvertTo-Json -InputObject $receipt -Depth 8 -Compress
+    # Project only the supported receipt fields. Additive fields are tolerated
+    # at intake but never forwarded as authority to the coordinator.
+    $canonicalReceipt = [ordered]@{
+        planPath = $receivedPlan
+        step = [int]$receivedStep
+        status = $canonicalStatus
+        files = @($receipt.files)
+        testsSummary = [string]$receipt.testsSummary
+    }
+    if ($keys -contains 'deletedFiles') { $canonicalReceipt['deletedFiles'] = @($receipt.deletedFiles) }
+    if ($keys -contains 'nextStep') { $canonicalReceipt['nextStep'] = [int]$receipt.nextStep }
+    if ($keys -contains 'blockedReason') { $canonicalReceipt['blockedReason'] = [string]$receipt.blockedReason }
+    $canonicalReceiptJson = ConvertTo-Json -InputObject $canonicalReceipt -Depth 8 -Compress
     Write-Output 'receipt_validation: PASS'
     Write-Output ("canonical_receipt: {0}" -f $canonicalReceiptJson)
     exit 0

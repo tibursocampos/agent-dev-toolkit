@@ -6,7 +6,7 @@ Lean skill map for agents after install. **Do not invent skills** — only names
 
 Installed path (after sync): `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md`
 
-Total: **47** kebab skills.
+Total: **52** kebab skills.
 
 ## Tracks
 
@@ -14,7 +14,8 @@ Total: **47** kebab skills.
 |-------|--------|------|
 | **Classic SDD** | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` | One clear feature |
 | **Backlog Refine** | `refine-story`, `requirement-review`, `split-story-checklist` | Rough bug/story first; challenge before SDD |
-| **Orchestrated Delivery** | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Multi-story / brownfield |
+| **Orchestrated Delivery** | `adt-epic-planner` (optional initiative discovery), `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` | Optional initiative planning; multi-story / brownfield delivery |
+| **ADT Delivery** | `adt-delivery-flow`, `adt-delivery-refine`, `adt-delivery-plan`, `adt-delivery-implement` | One evolving feature plan from refinement through implementation and code review |
 
 **Track choice:** tracks are recommendations only. Classic SDD does **not** require Orchestrated Delivery first. Start with `/sdd-spec` or `/sdd-plan` whenever one feature has a clear path.
 
@@ -23,8 +24,8 @@ Total: **47** kebab skills.
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
 | `sdd-spec` | `sdd-spec` | Create a PRD for a new feature or change |
-| `sdd-plan` | `sdd-plan` | Baby-step PLAN from an existing PRD |
-| `sdd-develop` | `sdd-develop` | Execute **one** PLAN step per session |
+| `sdd-plan` | `sdd-plan` | Executable PLAN from a PRD or sufficiently specified demand; one approval before implementation |
+| `sdd-develop` | `sdd-develop` | Execute an approved PLAN step-by-step or continuously, using PLAN as the progress source |
 | `read-sdd-artifact` | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN → `source_context` envelope |
 
 ## Backlog Refine — backlog prep
@@ -39,10 +40,23 @@ Total: **47** kebab skills.
 
 | Skill | Id / phrases | Purpose |
 |-------|--------------|---------|
+| `adt-epic-planner` | `adt-epic-planner` | Discover a multi-feature initiative and persist one navigable `EPIC.md`; optional context for O1 |
 | `memory-bank-init` | `memory-bank-init` | Create/refresh `memory-bank/` at repo or global root (Step 0; never under `features/NNN-slug/`) |
-| `orchestrate-analyze` | `orchestrate-analyze` | Triage, specialists, backlog structure |
-| `orchestrate-deliver` | `orchestrate-deliver` | PRD + PLAN per story via SDD contracts |
-| `orchestrate-develop` | `orchestrate-develop` | One PLAN step per subagent via `sdd-develop` |
+| `orchestrate-analyze` | `orchestrate-analyze` | Proportional triage, targeted specialist analysis, and justified backlog structure |
+| `orchestrate-deliver` | `orchestrate-deliver` | Prepare PRD + PLAN per selected story; one approval for the complete listed PLAN set |
+| `orchestrate-develop` | `orchestrate-develop` | Serial PLAN-step queue via `sdd-develop`; reconcile each result before dispatch |
+
+## ADT Delivery
+
+| Skill | Id / phrases | Purpose |
+|-------|--------------|---------|
+| `adt-delivery-flow` | `adt-delivery-flow` | Coordinate refinement, planning and implementation |
+| `adt-delivery-refine` | `adt-delivery-refine` | Refine the demand in the feature plan |
+| `adt-delivery-plan` | `adt-delivery-plan` | Complete the same plan for approval |
+| `adt-delivery-implement` | `adt-delivery-implement` | Execute the approved plan, validate and run code review |
+
+The flow uses one evolving `PLAN.md` and the existing `code-review` skill; it does not use cold review.
+ADT delivery does not use workflow hooks or per-step session gates by design.
 
 ## Developer routing and stack
 

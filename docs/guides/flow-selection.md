@@ -30,9 +30,9 @@ The flows are not prerequisites for one another. Classic SDD can start directly,
 
 For a trivial single file, use `/developer` or the stack skill, if the operator chooses that shortcut.
 
-## Readiness rule
+## Questions and approval
 
-An open **B** (blocker), **I** (important), or **MINOR** item keeps the status at `NEEDS_CLARIFICATION`. Only `READY` releases the write of the next artifact (PRD, PLAN, or story). This rule applies at every gate, including MINOR. Source: [readiness-severity.md](../../core/skills/_shared/sdd-artifacts/readiness-severity.md).
+For Classic SDD and Orchestrated Delivery, only an unanswered decision that affects behavior, acceptance, scope, required access, or implementation blocks the dependent work. Minor questions remain visible; unrelated work may continue. Drafting and saving PRD/PLAN artifacts is preparation. Approve the complete PLAN once before implementation. Backlog refinement and other standalone skills retain their own contracts.
 
 ## Write limits
 
@@ -40,20 +40,6 @@ An open **B** (blocker), **I** (important), or **MINOR** item keeps the status a
 - Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
 - `docs/backlog/` is a write shortcut for `refine-story`, `requirement-review`, and `split-story-checklist`. It is not a canonical source for PRD or PLAN.
 
-## Sessions and gates
+## Implementation cadence
 
-- `sdd-spec` writes only the PRD in this session. `sdd-plan` writes only the PLAN.
-- `sdd-develop` executes **one** PLAN step per session. When it finishes, stop. The next step starts in another session.
-- Before any new artifact is written, the skill shows the path and a summary and asks a gate question. Writing happens only after the `confirm` answer. Silence, an ambiguous or unrelated reply, or an emoji alone is not an answer; the question stays pending.
-
-### Gate legend
-
-Labels are shown in the user's conversation language. The id is stable and is what the rule matches. Answers are matched by meaning, not by a fixed word. Contract: `core/skills/_shared/agents/QUESTIONS.md`.
-
-| Id | Label (pt-BR) | Meaning |
-|----|---------------|---------|
-| `confirm` | sim | Approve the exact action or artifact shown. |
-| `adjust` | ajustar | Change the proposal before acting. |
-| `cancel` | cancelar | Stop. Do not perform the gated action. |
-| `skip` | pular | Leave an optional step undone and continue. |
-| `decline` | não | Refuse an optional offer. |
+Classic `sdd-develop` and O3 use the cadence selected for the approved PLAN: `step_by_step` stops after one completed step; `continuous` advances through eligible steps until completion or a real blocker. O3 dispatches serially, one child per step. The PLAN is the implementation progress source. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) for exceptions and consumer ownership.

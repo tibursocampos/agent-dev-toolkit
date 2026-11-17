@@ -1,21 +1,14 @@
-## Baby-step sizing checklist
+# Outcome-based planning
 
-`sdd-plan` does not invent steps and does not size them by duration. Resolve `invocation_context` first:
+Derive steps from the requested behavior, acceptance, dependencies, and available evidence. Do not create one step per file or layer, and do not invent technical work that the evidence or request does not support.
 
-- `direct`: by default derive PLAN-native IDs, titles, dependencies, and grouping from the approved PRD's distinct behaviors, REQ, and CA. If an explicitly linked valid checklist is adopted, preserve its IDs and dependencies exactly. Do not fabricate checklist IDs or require `REFINE/tasks.md`.
-- `orchestrated`: use the stable step IDs, titles, and dependencies from the validated O2 checklist produced by `split-story-checklist`; do not rewrite or renumber them.
+- Name each step for a result that can be reviewed. Mention files or components in the planned-change detail when useful.
+- Group closely related outcomes that share dependencies and validation; separate work when it has a real independent outcome, risk, or dependency boundary.
+- Represent only real blocking dependencies. Independent steps need not be serialized for ceremony.
+- Do not estimate duration or impose a fixed number of steps.
+- Use IDs that are easy to reference. Preserve IDs from an existing linked checklist when doing so is useful and consistent with the approved scope; otherwise derive IDs in the PLAN.
+- Keep migration, mapping, API, UI, and infrastructure work together or separate according to their behavior and proof boundaries, not a universal file-count rule.
+- Write acceptance so a reviewer can recognize the outcome, using an existing requirement ID when helpful. Do not require a fixed REQ/CA format, named automated test, or checklist row for every step.
+- Cite relevant ARCH/ANALYSIS/SEC evidence when it exists and informs the step. Its absence alone does not block planning.
 
-In either context, name each step by a verifiable outcome, not a file, class, or implementation layer. Use complexity only as the granularity signal defined in `checklist-acquisition.md`; it does not replace behavior-based grouping.
-
-If the context is `orchestrated` and a medium/complex checklist is absent, follow `references/checklist-acquisition.md`: coordinate `split-story-checklist`, validate its output, and resume only after success. In `direct`, the missing checklist is expected and does not block. Never author or renumber a checklist in this skill.
-
-- [ ] In `orchestrated`, step id copied from `tasks.md`; no extra step. In `direct`, IDs are derived from PRD behavior unless an explicitly linked valid checklist is adopted; never invent checklist IDs
-- [ ] No duration on any step
-- [ ] No step with 4+ new files without the split already grouping them that way
-- [ ] EF migration and mapping separated when both apply and the split says so
-- [ ] **Anti file-named steps:** no step title that is only a file/class/script/path (`story-sizing.md`, `anti-task-shatter.md`)
-- [ ] Acceptance cites REQ-NNN/CA + a verifiable check (`references/challenge-vagueness.md`)
-- [ ] When story `ARCH/` / `ANALYSIS/` exist, PLAN **cites** those portable paths — does not paste bodies
-- [ ] Project docs language follows the chat language (`LANGUAGE.md`), not a fixed locale
-
----
+For detailed code or test decomposition, retain the project's existing structure and avoid speculative implementation choices.

@@ -57,7 +57,7 @@ Each one implements **small-to-medium** work in the open workspace. Full multi-s
 | `electron-developer` | Main, preload, renderer, IPC, packaging | `electron-guidelines/` (security/CSP first when IPC changes) plus one renderer pack | create a brief when substantial visual decisions are needed |
 | `blip-plugin-developer` | **New** plugin scaffold, not feature coding | `blip-guidelines/` | Implementation is `/react-developer`. Backend API is `/dotnet-developer` in another repo. Full feature is `/sdd-spec` |
 
-Greenfield or an unset architecture style starts at `architecture-selection.md` instead of guessing a folder layout. Brownfield mirrors the style already in ARCH.
+When a concrete architecture choice affects behavior or implementation, consult `architecture-selection.md` and resolve the material decision. Greenfield, unset style, or brownfield classification alone does not require an architecture mirror or confirmation gate.
 
 ## Guidelines (Layers A, B, C)
 

@@ -6,7 +6,7 @@ Shared, agent-neutral content under `core/`. Adapters publish from here into eac
 
 ```text
 core/
-  skills/     # 47 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
+  skills/     # 52 kebab skills + _shared/ (agent SoT: skills-catalog/CATALOG.md + OPERATOR.md via help-skills)
   policy/     # Rule / guideline markdown bodies
   router/     # Neutral router (AGENTS.md source)
   sdd/        # Portable SDD contracts
@@ -125,7 +125,7 @@ Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/read
 | **READY** | No unanswered **B**, **I**, or **MINOR** question |
 | **NEEDS_CLARIFICATION** | Any unanswered **B**, **I**, or **MINOR** question at a handoff boundary → **STOP** Write; typed handoff |
 
-**Dual plane:** clarification readiness ≠ implementation / SESSION `step_confirmed` / PLAN step Complete. Folder presence of ANALYSIS/ARCH/SEC ≠ READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper treats open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`. It does not change the table above.
+**Dual plane:** clarification readiness differs from implementation progress. Session state applies only to consumers that explicitly retain it, such as `document-implement`; Classic SDD and O1/O2/O3 track implementation in the PLAN. Folder presence of ANALYSIS/ARCH/SEC is not READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper reports open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`; use remains specific to consumers that request this diagnostic.
 
 Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. A `confirm` answer does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
 
@@ -145,21 +145,20 @@ Published skills resolve only their declared runtime helpers from the installed 
 
 Before planning, story sizing keeps one verifiable outcome per story and the applicable API-contract check must be observable. O3 uses a full initial review, then may use delta/risk-focused reviews until a relevant contract or scope changes. Token and tool telemetry is compared only when exposed; otherwise it is `SKIPPED` with a reason.
 
-Inside those skills, contracts add gates/artifacts:
+These shared references describe optional diagnostics and retained artifact contracts; they do not add approval gates to Classic SDD or Orchestrated Delivery:
 
 | Contract | Path / script | Role |
 |----------|---------------|------|
 | REQ + AC | PRD/PLAN templates | Stable IDs; PLAN covers REQ |
-| Structural validate | `validate-prd` / `validate-plan` (+ CHANGE/EVD/TRACE validators) | Deterministic exit codes; not LLM-as-validator |
-| CHANGE | `features/NNN-slug/CHANGE.md` | Brownfield delta vs current |
+| Structural diagnostics | `validate-prd` / `validate-plan` (+ evidence/TRACE tools where used) | Optional deterministic diagnostics; not authorization gates |
+| CHANGE | `features/NNN-slug/CHANGE.md` | Optional context for a substantial delta; not required for brownfield work |
 | EVD + STATE | `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`); feature-root `EVD/` and `STATE.md` paths are legacy compatibility only |
 | TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync (see below) |
-| PLAN-LEDGER | `PLAN-LEDGER-CONTRACT.md` | Atomic O3 step claim (see below) |
 | Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
 | Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
 | Navigation | STORAGE § Navigation | `## Related` + portable paths (see above) |
 | Clarification readiness | `readiness-severity.md` / SiblingReadinessGate | B/I/MINOR → READY \| NEEDS_CLARIFICATION (see above) |
-| Develop session gate | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Idempotent `step_confirmed` (see PLAN-LEDGER + session) |
+| Session helpers | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Used only by consumers that explicitly retain session state, currently `document-implement` |
 | Invocation contexts | `INVOCATION-CONTEXTS.md` | `direct` vs `orchestrated` (see below) |
 | Contract provenance | `CONTRACT-PROVENANCE.md` | `agreed` vs `invented` (see below) |
 
@@ -182,7 +181,7 @@ Do **not** invent a third context. Host IDE mode (Agent/Plan/Ask) is **not** an 
 
 | Shared (both) | `direct` | `orchestrated` |
 |---------------|----------|----------------|
-| Selective retrieval; portable paths; SESSION gates; omit Task `model` by default | Skill owns its confirm-before-write / step gates; no sibling orchestrate stages | Parent owns CONTINUITY / Step 0 bank / multi-step queue; child = one step/story/bank mode; skip opaque re-read when `source_context` is present |
+| Selective retrieval; portable paths; omit Task `model` by default | Direct skill owns its response and progress projection | Coordinator owns the contextual table and canonical PLAN progress; internal skills do not create duplicate progress. Legacy sidecars and Memory Bank are optional context. |
 
 ### Contract provenance (`agreed` vs `invented`)
 
@@ -336,34 +335,11 @@ Archive-complete order is strict: at least one of each living-loop event, non-de
 
 Host emitters (fail-open append) are adapter-owned — honesty matrix in [adapters.md](adapters.md#trace-emitter-honesty) / [`trace-emitter-honesty.md`](../../adapters/_shared/trace-emitter-honesty.md). Do **not** claim emitters the host does not wire.
 
-### PLAN-LEDGER + develop session gate
+### PLAN progress and retained session helper
 
-**PLAN-LEDGER** contract: [`PLAN-LEDGER-CONTRACT.md`](../../core/skills/_shared/sdd-artifacts/PLAN-LEDGER-CONTRACT.md) — REQ-002 / CA2.
+Classic SDD and O1/O2/O3 persist implementation progress in the PLAN's single execution table. They do not require a PLAN claim or session flags to authorize, reconcile, or advance work. O3 dispatches one step at a time and the coordinator reconciles each result into the PLAN.
 
-**Purpose:** at most one active holder per PLAN step for O3 / parallel `sdd-develop` children. Does **not** replace SESSION gates (`step_confirmed` / `tests_run`).
-
-Ledger files under the SDD sessions root (same hash rules as `SESSION.md`):
-
-```text
-{sessionsRoot}/{repo-hash}/ledger/plan-{plan-hash}-step-{N}.claim.json
-{sessionsRoot}/{repo-hash}/ledger/plan-{plan-hash}-step-{N}.audit.jsonl
-```
-
-| Action | Behavior |
-|--------|----------|
-| `claim` | Atomic create-new; second claim fails with auditable reason + audit line |
-| `status` | Free / held + holder (exit 0 even when held) |
-| `release` | Current holder only |
-
-**Develop session gate (WS10):** `scripts/session/Invoke-DevelopSessionGate.ps1` sets develop `step_confirmed` (creates scoped session schema if absent) and **skips rewrite** when already `true` (exit 0). Skills **MUST** call the two canonical scripts via `-File` (not inline session JSON mutation). Idempotent gate skip does **not** waive ledger claim when the claim is still missing.
-
-```powershell
-.\scripts\session\Invoke-DevelopSessionGate.ps1 -PlanPath <portable-or-abs> -RepoPath <cwd> -SddRoot <sdd-root> [-Step N]
-.\scripts\ledger\Invoke-PlanLedgerClaim.ps1 -Action claim -PlanPath <portable-or-abs> -Step N -Holder <id> -RepoPath <cwd> -SessionsRoot <sessions>
-.\scripts\validation\Assert-DevelopSessionGate.ps1
-```
-
-Operator allowlist tip (opt-in; no silent Shell auto-approve): [cli-scripts.md](cli-scripts.md#shell-allowlist-tip-ws10--req-013). Wire cites: `SESSION.md`; `sdd-plan` → `references/plan-ledger.md`; O3 / `sdd-develop` MUST `-File` both scripts.
+`scripts/session/Invoke-DevelopSessionGate.ps1` remains for `document-implement`, whose own contract explicitly uses session state. It is not a prerequisite for Classic SDD or Orchestrated Delivery. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) and [cli-scripts.md](cli-scripts.md#session-helper-document-implement) for current ownership.
 
 ## Code guidelines and architecture selection
 
@@ -373,16 +349,16 @@ Shared implementation standards live under `core/skills/_shared/code-guidelines/
 
 | Layer | Path (under `_shared/`) | Role |
 |-------|-------------------------|------|
-| **A** Selection | `code-guidelines/principles/architecture-selection.md` | **WHEN** — which style fits; greenfield confirm gate |
+| **A** Selection | `code-guidelines/principles/architecture-selection.md` | **WHEN** — which style fits a material design question |
 | **B** Style | `code-guidelines/principles/architecture/<one-style>.md` | **WHAT** — stack-agnostic rules for one style |
 | **C** Overlay | `*-guidelines/…` (+ `frontend-guidelines/frontend-architecture.md` for UI) | **HOW** — thin stack wiring; pointers back to B |
 
 Styles under B (load **one** primary file): `concentric-dependency`, `vertical-slice`, `ddd-tactical` (with concentric), `event-driven` (overlay). See `principles/architecture/README.md`.
 
-### Architect confirm gate
+### Architecture decisions
 
-- **Greenfield** / `needs_domain` with no established ARCH style: specialist `architect` (`_shared/agents/prompts/architect.md`, roster in `_shared/agents/ROSTER.md`) proposes a draft → operator gives a `confirm` answer → final ARCH is written. Silence is not approval (`needs-confirm` until a `confirm` answer). Spawned from Orchestrated Delivery `orchestrate-analyze` (§7b), not as a slash skill.
-- **Brownfield:** discover existing layout / ARCH first and **mirror**; do not re-pick a style unless the operator asks.
+- Ask for an operator decision only when a concrete architecture choice materially affects behavior, acceptance, scope, or implementation. Greenfield, missing style documentation, `needs_domain`, or brownfield classification alone do not create a confirmation gate or require a separate ARCH artifact.
+- For an existing repository, inspect relevant local patterns when they affect the requested change. Record useful evidence in the canonical feature/story artifact; create a separate ARCH note only when the consumer benefits from a durable design record.
 
 ### Token discipline
 

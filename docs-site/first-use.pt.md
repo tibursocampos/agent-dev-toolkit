@@ -10,7 +10,7 @@ Abra o repositório da aplicação no agente depois de [Começar](get-started.md
 /help-skills
 ```
 
-`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **47** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
+`help-skills` lê `CATALOG.md` e `OPERATOR.md`. Ela não inventa ids. Há **52** skills. Pastas em `core/skills/_shared/` são packs, não skills. Arquivos de roster em `core/agents/` não são ids de skill.
 
 O id é o mesmo em todo host. Cursor e Claude usam o prefixo `/`. Codex e ZCode usam `$`. OpenCode chama a ferramenta `skill`. Os exemplos abaixo usam `/`.
 
@@ -20,6 +20,7 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 
 | Skill | O que faz | Exemplo |
 |-------|-----------|---------|
+| `adt-epic-planner` | Descoberta e decomposição opcional de uma iniciativa com várias features; cria um `EPIC.md` navegável | `/adt-epic-planner` |
 | `memory-bank-init` | Cria ou atualiza `memory-bank/`. Para quando o bank está escrito | `/memory-bank-init` |
 | `orchestrate-analyze` | Classifica, pergunta, define `needs_*`, aloca especialistas, aprova o backlog | `/orchestrate-analyze` |
 | `orchestrate-deliver` | Arquivos da story, depois um PRD e um PLAN por story aprovada | `/orchestrate-deliver - features/NNN-slug/` |
@@ -31,6 +32,12 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `refine-story` | Um bug, user story ou story técnica | `/refine-story` |
 | `requirement-review` | Desafia uma feature ou story antes do SDD: `--feature` ou `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | Um checklist de dependências sob uma story existente | `/split-story-checklist` |
+| `adt-delivery-flow` | Coordena refinamento, planejamento e implementação | `/adt-delivery-flow` |
+| `adt-delivery-refine` | Refina a demanda no plano da feature | `/adt-delivery-refine` |
+| `adt-delivery-plan` | Completa o mesmo plano para aprovação | `/adt-delivery-plan` |
+| `adt-delivery-implement` | Executa o plano aprovado, valida e faz revisão de código | `/adt-delivery-implement` |
+
+Para uma iniciativa, você pode criar um EPIC e depois iniciar O1 para uma feature selecionada: `/orchestrate-analyze - EPIC.md feature001`. O O1 lê a seção dessa feature e o contexto/dependências compartilhados relevantes; o EPIC é opcional e o O1 mantém seus gates usuais.
 
 ## Implementação
 
@@ -78,4 +85,4 @@ Para trabalho com várias stories, brownfield ou pouco claro, use a [Entrega orq
 | `document-plan` | `docs/overview.md` e o plano de documentação | `/document-plan` |
 | `document-implement` | Um passo pendente de documentação | `/document-implement` |
 
-São 11 skills de entrega, 15 de implementação e 21 de revisão/plataforma/git: 47 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).
+São 16 skills de entrega, 15 de implementação e 21 de revisão/plataforma/git: 52 no total. Para uma feature, siga para [Entrega orquestrada](orchestrated-delivery.md).

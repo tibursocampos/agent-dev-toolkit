@@ -4,14 +4,14 @@ This guide describes the backlog refinement flow: how an informal product item b
 
 ## Flow
 
-1. `refine-story` writes the item: `STORY.md` with BDD criteria and a quality note.
+1. `refine-story` can shape the item into `STORY.md` with useful acceptance detail.
 2. In step 4a, `refine-story` calls `requirement-review` before the handoff. `requirement-review` challenges the item, asks the open questions, and writes only after a `confirm` answer.
-3. `split-story-checklist` breaks the story into a task checklist (backend, frontend, tests).
-4. In an O2 run, `sdd-plan` coordinates `split-story-checklist` for a feature of medium or complex size when `REFINE/tasks.md` is missing. A trivial feature does not generate a task file.
+3. `split-story-checklist` can break the story into a dependency-aware task checklist when that separate artifact is useful.
+4. `sdd-plan` derives executable steps directly from the PRD. It may use the independent checklist skill, but missing `REFINE/tasks.md` or `TASKS.md` never blocks planning at any complexity level.
 
 `orchestrate-analyze` also uses the feature research of `refine-story` internally, in step 8c. For that reason, the orchestrated path does not need `refine-story` to be called beforehand.
 
-While any **B**, **I**, or **MINOR** question is open, do not hand off to `sdd-spec`. See the readiness rule in [flow-selection.md](flow-selection.md).
+Resolve a question before dependent work only when it materially affects behavior, acceptance, scope, access, or implementation. Keep minor questions visible and allow unrelated work to continue.
 
 ## Where it writes
 
@@ -20,9 +20,9 @@ While any **B**, **I**, or **MINOR** question is open, do not hand off to `sdd-s
 | Story | `features/NNN-slug/USnn/STORY.md` (or `TSnn`) | `docs/backlog/<slug>.md` |
 | Requirement review | `features/NNN-slug/USnn/REFINE/requirement-review-feature.md` (or `-tech.md`) | `docs/backlog/<slug>-requirement-review-<mode>.md` |
 | Q&A history | `features/NNN-slug/USnn/REFINE/qa-history.md` | `docs/backlog/<slug>-qa-history.md` |
-| Task checklist | `features/NNN-slug/USnn/REFINE/tasks.md` | `docs/implementation-tasks/<slug>.md` |
+| Optional task checklist | `features/NNN-slug/USnn/REFINE/tasks.md` | `docs/implementation-tasks/<slug>.md` |
 
-With text pasted into the chat and no file path, the report stays in the chat. Nothing is written until the operator gives a path and confirms.
+With text pasted into the chat and no file path, the report stays in the chat. Each standalone skill follows its own persistence and confirmation contract; SDD draft writing is preparation and has no separate write approval.
 
 ## Skills
 
@@ -43,9 +43,9 @@ With text pasted into the chat and no file path, the report stays in the chat. N
 ### split-story-checklist
 
 - **Reads:** `STORY.md` with the **Steps** section filled in (or the **Suggested fix** for a bug). When called by `sdd-plan`, it reads the PRD and the story's `REQ` rows.
-- **Writes:** `REFINE/tasks.md`. It updates that file if it already exists and does not create a duplicate `TASKS.md`. Shortcut: `docs/implementation-tasks/<slug>.md`. It does not create new `USnn` or `TSnn` folders.
+- **Writes:** `REFINE/tasks.md` when a checklist is requested or useful. It updates that file if it already exists and does not create a duplicate `TASKS.md`. Shortcut: `docs/implementation-tasks/<slug>.md`. It does not create new `USnn` or `TSnn` folders.
 - **Where:** [core/skills/split-story-checklist/SKILL.md](../../core/skills/split-story-checklist/SKILL.md).
-- **When to use:** a feature of medium or complex size, or when the operator wants the checklist before the plan. For trivial complexity, the skill does not write the file.
+- **When to use:** when the operator requests a checklist or decomposition would help coordination. It is optional for every complexity level and is not a prerequisite to `sdd-plan`.
 
 ## See also
 

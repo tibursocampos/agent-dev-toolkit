@@ -13,7 +13,7 @@ Human mirrors: `docs/SKILLS.md`, docs-site Using skills, deep git dive `docs/dom
 | Topic | Expectation |
 |-------|-------------|
 | Invoke | Use **skill ids** (kebab-case). Host prefixes differ — see matrix below. Compat: `use skill <id>` / natural language when the host accepts it. |
-| Gates | Most mutating skills require guardrails + SESSION; user **`sim`** before writes. Silence ≠ approval. |
+| Gates | Apply the active skill's contract. Classic SDD and O1/O2/O3 use one complete PLAN approval before implementation; draft writing is preparation. Other skills keep their own confirmations. |
 | Parallel specialists | Multi-facet planning / analysis / questions: prefer parallel specialist children; this session stays **parent**. Caps and fallback: `_shared/agents/SPAWN.md`. Trivial work stays in-parent. |
 | Orchestrator mode | Default **`adaptive`**. See `orchestrator-session` section "Modes". Commands: `orchestrator always\|adaptive\|status` (aliases: `orchestrate …`, `parent …`). |
 | Caveman | Default **OFF**. Commands: `caveman on\|off\|status\|lite\|full\|ultra`. See `_shared/caveman/CAVEMAN.md` and `docs/guides/07-caveman-mode.md`. |
@@ -58,15 +58,16 @@ Deep dive: `docs/domains/git-ops.md` (and `_shared/developer-common/step-4-commi
 
 | Skill | Operator notes |
 |-------|----------------|
-| `sdd-spec` / `sdd-plan` | Classic SDD — direct slash OK (chat, plan mode, host plan file). Caveman cap **Lite** when mode ON. |
-| `sdd-develop` | **One PLAN step per session**, then stop / handoff. Caveman cap **Full**. |
+| `sdd-spec` / `sdd-plan` | Classic SDD — direct invocation is supported. Draft/write preparation has no separate approval; the complete PLAN is approved once before implementation. Caveman cap **Lite** when mode ON. |
+| `sdd-develop` | Uses the approved PLAN cadence: step-by-step stops after one step; continuous advances through eligible steps. PLAN is the only progress source; SESSION flags and claims are not prerequisites. Caveman cap **Full**. |
 | `read-sdd-artifact` | Read-only. Canonical FEATURE/STORY/PRD/PLAN under `features/` → `source_context`; reject `..` / outside `features/` with precise reason. Caveman **NEVER**. When envelope already present, skip opaque re-read. |
 | `refine-story` / `split-story-checklist` | Backlog Refine prep before Classic SDD or Orchestrated Delivery. |
 | `requirement-review` | Exactly one mode: `--feature` or `--tech`; asks once when missing (no silent default). Report and Q&A writes only after `sim`. Never edits code. `--tech` searches the repository and does not guess. |
-| `memory-bank-init` | Orchestrated Delivery Step 0. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
-| `orchestrate-analyze` | Memory Bank Gate first. Conditional parallel specialists per ROSTER. Backlog approval **`sim`** required. Greenfield / `needs_domain`: ARCH draft → **`sim`** before approved style. Parent does not write app code. |
-| `orchestrate-deliver` | PRD/PLAN per story via SDD contracts; ask série vs paralelo. Parent does not implement. |
-| `orchestrate-develop` | One PLAN step per child via `sdd-develop`; parent does not implement. |
+| `memory-bank-init` | Optional O1 context; initialize only when useful or explicitly requested. Bank under repo/global root — **never** under `features/NNN-slug/`. No Spec Kit / uv / specify. |
+| `adt-epic-planner` | Optional initiative discovery for work likely to span multiple features. It writes a navigable `EPIC.md`; it is not a prerequisite for O1 or a delivery tracker. When starting O1 from it, identify the relevant EPIC and select a stable feature ID; O1 reads relevant context without inheriting extra gates. |
+| `orchestrate-analyze` | Proportional triage and specialists for concrete questions. Memory Bank and sidecars are optional context; no backlog approval gate. O1 owns one contextual table and does not write app code. |
+| `orchestrate-deliver` | Prepares PRD/PLAN per selected story; one approval covers the complete explicitly listed PLAN set before implementation. Independent stories may proceed when another is blocked; parent does not implement. |
+| `orchestrate-develop` | Serial queue: one PLAN step per child; reconcile each result before the next dispatch. Step-by-step or continuous cadence; no SESSION/claim prerequisites. Parent does not implement app code. |
 
 ---
 

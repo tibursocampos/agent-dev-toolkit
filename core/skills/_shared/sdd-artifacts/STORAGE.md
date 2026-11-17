@@ -32,15 +32,15 @@ Use `{{SDD_ROOT}}/...` on macOS/Linux when expanding paths in tools.
 ```text
 features/NNN-slug/
 ├── FEATURE.md                 # Feature overview (Orchestrated Delivery / optional Classic SDD)
-├── CONTINUITY.md              # Cross-agent / cross-session handoff
-├── CHANGE.md                  # Brownfield delta vs current (ADDED|MODIFIED|REMOVED); required when Nature=brownfield — see CHANGE-CONTRACT.md
+├── CONTINUITY.md              # Optional cross-agent / cross-session context
+├── CHANGE.md                  # Optional brownfield delta/context — see CHANGE-CONTRACT.md
 ├── TRACE.jsonl                # Append-only event trail; living loop converge → sync_current → archive (P3); see TRACE-ARCHIVE-CONTRACT.md
 └── USnn/ or TSnn/             # Story folder (nn = 01, 02, …)
     ├── STORY.md               # Refined story + scorecard / deps
-    ├── REFINE/                # Refine / breakdown scratch (optional / on demand); tasks.md when complexity ≥ medium
-    ├── ANALYSIS/              # Impact / risk notes (required when needs_api or brownfield)
-    ├── ARCH/                  # Architecture notes (required when needs_domain, needs_database, or brownfield)
-    ├── SEC/                   # Security notes (required when needs_security)
+    ├── REFINE/                # Optional refinement notes or task checklist
+    ├── ANALYSIS/              # Optional evidence/impact notes when useful to a concrete decision
+    ├── ARCH/                  # Optional architecture decision/context when needed
+    ├── SEC/                   # Security notes when a concrete security review is in scope
     ├── EVD/                   # Story-scoped post-implementation evidence (when level ≥ cheap)
     ├── STATE.md               # Story-scoped AC → evidence matrix
     ├── PRD/                   # Canonical PRD for this story
@@ -54,11 +54,11 @@ features/NNN-slug/
 | `NNN` | Three digits; shared across feature folder and PRD/PLAN filenames |
 | `slug` | kebab-case feature id |
 | `USnn` / `TSnn` | User story or technical story; zero-padded index |
-| `CHANGE.md` | Feature-root brownfield delta vs **current** (`memory-bank/` living docs). Required when FEATURE Nature is `brownfield`. Greenfield must not force an empty stub. Contract: `CHANGE-CONTRACT.md`. |
+| `CHANGE.md` | Optional feature-root delta/context against current sources. Do not require it solely because a feature is brownfield; incorporate relevant current behavior and impact in the PRD or PLAN. Contract: `CHANGE-CONTRACT.md`. |
 | `EVD/` | Story-root evidence folder for post-implementation verify. Required when evidence level ≥ `cheap`. Contract: `EVD-STATE-CONTRACT.md`. Historical feature-root evidence is preserved and not bulk-migrated. |
 | `STATE.md` | Story-root AC → evidence matrix + **Evidence level** (`off` \| `cheap` \| `standard` \| `strict`). Gate via `validate-evidence.ps1`. **Verifier ≠ O3**. |
 | `TRACE.jsonl` | Feature-root append-only JSONL trail. Living loop **converge → sync current → archive**. Gate via `validate-trace.ps1` (`-RequireArchiveComplete` at close). Contract: `TRACE-ARCHIVE-CONTRACT.md`. |
-| Story subfolders | `REFINE/` optional / on demand (`tasks.md` when complexity ≥ medium). `ANALYSIS/` / `ARCH/` / `SEC/` required on disk when the matching FEATURE `needs_*` (or brownfield) is true. Never create the same names at **repo root**. `PRD/` / `PLAN/` are O2. |
+| Story subfolders | `REFINE/`, `ANALYSIS/`, `ARCH/`, and `SEC/` are created when useful to a concrete need or explicitly included in an approved scope; they are not required solely by complexity or brownfield classification. Never create the same names at **repo root**. `PRD/` / `PLAN/` are canonical SDD artifacts. |
 
 **Classic SDD (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
 
@@ -236,16 +236,16 @@ Do **not** read, write, or continue Classic SDD from:
 | `docs/backlog/` | Backlog Refine shortcut drafts only - not canonical PRD/PLAN |
 | Generic `docs/*.md`, repo-root markdown without feature tree | Not SDD storage |
 
-When the user cites a non-canonical `.md`: read it, build the artifact per skill templates, confirm path (`PIPELINE.md` § Confirm before write), then `Write` only under `features/NNN-slug/...`.
+When the user cites a non-canonical `.md`, read it when relevant and authorized. Use its content directly; no promotion copy is required. New canonical PRD/PLAN writes go under `features/NNN-slug/...` as described above.
 
 ## Skill responsibilities
 
 | Skill | Storage question | `.gitignore` | Writes |
 |-------|------------------|--------------|--------|
-| sdd-spec | Yes (confirm path) | Repository mode only | PRD under `features/.../PRD/` |
-| sdd-plan | Yes if manifest missing | Repository mode only | PLAN under `features/.../PLAN/` |
+| sdd-spec | Only resolve a real storage choice when needed | Repository mode only | PRD under `features/.../PRD/` |
+| sdd-plan | Only resolve a real storage choice when needed | Repository mode only | PLAN under `features/.../PLAN/` |
 | sdd-develop | No - uses PLAN path from input | No | Updates same PLAN file |
-| orchestrate-* (Orchestrated Delivery) | Yes if first run | Repository mode only | Feature tree + stories |
+| orchestrate-* (Orchestrated Delivery) | Only resolve a real storage choice when needed | Repository mode only | Feature tree + stories when used |
 | memory-bank-init | Yes (resolve bank root) | Repository mode: SDD block for `features/` etc. only — **not** `/memory-bank/` (commit bank when product knowledge; never commit secrets) | Bank under resolved `bank_root` |
 | refine-story | Prefer feature `STORY.md` | No (unless first SDD write) | Optional `docs/backlog/` shortcut |
 | split-story-checklist | Prefer feature story folder | No | Task checklist under story / backlog |
@@ -259,7 +259,7 @@ When the user cites a non-canonical `.md`: read it, build the artifact per skill
 
 - `ARTIFACT-OWNERSHIP.md` is a navigation/ownership index; specialized contracts below remain normative.
 - Pipeline guards: `_shared/sdd-artifacts/PIPELINE.md`
-- Session gates: `_shared/sdd-artifacts/SESSION.md`
+- Session helpers for explicit unchanged consumers: `_shared/sdd-artifacts/SESSION.md`
 - Memory Bank Gate: `_shared/sdd-artifacts/MEMORY-BANK.md`
 - Feature templates: `_shared/templates/features/`
 - Always-on rules: `rules/sdd-pipeline-guards.mdc`, `rules/guardrails.mdc`

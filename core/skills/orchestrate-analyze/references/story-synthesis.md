@@ -1,267 +1,64 @@
-## Feature tree layout
+# O1 synthesis
 
-Resolved under classic feature root (`STORAGE.md`):
+## Canonical records
+
+Use the resolved feature tree and templates under
+`skills/_shared/templates/features/`:
 
 ```text
 features/NNN-slug/
 ├── FEATURE.md
-├── CONTINUITY.md
-├── US01/
-│   ├── STORY.md
-│   ├── REFINE/          # optional / on demand
-│   ├── ANALYSIS/        # required when needs_api or brownfield
-│   ├── ARCH/            # required when needs_domain, needs_database, or brownfield
-│   └── SEC/             # required when needs_security
-└── TS01/                # as needed
-    └── STORY.md
+├── USnn/STORY.md   # when a user outcome warrants a separate story
+├── TSnn/STORY.md   # when a technical outcome warrants a separate story
+└── Bug/STORY.md    # when a bounded defect warrants a separate story
 ```
 
-| O1 writes | O1 does **not** write |
-|-----------|------------------------|
-| `FEATURE.md`, `CONTINUITY.md` at scaffold | `USnn` / `TSnn` / Bug folders before step 9 |
-| `STORY.md` and the story index at step 9, only with no open question on FEATURE | `PRD/`, `PLAN/` (O2) |
-| Flag-gated `ANALYSIS/` / `ARCH/` / `SEC/` under the story at step 9; `REFINE/` on demand | App/test source files |
-| | Repo-root `REFINE|ANALYSIS|ARCH|SEC|PRD|PLAN` |
-
-Templates: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/`.
-
-Artifact prose follows the user chat language (`LANGUAGE.md`). Identifiers and skill names stay English. `null` is not a locale.
-
----
-
-## Lazy-load table (synthesis)
-
-Do **not** preload the whole `backlog-item-types/` folder. Load on trigger:
-
-| Trigger | Path |
-|---------|------|
-| Material behavior or decision carried into FEATURE/STORY | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SEMANTIC-SUFFICIENCY.md` |
-| Merge / split pass | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md` |
-| Product intent for US | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/persona-context.md` |
-| Title / promotion pre-check | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/anti-task-shatter.md` |
-| STORY AC sections | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/gherkin-budget.md` |
-| FEATURE altitude / cap rationale | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/feature-altitude.md` |
-| Evidence fields | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/product-evidence-lite.md` |
-| Optional Valuable wording | `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/invest-and-story-quality.md` |
-| Story draft patterns | `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/generate-story.md` |
-| Scorecard map /100 → 1–5 | `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` |
-
-Leave `splitting.md` / `ost-lite.md` / `clarify-depth.md` unloaded unless a specific synthesis question needs them.
-
-**Retrieval (`SR-NO-FULL-DUMP` / `SELECTIVE-RETRIEVAL.md`):** cite portable paths; **never** dump integral `memory-bank/` or paste a full PRD into CONTINUITY, child prompts, or FEATURE/STORY bodies.
-
----
-
-## CONTINUITY update checklist
-
-Update `CONTINUITY.md` when:
-
-- [ ] Triage + flags settled (before specialists or after first synthesis)
-- [ ] Each meaningful specialist note set is merged
-- [ ] Architecture confirm gate closed when greenfield / `needs_domain` (ARCH approved or cancel noted)
-- [ ] Product artifact quality gates passed (FEATURE depth / promotion / cap) before human backlog approval gate
-- [ ] Before human backlog approval gate
-- [ ] After approval (typed O2 handoff)
-
-| Field | Rule |
-|-------|------|
-| **Phase** | `analyze` during O1 |
-| **Last agent** | `orchestrate-analyze` or specialist role id |
-| **Memory-bank** | Resolved `bank_root` (`STORAGE.md`); never a feature-relative bank |
-| **Memory-bank status** | `fresh` \| `refreshed` \| `created` (from Step 0; **`refreshed`** after ARCH **sim** / point-promote) |
-| **Estado atual** | ≤10 lines; replace on update |
-| **Decisões** | Short summary/pointer to `FEATURE.md` decision ids; the FEATURE table is the decision record. Append; do not erase history |
-| **Pendências** | Keep open items until done |
-| **Handoff tipado** | Exact `/…` with **portable path** (`STORAGE.md` § Portable path) |
-| **What not to write** | Full PRD/PLAN bodies, guideline dumps, application code, memory-bank body |
-
----
-
-## Process — Allocate NNN-slug and scaffold
-
-1. Glob existing `NNN` under `features/*/` only (workspace + global feature root) per `STORAGE.md`. Next = max + 1. Do **not** number from root/flat `PRD/` or `PLAN/`.
-2. Propose `NNN-slug` (kebab-case) and **portable path** (`STORAGE.md` § Portable path; confirm chat may show OS absolute).
-3. Confirm before first Write, in the user chat language (`LANGUAGE.md`): ask whether to write the tree at `{path}` (`sim` / `ajustar` / `cancelar`). Silence ≠ approval.
-4. Create from templates: `FEATURE.md`, `CONTINUITY.md` (include **Memory-bank** path + status from Step 0). Do **not** create `USnn`, `TSnn`, or Bug folders here. Do **not** create `ANALYSIS/` / `ARCH/` / `SEC/` / `PRD/` / `PLAN/` at scaffold. Specialist notes from step 8 stay in the parent until step 9. Do **not** create `memory-bank/` under the feature path.
-5. **Navigation `## Related` (REQ-009):** On each FEATURE / CONTINUITY Write, emit/refresh `## Related` per `STORAGE.md` § Navigation block — bidirectional among siblings **that exist**. **Omit-if-absent** — never stub story folders, PRD/PLAN, or empty siblings solely for links. Title exactly `## Related`; portable paths only.
-
-## Open-question gate (before step 9)
-
-Step 9 is the only step that creates story folders. Refuse to run it while `FEATURE.md` has any unanswered question, including `MINOR`. Stop code: `open_question` (`readiness-severity.md` § Open-question gate). Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md` at step 8c and update only `FEATURE.md` and `CONTINUITY.md`. Show `LIVE-STAGE-TABLE.md` § orchestrate-analyze step 8c. Do not call step 9 when the stop code applies.
-
-A blocked feature does not leave partial `USnn` / `TSnn` / Bug folders behind.
-
-See also § Feature tree layout.
-
----
-
-## Story sizing merge policy
-
-Contract: `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`. Apply **after** specialist merge, **before** human backlog approval (RN01).
-
-| Step | Action |
-|------|--------|
-| Load | Read `story-sizing.md` at synthesis (do not preload at triage) |
-| Outcome check | Each US/TS objective = one verifiable outcome (ideally one PR), not a file/layer list |
-| Behavior disposition | For each material behavior, compare the current decision and its normative destination with the proposed story outcome; keep its disposition in the existing FEATURE acceptance, Decisions, Open questions, and Histórias structures |
-| Merge | Combine stories that differ only by file or layer within same bounded context and consumer |
-| Split | When a story exceeds ~8 refine steps, spans independent consumers, or mixes unrelated outcomes |
-| Anti-task-shatter | Lazy-load `anti-task-shatter.md`; **Promotion gate** (§ below) — do **not** create US/TS for verb+file/class/script or layer-only titles |
-| Cap | **Cap gate** (§ below): ≤4 US/TS unless FEATURE **Rationale** explicitly justifies extra split (`feature-altitude.md` / RN03) |
-| Rationale | Fill `FEATURE.md` **Rationale** column — why N stories (not N−1 or N+1) |
-| Product intent | Fill `FEATURE.md` **Product intent** column — Who/Job/Outcome for US (lazy-load `persona-context.md`); `n/a` for pure TS/Bug |
-| Validator (optional) | Mental pass against `split-story-checklist` limits (≤5 implementation groups per story after topology); oversized → split story |
-
-Present backlog only after merge/split pass **and** product artifact quality gates pass.
-
-### Required sizing evidence
-
-For every split or merge, `FEATURE.md` rationale must state observable value,
-consumer, and delivery independence (implementation, deployment, and rollback).
-Endpoint count alone is not a split criterion. Keep endpoints in one story when
-their value and delivery boundary are inseparable; split only for an
-independently deliverable consumer outcome.
-
-For a material behavior, show its disposition through the existing FEATURE
-records: map it to the promoted story or stories, preserve it unchanged, cite an
-explicitly approved exclusion, or leave it as an open question. Use the existing
-macro-acceptance ids and stable `question_id` / `decision_id` references; do not
-copy decision prose into a parallel list. Compare the current decision with the
-actual normative text and each candidate STORY acceptance body. A correct link
-to stale or contradictory text fails this check, and a superseded decision stays
-historical. Record a reason when a disposition does not apply. Do not set a fixed
-story count or use a score or marker as evidence of semantic sufficiency.
-
----
-
-## Product artifact quality gates (before human backlog gate)
-
-**Hard gates** (REQ-004 / CA1 / CA2 / CA4). Run after merge policy, after draft FEATURE/STORY writes are ready for review, and **before** Step 10 human backlog approval. Any fail → status stays `draft`; **do not** present RN01 approval. No secrets/PII in gate messages (paths + field names only). Render gate messages in the user chat language (`LANGUAGE.md`). The samples below state the meaning.
-
-Order: **FEATURE depth (TE01)** → **Promotion (TE02)** → **Cap (RN03)** → field completeness (STORY/Evidence).
-
-Before human approval, also review material-behavior dispositions against the
-current decision and normative text using `SEMANTIC-SUFFICIENCY.md`. Reuse the
-existing FEATURE and STORY fields, and keep unresolved gaps or conflicts under
-the existing question gate. This review applies to material behaviors; it does
-not add a universal checklist or story-count target.
-
-### Gate A — FEATURE depth (TE01 / CA1)
-
-| Field | Pass when |
-|-------|-----------|
-| Problem | Non-empty prose (not a file checklist) |
-| Goals | ≥1 non-empty bullet |
-| Non-goals | ≥1 non-empty bullet |
-
-**On fail:** reject synthesis for human approval. Message intent (user chat language OK):
-
-```text
-FEATURE rejeitada: campos obrigatórios ausentes: {Problem|Goals|Non-goals…}
-```
-
-List every missing field. Fix or stop — never skip to Step 10.
-
-Also required before approval (same reject style if empty; Evidence uses omit > fabricate):
-
-| Field | Pass when |
-|-------|-----------|
-| Evidence | Path, redacted snippet, or `omitted — none yet` — never fabricated PII |
-| Histórias table | Each **promoted** row has **Rationale** + **Product intent** (Who/Job/Outcome or `n/a`) |
-
-Template: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/FEATURE.md`.
-
-For an external source that may be needed by O3, keep its exact portable reference `external:<alias>/<relative-path>` in the existing FEATURE Evidence or relevant ANALYSIS / ARCH source note; do not include the absolute root. This reference is descriptive only: O1 does not authorize the alias. O3's coordinator must separately authorize it and provide the alias-to-root map to the runtime validator. See `STORAGE.md` § External evidence references for O3 and `{{TOOLKIT_ROOT}}/skills/_shared/agents/RECEIPT.md`.
-
-### Gate B — Promotion anti-task-shatter (TE02 / CA2)
-
-Lazy-load `anti-task-shatter.md` (+ `feature-altitude.md` if altitude unclear). Evaluate **each candidate** title/objective **before** creating `USnn/` or `TSnn/`.
-
-| Pattern | Action |
-|---------|--------|
-| Imperative + file/class/script/path | **Do not** create US/TS; keep as refine/PLAN step; record rationale |
-| Layer-only label | **Do not** create US/TS; merge into vertical/outcome story or keep as step |
-| Outcome-shaped + Valuable (US) or clear technical outcome (TS) | Eligible — create US/TS |
-
-**On reject:** do not scaffold that story folder. Message intent:
-
-```text
-Não promovido a US/TS (anti-task-shatter): {title} — {rule applied}; keep as PLAN/refine step
-```
-
-Register the applied rule in FEATURE/CONTINUITY decisions (short; no secret dump).
-
-### Gate C — Maturity cap ≤4 (CA4 / RN03)
-
-Count promoted US+TS folders/rows after Gate B.
-
-| Count | Action |
-|-------|--------|
-| ≤4 | Pass |
-| >4 | Fail **unless** FEATURE **Rationale** (feature-level or table) explicitly justifies the extra split (why N, not ≤4) |
-
-**On fail without rationale:** merge or demote extras to PLAN/refine steps; do not present human gate. Message intent:
-
-```text
-Cap maturidade: backlog tem {N} US/TS (máx 4) sem rationale explícito de split adicional
-```
-
-**Valuable (CA4):** each promoted **US** row must declare beneficiary + observable progress in Product intent (Who/Job/Outcome). Pure **TS**/Bug may use `n/a`.
-
-### STORY.md per promoted US/TS (mandatory after promotion)
-
-| Field | Pass when |
-|-------|-----------|
-| Objective | One outcome-shaped outcome |
-| Who/Job/Outcome | Filled for US; `n/a` for pure TS/Bug |
-| OOS | Explicit exclusions or honest N/A |
-| AC budget | Happy + rule/edge + failure, each with observable Then |
-| Scorecard | Includes **Product depth** (1–5; placeholder OK until refine) |
-| Title | Already passed Gate B |
-
-Template: `{{TOOLKIT_ROOT}}/skills/_shared/templates/features/story/STORY.md`. Use `generate-story` patterns for drafts. Incomplete AC budget → TE03 intent (list missing scenarios); block human gate until fixed or operator explicitly continues with documented debt (prefer fix).
-
-### Happy path (mental)
-
-1. Draft FEATURE with Problem/Goals/Non-goals/Evidence.
-2. Filter candidates through Gate B → only outcome-shaped become US/TS.
-3. Cap ≤4 or write explicit split rationale.
-4. Fill STORY deep fields + AC budget.
-5. Gates A–C pass → present Step 10 backlog approval.
-
----
-
-## Process — Synthesize artifacts
-
-Refuse this process while `FEATURE.md` still has an open question (`open_question`). Do not create story folders in that case.
-
-1. Lazy-load per § Lazy-load table (start with `story-sizing.md` + templates; load `anti-task-shatter.md` before promotion; load `SEMANTIC-SUFFICIENCY.md` when a material behavior or decision is carried into FEATURE/STORY).
-2. Apply **Story sizing merge policy** (§ above) before writing final FEATURE story index.
-3. Create N story folders (`USnn`, `TSnn`, or Bug) and the FEATURE **Histórias** table. Cap ≤4 and the rationale rule in `feature-altitude.md` still apply. Under each new story (never at repo root): create `ANALYSIS/` / `ARCH/` / `SEC/` when the matching FEATURE `needs_*` (or brownfield) is true. `REFINE/` stays optional. Do **not** create `PRD/` / `PLAN/`.
-4. Merge specialist notes + user input + **promoted** canonical bodies (not pointers) into drafts:
-
-**FEATURE.md** — Problem, Goals, Non-goals, macro acceptance criteria, Evidence, Resumo; story index (**Rationale** + **Product intent** per row); all `needs_*`; status `draft`. For each resolved question, keep the stable `question_id` → `decision_id` link and name the affected normative artifact/section with applicable `REQ-###` / `CA#` ids. Preserve replaced rows as `superseded` and point to the replacing decision id. For each material macro-acceptance behavior, use the existing acceptance and story-index fields to show its story coverage or unchanged, approved-exclusion, or open-question disposition; refer to the existing decision/question row instead of copying it. Compare the current decision with its actual normative destination; recency and valid links do not establish agreement. For User Stories only, lazy-load `persona-context.md` when filling Product intent; do **not** load it for pure TS/Bug (`n/a`). Include `## Related` with portable paths to on-disk siblings only (REQ-009 / omit-if-absent).
-
-**CONTINUITY.md** — phase `analyze`, short decision summary/pointers to `FEATURE.md` decision ids, flags, open items, **Memory-bank** path + status (`fresh` \| `refreshed` \| `created`; **`refreshed`** after ARCH **sim** / point-promote). Do not duplicate the full decision record or create another ledger. Schema/product forks: pointers to `ANALYSIS/` / `ARCH/` only — not the full open-decision list. CONTINUITY references the bank only — **do not** paste bank body. **Do not** paste full PRD/PLAN bodies (`SR-NO-FULL-DUMP`). Include/refresh `## Related` for on-disk siblings (REQ-009) — paths only, not a second navigation SoT.
-
-**STORY.md** per **promoted** US/TS/Bug only — deep template structure; type; objective; the list of FEATURE macro-acceptance ids this story covers; AC budget happy/rule/failure; deps; scorecard summary (rubric from `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md`; map /100 → 1–5 in STORY table); outcome-oriented objectives. The actual acceptance text must preserve the mapped material behavior and reflect the current decision; ids and links alone are insufficient. US may carry Who/Job/Outcome from Product intent when useful. Include `## Related` citing FEATURE / CONTINUITY / sibling notes when on-disk (omit PRD/PLAN until O2 creates them).
-
-**Language guard:** folder names stay `ANALYSIS`, `ARCH`, `SEC`. Prose inside those files, and the file name the parent chooses, follow content-language (`LANGUAGE.md`). Specialist receipts stay en-US. The parent translates before Write. Do not save an English specialist note when the chat language is Portuguese.
-
-5. Run **Product artifact quality gates** (§ above). On any fail: emit TE01/TE02/cap message; fix or stop — **do not** present human gate.
-6. For every required brownfield `ANALYSIS/` document, run the deterministic validator before the backlog approval gate:
-
-```powershell
-pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-brownfield-analysis.ps1" -Path <analysis-path>
-```
-
-Require exit code 0 and `validate-brownfield-analysis: PASS`. On failure, keep the backlog in `draft`, inspect the diagnostic and the validator's matching contract, and correct the ANALYSIS before asking for backlog approval. If a `repo-analyst` child already returned, its one-shot invocation cannot be reused: when native subagents are available, start a fresh bounded `repo-analyst` invocation with the canonical path, exact diagnostics, relevant cited sources, and the correction scope; otherwise O1 performs the permitted ANALYSIS correction in-parent. Do not ask the operator to relay routine validator output or make a correction supported by available evidence. Re-run the validator after each correction and continue O1 when it passes. Ask the operator only when correction needs missing evidence/access or an unresolved product decision; keep that blocker scoped and do not invent evidence. Do not weaken or replace O2's independent `Invoke-O2BrownfieldPreflight.ps1` gate; this O1 check catches an invalid handoff before asking for backlog approval.
-7. Optional merge validator: if step count or `split-story-checklist` grouping would exceed § limits in `split-story-checklist/reference.md`, split stories before human gate (re-run Gate C).
-
-PLAN magro (O2): bodies stay in bank/ARCH/ANALYSIS; PLAN cites the canonical path — if that path is missing, create the canonical file first.
-
-## Story shape
-
-Do not classify the whole feature as a User Story by default. Each story needs an actor, a value, and a result, or an explicit technical reason when it is a Technical Story or a Bug. Keep a matrix from each feature requirement to the story that covers it. Do not attach an 80/100 score.
-
-See also § CONTINUITY update checklist and § Story sizing merge policy.
+Only create story folders that support a distinct, understandable outcome.
+Omit unnecessary records and optional sections. CONTINUITY, CHANGE, TASKS,
+Memory Bank, and specialist sidecars are not required for new or resumed work.
+Do not convert or delete historical files. O1 does not create PRDs or PLANs.
+
+## Prepare and revise
+
+- FEATURE explains the intended outcome and material scope. Use goals,
+  exclusions, acceptance references, decisions, evidence, and story links when
+  they clarify the work; do not fill empty sections to satisfy a format.
+- A STORY describes one useful outcome, its boundaries, acceptance, and
+  dependencies. Use stable IDs and BDD when they improve clarity; no fixed
+  scenario count, scorecard, or story-count cap is required.
+- Keep stories outcome-shaped. Merge items that differ only by file or layer;
+  split when outcomes, consumers, risks, or delivery boundaries are materially
+  independent. Load `story-sizing.md` or `anti-task-shatter.md` only when a
+  concrete sizing question needs them.
+- For relevant brownfield changes, include observed current behavior, intended
+  change, and concrete risks in the canonical FEATURE/STORY; add a separate
+  ANALYSIS/ARCH/SEC note only when it carries distinct useful evidence.
+- Keep material decisions and unresolved questions in the canonical artifact.
+  Label facts, inferences, suggestions, and operator decisions. Do not let a
+  suggestion add scope.
+- When relevant, show which story covers a material outcome, what remains
+  unchanged, or what question is unresolved. A useful link is enough; no
+  duplicate decision ledger or prescribed matrix is required.
+
+## Evidence and source handling
+
+Read relevant sources that are authorized. Prefer current canonical evidence;
+note material uncertainty and limits. Do not require promotion of every cited
+Markdown document. A user-selected feature brief in an identified EPIC may be
+read narrowly with its relevant context and dependencies. Do not paste whole
+source documents or a Memory Bank into the FEATURE/STORY.
+
+For external evidence that may be needed later, record only the authorized
+portable reference format defined in `STORAGE.md`; O1 does not authorize O3
+access to an external root.
+
+## Handoff readiness
+
+The outcome is ready for planning when its material behavior, scope, acceptance,
+dependencies, and required decisions are sufficiently clear for O2 to prepare
+the PRD/PLAN set. Ask about a material unresolved decision before dependent
+work. Minor questions do not block unrelated stories. Do not run a mandatory
+document validator, scorecard, fixed-count check, or backlog approval gate.
+
+End with a concise synthesis and the next action. O2 presents its complete
+implementation PLAN set for one explicit approval before code.

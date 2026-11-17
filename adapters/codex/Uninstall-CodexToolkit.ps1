@@ -15,6 +15,8 @@
   - rules/<file> matching core/policy (Publish-Policy)
   - InstallRoot/AGENTS.md (Publish-Router target) when provenance confirms toolkit ownership
     (.toolkit-managed-publish.json sha256, or legacy hash match to core/router publish)
+  - InstallRoot/agents/<name>.toml recorded by an earlier publish but no longer shipped
+    (deleted only while bytes match the recorded hash; released from the inventory)
 
   Operator-edited or drifted AGENTS.md is preserved.
 
@@ -219,6 +221,62 @@ function Update-CodexMarketplaceRemoveToolkitEntry {
     return $true
 }
 
+function Remove-CodexRecordedRetiredAgentFiles {
+    <#
+    .SYNOPSIS
+      Delete Codex agent .toml files a publish recorded but the current source no longer ships.
+
+    .DESCRIPTION
+      Ownership comes from the publish inventory: only managed-file entries directly under
+      DestinationAgentsRoot with a .toml leaf qualify. A file is deleted only while its bytes
+      match the recorded hash; an edited file is kept with a warning and stays recorded.
+      Files never recorded are never touched. Returns the paths removed (or, under -WhatIf,
+      the paths that would be removed).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string] $InstallRoot,
+        [Parameter(Mandatory = $true)][string] $DestinationAgentsRoot,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $CurrentFileNames,
+        [Parameter()][switch] $WhatIf
+    )
+
+    $installRootFull = Get-NormalizedFullPath -Path $InstallRoot
+    $agentsFull = Get-NormalizedFullPath -Path $DestinationAgentsRoot
+    $currentSet = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($name in $CurrentFileNames) { [void]$currentSet.Add($name) }
+    $kindProperty = $script:ToolkitConstant.ManagedPublishInventoryKindProperty
+    $sha256Property = $script:ToolkitConstant.ManagedPublishInventorySha256Property
+    $entries = Read-ToolkitManagedPublishInventory -InstallRoot $InstallRoot
+
+    $targets = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($key in @($entries.Keys)) {
+        $entry = $entries[$key]
+        if ([string]$entry[$kindProperty] -ne 'managed-file') { continue }
+        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $installRootFull ($key -replace '/', [System.IO.Path]::DirectorySeparatorChar)))
+        if (-not [string]::Equals([System.IO.Path]::GetDirectoryName($fullPath), $agentsFull, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if ([System.IO.Path]::GetExtension($fullPath) -ne $script:CodexPathConstant.CustomAgentTomlExtension) { continue }
+        if ($currentSet.Contains([System.IO.Path]::GetFileName($fullPath)) -or -not ([System.IO.File]::Exists($fullPath))) { continue }
+        if (-not [string]::Equals((Get-ToolkitFileSha256Hex -Path $fullPath), [string]$entry[$sha256Property], [System.StringComparison]::OrdinalIgnoreCase)) {
+            Write-Warning ('Kept retired file edited after publish: {0}' -f $fullPath)
+            continue
+        }
+        $targets.Add([PSCustomObject]@{ Key = $key; Path = $fullPath }) | Out-Null
+    }
+
+    $removedPaths = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($target in $targets) {
+        $null = Assert-PathUnderInstallRootForDelete -CandidatePath $target.Path -InstallRoot $installRootFull
+        if (-not $WhatIf.IsPresent) { Remove-Item -LiteralPath $target.Path -Force -ErrorAction Stop }
+        $removedPaths.Add($target.Path) | Out-Null
+    }
+    if (-not $WhatIf.IsPresent -and $targets.Count -gt 0) {
+        $null = Remove-ToolkitManagedPublishInventoryEntries -InstallRoot $InstallRoot -RelativePaths @($targets | ForEach-Object { [string]$_.Key })
+    }
+
+    return @($removedPaths.ToArray())
+}
+
 function Invoke-CodexUninstallToolkit {
     [CmdletBinding()]
     param(
@@ -374,6 +432,16 @@ $artifactHelper = Join-Path (Join-Path (Join-Path $repoRoot 'scripts') '_lib') '
         }
     }
 
+    $currentAgentTomlNames = @(
+        Get-ToolkitManagedAgentFileNames -SourceAgentsRoot $sourceAgentsRoot |
+            ForEach-Object { [System.IO.Path]::ChangeExtension($_, $script:CodexPathConstant.CustomAgentTomlExtension) }
+    )
+    foreach ($retiredAgentPath in (Remove-CodexRecordedRetiredAgentFiles -InstallRoot $resolvedInstallRoot -DestinationAgentsRoot $customAgentsRoot -CurrentFileNames $currentAgentTomlNames -WhatIf:$WhatIf)) {
+        $wouldRemovePaths.Add($retiredAgentPath) | Out-Null
+        if (-not $WhatIf.IsPresent) {
+            $removedPaths.Add($retiredAgentPath) | Out-Null
+        }
+    }
 
     $artifactCleanup = Invoke-ToolkitUninstallArtifacts -Adapter 'codex' -InstallRoot $resolvedInstallRoot -RepoRoot $repoRoot -WhatIf:$WhatIf
     $count = if ($WhatIf.IsPresent) {

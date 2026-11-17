@@ -59,7 +59,7 @@ they do not remediate automatically.
 | .NET coverage | `/test-coverage` when PRD, PLAN, or user sets a target (default **80%** on changed production files) |
 | Node | `npm run build`, `npm test` per project scripts |
 
-Record `/run-tests` once for each stack detected in step 0. Copy each stack result as `PASS`, `FAIL`, or `SKIPPED`. A missing tool, script, or runner for that stack is `SKIPPED` and never `PASS`.
+Record one current `/run-tests` result for each stack detected in step 0, either supplied by the caller under the matching-tree rule or run during review. Copy each stack result as `PASS`, `FAIL`, or `SKIPPED`. A missing tool, script, or runner for that stack is `SKIPPED` and never `PASS`.
 
 When a coverage target applies: run `test-coverage` before final decision; paste summary into report section Testes. **Fail** below threshold -> **Changes required** unless user documents an accepted exception.
 

@@ -1,19 +1,14 @@
-# Status legend
+# PLAN progress states
 
-Step status tokens, English only:
+The single execution progress table uses these persisted state tokens:
 
 | Token | Meaning |
-|-------|---------|
-| `PENDING` | Not started |
-| `IN_PROGRESS` | The active implement session |
-| `BLOCKED` | Stopped with a recorded cause |
-| `COMPLETED` | Acceptance and the step test passed |
-| `SKIPPED` | Explicitly skipped |
+|---|---|
+| `PENDING` | The step has not started. |
+| `IN_PROGRESS` | Work is active. |
+| `BLOCKED` | Work stopped for a recorded material cause. |
+| `COMPLETED` | The step's acceptance is met and its required validation evidence is recorded. |
 
-`SKIPPED` is not a passing result and does not satisfy acceptance, a completed dependency, or overall PLAN closure. Resolve omitted work through the PLAN owner and an explicitly approved PLAN update; do not infer that its acceptance is unnecessary.
+Do not maintain separate totals, percentages, checklists, queues, session flags, or claim status as progress. Derive counts from the table when useful. Localize prose and displayed labels; keep persisted tokens in English.
 
-Overall implementation status for a new PLAN: `NOT_STARTED`.
-
-Progress line: `0/N`. Prose around the token follows the chat language (`LANGUAGE.md`). Do not write the status word in another language. Do not use a duration.
-
-**Implement skill:** step headings may use `STEP` or `PASSO`. The status token stays one of the five above.
+When work is omitted or removed, record the decision and its effect in the PLAN's canonical row or a material plan update. Do not add a fifth progress state solely for an optional action.

@@ -1,18 +1,13 @@
-## TASKS complexity policy
+## Optional checklist use
 
-Resolve `invocation_context` once and use only its canonical source. The source decides whether the checklist is required; do not infer complexity from a sibling artifact or story shape.
+`split-story-checklist` is an independently invocable planning aid. Classic `sdd-plan` and Orchestrated Delivery O2 can derive executable PLAN steps directly from the approved demand or PRD; neither requires `TASKS.md` or `REFINE/tasks.md` at any complexity.
 
-| Context | Complexity source | `trivial` | `medium` or `complex` |
-|---------|-------------------|-----------|------------------------|
-| Classic `direct` | Approved PRD `Complexidade` / `Complexity` | Do not write `REFINE/tasks.md`; `sdd-plan` can derive PLAN-native steps from PRD REQ/CA | Write the checklist before `sdd-plan`; when coordinated by `sdd-plan`, this skill remains the sole writer |
-| Orchestrated Delivery O2 | FEATURE **Complexity** | No checklist required; preserve regular O2 gates | Write the checklist before `sdd-plan`, after PRD contestation, under the existing O2 gates |
+Use the checklist when the operator requests it or when it provides distinct value for grouping already-refined steps. Complexity labels do not decide whether it is required, create a workflow gate, or block planning. When invoked, this skill remains the sole writer of its own checklist; `sdd-plan` may consult it as optional context without copying or renumbering useful IDs and dependencies.
 
-If the selected source is missing, unsupported, or contradictory, stop and identify the context and source that must be resolved. Do not fall back from PRD to FEATURE in `direct`, or from FEATURE to PRD in O2. When a checklist is required, `split-story-checklist` is its only author and `sdd-plan` preserves the checklist's IDs and dependencies without editing or renumbering them.
-
-Align with `CHANGE-CONTRACT.md`. Brownfield CHANGE is owned by O2 / `sdd-spec`, not this skill.
+Do not require a `TASKS` file, a complexity source, PRD contestation, or an O2 gate to invoke this optional tool. Align any useful brownfield context with the PRD or PLAN; an existing CHANGE file is optional context.
 
 ---
 
 ## Context management
 
-Checkpoint durable workflow progress at the workflow-defined boundaries; context usage does not add a stop gate.
+The owning workflow's canonical artifact remains the source of persisted progress; this optional tool does not add a separate progress or stop gate.

@@ -34,7 +34,7 @@ Repo source of truth for the toolkit tree: `core/policy/`. Installed hosts may m
 
 Run on the **changed** surface only; skip rows that do not apply.
 
-- [ ] Diff does not weaken guardrails: git still blocked by default; write confirm; one PLAN step per develop session; tests before Complete
+- [ ] Diff does not weaken guardrails: git still blocked by default; write confirm; one PLAN step per gate scope with explicit bounded continuation and reset/revalidation; O3 remains one step per child; tests before Complete
 - [ ] SDD skills still hand off PRD/PLAN writes to `/sdd-spec` / `/sdd-plan` (no silent authoring in ops skills)
 - [ ] Branch / conventional-commit guidance still points at `branch-validation` / `conventional-commits` (or project equivalents)
 - [ ] Parent/orchestrator diffs still honor `orchestrator-session` (parent does not implement child work)

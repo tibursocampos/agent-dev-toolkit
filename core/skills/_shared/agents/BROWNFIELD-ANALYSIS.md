@@ -1,6 +1,6 @@
-# Brownfield analysis contract
+# Brownfield analysis guidance
 
-Use this contract when changing an existing repository or when impact and local conventions are unclear. The analysis informs planning and implementation; it does not replace the role-specific finding, architecture, or execution-receipt contracts.
+Use this guidance when a concrete question about current behavior, impact, or local conventions could affect the requested outcome. A brownfield label alone does not require an analysis artifact, fixed evidence table, architecture mirror, or validator. Keep useful findings in the canonical feature/story artifact or a separate analysis note when that note adds value. This guidance does not replace role-specific finding, architecture, or execution-result contracts.
 
 ## Project-first evidence
 
@@ -38,24 +38,9 @@ Evaluate only areas that the requested change or current implementation step cou
 
 ## Evidence record
 
-Keep the analysis in the format already used by its consumer. For O2 brownfield sufficiency, include one Markdown evidence table with these semantic columns; headers and classification values may use the explicit Portuguese or English aliases recognized by `scripts/validation/validate-brownfield-analysis.ps1`:
+Use the format that best serves the active consumer. Record the category or behavior, a portable source path and symbol/section when useful, and whether the conclusion is demonstrated, inferred, proposed, or still a gap. Explain relevant limitations without forcing a fixed table, classification vocabulary, row count, or separate note. Cite only evidence actually inspected. A proposed option is not observed repository behavior. Distinguish a configured command from one that was actually run. Keep secrets, personal data, absolute local paths, and unnecessary repository dumps out of the record.
 
-| Item | Classification | Evidence | Limitation |
-|------|----------------|----------|------------|
-| Example behavior | CONFIRMED | `src/example.cs:ExampleHandler` | — |
-
-`CONFIRMED` means direct evidence; `INFERRED` means partial/indirect evidence and requires a limitation; `GAP` requires a reason why evidence is missing or unresolved; `PROPOSAL_ONLY` marks an option that is not an observed repository fact. For `CONFIRMED` and `INFERRED`, Evidence must contain a portable repository-relative `path:symbol` reference. A proposal must not use its proposal reference as proof of observed behavior. The validator normalizes recognized aliases in memory, reports their canonical classification, and never rewrites the analysis file. It blocks unknown/ambiguous labels and missing required evidence fields with a line-specific correction.
-
-For each relevant convention or impact, record:
-
-- the category and observed pattern;
-- a portable repository-relative path and symbol, section, or configuration key that supports the finding;
-- confidence: `CONFIRMED` for direct, representative evidence; `INFERRED` for partial or indirect evidence; or `GAP` when reliable evidence is absent;
-- components or tests that could be reused;
-- affected areas and, when the scope spans multiple areas, examined areas that need no change (`NO_CHANGE`) with a reason;
-- unresolved questions that could change behavior, a contract, security, ownership, or validation.
-
-Do not state an inferred convention as confirmed. A `NO_CHANGE` decision must be supported by the scope and evidence. Record build, test, and lint commands only when found in repository configuration or scripts, and distinguish a command that exists from one that was actually run. Keep secrets, personal data, absolute local paths, and unnecessary repository dumps out of the record.
+When a broader feature crosses multiple areas, note affected components and important no-change boundaries if that helps explain the recommendation. Do not create coverage matrices or inventories for areas that cannot affect the requested outcome.
 
 ## Material behavior-flow trace and reuse decision
 
@@ -69,4 +54,4 @@ Compare the proposed change with the relevant existing component, test, or proje
 
 Resolve material product and contract questions before the dependent plan or implementation stage advances. Missing technical evidence calls for more targeted inspection when possible; it is not permission to choose a generic architecture, framework, library, folder layout, route, or test convention. When evidence remains unavailable and the choice affects the outcome, record the gap and ask the responsible decision owner.
 
-Confidence (`CONFIRMED` / `INFERRED` / `GAP`) describes evidence quality; `PROPOSAL_ONLY` marks a proposed option that is not repository evidence. These classes are not finding severity, readiness, or specialist execution status. `validate-brownfield-analysis.ps1` consumes the classification table and rejects execution-status values in this field.
+Confidence labels describe evidence quality; proposals are not repository evidence. These descriptions do not determine readiness or execution status. Resolve only questions that materially affect behavior, acceptance, scope, access, or an implementation choice.

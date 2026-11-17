@@ -10,7 +10,7 @@ Open the application repo in the agent after [Get started](get-started.md). The 
 /help-skills
 ```
 
-`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **47** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
+`help-skills` reads `CATALOG.md` and `OPERATOR.md`. It does not invent ids. There are **52** skills. Folders under `core/skills/_shared/` are packs, not skills. Roster files under `core/agents/` are not skill ids.
 
 The id is the same on every host. Cursor and Claude prefix `/`. Codex and ZCode prefix `$`. OpenCode calls the `skill` tool. The examples below use `/`.
 
@@ -20,6 +20,7 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 
 | Skill | What it does | Example |
 |-------|----------------|---------|
+| `adt-epic-planner` | Optional discovery and decomposition for a multi-feature initiative; writes a navigable `EPIC.md` | `/adt-epic-planner` |
 | `memory-bank-init` | Create or refresh `memory-bank/`. Stops when the bank is written | `/memory-bank-init` |
 | `orchestrate-analyze` | Classify, ask, set `needs_*`, staff specialists, approve the backlog | `/orchestrate-analyze` |
 | `orchestrate-deliver` | Story files, then one PRD and one PLAN per approved story | `/orchestrate-deliver - features/NNN-slug/` |
@@ -31,6 +32,12 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `refine-story` | One bug, user story, or technical story | `/refine-story` |
 | `requirement-review` | Challenge one feature or story before SDD: `--feature` or `--tech` | `/requirement-review --feature - features/NNN-slug/US01/STORY.md` |
 | `split-story-checklist` | A dependency checklist under an existing story | `/split-story-checklist` |
+| `adt-delivery-flow` | Coordinate refinement, planning and implementation | `/adt-delivery-flow` |
+| `adt-delivery-refine` | Refine the demand in the feature plan | `/adt-delivery-refine` |
+| `adt-delivery-plan` | Complete the same plan for approval | `/adt-delivery-plan` |
+| `adt-delivery-implement` | Execute the approved plan, validate and run code review | `/adt-delivery-implement` |
+
+For an initiative, you can create an EPIC and then start O1 for one selected feature: `/orchestrate-analyze - EPIC.md feature001`. O1 reads that feature section and relevant shared context/dependencies; the EPIC is optional, and O1 keeps its usual gates.
 
 ## Implementation
 
@@ -78,4 +85,4 @@ For multi-story, brownfield, or unclear work, use [Orchestrated Delivery](orches
 | `document-plan` | `docs/overview.md` and the documentation plan | `/document-plan` |
 | `document-implement` | One pending documentation step | `/document-implement` |
 
-That is 11 delivery skills, 15 implementation skills, and 21 review/platform/git skills: 47 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).
+That is 16 delivery skills, 15 implementation skills, and 21 review/platform/git skills: 52 total. Next, for a feature: [Orchestrated Delivery](orchestrated-delivery.md).

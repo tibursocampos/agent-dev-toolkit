@@ -31,7 +31,7 @@ After sync, the published router (`core/router/AGENTS.md`) prefers parallel spec
 
 ## Internal contracts
 
-REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B, I, MINOR), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
+REQ, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, and clarification readiness (B, I, MINOR) are artifact or workflow concepts, not universal authorization gates. Optional `validate-*` diagnostics remain separate from skill authorization. SESSION helpers apply only to consumers whose contracts explicitly require them; Classic SDD and Orchestrated Delivery use the approved PLAN. These concepts add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
 
 ## Prerequisites
 
@@ -143,13 +143,13 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for a backlog `confirm` answer. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
+Analyze classifies the request, asks, sets `needs_*`, calls specialists when flags require them, and waits for a backlog `confirm` answer. Story folders wait until the feature has no open question. Deliver then checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. O3 develop runs one `sdd-develop` step per child and reconciles before each next spawn. Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md).
 
 When analyze sets greenfield or `needs_domain` and no established ARCH style exists, the **architect** roster role (not a skill id) returns an ARCH **draft**. You give a `confirm` answer before the style is approved. Brownfield mirrors the existing style. Other specialists follow `needs_*` in `ROSTER.md`. The parent stays coordinator and writes no application code. Task `model` is omitted unless a gated approval says otherwise ([SPAWN.md](../SPAWN.md)).
 
 Before the backlog `confirm` answer, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`. Rule owner: [core readiness](../domains/core.md#clarification-readiness-b--i--minor). Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
 
-Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
+Classic and Orchestrated Delivery use the approved PLAN, its scope, dependencies, acceptance, required validation, and selected cadence to guide implementation. SESSION flags and PLAN claims are not execution prerequisites for these flows. Stack `*-developer` skills still follow the current [toolkit guardrails](../../core/policy/guardrails.md), including explicit task authorization, path safety, and the host's ordinary Shell authorization; a skill reference does not grant broad Shell access.
 
 ### Classic SDD contracts (direct)
 
@@ -227,7 +227,7 @@ Prefer **Kind: update** as one coalesced step when refreshing existing docs afte
 
 ## Catalog and decision tree
 
-- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**47** skills; all adapters)
+- Installed map (agents): `help-skills` → `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md` (**52** skills; all adapters)
 - Human mirror: [SKILLS.md](../SKILLS.md)
 - Language, orchestrator, optional compression: [session-behavior.md](session-behavior.md)
 - Credits: [CREDITS.md](../CREDITS.md)

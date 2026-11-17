@@ -1,24 +1,22 @@
-# orchestrate-analyze — reference index
+# orchestrate-analyze reference index
 
-Extended detail for `SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+Use `SKILL.md` for the active O1 flow. Read only the section relevant to the
+current question:
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
+| Topic | Path |
+|---|---|
+| Ordered stages | `references/command.md` |
+| Intent routing | `references/intent-classification.md` |
+| Nature, complexity, and scope | `references/triage.md` |
+| Existing Memory Bank context | `references/memory-bank-gate.md` |
+| Specialist selection and results | `references/spawn-map.md`, shared `ROSTER.md` and `SPAWN.md` |
+| Feature/story synthesis | `references/story-synthesis.md` |
+| Material architecture choices | `references/arch-confirm.md` |
+| Paths and questions | `references/process-common.md` |
+| Workflow handoff | `references/boundaries-handoff.md` |
+| O1 boundaries | `references/must-not.md` |
+| One live table | shared `LIVE-STAGE-TABLE.md` |
 
-| Section | Path |
-|---------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Step 1 intent classification (triage entry) | `references/intent-classification.md` |
-| Step 0 Memory Bank Gate | `references/memory-bank-gate.md` |
-| Triage / collect / trivial shortcut / NuGet example | `references/triage.md` |
-| Flag → specialist mapping / spawn Agent | `references/spawn-map.md` |
-| Architecture confirm gate / approval copy | `references/arch-confirm.md` |
-| Step 8c feature research (before story folders) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/feature-research.md`; table: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md` |
-| Feature tree / CONTINUITY / scaffold / synthesize / story sizing / **product artifact quality gates** | `references/story-synthesis.md` |
-| Boundaries / canonical handoff strings | `references/boundaries-handoff.md` |
-| Refine envelopes / READY (pointer only) | `{{TOOLKIT_ROOT}}/skills/refine-story/references/interaction-envelope.md` + `readiness-severity.md` (via boundaries-handoff) |
-| Caveman / resolve storage / backlog approval / context pressure | `references/process-common.md` |
-| Must not / exclusions | `references/must-not.md` |
-
-Scorecard rubric (reuse): `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-rubric.md` (template: `{{TOOLKIT_ROOT}}/skills/refine-story/references/scorecard-template.md`).
-
-Story sizing contract (synthesis merge policy): `{{TOOLKIT_ROOT}}/skills/_shared/backlog-item-types/story-sizing.md`.
+O1 has no separate backlog approval, Memory Bank, architecture-style,
+sidecar-creation, or documentation-validation gates. The complete
+implementation PLAN is approved once in O2 before code.

@@ -1,15 +1,14 @@
-## Step 0 - Memory Bank Gate
+# Optional Memory Bank context
 
-Run **before** triage (SKILL §3). Contract: `MEMORY-BANK.md`. Skill: `memory-bank-init`.
+O1 has no Memory Bank gate. Do not run `memory-bank-init`, create a bank, or
+refresh one solely to analyze a request.
 
-| Check | Pass criteria |
-|-------|---------------|
-| Bank path | Resolved `bank_root` via `STORAGE.md` (`$Cwd/memory-bank/` or `<classic.path>/memory-bank/`) - **not** under `features/NNN-slug/` |
-| Policy | `auto` default; `skip` only with explicit user flag |
-| Healthy | Selective read; no write; CONTINUITY status `fresh` |
-| Missing/stale | Confirm -> create/refresh; status `created` / `refreshed` |
-| Gitignore | Repository: SDD block per `STORAGE.md` (**not** `/memory-bank/`; commit bank when product knowledge; never commit secrets); global: do not edit `.gitignore` |
-| CONTINUITY | Path + status only - no bank body dump |
-| Parent context | Lean - do not load entire bank |
+When a bank already exists and relevant material can answer a concrete
+question, resolve its root using `STORAGE.md` and `STORAGE-RESOLUTION.md`, then
+read only the named relevant files. Keep evidence selective; do not dump the
+whole bank into the O1 context or duplicate it in FEATURE/STORY.
 
-memory-bank = repo map; CONTINUITY = feature handoff. Parallel scopes.
+If the user explicitly asks to create or refresh a Memory Bank, route through
+`memory-bank-init` as a separately requested task. That operation does not
+become a prerequisite for O1. Do not write bank path/status fields into
+CONTINUITY as an O1 requirement.

@@ -400,40 +400,71 @@ function Test-CodexSmokeAgentsMaterialized {
     }
 }
 
+function Get-CodexToolkitSkillIds {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RepoRoot
+    )
+
+    $coreSkillsRoot = Join-Path (Join-Path $RepoRoot $script:CodexPathConstant.CoreDirectoryName) $script:CodexPathConstant.SkillsDirectoryName
+    if (-not (Test-Path -LiteralPath $coreSkillsRoot -PathType Container)) {
+        return @()
+    }
+
+    return @(
+        Get-ChildItem -LiteralPath $coreSkillsRoot -Directory -Force |
+            Where-Object {
+                -not [string]::Equals($_.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)
+            } |
+            ForEach-Object { $_.Name }
+    )
+}
+
 function Test-CodexUserSkillsFixture {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string] $UserSkillsRoot
+        [string] $UserSkillsRoot,
+
+        [Parameter()]
+        [AllowEmptyCollection()]
+        [string[]] $ToolkitSkillIds = @()
     )
+
+    $notExpected = [PSCustomObject]@{
+        Ok       = $true
+        Mirrored = $false
+        Message  = ''
+    }
 
     # Absent root is valid: default Publish-Skills is plugin-only (live ~/.codex has no InstallRoot/.agents/skills).
     if (-not (Test-Path -LiteralPath $UserSkillsRoot -PathType Container)) {
-        return [PSCustomObject]@{
-            Ok       = $true
-            Mirrored = $false
-            Message  = ''
-        }
+        return $notExpected
     }
 
     $manifestName = $script:CodexPathConstant.SkillManifestFileName
     $skillDirs = @(Get-ChildItem -LiteralPath $UserSkillsRoot -Directory -Force -ErrorAction SilentlyContinue)
-    $kebabSkillDirs = @(
-        $skillDirs | Where-Object {
-            -not [string]::Equals($_.Name, $script:CodexPathConstant.SharedSkillsDirectoryName, [System.StringComparison]::OrdinalIgnoreCase)
-        }
-    )
+    $toolkitSkillDirs = @($skillDirs | Where-Object { $ToolkitSkillIds -contains $_.Name })
 
-    # Empty skeleton (.gitkeep only) is valid: default Publish-Skills is plugin-only.
-    if ($kebabSkillDirs.Count -lt 1) {
-        return [PSCustomObject]@{
-            Ok       = $true
-            Mirrored = $false
-            Message  = ''
+    # The mirror is expected only when the toolkit published it: a non-empty managed-skills marker
+    # in the USER root, or a folder named after a toolkit skill id. Foreign skill folders never count.
+    $managedManifestPath = Get-ToolkitManagedSkillsManifestPath -DestinationSkillsRoot $UserSkillsRoot
+    $markerListsSkills = $false
+    if (Test-Path -LiteralPath $managedManifestPath -PathType Leaf) {
+        try {
+            $markerListsSkills = (@(Read-ToolkitManagedSkillsManifest -DestinationSkillsRoot $UserSkillsRoot).Count -gt 0)
+        }
+        catch {
+            $markerListsSkills = $true
         }
     }
 
-    foreach ($dir in $kebabSkillDirs) {
+    if (-not $markerListsSkills -and $toolkitSkillDirs.Count -lt 1) {
+        return $notExpected
+    }
+
+    foreach ($dir in $toolkitSkillDirs) {
         $manifestPath = Join-Path $dir.FullName $manifestName
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
             return [PSCustomObject]@{
@@ -838,7 +869,8 @@ function Invoke-CodexSmokeValidate {
         $checks.HooksPresent = Test-Path -LiteralPath $hooksPath -PathType Leaf
     }
 
-    $userSkillsCheck = Test-CodexUserSkillsFixture -UserSkillsRoot $userSkillsPath
+    $toolkitSkillIds = @(Get-CodexToolkitSkillIds -RepoRoot $repoRoot)
+    $userSkillsCheck = Test-CodexUserSkillsFixture -UserSkillsRoot $userSkillsPath -ToolkitSkillIds $toolkitSkillIds
     $checks.UserSkillsFixtureOk = [bool]$userSkillsCheck.Ok
     $checks.UserSkillsMirrored = [bool]$userSkillsCheck.Mirrored
     if (-not $userSkillsCheck.Ok) {

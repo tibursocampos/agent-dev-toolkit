@@ -1,23 +1,24 @@
-## Optional flows (user-driven)
+## Closeout after the requested implementation scope
+
+When the requested scope completes, run the validation required by the PLAN and perform one substantive `code-review`. Reuse a current result when it covers the same stack, command, and unchanged working tree; do not repeat a full suite for ceremony. If the review causes an in-scope correction, rerun only affected checks and recheck the correction. Record results and limits in the PLAN evidence. For `step_by_step`, do not close the whole plan after an intermediate step; stop at the cadence boundary. See `_shared/sdd-artifacts/PIPELINE.md` § Closeout.
+
+## Optional handoffs (user-driven)
 
 | After last step | User may run |
 |-----------------|--------------|
-| Review diff | `/code-review` |
 | Commit | `/commit` (skill asks memory-bank + docs **sim/pular** when those trees exist — do not skip the ask) |
 | Open PR | GitHub web UI with repo template - no external work-item fields |
 
 Do not auto-create PRs or link external trackers.
 
-## When all PLAN steps are done (parent must ask)
+## After all requested PLAN scope is done
 
-Present **both** options, rendered in the user's language per `core/skills/_shared/agents/QUESTIONS.md`; wait for the user (do not assume). That question has no written deadline: follow `core/policy/guardrails.md` § Open questions without a written deadline. Use the host interactive question when the host offers one; otherwise ask in text. Send no further message until the operator answers. Silence, timeout, and end of turn are not answers. After the answer, resume the chosen function or declare a blocker with the cause.
+Report completion and its evidence. Commit and PR remain optional handoffs and require the user's request.
 
-Render the question in the user's language. pt-BR example:
+Example handoff in pt-BR:
 
 ```text
-US/PLAN concluído. Próximo?
-1) /code-review (single ou multi-ângulo)
-2) /commit
+US/PLAN concluído. Posso ajudar com uma revisão ou preparar o commit se você solicitar.
 ```
 
 ### Before `/commit` (Classic SDD)

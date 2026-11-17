@@ -1,22 +1,13 @@
-# orchestrate-deliver — reference index
+# orchestrate-deliver reference index
 
-Extended detail for `skills/orchestrate-deliver/SKILL.md`. **Do not Read this file for procedural detail** when a section file exists — load `references/<section>.md` per Process step or Reference routing.
+The skill body is the workflow contract. Load only the section needed for the current work.
 
-Contract: `SKILL-REFERENCE-RETRIEVAL.md`.
-
-| Section | Path |
-|---------|------|
-| Command playbook (step discovery) | `references/command.md` |
-| Preconditions / Step 0 / backlog siblings STOP | `references/preconditions.md` |
-| Clarification READY / NEEDS_CLARIFICATION (B/I) | `readiness-severity.md` + `references/preconditions.md` § Clarification readiness STOP |
-| Mode comparison / choose `series` vs `parallel` | `references/mode-selection.md` |
-| Per-story paths / contracts / Agent child skeleton | `references/per-story-contracts.md` |
-| Approval gates / approval answers | `references/approval-gates.md` |
-| CONTINUITY / handoff / cross-artifact / invoke strings | `references/continuity-handoff.md` |
-| Caveman / resolve storage / context pressure | `references/process-common.md` |
-| Boundaries / Must not / exclusions | `references/boundaries-must-not.md` |
-| CHANGE gate / brownfield vs greenfield / TASKS | `references/continuity-handoff.md` § Cross-artifact analyze + `CHANGE-CONTRACT.md` |
-| Preflight PRD→PLAN→CHANGE | `references/preflight-prd-plan-change.md` |
-
-Brownfield requires `features/NNN-slug/CHANGE.md` (ADDED \| MODIFIED \| REMOVED); greenfield must not force an empty CHANGE stub.
-Before O3 handoff, run `Invoke-PrdPlanChangePreflight.ps1` (see `references/preflight-prd-plan-change.md`).
+| Need | Reference |
+|---|---|
+| Resolve feature, evidence, material questions | `references/preconditions.md`, `PIPELINE.md` |
+| Sequential or parallel document preparation | `references/mode-selection.md`, `SPAWN.md` when delegating |
+| Prepare a story PRD and PLAN | `references/per-story-contracts.md`, `sdd-spec`, `sdd-plan` |
+| One approval before implementation | `references/approval-gates.md` |
+| Substantive review and handoff | `references/continuity-handoff.md` |
+| Optional diagnostics only | `references/preflight-prd-plan-change.md` |
+| Boundaries | `references/boundaries-must-not.md` |

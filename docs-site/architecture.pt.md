@@ -4,7 +4,7 @@ title: Arquitetura
 
 # Arquitetura
 
-O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**47** skills), `adapters/registry.json` (**10** agentes).
+O **agent-dev-toolkit** é um core neutro de agente, publicado por adaptadores em cada install root do host. Operadores sincronizam com um CLI em PowerShell e depois invocam os mesmos ids de skill no host. Evidência: `core/skills/*/SKILL.md` (**52** skills), `adapters/registry.json` (**10** agentes).
 
 ```text
 core/  skills, policy, router, sdd, agents
@@ -46,7 +46,7 @@ Comandos estáveis do adaptador: `Get-Capabilities`, `Get-InstallRoots`, `Publis
 
 `scripts/sync-agent.ps1` roda Publish e depois sempre `Get-SddRoot -Prepare`. Ações do CLI: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate e Uninstall exigem `-Agent`. Uninstall é chaveado e mantém `sdd/sessions` e um `sdd/manifest.json` existente. Backup falha fechado, salvo `-ForceStub`.
 
-O caminho de feature publicado a partir deste core é Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver roda `sdd-spec` e depois `sdd-plan`. Develop roda um passo de `sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
+Para coordenar várias stories ou especialistas, o caminho é Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). SDD clássico também pode começar diretamente para uma feature clara. O2 roda `sdd-spec`/`sdd-plan`; O3 é serial, um passo de `sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
 
 ## Como um app consumidor escolhe um estilo
 
@@ -54,16 +54,16 @@ Isto é separado do layout de core e adaptadores do próprio toolkit. O pack de 
 
 | Modo | Fluxo |
 |------|--------|
-| **Greenfield** | O especialista de roster **architect** propõe pela Camada A (`architecture-selection.md`) → rascunho ARCH → **sim** → ARCH aprovado. Não há estilo padrão silencioso |
-| **Brownfield** | Espelha o estilo ARCH do repositório ou já aprovado. Seleciona de novo só se você pedir para mudar |
+| **Escolha material de arquitetura** | Quando uma escolha concreta afetar comportamento ou implementação, apresente-a e resolva-a antes do trabalho dependente. O fato de o repositório ser greenfield, sozinho, não cria um gate |
+| **Brownfield** | Consulte as convenções existentes quando for relevante. Brownfield, sozinho, não exige espelhamento de ARCH nem nova escolha de estilo |
 
-Depois da confirmação (ou de um espelho brownfield): carregue **um** arquivo da Camada B em `principles/architecture/` e então o overlay de stack da Camada C correspondente. `orchestrate-analyze` roda o gate de confirmação quando a natureza é greenfield ou `needs_domain` sem estilo estabelecido.
+Depois de resolver uma escolha material de arquitetura: carregue **um** arquivo da Camada B em `principles/architecture/` e então o overlay de stack da Camada C correspondente. Uma convenção existente pode informar a escolha sem exigir uma nota ARCH separada.
 
 ## Política de origem
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 47 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 52 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.

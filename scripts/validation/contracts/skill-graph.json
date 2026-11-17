@@ -1,12 +1,11 @@
 {
   "skillsRoot": "core/skills",
   "edges": [
+    { "from": "adt-epic-planner", "to": "orchestrate-analyze", "kind": "handoff" },
     { "from": "orchestrate-deliver", "to": "sdd-spec", "kind": "calls" },
     { "from": "orchestrate-deliver", "to": "sdd-plan", "kind": "calls" },
     { "from": "orchestrate-develop", "to": "sdd-develop", "kind": "calls" },
-    { "from": "orchestrate-analyze", "to": "memory-bank-init", "kind": "handoff" },
     { "from": "refine-story", "to": "requirement-review", "kind": "calls" },
-    { "from": "sdd-plan", "to": "sdd-spec", "kind": "requires" },
     { "from": "sdd-develop", "to": "sdd-plan", "kind": "requires" }
   ],
   "forbids": [

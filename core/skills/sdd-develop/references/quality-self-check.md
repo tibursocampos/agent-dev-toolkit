@@ -1,16 +1,12 @@
-## Quality self-check (before marking Completed)
+# Completion check for a PLAN step
 
-- [ ] Only this step’s scope implemented
-- [ ] Step **Aceite** REQ-NNN / CA items verified and checked in PLAN
-- [ ] This step's behavior-level coverage disposition and evidence are verified against its REQ/CA; add or change tests only when the planned proof requires it
-- [ ] Applicable targeted build/test/contract checks pass; record justified `SKIPPED` checks and do not count deferred checks as acceptance evidence
-- [ ] Evidence-or-zero: if level ≥ `cheap`, `features/NNN-slug/{USnn|TSnn}/EVD/` + `STATE.md` updated and `validate-evidence` exit 0 (`EVD-STATE-CONTRACT.md`)
-- [ ] Verifier ran sequentially in this session — **Verifier ≠ O3** (do not spawn Agent/O3 parallel children as the evidence gate)
-- [ ] Living loop (when closing wave): `TRACE.jsonl` has converge → sync_current → archive; `validate-trace -RequireArchiveComplete` exit 0 (`TRACE-ARCHIVE-CONTRACT.md`)
-- [ ] No forbidden patterns from `csharp-patterns.md` (if .NET) — signatures/invocations: ≤6 params **and** ≤160 chars inline; else one param per line (MUST on Write; CSharpier must not leave style-only wraps)
-- [ ] Identifiers **English**; comments/docs **mirror** or **ask** on greenfield (`structure-and-quality.md` §2)
-- [ ] Branch valid per `branch-validation.mdc`
-- [ ] PLAN progress and next step updated
-- [ ] Context checkpoint executed
+Before marking a step complete, confirm:
 
----
+- The implementation stays within the approved step scope.
+- The step's acceptance is met and relevant evidence is available.
+- Applicable required validation ran and passed; deferred or unavailable checks are stated clearly.
+- The single PLAN progress row reflects the observed result and next action.
+- The saved PLAN was re-read and the full contextual table is ready to display.
+- Repository language and code conventions were followed.
+
+Use security, data, architecture, evidence, trace, or other specialists when concrete risk or the approved PLAN calls for them. Do not require a universal verifier or an additional checkpoint for every step.

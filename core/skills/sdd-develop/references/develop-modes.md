@@ -1,60 +1,26 @@
-# Develop pacing modes (`continuous` | `step_by_step`)
+# Classic develop cadence
 
-**REQ-009 / CA3 / CT3 (feature 007).** Mode ids: **`continuous`** \| **`step_by_step`**. Distinct from O3 queue modes `serial` \| `parallel` \| `manual` (`orchestrate-develop/references/execution-modes.md`). Distinct from **006 REQ-009** (`## Related` navigation).
+`step_by_step` and `continuous` describe how Classic SDD advances through the approved PLAN. They are independent of O3's serial dispatch policy and of the toolkit's `orchestrator_mode` preference.
 
-**Language:** English mode ids. Operator chat follows the user chat language (`LANGUAGE.md`).
+## Resolve the cadence once
 
-Portability: `LOCAL_ONLY` until commit and push both exist. `SHARED` only after both. Default pacing remains `step_by_step`. In `continuous`, the parent still shows the live table and the step summary for each step (the step summary is the full PLAN-step table plus the short result). It does not go silent between steps. The child still executes one step. The parent is who starts the next step.
+Use a cadence stated in the current invocation or recorded in the approved PLAN. Otherwise ask once at implementation start and use that choice for the run. Reuse a still-valid choice on resume. Existing CONTINUITY may provide optional context but is not required and does not override a current explicit choice.
 
-Companions: `references/plan-acquisition.md`, `references/plan-contract.md`, `SESSION.md`, `PLAN-LEDGER-CONTRACT.md`.
+| Cadence | Behavior |
+|---|---|
+| `step_by_step` | Implement one eligible PLAN step, update and re-read its canonical progress row, show the complete contextual table and result, then wait before starting another step. |
+| `continuous` | Implement eligible steps serially while the work remains within the approved PLAN and no material blocker occurs. Re-read and reconcile the PLAN row after each step before proceeding. |
 
----
+Unknown or conflicting cadence is resolved with one focused question; do not silently invent another mode. A new plan approval is needed only when a material change affects its outcome, acceptance, scope, access, or implementation decisions.
 
-## Purpose
+## Rules for both cadences
 
-Declare how the operator/orchestrator **paces** PLAN steps. Both modes **preserve**:
+- Verify the approved PLAN, requested scope, completed dependencies, step acceptance, and applicable validation semantically. Exact labels or formatting are not authorization gates.
+- The PLAN progress table is the only persisted implementation state. Do not create session flags, claim files, counters, separate checkpoints, or progress mirrors.
+- A step may be completed when its acceptance is met and its applicable required validation has passed; record the evidence in the same row.
+- Stop for a real blocker, failed required validation, or material scope change. Do not add adjacent work.
+- In O3, `continuous` still means the parent dispatches serially, one child per step. `sdd-develop` does not dispatch the next O3 step.
 
-- **One PLAN step per `sdd-develop` session scope** (guardrails / RNF-003)
-- SESSION develop gates + PLAN-LEDGER claim SoT (006) — **no second SoT**
+## Report shape
 
-Resolve the execution route before pacing. A canonical PLAN plus an explicit step starts that step in the current `sdd-develop` session after dependency and confirmation gates; it never requires a new session. If the invocation omits a step or route, `plan-acquisition.md` asks manual-per-invocation vs O3. This route is separate from pacing and `preferences.json` `orchestrator_mode` (`always` | `adaptive`).
-
-## Mode table
-
-| Mode id | Default? | Direct `/sdd-develop` | O3 parent (`orchestrate-develop`) |
-|---------|----------|----------------------|-----------------------------------|
-| `step_by_step` | **Yes** | Explicitly requested eligible step → execute now, mark Complete → **STOP**; handoff invoke for Step N+1 only | Present queue; require **sim** before **each** spawn |
-| `continuous` | No (opt-in) | Explicitly requested eligible step → execute now, still **exactly one** step this session → **STOP** after the report (hard). The parent may start the next ready step. The child does not. | After initial queue **sim**, the parent may spawn the next ready step. The parent still shows `execution-display.md`: the full PLAN-step table plus the short result. It does not go silent between steps. **each** child still one step |
-
-Unknown mode id → treat as `step_by_step` (document the fallback; do not invent silent third pacing mode).
-
-## Where declared (first explicit wins)
-
-1. Operator invoke / confirm: `continuous` \| `step_by_step` (pt-BR synonyms: `contínuo` / `passo a passo` map to these ids)
-2. Feature `CONTINUITY.md` note `develop_mode: continuous|step_by_step` when present
-3. Default **`step_by_step`**
-
-Do **not** conflate with `preferences.json` `orchestrator_mode` (`always`|`adaptive`) or with `execution-modes` `serial|parallel|manual`.
-
-## Hard rules (both modes)
-
-1. Child / direct develop: **one** PLAN step only; never multi-step in one develop scope.
-2. Persist `step_confirmed` via `Invoke-DevelopSessionGate.ps1`; claim via `Invoke-PlanLedgerClaim.ps1` when required — **no** inline session JSON mutation.
-3. Evidence / TRACE verifiers stay sequential (**Verifier ≠ O3**).
-4. Zero duration/effort estimates in pacing prompts or checkpoints (`references/plan-contract.md`).
-
-## Chat tokens (observable)
-
-```text
-develop_mode: step_by_step | continuous
-plan-acquisition: ok
-next: STOP | emit /sdd-develop ... Step N+1 (do not execute)
-```
-
-## Checklist (manual)
-
-- [ ] Both mode ids appear in this ref and are cited from `sdd-develop` + `orchestrate-develop` indexes
-- [ ] `continuous` text does **not** authorize multi-step `sdd-develop`
-- [ ] Cross-link to `execution-modes.md` clarifies serial/parallel ≠ continuous/step_by_step
-
-Switch `continuous` and `step_by_step` only when no step is `IN_PROGRESS` and the tree is still the tree recorded on the checkpoint.
+Use the full contextual PLAN-step table and a concise result. The table is a chat projection; do not copy it into another artifact.
