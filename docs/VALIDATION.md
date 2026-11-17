@@ -16,7 +16,7 @@ Policy context: [REPO_GOVERNANCE.md](REPO_GOVERNANCE.md).
 
 ## Core suite
 
-Runs the critical checks only (about 24, target 3 to 5 minutes locally): skill contracts and graph, `Assert-CoreContracts` (consolidated core/skill/flow contract assertions), `Assert-AdapterContract` (generic adapter checks driven by `adapters/registry.json`), path and install-root safety, SDD runtime scripts (ledger, session gate, O2/O3 preflight and receipts), memory-bank inventory, and publish ownership — **no** `%USERPROFILE%` deploy. Checks run in one process; a few run in a child `pwsh`. The run prints one line per check with seconds and a total.
+Runs the repository's core validation checks: skill contracts and graph, `Assert-CoreContracts` (core/skill/flow assertions), adapter contracts, path and install-root safety, receipt validation, retained session helpers, memory-bank inventory, and publish ownership — **no** `%USERPROFILE%` deploy. Checks run in one process; a few run in a child `pwsh`. The run prints one line per check with seconds and a total.
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1
@@ -31,9 +31,9 @@ Quiet mode (failures and summary only), single check, or skip:
 pwsh -NoProfile -File .\scripts\validation\validate-core.ps1 -Quiet
 ```
 
-`validate-core` wires structural PRD / PLAN / CHANGE validation and focused toolkit contract checks. It does not run acceptance fixtures for individual US/FEATURE artifacts. These are scripts, not LLM validators, and do not introduce a second toolkit CLI or SQLite/FTS.
+`validate-core` wires optional PRD / PLAN diagnostics and focused toolkit contract checks. These diagnostics are not authorization gates for Classic SDD or Orchestrated Delivery. It does not run acceptance fixtures for individual US/FEATURE artifacts. These are scripts, not LLM validators, and do not introduce a second toolkit CLI or SQLite/FTS.
 
-These prove contracts and scripts exist. They are not a substitute for running inventory, preflight, or harvest on a consumer feature. Operator entry points stay in the table below.
+These prove contracts and scripts exist. They do not establish live host or product behavior. Optional operator helpers are listed below by their active consumer.
 
 ## Reliability evidence boundaries
 
@@ -44,26 +44,23 @@ Planning checks also cover outcome-based story sizing and observable API-contrac
 | Assert / script | Role |
 |-----------------|------|
 | `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |
-| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Idempotent develop `step_confirmed` helper + skill MUST `-File` (WS10) |
+| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Retained session helper contract for consumers that explicitly use it (currently `document-implement`) |
 | `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
 | `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
-| `Invoke-PrdPlanChangePreflight.ps1` | PRD/PLAN/CHANGE consistency before O3 |
 
 ## Operator scripts (pointers)
 
-Run against a **consumer** feature / bank when closing a wave or before O3 — not required for visitor CI green. Contracts live under `core/skills/_shared/sdd-artifacts/`; do not duplicate schemas here.
+Run an optional helper only for a consumer that explicitly uses it; these commands do not gate Classic SDD or O1/O2/O3. Contracts live under `core/skills/_shared/sdd-artifacts/`; do not duplicate schemas here.
 
 | Script | When | Domain detail |
 |--------|------|---------------|
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Refresh `memory-bank/.inventory/` (`ready` \| `not-ready`; **portable** paths only) | [cli-scripts](domains/cli-scripts.md#memory-bank-inventory) |
-| `scripts/validation/Invoke-PrdPlanChangePreflight.ps1` | Before O3 — PRD/PLAN/CHANGE consistency | [cli-scripts](domains/cli-scripts.md#prd--plan--change-preflight) |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | After **confirm** (pt-BR label: **sim**) — idempotent develop `step_confirmed` (MUST `-File` with claim) | [cli-scripts](domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013) · [core session gate](domains/core.md#plan-ledger--develop-session-gate) |
-| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | O3 parallel step claim / release | [core PLAN-LEDGER](domains/core.md#plan-ledger--develop-session-gate) |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `document-implement` session contract; not a Classic/O1/O2/O3 prerequisite | [cli-scripts](domains/cli-scripts.md#session-helper) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION check | [core readiness](domains/core.md#clarification-readiness-b--i--minor) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |
 | `scripts/validation/validate-trace.ps1` | Structural TRACE check; `-RequireArchiveComplete` at archive | [core TRACE](domains/core.md#trace-archive-living-loop) |
 
-Suggested order: **inventory → preflight → develop (session gate + claim) → TRACE harvest**. Emitter honesty (which hosts actually wire TRACE): [adapters.md](domains/adapters.md#trace-emitter-honesty).
+There is no global command sequence; use only the helper required by its named consumer. Emitter honesty (which hosts actually wire TRACE): [adapters.md](domains/adapters.md#trace-emitter-honesty).
 
 ## Per-agent validate
 

@@ -2,12 +2,12 @@
 
 These pages are the operator map of the **52** invocable skills. Counts and ids come from `core/skills/*/SKILL.md` and `core/skills/_shared/skills-catalog/CATALOG.md`. Shared folders under `core/skills/_shared/` are packs, not skills.
 
-The complete delivery path is **Orchestrated Delivery**. Classic SDD is the contract that path runs for each story (spec, plan, one implementation step). Backlog shaping is built into analysis; a standalone refine invoke is for someone shaping a single backlog item, not for delivering a feature. To choose which flow to start with, see [guides/flow-selection.md](../guides/flow-selection.md).
+Classic SDD and Orchestrated Delivery are coexisting tracks. Start with Classic SDD for one clear feature; use Orchestrated Delivery when multi-story analysis and coordination help. Backlog refinement is optional preparation, not a delivery prerequisite. To choose a flow, see [guides/flow-selection.md](../guides/flow-selection.md).
 
 | Session | What it explains | Skills |
 |---------|------------------|--------|
-| [01 Orchestrated Delivery](01-orchestrated-delivery.md) | How a feature is classified, questioned, split, staffed with specialists, specified, planned, and implemented | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
-| [02 Classic SDD](02-classic-sdd.md) | The three contracts Orchestrated Delivery loads, and how to run them alone for one clear story | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
+| [01 Orchestrated Delivery](01-orchestrated-delivery.md) | Proportional analysis, one PLAN-set approval, and serial O3 implementation | `memory-bank-init`, `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop` |
+| [02 Classic SDD](02-classic-sdd.md) | Standalone spec, planning, and implementation with one approval and chosen cadence | `sdd-spec`, `sdd-plan`, `sdd-develop`, `read-sdd-artifact` |
 | [03 Backlog shape](03-backlog-shape.md) | Scorecard and story rules inside analysis, versus a product-only refine | `refine-story`, `requirement-review`, `split-story-checklist` |
 | [04 Implement and guidelines](04-implement-and-guidelines.md) | Stack router, each `*-developer`, architecture layers, UI brief | `developer`, stack skills, `blip-plugin-developer` |
 | [05 Review and quality](05-review-and-quality.md) | Review modes, implementation survey, stack tests, coverage, refactor, performance, build repair | `code-review`, `implementation-survey`, `run-tests`, `test-coverage`, `refactor`, `performance-profile`, `repair-dotnet-build` |

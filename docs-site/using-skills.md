@@ -33,11 +33,11 @@ Choose the flow first: [Choosing the flow](https://github.com/tibursocampos/agen
 ```text
 Feature
   └─ orchestrate-analyze
-        ├─ classifies, asks, sets needs_*, specialists, story gates, sim
+        ├─ understands the outcome, asks material questions, investigates proportionally
         ├─ trivial one-file → /developer (only if you pick that shortcut)
         ├─ one already-clear story → sdd-spec
-        └─ approved backlog → orchestrate-deliver
-              └─ story files, sdd-spec, contest the PRD, sdd-plan → orchestrate-develop
+        └─ selected stories → orchestrate-deliver → one complete PLAN approval before implementation
+              └─ PRD + PLAN per selected story → one approval of the complete PLAN set
                     └─ one sdd-develop step per child → run-tests, code-review, run-tests (after review changes), security
 ```
 
@@ -49,17 +49,17 @@ orchestrate-deliver - features/NNN-slug/
 orchestrate-develop - features/NNN-slug/
 ```
 
-Analyze classifies, asks, sets `needs_*`, calls specialists when flags require them, and waits for backlog **sim**. Story folders wait until the feature has no open question. Deliver checks each story’s files, runs `sdd-spec`, contests that PRD, and runs `sdd-plan`. Develop runs one `sdd-develop` step per child. Gates, folders, and confirmations: [Orchestrated Delivery](orchestrated-delivery.md).
+Analyze investigates proportionally and uses specialists for concrete questions. Deliver prepares PRDs and PLANs for selected stories and presents the complete, explicitly listed PLAN set for one approval before implementation. Develop dispatches serially, one PLAN step per child, reconciling each result before the next. Memory Bank and sidecars are optional context. Details: [Orchestrated Delivery](orchestrated-delivery.md).
 
 Gate legend (id = Portuguese label shown in the pt-BR install): `confirm` = sim, `adjust` = ajustar, `cancel` = cancelar, `skip` = pular, `decline` = não. Labels are localized; ids stay English. Details: [Questions and confirmations](questions.md).
 
-When analyze sets greenfield or `needs_domain` and no ARCH style exists, the **architect** roster role returns a draft. You answer **sim** before the style is approved. Brownfield mirrors the existing style. The parent stays coordinator.
+Use the **architect** roster role when a concrete architecture question needs specialist input. Resolve a decision with the operator only when it materially affects behavior, acceptance, scope, or implementation. Greenfield, missing style, or brownfield classification alone does not require an ARCH approval or mirror. The parent stays coordinator.
 
-On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`.
+For Classic SDD and O1/O2/O3, only an unanswered material question blocks affected work. Minor questions remain visible, and independent stories may continue. The PLAN is the only persisted implementation progress source. Backlog Refine and other skills keep their own contracts.
 
 ### Direct Classic SDD
 
-Use this when one story is already clear. The same three skills run inside deliver and develop. Direct context does not require a memory bank. A missing specialist folder is a question. Orchestrated calls return to O1 instead.
+Use this when one feature has a clear path. Classic SDD is standalone and does not require O1, a specialist folder, or a Memory Bank. O2 internal calls suppress their own progress table.
 
 | Order | Skill | Output |
 |-------|--------|--------|
@@ -77,19 +77,19 @@ sdd-develop - features/NNN-slug/US01/PLAN/PLAN_NNN_slug.md - Step 1
 read-sdd-artifact - features/NNN-slug/US01/PRD/NNN_slug.md
 ```
 
-`sdd-spec` writes what and why, a stable `REQ-NNN`, out of scope, then waits for its answer, which maps to the id `confirm`, `adjust`, or `cancel` (labels are localized: sim / ajustar / cancelar in the pt install, confirm / adjust / cancel in en). It runs `scripts/validation/validate-prd.ps1`. Brownfield also writes `features/NNN-slug/CHANGE.md` and runs `validate-change.ps1`. It does not write a PLAN in the same session. Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own; cite the path or paste the text.
+`sdd-spec` defines expected behavior, scope, acceptance, relevant contracts, and material questions in a PRD. Drafting and saving are preparation; there is no separate PRD write approval. Identifiers and exact document grammar help traceability but are not authorization gates. Brownfield context belongs in the PRD or PLAN when relevant. The skill does not write a PLAN in the same session.
 
-`sdd-plan` requires a canonical PRD whose status is ready for planning. The PLAN number matches the PRD and lives in the same story folder. Each step is one `sdd-develop` invocation. A canonical PLAN plus an explicit eligible step can start in the current session after dependency and confirmation gates; if the step or execution route is omitted, the skill asks whether to run manually or use O3. SQL, DDL, JSON, and OpenAPI stay in a canonical file. The PLAN cites that path. **sim** before write. `validate-plan` must pass before `/sdd-develop`.
+`sdd-plan` derives executable steps directly from the PRD or a sufficiently specified demand. `split-story-checklist` is optional. The PLAN owns dependencies, acceptance, validation evidence, blockers, next action, and the single progress table. Present the complete PLAN for one explicit approval before implementation. Direct planning ends with a handoff; it does not start implementation automatically.
 
-`sdd-develop` needs the canonical PLAN path and a step id. One invocation completes one step. After **sim**, `scripts/session/Invoke-DevelopSessionGate.ps1` stores `step_confirmed`. When a claim is required, `scripts/ledger/Invoke-PlanLedgerClaim.ps1 -Action claim` runs. Use a feature branch (`feature/<slug>` or `feat/<id>`). Load one guideline file for the step. When the step claims acceptance coverage, or evidence level is `cheap` or higher, update `EVD/` and `STATE.md` and run `validate-evidence.ps1`. Levels: `off`, `cheap`, `standard`, `strict`. When the step closes the feature wave, append `TRACE.jsonl` and run `validate-trace.ps1 -RequireArchiveComplete`. OpenSpec, `.specs/`, and SQLite are not the trace source of truth.
+`sdd-develop` uses the approved PLAN's `step_by_step` or `continuous` cadence. Before each step, check PLAN approval, dependencies, scope, acceptance, and relevant evidence. The PLAN is the only progress source; SESSION flags and claims are not prerequisites. Record one canonical state/evidence update per step. Group validation when it provides clearer evidence than running tests after each step.
 
 `read-sdd-artifact` has no **sim** gate. Kinds allowed: FEATURE, STORY, PRD, PLAN. Reject reasons: `path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`.
 
-Preflight `Invoke-PrdPlanChangePreflight.ps1` is an O2 check on top of `validate-prd`, `validate-plan`, and `validate-change`. It is not a fourth skill.
+Classic SDD and O2 use substantive checks of behavior, acceptance, scope, dependencies, and required validation. Generic PRD/PLAN/CHANGE validators may be used as optional diagnostics; document titles, section counts, and optional sidecars do not authorize advancement.
 
 ### One product item
 
-O1 already applies the scorecard. Invoke `refine-story` when shaping a single backlog item, or when deliver stopped on open **B** / **I**.
+O1 creates justified stories without requiring a separate scorecard or refine call. Invoke `refine-story` when shaping a single backlog item independently of a feature flow.
 
 Mode is mandatory. If you omit it, the skill asks once.
 
@@ -119,9 +119,9 @@ After an explicit **sim**, the review writes a report and appends to the questio
 
 Persistence, in order: `features/NNN-slug/USnn/STORY.md` or `TSnn/STORY.md`, optional `REFINE/` (including `REFINE/qa-history.md`), or the shortcut `docs/backlog/<slug>.md` after a documentation-language question. The skill does not create tracker cards.
 
-While any unanswered **B**, **I**, or **MINOR** question remains, do not hand off to `sdd-spec`. Ready for a spec is not `step_confirmed`.
+For Classic SDD and O1/O2/O3, resolve an open question before dependent work only when it materially affects behavior, acceptance, scope, access, or implementation. Minor questions remain visible and do not stop unrelated work.
 
-`split-story-checklist` needs structured **Steps** already, unless `sdd-plan` calls it with `source=prd`, which it does only for `medium` or `complex` features. Then it builds groups from the PRD. It writes SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. At most five implementation groups. A direct invoke asks documentation language once, in the chat language, before write. An orchestrated call does not ask. A `trivial` feature does not get a tasks file, for any caller. When `sdd-plan` calls it, the one-step breakdown stays in chat. `medium` and `complex` need the checklist before handoff.
+`split-story-checklist` optionally creates SMART tasks under the existing story (`REFINE/tasks.md` by default). It does not create new `USnn` or `TSnn` folders. `sdd-plan` may derive steps directly from a PRD; a missing checklist never blocks planning at any complexity level.
 
 ### Small stack change
 
@@ -179,7 +179,7 @@ Guidelines live in `core/skills/_shared/code-guidelines/`. Load one file.
 | B | What the style requires | One of `architecture/vertical-slice.md`, `concentric-dependency.md`, `ddd-tactical.md`, `event-driven.md` |
 | C | How this stack does it | The matching `*-guidelines` pack |
 
-Greenfield proposes a style and writes the final ARCH only after **sim**. Brownfield mirrors. Vertical slice is the proposal for CRUD-heavy greenfield. Clean Architecture, onion, and hexagonal are the same concentric rule.
+When a concrete architecture choice materially affects behavior or implementation, present the choice and resolve it before dependent work. Greenfield or brownfield classification alone does not require architecture approval or a mirrored ARCH. Existing code is evidence of current conventions, not a requirement to create a separate architecture note. Vertical slice remains one option for CRUD-heavy greenfield. Clean Architecture, onion, and hexagonal are the same concentric rule.
 
 ### After implementation
 

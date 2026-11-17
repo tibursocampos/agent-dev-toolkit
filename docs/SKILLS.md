@@ -30,7 +30,7 @@ Contract: `core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md` (enfo
 
 ## Work tracks
 
-The complete path is **Orchestrated Delivery**. `orchestrate-deliver` runs `sdd-spec` then `sdd-plan` per story. `orchestrate-develop` runs `sdd-develop` once per PLAN step. `orchestrate-analyze` applies the refine scorecard and story gates without invoking `/refine-story`.
+Classic SDD and Orchestrated Delivery are coexisting tracks. O1/O2/O3 coordinate multi-story work; Classic SDD can start directly for one clear feature. Both use one explicit PLAN approval before implementation, and O3 implementation is serial.
 
 | Role | Skills | When |
 |------|--------|------|
@@ -40,11 +40,11 @@ The complete path is **Orchestrated Delivery**. `orchestrate-deliver` runs `sdd-
 
 Every skill, with the session that expands it: [sessions/09-every-skill.md](sessions/09-every-skill.md). Catalog on disk (`CATALOG.md`) still lists the three names as recommendations so an agent may start at `/sdd-spec` for one clear story. That direct start does not replace the orchestrated path for multi-story or specialist work.
 
-Use these track names only (no legacy Forma aliases). Same call flow; extra gates and artifacts inside — not new skills or tracks as products.
+Use these track names only (no legacy Forma aliases). Each flow keeps its own skill boundaries while sharing the simplified approval and progress contracts.
 
 **Invocation / provenance / `source_context`:** `direct` vs `orchestrated`, `agreed` vs `invented`, language/spawn lock, and when to call `read-sdd-artifact` — [domains/core.md](domains/core.md) § Invocation contexts / Contract provenance / Language / `read-sdd-artifact`.
 
-**Backlog helpers (shared, not slash skills):** folder `core/skills/_shared/backlog-item-types/` — `story-sizing.md`; optional `persona-context.md` (Who/Job/Outcome for **User Stories** only); product-quality norms (`invest-and-story-quality.md`, `anti-task-shatter.md`, `gherkin-budget.md`, `feature-altitude.md`, …). FEATURE table includes a **Product intent** column. Load **one** file at a time. Detail: [Product artifact quality](domains/core.md#product-artifact-quality-backlog-item-types). Selective retrieval, REQ-ID, CHANGE, EVD/STATE, and TRACE living-loop remain gates inside the skills above.
+**Backlog helpers (shared, not slash skills):** folder `core/skills/_shared/backlog-item-types/` — `story-sizing.md`; optional `persona-context.md` (Who/Job/Outcome for **User Stories** only); product-quality norms (`invest-and-story-quality.md`, `anti-task-shatter.md`, `gherkin-budget.md`, `feature-altitude.md`, …). Load only what helps the current demand. These references support useful analysis; they do not add approval, file, identifier, or progress gates to Classic/O1/O2/O3. See [PIPELINE.md](../core/skills/_shared/sdd-artifacts/PIPELINE.md).
 
 Decision tree: [guides/README.md](guides/README.md).
 
@@ -58,11 +58,11 @@ Default feature path. Detail: [sessions/01-orchestrated-delivery.md](sessions/01
 |-------|---------|
 | `adt-epic-planner` | Optional discovery for a multi-feature initiative; creates a navigable `EPIC.md` |
 | `memory-bank-init` | Create/refresh repo `memory-bank/` (Step 0, and refresh-light after code) |
-| `orchestrate-analyze` | Classify, ask, set `needs_*`, specialists, story gates, backlog `confirm` answer |
-| `orchestrate-deliver` | PRD + PLAN per story by running `sdd-spec` then `sdd-plan` |
-| `orchestrate-develop` | One PLAN step per child by running `sdd-develop` |
+| `orchestrate-analyze` | Proportional triage and targeted specialists; no backlog approval or mandatory sidecars |
+| `orchestrate-deliver` | Prepare PRD + PLAN per selected story; one approval for the explicitly listed complete PLAN set |
+| `orchestrate-develop` | Serial PLAN-step queue via `sdd-develop`, reconciling each result before next dispatch |
 
-Internal contracts (REQ, CHANGE, EVD/STATE, TRACE, validate-*) run inside those invocations. The parent does not write application code.
+Requirements and evidence stay with the canonical artifacts. CHANGE, CONTINUITY, TASKS and Memory Bank are optional context in Classic/O1/O2/O3; validators are diagnostics unless a concrete consumer requires them. The parent does not write application code.
 
 ## ADT Delivery
 
@@ -82,8 +82,8 @@ Loaded by deliver and develop. Also a direct start when one story is already cle
 | Skill | Purpose |
 |-------|---------|
 | `sdd-spec` | Create a PRD for a new feature or change |
-| `sdd-plan` | Baby-step PLAN from an existing PRD |
-| `sdd-develop` | Execute one PLAN step per gate scope; direct Classic defaults to one step |
+| `sdd-plan` | Executable PLAN from an existing PRD or sufficiently specified demand |
+| `sdd-develop` | Execute an approved PLAN step-by-step or continuously; PLAN owns progress |
 | `read-sdd-artifact` | Normalize FEATURE/STORY/PRD/PLAN under `features/` into `source_context` (reject traversal / outside features) |
 
 Direct example (skill ids; prefix with your host form from [02-using-skills.md](guides/02-using-skills.md)):
@@ -96,7 +96,7 @@ sdd-develop - <plan-path> - Step N
 
 ## Backlog shape
 
-O1 applies the scorecard and story gates without this invoke. Standalone when a product person shapes one item, or when deliver stops on open clarification B/I. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md).
+O1 may use backlog guidance when useful, without requiring a scorecard or separate refinement gates. Standalone skills are optional preparation. Detail: [sessions/03-backlog-shape.md](sessions/03-backlog-shape.md).
 
 | Skill | Purpose |
 |-------|---------|
@@ -187,8 +187,8 @@ Without a mode, the skill asks once. `refine-story` runs it at step 4a before ha
 | `framework-upgrade` | Mode `audit`\|`plan`\|`migrate`\|`validate`; detect `framework_id`; migrate needs a `confirm` answer (silence ≠ approval); skill id must not pin a major |
 | `code-review` | Choose single vs multi-angle (no silent default); after Changes required, ask whether to fix and whether to re-run `/code-review` (`confirm`/`skip`). Do not ask about memory bank or project docs. |
 | `implementation-survey` | `source` (`working-tree` or a ref git already resolves) and `target` (`HEAD` or another branch); one question when either is missing (no silent default); optional `path`; report without approval; read `SPAWN.md` before the first spawn decision |
-| Orchestrated Delivery | Optional `adt-epic-planner` for initiatives; O1 may read a user-selected feature section from an identified EPIC; memory-bank Step 0; backlog `confirm` answer; architect ARCH draft → `confirm` answer on greenfield / `needs_domain`; O1 `needs_*` → `ROSTER.md`; Task `model` omit (inherit parent) unless gated + `confirm` answer; O2 clarify **READY** (no open B/I) before Write; orchestrate parents no app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
-| `sdd-develop` | One PLAN step per gate scope; bounded continuation requires explicit authorization and reset/revalidation; MUST `-File` `Invoke-DevelopSessionGate` + ledger claim when required |
+| Orchestrated Delivery | Optional `adt-epic-planner` and Memory Bank context; O1 investigates proportionally; O2 prepares the complete PLAN set and obtains one approval before implementation; O3 dispatches serially; parents do not write app code; orchestrator mode [08](guides/08-orchestrator-mode.md) |
+| `sdd-develop` | Follow the approved PLAN cadence; no SESSION flag or ledger claim is a prerequisite; update the single PLAN progress table |
 | `refine-story` | Choose mode `feature` \| `tech` \| `split` (no silent default); load one mode playbook; scorecard uses one `backlog-item-types` norm at a time; open B/I → `NEEDS_CLARIFICATION` (not ready-for-PRD) |
 | `split-story-checklist` | SMART tasks under parent story — never US-per-file (anti-task-shatter) |
 | `requirement-review` | Exactly one mode (`--feature` or `--tech`), asked once when missing; writes only after a `confirm` answer; `--tech` does not guess repository facts |

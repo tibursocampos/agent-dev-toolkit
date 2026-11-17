@@ -31,7 +31,7 @@ After sync, the published router (`core/router/AGENTS.md`) prefers parallel spec
 
 ## Internal contracts
 
-REQ, validate-*, CHANGE, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, clarification readiness (B, I, MINOR), and the develop session gate run as gates and artifacts inside the skills above. They add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
+REQ, EVD, STATE, TRACE, selective retrieval, navigation `## Related`, and clarification readiness (B, I, MINOR) are artifact or workflow concepts, not universal authorization gates. Optional `validate-*` diagnostics remain separate from skill authorization. SESSION helpers apply only to consumers whose contracts explicitly require them; Classic SDD and Orchestrated Delivery use the approved PLAN. These concepts add no new slash skills and no second toolkit. SQLite/FTS is out of scope as a deliverable. How the skills call each other: [sessions/README.md](../sessions/README.md).
 
 ## Prerequisites
 
@@ -149,7 +149,7 @@ When analyze sets greenfield or `needs_domain` and no established ARCH style exi
 
 Before the backlog `confirm` answer, synthesis runs product-artifact gates (FEATURE Problem/Goals/Non-goals, no task-shaped US/TS, cap ≤4 unless rationale). On the four open-question gates, any unanswered question, including **MINOR**, stops the next artifact (`open_question`). READY needs no unanswered **B**, **I**, or **MINOR** question at any handoff. Readiness is not `step_confirmed`. Rule owner: [core readiness](../domains/core.md#clarification-readiness-b--i--minor). Detail: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) and [core readiness](../domains/core.md#clarification-readiness-b--i--minor).
 
-Later develop and stack `*-developer` skills load **one** architecture style file plus the matching stack overlay. Develop sets gates via `Invoke-DevelopSessionGate.ps1` and the ledger claim — [cli-scripts allowlist](../domains/cli-scripts.md#shell-allowlist-tip-ws10--req-013).
+Classic and Orchestrated Delivery use the approved PLAN, its scope, dependencies, acceptance, required validation, and selected cadence to guide implementation. SESSION flags and PLAN claims are not execution prerequisites for these flows. Stack `*-developer` skills still follow the current [toolkit guardrails](../../core/policy/guardrails.md), including explicit task authorization, path safety, and the host's ordinary Shell authorization; a skill reference does not grant broad Shell access.
 
 ### Classic SDD contracts (direct)
 

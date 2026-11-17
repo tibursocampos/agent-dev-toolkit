@@ -46,7 +46,7 @@ Stable adapter commands: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills
 
 `scripts/sync-agent.ps1` runs Publish, then always `Get-SddRoot -Prepare`. CLI actions: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate, and Uninstall require `-Agent`. Uninstall is keyed and keeps `sdd/sessions` and an existing `sdd/manifest.json`. Backup fails closed unless `-ForceStub`.
 
-The feature path published from this core is Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver runs `sdd-spec` then `sdd-plan`. Develop runs one `sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
+For multi-story or specialist coordination, the feature path is Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Classic SDD also starts directly for a clear feature. O2 runs `sdd-spec`/`sdd-plan`; O3 is serial, one `sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
 
 ## How a consumer app picks a style
 
@@ -54,10 +54,10 @@ This is separate from the toolkit’s own core and adapter layout. The guideline
 
 | Mode | Flow |
 |------|------|
-| **Greenfield** | Roster specialist **architect** proposes via Layer A (`architecture-selection.md`) → ARCH draft → **sim** → ARCH approved. There is no silent default style |
-| **Brownfield** | Mirror the in-repo or approved ARCH style. Re-select only if you ask to change it |
+| **Material architecture choice** | When a concrete choice affects behavior or implementation, present it and resolve it before dependent work. The repository being greenfield alone does not add a gate |
+| **Brownfield** | Inspect existing conventions when relevant. Brownfield alone does not require a mirrored ARCH or a style re-pick |
 
-After confirm (or a brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. `orchestrate-analyze` runs the confirm gate when nature is greenfield or `needs_domain` without an established style.
+After resolving a material architecture choice: load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. An existing convention may inform the choice without requiring a separate ARCH note.
 
 ## Source policy
 

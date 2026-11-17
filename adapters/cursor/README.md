@@ -94,22 +94,21 @@ When this toolkit is installed **per agent** via sync (separate Cursor and Claud
 3. **Publish model:** The toolkit already publishes separately to `~/.cursor` and `~/.claude` (and other InstallRoots). Rely on those syncs â€” not on Cursor importing third-party agent homes.
 4. **Storage mode** (repository vs global / live home) remains a **user choice**. This note does not require forcing repository-scoped install.
 
-## Shell allowlist (WS10 / REQ-013)
+## Session helper
 
-Operator tip for O3 / `sdd-develop` Shell friction. Prefer **allowlisting** the two canonical `-File` scripts (cwd = repo root) so one approve covers the session gate + ledger claim chain. Sessions root defaults to `~/.cursor/sdd/sessions` (or `$SDD_ROOT/sessions`).
+`Invoke-DevelopSessionGate.ps1` is used by `document-implement`, whose contract explicitly retains session state. Classic SDD and Orchestrated Delivery do not require session gates or PLAN claims. When using the retained helper, an operator may opt into an explicit host allowlist for this path (cwd = repo root); no broad or silent Shell approval is implied.
 
 | Script (portable) | Role |
 |-------------------|------|
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Idempotent develop `step_confirmed` |
-| `scripts/ledger/Invoke-PlanLedgerClaim.ps1` | Atomic PLAN-LEDGER claim SoT |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `document-implement` |
 
 **Opt-in only (RNF-004):**
 
-- Operator must explicitly allowlist these paths in the host Shell approve UI.
+- Operator explicitly allowlists the helper path in the host Shell approve UI when needed.
 - **Do not** ship or enable a hooks “auto-approve all Shell” / silent policy mutation.
-- Cursor publishes no guard: `preToolUse` and `beforeShellExecution` stay empty arrays in `hooks.json`. Allowlisting these scripts does not change any toolkit hook; the host's Shell approval and permission settings remain the only gate.
+- Cursor publishes no guard: `preToolUse` and `beforeShellExecution` stay empty arrays in `hooks.json`. Allowlisting this helper does not change any toolkit hook; the host's Shell approval and permission settings remain the only gate.
 
-O3 skill pointer: `core/skills/orchestrate-develop/references/step-queue-spawn.md` § Canonical Shell boundary. CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md).
+CLI summary: [docs/domains/cli-scripts.md](../../docs/domains/cli-scripts.md#session-helper-document-implement).
 
 ## Official docs (Cursor)
 

@@ -16,27 +16,27 @@ Creates or refreshes `memory-bank/` at the repository root or the global classic
 
 ### `orchestrate-analyze`
 
-O1. Classifies intent, asks a few high-cost questions, sets nature and `needs_*`, spawns specialists only when flags require them, and holds their notes until the feature has no open question. Then it creates story folders, drafts architecture for greenfield and waits for a `confirm` answer, merges stories with scorecard and promotion gates, and waits for a backlog `confirm` answer. Writes `FEATURE.md`, `CONTINUITY.md`, and `STORY.md`. Does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
+O1. Understands the demand, investigates only concrete questions, and creates justified stories. Memory Bank, specialist folders, and sidecars are optional context. No backlog approval gate. Writes canonical feature/story artifacts as useful; does not write PRD, PLAN, or code. Detail: [01](01-orchestrated-delivery.md).
 
 ### `orchestrate-deliver`
 
-O2. Requires an approved backlog and a feature with no open question. For each story, checks the story files, runs `sdd-spec`, contests that PRD, then runs `sdd-plan`. An open question, including **MINOR**, stops that story. Series writes in the parent after a `confirm` answer. Parallel children return drafts one gate at a time; the parent is the only writer. Stops on missing specialist folders. Brownfield also writes `CHANGE.md`. Preflight must pass before O3. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
+O2. Prepares PRD and PLAN for each selected story. Drafting and saving are preparation; one explicit approval covers the complete explicitly listed PLAN set before implementation. Only material questions block the affected work; independent stories may proceed. Internal spec/plan calls do not draw a competing progress table. Detail: [01](01-orchestrated-delivery.md), contracts in [02](02-classic-sdd.md).
 
 ### `orchestrate-develop`
 
-O3. Builds a queue of `PENDING` PLAN steps. Before each step, calls `repo-analyst` and `architect`, and `database` when the plan cites persistence. Contract drift stops with `plan_stale` and returns to `sdd-plan`. Spawns one `sdd-develop` child per step. Parent writes no application code. Execution mode `serial` (default), `parallel`, or `manual`. Pacing `step_by_step` (default) or `continuous`. After code changes, offers memory-bank refresh-light. When the feature is done, the order is `code-review`, `run-tests`, `security`, then `/commit` and `/push`. Detail: [01](01-orchestrated-delivery.md).
+O3. Dispatches one child per eligible PLAN step, serially. It reconciles each result into the PLAN before the next dispatch and resumes from persisted progress and partial work. Uses the selected `step_by_step` or `continuous` cadence. No SESSION flags, claims, or CONTINUITY progress mirror are required. Detail: [01](01-orchestrated-delivery.md).
 
 ### `sdd-spec`
 
-Writes one PRD under `features/NNN-slug/.../PRD/`. What and why, stable `REQ-NNN`, out of scope, confirm before write, `validate-prd`. Brownfield also writes `CHANGE.md`. Does not write a PLAN in this session. Direct use can promote a cited markdown file without O1. Orchestrated use returns to O1 when specialist folders are missing. Detail: [02](02-classic-sdd.md).
+Defines behavior, scope, acceptance, relevant contracts, and material questions in a PRD. Draft/write is preparation with no separate approval gate. IDs and optional structure are useful but not authorization grammar. Does not write a PLAN in this session. Detail: [02](02-classic-sdd.md).
 
 ### `sdd-plan`
 
-Writes one PLAN beside that PRD. Copies step ids from `split-story-checklist`. Every REQ maps to one of those steps. Two reviews before a `confirm` answer. Bodies of SQL and OpenAPI stay in canonical files; the PLAN cites them. `validate-plan` must pass. Does not implement and does not record duration. Detail: [02](02-classic-sdd.md).
+Creates one executable PLAN from the PRD or a sufficiently specified demand. Checklist decomposition is optional; PLAN owns dependencies, acceptance, validation, blockers, and the single progress table. Presents the complete PLAN for one approval before implementation; direct planning ends at handoff. Detail: [02](02-classic-sdd.md).
 
 ### `sdd-develop`
 
-Implements one PLAN step per gate scope, updates that PLAN, and runs targeted tests. O3 children never start a second step. Direct Classic stops after one by default; any bounded continuation requires explicit authorization and reset/revalidation. Optional evidence files and TRACE when the wave closes. Detail: [02](02-classic-sdd.md).
+Implements the approved PLAN using `step_by_step` or `continuous` cadence. PLAN is the only persisted progress source; SESSION flags and claims are not prerequisites. O3 children implement one step at a time. Detail: [02](02-classic-sdd.md).
 
 ### `read-sdd-artifact`
 
@@ -52,7 +52,7 @@ Challenges one feature or story before SDD. `--feature` checks the functional st
 
 ### `split-story-checklist`
 
-Turns a story into a dependency checklist (`REFINE/tasks.md`). When `sdd-plan` calls it with `source=prd`, groups come from the PRD even if no steps exist yet, and a trivial story still returns one step. A direct invoke with no steps returns to `/refine-story`. Does not create new story folders. At most five groups. Asks documentation language only on a direct invoke. Detail: [03](03-backlog-shape.md).
+Optionally turns a story into a dependency checklist (`REFINE/tasks.md`). `sdd-plan` may derive steps directly from the PRD instead. A direct invoke with no steps returns to `/refine-story`. Does not create new story folders. Detail: [03](03-backlog-shape.md).
 
 ## Implementation
 
