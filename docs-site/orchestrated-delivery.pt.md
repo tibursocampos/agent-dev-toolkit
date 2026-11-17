@@ -4,7 +4,7 @@ title: Entrega orquestrada
 
 # Entrega orquestrada
 
-Use Orchestrated Delivery quando a análise entre stories, perguntas para especialistas ou execução coordenada forem úteis. SDD clássico também pode começar diretamente para uma feature clara. O contrato canônico está em [`PIPELINE.md`](../core/skills/_shared/sdd-artifacts/PIPELINE.md); cada skill `orchestrate-*` define seu procedimento detalhado.
+Use Orchestrated Delivery quando a análise entre stories, perguntas para especialistas ou execução coordenada forem úteis. SDD clássico também pode começar diretamente para uma feature clara. Cada skill `orchestrate-*` define seu procedimento detalhado; [Usando skills](using-skills.pt.md) explica como invocá-las.
 
 ## Fluxo
 
@@ -20,7 +20,7 @@ Antes da implementação, O2 apresenta o PLAN completo ou um conjunto de PLANs e
 
 Memory Bank, CONTINUITY, CHANGE, TASKS e arquivos auxiliares de especialistas são contexto opcional. Trabalho novo não exige criá-los; retomadas não exigem conversão, sincronização ou exclusão. A classificação brownfield, sozinha, não exige espelhamento de arquitetura. Registre decisões materiais em FEATURE/STORY/PRD/PLAN ou crie uma análise separada quando ela trouxer evidência útil.
 
-O PLAN é a única fonte persistida de progresso da implementação. O1, O2 e O3 são donos de uma tabela contextual no chat cada. Chamadas internas de spec/plan/develop não exibem uma tabela concorrente. Proprietário e pontos de exibição estão em [`LIVE-STAGE-TABLE.md`](../core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md).
+O PLAN é a única fonte persistida de progresso da implementação. O1, O2 e O3 são donos de uma tabela contextual no chat cada. Chamadas internas de spec/plan/develop não exibem uma tabela concorrente. O [guia de arquitetura](architecture.pt.md) descreve os contratos compartilhados do toolkit e suas relações.
 
 O3 usa ritmo `step_by_step` ou `continuous`, mas a implementação continua serial: um passo do PLAN por filho. Confira o resultado e atualize o PLAN antes do próximo despacho. Flags de SESSION e claims não são pré-requisitos. Na retomada, use o PLAN persistido e inspecione trabalho parcial; não repita passo concluído apenas por falta de recibo ou flag de sessão.
 
@@ -28,4 +28,4 @@ O3 usa ritmo `step_by_step` ou `continuous`, mas a implementação continua seri
 
 Execute as validações exigidas pelo PLAN aprovado e uma revisão substantiva. Reutilize evidência atual quando ela cobrir a mesma stack, comando e working tree sem mudanças. Depois de correção dentro do escopo, rode novamente apenas as verificações invalidadas. Commit, push, PR, instalação e publicação são ações separadas e precisam de autorização própria.
 
-Veja [Usando skills](using-skills.pt.md) para invocação e comportamento da sessão, e [`PIPELINE.md`](../core/skills/_shared/sdd-artifacts/PIPELINE.md) para escopo, exceções de outros consumidores e caminhos canônicos.
+Veja [Usando skills](using-skills.pt.md) para invocação e comportamento da sessão.

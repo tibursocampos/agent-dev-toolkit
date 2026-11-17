@@ -4,7 +4,7 @@ title: Orchestrated Delivery
 
 # Orchestrated Delivery
 
-Use Orchestrated Delivery when analysis across stories, specialist questions, or coordinated execution will help. Classic SDD remains available directly for a clear single feature. The canonical contract is [`PIPELINE.md`](../core/skills/_shared/sdd-artifacts/PIPELINE.md); each `orchestrate-*` skill owns its detailed procedure.
+Use Orchestrated Delivery when analysis across stories, specialist questions, or coordinated execution will help. Classic SDD remains available directly for a clear single feature. Each `orchestrate-*` skill owns its detailed procedure; [Using skills](using-skills.md) explains how to invoke them.
 
 ## Flow
 
@@ -20,7 +20,7 @@ Before implementation, O2 presents the complete PLAN or explicitly listed PLAN s
 
 Memory Bank, CONTINUITY, CHANGE, TASKS, and specialist sidecars are optional context. New work does not require creating them; resumed work does not require converting, synchronizing, or deleting them. Brownfield classification alone does not require mirrored architecture notes. Record material decisions in FEATURE/STORY/PRD/PLAN, or create a separate analysis artifact when it adds useful evidence.
 
-The PLAN is the only persisted implementation-progress source. O1, O2, and O3 each own one contextual chat table. Internal spec/plan/develop calls do not draw a competing table. Table ownership and display points are defined in [`LIVE-STAGE-TABLE.md`](../core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md).
+The PLAN is the only persisted implementation-progress source. O1, O2, and O3 each own one contextual chat table. Internal spec/plan/develop calls do not draw a competing table. The [architecture guide](architecture.md) describes the toolkit's shared contracts and their relationships.
 
 O3 uses `step_by_step` or `continuous` cadence, but implementation remains serial: one PLAN step per child. Reconcile delivery and update the PLAN before dispatching the next step. SESSION flags and claims are not prerequisites. On resume, use persisted PLAN state and inspect partial work; do not repeat a completed step only because a receipt or session flag is absent.
 
@@ -28,4 +28,4 @@ O3 uses `step_by_step` or `continuous` cadence, but implementation remains seria
 
 Run the validation required by the approved PLAN and one substantive review. Reuse current evidence when it covers the same stack, command, and unchanged working tree. After an in-scope correction, rerun only checks it invalidated. Commit, push, PR, installation, and publication remain separate actions requiring their own authorization.
 
-See [Using skills](using-skills.md) for invocation and session behavior, and [`PIPELINE.md`](../core/skills/_shared/sdd-artifacts/PIPELINE.md) for scope, unaffected-consumer exceptions, and canonical paths.
+See [Using skills](using-skills.md) for invocation and session behavior.
