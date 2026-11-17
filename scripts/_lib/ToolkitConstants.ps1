@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Named constants for toolkit scripts (_lib).
@@ -77,13 +77,13 @@ $script:ToolkitConstant = @{
         'core/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md',
         'core/skills/_shared/templates/sdd/PRD.md',
         'core/skills/_shared/templates/sdd/PLAN.md',
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-plan/reference.md',
-        'core/skills/refine-story/SKILL.md',
-        'core/skills/refine-story/references/boundary.md',
-        'core/skills/refine-story/references/guardrails.md'
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-plan/reference.md',
+        'core/skills/adt-refine-story/SKILL.md',
+        'core/skills/adt-refine-story/references/boundary.md',
+        'core/skills/adt-refine-story/references/guardrails.md'
     )
     SkillReferenceRetrievalRuleId      = 'SR-LAZY-REFERENCE'
     SkillReferenceRetrievalGuideRelativePath = 'core/skills/_shared/sdd-artifacts/SKILL-REFERENCE-RETRIEVAL.md'
@@ -103,10 +103,10 @@ $script:ToolkitConstant = @{
     SddArtifactPrdHeaderPattern        = '(?im)^\|\s*\*{0,2}PRD\*{0,2}\s*\|\s*`?([^|`]+?)`?\s*\|'
     SddArtifactReqMapSectionPattern    = '(?i)Mapa\s+REQ|REQ\s*(→|->)\s*passo|REQ\s*->\s*step'
     ValidatePrdPlanSkillWiringRelativePaths = @(
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-plan/reference.md'
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-plan/reference.md'
     )
     ValidatePrdFixtureValidRelativePath = 'prd/valid.md'
     ValidatePrdFixtureInvalidNoReqRelativePath = 'prd/invalid-no-req.md'
@@ -118,19 +118,19 @@ $script:ToolkitConstant = @{
     SddArtifactChangeSectionPattern    = '(?im)^#{1,3}\s*(ADDED|ADICIONAD[OA]S?|INCLU[IÍ]D[OA]S?|MODIFIED|MODIFICAD[OA]S?|ALTERAD[OA]S?|REMOVED|REMOVID[OA]S?|EXCLU[IÍ]D[OA]S?)\b'
     SddArtifactChangeForbiddenCurrentPattern = '(?i)\b(openspec/|\.specs/|\.specify/)\b'
     ChangeContractSkillWiringRelativePaths = @(
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-spec/reference.md',
-        'core/skills/orchestrate-deliver/SKILL.md',
-        'core/skills/orchestrate-deliver/reference.md',
-        'core/skills/orchestrate-analyze/SKILL.md',
-        'core/skills/orchestrate-develop/SKILL.md',
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-spec/reference.md',
+        'core/skills/adt-orchestrate-prepare/SKILL.md',
+        'core/skills/adt-orchestrate-prepare/reference.md',
+        'core/skills/adt-orchestrate-analyze/SKILL.md',
+        'core/skills/adt-orchestrate-implement/SKILL.md',
         'core/skills/_shared/sdd-artifacts/STORAGE.md',
         'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md'
     )
     ChangeContractTasksPolicyRelativePaths = @(
         'core/skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md',
-        'core/skills/split-story-checklist/SKILL.md',
-        'core/skills/split-story-checklist/reference.md'
+        'core/skills/adt-split-story-checklist/SKILL.md',
+        'core/skills/adt-split-story-checklist/reference.md'
     )
     ValidateEvidenceScriptName         = 'validate-evidence.ps1'
     EvidenceContractGuideRelativePath  = 'core/skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md'
@@ -175,7 +175,7 @@ $script:ToolkitConstant = @{
     SddArtifactPlanExecutionPolicyPattern        = '(?im)^##\s+(?:Execution policy|Política de execução)\s*$'
     SddArtifactPlanStepHeadingPattern            = '^(?i)(?:STEP|PASSO|ETAPA)\s+(?<ordinal>\d+)\s*(?:[:\-–—]\s*)?(?<id>S\d+)\b(?:\s*(?:[:\-–—]\s*)|\s+)(?<name>.+?)\s*$'
     StorySizingContractRelativePath              = 'core/skills/_shared/backlog-item-types/story-sizing.md'
-    IntentClassificationContractRelativePath   = 'core/skills/orchestrate-analyze/references/intent-classification.md'
+    IntentClassificationContractRelativePath   = 'core/skills/adt-orchestrate-analyze/references/intent-classification.md'
     InvokeMemoryBankInventoryScriptRelativePath  = 'scripts/inventory/Invoke-MemoryBankInventory.ps1'
     AssertMemoryBankInventoryScriptName          = 'Assert-MemoryBankInventory.ps1'
     MemoryBankInventoryCheckName                 = 'memory-bank-inventory'
@@ -298,9 +298,9 @@ $script:ToolkitConstant = @{
     )
     ExecutionPolicyHeadingMarker                 = '## Execution policy'
     ExecutionPolicySkillWiringRelativePaths      = @(
-        'core/skills/sdd-plan/SKILL.md',
-        'core/skills/sdd-spec/SKILL.md',
-        'core/skills/sdd-develop/SKILL.md'
+        'core/skills/adt-sdd-plan/SKILL.md',
+        'core/skills/adt-sdd-spec/SKILL.md',
+        'core/skills/adt-sdd-develop/SKILL.md'
     )
     ToolkitOrchestratorInstallMenuChoices        = @('1', '2')
     PreferencesFileName                          = 'preferences.json'
@@ -314,20 +314,20 @@ $script:ToolkitConstant = @{
     LanguageMdRelativePath         = 'core/skills/_shared/agents/LANGUAGE.md'
     InventedMissingLanguageMdRel   = 'core/skills/_shared/agents/__invented_missing_LANGUAGE__.md'
     LanguageEnUsSpawnMarker        = 'en-US'
-    JavaDeveloperSkillDirectoryName = 'java-developer'
+    JavaDeveloperSkillDirectoryName = 'adt-java-developer'
     JavaDeveloperSkillFileName     = 'SKILL.md'
-    JavaDeveloperRouteToken        = '/java-developer'
-    JavaDeveloperCatalogToken      = 'java-developer'
+    JavaDeveloperRouteToken        = '/adt-java-developer'
+    JavaDeveloperCatalogToken      = 'adt-java-developer'
     JavaMavenPomFileName           = 'pom.xml'
     JavaGradleBuildFileName        = 'build.gradle'
     RoutingMdRelativePath          = 'core/skills/_shared/agents/ROUTING.md'
-    DeveloperSkillRelativePath     = 'core/skills/developer/SKILL.md'
+    DeveloperSkillRelativePath     = 'core/skills/adt-developer/SKILL.md'
     SkillsCatalogRelativePath      = 'docs/SKILLS.md'
     InventedMissingJavaSkillRel    = 'core/skills/__invented_missing_java_developer__/SKILL.md'
-    OrchestrateSkillNamePrefix     = 'orchestrate-'
+    OrchestrateSkillNamePrefix     = 'adt-orchestrate-'
     OrchestrateSkillFileName       = 'SKILL.md'
     OrchestrateReferenceFileName   = 'reference.md'
-    CodeReviewSkillDirectoryName   = 'code-review'
+    CodeReviewSkillDirectoryName   = 'adt-code-review'
     SpawnTaskCitationMarker        = 'Agent'
     SpawnContractMarker            = 'SPAWN'
     HermesDelegateTaskNeedle       = 'delegate_task'
@@ -604,14 +604,14 @@ $script:ToolkitMessage = @{
     OrchestrateTaskWithoutFallbackExpectedFail = 'synthetic Agent citation without SPAWN/fallback did not fail contract check'
     OrchestrateTaskWithoutSpawnFallback = 'orchestrate skill cites Agent without SPAWN and fallback markers: {0}'
     OrchestrateSkillsDirMissing        = 'orchestrate skills directory missing under core/skills'
-    CodeReviewMissingSpawnFallback     = 'code-review multi-angle missing SPAWN/fallback/in-parent markers'
-    CodeReviewSkillMissing             = 'code-review SKILL.md missing: {0}'
-    JavaDeveloperMissingFromDiskExpectedFail = 'invented missing java-developer skill did not fail presence check: {0}'
-    JavaDeveloperMissingFromDisk       = 'java-developer skill missing on disk: {0}'
-    JavaMissingFromCatalogOrRoutesExpectedFail = 'synthetic surfaces without java-developer did not fail catalog/routes check'
-    JavaMissingFromCatalogOrRoutes     = 'java-developer missing from catalog or routes: {0}'
+    CodeReviewMissingSpawnFallback     = 'adt-code-review multi-angle missing SPAWN/fallback/in-parent markers'
+    CodeReviewSkillMissing             = 'adt-code-review SKILL.md missing: {0}'
+    JavaDeveloperMissingFromDiskExpectedFail = 'invented missing adt-java-developer skill did not fail presence check: {0}'
+    JavaDeveloperMissingFromDisk       = 'adt-java-developer skill missing on disk: {0}'
+    JavaMissingFromCatalogOrRoutesExpectedFail = 'synthetic surfaces without adt-java-developer did not fail catalog/routes check'
+    JavaMissingFromCatalogOrRoutes     = 'adt-java-developer missing from catalog or routes: {0}'
     JavaRoutingSurfaceMissing          = 'routing surface file missing: {0}'
-    JavaDeveloperNotRouted             = 'java-developer present on disk but not fully routed across catalog/routes'
+    JavaDeveloperNotRouted             = 'adt-java-developer present on disk but not fully routed across catalog/routes'
     SmokeSkippedNotImplemented         = 'Invoke-SmokeValidate skipped (adapter not implemented / no-op). Core validation still applies.'
     SmokeFailed                        = 'Invoke-SmokeValidate failed for agent ''{0}'': {1}'
     ToolkitBannerTitle                 = 'Agent Dev Toolkit - Smart Manager'

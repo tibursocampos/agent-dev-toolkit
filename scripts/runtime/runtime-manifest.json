@@ -7,22 +7,22 @@
     { "adapter": "openhands", "path": ".agents", "when": "project", "reason": "OpenHands project skills resolve TOOLKIT_ROOT to InstallRoot/.agents." }
   ],
   "files": [
-    { "source": "scripts/inventory/Invoke-MemoryBankInventory.ps1", "destination": "inventory/Invoke-MemoryBankInventory.ps1", "class": "runtime", "caller": "memory-bank-init and shared memory-bank inventory contract" },
-    { "source": "scripts/session/Invoke-DevelopSessionGate.ps1", "destination": "session/Invoke-DevelopSessionGate.ps1", "class": "runtime", "caller": "document-implement scoped session helpers" },
+    { "source": "scripts/inventory/Invoke-MemoryBankInventory.ps1", "destination": "inventory/Invoke-MemoryBankInventory.ps1", "class": "runtime", "caller": "adt-memory-bank and shared memory-bank inventory contract" },
+    { "source": "scripts/session/Invoke-DevelopSessionGate.ps1", "destination": "session/Invoke-DevelopSessionGate.ps1", "class": "runtime", "caller": "adt-document-implement scoped session helpers" },
     { "source": "scripts/validation/Invoke-SiblingReadinessGate.ps1", "destination": "validation/Invoke-SiblingReadinessGate.ps1", "class": "runtime", "caller": "shared readiness-severity contract" },
-    { "source": "scripts/validation/validate-session-gates.ps1", "destination": "validation/validate-session-gates.ps1", "class": "runtime", "caller": "document-implement scoped session helpers" },
+    { "source": "scripts/validation/validate-session-gates.ps1", "destination": "validation/validate-session-gates.ps1", "class": "runtime", "caller": "adt-document-implement scoped session helpers" },
     { "source": "scripts/validation/validate-evidence.ps1", "destination": "validation/validate-evidence.ps1", "class": "runtime", "caller": "optional evidence validation" },
     { "source": "scripts/validation/validate-trace.ps1", "destination": "validation/validate-trace.ps1", "class": "runtime", "caller": "optional trace validation" },
     { "source": "scripts/validation/validate-prd.ps1", "destination": "validation/validate-prd.ps1", "class": "runtime", "caller": "optional PRD structure diagnostic" },
     { "source": "scripts/validation/validate-plan.ps1", "destination": "validation/validate-plan.ps1", "class": "runtime", "caller": "optional PLAN structure diagnostic" },
     { "source": "scripts/validation/validate-change.ps1", "destination": "validation/validate-change.ps1", "class": "runtime", "caller": "optional CHANGE structure diagnostic" },
-    { "source": "scripts/validation/Invoke-O3ReceiptValidation.ps1", "destination": "validation/Invoke-O3ReceiptValidation.ps1", "class": "runtime", "caller": "orchestrate-develop receipt reconciliation" },
+    { "source": "scripts/validation/Invoke-O3ReceiptValidation.ps1", "destination": "validation/Invoke-O3ReceiptValidation.ps1", "class": "runtime", "caller": "adt-orchestrate-implement receipt reconciliation" },
     { "source": "scripts/runtime/Test-AdtDeliveryPreflight.ps1", "destination": "runtime/Test-AdtDeliveryPreflight.ps1", "class": "runtime", "caller": "adt-delivery-flow start gate (Step 0)" },
     { "source": "scripts/_lib/ToolkitConstants.ps1", "destination": "_lib/ToolkitConstants.ps1", "class": "support", "caller": "published runtime scripts above" },
     { "source": "scripts/_lib/Get-ToolkitRepoRoot.ps1", "destination": "_lib/Get-ToolkitRepoRoot.ps1", "class": "support", "caller": "session, inventory, and validation runtime scripts above" },
-    { "source": "scripts/_lib/Resolve-EffectiveSddRoot.ps1", "destination": "_lib/Resolve-EffectiveSddRoot.ps1", "class": "support", "caller": "document-implement scoped session helper and ADT runtime preflight" },
+    { "source": "scripts/_lib/Resolve-EffectiveSddRoot.ps1", "destination": "_lib/Resolve-EffectiveSddRoot.ps1", "class": "support", "caller": "adt-document-implement scoped session helper and ADT runtime preflight" },
     { "source": "scripts/_lib/Resolve-InstallRoot.ps1", "destination": "_lib/Resolve-InstallRoot.ps1", "class": "support", "caller": "ADT runtime and install-root validation scripts above" },
-    { "source": "scripts/_lib/Get-ToolkitRelativePath.ps1", "destination": "_lib/Get-ToolkitRelativePath.ps1", "class": "support", "caller": "document-implement scoped session helper" },
-    { "source": "scripts/_lib/Test-ToolkitFileReadback.ps1", "destination": "_lib/Test-ToolkitFileReadback.ps1", "class": "support", "caller": "document-implement scoped session gate after write" }
+    { "source": "scripts/_lib/Get-ToolkitRelativePath.ps1", "destination": "_lib/Get-ToolkitRelativePath.ps1", "class": "support", "caller": "adt-document-implement scoped session helper" },
+    { "source": "scripts/_lib/Test-ToolkitFileReadback.ps1", "destination": "_lib/Test-ToolkitFileReadback.ps1", "class": "support", "caller": "adt-document-implement scoped session gate after write" }
   ]
 }

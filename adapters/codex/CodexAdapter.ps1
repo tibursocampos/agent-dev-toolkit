@@ -15,7 +15,7 @@
   core/policy -> InstallRoot/rules/*.md; Publish-Router materializes core/router ->
   AGENTS.md (dual-root absolute paths); Publish-Hooks writes
   plugin/hooks/hooks.json). Invoke-SmokeValidate is filesystem-only (TE01-TE04
-  plus plugin + home help-skills/CATALOG, rules/, materialized AGENTS.md, optional
+  plus plugin + home adt-help-skills/CATALOG, rules/, materialized AGENTS.md, optional
   UserScope; no /hooks trust UI). Uninstall-Toolkit removes keyed toolkit artifacts
   only (plugin skills, home skills, marketplace entry, hooks files, USER-scope
   skills, rules, AGENTS.md - RN07/CU03). Does not write under USERPROFILE without

@@ -77,7 +77,7 @@ $coreChecks = @(
     @{ Name = $constant.UninstallPathSafetyCheckName; Script = $constant.AssertUninstallPathSafetyScriptName },
     @{ Name = $constant.SddRootPrepareIdempotentCheckName; Script = $constant.AssertSddRootPrepareIdempotentScriptName },
     @{ Name = $constant.ValidatePrdPlanCheckName; Script = $constant.AssertValidatePrdPlanScriptName },
-    @{ Name = 'read-sdd-artifact'; Script = 'Assert-ReadSddArtifact.ps1'; Isolated = $true },
+    @{ Name = 'adt-read-sdd-artifact'; Script = 'Assert-ReadSddArtifact.ps1'; Isolated = $true },
     @{ Name = 'release-workflow-contracts'; Script = 'Assert-ReleaseWorkflow.ps1' },
     @{ Name = $constant.MemoryBankInventoryCheckName; Script = $constant.AssertMemoryBankInventoryScriptName },
     @{ Name = $constant.DevelopSessionGateCheckName; Script = $constant.AssertDevelopSessionGateScriptName },

@@ -1,26 +1,26 @@
 {
   "skills": {
-    "commit": {
+    "adt-commit": {
       "disable-model-invocation": true
     },
-    "push": {
+    "adt-push": {
       "disable-model-invocation": true
     },
-    "open-github-pr": {
+    "adt-open-github-pr": {
       "disable-model-invocation": true
     },
-    "orchestrate-develop": {
+    "adt-orchestrate-implement": {
       "disable-model-invocation": true
     },
-    "sdd-develop": {
+    "adt-sdd-develop": {
       "disable-model-invocation": true,
       "argument-hint": "[plan-path] [step-id]"
     },
-    "run-tests": {
+    "adt-run-tests": {
       "allowed-tools": "Read, Grep, Glob, Bash(pytest:*), Bash(dotnet test:*), Bash(mvn test:*), Bash(./gradlew test:*), Bash(ng test:*), Bash(npm test:*)"
     },
-    "code-review": {
-      "name": "toolkit-code-review",
+    "adt-code-review": {
+      "name": "adt-code-review",
       "argument-hint": "[base-branch] [single|multi]",
       "allowed-tools": "Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git status:*), Bash(git branch --show-current:*)"
     }

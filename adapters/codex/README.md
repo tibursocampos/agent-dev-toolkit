@@ -16,7 +16,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent codex -InstallRoot .\scrip
 
 ## How to invoke
 
-Use **`$<skill-id>`** (example: `$help-skills`). Plugin-only paths do **not** feed `$` discovery â€” sync always mirrors `core/skills` to `InstallRoot/skills` (`~/.codex/skills` when live).
+Use **`$<skill-id>`** (example: `$adt-help-skills`). Plugin-only paths do **not** feed `$` discovery â€” sync always mirrors `core/skills` to `InstallRoot/skills` (`~/.codex/skills` when live).
 
 ## Shell execution, sandbox, and approvals
 
@@ -74,7 +74,7 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 |---------|------|
 | Product / config home (live wizard) | `~/.codex` (`InstallRoot`) |
 | Home skills `$` discovery | `InstallRoot/skills` (live `~/.codex/skills`) â€” **always** published |
-| Plugin skills `TOOLKIT_ROOT` | `InstallRoot/plugin` (`plugin/skills/â€¦`, incl. CATALOG + OPERATOR via `help-skills`) |
+| Plugin skills `TOOLKIT_ROOT` | `InstallRoot/plugin` (`plugin/skills/â€¦`, incl. CATALOG + OPERATOR via `adt-help-skills`) |
 | Rules (Publish-Policy) | `InstallRoot/rules/*.md` |
 | USER skills discovery | `~/.agents/skills` |
 | Default toolkit sync | Plugin + marketplace + **home skills** under `InstallRoot/skills` |
@@ -94,7 +94,7 @@ Codex is **dual-root**. Do **not** resolve skill `_shared` under `InstallRoot/ru
 | Live `$` discovery | `-InstallRoot ~/.codex -AllowUserHome` â†’ `~/.codex/skills` only (omit `-UserScope`) |
 | Live `$` + extra USER mirror | Add explicit `-UserScope` â†’ also `$HOME/.agents/skills` (**duplicates** Personal `$` picks) |
 
-Smoke/CI: absent or empty USER skills root is OK without `-UserScope`. Home `InstallRoot/skills/help-skills` + CATALOG are always required. When UserScope mirrored, smoke asserts help-skills + CATALOG under the resolved USER root.
+Smoke/CI: absent or empty USER skills root is OK without `-UserScope`. Home `InstallRoot/skills/adt-help-skills` + CATALOG are always required. When UserScope mirrored, smoke asserts adt-help-skills + CATALOG under the resolved USER root.
 
 Hooks: the only registered hook is `SubagentStop` → `emit-trace.ps1`. `HookActivation` is `manual`: review or trust the hook with Codex `/hooks` **manually** after a real install. That step comes from Codex's documentation and is not verified here.
 

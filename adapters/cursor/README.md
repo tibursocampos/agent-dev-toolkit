@@ -19,7 +19,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent cursor -InstallRoot .\scri
 |------|-------|
 | Skills path (live) | `~/.cursor/skills/<id>/SKILL.md` |
 | Explicit form | `/id` |
-| Examples | `/help-skills`, `/sdd-spec`, `/developer` |
+| Examples | `/adt-help-skills`, `/adt-sdd-spec`, `/adt-developer` |
 | Also | Customize â†’ Skills (picker / auto) |
 
 Canonical form is the skill **id**; `/` is the Cursor host prefix. Hooks trust UI is separate from skill invoke.
@@ -96,11 +96,11 @@ When this toolkit is installed **per agent** via sync (separate Cursor and Claud
 
 ## Session helper
 
-`Invoke-DevelopSessionGate.ps1` is used by `document-implement`, whose contract explicitly retains session state. Classic SDD and Orchestrated Delivery do not require session gates or PLAN claims. When using the retained helper, an operator may opt into an explicit host allowlist for this path (cwd = repo root); no broad or silent Shell approval is implied.
+`Invoke-DevelopSessionGate.ps1` is used by `adt-document-implement`, whose contract explicitly retains session state. Classic SDD and Orchestrated Delivery do not require session gates or PLAN claims. When using the retained helper, an operator may opt into an explicit host allowlist for this path (cwd = repo root); no broad or silent Shell approval is implied.
 
 | Script (portable) | Role |
 |-------------------|------|
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `document-implement` |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `adt-document-implement` |
 
 **Opt-in only (RNF-004):**
 

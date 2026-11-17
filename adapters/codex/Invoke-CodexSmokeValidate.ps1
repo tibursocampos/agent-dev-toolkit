@@ -6,13 +6,13 @@
 .DESCRIPTION
   Asserts InstallRoot after Codex sync:
   - plugin/.codex-plugin/plugin.json valid + plugin/skills/*/SKILL.md (TE02)
-  - plugin/skills/help-skills/SKILL.md + plugin/skills/_shared/skills-catalog/CATALOG.md
-  - InstallRoot/skills/help-skills/SKILL.md + CATALOG (Codex $ discovery; always published)
+  - plugin/skills/adt-help-skills/SKILL.md + plugin/skills/_shared/skills-catalog/CATALOG.md
+  - InstallRoot/skills/adt-help-skills/SKILL.md + CATALOG (Codex $ discovery; always published)
   - .agents/plugins/marketplace.json entry source.path resolves (TE03)
   - InstallRoot/rules/*.md when rules capable (Publish-Policy)
   - AGENTS.md materialized (no {{…}} placeholders, no docs/ live links, dual-root paths)
   - plugin/hooks/hooks.json when hooks capable (TE04)
-  - .agents/skills: absent or empty skeleton OK (plugin+home default); when UserScope mirrored, assert help-skills + CATALOG
+  - .agents/skills: absent or empty skeleton OK (plugin+home default); when UserScope mirrored, assert adt-help-skills + CATALOG
   Never invokes Codex runtime or /hooks trust UI (RN03 / TE05 out of scope).
   Live UserScope root is $HOME/.agents/skills (via Resolve-CodexUserSkillsRoot); fixture uses InstallRoot/.agents/skills.
 #>

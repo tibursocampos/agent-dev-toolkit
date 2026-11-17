@@ -331,7 +331,7 @@ function Test-CodexMarketplaceLayout {
     Write-AdtCheck 'codex' 'plugin-manifest' $pluginOk 'plugin/.codex-plugin/plugin.json missing or wrong name'
     $mirrors = @('plugin/skills', 'skills', '.agents/skills') | Where-Object { $Publish.UserScope -or $_ -ne '.agents/skills' }
     foreach ($mirror in $mirrors) {
-        $present = @('help-skills/SKILL.md', '_shared/skills-catalog/CATALOG.md', '_shared/skills-catalog/OPERATOR.md') | Where-Object { $Publish.Files -notcontains ($mirror + '/' + $_) }
+        $present = @('adt-help-skills/SKILL.md', '_shared/skills-catalog/CATALOG.md', '_shared/skills-catalog/OPERATOR.md') | Where-Object { $Publish.Files -notcontains ($mirror + '/' + $_) }
         Write-AdtCheck 'codex' ('help-catalog:' + $mirror) (@($present).Count -eq 0) ('missing: ' + (@($present) -join ', '))
     }
 }

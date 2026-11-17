@@ -41,7 +41,7 @@ O contrato compartilhado de ativação está em `core/skills/_shared/skills-cata
 
 ## Blocking approval interaction and evidence limits
 
-Every adapter follows the question contract in [`QUESTIONS.md`](../core/skills/_shared/agents/QUESTIONS.md) (order rule, host mechanism, answer mapping) and the gate lifecycle in [`approval-gates.md`](../core/skills/orchestrate-deliver/references/approval-gates.md): keep dependent work blocked while pending, and on resumed turns reload the active gate before dependent work. Toolkit publication cannot force a host to display, retain, retract, or redeliver a prompt.
+Every adapter follows the question contract in [`QUESTIONS.md`](../core/skills/_shared/agents/QUESTIONS.md) (order rule, host mechanism, answer mapping) and the gate lifecycle in [`approval-gates.md`](../core/skills/adt-orchestrate-prepare/references/approval-gates.md): keep dependent work blocked while pending, and on resumed turns reload the active gate before dependent work. Toolkit publication cannot force a host to display, retain, retract, or redeliver a prompt.
 
 | Adapter | Question mechanism (per `QUESTIONS.md`) and evidence | Retry / redelivery observability limit |
 |---------|---------------------------------|-----------------------------------------|

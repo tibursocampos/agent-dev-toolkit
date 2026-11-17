@@ -72,12 +72,12 @@ try {
     Write-Pass $n
 
     $n = 'Should_TrackSkillInvocationForSlashForm_When_ClaudeTrackHookRuns'
-    $null = Invoke-HookScript -ScriptName 'track-sdd-invocation.ps1' -Payload '{"prompt":"/sdd-develop features/001/PLAN.md step 2"}'
-    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'sdd-develop') { Write-Fail $n 'slash form must record sdd-develop' }
-    $null = Invoke-HookScript -ScriptName 'track-sdd-invocation.ps1' -Payload '{"prompt":"use skill commit"}'
-    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'commit') { Write-Fail $n 'use skill form must record commit' }
+    $null = Invoke-HookScript -ScriptName 'track-sdd-invocation.ps1' -Payload '{"prompt":"/adt-sdd-develop features/001/PLAN.md step 2"}'
+    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'adt-sdd-develop') { Write-Fail $n 'slash form must record adt-sdd-develop' }
+    $null = Invoke-HookScript -ScriptName 'track-sdd-invocation.ps1' -Payload '{"prompt":"use skill adt-commit"}'
+    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'adt-commit') { Write-Fail $n 'use skill form must record adt-commit' }
     $null = Invoke-HookScript -ScriptName 'track-sdd-invocation.ps1' -Payload '{"prompt":"/unknown-thing"}'
-    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'commit') { Write-Fail $n 'unknown slash command must not change state' }
+    if (([System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json).last_skill -ne 'adt-commit') { Write-Fail $n 'unknown slash command must not change state' }
     Write-Pass $n
 }
 finally {

@@ -19,7 +19,7 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent opencode -InstallRoot .\sc
 |------|-------|
 | Skills path (live) | `~/.config/opencode/skills` |
 | Explicit form | OpenCode **`skill` tool** (not slash-first) |
-| Example | `skill({ name: "help-skills" })` |
+| Example | `skill({ name: "adt-help-skills" })` |
 
 Canonical form is the skill **id** / `name` argument.
 

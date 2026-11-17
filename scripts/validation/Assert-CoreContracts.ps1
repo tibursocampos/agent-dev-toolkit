@@ -1930,7 +1930,7 @@ foreach ($dir in $skillDirs) {
     }
 }
 
-$orchestrateSkills = @('orchestrate-analyze', 'orchestrate-deliver', 'orchestrate-develop')
+$orchestrateSkills = @('adt-orchestrate-analyze', 'adt-orchestrate-prepare', 'adt-orchestrate-implement')
 foreach ($skillName in $orchestrateSkills) {
     $refsDir = Join-Path (Join-Path $skillsRoot $skillName) 'references'
     if (-not (Test-Path -LiteralPath $refsDir)) {
@@ -1978,10 +1978,10 @@ $sections['StorySizingContract'] = {
 
 $contractRel = $script:ToolkitConstant.StorySizingContractRelativePath
 $contractPath = Join-Path $repoRoot $contractRel
-$o1SkillRel = 'core/skills/orchestrate-analyze/SKILL.md'
-$o1RefRel = 'core/skills/orchestrate-analyze/reference.md'
-$o1SynthesisRel = 'core/skills/orchestrate-analyze/references/story-synthesis.md'
-$refineRefRel = 'core/skills/refine-story/reference.md'
+$o1SkillRel = 'core/skills/adt-orchestrate-analyze/SKILL.md'
+$o1RefRel = 'core/skills/adt-orchestrate-analyze/reference.md'
+$o1SynthesisRel = 'core/skills/adt-orchestrate-analyze/references/story-synthesis.md'
+$refineRefRel = 'core/skills/adt-refine-story/reference.md'
 
 if (-not (Test-Path -LiteralPath $contractPath)) {
     Write-Fail -TestName 'Should_Pass_When_StorySizingContractPresent' -Reason ("missing contract {0}" -f $contractRel)
@@ -2035,10 +2035,10 @@ if (-not (Test-Path -LiteralPath $refineRefPath)) {
 
 $refineRefText = Get-Content -LiteralPath $refineRefPath -Raw -Encoding UTF8
 if ($refineRefText -notmatch '(?i)Story scope') {
-    Write-Fail -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope' -Reason 'refine-story/reference.md must include Story scope scorecard criterion'
+    Write-Fail -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope' -Reason 'adt-refine-story/reference.md must include Story scope scorecard criterion'
 }
 if ($refineRefText -notmatch 'story-sizing\.md') {
-    Write-Fail -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope' -Reason 'refine-story/reference.md must reference story-sizing.md'
+    Write-Fail -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope' -Reason 'adt-refine-story/reference.md must reference story-sizing.md'
 }
 Write-Pass -TestName 'Should_Pass_When_RefineStoryScorecardHasStoryScope'
 
@@ -2086,11 +2086,11 @@ $sections['IntentClassification'] = {
 
 
 
-$contractRel = 'core/skills/orchestrate-analyze/references/intent-classification.md'
+$contractRel = 'core/skills/adt-orchestrate-analyze/references/intent-classification.md'
 $contractPath = Join-Path $repoRoot $contractRel
-$o1SkillRel = 'core/skills/orchestrate-analyze/SKILL.md'
-$o1RefRel = 'core/skills/orchestrate-analyze/reference.md'
-$o1TriageRel = 'core/skills/orchestrate-analyze/references/triage.md'
+$o1SkillRel = 'core/skills/adt-orchestrate-analyze/SKILL.md'
+$o1RefRel = 'core/skills/adt-orchestrate-analyze/reference.md'
+$o1TriageRel = 'core/skills/adt-orchestrate-analyze/references/triage.md'
 
 if (-not (Test-Path -LiteralPath $contractPath)) {
     Write-Fail -TestName 'Should_Pass_When_IntentClassificationContractPresent' -Reason ("missing contract {0}" -f $contractRel)
@@ -2123,13 +2123,13 @@ $o1SkillText = Get-Content -LiteralPath $o1SkillPath -Raw -Encoding UTF8
 $o1RefText = Get-Content -LiteralPath $o1RefPath -Raw -Encoding UTF8
 
 if ($o1SkillText -notmatch 'intent-classification\.md') {
-    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'orchestrate-analyze/SKILL.md must reference intent-classification.md'
+    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'adt-orchestrate-analyze/SKILL.md must reference intent-classification.md'
 }
 if ($o1SkillText -notmatch '(?i)Classify intent') {
-    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'orchestrate-analyze/SKILL.md must include the intent classification process step'
+    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'adt-orchestrate-analyze/SKILL.md must include the intent classification process step'
 }
 if ($o1RefText -notmatch 'intent-classification\.md') {
-    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'orchestrate-analyze/reference.md must index intent-classification.md'
+    Write-Fail -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification' -Reason 'adt-orchestrate-analyze/reference.md must index intent-classification.md'
 }
 Write-Pass -TestName 'Should_Pass_When_OrchestrateAnalyzeReferencesIntentClassification'
 
@@ -2240,9 +2240,9 @@ Write-Pass -TestName $failDiskName
 # --- Should_FailValidateCore_When_JavaMissingFromCatalogOrRoutes ---
 $failCatalogName = 'Should_FailValidateCore_When_JavaMissingFromCatalogOrRoutes'
 $syntheticSurfaces = @{
-    routing   = 'Python | /python-developer'
+    routing   = 'Python | /adt-python-developer'
     developer = 'Detect .csproj and package.json only'
-    catalog   = 'dotnet-developer and python-developer'
+    catalog   = 'adt-dotnet-developer and adt-python-developer'
     agents    = 'Stack developers without JVM specialist'
 }
 $syntheticGaps = @(Get-JavaRoutingSurfaceGaps -SurfaceTexts $syntheticSurfaces -CatalogToken $catalogToken -RouteToken $routeToken -MavenPomFileName $mavenPom -GradleBuildFileName $gradleBuild)
@@ -2669,10 +2669,10 @@ function Find-ProductionBrokerCallers {
 
 try {
     $contract = Read-Contract 'core/skills/_shared/sdd-artifacts/CLASSIC-EXTERNAL-ACCESS.md'
-    $spec = Read-Contract 'core/skills/sdd-spec/SKILL.md'
-    $plan = Read-Contract 'core/skills/sdd-plan/SKILL.md'
-    $develop = Read-Contract 'core/skills/sdd-develop/SKILL.md'
-    $acquisition = Read-Contract 'core/skills/sdd-develop/references/plan-acquisition.md'
+    $spec = Read-Contract 'core/skills/adt-sdd-spec/SKILL.md'
+    $plan = Read-Contract 'core/skills/adt-sdd-plan/SKILL.md'
+    $develop = Read-Contract 'core/skills/adt-sdd-develop/SKILL.md'
+    $acquisition = Read-Contract 'core/skills/adt-sdd-develop/references/plan-acquisition.md'
     $storage = Read-Contract 'core/skills/_shared/sdd-artifacts/STORAGE.md'
 
     Assert-ContractConcepts -Name 'portable-scope' -Text $contract -RequiredConcepts @(
@@ -2789,15 +2789,15 @@ function Assert-Has([string] $Name, [string] $Text, [string[]] $Markers) {
         if ($Text.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) { throw "$Name missing '$marker'." }
     }
 }
-$o1 = Read-Contract 'core/skills/orchestrate-analyze/SKILL.md'
-$o2 = Read-Contract 'core/skills/orchestrate-deliver/SKILL.md'
-$o3 = Read-Contract 'core/skills/orchestrate-develop/SKILL.md'
+$o1 = Read-Contract 'core/skills/adt-orchestrate-analyze/SKILL.md'
+$o2 = Read-Contract 'core/skills/adt-orchestrate-prepare/SKILL.md'
+$o3 = Read-Contract 'core/skills/adt-orchestrate-implement/SKILL.md'
 $table = Read-Contract 'core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
 $receipt = Read-Contract 'core/skills/_shared/agents/RECEIPT.md'
 Assert-Has 'O1ProportionalAnalysis' $o1 @('proportionally', 'Suggestions do not enter scope without an operator decision', 'Do not create `ANALYSIS/`, `ARCH/`, or `SEC/` solely because')
 Assert-Has 'O2SingleApproval' $o2 @('one explicit approval', 'Structural validators and cross-artifact tools may help diagnose', 'not authorization or release gates', 'Minor questions do not block unrelated work')
 Assert-Has 'O3SerialPlanProgress' $o3 @('Implementation is always serial', 'The PLAN is the sole persisted implementation-progress source', 'One live progress table is owned by O3')
-Assert-Has 'SingleTableOwnership' $table @('Only the owner below renders the contextual progress table', 'Internal skills and delegated children return their result to that owner', 'O2 (`orchestrate-deliver`) with internal spec/plan | O2', 'O3 (`orchestrate-develop`) with internal develop | O3')
+Assert-Has 'SingleTableOwnership' $table @('Only the owner below renders the contextual progress table', 'Internal skills and delegated children return their result to that owner', 'O2 (`adt-orchestrate-prepare`) with internal spec/plan | O2', 'O3 (`adt-orchestrate-implement`) with internal develop | O3')
 Assert-Has 'ReceiptProjectionAndPathSafety' $receipt @('Additional', 'ignored and omitted from the canonical projection', 'including reparse points', 'focused')
 foreach ($text in @($o1, $o2, $o3)) {
     foreach ($retired in @('Invoke-O2BrownfieldPreflight.ps1', 'Invoke-PrdPlanChangePreflight.ps1', 'Invoke-O3ArtifactPreflight.ps1', 'Invoke-PlanLedgerClaim.ps1', 'Invoke-ExecutionModeGate.ps1')) {
@@ -2817,9 +2817,9 @@ function Assert-ContractMarkers([string] $Name, [string] $Text, [string[]] $Mark
         if ($Text.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) { throw "$Name missing '$marker'." }
     }
 }
-$direct = Read-Contract 'core/skills/sdd-develop/references/plan-contract.md'
-$classic = Read-Contract 'core/skills/sdd-develop/SKILL.md'
-$o3 = Read-Contract 'core/skills/orchestrate-develop/SKILL.md'
+$direct = Read-Contract 'core/skills/adt-sdd-develop/references/plan-contract.md'
+$classic = Read-Contract 'core/skills/adt-sdd-develop/SKILL.md'
+$o3 = Read-Contract 'core/skills/adt-orchestrate-implement/SKILL.md'
 $table = Read-Contract 'core/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md'
 Assert-ContractMarkers 'ClassicPlanReadiness' ($direct + "`n" + $classic) @(
     'one explicit approval covers',
@@ -2839,8 +2839,8 @@ Assert-ContractMarkers 'O3SerialReadiness' $o3 @(
 )
 Assert-ContractMarkers 'SingleTableOwnership' $table @(
     'Only the owner below renders the contextual progress table',
-    'O2 (`orchestrate-deliver`) with internal spec/plan | O2',
-    'O3 (`orchestrate-develop`) with internal develop | O3',
+    'O2 (`adt-orchestrate-prepare`) with internal spec/plan | O2',
+    'O3 (`adt-orchestrate-implement`) with internal develop | O3',
     'do not display a second closeout progress table'
 )
 foreach ($text in @($classic, $o3)) {
@@ -3041,7 +3041,7 @@ $sections['DocumentPlanIgnoreContract'] = {
 #   Should_Pass_When_DocumentPlanIsIgnoredAndUntracked
 #   Should_Pass_When_DocumentPlanNeverStagesPlanContent
 
-$skillPath = Join-Path $repoRoot 'core/skills/document-plan/SKILL.md'
+$skillPath = Join-Path $repoRoot 'core/skills/adt-document-plan/SKILL.md'
 $skillText = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 foreach ($requiredText in @(
     'ls-files --error-unmatch -- docs/documentation-plan/plan.md',
@@ -3050,7 +3050,7 @@ foreach ($requiredText in @(
     'repository''s root `.gitignore`'
 )) {
     if ($skillText -notmatch [regex]::Escape($requiredText)) {
-        Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason ("document-plan contract is missing: {0}" -f $requiredText)
+        Write-Fail -TestName 'Should_Pass_When_DocumentPlanIsIgnoredAndUntracked' -Reason ("adt-document-plan contract is missing: {0}" -f $requiredText)
     }
 }
 
@@ -3081,7 +3081,7 @@ $sections['DocumentPlanHandoffContract'] = {
 #   Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs
 # This checks the skill's written contract only; it cannot validate model-generated final prose.
 
-$skillPath = Join-Path $repoRoot 'core/skills/document-plan/SKILL.md'
+$skillPath = Join-Path $repoRoot 'core/skills/adt-document-plan/SKILL.md'
 $skillText = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 foreach ($requiredText in @(
     'canonical plan path',
@@ -3089,12 +3089,12 @@ foreach ($requiredText in @(
     'progress (`completed/total` steps)',
     'first pending STEP id and title',
     'concise scope and acceptance summary',
-    'exact next command `/document-implement`',
+    'exact next command `/adt-document-implement`',
     'explicitly state that there is no next step',
     'Do not end with a generic plan-created summary without the applicable handoff above.'
 )) {
     if ($skillText -notmatch [regex]::Escape($requiredText)) {
-        Write-Fail -TestName 'Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs' -Reason ("document-plan handoff contract is missing: {0}" -f $requiredText)
+        Write-Fail -TestName 'Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs' -Reason ("adt-document-plan handoff contract is missing: {0}" -f $requiredText)
     }
 }
 Write-Pass -TestName 'Should_Pass_When_DocumentPlanDefinesActionableIncompleteAndCompleteHandoffs'
@@ -3378,10 +3378,10 @@ if ($consumerViolations.Count -gt 0) {
 Write-Pass -TestName 'Should_Pass_When_UpdatedConsumersPointToCanonicalSpawnWithoutRTrivialFingerprint'
 
 $syntheticConsumerCases = @(
-    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToStackSkillConsumer'; Path = 'core/skills/react-developer/SKILL.md' },
-    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToOrchestratorConsumer'; Path = 'core/skills/orchestrate-develop/SKILL.md' },
-    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToSddPlanConsumer'; Path = 'core/skills/sdd-plan/SKILL.md' },
-    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToMemoryBankReference'; Path = 'core/skills/memory-bank-init/references/inventory-specialist-synthesis.md' }
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToStackSkillConsumer'; Path = 'core/skills/adt-react-developer/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToOrchestratorConsumer'; Path = 'core/skills/adt-orchestrate-implement/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToSddPlanConsumer'; Path = 'core/skills/adt-sdd-plan/SKILL.md' },
+    @{ Name = 'Should_Fail_When_RTrivialFingerprintIsCopiedToMemoryBankReference'; Path = 'core/skills/adt-memory-bank/references/inventory-specialist-synthesis.md' }
 )
 foreach ($case in $syntheticConsumerCases) {
     $syntheticDocuments = @{ $case.Path = $consumerFingerprint }

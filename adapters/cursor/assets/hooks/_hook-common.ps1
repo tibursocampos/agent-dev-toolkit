@@ -152,7 +152,7 @@ function Test-SddSkillPrompt([string] $Prompt) {
     if ([string]::IsNullOrWhiteSpace($Prompt)) {
         return $false
     }
-    return $Prompt -match '(?i)use\s+skill\s+(sdd-spec|sdd-plan|sdd-develop|orchestrate-analyze|orchestrate-deliver|orchestrate-develop|commit|push|code-review|developer|document-plan|document-implement|refine-story|requirement-review|split-story-checklist|repair-dotnet-build|test-coverage|run-tests|ef-add-migration|scaffold-message-handler|refactor|api-integrate|performance-profile|containerize|i18n-manager)'
+    return $Prompt -match '(?i)use\s+skill\s+(adt-sdd-spec|adt-sdd-plan|adt-sdd-develop|adt-orchestrate-analyze|adt-orchestrate-prepare|adt-orchestrate-implement|adt-commit|adt-push|adt-code-review|adt-developer|adt-document-plan|adt-document-implement|adt-refine-story|adt-requirement-review|adt-split-story-checklist|adt-repair-dotnet-build|adt-test-coverage|adt-run-tests|adt-ef-add-migration|adt-scaffold-message-handler|adt-refactor|adt-api-integrate|adt-performance-profile|adt-containerize|adt-i18n-manager)'
 }
 
 function Write-PreToolJson([hashtable] $Payload) {

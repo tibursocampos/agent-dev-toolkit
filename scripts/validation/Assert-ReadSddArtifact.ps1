@@ -8,7 +8,7 @@
 #   Should_KeepInvocationContextDespiteSiblingDecoys (CT19 / REQ-013)
 #   Should_Document_SkipReread_When_SourceContextPresent (REQ-005)
 #
-# Deterministic path guard + source_context envelope for read-sdd-artifact.
+# Deterministic path guard + source_context envelope for adt-read-sdd-artifact.
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
@@ -27,7 +27,7 @@ $script:ReasonInvalidPortable = 'invalid_portable_path'
 
 $script:SchemaId = 'RSA-SOURCE-CONTEXT/v1'
 $script:RuleId = 'RSA-SOURCE-CONTEXT'
-$script:SkillId = 'read-sdd-artifact'
+$script:SkillId = 'adt-read-sdd-artifact'
 $script:FeaturesSegment = 'features/'
 $script:KindFeature = 'FEATURE'
 $script:KindStory = 'STORY'
@@ -373,7 +373,7 @@ $failCases = @(
     @{ Path = 'features/006-skills-maturity-parity/../US01/PRD/x.md'; Reason = $script:ReasonPathTraversal },
     @{ Path = 'features/006-skills-maturity-parity/US01/PRD/../../SECRET.md'; Reason = $script:ReasonPathTraversal },
     @{ Path = 'memory-bank/architecture.md'; Reason = $script:ReasonOutsideFeatures },
-    @{ Path = 'core/skills/sdd-spec/SKILL.md'; Reason = $script:ReasonOutsideFeatures },
+    @{ Path = 'core/skills/adt-sdd-spec/SKILL.md'; Reason = $script:ReasonOutsideFeatures },
     @{ Path = 'myfeatures/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonOutsideFeatures },
     @{ Path = 'nonfeatures/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonOutsideFeatures },
     @{ Path = 'E:/Nextcloud/Repos/agent-dev-toolkit/features/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonAbsoluteForbidden },
