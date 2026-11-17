@@ -36,8 +36,7 @@ Rules for the `adt-delivery-flow` coordinator. Shared contracts are pointed to, 
 
 ## Progress display
 
-- One flow stage table for the whole run. Stage skills do not draw their own table while the flow runs.
-- Rows and rules: `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md`.
+- ADT progress ownership, internal-stage suppression, rows, and redraw rules: `{{TOOLKIT_ROOT}}/skills/_shared/adt-delivery/DISPLAY.md`.
 
 ## Resume
 

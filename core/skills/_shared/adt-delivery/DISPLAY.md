@@ -1,6 +1,10 @@
 # ADT delivery - progress display
 
-The table ownership and display points are defined only in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; this file lists rows and ADT rules. Render in the user chat language per `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`.
+Generic table ownership and display points are defined in `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`; this file owns the ownership and suppression rule for the coordinated ADT flow, and lists its rows and rules. Render in the user chat language per `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`.
+
+## Coordinated flow ownership
+
+When `adt-delivery-flow` runs a stage skill, the flow owns the single progress table for the run and the internal stage skill suppresses its own table. Put the stage's current detail in the corresponding flow row. A stage invoked directly owns its own table. The coordinator and routing reference this contract rather than restating the ownership rule.
 
 ## Rows per skill
 
@@ -15,7 +19,7 @@ Table kind: stage table. Column keys: `stage`, `status`, `weight`, `what_happene
 3. Refinement (High) - Step 3, the refine stage
 4. Plan and approval (High) - Step 4, the plan stage and its one approval
 5. Execution choices: branch, cadence, review mode (Low) - Step 5, asked at the start of implement
-6. Implementation (Very high) - Step 5, the implement stage steps
+6. Implementation (Very high) - Step 5, the implement stage steps; while implementation is active, report the active PLAN step ID and its current evidence or next action in this row
 7. Closeout: validation, review, quality checks (High) - Step 5, the closeout of implement
 
 ### adt-delivery-refine - stage table
