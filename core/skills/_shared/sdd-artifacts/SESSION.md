@@ -1,17 +1,17 @@
 # Session state and gates
 
-This contract documents session helpers only for consumers that explicitly retain them. Classic SDD (`sdd-spec`, `sdd-plan`, `sdd-develop`) and Orchestrated Delivery (O1/O2/O3) do not use SESSION flags or claims as execution gates. Those flows use the approved PLAN and its execution table for progress. Do not load or apply this contract as an authorization prerequisite for them. `document-implement` retains its scoped documentation-step helper. Other consumers may use helpers only when their own current contract explicitly requires them. ADT Delivery follows its own contracts.
+This contract documents session helpers only for consumers that explicitly retain them. Classic SDD (`adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`) and Orchestrated Delivery (O1/O2/O3) do not use SESSION flags or claims as execution gates. Those flows use the approved PLAN and its execution table for progress. Do not load or apply this contract as an authorization prerequisite for them. `adt-document-implement` retains its scoped documentation-step helper. Other consumers may use helpers only when their own current contract explicitly requires them. ADT Delivery follows its own contracts.
 
-Do not paste this file into PRD/PLAN/sdd-spec bodies.
+Do not paste this file into PRD/PLAN/adt-sdd-spec bodies.
 
 ## Applicability
 
 | Consumer | Session state / claims |
 |---|---|
-| Classic SDD (`sdd-spec`, `sdd-plan`, `sdd-develop`) | Not required; PLAN is the persisted implementation progress source. |
+| Classic SDD (`adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`) | Not required; PLAN is the persisted implementation progress source. |
 | Orchestrated Delivery (O1/O2/O3) | Not required; O3 dispatch is serial and reconciles each result into PLAN. |
 | ADT Delivery | Governed by ADT-specific contracts; no new SESSION dependency is introduced here. |
-| `document-implement` | Retains its existing scoped documentation step and validation helpers. |
+| `adt-document-implement` | Retains its existing scoped documentation step and validation helpers. |
 | Other toolkit consumers | Apply helpers only when their own current contract explicitly requires them. |
 
 ## Compatibility schemas
@@ -30,9 +30,9 @@ Session files are stored under:
 | PLAN compatibility schema | `{repo-hash}/plan-{plan-hash}.json` | legacy `step_confirmed`, `tests_run` |
 | PLAN+step compatibility schema | `{repo-hash}/plan-{plan-hash}-step-{N}.json` | legacy per-step `step_confirmed`, `tests_run` |
 
-The PLAN and PLAN+step schemas describe existing runtime compatibility only. Classic SDD and O1/O2/O3 must not create, consult, or require them as execution gates. `document-implement` may use a PLAN-scoped file for its own documentation step.
+The PLAN and PLAN+step schemas describe existing runtime compatibility only. Classic SDD and O1/O2/O3 must not create, consult, or require them as execution gates. `adt-document-implement` may use a PLAN-scoped file for its own documentation step.
 
-`{repo-hash}` is the first 16 hex characters of SHA256 of the normalized absolute repository path (forward slashes, no trailing slash). `{plan-hash}` is the first 16 hex characters of SHA256 of the normalized absolute plan path. For `document-implement`, that is `docs/documentation-plan/plan.md` or its explicitly selected alternate plan. On Windows, hash absolute paths with forward slashes; callers and validators must use the same form.
+`{repo-hash}` is the first 16 hex characters of SHA256 of the normalized absolute repository path (forward slashes, no trailing slash). `{plan-hash}` is the first 16 hex characters of SHA256 of the normalized absolute plan path. For `adt-document-implement`, that is `docs/documentation-plan/plan.md` or its explicitly selected alternate plan. On Windows, hash absolute paths with forward slashes; callers and validators must use the same form.
 
 ### Repo compatibility schema
 
@@ -66,9 +66,9 @@ Existing files may contain retired fields. Their presence does not make them gat
 
 `step` is an integer only for a legacy PLAN+step file; otherwise it is `null`. Do not migrate values from a flat repo file into a PLAN-scoped file.
 
-## `document-implement` scoped helper
+## `adt-document-implement` scoped helper
 
-Only `document-implement` retains the following step confirmation and documentation verification flow. Its gate authorizes that skill's bounded documentation write; it does not authorize product implementation or establish validation for a product PLAN.
+Only `adt-document-implement` retains the following step confirmation and documentation verification flow. Its gate authorizes that skill's bounded documentation write; it does not authorize product implementation or establish validation for a product PLAN.
 
 Before an existing PLAN-scoped session action (`ensure`, `tests-run`, or `reset`), the helper resolves active repository and plan paths to absolute normalized paths and compares them case-insensitively with the persisted `repo` and `plan_path`. A mismatch fails closed, reports expected and persisted identities, and leaves session bytes unchanged. `status` reports a mismatch rather than presenting a gate from another context. Do not repair or migrate a mismatched session automatically.
 
@@ -89,7 +89,7 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/session/Invoke-DevelopSessionGat
 - `-Action tests-run` requires `step_confirmed = true` and records the documentation verification only after it has run and been reported.
 - `-Action reset` clears both documentation gates and sets `phase = idle` after the step closes. It skips rewriting when both gates are already false.
 - If PLAN+step compatibility files are in use, pass `-Step N` when ambiguous. Reset may infer the step only when exactly one matching PLAN+step file exists.
-- A failed helper action blocks the current `document-implement` documentation write or state transition. Do not bypass it or mutate session JSON inline.
+- A failed helper action blocks the current `adt-document-implement` documentation write or state transition. Do not bypass it or mutate session JSON inline.
 
 ## Optional validation helper
 
@@ -108,6 +108,6 @@ pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-session-gate
 | Consumer | Use |
 |---|---|
 | Classic SDD / O1 / O2 / O3 | No SESSION or claim gate; progress is persisted in PLAN. |
-| `document-implement` | Retains its existing scoped documentation step helper. |
+| `adt-document-implement` | Retains its existing scoped documentation step helper. |
 | Other consumers | Use helpers only when their own explicit current contract requires them. |
 | `rules/guardrails.mdc` | References this applicability matrix. |

@@ -1,7 +1,7 @@
 # Architecture
 
 <!-- BEGIN GENERATED: inventory-summary -->
-_Entry points and layout hints from inventory - refresh via `memory-bank-init`._
+_Entry points and layout hints from inventory - refresh via `adt-memory-bank`._
 
 | Signal | Path |
 |--------|------|

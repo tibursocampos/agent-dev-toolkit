@@ -93,7 +93,7 @@ Use language-appropriate privacy for mutable/internal state (e.g. private fields
 
 ---
 
-Stack deltas: load the matching `*-guidelines` overlay after this file — do not duplicate language-specific rules here. Framework-upgrade normative vs auxiliary URLs: `skills/framework-upgrade/references/sources-catalog.md` (RN08: official wins auxiliary).
+Stack deltas: load the matching `*-guidelines` overlay after this file — do not duplicate language-specific rules here. Framework-upgrade normative vs auxiliary URLs: `skills/adt-framework-upgrade/references/sources-catalog.md` (RN08: official wins auxiliary).
 
 **Version:** 1.1 (agent-dev-toolkit)  
-**Used by:** `developer-common/step-0.5`, `developer`, `code-review`, `framework-upgrade` (quality gate pointers)
+**Used by:** `developer-common/step-0.5`, `adt-developer`, `adt-code-review`, `adt-framework-upgrade` (quality gate pointers)

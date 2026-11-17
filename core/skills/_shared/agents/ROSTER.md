@@ -1,6 +1,6 @@
 # Portable agent roster (Orchestrated Delivery)
 
-Shared prompts and roles for `orchestrate-*` subagents. **English** prompt bodies. Keep this roster small - do **not** add 40 agent files.
+Shared prompts and roles for `adt-orchestrate-*` subagents. **English** prompt bodies. Keep this roster small - do **not** add 40 agent files.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 
@@ -18,7 +18,7 @@ Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/`
 | `architect` | `needs_domain`, cross-cutting design, **greenfield**, or **brownfield** (mirror) | Problem, scope, constraints, relevant repository evidence, and the design decision or mirror analysis needed | `ARCH/` notes (**folder on disk**; draft until confirm on greenfield) | `done`: scoped design result delivered; `blocked`: decision/confirmation/input missing; `failed`: design attempt failed. `done` does not bypass an applicable approval gate. | App code; corporate patterns; silent style default; final ARCH before operator **sim** on greenfield; skip ARCH on brownfield |
 | `security` | `needs_security` | Threat surface, assets/trust boundaries, and affected paths or components | `SEC/` notes (**folder on disk**) | `done`: scoped review delivered; `blocked`: required evidence/scope missing; `failed`: review attempt failed. Parent checks the assigned review scope. | compliance theater; route findings to CONTINUITY instead of `SEC/` |
 | `database` | `needs_database` or brownfield with persistence | Persistence scope, relevant schema/data contracts, and affected paths | `ARCH/` DB slice (**folder on disk**) | `done`: assigned data design/migration result delivered; `blocked`: required schema/input unavailable; `failed`: assigned work failed. Parent checks step acceptance and required validation. | Force a vendor; corp DBA rules; CONTINUITY-only substitute |
-| `developer-child` | A stack `*-developer` flow delegates implementation | Approved task/PLAN excerpt, writable paths, relevant local patterns, and required scoped validation | Scoped code changes | Reduced receipt: `{ files[], testsSummary }`; no `planPath` or `step`. `testsSummary` states the scoped validation actually performed; deferred tests remain explicit. Parent owns PLAN/session reconciliation. | PLAN edits or state; add relay-only fields; build outside the requested US-close flow |
+| `developer-child` | A stack `adt-*-developer` flow delegates implementation | Approved task/PLAN excerpt, writable paths, relevant local patterns, and required scoped validation | Scoped code changes | Reduced receipt: `{ files[], testsSummary }`; no `planPath` or `step`. `testsSummary` states the scoped validation actually performed; deferred tests remain explicit. Parent owns PLAN/session reconciliation. | PLAN edits or state; add relay-only fields; build outside the requested US-close flow |
 | `shell-runner` | A bounded script/batch/build/test command is explicitly authorized | Exact command, working directory, allowed evidence path, and scope limits | Command output/evidence path only | Command receipt: exact scoped commands, exit result, portable evidence path, next action. Build is assigned only at US close when applicable. | App code/design; duplicate parent-run commands; unbounded command suites |
 | `qa_checklist` | Before handoff / review | Story/CONTINUITY path and acceptance criteria to cover; this role is not an Agent spawn | Checklist bullets in CONTINUITY or STORY only | Parent-authored checklist context; no Agent receipt or terminal Agent status. | Write production tests silently; **no** Agent spawn; **no** `prompts/qa*.md` file |
 
@@ -38,11 +38,11 @@ Minimum HIGH checklist before handoff / review (adapt to story; keep portable pa
 | OOS | Explicit exclusions still honored; no silent scope creep |
 | Tests | Test plan or evidence pointer present when complexity ≥ medium |
 
-Stacks (`react`, `dotnet`, …) are **not** duplicated here - route via existing `*-developer` skills (`ROUTING.md`).
+Stacks (`react`, `dotnet`, …) are **not** duplicated here - route via existing `adt-*-developer` skills (`ROUTING.md`).
 
 ## Flags (`needs_*`) - canonical spawn map (O1 source of truth)
 
-Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when the flag is **true**. `orchestrate-analyze` SKILL must point here - do not maintain a divergent table in the SKILL body.
+Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when the flag is **true**. `adt-orchestrate-analyze` SKILL must point here - do not maintain a divergent table in the SKILL body.
 
 | Flag | Spawn when true | Specialist / action | Prompt |
 |------|-----------------|---------------------|--------|
@@ -57,9 +57,9 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 
 ### Implementer, finding, verifier, and relay contracts
 
-- `developer-child` uses its reduced receipt in `RECEIPT.md`; stack `*-developer` prompts remain responsible for their own implementation details and do not emit the O3 relay receipt.
+- `developer-child` uses its reduced receipt in `RECEIPT.md`; stack `adt-*-developer` prompts remain responsible for their own implementation details and do not emit the O3 relay receipt.
 - Finding specialists (`repo-analyst`, `architect`, `security`, `database`) use the finding contract. Their severity labels are mapped in `RECEIPT.md` and must not be collapsed into readiness or terminal status.
-- The O3 implementer (`sdd-develop`) returns the canonical relay receipt defined in `RECEIPT.md`, including optional `deletedFiles[]` for removed paths. The parent validates it against PLAN, session, and claim before reconciliation.
+- The O3 implementer (`adt-sdd-develop`) returns the canonical relay receipt defined in `RECEIPT.md`, including optional `deletedFiles[]` for removed paths. The parent validates it against PLAN, session, and claim before reconciliation.
 - The optional read-only verifier uses its verifier contract; it cannot implement, edit PLAN, or substitute for evidence validation.
 - `prompts/` is canonical. `core/agents/` files are thin discoverable wrappers; `shell-runner` and `developer-child` also have canonical prompt files because roster/workflow consumers call them.
 
@@ -79,7 +79,7 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 
 | Complexity | Suggested path |
 |------------|----------------|
-| `trivial` | `developer` / stack skill (skip O1) |
+| `trivial` | `adt-developer` / stack skill (skip O1) |
 | `medium` | Classic SDD or Backlog Refine |
 | `complex` | Orchestrated Delivery O1 |
 
@@ -91,7 +91,7 @@ Set on `FEATURE.md` during O1 triage. Spawn an Agent specialist **only** when th
 | `prompts/architect.md` | Solution shape; greenfield → architecture-selection + user confirm |
 | `prompts/security.md` | Security subset review |
 | `prompts/database.md` | Data model / migration risks |
-| `prompts/developer-child.md` | Reduced-receipt implementation child for stack `*-developer` flows |
+| `prompts/developer-child.md` | Reduced-receipt implementation child for stack `adt-*-developer` flows |
 | `prompts/shell-runner.md` | Bounded command execution and command receipt |
 | `prompts/impact.md` | Stage: impact summary |
 | `prompts/risk.md` | Stage: risk register |

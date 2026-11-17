@@ -17,7 +17,7 @@ Pipeline skills must apply **observable** behavior for two invocation contexts:
 | Context id | Meaning |
 |------------|---------|
 | `direct` | Consumer invokes the skill via slash / skill name in the operator session (Classic SDD or standalone). |
-| `orchestrated` | Skill runs under Orchestrated Delivery (`orchestrate-*` parent) or as an Agent/spawn child whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `orchestrate-*` stage. A generic scoped Agent handoff does not select this context. |
+| `orchestrated` | Skill runs under Orchestrated Delivery (`adt-orchestrate-*` parent) or as an Agent/spawn child whose current handoff explicitly sets `invocation_context=orchestrated` or identifies the active `adt-orchestrate-*` stage. A generic scoped Agent handoff does not select this context. |
 
 Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/Ask) as an invocation context — that is `PIPELINE.md` host session mode.
 
@@ -25,27 +25,27 @@ Do **not** invent a third context. Do **not** treat host IDE mode (Agent/Plan/As
 
 | Skill | Typical default when slash-invoked |
 |-------|-------------------------------------|
-| `orchestrate-analyze` | `orchestrated` (skill **is** the O1 orchestrator) |
-| `orchestrate-deliver` | `orchestrated` (O2) |
-| `orchestrate-develop` | `orchestrated` (O3 parent) |
-| `sdd-spec` | `direct` unless parent handoff marks `orchestrated` |
-| `sdd-plan` | `direct` unless parent handoff marks `orchestrated` |
-| `sdd-develop` | `direct` unless O3 child / plan-scoped develop session from orchestrator |
-| `refine-story` | `direct` unless parent handoff marks `orchestrated` |
-| `requirement-review` | `direct` unless parent handoff marks `orchestrated` |
-| `memory-bank-init` | `direct` unless explicitly invoked for a bounded bank operation |
+| `adt-orchestrate-analyze` | `orchestrated` (skill **is** the O1 orchestrator) |
+| `adt-orchestrate-prepare` | `orchestrated` (O2) |
+| `adt-orchestrate-implement` | `orchestrated` (O3 parent) |
+| `adt-sdd-spec` | `direct` unless parent handoff marks `orchestrated` |
+| `adt-sdd-plan` | `direct` unless parent handoff marks `orchestrated` |
+| `adt-sdd-develop` | `direct` unless O3 child / plan-scoped develop session from orchestrator |
+| `adt-refine-story` | `direct` unless parent handoff marks `orchestrated` |
+| `adt-requirement-review` | `direct` unless parent handoff marks `orchestrated` |
+| `adt-memory-bank` | `direct` unless explicitly invoked for a bounded bank operation |
 
 ## Detection (deterministic)
 
 Resolve context **once** at skill start (after gate check). Prefer the explicit current invocation/handoff over execution-shape defaults:
 
 1. **Explicit current invocation** — a `invocation_context: direct|orchestrated` field provided by the current caller/handoff wins and is recorded once for this skill run.
-2. **Orchestrated execution** — absent an explicit field, an Agent child whose current parent handoff identifies an `orchestrate-*` stage, or execution of an `orchestrate-*` skill itself, resolves to `orchestrated`.
+2. **Orchestrated execution** — absent an explicit field, an Agent child whose current parent handoff identifies an `adt-orchestrate-*` stage, or execution of an `adt-orchestrate-*` skill itself, resolves to `orchestrated`.
 3. **Default** — otherwise resolve to `direct`.
 
 Do not infer or change the resolved context from the presence, absence, freshness, completeness, path proximity, or contents of FEATURE, STORY, CONTINUITY, REFINE/tasks, Memory Bank, PRD, PLAN, or any other sibling artifact. A sibling may be used only when the active skill contract authorizes it as an input and its relationship/authority is explicit; it does not set invocation context. Host preference such as `orchestrator_mode` is not an invocation signal. Resolve once at skill start and keep that context for the run; a conflicting sibling is reported as a conflict, not used as a fallback.
 
-Generic parent coordination, a parent role named `orchestrator`, use of an Agent for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `orchestrate-*` skill, or an unambiguously identified `orchestrate-*` parent handoff selects `orchestrated` when no explicit context is provided. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
+Generic parent coordination, a parent role named `orchestrator`, use of an Agent for bounded delegation, `orchestrator_mode=always`, or a PLAN that targets O3 contracts are not invocation-context signals. A Classic/direct `adt-sdd-develop` run stays `direct` when it edits O3 instructions or delegates its own bounded step. Only an explicit `invocation_context=orchestrated`, execution of an `adt-orchestrate-*` skill, or an unambiguously identified `adt-orchestrate-*` parent handoff selects `orchestrated` when no explicit context is provided. If multiple explicit context declarations in the current invocation/handoff disagree, stop with `invocation_context_conflict`; do not silently pick one or fall back to preferences or artifact contents.
 
 Record the resolved id in the session report / child receipt when one is produced (en-US field name: `invocation_context`).
 
@@ -66,7 +66,7 @@ Record the resolved id in the session report / child receipt when one is produce
 | Observable | Required behavior |
 |------------|-------------------|
 | Approval | Spec/plan drafts may be written during preparation; the complete PLAN receives one explicit approval before implementation |
-| Memory-bank | Classic `sdd-*` does **not** require Step 0 bank gate; `memory-bank-init` may run alone |
+| Memory-bank | Classic `adt-sdd-*` does **not** require Step 0 bank gate; `adt-memory-bank` may run alone |
 | CONTINUITY | Do **not** assume a parent CONTINUITY owner; update CONTINUITY only when this skill's contract says so |
 | Scope | Full skill Process for the invoked skill; do **not** silently start sibling orchestrate stages |
 | Handoff | After one skill outcome, stop; suggest next slash invoke (portable path) |
@@ -76,9 +76,9 @@ Record the resolved id in the session report / child receipt when one is produce
 
 | Observable | Required behavior |
 |------------|-------------------|
-| Parent owns wave | Parent `orchestrate-*` owns its one live progress table and multi-story / multi-step queue; Memory Bank and CONTINUITY are optional context |
+| Parent owns wave | Parent `adt-orchestrate-*` owns its one live progress table and multi-story / multi-step queue; Memory Bank and CONTINUITY are optional context |
 | Child scope | O3 dispatch is serial: one PLAN step per child, never multiple concurrent implementation children |
-| Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
+| Handoff input | Prefer scoped paths + receipt; when `source_context` is present, **skip** opaque re-read of the same artifact (`adt-read-sdd-artifact` / `RSA-SOURCE-CONTEXT`) |
 | No parent duties | Child **must not** re-run O1/O2/O3 parent orchestration or expand the approved step scope; parent reconciles the result into PLAN before dispatching another child |
 | Chat vs receipt | Operator-facing prompts mirror user chat language; child receipts / Agent summaries stay **en-US** (`LANGUAGE.md`) |
 | Spawn (Eixo A) | Parent decides spawn vs in-parent per `SPAWN.md`; children do not flip that policy |
@@ -99,7 +99,7 @@ Authorization: Bearer eyJhbGciOi***real***
 ### Direct slash (shape)
 
 ```text
-User: /sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2
+User: /adt-sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 2
 → invocation_context=direct
 → skill follows the PLAN's selected cadence; no SESSION gate or O3 CONTINUITY ownership
 ```
@@ -111,7 +111,7 @@ Parent O3 Agent prompt includes:
   invocation_context: orchestrated
   plan_path: features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md
   step: 2
-  # optional: source_context envelope from read-sdd-artifact (RSA-SOURCE-CONTEXT)
+  # optional: source_context envelope from adt-read-sdd-artifact (RSA-SOURCE-CONTEXT)
 → child applies orchestrated rules; one step; receipt back to parent
 ```
 

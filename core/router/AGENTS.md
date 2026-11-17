@@ -1,17 +1,17 @@
-﻿# Agent router (L0 index) - agent-dev-toolkit
+# Agent router (L0 index) - agent-dev-toolkit
 
 Lean **L0** router for agents after install under `{{TOOLKIT_ROOT}}/`. **Pointers only** — do not paste guideline or skill bodies here. Prefer **skill ids** (kebab-case folder names). Host prefixes differ — do **not** assume `/` is universal:
 
 | Host family | Explicit form | Example |
 |-------------|---------------|---------|
-| Cursor / Claude / Copilot / Grok | `/id` | `/help-skills` |
-| Codex / ZCode | `$id` | `$help-skills` |
-| Antigravity | `use skill id` or `/id` | `use skill sdd-plan` |
-| OpenCode | `skill` tool | `skill({ name: "help-skills" })` |
+| Cursor / Claude / Copilot / Grok | `/id` | `/adt-help-skills` |
+| Codex / ZCode | `$id` | `$adt-help-skills` |
+| Antigravity | `use skill id` or `/id` | `use skill adt-sdd-plan` |
+| OpenCode | `skill` tool | `skill({ name: "adt-help-skills" })` |
 
 Compat when the host accepts it: `use skill <id>` / natural language. Codex `/hooks` and Grok `/hooks-trust` are trust UI, not skill invoke. Load shared docs on demand.
 
-**Skill map:** Read `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `help-skills`. Do not invent skill names.
+**Skill map:** Read `{{TOOLKIT_ROOT}}/skills/_shared/skills-catalog/CATALOG.md` (operator nuances: `OPERATOR.md` beside it) or invoke skill `adt-help-skills`. Do not invent skill names.
 
 ## ORCHESTRATOR CHARTER
 
@@ -37,19 +37,19 @@ Language surfaces (chat, persisted artifacts, spawn prompts and receipts) are de
 
 ## Tracks (workflows)
 
-Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `help-skills` + CATALOG Tracks section.
+Three coexisting **tracks**. Classic SDD / Orchestrated Delivery writes land under `features/NNN-slug/` (see `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md`). Decision tree: skill `adt-help-skills` + CATALOG Tracks section.
 
 | Track | When | Pipeline |
 |-------|------|----------|
-| **Classic SDD** | One feature, clear path | `sdd-spec` → `sdd-plan` → `sdd-develop` |
-| **Backlog Refine** | Informal item before SDD | `refine-story` → `split-story-checklist` → Classic SDD or Orchestrated Delivery |
-| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `orchestrate-analyze` → `orchestrate-deliver` → (`orchestrate-develop` \| `sdd-develop`) |
+| **Classic SDD** | One feature, clear path | `adt-sdd-spec` → `adt-sdd-plan` → `adt-sdd-develop` |
+| **Backlog Refine** | Informal item before SDD | `adt-refine-story` → `adt-split-story-checklist` → Classic SDD or Orchestrated Delivery |
+| **Orchestrated Delivery** | Multi-story / brownfield / specialists | `adt-orchestrate-analyze` → `adt-orchestrate-prepare` → (`adt-orchestrate-implement` \| `adt-sdd-develop`) |
 
 ### Operator track choice
 
-Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it. Detail: `sdd-pipeline-guards`.
+Tracks are **recommendations**, never prerequisites between each other. Classic SDD may start from chat, the host's planning mode, a host plan file, or manual analysis, without `adt-orchestrate-analyze` first. Do **not** tell the user they must run Orchestrated Delivery before Classic SDD. Suggest `adt-orchestrate-analyze` only when multi-story, brownfield complexity, or specialist folders warrant it. Detail: `sdd-pipeline-guards`.
 
-**Checkpoint:** Classic `sdd-develop` uses the approved PLAN cadence (`step_by_step` or `continuous`) and checks PLAN approval, dependencies, scope, and acceptance before each step. O3 remains serial, one PLAN step per child, reconciled before the next dispatch. The PLAN is the only implementation progress source for Classic/O1/O2/O3; do not require SESSION flags, claims, CONTINUITY, CHANGE, or TASKS as progress gates. Only material questions block affected work. O1 investigation and sidecars are proportional; O2 prepares PRDs/PLANs and obtains one approval for the complete explicitly listed PLAN set. Closeout follows `PIPELINE.md` and the caller's approved scope. Memory Bank, CONTINUITY, CHANGE, and TASKS are optional context for these flows. O3 parent does **not** implement; children reuse `sdd-develop`. Skill ids unchanged. Detail stays in `PIPELINE.md`.
+**Checkpoint:** Classic `adt-sdd-develop` uses the approved PLAN cadence (`step_by_step` or `continuous`) and checks PLAN approval, dependencies, scope, and acceptance before each step. O3 remains serial, one PLAN step per child, reconciled before the next dispatch. The PLAN is the only implementation progress source for Classic/O1/O2/O3; do not require SESSION flags, claims, CONTINUITY, CHANGE, or TASKS as progress gates. Only material questions block affected work. O1 investigation and sidecars are proportional; O2 prepares PRDs/PLANs and obtains one approval for the complete explicitly listed PLAN set. Closeout follows `PIPELINE.md` and the caller's approved scope. Memory Bank, CONTINUITY, CHANGE, and TASKS are optional context for these flows. O3 parent does **not** implement; children reuse `adt-sdd-develop`. Skill identifiers use the approved map; workflow semantics remain unchanged. Detail stays in `PIPELINE.md`.
 
 **Enforcement:** `{{GUARDRAILS_PATH}}`, `sdd-pipeline-guards.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SESSION.md`.
 
@@ -57,21 +57,21 @@ Tracks are **recommendations**, never prerequisites between each other. Classic 
 
 | Need | Skill |
 |------|--------|
-| Skill map / catalog | `help-skills` |
-| Stack router / ad-hoc | `developer` |
-| Explicit .NET | `dotnet-developer` |
-| Explicit Java | `java-developer` |
+| Skill map / catalog | `adt-help-skills` |
+| Stack router / ad-hoc | `adt-developer` |
+| Explicit .NET | `adt-dotnet-developer` |
+| Explicit Java | `adt-java-developer` |
 | Frontend UI design | Create or update `docs/DESIGN-BRIEF.md` → stack `*-developer` |
-| Blip React plugin | `blip-plugin-developer` → `react-developer` |
+| Blip React plugin | `adt-blip-plugin-developer` → `adt-react-developer` |
 
 ### Optional flows (index)
 
 | Flow | Entry skills |
 |------|----------------|
-| Repo documentation (RAG) | `document-plan` → `document-implement` |
-| Build / test | `run-tests`; .NET repair `repair-dotnet-build`; coverage `test-coverage` when the PLAN asks |
-| EF migration | `ef-add-migration` |
-| Message consumer | `scaffold-message-handler` |
+| Repo documentation (RAG) | `adt-document-plan` → `adt-document-implement` |
+| Build / test | `adt-run-tests`; .NET repair `adt-repair-dotnet-build`; coverage `adt-test-coverage` when the PLAN asks |
+| EF migration | `adt-ef-add-migration` |
+| Message consumer | `adt-scaffold-message-handler` |
 
 ## SDD contracts (lazy)
 

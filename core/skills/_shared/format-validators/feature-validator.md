@@ -1,6 +1,6 @@
 # PRD Structure Diagnostic
 
-Optional PRD authoring and diagnostic guidance against `templates/sdd/PRD.md`. `scripts/validation/validate-prd.ps1` reports differences from a legacy structure; neither this file nor that script is a handoff or implementation gate. The active `sdd-spec` contract controls whether a PRD is ready.
+Optional PRD authoring and diagnostic guidance against `templates/sdd/PRD.md`. `scripts/validation/validate-prd.ps1` reports differences from a legacy structure; neither this file nor that script is a handoff or implementation gate. The active `adt-sdd-spec` contract controls whether a PRD is ready.
 
 **Content-language:** Resolve via `agents/LANGUAGE.md` (invocation → preferences → manifest → else chat; `null` ≠ pt-BR). When content-language is **pt-BR**, use the pt-BR section titles checklist below. When `artifact_language: en` / English override, use the **English override** checklist.
 
@@ -41,12 +41,12 @@ When `artifact_language` is `en` or user requested English in invocation:
 |---------|------|----------|
 | Context / Contexto | Minimum ~80 characters | info |
 | Acceptance criteria | Dado/Quando/Então or Given/When/Then in each block | info |
-| Próximos passos / Handoff | Contains `/sdd-plan` with PRD path | info |
+| Próximos passos / Handoff | Contains `/adt-sdd-plan` with PRD path | info |
 | Identifiers in prose | Type/method names in English when cited | info |
 
 ## Optional diagnostic use
 
-Run `validate-prd.ps1` only when explicitly requested or when its output helps investigate a concrete issue. `sdd-spec` and `sdd-plan` do not require it before handoff, and planning does not rerun it automatically.
+Run `validate-prd.ps1` only when explicitly requested or when its output helps investigate a concrete issue. `adt-sdd-spec` and `adt-sdd-plan` do not require it before handoff, and planning does not rerun it automatically.
 
 **Flow:**
 

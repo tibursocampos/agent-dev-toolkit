@@ -68,7 +68,7 @@ Inspect the lockfile and `package.json` scripts first; use the project's configu
 - [ ] No secrets in client env or source
 - [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
 - [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md` (architecture vs style, constants, blank-spam, one primary export/file)
-- [ ] `/commit` offered — do not auto-commit
+- [ ] `/adt-commit` offered — do not auto-commit
 
 ---
 

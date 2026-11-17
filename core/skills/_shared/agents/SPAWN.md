@@ -79,18 +79,18 @@ Need specialist work?
   │    ├─ subagents == native → prefer Agent / host equivalent (table above)
   │    └─ else                → fallback by consumer contract; NEVER hard-fail only because Agent is absent
   │                             O1 flags: in-parent ANALYSIS/ARCH/SEC work (never CONTINUITY substitute)
-  │                             O3: manual `/sdd-develop` handoff; parent stops and does not implement
-  └─ *-developer trivial path → follow the mode (see "## Delegation checklist")
+  │                             O3: manual `/adt-sdd-develop` handoff; parent stops and does not implement
+  └─ adt-*-developer trivial path → follow the mode (see "## Delegation checklist")
 ```
 
 | Consumer | Prefer when `native` | Fallback when `none` |
 |----------|----------------------|----------------------|
-| `orchestrate-analyze` | Agent (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
-| `orchestrate-deliver` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
-| `sdd-plan` required-checklist acquisition | One bounded `split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
-| `orchestrate-develop` (O3) | Agent (or host equivalent) per roster/caps | Manual `/sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
-| `code-review` multi-angle | Parallel specialist Agent calls / host equivalents | Sequential in-parent angles |
-| `*-developer` medium/complex | Cap in "## Limits" | Same outcome in-parent |
+| `adt-orchestrate-analyze` | Agent (or host equivalent) per roster when flag true / brownfield | **in-parent write** to story `ANALYSIS/` / `ARCH/` / `SEC/` — **never skip**; never substitute a CONTINUITY handoff note for `needs_api` / `needs_domain` / `needs_database` / `needs_security` / brownfield |
+| `adt-orchestrate-prepare` | Agent (or host equivalent) per roster/caps | Same document-delivery work **in-parent** where its contract permits (never hard-fail) |
+| `adt-sdd-plan` required-checklist acquisition | One bounded `adt-split-story-checklist` specialist when required checklist is missing | Execute the owner skill workflow in the current flow; never hard-fail or transfer checklist authorship |
+| `adt-orchestrate-implement` (O3) | Agent (or host equivalent) per roster/caps | Manual `/adt-sdd-develop - <portable-plan-path> - Step N` handoff; parent stops without implementing or recording child completion |
+| `adt-code-review` multi-angle | Parallel specialist Agent calls / host equivalents | Sequential in-parent angles |
+| `adt-*-developer` medium/complex | Cap in "## Limits" | Same outcome in-parent |
 | Parent general chat (analysis / multi-file / long build-test) | Specialist Agent when independent work is heavy | Same work in-parent |
 
 `needs_frontend` / `needs_devops` stay CONTINUITY-only (no Agent, no specialist folder). Required O1 folders missing → do **not** approve the backlog.
@@ -125,7 +125,7 @@ When spawning (native path), pass the following bounded assignment context:
 
 | Field | Content |
 |-------|---------|
-| **Role** | Specialist id or roster role (e.g. `dotnet-developer`, `repo-analyst`) |
+| **Role** | Specialist id or roster role (e.g. `adt-dotnet-developer`, `repo-analyst`) |
 | **Objective** | One bounded outcome the specialist is responsible for delivering |
 | **Scoped paths** | Files/dirs the child may read/write |
 | **Relevant references** | Repository instructions, representative files/symbols, and portable artifact paths needed for this assignment |
@@ -135,9 +135,9 @@ When spawning (native path), pass the following bounded assignment context:
 
 This is semantic assignment context, not a new serialized payload or universal receipt schema. Include only references relevant to the objective and scope. Do **not** paste guideline packs, full SKILL bodies, or large policy dumps into the child prompt.
 
-### Classic direct `sdd-develop` parent relay
+### Classic direct `adt-sdd-develop` parent relay
 
-When a parent delegates one approved Classic/direct PLAN step to a specialist, the child owns that step's implementation and persisted PLAN checkpoint. After the child returns, the parent MUST re-read the canonical PLAN, reconcile its step row and checkpoint with the child report, and show the operator the complete current PLAN ledger (every step and every ledger column) plus the next eligible step, following `sdd-develop/references/execution-display.md`. The child receipt, child-rendered table, or a prose summary alone is not the parent relay. Never show only the closed step or stale rows. If the persisted checkpoint is unavailable or conflicts with the report, stop with `ledger_partial` and do not delegate another direct step. This display responsibility preserves the direct Classic session and claim contract; it does not activate the O3 queue or replace O3's separate progress table.
+When a parent delegates one approved Classic/direct PLAN step to a specialist, the child owns that step's implementation and persisted PLAN checkpoint. After the child returns, the parent MUST re-read the canonical PLAN, reconcile its step row and checkpoint with the child report, and show the operator the complete current PLAN ledger (every step and every ledger column) plus the next eligible step, following `adt-sdd-develop/references/execution-display.md`. The child receipt, child-rendered table, or a prose summary alone is not the parent relay. Never show only the closed step or stale rows. If the persisted checkpoint is unavailable or conflicts with the report, stop with `ledger_partial` and do not delegate another direct step. This display responsibility preserves the direct Classic session and claim contract; it does not activate the O3 queue or replace O3's separate progress table.
 
 ### O3 evidence paths
 
@@ -189,8 +189,8 @@ Parent synthesizes into chat / CONTINUITY — **facts and paths only**; do not d
 
 | Context | Cap |
 |---------|-----|
-| `*-developer` children | **≤ 2** concurrent / per task wave |
-| `orchestrate-*` parallel Agent calls | **≤ 4** concurrent (existing skill caps; wave if more) |
+| `adt-*-developer` children | **≤ 2** concurrent / per task wave |
+| `adt-orchestrate-*` parallel Agent calls | **≤ 4** concurrent (existing skill caps; wave if more) |
 | `qa_checklist` | **No** Agent — CONTINUITY/STORY only (`ROSTER.md`) |
 
 These caps are fixed defaults, not settings. Review angles or activities requested by the user are not a cap: group related activities into at most the cap number of children.
@@ -223,7 +223,7 @@ Model selection on a native subagent spawn: follow `SUBAGENT-MODEL.md` (omit `mo
 | `ROSTER.md` | Which specialist roles / `needs_*` |
 | `RECEIPT.md` | Receipt schema + refusal tokens (Caveman-scoped child returns) |
 | `SUBAGENT-MODEL.md` | Agent `model` parameter policy (default = parent session model) |
-| `ROUTING.md` | Stack → `*-developer` |
+| `ROUTING.md` | Stack → `adt-*-developer` |
 | `skills/_shared/caveman/CAVEMAN.md` | Child prompt/style/return compression |
 | `LANGUAGE.md` | Normative language matrix; en-US spawn; content-language resolution; no hard-coded artifact locale |
 | `docs/SPAWN.md` | Host spawn matrix, product evidence, Antigravity probe |

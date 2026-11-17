@@ -20,7 +20,7 @@ For brownfield work, read and apply `{{TOOLKIT_ROOT}}/skills/_shared/agents/BROW
 
 ## Output
 
-When the parent is `orchestrate-analyze` before step 9, return the notes to the parent in en-US. Do not create a story folder in that pass. The parent writes `ANALYSIS/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this receipt. When the story folder already exists, write the note in content-language:
+When the parent is `adt-orchestrate-analyze` before step 9, return the notes to the parent in en-US. Do not create a story folder in that pass. The parent writes `ANALYSIS/` at step 9 in content-language (`LANGUAGE.md`), after the open-question gate. The parent translates this receipt. When the story folder already exists, write the note in content-language:
 
 1. Entry points and modules likely touched
 2. Dependencies (packages, services, events)
@@ -38,7 +38,7 @@ When the analysis informs a material behavior change, also trace the relevant cu
 
 ## Return — findings
 
-Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. A prose summary is not the only product.
+Load `{{TOOLKIT_ROOT}}/skills/adt-refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. A prose summary is not the only product.
 
 Each block has an id, severity `B` | `I` | `MINOR`, one finding type, a section, a portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation.
 

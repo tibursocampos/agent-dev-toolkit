@@ -63,7 +63,7 @@ When ARCH or CONTINUITY needs frontend folder layout, load `../frontend-guidelin
 Inspect the lockfile and `package.json` scripts first; preserve the configured package manager and test command. Use Expo lint/typecheck scripts only when declared by the project.
 
 - [ ] Failures in scope fixed before handoff
-- [ ] `/commit` offered — do not auto-commit
+- [ ] `/adt-commit` offered — do not auto-commit
 
 ---
 

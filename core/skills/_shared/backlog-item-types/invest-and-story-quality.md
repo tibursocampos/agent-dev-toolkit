@@ -1,6 +1,6 @@
 # INVEST and story quality
 
-Normative checklist for **Independent, Negotiable, Valuable, Estimable, Small, Testable** stories. Used by O1 synthesis, `refine-story` scorecard, and promotion gates. Lazy-load — do not preload for every skill.
+Normative checklist for **Independent, Negotiable, Valuable, Estimable, Small, Testable** stories. Used by O1 synthesis, `adt-refine-story` scorecard, and promotion gates. Lazy-load — do not preload for every skill.
 
 **Complementary:** `story-sizing.md` (how many / how large); `persona-context.md` (Who/Job/Outcome); `anti-task-shatter.md` (what must not become a US/TS).
 

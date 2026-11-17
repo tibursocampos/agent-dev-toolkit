@@ -16,7 +16,7 @@ Official language docs (PEP 8) win auxiliary gists/blogs when they conflict. Poi
 ## Official sources (normative)
 
 - [ ] PEP 8 — Style Guide for Python Code: https://peps.python.org/pep-0008/
-- [ ] Catalog (normative vs auxiliary): `skills/framework-upgrade/references/sources-catalog.md`
+- [ ] Catalog (normative vs auxiliary): `skills/adt-framework-upgrade/references/sources-catalog.md`
 
 ---
 

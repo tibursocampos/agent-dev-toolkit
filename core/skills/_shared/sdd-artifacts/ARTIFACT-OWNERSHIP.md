@@ -8,7 +8,7 @@ Para Classic SDD e Orchestrated Delivery, drafts podem ser escritos durante prep
 
 - Artefatos de feature seguem `STORAGE.md` e `STORAGE-RESOLUTION.md`: `repository` resolve em `$Cwd/features/NNN-slug/`; `global` resolve em `<classic.path>/features/NNN-slug/`, co-localizado com `memory-bank/`. `features_versioned` controla versionamento, não descoberta nem existência. Citações persistidas usam caminhos portáteis.
 - Nos exemplos de caminho com `USnn`, use `TSnn` no lugar quando o item for Technical Story.
-- Estado operacional de sessão usado por `document-implement` fica fora da árvore `features/`, conforme `SESSION.md`. Classic SDD e Orchestrated Delivery não usam claims.
+- Estado operacional de sessão usado por `adt-document-implement` fica fora da árvore `features/`, conforme `SESSION.md`. Classic SDD e Orchestrated Delivery não usam claims.
 - `direct` e `orchestrated` são contextos de invocação explícitos. A presença de FEATURE/STORY/CONTINUITY/checklist não muda o contexto; ver `INVOCATION-CONTEXTS.md`.
 - Proprietário indica quem pode criar/atualizar a fonte no fluxo descrito. Consumidores podem ler e validar, mas isso não transfere a propriedade da escrita.
 

@@ -62,7 +62,7 @@ dotnet test
 - [ ] No secrets in WASM bundles or client config
 - [ ] Identifiers always **English**; comments/docs **mirror** touched area (pt-BR↔pt-BR, EN↔EN) or **ask** on greenfield (user override wins)
 - [ ] Structure/quality bar: `../code-guidelines/principles/structure-and-quality.md`
-- [ ] `/commit` offered — do not auto-commit
+- [ ] `/adt-commit` offered — do not auto-commit
 
 ---
 

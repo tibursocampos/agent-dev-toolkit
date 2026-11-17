@@ -1,6 +1,6 @@
 # Subagent model policy (Orchestrated Delivery)
 
-Contract for **LLM model** on native subagent spawns (`Agent` calls) from `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop`, and other parent spawns under `SPAWN.md`. Orthogonal to **when** to spawn (`ROSTER.md`), **native vs fallback** (`SPAWN.md` + `orchestrator-session` policy), and to Memory Bank Gate policy `auto` (bank health — not a host auto model).
+Contract for **LLM model** on native subagent spawns (`Agent` calls) from `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement`, and other parent spawns under `SPAWN.md`. Orthogonal to **when** to spawn (`ROSTER.md`), **native vs fallback** (`SPAWN.md` + `orchestrator-session` policy), and to Memory Bank Gate policy `auto` (bank health — not a host auto model).
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-MODEL.md`
 

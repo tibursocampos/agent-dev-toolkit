@@ -59,14 +59,14 @@ Common ids:
 | `cancel` | Stop. Do not perform the gated action. |
 | `skip` | Leave an optional step undone and continue. |
 | `decline` | Refuse an optional offer. |
-| `feature`, `tech` | Requirement-review mode (`requirement-review`). |
+| `feature`, `tech` | Requirement-review mode (`adt-requirement-review`). |
 | `split` | Divide a story before drafting. |
 | `manual`, `orchestrated` | Execution route for one PLAN step. |
 | `series`, `parallel` | Orchestrated Delivery drafting mode. |
 
 Domain ids are added per gate. They are still English and must be listed in the owning skill's contract.
 
-`series` / `parallel` (orchestrate-deliver drafting mode) and `serial` / `parallel` / `manual` (orchestrate-develop queue mode) are distinct id sets for distinct questions.
+`series` / `parallel` (adt-orchestrate-prepare drafting mode) and `serial` / `parallel` / `manual` (adt-orchestrate-implement queue mode) are distinct id sets for distinct questions.
 
 ## Answer to id mapping
 
@@ -78,7 +78,7 @@ Domain ids are added per gate. They are still English and must be listed in the 
 
 ## Legitimate free text
 
-Open questionnaires take free text on purpose. Example: the intake questions in `sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
+Open questionnaires take free text on purpose. Example: the intake questions in `adt-sdd-spec`. Those questions have no fixed id set. The answer is recorded as text, and the question still blocks until it is answered.
 
 ## States
 
@@ -89,7 +89,7 @@ Open questionnaires take free text on purpose. Example: the intake questions in 
 | `answered` | The agent has received and parsed an allowed answer for this question and can name the selected id. | Only the branch that answer authorizes |
 | `resumed` | After an interruption or a new turn, the agent reloaded the pending question and confirmed which one is still active. | No, until the question becomes `answered` |
 
-`orchestrate-deliver/references/approval-gates.md` uses these same states and points here.
+`adt-orchestrate-prepare/references/approval-gates.md` uses these same states and points here.
 
 Record the question id or scope, the accepted answer form, and the resulting transition in the current turn or in the persistent workflow artifact where one exists. On resume, repeat the active question or present its current status. Never infer an answer from earlier unrelated text.
 
@@ -114,7 +114,7 @@ Children never ask the operator. Only the parent asks. This is a toolkit rule, n
 | File | Use |
 |------|-----|
 | `core/policy/guardrails.md` | Blocking rule and the git and write gates that point here |
-| `core/skills/orchestrate-deliver/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
+| `core/skills/adt-orchestrate-prepare/references/approval-gates.md` | Gate prompts for Orchestrated Delivery; uses the states defined here |
 | `LANGUAGE.md` | Which language each surface uses; the gate text in the user's language |
 | `SPAWN.md` | When to spawn; children report questions through the receipt |
 | `RECEIPT.md` | Receipt schema and the `needs-confirm.` refusal token |

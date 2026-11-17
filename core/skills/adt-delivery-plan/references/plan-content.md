@@ -14,16 +14,16 @@
 - Parallelism only for independent steps with clear file ownership.
 - Do not mandate a test after every step. Tests come from the criteria (see Validation).
 - A step that needs a domain skill names it. Implement invokes that skill inside the step:
-  - `ef-add-migration` for an EF Core migration;
-  - `i18n-manager` for moving strings into localization files;
-  - `containerize` for Dockerfile, `.dockerignore` or compose;
-  - `test-coverage` for .NET coverage reports against a threshold;
-  - `repair-dotnet-build` for a failing .NET build or test run.
+  - `adt-ef-add-migration` for an EF Core migration;
+  - `adt-i18n-manager` for moving strings into localization files;
+  - `adt-containerize` for Dockerfile, `.dockerignore` or compose;
+  - `adt-test-coverage` for .NET coverage reports against a threshold;
+  - `adt-repair-dotnet-build` for a failing .NET build or test run.
   No other domain skill is planned.
 
 ## Validation
 - Map each criterion to its expected test: test name in the stack test pattern (`Should_<Result>_When_<Condition>` for .NET per `dotnet-guidelines/dotnet-test-patterns.md`; the pattern of the stack's test file otherwise), its level (unit or integration) and its file.
-- Name the final validation the change needs (the workspace test command through `run-tests`, plus the criterion tests).
+- Name the final validation the change needs (the workspace test command through `adt-run-tests`, plus the criterion tests).
 - The closeout order is defined once in `{{TOOLKIT_ROOT}}/skills/adt-delivery-implement/references/closeout.md`. List here only the checks specific to this change.
 - The review report is written to `CODE-REVIEW.md` next to the actual plan.
 - Mark final validation and review outcomes `pending` until performed; never claim delivery complete early.

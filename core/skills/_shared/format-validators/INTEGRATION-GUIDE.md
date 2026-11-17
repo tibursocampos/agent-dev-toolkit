@@ -8,8 +8,8 @@ How to wire validators into agent-dev-toolkit skills (Git-only).
 format-validators
   ├── validate-prd.ps1          -> optional PRD structure diagnostic
   ├── feature-validator.md      -> PRD authoring checklist (non-executable)
-  ├── commit-message-validator.md -> commit, code-review
-  └── pr-comment-validator.md   -> code-review
+  ├── commit-message-validator.md -> adt-commit, adt-code-review
+  └── pr-comment-validator.md   -> adt-code-review
 ```
 
 ---
@@ -17,7 +17,7 @@ format-validators
 ## spec
 
 **Optional diagnostic:** `scripts/validation/validate-prd.ps1`
-**When:** Run only when requested or when it helps investigate a concrete content issue. It is not required before handoff, and `/sdd-plan` does not rerun it automatically. `feature-validator.md` is optional authoring guidance. Storage: `sdd-artifacts/STORAGE.md`. Language: content-language per `agents/LANGUAGE.md`.
+**When:** Run only when requested or when it helps investigate a concrete content issue. It is not required before handoff, and `/adt-sdd-plan` does not rerun it automatically. `feature-validator.md` is optional authoring guidance. Storage: `sdd-artifacts/STORAGE.md`. Language: content-language per `agents/LANGUAGE.md`.
 
 | Context | Level | Behavior |
 |---------|-------|----------|
@@ -26,7 +26,7 @@ format-validators
 
 ---
 
-## commit
+## adt-commit
 
 **Validator:** `commit-message-validator.md`  
 **When:** After user approves message, before `git commit`
@@ -40,7 +40,7 @@ Also referenced from `developer-common/step-4-commits-pr.md`.
 
 ---
 
-## code-review
+## adt-code-review
 
 **Validators:** `commit-message-validator.md`, `pr-comment-validator.md`
 
@@ -63,7 +63,7 @@ Also referenced from `developer-common/step-4-commits-pr.md`.
 
 ---
 
-## developer (shortcut)
+## adt-developer (shortcut)
 
 **Validator:** `commit-message-validator.md` only (via `step-4-commits-pr.md` when committing).
 

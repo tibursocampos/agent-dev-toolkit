@@ -43,5 +43,5 @@ Discard any tip that conflicts with Learn / checklist Must items.
 ## Cross-refs
 
 - Delivery checklist: `checklist.md`
-- Framework-upgrade catalog: `skills/framework-upgrade/references/sources-catalog.md`
-- Pack quality gate index: `skills/framework-upgrade/packs/dotnet/references/knowledge-index.md`
+- Framework-upgrade catalog: `skills/adt-framework-upgrade/references/sources-catalog.md`
+- Pack quality gate index: `skills/adt-framework-upgrade/packs/dotnet/references/knowledge-index.md`

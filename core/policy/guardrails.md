@@ -34,7 +34,7 @@ Before a mutation, verify that it falls within the user's current authorization 
 
 ### Working branch (development skills, before the first code change)
 
-The integration-branch stop applies only to `orchestrate-develop`, `sdd-develop`, `developer`, and `*-developer`.
+The integration-branch stop applies only to `adt-orchestrate-implement`, `adt-sdd-develop`, `adt-developer`, and `adt-*-developer`.
 
 Before those skills change code, run read-only `git status -sb` or `git branch --show-current` and show the branch name.
 
@@ -48,15 +48,15 @@ If the current branch is `main`, `master`, or `develop`:
 
 If the branch is already `feature/*` or `feat/*`, do not ask again in that conversation.
 
-`sdd-spec`, `sdd-plan`, `orchestrate-analyze`, `orchestrate-deliver`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
+`adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, and every other skill stay on the current branch. They do not show the branch and do not ask for a branch switch.
 
 Exception: the user explicitly says to keep the current integration branch. That exception is only for the development skills listed above.
 
 Mutating git commands require explicit confirmation (`confirm`) in the user's **immediately previous** message, or the user runs them manually. An observable selection of the question component, or a clear affirmative reply in any language, counts for the exact action asked. It does not generalize to other actions.
 
-Use `/commit` / `/push` after confirmation.
+Use `/adt-commit` / `/adt-push` after confirmation.
 
-**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/commit` §5.1 and `conventional-commits.mdc`.
+**Commit messages:** never include `Co-authored-by: Cursor`, Antigravity, or any AI agent - not in the message file, not via `--trailer`. If the IDE injects a co-author trailer after commit, amend it away per `/adt-commit` §5.1 and `conventional-commits.mdc`.
 
 ---
 
@@ -83,7 +83,7 @@ The question mechanism, option ids, and observable answer rules are defined in `
 - Classic SDD uses the cadence selected for the approved PLAN: `step_by_step` stops after one step, while `continuous` advances through eligible steps until completion or a real blocker.
 - ADT Delivery follows its own approved plan and selected `step_by_step` or `continuous` cadence. In `continuous`, the initial authorization covers only the eligible steps of that exact approved plan; a blocker, a material scope, input or approval change, or an action needing separate authorization stops the sequence. Its implementation skill defines progress, validation and review.
 - Orchestrated Delivery O3 is serial: one child implements one PLAN step at a time. Its `step_by_step` or `continuous` cadence controls whether the parent stops or dispatches the next eligible step after reconciliation. SESSION flags and claims are not required for Classic/O3 execution.
-- `document-implement`: exactly **one** documentation plan step per session.
+- `adt-document-implement`: exactly **one** documentation plan step per session.
 
 Handoffs cite a **portable** PLAN path only (e.g. `features/NNN-slug/USnn/PLAN/PLAN_NNN_*.md`) — see `STORAGE.md` § Portable path. Cadence does not bypass dependencies, acceptance, required validation, approved scope, or separate authorization for consequential actions.
 
@@ -111,12 +111,12 @@ Persist progress in the owning workflow's canonical artifact. For Classic SDD an
 
 ## 7. Session state
 
-Classic SDD and Orchestrated Delivery use the canonical PLAN for implementation progress and do not require SESSION flags or PLAN claims to authorize or advance work. `SESSION.md` and its helpers remain available only to consumers that explicitly retain those contracts, including `document-implement`; do not apply their gates globally by analogy.
+Classic SDD and Orchestrated Delivery use the canonical PLAN for implementation progress and do not require SESSION flags or PLAN claims to authorize or advance work. `SESSION.md` and its helpers remain available only to consumers that explicitly retain those contracts, including `adt-document-implement`; do not apply their gates globally by analogy.
 
 ---
 
 ## Never compress (Caveman Mode)
 
 Confirmation gates, artifact drafts, and git-block notices are **never** subject to Caveman compression.
-Skills `commit` / `push` ignore `caveman_mode` (clear prose). Auto-Clarity drops compression for security and irreversible confirms.
+Skills `adt-commit` / `adt-push` ignore `caveman_mode` (clear prose). Auto-Clarity drops compression for security and irreversible confirms.
 Contract: `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`. Optional narrative compact: `COMPACT.md` (requires user **sim**). Always-on rule: `caveman-mode.mdc`.

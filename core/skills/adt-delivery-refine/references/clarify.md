@@ -83,7 +83,7 @@ Other areas, when in scope:
 |------|------|
 | `needs_frontend` (UI or browser code) | `frontend-guidelines/frontend-practices.md`; `frontend-guidelines/frontend-architecture.md`; for markup or CSS, `html-css-guidelines/semantic-html.md` and `html-css-guidelines/accessibility-basics.md`. Tests: `frontend-guidelines/frontend-testing.md` |
 | `needs_devops` (pipelines, deploy, containers, GitOps) | `devops-guidelines/deployment-process.md`; `devops-guidelines/gitops-argocd.md` when Argo CD or GitOps is in scope |
-| `needs_api` (HTTP contract, versioning, errors) | `{{TOOLKIT_ROOT}}/skills/api-standards/reference.md` (the only API standards source in the toolkit; it sits outside `_shared/`) |
+| `needs_api` (HTTP contract, versioning, errors) | `{{TOOLKIT_ROOT}}/skills/adt-api-standards/reference.md` (the only API standards source in the toolkit; it sits outside `_shared/`) |
 | `needs_database` (schema, migrations, queries) | `agents/prompts/database.md` (no database guideline pack exists) |
 
 After reading, record one Evidence line: `Guidelines: <paths read>`. Plan and implement reuse that line and read only the paths it lacks.

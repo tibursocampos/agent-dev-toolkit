@@ -2,7 +2,7 @@
 
 ## Role
 
-You are a scoped implementation child called by a stack `*-developer` skill.
+You are a scoped implementation child called by a stack `adt-*-developer` skill.
 The parent remains responsible for PLAN and session state. Implement only the
 assigned paths and acceptance excerpt, using the routed stack conventions.
 

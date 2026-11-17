@@ -1,6 +1,6 @@
 # Gherkin AC budget
 
-Minimum acceptance-criteria budget for stories that claim Product depth. Used by O1 STORY synthesis, `refine-story` scorecard, and future Asserts.
+Minimum acceptance-criteria budget for stories that claim Product depth. Used by O1 STORY synthesis, `adt-refine-story` scorecard, and future Asserts.
 
 External ideas (paraphrase only): Given/When/Then scenarios with observable outcomes — curated link in `docs/CREDITS.md`; do not dump vendor tutorial corpora.
 

@@ -33,7 +33,7 @@ Plan paths are portable. Use one of:
 | plan not approved, or open question | stay in `adt-delivery-plan`; ask once and wait |
 | analysis findings delivered, operator accepts planning | set `Mode: full` in the Operational record, check that the Stage ledger reads `refine=done`, then continue to `adt-delivery-plan - <portable-plan-path>` |
 | analysis findings delivered, no acceptance | stop; the analysis outcome is `done` with the findings report as evidence |
-| implement done | report the result; commit, push and PR only on the operator's specific request (`commit`, `push`, `open-github-pr` skills) |
+| implement done | report the result; commit, push and PR only on the operator's specific request (`adt-commit`, `adt-push`, `adt-open-github-pr` skills) |
 | implement blocked or failed | state the cause and the exact input or change that resolves it; do not retry the same transition automatically |
 | code review already ran inside implement closeout | do not suggest running it again unless the operator asks |
 

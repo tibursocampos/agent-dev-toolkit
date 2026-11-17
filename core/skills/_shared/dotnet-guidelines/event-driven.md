@@ -4,7 +4,7 @@ Stack HOW for messaging and async workflows on .NET. Load when ARCH declares eve
 
 > **Principles (WHAT):** `../code-guidelines/principles/architecture/event-driven.md` — outbox, eventual consistency, consumer idempotency live there. Do not copy that essay.  
 > **Selection (WHEN):** `../code-guidelines/principles/architecture-selection.md`  
-> **Scaffold skill:** `../../scaffold-message-handler/SKILL.md` + `reference.md` (detect bus, collect requirements, mirror consumers)
+> **Scaffold skill:** `../../adt-scaffold-message-handler/SKILL.md` + `reference.md` (detect bus, collect requirements, mirror consumers)
 
 ---
 
@@ -25,7 +25,7 @@ Stack HOW for messaging and async workflows on .NET. Load when ARCH declares eve
 - Publish domain events directly to the broker from Domain entities without the Application/Infrastructure path the solution uses (outbox/dispatcher).
 - Bypass outbox/inbox when the project already requires them for the touched aggregate or integration.
 - Invent a second error/retry stack beside MassTransit `_error` / Wolverine policies / ASB dead-letter already in use.
-- Scaffold consumers without reading `scaffold-message-handler` detection rules when the user asks for a new handler.
+- Scaffold consumers without reading `adt-scaffold-message-handler` detection rules when the user asks for a new handler.
 - Duplicate principles B (consistency models, choreography vs orchestration theory) here — link instead.
 
 ---
@@ -55,7 +55,7 @@ Stack HOW for messaging and async workflows on .NET. Load when ARCH declares eve
 
 ### Consumer checklist (per new handler)
 
-1. Run `scaffold-message-handler` detection (or Glob existing consumers) — record bus, contract location, registration file.
+1. Run `adt-scaffold-message-handler` detection (or Glob existing consumers) — record bus, contract location, registration file.
 2. Collect queue/topic, concurrency, poison handling, and idempotency key with the operator when greenfield.
 3. Implement consumer + registration + contract (if new) matching neighbors.
 4. Add/adjust integration test using the repo’s harness before claiming done.
@@ -76,7 +76,7 @@ Stack HOW for messaging and async workflows on .NET. Load when ARCH declares eve
 
 ## Related guidelines
 
-- Consumer scaffold: `../../scaffold-message-handler/SKILL.md`
+- Consumer scaffold: `../../adt-scaffold-message-handler/SKILL.md`
 - CA / VSA / DDD hosts: `clean-architecture.md`, `vertical-slice.md`, `ddd-tactical.md`
 - Magic values / queue name constants: `csharp-patterns.md`
 

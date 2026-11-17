@@ -31,7 +31,7 @@ Every invocable skill (`core/skills/*/SKILL.md` with YAML `name:`) **must** incl
 | `## Lazy-load` | Situational routing table (`When` \| `Path`) |
 | `**Never by default:**` | Explicit list of paths/skills **not** to preload at skill start |
 
-**Reference routing (optional table):** Orchestrate skills (`orchestrate-*`) and other skills that already ship a `## Reference routing` table map situations to `references/<section>.md`. Skills without that heading still satisfy this contract via `## Lazy-load` + Process step paths — do **not** invent a Reference routing section solely to match orchestrate layout.
+**Reference routing (optional table):** Orchestrate skills (`adt-orchestrate-*`) and other skills that already ship a `## Reference routing` table map situations to `references/<section>.md`. Skills without that heading still satisfy this contract via `## Lazy-load` + Process step paths — do **not** invent a Reference routing section solely to match orchestrate layout.
 
 ## Operating procedure (agents)
 
@@ -57,7 +57,7 @@ skill-id/
 
 Alternate folder name (existing convention): `reference/` (singular). Assert accepts either `references/` or `reference/` as a valid split.
 
-Examples that use the split: `orchestrate-analyze`, `orchestrate-deliver`, `orchestrate-develop`, and Wave 1A skills such as `code-review`, `open-github-pr`, `test-coverage`, `sdd-develop`, `refine-story`, `split-story-checklist`, `document-plan`, `commit`.
+Examples that use the split: `adt-orchestrate-analyze`, `adt-orchestrate-prepare`, `adt-orchestrate-implement`, and Wave 1A skills such as `adt-code-review`, `adt-open-github-pr`, `adt-test-coverage`, `adt-sdd-develop`, `adt-refine-story`, `adt-split-story-checklist`, `adt-document-plan`, `adt-commit`.
 
 ## Enforcement
 
@@ -83,5 +83,5 @@ Fail the assert → fix the skill before marking lazy-load reference work done.
 - Use `reference.md` as a second SKILL body (>50 lines when a split folder exists)
 - Treat reading all `references/*.md` / `reference/*.md` as default context assembly
 - Require a `## Reference routing` table on skills that only use Lazy-load + Process paths
-- Assume the split layout applies only to `orchestrate-*` skills (or that every skill must split)
+- Assume the split layout applies only to `adt-orchestrate-*` skills (or that every skill must split)
 

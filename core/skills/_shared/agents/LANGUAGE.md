@@ -40,7 +40,7 @@ Resolve **once** per Write of an SDD artifact (or at skill start when authoring 
 
 `null` / unset preferences and manifest fields mean “no override” — **not** “default to pt-BR”.
 
-Record the resolved value when skills persist manifests (`sdd-spec` / storage steps). Do not invent a locale string that was never chosen.
+Record the resolved value when skills persist manifests (`adt-sdd-spec` / storage steps). Do not invent a locale string that was never chosen.
 
 **Do not** open a dedicated “which language for the PRD/PLAN?” question solely to pick locale when chat language is already clear — inference from chat (step 4) is enough unless the operator overrides (step 1) or prefs/manifest already set a value.
 
@@ -93,7 +93,7 @@ When spawning (native path or documented equivalent):
 - Write child prompts, specialist contexts, or agent receipts in the user chat / content-language when that language is not en-US
 - Write `ANALYSIS/`, `ARCH/`, `SEC/`, or `memory-bank/` prose in a language other than the resolved content-language. English receipts are not the artifact. The parent translates before Write
 - Leave English template headings in a saved PLAN/PRD when content-language is not English. Exception: `## Execution policy` and the status tokens listed above stay English so validators keep matching them
-- Duplicate this policy into every `*-developer` SKILL (they inherit `SPAWN.md` / `subagent-first.md`)
+- Duplicate this policy into every `adt-*-developer` SKILL (they inherit `SPAWN.md` / `subagent-first.md`)
 
 ## Cross-refs (lazy-load)
 

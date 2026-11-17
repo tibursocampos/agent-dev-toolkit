@@ -12,7 +12,7 @@ Clarify data model impact, migration needs, and query risks.
 
 ## Output
 
-When the parent is `orchestrate-analyze` before step 9, return the DB note to the parent. Do not create a story folder in that pass. The parent writes the `ANALYSIS/` or `ARCH/` DB slice at step 9, after the open-question gate. When the story folder already exists, write the note there:
+When the parent is `adt-orchestrate-analyze` before step 9, return the DB note to the parent. Do not create a story folder in that pass. The parent writes the `ANALYSIS/` or `ARCH/` DB slice at step 9, after the open-question gate. When the story folder already exists, write the note there:
 
 1. Entities/tables affected
 2. Migration needed? (yes/no/unknown)
@@ -30,7 +30,7 @@ When the parent is `orchestrate-analyze` before step 9, return the DB note to th
 
 ## Return — findings
 
-Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. The five-point note above is not the only product.
+Load `{{TOOLKIT_ROOT}}/skills/adt-refine-story/references/finding-format.md`. The return includes **zero or more** finding blocks. The five-point note above is not the only product.
 
 Each block has an id, severity `B` | `I` | `MINOR`, one finding type, a section, a portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation.
 

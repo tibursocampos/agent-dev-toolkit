@@ -29,13 +29,13 @@ Skills and guides in scope **must not** prescribe a full dump of:
 
 | Path | Role |
 |------|------|
-| `core/skills/sdd-spec/SKILL.md` | Enforce selective Prior context |
-| `core/skills/sdd-spec/reference.md` | Template pointer + quality gates |
-| `core/skills/sdd-plan/SKILL.md` | Summarize PRD; do not paste full body into PLAN/chat dumps |
-| `core/skills/sdd-plan/reference.md` | Template pointer + quality gates |
-| `core/skills/refine-story/SKILL.md` | Lean intake; no bank/PRD dump |
-| `core/skills/refine-story/references/boundary.md` | Boundaries (no bank/PRD dump) |
-| `core/skills/refine-story/references/guardrails.md` | Guardrails / checklist |
+| `core/skills/adt-sdd-spec/SKILL.md` | Enforce selective Prior context |
+| `core/skills/adt-sdd-spec/reference.md` | Template pointer + quality gates |
+| `core/skills/adt-sdd-plan/SKILL.md` | Summarize PRD; do not paste full body into PLAN/chat dumps |
+| `core/skills/adt-sdd-plan/reference.md` | Template pointer + quality gates |
+| `core/skills/adt-refine-story/SKILL.md` | Lean intake; no bank/PRD dump |
+| `core/skills/adt-refine-story/references/boundary.md` | Boundaries (no bank/PRD dump) |
+| `core/skills/adt-refine-story/references/guardrails.md` | Guardrails / checklist |
 | `core/skills/_shared/templates/sdd/PRD.md` | REQ/AC/OOS contract |
 | `core/skills/_shared/templates/sdd/PLAN.md` | REQ→step + selective note |
 | This file | Normative rule |
@@ -55,7 +55,7 @@ Fail the assert → fix the skill/guide text before marking CA1 / REQ-002 done.
 2. `memory-bank/`: read only named files needed for the step (e.g. `architecture.md`, `tech-stack.json`); never recurse-load the whole tree into the prompt.
 3. PRD: `Read` for authoring/planning; do **not** paste the full PRD into CONTINUITY, child Agent prompts, or PLAN bodies — cite the **portable path**.
 4. Prior context: structured summary + all necessary gap questions, in blocks of at most **5** (`PIPELINE.md`).
-5. Challenge vague acceptance language before writing REQ/AC (see `sdd-spec` / `refine-story`).
+5. Challenge vague acceptance language before writing REQ/AC (see `adt-sdd-spec` / `adt-refine-story`).
 
 ### Evidence decisions
 

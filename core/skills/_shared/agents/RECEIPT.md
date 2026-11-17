@@ -46,18 +46,18 @@ For Classic and O3, the PLAN is the persisted implementation progress source.
 
 ### Role-specific contracts
 
-The relay above is only for an O3 `sdd-develop` step. It is not the receipt for
-stack `*-developer` children, finding specialists, or the optional verifier.
+The relay above is only for an O3 `adt-sdd-develop` step. It is not the receipt for
+stack `adt-*-developer` children, finding specialists, or the optional verifier.
 
 These are consumer-specific output contracts, not one shared wire format. Name the expected result in the assignment: findings for human review remain Markdown/text, and machine handoffs keep the validated format declared for that role. A new serialization such as YAML requires a concrete consumer, defined validation, and compatibility rules before use.
 
 | Consumer | Contract | Validation owner |
 |----------|----------|-------------------|
-| `developer-child` (`*-developer` implementation) | Reduced object exactly `{ files[], testsSummary }`; MUST omit `planPath` and `step`. Build is omitted from per-step results; testsSummary states what ran or that validation was deferred. | Calling stack skill validates changed paths and requested checks; missing, malformed, out-of-scope, or contradictory receipt cannot succeed. |
+| `developer-child` (`adt-*-developer` implementation) | Reduced object exactly `{ files[], testsSummary }`; MUST omit `planPath` and `step`. Build is omitted from per-step results; testsSummary states what ran or that validation was deferred. | Calling stack skill validates changed paths and requested checks; missing, malformed, out-of-scope, or contradictory receipt cannot succeed. |
 | `shell-runner` (bounded command execution) | Command receipt: exact scoped commands, exit results, portable evidence path, and next action. `SKIPPED` is not `PASS`. | Parent validates against authorized command scope; applicable build is assigned at US close only. |
-| Finding specialist (`repo-analyst`, `architect`, `security`, `database`) | Finding blocks follow `refine-story/references/finding-format.md`: severity `B`, `I`, or `MINOR`, finding type, section, portable evidence or `no-evidence`, and labeled recommendation. These severity labels remain finding/readiness vocabulary; they are not relay `status`. | Parent validates scoped evidence/artifact and applicable confirmation gate. |
+| Finding specialist (`repo-analyst`, `architect`, `security`, `database`) | Finding blocks follow `adt-refine-story/references/finding-format.md`: severity `B`, `I`, or `MINOR`, finding type, section, portable evidence or `no-evidence`, and labeled recommendation. These severity labels remain finding/readiness vocabulary; they are not relay `status`. | Parent validates scoped evidence/artifact and applicable confirmation gate. |
 | Optional O3 verifier | `{ verifierStatus: pass|fail|skip, findings[], reqCoverage[] }`; it is read-only and does not return implementer build/tests fields unless it is explicitly quoting the implementer input. | Parent compares it to the step acceptance; it is not an evidence validator or PLAN-state authority. |
-| O3 implementer relay (`sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks assignment scope, changed paths, PLAN acceptance, and relevant validation before reconciliation. |
+| O3 implementer relay (`adt-sdd-develop`) | The canonical allowlist above. `step` is a positive integer in producer JSON; parent accepts integer or `S<n>` alias only after normalization. | Parent checks assignment scope, changed paths, PLAN acceptance, and relevant validation before reconciliation. |
 
 The finding, verifier, command, reduced developer-child, and O3 relay receipts
 are distinct contracts. An Agent's terminal outcome (`done`, `blocked`, or
@@ -88,7 +88,7 @@ claim state before changing progress.
 | `architect` / design | The scoped architecture artifact or requested design result was delivered; `files[]` identifies it when written. | A required design decision or confirmation is missing; name it in `blockedReason`. | The assigned design work failed; state the cause in `blockedReason`. | Parent checks the assignment acceptance and any applicable approval gate. |
 | `security` / security review | The scoped security review was delivered at its assigned path. | Review cannot reach a required conclusion because evidence or scope is missing. | The review attempt failed; state the cause. | Parent checks the assigned review scope and artifact. |
 | `database` / data design | The assigned database slice or migration work was delivered as scoped. | Required schema, vendor, or dependency input is unavailable. | The assigned work failed; state the cause. | Parent checks the step acceptance and applicable migration/build/test evidence. |
-| `sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, applicable scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
+| `adt-sdd-develop` / PLAN step | The exact step acceptance passed; `files[]` and optional `deletedFiles[]` are in scope and non-conflicting, and `testsSummary` reports PASS when tests are declared, otherwise explicit deferred/skipped. | A required gate, input, or acceptance condition is unresolved. | Implementation or its required validation ran and failed. | Parent checks the exact PLAN step, applicable scoped session gates, and claim; only parent persistence/re-read establishes the next persisted state. |
 
 `qa_checklist` is not an Agent role and does not emit this relay receipt. Its
 checklist bullets are parent-owned context in CONTINUITY or STORY, as defined

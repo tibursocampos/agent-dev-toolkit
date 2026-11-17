@@ -37,6 +37,6 @@ When assigned in O1, return findings to the parent; do not create a story folder
 
 ## Return — findings
 
-Load `{{TOOLKIT_ROOT}}/skills/refine-story/references/finding-format.md`. Return zero or more scoped finding blocks with severity `B`, `I`, or `MINOR`, a finding type, section, portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation. A summary alone is not a substitute when the assignment requests findings.
+Load `{{TOOLKIT_ROOT}}/skills/adt-refine-story/references/finding-format.md`. Return zero or more scoped finding blocks with severity `B`, `I`, or `MINOR`, a finding type, section, portable evidence path or `no-evidence`, and a recommendation labeled as a recommendation. A summary alone is not a substitute when the assignment requests findings.
 
 Without a portable evidence path, do not mark an evidence-based finding resolved. Do not write application code.

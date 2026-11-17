@@ -5,16 +5,16 @@ alwaysApply: true
 
 # SDD pipeline guards
 
-Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load when running `sdd-spec`, `sdd-plan`, or `sdd-develop`).
+Full detail: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md` (load when running `adt-sdd-spec`, `adt-sdd-plan`, or `adt-sdd-develop`).
 
 ## Operator track choice
 
-Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`sdd-spec` → `sdd-plan` → `sdd-develop`) is valid without `orchestrate-analyze`. The operator may invoke `/sdd-spec` or `/sdd-plan` directly from chat, the host's planning mode, a host plan file, or prior manual analysis. Do **not** block or redirect to Orchestrated Delivery unless the operator chooses it or `invocation_context` is `orchestrated` and O2 gates apply.
+Three tracks coexist — **none is a prerequisite for another**. Classic SDD (`adt-sdd-spec` → `adt-sdd-plan` → `adt-sdd-develop`) is valid without `adt-orchestrate-analyze`. The operator may invoke `/adt-sdd-spec` or `/adt-sdd-plan` directly from chat, the host's planning mode, a host plan file, or prior manual analysis. Do **not** block or redirect to Orchestrated Delivery unless the operator chooses it or `invocation_context` is `orchestrated` and O2 gates apply.
 
 ## Order
 
-- **Classic SDD**: `sdd-spec` -> `sdd-plan` -> `sdd-develop`. Do not create a PLAN without a canonical PRD (unless "PLAN direto"). Do not implement without a canonical PLAN.
-- **Orchestrated Delivery**: `orchestrate-analyze` -> `orchestrate-deliver` -> (`orchestrate-develop` \| `sdd-develop`); one complete PLAN approval precedes implementation.
+- **Classic SDD**: `adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop`. Do not create a PLAN without a canonical PRD (unless "PLAN direto"). Do not implement without a canonical PLAN.
+- **Orchestrated Delivery**: `adt-orchestrate-analyze` -> `adt-orchestrate-prepare` -> (`adt-orchestrate-implement` \| `adt-sdd-develop`); one complete PLAN approval precedes implementation.
 
 ## Canonical paths only
 
@@ -39,7 +39,7 @@ Classic SDD and Orchestrated Delivery may write and revise draft FEATURE/STORY/P
 ## Host session mode
 
 - **Read-only host mode** (planning or ask-only): Phase A. Questions and draft in chat only. Do not claim files were saved without a successful `Write`.
-- **Edit-capable host mode**: Phase B. Persist within the authorized task scope. Run `sdd-develop`, `run-tests`, and `test-coverage` when that skill applies.
+- **Edit-capable host mode**: Phase B. Persist within the authorized task scope. Run `adt-sdd-develop`, `adt-run-tests`, and `adt-test-coverage` when that skill applies.
 
 When Phase A is done and persistence is still pending, explain that the current host mode cannot write and continue the already authorized task when an edit-capable mode is available; do not ask for redundant write approval.
 
@@ -47,6 +47,6 @@ When Phase A is done and persistence is still pending, explain that the current 
 
 A canonical, approved PLAN starts in the current session when its dependencies and required inputs are ready; do not require a new session. Resolve direct vs O3 route or cadence only when the invocation leaves a real choice unresolved. Reuse the approved PLAN's cadence on resumption; no per-step SESSION reset is required.
 
-- `sdd-spec` / `sdd-plan`: no production or test code changes.
-- `sdd-develop`: use the cadence selected for the approved plan (`step_by_step` or `continuous`); in step-by-step mode stop after one completed step, and in continuous mode advance through eligible steps until completion or a real blocker. O3 dispatch is serial, one child per step. The PLAN alone records implementation progress; session files and claims are not prerequisites for these affected flows. ADT Delivery follows its own contract.
-- `code-review`: does not write PRD/PLAN; hand off findings with `/sdd-spec`.
+- `adt-sdd-spec` / `adt-sdd-plan`: no production or test code changes.
+- `adt-sdd-develop`: use the cadence selected for the approved plan (`step_by_step` or `continuous`); in step-by-step mode stop after one completed step, and in continuous mode advance through eligible steps until completion or a real blocker. O3 dispatch is serial, one child per step. The PLAN alone records implementation progress; session files and claims are not prerequisites for these affected flows. ADT Delivery follows its own contract.
+- `adt-code-review`: does not write PRD/PLAN; hand off findings with `/adt-sdd-spec`.

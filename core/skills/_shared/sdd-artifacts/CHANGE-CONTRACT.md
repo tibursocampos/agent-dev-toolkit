@@ -10,7 +10,7 @@ Do not create an empty CHANGE stub. Do not overwrite or delete an existing CHANG
 
 ## Optional task checklist
 
-`split-story-checklist` remains an independent, optional way to break down a STORY. Its output can inform the PLAN, but the PLAN owns the executable steps, dependencies, implementation state, evidence, and next action. `sdd-plan` may derive steps directly from the PRD without creating or synchronizing TASKS.
+`adt-split-story-checklist` remains an independent, optional way to break down a STORY. Its output can inform the PLAN, but the PLAN owns the executable steps, dependencies, implementation state, evidence, and next action. `adt-sdd-plan` may derive steps directly from the PRD without creating or synchronizing TASKS.
 
 Existing task lists may be consulted when useful. They do not become a second source of implementation progress, and missing, stale, or differently named checklist entries do not block the PLAN by themselves.
 

@@ -38,4 +38,4 @@ FEATURE table justifies story count. Cap ≤4 US/TS for Product Initiative matur
 | `ost-lite.md` | Outcome ↔ story ↔ task chain |
 | `clarify-depth.md` | Depth of open questions at FEATURE/PRD altitude |
 | Templates FEATURE/STORY | Field shapes |
-| `orchestrate-analyze` story-synthesis | Cap + altitude enforced at O1 gates |
+| `adt-orchestrate-analyze` story-synthesis | Cap + altitude enforced at O1 gates |

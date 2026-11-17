@@ -8,7 +8,7 @@
 
 ## Doing the work
 - Implement each step within its planned paths and outcomes, following the guideline files in the plan's `Guidelines:` line: structure and naming from `structure-and-quality.md`, layering from the architecture file, the stack file for the language, and its test shape.
-- A step that names a domain skill (`ef-add-migration`, `i18n-manager`, `containerize`, `test-coverage`, `repair-dotnet-build`) invokes that skill for that step, inside the step's paths. No other domain skill runs.
+- A step that names a domain skill (`adt-ef-add-migration`, `adt-i18n-manager`, `adt-containerize`, `adt-test-coverage`, `adt-repair-dotnet-build`) invokes that skill for that step, inside the step's paths. No other domain skill runs.
 - Check dependencies and current state before every step and on resume.
 - When subagents are available, delegate proportionally to scope and risk, with scoped file ownership and a receipt. Follow `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`. Without subagents, implement in the current context.
 - Run steps in parallel only when they are independent and file ownership is clear.

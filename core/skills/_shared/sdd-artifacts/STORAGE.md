@@ -1,4 +1,4 @@
-# SDD artifact storage (sdd-spec / sdd-plan / sdd-develop)
+# SDD artifact storage (adt-sdd-spec / adt-sdd-plan / adt-sdd-develop)
 
 Single source of truth for where Classic SDD and Orchestrated Delivery artifacts are written. Load on demand from skills - do not paste this file into PRD/PLAN bodies.
 
@@ -63,14 +63,14 @@ features/NNN-slug/
 **Classic SDD (no O1 backlog):** create `features/NNN-slug/US01/` (default story) and write PRD/PLAN there unless the user names another `USnn`/`TSnn`.
 
 **Templates (scaffold only):** `skills/_shared/templates/features/` in this toolkit repo (includes `CHANGE.md`, `STATE.md`, `EVD/README.md`, `TRACE.jsonl`).  
-**SDD PRD/PLAN document templates:** `skills/_shared/templates/sdd/PRD.md` and `skills/_shared/templates/sdd/PLAN.md` (authoring rules in `sdd-spec` / `sdd-plan` `reference.md`).
+**SDD PRD/PLAN document templates:** `skills/_shared/templates/sdd/PRD.md` and `skills/_shared/templates/sdd/PLAN.md` (authoring rules in `adt-sdd-spec` / `adt-sdd-plan` `reference.md`).
 **CHANGE / current specs:** `skills/_shared/sdd-artifacts/CHANGE-CONTRACT.md`.  
 **EVD / STATE / evidence-or-zero:** `skills/_shared/sdd-artifacts/EVD-STATE-CONTRACT.md`.  
 **TRACE / archive / sync current:** `skills/_shared/sdd-artifacts/TRACE-ARCHIVE-CONTRACT.md`.
 
 ## Repository mode - `.gitignore`
 
-Run **before** the first `Write` under any SDD folder or `memory-bank/` in the workspace (`sdd-spec`, `sdd-plan`, `orchestrate-*`, `memory-bank-init` in **repository** mode only).
+Run **before** the first `Write` under any SDD folder or `memory-bank/` in the workspace (`adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-*`, `adt-memory-bank` in **repository** mode only).
 
 1. Read `features_versioned` from `manifest.json` (`repositories[$Cwd].classic.features_versioned`, default `false`). Read `.gitignore` at workspace root. If missing, create it with the SDD block for the active mode.
 2. **Always** require these patterns in repository mode (safety-net + documentation-plan exception):
@@ -88,7 +88,7 @@ Run **before** the first `Write` under any SDD folder or `memory-bank/` in the w
 
    **Do not** add or require `/memory-bank/` in the SDD ignore block. Commit bank when product knowledge; never commit secrets.
 
-   Use leading `/` so `skills/sdd-plan/`, `skills/_shared/templates/features/`, `skills/_shared/templates/memory-bank/`, and other non-root paths are **not** ignored.
+   Use leading `/` so `skills/adt-sdd-plan/`, `skills/_shared/templates/features/`, `skills/_shared/templates/memory-bank/`, and other non-root paths are **not** ignored.
 
 3. If **any** required pattern for the active `features_versioned` mode is missing, append or migrate the **full** block below. **Remove** legacy `/docs/documentation-plan/` (whole folder) if present — replace it with `/docs/documentation-plan/*`, without a negation for `plan.md`. When `features_versioned` is `true`, **never** re-add `/features/` or `/docs/features/` even if absent from `.gitignore`.
 
@@ -186,7 +186,7 @@ Canonical cross-artifact navigation for FEATURE / CONTINUITY / STORY / PRD / PLA
 
 | Mode | Edges |
 |------|-------|
-| **Classic** (`sdd-spec` / `sdd-plan` / `sdd-develop`) | **PRD ↔ PLAN** when either side is written/updated; **STORY** if on-disk; FEATURE / CONTINUITY / ARCH… only if present |
+| **Classic** (`adt-sdd-spec` / `adt-sdd-plan` / `adt-sdd-develop`) | **PRD ↔ PLAN** when either side is written/updated; **STORY** if on-disk; FEATURE / CONTINUITY / ARCH… only if present |
 | **Orchestrated O1+** | Bidirectional among siblings that exist: `FEATURE ↔ CONTINUITY ↔ STORY ↔ ANALYSIS\|ARCH\|SEC` (flag-gated / on-disk) `↔ PRD ↔ PLAN` |
 
 ### Block shape (templates)
@@ -212,15 +212,15 @@ Omit any row whose target is absent. Slash handoff lines also use portable paths
 Always pass the **portable path** (1A) — never OS absolute / user-home InstallRoot embeds inside artifacts:
 
 ```text
-/sdd-plan - features/003-feature/US01/PRD/003_feature.md
-/sdd-develop - features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
+/adt-sdd-plan - features/003-feature/US01/PRD/003_feature.md
+/adt-sdd-develop - features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
 ```
 
 Global storage example (relative to InstallRoot):
 
 ```text
-/sdd-plan - sdd/<repo-id>/features/003-feature/US01/PRD/003_feature.md
-/sdd-develop - sdd/<repo-id>/features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
+/adt-sdd-plan - sdd/<repo-id>/features/003-feature/US01/PRD/003_feature.md
+/adt-sdd-develop - sdd/<repo-id>/features/003-feature/US01/PLAN/PLAN_003_feature.md - Step 1
 ```
 
 ## Forbidden paths (not used)
@@ -242,16 +242,16 @@ When the user cites a non-canonical `.md`, read it when relevant and authorized.
 
 | Skill | Storage question | `.gitignore` | Writes |
 |-------|------------------|--------------|--------|
-| sdd-spec | Only resolve a real storage choice when needed | Repository mode only | PRD under `features/.../PRD/` |
-| sdd-plan | Only resolve a real storage choice when needed | Repository mode only | PLAN under `features/.../PLAN/` |
-| sdd-develop | No - uses PLAN path from input | No | Updates same PLAN file |
-| orchestrate-* (Orchestrated Delivery) | Only resolve a real storage choice when needed | Repository mode only | Feature tree + stories when used |
-| memory-bank-init | Yes (resolve bank root) | Repository mode: SDD block for `features/` etc. only — **not** `/memory-bank/` (commit bank when product knowledge; never commit secrets) | Bank under resolved `bank_root` |
-| refine-story | Prefer feature `STORY.md` | No (unless first SDD write) | Optional `docs/backlog/` shortcut |
-| split-story-checklist | Prefer feature story folder | No | Task checklist under story / backlog |
-| code-review | No | No | Read-only |
-| repair-dotnet-build | No | No | Read-only |
-| document-plan / document-implement | No | No | `docs/documentation-plan/plan.md` is local workflow state and remains ignored; do not add a negation rule to version it |
+| adt-sdd-spec | Only resolve a real storage choice when needed | Repository mode only | PRD under `features/.../PRD/` |
+| adt-sdd-plan | Only resolve a real storage choice when needed | Repository mode only | PLAN under `features/.../PLAN/` |
+| adt-sdd-develop | No - uses PLAN path from input | No | Updates same PLAN file |
+| adt-orchestrate-* (Orchestrated Delivery) | Only resolve a real storage choice when needed | Repository mode only | Feature tree + stories when used |
+| adt-memory-bank | Yes (resolve bank root) | Repository mode: SDD block for `features/` etc. only — **not** `/memory-bank/` (commit bank when product knowledge; never commit secrets) | Bank under resolved `bank_root` |
+| adt-refine-story | Prefer feature `STORY.md` | No (unless first SDD write) | Optional `docs/backlog/` shortcut |
+| adt-split-story-checklist | Prefer feature story folder | No | Task checklist under story / backlog |
+| adt-code-review | No | No | Read-only |
+| adt-repair-dotnet-build | No | No | Read-only |
+| adt-document-plan / adt-document-implement | No | No | `docs/documentation-plan/plan.md` is local workflow state and remains ignored; do not add a negation rule to version it |
 
 ---
 

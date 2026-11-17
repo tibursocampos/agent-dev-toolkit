@@ -1,6 +1,6 @@
 # Subagent options reference
 
-Common contract for adapter-specific model and effort options used by `orchestrate-*` and `developer` session selection (US01), and by `adt-settings` (US02). This contract is orthogonal to `SPAWN.md`, which governs when to delegate, and `SUBAGENT-MODEL.md`, whose default is to omit `model` and inherit from the parent.
+Common contract for adapter-specific model and effort options used by `adt-orchestrate-*` and `adt-developer` session selection (US01), and by `adt-settings` (US02). This contract is orthogonal to `SPAWN.md`, which governs when to delegate, and `SUBAGENT-MODEL.md`, whose default is to omit `model` and inherit from the parent.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/agents/SUBAGENT-OPTIONS.md`
 

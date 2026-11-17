@@ -42,7 +42,7 @@ conversational filler, preambles, and polite wrapper text — while preserving
 - `caveman_level` — `lite` | `full` | `ultra` (default `full` when mode is ON). Skill participation may *cap* intensity (e.g. planning skills use Lite rules even if prefs say `ultra`).
 - `orchestrator_mode` — `always` | `adaptive` (default `adaptive`). See `core/policy/orchestrator-session.md`.
 - `artifact_language` — optional override (`pt-BR`, `en`, …); when `null`, match user chat per `LANGUAGE.md`.
-- `verify_mode` — optional O3 post-implement verifier (`false` default). When `true`, parent spawns read-only verifier after implementer returns (`orchestrate-develop` Step 5.5).
+- `verify_mode` — optional O3 post-implement verifier (`false` default). When `true`, parent spawns read-only verifier after implementer returns (`adt-orchestrate-implement` Step 5.5).
 
 **Resolution algorithm (run by always-on rule `caveman-mode` and at Step -1 of participating skills):**
 
@@ -106,7 +106,7 @@ Resume caveman after the clear part is done.
 ## Boundaries
 
 - **Code / commit messages / PR bodies:** write normal (English per toolkit policy). Never caveman-compress artifact text.
-- **NEVER skills** (`help-skills`, `commit`, `push`, `open-github-pr`): ignore `caveman_mode` for chat around those flows — clear prose only.
+- **NEVER skills** (`adt-help-skills`, `adt-commit`, `adt-push`, `adt-open-github-pr`): ignore `caveman_mode` for chat around those flows — clear prose only.
 - Do not announce the style in third person ("me caveman think"). Exception: activation/status confirmations and explicit user questions about the mode.
 
 ---
@@ -115,17 +115,17 @@ Resume caveman after the clear part is done.
 
 | Skill / Context | Cap when mode ON |
 |---|---|
-| `help-skills`, `commit`, `push`, `open-github-pr` | **NEVER** — excluded regardless of setting |
+| `adt-help-skills`, `adt-commit`, `adt-push`, `adt-open-github-pr` | **NEVER** — excluded regardless of setting |
 | `adt-delivery-refine`, `adt-delivery-plan` | **NEVER** - exempt and non-overridable: chat, questions, findings, drafts, and specialist prompts and receipts stay uncompressed; no activation notice; caveman commands do not lift it |
 | `adt-delivery-flow` while its refine or plan stage runs | **NEVER** - same exemption as the stages it runs |
 | `adt-delivery-flow` outside refine and plan | **LITE** |
-| `sdd-spec`, `sdd-plan` | **LITE** |
-| `orchestrate-analyze`, `orchestrate-deliver` | **LITE** |
-| `document-plan`, `refine-story`, `requirement-review`, `memory-bank-init` | **LITE** |
-| `sdd-develop`, `orchestrate-develop`, `document-implement` | **FULL** (or prefs level if lower) |
+| `adt-sdd-spec`, `adt-sdd-plan` | **LITE** |
+| `adt-orchestrate-analyze`, `adt-orchestrate-prepare` | **LITE** |
+| `adt-document-plan`, `adt-refine-story`, `adt-requirement-review`, `adt-memory-bank` | **LITE** |
+| `adt-sdd-develop`, `adt-orchestrate-implement`, `adt-document-implement` | **FULL** (or prefs level if lower) |
 | `adt-delivery-implement` | **FULL** (or prefs level if lower) |
-| `split-story-checklist`, `code-review`, `developer`, `repair-dotnet-build`, `test-coverage`, `run-tests` | **FULL** |
-| `*-developer`, ops (`api-integrate`, `containerize`, `i18n-manager`, `performance-profile`, `refactor`) | **FULL** |
+| `adt-split-story-checklist`, `adt-code-review`, `adt-developer`, `adt-repair-dotnet-build`, `adt-test-coverage`, `adt-run-tests` | **FULL** |
+| `adt-*-developer`, ops (`adt-api-integrate`, `adt-containerize`, `adt-i18n-manager`, `adt-performance-profile`, `adt-refactor`) | **FULL** |
 | Orchestrated Delivery specialist passes / agent prompts | **FULL** chat; **ultra receipt** schema when mode ON (see `_shared/agents/ROUTING.md`) |
 | Subagent child prompts, execution style, and returns | Same as parent intensity; Caveman-scoped I/O per `SPAWN.md` / `RECEIPT.md` / `orchestrator-session` policy |
 | General chat | **FULL** (or prefs `caveman_level`) |

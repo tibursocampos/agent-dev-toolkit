@@ -135,7 +135,7 @@ Apply alongside the files above. Quick reminders:
 |-------|-------|-------|
 | developer | Step 0.5 | Read before coding |
 | implement | Analysis | When design spans multiple types |
-| code-review | Review | Validate diff against principles |
+| adt-code-review | Review | Validate diff against principles |
 
 ---
 

@@ -74,7 +74,7 @@ Inspect the lockfile and `package.json` scripts first; preserve the configured p
 
 - [ ] Diff limited to stated acceptance (YAGNI)
 - [ ] No new state libraries without need
-- [ ] Conventional commit message ready (via `/commit` when requested)
+- [ ] Conventional commit message ready (via `/adt-commit` when requested)
 - [ ] Guideline paths touched: `composition-and-sfc`, `style-guide-essentials`, `reactivity`, `routing-and-state`, `testing`, `accessibility` as applicable
 
 ### Quick verify

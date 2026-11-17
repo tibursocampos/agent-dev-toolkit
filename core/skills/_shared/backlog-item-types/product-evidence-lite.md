@@ -50,4 +50,4 @@ TE04 intent: “Evidence lite: use path/redacted; omit rather than paste secrets
 | `clarify-depth.md` | Questions that seek real signals without demanding fiction |
 | `invest-and-story-quality.md` | Valuable still requires observable progress in AC, not fake Evidence |
 | `docs/CREDITS.md` | Curated PM theme links (no corpora dump); Caveman never compresses product drafts |
-| `refine-story` scorecard | Honest Evidence omit is OK — do not invent to raise Product depth |
+| `adt-refine-story` scorecard | Honest Evidence omit is OK — do not invent to raise Product depth |

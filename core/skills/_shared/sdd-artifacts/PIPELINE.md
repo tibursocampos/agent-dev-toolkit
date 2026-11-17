@@ -1,6 +1,6 @@
 # SDD pipeline contract (spec / plan / implement)
 
-Execution order, approval boundaries, canonical paths, and artifact ownership. Load at **step -1** of `sdd-spec`, `sdd-plan`, `sdd-develop`, and Orchestrated Delivery `orchestrate-*` - do not paste into PRD/PLAN bodies.
+Execution order, approval boundaries, canonical paths, and artifact ownership. Load at **step -1** of `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`, and Orchestrated Delivery `adt-orchestrate-*` - do not paste into PRD/PLAN bodies.
 
 Install path after sync: `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/PIPELINE.md`
 
@@ -20,7 +20,7 @@ Normative SoT: `STORAGE.md` § Navigation block (Related). Summary for pipeline 
 | Classic | PRD ↔ PLAN on Write; STORY if on-disk |
 | O1+ | Link relevant on-disk siblings (FEATURE / STORY / ANALYSIS\|ARCH\|SEC / PRD / PLAN); CONTINUITY is optional context |
 
-Templates under `skills/_shared/templates/` include the block. Skill Write MUST details belong in `sdd-*` / `orchestrate-*` (not here). Do **not** create `feature-refinement.md`.
+Templates under `skills/_shared/templates/` include the block. Skill Write MUST details belong in `adt-sdd-*` / `adt-orchestrate-*` (not here). Do **not** create `feature-refinement.md`.
 
 ## Simplified Delivery contract
 
@@ -41,38 +41,38 @@ At the end of an approved implementation scope, complete the validation required
 
 | Consumer | Simplified contract | Separate contract retained |
 |---|---|---|
-| Classic `sdd-spec` / `sdd-plan` | Draft writing is part of preparation; no separate write or repeated approval gate. | Canonical feature/story paths and portable references in `STORAGE.md`; direct skill stops at handoff. |
-| Classic `sdd-develop` | PLAN-only progress; selected step-by-step or continuous cadence; no SESSION/claim prerequisites. | Approved scope, dependencies, acceptance, required validation, path safety. |
+| Classic `adt-sdd-spec` / `adt-sdd-plan` | Draft writing is part of preparation; no separate write or repeated approval gate. | Canonical feature/story paths and portable references in `STORAGE.md`; direct skill stops at handoff. |
+| Classic `adt-sdd-develop` | PLAN-only progress; selected step-by-step or continuous cadence; no SESSION/claim prerequisites. | Approved scope, dependencies, acceptance, required validation, path safety. |
 | O1 / O2 | One plan approval before implementation; only material questions block; legacy sidecars optional. | STORY/FEATURE/PRD remain requirement sources when used; scoped specialist evidence stays attributable. |
 | O3 | Serial child dispatch and PLAN reconciliation after each step; no claims, SESSION flags, or CONTINUITY progress mirror. | One step per child; parent reviews the result and stops on real blockers or material scope changes. |
 | ADT Delivery | Preserve its own plan, approval, cadence, and external progress summary; use the single table-owner rule when it calls internal steps. | ADT skills keep their distinct contracts; this is compatibility guidance, not an ADT redesign. |
-| Backlog Refine | STORY remains useful; task breakdown is optional. | Direct refinement and `split-story-checklist` remain independently invocable. |
-| `document-implement` and other consumers | Not migrated by this change. | Existing SESSION or task-specific contracts remain only where those consumers explicitly require them. |
+| Backlog Refine | STORY remains useful; task breakdown is optional. | Direct refinement and `adt-split-story-checklist` remain independently invocable. |
+| `adt-document-implement` and other consumers | Not migrated by this change. | Existing SESSION or task-specific contracts remain only where those consumers explicitly require them. |
 
 ## Work tracks
 
 | Track | Flow | Canonical writes |
 |-------|------|------------------|
-| **Classic SDD** | `sdd-spec` -> `sdd-plan` -> `sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
-| **Backlog Refine** | `refine-story` -> `split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
-| **Orchestrated Delivery** | `orchestrate-analyze` -> `orchestrate-deliver` -> `orchestrate-develop` **or** manual `sdd-develop` | Same `features/` tree; Memory Bank and CONTINUITY are optional context |
+| **Classic SDD** | `adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop` | `features/NNN-slug/USnn/{PRD,PLAN}/` (default story `US01`) |
+| **Backlog Refine** | `adt-refine-story` -> `adt-split-story-checklist` (-> optional SDD / developer) | Prefer `features/.../STORY.md` + story subfolders; `docs/backlog/` shortcut |
+| **Orchestrated Delivery** | `adt-orchestrate-analyze` -> `adt-orchestrate-prepare` -> `adt-orchestrate-implement` **or** manual `adt-sdd-develop` | Same `features/` tree; Memory Bank and CONTINUITY are optional context |
 
-Tracks coexist. Skill ids (`sdd-*`, `orchestrate-*`, `refine-story`, …) are **unchanged**. Classic SDD does not require FEATURE, STORY, Memory Bank, or orchestration. Create ARCH or other specialist analysis only when a concrete decision or risk needs it; brownfield classification alone does not require mirrored architecture documentation. A material architecture choice still needs an explicit decision before dependent implementation.
+Tracks coexist. Skill ids follow the current catalog and approved namespace map. Classic SDD does not require FEATURE, STORY, Memory Bank, or orchestration. Create ARCH or other specialist analysis only when a concrete decision or risk needs it; brownfield classification alone does not require mirrored architecture documentation. A material architecture choice still needs an explicit decision before dependent implementation.
 
 ## Skill order
 
-- **Classic SDD**: Fixed sequence: **`sdd-spec` -> `sdd-plan` -> `sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
-- **Orchestrated Delivery**: `orchestrate-analyze` (O1) -> `orchestrate-deliver` (O2) -> (`orchestrate-develop` (O3) | `sdd-develop`). O1 investigates proportionally and can prepare independent analysis in parallel. O2 prepares stories and their PRDs/PLANs, then obtains one explicit approval of the complete implementation plan(s). Minor questions do not block unrelated stories. O3 runs serially, one PLAN step per child, and reconciles each result in the PLAN. Closeout validation follows the approved PLAN and relevant repository checks.
+- **Classic SDD**: Fixed sequence: **`adt-sdd-spec` -> `adt-sdd-plan` -> `adt-sdd-develop`**. Never skip a stage unless shortcut selected. Memory-bank optional.
+- **Orchestrated Delivery**: `adt-orchestrate-analyze` (O1) -> `adt-orchestrate-prepare` (O2) -> (`adt-orchestrate-implement` (O3) | `adt-sdd-develop`). O1 investigates proportionally and can prepare independent analysis in parallel. O2 prepares stories and their PRDs/PLANs, then obtains one explicit approval of the complete implementation plan(s). Minor questions do not block unrelated stories. O3 runs serially, one PLAN step per child, and reconciles each result in the PLAN. Closeout validation follows the approved PLAN and relevant repository checks.
 
 | Skill | Writes | Must not in same session |
 |-------|--------|
 | `spec` | PRD + manifest under feature story | PLAN; production/test code (`*.cs`, migrations, etc.) |
 | `plan` | PLAN + manifest under feature story | PRD body; production/test code |
-| `sdd-develop` | Code (English) + PLAN progress | New PRD/PLAN files; **multiple PLAN steps** |
-| `memory-bank-init` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
-| `orchestrate-analyze` | FEATURE and justified stories/analysis | App code; promote suggestions to scope without a decision; require CONTINUITY or mirrored ARCH without a concrete need |
-| `orchestrate-deliver` | PRD and PLAN per selected story | App code; create mandatory CHANGE/TASKS; require repeated document approvals |
-| `orchestrate-develop` | One child per eligible PLAN step; serial reconciliation | App code in parent; more than one step per child; dispatch next step before reconciling prior results |
+| `adt-sdd-develop` | Code (English) + PLAN progress | New PRD/PLAN files; **multiple PLAN steps** |
+| `adt-memory-bank` | Resolved `bank_root` (+ `.inventory/`) | App code; bank under `features/`; edit `.gitignore` in global mode |
+| `adt-orchestrate-analyze` | FEATURE and justified stories/analysis | App code; promote suggestions to scope without a decision; require CONTINUITY or mirrored ARCH without a concrete need |
+| `adt-orchestrate-prepare` | PRD and PLAN per selected story | App code; create mandatory CHANGE/TASKS; require repeated document approvals |
+| `adt-orchestrate-implement` | One child per eligible PLAN step; serial reconciliation | App code in parent; more than one step per child; dispatch next step before reconciling prior results |
 
 ## Canonical paths
 
@@ -104,7 +104,7 @@ Do **not** read, write, or continue Classic SDD from:
 - `{{TOOLKIT_ROOT}}/` outside `sdd/<repo-id>/features/` (classic)
 - `docs/backlog/*.md`, arbitrary `docs/*.md`, repo-root `*.md` without feature tree
 
-**O3 input:** `orchestrate-develop` / `sdd-develop` execute from the canonical PLAN under `features/`; existing relevant memory-bank files may be consulted when available. A cited plan scratch file can be read as input but is not itself the canonical O3 execution PLAN.
+**O3 input:** `adt-orchestrate-implement` / `adt-sdd-develop` execute from the canonical PLAN under `features/`; existing relevant memory-bank files may be consulted when available. A cited plan scratch file can be read as input but is not itself the canonical O3 execution PLAN.
 
 ### Use of cited material
 
@@ -119,9 +119,9 @@ Manifest-backed roots resolve per `STORAGE-RESOLUTION.md` (`features/` root).
 | Phase | Modes | Actions |
 |-------|-------|---------|
 | **A - Collect & draft** | Plan, Ask, Agent | Questions, `Read`/Glob/Grep, PRD/PLAN draft in chat |
-| **B - Persist** | **Agent** only | Persist authorized documents; `sdd-develop` code; `test-coverage` and `run-tests` runs |
+| **B - Persist** | **Agent** only | Persist authorized documents; `adt-sdd-develop` code; `adt-test-coverage` and `adt-run-tests` runs |
 
-| Mode | `sdd-spec` / `sdd-plan` | `sdd-develop` | `test-coverage` | `run-tests` |
+| Mode | `adt-sdd-spec` / `adt-sdd-plan` | `adt-sdd-develop` | `adt-test-coverage` | `adt-run-tests` |
 |------|-----------------|-------------|-----------------|-------------|
 | Agent | Write within authorized task scope | Allowed | Allowed | Allowed |
 | Plan | Phase A only; no `Write`; never claim “saved” | Draft/analysis only; no `Edit` on code | Explain tests need Agent | Explain tests need Agent |
@@ -146,13 +146,13 @@ If the user stays in Plan: continue Phase A only. Never state that a PRD or PLAN
 
 Draft preparation and saving are part of the authorized specification/planning workflow. Before code changes begin, present the complete implementation PLAN and obtain one explicit approval. Do not add separate PRD-content, PLAN-write, or artifact-write gates. Reopen approval only for a material change to the approved outcome, acceptance, scope, access, or implementation decisions.
 
-## Prior context (chat, Plan, code-review, feature tree)
+## Prior context (chat, Plan, adt-code-review, feature tree)
 
 When the thread already has requirements, review findings, or refined backlog:
 
 - Do **not** run the full `spec` questionnaire.
 - Provide a structured summary + all necessary gap questions, in blocks of at most **5**.
-- Map code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
+- Map adt-code-review items to PRD sections (acceptance criteria, risks, out of scope) per `spec/reference.md`.
 - Prefer current, relevant sources over re-asking. A cited file may be used directly when authorized; no promotion copy is required solely to make it context.
 - **Selective retrieval** (`SELECTIVE-RETRIEVAL.md`, rule `SR-NO-FULL-DUMP`): **must not** dump entire `memory-bank/` or paste the full PRD into prompts/handoffs — cite portable paths; read named bank files only. Enforcement: `scripts/validation/Assert-CoreContracts.ps1`.
 
@@ -169,7 +169,7 @@ If no `features/` artifacts exist, do **not** fall back to root `PRD/`/`PLAN/` f
 
 ## Missing canonical artifact
 
-Use the demand and available evidence to prepare missing PRD/PLAN artifacts within the authorized workflow. `sdd-plan` may work directly from a sufficiently specified demand when no PRD exists. `sdd-develop` needs an executable PLAN; if none exists, prepare it when requirements are sufficient, or ask only for the missing material input. Do not force a fixed choice menu or invent product behavior.
+Use the demand and available evidence to prepare missing PRD/PLAN artifacts within the authorized workflow. `adt-sdd-plan` may work directly from a sufficiently specified demand when no PRD exists. `adt-sdd-develop` needs an executable PLAN; if none exists, prepare it when requirements are sufficient, or ask only for the missing material input. Do not force a fixed choice menu or invent product behavior.
 
 ### Path validation helper
 
@@ -186,8 +186,8 @@ Root or flat `PRD/` / `PLAN/` paths are not new canonical destinations. Read a r
 features/004-export-profile/US01/PRD/004_export_profile.md
 features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md
 
-/sdd-plan - features/004-export-profile/US01/PRD/004_export_profile.md
-/sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 1
+/adt-sdd-plan - features/004-export-profile/US01/PRD/004_export_profile.md
+/adt-sdd-develop - features/004-export-profile/US01/PLAN/PLAN_004_export_profile.md - Step 1
 ```
 
 If validation fails, correct the new destination before writing.
@@ -196,12 +196,12 @@ If validation fails, correct the new destination before writing.
 
 | Consumer | Use |
 |----------|-----|
-| `sdd-spec`, `sdd-plan`, `sdd-develop` | Step -1 load; steps reference § by name |
-| `orchestrate-*` | Orchestrated Delivery order; relevant feature context when present |
-| `refine-story`, `split-story-checklist` | Backlog Refine; prefer feature STORY paths |
+| `adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop` | Step -1 load; steps reference § by name |
+| `adt-orchestrate-*` | Orchestrated Delivery order; relevant feature context when present |
+| `adt-refine-story`, `adt-split-story-checklist` | Backlog Refine; prefer feature STORY paths |
 | `STORAGE.md` | Folders, `.gitignore`, portable paths, invalid-path summary |
 | `STORAGE-RESOLUTION.md` | Manifest schema and dynamic repository/global roots |
 | `rules/sdd-pipeline-guards.mdc` | Short always-on reminder |
-| `code-review` | Handoff to `sdd-spec` for new PRD; read-only SDD discovery |
-| `test-coverage` | Phase B / Agent for shell; report paths in `reference.md` |
-| `run-tests` | Phase B / Agent for shell; does not replace `test-coverage` |
+| `adt-code-review` | Handoff to `adt-sdd-spec` for new PRD; read-only SDD discovery |
+| `adt-test-coverage` | Phase B / Agent for shell; report paths in `reference.md` |
+| `adt-run-tests` | Phase B / Agent for shell; does not replace `adt-test-coverage` |
