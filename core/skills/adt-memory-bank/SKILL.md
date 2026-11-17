@@ -1,0 +1,212 @@
+---
+name: adt-memory-bank
+description: Create or refresh workspace memory-bank/ (MVP contract + read-only inventory). Path follows STORAGE manifest. No app code; no uv/specify. Use when invoking /adt-memory-bank or Orchestrated Delivery Step 0 / Step N needs create/refresh/refresh-light.
+---
+
+## STOP - Read before ANY tool call
+
+Read `_shared/skill-boilerplate.md` first. It holds the guardrails read, the session gate rule, the user `sim` rule, the one-step rule, the gate check, and the user chat language rule. The steps below are skill-specific only.
+
+1. After create **or** refresh / refresh-light completes: **STOP** - handoff only (do not start O1/O2/O3 in this skill)
+---
+
+# Skill: adt-memory-bank
+
+Credits: memory-bank ideas inspired in part by [github/spec-kit](https://github.com/github/spec-kit); this skill does **not** run Spec Kit / uv / specify. See `docs/CREDITS.md`.
+
+## Trigger
+**Negative signal:** applies as defined in `_shared/skill-boilerplate.md`; the skill-specific signals are listed below.
+
+Invoke when the user asks for: `/adt-memory-bank`, `init memory bank`, `refresh memory bank`, or when Orchestrated Delivery Step 0 / Step N (`MEMORY-BANK.md`) requires create/refresh/refresh-light.
+
+Optional args: `create` (default if missing), `refresh`, `refresh-light`, path to consumer repo.
+
+## Outcome
+
+Under the resolved **`bank_root`** (`STORAGE.md` + `MEMORY-BANK.md`):
+
+```text
+memory-bank/
+  project-context.md
+  tech-stack.json
+  architecture.md
+  domain-knowledge.md
+  conventions.md
+  known-risks.md
+  database-schema.md      # phase 2 — when relevant / BLOCKING
+  api-contracts.md        # phase 2 — when relevant / BLOCKING
+  component-catalog.md    # phase 2 — when relevant / BLOCKING
+  .inventory/
+    sources.json
+    gaps.md
+    refresh-history.jsonl
+```
+
+MVP files are always required. Phase 2 files: write from templates when Prior/cited content or inventory signals make them relevant. If Prior already has DDL, OpenAPI, or a UI component map, the matching file is **BLOCKING** (or promote immediately) — empty `gaps.md` phase 2 is not “optional forever” (`MEMORY-BANK.md`).
+
+| `storage_mode` | `bank_root` |
+|----------------|-------------|
+| **repository** | `$Cwd/memory-bank/` |
+| **global** | `<classic.path>/memory-bank/` |
+
+**Does not** write application code. **Does not** install Python/uv/specify. **Does not** place the bank under `features/NNN-slug/`. **Commit bank when product knowledge; never commit secrets.** Do **not** add `/memory-bank/` as a required SDD gitignore entry.
+
+## Lazy-load
+
+| When | Path |
+|------|------|
+| Command playbook (step discovery after gates) | `{{TOOLKIT_ROOT}}/skills/adt-memory-bank/references/command.md` |
+| Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Lite cap** |
+| Narrative compact (optional) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/COMPACT.md` — CONTINUITY / known-risks only; requires user **sim** |
+| Invocation contexts (`direct` vs `orchestrated`, `IC-DIRECT-ORCHESTRATED`) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/INVOCATION-CONTEXTS.md` |
+| Gate policies, stale, versioning, Step N | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/MEMORY-BANK.md` |
+| Manifest, `bank_root`, `.gitignore` | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
+| Dynamic manifest / repository-global root resolution (only when resolving storage) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE-RESOLUTION.md` |
+| Templates | `{{TOOLKIT_ROOT}}/skills/_shared/templates/memory-bank/` |
+| Inventory script | Resolve per Step 5 order (toolkit clone / `{{TOOLKIT_ROOT}}` — **not** Glob-only under the host skills install root) |
+| inventory → specialist synthesis | `skills/adt-memory-bank/references/inventory-specialist-synthesis.md` |
+| Selective retrieval | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/SELECTIVE-RETRIEVAL.md` |
+| Reference index (routing only) | `skills/adt-memory-bank/reference.md` |
+| Process step detail (lazy) | `skills/adt-memory-bank/references/<section>.md` |
+| Language surfaces (chat vs spawn) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md` |
+
+**Never by default:** do not preload `references/command.md` before Step -1 gates; do not preload all `references/*.md`, full PIPELINE/ROSTER packs, or all memory-bank templates at once. Contract first (`MEMORY-BANK` + `STORAGE`); after gates load `references/command.md` for step discovery; load **one** `references/<section>.md` per Process step (`SKILL-REFERENCE-RETRIEVAL.md`). Do **not** dump entire `memory-bank/` into prompts.
+
+## Process
+
+After gates: **Read `references/command.md`** for ordered step discovery (prefer over dumping this Process into prompts). Then load `references/<section>.md` for procedural tables — **not** full `reference.md`.
+
+### Step -1b - Caveman Mode (Lite cap)
+1. Read `{{SDD_ROOT}}/preferences.json` (create `{ "caveman_mode": false, "caveman_level": "full" }` if missing).
+2. If `caveman_mode` is false: continue without compression.
+3. If true: load `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md`; apply **Lite** participation cap + prefs `caveman_level` (Lite skills never escalate); show once: `[Caveman] Modo ativo (respostas compactas, level={effective}). Digite caveman off para desativar.`
+4. Honor `caveman on|off|status|lite|full|ultra` (and `stop caveman` / `normal mode`) during the session.
+5. Auto-Clarity + never-compress gates/drafts/paths per `CAVEMAN.md`.
+
+### 1. Gate check
+
+Report Step -1 checklist. Load `MEMORY-BANK.md` and `STORAGE.md`. **STOP** if unchecked.
+Resolve `invocation_context` per `INVOCATION-CONTEXTS.md` (`IC-DIRECT-ORCHESTRATED`): default `direct` unless Step 0 / Step N parent marks `orchestrated`. Apply the matching observable table.
+
+### 2. Resolve target
+
+1. Confirm **consumer** repo (not toolkit unless explicit).
+2. Resolve storage with `$Workflow = classic` (`STORAGE.md`).
+3. `bank_root`:
+   - **repository** -> `$Cwd/memory-bank/`
+   - **global** -> `<classic.path>/memory-bank/`
+4. Never under `features/`.
+5. Mode:
+   - **create** if bank missing/incomplete
+   - **refresh** if user asked or Step 0 marked stale
+   - **refresh-light** if user asked or O3 Step N after code changes
+
+### 3. Gitignore (repository only)
+
+If `storage_mode` is **repository**: ensure SDD `.gitignore` block per `STORAGE.md` and `features_versioned` in manifest (safety-net; keep `docs/documentation-plan/plan.md` ignored without a negation rule; **do not** add or require `/memory-bank/`) **before** the first bank Write. Commit bank when product knowledge; never commit secrets.
+
+If **global**: do **not** edit or suggest SDD patterns in the consumer `.gitignore`.
+
+### 3b. Bank language (blocker)
+
+Same gate as `adt-document-plan` before the first bank write. Ask once, with a question component (`{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`) whose options carry these ids, or in numbered text in the user chat language when no component is available:
+
+- `pt-BR`, label `Português (pt-BR)`
+- `en`, label `English`
+
+Header, in the user chat language: the question asks which language the memory bank uses.
+
+If the user already named the language in this request, record that answer and do not ask again. Record the choice on the repo session and as the first line of `memory-bank/project-context.md` (`Language: pt-BR` or `Language: English`). Refresh keeps that recorded language. Do not write bank prose in another language.
+
+### 4. Confirm before write
+
+Show (user chat language): mode, full `bank_root`, language, files to create/update. Ask:
+
+Ask a confirmation question in the user chat language, rendered from a localized template that names the target `{path}`, with the ids `confirm` / `adjust` / `cancel` as labels (see `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md`). Do not copy a fixed-language line. Example, pt-BR (example only): `Posso gravar o memory-bank em '{path}'?`
+
+Write only after `confirm`.
+
+### 5. Inventory (read-only scan of consumer)
+
+**Script resolution order** (do **not** Glob only under the host skills install root — sync does not publish `scripts/`):
+
+1. `{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1` (or agent-dev-toolkit clone / `AGENTS.md` toolkit root)
+2. Relative from toolkit repo when `$Cwd` is the toolkit: `./scripts/inventory/Invoke-MemoryBankInventory.ps1`
+3. Optional synced copy under install root **if present**
+4. Only then `references/inventory-fallback.md` (curated allowlist; never full-repo recurse; schema_version **3** + `sources` — `files` is invalid)
+
+Prefer script (always scan `$Cwd`; write inventory under `bank_root`):
+
+```powershell
+# create (default)
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory
+
+# refresh / refresh-light — pass -Action to match mode for refresh-history.jsonl
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh
+pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/inventory/Invoke-MemoryBankInventory.ps1" -RepoPath "<consumer>" -BankPath "<bank_root>" -AllowCreateInventory -Action refresh-light
+```
+
+Output in `<bank_root>/.inventory/sources.json` (schema_version **3**):
+
+| Field | Meaning |
+|-------|---------|
+| Per source (`sources[]`) | `path` (repo-relative, forward slashes), `last_write_utc`, `length`, `hash` (SHA256), `summary` (1–2 line heuristic) |
+| Roots (portable) | `repo_path` MUST be `.`; `bank_path` MUST be repo-relative forward-slash (usually `memory-bank`) — **never** OS absolute / drive-letter / user-home |
+| Governance | `status` (`ready` \| `not-ready`), `status_reason`, `inventory_hash`, `inventory_summary` |
+
+Exit codes: `0` = `ready`; `2` = `not-ready` (still writes `sources.json` under `bank_root/.inventory/` only). Path escape / missing sources / incomplete hash → `not-ready` + reason. Bloated existing index (> ~200 paths) → reset to curated discovery + note in `status_reason`.
+
+**Observable wire (required):** after the script (or fallback) runs, read `status`, `status_reason`, `inventory_hash`, and `inventory_summary` from `sources.json` and include them in the Step 7 report. Do **not** treat `not-ready` as silent success — surface the reason before create/refresh file fills. Re-runs merge existing `sources` (cap) plus curated discovery; legacy `files` migrates to `sources` once.
+
+If script path unavailable after the resolution order above, run `references/inventory-fallback.md` and write **only** under `<bank_root>/.inventory/` (same v3 governance fields).
+
+### 5b. Inventory → specialist synthesis
+
+Load `references/inventory-specialist-synthesis.md`. Map inventory signals → roster specialists (or thin in-skill fill); merge receipts into bank targets **before** / as the first pass of Step 6.
+
+- **Selective retrieval:** pass portable `bank_root` + named paths + `inventory_summary` / capped source summaries — **never** dump integral `memory-bank/` into specialist or parent prompts (`SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP`).
+- **Skip D:** no tracker mutate, no external spec-tool constitution or installers (Credits may mention inspiration; this skill does **not** adopt it).
+
+### 6. Scaffold or refresh files
+
+| Mode | Action |
+|------|--------|
+| create | Copy templates from `templates/memory-bank/`; fill GENERATED regions + obvious fields from inventory/README/AGENTS **and** Step 5b synthesis receipts (`references/template-map.md`, `references/tech-stack.md`, `references/inventory-specialist-synthesis.md`) |
+| refresh | Re-run inventory + Step 5b when signals warrant; update GENERATED regions and `tech-stack.json`; preserve human prose outside markers |
+| refresh-light | Re-run inventory; update GENERATED regions and `tech-stack.json` only; Step 5b only for thin stack hints (no full prose rewrite); append history with `action: refresh-light`. If `caveman_mode` ON and narrative files are large, **offer** (do not auto-run) compact via `COMPACT.md` for `known-risks.md` / feature `CONTINUITY.md` after inventory. |
+
+Rules:
+
+- Preserve `<!-- BEGIN GENERATED: … -->` / `<!-- END GENERATED: … -->` discipline (`references/generated-markers.md`)
+- **No secrets** - env names / `***` only (`references/secrets.md`)
+- Evidence-based domain/architecture; unknowns -> `gaps.md`
+- Phase 2 (`database-schema.md`, `api-contracts.md`, `component-catalog.md`): write from templates when relevant; if Prior/cited already has DDL/OpenAPI/UI map, those files are **BLOCKING** (promote immediately or `- [ ] BLOCKING:` until written)
+- Versioning / `.gitignore`: `references/versioning.md`. Dry-run checks: `references/dry-run.md`
+
+### 7. Report + handoff
+
+Report paths written, stack hints, blocking gaps (if any), storage mode, **inventory governance**: `status` / `status_reason` / `inventory_hash` / `inventory_summary` (from Step 5), and **synthesis roles** used in Step 5b (or `in-skill`). If `status` is `not-ready`, say so explicitly with the reason before handoff.
+
+Handoff examples:
+
+```text
+/adt-orchestrate-analyze
+/adt-memory-bank - refresh
+/adt-memory-bank - refresh-light
+```
+
+## Must not
+
+- Write application / test source
+- Create bank under `features/NNN-slug/`
+- Require external spec-tool CLI tooling (installers) or adopt an **external spec-tool constitution** (Skip D / REQ-013)
+- Introduce **tracker mutate** / work-item side effects, or **external spec-tool** trees (Skip D / REQ-013)
+- Skip confirm-before-write
+- Dump entire bank into orchestrator parent / specialist prompts (`SR-NO-FULL-DUMP` / `SELECTIVE-RETRIEVAL.md`)
+- Skip Step 5b when inventory signals domain / schema / auth ambiguity (thin-trivial stack-only may stay in-skill)
+- Do not ignore `IC-DIRECT-ORCHESTRATED` — resolve and apply `direct` vs `orchestrated` (`INVOCATION-CONTEXTS.md`)
+- Auto-commit
+- Edit consumer `.gitignore` when `storage_mode` is **global**
+- Add or require `/memory-bank/` in `.gitignore`
+- Commit secrets into the bank (keys, tokens, connection strings, raw `.env`)
+- Leave phase 2 as gaps-only when Prior/cited already has DDL, OpenAPI, or a UI component map (those files are **BLOCKING** — write/promote or `- [ ] BLOCKING:`)
