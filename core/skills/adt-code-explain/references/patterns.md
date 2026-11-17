@@ -1,5 +1,7 @@
 # Design pattern signals
 
+Load this file only for the design pattern block in comparison mode. Standalone explanations do not name, assess, or recommend patterns.
+
 The design pattern block is prose.
 
 Name a pattern only when the opened structure shows that pattern. When no row below matches the structure, write that the pattern is not visible. Do not recommend a pattern.

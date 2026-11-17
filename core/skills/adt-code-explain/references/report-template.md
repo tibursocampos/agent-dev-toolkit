@@ -1,13 +1,15 @@
-# Report template
+# Mode-specific report templates
 
-The report uses the chat language. Technical names stay as they appear in the code. The headings below stay in English. The terms project shape, system design, and design pattern stay those words.
+The selected mode determines the report shape. The report uses the chat language. Technical names stay as they appear in the code. Headings stay in English. The terms project shape, system design, and design pattern stay those words.
+
+## Comparison mode — seven required sections
 
 Open with product reading. Internal detail comes after that block.
 
 Each claim is one of:
 
 - **observed** — cite `path:line` or a diff hunk.
-- **inferred** — state what was not in the diff.
+- **inferred** — state the evidence boundary. In comparison mode, identify what the diff does not show; in standalone mode, identify code or collaborators that were not opened.
 
 Outside a literal code quote, omit the tokens in this list:
 
@@ -77,3 +79,27 @@ Replace the nodes with what the pass opened.
 ## design pattern
 
 Prose. Follow `references/patterns.md`. Name a pattern only when the opened structure shows it. Otherwise write that the pattern is not visible. Do not recommend a pattern.
+
+## Standalone mode — five short sections
+
+Use these five sections only. Do not add `change map`, `tests`, `project shape`, `system design`, or `design pattern` sections as requirements. Do not load `references/patterns.md`.
+
+### observable goal
+
+State the externally observable purpose or result of the existing code, based on the opened implementation. Do not describe a change or imply comparison.
+
+### files and symbols opened
+
+List the relevant paths and symbols with line references. Cite only code actually opened.
+
+### relevant flow
+
+Explain the relevant execution or data flow from the opened code. Add a Mermaid diagram only when it makes a multi-step flow clearer.
+
+### observed calls and collaborators
+
+Name calls and collaborators visible in the opened files, with `path:line` evidence. State when a target or collaborator was outside the read scope.
+
+### inferences and limits
+
+Label each inference and state the evidence boundary that prevents it from being an observation. Do not assess correctness, completeness, design quality, or recommend changes.
