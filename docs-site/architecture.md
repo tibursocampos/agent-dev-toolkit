@@ -46,7 +46,7 @@ Stable adapter commands: `Get-Capabilities`, `Get-InstallRoots`, `Publish-Skills
 
 `scripts/sync-agent.ps1` runs Publish, then always `Get-SddRoot -Prepare`. CLI actions: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate, and Uninstall require `-Agent`. Uninstall is keyed and keeps `sdd/sessions` and an existing `sdd/manifest.json`. Backup fails closed unless `-ForceStub`.
 
-For multi-story or specialist coordination, the feature path is Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Classic SDD also starts directly for a clear feature. O2 runs `sdd-spec`/`sdd-plan`; O3 is serial, one `sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
+For multi-story or specialist coordination, the feature path is Orchestrated Delivery (`adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`). Classic SDD also starts directly for a clear feature. O2 runs `adt-sdd-spec`/`adt-sdd-plan`; O3 is serial, one `adt-sdd-develop` step per child. Detail: [First use](first-use.md). Per-agent flags: [Adapters](adapters.md).
 
 ## How a consumer app picks a style
 
@@ -63,7 +63,7 @@ After resolving a material architecture choice: load **one** Layer B file under 
 
 - Product content for agents lives under `core/`.
 - Public SDD state file name: `manifest.json`.
-- `core/skills/` — 52 skills plus `_shared`. Agents read the map with `help-skills` (`CATALOG.md` and `OPERATOR.md`).
+- `core/skills/` — 52 skills plus `_shared`. Agents read the map with `adt-help-skills` (`CATALOG.md` and `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router (`AGENTS.md`). The host file name depends on the adapter.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, reached through `Get-SddRoot`.
@@ -136,7 +136,7 @@ Live product home is `~/.codex`. USER skills discovery is `~/.agents/skills`. Pl
 |---------------|------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
 | `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` | Map via `help-skills` |
+| `plugin/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` | Map via `adt-help-skills` |
 | `rules/*.md` | Policy |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Materialized dual-root absolute paths |

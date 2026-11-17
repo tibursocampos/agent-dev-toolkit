@@ -52,11 +52,11 @@ Specialist prompt files under `core/agents/` (`architect`, `database`, `repo-ana
 
 ## Skills and the delivery path
 
-**52** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
+**52** invocable skills (kebab-case `name` in each `SKILL.md`). Shared packs under `core/skills/_shared/` are not invocable skills. Agents present the map with skill `adt-help-skills`, which reads `CATALOG.md` and `OPERATOR.md`. Human map, skill by skill: [sessions/09-every-skill.md](sessions/09-every-skill.md).
 
-The complete path is **Orchestrated Delivery**: `memory-bank-init` (Step 0) → `orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`. Analyze classifies the request, asks, sets `needs_*`, calls specialists, and shapes stories. Deliver runs `sdd-spec` then `sdd-plan` for each approved story. Develop runs `sdd-develop` once per PLAN step. How that works: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
+The complete path is **Orchestrated Delivery**: `adt-memory-bank` (Step 0) → `adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`. Analyze classifies the request, asks, sets `needs_*`, calls specialists, and shapes stories. Deliver runs `adt-sdd-spec` then `adt-sdd-plan` for each approved story. Develop runs `adt-sdd-develop` once per PLAN step. How that works: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
-`sdd-spec`, `sdd-plan`, and `sdd-develop` remain invocable on their own when one story is already clear ([sessions/02-classic-sdd.md](sessions/02-classic-sdd.md)). `refine-story` is the scorecard and the product-only shape path; O1 applies that scorecard without a separate invoke ([sessions/03-backlog-shape.md](sessions/03-backlog-shape.md)).
+`adt-sdd-spec`, `adt-sdd-plan`, and `adt-sdd-develop` remain invocable on their own when one story is already clear ([sessions/02-classic-sdd.md](sessions/02-classic-sdd.md)). `adt-refine-story` is the scorecard and the product-only shape path; O1 applies that scorecard without a separate invoke ([sessions/03-backlog-shape.md](sessions/03-backlog-shape.md)).
 
 Contracts: `core/skills/_shared/sdd-artifacts/` (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`). Feature writes land under `features/NNN-slug/`.
 

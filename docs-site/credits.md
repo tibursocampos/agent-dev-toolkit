@@ -18,13 +18,13 @@ Compression is one session preference and defaults to on. Commands, and the text
 
 A signature motif, a compact token plan before code, and UX writing intent draw in part from [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-For product UI, record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. Upstream `frontend-design` is an optional reference; it is not a Core skill, and that repository is not copied into `core/`.
+For product UI, record visual decisions in `docs/DESIGN-BRIEF.md`, then use the relevant stack `adt-*-developer` skill. General frontend guidance remains in `core/skills/_shared/frontend-guidelines/`. Upstream `frontend-design` is an optional reference; it is not a Core skill, and that repository is not copied into `core/`.
 
 ## Memory bank and Spec Kit
 
 `memory-bank/` in Orchestrated Delivery, and the gate policies around it, are a workspace map written for this toolkit: a PowerShell inventory, with no Spec Kit toolchain.
 
-A durable workspace draws in part on practices around [github/spec-kit](https://github.com/github/spec-kit). This toolkit does not run Spec Kit, `uv`, or `specify`. Those paths left the MVP. The workspace map is Orchestrated Delivery and `memory-bank-init`. Classic SDD contracts run inside that path. Internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the skill call that already exists.
+A durable workspace draws in part on practices around [github/spec-kit](https://github.com/github/spec-kit). This toolkit does not run Spec Kit, `uv`, or `specify`. Those paths left the MVP. The workspace map is Orchestrated Delivery and `adt-memory-bank`. Classic SDD contracts run inside that path. Internal contracts (REQ, validate, CHANGE, EVD, STATE, TRACE) stay inside the skill call that already exists.
 
 ## Product backlog quality
 

@@ -1,14 +1,14 @@
 # 01 — Orchestrated Delivery
 
-Orchestrated Delivery coordinates multi-story or brownfield work through O1 analysis, O2 specification/planning, and optional O3 implementation. Canonical decisions and detailed procedure live in [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) and the three `orchestrate-*` skill guides.
+Orchestrated Delivery coordinates multi-story or brownfield work through O1 analysis, O2 specification/planning, and optional O3 implementation. Canonical decisions and detailed procedure live in [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) and the three `adt-orchestrate-*` skill guides.
 
 ## Flow
 
 | Phase | Skill | Result |
 |-------|-------|--------|
-| O1 — Analyze | `orchestrate-analyze` | A clear feature outcome and justified stories; specialist analysis only for concrete questions. |
-| O2 — Deliver | `orchestrate-deliver` | A PRD and executable PLAN for each selected story. |
-| O3 — Develop (optional) | `orchestrate-develop` | A serial queue, one PLAN step per child, with each result reconciled before the next dispatch. |
+| O1 — Analyze | `adt-orchestrate-analyze` | A clear feature outcome and justified stories; specialist analysis only for concrete questions. |
+| O2 — Deliver | `adt-orchestrate-prepare` | A PRD and executable PLAN for each selected story. |
+| O3 — Develop (optional) | `adt-orchestrate-implement` | A serial queue, one PLAN step per child, with each result reconciled before the next dispatch. |
 
 Classic SDD can also start directly from a sufficiently clear demand. O1/O2 are not prerequisites for a single feature with a clear path.
 

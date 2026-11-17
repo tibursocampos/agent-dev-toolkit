@@ -37,13 +37,13 @@ How consumer apps pick a style (separate from the toolkit’s own core/adapters 
 | **Greenfield** | Roster specialist **architect** (`core/skills/_shared/agents/`) proposes via Layer A (`architecture-selection.md`) → ARCH **draft** → operator `confirm` answer → ARCH approved. No silent default style. |
 | **Brownfield** | **Discover-first:** mirror in-repo / approved ARCH style; skip re-selection unless the operator asks to change it. |
 
-After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery wires the confirm gate in `orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
+After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery wires the confirm gate in `adt-orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
 
 ## Source policy
 
 - Product content for agents lives under **`core/`** (file tree in this repo).
 - Public SDD state file name: `manifest.json` (no version branding in the filename).
-- `core/skills/` — 52 skills + `_shared` (agent SoT: `help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
+- `core/skills/` — 52 skills + `_shared` (agent SoT: `adt-help-skills` → `skills-catalog/CATALOG.md` + `OPERATOR.md`).
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/skills/_shared/sdd-artifacts/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
@@ -124,7 +124,7 @@ InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://develope
 |---------------|------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
 | `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills (default); `TOOLKIT_ROOT` for skills paths |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` (+ `OPERATOR.md`) | Agent skill map + operator notes via `help-skills` |
+| `plugin/skills/_shared/skills-catalog/CATALOG.md` (+ `OPERATOR.md`) | Agent skill map + operator notes via `adt-help-skills` |
 | `rules/*.md` | Publish-Policy from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Publish-Router: materialized dual-root **absolute** paths (no `{{…}}`; no live `docs/` links) |

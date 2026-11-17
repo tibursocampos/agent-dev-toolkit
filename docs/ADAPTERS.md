@@ -49,15 +49,15 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 
 | Agent | Live InstallRoot | Skills / rules / hooks (summary) | Skill invoke | Notes |
 |-------|------------------|----------------------------------|--------------|-------|
-| `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | `/id` (e.g. `/help-skills`) | Also reads `~/.agents/skills` / project `.cursor/` |
+| `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | `/id` (e.g. `/adt-help-skills`) | Also reads `~/.agents/skills` / project `.cursor/` |
 | `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md`, `config/hooks` PreToolUse guard | `use skill id` or `/id` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
-| `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | `/id` (e.g. `/sdd-spec`) | Project scope also uses repo `.claude/` |
-| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`); optional `-UserScope` `~/.agents/skills` (opt-in only — duplicates `$` if both); rules under `InstallRoot/rules` | `$id` (e.g. `$help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
+| `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | `/id` (e.g. `/adt-sdd-spec`) | Project scope also uses repo `.claude/` |
+| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`); optional `-UserScope` `~/.agents/skills` (opt-in only — duplicates `$` if both); rules under `InstallRoot/rules` | `$id` (e.g. `$adt-help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
 | `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | `/id`; after sync `/skills reload` | Same relative tree both modes |
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
-| `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
-| `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | `$id` (e.g. `$help-skills`) | ADE filesystem — not GLM Coding Plan |
-| `hermes` | `$HERMES_HOME` (Win: `%LOCALAPPDATA%\hermes`; POSIX: `~/.hermes`) | `skills/`, `AGENTS.md` (folded policy; no `rules/`); seed `memories/MEMORY.md` if missing; compatibility plugin (no `agent-hooks` published) | `/id` (e.g. `/help-skills`) | Never `SOUL.md`; `delegate_task`; keyed `config.yaml` `plugins.enabled` only; no hook registered |
+| `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/adt-help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
+| `zcode` | `~/.zcode` | `skills/`, `AGENTS.md`, `cli/config.json`, `hooks/hooks.json` | `$id` (e.g. `$adt-help-skills`) | ADE filesystem — not GLM Coding Plan |
+| `hermes` | `$HERMES_HOME` (Win: `%LOCALAPPDATA%\hermes`; POSIX: `~/.hermes`) | `skills/`, `AGENTS.md` (folded policy; no `rules/`); seed `memories/MEMORY.md` if missing; compatibility plugin (no `agent-hooks` published) | `/id` (e.g. `/adt-help-skills`) | Never `SOUL.md`; `delegate_task`; keyed `config.yaml` `plugins.enabled` only; no hook registered |
 | `openhands` | Project tree; user skills `~/.agents` | Project: `AGENTS.md`, `.agents/skills/`, `.agents/agents/`, `.openhands/` hooks, `.plugin/plugin.json` | Agent Skills (product discovery; mention skill id) | Not microagents. User skills: `-InstallRoot ~/.agents -AllowUserHome`. `subagents=none` |
 
 Primary audit source for adapter paths: this table + each agent section below + `adapters/<id>/README.md`.
@@ -314,7 +314,7 @@ CI green does **not** use a Copilot user profile, VS Code/JetBrains/Eclipse runt
 | Hooks | Keyed upsert for managed events: `UserPromptSubmit` (`track-sdd-invocation.ps1`, `preferences-command.ps1`), `SessionStart` (`session-start-context.ps1`), `PostToolUse` (`plan-after-edit.ps1` on `Write\|Edit`; `emit-trace.ps1` on `Write\|Edit\|Bash\|PowerShell`), `SubagentStop` (`emit-trace.ps1`). `PreCompact` and `PreToolUse` are projected as empty so re-sync strips old toolkit handlers. Alien events and co-located alien handlers preserved |
 | `permissions.allow` | Additive **narrow** toolkit entries — one `Bash(pwsh -NoProfile -File "<InstallRoot>/hooks/<script>")` per managed hook — plus read-only git (`status`, `diff`, `log`, `branch --show-current`); no duplicates on re-sync; user allows preserved. Re-sync **strips** legacy broad `Bash(pwsh *)` / `Bash(powershell *)` unless `-AllowBroadShellPermissions` |
 | `permissions.ask` | Additive: `Bash(git commit:*)`, `Bash(git push:*)`, `Bash(git merge:*)`, `Bash(git rebase:*)`, `Bash(git checkout -b:*)`. State-changing git requires operator confirmation in the host |
-| `attribution` | `commit` and `pr` set to empty strings (commit and PR attribution hidden); other attribution keys preserved |
+| `attribution` | `adt-commit` and `pr` set to empty strings (commit and PR attribution hidden); other attribution keys preserved |
 | Other keys | Preserved as-is (no wholesale replace) |
 | Encoding | UTF-8 **without BOM** |
 | Invalid JSON | Abort; do not overwrite (TE01) |
@@ -365,7 +365,7 @@ Keyed removal of toolkit skills / rules / agents / hooks / `CLAUDE.md`, plus rev
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) | Router + hooks parent |
 | Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Extra USER discovery — **do not** enable with home skills or `$` duplicates |
 
-**Skill invoke:** `$id` (e.g. `$help-skills`). Native `$` or `/skills` picker = product skills menu — **not** a `--menu` flag. Codex `/hooks` = hooks trust UI, not skill invoke.
+**Skill invoke:** `$id` (e.g. `$adt-help-skills`). Native `$` or `/skills` picker = product skills menu — **not** a `--menu` flag. Codex `/hooks` = hooks trust UI, not skill invoke.
 
 Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware materialization: Publish-Router rewrites `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree, then remaining `{{TOOLKIT_ROOT}}` → plugin root.
 
@@ -384,7 +384,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | Relative path | Source / role |
 |---------------|---------------|
 | `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `help-skills` + `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) |
+| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `adt-help-skills` + `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | `rules/*.md` | `Publish-Policy` from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
 | `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
@@ -401,7 +401,7 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
 | `Publish-Agents` | Emits `core/agents/*.md` → `InstallRoot/agents/*.toml` (live `~/.codex/agents/`) |
 | `Publish-Hooks` | Copies `emit-trace.ps1` and `TraceEmitCommon.ps1` under `plugin/hooks/` and registers `SubagentStop`. `HookActivation` `manual` |
-| `Invoke-SmokeValidate` | Asserts plugin, help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
+| `Invoke-SmokeValidate` | Asserts plugin, adt-help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
 | `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent codex` | Core validate + adapter smoke against fixture InstallRoot |
 
@@ -522,7 +522,7 @@ This module covers **ZCode (Z.ai ADE)** filesystem surfaces only: skills, `AGENT
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `agents` = true; `plugin` = false |
 | Native layout | `skills/<id>/SKILL.md`, `rules/*.md`, `agents/*.md`, `hooks/*.json` (+ `session_start.ps1`, `guard-pre-tool.ps1`) under InstallRoot |
 | Router | `AGENTS.md` at InstallRoot (from `core/router`) |
-| Skill invoke | `/id` (e.g. `/help-skills`) |
+| Skill invoke | `/id` (e.g. `/adt-help-skills`) |
 | Hooks trust | `/hooks-trust` or `--trust` is **manual** (trust UI, not skill invoke); smoke/CI never write `trusted_folders.toml`. PreToolUse guard shim is filesystem-published. |
 
 ### Native write vs Claude/Cursor compat (RN02)
@@ -571,7 +571,7 @@ Module notes: `adapters/grok/README.md`.
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` = true; `agents` = false; `subagents` = `native` |
 | Native layout | `skills/<id>/SKILL.md` + `AGENTS.md` under InstallRoot |
 | Router + policy | Combined `AGENTS.md` (folded `core/policy` + Hermes-only spawn bridge; **no** `rules/` directory). Project sessions load CWD `AGENTS.md`; always-on SPAWN guidance also ships in published skills |
-| Skill invoke | `/id` (e.g. `/help-skills`) |
+| Skill invoke | `/id` (e.g. `/adt-help-skills`) |
 | `memories/MEMORY.md` | Seeded once if missing; never overwritten |
 | `SOUL.md` | **Never** created or overwritten |
 | Official docs | [Skills](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills), [Creating skills](https://hermes-agent.nousresearch.com/docs/developer-guide/creating-skills), [Subagent delegation (`delegate_task`)](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation), [Context files](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files), [Hooks](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks), [Plugins](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins), [Windows Native](https://hermes-agent.nousresearch.com/docs/user-guide/windows-native) |

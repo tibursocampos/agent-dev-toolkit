@@ -16,9 +16,9 @@ Operator entry points under `scripts/`.
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Read-only bank inventory (`ready` \| `not-ready`) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Feature-scoped TRACE harvest |
 | `scripts/trace/Invoke-AuthorshipGitNotes.ps1` | Opt-in authorship git-notes (default off; never TRACE SoT) — [guide 09](../guides/09-authorship-git-notes.md) |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `document-implement` |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | Session helper for `adt-document-implement` |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION (WS3) |
-| `scripts/_lib/Test-ToolkitFileReadback.ps1` | Shared write-then-readback helper for `document-implement` session persistence |
+| `scripts/_lib/Test-ToolkitFileReadback.ps1` | Shared write-then-readback helper for `adt-document-implement` session persistence |
 
 Shared helpers: `scripts/_lib/` (`Resolve-InstallRoot`, `Resolve-RegistryAgent`, toolkit constants, …).
 
@@ -28,11 +28,11 @@ Every executable script path referenced from `core/skills/**/*.md` is classified
 
 | Source | Caller / reference | Class | Installed destination |
 |--------|--------------------|-------|-----------------------|
-| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `memory-bank-init`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | `document-implement` session contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
+| `scripts/inventory/Invoke-MemoryBankInventory.ps1` | `adt-memory-bank`, shared MEMORY-BANK contract | runtime | matching `TOOLKIT_ROOT/scripts/inventory/` path |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `adt-document-implement` session contract | runtime | matching `TOOLKIT_ROOT/scripts/session/` path |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | shared readiness-severity contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
 | `scripts/validation/validate-session-gates.ps1` | shared SESSION contract | runtime | matching `TOOLKIT_ROOT/scripts/validation/` path |
-| `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
+| `scripts/validation/validate-evidence.ps1`, `validate-trace.ps1` | `adt-sdd-develop` evidence/archive gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/validation/validate-prd.ps1`, `validate-plan.ps1`, `validate-change.ps1` | Optional structural diagnostics when explicitly requested; not flow authorization gates | runtime | matching `TOOLKIT_ROOT/scripts/validation/` paths |
 | `scripts/_lib/ToolkitConstants.ps1`, `Get-ToolkitRepoRoot.ps1`, `Resolve-EffectiveSddRoot.ps1`, `Resolve-InstallRoot.ps1`, `Test-ToolkitFileReadback.ps1` | dot-sourced by published runtime scripts that require them | support | matching `TOOLKIT_ROOT/scripts/_lib/` paths (manifest-listed files only) |
 | `scripts/validation/Assert-*.ps1` (including `Assert-CoreContracts`, `Assert-AdapterContract`, `Assert-RuntimeCopyDrift`, `Assert-O3ReceiptValidation`, `Assert-DevelopSessionGate`), `scripts/validation/validate-core.ps1` (in-process runner with `-Only` / `-Skip`), `scripts/validation/Invoke-AdapterCiSmoke.ps1 -Adapter <id>` | contract and CI validation of toolkit sources; none reads a `features/` tree | internal | not published |
@@ -43,7 +43,7 @@ Runtime scripts must receive explicit `{{TOOLKIT_ROOT}}/scripts/...` references 
 
 ## Session helper
 
-`Invoke-DevelopSessionGate.ps1` remains available to `document-implement`, whose contract explicitly uses session state. Classic SDD and O1/O2/O3 do not use session flags or claims as execution prerequisites. When the helper's consumer calls it, use `-File` and retain the host's ordinary explicit Shell authorization:
+`Invoke-DevelopSessionGate.ps1` remains available to `adt-document-implement`, whose contract explicitly uses session state. Classic SDD and O1/O2/O3 do not use session flags or claims as execution prerequisites. When the helper's consumer calls it, use `-File` and retain the host's ordinary explicit Shell authorization:
 
 `scripts/session/Invoke-DevelopSessionGate.ps1`
 
@@ -92,14 +92,14 @@ pwsh -NoProfile -File .\scripts\trace\Invoke-TraceHarvest.ps1 `
 
 Summarizes events from that feature’s `TRACE.jsonl` only (includes `tokens` / `duration` / `spawn` when present). Path escape or sessions-root reads fail explicitly — never dumps `sdd/sessions`.
 
-### Session helper (`document-implement`)
+### Session helper (`adt-document-implement`)
 
 ```powershell
 pwsh -NoProfile -File .\scripts\session\Invoke-DevelopSessionGate.ps1 `
   -PlanPath docs\documentation-plan\plan.md -RepoPath . -SddRoot <sdd-root>
 ```
 
-This example is for the `document-implement` consumer. For published runtime helpers, `-SddRoot` is optional and defaults to the active InstallRoot's `sdd` directory. Pass it explicitly when running from source or selecting a test root.
+This example is for the `adt-document-implement` consumer. For published runtime helpers, `-SddRoot` is optional and defaults to the active InstallRoot's `sdd` directory. Pass it explicitly when running from source or selecting a test root.
 
 Assert: `Assert-DevelopSessionGate.ps1`.
 

@@ -44,7 +44,7 @@ Planning checks also cover outcome-based story sizing and observable API-contrac
 | Assert / script | Role |
 |-----------------|------|
 | `Assert-MemoryBankInventory.ps1` | Inventory script + `ready` / `not-ready` contract smoke (portable paths in `sources.json`) |
-| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Retained session helper contract for consumers that explicitly use it (currently `document-implement`) |
+| `Assert-DevelopSessionGate.ps1` / `validate-session-gates.ps1` | Retained session helper contract for consumers that explicitly use it (currently `adt-document-implement`) |
 | `Assert-TraceEmitterFailOpen.ps1` | Fail-open emitter + `TraceEmitCommon` parity |
 | `validate-trace.ps1` | Per-feature TRACE validate (`-RequireArchiveComplete` at wave close) |
 
@@ -55,7 +55,7 @@ Run an optional helper only for a consumer that explicitly uses it; these comman
 | Script | When | Domain detail |
 |--------|------|---------------|
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Refresh `memory-bank/.inventory/` (`ready` \| `not-ready`; **portable** paths only) | [cli-scripts](domains/cli-scripts.md#memory-bank-inventory) |
-| `scripts/session/Invoke-DevelopSessionGate.ps1` | `document-implement` session contract; not a Classic/O1/O2/O3 prerequisite | [cli-scripts](domains/cli-scripts.md#session-helper) |
+| `scripts/session/Invoke-DevelopSessionGate.ps1` | `adt-document-implement` session contract; not a Classic/O1/O2/O3 prerequisite | [cli-scripts](domains/cli-scripts.md#session-helper) |
 | `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION check | [core readiness](domains/core.md#clarification-readiness-b--i--minor) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |
 | `scripts/validation/validate-trace.ps1` | Structural TRACE check; `-RequireArchiveComplete` at archive | [core TRACE](domains/core.md#trace-archive-living-loop) |
@@ -109,7 +109,7 @@ CI harnesses often copy a fixture to an ephemeral work root so the versioned see
 
 ## What CI runs
 
-Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `develop` only (no `push`, and no pull request into `master` or `main`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green. The wide suite `validate-core.ps1` is not a job on this path.
+Workflow: [`.github/workflows/validate-toolkit.yml`](../.github/workflows/validate-toolkit.yml). Trigger: `pull_request` to `develop` only (no `adt-push`, and no pull request into `master` or `main`). Permissions: `contents: read`. Checkout only; no secrets; no home sync for green. The wide suite `validate-core.ps1` is not a job on this path.
 
 **Jobs emitted for PRs into `develop`:**
 

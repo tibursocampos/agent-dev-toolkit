@@ -46,7 +46,7 @@ Comandos estáveis do adaptador: `Get-Capabilities`, `Get-InstallRoots`, `Publis
 
 `scripts/sync-agent.ps1` roda Publish e depois sempre `Get-SddRoot -Prepare`. Ações do CLI: `Sync`, `Validate`, `SyncAndValidate`, `ValidateCore`, `ListAgents`, `Uninstall`, `Backup`. Sync, Validate e Uninstall exigem `-Agent`. Uninstall é chaveado e mantém `sdd/sessions` e um `sdd/manifest.json` existente. Backup falha fechado, salvo `-ForceStub`.
 
-Para coordenar várias stories ou especialistas, o caminho é Orchestrated Delivery (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). SDD clássico também pode começar diretamente para uma feature clara. O2 roda `sdd-spec`/`sdd-plan`; O3 é serial, um passo de `sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
+Para coordenar várias stories ou especialistas, o caminho é Orchestrated Delivery (`adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`). SDD clássico também pode começar diretamente para uma feature clara. O2 roda `adt-sdd-spec`/`adt-sdd-plan`; O3 é serial, um passo de `adt-sdd-develop` por filho. Detalhe: [Primeiro uso](first-use.md). Flags por agente: [Adaptadores](adapters.md).
 
 ## Como um app consumidor escolhe um estilo
 
@@ -63,7 +63,7 @@ Depois de resolver uma escolha material de arquitetura: carregue **um** arquivo 
 
 - O conteúdo de produto para agentes vive em `core/`.
 - Nome do arquivo público de estado SDD: `manifest.json`.
-- `core/skills/` — 52 skills mais `_shared`. Agentes leem o mapa com `help-skills` (`CATALOG.md` e `OPERATOR.md`).
+- `core/skills/` — 52 skills mais `_shared`. Agentes leem o mapa com `adt-help-skills` (`CATALOG.md` e `OPERATOR.md`).
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.
@@ -136,7 +136,7 @@ O home de produto ao vivo é `~/.codex`. A descoberta de skills USER é `~/.agen
 |------------------|--------|
 | `plugin/.codex-plugin/plugin.json` | Manifesto do plugin (`skills: ./skills/`) |
 | `plugin/skills/<kebab-id>/SKILL.md` | Skills empacotadas no plugin |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `help-skills` |
+| `plugin/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `adt-help-skills` |
 | `rules/*.md` | Política |
 | `.agents/plugins/marketplace.json` | Entrada de marketplace local |
 | `AGENTS.md` | Caminhos absolutos de raiz dupla, materializados |

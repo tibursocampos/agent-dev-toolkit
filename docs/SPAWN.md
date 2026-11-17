@@ -20,7 +20,7 @@ Lifecycle: see `core/skills/_shared/agents/SPAWN.md` section "Task ownership and
 
 ## Inventory × host spawn
 
-Sources: official host product docs (primary), `adapters/registry.json`, SPAWN / `SUBAGENT-MODEL.md` / `orchestrate-*`.
+Sources: official host product docs (primary), `adapters/registry.json`, SPAWN / `SUBAGENT-MODEL.md` / `adt-orchestrate-*`.
 
 | Agent id | Display | Product evidence | Registry `subagents` | Prefer when effective `native` |
 |----------|---------|------------------|----------------------|--------------------------------|
@@ -84,14 +84,14 @@ Caps and checklist: `core/skills/_shared/agents/SPAWN.md`.
 
 O1 triage sets `needs_*` on `FEATURE.md`. Spawn map (flag → specialist / action / prompt): **`Flags (needs_*)` table** in `core/skills/_shared/agents/ROSTER.md` — do **not** copy that table into skills or this page. Point agents there.
 
-**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `*-developer` skill as an agent file. **OpenCode** and **Grok** publish with `agents: true`: `Publish-Agents` → `InstallRoot/agents/` (native OpenCode Task and Grok `spawn_subagent` remain). **Antigravity** and **Hermes** stay `agents: false` (`Publish-Agents` no-op; native `invoke_subagent` / `delegate_task` only). **OpenHands** still has `subagents=none` and still writes roster files under `.agents/agents/` — that path is an SDK/plugin roster, not Canvas Profile and not native spawn (SPAWN fallback in-parent).
+**Custom subagent files:** `sync-agent` `Publish-Agents` copies a small roster-aligned set from `core/agents/` (`repo-analyst`, `architect`, `database`, `security`, `shell-runner`) into the host `agents/` directory when `agents=true`. Parent stays the main agent; these files teach *whom* to call. Always-on orchestrator policy already tells the parent to delegate. Do **not** duplicate every `adt-*-developer` skill as an agent file. **OpenCode** and **Grok** publish with `agents: true`: `Publish-Agents` → `InstallRoot/agents/` (native OpenCode Task and Grok `spawn_subagent` remain). **Antigravity** and **Hermes** stay `agents: false` (`Publish-Agents` no-op; native `invoke_subagent` / `delegate_task` only). **OpenHands** still has `subagents=none` and still writes roster files under `.agents/agents/` — that path is an SDK/plugin roster, not Canvas Profile and not native spawn (SPAWN fallback in-parent).
 
 ## Task `model` (Eixo B/C — A≠B≠C)
 
 See `core/skills/_shared/agents/SUBAGENT-MODEL.md` for axes B and C.
 ## Orchestrate parents
 
-`orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `*-developer` / `sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
+`adt-orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `adt-*-developer` / `adt-sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
 
 ## Related
 

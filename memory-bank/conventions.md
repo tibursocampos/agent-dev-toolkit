@@ -14,7 +14,7 @@
 - Operator CLI and validation asserts stay under `scripts/`.
 - Memory bank for this repo is `memory-bank/` (repository storage). Do not place it under `features/`.
 - SDD feature artifacts, when written, use `features/NNN-slug/` with portable paths relative to the repo root.
-- `core/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md` are the help-skills source of truth. Exhaustive mirrors must match invocable skill IDs; README previews may remain partial and must not imply completeness.
+- `adt-help-skills` presents the canonical catalog and operator notes from `core/skills/_shared/skills-catalog/CATALOG.md` and `OPERATOR.md`. Exhaustive mirrors must match invocable skill IDs; README previews may remain partial and must not imply completeness.
 
 ## Testing
 
@@ -30,9 +30,9 @@
 
 - Commit messages follow Conventional Commits (`core/policy/conventional-commits.md`).
 - Commit and push only from `feature/<slug>` or `feat/<id>` (`core/policy/branch-validation.md`).
-- `sdd-spec`, `sdd-plan`, `orchestrate-analyze`, and `orchestrate-deliver` write the canonical artifact on the current branch. `orchestrate-develop`, `sdd-develop`, and `*-developer` still state the branch before code changes.
-- `/commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/push`, or a pull request unless that same operator request already includes them.
-- `/code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
+- `adt-sdd-spec`, `adt-sdd-plan`, `adt-orchestrate-analyze`, and `adt-orchestrate-prepare` write the canonical artifact on the current branch. `adt-orchestrate-implement`, `adt-sdd-develop`, and `adt-*-developer` still state the branch before code changes.
+- `/adt-commit` confirms the message and commits. It does not start a memory-bank refresh, documentation, `/adt-push`, or a pull request unless that same operator request already includes them.
+- `/adt-code-review` does not suggest a pull request, a memory-bank refresh, or documentation. Report prose follows `LANGUAGE.md`. Band tokens stay English.
 - Do not add `/memory-bank/` to the SDD `.gitignore` block. Commit bank prose when it is product knowledge. Never commit secrets.
 - Normal release path is a `develop` to `master` PR merged with a merge commit (never squash or rebase, so `master` keeps `develop` history); the release workflow tags/publishes, then reconciles the promoted commit back to `develop`. For recovery, dispatch `release.yml` on `master` with `reconcile_only=true` and no version; do not create a second tag for reconciliation.
 - Keep `RELEASE_SYNC_APP_ID` and `RELEASE_SYNC_APP_PRIVATE_KEY` in GitHub Actions secrets only. The App needs contents and pull-request write permissions without branch-rule bypass.
@@ -43,7 +43,7 @@
 |----|--------|
 | Default publish to an in-repo fixture | Write a live user home without `-AllowUserHome` |
 | Treat registry `subagents` as `native` or `none`; use effective Antigravity probe | Assume OpenHands can spawn children |
-| Keep one PLAN step per `sdd-develop` session | Continue into the next PLAN step in the same session |
+| Keep one PLAN step per `adt-sdd-develop` session | Continue into the next PLAN step in the same session |
 | Cite env var names only | Copy tokens, connection strings, or raw `.env` values into the bank |
 
 <!-- BEGIN GENERATED: session-start-subagent-policy -->

@@ -18,13 +18,13 @@ A compressão é uma preferência de sessão e começa ligada. Os comandos, e o 
 
 Um motivo de assinatura, um plano compacto de tokens antes do código e a intenção de escrita de UX vêm em parte de [anthropics/skills `frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-Para UI de produto, registre decisões visuais em `docs/DESIGN-BRIEF.md` e depois use a skill `*-developer` pertinente. A orientação geral de frontend continua em `core/skills/_shared/frontend-guidelines/`. O `frontend-design` de origem é uma referência opcional; não é uma skill do Core e aquele repositório não é copiado para `core/`.
+Para UI de produto, registre decisões visuais em `docs/DESIGN-BRIEF.md` e depois use a skill `adt-*-developer` pertinente. A orientação geral de frontend continua em `core/skills/_shared/frontend-guidelines/`. O `frontend-design` de origem é uma referência opcional; não é uma skill do Core e aquele repositório não é copiado para `core/`.
 
 ## Memory bank e Spec Kit
 
 O `memory-bank/` da Orchestrated Delivery, e as políticas de gate em volta dele, são um mapa de workspace escrito para este toolkit: um inventário em PowerShell, sem a toolchain do Spec Kit.
 
-Um workspace durável se apoia em parte em práticas em torno de [github/spec-kit](https://github.com/github/spec-kit). Este toolkit não executa Spec Kit, `uv` nem `specify`. Esses caminhos saíram do MVP. O mapa de workspace é Orchestrated Delivery e `memory-bank-init`. Os contratos Classic SDD rodam dentro desse caminho. Contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE) ficam dentro da chamada de skill que já existe.
+Um workspace durável se apoia em parte em práticas em torno de [github/spec-kit](https://github.com/github/spec-kit). Este toolkit não executa Spec Kit, `uv` nem `specify`. Esses caminhos saíram do MVP. O mapa de workspace é Orchestrated Delivery e `adt-memory-bank`. Os contratos Classic SDD rodam dentro desse caminho. Contratos internos (REQ, validate, CHANGE, EVD, STATE, TRACE) ficam dentro da chamada de skill que já existe.
 
 ## Qualidade do backlog de produto
 

@@ -1,8 +1,8 @@
 # 06 — Framework upgrade
 
-Skill id is **`framework-upgrade`**. It is not renamed per product or major (`dotnet10-upgrade`, `angular-v*-upgrade`, and `framework-upgrade-vN` are forbidden). The target version is an argument of a pack.
+Skill id is **`adt-framework-upgrade`**. It is not renamed per product or major (`dotnet10-upgrade`, `angular-v*-upgrade`, and `framework-upgrade-vN` are forbidden). The target version is an argument of a pack.
 
-Trigger: `/framework-upgrade`, or an explicit mode.
+Trigger: `/adt-framework-upgrade`, or an explicit mode.
 
 ## Modes
 
@@ -20,11 +20,11 @@ audit → plan → confirm → migrate → validate
               ↘ validate on a tree that was already migrated
 ```
 
-Stop after one session outcome. Do not chain an unrelated skill. `/commit` only if the operator wants it. `/code-review` only if the operator asks.
+Stop after one session outcome. Do not chain an unrelated skill. `/adt-commit` only if the operator wants it. `/adt-code-review` only if the operator asks.
 
 ## Packs
 
-Registry: `core/skills/framework-upgrade/packs/REGISTRY.md`.
+Registry: `core/skills/adt-framework-upgrade/packs/REGISTRY.md`.
 
 | Pack | On disk | After upgrade, quality notes point at |
 |------|---------|----------------------------------------|

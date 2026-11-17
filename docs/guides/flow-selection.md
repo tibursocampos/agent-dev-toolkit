@@ -7,28 +7,28 @@ This guide helps you choose which toolkit flow to use before you start: Orchestr
 ```mermaid
 flowchart TD
   Start([New work]) --> Q{What is the situation?}
-  Q -->|Feature with several stories, brownfield, or specialists| ORCH["orchestrate-analyze →<br/>orchestrate-deliver →<br/>orchestrate-develop or sdd-develop"]
-  Q -->|One story already clear, no specialists| SDD["sdd-spec → sdd-plan → sdd-develop"]
-  Q -->|Informal product item| REF["refine-story → split-story-checklist"]
-  Q -->|Requirement must be challenged before SDD| REV["requirement-review --feature or --tech"]
+  Q -->|Feature with several stories, brownfield, or specialists| ORCH["adt-orchestrate-analyze →<br/>adt-orchestrate-prepare →<br/>adt-orchestrate-implement or adt-sdd-develop"]
+  Q -->|One story already clear, no specialists| SDD["adt-sdd-spec → adt-sdd-plan → adt-sdd-develop"]
+  Q -->|Informal product item| REF["adt-refine-story → adt-split-story-checklist"]
+  Q -->|Requirement must be challenged before SDD| REV["adt-requirement-review --feature or --tech"]
   REF --> SDD
   REV --> SDD
   ORCH --> Done([Code, tests and commit])
   SDD --> Done
 ```
 
-The flows are not prerequisites for one another. Classic SDD can start directly, without `orchestrate-analyze`. Suggest the orchestrated path only when there are several stories, brownfield complexity, or specialist folders.
+The flows are not prerequisites for one another. Classic SDD can start directly, without `adt-orchestrate-analyze`. Suggest the orchestrated path only when there are several stories, brownfield complexity, or specialist folders.
 
 ## Flow table
 
 | Flow | When to use | Entry point | Guide or doc |
 |------|-------------|-------------|--------------|
-| Orchestrated Delivery | Feature with several stories, brownfield, or that needs specialists | `/orchestrate-analyze` | [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
-| Classic SDD | One story already clear, no need for specialists | `/sdd-spec` | [../sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md) |
-| Refine backlog item | Informal product item (bug, user story, or technical story) before SDD | `/refine-story` | [backlog-refine.md](backlog-refine.md) and [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
-| Review requirement | Check acceptance criteria or contracts before SDD | `/requirement-review --feature` or `--tech` | [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
+| Orchestrated Delivery | Feature with several stories, brownfield, or that needs specialists | `/adt-orchestrate-analyze` | [../sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md) |
+| Classic SDD | One story already clear, no need for specialists | `/adt-sdd-spec` | [../sessions/02-classic-sdd.md](../sessions/02-classic-sdd.md) |
+| Refine backlog item | Informal product item (bug, user story, or technical story) before SDD | `/adt-refine-story` | [backlog-refine.md](backlog-refine.md) and [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
+| Review requirement | Check acceptance criteria or contracts before SDD | `/adt-requirement-review --feature` or `--tech` | [../sessions/03-backlog-shape.md](../sessions/03-backlog-shape.md) |
 
-For a trivial single file, use `/developer` or the stack skill, if the operator chooses that shortcut.
+For a trivial single file, use `/adt-developer` or the stack skill, if the operator chooses that shortcut.
 
 ## Questions and approval
 
@@ -37,9 +37,9 @@ For Classic SDD and Orchestrated Delivery, only an unanswered decision that affe
 ## Write limits
 
 - Canonical PRD and PLAN paths live under `features/NNN-slug/`. Do not create artifacts outside the `features/` tree.
-- Without a `features/NNN-slug/` folder, `sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
-- `docs/backlog/` is a write shortcut for `refine-story`, `requirement-review`, and `split-story-checklist`. It is not a canonical source for PRD or PLAN.
+- Without a `features/NNN-slug/` folder, `adt-sdd-spec` does not read `docs/backlog/` on its own. A `.md` from `docs/backlog/` is used only when the operator cites its path (promote in `direct` mode, see [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md)) or when the content is pasted into the chat.
+- `docs/backlog/` is a write shortcut for `adt-refine-story`, `adt-requirement-review`, and `adt-split-story-checklist`. It is not a canonical source for PRD or PLAN.
 
 ## Implementation cadence
 
-Classic `sdd-develop` and O3 use the cadence selected for the approved PLAN: `step_by_step` stops after one completed step; `continuous` advances through eligible steps until completion or a real blocker. O3 dispatches serially, one child per step. The PLAN is the implementation progress source. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) for exceptions and consumer ownership.
+Classic `adt-sdd-develop` and O3 use the cadence selected for the approved PLAN: `step_by_step` stops after one completed step; `continuous` advances through eligible steps until completion or a real blocker. O3 dispatches serially, one child per step. The PLAN is the implementation progress source. See [PIPELINE.md](../../core/skills/_shared/sdd-artifacts/PIPELINE.md) for exceptions and consumer ownership.

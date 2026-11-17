@@ -1,4 +1,4 @@
-﻿# User guides
+# User guides
 
 Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../INSTALL.md) — you should not need to read every `SKILL.md` under the agent home for daily work.
 
@@ -10,7 +10,7 @@ Onboarding hub for **agent-dev-toolkit**. Start here after [install / sync](../I
 
 ## What this toolkit is
 
-A **multi-agent** skills and policy pack. The complete feature path is **Orchestrated Delivery** (`orchestrate-analyze` → `orchestrate-deliver` → `orchestrate-develop`). Deliver and develop run the Classic SDD contracts (`sdd-spec`, `sdd-plan`, `sdd-develop`). A one-file change uses `developer` or a stack skill. Git flow is `commit` / `push` / optional `open-github-pr`. Chat language, the parent orchestrator, and optional response compression are in [session-behavior.md](session-behavior.md). Prefer **Option 0** Release bootstrap ([INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)), or after clone run `pwsh -NoProfile -File .\scripts\toolkit.ps1`. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
+A **multi-agent** skills and policy pack. The complete feature path is **Orchestrated Delivery** (`adt-orchestrate-analyze` → `adt-orchestrate-prepare` → `adt-orchestrate-implement`). Deliver and develop run the Classic SDD contracts (`adt-sdd-spec`, `adt-sdd-plan`, `adt-sdd-develop`). A one-file change uses `adt-developer` or a stack skill. Git flow is `adt-commit` / `adt-push` / optional `adt-open-github-pr`. Chat language, the parent orchestrator, and optional response compression are in [session-behavior.md](session-behavior.md). Prefer **Option 0** Release bootstrap ([INSTALL.md § 0](../INSTALL.md#0-release-bootstrap-https--checksum--toolkit)), or after clone run `pwsh -NoProfile -File .\scripts\toolkit.ps1`. Scripting/CI: `-Action Sync` or `sync-agent.ps1 -Agent <id>`.
 
 **Same call flow:** skill ids and slash/`$id` handoffs stay; internal contracts add gates and artifacts (REQ, validate, CHANGE, EVD, STATE, TRACE, selective retrieval) — not a second toolkit or SQLite/FTS deliverable.
 
@@ -30,21 +30,21 @@ Re-run option 1 (`toolkit.ps1` → Sync agent) after `git pull` so published ski
 
 The decision tree and entry points live in [flow-selection.md](flow-selection.md) (the owner of that choice). Mechanics of each path: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Every skill: [sessions/09-every-skill.md](../sessions/09-every-skill.md).
 
-**Greenfield domain:** `/orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until a `confirm` answer. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
+**Greenfield domain:** `/adt-orchestrate-analyze` spawns the roster **architect** when `needs_domain` or no style exists; ARCH stays a draft until a `confirm` answer. Brownfield mirrors the existing style. Layers A/B/C: [sessions/04-implement-and-guidelines.md](../sessions/04-implement-and-guidelines.md).
 
 ---
 
 ## How the paths relate
 
-Orchestrated Delivery is the complete path. O2 loads `sdd-spec` then `sdd-plan`. O3 loads `sdd-develop` for one PLAN step. O1 applies the refine scorecard itself.
+Orchestrated Delivery is the complete path. O2 loads `adt-sdd-spec` then `adt-sdd-plan`. O3 loads `adt-sdd-develop` for one PLAN step. O1 applies the refine scorecard itself.
 
-A direct `/sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/refine-story` remains valid for a single product item, or when O2 stops on open clarification (B, I, or MINOR). Those are exits from the complete path, not a second equal product.
+A direct `/adt-sdd-spec` remains valid when one story is already clear (`core/router/AGENTS.md` still allows that start). `/adt-refine-story` remains valid for a single product item, or when O2 stops on open clarification (B, I, or MINOR). Those are exits from the complete path, not a second equal product.
 
-`/requirement-review` checks a feature or story before `sdd-spec`, with `--feature` or `--tech`. It is a check, not a separate product path.
+`/adt-requirement-review` checks a feature or story before `adt-sdd-spec`, with `--feature` or `--tech`. It is a check, not a separate product path.
 
 The entry table for each path (Orchestrated Delivery, Classic SDD, backlog shape) is in [flow-selection.md](flow-selection.md); the session pages linked there explain each one.
 
-Canonical contracts ship in `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
+Canonical contracts ship in `core/skills/_shared/sdd-artifacts/` (published with skills). Feature paths: `features/NNN-slug/{CHANGE.md,EVD/,STATE.md,TRACE.jsonl}`. Skill discovery after sync: `adt-help-skills` (agent SoT `CATALOG.md` + `OPERATOR.md`) · human list: [SKILLS.md](../SKILLS.md).
 
 ---
 
@@ -53,12 +53,12 @@ Canonical contracts ship in `core/skills/_shared/sdd-artifacts/` (published with
 | Guide | Content |
 |-------|---------|
 | [01-getting-started.md](01-getting-started.md) | Clone → sync → validate → first skill |
-| [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `help-skills`) |
+| [02-using-skills.md](02-using-skills.md) | How to invoke skills (incl. Codex dual-root + `adt-help-skills`) |
 | [session-behavior.md](session-behavior.md) | Chat language, parent orchestrator, optional compression |
 | [08-orchestrator-mode.md](08-orchestrator-mode.md) | Orchestrator default adaptive, charter, commands |
 | [09-authorship-git-notes.md](09-authorship-git-notes.md) | Opt-in authorship git-notes (default off); TRACE remains SoT |
 | [flow-selection.md](flow-selection.md) | Choosing the flow: decision tree, entry points, readiness rule, write limits |
-| [backlog-refine.md](backlog-refine.md) | Backlog refine flow: refine-story, requirement-review, split-story-checklist, write locations |
+| [backlog-refine.md](backlog-refine.md) | Backlog refine flow: adt-refine-story, adt-requirement-review, adt-split-story-checklist, write locations |
 | [new-endpoint-example.md](new-endpoint-example.md) | Illustrative .NET endpoint across controller, facade, service, entity, HTTP client and tests |
 
 Related:
@@ -75,9 +75,9 @@ Related:
 
 ## After code — recommended chain
 
-1. `/code-review` (choose angles if prompted)
-2. Optional `/test-coverage` (.NET)
-3. `/commit` then `/push` (with confirmation); optional `/open-github-pr` when opening a PR (feature **squash** → `develop`; release **rebase** → `main`/`master`)
+1. `/adt-code-review` (choose angles if prompted)
+2. Optional `/adt-test-coverage` (.NET)
+3. `/adt-commit` then `/adt-push` (with confirmation); optional `/adt-open-github-pr` when opening a PR (feature **squash** → `develop`; release **rebase** → `main`/`master`)
 
 ---
 

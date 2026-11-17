@@ -1,4 +1,4 @@
-﻿---
+---
 title: Começar
 ---
 
@@ -88,10 +88,10 @@ Não sabe qual fluxo se encaixa no seu trabalho? Escolha antes de começar:
 
 | Fluxo | Use quando | Skill de entrada |
 |-------|------------|------------------|
-| Entrega orquestrada | Feature com várias histórias, código brownfield ou especialistas | `orchestrate-analyze` |
-| SDD clássico | Uma história já clara, sem necessidade de especialistas | `sdd-spec` |
-| Refinar item do backlog | Item informal (bug, história de usuário, história técnica) antes do SDD | `refine-story` |
-| Revisão de requisito | Questionar critérios de aceitação ou contratos antes do SDD | `requirement-review` |
+| Entrega orquestrada | Feature com várias histórias, código brownfield ou especialistas | `adt-orchestrate-analyze` |
+| SDD clássico | Uma história já clara, sem necessidade de especialistas | `adt-sdd-spec` |
+| Refinar item do backlog | Item informal (bug, história de usuário, história técnica) antes do SDD | `adt-refine-story` |
+| Revisão de requisito | Questionar critérios de aceitação ou contratos antes do SDD | `adt-requirement-review` |
 
 Os fluxos não são pré-requisitos uns dos outros. Veja o guia de decisão completo (ainda só em inglês): [Choosing the flow](https://github.com/tibursocampos/agent-dev-toolkit/blob/master/docs/guides/flow-selection.md).
 

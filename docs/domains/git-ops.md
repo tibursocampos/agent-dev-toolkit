@@ -1,30 +1,30 @@
 # Domain: Git ops
 
-Day-to-day Git flow after code changes: Conventional Commits, push, and optional GitHub PR via `gh`. Skills live under `core/skills/` (`commit`, `push`, `open-github-pr`) and share branch rules plus the shared handoff in `core/skills/_shared/developer-common/step-4-commits-pr.md`.
+Day-to-day Git flow after code changes: Conventional Commits, push, and optional GitHub PR via `gh`. Skills live under `core/skills/` (`adt-commit`, `adt-push`, `adt-open-github-pr`) and share branch rules plus the shared handoff in `core/skills/_shared/developer-common/step-4-commits-pr.md`.
 
-Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: installed `OPERATOR.md` via `help-skills`; human deep dive for git: this file. Also [CONTRIBUTING.md](../../CONTRIBUTING.md).
+Public catalog: [SKILLS.md](../SKILLS.md). Operator notes: installed `OPERATOR.md` via `adt-help-skills`; human deep dive for git: this file. Also [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Skill chain
 
 ```text
-/code-review   (optional; after the report ask fix / re-review only)
-/implementation-survey   (describe the change; not a review verdict)
-/commit        (message confirmation only; no memory-bank or docs question)
-/push
-/open-github-pr   (optional — when opening a PR)
+/adt-code-review   (optional; after the report ask fix / re-review only)
+/adt-code-explain   (describe the change; not a review verdict)
+/adt-commit        (message confirmation only; no memory-bank or docs question)
+/adt-push
+/adt-open-github-pr   (optional — when opening a PR)
 ```
 
 | Skill | Slash | Job |
 |-------|-------|-----|
-| `commit` | `/commit` | Draft Conventional Commits message; commit only after approval; strip AI co-author trailers |
-| `push` | `/push` | `git push -u origin HEAD` on a valid feature branch |
-| `open-github-pr` | `/open-github-pr` | Create PR with `gh pr create` (feature or release mode), template resolution, mandatory auto-merge ask; mode-required merge method (see below) |
+| `adt-commit` | `/adt-commit` | Draft Conventional Commits message; commit only after approval; strip AI co-author trailers |
+| `adt-push` | `/adt-push` | `git push -u origin HEAD` on a valid feature branch |
+| `adt-open-github-pr` | `/adt-open-github-pr` | Create PR with `gh pr create` (feature or release mode), template resolution, mandatory auto-merge ask; mode-required merge method (see below) |
 
 Do not invent force-pushes to `main` / `master` / `develop`.  
 
-**Handoff rule:** `/commit` and `/push` must **not** open PRs themselves (`gh pr create` / web compare). After a successful push, `/push` either hands off immediately when PR intent was already clear (`fluxo completo`, `abra o PR`, `commit + push + PR`, …) or asks whether to continue with **`/open-github-pr`**. That skill owns create + **mandatory** auto-merge confirmation. Prefer `/open-github-pr` over the web UI when `gh` is available; web UI remains a fallback only inside that skill (see step-4).
+**Handoff rule:** `/adt-commit` and `/adt-push` must **not** open PRs themselves (`gh pr create` / web compare). After a successful push, `/adt-push` either hands off immediately when PR intent was already clear (`fluxo completo`, `abra o PR`, `commit + push + PR`, …) or asks whether to continue with **`/adt-open-github-pr`**. That skill owns create + **mandatory** auto-merge confirmation. Prefer `/adt-open-github-pr` over the web UI when `gh` is available; web UI remains a fallback only inside that skill (see step-4).
 
-**Agent rule:** never short-circuit with ad-hoc `gh pr create` from chat/`/commit`/`/push`. Always **Read** `core/skills/open-github-pr/SKILL.md` and run its confirmation + auto-merge ask.
+**Agent rule:** never short-circuit with ad-hoc `gh pr create` from chat/`/adt-commit`/`/adt-push`. Always **Read** `core/skills/adt-open-github-pr/SKILL.md` and run its confirmation + auto-merge ask.
 
 ## Branch rules
 
@@ -32,7 +32,7 @@ Policy source: `core/policy/branch-validation.md` (published as `branch-validati
 
 | Context | Allowed head | Blocked |
 |---------|--------------|---------|
-| `/commit`, `/push`, feature PR | `feature/<slug>` or `feat/<id>` (single segment after prefix) | `main`, `master`, `develop`, nested `feature/a/b`, other patterns |
+| `/adt-commit`, `/adt-push`, feature PR | `feature/<slug>` or `feat/<id>` (single segment after prefix) | `main`, `master`, `develop`, nested `feature/a/b`, other patterns |
 | Release PR | Head must be `develop` | Feature branch into `master`/`main` |
 
 Create a valid branch before staging:
@@ -47,20 +47,20 @@ git checkout -b feat/<id>
 
 | Skill | Must confirm before |
 |-------|---------------------|
-| `/commit` | **Living artifacts** when present (see below), then commit message text (never auto-commit) |
-| `/push` | Guardrails/session re-check when missing; then push |
-| `/open-github-pr` | Mode (feature vs release if omitted), full title/body, **and** whether to enable auto-merge (ask every time; do not infer from “fluxo completo”) |
+| `/adt-commit` | **Living artifacts** when present (see below), then commit message text (never auto-commit) |
+| `/adt-push` | Guardrails/session re-check when missing; then push |
+| `/adt-open-github-pr` | Mode (feature vs release if omitted), full title/body, **and** whether to enable auto-merge (ask every time; do not infer from “fluxo completo”) |
 
-### Living artifacts ask (`/commit`)
+### Living artifacts ask (`/adt-commit`)
 
 **Before** `git add` / drafting the message, when these exist in the consumer workspace:
 
 | When present | Ask in the conversation language and wait | On `confirm` |
 |--------------|----------------------|------------|
-| `memory-bank/` (or bank root via `STORAGE.md`) | Update memory-bank (`refresh-light`)? (`confirm` / `skip`) | `/memory-bank-init` `refresh-light` |
-| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | Update project documentation? (`confirm` / `skip`) | Pending plan → `/document-implement`; else `/document-plan` as needed |
+| `memory-bank/` (or bank root via `STORAGE.md`) | Update memory-bank (`refresh-light`)? (`confirm` / `skip`) | `/adt-memory-bank` `refresh-light` |
+| Project docs (`docs/documentation-plan/plan.md` and/or `docs/overview.md` / `docs/domains/`) | Update project documentation? (`confirm` / `skip`) | Pending plan → `/adt-document-implement`; else `/adt-document-plan` as needed |
 
-Silence is **not** `skip`. If the user already answered in the same turn (e.g. from `sdd-develop` / O3 / code-review handoff), do not re-ask. Contract: `core/skills/commit/SKILL.md` § Living artifacts.
+Silence is **not** `skip`. If the user already answered in the same turn (e.g. from `adt-sdd-develop` / O3 / adt-code-review handoff), do not re-ask. Contract: `core/skills/adt-commit/SKILL.md` § Living artifacts.
 
 A `confirm` answer (or explicit approve) is required for mutating Git and for PR create. Skills ignore Caveman compression for commit/PR prose.
 
@@ -79,21 +79,21 @@ The normal flow is a release PR from `develop` into `master` or `main`. `master-
 
 ### Merge methods (mandatory with auto-merge)
 
-When auto-merge is approved and the repo allows it, `open-github-pr` enables merge with a **mode-required** method (never default `--merge`):
+When auto-merge is approved and the repo allows it, `adt-open-github-pr` enables merge with a **mode-required** method (never default `--merge`):
 
 | Mode | Head → base | Merge method | Why |
 |------|-------------|--------------|-----|
 | **Feature** | `feature/*` \| `feat/*` → `develop` | **`--squash`** | One general commit on `develop` (PR title/body as squash message) |
 | **Release** | `develop` → `main`/`master` | **`--rebase`** | Linear / FF-compatible history; do **not** squash already-organized develop commits |
 
-Do not silently fall back to another method if the required one is disabled in repo settings — report and stop. Skill SoT: `core/skills/open-github-pr/` (`references/confirm-and-create.md`, `must-not.md`).
+Do not silently fall back to another method if the required one is disabled in repo settings — report and stop. Skill SoT: `core/skills/adt-open-github-pr/` (`references/confirm-and-create.md`, `must-not.md`).
 
-## `/open-github-pr` flow (summary)
+## `/adt-open-github-pr` flow (summary)
 
 1. Resolve mode (`feature` / `release`).
 2. Validate head/base for that mode.
 3. Preflight: `gh` on `PATH`, then OS fallbacks (Windows Program Files; macOS Homebrew; Linux `/usr/bin` / `~/.local/bin`) and `gh auth status`.
-4. Ensure head is pushed (`/push` handoff if no upstream or local commits missing on `origin`).
+4. Ensure head is pushed (`/adt-push` handoff if no upstream or local commits missing on `origin`).
 5. Resolve body template (repo first, then skill fallbacks).
 6. Draft title/body; for release, fill Included PRs table and commits (`origin/<base>..origin/develop`).
 7. Confirm with user (title/body **and** auto-merge ask every time); detect `allow_auto_merge` via GitHub API.
@@ -106,12 +106,12 @@ Do not silently fall back to another method if the required one is disabled in r
 1. `.github/PULL_REQUEST_TEMPLATE.md`
 2. `.github/pull_request_template.md`
 3. Any `.md` under `.github/PULL_REQUEST_TEMPLATE/` — prefer `feature.md` if present
-4. Else: `core/skills/open-github-pr/templates/feature-pr.md`
+4. Else: `core/skills/adt-open-github-pr/templates/feature-pr.md`
 
 **Release mode** (first match wins):
 
 1. `.github/PULL_REQUEST_TEMPLATE/release.md`
-2. Else: `core/skills/open-github-pr/templates/release-pr.md`
+2. Else: `core/skills/adt-open-github-pr/templates/release-pr.md`
 
 In this repository the feature template is [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEMPLATE.md) and the release template is [`.github/PULL_REQUEST_TEMPLATE/release.md`](../../.github/PULL_REQUEST_TEMPLATE/release.md).
 
@@ -122,9 +122,9 @@ In this repository the feature template is [`.github/PULL_REQUEST_TEMPLATE.md`](
 | Invalid branch for commit/push/feature PR | Stop; create `feature/<slug>` or `feat/<id>` |
 | Release head not `develop` / base not `master`\|`main` | Stop; fix checkout and base |
 | `gh` missing or not logged in | Install [GitHub CLI](https://cli.github.com/), run `gh auth login`, re-invoke |
-| Branch not on `origin` | `/push`, then re-invoke `/open-github-pr` |
+| Branch not on `origin` | `/adt-push`, then re-invoke `/adt-open-github-pr` |
 | Auto-merge requested but repo disallows it | Create PR; report auto-merge unavailable |
-| `Co-authored-by:` after commit | Amend per `/commit` §5.1 (approved message only) |
+| `Co-authored-by:` after commit | Amend per `/adt-commit` §5.1 (approved message only) |
 
 Never put tokens, org-only credentials, or private URLs in commit messages, PR bodies, or docs.
 
@@ -132,11 +132,11 @@ Never put tokens, org-only credentials, or private URLs in commit messages, PR b
 
 | After | Next |
 |-------|------|
-| `/code-review` (Changes required / after fixes) | Recommended loop (ask each for `confirm`/`skip`): fix → re-review → bank refresh-light → docs update → then `/commit` — see `code-review` § Recommended post-review loop |
-| `/commit` | `/code-review` (optional), `/push`, or `/open-github-pr` when user asks for a PR |
-| `/push` | `/open-github-pr` or `/code-review` |
-| Branch not pushed before PR | `/push` → `/open-github-pr` |
-| Mid-PLAN | New chat → `/sdd-develop` for the next step |
+| `/adt-code-review` (Changes required / after fixes) | Recommended loop (ask each for `confirm`/`skip`): fix → re-review → bank refresh-light → docs update → then `/adt-commit` — see `adt-code-review` § Recommended post-review loop |
+| `/adt-commit` | `/adt-code-review` (optional), `/adt-push`, or `/adt-open-github-pr` when user asks for a PR |
+| `/adt-push` | `/adt-open-github-pr` or `/adt-code-review` |
+| Branch not pushed before PR | `/adt-push` → `/adt-open-github-pr` |
+| Mid-PLAN | New chat → `/adt-sdd-develop` for the next step |
 
 Shared detail: `core/skills/_shared/developer-common/step-4-commits-pr.md`.
 

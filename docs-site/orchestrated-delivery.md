@@ -4,15 +4,15 @@ title: Orchestrated Delivery
 
 # Orchestrated Delivery
 
-Use Orchestrated Delivery when analysis across stories, specialist questions, or coordinated execution will help. Classic SDD remains available directly for a clear single feature. Each `orchestrate-*` skill owns its detailed procedure; [Using skills](using-skills.md) explains how to invoke them.
+Use Orchestrated Delivery when analysis across stories, specialist questions, or coordinated execution will help. Classic SDD remains available directly for a clear single feature. Each `adt-orchestrate-*` skill owns its detailed procedure; [Using skills](using-skills.md) explains how to invoke them.
 
 ## Flow
 
 | Phase | Skill | Result |
 |---|---|---|
-| O1 — Analyze | `orchestrate-analyze` | Proportional investigation and justified stories. Specialists and analysis notes are used only for concrete questions. |
-| O2 — Deliver | `orchestrate-deliver` | PRD and executable PLAN for each selected story. Drafting and saving are preparation. |
-| O3 — Develop (optional) | `orchestrate-develop` | Serial PLAN-step queue; one child per step and each result reconciled before the next dispatch. |
+| O1 — Analyze | `adt-orchestrate-analyze` | Proportional investigation and justified stories. Specialists and analysis notes are used only for concrete questions. |
+| O2 — Deliver | `adt-orchestrate-prepare` | PRD and executable PLAN for each selected story. Drafting and saving are preparation. |
+| O3 — Develop (optional) | `adt-orchestrate-implement` | Serial PLAN-step queue; one child per step and each result reconciled before the next dispatch. |
 
 Before implementation, O2 presents the complete PLAN or explicitly listed PLAN set for one approval. New approval is needed only when behavior, acceptance, scope, access, or an implementation decision changes materially. A material open question blocks only affected work; minor questions remain visible and independent stories can continue.
 

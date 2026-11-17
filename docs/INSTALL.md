@@ -207,7 +207,7 @@ The Claude sync writes:
 - `CLAUDE.md`, from `core/router/AGENTS.md`.
 - `agents/*.md`, from `core/agents/`.
 - `hooks/*.ps1`, from `adapters/claude/assets/hooks/`.
-- `settings.json` keys: `hooks` (managed `UserPromptSubmit`, `SessionStart`, `PostToolUse`, `SubagentStop` handlers), `permissions.allow` (narrow hook entries and read-only git), `permissions.ask` (`git commit`, `push`, `merge`, `rebase`, `checkout -b`), and `attribution` (`commit` and `pr` set to empty strings). Other keys are preserved, and `settings.json.bak` is written before each change.
+- `settings.json` keys: `hooks` (managed `UserPromptSubmit`, `SessionStart`, `PostToolUse`, `SubagentStop` handlers), `permissions.allow` (narrow hook entries and read-only git), `permissions.ask` (`git commit`, `adt-push`, `merge`, `rebase`, `checkout -b`), and `attribution` (`adt-commit` and `pr` set to empty strings). Other keys are preserved, and `settings.json.bak` is written before each change.
 
 No PreToolUse guard hook is installed for Claude. Review `settings.json` after the first sync. Hook behavior is in [HOOKS.md](HOOKS.md#claude-event-table).
 
@@ -292,7 +292,7 @@ After a live Cursor sync, confirm files such as:
 
 ```text
 %USERPROFILE%\.cursor\AGENTS.md
-%USERPROFILE%\.cursor\skills\sdd-spec\SKILL.md
+%USERPROFILE%\.cursor\skills\adt-sdd-spec\SKILL.md
 %USERPROFILE%\.cursor\rules\guardrails.mdc
 ```
 
@@ -303,10 +303,10 @@ Open a **consumer project** in the agent (not only this toolkit repo). Canonical
 Cursor / Claude example — start a feature with analyze (it runs spec and plan underneath on the next phase):
 
 ```text
-/orchestrate-analyze
+/adt-orchestrate-analyze
 ```
 
-Codex / ZCode: `$orchestrate-analyze`. After Copilot sync: `/skills reload`. One story that is already clear can use `/sdd-spec` instead. Full path: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
+Codex / ZCode: `$adt-orchestrate-analyze`. After Copilot sync: `/skills reload`. One story that is already clear can use `/adt-sdd-spec` instead. Full path: [sessions/01-orchestrated-delivery.md](sessions/01-orchestrated-delivery.md).
 
 See [guides/01-getting-started.md](guides/01-getting-started.md) and [guides/02-using-skills.md](guides/02-using-skills.md).
 
