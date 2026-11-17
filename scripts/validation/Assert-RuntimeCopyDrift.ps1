@@ -45,7 +45,7 @@ if ($entries.Count -eq 0) { throw 'Runtime manifest contains no files.' }
 $requiredDriftSources = @(
     'scripts/inventory/Invoke-MemoryBankInventory.ps1',
     'scripts/session/Invoke-DevelopSessionGate.ps1',
-    'scripts/ledger/Invoke-PlanLedgerClaim.ps1'
+    'scripts/validation/Invoke-O3ReceiptValidation.ps1'
 )
 
 function Get-CopyState {

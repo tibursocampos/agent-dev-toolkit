@@ -47,6 +47,13 @@ try {
     [IO.File]::WriteAllText((Join-Path $outside 'secret.txt'), 'outside')
 
     Assert-Accepted (New-Receipt @('features\000-receipt\US01\changed.cs', 'external:Demandas/input.json')) 'ValidInternalAndExternalAlias'
+    $additive = New-Receipt @('features\000-receipt\US01\changed.cs')
+    $additive['futureField'] = @{ ignored = $true }
+    $additiveResult = Invoke-ReceiptGuard $additive
+    if ($additiveResult.ExitCode -ne 0 -or $additiveResult.Output -notmatch 'receipt_validation: PASS' -or $additiveResult.Output -match 'futureField') {
+        throw "AdditiveField must be ignored and omitted from the canonical projection; exit $($additiveResult.ExitCode): $($additiveResult.Output)"
+    }
+    Write-Host 'O3ReceiptValidation AdditiveField: PASS (ignored and omitted)'
     Assert-Rejected (New-Receipt @('external:Demandas/../outside/secret.txt')) 'Traversal'
     Assert-Rejected (New-Receipt @('C:/temp/secret.txt')) 'DriveAbsolute'
     $secret = New-Receipt @('external:Demandas/input.json')
