@@ -51,6 +51,8 @@
 
 - Resolve effective `subagents` capability and read preferences before loading spawn or model-choice contracts. `none` or unknown skips those contracts and the model question; `orchestrator_mode` has `adaptive` and `always`, while `subagents=none` disables delegation.
 - `orchestrator_mode` defaults to `adaptive`; delegate independent or substantial work when effective `subagents` is `native`, while bounded trivial work may stay in-parent. Children perform post-change validation.
+- Every canonical prompt has one `## Output` contract naming its deliverable and consumer; output formats remain role-specific. `RECEIPT.md` and `finding-format.md` remain authoritative for their respective receipt and finding shapes.
+- Caveman may compress conversational framing only. It never shortens required findings, evidence, analysis, artifact content, validation, or receipt fields.
 - Resolve effective `subagents` capability before spawn/model-choice contracts. Missing or unknown capability safely behaves as `none`; registry declarations do not prove live host support.
 - When native subagents are available, discover complete model-and-effort options for the current host surface before the single session choice. Offer `inherit` when no alternate pair is verified; unknown runtime application remains unverified.
 - Evidence: `core/router/AGENTS.md`, `core/policy/orchestrator-session.md`, `core/skills/_shared/agents/SPAWN.md`, `docs/SPAWN.md`, `docs/guides/02-using-skills.md`, `docs/guides/08-orchestrator-mode.md`, `docs/guides/session-behavior.md`.
