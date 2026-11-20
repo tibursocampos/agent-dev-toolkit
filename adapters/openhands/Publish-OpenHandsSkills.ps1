@@ -141,11 +141,14 @@ function Get-OpenHandsPlaceholderMap {
     $sddRoot = Get-OpenHandsNormalizedForwardSlashPath -Path (Join-Path $InstallRoot $script:OpenHandsAdapterConstant.SddDirectoryName)
     $guardrailsPath = Get-OpenHandsNormalizedForwardSlashPath -Path $mapped.FixtureProjectAgentsPath
 
-    return [ordered]@{
-        ($script:OpenHandsAdapterConstant.PlaceholderToolkitRoot)    = $toolkitRoot
-        ($script:OpenHandsAdapterConstant.PlaceholderSddRoot)        = $sddRoot
-        ($script:OpenHandsAdapterConstant.PlaceholderGuardrailsPath) = $guardrailsPath
-    }
+    $policyRoot = Join-Path (Get-OpenHandsAdapterRepoRoot) 'core/policy'
+    $map = Get-ToolkitFoldedPolicyReferenceMap `
+        -SourceRules @(Get-ChildItem -LiteralPath $policyRoot -File -Filter '*.md') `
+        -PublishedPolicyPath $guardrailsPath
+    $map[$script:OpenHandsAdapterConstant.PlaceholderToolkitRoot] = $toolkitRoot
+    $map[$script:OpenHandsAdapterConstant.PlaceholderSddRoot] = $sddRoot
+    $map[$script:OpenHandsAdapterConstant.PlaceholderGuardrailsPath] = $guardrailsPath
+    return $map
 }
 
 function Initialize-OpenHandsToolkitManagedTreeLib {

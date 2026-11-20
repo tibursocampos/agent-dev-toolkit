@@ -23,6 +23,8 @@ pwsh -NoProfile -File .\scripts\sync-agent.ps1 -Agent opencode -InstallRoot .\sc
 
 Canonical form is the skill **id** / `name` argument.
 
+Skills that explicitly refer to a toolkit policy use the canonical Markdown copies published under `skills/_shared/policy/`. These references are loaded on demand. The adapter still has no native rules tree.
+
 ## Spawn / subagents (honesty)
 
 | Field | Value |
