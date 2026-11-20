@@ -14,7 +14,7 @@ Normalize separators, reject traversal, and ensure the resolved path stays insid
 ## Acquisition
 
 1. Resolve invocation context once from the explicit current invocation or parent handoff. Generic parent coordination, `orchestrator_mode`, or sibling files do not change a direct invocation into O3.
-2. Read the canonical PLAN in place. Do not rewrite its structure to satisfy a validator or filename grammar.
+2. Normalize the explicit artifact with `adt-read-sdd-artifact` in Classic layout, using the manifest-selected root, then read the canonical PLAN in place. Do not rewrite its structure to satisfy a validator or filename grammar.
 3. Resolve the requested step and verify that it exists, its dependencies are completed, and its described scope and acceptance are clear enough to implement.
 4. Confirm that the PLAN's explicit approval covers this outcome, scope, access, and implementation decision. Do not require a status token, hash, session flag, claim, separate per-step confirmation, or exact approval wording.
 5. Use only the PLAN as the required step breakdown. Existing task checklists or sidecars are optional context unless the current invocation explicitly adopts a related checklist.

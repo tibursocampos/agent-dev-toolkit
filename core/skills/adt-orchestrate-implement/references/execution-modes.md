@@ -1,16 +1,16 @@
 ## O3 execution mode
 
-O3 implementation is serial. Dispatch one eligible PLAN step to one child at a time, then reconcile its result before dispatching another. There is no execution-mode choice and no parallel queue.
+O3 implementation is serial. Dispatch one eligible PLAN step to one child at a time, then reconcile its result before dispatching another. Topology is always serial. Cadence still follows the operator's `step_by_step` or `continuous` choice.
 
 ### Manual fallback
 
 When the host cannot spawn a child, hand off only the first eligible step:
 
 ```text
-/adt-sdd-develop - <portable-plan-path> - Step N
+/adt-sdd-develop - <portable-plan-path> - Step N - invocation_context=orchestrated
 ```
 
-Include the approved scope and relevant evidence paths. Stop dispatch. The handoff does not mean the step started or completed; resume O3 after the operator returns with the result so the parent can reconcile it into the PLAN.
+Include the approved scope and relevant evidence paths. The manual executor returns evidence to O3 without changing PLAN progress or running closeout. Stop dispatch. The handoff does not mean the step started or completed; resume O3 after the operator returns with the result so the parent can reconcile it into the PLAN.
 
 ### Same-PLAN concurrency
 

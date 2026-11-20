@@ -14,7 +14,7 @@ Stop dispatch when:
 
 State the affected work, factual evidence, and next action. Preserve the PLAN's actual state. On resume, re-read the PLAN and inspect relevant partial work. Do not repeat a completed step only because an old receipt or sidecar is missing.
 
-If the host cannot dispatch a child, hand off the first eligible step as `/adt-sdd-develop - <portable-plan-path> - Step N` and stop. The handoff is not evidence that implementation occurred.
+If the host cannot dispatch a child, hand off the first eligible step as `/adt-sdd-develop - <portable-plan-path> - Step N - invocation_context=orchestrated` and stop. The manual executor returns evidence to the coordinator, which owns PLAN progress and closeout. The handoff is not evidence that implementation occurred.
 
 ### User-approved decisions
 
