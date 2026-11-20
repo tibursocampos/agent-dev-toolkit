@@ -14,4 +14,4 @@ A direct invocation owns one contextual table per `LIVE-STAGE-TABLE.md`. If O2 i
 
 ## Substantive review
 
-Check that the PRD makes the requested behavior, acceptance, scope, relevant contracts, and material risks understandable. IDs and document form may help cross-reference but are not authorization requirements. Structural validators are optional diagnostics, not gates.
+Check that the PRD makes the requested behavior, acceptance, scope, relevant contracts, and material risks understandable. IDs and document form may help cross-reference but are not authorization requirements. Review current PRDs directly. Use the legacy structural diagnostic only on explicit request for that format.

@@ -1,6 +1,6 @@
-## Optional PRD structure diagnostic
+## Optional legacy PRD diagnostic
 
-`validate-prd` may be run when its feedback helps locate a concrete issue. It is not required before handoff and its accepted headings, ID format, or optional sections do not define whether a PRD is substantively usable.
+`validate-prd` checks the legacy PRD format. Use it only when the operator explicitly asks to diagnose that format. Review the contracts, behavior and acceptance directly in current PRDs.
 
 ```text
 pwsh -NoProfile -File "{{TOOLKIT_ROOT}}/scripts/validation/validate-prd.ps1" -Path <prd-path>

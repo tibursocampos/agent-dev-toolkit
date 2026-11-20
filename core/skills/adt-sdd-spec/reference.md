@@ -10,5 +10,5 @@ The skill body is the workflow contract. Load only a relevant section below.
 | Make behavior and acceptance clear | `references/challenge-vagueness.md` |
 | Requirement IDs, when useful | `references/req-tracking.md` |
 | Language and external paths | `references/product-docs-language.md`, `CLASSIC-EXTERNAL-ACCESS.md` |
-| Optional structural diagnostic | `references/validate-prd.md` |
+| Legacy PRD diagnostic (explicit request only) | `references/validate-prd.md` |
 | Optional standalone CHANGE note | `references/validate-change.md` |

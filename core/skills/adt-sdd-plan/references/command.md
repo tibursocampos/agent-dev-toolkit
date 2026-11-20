@@ -10,7 +10,7 @@ Load after the shared pipeline/storage context. Read one relevant reference at a
 | Explore | Inspect relevant sources for current behavior, constraints, dependencies, and validation. | `plan-magro.md`, `challenge-vagueness.md` |
 | Draft | Derive outcome-based steps and one execution progress table from the source. | `template-usage.md`, `baby-step-sizing.md` |
 | Review | Perform one substantive review; correct material gaps. | `self-review.md` |
-| Persist | Save the canonical PLAN. Optional validators may diagnose content; they do not decide authorization. | `filename-numbering.md`, `validate-plan.md` |
+| Persist | Save the canonical PLAN and preserve equivalent formatting. | `filename-numbering.md` |
 | Approval / handoff | Direct calls present the complete PLAN for one approval and then hand off. O2 receives the draft for its single approval interaction. | `PIPELINE.md`, `LIVE-STAGE-TABLE.md` |
 
 ## Progress display
@@ -21,6 +21,6 @@ The progress table is separate from the PLAN's execution progress table. Do not 
 
 ## Optional PLAN validator
 
-`references/validate-plan.md` describes an optional diagnostic. Run it only when useful to check the artifact or when the user/plan requests it. A structural diagnostic cannot approve content or block a substantively complete PLAN solely for formatting, headings, or numbering.
+`references/validate-plan.md` describes the diagnostic for an explicitly requested legacy PLAN format check. Current PLANs rely on the existing substantive review.
 
 Selective retrieval: `references/selective-retrieval.md`. Product-document language follows the user language unless repository conventions or an explicit override apply: `references/product-docs-language.md`.

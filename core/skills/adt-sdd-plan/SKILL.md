@@ -19,12 +19,12 @@ The PLAN may be derived from a canonical PRD or a sufficiently specified demand.
 
 1. Resolve the invocation context once: direct or orchestrated. Do not infer O2 from sibling files. Reuse the context passed by the parent when present.
 2. Resolve the authorized source: use a relevant PRD when available; otherwise use the demand and cited evidence. Read only relevant optional FEATURE, STORY, analysis, Memory Bank, CHANGE, CONTINUITY, or TASKS material. Missing or stale sidecars do not block planning.
-3. Clarify only decisions that prevent determining behavior, acceptance, scope, required access, or an implementation choice. Identify affected work; minor questions do not block independent planning.
+3. Clarify only decisions that prevent determining behavior, acceptance, scope, required access, or an implementation choice. Record the question or observable answer in the PLAN and identify affected work. Minor questions do not block independent planning.
 4. Inspect repository evidence only where needed to determine constraints, dependencies, risks, and suitable validation. Distinguish observed behavior from inference, proposal, and gap. Do not claim runtime behavior based on static evidence.
 5. Derive outcome-based steps directly from the source. Group related work, represent real dependencies, and avoid file-only steps or speculative code detail. `adt-split-story-checklist` is optional and remains independently invocable; use an existing linked checklist as context when useful, but do not require or create TASKS files.
-6. Draft the PLAN using `templates/sdd/PLAN.md`. Include a single execution progress table with step, dependencies, state, evidence/validation, and blocker/next action. Include current behavior, intended change, and concrete risks for brownfield work when relevant. Add specialized sections only when they help this request.
+6. Draft the PLAN using `templates/sdd/PLAN.md` and `references/template-usage.md`. Specify each step's preconditions, paths and symbols, intended changes, limits, error behavior, acceptance and expected evidence. Resolve material design choices before handing off affected steps. Keep dependencies and status in the single progress table.
 7. Review the draft once for outcome coverage, dependencies, acceptance, material risks, validation, evidence limits, and scope. Fix substantive gaps. Use `references/self-review.md` and `references/challenge-vagueness.md` as guidance, not as separate authorization or formatting gates.
-8. Save the PLAN in the canonical path. Structural validators may be used as optional diagnostics; titles, numbering, section grammar, and validator output do not authorize or block the workflow by themselves. Resolve substantive gaps directly.
+8. Save the PLAN in the canonical path. Preserve equivalent headings, numbering and wording when revising existing plans. Resolve substantive gaps directly.
 9. For a direct invocation, present the complete plan for one explicit approval before implementation and end with a handoff. Do not start implementation automatically. For an O2 invocation, return the plan result to O2 for its single approval of the explicitly listed plan set.
 
 ## Invocation and display
@@ -53,5 +53,5 @@ The PLAN may be derived from a canonical PRD or a sufficiently specified demand.
 | Acceptance wording | `references/challenge-vagueness.md` |
 | Template guidance | `references/template-usage.md` |
 | Portable paths and PLAN location | `references/filename-numbering.md`, shared `STORAGE.md` |
-| Optional validator diagnostics | `references/validate-plan.md` |
+| Legacy PLAN diagnostic (explicit request only) | `references/validate-plan.md` |
 | Selective evidence retrieval | `references/selective-retrieval.md` |

@@ -45,7 +45,7 @@ When `adt-sdd-plan` coordinates this skill because the required checklist is abs
 
 If both `REFINE/tasks.md` and `TASKS.md` already exist: update **`REFINE/tasks.md`** and note the duplicate in chat (do not fork content into both).
 
-**TASKS complexity gate:** Resolve the invocation context first. In Classic `direct`, read the approved PRD's persisted `Complexidade` / `Complexity`; in Orchestrated Delivery O2, read FEATURE **Complexity**. Do not infer from the other source. For `trivial`, do not write TASKS / `REFINE/tasks.md` only to satisfy a gate. For `medium` or `complex`, produce the required checklist before `/adt-sdd-plan`. See `references/complexity-policy.md`; the current caller supplies the canonical context/source when invoking this owner.
+**Optional checklist:** Resolve the invocation context first and use the selected source to size the work. Classic and O2 can plan directly without `TASKS` or `REFINE/tasks.md` at every complexity. See `references/complexity-policy.md`.
 
 **No** creation of external work items; **no** mandatory corporate workflow checklists.
 
@@ -105,15 +105,13 @@ Full flow: [backlog refinement guide](../../../docs/guides/backlog-refine.md).
 1. Confirm target repository.
 2. Load refined content from feature story, path, chat, or paste.
 3. Extract steps from Steps / Suggested fix (`references/parsing.md`).
-4. Resolve `invocation_context` using `INVOCATION-CONTEXTS.md`. Read only the matching complexity source: approved PRD for Classic `direct`, or sibling FEATURE for O2 (`CHANGE-CONTRACT.md` TASKS policy and `references/complexity-policy.md`).
+4. Resolve `invocation_context` using `INVOCATION-CONTEXTS.md`. Use the source explicitly selected by the current invocation or caller (`references/complexity-policy.md`).
 
 If no steps found and `source` is not `prd`, stop and suggest `/adt-refine-story`.
 
 If `source=prd` and the STORY has no step list, do not suggest `/adt-refine-story`. Build groups from the closed PRD `REQ` rows (`references/parsing.md`).
 
-If the selected source's complexity is `trivial` (small): **do not** Write TASKS / `REFINE/tasks.md` only to satisfy the flow. Tell the operator, in the user chat language, that a checklist file is not required. If the caller is `adt-sdd-plan`, return the breakdown in the chat only; no tasks file is written. Only an explicit operator request for a file changes this, and then the Persistence rules and write gates apply.
-
-If the selected source's complexity is `medium` or `complex`, proceed to build the required TASKS file. If the source is absent, unsupported, or contradictory, stop and identify the selected context and required source; do not infer from the sibling context or story shape.
+If the current invocation requests a persisted checklist, follow the Persistence rules. Otherwise return the useful breakdown to the caller. Size its detail from the scope and risk visible in the source, including when no complexity label is recorded.
 
 ### 0.5. type_classification + exact-set → STORY
 
@@ -167,7 +165,7 @@ After the Write, you must show in chat a table with every group row, never colla
 | Situation | Next |
 |-----------|------|
 | Multi-story / needs O1 | `/adt-orchestrate-analyze` |
-| Full SDD for the story | `/adt-sdd-spec`, then PRD contestation, then this checklist when medium or complex, then `/adt-sdd-plan`, then `/adt-sdd-develop` |
+| Full SDD for the story | `/adt-sdd-spec` → `/adt-sdd-plan` → `/adt-sdd-develop`. Use this checklist when requested or useful to break down the work. |
 | Checklist done, plan not written | `/adt-sdd-plan - <portable-prd-path>` |
 | PLAN already exists | Resolve under `features/**/PLAN/` only (workspace + global feature root); `/adt-sdd-develop - <full-plan-path> - Step 1` |
 | Small code-only change | `/adt-developer` / stack `*-developer` |
