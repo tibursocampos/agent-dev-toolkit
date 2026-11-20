@@ -7,12 +7,14 @@ availability, delegation, and fallback. O1 does not maintain a second role map.
 
 First state the concrete question and why its answer could affect the outcome,
 scope, acceptance, risk, access, or implementation. Select only the specialist
-needed to answer it. A `needs_*` signal or brownfield/greenfield label alone
+needed to answer it. Use the relevant API, persistence, worker or security block
+in `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md` to scope the investigation.
+A `needs_*` signal or brownfield/greenfield label alone
 does not require a spawn, folder, or artifact.
 
 Independent investigations may run in parallel within the shared cap. Each
-specialist owns a bounded question and reports evidence, inference, suggestion,
-and decision separately. Suggestions remain recommendations until the operator
+specialist owns a bounded question and reports inspected source, what it
+establishes, evidence limits, and impact on the story or proposed decision. Suggestions remain recommendations until the operator
 chooses them. O1 reconciles specialist findings into FEATURE/STORY or a
 separate ANALYSIS/ARCH/SEC record when useful.
 

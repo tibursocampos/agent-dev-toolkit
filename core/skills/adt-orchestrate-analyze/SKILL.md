@@ -56,16 +56,19 @@ classification or a `needs_*` flag.
 4. **Investigate concrete questions.** Use a specialist only when its expertise
    is useful for a specific question. Independent investigations may run in
    parallel. Distinguish observed facts, inferences, suggestions, and decisions.
+   Reconcile each material finding and its evidence before dividing stories.
    Suggestions do not enter scope without an operator decision.
 5. **Synthesize.** Prepare or revise FEATURE and stories as needed. Keep
    behavior, scope, acceptance, dependencies, material questions, and evidence
    clear. Record relevant brownfield current behavior, intended change, and
    concrete risks in the FEATURE/STORY or PRD/PLAN destination as appropriate.
    Create separate ANALYSIS/ARCH/SEC notes only when the evidence or decision
-   benefits from a distinct record.
+   benefits from a distinct record. Follow `references/story-synthesis.md` for
+   template content and investigation depth.
 6. **Resolve material questions.** Ask only when behavior, acceptance, scope,
    required access, or an implementation decision cannot be determined. Name
-   affected work. Minor questions and optional improvements remain visible and
+   affected work and persist the question or observable answer in the canonical
+   artifact. Minor questions and optional improvements remain visible and
    do not block independent work.
 7. **Handoff.** Summarize the understanding, stories, material decisions or
    unresolved questions, evidence limits, and next action. O2 prepares the

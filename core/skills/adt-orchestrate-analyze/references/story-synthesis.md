@@ -22,20 +22,24 @@ Do not convert or delete historical files. O1 does not create PRDs or PLANs.
 
 - FEATURE explains the intended outcome and material scope. Use goals,
   exclusions, acceptance references, decisions, evidence, and story links when
-  they clarify the work; do not fill empty sections to satisfy a format.
+  they define the work. Record a feature Definition of Done that proves the
+  integrated result across story boundaries.
 - A STORY describes one useful outcome, its boundaries, acceptance, and
-  dependencies. Use stable IDs and BDD when they improve clarity; no fixed
-  scenario count, scorecard, or story-count cap is required.
+  dependencies. Write new criteria in Given / When / Then and a story Definition
+  of Done that points to outcome evidence. Accept equivalent criteria in existing
+  stories. Useful IDs aid navigation without prescribing a fixed format or count.
 - Keep stories outcome-shaped. Merge items that differ only by file or layer;
   split when outcomes, consumers, risks, or delivery boundaries are materially
   independent. Load `story-sizing.md` or `anti-task-shatter.md` only when a
   concrete sizing question needs them.
 - For relevant brownfield changes, include observed current behavior, intended
   change, and concrete risks in the canonical FEATURE/STORY; add a separate
-  ANALYSIS/ARCH/SEC note only when it carries distinct useful evidence.
+  ANALYSIS/ARCH/SEC note only when it carries distinct useful evidence. Use
+  `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md` for applicable risks and
+  the scaffolds under `skills/_shared/templates/features/story/`.
 - Keep material decisions and unresolved questions in the canonical artifact.
-  Label facts, inferences, suggestions, and operator decisions. Do not let a
-  suggestion add scope.
+  Label facts, inferences, suggestions, and operator decisions. Carry the
+  affected work and decision source forward. Do not let a suggestion add scope.
 - When relevant, show which story covers a material outcome, what remains
   unchanged, or what question is unresolved. A useful link is enough; no
   duplicate decision ledger or prescribed matrix is required.

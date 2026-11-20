@@ -7,8 +7,10 @@ For each eligible story:
 1. Confirm its intended outcome, boundary, and declared dependencies from the current records. Resolve only material ambiguities that affect this story.
 2. Use `adt-sdd-spec` to create or revise the PRD. Drafting/reviewing/writing are preparation; the skill integrates technical review and does not require separate content, write, format, or contestation approvals.
 3. Use `adt-sdd-plan` to prepare the executable PLAN from the PRD. A checklist is optional and does not create a gate.
-4. Review PRD/PLAN substantively for behavior, acceptance, scope, dependencies, concrete risks, and fit-for-risk validation. Optional validators may diagnose a specific issue but do not authorize advancement based on document grammar.
+4. Reconcile the finished set once for behavior, scope, interfaces and dependencies, acceptance, concrete risks and fit-for-risk validation. Follow `skills/_shared/sdd-artifacts/AUTHORING-CONTENT.md` to check material contracts. Verify that what a producer exposes matches what its consumer needs.
 5. Keep the story's result in the single O2 progress table. A blocked story does not prevent unrelated eligible stories from proceeding.
+
+After splitting a story or materially changing it, apply spec then plan again to the affected content, follow the changed dependency through its consumers, and review that slice only. Record pending questions, their affected work and observed answers in the owning artifacts. Preserve approval through editorial edits.
 
 ## Parallel preparation
 

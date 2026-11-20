@@ -9,5 +9,5 @@ The skill body is the workflow contract. Load only the section needed for the cu
 | Prepare a story PRD and PLAN | `references/per-story-contracts.md`, `adt-sdd-spec`, `adt-sdd-plan` |
 | One approval before implementation | `references/approval-gates.md` |
 | Substantive review and handoff | `references/continuity-handoff.md` |
-| Optional diagnostics only | `references/preflight-prd-plan-change.md` |
+| Retired preflight and legacy diagnostics | `references/preflight-prd-plan-change.md` |
 | Boundaries | `references/boundaries-must-not.md` |
