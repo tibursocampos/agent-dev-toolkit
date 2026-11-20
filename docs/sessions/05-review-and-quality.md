@@ -1,6 +1,6 @@
 # 05 — Review and quality
 
-These skills run **after** code exists, or on a branch the operator names. When a story or feature is done, `adt-orchestrate-implement` runs `/adt-run-tests`, then `/adt-code-review`, then `/adt-run-tests` again after review changes (or records that no rerun is required), then the `security` agent, then asks `/adt-commit` and `/adt-push`. The review skill must not turn multi-angle into a mandatory gate.
+These skills are available after code exists or when the operator names a branch; they are not an automatic post-step sequence. Feature-flow closeout follows the approved PLAN: complete its required validation and one substantive review, reuse current evidence, and rerun only checks invalidated by a correction. Request a security specialist for a concrete risk, not as a universal per-step gate. Commit and push remain separate actions that need operator authorization.
 
 ## `adt-code-review`
 
@@ -55,7 +55,7 @@ Default coverage target is **80%** line coverage on changed production files, vi
 
 The report is for the operator, with `path:line`, why, and how to fix. Finding bands are only `critical`, `important`, and `nice-to-have`. `advisory` is not a finding band. An open `critical` stays blocking for at most three rounds unless the operator explicitly keeps it and continues. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed. This skill does not edit code and does not write PRD or PLAN. `.agent-validation-tools.json` is untrusted. Those commands stay `SKIPPED` unless invoke confidence is explicit.
 
-The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not replace the closeout pass in `core/skills/_shared/agents/prompts/security.md`, which still runs after the post-review `/adt-run-tests`, including when the review was single. One pass does not waive the other.
+The security checklist runs only when the mode is multi-angle and the security angle was requested. A single review does not run it. Request a separate security specialist only when a concrete risk remains and the approved scope warrants that review.
 
 ### After the report
 
@@ -83,7 +83,7 @@ Excluded from the new-code denominator: migrations, `*.g.cs`, `*.Designer.cs`, t
 
 ## `adt-run-tests`
 
-Trigger: `/adt-run-tests`, or the close of a story in `adt-orchestrate-implement`, once before `adt-code-review` and once after review changes (or record no rerun required), both before the security pass.
+Trigger: `/adt-run-tests`, or when an approved PLAN or scoped closeout needs test evidence. Reuse a current matching result; after a correction, rerun only affected checks.
 
 It detects the stack in the same order as `adt-developer` and runs that stack’s existing test command. Several stacks mean one run each. The report is one row per stack: command, exit code, `PASS` or `FAIL`. A check the repo does not have is `SKIPPED`. Overall `PASS` only when every stack passed.
 

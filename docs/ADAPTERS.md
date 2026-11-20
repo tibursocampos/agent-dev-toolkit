@@ -52,7 +52,7 @@ Live Sync wizard **[1]** resolves `Get-InstallRoots` → `OfficialUserRootPath` 
 | `cursor` | `~/.cursor` | `skills/`, `rules/*.mdc`, `hooks.json`, `AGENTS.md` | `/id` (e.g. `/adt-help-skills`) | Also reads `~/.agents/skills` / project `.cursor/` |
 | `antigravity` | `~/.gemini` | ADT publishes `config/skills`, `config/skills.json`, `config/AGENTS.md`, `config/plugins/…/GUARDRAILS.md`, `config/hooks` PreToolUse guard | `use skill id` or `/id` | Twin IDE steering often points skills/GUARDRAILS under `antigravity-ide/plugins/<id>/` via `skills.json` — see adapter README. AppData `agy\bin` = binary only |
 | `claude` | `~/.claude` | `skills/`, `rules/`, `CLAUDE.md`, hooks in `settings.json` | `/id` (e.g. `/adt-sdd-spec`) | Project scope also uses repo `.claude/` |
-| `codex` | `~/.codex` | Dual-root: config/AGENTS/hooks under `~/.codex`; plugin under `InstallRoot/plugin`; **`$` discovery** via `InstallRoot/skills` (`~/.codex/skills`); optional `-UserScope` `~/.agents/skills` (opt-in only — duplicates `$` if both); rules under `InstallRoot/rules` | `$id` (e.g. `$adt-help-skills`) | Plugin packaging ≠ `$` feed; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
+| `codex` | `~/.codex` | Skills can publish local, plugin, or both via `-CodexSkillDistribution` (default `Both`); package source under `InstallRoot/plugins/agent-dev-toolkit`; Codex cache under `InstallRoot/plugins/cache`; config/AGENTS/hooks under `~/.codex`; optional `-UserScope` `~/.agents/skills`; rules under `InstallRoot/rules` | `$id` (e.g. `$adt-help-skills`) | Both sources appear separately in the `$` picker; `/hooks` is trust UI, not skill invoke; no `$skill --menu` flag |
 | `copilot` | `~/.copilot` or `.github` | `-Mode user\|repo`; `skills/`, `instructions/`, `copilot-instructions.md`, `hooks/` | `/id`; after sync `/skills reload` | Same relative tree both modes |
 | `opencode` | `~/.config/opencode` | `skills/`, `AGENTS.md`, hooks = JS `plugins/` | `skill` tool: `skill({ name: "…" })` | Not `~/.opencode`; not slash-first |
 | `grok` | `~/.grok` | `skills/`, `rules/`, `hooks/`, `AGENTS.md` under InstallRoot (= live `~/.grok`) | `/id` (e.g. `/adt-help-skills`) | Also reads Claude/Cursor layouts; adapter writes native. `/hooks-trust` = trust UI |
@@ -344,52 +344,55 @@ Keyed removal of toolkit skills / rules / agents / hooks / `CLAUDE.md`, plus rev
 |------|-------|
 | Agent id | `codex` |
 | Module | `adapters/codex/CodexAdapter.ps1` |
-| Packaging | Codex **plugin** under InstallRoot `plugin/` (`.codex-plugin/plugin.json` + bundled skills + hooks) |
+| Packaging | Codex **plugin** source under InstallRoot `plugins/agent-dev-toolkit/` (`.codex-plugin/plugin.json` + optional bundled skills + hooks) |
 | Official product home | `~/.codex` (config.toml, AGENTS.md, hooks, agents) — live wizard InstallRoot |
 | Official USER skills | `~/.agents/skills` (fixture: `InstallRoot/.agents/skills` via optional `-UserScope`) |
-| Official `$` skills mirror | `InstallRoot/skills` (live `~/.codex/skills`) — feeds `$id` discovery; plugin path alone does **not** |
-| Official marketplace | `.agents/plugins/marketplace.json` (fixture models local `source.path` `./plugin`) |
+| Official local `$` skills | `InstallRoot/skills` (live `~/.codex/skills`) — local-file entries in the `$` picker when distribution is `Both` or `Local` |
+| Official marketplace | `.agents/plugins/marketplace.json` (source path `./plugins/agent-dev-toolkit`) |
 | Official docs | [Codex](https://developers.openai.com/codex), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/skills), [hooks](https://developers.openai.com/codex/hooks), [config basic](https://developers.openai.com/codex/config-basic), [AGENTS.md](https://developers.openai.com/codex/guides/agents-md/) |
 | Fixture | `scripts/validation/fixtures/codex` (pass `-InstallRoot`; USERPROFILE requires `-AllowUserHome`) |
 | Capabilities | `skills` / `rules` / `hooks` / `router` / `plugin` / `agents` = true |
-| Key artifacts | `plugin/.codex-plugin/plugin.json`, `plugin/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugin/hooks/hooks.json` + `emit-trace.ps1` (+ `TraceEmitCommon.ps1`, `_hook-common.ps1`) |
+| Key artifacts | `plugins/agent-dev-toolkit/.codex-plugin/plugin.json`, `plugins/agent-dev-toolkit/skills/<id>/SKILL.md`, `rules/*.md`, `.agents/plugins/marketplace.json`, materialized `AGENTS.md`, `plugins/agent-dev-toolkit/hooks/hooks.json` + `emit-trace.ps1` (+ `TraceEmitCommon.ps1`, `_hook-common.ps1`) |
 | Hooks trust | Codex `/hooks` UI is **manual**; smoke/CI never invoke or require trust (RN03). The only registered hook is `SubagentStop` → `emit-trace.ps1`; there is no PreToolUse guard. |
 
 ### Dual-root honesty (skills vs rules)
 
 | Surface | Location | `TOOLKIT_ROOT` note |
 |---------|----------|---------------------|
-| Plugin skills + CATALOG | `InstallRoot/plugin` (skills under `plugin/skills/`) | Plugin packaging; **does not** feed `$` by itself |
-| `$` discovery mirror | `InstallRoot/skills` (live `~/.codex/skills`) | Feeds `$id` invoke |
+| Plugin package source | `InstallRoot/plugins/agent-dev-toolkit` | Marketplace `source.path` is `./plugins/agent-dev-toolkit` |
+| Plugin skills + CATALOG | `InstallRoot/plugins/agent-dev-toolkit` (skills under `skills/`) | Plugin-provided entries also appear in the Codex skill picker when distribution is `Both` or `Plugin` |
+| Installed plugin cache | `InstallRoot/plugins/cache/<marketplace>/<plugin>/<version>` | Codex-managed copy; toolkit does not publish or clean cache contents |
+| Local skills | `InstallRoot/skills` (live `~/.codex/skills`) | Local-file entries appear when distribution is `Both` or `Local` |
 | Rules / guardrails | `InstallRoot/rules/*.md` (Publish-Policy from `core/policy/`) | Rules are **not** under the plugin skills tree |
 | Product / AGENTS / hooks parent | `InstallRoot` (live `~/.codex`) | Router + hooks parent |
-| Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Extra USER discovery — **do not** enable with home skills or `$` duplicates |
+| Optional UserScope (opt-in) | Fixture `InstallRoot/.agents/skills` · live `$HOME/.agents/skills` | Adds another USER discovery source; avoid combining with other roots when you want one entry per skill |
 
 **Skill invoke:** `$id` (e.g. `$adt-help-skills`). Native `$` or `/skills` picker = product skills menu — **not** a `--menu` flag. Codex `/hooks` = hooks trust UI, not skill invoke.
 
-Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware materialization: Publish-Router rewrites `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree, then remaining `{{TOOLKIT_ROOT}}` → plugin root.
+Do **not** resolve skill `_shared` under `InstallRoot/rules`. Destination-aware materialization: Publish-Router rewrites `{{TOOLKIT_ROOT}}/rules/` → InstallRoot rules tree, then remaining `{{TOOLKIT_ROOT}}` → plugin package source root.
 
 ### Plugin skills vs UserScope
 
 | Scope | Path | When written |
 |-------|------|--------------|
-| Plugin-bundled (default) | `InstallRoot/plugin/skills/<kebab-id>/SKILL.md` | Default `Publish-Skills` |
+| Plugin-bundled | `InstallRoot/plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | `Both` (default) or `Plugin`; with `Both`, appears alongside the local-file entry |
+| Local Codex skills | `InstallRoot/skills/<kebab-id>/SKILL.md` | `Both` (default) or `Local` |
 | USER mirror (fixture) | `InstallRoot/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is **not** live `~/.codex` |
 | USER mirror (live) | `$HOME/.agents/skills/<kebab-id>/SKILL.md` | `Publish-Skills -UserScope` when InstallRoot is live `~/.codex` **and** `-AllowUserHome` |
 
-Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills root as OK without `-UserScope`. CI/fixtures never require a live `$HOME/.agents/skills` write. Live UserScope without `-AllowUserHome` fails closed.
+The guided sync offers `Both`, `Local`, and `Plugin`; direct `sync-agent.ps1` and `toolkit.ps1` accept `-CodexSkillDistribution`, which defaults to `Both`. Both publishes to both picker sources, so each skill appears twice. Local keeps the plugin shell and `SubagentStop` hook but omits plugin skills. Plugin omits the local skills copy. Switching modes does not remove existing copies. Sync also leaves the retired singular `InstallRoot/plugin` source untouched for manual cleanup. Smoke validates only the selected distribution while continuing to require the plugin marketplace and hook. An absent or empty USER skills root is OK without `-UserScope`. CI/fixtures never require a live `$HOME/.agents/skills` write. Live UserScope without `-AllowUserHome` fails closed.
 
 ### Publish layout (under InstallRoot)
 
 | Relative path | Source / role |
 |---------------|---------------|
-| `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `adt-help-skills` + `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) |
+| `plugins/agent-dev-toolkit/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
+| `plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | Bundled skills from `core/skills/` (incl. `adt-help-skills` + `_shared/skills-catalog/CATALOG.md` + `OPERATOR.md`) |
 | `rules/*.md` | `Publish-Policy` from `core/policy/` (`rules=true`) |
-| `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugin`) |
+| `.agents/plugins/marketplace.json` | Local marketplace entry (`source.path` `./plugins/agent-dev-toolkit`) |
 | `AGENTS.md` | `Publish-Router`: materialized dual-root **absolute** paths; **no** `{{…}}` placeholders; **no** live `docs/` links |
 | `agents/*.toml` | `Publish-Agents` converts `core/agents/*.md` → Codex custom agent TOML (`name`, `description`, `developer_instructions`) under InstallRoot/agents/ |
-| `plugin/hooks/hooks.json` | `Publish-Hooks` registers `SubagentStop` → `emit-trace.ps1` only (filesystem only; trust `/hooks` out of smoke). No PreToolUse guard. |
+| `plugins/agent-dev-toolkit/hooks/hooks.json` | `Publish-Hooks` registers `SubagentStop` → `emit-trace.ps1` only (filesystem only; trust `/hooks` out of smoke). No PreToolUse guard. |
 | `.agents/skills/` | Optional `-UserScope` mirror of `core/skills` (fixture stand-in) |
 
 ### Smoke / sync (filesystem only — no `/hooks` trust)
@@ -400,9 +403,9 @@ Default sync is **plugin-only**. Smoke treats an **absent or empty** USER skills
 | `Publish-Policy` | Copies `core/policy` → `InstallRoot/rules/*.md` |
 | `Publish-Router` | Materializes `AGENTS.md` (absolute dual-root paths; no placeholders; no `docs/` links) |
 | `Publish-Agents` | Emits `core/agents/*.md` → `InstallRoot/agents/*.toml` (live `~/.codex/agents/`) |
-| `Publish-Hooks` | Copies `emit-trace.ps1` and `TraceEmitCommon.ps1` under `plugin/hooks/` and registers `SubagentStop`. `HookActivation` `manual` |
+| `Publish-Hooks` | Copies `emit-trace.ps1` and `TraceEmitCommon.ps1` under `plugins/agent-dev-toolkit/hooks/` and registers `SubagentStop`. `HookActivation` `manual` |
 | `Invoke-SmokeValidate` | Asserts plugin, adt-help-skills/CATALOG/OPERATOR, marketplace, `rules/*.md`, materialized `AGENTS.md`, hooks files; optional UserScope when mirrored; `RequiresHooksTrust=false` |
-| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugin/` / `.agents` / alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
+| `Uninstall-Toolkit` | Keyed removal of toolkit artifacts only (no wipe of `plugins/agent-dev-toolkit/`, legacy `plugin/`, `.agents`, or alien files). Preserves `sdd/sessions` + `sdd/manifest.json` |
 | `validate-agent -Agent codex` | Core validate + adapter smoke against fixture InstallRoot |
 
 CI green does **not** use Codex trust UI `/hooks`. Operator may review/trust hooks on a real install **outside** CI (RN03).

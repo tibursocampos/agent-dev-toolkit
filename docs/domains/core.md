@@ -110,59 +110,19 @@ Contract: [STORAGE.md](../../core/skills/_shared/sdd-artifacts/STORAGE.md) § Na
 
 This reciprocal-link convention is documented here; automated acceptance fixtures are not retained.
 
-### Clarification readiness (B / I / MINOR)
+### Requirement review readiness (standalone backlog contract)
 
-Contract: [`readiness-severity.md`](../../core/skills/_shared/sdd-artifacts/readiness-severity.md) (WS3 / REQ-004–006).
+`READY` / `NEEDS_CLARIFICATION` and B / I / MINOR severity belong to the standalone `adt-requirement-review` and backlog-refinement contracts. They do not add a universal handoff gate to Classic SDD, Orchestrated Delivery, or ADT Delivery. `Invoke-SiblingReadinessGate.ps1` is a selective diagnostic for consumers that request it; it does not run as a general SDD preflight. See [`adt-requirement-review`](../../core/skills/adt-requirement-review/SKILL.md) and [Backlog shape](../sessions/03-backlog-shape.md).
 
-| Severity | Blocks READY? |
-|----------|---------------|
-| **B** (Blocker) | Yes |
-| **I** (Important) | Yes |
-| **MINOR** | Yes |
+### Delivery flow and closeout
 
-| Status | Meaning |
-|--------|---------|
-| **READY** | No unanswered **B**, **I**, or **MINOR** question |
-| **NEEDS_CLARIFICATION** | Any unanswered **B**, **I**, or **MINOR** question at a handoff boundary → **STOP** Write; typed handoff |
+The canonical workflow contracts are [`PIPELINE.md`](../../core/skills/_shared/sdd-artifacts/PIPELINE.md), [`STORAGE.md`](../../core/skills/_shared/sdd-artifacts/STORAGE.md), and the separate ADT lifecycle under `core/skills/_shared/adt-delivery/`. Choose one of three feature-delivery paths: Classic SDD for a clear feature, Orchestrated Delivery for coordinated multi-story work, or ADT Delivery for refinement through implementation in one evolving feature-root PLAN. Backlog Refine is optional preparation. See the [flow selector](../guides/flow-selection.md) and [session index](../sessions/README.md).
 
-**Dual plane:** clarification readiness differs from implementation progress. Session state applies only to consumers that explicitly retain it, such as `adt-document-implement`; Classic SDD and O1/O2/O3 track implementation in the PLAN. Folder presence of ANALYSIS/ARCH/SEC is not READY (**RN02**). The selective `Invoke-SiblingReadinessGate.ps1` helper reports open **B**, **I**, or **MINOR** questions as `NEEDS_CLARIFICATION`; use remains specific to consumers that request this diagnostic.
+Only an unanswered material decision blocks the work it affects. Classic SDD and O1/O2/O3 use their canonical PLAN as the persisted implementation-progress source; O3 dispatch is serial. ADT Delivery has a separate one-plan lifecycle. Memory Bank, CONTINUITY, CHANGE, TASKS, and separate ANALYSIS/ARCH/SEC notes are context or evidence when useful, not universal prerequisites. Generic document validators are diagnostics unless a specific consumer explicitly requires one.
 
-Four write gates use stop code `open_question`. At each of them, any unanswered question blocks the next artifact, including **MINOR**. A `confirm` answer does not close a question. The gates are: the feature before any story folder (O1), the story files before that story’s PRD (O2), the PRD before the PLAN, and the PLAN before it is saved. A stuck story does not erase the others.
+At closeout, follow the approved plan's required validation and perform one substantive review. Reuse current evidence and rerun only checks invalidated by a correction. Ask for security, data, or architecture review when a concrete risk warrants it. Commit, push, publication, installation, and other external actions need separate authorization.
 
-### Work tracks and internal contracts
-
-| Role | Call flow |
-|------|-----------|
-| **Orchestrated Delivery** | Step 0 → O1 (story folders only after no open question) → O2 (story files, `adt-sdd-spec`, contest the PRD, `adt-sdd-plan`) → O3 (one `adt-sdd-develop` child per PLAN step, then `adt-code-review`, `adt-run-tests`, `security`) |
-| **Classic SDD** | The same three contracts, invoked directly for one clear story |
-| **Backlog shape** | Rubric and sizing inside O1; `/adt-refine-story` → `/adt-split-story-checklist` for a single product item |
-
-Operator narrative: [sessions/01-orchestrated-delivery.md](../sessions/01-orchestrated-delivery.md). Skill ids stay the same. Shared backlog contracts (not slash skills): `story-sizing.md`; optional `persona-context.md` for User Stories only; FEATURE **Product intent** column (`templates/features/FEATURE.md`). Orchestrator session: `core/policy/orchestrator-session.md` + prefs `orchestrator_mode` — [guides/08-orchestrator-mode.md](../guides/08-orchestrator-mode.md). Chat language, spawn English, and optional compression: [guides/session-behavior.md](../guides/session-behavior.md).
-
-### Reliability evidence boundaries
-
-Published skills resolve only their declared runtime helpers from the installed toolkit tree. Session helpers reject a persisted repository or PLAN identity mismatch before changing state. Local instructions and configured diagnostic commands are discovered as applicable and reported as `PASS`, `FOUND`, or `SKIPPED`; the latter means unavailable or unrun, never approved. The fixture contracts cover that reporting and publication boundary, not a live host, IDE, Markdownlint, dependency-audit, or analyzer execution.
-
-Before planning, story sizing keeps one verifiable outcome per story and the applicable API-contract check must be observable. O3 uses a full initial review, then may use delta/risk-focused reviews until a relevant contract or scope changes. Token and tool telemetry is compared only when exposed; otherwise it is `SKIPPED` with a reason.
-
-These shared references describe optional diagnostics and retained artifact contracts; they do not add approval gates to Classic SDD or Orchestrated Delivery:
-
-| Contract | Path / script | Role |
-|----------|---------------|------|
-| REQ + AC | PRD/PLAN templates | Stable IDs; PLAN covers REQ |
-| Structural diagnostics | `validate-prd` / `validate-plan` (+ evidence/TRACE tools where used) | Optional deterministic diagnostics; not authorization gates |
-| CHANGE | `features/NNN-slug/CHANGE.md` | Optional context for a substantial delta; not required for brownfield work |
-| EVD + STATE | `features/NNN-slug/{USnn|TSnn}/EVD/`, `features/NNN-slug/{USnn|TSnn}/STATE.md` | Evidence-or-zero (`off`\|`cheap`\|`standard`\|`strict`); feature-root `EVD/` and `STATE.md` paths are legacy compatibility only |
-| TRACE | `features/NNN-slug/TRACE.jsonl` | Living loop events; archive/sync (see below) |
-| Selective retrieval | `SELECTIVE-RETRIEVAL.md` / `SR-NO-FULL-DUMP` | No full memory-bank/PRD dump |
-| Skill lazy-load | `SKILL-REFERENCE-RETRIEVAL.md` | Section-only reference load |
-| Navigation | STORAGE § Navigation | `## Related` + portable paths (see above) |
-| Clarification readiness | `readiness-severity.md` / SiblingReadinessGate | B/I/MINOR → READY \| NEEDS_CLARIFICATION (see above) |
-| Session helpers | `SESSION.md` / `Invoke-DevelopSessionGate.ps1` | Used only by consumers that explicitly retain session state, currently `adt-document-implement` |
-| Invocation contexts | `INVOCATION-CONTEXTS.md` | `direct` vs `orchestrated` (see below) |
-| Contract provenance | `CONTRACT-PROVENANCE.md` | `agreed` vs `invented` (see below) |
-
-**OOS:** SQLite/FTS as deliverable; second toolkit; folders `openspec/`, `.specs/`, `.specify/`.
+Local assertions and fixture smokes validate toolkit contracts and publication boundaries; they do not prove live-host behavior. Repository validation and release jobs are listed in [VALIDATION.md](../VALIDATION.md).
 
 ### Invocation contexts (`direct` vs `orchestrated`)
 

@@ -36,6 +36,7 @@ Do not put Copilot repository instructions in the user tree, or user instruction
 ## Always-on policy semantics
 
 - Auto-Clarity temporarily suspends Caveman compression for security warnings, irreversible confirmations, ordered multi-step instructions, ambiguity, and requests to clarify. It restores the selected compression level afterward.
+- Caveman never shortens or omits an assigned agent deliverable. Required findings, evidence, limits, alternatives, affected work, validation, artifact content, and receipt fields remain complete; only conversational framing may be compressed. The role-specific result is defined by each prompt's `## Output` and the canonical contracts in `core/skills/_shared/agents/RECEIPT.md` and `core/skills/adt-refine-story/references/finding-format.md`.
 - `qa_checklist` is an in-parent checklist role. It is not a spawnable specialist, does not receive a Task, and does not create a specialist folder. Its checklist evidence belongs with the story/continuity record.
 
 ## Language resolution

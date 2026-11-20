@@ -23,7 +23,7 @@ core/          skills, política, roteador, contratos sdd, agents
 adapters/      módulos por agente, registry.json, _contract
 scripts/       toolkit.ps1, sync-agent, validate-agent, _lib, validation, bootstrap
 docs/          documentação de operador no repositório
-memory-bank/   mapa durável do workspace (Passo 0 da Entrega orquestrada)
+memory-bank/   contexto durável opcional do workspace
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
@@ -67,6 +67,8 @@ Depois de resolver uma escolha material de arquitetura: carregue **um** arquivo 
 - `core/policy/` — corpos de regra (`.md`; adaptadores podem normalizar para `.mdc` ou instructions).
 - `core/router/` — roteador neutro (`AGENTS.md`). O nome do arquivo no host depende do adaptador.
 - `core/skills/_shared/sdd-artifacts/` — `PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`, alcançados por `Get-SddRoot`.
+- `core/skills/_shared/agents/prompts/` — prompts canônicos de especialistas e etapas; cada um declara sua saída esperada em `## Output`.
+- `core/skills/_shared/templates/` — templates canônicos de artefatos; os artefatos feature/story são donos de decisões, aceite, aprovações e progresso. Notas de especialistas são registros auxiliares opcionais.
 
 Prompts de especialista em `core/agents/` (`architect`, `database`, `repo-analyst`, `security`, `shell-runner`) são publicados quando `agents` é true. `qa_checklist` não tem arquivo de agente.
 
@@ -134,16 +136,17 @@ O home de produto ao vivo é `~/.codex`. A descoberta de skills USER é `~/.agen
 
 | Caminho relativo | Papel |
 |------------------|--------|
-| `plugin/.codex-plugin/plugin.json` | Manifesto do plugin (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Skills empacotadas no plugin |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `adt-help-skills` |
+| `plugins/agent-dev-toolkit/.codex-plugin/plugin.json` | Manifesto da origem do plugin gerida pelo toolkit (`skills: ./skills/`) |
+| `plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | Skills empacotadas no plugin |
+| `plugins/agent-dev-toolkit/skills/_shared/skills-catalog/CATALOG.md` e `OPERATOR.md` | Mapa via `adt-help-skills` |
+| `plugins/cache/<marketplace>/<plugin>/<version>` | Cache instalado gerido pelo Codex; o toolkit não grava nele |
 | `rules/*.md` | Política |
 | `.agents/plugins/marketplace.json` | Entrada de marketplace local |
 | `AGENTS.md` | Caminhos absolutos de raiz dupla, materializados |
-| `plugin/hooks/hooks.json` | Hooks do plugin. A confiança `/hooks` é manual |
+| `plugins/agent-dev-toolkit/hooks/hooks.json` | Hooks da origem do plugin. A confiança `/hooks` é manual |
 | `.agents/skills/` | `-UserScope` opcional (ao vivo: `$HOME/.agents/skills` mais `-AllowUserHome`) |
 
-O sync padrão é só plugin. Fixture: `scripts/validation/fixtures/codex`.
+O sync direto padrão é **Both**: skills locais e pacote do plugin. O Sync guiado permite escolher `Both`, `Local` ou `Plugin`; trocar de modo não remove cópias publicadas anteriormente. Fixture: `scripts/validation/fixtures/codex`.
 
 ## Claude Code
 

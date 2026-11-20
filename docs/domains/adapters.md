@@ -62,7 +62,7 @@ Capability `subagents` is the string enum `native` \| `none` (not boolean). Most
 | Home guard | USERPROFILE paths need `-AllowUserHome` |
 | Copilot Mode | `-Mode user\|repo` required |
 | OpenCode hooks | Plugin JS only (`HooksSemantics=plugin-only`); CI smoke = filesystem only |
-| Codex dual-root | Plugin skills under `InstallRoot/plugin`; Publish-Policy → `InstallRoot/rules`; default sync plugin-only; `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
+| Codex package and skills | Plugin source at `InstallRoot/plugins/agent-dev-toolkit`; Codex-managed cache at `InstallRoot/plugins/cache/<marketplace>/<plugin>/<version>`; skills publish local, plugin, or both via `-CodexSkillDistribution` (default `Both`); rules under `InstallRoot/rules`; optional `-UserScope` → fixture `.agents/skills` or live `~/.agents/skills` (+ `-AllowUserHome`) |
 | Codex / Grok trust | Manual in the product UI; never required for CI green |
 | ZCode vs GLM | `zcode` = ADE filesystem; GLM Coding Plan is out of scope |
 | Hermes | Native `$HERMES_HOME`; policy folded into `AGENTS.md`; no `rules/`; `hooks=true` + `plugin=true` (plugin registers no hook; `HookActivation` `unavailable`, `blocked` on unsupported `config.yaml`); `agents=false`; `delegate_task`; `memories/MEMORY.md` seed-if-missing; never SOUL.md / tokens / gateway |

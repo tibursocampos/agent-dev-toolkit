@@ -93,6 +93,21 @@ See `core/skills/_shared/agents/SUBAGENT-MODEL.md` for axes B and C.
 
 `adt-orchestrate-analyze` / `deliver` / `develop` parents **coordinate**: goals, gates, scoped paths, receipts, synthesis. They **must not** implement application code — specialists (or stack `adt-*-developer` / `adt-sdd-develop`) own implementation. Receipt shape: `RECEIPT.md` (lazy-load).
 
+## Agent deliverables and output contracts
+
+Every canonical agent/stage prompt under `core/skills/_shared/agents/prompts/` declares its deliverable in one `## Output` section. The caller should name the expected result in the assignment and consume the role's contract; prompt outputs are not one universal schema.
+
+| Work | Expected result | Canonical contract |
+|------|-----------------|--------------------|
+| Finding specialists (`repo-analyst`, `architect`, `database`, `security`) | Zero or more evidence-based finding blocks; design recommendations label proposals and unresolved operator decisions | `core/skills/adt-refine-story/references/finding-format.md`; role-specific detail in each prompt |
+| Story author (`generate-story`) | Complete `STORY.md` draft following the canonical template | `core/skills/_shared/templates/features/story/STORY.md` |
+| Stack implementation child (`developer-child`) | Reduced `{ files[], testsSummary }` receipt | `core/skills/_shared/agents/RECEIPT.md` |
+| Bounded command child (`shell-runner`) | Commands, exit results, portable evidence path, and next action | `core/skills/_shared/agents/RECEIPT.md` |
+| O3 implementation child (`adt-sdd-develop`) | Allowlisted PLAN-step relay receipt | `core/skills/_shared/agents/RECEIPT.md` and its runtime validator |
+| Optional verifier | Read-only verification result, separate from implementer receipt | `core/skills/_shared/agents/RECEIPT.md` |
+
+Caveman may compress conversational framing only. It must not shorten a finding, omit evidence or limits, reduce an artifact, or drop required receipt fields. The caller remains responsible for checking the result against its assigned scope and canonical artifact.
+
 ## Related
 
 | Path | Role |

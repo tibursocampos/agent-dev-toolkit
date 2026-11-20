@@ -56,7 +56,7 @@ Run an optional helper only for a consumer that explicitly uses it; these comman
 |--------|------|---------------|
 | `scripts/inventory/Invoke-MemoryBankInventory.ps1` | Refresh `memory-bank/.inventory/` (`ready` \| `not-ready`; **portable** paths only) | [cli-scripts](domains/cli-scripts.md#memory-bank-inventory) |
 | `scripts/session/Invoke-DevelopSessionGate.ps1` | `adt-document-implement` session contract; not a Classic/O1/O2/O3 prerequisite | [cli-scripts](domains/cli-scripts.md#session-helper) |
-| `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective clarify READY / NEEDS_CLARIFICATION check | [core readiness](domains/core.md#clarification-readiness-b--i--minor) |
+| `scripts/validation/Invoke-SiblingReadinessGate.ps1` | Selective `adt-requirement-review` / backlog readiness diagnostic | [standalone backlog contract](domains/core.md#requirement-review-readiness-standalone-backlog-contract) |
 | `scripts/trace/Invoke-TraceHarvest.ps1` | Summarize `features/NNN-slug/TRACE.jsonl` only | [cli-scripts](domains/cli-scripts.md#trace-harvest) |
 | `scripts/validation/validate-trace.ps1` | Structural TRACE check; `-RequireArchiveComplete` at archive | [core TRACE](domains/core.md#trace-archive-living-loop) |
 

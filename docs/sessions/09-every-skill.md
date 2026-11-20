@@ -12,7 +12,7 @@ Facilitates active discovery and decomposes an initiative into outcome-based fea
 
 ### `adt-memory-bank`
 
-Creates or refreshes `memory-bank/` at the repository root or the global classic path. Never under `features/NNN-slug/`. Modes: `create`, `refresh`, `refresh-light`. Runs a read-only inventory, then fills templates. Confirms before write. Stops when the bank is done and does not start O1. Called at Orchestrated Delivery Step 0 and after O3 changes application files (`refresh-light`). Detail: [01](01-orchestrated-delivery.md).
+Creates or refreshes `memory-bank/` at the repository root or the global classic path. Never under `features/NNN-slug/`. Modes: `create`, `refresh`, `refresh-light`. Runs a read-only inventory, then fills templates. Confirms before write. Stops when the bank is done and does not start O1. It can be used at Orchestrated Delivery Step 0 or as a separate `refresh-light` when the parent requests a context refresh after code changes; neither makes Memory Bank a prerequisite for delivery. Detail: [01](01-orchestrated-delivery.md).
 
 ### `adt-orchestrate-analyze`
 

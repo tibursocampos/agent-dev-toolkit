@@ -9,7 +9,7 @@ core/          # skills (kebab), policy, router, sdd contracts
 adapters/      # per-agent modules + registry.json + _contract
 scripts/       # toolkit.ps1, sync-agent, validate-agent, _lib, validation
 docs/          # public documentation
-memory-bank/   # durable workspace map (Orchestrated Delivery Step 0)
+memory-bank/   # optional durable workspace context
 .github/workflows/validate-toolkit.yml
 .github/workflows/master-release-ci.yml
 .github/workflows/enforce-release-source.yml
@@ -34,10 +34,10 @@ How consumer apps pick a style (separate from the toolkit’s own core/adapters 
 
 | Mode | Flow |
 |------|------|
-| **Greenfield** | Roster specialist **architect** (`core/skills/_shared/agents/`) proposes via Layer A (`architecture-selection.md`) → ARCH **draft** → operator `confirm` answer → ARCH approved. No silent default style. |
-| **Brownfield** | **Discover-first:** mirror in-repo / approved ARCH style; skip re-selection unless the operator asks to change it. |
+| **Greenfield** | Use the `architect` specialist when a concrete design question needs one. Resolve a choice with the operator only when it materially affects behavior, acceptance, scope, or implementation; otherwise record useful evidence and continue. |
+| **Brownfield** | **Discover-first:** inspect and reuse relevant repository conventions. Brownfield classification alone does not require an ARCH note or approval gate. |
 
-After confirm (or brownfield mirror): load **one** Layer B file under `principles/architecture/`, then the matching Layer C stack overlay. Never glob `architecture/**`. Orchestrated Delivery wires the confirm gate in `adt-orchestrate-analyze` when nature is greenfield or `needs_domain` without an established style.
+When a material architecture decision is needed, record the decision and source in the canonical FEATURE/STORY/PRD/PLAN or a justified ARCH note. Load only the relevant Layer B principle and matching Layer C stack overlay; never glob `architecture/**`.
 
 ## Source policy
 
@@ -47,6 +47,8 @@ After confirm (or brownfield mirror): load **one** Layer B file under `principle
 - `core/policy/` — rule bodies (`.md`; adapters may normalize to `.mdc` or instructions).
 - `core/router/` — neutral router material (`AGENTS.md`).
 - `core/skills/_shared/sdd-artifacts/` — portable contracts (`PIPELINE.md`, `STORAGE.md`, `SESSION.md`, `MEMORY-BANK.md`) for adapters via `Get-SddRoot`.
+- `core/skills/_shared/agents/prompts/` — canonical specialist and stage prompts; every prompt defines its expected result in `## Output`.
+- `core/skills/_shared/templates/` — canonical artifact templates. Canonical FEATURE/STORY/PRD/PLAN artifacts own requirements, decisions, approval and implementation progress; specialist notes are optional supporting records.
 
 ## Core path placeholders
 
@@ -122,16 +124,17 @@ InstallRoot models Codex plugin + `.agents` surfaces ([plugins](https://develope
 
 | Relative path | Role |
 |---------------|------|
-| `plugin/.codex-plugin/plugin.json` | Plugin manifest (`skills: ./skills/`) |
-| `plugin/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills (default); `TOOLKIT_ROOT` for skills paths |
-| `plugin/skills/_shared/skills-catalog/CATALOG.md` (+ `OPERATOR.md`) | Agent skill map + operator notes via `adt-help-skills` |
+| `plugins/agent-dev-toolkit/.codex-plugin/plugin.json` | Toolkit-managed plugin source manifest (`skills: ./skills/`) |
+| `plugins/agent-dev-toolkit/skills/<kebab-id>/SKILL.md` | Plugin-bundled skills; `TOOLKIT_ROOT` for plugin skill paths |
+| `plugins/agent-dev-toolkit/skills/_shared/skills-catalog/CATALOG.md` (+ `OPERATOR.md`) | Agent skill map + operator notes via `adt-help-skills` |
+| `plugins/cache/<marketplace>/<plugin>/<version>` | Codex-managed installed plugin cache; not written by the toolkit |
 | `rules/*.md` | Publish-Policy from `core/policy/` (`rules=true`) |
 | `.agents/plugins/marketplace.json` | Local marketplace entry |
 | `AGENTS.md` | Publish-Router: materialized dual-root **absolute** paths (no `{{…}}`; no live `docs/` links) |
-| `plugin/hooks/hooks.json` | Plugin hooks: `SubagentStop` → `emit-trace.ps1` only, no PreToolUse guard; `/hooks` trust is **manual** |
+| `plugins/agent-dev-toolkit/hooks/hooks.json` | Plugin source hooks: `SubagentStop` → `emit-trace.ps1` only, no PreToolUse guard; `/hooks` trust is **manual** |
 | `.agents/skills/` | Optional `-UserScope` stand-in for `~/.agents/skills` (live: `$HOME/.agents/skills` + `-AllowUserHome`) |
 
-Default sync is **plugin-only**. Fixture: `scripts/validation/fixtures/codex`. See [ADAPTERS.md](ADAPTERS.md).
+Default direct sync is **Both**: home skills plus the plugin package. Guided Sync can select `Both`, `Local`, or `Plugin`; changing modes does not delete previously published copies. Fixture: `scripts/validation/fixtures/codex`. See [ADAPTERS.md](ADAPTERS.md).
 
 ## Claude Code install layout
 
