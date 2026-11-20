@@ -40,7 +40,7 @@ A structured **review report** with severity tiers (`critical`, `important`, `ni
 | PRD / PLAN (SDD) | Optional in invocation; **resolve in step 0.5** if omitted (see `references/sdd-resolution.md`) |
 | Review mode | Explicit in invoke **or** answer to step 0.25 - never silent default |
 
-Ask the user **only after** step 0.5 if zero or multiple PRD/PLAN pairs remain ambiguous. For a quick review without SDD artifacts, base branch + changed paths suffice after 0.5 reports no artifacts.
+Ask for an artifact selection **only after** step 0.5 if several plausible scopes remain ambiguous. For a quick review without SDD artifacts, base branch + changed paths suffice after 0.5 reports no artifacts.
 
 ## Optional input
 
@@ -62,7 +62,7 @@ This skill does not edit application code and does not write a PRD or a PLAN.
 | When | Path (after sync) |
 |------|-------------------|
 | SDD artifact discovery (step 0.5) | `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/STORAGE.md` |
-| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0-context.md` |
+| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
 | Before code analysis (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md`, `csharp-patterns.md` |
 | Test review (.NET) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
 | .NET checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
@@ -70,7 +70,7 @@ This skill does not edit application code and does not write a PRD or a PLAN.
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` |
 | Policy / N+1 / contracts (WS16a) | `{{TOOLKIT_ROOT}}/skills/adt-code-review/references/policy.md`, `n-plus-one.md`, `contracts.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
-| Final Git hygiene | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` |
+| Final Git hygiene | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Spawn native vs fallback (capability `subagents`) | `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-code-review/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-code-review/references/<section>.md` |
@@ -144,7 +144,7 @@ Resolve mode from the invocation **or** from the user's answer to the Trigger pr
 If still unset: **STOP** - ask the Trigger prompt in the chat language from `core/skills/_shared/agents/LANGUAGE.md` - do not continue to 0.5/1 until answered. Novice-friendly: never pick a default for them.
 
 ### 0.5 Resolve SDD artifacts
-Load `STORAGE.md`. Follow **`references/sdd-resolution.md`**. Use full paths in the report. If one PRD/PLAN pair -> read both before the diff review. If none after a full search -> note **SDD limitation** in the report (technical review only). If ambiguous -> ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` with numbered options.
+Load `STORAGE.md`. Follow **`references/sdd-resolution.md`**. Use full paths in the report. Read the selected approved PLAN and relevant companion sections before reviewing the diff. A plan created directly from a demand can supply traceability by itself. If no applicable artifacts exist in the selected root, note **SDD limitation** in the report. If ambiguous, ask once in the chat language from `core/skills/_shared/agents/LANGUAGE.md` with numbered options.
 
 ### 1. Scope the diff
 
@@ -206,7 +206,7 @@ An open `critical` stays blocking until a new review shows the fix. Offer at mos
 Use `references/report-template.md`. Be specific: `path:line`, explain **why**, suggest **how** to fix. When the operator passed a pull-request URL and the review identified that range, cite the URL and that range. Finding bands are only `critical`, `important`, and `nice-to-have`. Spoken report prose follows `core/skills/_shared/agents/LANGUAGE.md`. Keep the positives section. Each positive names one observed good point, uses a title in that language, and cites `path:line` evidence in the diff. When no such evidence exists, the section states that no positive was observed.
 
 ## Multi-angle mode (when chosen)
-Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Agent when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. That checklist does not waive the closeout pass in `{{TOOLKIT_ROOT}}/skills/_shared/agents/prompts/security.md`, and that pass does not waive the checklist.
+Run **only** after step **0.25** resolved to multi-angle. Follow `references/multi-angle.md` (SPAWN first; parallel Agent when `native`; fallback sequential in-parent). Parent synthesizes into **one** report using `references/report-template.md`. Decision matrix and coverage gates unchanged. The security checklist in that file runs only when this mode is multi-angle and the security angle was requested. A single review does not run it. Request a separate security specialist only when a concrete risk remains, under the shared closeout contract.
 ## Must not
 
 - Write or update PRD/PLAN files (hand off to `/adt-sdd-spec` / `/adt-sdd-plan`)

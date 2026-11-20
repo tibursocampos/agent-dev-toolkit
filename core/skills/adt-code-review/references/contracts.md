@@ -36,7 +36,7 @@ Sibling feature contracts (do **not** reopen CI asserts from enrich-only reviews
 - [ ] PLAN/PRD Related / Navigation still portable; no second SoT (OpenSpec / `.specs/` / SQLite TRACE) introduced
 - [ ] CHANGE/FEATURE edits respect `CHANGE-CONTRACT` (ADDED\|MODIFIED\|REMOVED; TASKS policy) when those files are in the diff
 - [ ] Complete / delivery claims still match `plan-contract` markers + delivery-baseline (no duration/effort estimates as gates — RN04)
-- [ ] When a PLAN/PRD is in scope, implementation DoR is evidenced before the first step (approved canonical pair; REQ→CA→step/acceptance mapping; declared validations; dependencies; scope/OOS; unresolved decisions; readiness review evidence). `READY` alone never passes this gate.
+- [ ] When SDD applies, review against the approved PLAN and applicable PRD sections. Surface concrete gaps in behavior, scope, acceptance, dependencies, decisions or evidence required for the reviewed change. Equivalent criteria references are sufficient, and a PLAN based on an approved demand may stand alone.
 - [ ] A step or PLAN marked `COMPLETED` has acceptance met, declared validations passed, and results/evidence recorded. Acceptance without a validation result, missing required evidence, an uncovered mandatory REQ/CA, or an unresolved blocking review finding is a mandatory gap: report it as **Changes required** and do not accept the completion claim.
 - [ ] PLAN/US closeout reconciles every required REQ/CA to implementation and test evidence, reports applicable final checks, and resolves mandatory failures/findings; retain `PENDING`/`BLOCKED` for incomplete work.
 - [ ] SESSION / ledger / path-secret guards not weakened

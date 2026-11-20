@@ -32,7 +32,7 @@ Bare `/adt-code-review` -> ask mode (ids `single` / `multi-angle`, labels in the
 - [ ] Business rules from PRD present where in scope
 - [ ] Gaps flagged as important or critical per severity (not a separate gate)
 
-**Security (segurança)** — run this checklist only when the mode is multi-angle and the security angle was requested. A single review does not run it. Fill the report security section with finding bands `critical`, `important`, and `nice-to-have`. Do not write `SEC/`. Do not emit blocks `B`, `I`, or `MINOR`. This checklist does not waive the closeout pass in `core/skills/_shared/agents/prompts/security.md`, and that pass does not waive this checklist.
+**Security (segurança)** — run this checklist only when the mode is multi-angle and the security angle was requested. A single review does not run it. Fill the report security section with finding bands `critical`, `important`, and `nice-to-have`. Do not write `SEC/`. Do not emit blocks `B`, `I`, or `MINOR`. Request a separate security specialist only when a concrete risk remains and the approved scope warrants that review.
 
 - [ ] AuthZ / AuthN assumptions for new endpoints or jobs
 - [ ] Input validation / injection (SQL, command, template)
