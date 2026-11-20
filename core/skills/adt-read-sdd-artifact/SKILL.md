@@ -15,7 +15,7 @@ Invoke when the consumer asks for skill **`adt-read-sdd-artifact`** (host forms:
 
 - Happy path: one **`source_context`** envelope with artifact **identity** (kind, portable path, feature slug, story id when applicable, file name).
 - Fail path: **no** partial envelope — precise reject reason (`path_traversal`, `outside_features`, `absolute_path_forbidden`, `unsupported_kind`, `not_found`, `empty_path`, `invalid_portable_path`, or a named storage-manifest/root failure).
-- Consumers that already hold `source_context` for a path **skip** opaque re-read of that artifact (REQ-005).
+- Consumers that already hold `source_context` for a path **skip** opaque re-read to rediscover identity (REQ-005). Read the required current content when executing or reconciling a step.
 
 ## Lazy-load (only when needed)
 
@@ -70,5 +70,5 @@ Enforce the full list in `references/must-not.md`. Critical: no partial `source_
 
 ## Handoff
 
-- Pipeline / O3 children: pass `source_context` in scoped handoff so consumers skip opaque re-read
+- Pipeline / O3 children: pass `source_context` in the scoped handoff so consumers reuse identity and load only the relevant current content
 - Next authoring skills stay `adt-sdd-spec` / `adt-sdd-plan` / `adt-sdd-develop` by id — this skill only normalizes reads

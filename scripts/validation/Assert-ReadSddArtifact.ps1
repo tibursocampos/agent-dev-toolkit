@@ -16,6 +16,7 @@ $scriptsRoot = Split-Path -Parent $scriptDir
 $libDir = Join-Path $scriptsRoot '_lib'
 $repoRootScript = Join-Path $libDir 'Get-ToolkitRepoRoot.ps1'
 $constantsScript = Join-Path $libDir 'ToolkitConstants.ps1'
+$resolver = Join-Path $scriptsRoot 'runtime/Resolve-SddSourceContext.ps1'
 
 $script:ReasonEmptyPath = 'empty_path'
 $script:ReasonAbsoluteForbidden = 'absolute_path_forbidden'
@@ -51,161 +52,6 @@ function Write-Fail {
 function ConvertTo-ForwardSlashPath {
     param([Parameter(Mandatory = $true)][string] $PathText)
     return (($PathText -replace '\\', '/').Trim())
-}
-
-function Resolve-ClassicStorageContext {
-    param(
-        [Parameter(Mandatory = $true)][string] $RepoRoot,
-        [Parameter(Mandatory = $true)][string] $SddRoot,
-        [Parameter(Mandatory = $true)][string] $ManifestPath
-    )
-
-    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_manifest_missing'; Message = 'The effective SDD manifest is missing.' }
-    }
-
-    try {
-        $manifest = Get-Content -LiteralPath $ManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    }
-    catch {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_manifest_invalid'; Message = 'The effective SDD manifest is invalid JSON.' }
-    }
-
-    if ($manifest.schema_version -ne 2 -or $null -eq $manifest.repositories) {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_manifest_invalid'; Message = 'The manifest must use schema_version 2.' }
-    }
-
-    $repoKey = (ConvertTo-ForwardSlashPath -PathText ([IO.Path]::GetFullPath($RepoRoot))).TrimEnd('/')
-    $repositoryEntry = $null
-    foreach ($property in $manifest.repositories.PSObject.Properties) {
-        $candidate = (ConvertTo-ForwardSlashPath -PathText ([string]$property.Name)).TrimEnd('/')
-        if ([string]::Equals($candidate, $repoKey, [StringComparison]::OrdinalIgnoreCase)) {
-            $repositoryEntry = $property.Value
-            break
-        }
-    }
-    if ($null -eq $repositoryEntry -or $null -eq $repositoryEntry.classic) {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_entry_missing'; Message = 'No classic manifest entry exists for the active repository.' }
-    }
-
-    $classic = $repositoryEntry.classic
-    $mode = [string]$classic.storage_mode
-    if ($null -ne $classic.features_versioned -and $classic.features_versioned -isnot [bool]) {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_manifest_invalid'; Message = 'classic.features_versioned must be a boolean when present.' }
-    }
-    $featuresVersioned = if ($null -eq $classic.features_versioned) { $false } else { [bool]$classic.features_versioned }
-    $sddRootFull = [IO.Path]::GetFullPath($SddRoot).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-
-    if ($mode -eq 'repository') {
-        $repoRootFull = [IO.Path]::GetFullPath($RepoRoot).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-        if (-not [string]::IsNullOrWhiteSpace([string]$classic.path)) {
-            $configuredRepoPath = [IO.Path]::GetFullPath([string]$classic.path).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-            if (-not [string]::Equals($configuredRepoPath, $repoRootFull, [StringComparison]::OrdinalIgnoreCase)) {
-                return [PSCustomObject]@{ Ok = $false; Reason = 'storage_path_mismatch'; Message = 'Repository classic.path does not match the active repository.' }
-            }
-        }
-        $featureRoot = Join-Path $repoRootFull 'features'
-        $portablePrefix = 'features/'
-    }
-    elseif ($mode -eq 'global') {
-        $configuredPath = [string]$classic.path
-        if ([string]::IsNullOrWhiteSpace($configuredPath)) {
-            return [PSCustomObject]@{ Ok = $false; Reason = 'storage_path_invalid'; Message = 'Global classic.path is required.' }
-        }
-        if ($configuredPath.Contains('{{SDD_ROOT}}')) {
-            $configuredPath = $configuredPath.Replace('{{SDD_ROOT}}', $sddRootFull)
-        }
-        if (-not [IO.Path]::IsPathRooted($configuredPath)) {
-            $configuredPath = Join-Path $sddRootFull $configuredPath
-        }
-        $classicRoot = [IO.Path]::GetFullPath($configuredPath).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-        $sddRootPrefix = $sddRootFull + [IO.Path]::DirectorySeparatorChar
-        if (-not $classicRoot.StartsWith($sddRootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
-            return [PSCustomObject]@{ Ok = $false; Reason = 'storage_path_outside_sdd_root'; Message = 'Global classic.path must resolve below effective_SDD_ROOT.' }
-        }
-        $relativeClassicRoot = $classicRoot.Substring($sddRootPrefix.Length).Replace([IO.Path]::DirectorySeparatorChar, '/').Replace([IO.Path]::AltDirectorySeparatorChar, '/')
-        $featureRoot = Join-Path $classicRoot 'features'
-        $portablePrefix = 'sdd/' + $relativeClassicRoot + '/features/'
-    }
-    else {
-        return [PSCustomObject]@{ Ok = $false; Reason = 'storage_mode_unsupported'; Message = 'classic.storage_mode must be repository or global.' }
-    }
-
-    return [PSCustomObject]@{
-        Ok                 = $true
-        Reason             = $null
-        Message            = $null
-        StorageMode        = $mode
-        FeaturesVersioned  = $featuresVersioned
-        FeatureRoot        = $featureRoot
-        PortablePrefix     = $portablePrefix
-    }
-}
-
-function Resolve-SddSourceContext {
-    param(
-        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $PortablePath,
-        [Parameter(Mandatory = $true)][string] $RepoRoot,
-        [Parameter(Mandatory = $true)][string] $SddRoot,
-        [Parameter(Mandatory = $true)][string] $ManifestPath
-    )
-
-    $trimmed = if ($null -eq $PortablePath) { '' } else { $PortablePath.Trim() }
-    if ([string]::IsNullOrWhiteSpace($trimmed)) {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonEmptyPath; Message = 'Path is empty.'; Envelope = $null }
-    }
-
-    $normalized = ConvertTo-ForwardSlashPath -PathText $trimmed
-    if ($normalized -match '^[A-Za-z]:/' -or $normalized.StartsWith('//') -or $normalized -match '(?i)(/Users/|/home/|\\\\Users\\\\)') {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonAbsoluteForbidden; Message = 'OS absolute or user-home path is forbidden; use a portable path.'; Envelope = $null }
-    }
-    if (@($normalized.Split('/') | Where-Object { $_ -ne '' }) -contains '..') {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonPathTraversal; Message = 'Path contains ".."; traversal is rejected.'; Envelope = $null }
-    }
-
-    $storage = Resolve-ClassicStorageContext -RepoRoot $RepoRoot -SddRoot $SddRoot -ManifestPath $ManifestPath
-    if (-not $storage.Ok) {
-        return [PSCustomObject]@{ Ok = $false; Reason = $storage.Reason; Message = $storage.Message; Envelope = $null }
-    }
-    if (-not $normalized.StartsWith($storage.PortablePrefix, [StringComparison]::OrdinalIgnoreCase)) {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonOutsideFeatures; Message = 'Path prefix does not match the manifest-selected feature root.'; Envelope = $null }
-    }
-
-    $featuresSuffix = 'features/' + $normalized.Substring($storage.PortablePrefix.Length)
-    $kind = $null
-    $featureSlug = $null
-    $storyId = $null
-    $fileName = $null
-
-    if ($featuresSuffix -match '^(?i)features/([^/]+)/FEATURE\.md$') {
-        $kind = $script:KindFeature; $featureSlug = $Matches[1]; $fileName = 'FEATURE.md'
-    }
-    elseif ($featuresSuffix -match '^(?i)features/([^/]+)/((?:US|TS)\d{2})/STORY\.md$') {
-        $kind = $script:KindStory; $featureSlug = $Matches[1]; $storyId = $Matches[2].ToUpperInvariant(); $fileName = 'STORY.md'
-    }
-    elseif ($featuresSuffix -match '^(?i)features/([^/]+)/((?:US|TS)\d{2})/PRD/([^/]+\.md)$') {
-        $kind = $script:KindPrd; $featureSlug = $Matches[1]; $storyId = $Matches[2].ToUpperInvariant(); $fileName = $Matches[3]
-    }
-    elseif ($featuresSuffix -match '^(?i)features/([^/]+)/((?:US|TS)\d{2})/PLAN/(PLAN_[^/]+\.md)$') {
-        $kind = $script:KindPlan; $featureSlug = $Matches[1]; $storyId = $Matches[2].ToUpperInvariant(); $fileName = $Matches[3]
-    }
-    else {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonUnsupportedKind; Message = 'Path is not a canonical FEATURE/STORY/PRD/PLAN under features/.'; Envelope = $null }
-    }
-
-    if ($featureSlug -notmatch '^\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*$') {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonInvalidPortable; Message = 'Feature folder must match NNN-slug.'; Envelope = $null }
-    }
-
-    $relativeFs = ($featuresSuffix.Substring('features/'.Length) -replace '/', [IO.Path]::DirectorySeparatorChar)
-    $absolute = Join-Path $storage.FeatureRoot $relativeFs
-    if (-not (Test-Path -LiteralPath $absolute -PathType Leaf)) {
-        return [PSCustomObject]@{ Ok = $false; Reason = $script:ReasonNotFound; Message = ("File not found at manifest-selected portable path '{0}'." -f $normalized); Envelope = $null }
-    }
-
-    $identity = [ordered]@{ feature_slug = $featureSlug; story_id = $storyId; file_name = $fileName }
-    $envelope = [ordered]@{ schema = $script:SchemaId; artifact_kind = $kind; portable_path = $normalized; identity = [PSCustomObject]$identity }
-    return [PSCustomObject]@{ Ok = $true; Reason = $null; Message = $null; Envelope = [PSCustomObject]$envelope; AbsolutePath = $absolute; Storage = $storage }
 }
 
 if (-not (Test-Path -LiteralPath $repoRootScript)) {
@@ -250,7 +96,7 @@ function Resolve-FixtureInvocationContext {
 
 function Assert-FixtureRead {
     param([string] $Path, [string] $ExpectedBody, [string] $TestName)
-    $result = Resolve-SddSourceContext -PortablePath $Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -ManifestPath $fixtureManifestPath
+    $result = & $resolver -PortablePath $Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
     if (-not $result.Ok -or -not (Test-Path -LiteralPath $result.AbsolutePath -PathType Leaf)) {
         Write-Fail -TestName $TestName -Reason ("resolution failed for {0}: {1}" -f $Path, $result.Reason)
     }
@@ -264,6 +110,9 @@ function Assert-FixtureRead {
 $fixturePaths = @(
     @{ Path = 'features/006-skills-maturity-parity/FEATURE.md'; Body = 'repository feature' },
     @{ Path = 'features/006-skills-maturity-parity/US01/STORY.md'; Body = 'repository story' },
+    @{ Path = 'features/006-skills-maturity-parity/Bug/STORY.md'; Body = 'repository bug story' },
+    @{ Path = 'features/006-skills-maturity-parity/PLAN.md'; Body = 'Delivery primary PLAN' },
+    @{ Path = 'features/006-skills-maturity-parity/plans/worker/PLAN.md'; Body = 'Delivery split PLAN' },
     @{ Path = 'features/006-skills-maturity-parity/US01/PRD/006_sdd_invocation_contracts.md'; Body = 'repository PRD' },
     @{ Path = 'features/006-skills-maturity-parity/US01/PLAN/PLAN_006_sdd_invocation_contracts.md'; Body = 'repository PLAN' }
 )
@@ -327,12 +176,13 @@ Write-Pass -TestName 'Should_Pass_When_SkillAndCatalogPresent'
 $happyPaths = @(
     @{ Path = 'features/006-skills-maturity-parity/FEATURE.md'; Kind = $script:KindFeature; Story = $null },
     @{ Path = 'features/006-skills-maturity-parity/US01/STORY.md'; Kind = $script:KindStory; Story = 'US01' },
+    @{ Path = 'features/006-skills-maturity-parity/Bug/STORY.md'; Kind = $script:KindStory; Story = 'Bug' },
     @{ Path = 'features/006-skills-maturity-parity/US01/PRD/006_sdd_invocation_contracts.md'; Kind = $script:KindPrd; Story = 'US01' },
     @{ Path = 'features/006-skills-maturity-parity/US01/PLAN/PLAN_006_sdd_invocation_contracts.md'; Kind = $script:KindPlan; Story = 'US01' }
 )
 
 foreach ($case in $happyPaths) {
-    $result = Resolve-SddSourceContext -PortablePath $case.Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -ManifestPath $fixtureManifestPath
+    $result = & $resolver -PortablePath $case.Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
     if (-not $result.Ok) {
         Write-Fail -TestName 'Should_ReturnEnvelope_When_CanonicalPrdPlanFeatureStory' -Reason ("expected ok for {0}: {1}" -f $case.Path, $result.Reason)
     }
@@ -377,13 +227,18 @@ $failCases = @(
     @{ Path = 'myfeatures/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonOutsideFeatures },
     @{ Path = 'nonfeatures/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonOutsideFeatures },
     @{ Path = 'E:/Nextcloud/Repos/agent-dev-toolkit/features/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonAbsoluteForbidden },
+    @{ Path = '/tmp/repo/features/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonAbsoluteForbidden },
+    @{ Path = 'C:features/006-skills-maturity-parity/FEATURE.md'; Reason = $script:ReasonAbsoluteForbidden },
+    @{ Path = '\server\shareeatures-skills-maturity-parity\FEATURE.md'; Reason = $script:ReasonAbsoluteForbidden },
+    @{ Path = 'features/006-skills-maturity-parity/./FEATURE.md'; Reason = $script:ReasonInvalidPortable },
+    @{ Path = 'features/006-skills-maturity-parity/Bug/PLAN/PLAN_006_bug.md'; Reason = $script:ReasonUnsupportedKind },
     @{ Path = 'features/006-skills-maturity-parity/US01/ANALYSIS/impact.md'; Reason = $script:ReasonUnsupportedKind },
     @{ Path = ''; Reason = $script:ReasonEmptyPath },
     @{ Path = 'features/006-skills-maturity-parity/US01/PRD/__missing_fixture__.md'; Reason = $script:ReasonNotFound }
 )
 
 foreach ($case in $failCases) {
-    $result = Resolve-SddSourceContext -PortablePath $case.Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -ManifestPath $fixtureManifestPath
+    $result = & $resolver -PortablePath $case.Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
     if ($result.Ok) {
         Write-Fail -TestName 'Should_Reject_When_PathTraversalOrOutsideFeatures' -Reason ("expected fail for '{0}'" -f $case.Path)
     }
@@ -421,6 +276,51 @@ if ((Get-Content -LiteralPath $fixtureGitIgnore -Raw) -match '(?m)^/?(?:docs/)?f
 }
 Write-Pass -TestName 'Should_ResolveManifestStorageModesAndIgnoredFiles'
 
+# --- Should_UseExplicitDeliveryLayout ---
+$deliveryPaths = @(
+    'features/006-skills-maturity-parity/PLAN.md',
+    'features/006-skills-maturity-parity/plans/worker/PLAN.md'
+)
+foreach ($deliveryPath in $deliveryPaths) {
+    $delivery = & $resolver -PortablePath $deliveryPath -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -Layout delivery
+    $wrongLayout = & $resolver -PortablePath $deliveryPath -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -Layout classic
+    if (-not $delivery.Ok -or $delivery.Envelope.artifact_kind -ne 'PLAN' -or
+        $null -ne $delivery.Envelope.identity.story_id -or $wrongLayout.Reason -ne 'unsupported_kind') {
+        Write-Fail -TestName 'Should_UseExplicitDeliveryLayout' -Reason "Layout was not preserved for $deliveryPath."
+    }
+}
+$classicAsDelivery = & $resolver -PortablePath $fixturePaths[-1].Path -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -Layout delivery
+if ($classicAsDelivery.Reason -ne 'unsupported_kind') {
+    Write-Fail -TestName 'Should_UseExplicitDeliveryLayout' -Reason 'Delivery accepted a Classic story PLAN.'
+}
+Write-Pass -TestName 'Should_UseExplicitDeliveryLayout'
+
+# --- Should_RejectFeatureEscape ---
+$outside = New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'unrelated')
+Set-Content -LiteralPath (Join-Path $outside.FullName 'FEATURE.md') -Value 'outside feature'
+$linkPath = Join-Path $fixtureRepoRoot 'features/007-escape'
+$linkKind = if ($env:OS -eq 'Windows_NT') { 'Junction' } else { 'SymbolicLink' }
+New-Item -ItemType $linkKind -Path $linkPath -Target $outside.FullName | Out-Null
+try {
+    $escaped = & $resolver -PortablePath 'features/007-escape/FEATURE.md' -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
+    if ($escaped.Ok -or $escaped.Reason -ne 'outside_features' -or $null -ne $escaped.Envelope) {
+        Write-Fail -TestName 'Should_RejectFeatureEscape' -Reason 'An artifact linked outside the selected root was accepted.'
+    }
+} finally {
+    Remove-Item -LiteralPath $linkPath -Force
+}
+$siblingFeature = Join-Path $fixtureRepoRoot 'features/006-skills-maturity-parity'
+New-Item -ItemType $linkKind -Path $linkPath -Target $siblingFeature | Out-Null
+try {
+    $redirected = & $resolver -PortablePath 'features/007-escape/FEATURE.md' -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
+    if ($redirected.Ok -or $redirected.Reason -ne 'outside_features') {
+        Write-Fail -TestName 'Should_RejectFeatureEscape' -Reason 'An artifact redirected into a different feature was accepted.'
+    }
+} finally {
+    Remove-Item -LiteralPath $linkPath -Force
+}
+Write-Pass -TestName 'Should_RejectFeatureEscape'
+
 # --- Should_SelectGlobalClassicPathAndRejectLocalDecoys (CT13) ---
 $globalClassicRoot = Join-Path $fixtureSddRoot 'RepoFixture'
 $globalRelativePath = 'features/006-skills-maturity-parity/US01/PRD/006_sdd_invocation_contracts.md'
@@ -439,13 +339,23 @@ if ($globalRead.Storage.FeatureRoot -ne (Join-Path $globalClassicRoot 'features'
 if ((Get-FileHash -LiteralPath $fixtureGitIgnore -Algorithm SHA256).Hash -ne $ignoreHashBefore) {
     Write-Fail -TestName 'Should_SelectGlobalClassicPathAndRejectLocalDecoys' -Reason 'global resolution changed the consumer .gitignore'
 }
-$wrongGlobalPrefix = Resolve-SddSourceContext -PortablePath ('sdd/OtherRepo/' + $globalRelativePath) -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -ManifestPath $fixtureManifestPath
+$localWrongMode = & $resolver -PortablePath $globalRelativePath -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
+if ($localWrongMode.Ok -or $localWrongMode.Reason -ne 'outside_features') {
+    Write-Fail -TestName 'Should_SelectGlobalClassicPathAndRejectLocalDecoys' -Reason 'The local decoy was accepted in global storage.'
+}
+$globalDelivery = Join-Path $globalClassicRoot $deliveryPaths[0]
+Set-Content -LiteralPath $globalDelivery -Value 'global Delivery PLAN'
+$globalDeliveryRead = & $resolver -PortablePath ('sdd/RepoFixture/' + $deliveryPaths[0]) -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -Layout delivery
+if (-not $globalDeliveryRead.Ok -or (Get-Content -LiteralPath $globalDeliveryRead.AbsolutePath -Raw).Trim() -ne 'global Delivery PLAN') {
+    Write-Fail -TestName 'Should_SelectGlobalClassicPathAndRejectLocalDecoys' -Reason 'Delivery did not follow the global manifest.'
+}
+$wrongGlobalPrefix = & $resolver -PortablePath ('sdd/OtherRepo/' + $globalRelativePath) -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
 if ($wrongGlobalPrefix.Ok -or $wrongGlobalPrefix.Reason -ne $script:ReasonOutsideFeatures) {
     Write-Fail -TestName 'Should_SelectGlobalClassicPathAndRejectLocalDecoys' -Reason 'global path prefix for a different manifest root was accepted'
 }
 $escapedManifestPath = Join-Path $fixtureRoot 'outside'
 Write-FixtureManifest -RepoPath $fixtureRepoRoot -StorageMode 'global' -FeaturesVersioned $false -ClassicPath $escapedManifestPath
-$escapedPathResult = Resolve-SddSourceContext -PortablePath $globalPortablePath -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot -ManifestPath $fixtureManifestPath
+$escapedPathResult = & $resolver -PortablePath $globalPortablePath -RepoRoot $fixtureRepoRoot -SddRoot $fixtureSddRoot
 if ($escapedPathResult.Ok -or $escapedPathResult.Reason -ne 'storage_path_outside_sdd_root') {
     Write-Fail -TestName 'Should_SelectGlobalClassicPathAndRejectLocalDecoys' -Reason 'global classic.path outside effective_SDD_ROOT was accepted'
 }
