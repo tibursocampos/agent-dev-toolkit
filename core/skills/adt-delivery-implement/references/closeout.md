@@ -5,7 +5,7 @@
 - Final validation and review stay `pending` in the plan until performed. Completed steps alone do not mean delivery is complete.
 
 ## Order
-0. **Criterion map.** Progress holds one `criterion -> test` line for every criterion `A1..An`. A missing line means the criterion is open: stop, record `BLOCKED` with the next action.
+0. **Criterion map.** Progress identifies the test evidence for every criterion. Accept equivalent wording and references. When required evidence is missing for a criterion, record the specific gap and its next action before closing.
 1. **Final validation.** Run the final validations listed in the plan's Validation. For the workspace test command, follow `{{TOOLKIT_ROOT}}/skills/adt-run-tests/SKILL.md`. Delegate bounded commands to `shell-runner` when subagents are available (`{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md`); otherwise run them in-parent.
 2. **Code review.** Invoke `{{TOOLKIT_ROOT}}/skills/adt-code-review/SKILL.md` explicitly, as the closeout. Pass:
    - mode: `single` or `multi-angle`, as recorded in the plan's Choices;

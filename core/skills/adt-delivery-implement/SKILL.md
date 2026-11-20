@@ -80,7 +80,7 @@ After gates: **Read `references/command.md`** for ordered step discovery; then l
 3. **Entry check (prose).** The Stage ledger of the selected plan reads `plan=approved`, `Mode: full` is recorded and the one-line approval note is present. If any is missing, report what is missing and stop. Otherwise set `Stage ledger` to `implement=in_progress` in the Operational record.
 
 ### Step 2 - Guidelines, choices and baseline
-1. **Guidelines (mandatory, before the first edit).** Reuse the `Guidelines:` line of the plan's Evidence. Read only the paths that the steps in scope need and that the line lacks, from the map in `adt-delivery-refine/references/clarify.md`; append each one read to the line. Never re-read a path already on it.
+1. **Guidelines (mandatory, before the first edit).** Use `Guidelines:` in the plan's Evidence as an index. Resolve and read the references for the current scope, including when an earlier session listed them. Inspect the target repository's instructions and nearby conventions. Use `adt-delivery-refine/references/clarify.md` to find applicable references missing from the index. Pass only the applicable pointers to each child, which reads them for its own scope.
 2. Ask the operator for branch (current or new, at each start), cadence (`step_by_step` or `continuous`), review mode (`single` or `multi-angle`), base and focus. Never infer from silence; reuse recorded cadence and review mode.
 3. Record choices, observed branch and baseline (branch, HEAD, existing staged and unstaged changes) in `PLAN.md` per `references/start-choices.md`.
 4. Draw the PLAN-step table at display point 1 (`DISPLAY.md`) before the first edit. When invoked by `adt-delivery-flow`, the flow's table is the only one drawn.
