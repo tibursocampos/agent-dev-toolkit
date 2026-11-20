@@ -24,13 +24,13 @@ Working React components and tests in the target workspace, validated with tests
 
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
-| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0-context.md` |
-| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md` |
+| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
-| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3-branching.md` |
-| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
-| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` |
+| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
+| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Design brief | `docs/DESIGN-BRIEF.md` or `docs/design/DESIGN-BRIEF.md` |
 | React components / state | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/components-and-state.md` |
 | React hooks / effects | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/hooks-and-effects.md` |
@@ -44,7 +44,7 @@ Working React components and tests in the target workspace, validated with tests
 | FE structure (ARCH / CONTINUITY needs folder layout) | Prefer `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-architecture.md` — **not** a per-framework CA tree |
 | Markup / styles | `{{TOOLKIT_ROOT}}/skills/_shared/html-css-guidelines/` |
 | Principles | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/principles-cheatsheet.md` (+ `architecture-selection.md` or **one** approved style — never glob `architecture/**`) |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-react-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-react-developer/references/<section>.md` |

@@ -12,7 +12,7 @@ Confirm target repo (`pom.xml` and/or Gradle `build.gradle` / `build.gradle.kts`
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md`: load only the `java-guidelines` files needed for this task. Confirm test stack aligned to the project (prefer **JUnit 5**, **Mockito**, **AssertJ** when greenfield).
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `java-guidelines` files needed for this task. Confirm test stack aligned to the project (prefer **JUnit 5**, **Mockito**, **AssertJ** when greenfield).
 
 ### 2. Branch (step 3)
 
@@ -60,9 +60,9 @@ Fix failures within scope. Ask before running the full multi-module suite if the
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
+Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
 
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/checklist.md`.
+Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/java-guidelines/checklist.md`.
 
 ### 8. SDD escalation
 

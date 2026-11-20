@@ -12,7 +12,7 @@ Confirm target repo (`*.sln` / `*.csproj`). Read `AGENTS.md` / `README.md`. Summ
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Before changing tests, inspect project instructions, test projects, dependencies, and representative tests; use the established project test stack and conventions. Only when no baseline is verifiable, use applicable toolkit defaults from `dotnet-test-patterns.md` (xUnit, Moq, Shouldly, and `Should_<Result>_When_<Condition>` naming).
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load `dotnet-guidelines` files needed for this task only. Before changing tests, inspect project instructions, test projects, dependencies, and representative tests; use the established project test stack and conventions. Only when no baseline is verifiable, use applicable toolkit defaults from `dotnet-test-patterns.md` (xUnit, Moq, Shouldly, and `Should_<Result>_When_<Condition>` naming).
 
 ### 2. Branch (step 3)
 
@@ -52,9 +52,9 @@ Fix failures within scope. Ask before running full-solution tests if the repo is
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
+Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
 
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md`.
+Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md`.
 
 ### 8. SDD escalation
 

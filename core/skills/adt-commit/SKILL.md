@@ -26,8 +26,8 @@ One or more **Conventional Commits** on `feature/<slug>` or `feat/<id>-<slug>`. 
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Commit format | `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
-| Detailed Git flow | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md` |
-| Pre-commit checks | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` |
+| Detailed Git flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
+| Pre-commit checks | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
 | Message validator (commit-message-validator step) | `{{TOOLKIT_ROOT}}/skills/_shared/format-validators/adt-commit-message-validator.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-commit/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-commit/references/<section>.md` |

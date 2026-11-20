@@ -47,7 +47,7 @@ One GitHub pull request created via `gh pr create` against the repository's base
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
-| Commit / PR flow | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md` |
+| Commit / PR flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 | Feature body fallback | `{{TOOLKIT_ROOT}}/skills/adt-open-github-pr/templates/feature-pr.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-open-github-pr/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-open-github-pr/references/<section>.md` |

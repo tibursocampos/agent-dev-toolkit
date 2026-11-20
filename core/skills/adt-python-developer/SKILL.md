@@ -26,13 +26,13 @@ Host boundary: use this skill for CPython applications, host tools, and host tes
 
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
-| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0-context.md` |
-| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md` |
+| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
-| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3-branching.md` |
-| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
-| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` |
+| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
+| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | FastAPI | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/fastapi.md` |
 | Flask | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/flask.md` |
 | Architecture (hub / structure) | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/architecture.md` |
@@ -43,7 +43,7 @@ Host boundary: use this skill for CPython applications, host tools, and host tes
 | Typing | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/typing.md` |
 | Async pitfalls | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/async-pitfalls.md` |
 | Style / principles | `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/google-style.md`, `{{TOOLKIT_ROOT}}/skills/_shared/python-guidelines/principles.md` |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-python-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-python-developer/references/<section>.md` |

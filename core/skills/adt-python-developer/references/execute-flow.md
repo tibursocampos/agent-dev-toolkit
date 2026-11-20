@@ -12,7 +12,7 @@ Confirm Python project (`pyproject.toml`, `requirements.txt`, `Pipfile`, `setup.
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md`: load only the `python-guidelines` files needed for this task. Confirm the test runner from existing tests, configuration, project scripts, and CI; preserve that baseline. Use **pytest** (`pytest.md`) only when the project has no verifiable runner and pytest fits the task. Load `fastapi.md` and/or `flask.md` when those frameworks apply; keep `principles.md` / `google-style.md` for style when useful.
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the `python-guidelines` files needed for this task. Confirm the test runner from existing tests, configuration, project scripts, and CI; preserve that baseline. Use **pytest** (`pytest.md`) only when the project has no verifiable runner and pytest fits the task. Load `fastapi.md` and/or `flask.md` when those frameworks apply; keep `principles.md` / `google-style.md` for style when useful.
 
 ### 2. Branch (step 3)
 
@@ -51,9 +51,9 @@ Use configured project commands for tests, lint, and types (`ruff`, `mypy`, etc.
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
+Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
 
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` and confirm FastAPI/Flask/pytest guidance used as needed.
+Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and confirm FastAPI/Flask/pytest guidance used as needed.
 
 ### 8. SDD escalation
 

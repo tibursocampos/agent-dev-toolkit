@@ -38,7 +38,7 @@ A correctly scaffolded Blip plugin repo with `config:plugin` applied, profile do
 | React guidelines | `{{TOOLKIT_ROOT}}/skills/_shared/react-guidelines/` — only files needed for scaffold UI |
 | Frontend practices | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
 | Design guidance | `{{TOOLKIT_ROOT}}/skills/_shared/frontend-guidelines/frontend-practices.md` |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Branch / commit | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-blip-plugin-developer/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-blip-plugin-developer/references/<section>.md` |

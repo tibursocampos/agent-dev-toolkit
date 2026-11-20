@@ -25,7 +25,7 @@ Current branch pushed to `origin` with upstream set when needed. No force-push o
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
 | Branch rules | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc` |
-| Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md` |
+| Commit flow | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
 | Question ids and gate render rule | `{{TOOLKIT_ROOT}}/skills/_shared/agents/QUESTIONS.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-push/reference.md` |
 | Process step detail (lazy) | `{{TOOLKIT_ROOT}}/skills/adt-push/references/<section>.md` |

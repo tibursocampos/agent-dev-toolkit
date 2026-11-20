@@ -31,14 +31,14 @@ A configuration-aware implementation or diagnosis for the declared Arduino targe
 | Embedded context and provenance | `{{TOOLKIT_ROOT}}/skills/_shared/embedded-guidelines/README.md`, `target-and-provenance.md`, `validation-and-reporting.md` |
 | Resources and communication | `{{TOOLKIT_ROOT}}/skills/_shared/embedded-guidelines/resources-and-communication.md` |
 | Security and dependencies | `{{TOOLKIT_ROOT}}/skills/_shared/embedded-guidelines/security-and-dependencies.md` |
-| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0-context.md` |
-| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md` |
+| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
 | Structure / quality | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
-| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3-branching.md` |
-| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md` |
-| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md` |
+| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 
 Do not preload unrelated stack packs or the whole memory bank. Load only the embedded topic needed for the current claim.
 

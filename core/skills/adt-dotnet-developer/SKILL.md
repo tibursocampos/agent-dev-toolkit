@@ -24,13 +24,13 @@ Working **.NET** code and tests in the open workspace: build and tests green, on
 
 | When | Path (after syncing the active adapter) |
 |------|----------------------------------------|
-| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0-context.md` |
-| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md` |
+| Repo context | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0-context.md` |
+| Before coding | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md` |
 | Structure / quality (when coding) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/structure-and-quality.md` |
-| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3-branching.md` |
-| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` |
-| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
-| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` |
+| Branching | `{{TOOLKIT_ROOT}}/rules/branch-validation.mdc`, `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3-branching.md` |
+| Pre-commit | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` |
+| Commit / PR | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-4-commits-pr.md`, `{{TOOLKIT_ROOT}}/rules/conventional-commits.mdc` |
+| Pre-PR gate | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` |
 | Architecture (greenfield / style unset) | `{{TOOLKIT_ROOT}}/skills/_shared/code-guidelines/principles/architecture-selection.md` — then **one** approved style only |
 | Architecture (ARCH = concentric / CA / onion / hexagonal) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/clean-architecture.md` (+ optional `principles/architecture/concentric-dependency.md`) |
 | Architecture (ARCH = vertical-slice / VSA) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/vertical-slice.md` (+ optional `principles/architecture/vertical-slice.md`) |
@@ -39,7 +39,7 @@ Working **.NET** code and tests in the open workspace: build and tests green, on
 | C# production conventions | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns.md` |
 | C# runtime and modern patterns (async, nullable, records, DI, IOptions, resources) | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/csharp-patterns-runtime.md` - only when the step touches those topics |
 | .NET tests | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/dotnet-test-patterns.md` |
-| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
+| Subagent-first / SPAWN.md | `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/subagent-first.md`, `{{TOOLKIT_ROOT}}/skills/_shared/agents/SPAWN.md` |
 | Caveman Mode (if active) | `{{TOOLKIT_ROOT}}/skills/_shared/caveman/CAVEMAN.md` - **Full cap** |
 | Final checklist | `{{TOOLKIT_ROOT}}/skills/_shared/dotnet-guidelines/checklist.md` |
 | Reference index (routing only) | `{{TOOLKIT_ROOT}}/skills/adt-dotnet-developer/reference.md` |

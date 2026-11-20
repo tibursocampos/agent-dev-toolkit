@@ -12,7 +12,7 @@ Confirm Node/JS project (`package.json`, `tsconfig.json`, or JS/TS layout). Read
 
 ### 1. Guidelines (step 0.5)
 
-Follow `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-0.5-review-guidelines.md`: load only the guideline files needed for this task. For HTTP APIs load `node-backend.md`; for DOM/`html-css` load `dom-patterns.md` / frontend packs; load TypeScript/clean-code docs when applicable.
+Follow `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-0.5-review-guidelines.md`: load only the guideline files needed for this task. For HTTP APIs load `node-backend.md`; for DOM/`html-css` load `dom-patterns.md` / frontend packs; load TypeScript/clean-code docs when applicable.
 
 ### 2. Branch (step 3)
 
@@ -52,9 +52,9 @@ Inspect the lockfile and `package.json` scripts first; use the repository's conf
 
 ### 7. Pre-commit (step 3.5) and handoff
 
-Run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
+Run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-3.5-precommit-validation.md` when appropriate. Offer `/adt-commit` - do not commit automatically.
 
-Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/adt-developer-common/step-7-checklist.md` and confirm Express/Fastify or DOM guidance used as needed.
+Before push/PR, run `{{TOOLKIT_ROOT}}/skills/_shared/developer-common/step-7-checklist.md` and confirm Express/Fastify or DOM guidance used as needed.
 
 ### 8. SDD escalation
 
