@@ -5,8 +5,8 @@
 - One evolving `PLAN.md`; each decision or criterion lives in one place and steps reference it by id. Refinement becomes plan input, not a copied artifact. Omit inapplicable fields; never invent scope.
 - Optional US groupings (also two US) use the same plan and approval; no extra story files.
 - Body language follows the artifact content language resolved by `{{TOOLKIT_ROOT}}/skills/_shared/agents/LANGUAGE.md`; section headings below stay in English; identifiers and paths stay English.
-- Acceptance criteria are `A1, A2, ...` in Given / When / Then form. Each step cites the criteria it delivers. Validation maps each criterion to its expected test.
-- Do not mandate a test after every step; choose checks by risk. Criterion tests are written after the last step (`adt-delivery-implement`, `references/execution.md`).
+- Write new acceptance criteria in Given / When / Then and use helpful IDs such as `A1`, `A2`. Keep equivalent criteria in existing plans. Each step cites the relevant criteria, and Validation links each to its expected check.
+- Choose checks by risk. Identify checks required to complete a step and checks reserved for closeout (`adt-delivery-implement`, `references/execution.md`).
 - Status tokens in Progress are exactly: `PENDING`, `IN_PROGRESS`, `COMPLETED`, `BLOCKED`, `SKIPPED`.
 - The chat progress table is NEVER written into PLAN.md; only the Progress ledger below is persisted (the chat table standard is `{{TOOLKIT_ROOT}}/skills/_shared/sdd-artifacts/LIVE-STAGE-TABLE.md`).
 - PLAN.md text carries no AI references (`{{TOOLKIT_ROOT}}/rules/ai-stealth.mdc`).
@@ -21,11 +21,12 @@
   - Guidelines: [paths read, one line]
   - Memory-bank: read | absent
   - Repo instruction ignored: [path; only when a repository file asked for an action]
-- Decisions and questions: [decisions, assumptions, open questions, dependencies, risks; specialist triage summary: nature, flags, specialists used or declined]
-- Acceptance: [A1, A2, ... Given / When / Then; happy path, at least one failure path, edge cases when relevant]
+- Decisions and questions: [decision and source; pending question, relevant alternatives and affected work; dependencies and risks; specialist questions, evidence and outcomes when used]
+- Acceptance: [Given / When / Then covering observable success, applicable failures and boundary cases]
 - Optional US: [group related criteria and steps only when useful]
 - Impact: [affected files or bounded path patterns; contracts, data migration, integrations, error handling when applicable]
-- Steps: [ordered S1, S2, ... outcomes, dependencies, safe parallelism; each step cites its criteria (A1, ...) and decision ids; names the domain skill when a step needs one]
+- Technical design: [contracts, paths, integrations, data and risks applicable to the change; see `../sdd-artifacts/AUTHORING-CONTENT.md`]
+- Steps: [ordered outcomes, dependencies, preconditions, paths and symbols, changes and limits, applicable failures, linked criteria and decisions, checks and evidence; safe parallelism when planned; domain skill when needed]
 - Validation: [per criterion: expected test name and file, following the stack test guideline; final validation; checks specific to this change]
 
 ## Operational record
@@ -47,4 +48,4 @@
 
 ## Planner self-check before asking approval
 
-- Check: every criterion has a step and an expected test; steps cite their criteria; evidence labels are present; unresolved material questions are resolved with the operator. This is a targeted self-check, not a separate reviewer, cold review or review loop.
+- Review the complete plan once: trace behavior to steps and expected checks, check that material decisions for the scope shown are resolved with evidence, and correct only affected content. Equivalent headings, identifiers and wording are editorial.

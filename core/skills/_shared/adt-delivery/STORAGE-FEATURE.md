@@ -42,7 +42,7 @@ Used by adt-delivery-flow, adt-delivery-refine, adt-delivery-plan and adt-delive
   - Independent plans live at `plans/<unit-or-repo-slug>/PLAN.md` inside the feature directory.
   - Each independent plan has its own approval, progress and adjacent `CODE-REVIEW.md`.
   - Shared decisions stay in the primary plan. Independent plans reference them and do not duplicate them.
-- Select the exact plan with the operator. Validate it inside the actual feature directory, including global storage. Reject traversal and escapes.
+- Select the exact plan with the operator. Confirm its portable path with `adt-read-sdd-artifact` in Delivery layout. Validate it inside the actual feature directory, including global storage. Reject traversal and escapes.
 - US sections inside one plan are optional, when they improve clarity. Do not create extra story files by default.
 
 ## Missing plan
